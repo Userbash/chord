@@ -1,0 +1,359 @@
+# План: `discord-lab` — полноценное CLI-приложение на строгом TDD
+
+Дата плана: 2026-10-18. Обновлено: 2026-10-18 (декомпозиция, мета-контроль, углубление тестов).
+Процесс (роли, волны, гейты, шаблоны ТЗ/отчётов) — `PROCESS.md`; правила агентам — `AGENTS.md`.
+
+Статус: **red-базлайн + углубление тестов**. Каркас интерфейсов без логики; стартовый
+набор тестов (unit / meta / smoke / e2e); волна углубления — golden-тесты из реальных
+артефактов. Микро-декомпозиция работ и маршрут воркеров — `TASKS.md`.
+Реализация идёт строго по тестам (red → green → refactor).
+
+## 1. Продукт и принципы
+
+Продукт — CLI-приложение **`discord-lab`** (пакет `discord-function-lab`):
+лаборатория разбора Discord-клиента превращается из набора разрозненных скриптов
+в один инструмент с библиотечным ядром.
+
+Принципы:
+
+1. **Без сборки.** Всё запускается обычным `node` напрямую: `.mjs` + JSDoc-типы,
+   `tsc --noEmit` только проверяет типы (уже работает в проекте).
+2. **Строгий TDD.** Ни строки прод-логики без красного теста на это поведение.
+   Порядок: тест → красный → минимальная реализация → зелёный → рефактор.
+3. **Три уровня тестов** (unit / smoke / e2e) на встроенном раннере `node:test`
+   (0 зависимостей). Уровни описаны в §4.
+4. **Тесты — контракт.** Публичные сигнатуры и форматы данных зафиксированы тестами;
+   тесты нельзя править, чтобы «позеленело» — правится код (или отдельным коммитом
+   исправляется сам тест, если он описывал неверный контракт).
+5. **Паритет до M6.** Существующие `scripts/*` продолжают работать; `src/` заменяет
+   их постепенно, по милестоунам, без одновременного переключения поведения.
+
+## 2. Целевая структура
+
+```
+bin/discord-lab.mjs        точка входа (#!/usr/bin/env node), тонкая: run(argv) -> код выхода
+
+src/core/                  доменное ядро: чистые функции, ноль I/O
+  types.d.ts               общие типы (CDP, записи, инвентарь) — только типы
+  not-implemented.mjs      заглушка red-базлайна (кидает «Не реализовано: …»)
+  args.mjs                 parseArgs: --key value / --key=value / --flag / --module (повторяемый)
+  csv.mjs                  safeName, csv (экранирование как в scripts/logger.mjs)
+  paths.mjs                корень проекта, logs/ functions/ evidence/screens/, имена скриншотов (slug)
+  processes.mjs            isDiscordProcess / filterDiscordProcesses
+  inventory.mjs            строки CSV и JSON инвентаря (--max-symbols-логика формата)
+  calls.mjs                записи вызовов: isCallPayload, callLine, parseCallLog, summarizeCallLines
+  report/nm.mjs            parseNmPosix, staticFunctionsCsv (паритет extract-static-functions.sh)
+  report/domains.mjs       classifyName по таблице доменов, domainCsv, formatDomainSummary
+  cdp/client.mjs           CDP: resolveEndpoint/resolveTargetHint/listTargets/pickTarget/
+                           createCdpClient (WebSocket инжектится) / evaluate
+  ui/profile.mjs           topFunctions: топ функций из CPU-профиля (+NOISE)
+  ui/blacklist.mjs         isBlacklisted: запрещённые пункты UI-прогонов (объединение всех версий)
+  ui/walk-log.mjs          parseVisited, buildWalkRecord, consoleIssues, shouldBail, pickNextItem
+
+src/cli/                   команды: оркестрация + вывод (пока каркас)
+  run.mjs                  маршрутизация команд, help/version, коды выхода
+
+src/adapters/              границы с внешним миром (пока — только c++filt)
+  cxxfilt.mjs              demangle(names) через c++filt (spawn)
+
+tests/
+  unit/                    чистые контракты (быстро, без процессов и сети)
+  meta/                    мета-тесты: «план §8 ↔ тестовые файлы ↔ экспорты модулей»
+  smoke/                   реальный CLI-процесс; Frida только информационно (skip-aware)
+  e2e/                     реальный CDP-браузер; live-Discord — opt-in (skip-aware)
+  helpers/                 FakeWebSocket, запуск CLI, tmp-каталоги, поиск/запуск браузера
+  fixtures/                sample/golden-фикстуры (провенанс: артефакт + md5 + оракул)
+
+TDD-PLAN.md                этот план
+TASKS.md                   микро-декомпозиция задач, волны, протокол воркеров
+```
+
+Слои и правила зависимостей:
+
+- `src/core/**` — **чистые функции и структуры**: не читают файлы, не ходят в сеть,
+  не спавнят процессы, не трогают `process.env` напрямую (env передаётся аргументом,
+  например `resolveEndpoint(env)`). Это делает unit-тесты мгновенными.
+- `src/adapters/**` и `src/cli/**` — **грязный слой**: процессы, сеть, диск, Frida.
+  Всё внешнее инжектится: `WebSocket` (CDP), `fetch`, Frida-устройство, часы.
+- Типы: новые модули используют `src/core/types.d.ts`; старые скрипты остаются
+  на `scripts/cdp-types.d.ts` до милестоуна M6 (унификация типов — шаг M6).
+
+## 3. Как это запускается
+
+```bash
+npm test              # все уровни: unit + meta + smoke + e2e (e2e сами пропускаются без среды)
+npm run test:unit     # только unit
+npm run test:meta     # мета-тесты: план §8 ↔ файлы тестов ↔ экспорты модулей
+npm run test:smoke    # CLI + Frida (skip, если Frida недоступна)
+npm run test:e2e      # CDP против headless-браузера (нужен CHROME_BIN или chromium в PATH)
+npm run test:watch    # unit в режиме наблюдения
+npm run test:coverage # покрытие src/** с порогами: строки ≥ 90, функции ≥ 80, ветки ≥ 90
+                      # (до M1 красный по определению — red-базлайн)
+npm run typecheck     # tsc: scripts/ + src/ + bin/ + tests/
+npm run check         # typecheck + все тесты — «одна кнопка» перед приёмкой шага
+```
+
+Переменные окружения тестов:
+
+- `CHROME_BIN` — путь к chromium/chrome/brave/edge для e2e (иначе e2e пропускается);
+- `DISCORD_LAB_LIVE_CDP` — endpoint запущенного Discord с remote-debugging
+  (например `http://127.0.0.1:9223`); включает live-проверки e2e (только чтение);
+- `CDP_ENDPOINT` / `CDP_TARGET` — обычные переменные CDP-клиента.
+
+## 4. Тестовая стратегия
+
+| Уровень | Что проверяет | Среда | Скорость | Где живёт |
+| --- | --- | --- | --- | --- |
+| unit | чистые функции `src/core`: разбор, форматирование, фильтры, маршрутизация CDP-сообщений; golden-данные из реальных артефактов | без процессов и сети (чтение фикстур/бандлов разрешено) | ~секунды | `tests/unit` |
+| meta | соответствие «план §8 ↔ тесты ↔ экспорты»: ничего не пропущено и не придумано | чтение файлов репозитория, без процессов | мгновенно | `tests/meta` |
+| smoke | реальный процесс `bin/discord-lab.mjs`: help/version/ошибки, `summarize` на фикстурах и реальных логах, `pids` через живой Frida | процессы, локальный ФС; Frida — skip-aware | секунды | `tests/smoke` |
+| e2e | CLI против реального CDP: headless-браузер на fixture-странице; live-Discord (opt-in) — только чтение | браузер/живой Discord | десятки секунд | `tests/e2e` |
+
+Правила «жёсткого» TDD, действующие в проекте:
+
+1. Один цикл = один новый/изменённый тест. Красный → минимальный зелёный → рефактор.
+2. Никакой «логики на будущее»: реализуется только то, что требует тест.
+3. Unit-тесты не запускают процессы и не ходят в сеть; входные данные — чтение фикстур
+   или сборка в памяти; запись — только в `mkdtemp` (`tests/helpers/tmp.mjs`).
+   Время, WebSocket, fetch, Frida — инжектируемые зависимости (см. `FakeWebSocket`).
+4. Тесты детерминированы: фиксированные данные, явные сортировки; `skip` разрешён
+   только из-за отсутствия среды (нет браузера / Frida / live-endpoint), не из-за багов.
+5. Ничего не пишется в рабочие каталоги проекта из тестов — только в tmp.
+6. Каждый зелёный шаг сохраняется (см. §5 про git); сообщения коммитов: `test: …`,
+   `feat: …`, `fix: …`.
+7. Покрытие — следствие TDD, а не самоцель; тем не менее гейт: `src/core` ≥ 90% строк
+   (M1), мутационная проверка — M5.
+8. Мета-контроль: §8 плана и тесты не должны разъезжаться —
+   `npm run test:meta` падает на любом расхождении (см. «Методы углубления тестов»).
+
+### Методы углубления тестов (волна W1 и далее)
+
+1. **Golden из реальных артефактов.** Ожидания строятся независимыми оракулами
+   (`jq`, `sort | uniq`, `awk`, `c++filt`) по реальным логам и таблицам (`logs/**`,
+   `functions/**`), а не из кода под тестом. В тесте фиксируются: имя артефакта,
+   его md5 и пайплайн-оракул (в комментарии). Компактные копии — в
+   `tests/fixtures/**` (≤ 64 КиБ); полные артефакты — только в smoke-проверках
+   (skip, если файла нет).
+2. **Инварианты, границы, стресс.** Пустой ввод; битые и неполные строки; дубликаты;
+   кириллица, кавычки, запятые, переносы; очень длинные имена; стресс-объёмы
+   (10⁵+ записей) — с проверкой корректности, а не только «не упало».
+3. **Поведенческие матрицы.** Один кейс = одна строка таблицы кейсов (например,
+   чёрный список UI-пунктов: блокировка/пропуск/обычные пункты), чтобы при
+   провале было видно, какое именно правило сломалось.
+4. **Мета-тесты.** `tests/meta/plan-sync.test.mjs` связывает: тестовый файл ↔ строка
+   §8 ↔ модуль (существует, импортируется) ↔ экспорты (каждый упомянут и протестирован).
+5. **Проверка кода.** `npm run check` (typecheck + все уровни) — обязательный прогон
+   после каждого шага; пороги покрытия `test:coverage` — гейт M1; повторный прогон
+   после интеграции воркеров — часть приёмки.
+6. **Приёмочный аудит координатора и фикс-волны.** Аудит W2 сверяет область правок
+   (`find -newer`, diff против pristine-копий), провенанс (md5 источников) и golden
+   своим независимым оракулом. Дефект спеки не правится молча — возвращается владельцу
+   файла отдельным ТЗ (пример: W1-fix закрыл 4 дефекта — paths-кейс шага 24,
+   недостижимый assert в profile, отсутствующие header-only фикстуры dtls/ice/stun,
+   blacklist-кейс против подстрочного правила).
+
+## 5. Инфраструктура и качество
+
+- **Раннер**: `node:test` (Node 24). Ноль зависимостей и конфигов.
+- **Покрытие**: `npm run test:coverage` (`--experimental-test-coverage`,
+  include только `src/**`).
+- **git**: для коммит-дисциплины, диффов и CI нужен `git init` (репозиторий пока не git).
+  Предусловие M0 — ожидает решения владельца проекта.
+- **CI (M5)**: GitHub Actions на каждый push:
+  1. `npm ci && npm run typecheck`;
+  2. `npm run test:unit && npm run test:smoke`;
+  3. e2e с системным chromium (apt) — `CHROME_BIN=/usr/bin/chromium`;
+  4. отчёт покрытия. Live-Discord в CI не запускается.
+- **Мутации (M5, опционально)**: Stryker на `src/core` с порогом выживаемости ≤ 20%;
+  цель — доказать, что тесты «настоящие», а не тавтологичные.
+
+## 6. Матрица паритета: что чем заменяется
+
+| Сейчас | Станет | Тесты | Milestone |
+| --- | --- | --- | --- |
+| `scripts/logger.mjs pids` | `discord-lab pids [--all]` | `processes.test`, `pids.smoke` | M2 |
+| `scripts/logger.mjs inventory` | `discord-lab inventory` | `inventory.test`, smoke (M2) | M1/M2 |
+| `scripts/logger.mjs hook` | `discord-lab hook` | fake-device unit (M2) | M2 |
+| `scripts/cdp.mjs <sub>` | `discord-lab cdp <sub>` | `cdp.test`, `cdp-browser.e2e` | M1/M3 |
+| `scripts/ui-walk-settings.mjs` | `discord-lab walk settings` | `walk-log.test`, `profile.test`, `blacklist.test`, `walk-fixture.e2e` | M3 |
+| `scripts/ui-walk-settings2.mjs` | то же (режим «добить пропущенные» внутри walk) | `parseVisited` unit | M3 |
+| `scripts/ui-walk-menus.mjs`, `ui-menu-extra.mjs` | `discord-lab walk menus` | те же + fixture e2e | M3 |
+| `scripts/summarize-calls.sh` | `discord-lab summarize [файлы]` | `calls.test`, `summarize.smoke` | M1/M4 |
+| `scripts/extract-domains.sh` + `domain-report.sh` | `discord-lab domains` | `domains.test`, `cxxfilt.smoke` | M4 |
+| `scripts/extract-static-functions.sh` | `discord-lab static` | `nm.test` | M4 |
+| `scripts/analyze.sh` (REA) | остаётся тонкой обёрткой (внешний `rea`) | — | вне scope |
+
+## 7. Дорожная карта
+
+### M0 — red-базлайн (сделан)
+
+- [x] Приняты решения: CLI `discord-lab`, `node:test`, каркас без логики.
+- [x] Каркас `src/` + `bin/` — только сигнатуры, тела `notImplemented`.
+- [x] Тесты unit (12 файлов) / smoke (4) / e2e (3), helpers, фикстуры.
+- [x] `package.json`: тест-скрипты; `tsconfig.json` покрывает `src/`, `bin/`, `tests/`.
+- DoD: `npm test` — красный, каждый провал называет функцию («Не реализовано: …»),
+  `npm run typecheck` — зелёный.
+
+### M0.5 — декомпозиция, мета-контроль, углубление тестов (сделан)
+
+- [x] Микро-декомпозиция: `TASKS.md` — волны W0–W8, ID микрозадач, матрица
+  непересекающихся файлов, протокол воркеров и приёмки.
+- [x] `tests/meta/plan-sync.test.mjs`: §8 ↔ тестовые файлы ↔ модули ↔ экспорты.
+- [x] `package.json`: `test:meta`, `check`; пороги покрытия в `test:coverage`.
+- [x] Углубление unit/smoke golden-тестами из реальных артефактов (4 воркера, W1 +
+  приёмка W2 + фикс-волна W1-fix): calls (voice/стресс-лог),
+  walk-log/profile/blacklist (реальный walk-журнал), nm/domains/cxxfilt (таблицы
+  символов + REPORT.md), args/csv/paths/inventory/processes (края: кириллические
+  метки скриншотов, реальные CSV/JSON инвентаря). Итог: 153 теста — 7 pass /
+  142 fail / 4 skip; typecheck и meta зелёные.
+- [x] Аудит W2: область правок, провенанс (md5), независимые оракулы; 4 дефекта
+  спеки закрыты владельцами (W1-fix, см. `TASKS.md`).
+- DoD: `npm run check` — typecheck зелёный, meta зелёный, красные — только
+  «Не реализовано: …» (ни одной ошибки загрузки модулей); у каждого добавленного
+  golden-теста есть провенанс (артефакт + md5 + оракул). По факту приёмки 140 из
+  142 падений буквально называют заглушку; два косвенных (5 CLI-smoke кейсов —
+  код выхода 1 вместо 0/2, т.к. бросает `run`; `createCdpClient` «ошибка
+  соединения до open» — заглушка бросает до создания fake-socket) снимаются
+  реализацией M1.
+
+### M1 — ядро без I/O (сделан, волна W3)
+
+- [x] Все unit-модули §2 от `args.mjs` до `report/domains.mjs` реализованы воркерами
+  W3a–W3c (микрозадачи M1-* — `TASKS.md`); CLI-хаб (`run.mjs`) и `summarize` — W3e.
+- DoD: `npm run check` зелёный; `npm run test:coverage` проходит пороги
+  (строки ≥ 90, функции ≥ 80, ветки ≥ 90).
+  Факт приёмки: 153 теста — 148 pass / 0 fail / 5 skip (pids — честный skip до M2,
+  4 e2e — skip-aware); покрытие 100 / 100 / 90.48 (строки/функции/ветки).
+  Два дефекта спеки, найденные воркерами при реализации, исправлены координатором
+  (W3-specfix в `TASKS.md`). Примечание: отчёт покрытия считает только модули,
+  загруженные unit-тестами (`cli`/`adapters` в таблицу не попадают) — расширение
+  гейта в M5.
+
+### M2 — Frida-слой (сделан, волна W4)
+
+- [x] `src/adapters/frida.mjs` (device/session/script — инжектируемое устройство),
+  команды `pids` / `inventory` / `hook` в `src/cli/run.mjs`.
+- [x] Unit с fake-device (`tests/unit/frida.test.mjs`, 10/10); smoke `pids` — реальная Frida
+  (выполняется, не skip), `inventory`/`hook --pid 99999999` → код 2 (+ анти-заглушка).
+- [x] DoD: живой CLI-прогон `pids` (реальные процессы Discord) и коды 2 у inventory/hook.
+  Сверка записанных `functions/pid-*.json/.csv` с golden W1d на живом attach — ручной
+  чек-лист: на машине `kernel.yama.ptrace_scope=1` (нужен `sysctl kernel.yama.ptrace_scope=0`,
+  иначе attach к Discord вне демона невозможен).
+
+### M3 — UI-walk
+
+- `src/core/ui/engine.mjs`: шаг = клик → профиль → скриншот → запись; адаптеры
+  `discord` / `fixture` (селекторы и подписи).
+- DoD: `walk-fixture.e2e` зелёный на headless-браузере (клики, чёрный список,
+  скриншоты, JSONL); ручной прогон `walk settings` на живом Discord — совпадает
+  по формату логов с прогоном 2026-10-18.
+
+### M4 — отчёты и пайплайны
+
+- `summarize`, `domains`, `static` в CLI; паритет CSV/REPORT.md.
+- DoD: на текущих `functions/static/*.nm.txt` вывод совпадает с `REPORT.md` по числам.
+
+### M5 — жёсткость
+
+- Mutations (Stryker, опц.), CI, покрытие-гейты, e2e ×5 повторов (стабильность).
+- DoD: CI зелёный на push; мутанты ≥ 80% убиты.
+
+### M6 — паритет и уборка
+
+- `scripts/ui-*.mjs`, `logger.mjs`, `cdp.mjs` → тонкие обёртки или удаление;
+  унификация типов (`cdp-types.d.ts` → `src/core/types.d.ts`); README.
+- DoD: таблица §6 полностью закрыта; README описывает только `discord-lab`.
+
+## 8. Red-базлайн: что именно красное
+
+Каркас `src/` создан **из тестов** (решение зафиксировано): каждая функция описана
+сигнатурой, тело кидает `Не реализовано: <имя>`. Так red-прогон сразу показывает
+очередь работ, а `tsc` проверяет типы самих тестов.
+
+Таблица ниже — **машиночитаемая**: её разбирает `tests/meta/plan-sync.test.mjs`
+(строка = один тестовый файл; модули и имена — в косых кавычках). Меняя таблицу,
+держитесь формата; меняя формат — обновите мета-тест.
+
+| Тест | Модуль | Экспорты / контракт |
+| --- | --- | --- |
+| `tests/unit/args.test.mjs` | `src/core/args.mjs` | `parseArgs` |
+| `tests/unit/csv.test.mjs` | `src/core/csv.mjs` | `safeName`, `csv` |
+| `tests/unit/paths.test.mjs` | `src/core/paths.mjs` | `projectRoot`, `logsDir`, `functionsDir`, `screensDir`, `screenshotName`, `relativeToRoot` |
+| `tests/unit/processes.test.mjs` | `src/core/processes.mjs` | `isDiscordProcess`, `filterDiscordProcesses` |
+| `tests/unit/inventory.test.mjs` | `src/core/inventory.mjs` | `inventoryCounts`, `inventoryCsvRows`, `inventoryJson` |
+| `tests/unit/profile.test.mjs` | `src/core/ui/profile.mjs` | `topFunctions` |
+| `tests/unit/blacklist.test.mjs` | `src/core/ui/blacklist.mjs` | `isBlacklisted` |
+| `tests/unit/walk-log.test.mjs` | `src/core/ui/walk-log.mjs` | `parseVisited`, `buildWalkRecord`, `consoleIssues`, `shouldBail`, `pickNextItem` |
+| `tests/unit/cdp.test.mjs` | `src/core/cdp/client.mjs` | `resolveEndpoint`, `resolveTargetHint`, `listTargets`, `pickTarget`, `createCdpClient`, `evaluate` |
+| `tests/unit/calls.test.mjs` | `src/core/calls.mjs` | `isCallPayload`, `callLine`, `parseCallLog`, `summarizeCallLines` |
+| `tests/unit/nm.test.mjs` | `src/core/report/nm.mjs` | `parseNmPosix`, `staticFunctionsCsv` |
+| `tests/unit/domains.test.mjs` | `src/core/report/domains.mjs` | `classifyName`, `domainCsv`, `formatDomainSummary` |
+| `tests/unit/frida.test.mjs` | `src/adapters/frida.mjs` | `loadDevice`, `loadAgentSource`, `listProcesses`, `attach`, `collectInventory`, `parseHookMessage`, `startHook`, `stopHook` |
+| `tests/meta/plan-sync.test.mjs` | — | мета: §8 ↔ тесты ↔ модули ↔ экспорты |
+| `tests/smoke/cli.smoke.test.mjs` | `bin/discord-lab.mjs`, `src/cli/run.mjs` | `--help`, `--version` |
+| `tests/smoke/pids.smoke.test.mjs` | — | `pids` (Frida, skip-aware) |
+| `tests/smoke/inventory.smoke.test.mjs` | — | `inventory` (недоступный pid → код 2) |
+| `tests/smoke/hook.smoke.test.mjs` | — | `hook` (недоступный pid → код 2) |
+| `tests/smoke/summarize.smoke.test.mjs` | — | `summarize` (паритет summarize-calls.sh) |
+| `tests/smoke/cxxfilt.smoke.test.mjs` | `src/adapters/cxxfilt.mjs` | `demangle` |
+| `tests/e2e/cdp-browser.e2e.test.mjs` | — | `targets`, `eval`, `clicktext`, `list`, `shot` |
+| `tests/e2e/walk-fixture.e2e.test.mjs` | — | `walk` |
+| `tests/e2e/live-discord.e2e.test.mjs` | — | `targets`, `eval` (только чтение, opt-in) |
+
+Цикл выхода в green для M1 (рецепт):
+
+```bash
+npm run test:unit 2>&1 | head            # смотрим первый красный
+# 1) открываем тест → 2) минимально реализуем в src/core → 3) повторяем
+npm run check                            # typecheck + все тесты (unit/meta/smoke/e2e)
+```
+
+## 9. Риски и ограничения
+
+- **Нет браузера в системе** — e2e CDP пропускаются (skip с подсказкой про `CHROME_BIN`);
+  в CI ставится chromium пакетом. Это осознанная деградация, не «зелёный самообман»:
+  skip виден в отчёте раннера.
+- **Live-Discord** зависит от запуска с `--remote-debugging-port` и включается только
+  явным `DISCORD_LAB_LIVE_CDP`; тесты в этом режиме — строго read-only.
+- **Frida attach** требует `kernel.yama.ptrace_scope=0`; smoke-тест `pids` attach
+  не делает (перечисление процессов работает всегда), поэтому безопасен.
+- **walk на живом Discord** не автоматизируется (аккаунт, необратимые пункты) —
+  регрессии ловятся fixture-e2e + ручным прогоном по чек-листу из README.
+- **Дублирование поведения** `scripts/*` ↔ `src/*` живёт до M6; расхождения допустимы
+  только как исправления в `src/`, зафиксированные тестами.
+- **Headless Chromium ≠ Electron Discord** — CDP-поверхность близка, но не идентична;
+  поэтому e2e проверяет протокол и движок, а не «дизайн Discord».
+- **Покрытие `node:test`** помечено экспериментальным (флаг `--experimental-test-coverage`);
+  если флаг изменится — правится один npm-скрипт.
+- **Golden-фикстуры привязаны к реальным артефактам** (md5 в провенансе): фикстура
+  остаётся валидной копией артефакта; smoke-проверки полного артефакта пропускаются,
+  если файл отсутствует.
+- **Robustness-находки ревью W3** (задачи W3R-HARD-01…06, `TASKS.md`): `fetch` без
+  таймаута (`listTargets`); `c++filt` без таймаута и без 'error'-обработчика stdin;
+  неограниченный буфер `events` в CDP-клиенте (M3 — окно событий на шаг); свободные
+  ключи `parseArgs` (`--_`); нет `engines` в `package.json`. Волна W3R — до M4.
+
+## 10. Открытые вопросы
+
+1. `git init` — делаем? (нужен для коммит-дисциплины TDD, диффов и CI из M5).
+2. Перенести инструменты прогона №2 из `/tmp/opencode/discord-ui-walkthrough/` в `tools/`?
+3. В M6 `scripts/*` удаляем или оставляем тонкими обёртками?
+4. Логи `logs/ui-clicks-*.jsonl` (события кликов `{at,event,target}`) пока без
+   потребителя в `src/` — нужна ли отдельная команда/модуль (backlog)?
+5. Нужен ли истинный граф вызовов Discord (caller→callee)? Агент пишет плоские записи
+   `{module,name,address,args[]}` без вызывающего; рёбра требуют backtrace в `onEnter`
+   (дороже на горячих функциях, раздувает журнал) — решать к M2/M6.
+
+## 11. Микро-декомпозиция и воркеры
+
+- Источник истины по задачам — `TASKS.md`: волны W0–W6, ID микрозадач, зависимости,
+  владельцы (C — координатор, W* — воркеры), DoD и матрица непересекающихся файлов.
+- Ядро M1 декомпозировано до «функция / кластер поведения = микрозадача»; M2–M6 —
+  до задач волн, разворачиваемых в микрозадачи при старте волны.
+- Репозиторий без git: воркеры работают в общей папке проекта с непересекающимися
+  наборами файлов (один писатель на файл); копии `project-w1…w4` не используются.
+- Интеграцию копий, финальные `npm run check` и обновление документов ведёт
+  координатор — это неделимая часть.
+- Приёмка волны: `npm run check`; мета-тест зелёный; red-прогон называет только
+  «Не реализовано: …»; отчёт воркера с провенансом golden-данных; обновление статусов
+  в `TASKS.md`.

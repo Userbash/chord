@@ -1,0 +1,18 @@
+# SocratiCode: что НЕ индексировать (синтаксис .gitignore).
+# Код, README и текстовые отчёты индексируются; тяжёлые данные — нет.
+
+# Рантайм-инвентарь и статические таблицы символов (тысячи строк)
+functions/pid-*
+functions/static/
+
+# Доменные срезы (*.csv/*.tsv с десятками тысяч строк); REPORT.md остаётся
+functions/domains/*.csv
+functions/domains/*.tsv
+
+# Логи прогонов (JSONL/CSV)
+logs/
+
+# Крупные JSON-дампы REA (мегабайты)
+evidence/js-app-graph.json
+evidence/asar-inventory.json
+evidence/screens/

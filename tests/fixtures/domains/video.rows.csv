@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE10do_unshiftER11__mbstate_tPcS4_RS4_,"std::__Cr::__codecvt_utf8<char32_t>::do_unshift(__mbstate_t&, char*, char*, char*&) const",26470,9
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE11do_encodingEv,"std::__Cr::__codecvt_utf8<char32_t>::do_encoding() const",26480,3
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE13do_max_lengthEv,"std::__Cr::__codecvt_utf8<char32_t>::do_max_length() const",264c0,13
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE16do_always_noconvEv,"std::__Cr::__codecvt_utf8<char32_t>::do_always_noconv() const",26490,3
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE5do_inER11__mbstate_tPKcS5_RS5_PDiS7_RS7_,"std::__Cr::__codecvt_utf8<char32_t>::do_in(__mbstate_t&, char const*, char const*, char const*&, char32_t*, char32_t*, char32_t*&) const",26400,64
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE6do_outER11__mbstate_tPKDiS5_RS5_PcS7_RS7_,"std::__Cr::__codecvt_utf8<char32_t>::do_out(__mbstate_t&, char32_t const*, char32_t const*, char32_t const*&, char*, char*, char*&) const",26390,64
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDiE9do_lengthER11__mbstate_tPKcS5_m,"std::__Cr::__codecvt_utf8<char32_t>::do_length(__mbstate_t&, char const*, char const*, unsigned long) const",264a0,1c
+discord_erlpack,_ZNKSt4__Cr14__codecvt_utf8IDsE10do_unshiftER11__mbstate_tPcS4_RS4_,"std::__Cr::__codecvt_utf8<char16_t>::do_unshift(__mbstate_t&, char*, char*, char*&) const",261c0,9

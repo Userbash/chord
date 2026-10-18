@@ -1,0 +1,60 @@
+<!doctype html>
+<!--
+  Фикстура для e2e-тестов discord-lab.
+  Мини-копия окна настроек: навигация слева, панель справа.
+
+  Контракт fixture-адаптера walk (M3):
+  - пункты навигации: `#nav button`;
+  - активная панель: `#panel`;
+  - клики пишутся в window.__clickLog (как в scripts/cdp.mjs).
+  Кнопки «Покинуть сервер» и «Выйти» обязаны попадать в чёрный список,
+  кнопка «Уведомления» детерминированно пишет один console.error.
+-->
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Discord Lab Fixture</title>
+  <style>
+    body { font: 14px system-ui; display: flex; margin: 0; }
+    nav { width: 220px; padding: 8px; border-right: 1px solid #ccc; }
+    nav button { display: block; width: 100%; margin: 4px 0; padding: 8px; }
+    main { flex: 1; padding: 16px; }
+  </style>
+</head>
+<body>
+  <nav id="nav">
+    <button type="button" data-nav>Мой аккаунт</button>
+    <button type="button" data-nav>Профиль</button>
+    <button type="button" data-nav>Уведомления</button>
+    <button type="button" data-nav>Голос и видео</button>
+    <button type="button" data-nav>Покинуть сервер</button>
+    <button type="button" data-nav>Выйти</button>
+  </nav>
+  <main id="panel">Раздел не выбран</main>
+  <script>
+    (() => {
+      const panel = document.querySelector('#panel');
+      const texts = {
+        'Мой аккаунт': 'Аккаунт: настройки профиля',
+        'Профиль': 'Профиль: ник, аватар',
+        'Уведомления': 'Уведомления: параметры',
+        'Голос и видео': 'Голос и видео: устройства',
+      };
+      window.__clickLog = [];
+      for (const button of document.querySelectorAll('#nav button')) {
+        button.addEventListener('click', () => {
+          const label = (button.textContent || '').trim();
+          window.__clickLog.push({ at: Date.now(), text: label });
+          if (label === 'Уведомления') {
+            console.error('fixture: раздел уведомлений сломан (тестовая ошибка)');
+          }
+          panel.textContent = texts[label] ?? `Раздел: ${label}`;
+          let work = 0;
+          for (let index = 0; index < 200000; index += 1) work += index;
+          panel.dataset.work = String(work);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

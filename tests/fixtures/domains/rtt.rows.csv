@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_voice,_ZN4absl22internal_any_invocable13RemoteInvokerILb0EvOZN6webrtc8internal9CallStats11OnRttUpdateElE3$_0JEEET0_PNS0_15TypeErasedStateEDpNS0_18ForwardedParameterIT2_E4typeE,"void absl::internal_any_invocable::RemoteInvoker<false, void, webrtc::internal::CallStats::OnRttUpdate(long)::$_0&&>(absl::internal_any_invocable::TypeErasedState*)",68f430,86
+discord_voice,_ZN6webrtc10RTCPSender26SetNonSenderRttMeasurementEb,"webrtc::RTCPSender::SetNonSenderRttMeasurement(bool)",a57b40,34
+discord_voice,_ZN6webrtc12_GLOBAL__N_119FrameDumpingEncoder11OnRttUpdateEl,"webrtc::(anonymous namespace)::FrameDumpingEncoder::OnRttUpdate(long)",839040,12
+discord_voice,_ZN6webrtc12_GLOBAL__N_135VideoEncoderSoftwareFallbackWrapper11OnRttUpdateEl,"webrtc::(anonymous namespace)::VideoEncoderSoftwareFallbackWrapper::OnRttUpdate(long)",8865e0,8c
+discord_voice,_ZN6webrtc12RTCPReceiver19OnPeriodicRttUpdateENS_9TimestampEb,"webrtc::RTCPReceiver::OnPeriodicRttUpdate(webrtc::Timestamp, bool)",a506a0,20d
+discord_voice,_ZN6webrtc12RTCPReceiver26SetNonSenderRttMeasurementEb,"webrtc::RTCPReceiver::SetNonSenderRttMeasurement(bool)",a50660,37
+discord_voice,_ZN6webrtc12RtcpRttStatsD2Ev,"webrtc::RtcpRttStats::~RtcpRttStats()",68ec10,6
+discord_voice,_ZN6webrtc12VideoEncoder11OnRttUpdateEl,"webrtc::VideoEncoder::OnRttUpdate(long)",76a580,6

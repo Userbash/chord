@@ -1,0 +1,23 @@
+{
+  "pid": 23548,
+  "process": "Discord",
+  "at": "2026-10-18T06:43:33.537Z",
+  "modules": [
+    {
+      "name": "updater.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/updater.node",
+      "base": "0x7f0815000000",
+      "size": 5816392,
+      "symbols": [
+        { "name": "getenv", "address": "0x0", "offset": "0xffff80f7eb000000" },
+        { "name": "dl_iterate_phdr", "address": "0x0", "offset": "0xffff80f7eb000000" },
+        { "name": "free", "address": "0x0", "offset": "0xffff80f7eb000000" }
+      ],
+      "exports": [
+        { "name": "__externref_table_dealloc", "type": "function", "address": "0x7f081528c2fb", "offset": "0x28c2fb" },
+        { "name": "__externref_drop_slice", "type": "function", "address": "0x7f081528c197", "offset": "0x28c197" }
+      ],
+      "error": null
+    }
+  ]
+}

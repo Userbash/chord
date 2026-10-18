@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_krisp,_GLOBAL__sub_I_krisp_audio_sdk_c.cpp,"_GLOBAL__sub_I_krisp_audio_sdk_c.cpp",42fcf0,32
+discord_krisp,_GLOBAL__sub_I_krisp_audio_sdk_impl.cpp,"_GLOBAL__sub_I_krisp_audio_sdk_impl.cpp",4303d0,32
+discord_krisp,_GLOBAL__sub_I_krisp_audio_sdk_nc_c.cpp,"_GLOBAL__sub_I_krisp_audio_sdk_nc_c.cpp",42fbb0,fe
+discord_krisp,_GLOBAL__sub_I_krisp_audio_sdk_nc.cpp,"_GLOBAL__sub_I_krisp_audio_sdk_nc.cpp",42fcb0,32
+discord_krisp,_GLOBAL__sub_I_krisp_audio_sdk_vad_c.cpp,"_GLOBAL__sub_I_krisp_audio_sdk_vad_c.cpp",42fa70,fe
+discord_krisp,_GLOBAL__sub_I_krisp_audio_sdk_vad.cpp,"_GLOBAL__sub_I_krisp_audio_sdk_vad.cpp",42fb70,32
+discord_krisp,_GLOBAL__sub_I_krisp_dll.cpp,"_GLOBAL__sub_I_krisp_dll.cpp",42f400,95
+discord_krisp,_GLOBAL__sub_I_krisp_gru_executable_network_common.cpp,"_GLOBAL__sub_I_krisp_gru_executable_network_common.cpp",430250,178

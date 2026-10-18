@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_voice,_ZN6webrtc15JitterEstimator11FrameNackedEv,"webrtc::JitterEstimator::FrameNacked()",ac91d0,37
+discord_voice,_ZN6webrtc15JitterEstimator14UpdateEstimateENS_9TimeDeltaENS_8DataSizeE,"webrtc::JitterEstimator::UpdateEstimate(webrtc::TimeDelta, webrtc::DataSize)",ac8a70,4ee
+discord_voice,_ZN6webrtc15JitterEstimator17CalculateEstimateEv,"webrtc::JitterEstimator::CalculateEstimate()",ac93e0,146
+discord_voice,_ZN6webrtc15JitterEstimator17GetJitterEstimateEdNSt4__Cr8optionalINS_9TimeDeltaEEE,"webrtc::JitterEstimator::GetJitterEstimate(double, std::__Cr::optional<webrtc::TimeDelta>)",ac9530,22b
+discord_voice,_ZN6webrtc15JitterEstimator20EstimateRandomJitterEd,"webrtc::JitterEstimator::EstimateRandomJitter(double)",ac8f60,269
+discord_voice,_ZN6webrtc15JitterEstimator5ResetEv,"webrtc::JitterEstimator::Reset()",ac8680,15d
+discord_voice,_ZN6webrtc15JitterEstimator6Config16ParseAndValidateENSt4__Cr17basic_string_viewIcNS2_11char_traitsIcEEEE,"webrtc::JitterEstimator::Config::ParseAndValidate(std::__Cr::basic_string_view<char, std::__Cr::char_traits<char> >)",ac7c10,4ff
+discord_voice,_ZN6webrtc15JitterEstimator9UpdateRttENS_9TimeDeltaE,"webrtc::JitterEstimator::UpdateRtt(webrtc::TimeDelta)",ac9210,11

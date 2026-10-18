@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_voice,WebRtcG711_DecodeA,"WebRtcG711_DecodeA",9b83f0,268
+discord_voice,WebRtcG711_DecodeU,"WebRtcG711_DecodeU",9b8660,1ab
+discord_voice,WebRtcG711_EncodeA,"WebRtcG711_EncodeA",9b82c0,92
+discord_voice,WebRtcG711_EncodeU,"WebRtcG711_EncodeU",9b8360,90
+discord_voice,WebRtcG722_CreateDecoder,"WebRtcG722_CreateDecoder",6b8c20,27
+discord_voice,WebRtcG722_CreateEncoder,"WebRtcG722_CreateEncoder",6b8ba0,27
+discord_voice,WebRtc_g722_decode,"WebRtc_g722_decode",6b8d50,53c
+discord_voice,WebRtcG722_Decode,"WebRtcG722_Decode",6b8c80,1c

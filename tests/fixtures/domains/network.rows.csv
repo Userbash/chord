@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_krisp,BIO_closesocket,"BIO_closesocket",cd7e20,23
+discord_krisp,BIO_new_socket,"BIO_new_socket",c76230,3f
+discord_krisp,BIO_socket,"BIO_socket",cd73c0,b4
+discord_krisp,BIO_socket_ioctl,"BIO_socket_ioctl",aecc90,5d
+discord_krisp,BIO_socket_nbio,"BIO_socket_nbio",aecd30,4d
+discord_krisp,BIO_socket_wait,"BIO_socket_wait",aecee0,f7
+discord_krisp,BIO_s_socket,"BIO_s_socket",c76220,c
+discord_krisp,_GLOBAL__sub_I_gru_executable_network_runtime.cpp,"_GLOBAL__sub_I_gru_executable_network_runtime.cpp",430b00,32

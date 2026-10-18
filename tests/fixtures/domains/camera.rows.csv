@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_voice,_Z30PresentNativeScreenSharePickerNSt4__Cr12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE,"PresentNativeScreenSharePicker(std::__Cr::basic_string<char, std::__Cr::char_traits<char>, std::__Cr::allocator<char> >)",2e9250,f
+discord_voice,_Z35SetNativeScreenSharePickerCallbacksN7discord8node_api8CallbackES1_S1_,"SetNativeScreenSharePickerCallbacks(discord::node_api::Callback, discord::node_api::Callback, discord::node_api::Callback)",2e9270,4a3
+discord_voice,_ZN4absl22internal_any_invocable12LocalInvokerILb0EvOZN6webrtc18videocapturemodule22VideoCaptureModuleV4L212StartCaptureERKNS2_22VideoCaptureCapabilityEE3$_0JEEET0_PNS0_15TypeErasedStateEDpNS0_18ForwardedParameterIT2_E4typeE,"void absl::internal_any_invocable::LocalInvoker<false, void, webrtc::videocapturemodule::VideoCaptureModuleV4L2::StartCapture(webrtc::VideoCaptureCapability const&)::$_0&&>(absl::internal_any_invocable::TypeErasedState*)",96ecd0,23
+discord_voice,_ZN6webrtc16RefCountedObjectINS_18videocapturemodule22VideoCaptureModuleV4L2EED0Ev,"webrtc::RefCountedObject<webrtc::videocapturemodule::VideoCaptureModuleV4L2>::~RefCountedObject()",96d450,21
+discord_voice,_ZN6webrtc16ScreenCastPortal12OnPortalDoneENS_10xdg_portal15RequestResponseE,"webrtc::ScreenCastPortal::OnPortalDone(webrtc::xdg_portal::RequestResponse)",94d820,34
+discord_voice,_ZN6webrtc16ScreenCastPortal14RequestSessionEP11_GDBusProxy,"webrtc::ScreenCastPortal::RequestSession(_GDBusProxy*)",94d860,59
+discord_voice,_ZN6webrtc16ScreenCastPortal14SetPersistModeENS0_11PersistModeE,"webrtc::ScreenCastPortal::SetPersistMode(webrtc::ScreenCastPortal::PersistMode)",94e1e0,9
+discord_voice,_ZN6webrtc16ScreenCastPortal14SourcesRequestEv,"webrtc::ScreenCastPortal::SourcesRequest()",94d9d0,34b

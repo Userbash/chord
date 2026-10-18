@@ -1,0 +1,9 @@
+module,name,demangled,address,size
+discord_voice,mysofa_resampler_get_output_latency,"mysofa_resampler_get_output_latency",df7ba0,17
+discord_voice,_RNvMNtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB2_6Device3new,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::Device>::new",1393350,126
+discord_voice,_RNvMs1_NtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB5_8DeviceFn11load_erased,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::DeviceFn>::load_erased",1394990,137
+discord_voice,_RNvNvMs1_NtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB7_8DeviceFn11load_erased16latency_sleep_nv,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::DeviceFn>::load_erased::latency_sleep_nv",2ce2e0,1a
+discord_voice,_RNvNvMs1_NtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB7_8DeviceFn11load_erased21set_latency_marker_nv,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::DeviceFn>::load_erased::set_latency_marker_nv",2ce300,1a
+discord_voice,_RNvNvMs1_NtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB7_8DeviceFn11load_erased22get_latency_timings_nv,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::DeviceFn>::load_erased::get_latency_timings_nv",2ce320,1a
+discord_voice,_RNvNvMs1_NtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB7_8DeviceFn11load_erased25set_latency_sleep_mode_nv,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::DeviceFn>::load_erased::set_latency_sleep_mode_nv",2ce340,1a
+discord_voice,_RNvNvMs1_NtNtNtCshF7g9Rn71iy_3ash20extensions_generated2nv12low_latency2NtB7_8DeviceFn11load_erased27queue_notify_out_of_band_nv,"<ash[cdbbe59b96a2f25c]::extensions_generated::nv::low_latency2::DeviceFn>::load_erased::queue_notify_out_of_band_nv",2ce360,1a

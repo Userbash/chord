@@ -1,0 +1,20 @@
+# Node
+node_modules/
+
+# Гейт-артефакты (локальные результаты прогонов, tarball пакета, golden-манифест)
+.gate/
+
+# Покрытие
+coverage/
+
+# Реальные артефакты (golden): локальные и приватные — в git не попадают.
+# Тесты, которым они нужны, skip-aware; переносимые фикстуры — tests/fixtures.
+logs/
+functions/
+evidence/
+
+# Упаковка
+*.tgz
+
+# Прочее
+.DS_Store

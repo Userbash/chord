@@ -1,0 +1,44 @@
+{
+  "name": "discord-function-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-function data, static evidence and runtime call logs for the local Discord client",
+  "bin": {
+    "discord-lab": "./bin/discord-lab.mjs"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.agent.json",
+    "test": "node --test 'tests/**/*.test.mjs'",
+    "test:unit": "node --test 'tests/unit/**/*.test.mjs'",
+    "test:meta": "node --test 'tests/meta/**/*.test.mjs'",
+    "test:smoke": "node --test 'tests/smoke/**/*.test.mjs'",
+    "test:e2e": "node --test 'tests/e2e/**/*.test.mjs'",
+    "test:watch": "node --test --watch 'tests/unit/**/*.test.mjs'",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include='src/**' --test-coverage-lines=90 --test-coverage-functions=80 --test-coverage-branches=90 'tests/unit/**/*.test.mjs'",
+    "check": "npm run typecheck && npm test",
+    "gate:worker": "node scripts/gate.mjs --scope worker",
+    "gate:release": "node scripts/gate.mjs --scope release",
+    "gate:qualify": "node scripts/gate.mjs --scope qualify",
+    "golden:freeze": "node scripts/gate.mjs --freeze-golden"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "frida": "17.23.2"
+  },
+  "allowScripts": {
+    "frida@17.23.2": true
+  },
+  "devDependencies": {
+    "@types/frida-gum": "^19.12.0",
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2"
+  }
+}
