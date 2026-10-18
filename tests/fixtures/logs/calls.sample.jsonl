@@ -1,0 +1,6 @@
+{"type":"call","module":"discord_utils.node","name":"Task::Run","address":"0x1f00","threadId":1,"at":1000,"args":["0x7ffe","0x0"]}
+{"type":"call","module":"discord_utils.node","name":"Task::Run","address":"0x1f00","threadId":1,"at":1005,"args":["0x7ffe","0x0"]}
+{"type":"call","module":"discord_utils.node","name":"Task::Run","address":"0x1f00","threadId":2,"at":1009,"args":["0x7ffd","0x1"]}
+{"type":"call","module":"discord_utils.node","name":"PollMetrics","address":"0x2a10","threadId":1,"at":1100,"args":["0x0"]}
+{"type":"call","module":"discord_utils.node","name":"PollMetrics","address":"0x2a10","threadId":1,"at":1200,"args":["0x0"]}
+{"type":"call","module":"discord_voice.node","name":"RtpTransport::SendRtp","address":"0x3300","threadId":7,"at":1300,"args":["0x1","0x2"]}

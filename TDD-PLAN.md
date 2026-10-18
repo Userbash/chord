@@ -290,6 +290,7 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 | `tests/unit/domains.test.mjs` | `src/core/report/domains.mjs` | `classifyName`, `domainCsv`, `formatDomainSummary` |
 | `tests/unit/frida.test.mjs` | `src/adapters/frida.mjs` | `loadDevice`, `loadAgentSource`, `listProcesses`, `attach`, `collectInventory`, `parseHookMessage`, `startHook`, `stopHook` |
 | `tests/meta/plan-sync.test.mjs` | — | мета: §8 ↔ тесты ↔ модули ↔ экспорты |
+| `tests/meta/fixtures-tracked.test.mjs` | — | мета: фикстуры `tests/fixtures` отслеживаются `git` |
 | `tests/smoke/cli.smoke.test.mjs` | `bin/discord-lab.mjs`, `src/cli/run.mjs` | `--help`, `--version` |
 | `tests/smoke/pids.smoke.test.mjs` | — | `pids` (Frida, skip-aware) |
 | `tests/smoke/inventory.smoke.test.mjs` | — | `inventory` (недоступный pid → код 2) |

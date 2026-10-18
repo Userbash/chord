@@ -1,0 +1,4 @@
+{"step":1,"label":"Мой аккаунт","clicked":true,"screenshot":null,"consoleErrors":0,"consoleErrorTexts":[],"topFunctions":[],"error":null}
+{"step":2,"label":"Профиль","clicked":true,"screenshot":null,"consoleErrors":0,"consoleErrorTexts":[],"topFunctions":[],"error":null}
+не json — битая строка, разбор должен её пропустить
+{"step":4,"label":"Голос и видео","clicked":true,"screenshot":null,"consoleErrors":0,"consoleErrorTexts":[],"topFunctions":[],"error":null}
