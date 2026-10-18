@@ -165,7 +165,7 @@ describe("plan-sync: §8 ↔ тестовые файлы ↔ модули", () =
 
     const srcFiles = (await listFiles(join(root, "src")))
       .map(rel)
-      .filter((p) => p.endsWith(".mjs") && p !== "src/core/not-implemented.mjs");
+      .filter((p) => p.endsWith(".mjs"));
     const unattached = srcFiles.filter((p) => !modules.has(p));
     assert.deepEqual(unattached, [], "src-модули без строки в §8 (нет теста?)");
 

@@ -1,12 +1,13 @@
 # План: `discord-lab` — полноценное CLI-приложение на строгом TDD
 
-Дата плана: 2026-10-18. Обновлено: 2026-10-18 (декомпозиция, мета-контроль, углубление тестов).
+Дата плана: 2026-10-18. Обновлено: 2026-10-19 (M1–M2 приняты, red-базлайн закрыт, CI,
+сверка тестов и статусов; ранее — 2026-10-18: декомпозиция, мета-контроль, углубление).
 Процесс (роли, волны, гейты, шаблоны ТЗ/отчётов) — `PROCESS.md`; правила агентам — `AGENTS.md`.
 
-Статус: **red-базлайн + углубление тестов**. Каркас интерфейсов без логики; стартовый
-набор тестов (unit / meta / smoke / e2e); волна углубления — golden-тесты из реальных
-артефактов. Микро-декомпозиция работ и маршрут воркеров — `TASKS.md`.
-Реализация идёт строго по тестам (red → green → refactor).
+Статус (2026-10-19): **M1 (ядро) и M2 (Frida-слой) приняты; красного нет** — полный прогон
+`npm test`: 200 тестов — 196 pass / 0 fail / 4 skip (e2e без браузера, skip-aware). Впереди
+M3–M6 (walk-движок, отчёты, жёсткость, паритет). Микро-декомпозиция работ и маршрут для
+воркеров — `TASKS.md`. Реализация идёт строго по тестам (red → green → refactor).
 
 ## 1. Продукт и принципы
 
@@ -35,13 +36,13 @@ bin/discord-lab.mjs        точка входа (#!/usr/bin/env node), тонк
 
 src/core/                  доменное ядро: чистые функции, ноль I/O
   types.d.ts               общие типы (CDP, записи, инвентарь) — только типы
-  not-implemented.mjs      заглушка red-базлайна (кидает «Не реализовано: …»)
   args.mjs                 parseArgs: --key value / --key=value / --flag / --module (повторяемый)
   csv.mjs                  safeName, csv (экранирование как в scripts/logger.mjs)
   paths.mjs                корень проекта, logs/ functions/ evidence/screens/, имена скриншотов (slug)
   processes.mjs            isDiscordProcess / filterDiscordProcesses
   inventory.mjs            строки CSV и JSON инвентаря (--max-symbols-логика формата)
   calls.mjs                записи вызовов: isCallPayload, callLine, parseCallLog, summarizeCallLines
+  hook-io.mjs              openCallLog, waitForStop — потоковая запись и ожидание hook-лога
   report/nm.mjs            parseNmPosix, staticFunctionsCsv (паритет extract-static-functions.sh)
   report/domains.mjs       classifyName по таблице доменов, domainCsv, formatDomainSummary
   cdp/client.mjs           CDP: resolveEndpoint/resolveTargetHint/listTargets/pickTarget/
@@ -49,16 +50,19 @@ src/core/                  доменное ядро: чистые функци�
   ui/profile.mjs           topFunctions: топ функций из CPU-профиля (+NOISE)
   ui/blacklist.mjs         isBlacklisted: запрещённые пункты UI-прогонов (объединение всех версий)
   ui/walk-log.mjs          parseVisited, buildWalkRecord, consoleIssues, shouldBail, pickNextItem
+  ui/engine.mjs (M3)       шаг walk: клик → профиль → скриншот → запись (адаптеры discord/fixture)
 
-src/cli/                   команды: оркестрация + вывод (пока каркас)
+src/cli/                   команды: оркестрация + вывод (M1–M2: pids/inventory/hook/summarize/cdp; M3–M4: walk/domains/static)
   run.mjs                  маршрутизация команд, help/version, коды выхода
 
-src/adapters/              границы с внешним миром (пока — только c++filt)
+src/adapters/              границы с внешним миром
   cxxfilt.mjs              demangle(names) через c++filt (spawn)
+  frida.mjs                Frida-слой: loadDevice/loadAgentSource/listProcesses/attach/
+                           collectInventory/parseHookMessage/startHook/stopHook (устройство инжектится)
 
 tests/
   unit/                    чистые контракты (быстро, без процессов и сети)
-  meta/                    мета-тесты: «план §8 ↔ тестовые файлы ↔ экспорты модулей»
+  meta/                    мета-тесты: «план §8 ↔ тесты ↔ экспорты», «фикстуры ↔ git», «README ↔ команды CLI»
   smoke/                   реальный CLI-процесс; Frida только информационно (skip-aware)
   e2e/                     реальный CDP-браузер; live-Discord — opt-in (skip-aware)
   helpers/                 FakeWebSocket, запуск CLI, tmp-каталоги, поиск/запуск браузера
@@ -88,9 +92,12 @@ npm run test:smoke    # CLI + Frida (skip, если Frida недоступна)
 npm run test:e2e      # CDP против headless-браузера (нужен CHROME_BIN или chromium в PATH)
 npm run test:watch    # unit в режиме наблюдения
 npm run test:coverage # покрытие src/** с порогами: строки ≥ 90, функции ≥ 80, ветки ≥ 90
-                      # (до M1 красный по определению — red-базлайн)
+                      # (M1: 99.30/90.45/97.56 — зелёный; расширение на cli/adapters — M5)
 npm run typecheck     # tsc: scripts/ + src/ + bin/ + tests/
 npm run check         # typecheck + все тесты — «одна кнопка» перед приёмкой шага
+npm run gate:worker   # гейт воркера: типы → мета → unit → smoke (PROCESS.md §3)
+npm run gate:release  # гейт выпуска: worker + e2e (повтор при падении) + покрытие + golden-сверка
+npm run gate:qualify  # квалификация: release + tarball + изолированный прогон пакета
 ```
 
 Переменные окружения тестов:
@@ -141,7 +148,9 @@ npm run check         # typecheck + все тесты — «одна кнопк�
    чёрный список UI-пунктов: блокировка/пропуск/обычные пункты), чтобы при
    провале было видно, какое именно правило сломалось.
 4. **Мета-тесты.** `tests/meta/plan-sync.test.mjs` связывает: тестовый файл ↔ строка
-   §8 ↔ модуль (существует, импортируется) ↔ экспорты (каждый упомянут и протестирован).
+   §8 ↔ модуль (существует, импортируется) ↔ экспорты (каждый упомянут и протестирован);
+   `fixtures-tracked.test.mjs` — фикстуры отслеживаются git; `docs-sync.test.mjs` —
+   команды CLI из `HELP` упомянуты в `README.md`.
 5. **Проверка кода.** `npm run check` (typecheck + все уровни) — обязательный прогон
    после каждого шага; пороги покрытия `test:coverage` — гейт M1; повторный прогон
    после интеграции воркеров — часть приёмки.
@@ -157,13 +166,13 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 - **Раннер**: `node:test` (Node 24). Ноль зависимостей и конфигов.
 - **Покрытие**: `npm run test:coverage` (`--experimental-test-coverage`,
   include только `src/**`).
-- **git**: для коммит-дисциплины, диффов и CI нужен `git init` (репозиторий пока не git).
-  Предусловие M0 — ожидает решения владельца проекта.
-- **CI (M5)**: GitHub Actions на каждый push:
-  1. `npm ci && npm run typecheck`;
-  2. `npm run test:unit && npm run test:smoke`;
-  3. e2e с системным chromium (apt) — `CHROME_BIN=/usr/bin/chromium`;
-  4. отчёт покрытия. Live-Discord в CI не запускается.
+- **git** (сделан 2026-10-18): baseline `4188bd0`, тег `v0.1.0`, ветка `main`, remote
+  `origin` = `github.com/Userbash/discord-lab`; серверная защита `main` недоступна
+  (free-план) — аккуратность коммитов на коммиттере.
+- **CI** (сделан 2026-10-18, досрочно к M5): `.github/workflows/ci.yml` на push в `main`
+  и pull request — `npm ci && npm run gate:worker` (типы → мета → unit → smoke). Остаётся
+  на M5: e2e в CI (chromium пакетом), отчёт покрытия, мутации. Live-Discord в CI
+  не запускается.
 - **Мутации (M5, опционально)**: Stryker на `src/core` с порогом выживаемости ≤ 20%;
   цель — доказать, что тесты «настоящие», а не тавтологичные.
 
@@ -183,7 +192,13 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 | `scripts/extract-static-functions.sh` | `discord-lab static` | `nm.test` | M4 |
 | `scripts/analyze.sh` (REA) | остаётся тонкой обёрткой (внешний `rea`) | — | вне scope |
 
+Строки M1–M2 закрыты (команды `pids`/`inventory`/`hook`/`summarize`/`cdp targets`
+работают и покрыты тестами); открыты строки M3–M4: `walk`, `domains`, `static`.
+
 ## 7. Дорожная карта
+
+Статусы на 2026-10-19: M0–M2 — сделаны, M3–M6 — впереди; DoD выполненных милстоунов
+ниже сохранены как хроника приёмок.
 
 ### M0 — red-базлайн (сделан)
 
@@ -239,6 +254,8 @@ npm run check         # typecheck + все тесты — «одна кнопк�
   Сверка записанных `functions/pid-*.json/.csv` с golden W1d на живом attach — ручной
   чек-лист: на машине `kernel.yama.ptrace_scope=1` (нужен `sysctl kernel.yama.ptrace_scope=0`,
   иначе attach к Discord вне демона невозможен).
+- Актуально (2026-10-19): полный `npm test` — 200 тестов (196 pass / 0 fail / 4 e2e-skip);
+  из robustness-backlog открыт только W3R-HARD-06 (P3).
 
 ### M3 — UI-walk
 
@@ -255,7 +272,8 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 
 ### M5 — жёсткость
 
-- Mutations (Stryker, опц.), CI, покрытие-гейты, e2e ×5 повторов (стабильность).
+- CI — **сделан досрочно** (2026-10-18: `6497a4b`, починка `90554c1`); покрытие-гейты — с M1.
+- Осталось: мутации (Stryker, опц.), e2e в CI (chromium) и ×5 повторов (стабильность).
 - DoD: CI зелёный на push; мутанты ≥ 80% убиты.
 
 ### M6 — паритет и уборка
@@ -264,15 +282,22 @@ npm run check         # typecheck + все тесты — «одна кнопк�
   унификация типов (`cdp-types.d.ts` → `src/core/types.d.ts`); README.
 - DoD: таблица §6 полностью закрыта; README описывает только `discord-lab`.
 
-## 8. Red-базлайн: что именно красное
+### R1 — разведка протокола (закрыта 2026-10-19, вне кода CLI)
 
-Каркас `src/` создан **из тестов** (решение зафиксировано): каждая функция описана
-сигнатурой, тело кидает `Не реализовано: <имя>`. Так red-прогон сразу показывает
-очередь работ, а `tsc` проверяет типы самих тестов.
+- Шлюз (WS/ETF/zstd, опкоды), REST-инвентарь, крипто медиа; артефакты — `/tmp/opencode/r2-net/`,
+  карточки и статусы — `TASKS.md` §R1. Результаты служат входом для внешнего Rust-проекта
+  (UX-клон Discord) и не изменяют код `src/`.
+
+## 8. Матрица тестов: тест ↔ модуль ↔ экспорты
+
+Историческая справка: каркас `src/` создавался **из тестов** — каждая функция описывалась
+сигнатурой с телом `Не реализовано: <имя>`; red-прогон показывал очередь работ, а `tsc`
+проверял типы самих тестов. После приёмки M1–M2 заглушек не осталось — таблица ниже
+стала зелёной матрицей контрактов.
 
 Таблица ниже — **машиночитаемая**: её разбирает `tests/meta/plan-sync.test.mjs`
-(строка = один тестовый файл; модули и имена — в косых кавычках). Меняя таблицу,
-держитесь формата; меняя формат — обновите мета-тест.
+(строка = один тестовый файл; модули и имена — в косых кавычках; формат — ровно три
+колонки). Меняя таблицу, держитесь формата; меняя формат — обновите мета-тест.
 
 | Тест | Модуль | Экспорты / контракт |
 | --- | --- | --- |
@@ -302,8 +327,9 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 | `tests/e2e/live-discord.e2e.test.mjs` | — | `targets`, `eval` (только чтение, opt-in) |
 | `tests/unit/hook-io.test.mjs` | `src/core/hook-io.mjs` | `openCallLog`, `waitForStop` |
 | `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
+| `tests/meta/docs-sync.test.mjs` | — | мета: `HELP` ↔ `README.md` (команды CLI задокументированы) |
 
-Цикл выхода в green для M1 (рецепт):
+Цикл для новой функциональности (рецепт):
 
 ```bash
 npm run test:unit 2>&1 | head            # смотрим первый красный
@@ -331,10 +357,9 @@ npm run check                            # typecheck + все тесты (unit/m
 - **Golden-фикстуры привязаны к реальным артефактам** (md5 в провенансе): фикстура
   остаётся валидной копией артефакта; smoke-проверки полного артефакта пропускаются,
   если файл отсутствует.
-- **Robustness-находки ревью W3** (задачи W3R-HARD-01…06, `TASKS.md`): `fetch` без
-  таймаута (`listTargets`); `c++filt` без таймаута и без 'error'-обработчика stdin;
-  неограниченный буфер `events` в CDP-клиенте (M3 — окно событий на шаг); свободные
-  ключи `parseArgs` (`--_`); нет `engines` в `package.json`. Волна W3R — до M4.
+- **Robustness-находки ревью W3** (W3R-HARD-01…06, `TASKS.md`): HARD-01…05 закрыты волной
+  W3R (2026-10-18); HARD-06 (P3) — частично: `engines` добавлен, `packageVersion` под try;
+  открыто: счётчики битых строк в `parseCallLog`/`parseVisited` — backlog до M4.
 
 ## 10. Открытые вопросы
 
@@ -348,17 +373,22 @@ npm run check                            # typecheck + все тесты (unit/m
    `module+0xoffset`) в запись вызова; подтверждено живым прогоном на Discord
    (11 582/11 582 записей со `stack`). Дефолтный плоский формат сохранён.
    Детали — `TASKS.md`, W4f-08/W4f-12.
+6. **R1 (19.10.2026)**: опции по данным — свежий READY/GUILD_CREATE (нужен полный
+   перезапуск копии) и source maps веб-бандла (нужен согласованный сетевой доступ);
+   контекст — `/tmp/opencode/r2-net/READINESS.md`, карточки — `TASKS.md` §R1.
 
 ## 11. Микро-декомпозиция и воркеры
 
-- Источник истины по задачам — `TASKS.md`: волны W0–W6, ID микрозадач, зависимости,
+- Источник истины по задачам — `TASKS.md`: волны W0–W8 и R1, ID микрозадач, зависимости,
   владельцы (C — координатор, W* — воркеры), DoD и матрица непересекающихся файлов.
 - Ядро M1 декомпозировано до «функция / кластер поведения = микрозадача»; M2–M6 —
   до задач волн, разворачиваемых в микрозадачи при старте волны.
-- Репозиторий без git: воркеры работают в общей папке проекта с непересекающимися
-  наборами файлов (один писатель на файл); копии `project-w1…w4` не используются.
+- Репозиторий — git (`main`, baseline `4188bd0`, тег `v0.1.0`); воркеры работают в общем
+  рабочем каталоге с непересекающимися наборами файлов (один писатель на файл);
+  копии `project-w1…w4` не используются.
 - Интеграцию копий, финальные `npm run check` и обновление документов ведёт
   координатор — это неделимая часть.
-- Приёмка волны: `npm run check`; мета-тест зелёный; red-прогон называет только
-  «Не реализовано: …»; отчёт воркера с провенансом golden-данных; обновление статусов
-  в `TASKS.md`.
+- Приёмка волны: `npm run gate:worker` (`gate:release` — на выпуске, `gate:qualify` — на
+  квалификации; см. `PROCESS.md`); мета-тесты зелёные; у новых тестов есть red-прогон
+  (или skip с причиной отсутствия среды); отчёт воркера с провенансом golden-данных;
+  обновление статусов в `TASKS.md`.
