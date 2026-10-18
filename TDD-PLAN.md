@@ -288,6 +288,14 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   карточки и статусы — `TASKS.md` §R1. Результаты служат входом для внешнего Rust-проекта
   (UX-клон Discord) и не изменяют код `src/`.
 
+### R4–R6 и D — перенос недостающих функций (2026-10-19, вне кода CLI)
+
+- Полный инвентарь функций, которых нет в нашем проекте (оболочка ОС, стриминг/аудио, платформа,
+  данные), — `docs/feature-backlog.md`: 41 карточка с описанием, источником и критерием готовности;
+  сравнения с референсами — `docs/vesktop-analysis.md` и `docs/discord-qt-analysis.md`; карта —
+  `docs/map.md` (Mermaid). Реализация — внешний Rust-проект (сценарий A, READINESS: GO); в этом
+  репозитории волны ведутся как спеки/карточки (`TASKS.md` §R4/R5/R6/D) плюс волна добора данных D.
+
 ## 8. Матрица тестов: тест ↔ модуль ↔ экспорты
 
 Историческая справка: каркас `src/` создавался **из тестов** — каждая функция описывалась
@@ -328,6 +336,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/hook-io.test.mjs` | `src/core/hook-io.mjs` | `openCallLog`, `waitForStop` |
 | `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
 | `tests/meta/docs-sync.test.mjs` | — | мета: `HELP` ↔ `README.md` (команды CLI задокументированы) |
+| `tests/meta/backlog-sync.test.mjs` | — | мета: карточки `docs/feature-backlog.md` ↔ README/TASKS/карта |
 
 Цикл для новой функциональности (рецепт):
 
