@@ -279,6 +279,53 @@ shell, `JSON.parse` недоверенного ввода в try, пути са�
 | M1-SUM-02 | Без аргументов и без `logs/calls-*.jsonl` → код 1, «Логов не найдено» | smoke fs |
 | M1-SUM-03 | Полный реальный лог: CSV построчно равен оракулу (W1a) | smoke real |
 
+## W4-fix — мини-волна робостности (P2/P3 пост-W4 аудита, §10)
+
+Источник: `/tmp/opencode/review-w3/security-review-w4.md` (§4.1–4.8, §8, §10).
+Решение владельца: W4-fix — делаем; §10 (backtrace) — делаем опционально (`--backtrace`).
+Правила волны — `PROCESS.md` (ТЗ §4.1, отчёт §4.2, gate:worker). ТЗ: `/tmp/opencode/spec-w4fix-*.txt`.
+
+| ID | Микрозадача | Файлы | Владелец | Статус |
+| --- | --- | --- | --- | --- |
+| W4f-01 | `captureMessages` (default false) — дренаж сообщений без накопления (P2-1) | `src/adapters/frida.mjs`, `tests/unit/frida.test.mjs` | W4f-a | [x] |
+| W4f-02 | `src/core/hook-io.mjs`: openCallLog (стрим, счётчик ошибок, close-flush), waitForStop (SIGINT/SIGTERM в обеих ветках) (P2-2, P3-7) | `src/core/hook-io.mjs`, `tests/unit/hook-io.test.mjs`, §8 | W4f-b1 | [x] |
+| W4f-03 | run.mjs hook: стрим-запись вместо appendFile, mkdir/open в try, счётчик ошибок в итоге (P2-2) | `src/cli/run.mjs`, smoke | W4f-b2 | [x] |
+| W4f-04 | Числовая валидация `--pid`, `--limit`, `--max-symbols`, `--arg-count`, `--duration-ms` → код 1 до Frida (P2-3) | `src/core/args.mjs`, `src/cli/run.mjs`, tests | W4f-b2 | [x] |
+| W4f-05 | packageVersion в try → код 2 при битом package.json (P3-6) | `src/cli/run.mjs`, smoke | W4f-b2 | [x] |
+| W4f-06 | Валидация `--pattern` (regex + кап 512) → код 1 (P3-8) | `src/core/args.mjs`, `src/cli/run.mjs`, smoke | W4f-b2 | [x] |
+| W4f-07 | Агент: `moduleEntry` в try (P2-4); сброс хуков при повторном `hook()` (P3-5) | `scripts/frida-log-calls.js`, `tests/unit/frida-agent.test.mjs` | W4f-c | [x] |
+| W4f-08 | §10 backtrace: `--backtrace` → опция hook → `stack` (до 8 фреймов) в сообщениях | агент (W4f-c) + `src/cli/run.mjs` (W4f-b2) | W4f-c + W4f-b2 | [x] |
+| W4f-09 | Контракт calls: запись со `stack` переживает callLine→parseCallLog | `tests/unit/calls.test.mjs` | W4f-c | [x] |
+| W4f-10 | Финишёр: `tests/unit/frida-agent.test.mjs` по проверенному рецепту (7 правок) + типы `args.mjs` (7×TS2345 из зоны b2) | `tests/unit/frida-agent.test.mjs`, `src/core/args.mjs` | W4f-c-fin | [x] |
+| W4f-11 | Branch coverage до порога: числовые входы `parseNumericArg`, `undefined`-паттерн, дефолтный `agentSource` (89.93%→91.88%) | `tests/unit/args.test.mjs`, `tests/unit/frida.test.mjs` | W4f-cov | [x] |
+| W4f-12 | Живая находка: `startHook` нормализует RegExp→`.source` на границе RPC (frida RPC терял RegExp → `new RegExp({})` → `attach(0x0)`) | `src/adapters/frida.mjs`, `tests/unit/frida.test.mjs` | W4f-live | [x] |
+
+Приёмка (координатор, 2026-10-18): gate:worker passed (typecheck; meta 5; unit 169; smoke 20);
+gate:release passed_with_skips (4 e2e-скипа: 2×нет `CHROME_BIN`, 2×нет `DISCORD_LAB_LIVE_CDP` —
+записаны в warnings); coverage 99.40/91.88/97.03; golden md5 192/192.
+Live-чеклист (ptrace_scope=0 → возвращён 1): `inventory` в копии проекта (auto: 6 процессов;
+ключи JSON/CSV = golden; 2 zygote пропущены `auxv-not-found`); `hook` 3 варианта — целей
+7/установлено 7: 7732 вызова (8 с), 11582 (6 с, `--backtrace`: stack у 11582/11582), 11459 (SIGINT,
+код 0); ошибок записи 0. Запись побайтово совпадает с легаси-логгером (`callLine` =
+`JSON.stringify` + `\n`); `summarizeCallLines` читает живые логи.
+Диспатчи (2026-10-18): a `ctx_0fa64c95c67c`, b1 `ctx_68b958b71c28`, b2 `ctx_4fe8244b2c19`,
+c `ctx_3492203a6dd4` (закрыты вне оркестрации, релизнуты; прежние старты падали на
+`agent-trust-workspace`); финишёр `ctx_bd636c98598f` (codex → INSUFFICIENT_BALANCE 403; остановлен)
+→ перевыпуск `ctx_60eb6d71f1dc` (opencode, released); cov `ctx_d7dff3391098`, live `ctx_74fa2fb51624`
+(released).
+Инцидент golden (2026-10-18): красный кейс b2 (`inventory --pid abc` на pre-change CLI) создал
+`functions/pid-NaN-pid-abc.{json,csv}`; воркер не тронул golden, эскалировал; координатор удалил
+(копия — `/tmp/opencode/golden-incident-2026-10-18/`), манифест 192/192 цел; воркер изолирует кейс
+временной копией. Бэклог: `gate:release` должен детектировать и ЛИШНИЕ файлы в golden-каталогах
+(сейчас ловит только изменения по манифесту).
+Инциденты инфраструктуры (2026-10-18): (1) 15:14Z — 8 агентских терминалов закрыты вне
+оркестрации («Terminal closed by operator request»; в orchestration.db close-мутаций нет) —
+работа продолжена с новыми терминалами; (2) codex-релей `codex.sale` — INSUFFICIENT_BALANCE 403;
+все дальнейшие воркеры — на opencode; (3) живой чек-лист вскрыл RPC-баг `pattern` (RegExp не
+сериализуется frida RPC → `new RegExp({})` = `/[object Object]/` → кандидаты с адресом `0x0` →
+`attach(0x0)` падает → «установлено=0»): unit/smoke не ловили, исправлено W4f-12, подтверждено
+живым прогоном (7/7, 11582 записи со stack).
+
 ## M2–M6 — задачи волн (разворачиваются в микрозадачи при старте)
 
 ### M2 — Frida-слой (W4: воркеры; завершено 2026-10-18)
@@ -290,12 +337,13 @@ shell, `JSON.parse` недоверенного ввода в try, пути са�
 | M2-FRIDA-01 | `src/adapters/frida.mjs` — `loadDevice` (ленивый динамический import "frida"), `loadAgentSource`, `listProcesses`, `attach` (паритет logger: message.connect до load), `collectInventory`, `parseHookMessage`, `startHook`, `stopHook`; unit `tests/unit/frida.test.mjs` с fake-device; строка §8 | W4a | [x] |
 | M2-PIDS-01 | `pids [--all]` в `src/cli/run.mjs` (ленивый импорт адаптера; формат `<pid>\t<name>`; Frida недоступна → код 2 + «Frida недоступна»); существующий smoke skip-aware обязан позеленеть | W4b | [x] |
 | M2-INV-01 | `inventory [--pid N] [--max-symbols N]` — форматы `functions/pid-*.json/.csv` через core/inventory + core/csv (паритет logger writeInventory); все цели упали → код 2; smoke `inventory --pid 99999999` → код 2 | W4b | [x] |
-| M2-HOOK-01 | `hook [--pid\|--spawn] [--module]… [--kind] [--pattern] [--limit] [--arg-count] [--duration-ms] [--out]` — запись `calls-*.jsonl` через `callLine`; smoke `hook --pid 99999999` → код 2; ручной прогон на живом Discord — после волны | W4b | [x] |
+| M2-HOOK-01 | `hook [--pid\|--spawn] [--module]… [--kind] [--pattern] [--limit] [--arg-count] [--duration-ms] [--out]` — запись `calls-*.jsonl` через `callLine`; smoke `hook --pid 99999999` → код 2; живой прогон — в W4-fix (7/7 целей, записи с `--backtrace`; см. W4f-12) | W4b | [x] |
 
 Приёмка (2026-10-18): живой `pids` — реальные Discord-процессы; `inventory`/`hook --pid 99999999`
 → код 2 (сообщения без заглушки); Frida 17.23.2 — device API асинхронный (`await getLocalDevice()`);
 smoke-контракты усилены против текста заглушки. Всего 11/11 smoke M2-скоупа; подробности — в
-«Итог волны W4» выше. Живой attach-прогон inventory/hook — ручной чек-лист (ptrace_scope=1).
+«Итог волны W4» выше. Живой attach-прогон inventory/hook выполнен 2026-10-18 в live-чеклисте
+W4-fix (ptrace_scope=0; там же найден и исправлен RPC-баг `pattern` — W4f-12).
 
 Решение координатора (M2): команды CLI лениво импортируют `src/adapters/frida.mjs` (help/--version/
 summarize не грузят нативный модуль); сообщения об ошибках среды — «Frida недоступна: <msg>» (код 2);

@@ -33,7 +33,8 @@ export async function listProcesses(device) {
 /**
  * @param {Pick<Device, "attach">} device
  * @param {number} pid
- * @param {{ agentSource?: string }} [options]
+ * @param {{ agentSource?: string, captureMessages?: boolean }} [options]
+ * @remarks На hook-пути массив сообщений не читается, а сообщений могут приходить тысячи.
  * @returns {Promise<{ session: Session, script: Script, messages: import("frida").Message[] }>}
  */
 export async function attach(device, pid, options = {}) {
@@ -42,7 +43,9 @@ export async function attach(device, pid, options = {}) {
   const script = await session.createScript(source, { name: "discord-lab" });
   /** @type {import("frida").Message[]} */
   const messages = [];
-  script.message.connect((message) => messages.push(message));
+  script.message.connect((message) => {
+    if (options.captureMessages === true) messages.push(message);
+  });
   await script.load();
   return { session, script, messages };
 }
@@ -58,9 +61,11 @@ export function parseHookMessage(message) {
   return isCallPayload(message.payload) ? message.payload : null;
 }
 
-/** @param {AgentScript} script @param {object} options @returns {Promise<unknown>} */
+/** @param {AgentScript} script @param {{ pattern?: RegExp | string } & Record<string, unknown>} options @returns {Promise<unknown>} */
 export function startHook(script, options) {
-  return script.exports.hook(options);
+  // frida RPC не сериализует RegExp; агент ждёт строку (scripts/frida-log-calls.js: pattern — СТРОКА)
+  const pattern = options.pattern instanceof RegExp ? options.pattern.source : options.pattern;
+  return script.exports.hook({ ...options, pattern });
 }
 
 /** @param {AgentScript} script @returns {Promise<void>} */

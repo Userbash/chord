@@ -2,7 +2,38 @@
 // RED (M1): реализация — src/core/args.mjs. Контракт: parseArgs, паритет scripts/logger.mjs.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseArgs } from "../../src/core/args.mjs";
+import { parseArgs, parseNumericArg, parseRegexArg } from "../../src/core/args.mjs";
+
+describe("parseNumericArg", () => {
+  it("разбирает целое число и принимает включительные границы", () => {
+    assert.equal(parseNumericArg("--x", "42"), 42);
+    assert.equal(parseNumericArg("--x", "1", { min: 1, max: 2 }), 1);
+    assert.equal(parseNumericArg("--x", "2", { min: 1, max: 2 }), 2);
+  });
+
+  it("отклоняет нечисловые, дробные, вне диапазона, флаг и небезопасные значения", () => {
+    for (const value of ["abc", "1.5", "0", true, "9999999999999999999"]) {
+      assert.throws(() => parseNumericArg("--x", value, { min: 1 }));
+    }
+  });
+
+  it("принимает целое число и отклоняет нецелое", () => {
+    assert.equal(parseNumericArg("--x", 42), 42);
+    assert.throws(() => parseNumericArg("--x", 1.5));
+  });
+});
+
+describe("parseRegexArg", () => {
+  it("компилирует regex, отклоняет синтаксическую ошибку и длину больше лимита", () => {
+    assert.ok(parseRegexArg("--pattern", "Task|Poll") instanceof RegExp);
+    assert.throws(() => parseRegexArg("--pattern", "("), /regex/i);
+    assert.throws(() => parseRegexArg("--pattern", "x".repeat(513)), /regex/i);
+  });
+
+  it("undefined-паттерн даёт пустой regex", () => {
+    assert.equal(parseRegexArg("--pattern", undefined).source, "(?:)");
+  });
+});
 
 describe("parseArgs", () => {
   it("пустой argv → пустые _ и modules", () => {

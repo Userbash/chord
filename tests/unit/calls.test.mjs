@@ -36,6 +36,15 @@ describe("callLine", () => {
   it("не-вызов → null (строка не пишется)", () => {
     assert.equal(callLine({ type: "error" }), null);
   });
+
+  it("сохраняет stack при round-trip через callLine и parseCallLog", () => {
+    const payload = /** @type {CallRecord & { stack: string[] }} */ ({
+      type: "call", module: "m", name: "n", address: "a", threadId: 1, at: 0, args: [], stack: ["m+0x2a", "0x9000"],
+    });
+    const line = callLine(payload);
+    assert.equal(line, `${JSON.stringify(payload)}\n`);
+    assert.deepEqual(parseCallLog(line ?? ""), [payload]);
+  });
 });
 
 describe("parseCallLog", () => {

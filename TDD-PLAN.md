@@ -276,7 +276,7 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 
 | Тест | Модуль | Экспорты / контракт |
 | --- | --- | --- |
-| `tests/unit/args.test.mjs` | `src/core/args.mjs` | `parseArgs` |
+| `tests/unit/args.test.mjs` | `src/core/args.mjs` | `parseArgs`, `parseNumericArg`, `parseRegexArg` |
 | `tests/unit/csv.test.mjs` | `src/core/csv.mjs` | `safeName`, `csv` |
 | `tests/unit/paths.test.mjs` | `src/core/paths.mjs` | `projectRoot`, `logsDir`, `functionsDir`, `screensDir`, `screenshotName`, `relativeToRoot` |
 | `tests/unit/processes.test.mjs` | `src/core/processes.mjs` | `isDiscordProcess`, `filterDiscordProcesses` |
@@ -299,6 +299,8 @@ npm run check         # typecheck + все тесты — «одна кнопк�
 | `tests/e2e/cdp-browser.e2e.test.mjs` | — | `targets`, `eval`, `clicktext`, `list`, `shot` |
 | `tests/e2e/walk-fixture.e2e.test.mjs` | — | `walk` |
 | `tests/e2e/live-discord.e2e.test.mjs` | — | `targets`, `eval` (только чтение, opt-in) |
+| `tests/unit/hook-io.test.mjs` | `src/core/hook-io.mjs` | `openCallLog`, `waitForStop` |
+| `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
 
 Цикл выхода в green для M1 (рецепт):
 
@@ -335,14 +337,16 @@ npm run check                            # typecheck + все тесты (unit/m
 
 ## 10. Открытые вопросы
 
-1. `git init` — делаем? (нужен для коммит-дисциплины TDD, диффов и CI из M5).
+1. `git init` — **сделано (2026-10-18)**: репозиторий, baseline `4188bd0`, тег `v0.1.0`.
 2. Перенести инструменты прогона №2 из `/tmp/opencode/discord-ui-walkthrough/` в `tools/`?
 3. В M6 `scripts/*` удаляем или оставляем тонкими обёртками?
 4. Логи `logs/ui-clicks-*.jsonl` (события кликов `{at,event,target}`) пока без
    потребителя в `src/` — нужна ли отдельная команда/модуль (backlog)?
-5. Нужен ли истинный граф вызовов Discord (caller→callee)? Агент пишет плоские записи
-   `{module,name,address,args[]}` без вызывающего; рёбра требуют backtrace в `onEnter`
-   (дороже на горячих функциях, раздувает журнал) — решать к M2/M6.
+5. **Решено (W4-fix, 2026-10-18)**: истинный граф (caller→callee) не строим. Добавлен
+   опциональный `--backtrace` (по умолчанию off): агент пишет `stack` (до 8 фреймов
+   `module+0xoffset`) в запись вызова; подтверждено живым прогоном на Discord
+   (11 582/11 582 записей со `stack`). Дефолтный плоский формат сохранён.
+   Детали — `TASKS.md`, W4f-08/W4f-12.
 
 ## 11. Микро-декомпозиция и воркеры
 

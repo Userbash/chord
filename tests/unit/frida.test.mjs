@@ -47,12 +47,11 @@ describe("loadAgentSource", () => {
 });
 
 describe("attach", () => {
-  it("creates, connects before loading, and captures messages in the returned array", async () => {
+  it("creates and connects before loading, then drains messages by default", async () => {
     /** @type {string[]} */
     const calls = [];
     /** @type {((message: import("frida").Message) => void) | undefined} */
     let onMessage;
-    const message = { type: "send", payload: { type: "ready" } };
     const script = /** @type {Script} */ (/** @type {unknown} */ ({
       message: { connect(/** @type {(message: import("frida").Message) => void} */ callback) { calls.push("connect"); onMessage = callback; } },
       load: async () => { calls.push("load"); },
@@ -73,8 +72,56 @@ describe("attach", () => {
     assert.deepEqual(calls, ["createScript", "connect", "load"]);
     assert.equal(result.session, session);
     assert.equal(result.script, script);
-    onMessage?.(/** @type {import("frida").Message} */ (/** @type {unknown} */ (message)));
-    assert.equal(result.messages[0], message);
+    for (let index = 0; index < 1000; index += 1) {
+      onMessage?.(/** @type {import("frida").Message} */ (/** @type {unknown} */ ({ type: "send", payload: { index } })));
+    }
+    assert.equal(result.messages.length, 0);
+  });
+
+  it("captures messages when captureMessages is true", async () => {
+    /** @type {string[]} */
+    const calls = [];
+    /** @type {((message: import("frida").Message) => void) | undefined} */
+    let onMessage;
+    const first = { type: "send", payload: { type: "ready" } };
+    const second = { type: "send", payload: { type: "call" } };
+    const script = /** @type {Script} */ (/** @type {unknown} */ ({
+      message: { connect(/** @type {(message: import("frida").Message) => void} */ callback) { calls.push("connect"); onMessage = callback; } },
+      load: async () => { calls.push("load"); },
+    }));
+    const session = /** @type {Session} */ (/** @type {unknown} */ ({
+      createScript: async () => { calls.push("createScript"); return script; },
+    }));
+    const device = /** @type {Pick<Device, "attach">} */ (/** @type {unknown} */ ({ attach: async () => session }));
+    const result = await attach(device, 42, { agentSource: "FAKE", captureMessages: true });
+    assert.deepEqual(calls, ["createScript", "connect", "load"]);
+    onMessage?.(/** @type {import("frida").Message} */ (/** @type {unknown} */ (first)));
+    onMessage?.(/** @type {import("frida").Message} */ (/** @type {unknown} */ (second)));
+    assert.equal(result.messages.length, 2);
+    assert.equal(result.messages[0], first);
+  });
+
+  it("без agentSource читает встроенный агент по умолчанию", async () => {
+    /** @type {string[]} */
+    const calls = [];
+    let capturedSource = "";
+    const script = /** @type {Script} */ (/** @type {unknown} */ ({
+      message: { connect() {} },
+      load: async () => { calls.push("load"); },
+    }));
+    const session = /** @type {Session} */ (/** @type {unknown} */ ({
+      createScript: async (/** @type {string} */ source, /** @type {{ name: string }} */ options) => {
+        calls.push("createScript");
+        capturedSource = source;
+        assert.deepEqual(options, { name: "discord-lab" });
+        return script;
+      },
+    }));
+    const device = /** @type {Pick<Device, "attach">} */ (/** @type {unknown} */ ({ attach: async () => session }));
+    const result = await attach(device, 42);
+    assert.deepEqual(calls, ["createScript", "load"]);
+    assert.equal(result.session, session);
+    assert.ok(typeof capturedSource === "string" && capturedSource.includes("Interceptor.attach"));
   });
 });
 
@@ -101,11 +148,20 @@ describe("parseHookMessage", () => {
 });
 
 describe("startHook", () => {
+  it("нормализует RegExp-паттерн в строку до отправки агенту", async () => {
+    /** @type {{ pattern?: unknown, limit?: number }} */
+    let captured = {};
+    const script = /** @type {import("../../src/adapters/frida.mjs").AgentScript} */ (/** @type {unknown} */ ({ exports: { hook: async (/** @type {object} */ received) => { captured = /** @type {{ pattern?: unknown, limit?: number }} */ (received); return {}; } } }));
+    await startHook(script, { pattern: /OnSystemInputEvent/, limit: 7 });
+    assert.equal(typeof captured.pattern, "string");
+    assert.equal(captured.pattern, "OnSystemInputEvent");
+  });
+
   it("passes options to hook and returns its result", async () => {
     const options = { pattern: "Task", limit: 2 };
     const result = [{ module: "discord.node" }];
     const script = /** @type {import("../../src/adapters/frida.mjs").AgentScript} */ (/** @type {unknown} */ ({ exports: { hook: async (/** @type {object} */ received) => {
-      assert.equal(received, options);
+      assert.deepEqual(received, { pattern: "Task", limit: 2 });
       return result;
     } } }));
     assert.equal(await startHook(script, options), result);

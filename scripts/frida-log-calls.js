@@ -25,6 +25,7 @@
  * @property {string} [pattern]
  * @property {number} [limit]
  * @property {number} [argCount]
+ * @property {boolean} [backtrace]
  */
 /**
  * @typedef {object} SymbolEntry
@@ -68,7 +69,21 @@ function discordModuleNames() {
 
 /** @param {string} name @returns {ModuleInfo} */
 function moduleEntry(name) {
-  const module_ = Process.getModuleByName(name);
+  /** @type {Module} */
+  let module_;
+  try {
+    module_ = Process.getModuleByName(name);
+  } catch (e) {
+    return {
+      name: name,
+      path: '',
+      base: '0',
+      size: 0,
+      symbols: [],
+      exports: [],
+      error: String(e),
+    };
+  }
   /** @type {ModuleSymbolDetails[]} */
   let symbols = [];
   /** @type {ModuleExportDetails[]} */
@@ -162,6 +177,19 @@ function candidates(moduleNames, kind, pattern, limit) {
   return found;
 }
 
+/** Снимает все ранее установленные хуки; сбои detach не мешают остальным. */
+function detachAll() {
+  while (activeHooks.length > 0) {
+    const hook = activeHooks.pop();
+    if (!hook) break;
+    try {
+      hook.detach();
+    } catch (e) {
+      // Already detached.
+    }
+  }
+}
+
 rpc.exports = {
   /** @param {InventoryOptions} [options] */
   inventory: function (options) {
@@ -182,6 +210,7 @@ rpc.exports = {
 
   /** @param {HookOptions} [options] */
   hook: function (options) {
+    detachAll();
     /** @type {HookOptions} */
     const opts = options || {};
     const limit = typeof opts.limit === 'number' ? opts.limit : 64;
@@ -207,7 +236,8 @@ rpc.exports = {
                   preview.push(null);
                 }
               }
-              send({
+              /** @type {Record<string, unknown>} */
+              const message = {
                 type: 'call',
                 module: target.module,
                 name: target.name,
@@ -215,7 +245,25 @@ rpc.exports = {
                 threadId: this.threadId,
                 at: Date.now(),
                 args: preview,
-              });
+              };
+              if (opts.backtrace === true) {
+                /** @type {string[] | null} */
+                let stack = null;
+                try {
+                  stack = Thread.backtrace(this.context, Backtracer.FUZZY)
+                    .slice(0, 8)
+                    .map(function (address) {
+                      const module_ = Process.findModuleByAddress(address);
+                      if (!module_) return String(address);
+                      const offset = address.sub(module_.base).toString().replace(/^0x/i, '');
+                      return module_.name + '+0x' + offset;
+                    });
+                } catch (e) {
+                  // Backtrace is optional and may be unavailable for a given context.
+                }
+                message.stack = stack;
+              }
+              send(message);
             },
           }),
         );
@@ -228,15 +276,7 @@ rpc.exports = {
 
   unhook: function () {
     const count = activeHooks.length;
-    while (activeHooks.length > 0) {
-      const hook = activeHooks.pop();
-      if (!hook) break;
-      try {
-        hook.detach();
-      } catch (e) {
-        // Already detached.
-      }
-    }
+    detachAll();
     return count;
   },
 };

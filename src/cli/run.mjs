@@ -2,10 +2,11 @@
 // Точка входа CLI discord-lab: маршрутизация команд.
 // Контракт: tests/smoke/cli.smoke.test.mjs (+ команды из TDD-PLAN.md §6).
 
-import { appendFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
-import { parseArgs } from "../core/args.mjs";
+import { parseArgs, parseNumericArg, parseRegexArg } from "../core/args.mjs";
 import { callLine, parseCallLog, summarizeCallLines } from "../core/calls.mjs";
+import { openCallLog, waitForStop } from "../core/hook-io.mjs";
 import { listTargets, resolveEndpoint } from "../core/cdp/client.mjs";
 import { csv, safeName } from "../core/csv.mjs";
 import { inventoryCounts, inventoryCsvRows, inventoryJson } from "../core/inventory.mjs";
@@ -72,8 +73,12 @@ export async function run(argv) {
     return 0;
   }
   if (parsed.version === true || argv[0] === "--version") {
-    console.log(await packageVersion());
-    return 0;
+    try {
+      console.log(await packageVersion());
+      return 0;
+    } catch (error) {
+      return environmentError(`Не удалось прочитать версию: ${errorMessage(error)}`);
+    }
   }
   if (!command) {
     console.log(HELP);
@@ -143,6 +148,18 @@ export async function run(argv) {
       }
     }
     case "inventory": {
+      /** @type {number | undefined} */
+      let requestedPid;
+      /** @type {number} */
+      let maxSymbols;
+      try {
+        requestedPid = parsed.pid === undefined ? undefined : parseNumericArg("--pid", parsed.pid, { min: 1 });
+        maxSymbols = parsed["max-symbols"] === undefined
+          ? 50000
+          : parseNumericArg("--max-symbols", parsed["max-symbols"], { min: 1, max: 1_000_000 });
+      } catch (error) {
+        return usageError(errorMessage(error));
+      }
       /** @type {typeof import("../adapters/frida.mjs")} */
       let frida;
       try {
@@ -156,9 +173,9 @@ export async function run(argv) {
       let targets;
       try {
         device = await frida.loadDevice();
-        targets = parsed.pid === undefined
+        targets = requestedPid === undefined
           ? filterDiscordProcesses(await frida.listProcesses(device))
-          : [{ pid: Number(parsed.pid), name: `pid-${parsed.pid}` }];
+          : [{ pid: requestedPid, name: `pid-${requestedPid}` }];
       } catch (error) {
         return environmentError(`Frida недоступна: ${errorMessage(error)}`);
       }
@@ -181,7 +198,7 @@ export async function run(argv) {
           const modules = /** @type {import("../core/types.js").ModuleInfo[]} */ (await frida.collectInventory(
             /** @type {import("../adapters/frida.mjs").AgentScript} */ (script), {
             modules: parsed.modules,
-            maxSymbols: parsed["max-symbols"] === undefined ? 50000 : Number(parsed["max-symbols"]),
+            maxSymbols,
           }));
           const at = new Date().toISOString();
           const jsonPath = join(functionsDir(), `pid-${target.pid}-${safeName(target.name)}.json`);
@@ -206,6 +223,29 @@ export async function run(argv) {
       return 0;
     }
     case "hook": {
+      /** @type {number | undefined} */
+      let requestedPid;
+      /** @type {number} */
+      let limit;
+      /** @type {number} */
+      let argCount;
+      /** @type {number} */
+      let duration;
+      /** @type {RegExp} */
+      let pattern;
+      try {
+        requestedPid = parsed.pid === undefined ? undefined : parseNumericArg("--pid", parsed.pid, { min: 1 });
+        limit = parsed.limit === undefined ? 64 : parseNumericArg("--limit", parsed.limit, { min: 1, max: 10_000 });
+        argCount = parsed["arg-count"] === undefined
+          ? 2
+          : parseNumericArg("--arg-count", parsed["arg-count"], { min: 0, max: 6 });
+        duration = parsed["duration-ms"] === undefined
+          ? 0
+          : parseNumericArg("--duration-ms", parsed["duration-ms"], { min: 0, max: 86_400_000 });
+        pattern = parseRegexArg("--pattern", parsed.pattern === undefined ? "." : parsed.pattern);
+      } catch (error) {
+        return usageError(errorMessage(error));
+      }
       /** @type {typeof import("../adapters/frida.mjs")} */
       let frida;
       try {
@@ -223,8 +263,8 @@ export async function run(argv) {
           pid = await device.spawn(["discord"]);
           await device.resume(pid);
           await new Promise((done) => setTimeout(done, 4000));
-        } else if (parsed.pid !== undefined) {
-          pid = Number(parsed.pid);
+        } else if (requestedPid !== undefined) {
+          pid = requestedPid;
         } else {
           const targets = filterDiscordProcesses(await frida.listProcesses(device));
           const target = targets[0];
@@ -239,12 +279,24 @@ export async function run(argv) {
       }
 
       const out = String(parsed.out ?? join(logsDir(), `calls-${pid}.jsonl`));
-      await mkdir(dirname(out), { recursive: true });
+      try {
+        await mkdir(dirname(out), { recursive: true });
+      } catch (error) {
+        return environmentError(`Не удалось подготовить каталог лога: ${errorMessage(error)}`);
+      }
       let attached;
       try {
         attached = await frida.attach(device, pid);
       } catch (error) {
         return environmentError(`Не удалось подключиться (pid ${pid}): ${errorMessage(error)}`);
+      }
+      let log;
+      try {
+        log = await openCallLog(out);
+      } catch (error) {
+        await frida.stopHook(/** @type {import("../adapters/frida.mjs").AgentScript} */ (attached.script));
+        await attached.session.detach().catch(() => {});
+        return environmentError(`Не удалось открыть лог ${out}: ${errorMessage(error)}`);
       }
       let calls = 0;
       attached.script.message.connect((message) => {
@@ -252,7 +304,7 @@ export async function run(argv) {
         if (record === null) return;
         calls += 1;
         const line = callLine(record);
-        if (line !== null) appendFile(out, line).catch(() => {});
+        if (line !== null) log.write(line);
       });
       try {
         const kind = parsed.kind === "exports" ? "exports" : "symbols";
@@ -260,31 +312,25 @@ export async function run(argv) {
           /** @type {import("../adapters/frida.mjs").AgentScript} */ (attached.script), {
           modules: parsed.modules,
           kind,
-          pattern: parsed.pattern === undefined ? "." : String(parsed.pattern),
-          limit: Number(parsed.limit ?? 64),
-          argCount: Number(parsed["arg-count"] ?? 2),
+          pattern,
+          limit,
+          argCount,
+          backtrace: parsed.backtrace === true,
         }));
         note(`[hook] pid=${pid} источник=${result.kind} целей=${result.targets} установлено=${result.hooked}`);
         note(`[hook] лог: ${out}`);
         if (result.hooked === 0) note("[hook] Под фильтр не попали функции: проверьте --module/--pattern/--kind.");
 
-        const duration = Number(parsed["duration-ms"] ?? 0);
-        await new Promise((done) => {
-          if (duration > 0) {
-            setTimeout(done, duration);
-            return;
-          }
-          process.once("SIGINT", done);
-          process.once("SIGTERM", done);
-          note("[hook] Ctrl-C — остановить логирование.");
-        });
+        if (duration <= 0) note("[hook] Ctrl-C — остановить логирование.");
+        await waitForStop(duration);
         return 0;
       } catch (error) {
         return environmentError(`Ошибка hook (pid ${pid}): ${errorMessage(error)}`);
       } finally {
         await frida.stopHook(/** @type {import("../adapters/frida.mjs").AgentScript} */ (attached.script));
         await attached.session.detach().catch(() => {});
-        note(`[hook] завершено: записано вызовов: ${calls}`);
+        const writeErrors = await log.close();
+        note(`[hook] завершено: записано вызовов: ${calls}, ошибок записи: ${writeErrors}`);
       }
     }
     case "walk":

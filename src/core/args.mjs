@@ -51,3 +51,41 @@ export function parseArgs(argv) {
   }
   return parsed;
 }
+
+/**
+ * @param {string} name
+ * @param {string | number | boolean | string[] | undefined} value
+ * @param {{ min?: number, max?: number }} [options]
+ * @returns {number}
+ */
+export function parseNumericArg(name, value, { min = -Number.MAX_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER } = {}) {
+  if (value === true || value === undefined) {
+    throw new Error(`Неверное значение ${name}: пропущено значение`);
+  }
+  const validSyntax = typeof value === "number"
+    ? Number.isInteger(value)
+    : typeof value === "string" && /^[+-]?\d+$/.test(value);
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!validSyntax || !Number.isSafeInteger(parsed) || parsed < min || parsed > max) {
+    throw new Error(`Неверное значение ${name}: "${value}" — ожидалось целое число от ${min} до ${max}`);
+  }
+  return parsed;
+}
+
+/**
+ * @param {string} name
+ * @param {string | number | boolean | string[] | undefined} value
+ * @param {{ maxLength?: number }} [options]
+ * @returns {RegExp}
+ */
+export function parseRegexArg(name, value, { maxLength = 512 } = {}) {
+  const source = value === undefined ? "" : String(value);
+  if (source.length > maxLength) {
+    throw new Error(`Неверный regex в ${name}: слишком длинный (максимум ${maxLength})`);
+  }
+  try {
+    return new RegExp(source);
+  } catch (error) {
+    throw new Error(`Неверный regex в ${name}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
