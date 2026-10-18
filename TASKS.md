@@ -6,6 +6,8 @@
 шаблоны ТЗ/отчётов) и `AGENTS.md` — краткие правила агентам-воркерам. Контекст и
 правила — `TDD-PLAN.md` (§8 — машиночитаемая таблица «тест ↔ модуль ↔ экспорты»;
 мета-контроль — `tests/meta/plan-sync.test.mjs`).
+Дополнено 2026-10-19: раздел «R1 — разведка gateway» (карточки; согласовано владельцем).
+Итог 2026-10-19: волна R1 закрыта — статусы, каталог опкодов и артефакты в разделе «R1».
 
 ## Как читать
 
@@ -31,6 +33,8 @@ W0 (C) ──► W1 (W1a…W1d) ──► W1-fix ──► W2 (C) ──► W3 (
 
 W3R (hardening: cxxfilt/CDP/args) ⊕ W4 (M2: frida → CLI) ──► W5 (walk-движок, M3) ──► W6 (отчёты, M4)
                           ──► W7 (CI/мутации, M5) ──► W8 (паритет, M6)
+
+R1 (разведка gateway: WS/ETF/zstd, опкоды, голос) ──► закрыт 2026-10-19 (артефакты /tmp/opencode/r2-net/)
 ```
 
 Критерий делегирования: задача попадает воркеру, если её можно выполнить в общей
@@ -418,6 +422,54 @@ inventory при падении всех целей — код 2 (осознан
 - [x] `npm run check` в основной копии: typecheck+meta зелёные; 153 теста (7 pass / 142 fail / 4 skip); падения только от заглушек (2 косвенных: CLI-smoke exit-код, CDP fake-socket).
 - [x] Повторные прогоны (детерминизм) и отсутствие записей в рабочие каталоги.
 - [x] Обновление §8/счётчиков/статусов: §8 не менялся (набор тестовых файлов тот же); статусы — этот файл.
+
+## R1 — разведка gateway (карточки; согласовано 2026-10-19)
+
+Цель: эмпирически снять и задокументировать протокол шлюза событий (`gateway.discord.gg`,
+WS/TCP/443) и REST-поверхность, работая только с изолированной копией (CDP 9223); живой клиент
+(PID 220743) не трогается. Входные находки: в веб-бандле найден адрес
+`wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream` (ETF + потоковый zstd);
+`evidence/network/endpoints.md` (хосты, fake-IP); `/tmp/opencode/ux-research/RESEARCH-REPORT.md`
+(индекс 14 379 модулей); `/tmp/opencode/voice-trace-rtp/REPORT.md` (голосовой RTP/RTCP — рядом).
+Артефакты волны — только в `/tmp/opencode/` (фактически `/tmp/opencode/r2-net/`; каталог `r1-gateway/`
+не создавался); `logs/`, `functions/`, `evidence/` не пишутся.
+
+| ID | Микрозадача | Владелец | Статус |
+| --- | --- | --- | --- |
+| R1-GW-01 | Захват WS-фреймов gateway на копии: CDP `Network.enable` + `webSocketFrameSent/Received` → `frames-*.jsonl` (dir, opcode, payload base64, ts); фиксировать URL handshake и первый фрейм (ожидается HELLO) | C | [x] |
+| R1-GW-02 | Декодер `zstd-stream`: потоковый контекст на соединение (Node ≥ 24 `node:zlib` zstd или системный `zstd` — выбрать на шаге 01); тест — декод первого фрейма до валидного ETF | C | [x] |
+| R1-GW-03 | Декодер ETF (подмножество тегов: int/large-int, atoms, binary, list, map, nil) + roundtrip-тест на живых фреймах; таблица тегов в отчёте | C | [x] |
+| R1-GW-04 | Каталог opcodes и dispatch-событий из живого дампа: HELLO(10) → IDENTIFY(2) → READY; HEARTBEAT(1)/ACK(11); диспатчи (MESSAGE_CREATE, GUILD_CREATE, …) — таблица «событие → ETF-ключи» | C | [x] |
+| R1-GW-05 | REST-инвентарь без сети: `api/v10`-эндпоинты из модулей веб-бандла (`/tmp/opencode/ux-research/scripts/export-1`, grep) → список с ролями | C | [x] |
+| R1-GW-06 | Голосовая сигнализация: VOICE_STATE_UPDATE/VOICE_SERVER_UPDATE → voice-WS (handshake, heartbeat, op-коды); связать с `/tmp/opencode/voice-trace-rtp/REPORT.md` | C | [~] |
+| R1-GW-07 | Сводный отчёт `R1-GATEWAY.md` (метод, структуры, ограничения) + правка §5 `GAP-ANALYSIS.md`; решение «идём ли в протокол» — за владельцем | C | [x] |
+
+Ограничения: интерактив — чтение (CDP eval по согласованным сценариям); gdb — только по правилам
+волны (SIGINT → detach, без SIGKILL); любые сетевые шаги (повторное подключение, replay) — отдельное
+согласие; IDENTIFY-пейлоады содержат токен сессии — в отчётах и артефактах маскировать (только
+структуры и ключи, без значений авторизации).
+
+**Итог R1 (2026-10-19): волна закрыта.** Фактический каталог артефактов — `/tmp/opencode/r2-net/`
+(`r1-gateway/` не создавался); статусы — в таблице выше.
+
+- Шлюз: точечный форс-реконнект только основного сокета (`ss -K -t dst 198.18.0.109`; голосовой
+  сокет не тронут) → чистый поток с первого кадра (`28 b5 2f fd`), 70 recv-термов + 11 sent
+  (RESUME прошёл → RESUMED; свежий IDENTIFY/READY не снимался — сессия резюмировалась).
+- Каталог опкодов: recv — 10 HELLO / 11 ACK; sent — 6 RESUME, 3 PRESENCE (invisible), 4 VOICE_STATE,
+  37 SUBSCRIPTIONS (диапазоны `[[0,99]]`), 40 QoS (`ver:31`), 43 REQUEST_CHANNEL_INFO; диспатчи —
+  RESUMED, SESSIONS_REPLACE, CHANNEL_INFO, GUILD_MEMBER_LIST_UPDATE, PRESENCE_UPDATE,
+  VOICE_STATE_UPDATE, MESSAGE_POLL_VOTE_ADD/REMOVE, USER_SETTINGS_PROTO_UPDATE.
+- ETF: 16 тегов, таблица — `REPORT.md` §11; особенности: nil — строка «nil», булевы — «true»/«false»,
+  снежинки — строки с суффиксом `n`.
+- REST: 231 URL / 88 эндпоинтов `api/v9` из кэша — `rest-endpoints.md` (в карточке ожидался v10 —
+  отклонение зафиксировано).
+- Голос: формат шифрования снят RE (`PacketCrypter`, режимы 0–6; AAD = заголовок; nonce — 4-байтовый
+  LE-счётчик в хвосте) — `VOICE-CRYPTO.md`; сигнализация — частично (R1-GW-06: VOICE_STATE_UPDATE и
+  каденция/роли сокетов подтверждены, полный дамп голосового WS — нет).
+- Дополнительно: кэш-ассеты (4640 записей: 15 mp3, 22 woff2, 137 svg, 206 png, 429 webp, 13 видео),
+  UI-трассы (DM/эмодзи/поповер), оценка готовности к Rust-клону — `READINESS.md` (A: GO, C: NO-GO).
+- Инструменты волны: `ws-capture.mjs`, `gw-zstd.mjs`, `cache-entries.mjs`, `ui-traces.mjs`,
+  `map-project.py` (все — в `/tmp/opencode/r2-net/`).
 
 ## Backlog / открытые вопросы
 

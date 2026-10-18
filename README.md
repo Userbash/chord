@@ -35,12 +35,20 @@
 ## Быстрые команды
 
 ```bash
-node scripts/logger.mjs pids                 # процессы Discord, видимые Frida
-node scripts/logger.mjs inventory            # инвентарь символов/экспортов по всем процессам
+# CLI discord-lab (основной интерфейс; bin/discord-lab.mjs, после npm link — команда discord-lab)
+node bin/discord-lab.mjs --help                # справка и список команд
+node bin/discord-lab.mjs pids                  # процессы Discord, видимые Frida
+node bin/discord-lab.mjs inventory --pid <PID> # инвентарь модулей/символов → functions/pid-*.json/.csv
+node bin/discord-lab.mjs hook --pid <PID> --pattern 'ExecutePending|PollMetrics' \
+  --limit 32 --duration-ms 60000 --arg-count 2 # запись вызовов → logs/calls-<PID>.jsonl
+node bin/discord-lab.mjs summarize logs/calls-<PID>.jsonl   # сводка → <лог>.by-function.csv
+node bin/discord-lab.mjs cdp targets           # CDP-цели (env CDP_ENDPOINT, по умолчанию :9222)
+
+# статика, типы, тесты
 bash   scripts/extract-static-functions.sh   # статические таблицы функций из ELF-файлов
 bash   scripts/analyze.sh                    # статический разбор app.asar через REA
 npm run typecheck                            # tsc: типы scripts/, src/ и tests/ (см. «Типизация»)
-npm test                                     # тесты unit+meta+smoke+e2e (см. «Тесты (TDD)»; сейчас red-базлайн)
+npm test                                     # тесты unit+meta+smoke+e2e (см. «Тесты (TDD)»; зелёные, e2e — skip-aware)
 
 # UI-прогоны (CDP; нужен запуск discord --remote-debugging-port=9222):
 node scripts/ui-walk-settings.mjs     # все разделы настроек
@@ -50,19 +58,32 @@ node scripts/ui-menu-extra.mjs        # оставшиеся пункты + го
 node scripts/cdp.mjs rclick "текст"   # доверенный правый клик (меню канала)
 node scripts/cdp.mjs lclick "текст"   # доверенный левый клик по координатам
 
-# логирование вызовов (пример: планировщик задач discord_utils в главном процессе)
-node scripts/logger.mjs hook --pid <PID> \
-  --pattern 'ExecutePending|ExecuteInternal|ExecuteAfterInternal|PollMetrics' \
-  --limit 32 --duration-ms 60000 --arg-count 2
-# лог: logs/calls-<PID>.jsonl  (модуль, функция, адрес, поток, время, аргументы)
-
-# хук по экспортам вместо символов (у Discord экспорты почти пустые)
+# легаси-логирование (паритет с CLI hook; выводится из эксплуатации в M6-WRAP-01)
 node scripts/logger.mjs hook --pid <PID> --kind exports --module discord_utils.node
 ```
 
 Полезные опции хука: `--module <имя>.node` (можно повторять), `--pattern REGEX`,
 `--limit N` (максимум хуков), `--arg-count 0..6` (сколько указателей-аргументов писать),
 `--duration-ms N` (0 = до Ctrl-C), `--out FILE`, `--spawn` (запустить Discord под Frida).
+
+### Команды CLI `discord-lab` (M1–M2)
+
+Точка входа — `bin/discord-lab.mjs` (bin-имя `discord-lab`; после `npm link` доступна как команда).
+Коды выхода: `0` — успех; `1` — неизвестная команда/ошибка аргументов; `2` — недоступная среда
+(Frida/CDP) или ещё не реализованная команда.
+
+| Команда | Назначение | Опции | Результат |
+| --- | --- | --- | --- |
+| `pids` | процессы Discord, видимые Frida | `--all` — включить все процессы | `<pid>\t<имя>` в stdout |
+| `inventory` | рантайм-инвентарь модулей/символов/экспортов | `--pid N`, `--max-symbols N` (по умолчанию 50 000), повторяемый `--module M` | `functions/pid-<PID>-<имя>.json/.csv` |
+| `hook` | запись вызовов функций через Frida | `--pid N` (или `--spawn`), повторяемый `--module M`, `--kind symbols\|exports`, `--pattern REGEX`, `--limit N` (по умолчанию 64), `--arg-count 0..6` (2), `--duration-ms N` (0 = до Ctrl-C), `--backtrace`, `--out FILE` | `logs/calls-<PID>.jsonl` (строка = вызов) |
+| `summarize [лог]` | сводка вызовов из JSONL | без аргумента — первый `calls-*.jsonl` в cwd | `<лог>.by-function.csv` + счётчики в stdout |
+| `cdp targets` | список целей CDP | env `CDP_ENDPOINT` (по умолчанию `http://127.0.0.1:9222`) | JSON в stdout |
+| `walk <app>` | обход интерфейса | — | в разработке: M3 (сейчас код 2) |
+| `domains`, `static` | отчёты по доменам функций и статическим символам | — | в разработке: M4 (сейчас код 2) |
+
+Примеры: `discord-lab inventory --pid 28170`; `discord-lab hook --pid 28170 --pattern 'SendRtp|OnIncomingRtp'
+--arg-count 3 --duration-ms 30000`; `discord-lab summarize logs/calls-28170.jsonl`.
 
 ## Типизация (JSDoc + tsc)
 
@@ -105,10 +126,10 @@ npm run test:coverage # покрытие src/** с порогами: строк�
 npm run check         # typecheck + все тесты — «одна кнопка» перед приёмкой шага
 ```
 
-- Сейчас в репозитории **red-базлайн + углубление**: `src/**` — каркас интерфейсов
-  без логики (каждая функция кидает `Не реализовано: …`); тесты показывают очередь
-  работ. Golden-данные строятся из реальных артефактов (`logs/**`, `functions/**`)
-  независимыми оракулами (`jq`/`awk`/`c++filt`), провенанс — в комментариях тестов.
+- Статус (2026-10-19): **M1 (ядро) и M2 (Frida-слой) приняты** — 176 тестов (172 pass / 0 fail /
+  4 e2e-skip), покрытие 99.3/90.5/97.6, `npm run check` зелёный; впереди M3–M6 (walk-движок,
+  отчёты, CI-гейты, паритет). Golden-данные построены из реальных артефактов (`logs/**`,
+  `functions/**`) независимыми оракулами (`jq`/`awk`/`c++filt`), провенанс — в комментариях тестов.
 - Уровни: unit (без процессов/сети), meta (связность плана и тестов),
   smoke (реальный процесс CLI; Frida — skip-aware), e2e (реальный CDP; без браузера —
   skip с подсказкой).
@@ -221,6 +242,27 @@ DNS отдаёт адреса из `198.18.0.0/15` (прокси). Реальн�
 `images-ext-1.discordapp.net → .24`, `dl.discordapp.net → .25`, `discord.com → .5`.
 Голос шёл на реальный `104.29.155.201:19309` (opus 48 kHz stereo, payload 120,
 RED+NACK, RTP-расширения Discord MID/RID).
+
+## Разведка gateway (R1, 2026-10-19)
+
+Снято с изолированной копии клиента (CDP 9223; живой клиент не трогался). Артефакты — в
+`/tmp/opencode/r2-net/` (данные сессии в репозиторий не коммитятся).
+
+- **Шлюз**: `wss://gateway-us-east1-d.discord.gg/?encoding=etf&v=9&compress=zstd-stream`, поток
+  zstd с первого кадра; heartbeat 41 250 мс; `op40` QoS (`ver:31`) ↔ `op11` ACK.
+- **Кадры**: 70 recv-термов — HELLO(10), RESUMED, SESSIONS_REPLACE, CHANNEL_INFO,
+  GUILD_MEMBER_LIST_UPDATE (ленивый список участников), PRESENCE_UPDATE, VOICE_STATE_UPDATE,
+  MESSAGE_POLL_VOTE_*, USER_SETTINGS_PROTO_UPDATE; sent — RESUME(6), PRESENCE(3), VOICE_STATE(4),
+  SUBSCRIPTIONS(37, диапазоны), QoS(40), REQUEST_CHANNEL_INFO(43).
+- **ETF**: 16 тегов (таблица — `REPORT.md` §11 в каталоге волны); особенности: `nil` — строка «nil»,
+  булевы — «true»/«false», снежинки — строки с суффиксом `n`.
+- **REST**: 231 URL / 88 эндпоинтов `api/v9` восстановлены из кэша (`rest-endpoints.md`).
+- **Медиа**: режимы шифрования 0–6 (`aead_aes256_gcm_rtpsize`, `aead_xchacha20poly1305_rtpsize`);
+  AAD = заголовок (RTP 12+4·CSRC+4, RTCP 8), nonce — 4-байтовый LE-счётчик в хвосте пакета; голосовой
+  сокет — `op1` каждые 13,75 с (`VOICE-CRYPTO.md`).
+- **Ассеты кэша**: 4640 записей — 15 mp3 (UI-звуки), 22 woff2, 137 svg, 206 png, 429 webp, 13 видео.
+- **Вывод**: сценарий A (свой мессенджер с UX Discord) — GO (≈85–90 %); сценарий C (клиент к реальному
+  Discord) — юридический NO-GO. Оценка — `READINESS.md`, карта — `MAP.md`.
 
 ## GPU-кодировщики (проба Discord, `discord-webrtc_0`)
 
