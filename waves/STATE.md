@@ -1,8 +1,9 @@
 # STATE — где мы и что дальше
 
 - Обновлено: 2026-10-19 (координатор).
-- Репозиторий: `origin` = `https://github.com/Userbash/discord-lab.git`, ветка `main`;
-  последний коммит кода: `8294f66` (RW-01…RW-07 + пакет доков зафиксированы).
+- Репозиторий: `origin` = `https://github.com/Userbash/discord-lab.git`, ветка `main`.
+  Выложено в `origin/main` 2026-10-19 (пуш `c425686..449ac61`): `8294f66` — код RW-01…RW-07 и
+  пакет доков, `449ac61` — журнал `waves/` и мета-тест `waves-sync`. Дальнейшие коммиты — `git log`.
 - Тесты Rust: `discord-core` 71, воркспейс 113/113; clippy `-D warnings` / fmt чисто.
 - Последний гейт: `.gate/worker-2026-10-19T16-18-34-369Z.json` (passed).
 - Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
