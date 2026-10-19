@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "skills": {
+    "codebase-exploration": {
+      "source": "giancarloerra/socraticode",
+      "sourceType": "github",
+      "skillPath": "skills/codebase-exploration/SKILL.md",
+      "computedHash": "13d3393211fa710e00ab177ebc73b6910902336a30233b76b72a7fc302ccf79f"
+    },
+    "codebase-management": {
+      "source": "giancarloerra/socraticode",
+      "sourceType": "github",
+      "skillPath": "skills/codebase-management/SKILL.md",
+      "computedHash": "c2ea3972f1dc3af6dea80b98e578c4374b441783a0b7e0cf4ee7183b917b5577"
+    },
+    "computer-use": {
+      "source": "stablyai/orca",
+      "ref": "a0cd1644f320f1327f7495650a816111b495f3cd",
+      "sourceType": "github",
+      "skillPath": "skills/computer-use/SKILL.md",
+      "computedHash": "1130dcb48ca8c1cf00e1c15242e95f0141cad5299b9fc2ebbcd2779c8c2f3194"
+    },
+    "orca-cli": {
+      "source": "stablyai/orca",
+      "ref": "a0cd1644f320f1327f7495650a816111b495f3cd",
+      "sourceType": "github",
+      "skillPath": "skills/orca-cli/SKILL.md",
+      "computedHash": "ccd717aed7b9866a059b0b31d9a009641a28f6db3201749943fbbb797af4a317"
+    },
+    "orchestration": {
+      "source": "stablyai/orca",
+      "ref": "a0cd1644f320f1327f7495650a816111b495f3cd",
+      "sourceType": "github",
+      "skillPath": "skills/orchestration/SKILL.md",
+      "computedHash": "0dc04a0a354974eed5c15115fc6cb7461d7423e95a5b19ee995796cf1383e7ed"
+    }
+  }
+}

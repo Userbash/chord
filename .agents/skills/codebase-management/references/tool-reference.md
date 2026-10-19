@@ -1,0 +1,288 @@
+# SocratiCode Management Tools — Full Reference
+
+## codebase_index
+
+Start indexing a codebase in the background. Returns immediately.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+| `extraExtensions` | string | no | — | Comma-separated additional extensions (e.g. ".tpl,.blade,.hbs"). Also via `EXTRA_EXTENSIONS` env var |
+
+**Returns:** Confirmation that indexing started, with instructions to poll `codebase_status`.
+
+**Key behaviours:**
+- Runs asynchronously — does NOT block. Returns immediately.
+- Auto-starts file watcher upon completion (if not cancelled and `SOCRATICODE_WATCHER=auto`)
+- In `git` mode, a successful explicit index starts Git monitoring without a native file watcher
+- Ensures Docker/Qdrant/Ollama infrastructure is running first
+- Concurrency guard: if already indexing, returns current progress instead of starting again
+- Auto-indexes context artifacts defined in `.socraticodecontextartifacts.json`
+- Auto-builds code graph after indexing completes
+- Batched and resumable: checkpoints after each batch of 50 files. Interruptions don't lose work.
+
+---
+
+## codebase_update
+
+Incrementally update an existing index. Only re-indexes changed files.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+| `extraExtensions` | string | no | — | Comma-separated additional extensions |
+
+**Returns:** Statistics: files added/updated/removed, chunks created.
+
+**Key behaviours:**
+- Runs synchronously (blocking), unlike `codebase_index`
+- Only processes files changed since last index (via content hash comparison)
+- Auto-starts file watcher if not already active and `SOCRATICODE_WATCHER=auto`
+- Usually not needed if the file watcher is running
+- In `git` mode, explicitly refreshes working-tree edits without waiting for a ref/HEAD change
+
+---
+
+## codebase_remove
+
+Remove a project's entire index from the vector database.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | **yes** | — | Absolute path to the project directory |
+
+**Returns:** Confirmation of removal.
+
+**Key behaviours:**
+- **Destructive** — cannot be undone
+- Safely stops file watcher (same-process and cross-process)
+- Cancels in-progress indexing and drains current batch
+- Waits for in-flight graph builds to finish before deletion
+- May refuse if indexing batch can't drain within 5 minutes (retry after)
+
+---
+
+## codebase_prune
+
+Inventory every stored project identity, and delete one only on an explicit, confirmed apply.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `apply` | boolean | no | `false` | Delete the selected identity. Omit for the report. |
+| `identity` | string | with `apply` | — | Exact identity as printed by the report |
+| `confirmationToken` | string | with `apply` | — | Token printed beside that identity in a fresh report |
+| `acknowledgeNoRemoteWriters` | boolean | with `apply` | — | States that no other host sharing this Qdrant is writing to the identity |
+
+**Returns:** The report lists, per identity, the recorded path and its state (`present-on-this-host`, `absent-on-this-host`, `unknown/inaccessible`), the collections carrying its name, every metadata record with point id, status, timestamps and builder version, advisories (`possible-superseded`, manual inspection), and the confirmation token. Metadata points that cannot be attributed to an identity are listed with the reason, and so are collections whose name fits two identities and nothing in the store settles which. An apply returns one line per resource (`deleted` or `failed` with the error) and, when anything is still stored afterwards, what remains.
+
+**Key behaviours:**
+- **Report-only by default**; no candidate set is derived from path state, and there is no blanket apply
+- Path absence on this host is an observation, not proof of abandonment (shared stores)
+- The token covers every collection and every metadata record; any change refuses the apply
+- Refused while the identity is indexed, watched, graph-built or context-indexed here, while another local process holds any of its `index`/`watch`/`graph`/`context` locks, when a lock cannot be inspected, when a record reports indexing in progress, or when a barrier lock is lost before the delete
+- Holds an identity-scoped barrier (`prune` plus every writer lock) from final validation through deletion; every writer checks it before starting and holds its own lock while it runs, so graph builds and context indexing of one identity no longer run in two processes at once
+- Targets the inventoried identity directly, so a stranded pinned id is reachable
+- Every identity an unsettled name could belong to is held back from deletion until a person settles it
+- Barrier ownership is re-checked before every write; a barrier lost mid-cleanup stops deletion and reports incomplete
+- Already-gone resources count as deleted: repeating an apply is safe
+- Success only when a re-read inventory shows nothing left for the identity
+
+---
+
+## codebase_stop
+
+Gracefully stop an in-progress indexing operation.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+
+**Returns:** Confirmation with current phase and batch info.
+
+**Key behaviours:**
+- Current batch finishes and checkpoints — all progress preserved
+- Re-run `codebase_index` to resume from where it left off
+- Handles both same-process and cross-process (orphan) indexing
+- Sends SIGTERM to orphan processes holding the lock
+- Non-destructive — progress is never lost
+- In `git` mode, cancellation leaves an automatic refresh pending for retry; it does not disable the configured Git refresh policy
+
+---
+
+## codebase_watch
+
+Start/stop/status of live file watching.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+| `action` | enum | **yes** | — | `"start"`, `"stop"`, or `"status"` |
+
+**Returns:** Action result or list of watched projects.
+
+**Key behaviours:**
+- `start`: Runs catch-up incremental update first, then starts debounced file watcher
+- `stop`: Stops same-process watcher (cross-process watchers unaffected)
+- `status`: Lists all watched projects including cross-process watchers
+- Detects if another process already watches the same project
+- Auto-started after successful `codebase_index` or `codebase_update` in `auto` mode
+- `manual` suppresses automatic starts but permits `start`; `off` and `git` reject `start` before catch-up or infrastructure work
+- In `git` mode, `status` reports Git refresh state and `stop` only concerns native file watching; Git checks remain enabled
+- Debounced with 2s delay to batch rapid file changes
+
+---
+
+## codebase_graph_build
+
+Build the dependency graph using AST-based static analysis.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+| `extraExtensions` | string | no | — | Additional extensions included as leaf nodes (dependency targets) |
+
+**Returns:** Confirmation that build started. Poll with `codebase_graph_status`.
+
+**Key behaviours:**
+- Runs asynchronously in background
+- Auto-built during `codebase_index` (usually no need to call manually)
+- Concurrency guard: if already building, shows progress
+- Uses ast-grep for static import/require/export analysis across 18+ languages
+- Skips files larger than 1 MB
+
+---
+
+## codebase_graph_remove
+
+Remove a project's persisted code graph.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | **yes** | — | Absolute path to the project directory |
+
+**Returns:** Confirmation of removal.
+
+**Key behaviours:**
+- **Destructive** — cannot be undone
+- Waits for in-flight builds before deletion
+- Graph auto-rebuilds during next `codebase_index`
+
+---
+
+## codebase_graph_status
+
+Check graph build status and readiness.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+
+**Returns:** If building: phase, file progress, elapsed time. If ready: node/edge counts, last built timestamp, cache status, build duration.
+
+---
+
+## codebase_context_index
+
+Index or re-index all context artifacts.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | no | cwd | Absolute path to the project directory |
+
+**Returns:** Summary: artifacts indexed with chunk counts, any errors.
+
+**Key behaviours:**
+- Runs synchronously (blocking)
+- Usually auto-triggered by `codebase_context_search` on first use
+- Reports individual artifact errors without stopping the whole operation
+
+---
+
+## codebase_context_remove
+
+Remove all indexed context artifacts.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | **yes** | — | Absolute path to the project directory |
+
+**Returns:** Confirmation of removal.
+
+**Key behaviours:**
+- **Destructive** — cannot be undone
+- Blocked while indexing is in progress (wait for finish or use `codebase_stop`)
+- Removes ALL artifacts (not selective)
+
+---
+
+## codebase_health
+
+Check infrastructure health: Docker, Qdrant, Ollama, embedding model.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| (none) | — | — | — | No parameters |
+
+**Returns:** Status for each component with [OK]/[MISSING] indicators.
+
+**Key behaviours:**
+- Checks Docker availability
+- Checks Qdrant (managed container or external endpoint)
+- Checks embedding provider health (Ollama, OpenAI, or Google)
+- Suggests fixes for missing components
+- Works with both managed (Docker) and external (remote Qdrant) modes
+
+---
+
+## codebase_list_projects
+
+List all projects that have been indexed.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| (none) | — | — | — | No parameters |
+
+**Returns:** List with project paths, collection names, last indexed timestamp, file counts, graph info, context artifact status. Flags incomplete indexes.
+
+---
+
+## Architectural Behaviors
+
+### Concurrency guards
+- Only one indexing operation per project at a time
+- Only one graph build per project at a time
+- Duplicate operations return current progress instead of starting again
+
+### Checkpoint & resume
+- Indexing checkpoints after each batch of 50 files
+- Interrupted indexing resumes from the last checkpoint automatically
+- `codebase_stop` preserves all progress — resume with `codebase_index`
+
+### Cross-process coordination
+- File-based locking (`proper-lockfile`) prevents conflicts between multiple MCP instances
+- Cooperating instances on the same host must use the same OS temporary directory for those locks; these are not cross-host locks
+- Detects watchers/indexing running in other processes
+- Can terminate orphan processes via SIGTERM
+- Stale locks from crashed processes are auto-reclaimed
+
+### Auto-features
+- File watcher auto-starts after indexing/updates in `SOCRATICODE_WATCHER=auto`
+- Context artifacts auto-indexed on first `codebase_context_search`
+- Stale artifacts auto-detected and re-indexed
+- Code graph auto-built after indexing
+- Session resume: watcher restarts on first tool use for previously indexed projects in `auto`
+- Snapshot mode: `SOCRATICODE_WATCHER=off` plus `SOCRATICODE_AUTO_RESUME=off` leaves existing code indexes and graphs readable but performs no implicit code-index update, embedding, or graph creation
+- Git mode: `SOCRATICODE_WATCHER=git` checks active indexed checkouts every 10 seconds and on search, graph, or status use. Ref/HEAD changes trigger incremental working-tree indexing and graph reconciliation. File saves alone do not trigger a refresh. `SOCRATICODE_AUTO_RESUME=off` still suppresses startup catch-up. No first index is created merely by selecting this mode.
+
+### Supported file extensions
+**Built-in:** `.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, `.cjs`, `.py`, `.pyw`, `.pyi`, `.java`, `.kt`, `.kts`, `.scala`, `.c`, `.h`, `.cpp`, `.hpp`, `.cc`, `.hh`, `.cxx`, `.cs`, `.go`, `.rs`, `.rb`, `.php`, `.swift`, `.sh`, `.bash`, `.zsh`, `.html`, `.htm`, `.css`, `.scss`, `.sass`, `.less`, `.styl`, `.vue`, `.svelte`, `.json`, `.yaml`, `.yml`, `.toml`, `.xml`, `.ini`, `.cfg`, `.md`, `.mdx`, `.rst`, `.txt`, `.sql`, `.dart`, `.lua`, `.r`, `.R`, `.dockerfile`
+
+**Special files:** `Dockerfile`, `Makefile`, `Rakefile`, `Gemfile`, `Procfile`, `.env.example`, `.gitignore`, `.dockerignore`
+
+**Custom:** Add via `extraExtensions` parameter or `EXTRA_EXTENSIONS` env var.
+
+### Chunking defaults
+- Chunk size: 100 lines, 10 lines overlap
+- Batch size: 50 files per batch (for resumable checkpointing)
+- Max chunk chars: 2000 (configurable via `MAX_CHUNK_CHARS`; on a format-2 collection a chunk over the cap is split at the last newline at or before it, while minified code also uses space, tab, semicolon and comma boundaries to avoid splitting identifiers where possible. A boundary may move by one UTF-16 code unit to preserve a surrogate pair or CRLF. Nothing is dropped except a piece holding only whitespace. A collection indexed before format 2 keeps truncating)
+- Max file size: 5 MB (configurable via `MAX_FILE_SIZE_MB`; must be a complete finite number)
