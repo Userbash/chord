@@ -1,0 +1,185 @@
+--- a/rust/crates/discord-core/src/rest/routes.rs
++++ b/rust/crates/discord-core/src/rest/routes.rs
+@@ -1,7 +1,8 @@
+ //! Каталог REST-маршрутов v9 (T-REST-01, волна RW-08 / P1-07).
+ //!
+-//! **Каркас координатора (заморожен):** типы/сигнатуры — контракт; данные и логика — задача
+-//! воркера W8a (`waves/RW-08/TZ.md` §2).
++//! Публичные типы и сигнатуры — замороженный контракт (`waves/RW-08/TZ.md` §4.1). Модуль
++//! хранит 47 маршрутов живого захвата D-02, ищет их по точной паре «метод, шаблон» и
++//! подставляет части в плейсхолдеры `{id}`/`{num}`.
+ //!
+ //! Оракул: `docs/re/rest-d02.json` (md5 `87d7a05d8cd11f3b8ae37aa5c9811c9e`) — 47 живых
+ //! маршрутов; выдержка для тестов — `tests/data/rest-routes-47.tsv` (47 строк).
+@@ -18,6 +19,7 @@
+ 
+ impl HttpMethod {
+     /// Имя метода в проводе (`"GET"`, `"POST"`, …).
++    #[must_use]
+     pub fn as_str(self) -> &'static str {
+         match self {
+             HttpMethod::Get => "GET",
+@@ -32,8 +34,11 @@
+ /// Маршрут: метод, шаблон пути (относительный, без базы `/api/v9`) и ключи тела запроса.
+ #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+ pub struct RouteSpec {
++    /// HTTP-метод запроса.
+     pub method: HttpMethod,
++    /// Шаблон пути относительно базы (без `/api/v9`).
+     pub path: &'static str,
++    /// Ключи тела запроса дословно из оракула; пусто — тела нет.
+     pub body_keys: &'static [&'static str],
+ }
+ 
+@@ -153,7 +158,12 @@
+ #[derive(Debug, Clone, PartialEq, Eq)]
+ pub enum PathRenderError {
+     /// Число частей не совпало с числом плейсхолдеров `{id}`/`{num}`.
+-    PartsMismatch { expected: usize, got: usize },
++    PartsMismatch {
++        /// Сколько плейсхолдеров в шаблоне.
++        expected: usize,
++        /// Сколько частей передано.
++        got: usize,
++    },
+     /// Часть пустая или содержит `{`/`}`.
+     InvalidPart(String),
+ }
+@@ -192,15 +202,23 @@
+     Ok(rendered)
+ }
+ 
++/// Плейсхолдеры шаблонов пути (набор зафиксирован оракулом D-02).
++const PLACEHOLDERS: [&str; 2] = ["{id}", "{num}"];
++
+ /// Число плейсхолдеров `{id}`/`{num}` в шаблоне.
+ fn placeholder_count(template: &str) -> usize {
+-    template.matches("{id}").count() + template.matches("{num}").count()
++    PLACEHOLDERS
++        .iter()
++        .copied()
++        .map(|placeholder| template.matches(placeholder).count())
++        .sum()
+ }
+ 
+ /// Ближайший слева плейсхолдер `{id}`/`{num}`: позиция и литерал.
+ fn next_placeholder(template: &str) -> Option<(usize, &'static str)> {
+-    ["{id}", "{num}"]
+-        .into_iter()
++    PLACEHOLDERS
++        .iter()
++        .copied()
+         .filter_map(|placeholder| {
+             template
+                 .find(placeholder)
+--- a/rust/crates/discord-core/src/rest/headers.rs
++++ b/rust/crates/discord-core/src/rest/headers.rs
+@@ -1,7 +1,8 @@
+ //! REST v9: auth-заголовки и коды ответов (T-REST-02, волна RW-08 / P1-07).
+ //!
+-//! **Каркас координатора (заморожен):** типы/сигнатуры — контракт; данные и логика — задача
+-//! воркера W8b (`waves/RW-08/TZ.md` §5).
++//! Публичные типы и сигнатуры — замороженный контракт (`waves/RW-08/TZ.md` §5.1). Модуль
++//! содержит шесть имён auth-заголовков полного набора API-запросов, значения этих заголовков
++//! у вызывающего и классификацию наблюдённых HTTP-статусов.
+ //!
+ //! Оракул: `docs/re/rest-d02.json` (md5 `87d7a05d8cd11f3b8ae37aa5c9811c9e`) — 133 API-запроса
+ //! с полным набором из 6 auth-заголовков; выдержка для тестов —
+@@ -25,11 +26,17 @@
+ /// debug-опции и `Accept-Language`. Строки живут не меньше возвращаемых пар.
+ #[derive(Debug, Clone, Copy)]
+ pub struct AuthHeaderValues<'a> {
++    /// Значение заголовка `Authorization`.
+     pub authorization: &'a str,
++    /// Значение заголовка `X-Super-Properties`.
+     pub super_properties: &'a str,
++    /// Значение заголовка `X-Discord-Locale`.
+     pub locale: &'a str,
++    /// Значение заголовка `X-Discord-Timezone`.
+     pub timezone: &'a str,
++    /// Значение заголовка `X-Debug-Options`.
+     pub debug_options: &'a str,
++    /// Значение заголовка `Accept-Language`.
+     pub accept_language: &'a str,
+ }
+ 
+@@ -37,6 +44,7 @@
+ ///
+ /// Имена — статические (`'static`), значения заимствуются у [`AuthHeaderValues`]; пустые
+ /// значения не подменяются и не отбрасываются — политика заполнения у вызывающего.
++#[must_use]
+ pub fn auth_headers<'a>(values: &AuthHeaderValues<'a>) -> [(&'static str, &'a str); 6] {
+     [
+         (AUTH_HEADER_NAMES[0], values.authorization),
+@@ -51,10 +59,15 @@
+ /// Класс HTTP-статуса ответа REST; в захвате D-02 наблюдались 200/204/304/404/429.
+ #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+ pub enum ResponseClass {
++    /// `200 OK`.
+     Ok200,
++    /// `204 No Content`.
+     NoContent204,
++    /// `304 Not Modified`.
+     NotModified304,
++    /// `404 Not Found`.
+     NotFound404,
++    /// `429 Too Many Requests`.
+     RateLimited429,
+     /// Любой другой статус (включая ненаблюдённые 2xx/3xx/5xx); код сохраняется.
+     Other(u16),
+@@ -62,6 +75,7 @@
+ 
+ /// Классификация HTTP-статуса: пять наблюдённых кодов — отдельные варианты, остальные —
+ /// [`ResponseClass::Other`] с исходным кодом.
++#[must_use]
+ pub fn classify_status(status: u16) -> ResponseClass {
+     match status {
+         200 => ResponseClass::Ok200,
+--- a/rust/crates/discord-core/src/rest/retry.rs
++++ b/rust/crates/discord-core/src/rest/retry.rs
+@@ -1,6 +1,6 @@
+ //! REST v9: таймауты и ретраи идемпотентных запросов (T-REST-03, волна RW-08 / P1-07).
+ //!
+-//! Владелец — воркер W8c (`waves/RW-08/TZ.md` §6); каркас модуля создан координатором.
++//! Публичные типы и сигнатуры — замороженный контракт (`waves/RW-08/TZ.md` §6.1).
+ //!
+ //! Политика над транспорт-замыканием (без сети: реальный HTTP-клиент/TLS — открытый вопрос
+ //! владельцу, P1-08/P1-09; тесты волны работают на локальном стабе `127.0.0.1`).
+@@ -61,6 +61,7 @@
+ }
+ 
+ /// Идемпотентен ли метод (RFC 9110 §9.2.2): GET/PUT/DELETE — да, POST/PATCH — нет.
++#[must_use]
+ pub fn is_idempotent(method: HttpMethod) -> bool {
+     matches!(
+         method,
+@@ -109,17 +110,19 @@
+         attempts += 1;
+         match attempt_once(limits.attempt_timeout, &mut attempt).await {
+             Ok(value) => return Ok(Retried { value, attempts }),
+-            Err(error) if attempts >= max_attempts => {
+-                return Err(if idempotent {
+-                    RetryError::Exhausted {
+-                        attempts,
+-                        last: error,
+-                    }
+-                } else {
+-                    RetryError::NotRetried { error }
+-                });
++            Err(error) => {
++                if attempts >= max_attempts {
++                    return Err(if idempotent {
++                        RetryError::Exhausted {
++                            attempts,
++                            last: error,
++                        }
++                    } else {
++                        RetryError::NotRetried { error }
++                    });
++                }
++                sleep(limits.backoff).await;
+             }
+-            Err(_) => sleep(limits.backoff).await,
+         }
+     }
+ }

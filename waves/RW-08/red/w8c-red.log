@@ -1,0 +1,105 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/rest_retry.rs (target/debug/deps/rest_retry-803eb33cf0fb1389)
+
+running 10 tests
+test is_idempotent_table ... FAILED
+test non_idempotent_single_attempt ... FAILED
+test idempotent_exhausts_and_clamps ... FAILED
+test idempotent_retries_to_success ... FAILED
+test attempt_once_maps_timeout ... FAILED
+test stub_all_timeout_exhausts ... FAILED
+test stub_close_is_transport_then_retry ... FAILED
+test stub_get_success_first_try ... FAILED
+test stub_timeout_post_not_retried ... FAILED
+test stub_timeout_then_retry_wins ... FAILED
+
+failures:
+
+---- is_idempotent_table stdout ----
+
+thread 'is_idempotent_table' (417763) panicked at crates/discord-core/tests/rest_retry.rs:53:5:
+POST не идемпотентен
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- non_idempotent_single_attempt stdout ----
+
+thread 'non_idempotent_single_attempt' (417764) panicked at crates/discord-core/tests/rest_retry.rs:104:9:
+assertion `left == right` failed: Post: ошибка не-идемпотентного запроса не ретраится
+  left: Err(NotRetried { error: Timeout })
+ right: Err(NotRetried { error: Transport("boom") })
+
+---- idempotent_exhausts_and_clamps stdout ----
+
+thread 'idempotent_exhausts_and_clamps' (417761) panicked at crates/discord-core/tests/rest_retry.rs:197:5:
+assertion `left == right` failed: исчерпание лимита: Exhausted с числом попыток и последней ошибкой
+  left: Err(NotRetried { error: Timeout })
+ right: Err(Exhausted { attempts: 3, last: Timeout })
+
+---- idempotent_retries_to_success stdout ----
+
+thread 'idempotent_retries_to_success' (417762) panicked at crates/discord-core/tests/rest_retry.rs:141:5:
+assertion `left == right` failed: GET: транспортная ошибка первой попытки ретраится до успеха
+  left: Err(NotRetried { error: Timeout })
+ right: Ok(Retried { value: 7, attempts: 2 })
+
+---- attempt_once_maps_timeout stdout ----
+
+thread 'attempt_once_maps_timeout' (417760) panicked at crates/discord-core/tests/rest_retry.rs:82:5:
+assertion `left == right` failed: мгновенный Ok(7) → Ok(7)
+  left: Err(Timeout)
+ right: Ok(7)
+
+---- stub_all_timeout_exhausts stdout ----
+
+thread 'stub_all_timeout_exhausts' (417765) panicked at crates/discord-core/tests/rest_retry.rs:556:5:
+assertion `left == right` failed: все попытки истекли: Exhausted
+  left: Err(NotRetried { error: Timeout })
+ right: Err(Exhausted { attempts: 3, last: Timeout })
+
+---- stub_close_is_transport_then_retry stdout ----
+
+thread 'stub_close_is_transport_then_retry' (417766) panicked at crates/discord-core/tests/rest_retry.rs:583:5:
+assertion `left == right` failed: транспортная ошибка (пустой ответ) ретраится для идемпотентных
+  left: Err(NotRetried { error: Timeout })
+ right: Ok(Retried { value: (200, "ok"), attempts: 2 })
+
+---- stub_get_success_first_try stdout ----
+
+thread 'stub_get_success_first_try' (417767) panicked at crates/discord-core/tests/rest_retry.rs:463:5:
+assertion `left == right` failed: первая попытка успешна: статус 200 и тело ok
+  left: Err(NotRetried { error: Timeout })
+ right: Ok(Retried { value: (200, "ok"), attempts: 1 })
+
+---- stub_timeout_post_not_retried stdout ----
+
+thread 'stub_timeout_post_not_retried' (417768) panicked at crates/discord-core/tests/rest_retry.rs:533:5:
+assertion `left == right` failed: сервер увидел ровно один запрос
+  left: 0
+ right: 1
+
+---- stub_timeout_then_retry_wins stdout ----
+
+thread 'stub_timeout_then_retry_wins' (417769) panicked at crates/discord-core/tests/rest_retry.rs:492:5:
+assertion `left == right` failed: повтор после таймаута первой попытки успешен
+  left: Err(NotRetried { error: Timeout })
+ right: Ok(Retried { value: (200, "ok"), attempts: 2 })
+
+
+failures:
+    attempt_once_maps_timeout
+    idempotent_exhausts_and_clamps
+    idempotent_retries_to_success
+    is_idempotent_table
+    non_idempotent_single_attempt
+    stub_all_timeout_exhausts
+    stub_close_is_transport_then_retry
+    stub_get_success_first_try
+    stub_timeout_post_not_retried
+    stub_timeout_then_retry_wins
+
+test result: FAILED. 0 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_retry`
+# EXIT=101
+1b7e1c5935c3bd2199c6f5791baaf6dd  crates/discord-core/tests/rest_retry.rs

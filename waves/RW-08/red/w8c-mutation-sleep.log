@@ -1,0 +1,42 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `sleep`
+  --> crates/discord-core/src/rest/retry.rs:13:19
+   |
+13 | use tokio::time::{sleep, timeout};
+   |                   ^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running tests/rest_retry.rs (target/debug/deps/rest_retry-803eb33cf0fb1389)
+
+running 11 tests
+test is_idempotent_table ... ok
+test idempotent_exhausts_and_clamps ... ok
+test idempotent_retries_to_success ... ok
+test non_idempotent_single_attempt ... ok
+test backoff_pause_between_attempts ... FAILED
+test stub_get_success_first_try ... ok
+test stub_close_is_transport_then_retry ... ok
+test attempt_once_maps_timeout ... ok
+test stub_timeout_post_not_retried ... ok
+test stub_timeout_then_retry_wins ... ok
+test stub_all_timeout_exhausts ... ok
+
+failures:
+
+---- backoff_pause_between_attempts stdout ----
+
+thread 'backoff_pause_between_attempts' (451936) panicked at crates/discord-core/tests/rest_retry.rs:270:5:
+пауза между попытками не выдержана: прошло 6.54µs при backoff 60ms
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    backoff_pause_between_attempts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+error: test failed, to rerun pass `-p discord-core --test rest_retry`
+# EXIT=101

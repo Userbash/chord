@@ -1,0 +1,73 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running tests/rest_routes.rs (target/debug/deps/rest_routes-0a1a04ac2ed97b1d)
+
+running 8 tests
+test catalog_shape_47_unique ... FAILED
+test body_keys_only_on_six_routes ... FAILED
+test catalog_matches_live_capture ... FAILED
+test method_names_cover_enum ... ok
+test find_roundtrip_and_rejects ... FAILED
+test render_path_substitutes_and_rejects ... FAILED
+test method_distribution_matches_capture ... FAILED
+test crossref_static_confirms_catalog ... FAILED
+
+failures:
+
+---- catalog_shape_47_unique stdout ----
+
+thread 'catalog_shape_47_unique' (424606) panicked at crates/discord-core/tests/rest_routes.rs:85:9:
+пустой путь: RouteSpec { method: Get, path: "", body_keys: [] }
+
+---- body_keys_only_on_six_routes stdout ----
+
+thread 'body_keys_only_on_six_routes' (424604) panicked at crates/discord-core/tests/rest_routes.rs:176:5:
+assertion `left == right` failed: маршруты с телом: []
+  left: 0
+ right: 6
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- catalog_matches_live_capture stdout ----
+
+thread 'catalog_matches_live_capture' (424605) panicked at crates/discord-core/tests/rest_routes.rs:115:32:
+в каталоге нет маршрута Get /channels/{id}/messages
+
+---- find_roundtrip_and_rejects stdout ----
+
+thread 'find_roundtrip_and_rejects' (424608) panicked at crates/discord-core/tests/rest_routes.rs:224:9:
+assertion `left == right` failed: roundtrip RouteSpec { method: Get, path: "", body_keys: [] }
+  left: None
+ right: Some(RouteSpec { method: Get, path: "", body_keys: [] })
+
+---- render_path_substitutes_and_rejects stdout ----
+
+thread 'render_path_substitutes_and_rejects' (424611) panicked at crates/discord-core/tests/rest_routes.rs:281:69:
+маршрут сообщений
+
+---- method_distribution_matches_capture stdout ----
+
+thread 'method_distribution_matches_capture' (424609) panicked at crates/discord-core/tests/rest_routes.rs:162:9:
+assertion `left == right` failed: каталог: метод GET
+  left: 47
+ right: 40
+
+---- crossref_static_confirms_catalog stdout ----
+
+thread 'crossref_static_confirms_catalog' (424607) panicked at crates/discord-core/tests/rest_routes.rs:349:9:
+в каталоге нет маршрута Get /channels/{id}/messages
+
+
+failures:
+    body_keys_only_on_six_routes
+    catalog_matches_live_capture
+    catalog_shape_47_unique
+    crossref_static_confirms_catalog
+    find_roundtrip_and_rejects
+    method_distribution_matches_capture
+    render_path_substitutes_and_rejects
+
+test result: FAILED. 1 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_routes`
+# EXIT=101
+f67f3a4a3f83cb301e3fd44cb3e5e260  crates/discord-core/tests/rest_routes.rs

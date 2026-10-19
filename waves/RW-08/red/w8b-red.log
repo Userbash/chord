@@ -1,0 +1,46 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/rest_headers.rs (target/debug/deps/rest_headers-a08c693915990515)
+
+running 5 tests
+test auth_counts_match_capture ... ok
+test auth_header_names_exact_order ... FAILED
+test auth_headers_pairs_values ... FAILED
+test classify_status_observed_and_other ... FAILED
+test base_v9_prefix ... ok
+
+failures:
+
+---- auth_header_names_exact_order stdout ----
+
+thread 'auth_header_names_exact_order' (409399) panicked at crates/discord-core/tests/rest_headers.rs:66:5:
+assertion `left == right` failed: AUTH_HEADER_NAMES — 6 имён в порядке §3.1
+  left: ["", "", "", "", "", ""]
+ right: ["Authorization", "X-Super-Properties", "X-Discord-Locale", "X-Discord-Timezone", "X-Debug-Options", "Accept-Language"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- auth_headers_pairs_values stdout ----
+
+thread 'auth_headers_pairs_values' (409400) panicked at crates/discord-core/tests/rest_headers.rs:105:9:
+assertion `left == right` failed: значение пары #0
+  left: ""
+ right: "tok-1"
+
+---- classify_status_observed_and_other stdout ----
+
+thread 'classify_status_observed_and_other' (409402) panicked at crates/discord-core/tests/rest_headers.rs:184:5:
+assertion `left == right` failed: 200
+  left: Other(200)
+ right: Ok200
+
+
+failures:
+    auth_header_names_exact_order
+    auth_headers_pairs_values
+    classify_status_observed_and_other
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_headers`
+# EXIT=101
+05aba4024176d913667092eb8cf1b3a9  crates/discord-core/tests/rest_headers.rs

@@ -16,6 +16,7 @@ pub mod dispatch;
 pub mod gateway;
 pub mod identify;
 pub mod ready;
+pub mod rest;
 pub mod resume;
 pub mod ws;
 

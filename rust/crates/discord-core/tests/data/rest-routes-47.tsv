@@ -1,0 +1,47 @@
+GET	/api/v9/channels/{id}/messages		200
+GET	/api/v9/applications/public		200
+GET	/api/v9/games/autocomplete		200
+POST	/api/v9/channels/{id}/messages/{id}/ack	token,last_viewed	200
+GET	/api/v9/quests/@me		200
+GET	/api/v9/users/{id}/profile		200
+GET	/api/v9/users/@me/billing/subscriptions		200
+GET	/api/v9/content-inventory/users/@me		200
+GET	/api/v9/games/detectable/exclusions		304
+GET	/api/v9/partner-sdk/storefront-config		200
+GET	/api/v9/promotions		200
+GET	/api/v9/quests/decision		200
+GET	/api/v9/quests/get-decisions		200
+GET	/api/v9/users/@me		200
+GET	/api/v9/users/@me/achievements/unread-state		200
+GET	/api/v9/users/@me/activities/statistics/applications		200
+GET	/api/v9/users/@me/applications/{id}/entitlements		200
+GET	/api/v9/users/@me/billing/checkout-recovery		200
+POST	/api/v9/users/@me/billing/user-offer	allow_triggers	204
+GET	/api/v9/users/@me/collectibles-marketing		200
+GET	/api/v9/users/@me/entitlements		200
+GET	/api/v9/users/@me/library		200
+GET	/api/v9/users/@me/mfa/webauthn/credentials		200
+GET	/api/v9/users/@me/referrals/eligibility		404
+GET	/api/v9/users/@me/saved-messages		404
+GET	/api/v9/users/@me/settings-proto/{num}		200
+GET	/api/v9/users/@me/virtual-currency/balance		200
+GET	/api/v9/widget-configs/developer		200
+GET	/api/v9/widget-configs/featured		200
+GET	/api/v9/activities/shelf		200
+GET	/api/v9/guilds/{id}/application-command-index		200
+PUT	/api/v9/guilds/{id}/members/@me	(empty-object)	204
+GET	/api/v9/soundboard-default-sounds		200
+GET	/api/v9/users/{id}/application-identities		200
+GET	/api/v9/users/@me/application-command-index		200
+GET	/api/v9/users/@me/notes/{id}		404
+POST	/api/v9/beaker	token,events	204
+PATCH	/api/v9/channels/{id}/explicit-media	message_ids	204
+PUT	/api/v9/channels/{id}/messages/{id}/reactions/%F0%9F%91%8B/%40me		204
+GET	/api/v9/channels/{id}/messages/pins		200
+GET	/api/v9/channels/{id}/threads/search		200
+GET	/api/v9/collectibles-products/{id}		200
+GET	/api/v9/games		200
+GET	/api/v9/storefront/products/skus		200
+GET	/api/v9/users/@me/billing/payment-sources		200
+PATCH	/api/v9/users/@me/settings-proto/{num}	(non-json)	200
+GET	/api/v9/users/@me/survey		429
