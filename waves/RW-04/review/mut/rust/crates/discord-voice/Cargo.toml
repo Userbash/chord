@@ -1,0 +1,9 @@
+[package]
+name = "discord-voice"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Голосовая сигнализация RTC: SRTP, keepalive, DAVE/MLS"
+
+[lints.rust]
+unsafe_code = "forbid"

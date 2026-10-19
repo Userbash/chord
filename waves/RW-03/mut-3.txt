@@ -1,0 +1,38 @@
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test heartbeat_term_roundtrips ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... FAILED
+test first_beat_has_null_sequence ... ok
+test hello_term_parses_interval ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test missed_ack_is_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test lab_replay_no_zombie ... ok
+test zero_interval_hello_is_malformed ... ok
+test lab_timeline_facts ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+failures:
+
+---- dead_session_is_silent_for_dispatches_and_acks stdout ----
+
+thread 'dead_session_is_silent_for_dispatches_and_acks' (233911) panicked at crates/discord-core/tests/gateway_session.rs:451:5:
+assertion `left == right` failed: last_seq замер после смерти
+  left: Some(99)
+ right: Some(7)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dead_session_is_silent_for_dispatches_and_acks
+
+test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-03/nits-mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-4f5e71b8404cb0ec)
+error: test failed, to rerun pass `-p discord-core --test gateway_session`

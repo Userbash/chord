@@ -1,0 +1,4 @@
+211448f7051afcf5af78a7411b9c94dc  crates/discord-core/src/resume.rs
+b822d6a6790f11a306a442c6a58c975c  crates/discord-core/src/ws.rs
+69e299f265a0459f4e104c437e1bf2a5  crates/discord-core/src/lib.rs
+9852c2ca0a4960b9948d4b72aa3933b7  crates/discord-core/tests/resume_reconnect.rs

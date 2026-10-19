@@ -1,0 +1,89 @@
+   Compiling discord-codec v0.1.0 (/tmp/opencode/review-rw-02/ws/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/discord_codec-6056909c2a4ce066)
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/etf_properties.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/etf_properties-d126ed1f27d8f3ed)
+
+running 9 tests
+test accessors_keep_types_strict ... ok
+test canonical_encoder_matches_fixed_bytes ... ok
+test big_int_rejects_overflow_and_keeps_signed_borders ... ok
+test decoder_reports_specific_errors ... ok
+test roundtrip_covers_every_variant_and_border_values ... ok
+test truncated_hello_prefixes_are_errors_not_panics ... ok
+test nesting_depth_limit_is_enforced ... ok
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... ok
+test fuzz_lite_never_panics_on_garbage ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/etf_vectors.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/etf_vectors-bc59c90ef9dfec1e)
+
+running 13 tests
+test atom_nil_is_a_string_and_not_nil_ext ... ok
+test decode_skips_only_the_leading_version_byte ... ok
+test eleven_wire_tags_decode_with_exact_consumed_len ... ok
+test list_tail_is_nil_ext_only ... ok
+test heartbeat_ack_keeps_atom_nil_and_int_op ... ok
+test guild_member_list_update_groups_ops_and_string_id ... ok
+test hello_term_full_tree_matches_capture ... ok
+test message_ack_binary_keys_are_found_by_get ... ok
+test small_big_int_reads_sign_before_digits ... ok
+test presence_update_snowflakes_and_real_nil_activities ... ok
+test supported_but_unseen_tags_decode_per_contract ... ok
+test vector_lengths_match_capture_bytes_field ... ok
+test two_terms_back_to_back_split_by_consumed ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/review_external.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/review_external-03d52f7c9ed7aa96)
+
+running 8 tests
+test ext_fresh_stream_quirks ... ok
+test ext_after_decode_error ... ok
+test ext_lab_8158_midstream ... ok
+test ext_synth_whole_and_5b_chunks ... FAILED
+test ext_two_frames_concat ... FAILED
+test ext_lcg_garbage_300 ... ok
+test ext_all_prefixes_of_frame ... FAILED
+test ext_lab_1389_real ... FAILED
+
+failures:
+
+---- ext_synth_whole_and_5b_chunks stdout ----
+
+thread 'ext_synth_whole_and_5b_chunks' (209829) panicked at crates/discord-codec/tests/review_external.rs:55:30:
+целый кадр: TrailingData { bytes: 1 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ext_two_frames_concat stdout ----
+
+thread 'ext_two_frames_concat' (209830) panicked at crates/discord-codec/tests/review_external.rs:135:34:
+первый: TrailingData { bytes: 1 }
+
+---- ext_all_prefixes_of_frame stdout ----
+
+thread 'ext_all_prefixes_of_frame' (209824) panicked at crates/discord-codec/tests/review_external.rs:122:23:
+префикс 67: неожиданная ошибка TrailingData { bytes: 1 }
+
+---- ext_lab_1389_real stdout ----
+
+thread 'ext_lab_1389_real' (209826) panicked at crates/discord-codec/tests/review_external.rs:191:49:
+кадр 1: ошибка декодирования zstd: Failed to parse/decode block body: Error getting block content size: Blocksize was bigger than the absolute maximum 131072 (128kb). Is: 497965
+
+
+failures:
+    ext_all_prefixes_of_frame
+    ext_lab_1389_real
+    ext_synth_whole_and_5b_chunks
+    ext_two_frames_concat
+
+test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-codec --test review_external`

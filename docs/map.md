@@ -13,6 +13,8 @@
 графы — `docs/re/architecture.md`), сырые доказательства — `/home/sanya/re-deep/`.
 План Rust-клиента (2026-10-19): `docs/rust-client/` — концепт, функции, архитектура, план P0–P8,
 тесты (слой 8 ниже).
+Журнал волн Rust-клиента (2026-10-19): `waves/` — события (`db.jsonl`), точка восстановления
+(`STATE.md`) и логи волн `RW-01`…`RW-07` (см. `waves/README.md`).
 В репозитории: бэклог переноса — `docs/feature-backlog.md`; анализы референсов —
 `docs/vesktop-analysis.md` и `docs/discord-qt-analysis.md`.
 

@@ -1,0 +1,144 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: function `array_len` is never used
+  --> crates/discord-core/src/ready.rs:56:4
+   |
+56 | fn array_len(value: &EtfValue) -> Option<usize> {
+   |    ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `partial_bool` is never used
+  --> crates/discord-core/src/ready.rs:64:4
+   |
+64 | fn partial_bool(value: &EtfValue) -> Option<bool> {
+   |    ^^^^^^^^^^^^
+
+warning: `discord-core` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running tests/identify_ready.rs (target/debug/deps/identify_ready-fc7972364cf3487d)
+
+running 16 tests
+test identify_capabilities_can_enable_obfuscation ... FAILED
+test identify_client_state_guild_versions ... FAILED
+test identify_debug_redacts_token ... FAILED
+test identify_has_evidence_fields ... FAILED
+test identify_properties_evidence_defaults ... FAILED
+test identify_qos_token_minimal_and_custom ... FAILED
+test identify_size_is_plausible_against_943 ... FAILED
+test ready_accepts_string_user_id ... FAILED
+test ready_accepts_int_partial ... FAILED
+test ready_summary_none_for_non_ready ... FAILED
+test ready_summary_from_synthetic_dispatch ... FAILED
+test identify_presence_option_encodes_map ... FAILED
+test ws_identify_sent_once_after_hello ... FAILED
+test ws_identify_only_after_hello ... FAILED
+test ws_no_identify_without_option ... FAILED
+test lab_ready_from_run2_stream ... FAILED
+
+failures:
+
+---- identify_capabilities_can_enable_obfuscation stdout ----
+
+thread 'identify_capabilities_can_enable_obfuscation' (318095) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- identify_client_state_guild_versions stdout ----
+
+thread 'identify_client_state_guild_versions' (318096) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- identify_debug_redacts_token stdout ----
+
+thread 'identify_debug_redacts_token' (318097) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- identify_has_evidence_fields stdout ----
+
+thread 'identify_has_evidence_fields' (318098) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- identify_properties_evidence_defaults stdout ----
+
+thread 'identify_properties_evidence_defaults' (318100) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- identify_qos_token_minimal_and_custom stdout ----
+
+thread 'identify_qos_token_minimal_and_custom' (318101) panicked at crates/discord-core/src/identify.rs:154:5:
+not yet implemented: review red reproduction
+
+---- identify_size_is_plausible_against_943 stdout ----
+
+thread 'identify_size_is_plausible_against_943' (318102) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- ready_accepts_string_user_id stdout ----
+
+thread 'ready_accepts_string_user_id' (318105) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: review red reproduction
+
+---- ready_accepts_int_partial stdout ----
+
+thread 'ready_accepts_int_partial' (318104) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: review red reproduction
+
+---- ready_summary_none_for_non_ready stdout ----
+
+thread 'ready_summary_none_for_non_ready' (318107) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: review red reproduction
+
+---- ready_summary_from_synthetic_dispatch stdout ----
+
+thread 'ready_summary_from_synthetic_dispatch' (318106) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: review red reproduction
+
+---- identify_presence_option_encodes_map stdout ----
+
+thread 'identify_presence_option_encodes_map' (318099) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- ws_identify_sent_once_after_hello stdout ----
+
+thread 'ws_identify_sent_once_after_hello' (318109) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- ws_identify_only_after_hello stdout ----
+
+thread 'ws_identify_only_after_hello' (318108) panicked at crates/discord-core/src/identify.rs:63:9:
+not yet implemented: review red reproduction
+
+---- ws_no_identify_without_option stdout ----
+
+thread 'ws_no_identify_without_option' (318110) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: review red reproduction
+
+---- lab_ready_from_run2_stream stdout ----
+
+thread 'lab_ready_from_run2_stream' (318103) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: review red reproduction
+
+
+failures:
+    identify_capabilities_can_enable_obfuscation
+    identify_client_state_guild_versions
+    identify_debug_redacts_token
+    identify_has_evidence_fields
+    identify_presence_option_encodes_map
+    identify_properties_evidence_defaults
+    identify_qos_token_minimal_and_custom
+    identify_size_is_plausible_against_943
+    lab_ready_from_run2_stream
+    ready_accepts_int_partial
+    ready_accepts_string_user_id
+    ready_summary_from_synthetic_dispatch
+    ready_summary_none_for_non_ready
+    ws_identify_only_after_hello
+    ws_identify_sent_once_after_hello
+    ws_no_identify_without_option
+
+test result: FAILED. 0 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-core --test identify_ready`
+# EXIT=101
+ea4c7f18e0d8d0f6472fcb9b025517e7  crates/discord-core/tests/identify_ready.rs

@@ -1,0 +1,85 @@
+   Compiling libc v0.2.191
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling proc-macro2 v1.0.107
+   Compiling cfg-if v1.0.5
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling zeroize v1.9.1
+   Compiling typenum v1.20.1
+   Compiling untrusted v0.9.0
+   Compiling rand_core v0.10.1
+   Compiling cpufeatures v0.3.1
+   Compiling pkg-config v0.3.34
+   Compiling rustls v0.23.46
+   Compiling bytes v1.12.1
+   Compiling getrandom v0.4.3
+   Compiling const-oid v0.10.2
+   Compiling httparse v1.10.1
+   Compiling subtle v2.6.1
+   Compiling pin-project-lite v0.2.17
+   Compiling rustls-pki-types v1.15.1
+   Compiling thiserror v2.0.21
+   Compiling once_cell v1.21.4
+   Compiling chacha20 v0.10.2
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.34
+   Compiling data-encoding v2.11.1
+   Compiling log v0.4.34
+   Compiling slab v0.4.12
+   Compiling zstd-safe v8.2.0
+   Compiling twox-hash v2.1.5
+   Compiling futures-task v0.3.34
+   Compiling futures-sink v0.3.34
+   Compiling ruzstd v0.9.1
+   Compiling futures-util v0.3.34
+   Compiling webpki-roots v1.0.9
+   Compiling webpki-roots v0.26.11
+   Compiling http v1.5.0
+   Compiling syn v3.0.9
+   Compiling hybrid-array v0.4.15
+   Compiling discord-codec v0.1.0 (/tmp/opencode/rw-04/nits-mut/rust/crates/discord-codec)
+   Compiling jobserver v0.1.35
+   Compiling getrandom v0.2.17
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling rand v0.10.3
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling cc v1.9.0
+   Compiling digest v0.11.3
+   Compiling sha1 v0.11.0
+   Compiling ring v0.17.14
+   Compiling zstd-sys v2.1.2+zstd.1.5.7
+   Compiling thiserror-impl v2.0.21
+   Compiling tokio-macros v2.7.2
+   Compiling tokio v1.53.3
+   Compiling rustls-webpki v0.103.15
+   Compiling zstd v0.14.3
+   Compiling tokio-rustls v0.26.6
+   Compiling tungstenite v0.30.0
+   Compiling tokio-tungstenite v0.30.0
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/nits-mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.74s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/nits-mut/target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_hello_from_encoded_stream ... ok
+test pipe_buffers_partial_term ... ok
+test ws_text_messages_counted ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+# EXIT=0
+# ws.rs md5: ca5791e352ee52416dff01aee09cadd1
+# tests/ws_transport.rs md5: 1d091ee2c237cdb74258d79c564b6d4e

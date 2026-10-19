@@ -1,0 +1,115 @@
+[
+  {
+    "id": "a",
+    "name": "jitter всегда 0 (игнор seed)",
+    "from": "self.next_beat_ms = Some(now_ms.saturating_add(self.jitter_seed % interval));",
+    "to": "self.next_beat_ms = Some(now_ms);",
+    "status": "ПОЙМАНА",
+    "exit": 101,
+    "failed": [
+      "first_beat_delay_is_seed_mod_interval",
+      "hello_term_parses_interval"
+    ],
+    "panics": [
+      "crates/discord-core/tests/gateway_session.rs:179:9:",
+      "crates/discord-core/tests/gateway_session.rs:164:5:"
+    ]
+  },
+  {
+    "id": "b",
+    "name": "дедлайн зомби sent + interval*2",
+    "from": "Some(sent.saturating_add(self.interval_ms()?))",
+    "to": "Some(sent.saturating_add(self.interval_ms()?.saturating_mul(2)))",
+    "status": "ПОЙМАНА",
+    "exit": 101,
+    "failed": [
+      "first_beat_has_null_sequence",
+      "missed_ack_is_zombie"
+    ],
+    "panics": [
+      "crates/discord-core/tests/gateway_session.rs:197:5:",
+      "crates/discord-core/tests/gateway_session.rs:267:5:"
+    ]
+  },
+  {
+    "id": "c",
+    "name": "после ACK next_beat = now (без +interval)",
+    "from": "self.next_beat_ms = Some(now_ms.saturating_add(interval));",
+    "to": "self.next_beat_ms = Some(now_ms);",
+    "status": "ПОЙМАНА",
+    "exit": 101,
+    "failed": [
+      "ack_measures_rtt_and_reschedules",
+      "lab_replay_no_zombie"
+    ],
+    "panics": [
+      "crates/discord-core/tests/gateway_session.rs:250:5:",
+      "crates/discord-core/tests/gateway_session.rs:583:5:"
+    ]
+  },
+  {
+    "id": "d",
+    "name": "в ударе всегда d: None",
+    "from": "return vec![Effect::SendHeartbeat { d: self.last_seq }];",
+    "to": "return vec![Effect::SendHeartbeat { d: None }];",
+    "status": "ПОЙМАНА",
+    "exit": 101,
+    "failed": [
+      "beats_carry_last_sequence"
+    ],
+    "panics": [
+      "crates/discord-core/tests/gateway_session.rs:225:5:"
+    ]
+  },
+  {
+    "id": "e",
+    "name": "RTT = now вместо now - sent",
+    "from": "self.rtt_ms = Some(now_ms.saturating_sub(sent));",
+    "to": "self.rtt_ms = Some(now_ms);",
+    "status": "ПОЙМАНА",
+    "exit": 101,
+    "failed": [
+      "ack_measures_rtt_and_reschedules"
+    ],
+    "panics": [
+      "crates/discord-core/tests/gateway_session.rs:249:5:"
+    ]
+  },
+  {
+    "id": "f",
+    "name": "повторный HELLO после первого удара не игнорируется",
+    "from": "        if self.beats_emitted > 0 {\n            return Ok(Vec::new());\n        }",
+    "to": "        if false {\n            return Ok(Vec::new());\n        }",
+    "status": "НЕ ПОЙМАНА (тесты зелёные)",
+    "exit": 0,
+    "failed": [],
+    "panics": []
+  },
+  {
+    "id": "g",
+    "name": "нулевой интервал не отвергается (деление на 0)",
+    "from": "            .filter(|interval| *interval > 0)",
+    "to": "            .filter(|interval| *interval >= 0)",
+    "status": "НЕ ПОЙМАНА (тесты зелёные)",
+    "exit": 0,
+    "failed": [],
+    "panics": []
+  },
+  {
+    "id": "h",
+    "name": "«лишний» ACK без pending переносит расписание",
+    "from": "        let (Some(sent), Some(interval)) = (self.pending_beat_ms, self.interval_ms()) else {\n            return;\n        };\n        self.pending_beat_ms = None;\n        self.rtt_ms = Some(now_ms.saturating_sub(sent));\n        self.next_beat_ms = Some(now_ms.saturating_add(interval));",
+    "to": "        let Some(interval) = self.interval_ms() else {\n            return;\n        };\n        if let Some(sent) = self.pending_beat_ms {\n            self.rtt_ms = Some(now_ms.saturating_sub(sent));\n        }\n        self.pending_beat_ms = None;\n        self.next_beat_ms = Some(now_ms.saturating_add(interval));",
+    "status": "ОШИБКА ПОДГОТОВКИ: фрагмент встречается 0 раз"
+  },
+  {
+    "id": "i",
+    "name": "on_value мёртвой сессии не молчит",
+    "from": "        if self.dead {\n            // Мёртвая сессия молчит: транспорт уже переподключается.\n            return Ok(Vec::new());\n        }",
+    "to": "        if false {\n            return Ok(Vec::new());\n        }",
+    "status": "НЕ ПОЙМАНА (тесты зелёные)",
+    "exit": 0,
+    "failed": [],
+    "panics": []
+  }
+]

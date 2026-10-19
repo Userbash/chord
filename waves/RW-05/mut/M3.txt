@@ -1,0 +1,65 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src/lib.rs (target/debug/deps/discord_core-727086b8c91340bb)
+
+running 2 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-00158d1bab2f14e3)
+
+running 15 tests
+test beats_carry_last_sequence ... ok
+test ack_measures_rtt_and_reschedules ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test first_beat_has_null_sequence ... ok
+test heartbeat_term_roundtrips ... ok
+test hello_term_parses_interval ... ok
+test missed_ack_is_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test zero_interval_hello_is_malformed ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test lab_timeline_facts ... ok
+test lab_replay_no_zombie ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/identify_ready.rs (target/debug/deps/identify_ready-fc7972364cf3487d)
+
+running 13 tests
+test identify_debug_redacts_token ... ok
+test identify_client_state_guild_versions ... ok
+test identify_capabilities_can_enable_obfuscation ... ok
+test identify_qos_token_minimal_and_custom ... ok
+test identify_presence_option_encodes_map ... ok
+test ready_summary_none_for_non_ready ... ok
+test identify_has_evidence_fields ... FAILED
+test identify_size_is_plausible_against_943 ... ok
+test ready_summary_from_synthetic_dispatch ... ok
+test identify_properties_evidence_defaults ... ok
+test ws_identify_sent_once_after_hello ... ok
+test ws_no_identify_without_option ... ok
+test lab_ready_from_run2_stream ... ok
+
+failures:
+
+---- identify_has_evidence_fields stdout ----
+
+thread 'identify_has_evidence_fields' (287120) panicked at crates/discord-core/tests/identify_ready.rs:261:5:
+assertion `left == right` failed: zstd-поток не legacy → compress = false
+  left: Some(Atom("true"))
+ right: Some(Atom("false"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    identify_has_evidence_fields
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+error: test failed, to rerun pass `-p discord-core --test identify_ready`

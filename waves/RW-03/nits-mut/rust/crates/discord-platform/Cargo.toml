@@ -1,0 +1,9 @@
+[package]
+name = "discord-platform"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Системная интеграция: tray, уведомления, нативные мосты"
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,32 @@
+== UNION ==
+per-file op0: {'msgs-run1-57992_5112.jsonl': 134, 'msgs-run2-95974_1389.jsonl': 113, 'msgs-run2-95974_5532.jsonl': 94, 'msgs-run2-95974_8269.jsonl': 569, 'msgs-run2-95974_8608.jsonl': 59, 'msgs-run2-95974_10029.jsonl': 331, 'msgs-run2-95974_13072.jsonl': 40}
+OK   union op0 total = 1340 (ожидается 1340)
+OK   union types = 21 (ожидается 21)
+OK   op0 без валидного t: 0
+OK   op0 без int s: 0
+union by type: {'GUILD_MEMBER_LIST_UPDATE': 1048, 'PRESENCE_UPDATE': 107, 'MESSAGE_CREATE': 31, 'TYPING_START': 28, 'MESSAGE_UPDATE': 24, 'SOUNDBOARD_SOUNDS': 21, 'GUILD_MEMBERS_CHUNK': 11, 'SESSIONS_REPLACE': 8, 'VOICE_STATE_UPDATE': 8, 'MESSAGE_ACK': 8, 'THREAD_LIST_SYNC': 7, 'CHANNEL_INFO': 7, 'VOICE_CHANNEL_START_TIME_UPDATE': 7, 'READY': 4, 'READY_SUPPLEMENTAL': 4, 'MESSAGE_POLL_VOTE_ADD': 4, 'VOICE_SERVER_UPDATE': 3, 'VOICE_CHANNEL_STATUS_UPDATE': 3, 'RESUMED': 3, 'USER_SETTINGS_PROTO_UPDATE': 3, 'MESSAGE_REACTION_ADD': 1}
+union s range: 1 .. 722
+== PREFIX .1389 s<=36 ==
+OK   префикс op0 s<=36 = 36 (ожидается 36)
+prefix by type: {'GUILD_MEMBER_LIST_UPDATE': 13, 'PRESENCE_UPDATE': 7, 'MESSAGE_UPDATE': 6, 'MESSAGE_CREATE': 3, 'SESSIONS_REPLACE': 2, 'THREAD_LIST_SYNC': 2, 'READY': 1, 'READY_SUPPLEMENTAL': 1, 'GUILD_MEMBERS_CHUNK': 1}
+OK   frames = 137 (ожидается 137)
+OK   compressed bytes = 104066 (ожидается 104066)
+OK   распаковано всего = 824816 (ожидается 824816)
+OK   доступно (минус окно 65536) = 759280 (ожидается 759280)
+== TERMS .1389 (доступный префикс) ==
+OK   термов = 44 (ожидается 44)
+OK   op0 в префиксе = 36 (ожидается 36)
+OK   не-диспатчей = 8 (ожидается 8)
+OK   не-диспатчи только op10/op11: [10, 11, 11, 11, 11, 11, 11, 11]
+OK   остаток (обрезанный терм) = 704 (ожидается 704)
+OK   остаток начинается с 0x83 (обрезанный терм)
+prefix by type (собственный декодер): {'GUILD_MEMBER_LIST_UPDATE': 13, 'PRESENCE_UPDATE': 7, 'MESSAGE_UPDATE': 6, 'MESSAGE_CREATE': 3, 'SESSIONS_REPLACE': 2, 'THREAD_LIST_SYNC': 2, 'READY': 1, 'READY_SUPPLEMENTAL': 1, 'GUILD_MEMBERS_CHUNK': 1}
+OK   таймлайн: диспатчей op0 = 113 (ожидается 113)
+timeline rows: 137 op0: 113
+OK   LAB_TYPE_NAMES == типы из lab-файлов (как множество)
+OK   LAB_TYPE_COUNTS == мои union-числа
+OK   LAB_STREAM_COUNTS == мои числа префикса (собственный декодер)
+OK   DISPATCH_COUNT_R7 = 1340 == union 1340
+OK   DISPATCH_TYPE_COUNT_R7 == 21
+
+ИТОГ: все независимые оракулы сошлись

@@ -1,0 +1,75 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-10f0ff0ef806c1ec)
+
+running 13 tests
+test atom_nil_is_a_string_and_not_nil_ext ... ok
+test decode_skips_only_the_leading_version_byte ... ok
+test heartbeat_ack_keeps_atom_nil_and_int_op ... ok
+test eleven_wire_tags_decode_with_exact_consumed_len ... FAILED
+test list_tail_is_nil_ext_only ... ok
+test hello_term_full_tree_matches_capture ... ok
+test small_big_int_reads_sign_before_digits ... FAILED
+test presence_update_snowflakes_and_real_nil_activities ... FAILED
+test message_ack_binary_keys_are_found_by_get ... FAILED
+test supported_but_unseen_tags_decode_per_contract ... FAILED
+test guild_member_list_update_groups_ops_and_string_id ... FAILED
+test vector_lengths_match_capture_bytes_field ... ok
+test two_terms_back_to_back_split_by_consumed ... ok
+
+failures:
+
+---- eleven_wire_tags_decode_with_exact_consumed_len stdout ----
+
+thread 'eleven_wire_tags_decode_with_exact_consumed_len' (187132) panicked at crates/discord-codec/tests/etf_vectors.rs:133:9:
+assertion `left == right` failed: 0x6e SMALL_BIG_EXT
+  left: Int(-255)
+ right: Int(255)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- small_big_int_reads_sign_before_digits stdout ----
+
+thread 'small_big_int_reads_sign_before_digits' (187139) panicked at crates/discord-codec/tests/etf_vectors.rs:394:9:
+assertion `left == right` failed: 6e0800143004f5cc5c140e
+  left: Int(-1014537851418980372)
+ right: Int(1014537851418980372)
+
+---- presence_update_snowflakes_and_real_nil_activities stdout ----
+
+thread 'presence_update_snowflakes_and_real_nil_activities' (187138) panicked at crates/discord-codec/tests/etf_vectors.rs:69:5:
+assertion `left == right` failed: PRESENCE_UPDATE #18: канон не совпал с проводом
+  left: "83740000000464000164740000000664000a616374697669746965736a64000d636c69656e745f73746174757374000000026400066d6f62696c656400066f6e6c696e65640002767264000469646c656400086775696c645f69646e0801143004f5cc5c140e64001670726f6365737365645f61745f74696d657374616d7061006400067374617475736400066f6e6c696e6564000475736572740000000164000269646e0801500040c7f3dabf096400026f70610064000173610d6400017464000f50524553454e43455f555044415445"
+ right: "83740000000464000164740000000664000a616374697669746965736a64000d636c69656e745f73746174757374000000026400066d6f62696c656400066f6e6c696e65640002767264000469646c656400086775696c645f69646e0800143004f5cc5c140e64001670726f6365737365645f61745f74696d657374616d7061006400067374617475736400066f6e6c696e6564000475736572740000000164000269646e0800500040c7f3dabf096400026f70610064000173610d6400017464000f50524553454e43455f555044415445"
+
+---- message_ack_binary_keys_are_found_by_get stdout ----
+
+thread 'message_ack_binary_keys_are_found_by_get' (187137) panicked at crates/discord-codec/tests/etf_vectors.rs:69:5:
+assertion `left == right` failed: MESSAGE_ACK #46: канон не совпал с проводом
+  left: "8374000000046400016474000000056d0000000a6368616e6e656c5f69646e08010b1082a7ed57f2116d00000005666c61677361006d0000000b6c6173745f76696577656462000010d66d0000000a6d6573736167655f69646e08017b0040228806ab156d0000000776657273696f6e620001f7b66400026f7061006400017361266400017464000b4d4553534147455f41434b"
+ right: "8374000000046400016474000000056d0000000a6368616e6e656c5f69646e08000b1082a7ed57f2116d00000005666c61677361006d0000000b6c6173745f76696577656462000010d66d0000000a6d6573736167655f69646e08007b0040228806ab156d0000000776657273696f6e620001f7b66400026f7061006400017361266400017464000b4d4553534147455f41434b"
+
+---- supported_but_unseen_tags_decode_per_contract stdout ----
+
+thread 'supported_but_unseen_tags_decode_per_contract' (187140) panicked at crates/discord-codec/tests/etf_vectors.rs:173:9:
+assertion `left == right` failed: 0x6f LARGE_BIG_EXT (guild_id)
+  left: Int(-1014537851418980372)
+ right: Int(1014537851418980372)
+
+---- guild_member_list_update_groups_ops_and_string_id stdout ----
+
+thread 'guild_member_list_update_groups_ops_and_string_id' (187133) panicked at crates/discord-codec/tests/etf_vectors.rs:69:5:
+assertion `left == right` failed: GUILD_MEMBER_LIST_UPDATE #75: канон не совпал с проводом
+  left: "83740000000464000164740000000664000667726f7570736c000000027400000002640005636f756e74610364000269646e0801795084b7b7a1bf0e7400000002640005636f756e74610c64000269646400066f6e6c696e656a6400086775696c645f69646e0801143004f5cc5c140e64000269646d0000000a3136353936303636343764000c6d656d6265725f636f756e746200005ea464000c6f6e6c696e655f636f756e7462000002c46400036f70736c000000017400000002640005696e646578610b6400026f7064000644454c4554456a6400026f70610064000173613a640001746400184755494c445f4d454d4245525f4c4953545f555044415445"
+ right: "83740000000464000164740000000664000667726f7570736c000000027400000002640005636f756e74610364000269646e0800795084b7b7a1bf0e7400000002640005636f756e74610c64000269646400066f6e6c696e656a6400086775696c645f69646e0800143004f5cc5c140e64000269646d0000000a3136353936303636343764000c6d656d6265725f636f756e746200005ea464000c6f6e6c696e655f636f756e7462000002c46400036f70736c000000017400000002640005696e646578610b6400026f7064000644454c4554456a6400026f70610064000173613a640001746400184755494c445f4d454d4245525f4c4953545f555044415445"
+
+
+failures:
+    eleven_wire_tags_decode_with_exact_consumed_len
+    guild_member_list_update_groups_ops_and_string_id
+    message_ack_binary_keys_are_found_by_get
+    presence_update_snowflakes_and_real_nil_activities
+    small_big_int_reads_sign_before_digits
+    supported_but_unseen_tags_decode_per_contract
+
+test result: FAILED. 7 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --test etf_vectors`

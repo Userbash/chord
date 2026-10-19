@@ -1,0 +1,17 @@
+# Каркас нативного клиента Discord на Rust (фаза P0 плана docs/rust-client/PLAN.md).
+# Внешние зависимости: только ruzstd 0.9.1 (чистый Rust, карточка RW-02) — кэшируется локально;
+# сборка и тесты идут офлайн (`cargo test --offline`).
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.87"
+
+[workspace.dependencies]
+discord-codec = { path = "crates/discord-codec" }
+discord-core = { path = "crates/discord-core" }
+discord-conformance = { path = "crates/discord-conformance" }

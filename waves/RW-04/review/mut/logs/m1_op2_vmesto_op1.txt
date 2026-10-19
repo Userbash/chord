@@ -1,0 +1,45 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/review/mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.72s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/review/mut-target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... FAILED
+test pipe_missing_magic_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test pipe_hello_from_encoded_stream ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_hello_and_heartbeats_acked ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... FAILED
+test ws_zombie_without_ack ... ok
+test lab_capture_stream_feeds_pipe ... ok
+
+failures:
+
+---- heartbeat_encode_roundtrip stdout ----
+
+thread 'heartbeat_encode_roundtrip' (254465) panicked at crates/discord-core/tests/ws_transport.rs:412:5:
+assertion `left == right` failed: op = HEARTBEAT
+  left: Some(2)
+ right: Some(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ws_hello_and_heartbeats_acked stdout ----
+
+thread 'ws_hello_and_heartbeats_acked' (254472) panicked at crates/discord-core/tests/ws_transport.rs:199:10:
+сценарий стаба вернул ошибку: "от клиента ждали op1, пришло Map([(Atom(\"op\"), Int(2)), (Atom(\"d\"), Nil)])"
+
+---- ws_dispatch_updates_heartbeat_seq stdout ----
+
+thread 'ws_dispatch_updates_heartbeat_seq' (254471) panicked at crates/discord-core/tests/ws_transport.rs:199:10:
+сценарий стаба вернул ошибку: "от клиента ждали op1, пришло Map([(Atom(\"op\"), Int(2)), (Atom(\"d\"), Nil)])"
+
+
+failures:
+    heartbeat_encode_roundtrip
+    ws_dispatch_updates_heartbeat_seq
+    ws_hello_and_heartbeats_acked
+
+test result: FAILED. 7 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`

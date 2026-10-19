@@ -1,0 +1,98 @@
+PASS  hex etf_vectors.rs:HELLO_HEX == gw-slice-terms #1  — 138 Б
+PASS  hex etf_properties.rs:HELLO_HEX == gw-slice-terms #1  — 138 Б
+PASS  hex etf_vectors.rs:ACK_HEX == gw-slice-terms #6  — 43 Б
+PASS  hex etf_properties.rs:ACK_HEX == gw-slice-terms #6  — 43 Б
+PASS  hex etf_vectors.rs:PRESENCE_HEX == gw-slice-terms #18  — 210 Б
+PASS  hex etf_properties.rs:PRESENCE_HEX == gw-slice-terms #18  — 210 Б
+PASS  hex etf_vectors.rs:MESSAGE_ACK_HEX == gw-slice-terms #46  — 148 Б
+PASS  hex etf_properties.rs:MESSAGE_ACK_HEX == gw-slice-terms #46  — 148 Б
+PASS  hex etf_vectors.rs:MEMBER_LIST_HEX == gw-slice-terms #75  — 257 Б
+PASS  hex etf_properties.rs:MEMBER_LIST_HEX == gw-slice-terms #75  — 257 Б
+PASS  длина HELLO_HEX: 138-1 == bytes(137)  — 138-1=137, jsonl.bytes=137, ТЗ=137
+PASS  HELLO_HEX: ведущий 0x83 в тесте  — 83
+PASS  длина ACK_HEX: 43-1 == bytes(42)  — 43-1=42, jsonl.bytes=42, ТЗ=42
+PASS  ACK_HEX: ведущий 0x83 в тесте  — 83
+PASS  длина PRESENCE_HEX: 210-1 == bytes(209)  — 210-1=209, jsonl.bytes=209, ТЗ=209
+PASS  PRESENCE_HEX: ведущий 0x83 в тесте  — 83
+PASS  длина MESSAGE_ACK_HEX: 148-1 == bytes(147)  — 148-1=147, jsonl.bytes=147, ТЗ=147
+PASS  MESSAGE_ACK_HEX: ведущий 0x83 в тесте  — 83
+PASS  длина MEMBER_LIST_HEX: 257-1 == bytes(256)  — 257-1=256, jsonl.bytes=256, ТЗ=256
+PASS  MEMBER_LIST_HEX: ведущий 0x83 в тесте  — 83
+PASS  JSONL #1.op == 10  — got=10
+PASS  JSONL #1.s == "nil"  — got="nil"
+PASS  JSONL #1.t == "nil"  — got="nil"
+PASS  JSONL #1.d.heartbeat_interval == 41250  — got=41250
+PASS  JSONL #1.d._trace[0] == "[\"gateway-prd-arm-us-east1-d-04m5\",{\"micros\":0.0}]"  — got="[\"gateway-prd-arm-us-east1-d-04m5\",{\"micros\":0.0}]"
+PASS  JSONL #6.op == 11  — got=11
+PASS  JSONL #6.s == "nil"  — got="nil"
+PASS  JSONL #6.t == "nil"  — got="nil"
+PASS  JSONL #6.d == "nil"  — got="nil"
+PASS  JSONL #18.op == 0  — got=0
+PASS  JSONL #18.s == 13  — got=13
+PASS  JSONL #18.t == "PRESENCE_UPDATE"  — got="PRESENCE_UPDATE"
+PASS  JSONL #18.d.guild_id == "1014537851418980372"  — got="1014537851418980372"
+PASS  JSONL #18.d.user.id == "702520807447855184"  — got="702520807447855184"
+PASS  JSONL #18.d.activities == null  — got=null
+PASS  JSONL #18.d.status == "online"  — got="online"
+PASS  JSONL #18.d.processed_at_timestamp == 0  — got=0
+PASS  JSONL #18.d.client_status.mobile == "online"  — got="online"
+PASS  JSONL #18.d.client_status.vr == "idle"  — got="idle"
+PASS  JSONL #46.op == 0  — got=0
+PASS  JSONL #46.s == 38  — got=38
+PASS  JSONL #46.t == "MESSAGE_ACK"  — got="MESSAGE_ACK"
+PASS  JSONL #46.d.channel_id == "1293192721237938187"  — got="1293192721237938187"
+PASS  JSONL #46.d.flags == 0  — got=0
+PASS  JSONL #46.d.last_viewed == 4310  — got=4310
+PASS  JSONL #46.d.message_id == "1561348877573947515"  — got="1561348877573947515"
+PASS  JSONL #46.d.version == 128950  — got=128950
+PASS  JSONL #75.op == 0  — got=0
+PASS  JSONL #75.s == 58  — got=58
+PASS  JSONL #75.t == "GUILD_MEMBER_LIST_UPDATE"  — got="GUILD_MEMBER_LIST_UPDATE"
+PASS  JSONL #75.d.id == "1659606647"  — got="1659606647"
+PASS  JSONL #75.d.guild_id == "1014537851418980372"  — got="1014537851418980372"
+PASS  JSONL #75.d.member_count == 24228  — got=24228
+PASS  JSONL #75.d.online_count == 708  — got=708
+PASS  JSONL #75.d.groups[0].id == "1062745847512715385"  — got="1062745847512715385"
+PASS  JSONL #75.d.groups[0].count == 3  — got=3
+PASS  JSONL #75.d.groups[1].id == "online"  — got="online"
+PASS  JSONL #75.d.groups[1].count == 12  — got=12
+PASS  JSONL #75.d.ops[0].index == 11  — got=11
+PASS  JSONL #75.d.ops[0].op == "DELETE"  — got="DELETE"
+PASS  ACK: d — ATOM_EXT nil (0x64…)  — 640001646400036e696c6400026f70610b640001736400036e696c640001746400036e696c
+PASS  PRESENCE: activities — NIL_EXT (0x6a)  — 616374697669746965736a64000d
+PASS  MESSAGE_ACK: ключ channel_id — BINARY_EXT  — 6d…6368616e6e656c5f6964
+PASS  MESSAGE_ACK: ключ flags — BINARY_EXT  — 6d…666c616773
+PASS  MESSAGE_ACK: ключ last_viewed — BINARY_EXT  — 6d…6c6173745f766965776564
+PASS  MESSAGE_ACK: ключ message_id — BINARY_EXT  — 6d…6d6573736167655f6964
+PASS  MESSAGE_ACK: ключ version — BINARY_EXT  — 6d…76657273696f6e
+PASS  HELLO: t — ATOM_EXT nil  — 6c640001746400036e696c
+PASS  спека: найдены 3 правильных и 3 ошибочных значения  — correct=3 [1014537851418980372,384299970632876032,1176785373989445703], wrong=3 [-1467272931325252608,-6147072113468506112,-6109150561945274112]
+PASS  тест: найдены 3 big-int тройки  — n=3
+PASS  bigint[0] 6e0800143004f5cc5c140e: независимый пересчёт == тест  — 1014537851418980372 == 1014537851418980372
+PASS  bigint[0] 6e0800143004f5cc5c140e: тест == спека §2.5  — test=1014537851418980372 spec=1014537851418980372
+PASS  bigint[0] 6e0800143004f5cc5c140e: «ошибочный» порядок == тест-негатив  — -1467272931325252608 == -1467272931325252608
+PASS  bigint[0] 6e0800143004f5cc5c140e: негатив == значение в спеке  — test=-1467272931325252608 spec=-1467272931325252608
+PASS  bigint[0] 6e0800143004f5cc5c140e: правильное != ошибочное
+PASS  bigint[0] 6e0800143004f5cc5c140e: правильное > 0 (снежинка)
+PASS  bigint[1] 6e08000000c484c94e5505: независимый пересчёт == тест  — 384299970632876032 == 384299970632876032
+PASS  bigint[1] 6e08000000c484c94e5505: тест == спека §2.5  — test=384299970632876032 spec=384299970632876032
+PASS  bigint[1] 6e08000000c484c94e5505: «ошибочный» порядок == тест-негатив  — -6147072113468506112 == -6147072113468506112
+PASS  bigint[1] 6e08000000c484c94e5505: негатив == значение в спеке  — test=-6147072113468506112 spec=-6147072113468506112
+PASS  bigint[1] 6e08000000c484c94e5505: правильное != ошибочное
+PASS  bigint[1] 6e08000000c484c94e5505: правильное > 0 (снежинка)
+PASS  bigint[2] 6e08004720841110c85410: независимый пересчёт == тест  — 1176785373989445703 == 1176785373989445703
+PASS  bigint[2] 6e08004720841110c85410: тест == спека §2.5  — test=1176785373989445703 spec=1176785373989445703
+PASS  bigint[2] 6e08004720841110c85410: «ошибочный» порядок == тест-негатив  — -6109150561945274112 == -6109150561945274112
+PASS  bigint[2] 6e08004720841110c85410: негатив == значение в спеке  — test=-6109150561945274112 spec=-6109150561945274112
+PASS  bigint[2] 6e08004720841110c85410: правильное != ошибочное
+PASS  bigint[2] 6e08004720841110c85410: правильное > 0 (снежинка)
+PASS  bigint i64::MIN независимо  — -9223372036854775808
+PASS  bigint i64::MAX независимо  — 9223372036854775807
+PASS  свежий декод #1 == JSONL term (whitespace-insensitive)  — idx=1
+PASS  свежий декод #6 == JSONL term (whitespace-insensitive)  — idx=6
+PASS  свежий декод #18 == JSONL term (whitespace-insensitive)  — idx=18
+PASS  свежий декод #46 == JSONL term (whitespace-insensitive)  — idx=46
+PASS  свежий декод #75 == JSONL term (whitespace-insensitive)  — idx=75
+
+===============================
+Итог: 95/95 PASS, FAIL=0

@@ -1,0 +1,131 @@
+warning: unused variable: `key`
+  --> crates/discord-codec/src/etf.rs:95:23
+   |
+95 |     pub fn get(&self, key: &str) -> Option<&EtfValue> {
+   |                       ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:133:15
+    |
+133 | pub fn decode(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
+    |               ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:138:20
+    |
+138 | pub fn decode_term(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
+    |                    ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:143:15
+    |
+143 | pub fn encode(value: &EtfValue) -> Vec<u8> {
+    |               ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:148:20
+    |
+148 | pub fn encode_term(value: &EtfValue) -> Vec<u8> {
+    |                    ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: `discord-codec` (lib) generated 5 warnings (run `cargo fix --lib -p discord-codec` to apply 5 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-10f0ff0ef806c1ec)
+
+running 12 tests
+test atom_nil_is_a_string_and_not_nil_ext ... FAILED
+test decode_skips_only_the_leading_version_byte ... FAILED
+test eleven_wire_tags_decode_with_exact_consumed_len ... FAILED
+test heartbeat_ack_keeps_atom_nil_and_int_op ... FAILED
+test hello_term_full_tree_matches_capture ... FAILED
+test list_tail_is_nil_ext_only ... FAILED
+test guild_member_list_update_groups_ops_and_string_id ... FAILED
+test message_ack_binary_keys_are_found_by_get ... FAILED
+test small_big_int_reads_sign_before_digits ... FAILED
+test presence_update_snowflakes_and_real_nil_activities ... FAILED
+test supported_but_unseen_tags_decode_per_contract ... FAILED
+test two_terms_back_to_back_split_by_consumed ... FAILED
+
+failures:
+
+---- atom_nil_is_a_string_and_not_nil_ext stdout ----
+
+thread 'atom_nil_is_a_string_and_not_nil_ext' (178560) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- decode_skips_only_the_leading_version_byte stdout ----
+
+thread 'decode_skips_only_the_leading_version_byte' (178561) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+---- eleven_wire_tags_decode_with_exact_consumed_len stdout ----
+
+thread 'eleven_wire_tags_decode_with_exact_consumed_len' (178562) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- heartbeat_ack_keeps_atom_nil_and_int_op stdout ----
+
+thread 'heartbeat_ack_keeps_atom_nil_and_int_op' (178564) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+---- hello_term_full_tree_matches_capture stdout ----
+
+thread 'hello_term_full_tree_matches_capture' (178565) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+---- list_tail_is_nil_ext_only stdout ----
+
+thread 'list_tail_is_nil_ext_only' (178566) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- guild_member_list_update_groups_ops_and_string_id stdout ----
+
+thread 'guild_member_list_update_groups_ops_and_string_id' (178563) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+---- message_ack_binary_keys_are_found_by_get stdout ----
+
+thread 'message_ack_binary_keys_are_found_by_get' (178567) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+---- small_big_int_reads_sign_before_digits stdout ----
+
+thread 'small_big_int_reads_sign_before_digits' (178569) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- presence_update_snowflakes_and_real_nil_activities stdout ----
+
+thread 'presence_update_snowflakes_and_real_nil_activities' (178568) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+---- supported_but_unseen_tags_decode_per_contract stdout ----
+
+thread 'supported_but_unseen_tags_decode_per_contract' (178570) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- two_terms_back_to_back_split_by_consumed stdout ----
+
+thread 'two_terms_back_to_back_split_by_consumed' (178571) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+
+failures:
+    atom_nil_is_a_string_and_not_nil_ext
+    decode_skips_only_the_leading_version_byte
+    eleven_wire_tags_decode_with_exact_consumed_len
+    guild_member_list_update_groups_ops_and_string_id
+    heartbeat_ack_keeps_atom_nil_and_int_op
+    hello_term_full_tree_matches_capture
+    list_tail_is_nil_ext_only
+    message_ack_binary_keys_are_found_by_get
+    presence_update_snowflakes_and_real_nil_activities
+    small_big_int_reads_sign_before_digits
+    supported_but_unseen_tags_decode_per_contract
+    two_terms_back_to_back_split_by_consumed
+
+test result: FAILED. 0 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --test etf_vectors`

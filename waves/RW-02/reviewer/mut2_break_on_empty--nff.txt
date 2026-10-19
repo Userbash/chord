@@ -1,0 +1,148 @@
+   Compiling discord-codec v0.1.0 (/tmp/opencode/review-rw-02/ws/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/discord_codec-6056909c2a4ce066)
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/etf_properties.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/etf_properties-d126ed1f27d8f3ed)
+
+running 9 tests
+test accessors_keep_types_strict ... ok
+test big_int_rejects_overflow_and_keeps_signed_borders ... ok
+test canonical_encoder_matches_fixed_bytes ... ok
+test decoder_reports_specific_errors ... ok
+test roundtrip_covers_every_variant_and_border_values ... ok
+test nesting_depth_limit_is_enforced ... ok
+test truncated_hello_prefixes_are_errors_not_panics ... ok
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... ok
+test fuzz_lite_never_panics_on_garbage ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/etf_vectors.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/etf_vectors-bc59c90ef9dfec1e)
+
+running 13 tests
+test atom_nil_is_a_string_and_not_nil_ext ... ok
+test decode_skips_only_the_leading_version_byte ... ok
+test hello_term_full_tree_matches_capture ... ok
+test eleven_wire_tags_decode_with_exact_consumed_len ... ok
+test list_tail_is_nil_ext_only ... ok
+test heartbeat_ack_keeps_atom_nil_and_int_op ... ok
+test presence_update_snowflakes_and_real_nil_activities ... ok
+test small_big_int_reads_sign_before_digits ... ok
+test supported_but_unseen_tags_decode_per_contract ... ok
+test message_ack_binary_keys_are_found_by_get ... ok
+test guild_member_list_update_groups_ops_and_string_id ... ok
+test two_terms_back_to_back_split_by_consumed ... ok
+test vector_lengths_match_capture_bytes_field ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/review_external.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/review_external-03d52f7c9ed7aa96)
+
+running 8 tests
+test ext_fresh_stream_quirks ... ok
+test ext_after_decode_error ... ok
+test ext_lab_8158_midstream ... ok
+test ext_lcg_garbage_300 ... ok
+test ext_synth_whole_and_5b_chunks ... FAILED
+test ext_two_frames_concat ... FAILED
+test ext_all_prefixes_of_frame ... ok
+test ext_lab_1389_real ... ok
+
+failures:
+
+---- ext_synth_whole_and_5b_chunks stdout ----
+
+thread 'ext_synth_whole_and_5b_chunks' (210938) panicked at crates/discord-codec/tests/review_external.rs:20:5:
+целый кадр == payload
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ext_two_frames_concat stdout ----
+
+thread 'ext_two_frames_concat' (210939) panicked at crates/discord-codec/tests/review_external.rs:20:5:
+первый push == payload
+
+
+failures:
+    ext_synth_whole_and_5b_chunks
+    ext_two_frames_concat
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-codec --test review_external`
+     Running tests/zstd_stream.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/zstd_stream-dbfb7a88c1079559)
+
+running 9 tests
+test corrupted_frame_is_reported ... ok
+test lab_midstream_socket_is_rejected ... ok
+test missing_magic_is_rejected ... ok
+test magic_split_across_pushes ... FAILED
+test synth_frame_byte_by_byte ... FAILED
+test synth_frame_decodes_whole ... FAILED
+test synth_frame_split_in_three ... FAILED
+test trailing_bytes_after_finished_frame ... FAILED
+test lab_stream_1389_matches_oracle ... ok
+
+failures:
+
+---- magic_split_across_pushes stdout ----
+
+thread 'magic_split_across_pushes' (210944) panicked at crates/discord-codec/tests/zstd_stream.rs:101:5:
+assertion `left == right` failed: магия по частям: длина выхода
+  left: 65536
+ right: 139264
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- synth_frame_byte_by_byte stdout ----
+
+thread 'synth_frame_byte_by_byte' (210946) panicked at crates/discord-codec/tests/zstd_stream.rs:101:5:
+assertion `left == right` failed: кадр по одному байту: длина выхода
+  left: 65536
+ right: 139264
+
+---- synth_frame_decodes_whole stdout ----
+
+thread 'synth_frame_decodes_whole' (210947) panicked at crates/discord-codec/tests/zstd_stream.rs:118:5:
+assertion `left == right` failed: длина payload = 34 × 4096
+  left: 65536
+ right: 139264
+
+---- synth_frame_split_in_three stdout ----
+
+thread 'synth_frame_split_in_three' (210948) panicked at crates/discord-codec/tests/zstd_stream.rs:101:5:
+assertion `left == right` failed: кадр из трёх кусков: длина выхода
+  left: 65536
+ right: 139264
+
+---- trailing_bytes_after_finished_frame stdout ----
+
+thread 'trailing_bytes_after_finished_frame' (210949) panicked at crates/discord-codec/tests/zstd_stream.rs:101:5:
+assertion `left == right` failed: кадр целиком: длина выхода
+  left: 65536
+ right: 139264
+
+
+failures:
+    magic_split_across_pushes
+    synth_frame_byte_by_byte
+    synth_frame_decodes_whole
+    synth_frame_split_in_three
+    trailing_bytes_after_finished_frame
+
+test result: FAILED. 4 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-codec --test zstd_stream`
+   Doc-tests discord_codec
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 2 targets failed:
+    `-p discord-codec --test review_external`
+    `-p discord-codec --test zstd_stream`

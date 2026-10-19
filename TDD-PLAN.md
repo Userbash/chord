@@ -365,6 +365,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/meta/docs-sync.test.mjs` | — | мета: `HELP` ↔ `README.md` (команды CLI задокументированы) |
 | `tests/meta/backlog-sync.test.mjs` | — | мета: карточки `docs/feature-backlog.md` ↔ README/TASKS/карта |
 | `tests/meta/rust-client-sync.test.mjs` | — | мета: план Rust-клиента (docs/rust-client) ↔ README/TASKS/карта |
+| `tests/meta/waves-sync.test.mjs` | — | мета: `waves/db.jsonl` (схема v1) ↔ `STATE.md` и `evidence` |
 
 Цикл для новой функциональности (рецепт):
 

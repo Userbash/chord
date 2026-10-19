@@ -1,0 +1,120 @@
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+warning: unused variable: `key`
+  --> crates/discord-codec/src/etf.rs:95:23
+   |
+95 |     pub fn get(&self, key: &str) -> Option<&EtfValue> {
+   |                       ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:133:15
+    |
+133 | pub fn decode(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
+    |               ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:138:20
+    |
+138 | pub fn decode_term(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
+    |                    ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:143:15
+    |
+143 | pub fn encode(value: &EtfValue) -> Vec<u8> {
+    |               ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:148:20
+    |
+148 | pub fn encode_term(value: &EtfValue) -> Vec<u8> {
+    |                    ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: `discord-codec` (lib) generated 5 warnings (run `cargo fix --lib -p discord-codec` to apply 5 suggestions)
+warning: `discord-codec` (lib test) generated 5 warnings (5 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-f0dab282ab340b14)
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-c966ccf8f690ceb7)
+
+running 9 tests
+test accessors_keep_types_strict ... FAILED
+test big_int_rejects_overflow_and_keeps_signed_borders ... FAILED
+test canonical_encoder_matches_fixed_bytes ... FAILED
+test decoder_reports_specific_errors ... FAILED
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... FAILED
+test fuzz_lite_never_panics_on_garbage ... FAILED
+test nesting_depth_limit_is_enforced ... FAILED
+test roundtrip_covers_every_variant_and_border_values ... FAILED
+test truncated_hello_prefixes_are_errors_not_panics ... FAILED
+
+failures:
+
+---- accessors_keep_types_strict stdout ----
+
+thread 'accessors_keep_types_strict' (178458) panicked at crates/discord-codec/src/etf.rs:111:9:
+not yet implemented: RW-01 red
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- big_int_rejects_overflow_and_keeps_signed_borders stdout ----
+
+thread 'big_int_rejects_overflow_and_keeps_signed_borders' (178459) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- canonical_encoder_matches_fixed_bytes stdout ----
+
+thread 'canonical_encoder_matches_fixed_bytes' (178460) panicked at crates/discord-codec/src/etf.rs:149:5:
+not yet implemented: RW-01 red
+
+---- decoder_reports_specific_errors stdout ----
+
+thread 'decoder_reports_specific_errors' (178462) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- canonical_encoder_uses_expected_tags_for_atoms_and_big_containers stdout ----
+
+thread 'canonical_encoder_uses_expected_tags_for_atoms_and_big_containers' (178461) panicked at crates/discord-codec/src/etf.rs:149:5:
+not yet implemented: RW-01 red
+
+---- fuzz_lite_never_panics_on_garbage stdout ----
+
+thread 'fuzz_lite_never_panics_on_garbage' (178463) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- nesting_depth_limit_is_enforced stdout ----
+
+thread 'nesting_depth_limit_is_enforced' (178464) panicked at crates/discord-codec/src/etf.rs:139:5:
+not yet implemented: RW-01 red
+
+---- roundtrip_covers_every_variant_and_border_values stdout ----
+
+thread 'roundtrip_covers_every_variant_and_border_values' (178465) panicked at crates/discord-codec/src/etf.rs:149:5:
+not yet implemented: RW-01 red
+
+---- truncated_hello_prefixes_are_errors_not_panics stdout ----
+
+thread 'truncated_hello_prefixes_are_errors_not_panics' (178466) panicked at crates/discord-codec/src/etf.rs:134:5:
+not yet implemented: RW-01 red
+
+
+failures:
+    accessors_keep_types_strict
+    big_int_rejects_overflow_and_keeps_signed_borders
+    canonical_encoder_matches_fixed_bytes
+    canonical_encoder_uses_expected_tags_for_atoms_and_big_containers
+    decoder_reports_specific_errors
+    fuzz_lite_never_panics_on_garbage
+    nesting_depth_limit_is_enforced
+    roundtrip_covers_every_variant_and_border_values
+    truncated_hello_prefixes_are_errors_not_panics
+
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --test etf_properties`

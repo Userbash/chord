@@ -1,0 +1,16 @@
+test plan_reconnect_policy ... FAILED
+test resume_frame_has_evidence_fields ... FAILED
+test resume_frame_rejects_empty_fields ... FAILED
+test resume_debug_redacts_token ... ok
+test pipe_invalid_session_flag ... FAILED
+test pipe_resume_state_after_ready ... FAILED
+test resume_frame_size_plausible ... FAILED
+test ws_resume_sent_once_after_hello ... FAILED
+test ws_resume_suppresses_identify ... FAILED
+test ws_invalid_session_false ... FAILED
+test lab_resume_seq_continuity ... FAILED
+test ws_op7_then_resume_keeps_seq ... FAILED
+test result: FAILED. 1 passed; 11 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+error: test failed, to rerun pass `-p discord-core --test resume_reconnect`
+# EXIT=101
+60bf79f41d62dd3dff4556c5e2002b5a  crates/discord-core/tests/resume_reconnect.rs

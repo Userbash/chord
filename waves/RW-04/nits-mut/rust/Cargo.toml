@@ -1,0 +1,28 @@
+# Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
+# Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
+# шлюза: tokio/tokio-tungstenite (WS), rustls с провайдером ring, webpki-roots, futures-util;
+# dev-зависимость `zstd` (C-энкодер) — только для стабов в тестах. После первой сборки (сеть,
+# разрешение владельца 2026-10-19) тесты идут офлайн (`cargo test --offline`).
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.87"
+
+[workspace.dependencies]
+discord-codec = { path = "crates/discord-codec" }
+discord-core = { path = "crates/discord-core" }
+discord-conformance = { path = "crates/discord-conformance" }
+# Транспорт шлюза (RW-04). Версии — стартовые из ТЗ, точные фиксирует Cargo.lock.
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time"] }
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
+# TLS-провайдер ring (не aws-lc-rs: без cmake/nasm), tls12 оставлен для совместимости.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+webpki-roots = "1"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+# Энкодер zstd — только для стабов тестов (продукт на чтении использует ruzstd).
+zstd = "0.14"

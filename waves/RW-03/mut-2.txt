@@ -1,0 +1,38 @@
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test first_beat_has_null_sequence ... ok
+test heartbeat_term_roundtrips ... ok
+test hello_term_parses_interval ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test missed_ack_is_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test second_hello_after_first_beat_is_ignored ... FAILED
+test lab_timeline_facts ... ok
+test zero_interval_hello_is_malformed ... ok
+test lab_replay_no_zombie ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+failures:
+
+---- second_hello_after_first_beat_is_ignored stdout ----
+
+thread 'second_hello_after_first_beat_is_ignored' (233747) panicked at crates/discord-core/tests/gateway_session.rs:310:5:
+assertion `left == right` failed: после первого удара интервал не подменяется
+  left: Some(8000)
+ right: Some(41250)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    second_hello_after_first_beat_is_ignored
+
+test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-03/nits-mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-4f5e71b8404cb0ec)
+error: test failed, to rerun pass `-p discord-core --test gateway_session`

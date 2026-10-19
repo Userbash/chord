@@ -1,0 +1,19 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
+     Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-6dd6cbc392eab80a)
+
+running 11 tests
+test kind_from_name_exact_roundtrip ... ok
+test kind_table_covers_21_observed_types ... ok
+test route_ignores_non_dispatches ... ok
+test route_seq_and_data_optional ... ok
+test route_known_keeps_seq_and_payload ... ok
+test pipe_hello_only_yields_no_events ... ok
+test route_unknown_is_raw_with_name ... ok
+test pipe_take_events_drains_once ... ok
+test pipe_routes_dispatches_in_order ... ok
+test lab_all_dispatch_types_route_to_kinds ... ok
+test lab_real_stream_routes_known_kinds ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

@@ -1,0 +1,189 @@
+warning: unused variable: `session`
+  --> crates/discord-core/src/ws.rs:29:16
+   |
+29 |     pub fn new(session: Session) -> Self {
+   |                ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_session`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `msg`
+  --> crates/discord-core/src/ws.rs:34:35
+   |
+34 |     pub fn push_binary(&mut self, msg: &[u8], now_ms: u64) -> Result<Vec<Effect>, TransportError> {
+   |                                   ^^^ help: if this is intentional, prefix it with an underscore: `_msg`
+
+warning: unused variable: `now_ms`
+  --> crates/discord-core/src/ws.rs:34:47
+   |
+34 |     pub fn push_binary(&mut self, msg: &[u8], now_ms: u64) -> Result<Vec<Effect>, TransportError> {
+   |                                               ^^^^^^ help: if this is intentional, prefix it with an underscore: `_now_ms`
+
+warning: unused variable: `d`
+  --> crates/discord-core/src/ws.rs:75:25
+   |
+75 | pub fn encode_heartbeat(d: Option<u64>) -> Vec<u8> {
+   |                         ^ help: if this is intentional, prefix it with an underscore: `_d`
+
+warning: unused variable: `f`
+   --> crates/discord-core/src/ws.rs:114:19
+    |
+114 |     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    |                   ^ help: if this is intentional, prefix it with an underscore: `_f`
+
+warning: unused variable: `url`
+   --> crates/discord-core/src/ws.rs:123:5
+    |
+123 |     url: &str,
+    |     ^^^ help: if this is intentional, prefix it with an underscore: `_url`
+
+warning: unused variable: `pipe`
+   --> crates/discord-core/src/ws.rs:124:5
+    |
+124 |     pipe: &mut GatewayPipe,
+    |     ^^^^ help: if this is intentional, prefix it with an underscore: `_pipe`
+
+warning: multiple fields are never read
+  --> crates/discord-core/src/ws.rs:12:5
+   |
+10 | pub struct GatewayPipe {
+   |            ----------- fields in this struct
+11 |     /// Инкрементальный декодер непрерывного zstd-кадра (RW-02).
+12 |     stream: ZstdStream,
+   |     ^^^^^^
+13 |     /// Хвост распакованных, но ещё не разобранных байт (терм может быть разрезан).
+14 |     tail: Vec<u8>,
+   |     ^^^^
+15 |     /// Ядро сессии (RW-03): сюда уходят разобранные термы.
+16 |     session: Session,
+   |     ^^^^^^^
+17 |     /// Сколько WS-сообщений подано в пайп.
+18 |     frames_received: u64,
+   |     ^^^^^^^^^^^^^^^
+19 |     /// Сколько сжатых байт провода подано в пайп.
+20 |     bytes_received: u64,
+   |     ^^^^^^^^^^^^^^
+21 |     /// Сколько термов успешно разобрано.
+22 |     terms_parsed: u64,
+   |     ^^^^^^^^^^^^
+23 |     /// Сколько WS-сообщений проигнорировано (не Binary/Ping/Close) — счётчик цикла.
+24 |     ignored_messages: u64,
+   |     ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 8 warnings (run `cargo fix --lib -p discord-core` to apply 7 suggestions)
+warning: `discord-core` (lib test) generated 8 warnings (8 duplicates)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running unittests src/lib.rs (target/debug/deps/discord_core-727086b8c91340bb)
+
+running 2 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-00158d1bab2f14e3)
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test hello_term_parses_interval ... ok
+test heartbeat_term_roundtrips ... ok
+test first_beat_has_null_sequence ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test missed_ack_is_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test zero_interval_hello_is_malformed ... ok
+test lab_timeline_facts ... ok
+test lab_replay_no_zombie ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/ws_transport.rs (target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... FAILED
+test pipe_missing_magic_is_error ... FAILED
+test pipe_buffers_partial_term ... FAILED
+test pipe_hello_from_encoded_stream ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... FAILED
+test ws_closed_after_stub_close ... FAILED
+test ws_hello_and_heartbeats_acked ... FAILED
+test ws_server_reconnect_op7 ... FAILED
+test ws_zombie_without_ack ... FAILED
+test lab_capture_stream_feeds_pipe ... FAILED
+
+failures:
+
+---- heartbeat_encode_roundtrip stdout ----
+
+thread 'heartbeat_encode_roundtrip' (241385) panicked at crates/discord-core/src/ws.rs:76:5:
+not yet implemented: RW-04: heartbeat (red-фаза)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipe_missing_magic_is_error stdout ----
+
+thread 'pipe_missing_magic_is_error' (241389) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- pipe_buffers_partial_term stdout ----
+
+thread 'pipe_buffers_partial_term' (241387) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- pipe_hello_from_encoded_stream stdout ----
+
+thread 'pipe_hello_from_encoded_stream' (241388) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_dispatch_updates_heartbeat_seq stdout ----
+
+thread 'ws_dispatch_updates_heartbeat_seq' (241391) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_closed_after_stub_close stdout ----
+
+thread 'ws_closed_after_stub_close' (241390) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_hello_and_heartbeats_acked stdout ----
+
+thread 'ws_hello_and_heartbeats_acked' (241392) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_server_reconnect_op7 stdout ----
+
+thread 'ws_server_reconnect_op7' (241393) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_zombie_without_ack stdout ----
+
+thread 'ws_zombie_without_ack' (241394) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- lab_capture_stream_feeds_pipe stdout ----
+
+thread 'lab_capture_stream_feeds_pipe' (241386) panicked at crates/discord-core/src/ws.rs:30:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+
+failures:
+    heartbeat_encode_roundtrip
+    lab_capture_stream_feeds_pipe
+    pipe_buffers_partial_term
+    pipe_hello_from_encoded_stream
+    pipe_missing_magic_is_error
+    ws_closed_after_stub_close
+    ws_dispatch_updates_heartbeat_seq
+    ws_hello_and_heartbeats_acked
+    ws_server_reconnect_op7
+    ws_zombie_without_ack
+
+test result: FAILED. 0 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`

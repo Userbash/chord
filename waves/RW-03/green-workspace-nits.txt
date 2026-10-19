@@ -1,0 +1,199 @@
+   Compiling discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/main.rs (target/debug/deps/discord_rs-f5392733cbddc82e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-d126ed1f27d8f3ed)
+
+running 9 tests
+test accessors_keep_types_strict ... ok
+test big_int_rejects_overflow_and_keeps_signed_borders ... ok
+test canonical_encoder_matches_fixed_bytes ... ok
+test decoder_reports_specific_errors ... ok
+test roundtrip_covers_every_variant_and_border_values ... ok
+test nesting_depth_limit_is_enforced ... ok
+test truncated_hello_prefixes_are_errors_not_panics ... ok
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... ok
+test fuzz_lite_never_panics_on_garbage ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-bc59c90ef9dfec1e)
+
+running 13 tests
+test atom_nil_is_a_string_and_not_nil_ext ... ok
+test eleven_wire_tags_decode_with_exact_consumed_len ... ok
+test decode_skips_only_the_leading_version_byte ... ok
+test heartbeat_ack_keeps_atom_nil_and_int_op ... ok
+test list_tail_is_nil_ext_only ... ok
+test guild_member_list_update_groups_ops_and_string_id ... ok
+test small_big_int_reads_sign_before_digits ... ok
+test message_ack_binary_keys_are_found_by_get ... ok
+test supported_but_unseen_tags_decode_per_contract ... ok
+test hello_term_full_tree_matches_capture ... ok
+test presence_update_snowflakes_and_real_nil_activities ... ok
+test two_terms_back_to_back_split_by_consumed ... ok
+test vector_lengths_match_capture_bytes_field ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zstd_stream.rs (target/debug/deps/zstd_stream-dbfb7a88c1079559)
+
+running 9 tests
+test lab_midstream_socket_is_rejected ... ok
+test corrupted_frame_is_reported ... ok
+test missing_magic_is_rejected ... ok
+test synth_frame_byte_by_byte ... ok
+test synth_frame_decodes_whole ... ok
+test magic_split_across_pushes ... ok
+test trailing_bytes_after_finished_frame ... ok
+test synth_frame_split_in_three ... ok
+test lab_stream_1389_matches_oracle ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_conformance-8d2b42bc27c94d92)
+
+running 2 tests
+test tests::ready_fixture_is_present ... ok
+test tests::manifest_exists_and_lists_fixtures ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_core-ae4f4ce862df07ec)
+
+running 2 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-4f5e71b8404cb0ec)
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test first_beat_has_null_sequence ... ok
+test heartbeat_term_roundtrips ... ok
+test hello_term_parses_interval ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test missed_ack_is_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test zero_interval_hello_is_malformed ... ok
+test lab_replay_no_zombie ... ok
+test lab_timeline_facts ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b0bfa2a4ee61ae67)
+
+running 2 tests
+test tests::locale_math_is_consistent ... ok
+test tests::ru_plural_categories ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_media-d94cda25860749c7)
+
+running 1 test
+test tests::engine_codecs_match_client_log ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_platform-4cce23a8a32223ca)
+
+running 1 test
+test tests::legacy_channel_counts_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_store-2102c0de57132216)
+
+running 1 test
+test tests::core_tables_are_set ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_ui-5641009d1ecf1b3c)
+
+running 1 test
+test tests::contracts_count_matches_d03 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_voice-63c2e98d55af41a3)
+
+running 1 test
+test tests::voice_constants_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_codec
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_conformance
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_i18n
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_media
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_platform
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_store
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_ui
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_voice
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

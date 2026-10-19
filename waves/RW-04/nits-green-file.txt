@@ -1,0 +1,23 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.02s
+     Running tests/ws_transport.rs (target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test pipe_hello_from_encoded_stream ... ok
+test ws_closed_after_stub_close ... ok
+test ws_text_messages_counted ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+# EXIT=0
+# tests/ws_transport.rs md5: 1d091ee2c237cdb74258d79c564b6d4e

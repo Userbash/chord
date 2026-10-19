@@ -1,0 +1,73 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-6dd6cbc392eab80a)
+
+running 11 tests
+test kind_from_name_exact_roundtrip ... ok
+test kind_table_covers_21_observed_types ... FAILED
+test pipe_hello_only_yields_no_events ... ok
+test route_seq_and_data_optional ... ok
+test route_unknown_is_raw_with_name ... ok
+test route_ignores_non_dispatches ... ok
+test route_known_keeps_seq_and_payload ... FAILED
+test pipe_routes_dispatches_in_order ... FAILED
+test pipe_take_events_drains_once ... FAILED
+test lab_all_dispatch_types_route_to_kinds ... FAILED
+test lab_real_stream_routes_known_kinds ... FAILED
+
+failures:
+
+---- kind_table_covers_21_observed_types stdout ----
+
+thread 'kind_table_covers_21_observed_types' (351557) panicked at crates/discord-core/tests/dispatch_router.rs:272:5:
+assertion `left == right` failed: ALL ⇄ 21 имя провода оракула
+  left: {"CHANNEL_INFO", "GUILD_MEMBERS_CHUNK", "GUILD_MEMBER_LIST_UPDATE", "MESSAGE_ACK", "MESSAGE_CREATE", "MESSAGE_POLL_VOTE_ADD", "MESSAGE_REACTION_ADD", "MESSAGE_UPDATE", "PRESENCE_UPDATE", "READY_SUPPLEMENTAL", "REDY", "RESUMED", "SESSIONS_REPLACE", "SOUNDBOARD_SOUNDS", "THREAD_LIST_SYNC", "TYPING_START", "USER_SETTINGS_PROTO_UPDATE", "VOICE_CHANNEL_START_TIME_UPDATE", "VOICE_CHANNEL_STATUS_UPDATE", "VOICE_SERVER_UPDATE", "VOICE_STATE_UPDATE"}
+ right: {"CHANNEL_INFO", "GUILD_MEMBERS_CHUNK", "GUILD_MEMBER_LIST_UPDATE", "MESSAGE_ACK", "MESSAGE_CREATE", "MESSAGE_POLL_VOTE_ADD", "MESSAGE_REACTION_ADD", "MESSAGE_UPDATE", "PRESENCE_UPDATE", "READY", "READY_SUPPLEMENTAL", "RESUMED", "SESSIONS_REPLACE", "SOUNDBOARD_SOUNDS", "THREAD_LIST_SYNC", "TYPING_START", "USER_SETTINGS_PROTO_UPDATE", "VOICE_CHANNEL_START_TIME_UPDATE", "VOICE_CHANNEL_STATUS_UPDATE", "VOICE_SERVER_UPDATE", "VOICE_STATE_UPDATE"}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- route_known_keeps_seq_and_payload stdout ----
+
+thread 'route_known_keeps_seq_and_payload' (351564) panicked at crates/discord-core/tests/dispatch_router.rs:315:5:
+assertion `left == right` failed: READY из строки
+  left: None
+ right: Some(Ready)
+
+---- pipe_routes_dispatches_in_order stdout ----
+
+thread 'pipe_routes_dispatches_in_order' (351561) panicked at crates/discord-core/tests/dispatch_router.rs:416:5:
+assertion `left == right` failed: порядок потока: READY → MESSAGE_CREATE → raw
+  left: [None, Some(MessageCreate), None]
+ right: [Some(Ready), Some(MessageCreate), None]
+
+---- pipe_take_events_drains_once stdout ----
+
+thread 'pipe_take_events_drains_once' (351562) panicked at crates/discord-core/tests/dispatch_router.rs:449:5:
+assertion `left == right` failed: счётчик raw не сбрасывается дренажом
+  left: 2
+ right: 1
+
+---- lab_all_dispatch_types_route_to_kinds stdout ----
+
+thread 'lab_all_dispatch_types_route_to_kinds' (351558) panicked at crates/discord-core/tests/dispatch_router.rs:529:58:
+тип READY отсутствует в таблице
+
+---- lab_real_stream_routes_known_kinds stdout ----
+
+thread 'lab_real_stream_routes_known_kinds' (351559) panicked at crates/discord-core/tests/dispatch_router.rs:625:5:
+assertion `left == right` failed: в префиксе нет неизвестных типов
+  left: 1
+ right: 0
+
+
+failures:
+    kind_table_covers_21_observed_types
+    lab_all_dispatch_types_route_to_kinds
+    lab_real_stream_routes_known_kinds
+    pipe_routes_dispatches_in_order
+    pipe_take_events_drains_once
+    route_known_keeps_seq_and_payload
+
+test result: FAILED. 5 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test dispatch_router`
+# EXIT=101

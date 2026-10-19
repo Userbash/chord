@@ -1,0 +1,9 @@
+[package]
+name = "discord-codec"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ETF (erlpack) и zstd-стрим кодеки протокола Discord"
+
+[lints.rust]
+unsafe_code = "forbid"

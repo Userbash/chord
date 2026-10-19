@@ -1,0 +1,124 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `build_resume_frame`
+  --> crates/discord-core/src/ws.rs:61:61
+   |
+61 | use crate::resume::{ResumeError, ResumeParams, ResumeState, build_resume_frame};
+   |                                                             ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `key` is never used
+  --> crates/discord-core/src/resume.rs:94:4
+   |
+94 | fn key(name: &str) -> EtfValue {
+   |    ^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `int` is never used
+  --> crates/discord-core/src/resume.rs:99:4
+   |
+99 | fn int(value: u64) -> EtfValue {
+   |    ^^^
+
+warning: function `self_check` is never used
+   --> crates/discord-core/src/resume.rs:113:4
+    |
+113 | fn self_check(bytes: Vec<u8>) -> Result<Vec<u8>, ResumeError> {
+    |    ^^^^^^^^^^
+
+warning: `discord-core` (lib) generated 4 warnings (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+     Running tests/resume_reconnect.rs (target/debug/deps/resume_reconnect-22b3cca66cf0927d)
+
+running 12 tests
+test plan_reconnect_policy ... FAILED
+test resume_frame_has_evidence_fields ... FAILED
+test resume_debug_redacts_token ... ok
+test resume_frame_size_plausible ... FAILED
+test resume_frame_rejects_empty_fields ... FAILED
+test pipe_invalid_session_flag ... FAILED
+test pipe_resume_state_after_ready ... FAILED
+test ws_invalid_session_false ... FAILED
+test ws_resume_sent_once_after_hello ... FAILED
+test ws_resume_suppresses_identify ... FAILED
+test lab_resume_seq_continuity ... FAILED
+test ws_op7_then_resume_keeps_seq ... FAILED
+
+failures:
+
+---- plan_reconnect_policy stdout ----
+
+thread 'plan_reconnect_policy' (317726) panicked at crates/discord-core/src/resume.rs:135:5:
+not yet implemented: review red reproduction
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- resume_frame_has_evidence_fields stdout ----
+
+thread 'resume_frame_has_evidence_fields' (317728) panicked at crates/discord-core/src/resume.rs:109:5:
+not yet implemented: review red reproduction
+
+---- resume_frame_size_plausible stdout ----
+
+thread 'resume_frame_size_plausible' (317730) panicked at crates/discord-core/src/resume.rs:109:5:
+not yet implemented: review red reproduction
+
+---- resume_frame_rejects_empty_fields stdout ----
+
+thread 'resume_frame_rejects_empty_fields' (317729) panicked at crates/discord-core/src/resume.rs:109:5:
+not yet implemented: review red reproduction
+
+---- pipe_invalid_session_flag stdout ----
+
+thread 'pipe_invalid_session_flag' (317724) panicked at crates/discord-core/src/ws.rs:220:9:
+not yet implemented: review red reproduction
+
+---- pipe_resume_state_after_ready stdout ----
+
+thread 'pipe_resume_state_after_ready' (317725) panicked at crates/discord-core/src/ws.rs:214:9:
+not yet implemented: review red reproduction
+
+---- ws_invalid_session_false stdout ----
+
+thread 'ws_invalid_session_false' (317731) panicked at crates/discord-core/src/ws.rs:469:9:
+not yet implemented: review red reproduction
+
+---- ws_resume_sent_once_after_hello stdout ----
+
+thread 'ws_resume_sent_once_after_hello' (317733) panicked at crates/discord-core/src/ws.rs:469:9:
+not yet implemented: review red reproduction
+
+---- ws_resume_suppresses_identify stdout ----
+
+thread 'ws_resume_suppresses_identify' (317734) panicked at crates/discord-core/src/ws.rs:469:9:
+not yet implemented: review red reproduction
+
+---- lab_resume_seq_continuity stdout ----
+
+thread 'lab_resume_seq_continuity' (317723) panicked at crates/discord-core/src/ws.rs:214:9:
+not yet implemented: review red reproduction
+
+---- ws_op7_then_resume_keeps_seq stdout ----
+
+thread 'ws_op7_then_resume_keeps_seq' (317732) panicked at crates/discord-core/src/ws.rs:214:9:
+not yet implemented: review red reproduction
+
+
+failures:
+    lab_resume_seq_continuity
+    pipe_invalid_session_flag
+    pipe_resume_state_after_ready
+    plan_reconnect_policy
+    resume_frame_has_evidence_fields
+    resume_frame_rejects_empty_fields
+    resume_frame_size_plausible
+    ws_invalid_session_false
+    ws_op7_then_resume_keeps_seq
+    ws_resume_sent_once_after_hello
+    ws_resume_suppresses_identify
+
+test result: FAILED. 1 passed; 11 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-core --test resume_reconnect`
+# EXIT=101
+c0ce6ef149223e20a127179671d1ba34  crates/discord-core/tests/resume_reconnect.rs

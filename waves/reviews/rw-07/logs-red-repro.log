@@ -1,0 +1,90 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `route_dispatch`
+  --> crates/discord-core/src/ws.rs:58:38
+   |
+58 | use crate::dispatch::{DispatchEvent, route_dispatch};
+   |                                      ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-6dd6cbc392eab80a)
+
+running 11 tests
+test kind_from_name_exact_roundtrip ... ok
+test kind_table_covers_21_observed_types ... FAILED
+test pipe_hello_only_yields_no_events ... ok
+test route_ignores_non_dispatches ... ok
+test route_known_keeps_seq_and_payload ... FAILED
+test route_seq_and_data_optional ... FAILED
+test route_unknown_is_raw_with_name ... FAILED
+test pipe_routes_dispatches_in_order ... FAILED
+test pipe_take_events_drains_once ... FAILED
+test lab_all_dispatch_types_route_to_kinds ... FAILED
+test lab_real_stream_routes_known_kinds ... FAILED
+
+failures:
+
+---- kind_table_covers_21_observed_types stdout ----
+
+thread 'kind_table_covers_21_observed_types' (350291) panicked at crates/discord-core/tests/dispatch_router.rs:267:5:
+assertion `left == right` failed: все 21 наблюдаемый тип
+  left: 0
+ right: 21
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- route_known_keeps_seq_and_payload stdout ----
+
+thread 'route_known_keeps_seq_and_payload' (350298) panicked at crates/discord-core/tests/dispatch_router.rs:301:40:
+известный тип — событие
+
+---- route_seq_and_data_optional stdout ----
+
+thread 'route_seq_and_data_optional' (350299) panicked at crates/discord-core/tests/dispatch_router.rs:379:41:
+op0 с известным типом
+
+---- route_unknown_is_raw_with_name stdout ----
+
+thread 'route_unknown_is_raw_with_name' (350300) panicked at crates/discord-core/tests/dispatch_router.rs:333:44:
+неизвестный тип — raw, не ошибка
+
+---- pipe_routes_dispatches_in_order stdout ----
+
+thread 'pipe_routes_dispatches_in_order' (350295) panicked at crates/discord-core/tests/dispatch_router.rs:414:5:
+assertion `left == right` failed: три диспатча: READY, MESSAGE_CREATE, raw
+  left: 0
+ right: 3
+
+---- pipe_take_events_drains_once stdout ----
+
+thread 'pipe_take_events_drains_once' (350296) panicked at crates/discord-core/tests/dispatch_router.rs:446:5:
+assertion `left == right` failed: дренаж отдаёт накопленное
+  left: 0
+ right: 3
+
+---- lab_all_dispatch_types_route_to_kinds stdout ----
+
+thread 'lab_all_dispatch_types_route_to_kinds' (350292) panicked at crates/discord-core/tests/dispatch_router.rs:527:54:
+диспатч READY s=1 не роутится
+
+---- lab_real_stream_routes_known_kinds stdout ----
+
+thread 'lab_real_stream_routes_known_kinds' (350293) panicked at crates/discord-core/tests/dispatch_router.rs:588:44:
+реальный op0 #0 не роутится
+
+
+failures:
+    kind_table_covers_21_observed_types
+    lab_all_dispatch_types_route_to_kinds
+    lab_real_stream_routes_known_kinds
+    pipe_routes_dispatches_in_order
+    pipe_take_events_drains_once
+    route_known_keeps_seq_and_payload
+    route_seq_and_data_optional
+    route_unknown_is_raw_with_name
+
+test result: FAILED. 3 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test dispatch_router`
+# EXIT=101

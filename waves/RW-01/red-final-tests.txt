@@ -1,0 +1,592 @@
+   Compiling discord-codec v0.1.0 (/tmp/opencode/rw-01/redcheck/crates/discord-codec)
+warning: unused imports: `TAG_NEW_FLOAT_EXT` and `TAG_NIL_EXT`
+  --> crates/discord-codec/src/etf.rs:17:13
+   |
+17 | use crate::{TAG_NEW_FLOAT_EXT, TAG_NIL_EXT};
+   |             ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `key`
+   --> crates/discord-codec/src/etf.rs:131:23
+    |
+131 |     pub fn get(&self, key: &str) -> Option<&EtfValue> {
+    |                       ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:169:15
+    |
+169 | pub fn decode(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
+    |               ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:174:20
+    |
+174 | pub fn decode_term(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
+    |                    ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:179:15
+    |
+179 | pub fn encode(value: &EtfValue) -> Vec<u8> {
+    |               ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:184:20
+    |
+184 | pub fn encode_term(value: &EtfValue) -> Vec<u8> {
+    |                    ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: unused variable: `buf`
+   --> crates/discord-codec/src/etf.rs:195:12
+    |
+195 |     fn new(buf: &'a [u8]) -> Self {
+    |            ^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+
+warning: unused variable: `n`
+   --> crates/discord-codec/src/etf.rs:210:24
+    |
+210 |     fn take(&mut self, n: usize) -> Result<&'a [u8], EtfError> {
+    |                        ^ help: if this is intentional, prefix it with an underscore: `_n`
+
+warning: unused variable: `depth`
+   --> crates/discord-codec/src/etf.rs:235:24
+    |
+235 |     fn term(&mut self, depth: usize) -> Result<EtfValue, EtfError> {
+    |                        ^^^^^ help: if this is intentional, prefix it with an underscore: `_depth`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:240:29
+    |
+240 |     fn float_ext(&mut self, at: usize) -> Result<EtfValue, EtfError> {
+    |                             ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `len`
+   --> crates/discord-codec/src/etf.rs:245:26
+    |
+245 |     fn latin1(&mut self, len: usize) -> Result<String, EtfError> {
+    |                          ^^^ help: if this is intentional, prefix it with an underscore: `_len`
+
+warning: unused variable: `len`
+   --> crates/discord-codec/src/etf.rs:250:24
+    |
+250 |     fn utf8(&mut self, len: usize, at: usize) -> Result<String, EtfError> {
+    |                        ^^^ help: if this is intentional, prefix it with an underscore: `_len`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:250:36
+    |
+250 |     fn utf8(&mut self, len: usize, at: usize) -> Result<String, EtfError> {
+    |                                    ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `count`
+   --> crates/discord-codec/src/etf.rs:255:25
+    |
+255 |     fn tuple(&mut self, count: usize, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_count`
+
+warning: unused variable: `depth`
+   --> crates/discord-codec/src/etf.rs:255:39
+    |
+255 |     fn tuple(&mut self, count: usize, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                                       ^^^^^ help: if this is intentional, prefix it with an underscore: `_depth`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:255:53
+    |
+255 |     fn tuple(&mut self, count: usize, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                                                     ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `depth`
+   --> crates/discord-codec/src/etf.rs:260:24
+    |
+260 |     fn list(&mut self, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                        ^^^^^ help: if this is intentional, prefix it with an underscore: `_depth`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:260:38
+    |
+260 |     fn list(&mut self, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                                      ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `depth`
+   --> crates/discord-codec/src/etf.rs:265:23
+    |
+265 |     fn map(&mut self, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                       ^^^^^ help: if this is intentional, prefix it with an underscore: `_depth`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:265:37
+    |
+265 |     fn map(&mut self, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                                     ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `digits`
+   --> crates/discord-codec/src/etf.rs:270:27
+    |
+270 |     fn big_int(&mut self, digits: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                           ^^^^^^ help: if this is intentional, prefix it with an underscore: `_digits`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:270:42
+    |
+270 |     fn big_int(&mut self, digits: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |                                          ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `depth`
+   --> crates/discord-codec/src/etf.rs:276:16
+    |
+276 | fn check_depth(depth: usize, at: usize) -> Result<(), EtfError> {
+    |                ^^^^^ help: if this is intentional, prefix it with an underscore: `_depth`
+
+warning: unused variable: `at`
+   --> crates/discord-codec/src/etf.rs:276:30
+    |
+276 | fn check_depth(depth: usize, at: usize) -> Result<(), EtfError> {
+    |                              ^^ help: if this is intentional, prefix it with an underscore: `_at`
+
+warning: unused variable: `value`
+   --> crates/discord-codec/src/etf.rs:281:15
+    |
+281 | fn write_term(value: &EtfValue, out: &mut Vec<u8>) {
+    |               ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: unused variable: `out`
+   --> crates/discord-codec/src/etf.rs:281:33
+    |
+281 | fn write_term(value: &EtfValue, out: &mut Vec<u8>) {
+    |                                 ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: unused variable: `text`
+   --> crates/discord-codec/src/etf.rs:286:17
+    |
+286 | fn write_binary(text: &str, out: &mut Vec<u8>) {
+    |                 ^^^^ help: if this is intentional, prefix it with an underscore: `_text`
+
+warning: unused variable: `out`
+   --> crates/discord-codec/src/etf.rs:286:29
+    |
+286 | fn write_binary(text: &str, out: &mut Vec<u8>) {
+    |                             ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: unused variable: `name`
+   --> crates/discord-codec/src/etf.rs:291:15
+    |
+291 | fn write_atom(name: &str, out: &mut Vec<u8>) {
+    |               ^^^^ help: if this is intentional, prefix it with an underscore: `_name`
+
+warning: unused variable: `out`
+   --> crates/discord-codec/src/etf.rs:291:27
+    |
+291 | fn write_atom(name: &str, out: &mut Vec<u8>) {
+    |                           ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: unused variable: `number`
+   --> crates/discord-codec/src/etf.rs:296:14
+    |
+296 | fn write_int(number: i64, out: &mut Vec<u8>) {
+    |              ^^^^^^ help: if this is intentional, prefix it with an underscore: `_number`
+
+warning: unused variable: `out`
+   --> crates/discord-codec/src/etf.rs:296:27
+    |
+296 | fn write_int(number: i64, out: &mut Vec<u8>) {
+    |                           ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: unused variable: `magnitude`
+   --> crates/discord-codec/src/etf.rs:301:15
+    |
+301 | fn min_digits(magnitude: u64) -> u8 {
+    |               ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_magnitude`
+
+warning: constant `TAG_SMALL_INTEGER_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:27:7
+   |
+27 | const TAG_SMALL_INTEGER_EXT: u8 = 0x61;
+   |       ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `TAG_INTEGER_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:29:7
+   |
+29 | const TAG_INTEGER_EXT: u8 = 0x62;
+   |       ^^^^^^^^^^^^^^^
+
+warning: constant `TAG_FLOAT_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:31:7
+   |
+31 | const TAG_FLOAT_EXT: u8 = 0x63;
+   |       ^^^^^^^^^^^^^
+
+warning: constant `TAG_ATOM_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:33:7
+   |
+33 | const TAG_ATOM_EXT: u8 = 0x64;
+   |       ^^^^^^^^^^^^
+
+warning: constant `TAG_SMALL_TUPLE_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:35:7
+   |
+35 | const TAG_SMALL_TUPLE_EXT: u8 = 0x68;
+   |       ^^^^^^^^^^^^^^^^^^^
+
+warning: constant `TAG_LARGE_TUPLE_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:37:7
+   |
+37 | const TAG_LARGE_TUPLE_EXT: u8 = 0x69;
+   |       ^^^^^^^^^^^^^^^^^^^
+
+warning: constant `TAG_STRING_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:39:7
+   |
+39 | const TAG_STRING_EXT: u8 = 0x6b;
+   |       ^^^^^^^^^^^^^^
+
+warning: constant `TAG_LIST_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:41:7
+   |
+41 | const TAG_LIST_EXT: u8 = 0x6c;
+   |       ^^^^^^^^^^^^
+
+warning: constant `TAG_BINARY_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:43:7
+   |
+43 | const TAG_BINARY_EXT: u8 = 0x6d;
+   |       ^^^^^^^^^^^^^^
+
+warning: constant `TAG_SMALL_BIG_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:45:7
+   |
+45 | const TAG_SMALL_BIG_EXT: u8 = 0x6e;
+   |       ^^^^^^^^^^^^^^^^^
+
+warning: constant `TAG_LARGE_BIG_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:47:7
+   |
+47 | const TAG_LARGE_BIG_EXT: u8 = 0x6f;
+   |       ^^^^^^^^^^^^^^^^^
+
+warning: constant `TAG_SMALL_ATOM_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:49:7
+   |
+49 | const TAG_SMALL_ATOM_EXT: u8 = 0x73;
+   |       ^^^^^^^^^^^^^^^^^^
+
+warning: constant `TAG_MAP_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:51:7
+   |
+51 | const TAG_MAP_EXT: u8 = 0x74;
+   |       ^^^^^^^^^^^
+
+warning: constant `TAG_ATOM_UTF8_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:53:7
+   |
+53 | const TAG_ATOM_UTF8_EXT: u8 = 0x76;
+   |       ^^^^^^^^^^^^^^^^^
+
+warning: constant `TAG_SMALL_ATOM_UTF8_EXT` is never used
+  --> crates/discord-codec/src/etf.rs:55:7
+   |
+55 | const TAG_SMALL_ATOM_UTF8_EXT: u8 = 0x77;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `BIG_INT_MAX_DIGITS` is never used
+  --> crates/discord-codec/src/etf.rs:58:7
+   |
+58 | const BIG_INT_MAX_DIGITS: usize = 16;
+   |       ^^^^^^^^^^^^^^^^^^
+
+warning: struct `Reader` is never constructed
+   --> crates/discord-codec/src/etf.rs:189:8
+    |
+189 | struct Reader<'a> {
+    |        ^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/discord-codec/src/etf.rs:195:8
+    |
+194 | impl<'a> Reader<'a> {
+    | ------------------- associated items in this implementation
+195 |     fn new(buf: &'a [u8]) -> Self {
+    |        ^^^
+...
+200 |     fn remaining(&self) -> usize {
+    |        ^^^^^^^^^
+...
+205 |     fn peek(&self) -> Result<u8, EtfError> {
+    |        ^^^^
+...
+210 |     fn take(&mut self, n: usize) -> Result<&'a [u8], EtfError> {
+    |        ^^^^
+...
+214 |     fn u8(&mut self) -> Result<u8, EtfError> {
+    |        ^^
+...
+218 |     fn u16_be(&mut self) -> Result<u16, EtfError> {
+    |        ^^^^^^
+...
+222 |     fn u32_be(&mut self) -> Result<u32, EtfError> {
+    |        ^^^^^^
+...
+226 |     fn i32_be(&mut self) -> Result<i32, EtfError> {
+    |        ^^^^^^
+...
+230 |     fn f64_be(&mut self) -> Result<f64, EtfError> {
+    |        ^^^^^^
+...
+235 |     fn term(&mut self, depth: usize) -> Result<EtfValue, EtfError> {
+    |        ^^^^
+...
+240 |     fn float_ext(&mut self, at: usize) -> Result<EtfValue, EtfError> {
+    |        ^^^^^^^^^
+...
+245 |     fn latin1(&mut self, len: usize) -> Result<String, EtfError> {
+    |        ^^^^^^
+...
+250 |     fn utf8(&mut self, len: usize, at: usize) -> Result<String, EtfError> {
+    |        ^^^^
+...
+255 |     fn tuple(&mut self, count: usize, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |        ^^^^^
+...
+260 |     fn list(&mut self, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |        ^^^^
+...
+265 |     fn map(&mut self, depth: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |        ^^^
+...
+270 |     fn big_int(&mut self, digits: usize, at: usize) -> Result<EtfValue, EtfError> {
+    |        ^^^^^^^
+
+warning: function `check_depth` is never used
+   --> crates/discord-codec/src/etf.rs:276:4
+    |
+276 | fn check_depth(depth: usize, at: usize) -> Result<(), EtfError> {
+    |    ^^^^^^^^^^^
+
+warning: function `write_term` is never used
+   --> crates/discord-codec/src/etf.rs:281:4
+    |
+281 | fn write_term(value: &EtfValue, out: &mut Vec<u8>) {
+    |    ^^^^^^^^^^
+
+warning: function `write_binary` is never used
+   --> crates/discord-codec/src/etf.rs:286:4
+    |
+286 | fn write_binary(text: &str, out: &mut Vec<u8>) {
+    |    ^^^^^^^^^^^^
+
+warning: function `write_atom` is never used
+   --> crates/discord-codec/src/etf.rs:291:4
+    |
+291 | fn write_atom(name: &str, out: &mut Vec<u8>) {
+    |    ^^^^^^^^^^
+
+warning: function `write_int` is never used
+   --> crates/discord-codec/src/etf.rs:296:4
+    |
+296 | fn write_int(number: i64, out: &mut Vec<u8>) {
+    |    ^^^^^^^^^
+
+warning: function `min_digits` is never used
+   --> crates/discord-codec/src/etf.rs:301:4
+    |
+301 | fn min_digits(magnitude: u64) -> u8 {
+    |    ^^^^^^^^^^
+
+warning: `discord-codec` (lib) generated 57 warnings (run `cargo fix --lib -p discord-codec` to apply 33 suggestions)
+warning: `discord-codec` (lib test) generated 57 warnings (57 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-f0dab282ab340b14)
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-c966ccf8f690ceb7)
+
+running 9 tests
+test accessors_keep_types_strict ... FAILED
+test big_int_rejects_overflow_and_keeps_signed_borders ... FAILED
+test canonical_encoder_matches_fixed_bytes ... FAILED
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... FAILED
+test decoder_reports_specific_errors ... FAILED
+test fuzz_lite_never_panics_on_garbage ... FAILED
+test nesting_depth_limit_is_enforced ... FAILED
+test roundtrip_covers_every_variant_and_border_values ... FAILED
+test truncated_hello_prefixes_are_errors_not_panics ... FAILED
+
+failures:
+
+---- accessors_keep_types_strict stdout ----
+
+thread 'accessors_keep_types_strict' (180699) panicked at crates/discord-codec/src/etf.rs:147:5:
+not yet implemented: RW-01 red
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- big_int_rejects_overflow_and_keeps_signed_borders stdout ----
+
+thread 'big_int_rejects_overflow_and_keeps_signed_borders' (180700) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- canonical_encoder_matches_fixed_bytes stdout ----
+
+thread 'canonical_encoder_matches_fixed_bytes' (180701) panicked at crates/discord-codec/src/etf.rs:185:5:
+not yet implemented: RW-01 red
+
+---- canonical_encoder_uses_expected_tags_for_atoms_and_big_containers stdout ----
+
+thread 'canonical_encoder_uses_expected_tags_for_atoms_and_big_containers' (180702) panicked at crates/discord-codec/src/etf.rs:185:5:
+not yet implemented: RW-01 red
+
+---- decoder_reports_specific_errors stdout ----
+
+thread 'decoder_reports_specific_errors' (180703) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- fuzz_lite_never_panics_on_garbage stdout ----
+
+thread 'fuzz_lite_never_panics_on_garbage' (180704) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- nesting_depth_limit_is_enforced stdout ----
+
+thread 'nesting_depth_limit_is_enforced' (180705) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- roundtrip_covers_every_variant_and_border_values stdout ----
+
+thread 'roundtrip_covers_every_variant_and_border_values' (180706) panicked at crates/discord-codec/src/etf.rs:185:5:
+not yet implemented: RW-01 red
+
+---- truncated_hello_prefixes_are_errors_not_panics stdout ----
+
+thread 'truncated_hello_prefixes_are_errors_not_panics' (180707) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+
+failures:
+    accessors_keep_types_strict
+    big_int_rejects_overflow_and_keeps_signed_borders
+    canonical_encoder_matches_fixed_bytes
+    canonical_encoder_uses_expected_tags_for_atoms_and_big_containers
+    decoder_reports_specific_errors
+    fuzz_lite_never_panics_on_garbage
+    nesting_depth_limit_is_enforced
+    roundtrip_covers_every_variant_and_border_values
+    truncated_hello_prefixes_are_errors_not_panics
+
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --test etf_properties`
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-10f0ff0ef806c1ec)
+
+running 12 tests
+test atom_nil_is_a_string_and_not_nil_ext ... FAILED
+test decode_skips_only_the_leading_version_byte ... FAILED
+test eleven_wire_tags_decode_with_exact_consumed_len ... FAILED
+test heartbeat_ack_keeps_atom_nil_and_int_op ... FAILED
+test guild_member_list_update_groups_ops_and_string_id ... FAILED
+test list_tail_is_nil_ext_only ... FAILED
+test hello_term_full_tree_matches_capture ... FAILED
+test message_ack_binary_keys_are_found_by_get ... FAILED
+test small_big_int_reads_sign_before_digits ... FAILED
+test presence_update_snowflakes_and_real_nil_activities ... FAILED
+test supported_but_unseen_tags_decode_per_contract ... FAILED
+test two_terms_back_to_back_split_by_consumed ... FAILED
+
+failures:
+
+---- atom_nil_is_a_string_and_not_nil_ext stdout ----
+
+thread 'atom_nil_is_a_string_and_not_nil_ext' (180709) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- decode_skips_only_the_leading_version_byte stdout ----
+
+thread 'decode_skips_only_the_leading_version_byte' (180710) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+---- eleven_wire_tags_decode_with_exact_consumed_len stdout ----
+
+thread 'eleven_wire_tags_decode_with_exact_consumed_len' (180711) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- heartbeat_ack_keeps_atom_nil_and_int_op stdout ----
+
+thread 'heartbeat_ack_keeps_atom_nil_and_int_op' (180713) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+---- guild_member_list_update_groups_ops_and_string_id stdout ----
+
+thread 'guild_member_list_update_groups_ops_and_string_id' (180712) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+---- list_tail_is_nil_ext_only stdout ----
+
+thread 'list_tail_is_nil_ext_only' (180715) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- hello_term_full_tree_matches_capture stdout ----
+
+thread 'hello_term_full_tree_matches_capture' (180714) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+---- message_ack_binary_keys_are_found_by_get stdout ----
+
+thread 'message_ack_binary_keys_are_found_by_get' (180716) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+---- small_big_int_reads_sign_before_digits stdout ----
+
+thread 'small_big_int_reads_sign_before_digits' (180718) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- presence_update_snowflakes_and_real_nil_activities stdout ----
+
+thread 'presence_update_snowflakes_and_real_nil_activities' (180717) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+---- supported_but_unseen_tags_decode_per_contract stdout ----
+
+thread 'supported_but_unseen_tags_decode_per_contract' (180719) panicked at crates/discord-codec/src/etf.rs:175:5:
+not yet implemented: RW-01 red
+
+---- two_terms_back_to_back_split_by_consumed stdout ----
+
+thread 'two_terms_back_to_back_split_by_consumed' (180720) panicked at crates/discord-codec/src/etf.rs:170:5:
+not yet implemented: RW-01 red
+
+
+failures:
+    atom_nil_is_a_string_and_not_nil_ext
+    decode_skips_only_the_leading_version_byte
+    eleven_wire_tags_decode_with_exact_consumed_len
+    guild_member_list_update_groups_ops_and_string_id
+    heartbeat_ack_keeps_atom_nil_and_int_op
+    hello_term_full_tree_matches_capture
+    list_tail_is_nil_ext_only
+    message_ack_binary_keys_are_found_by_get
+    presence_update_snowflakes_and_real_nil_activities
+    small_big_int_reads_sign_before_digits
+    supported_but_unseen_tags_decode_per_contract
+    two_terms_back_to_back_split_by_consumed
+
+test result: FAILED. 0 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --test etf_vectors`
+   Doc-tests discord_codec
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 2 targets failed:
+    `-p discord-codec --test etf_properties`
+    `-p discord-codec --test etf_vectors`

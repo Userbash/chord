@@ -1,0 +1,82 @@
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+warning: method `peek` is never used
+   --> crates/discord-codec/src/etf.rs:241:8
+    |
+230 | impl<'a> Reader<'a> {
+    | ------------------- method in this implementation
+...
+241 |     fn peek(&self) -> Result<u8, EtfError> {
+    |        ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-codec` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-10f0ff0ef806c1ec)
+
+running 13 tests
+test atom_nil_is_a_string_and_not_nil_ext ... ok
+test eleven_wire_tags_decode_with_exact_consumed_len ... ok
+test heartbeat_ack_keeps_atom_nil_and_int_op ... FAILED
+test decode_skips_only_the_leading_version_byte ... FAILED
+test list_tail_is_nil_ext_only ... ok
+test guild_member_list_update_groups_ops_and_string_id ... FAILED
+test hello_term_full_tree_matches_capture ... FAILED
+test message_ack_binary_keys_are_found_by_get ... FAILED
+test small_big_int_reads_sign_before_digits ... ok
+test presence_update_snowflakes_and_real_nil_activities ... FAILED
+test supported_but_unseen_tags_decode_per_contract ... ok
+test two_terms_back_to_back_split_by_consumed ... FAILED
+test vector_lengths_match_capture_bytes_field ... ok
+
+failures:
+
+---- heartbeat_ack_keeps_atom_nil_and_int_op stdout ----
+
+thread 'heartbeat_ack_keeps_atom_nil_and_int_op' (187404) panicked at crates/discord-codec/tests/etf_vectors.rs:66:68:
+HEARTBEAT ACK #6: неизвестный тег 0x83 на позиции 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- decode_skips_only_the_leading_version_byte stdout ----
+
+thread 'decode_skips_only_the_leading_version_byte' (187401) panicked at crates/discord-codec/tests/etf_vectors.rs:181:50:
+decode framed: UnknownTag { tag: 131, at: 0 }
+
+---- guild_member_list_update_groups_ops_and_string_id stdout ----
+
+thread 'guild_member_list_update_groups_ops_and_string_id' (187403) panicked at crates/discord-codec/tests/etf_vectors.rs:66:68:
+GUILD_MEMBER_LIST_UPDATE #75: неизвестный тег 0x83 на позиции 0
+
+---- hello_term_full_tree_matches_capture stdout ----
+
+thread 'hello_term_full_tree_matches_capture' (187405) panicked at crates/discord-codec/tests/etf_vectors.rs:66:68:
+HELLO #1: неизвестный тег 0x83 на позиции 0
+
+---- message_ack_binary_keys_are_found_by_get stdout ----
+
+thread 'message_ack_binary_keys_are_found_by_get' (187407) panicked at crates/discord-codec/tests/etf_vectors.rs:66:68:
+MESSAGE_ACK #46: неизвестный тег 0x83 на позиции 0
+
+---- presence_update_snowflakes_and_real_nil_activities stdout ----
+
+thread 'presence_update_snowflakes_and_real_nil_activities' (187408) panicked at crates/discord-codec/tests/etf_vectors.rs:66:68:
+PRESENCE_UPDATE #18: неизвестный тег 0x83 на позиции 0
+
+---- two_terms_back_to_back_split_by_consumed stdout ----
+
+thread 'two_terms_back_to_back_split_by_consumed' (187411) panicked at crates/discord-codec/tests/etf_vectors.rs:362:47:
+терм 1: UnknownTag { tag: 131, at: 0 }
+
+
+failures:
+    decode_skips_only_the_leading_version_byte
+    guild_member_list_update_groups_ops_and_string_id
+    heartbeat_ack_keeps_atom_nil_and_int_op
+    hello_term_full_tree_matches_capture
+    message_ack_binary_keys_are_found_by_get
+    presence_update_snowflakes_and_real_nil_activities
+    two_terms_back_to_back_split_by_consumed
+
+test result: FAILED. 6 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --test etf_vectors`

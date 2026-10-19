@@ -1,0 +1,65 @@
+Diff in /home/sanya/orca/project/rust/crates/discord-codec/src/etf.rs:80:
+     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+         match self {
+             Self::UnexpectedEof { at, need } => {
+[31m-                write!(f, "неожиданный конец буфера: с позиции {at} нужно {need} байт")
+(B[m[32m+                write!(
+(B[m[32m+                    f,
+(B[m[32m+                    "неожиданный конец буфера: с позиции {at} нужно {need} байт"
+(B[m[32m+                )
+(B[m             }
+             Self::UnknownTag { tag, at } => {
+                 write!(f, "неизвестный тег 0x{tag:02x} на позиции {at}")
+Diff in /home/sanya/orca/project/rust/crates/discord-codec/src/etf.rs:239:
+ 
+     /// Текущий байт без продвижения (для детекта ведущего `0x83`).
+     fn peek(&self) -> Result<u8, EtfError> {
+[31m-        self.buf.get(self.pos).copied().ok_or(EtfError::UnexpectedEof {
+(B[m[31m-            at: self.pos,
+(B[m[31m-            need: 1,
+(B[m[31m-        })
+(B[m[32m+        self.buf
+(B[m[32m+            .get(self.pos)
+(B[m[32m+            .copied()
+(B[m[32m+            .ok_or(EtfError::UnexpectedEof {
+(B[m[32m+                at: self.pos,
+(B[m[32m+                need: 1,
+(B[m[32m+            })
+(B[m     }
+ 
+     /// Читает `n` байт; при нехватке — `UnexpectedEof` (без `with_capacity(n)`).
+Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:73:
+     );
+ 
+     let framed = etf::encode(value);
+[31m-    assert_eq!(framed.first().copied(), Some(0x83), "encode обязан начинаться с 0x83");
+(B[m[32m+    assert_eq!(
+(B[m[32m+        framed.first().copied(),
+(B[m[32m+        Some(0x83),
+(B[m[32m+        "encode обязан начинаться с 0x83"
+(B[m[32m+    );
+(B[m     assert_eq!(&framed[1..], payload.as_slice(), "0x83 + терм");
+     let (decoded_framed, framed_consumed) = etf::decode(&framed).expect("decode");
+     assert_eq!(framed_consumed, framed.len());
+Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:152:
+         (EtfValue::Map(vec![]), "7400000000"),
+     ];
+     for (value, expected) in cases {
+[31m-        assert_eq!(
+(B[m[31m-            hex(&etf::encode_term(&value)),
+(B[m[31m-            expected,
+(B[m[31m-            "канон {value:?}"
+(B[m[31m-        );
+(B[m[32m+        assert_eq!(hex(&etf::encode_term(&value)), expected, "канон {value:?}");
+(B[m     }
+     assert_eq!(hex(&etf::encode(&int(10))), "83610a", "0x83 перед термом");
+     assert_eq!(
+Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:172:
+     let unicode_atom = "Проверка";
+     assert_eq!(
+         hex(&etf::encode_term(&atom(unicode_atom))),
+[31m-        format!("77{:02x}{}", unicode_atom.len(), hex(unicode_atom.as_bytes())),
+(B[m[32m+        format!(
+(B[m[32m+            "77{:02x}{}",
+(B[m[32m+            unicode_atom.len(),
+(B[m[32m+            hex(unicode_atom.as_bytes())

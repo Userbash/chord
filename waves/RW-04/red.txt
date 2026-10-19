@@ -1,0 +1,114 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s
+     Running unittests src/lib.rs (target/debug/deps/discord_core-727086b8c91340bb)
+
+running 2 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-00158d1bab2f14e3)
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test first_beat_has_null_sequence ... ok
+test heartbeat_term_roundtrips ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test hello_term_parses_interval ... ok
+test missed_ack_is_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test lab_timeline_facts ... ok
+test zero_interval_hello_is_malformed ... ok
+test lab_replay_no_zombie ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/ws_transport.rs (target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... FAILED
+test pipe_missing_magic_is_error ... FAILED
+test pipe_buffers_partial_term ... FAILED
+test pipe_hello_from_encoded_stream ... FAILED
+test ws_closed_after_stub_close ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... FAILED
+test ws_hello_and_heartbeats_acked ... FAILED
+test ws_zombie_without_ack ... FAILED
+test ws_server_reconnect_op7 ... FAILED
+test lab_capture_stream_feeds_pipe ... FAILED
+
+failures:
+
+---- heartbeat_encode_roundtrip stdout ----
+
+thread 'heartbeat_encode_roundtrip' (249150) panicked at crates/discord-core/src/ws.rs:61:5:
+not yet implemented: RW-04: heartbeat (red-фаза)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipe_missing_magic_is_error stdout ----
+
+thread 'pipe_missing_magic_is_error' (249154) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- pipe_buffers_partial_term stdout ----
+
+thread 'pipe_buffers_partial_term' (249152) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- pipe_hello_from_encoded_stream stdout ----
+
+thread 'pipe_hello_from_encoded_stream' (249153) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_closed_after_stub_close stdout ----
+
+thread 'ws_closed_after_stub_close' (249155) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_dispatch_updates_heartbeat_seq stdout ----
+
+thread 'ws_dispatch_updates_heartbeat_seq' (249156) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_hello_and_heartbeats_acked stdout ----
+
+thread 'ws_hello_and_heartbeats_acked' (249157) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_zombie_without_ack stdout ----
+
+thread 'ws_zombie_without_ack' (249159) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_server_reconnect_op7 stdout ----
+
+thread 'ws_server_reconnect_op7' (249158) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- lab_capture_stream_feeds_pipe stdout ----
+
+thread 'lab_capture_stream_feeds_pipe' (249151) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+
+failures:
+    heartbeat_encode_roundtrip
+    lab_capture_stream_feeds_pipe
+    pipe_buffers_partial_term
+    pipe_hello_from_encoded_stream
+    pipe_missing_magic_is_error
+    ws_closed_after_stub_close
+    ws_dispatch_updates_heartbeat_seq
+    ws_hello_and_heartbeats_acked
+    ws_server_reconnect_op7
+    ws_zombie_without_ack
+
+test result: FAILED. 0 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`

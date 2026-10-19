@@ -1,0 +1,12 @@
+# Сводка мутаций RW-05 (пересчитана после нита N1: статус — по "test result: FAILED", не по строке cargo "error: test failed")
+M1 | CAUGHT | ws_identify_sent_once_after_hello
+M2 | CAUGHT | identify_has_evidence_fields,ws_identify_sent_once_after_hello
+M3 | CAUGHT | identify_has_evidence_fields
+M4 | CAUGHT | identify_properties_evidence_defaults
+M5 | CAUGHT | identify_properties_evidence_defaults
+M6 | ok (выжила) | —
+M7 | ok (выжила) | —
+M8 | CAUGHT | ready_summary_from_synthetic_dispatch,lab_ready_from_run2_stream
+M9 | CAUGHT | ws_identify_sent_once_after_hello
+M10 | ok (выжила) | —
+M11 | CAUGHT | ws_identify_sent_once_after_hello,lab_ready_from_run2_stream

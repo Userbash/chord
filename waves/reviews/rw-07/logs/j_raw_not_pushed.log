@@ -1,0 +1,43 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-6dd6cbc392eab80a)
+
+running 11 tests
+test kind_from_name_exact_roundtrip ... ok
+test kind_table_covers_21_observed_types ... ok
+test route_ignores_non_dispatches ... ok
+test pipe_hello_only_yields_no_events ... ok
+test pipe_routes_dispatches_in_order ... FAILED
+test pipe_take_events_drains_once ... FAILED
+test route_known_keeps_seq_and_payload ... ok
+test route_seq_and_data_optional ... ok
+test route_unknown_is_raw_with_name ... ok
+test lab_all_dispatch_types_route_to_kinds ... ok
+test lab_real_stream_routes_known_kinds ... ok
+
+failures:
+
+---- pipe_routes_dispatches_in_order stdout ----
+
+thread 'pipe_routes_dispatches_in_order' (353531) panicked at crates/discord-core/tests/dispatch_router.rs:414:5:
+assertion `left == right` failed: три диспатча: READY, MESSAGE_CREATE, raw
+  left: 2
+ right: 3
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipe_take_events_drains_once stdout ----
+
+thread 'pipe_take_events_drains_once' (353532) panicked at crates/discord-core/tests/dispatch_router.rs:446:5:
+assertion `left == right` failed: дренаж отдаёт накопленное
+  left: 2
+ right: 3
+
+
+failures:
+    pipe_routes_dispatches_in_order
+    pipe_take_events_drains_once
+
+test result: FAILED. 9 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test dispatch_router`
+# EXIT=101

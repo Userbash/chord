@@ -1,0 +1,9 @@
+[package]
+name = "discord-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "UI: дизайн-токены и контракты компонент (переиспользование из D-03)"
+
+[lints.rust]
+unsafe_code = "forbid"

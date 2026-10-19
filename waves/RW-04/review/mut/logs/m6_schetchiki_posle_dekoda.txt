@@ -1,0 +1,33 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/review/mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/review/mut-target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... FAILED
+test pipe_hello_from_encoded_stream ... ok
+test pipe_buffers_partial_term ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_zombie_without_ack ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+
+failures:
+
+---- pipe_missing_magic_is_error stdout ----
+
+thread 'pipe_missing_magic_is_error' (256565) panicked at crates/discord-core/tests/ws_transport.rs:394:5:
+assertion `left == right` failed: кадр учтён
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pipe_missing_magic_is_error
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`

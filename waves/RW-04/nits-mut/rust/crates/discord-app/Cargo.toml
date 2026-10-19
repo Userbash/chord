@@ -1,0 +1,16 @@
+[package]
+name = "discord-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Точка входа клиента: сборка процессов, конфиг, запуск"
+
+[dependencies]
+discord-core = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[[bin]]
+name = "discord-rs"
+path = "src/main.rs"

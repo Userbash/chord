@@ -1,0 +1,21 @@
+     assert_eq!(ready.user_id.as_deref(), Some("384299970632876032"));
+[31m-    let session_id = ready.session_id.as_deref().expect("session_id присутствует");
+(B[m[32m+    let session_id = ready
+(B[m[32m+        .session_id
+(B[m[32m+        .as_deref()
+(B[m[32m+        .expect("session_id присутствует");
+(B[m     assert_eq!(session_id.len(), 32, "session_id — 32 символа");
+     assert_eq!(session_id, "f14ac1f3d408c15027d6d98da172c398");
+     assert_eq!(
+Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/identify_ready.rs:707:
+     fn write_frame(&mut self, term: &[u8]) -> Vec<u8> {
+         let mut bytes = Vec::with_capacity(term.len() + FILLER_TEXT_LEN + 6);
+         bytes.extend_from_slice(term);
+[31m-        bytes.extend_from_slice(&{
+(B[m[31m-            wire(&EtfValue::Str("f".repeat(FILLER_TEXT_LEN)))
+(B[m[31m-        });
+(B[m[32m+        bytes.extend_from_slice(&{ wire(&EtfValue::Str("f".repeat(FILLER_TEXT_LEN))) });
+(B[m         self.write_raw(&bytes)
+     }
+ 
+# EXIT=1

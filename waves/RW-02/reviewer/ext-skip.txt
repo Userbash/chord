@@ -1,0 +1,27 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/review_external.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/review_external-03d52f7c9ed7aa96)
+
+running 8 tests
+ext_fresh_stream_quirks: checks=3
+skip: нет lab-файла /tmp/opencode/review-rw-02/empty/gw-proto/zstd-frames-95974_1389.hexl
+ext_after_decode_error: push после Err → Err(Decode { msg: "Failed to parse/decode block body: Error getting block content size: Blocksize was bigger than the absolute maximum 131072 (128kb). Is: 390821" }) — терминально (как в доккомментарии)
+ext_after_decode_error: checks=1
+test ext_fresh_stream_quirks ... ok
+skip: нет lab-файла /tmp/opencode/review-rw-02/empty/gw-proto/zstd-frames-95974_8158.hexl
+test ext_lab_1389_real ... ok
+test ext_after_decode_error ... ok
+test ext_lab_8158_midstream ... ok
+ext_lcg_garbage_300: checks=301 ok=2 missing_magic=298 decode=0
+test ext_lcg_garbage_300 ... ok
+ext_synth_whole_and_5b_chunks: checks=6
+test ext_synth_whole_and_5b_chunks ... ok
+ext_two_frames_concat: checks=3
+test ext_two_frames_concat ... ok
+ext_all_prefixes_of_frame: checks=69
+test ext_all_prefixes_of_frame ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

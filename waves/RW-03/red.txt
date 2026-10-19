@@ -1,0 +1,127 @@
+warning: unused variable: `code`
+  --> crates/discord-core/src/gateway.rs:30:22
+   |
+30 |     pub fn from_code(code: i64) -> Self {
+   |                      ^^^^ help: if this is intentional, prefix it with an underscore: `_code`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `jitter_seed` is never read
+  --> crates/discord-core/src/gateway.rs:97:5
+   |
+95 | pub struct Session {
+   |            ------- field in this struct
+96 |     /// Сид детерминированного jitter-а первого удара.
+97 |     jitter_seed: u64,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 2 warnings (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: `discord-core` (lib test) generated 2 warnings (2 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/discord_core-ae4f4ce862df07ec)
+
+running 1 test
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-4f5e71b8404cb0ec)
+
+running 12 tests
+test ack_measures_rtt_and_reschedules ... FAILED
+test beats_carry_last_sequence ... FAILED
+test first_beat_delay_is_seed_mod_interval ... FAILED
+test hello_term_parses_interval ... FAILED
+test heartbeat_term_roundtrips ... FAILED
+test first_beat_has_null_sequence ... FAILED
+test missed_ack_is_zombie ... FAILED
+test op7_and_op9_reconnect ... FAILED
+test unknown_ops_and_garbage_do_not_panic ... FAILED
+test lab_replay_no_zombie ... FAILED
+test lab_timeline_facts ... FAILED
+test lab_hello_via_zstd_pipeline ... FAILED
+
+failures:
+
+---- ack_measures_rtt_and_reschedules stdout ----
+
+thread 'ack_measures_rtt_and_reschedules' (222241) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- beats_carry_last_sequence stdout ----
+
+thread 'beats_carry_last_sequence' (222242) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- first_beat_delay_is_seed_mod_interval stdout ----
+
+thread 'first_beat_delay_is_seed_mod_interval' (222243) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- hello_term_parses_interval stdout ----
+
+thread 'hello_term_parses_interval' (222246) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- heartbeat_term_roundtrips stdout ----
+
+thread 'heartbeat_term_roundtrips' (222245) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- first_beat_has_null_sequence stdout ----
+
+thread 'first_beat_has_null_sequence' (222244) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- missed_ack_is_zombie stdout ----
+
+thread 'missed_ack_is_zombie' (222250) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- op7_and_op9_reconnect stdout ----
+
+thread 'op7_and_op9_reconnect' (222251) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- unknown_ops_and_garbage_do_not_panic stdout ----
+
+thread 'unknown_ops_and_garbage_do_not_panic' (222252) panicked at crates/discord-core/src/gateway.rs:31:9:
+not yet implemented
+
+---- lab_replay_no_zombie stdout ----
+
+thread 'lab_replay_no_zombie' (222248) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- lab_timeline_facts stdout ----
+
+thread 'lab_timeline_facts' (222249) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+---- lab_hello_via_zstd_pipeline stdout ----
+
+thread 'lab_hello_via_zstd_pipeline' (222247) panicked at crates/discord-core/src/gateway.rs:104:9:
+not yet implemented
+
+
+failures:
+    ack_measures_rtt_and_reschedules
+    beats_carry_last_sequence
+    first_beat_delay_is_seed_mod_interval
+    first_beat_has_null_sequence
+    heartbeat_term_roundtrips
+    hello_term_parses_interval
+    lab_hello_via_zstd_pipeline
+    lab_replay_no_zombie
+    lab_timeline_facts
+    missed_ack_is_zombie
+    op7_and_op9_reconnect
+    unknown_ops_and_garbage_do_not_panic
+
+test result: FAILED. 0 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test gateway_session`

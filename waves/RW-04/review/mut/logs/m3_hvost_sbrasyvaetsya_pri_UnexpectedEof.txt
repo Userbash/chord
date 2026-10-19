@@ -1,0 +1,63 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/review/mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/review/mut-target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_buffers_partial_term ... FAILED
+test pipe_hello_from_encoded_stream ... FAILED
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... FAILED
+test ws_hello_and_heartbeats_acked ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... FAILED
+test lab_capture_stream_feeds_pipe ... FAILED
+test ws_zombie_without_ack ... ok
+
+failures:
+
+---- pipe_buffers_partial_term stdout ----
+
+thread 'pipe_buffers_partial_term' (255518) panicked at crates/discord-core/tests/ws_transport.rs:369:47:
+филлеры: Frame(Decode { msg: "поток рассинхронизирован: 0x66 вместо 0x83" })
+
+---- pipe_hello_from_encoded_stream stdout ----
+
+thread 'pipe_hello_from_encoded_stream' (255519) panicked at crates/discord-core/tests/ws_transport.rs:307:48:
+филлеры: Frame(Decode { msg: "поток рассинхронизирован: 0x66 вместо 0x83" })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ws_server_reconnect_op7 stdout ----
+
+thread 'ws_server_reconnect_op7' (255524) panicked at crates/discord-core/tests/ws_transport.rs:559:5:
+assertion `left == right` failed: op7 → ServerRequest
+  left: Err(Frame(Decode { msg: "поток рассинхронизирован: 0x66 вместо 0x83" }))
+ right: Ok(Reconnect { reason: ServerRequest })
+
+---- ws_hello_and_heartbeats_acked stdout ----
+
+thread 'ws_hello_and_heartbeats_acked' (255523) panicked at crates/discord-core/tests/ws_transport.rs:199:10:
+сценарий стаба вернул ошибку: "WebSocket protocol error: Connection reset without closing handshake"
+
+---- ws_dispatch_updates_heartbeat_seq stdout ----
+
+thread 'ws_dispatch_updates_heartbeat_seq' (255522) panicked at crates/discord-core/tests/ws_transport.rs:199:10:
+сценарий стаба вернул ошибку: "WebSocket protocol error: Connection reset without closing handshake"
+
+---- lab_capture_stream_feeds_pipe stdout ----
+
+thread 'lab_capture_stream_feeds_pipe' (255517) panicked at crates/discord-core/tests/ws_transport.rs:676:37:
+кадр 2: ошибка кадра шлюза: терм не декодирован: поток рассинхронизирован: 0x74 вместо 0x83
+
+
+failures:
+    lab_capture_stream_feeds_pipe
+    pipe_buffers_partial_term
+    pipe_hello_from_encoded_stream
+    ws_dispatch_updates_heartbeat_seq
+    ws_hello_and_heartbeats_acked
+    ws_server_reconnect_op7
+
+test result: FAILED. 4 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`

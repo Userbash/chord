@@ -1,0 +1,77 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `code`
+  --> crates/discord-core/src/gateway.rs:30:22
+   |
+30 |     pub fn from_code(code: i64) -> Self {
+   |                      ^^^^ help: if this is intentional, prefix it with an underscore: `_code`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `jitter_seed` is never read
+  --> crates/discord-core/src/gateway.rs:86:5
+   |
+84 | pub struct Session {
+   |            ------- field in this struct
+85 |     /// Сид детерминированного jitter-а первого удара.
+86 |     jitter_seed: u64,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 2 warnings (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+warning: `discord-core` (lib test) generated 2 warnings (2 duplicates)
+error[E0277]: `GatewayError` doesn't implement `std::fmt::Display`
+   --> crates/discord-core/tests/gateway_session.rs:327:55
+    |
+327 |             .unwrap_or_else(|e| panic!("опкод {code}: {e}"));
+    |                                                       ^^^ `GatewayError` cannot be formatted with the default formatter
+    |
+    = help: the trait `std::fmt::Display` is not implemented for `GatewayError`
+    = note: in format strings you may be able to use `{:?}` (or `{:#?}` for pretty-print) instead
+
+error[E0277]: can't compare `{integer}` with `&u64`
+   --> crates/discord-core/tests/gateway_session.rs:522:56
+    |
+522 |             .filter(|delta| (41_050..=41_300).contains(delta))
+    |                                               -------- ^^^^^ the trait `PartialOrd<&u64>` is not implemented for `{integer}`
+    |                                               |
+    |                                               required by a bound introduced by this call
+    |
+    = note: the trait bound `{integer}: PartialOrd<&u64>` is not satisfied
+note: required by a bound in `std::ops::RangeInclusive::<Idx>::contains`
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/ops/range.rs:534:4
+help: consider borrowing here
+    |
+522 |             .filter(|delta| (41_050..=41_300).contains(&delta))
+    |                                                        +
+
+error[E0277]: can't compare `&u64` with `{integer}`
+   --> crates/discord-core/tests/gateway_session.rs:522:56
+    |
+522 |             .filter(|delta| (41_050..=41_300).contains(delta))
+    |                                               -------- ^^^^^ no implementation for `&u64 < {integer}` and `&u64 > {integer}`
+    |                                               |
+    |                                               required by a bound introduced by this call
+    |
+help: the trait `PartialOrd<{integer}>` is not implemented for `&_`
+      but trait `PartialOrd<u64>` is implemented for `_`
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:2225:12
+   ::: /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:2308:4
+    |
+    = note: in this macro invocation
+    = help: for that trait implementation, expected `u64`, found `&u64`
+note: required by a bound in `std::ops::RangeInclusive::<Idx>::contains`
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/ops/range.rs:534:4
+    = note: this error originates in the macro `ord_impl` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: `GatewayError` doesn't implement `std::fmt::Display`
+   --> crates/discord-core/tests/gateway_session.rs:556:63
+    |
+556 |             .unwrap_or_else(|e| panic!("событие op{} (ts {}): {e}", event.op, event.ts));
+    |                                                               ^^^ `GatewayError` cannot be formatted with the default formatter
+    |
+    = help: the trait `std::fmt::Display` is not implemented for `GatewayError`
+    = note: in format strings you may be able to use `{:?}` (or `{:#?}` for pretty-print) instead
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `discord-core` (test "gateway_session") due to 4 previous errors

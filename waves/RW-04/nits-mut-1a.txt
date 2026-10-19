@@ -1,0 +1,39 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/nits-mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/nits-mut/target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_hello_from_encoded_stream ... ok
+test pipe_buffers_partial_term ... ok
+test ws_text_messages_counted ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_ping_gets_pong ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+failures:
+
+---- ws_ping_gets_pong stdout ----
+
+thread 'ws_ping_gets_pong' (262323) panicked at crates/discord-core/tests/ws_transport.rs:591:5:
+assertion `left == right` failed: Ping — обработанный служебный кадр, не счётчик игнора
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ws_ping_gets_pong
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`
+# EXIT=101
+# mutated ws.rs md5: 4fd05bba6e4cc997343b9548eac092f9
+# tests/ws_transport.rs md5: 1d091ee2c237cdb74258d79c564b6d4e

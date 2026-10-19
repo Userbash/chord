@@ -1,0 +1,85 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/review/mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/review/mut-target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... FAILED
+test pipe_missing_magic_is_error ... FAILED
+test pipe_buffers_partial_term ... FAILED
+test pipe_hello_from_encoded_stream ... FAILED
+test ws_closed_after_stub_close ... FAILED
+test ws_hello_and_heartbeats_acked ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... FAILED
+test ws_server_reconnect_op7 ... FAILED
+test ws_zombie_without_ack ... FAILED
+test lab_capture_stream_feeds_pipe ... FAILED
+
+failures:
+
+---- heartbeat_encode_roundtrip stdout ----
+
+thread 'heartbeat_encode_roundtrip' (257974) panicked at crates/discord-core/src/ws.rs:61:5:
+not yet implemented: RW-04: heartbeat (red-фаза)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipe_missing_magic_is_error stdout ----
+
+thread 'pipe_missing_magic_is_error' (257978) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- pipe_buffers_partial_term stdout ----
+
+thread 'pipe_buffers_partial_term' (257976) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- pipe_hello_from_encoded_stream stdout ----
+
+thread 'pipe_hello_from_encoded_stream' (257977) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_closed_after_stub_close stdout ----
+
+thread 'ws_closed_after_stub_close' (257979) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_hello_and_heartbeats_acked stdout ----
+
+thread 'ws_hello_and_heartbeats_acked' (257981) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_dispatch_updates_heartbeat_seq stdout ----
+
+thread 'ws_dispatch_updates_heartbeat_seq' (257980) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_server_reconnect_op7 stdout ----
+
+thread 'ws_server_reconnect_op7' (257982) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- ws_zombie_without_ack stdout ----
+
+thread 'ws_zombie_without_ack' (257983) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+---- lab_capture_stream_feeds_pipe stdout ----
+
+thread 'lab_capture_stream_feeds_pipe' (257975) panicked at crates/discord-core/src/ws.rs:15:9:
+not yet implemented: RW-04: пайп (red-фаза)
+
+
+failures:
+    heartbeat_encode_roundtrip
+    lab_capture_stream_feeds_pipe
+    pipe_buffers_partial_term
+    pipe_hello_from_encoded_stream
+    pipe_missing_magic_is_error
+    ws_closed_after_stub_close
+    ws_dispatch_updates_heartbeat_seq
+    ws_hello_and_heartbeats_acked
+    ws_server_reconnect_op7
+    ws_zombie_without_ack
+
+test result: FAILED. 0 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`

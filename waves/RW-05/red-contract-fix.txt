@@ -1,0 +1,14 @@
+сценарий стаба вернул ошибку: "от клиента ждали op1/op2, пришло None; терм: Map([(Str(\"token\"), Str(\"TEST_TOKEN\")), (Str(\"capabilities\"), Int(1734653)), (Str(\"properties\"), Map([(Str(\"os\"), Str(\"Linux\")), (Str(\"browser\"), Str(\"Discord Client\")), (Str(\"release_channel\"), Str(\"stable\")), (Str(\"client_version\"), Str(\"0.1.0\")), (Str(\"os_version\"), Str(\"unknown\")), (Str(\"os_arch\"), Str(\"x86_64\")), (Str(\"app_arch\"), Str(\"x86_64\")), (Str(\"system_locale\"), Str(\"en-US\")), (Str(\"has_client_mods\"), Atom(\"false\")), (Str(\"client_launch_id\"), Str(\"00000000-0000-4000-8000-000000000000\")), (Str(\"browser_user_agent\"), Str(\"discord-lab-rs/0.1.0\")), (Str(\"browser_version\"), Str(\"0.1.0\")), (Str(\"client_build_number\"), Int(641004)), (Str(\"client_app_state\"), Str(\"focused\")), (Str(\"is_fast_connect\"), Atom(\"false\")), (Str(\"gateway_connect_reasons\"), Str(\"COLD_START\"))])), (Str(\"presence\"), Nil), (Str(\"compress\"), Atom(\"false\")), (Str(\"client_state\"), Map([(Str(\"guild_versions\"), Map([]))])), (Str(\"qos_token\"), Str(\"\\n\\u{2}\\u{8}\\0\"))])"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test ws_identify_sent_once_after_hello ... FAILED
+
+failures:
+
+failures:
+    ws_identify_sent_once_after_hello
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test identify_ready`
+# EXIT=101
+52479f7723e7a5c7f28eec2c96e893a3  crates/discord-core/tests/identify_ready.rs

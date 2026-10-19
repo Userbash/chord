@@ -1,0 +1,27 @@
+PASS  int 10: 610a
+PASS  int 41250: 620000a122
+PASS  int 255: 61ff
+PASS  int -1: 62ffffffff
+PASS  int 2^31: 6e040000000080
+PASS  int 1792391313326: 6e0600aef7d852a101
+PASS  int i64::MAX: 6e0800ffffffffffffff7f
+PASS  int i64::MIN: 6e08010000000000000080
+PASS  float 1.5: 463ff8000000000000
+PASS  atom op: 6400026f70
+PASS  text abc: 6d00000003616263
+PASS  list [1,2]: 6c00000002610161026a
+PASS  tuple [1]: 68016101
+PASS  map {a:1}: 7400000001640001616101
+PASS  nil: 6a
+PASS  text empty: 6d00000000
+PASS  list []: 6c000000006a
+PASS  tuple []: 6800
+PASS  map {}: 7400000000
+PASS  guild_id 1014537851418980372: 6e0800143004f5cc5c140e
+PASS  atom unicode «Проверка»: 7710d09fd180d0bed0b2d0b5d180d0bad0b0 (format!-кейс, рантайм-сверка — exttest.rs)
+PASS  atom 640B (>255 → 0x76): 760280d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0d09fd180d0bed0b2d0b5d180d0bad0b0 (format!-кейс, рантайм-сверка — exttest.rs)
+PASS  tuple 255 prefix: 68ff
+PASS  tuple 256 prefix: 6900000100
+PASS  list 256 prefix: 6c00000100
+
+Итог: 25/25 PASS, FAIL=0

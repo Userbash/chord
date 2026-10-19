@@ -1,0 +1,5 @@
+17f2f3102c3c1b9fcedcb3cc9e1f3cc6  crates/discord-core/src/identify.rs
+c7c984890895eaca1214ac3705b34019  crates/discord-core/src/ready.rs
+659ee47e55c4146b0139c969672cb230  crates/discord-core/src/ws.rs
+8986fa107cbc7e6538cf4cca8a975833  crates/discord-core/src/lib.rs
+ea4c7f18e0d8d0f6472fcb9b025517e7  crates/discord-core/tests/identify_ready.rs

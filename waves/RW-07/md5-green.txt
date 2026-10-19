@@ -1,0 +1,4 @@
+d929b0229def68b378ed2212320aa162  /home/sanya/orca/project/rust/crates/discord-core/src/dispatch.rs
+fa6e051a9b3f1c8bdeb18c101514d639  /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs
+fa07ceb6bb50527a33c6abd27d5642ae  /home/sanya/orca/project/rust/crates/discord-core/src/lib.rs
+4fdfe8a89ceb649da949e17f5092f0c7  /home/sanya/orca/project/rust/crates/discord-core/tests/dispatch_router.rs

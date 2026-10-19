@@ -61,6 +61,7 @@ discord-lab/                         (git-репозиторий)
 │  ├─ Cargo.toml                     workspace: crates/*
 │  └─ crates/{discord-codec, -core, -store, -voice, -media,
 │             -platform, -i18n, -ui, -app, -conformance}
+├─ waves/                            журнал волн: db.jsonl + STATE.md + логи RW-01…RW-07
 ├─ src/ bin/ scripts/ tests/         CLI discord-lab + мета-тесты + гейты
 └─ logs/ functions/ evidence/        golden: только чтение
 
@@ -94,6 +95,9 @@ discord-lab/                         (git-репозиторий)
 5. **Golden-каталоги** (`logs/`, `functions/`, `evidence/`) — только чтение, вне волн.
 6. **Секреты не сохраняются нигде**: токены/сессии → `REDACTED`, публичные IP → `<PUB_IP>`,
    бинарные исходящие WS-кадры → sha256 (`docs/re/README.md`).
+7. **Журнал волн — `waves/`** (в git): `db.jsonl` (append-only события схемы v1), `STATE.md`
+   (где остановились), артефакты `RW-XX/` (ТЗ, red/green, отчёт, копии тестов). Бинарники,
+   сборки и сырьё — не в журнал (лаборатория `/home/sanya/re-deep/` или `/tmp`-черновики).
 
 ## 4. Проверки (как убедиться, что всё сходится)
 

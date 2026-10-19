@@ -1,0 +1,12 @@
+# FMT_EXIT=0
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+# TEST_EXIT=0
+185a34a741d34c4720f0cd7a013ba38e  crates/discord-core/src/identify.rs
+c7c984890895eaca1214ac3705b34019  crates/discord-core/src/ready.rs
+659ee47e55c4146b0139c969672cb230  crates/discord-core/src/ws.rs
+8986fa107cbc7e6538cf4cca8a975833  crates/discord-core/src/lib.rs
+55e93e9bfc0b2b3fbd8f089ecdca892c  crates/discord-core/tests/identify_ready.rs

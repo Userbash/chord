@@ -1,0 +1,14 @@
+test plan_reconnect_policy ... ok
+test resume_debug_redacts_token ... ok
+test resume_frame_rejects_empty_fields ... ok
+test resume_frame_has_evidence_fields ... ok
+test resume_frame_size_plausible ... ok
+test pipe_invalid_session_flag ... ok
+test pipe_resume_state_after_ready ... ok
+test ws_invalid_session_false ... ok
+test ws_resume_sent_once_after_hello ... ok
+test lab_resume_seq_continuity ... ok
+test ws_op7_then_resume_keeps_seq ... ok
+test ws_resume_suppresses_identify ... ok
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+# EXIT=0

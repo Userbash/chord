@@ -1,0 +1,7 @@
+I8-v2 | RW-05 | CAUGHT | test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s | failing: ws_identify_sent_once_after_hello, ws_identify_only_after_hello | ws шлёт payload без конверта {op,d} (crate::identify::build_identify)
+    restore: OK
+R11 | RW-06 | SURVIVED | test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s | failing: - | перепутаны варианты EmptyToken/EmptySessionId
+    restore: OK
+--- md5 after extra mutations ---
+ws b822d6a6790f11a306a442c6a58c975c == b822d6a6790f11a306a442c6a58c975c True
+resume 211448f7051afcf5af78a7411b9c94dc == 211448f7051afcf5af78a7411b9c94dc True

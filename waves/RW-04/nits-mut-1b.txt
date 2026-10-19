@@ -1,0 +1,46 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/nits-mut/rust/crates/discord-core)
+warning: unused variable: `payload`
+   --> crates/discord-core/src/ws.rs:321:31
+    |
+321 |                 Message::Ping(payload) => {
+    |                               ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_payload`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/nits-mut/target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_hello_from_encoded_stream ... ok
+test pipe_buffers_partial_term ... ok
+test ws_closed_after_stub_close ... ok
+test ws_text_messages_counted ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_ping_gets_pong ... FAILED
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+failures:
+
+---- ws_ping_gets_pong stdout ----
+
+thread 'ws_ping_gets_pong' (263327) panicked at crates/discord-core/tests/ws_transport.rs:199:10:
+сценарий стаба вернул ошибку: "Pong с чужим payload: b\"x\""
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ws_ping_gets_pong
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`
+# EXIT=101
+# mutated ws.rs md5: ab6b49a8aadb5a49dddf25d435ffeb50
+# tests/ws_transport.rs md5: 1d091ee2c237cdb74258d79c564b6d4e

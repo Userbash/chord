@@ -19,3 +19,13 @@ coverage/
 
 # Прочее
 .DS_Store
+
+# Журнал волн (waves/): страховка — сборки и бинарники в артефактах не индексируются
+waves/**/target/
+waves/**/mut-target/
+waves/**/node_modules/
+waves/**/*.rlib
+waves/**/*.rmeta
+waves/**/*.o
+waves/**/*.bin
+waves/**/*.zst

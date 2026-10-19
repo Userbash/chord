@@ -1,0 +1,141 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `f`
+  --> crates/discord-core/src/identify.rs:96:19
+   |
+96 |     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+   |                   ^ help: if this is intentional, prefix it with an underscore: `_f`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+warning: `discord-core` (lib test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+     Running unittests src/lib.rs (target/debug/deps/discord_core-727086b8c91340bb)
+
+running 2 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-00158d1bab2f14e3)
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test first_beat_has_null_sequence ... ok
+test hello_term_parses_interval ... ok
+test heartbeat_term_roundtrips ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test missed_ack_is_zombie ... ok
+test lab_timeline_facts ... ok
+test lab_replay_no_zombie ... ok
+test op7_and_op9_reconnect ... ok
+test zero_interval_hello_is_malformed ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/identify_ready.rs (target/debug/deps/identify_ready-fc7972364cf3487d)
+
+running 13 tests
+test identify_has_evidence_fields ... FAILED
+test identify_capabilities_can_enable_obfuscation ... FAILED
+test identify_debug_redacts_token ... FAILED
+test identify_client_state_guild_versions ... FAILED
+test identify_presence_option_encodes_map ... FAILED
+test identify_properties_evidence_defaults ... FAILED
+test identify_size_is_plausible_against_943 ... FAILED
+test identify_qos_token_minimal_and_custom ... FAILED
+test ready_summary_none_for_non_ready ... FAILED
+test ready_summary_from_synthetic_dispatch ... FAILED
+test ws_identify_sent_once_after_hello ... FAILED
+test ws_no_identify_without_option ... ok
+test lab_ready_from_run2_stream ... FAILED
+
+failures:
+
+---- identify_has_evidence_fields stdout ----
+
+thread 'identify_has_evidence_fields' (273016) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- identify_capabilities_can_enable_obfuscation stdout ----
+
+thread 'identify_capabilities_can_enable_obfuscation' (273013) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- identify_debug_redacts_token stdout ----
+
+thread 'identify_debug_redacts_token' (273015) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- identify_client_state_guild_versions stdout ----
+
+thread 'identify_client_state_guild_versions' (273014) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- identify_presence_option_encodes_map stdout ----
+
+thread 'identify_presence_option_encodes_map' (273017) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- identify_properties_evidence_defaults stdout ----
+
+thread 'identify_properties_evidence_defaults' (273018) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- identify_size_is_plausible_against_943 stdout ----
+
+thread 'identify_size_is_plausible_against_943' (273020) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- identify_qos_token_minimal_and_custom stdout ----
+
+thread 'identify_qos_token_minimal_and_custom' (273019) panicked at crates/discord-core/src/identify.rs:133:5:
+not yet implemented: RW-05: QoS-байты (red-фаза)
+
+---- ready_summary_none_for_non_ready stdout ----
+
+thread 'ready_summary_none_for_non_ready' (273023) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: RW-05: сводка READY (red-фаза)
+
+---- ready_summary_from_synthetic_dispatch stdout ----
+
+thread 'ready_summary_from_synthetic_dispatch' (273022) panicked at crates/discord-core/src/ready.rs:50:9:
+not yet implemented: RW-05: сводка READY (red-фаза)
+
+---- ws_identify_sent_once_after_hello stdout ----
+
+thread 'ws_identify_sent_once_after_hello' (273024) panicked at crates/discord-core/src/identify.rs:59:9:
+not yet implemented: RW-05: дефолты for_rw_client (red-фаза)
+
+---- lab_ready_from_run2_stream stdout ----
+
+thread 'lab_ready_from_run2_stream' (273021) panicked at crates/discord-core/tests/identify_ready.rs:610:35:
+READY — второй терм потока
+
+
+failures:
+    identify_capabilities_can_enable_obfuscation
+    identify_client_state_guild_versions
+    identify_debug_redacts_token
+    identify_has_evidence_fields
+    identify_presence_option_encodes_map
+    identify_properties_evidence_defaults
+    identify_qos_token_minimal_and_custom
+    identify_size_is_plausible_against_943
+    lab_ready_from_run2_stream
+    ready_summary_from_synthetic_dispatch
+    ready_summary_none_for_non_ready
+    ws_identify_sent_once_after_hello
+
+test result: FAILED. 1 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p discord-core --test identify_ready`
+# EXIT=101
+ca0ba9c2a3e542feb32c3bd354d626c8  crates/discord-core/tests/identify_ready.rs

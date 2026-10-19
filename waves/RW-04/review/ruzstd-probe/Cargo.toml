@@ -1,0 +1,9 @@
+[package]
+name = "ruzstd-probe"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ruzstd = "=0.9.1"
+
+[workspace]

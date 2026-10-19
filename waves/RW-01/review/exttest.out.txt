@@ -1,0 +1,10 @@
+
+running 5 tests
+test own_small_big_ints_decode ... ok
+test big_int_sign_before_digits_with_negative_control ... ok
+test unicode_atom_canonical_tags_match_reviewer ... ok
+test roundtrip_nested_own_values ... ok
+test reviewer_observation_atom_gt_65535_truncates_len ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

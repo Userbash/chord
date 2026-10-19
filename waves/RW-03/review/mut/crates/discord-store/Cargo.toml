@@ -1,0 +1,9 @@
+[package]
+name = "discord-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Локальное хранилище (SQLite) и миграции схемы"
+
+[lints.rust]
+unsafe_code = "forbid"

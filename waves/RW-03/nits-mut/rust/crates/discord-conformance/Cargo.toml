@@ -1,0 +1,9 @@
+[package]
+name = "discord-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Доступ к конформанс-фикстурам лаборатории (fixtures/)"
+
+[lints.rust]
+unsafe_code = "forbid"

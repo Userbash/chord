@@ -1,0 +1,12 @@
+[package]
+name = "discord-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Шлюз Discord, REST v9, сессии и реконнект"
+
+[dependencies]
+discord-codec = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

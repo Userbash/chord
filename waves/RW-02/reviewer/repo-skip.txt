@@ -1,0 +1,22 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling discord-codec v0.1.0 (/tmp/opencode/review-rw-02/ws/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/zstd_stream.rs (/tmp/opencode/review-rw-02/target-ws/debug/deps/zstd_stream-dbfb7a88c1079559)
+
+running 9 tests
+skip: нет lab-файла /tmp/opencode/review-rw-02/empty/gw-proto/zstd-frames-95974_8158.hexl
+skip: нет lab-файла /tmp/opencode/review-rw-02/empty/gw-proto/zstd-frames-95974_1389.hexl
+test lab_midstream_socket_is_rejected ... ok
+test lab_stream_1389_matches_oracle ... ok
+test corrupted_frame_is_reported ... ok
+test missing_magic_is_rejected ... ok
+test trailing_bytes_after_finished_frame ... ok
+test magic_split_across_pushes ... ok
+test synth_frame_split_in_three ... ok
+test synth_frame_byte_by_byte ... ok
+test synth_frame_decodes_whole ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

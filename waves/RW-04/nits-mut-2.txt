@@ -1,0 +1,37 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/nits-mut/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/nits-mut/target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_hello_from_encoded_stream ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_text_messages_counted ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test ws_zombie_without_ack ... FAILED
+
+failures:
+
+---- ws_zombie_without_ack stdout ----
+
+thread 'ws_zombie_without_ack' (263767) panicked at crates/discord-core/tests/ws_transport.rs:677:5:
+детект зомби ≤ 500ms (пунктуальность таймера), занял 601.338626ms
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ws_zombie_without_ack
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.60s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`
+# EXIT=101
+# mutated ws.rs md5: bb30bf2dae5478cf3f55096a7bf55d66
+# tests/ws_transport.rs md5: 1d091ee2c237cdb74258d79c564b6d4e

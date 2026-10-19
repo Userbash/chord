@@ -1,0 +1,48 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/rw-04/review/mut/rust/crates/discord-core)
+warning: unused variable: `d`
+   --> crates/discord-core/src/ws.rs:199:25
+    |
+199 | pub fn encode_heartbeat(d: Option<u64>) -> Vec<u8> {
+    |                         ^ help: if this is intentional, prefix it with an underscore: `_d`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/ws_transport.rs (/tmp/opencode/rw-04/review/mut-target/debug/deps/ws_transport-0ca077a4a0da20e8)
+
+running 10 tests
+test heartbeat_encode_roundtrip ... FAILED
+test pipe_missing_magic_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test pipe_hello_from_encoded_stream ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_zombie_without_ack ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_dispatch_updates_heartbeat_seq ... FAILED
+
+failures:
+
+---- heartbeat_encode_roundtrip stdout ----
+
+thread 'heartbeat_encode_roundtrip' (256206) panicked at crates/discord-core/tests/ws_transport.rs:417:5:
+assertion `left == right` failed: d = последний s
+  left: None
+ right: Some(7)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ws_dispatch_updates_heartbeat_seq stdout ----
+
+thread 'ws_dispatch_updates_heartbeat_seq' (256212) panicked at crates/discord-core/tests/ws_transport.rs:608:10:
+цикл транспорта не уложился в 5 с: Elapsed(())
+
+
+failures:
+    heartbeat_encode_roundtrip
+    ws_dispatch_updates_heartbeat_seq
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.00s
+
+error: test failed, to rerun pass `-p discord-core --test ws_transport`
