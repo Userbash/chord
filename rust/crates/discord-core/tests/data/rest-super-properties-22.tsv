@@ -1,0 +1,22 @@
+os	string	Linux
+browser	string	Discord Client
+release_channel	string	stable
+client_version	string	1.0.162
+os_version	string	7.2.10-1-cachyos
+os_arch	string	x64
+app_arch	string	x64
+system_locale	string	ru
+has_client_mods	boolean	false
+client_launch_id	string	ab3d725a-82e4-4d66-b77c-64a8463fb04c
+browser_user_agent	string	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36
+browser_version	string	42.11.12
+window_manager	string	KDE,unknown
+distro	string	"Arch Linux"
+runtime_environment	string	native
+display_server	string	wayland
+client_build_number	number	641004
+native_build_number	number	94186
+client_event_source	null	null
+launch_signature	string	da02ad21-144b-43b5-9618-a18392f1c066
+client_heartbeat_session_id	string	f615427c-47a2-49ed-9482-d4b192dd781e
+client_app_state	string	focused

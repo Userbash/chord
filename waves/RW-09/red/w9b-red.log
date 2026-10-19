@@ -1,0 +1,75 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/rest_super_properties.rs (target/debug/deps/rest_super_properties-a436333242dde6d3)
+
+running 8 tests
+test p1_fields_are_22_in_order ... FAILED
+test p2_parses_live_json_fields ... FAILED
+test p3_live_json_roundtrip_bytewise ... FAILED
+test p4_live_base64_roundtrip ... FAILED
+test p5_escaping_roundtrip ... FAILED
+test p8_base64_layer_errors ... FAILED
+test p7_numbers_bounds ... FAILED
+test p6_parser_rejects_bad_input ... FAILED
+
+failures:
+
+---- p1_fields_are_22_in_order stdout ----
+
+thread 'p1_fields_are_22_in_order' (472499) panicked at crates/discord-core/tests/rest_super_properties.rs:215:5:
+assertion `left == right` failed: порядок имён из docs/re/rest-d02.md §6.2
+  left: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+ right: ["os", "browser", "release_channel", "client_version", "os_version", "os_arch", "app_arch", "system_locale", "has_client_mods", "client_launch_id", "browser_user_agent", "browser_version", "window_manager", "distro", "runtime_environment", "display_server", "client_build_number", "native_build_number", "client_event_source", "launch_signature", "client_heartbeat_session_id", "client_app_state"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- p2_parses_live_json_fields stdout ----
+
+thread 'p2_parses_live_json_fields' (472500) panicked at crates/discord-core/tests/rest_super_properties.rs:241:48:
+живой JSON должен разбираться: Json("заглушка")
+
+---- p3_live_json_roundtrip_bytewise stdout ----
+
+thread 'p3_live_json_roundtrip_bytewise' (472501) panicked at crates/discord-core/tests/rest_super_properties.rs:284:48:
+живой JSON должен разбираться: Json("заглушка")
+
+---- p4_live_base64_roundtrip stdout ----
+
+thread 'p4_live_base64_roundtrip' (472502) panicked at crates/discord-core/tests/rest_super_properties.rs:320:55:
+живой JSON должен разбираться: Json("заглушка")
+
+---- p5_escaping_roundtrip stdout ----
+
+thread 'p5_escaping_roundtrip' (472503) panicked at crates/discord-core/tests/rest_super_properties.rs:372:5:
+кавычка экранирована: 
+
+---- p8_base64_layer_errors stdout ----
+
+thread 'p8_base64_layer_errors' (472506) panicked at crates/discord-core/tests/rest_super_properties.rs:598:18:
+from_base64("!!!"): ожидалась Base64(InvalidChar), получено Err(Base64(InvalidLength(0)))
+
+---- p7_numbers_bounds stdout ----
+
+thread 'p7_numbers_bounds' (472505) panicked at crates/discord-core/tests/rest_super_properties.rs:546:54:
+нули — валидные u32: Json("заглушка")
+
+---- p6_parser_rejects_bad_input stdout ----
+
+thread 'p6_parser_rejects_bad_input' (472504) panicked at crates/discord-core/tests/rest_super_properties.rs:522:5:
+валидный живой JSON принимается
+
+
+failures:
+    p1_fields_are_22_in_order
+    p2_parses_live_json_fields
+    p3_live_json_roundtrip_bytewise
+    p4_live_base64_roundtrip
+    p5_escaping_roundtrip
+    p6_parser_rejects_bad_input
+    p7_numbers_bounds
+    p8_base64_layer_errors
+
+test result: FAILED. 0 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_super_properties`
+# EXIT=101
+34dc62487dfb99553d7f99449fb67911  crates/discord-core/tests/rest_super_properties.rs

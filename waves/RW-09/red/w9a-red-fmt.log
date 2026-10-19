@@ -1,0 +1,58 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/rest_base64.rs (target/debug/deps/rest_base64-94a27fef3860f63f)
+
+running 5 tests
+test errors_are_typed ... FAILED
+test lengths_and_padding ... FAILED
+test noncanonical_trailing_bits ... FAILED
+test live_header_roundtrip ... FAILED
+test rfc_vectors ... FAILED
+
+failures:
+
+---- errors_are_typed stdout ----
+
+thread 'errors_are_typed' (509475) panicked at crates/discord-core/tests/rest_base64.rs:181:5:
+assertion `left == right` failed
+  left: Err(InvalidLength(0))
+ right: Err(InvalidLength(2))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- lengths_and_padding stdout ----
+
+thread 'lengths_and_padding' (509476) panicked at crates/discord-core/tests/rest_base64.rs:226:5:
+assertion `left == right` failed
+  left: ""
+ right: "Zg=="
+
+---- noncanonical_trailing_bits stdout ----
+
+thread 'noncanonical_trailing_bits' (509478) panicked at crates/discord-core/tests/rest_base64.rs:264:34:
+неканонические хвостовые биты принимаются: InvalidLength(0)
+
+---- live_header_roundtrip stdout ----
+
+thread 'live_header_roundtrip' (509477) panicked at crates/discord-core/tests/rest_base64.rs:157:31:
+живой заголовок декодируется без ошибок: InvalidLength(0)
+
+---- rfc_vectors stdout ----
+
+thread 'rfc_vectors' (509479) panicked at crates/discord-core/tests/rest_base64.rs:114:9:
+assertion `left == right` failed: empty: decode(base64) = hex-байты
+  left: Err(InvalidLength(0))
+ right: Ok([])
+
+
+failures:
+    errors_are_typed
+    lengths_and_padding
+    live_header_roundtrip
+    noncanonical_trailing_bits
+    rfc_vectors
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_base64`
+# EXIT=101
+60c50ec340537f0f88e81bf5359c1f6f  crates/discord-core/tests/rest_base64.rs

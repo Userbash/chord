@@ -1,0 +1,548 @@
+--- /tmp/opencode/rw-09/w9d/before/base64.rs	2026-10-20 01:39:06.392783721 +0500
++++ rust/crates/discord-core/src/rest/base64.rs	2026-10-20 01:43:16.370321676 +0500
+@@ -35,6 +35,11 @@
+     }
+ }
+ 
++/// Добавляет в вывод символ алфавита для 6-битного значения (`0..=63`).
++fn push_sextet(out: &mut String, value: u8) {
++    out.push(char::from(ALPHABET[usize::from(value)]));
++}
++
+ /// Кодирует в канонический base64 с `=`-паддингом (RFC 4648 §4).
+ #[must_use]
+ pub fn encode(data: &[u8]) -> String {
+@@ -43,23 +48,39 @@
+         let first = chunk[0];
+         let second = chunk.get(1).copied().unwrap_or(0);
+         let third = chunk.get(2).copied().unwrap_or(0);
+-        out.push(ALPHABET[usize::from(first >> 2)] as char);
+-        out.push(ALPHABET[usize::from((first & 0x03) << 4 | second >> 4)] as char);
++        push_sextet(&mut out, first >> 2);
++        push_sextet(&mut out, ((first & 0x03) << 4) | (second >> 4));
+         if chunk.len() == 1 {
+-            out.push('=');
+-            out.push('=');
++            out.push_str("==");
+             continue;
+         }
+-        out.push(ALPHABET[usize::from((second & 0x0f) << 2 | third >> 6)] as char);
++        push_sextet(&mut out, ((second & 0x0f) << 2) | (third >> 6));
+         if chunk.len() == 2 {
+             out.push('=');
+         } else {
+-            out.push(ALPHABET[usize::from(third & 0x3f)] as char);
++            push_sextet(&mut out, third & 0x3f);
+         }
+     }
+     out
+ }
+ 
++/// Длина данных до хвостового ряда `=`: проверяет паддинг, возвращает позицию первого `=`
++/// (или длину строки, если паддинга нет). Ошибка указывает на первый `=`.
++///
++/// `=` допустим только хвостовым рядом из 0–2 символов; `data_chars % 4 == 1` несовместимо
++/// с паддингом (1 секстет — меньше байта).
++fn data_length(bytes: &[u8]) -> Result<usize, Base64Error> {
++    let Some(first_pad) = bytes.iter().position(|&byte| byte == b'=') else {
++        return Ok(bytes.len());
++    };
++    let pad_len = bytes.len() - first_pad;
++    let tail_has_data = bytes[first_pad..].iter().any(|&byte| byte != b'=');
++    if pad_len > 2 || tail_has_data || first_pad % 4 == 1 {
++        return Err(Base64Error::InvalidPadding { index: first_pad });
++    }
++    Ok(first_pad)
++}
++
+ /// Декодирует base64 (RFC 4648 §4) с типизированными ошибками.
+ ///
+ /// Порядок проверок: `=`-паддинг → символы данных → длина всей строки. Паддинг и символы
+@@ -71,19 +92,8 @@
+ pub fn decode(text: &str) -> Result<Vec<u8>, Base64Error> {
+     let bytes = text.as_bytes();
+ 
+-    // 1. Паддинг: '=' допустим только хвостовым рядом из 0–2 символов; позиция — первый '='.
+-    //    `data_chars % 4 == 1` несовместимо с паддингом (1 секстет — меньше байта).
+-    let data_len = match bytes.iter().position(|&byte| byte == b'=') {
+-        Some(first_pad) => {
+-            let pad_len = bytes.len() - first_pad;
+-            let tail_has_data = bytes[first_pad..].iter().any(|&byte| byte != b'=');
+-            if pad_len > 2 || tail_has_data || first_pad % 4 == 1 {
+-                return Err(Base64Error::InvalidPadding { index: first_pad });
+-            }
+-            first_pad
+-        }
+-        None => bytes.len(),
+-    };
++    // 1. Паддинг: '=' допустим только хвостовым рядом из 0–2 символов.
++    let data_len = data_length(bytes)?;
+ 
+     // 2. Символы данных — только алфавит; '=' уже разобран выше. Алфавит и декодирование
+     //    идут одним проходом, но недопустимый символ возвращается раньше проверки длины (B3).
+@@ -97,9 +107,7 @@
+         accum = accum << 6 | u32::from(value);
+         sextets += 1;
+         if sextets == 4 {
+-            out.push((accum >> 16) as u8);
+-            out.push((accum >> 8) as u8);
+-            out.push(accum as u8);
++            out.extend_from_slice(&accum.to_be_bytes()[1..]);
+             accum = 0;
+             sextets = 0;
+         }
+--- /tmp/opencode/rw-09/w9d/before/super_properties.rs	2026-10-20 01:39:06.392807641 +0500
++++ rust/crates/discord-core/src/rest/super_properties.rs	2026-10-20 01:46:21.390196242 +0500
+@@ -79,60 +79,33 @@
+     /// Канонический JSON (порядок полей фиксирован, компактный; экранирование — RFC 8259).
+     #[must_use]
+     pub fn to_json(&self) -> String {
+-        let mut out = String::with_capacity(1024);
+-        out.push('{');
+-        write_string_member(&mut out, "os", &self.os, true);
+-        write_string_member(&mut out, "browser", &self.browser, false);
+-        write_string_member(&mut out, "release_channel", &self.release_channel, false);
+-        write_string_member(&mut out, "client_version", &self.client_version, false);
+-        write_string_member(&mut out, "os_version", &self.os_version, false);
+-        write_string_member(&mut out, "os_arch", &self.os_arch, false);
+-        write_string_member(&mut out, "app_arch", &self.app_arch, false);
+-        write_string_member(&mut out, "system_locale", &self.system_locale, false);
+-        write_member_prefix(&mut out, "has_client_mods", false);
+-        out.push_str(if self.has_client_mods {
+-            "true"
+-        } else {
+-            "false"
+-        });
+-        write_string_member(&mut out, "client_launch_id", &self.client_launch_id, false);
+-        write_string_member(
+-            &mut out,
+-            "browser_user_agent",
+-            &self.browser_user_agent,
+-            false,
+-        );
+-        write_string_member(&mut out, "browser_version", &self.browser_version, false);
+-        write_string_member(&mut out, "window_manager", &self.window_manager, false);
+-        write_string_member(&mut out, "distro", &self.distro, false);
+-        write_string_member(
+-            &mut out,
+-            "runtime_environment",
+-            &self.runtime_environment,
+-            false,
+-        );
+-        write_string_member(&mut out, "display_server", &self.display_server, false);
+-        write_member_prefix(&mut out, "client_build_number", false);
+-        out.push_str(&self.client_build_number.to_string());
+-        write_member_prefix(&mut out, "native_build_number", false);
+-        out.push_str(&self.native_build_number.to_string());
+-        match &self.client_event_source {
+-            Some(value) => write_string_member(&mut out, "client_event_source", value, false),
+-            None => {
+-                write_member_prefix(&mut out, "client_event_source", false);
+-                out.push_str("null");
+-            }
+-        }
+-        write_string_member(&mut out, "launch_signature", &self.launch_signature, false);
+-        write_string_member(
+-            &mut out,
++        let mut json = JsonWriter::new();
++        json.string("os", &self.os);
++        json.string("browser", &self.browser);
++        json.string("release_channel", &self.release_channel);
++        json.string("client_version", &self.client_version);
++        json.string("os_version", &self.os_version);
++        json.string("os_arch", &self.os_arch);
++        json.string("app_arch", &self.app_arch);
++        json.string("system_locale", &self.system_locale);
++        json.boolean("has_client_mods", self.has_client_mods);
++        json.string("client_launch_id", &self.client_launch_id);
++        json.string("browser_user_agent", &self.browser_user_agent);
++        json.string("browser_version", &self.browser_version);
++        json.string("window_manager", &self.window_manager);
++        json.string("distro", &self.distro);
++        json.string("runtime_environment", &self.runtime_environment);
++        json.string("display_server", &self.display_server);
++        json.number("client_build_number", self.client_build_number);
++        json.number("native_build_number", self.native_build_number);
++        json.optional_string("client_event_source", self.client_event_source.as_deref());
++        json.string("launch_signature", &self.launch_signature);
++        json.string(
+             "client_heartbeat_session_id",
+             &self.client_heartbeat_session_id,
+-            false,
+         );
+-        write_string_member(&mut out, "client_app_state", &self.client_app_state, false);
+-        out.push('}');
+-        out
++        json.string("client_app_state", &self.client_app_state);
++        json.finish()
+     }
+ 
+     /// Разбор канонического JSON: объект ровно из 22 ключей в любом порядке, whitespace между
+@@ -152,10 +125,10 @@
+     pub fn from_base64(text: &str) -> Result<Self, SuperPropertiesError> {
+         let bytes = super::base64::decode(text).map_err(SuperPropertiesError::Base64)?;
+         let json = String::from_utf8(bytes).map_err(|error| {
++            let utf8 = error.utf8_error();
+             SuperPropertiesError::Json(format!(
+-                "base64: не UTF-8 (байт {}): {}",
+-                error.utf8_error().valid_up_to(),
+-                error.utf8_error()
++                "base64: не UTF-8 (байт {}): {utf8}",
++                utf8.valid_up_to()
+             ))
+         })?;
+         Self::from_json(&json)
+@@ -196,21 +169,6 @@
+     field_names().iter().position(|known| *known == name)
+ }
+ 
+-/// Записывает `"имя":` (с запятой, если член не первый).
+-fn write_member_prefix(out: &mut String, name: &str, first: bool) {
+-    if !first {
+-        out.push(',');
+-    }
+-    write_json_string(out, name);
+-    out.push(':');
+-}
+-
+-/// Записывает член-строку: `"имя":"значение"`.
+-fn write_string_member(out: &mut String, name: &str, value: &str, first: bool) {
+-    write_member_prefix(out, name, first);
+-    write_json_string(out, value);
+-}
+-
+ /// Hex-цифры нижнего регистра для `\u00XX`.
+ const HEX_DIGITS: &[u8; 16] = b"0123456789abcdef";
+ 
+@@ -239,6 +197,66 @@
+     out.push('"');
+ }
+ 
++/// Писатель компактного JSON-объекта: сам расставляет запятые между членами.
++struct JsonWriter {
++    /// Готовый JSON (объект уже открыт).
++    out: String,
++    /// Следующий член — первый (запятая не нужна).
++    first: bool,
++}
++
++impl JsonWriter {
++    /// Открывает пустой объект; закрывает [`JsonWriter::finish`].
++    fn new() -> Self {
++        let mut out = String::with_capacity(1024);
++        out.push('{');
++        Self { out, first: true }
++    }
++
++    /// Начинает член объекта: `"имя":` (с запятой, если член не первый).
++    fn member(&mut self, name: &str) {
++        if !self.first {
++            self.out.push(',');
++        }
++        self.first = false;
++        write_json_string(&mut self.out, name);
++        self.out.push(':');
++    }
++
++    /// Член-строка: `"имя":"значение"`.
++    fn string(&mut self, name: &str, value: &str) {
++        self.member(name);
++        write_json_string(&mut self.out, value);
++    }
++
++    /// Член-bool: `"имя":true` или `"имя":false`.
++    fn boolean(&mut self, name: &str, value: bool) {
++        self.member(name);
++        self.out.push_str(if value { "true" } else { "false" });
++    }
++
++    /// Член-число `u32`: `"имя":123` (без ведущих нулей).
++    fn number(&mut self, name: &str, value: u32) {
++        self.member(name);
++        self.out.push_str(&value.to_string());
++    }
++
++    /// Член-строка или `null` (`client_event_source`).
++    fn optional_string(&mut self, name: &str, value: Option<&str>) {
++        self.member(name);
++        match value {
++            Some(text) => write_json_string(&mut self.out, text),
++            None => self.out.push_str("null"),
++        }
++    }
++
++    /// Закрывает объект и возвращает готовый JSON.
++    fn finish(mut self) -> String {
++        self.out.push('}');
++        self.out
++    }
++}
++
+ /// Однопроходный разборщик канонического JSON супер-свойств (RFC 8259).
+ struct Parser<'a> {
+     /// Исходный текст (для срезов значений).
+@@ -274,6 +292,16 @@
+         self.bytes.get(self.pos).copied()
+     }
+ 
++    /// Поглощает ключевое слово (`true`/`false`/`null`); при несовпадении позиция не меняется.
++    fn consume_keyword(&mut self, keyword: &[u8]) -> bool {
++        if self.bytes[self.pos..].starts_with(keyword) {
++            self.pos += keyword.len();
++            true
++        } else {
++            false
++        }
++    }
++
+     /// Пропускает whitespace JSON: пробел, `\t`, `\n`, `\r`.
+     fn skip_whitespace(&mut self) {
+         while matches!(self.peek(), Some(b' ' | b'\t' | b'\n' | b'\r')) {
+@@ -281,6 +309,13 @@
+         }
+     }
+ 
++    /// Пропускает подряд идущие десятичные цифры.
++    fn skip_digits(&mut self) {
++        while matches!(self.peek(), Some(b'0'..=b'9')) {
++            self.pos += 1;
++        }
++    }
++
+     /// Разбирает документ: объект ровно с 22 ключами и без мусора после него.
+     fn parse_document(&mut self) -> Result<SuperProperties, SuperPropertiesError> {
+         self.skip_whitespace();
+@@ -495,11 +530,9 @@
+ 
+     /// `true`/`false`.
+     fn parse_bool(&mut self) -> Result<bool, SuperPropertiesError> {
+-        if self.bytes[self.pos..].starts_with(b"true") {
+-            self.pos += 4;
++        if self.consume_keyword(b"true") {
+             Ok(true)
+-        } else if self.bytes[self.pos..].starts_with(b"false") {
+-            self.pos += 5;
++        } else if self.consume_keyword(b"false") {
+             Ok(false)
+         } else {
+             Err(self.error("ожидалось true или false"))
+@@ -508,8 +541,7 @@
+ 
+     /// `null`.
+     fn parse_null(&mut self) -> Result<(), SuperPropertiesError> {
+-        if self.bytes[self.pos..].starts_with(b"null") {
+-            self.pos += 4;
++        if self.consume_keyword(b"null") {
+             Ok(())
+         } else {
+             Err(self.error("ожидалось null"))
+@@ -570,9 +602,7 @@
+             }
+             Some(b'1'..=b'9') => {
+                 self.pos += 1;
+-                while matches!(self.peek(), Some(b'0'..=b'9')) {
+-                    self.pos += 1;
+-                }
++                self.skip_digits();
+             }
+             _ => return Err(self.error("ожидалось число")),
+         }
+@@ -581,9 +611,7 @@
+             if !matches!(self.peek(), Some(b'0'..=b'9')) {
+                 return Err(self.error("дробная часть без цифр"));
+             }
+-            while matches!(self.peek(), Some(b'0'..=b'9')) {
+-                self.pos += 1;
+-            }
++            self.skip_digits();
+         }
+         if matches!(self.peek(), Some(b'e' | b'E')) {
+             self.pos += 1;
+@@ -593,9 +621,7 @@
+             if !matches!(self.peek(), Some(b'0'..=b'9')) {
+                 return Err(self.error("экспонента без цифр"));
+             }
+-            while matches!(self.peek(), Some(b'0'..=b'9')) {
+-                self.pos += 1;
+-            }
++            self.skip_digits();
+         }
+         Ok(&self.text[start..self.pos])
+     }
+--- /tmp/opencode/rw-09/w9d/before/identity.rs	2026-10-20 01:39:06.392828881 +0500
++++ rust/crates/discord-core/src/rest/identity.rs	2026-10-20 01:46:00.064250366 +0500
+@@ -128,6 +128,21 @@
+         .find_map(|name| non_empty(sources.env_var(name)))
+ }
+ 
++/// Есть ли непустая переменная окружения.
++fn has_env(sources: &dyn IdentitySources, name: &str) -> bool {
++    non_empty(sources.env_var(name)).is_some()
++}
++
++/// `Some(value)` из конфига побеждает; `None` → значение по политике §6.1 (лениво).
++fn configured_or(value: &Option<String>, fallback: impl FnOnce() -> String) -> String {
++    value.clone().unwrap_or_else(fallback)
++}
++
++/// Значение или [`UNKNOWN`] — единая подстановка для строковых полей среды.
++fn or_unknown(value: Option<String>) -> String {
++    value.unwrap_or_else(|| UNKNOWN.to_string())
++}
++
+ /// Отображение `std::env::consts::OS` в имя ОС клиента (§6.1).
+ fn map_os(os: &str) -> String {
+     match os {
+@@ -176,20 +191,20 @@
+ 
+ /// Версия ядра из `/proc/sys/kernel/osrelease` (trim); нет файла → `unknown`.
+ fn resolve_os_version(sources: &dyn IdentitySources) -> String {
+-    non_empty(
++    or_unknown(non_empty(
+         sources
+             .read_text(KERNEL_RELEASE_PATH)
+             .map(|text| text.trim().to_string()),
+-    )
+-    .unwrap_or_else(|| UNKNOWN.to_string())
++    ))
+ }
+ 
+ /// Дистрибутив из `PRETTY_NAME`; нет файла или ключа → `unknown`.
+ fn resolve_distro(sources: &dyn IdentitySources) -> String {
+-    sources
+-        .read_text(OS_RELEASE_PATH)
+-        .and_then(|text| parse_pretty_name(&text))
+-        .unwrap_or_else(|| UNKNOWN.to_string())
++    or_unknown(
++        sources
++            .read_text(OS_RELEASE_PATH)
++            .and_then(|text| parse_pretty_name(&text)),
++    )
+ }
+ 
+ /// Каскад `display_server`: `XDG_SESSION_TYPE` → `WAYLAND_DISPLAY` → `DISPLAY` → `unknown`.
+@@ -197,10 +212,10 @@
+     if let Some(value) = non_empty(sources.env_var("XDG_SESSION_TYPE")) {
+         return value;
+     }
+-    if non_empty(sources.env_var("WAYLAND_DISPLAY")).is_some() {
++    if has_env(sources, "WAYLAND_DISPLAY") {
+         return "wayland".to_string();
+     }
+-    if non_empty(sources.env_var("DISPLAY")).is_some() {
++    if has_env(sources, "DISPLAY") {
+         return "x11".to_string();
+     }
+     UNKNOWN.to_string()
+@@ -232,88 +247,48 @@
+ /// полей: `client_launch_id`, `launch_signature`, `client_heartbeat_session_id`.
+ #[must_use]
+ pub fn build(sources: &dyn IdentitySources, config: &IdentityConfig) -> SuperProperties {
+-    let os = config.os.clone().unwrap_or_else(|| map_os(sources.os()));
+-    let os_arch = config
+-        .os_arch
+-        .clone()
+-        .unwrap_or_else(|| map_arch(sources.arch()));
+-    let client_version = config
+-        .client_version
+-        .clone()
+-        .unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_string());
+-    let app_arch = config.app_arch.clone().unwrap_or_else(|| os_arch.clone());
+-    let browser_version = config
+-        .browser_version
+-        .clone()
+-        .unwrap_or_else(|| client_version.clone());
++    let os = configured_or(&config.os, || map_os(sources.os()));
++    let os_arch = configured_or(&config.os_arch, || map_arch(sources.arch()));
++    let client_version = configured_or(&config.client_version, || {
++        env!("CARGO_PKG_VERSION").to_string()
++    });
++    let app_arch = configured_or(&config.app_arch, || os_arch.clone());
++    let browser_version = configured_or(&config.browser_version, || client_version.clone());
+     let default_user_agent = format!("discord-lab/{client_version} ({os}; {os_arch})");
+-    let system_locale = config.system_locale.clone().unwrap_or_else(|| {
+-        first_env(sources, &["LC_ALL", "LANG"])
+-            .map_or_else(|| UNKNOWN.to_string(), |raw| parse_locale(&raw))
++    let system_locale = configured_or(&config.system_locale, || {
++        or_unknown(first_env(sources, &["LC_ALL", "LANG"]).map(|raw| parse_locale(&raw)))
+     });
+ 
+     // Порядок вызовов фиксирован: он определяет, какие байты получает каждый UUID.
+-    let client_launch_id = config
+-        .client_launch_id
+-        .clone()
+-        .unwrap_or_else(|| uuid_v4(sources));
+-    let launch_signature = config
+-        .launch_signature
+-        .clone()
+-        .unwrap_or_else(|| uuid_v4(sources));
+-    let client_heartbeat_session_id = config
+-        .client_heartbeat_session_id
+-        .clone()
+-        .unwrap_or_else(|| uuid_v4(sources));
++    let client_launch_id = configured_or(&config.client_launch_id, || uuid_v4(sources));
++    let launch_signature = configured_or(&config.launch_signature, || uuid_v4(sources));
++    let client_heartbeat_session_id =
++        configured_or(&config.client_heartbeat_session_id, || uuid_v4(sources));
+ 
+     SuperProperties {
+         os,
+-        browser: config
+-            .browser
+-            .clone()
+-            .unwrap_or_else(|| "discord-lab".to_string()),
+-        release_channel: config
+-            .release_channel
+-            .clone()
+-            .unwrap_or_else(|| "stable".to_string()),
++        browser: configured_or(&config.browser, || "discord-lab".to_string()),
++        release_channel: configured_or(&config.release_channel, || "stable".to_string()),
+         client_version,
+-        os_version: config
+-            .os_version
+-            .clone()
+-            .unwrap_or_else(|| resolve_os_version(sources)),
++        os_version: configured_or(&config.os_version, || resolve_os_version(sources)),
+         os_arch,
+         app_arch,
+         system_locale,
+         has_client_mods: config.has_client_mods.unwrap_or(false),
+         client_launch_id,
+-        browser_user_agent: config
+-            .browser_user_agent
+-            .clone()
+-            .unwrap_or(default_user_agent),
++        browser_user_agent: configured_or(&config.browser_user_agent, || default_user_agent),
+         browser_version,
+-        window_manager: config.window_manager.clone().unwrap_or_else(|| {
+-            non_empty(sources.env_var("XDG_CURRENT_DESKTOP")).unwrap_or_else(|| UNKNOWN.to_string())
++        window_manager: configured_or(&config.window_manager, || {
++            or_unknown(non_empty(sources.env_var("XDG_CURRENT_DESKTOP")))
+         }),
+-        distro: config
+-            .distro
+-            .clone()
+-            .unwrap_or_else(|| resolve_distro(sources)),
+-        runtime_environment: config
+-            .runtime_environment
+-            .clone()
+-            .unwrap_or_else(|| "native".to_string()),
+-        display_server: config
+-            .display_server
+-            .clone()
+-            .unwrap_or_else(|| resolve_display_server(sources)),
++        distro: configured_or(&config.distro, || resolve_distro(sources)),
++        runtime_environment: configured_or(&config.runtime_environment, || "native".to_string()),
++        display_server: configured_or(&config.display_server, || resolve_display_server(sources)),
+         client_build_number: config.client_build_number.unwrap_or(0),
+         native_build_number: config.native_build_number.unwrap_or(0),
+         client_event_source: config.client_event_source.clone(),
+         launch_signature,
+         client_heartbeat_session_id,
+-        client_app_state: config
+-            .client_app_state
+-            .clone()
+-            .unwrap_or_else(|| "focused".to_string()),
++        client_app_state: configured_or(&config.client_app_state, || "focused".to_string()),
+     }
+ }

@@ -1,0 +1,30 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running tests/rest_base64.rs (target/debug/deps/rest_base64-94a27fef3860f63f)
+
+running 5 tests
+test errors_are_typed ... FAILED
+test lengths_and_padding ... ok
+test noncanonical_trailing_bits ... ok
+test rfc_vectors ... ok
+test live_header_roundtrip ... ok
+
+failures:
+
+---- errors_are_typed stdout ----
+
+thread 'errors_are_typed' (508854) panicked at crates/discord-core/tests/rest_base64.rs:196:5:
+assertion `left == right` failed
+  left: Err(InvalidLength(2))
+ right: Err(InvalidPadding { index: 1 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    errors_are_typed
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_base64`
+# EXIT=101
+60c50ec340537f0f88e81bf5359c1f6f  crates/discord-core/tests/rest_base64.rs

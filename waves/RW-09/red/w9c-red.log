@@ -1,0 +1,81 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running tests/rest_identity.rs (target/debug/deps/rest_identity-666295fa238a0edc)
+
+running 8 tests
+test distro_sources ... FAILED
+test config_overrides_win ... FAILED
+test display_server_fallbacks ... FAILED
+test locale_parsing ... FAILED
+test uuid_v4_shape ... FAILED
+test os_arch_mapping ... FAILED
+test wayland_kde_full_build ... FAILED
+test integration_base64_headers ... ok
+
+failures:
+
+---- distro_sources stdout ----
+
+thread 'distro_sources' (510025) panicked at crates/discord-core/tests/rest_identity.rs:322:5:
+assertion `left == right` failed: PRETTY_NAME дословно, кавычки сохраняются
+  left: ""
+ right: "\"Arch Linux\""
+
+---- config_overrides_win stdout ----
+
+thread 'config_overrides_win' (510023) panicked at crates/discord-core/tests/rest_identity.rs:444:5:
+assertion `left == right` failed: все 22 поля из конфига — без примесей
+  left: SuperProperties { os: "", browser: "", release_channel: "", client_version: "", os_version: "", os_arch: "", app_arch: "", system_locale: "", has_client_mods: false, client_launch_id: "", browser_user_agent: "", browser_version: "", window_manager: "", distro: "", runtime_environment: "", display_server: "", client_build_number: 0, native_build_number: 0, client_event_source: None, launch_signature: "", client_heartbeat_session_id: "", client_app_state: "" }
+ right: SuperProperties { os: "Plan9", browser: "probe-browser", release_channel: "beta", client_version: "9.9.9", os_version: "kernel-x", os_arch: "mips", app_arch: "app-mips", system_locale: "xx_XX", has_client_mods: true, client_launch_id: "00000000-0000-4000-8000-000000000001", browser_user_agent: "probe-agent", browser_version: "probe-engine", window_manager: "probe-wm", distro: "Probe Distro", runtime_environment: "probe-runtime", display_server: "probe-display", client_build_number: 641004, native_build_number: 94186, client_event_source: Some("probe"), launch_signature: "00000000-0000-4000-8000-000000000002", client_heartbeat_session_id: "00000000-0000-4000-8000-000000000003", client_app_state: "unfocused" }
+
+---- display_server_fallbacks stdout ----
+
+thread 'display_server_fallbacks' (510024) panicked at crates/discord-core/tests/rest_identity.rs:233:5:
+assertion `left == right` failed: WAYLAND_DISPLAY без XDG_SESSION_TYPE → wayland
+  left: ""
+ right: "wayland"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- locale_parsing stdout ----
+
+thread 'locale_parsing' (510027) panicked at crates/discord-core/tests/rest_identity.rs:276:5:
+assertion `left == right` failed
+  left: ""
+ right: "ru"
+
+---- uuid_v4_shape stdout ----
+
+thread 'uuid_v4_shape' (510029) panicked at crates/discord-core/tests/rest_identity.rs:358:5:
+assertion `left == right` failed
+  left: ""
+ right: "00010203-0405-4607-8809-0a0b0c0d0e0f"
+
+---- os_arch_mapping stdout ----
+
+thread 'os_arch_mapping' (510028) panicked at crates/discord-core/tests/rest_identity.rs:305:9:
+assertion `left == right` failed: linux: os
+  left: ""
+ right: "Linux"
+
+---- wayland_kde_full_build stdout ----
+
+thread 'wayland_kde_full_build' (510030) panicked at crates/discord-core/tests/rest_identity.rs:220:5:
+assertion `left == right` failed
+  left: SuperProperties { os: "", browser: "", release_channel: "", client_version: "", os_version: "", os_arch: "", app_arch: "", system_locale: "", has_client_mods: false, client_launch_id: "", browser_user_agent: "", browser_version: "", window_manager: "", distro: "", runtime_environment: "", display_server: "", client_build_number: 0, native_build_number: 0, client_event_source: None, launch_signature: "", client_heartbeat_session_id: "", client_app_state: "" }
+ right: SuperProperties { os: "Linux", browser: "discord-lab", release_channel: "stable", client_version: "0.1.0", os_version: "6.16.7-arch1-1", os_arch: "x64", app_arch: "x64", system_locale: "ru", has_client_mods: false, client_launch_id: "00010203-0405-4607-8809-0a0b0c0d0e0f", browser_user_agent: "discord-lab/0.1.0 (Linux; x64)", browser_version: "0.1.0", window_manager: "KDE", distro: "\"Arch Linux\"", runtime_environment: "native", display_server: "wayland", client_build_number: 0, native_build_number: 0, client_event_source: None, launch_signature: "10111213-1415-4617-9819-1a1b1c1d1e1f", client_heartbeat_session_id: "20212223-2425-4627-a829-2a2b2c2d2e2f", client_app_state: "focused" }
+
+
+failures:
+    config_overrides_win
+    display_server_fallbacks
+    distro_sources
+    locale_parsing
+    os_arch_mapping
+    uuid_v4_shape
+    wayland_kde_full_build
+
+test result: FAILED. 1 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_identity`
+# EXIT=101
+9946bc26c7014a9778f8ae8d91a12c15  crates/discord-core/tests/rest_identity.rs
