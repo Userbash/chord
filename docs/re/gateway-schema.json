@@ -1,0 +1,4397 @@
+{
+ "meta": {
+  "title": "Схемы шлюзового протокола Discord (ETF + zstd-stream)",
+  "generatedFrom": "/home/sanya/re-deep/gateway-schema-work/capture-ready.snapshot.jsonl",
+  "sourceMd5": "ff4a8e393b0e322fe393adaf6426142e",
+  "sourceBytes": 2260044,
+  "capturedAt": "2026-10-19T06:13:08.626Z",
+  "lastFrameAt": "2026-10-19T06:23:00.693Z",
+  "note": "источник — живой CDP-захват (файл дописывался во время анализа); все числа относятся к зафиксированному снимку с указанным md5",
+  "tooling": {
+   "oracle": "/home/sanya/re-deep/gw-decode.mjs (эталонный декодер)",
+   "analyzer": "/home/sanya/re-deep/gateway-schema-work/analyze.mjs",
+   "renderer": "/home/sanya/re-deep/gateway-schema-work/render.mjs"
+  },
+  "sizeSemantics": "sizeBytes = сумма длин JSON-представления d (совпадает с payloadBytes в gw-decode.mjs); rawBytesPerEvent — длина сообщения в распакованном потоке (с 0x83 и служебной обвязкой op/t/s)"
+ },
+ "encoding": {
+  "transport": {
+   "wsUrl": "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream",
+   "wsFrames": 124,
+   "wsOpcode": 2,
+   "wsFrameBytesTotal": 149212,
+   "framesPerMessage": "1:1 (каждый WS-фрейм содержит ровно одно сообщение шлюза)",
+   "decompressedBytes": 883526,
+   "zstdStream": {
+    "magic": "28 b5 2f fd",
+    "magicOccurrences": 1,
+    "magicPosition": {
+     "frame": 1,
+     "offset": 0
+    },
+    "note": "один непрерывный zstd-стрим на все WS-фреймы: magic только в первом кадре (смещение 0); последующие кадры — продолжения потока без заголовка"
+   },
+   "compressionRatio": 0.1689,
+   "zstdError": null
+  },
+  "versionByte": {
+   "byte": "0x83",
+   "meaning": "ETF VERSION_MAGIC (131), term_to_binary: версия + терм",
+   "messagesWithByte": 124,
+   "messagesTotal": 124,
+   "occurrencesInStream": 493,
+   "occurrencesInsidePayload": 369,
+   "note": "0x83 стоит перед КАЖДЫМ сообщением (124/124), но не является уникальным разделителем: ещё 369 байт 0x83 лежат внутри полезной нагрузки"
+  },
+  "tagHistogram": [
+   {
+    "tag": 100,
+    "hex": "0x64",
+    "name": "d atom(u16 latin1)",
+    "count": 39890,
+    "examplePath": "user_guild_settings.entries[].channel_overrides[].collapsed"
+   },
+   {
+    "tag": 109,
+    "hex": "0x6d",
+    "name": "m binary(u32)",
+    "count": 21138,
+    "examplePath": "guilds[].channels[].permission_overwrites[].allow"
+   },
+   {
+    "tag": 116,
+    "hex": "0x74",
+    "name": "t map(u32)",
+    "count": 6536,
+    "examplePath": "guilds[].roles[].colors"
+   },
+   {
+    "tag": 97,
+    "hex": "0x61",
+    "name": "a uint8",
+    "count": 6495,
+    "examplePath": "user_guild_settings.entries[].channel_overrides[].message_notifications"
+   },
+   {
+    "tag": 110,
+    "hex": "0x6e",
+    "name": "n small bignum",
+    "count": 6415,
+    "examplePath": "user_guild_settings.entries[].channel_overrides[].channel_id"
+   },
+   {
+    "tag": 98,
+    "hex": "0x62",
+    "name": "b int32",
+    "count": 2533,
+    "examplePath": "user_guild_settings.entries[].channel_overrides[].flags"
+   },
+   {
+    "tag": 106,
+    "hex": "0x6a",
+    "name": "j NIL",
+    "count": 2228,
+    "examplePath": "guilds[].emojis[].roles"
+   },
+   {
+    "tag": 108,
+    "hex": "0x6c",
+    "name": "l list(u32)+NIL",
+    "count": 1431,
+    "examplePath": "guilds[].channels[].permission_overwrites"
+   },
+   {
+    "tag": 104,
+    "hex": "0x68",
+    "name": "h small tuple(u8)",
+    "count": 279,
+    "examplePath": "assignments.?.384299970632876032.assignments[]"
+   },
+   {
+    "tag": 107,
+    "hex": "0x6b",
+    "name": "k string(u16)",
+    "count": 56,
+    "examplePath": "presence.activities[].party.size"
+   }
+  ],
+  "atomsByPosition": {
+   "keys": {
+    "0x64": 24314,
+    "0x6d": 14870,
+    "0x61": 1
+   },
+   "values": {
+    "0x6c": 980,
+    "0x62": 2283,
+    "0x74": 2474,
+    "0x61": 5520,
+    "0x64": 15473,
+    "0x6a": 771,
+    "0x6d": 6155,
+    "0x6e": 5473,
+    "0x6b": 56
+   }
+  },
+  "tagPaths": {
+   "tag tag=0x74": [
+    [
+     "user_guild_settings.entries[].channel_overrides[]",
+     1328
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[]",
+     557
+    ],
+    [
+     "guilds[].emojis[]",
+     363
+    ],
+    [
+     "guilds[].channels[]",
+     272
+    ],
+    [
+     "groups[]",
+     158
+    ],
+    [
+     "read_state.entries[]",
+     157
+    ],
+    [
+     "users[]",
+     146
+    ],
+    [
+     "merged_members[][]",
+     145
+    ],
+    [
+     "guilds[].roles[]",
+     132
+    ],
+    [
+     "guilds[].roles[].colors",
+     132
+    ],
+    [
+     "guilds[].roles[].tags",
+     132
+    ],
+    [
+     "guilds[].channels[].icon_emoji",
+     125
+    ]
+   ],
+   "tag tag=0x64": [
+    [
+     "guilds[].channels[]{}",
+     4570
+    ],
+    [
+     "guilds[].emojis[]{}",
+     2541
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[]{}",
+     2228
+    ],
+    [
+     "guilds[].roles[]{}",
+     1716
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides[].collapsed",
+     1328
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides[].muted",
+     1328
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides[].mute_config",
+     1290
+    ],
+    [
+     "ops[].items[].member{}",
+     1274
+    ],
+    [
+     "ops[].items[].member.user{}",
+     1274
+    ],
+    [
+     "ops[].item.member{}",
+     1014
+    ],
+    [
+     "ops[].item.member.user{}",
+     1014
+    ],
+    [
+     "item.member.presence.activities[]{}",
+     587
+    ]
+   ],
+   "tagKey tag=0x64": [
+    [
+     "guilds[].channels[]",
+     4570
+    ],
+    [
+     "guilds[].emojis[]",
+     2541
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[]",
+     2228
+    ],
+    [
+     "guilds[].roles[]",
+     1716
+    ],
+    [
+     "ops[].items[].member",
+     1274
+    ],
+    [
+     "ops[].items[].member.user",
+     1274
+    ],
+    [
+     "ops[].item.member",
+     1014
+    ],
+    [
+     "ops[].item.member.user",
+     1014
+    ],
+    [
+     "item.member.presence.activities[]",
+     587
+    ],
+    [
+     "item.member.presence.game",
+     585
+    ],
+    [
+     "$.d",
+     582
+    ],
+    [
+     "$",
+     496
+    ]
+   ],
+   "tag tag=0x6c": [
+    [
+     "guilds[].channels[].permission_overwrites",
+     232
+    ],
+    [
+     "merged_members[][].roles",
+     130
+    ],
+    [
+     "ops[].items[].member.roles",
+     98
+    ],
+    [
+     "guild_experiments[][][][][]",
+     84
+    ],
+    [
+     "guild_experiments[][][][][][]",
+     84
+    ],
+    [
+     "groups",
+     79
+    ],
+    [
+     "ops",
+     79
+    ],
+    [
+     "ops[].item.member.roles",
+     78
+    ],
+    [
+     "guild_experiments[][][][][][][]",
+     72
+    ],
+    [
+     "guild_experiments[][][][]",
+     54
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides",
+     52
+    ],
+    [
+     "item.member.presence.activities",
+     49
+    ]
+   ],
+   "tag tag=0x6d": [
+    [
+     "user_guild_settings.entries[].channel_overrides[]{}",
+     7893
+    ],
+    [
+     "users[]{}",
+     1873
+    ],
+    [
+     "merged_members[][]{}",
+     1741
+    ],
+    [
+     "read_state.entries[]{}",
+     926
+    ],
+    [
+     "user_guild_settings.entries[]{}",
+     754
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].allow",
+     557
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].deny",
+     557
+    ],
+    [
+     "relationships[]{}",
+     420
+    ],
+    [
+     "guilds[].emojis[].name",
+     363
+    ],
+    [
+     "guilds[].channels[].name",
+     272
+    ],
+    [
+     "{}",
+     198
+    ],
+    [
+     "private_channels[]{}",
+     172
+    ]
+   ],
+   "tag tag=0x6a": [
+    [
+     "guilds[].emojis[].roles",
+     363
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[tail]",
+     232
+    ],
+    [
+     "merged_members[][].roles[tail]",
+     130
+    ],
+    [
+     "ops[].items[].member.roles[tail]",
+     98
+    ],
+    [
+     "guild_experiments[][][][][][][tail]",
+     84
+    ],
+    [
+     "guild_experiments[][][][][][tail]",
+     84
+    ],
+    [
+     "groups[tail]",
+     79
+    ],
+    [
+     "ops[tail]",
+     79
+    ],
+    [
+     "ops[].item.member.roles[tail]",
+     78
+    ],
+    [
+     "guild_experiments[][][][][][][][tail]",
+     72
+    ],
+    [
+     "guilds[].channels[].available_tags",
+     67
+    ],
+    [
+     "items[].member.presence.activities",
+     66
+    ]
+   ],
+   "tagValue tag=0x6c": [
+    [
+     "guilds[].channels[].permission_overwrites",
+     232
+    ],
+    [
+     "merged_members[][].roles",
+     130
+    ],
+    [
+     "ops[].items[].member.roles",
+     98
+    ],
+    [
+     "groups",
+     79
+    ],
+    [
+     "ops",
+     79
+    ],
+    [
+     "ops[].item.member.roles",
+     78
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides",
+     52
+    ],
+    [
+     "item.member.presence.activities",
+     49
+    ],
+    [
+     "items[].member.presence.activities",
+     32
+    ],
+    [
+     "private_channels[].recipient_ids",
+     17
+    ],
+    [
+     "member.presence.activities[].supported_platforms",
+     12
+    ],
+    [
+     "member.presence.game.supported_platforms",
+     11
+    ]
+   ],
+   "tag tag=0x62": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].flags",
+     1253
+    ],
+    [
+     "assignments.?.384299970632876032.assignments[]/t0",
+     148
+    ],
+    [
+     "read_state.entries[].last_viewed",
+     143
+    ],
+    [
+     "guilds[].roles[].color",
+     85
+    ],
+    [
+     "guilds[].roles[].colors.primary_color",
+     85
+    ],
+    [
+     "guilds[].channels[].bitrate",
+     82
+    ],
+    [
+     "groups[].count",
+     79
+    ],
+    [
+     "member_count",
+     79
+    ],
+    [
+     "online_count",
+     79
+    ],
+    [
+     "guilds[].channels[].flags",
+     62
+    ],
+    [
+     "guild_experiments[][][][][][][].e",
+     47
+    ],
+    [
+     "entries[].channel_overrides[].mute_config.selected_time_window",
+     38
+    ]
+   ],
+   "tagValue tag=0x62": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].flags",
+     1253
+    ],
+    [
+     "read_state.entries[].last_viewed",
+     143
+    ],
+    [
+     "guilds[].roles[].color",
+     85
+    ],
+    [
+     "guilds[].roles[].colors.primary_color",
+     85
+    ],
+    [
+     "guilds[].channels[].bitrate",
+     82
+    ],
+    [
+     "groups[].count",
+     79
+    ],
+    [
+     "member_count",
+     79
+    ],
+    [
+     "online_count",
+     79
+    ],
+    [
+     "guilds[].channels[].flags",
+     62
+    ],
+    [
+     "guild_experiments[][][][][][][].e",
+     47
+    ],
+    [
+     "entries[].channel_overrides[].mute_config.selected_time_window",
+     38
+    ],
+    [
+     "user_guild_settings.entries[].version",
+     35
+    ]
+   ],
+   "tagValue tag=0x74": [
+    [
+     "guilds[].roles[].colors",
+     132
+    ],
+    [
+     "guilds[].roles[].tags",
+     132
+    ],
+    [
+     "guilds[].channels[].icon_emoji",
+     125
+    ],
+    [
+     "$.d",
+     102
+    ],
+    [
+     "items[].member.presence.client_status",
+     98
+    ],
+    [
+     "items[].member.presence.user",
+     98
+    ],
+    [
+     "ops[].items[].member.presence",
+     98
+    ],
+    [
+     "ops[].items[].member.user",
+     98
+    ],
+    [
+     "ops[].items[].member",
+     98
+    ],
+    [
+     "member.presence.activities[].content_classification",
+     88
+    ],
+    [
+     "item.member.presence.client_status",
+     78
+    ],
+    [
+     "item.member.presence.user",
+     78
+    ]
+   ],
+   "tag tag=0x61": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].message_notifications",
+     1328
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].type",
+     557
+    ],
+    [
+     "assignments.?.384299970632876032.assignments[]/t1",
+     279
+    ],
+    [
+     "assignments.?.384299970632876032.assignments[]/t2",
+     279
+    ],
+    [
+     "assignments.?.384299970632876032.assignments[]/t3",
+     279
+    ],
+    [
+     "guilds[].channels[].position",
+     272
+    ],
+    [
+     "guilds[].channels[].type",
+     272
+    ],
+    [
+     "guilds[].channels[].rate_limit_per_user",
+     227
+    ],
+    [
+     "guilds[].channels[].flags",
+     210
+    ],
+    [
+     "read_state.entries[].flags",
+     155
+    ],
+    [
+     "read_state.entries[].mention_count",
+     155
+    ],
+    [
+     "merged_members[][].flags",
+     132
+    ]
+   ],
+   "tagValue tag=0x61": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].message_notifications",
+     1328
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].type",
+     557
+    ],
+    [
+     "guilds[].channels[].position",
+     272
+    ],
+    [
+     "guilds[].channels[].type",
+     272
+    ],
+    [
+     "guilds[].channels[].rate_limit_per_user",
+     227
+    ],
+    [
+     "guilds[].channels[].flags",
+     210
+    ],
+    [
+     "read_state.entries[].flags",
+     155
+    ],
+    [
+     "read_state.entries[].mention_count",
+     155
+    ],
+    [
+     "merged_members[][].flags",
+     132
+    ],
+    [
+     "guilds[].roles[].flags",
+     132
+    ],
+    [
+     "guilds[].roles[].position",
+     132
+    ],
+    [
+     "$.op",
+     124
+    ]
+   ],
+   "tagValue tag=0x64": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].collapsed",
+     1328
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides[].muted",
+     1328
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides[].mute_config",
+     1290
+    ],
+    [
+     "guilds[].emojis[].animated",
+     363
+    ],
+    [
+     "guilds[].emojis[].available",
+     363
+    ],
+    [
+     "guilds[].emojis[].managed",
+     363
+    ],
+    [
+     "guilds[].emojis[].require_colons",
+     363
+    ],
+    [
+     "guilds[].channels[].nsfw",
+     237
+    ],
+    [
+     "guilds[].channels[].theme_color",
+     191
+    ],
+    [
+     "guilds[].channels[].topic",
+     148
+    ],
+    [
+     "member.presence.client_status.desktop",
+     148
+    ],
+    [
+     "users[].vad_colors",
+     146
+    ]
+   ],
+   "tagValue tag=0x6a": [
+    [
+     "guilds[].emojis[].roles",
+     363
+    ],
+    [
+     "guilds[].channels[].available_tags",
+     67
+    ],
+    [
+     "items[].member.presence.activities",
+     66
+    ],
+    [
+     "guilds[].channels[].permission_overwrites",
+     40
+    ],
+    [
+     "item.member.presence.activities",
+     29
+    ],
+    [
+     "data.agency_ratings.pegi.descriptors",
+     18
+    ],
+    [
+     "private_channels[].safety_warnings",
+     17
+    ],
+    [
+     "merged_members[][].roles",
+     15
+    ],
+    [
+     "merged_presences.guilds[][].activities",
+     13
+    ],
+    [
+     "attachments",
+     11
+    ],
+    [
+     "components",
+     11
+    ],
+    [
+     "mention_roles",
+     11
+    ]
+   ],
+   "tagValue tag=0x6d": [
+    [
+     "guilds[].channels[].permission_overwrites[].allow",
+     557
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].deny",
+     557
+    ],
+    [
+     "guilds[].emojis[].name",
+     363
+    ],
+    [
+     "guilds[].channels[].name",
+     272
+    ],
+    [
+     "read_state.entries[].last_pin_timestamp",
+     155
+    ],
+    [
+     "users[].discriminator",
+     146
+    ],
+    [
+     "users[].username",
+     146
+    ],
+    [
+     "merged_members[][].joined_at",
+     145
+    ],
+    [
+     "users[].avatar",
+     137
+    ],
+    [
+     "users[].global_name",
+     136
+    ],
+    [
+     "guilds[].roles[].name",
+     132
+    ],
+    [
+     "guilds[].roles[].permissions",
+     132
+    ]
+   ],
+   "tagKey tag=0x6d": [
+    [
+     "user_guild_settings.entries[].channel_overrides[]",
+     7893
+    ],
+    [
+     "users[]",
+     1873
+    ],
+    [
+     "merged_members[][]",
+     1741
+    ],
+    [
+     "read_state.entries[]",
+     926
+    ],
+    [
+     "user_guild_settings.entries[]",
+     754
+    ],
+    [
+     "relationships[]",
+     420
+    ],
+    [
+     "$.d",
+     198
+    ],
+    [
+     "private_channels[]",
+     172
+    ],
+    [
+     "author",
+     143
+    ],
+    [
+     "guild_experiments[][][][][][][]",
+     104
+    ],
+    [
+     "merged_presences.guilds[][]",
+     100
+    ],
+    [
+     "user_guild_settings.entries[].channel_overrides[].mute_config",
+     76
+    ]
+   ],
+   "tag tag=0x6e": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].channel_id",
+     1328
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].id",
+     557
+    ],
+    [
+     "merged_members[][].roles[]",
+     377
+    ],
+    [
+     "guilds[].emojis[].id",
+     363
+    ],
+    [
+     "guilds[].channels[].id",
+     272
+    ],
+    [
+     "guilds[].channels[].parent_id",
+     201
+    ],
+    [
+     "member.presence.user.id",
+     176
+    ],
+    [
+     "read_state.entries[].id",
+     157
+    ],
+    [
+     "read_state.entries[].last_message_id",
+     155
+    ],
+    [
+     "guilds[].channels[].last_message_id",
+     150
+    ],
+    [
+     "users[].id",
+     146
+    ],
+    [
+     "merged_members[][].user_id",
+     145
+    ]
+   ],
+   "tagValue tag=0x6e": [
+    [
+     "user_guild_settings.entries[].channel_overrides[].channel_id",
+     1328
+    ],
+    [
+     "guilds[].channels[].permission_overwrites[].id",
+     557
+    ],
+    [
+     "guilds[].emojis[].id",
+     363
+    ],
+    [
+     "guilds[].channels[].id",
+     272
+    ],
+    [
+     "guilds[].channels[].parent_id",
+     201
+    ],
+    [
+     "member.presence.user.id",
+     176
+    ],
+    [
+     "read_state.entries[].id",
+     157
+    ],
+    [
+     "read_state.entries[].last_message_id",
+     155
+    ],
+    [
+     "guilds[].channels[].last_message_id",
+     150
+    ],
+    [
+     "users[].id",
+     146
+    ],
+    [
+     "merged_members[][].user_id",
+     145
+    ],
+    [
+     "guilds[].roles[].id",
+     132
+    ]
+   ],
+   "tagKey tag=0x61": [
+    [
+     "apex_experiments.assignments",
+     1
+    ]
+   ],
+   "tag tag=0x68": [
+    [
+     "assignments.?.384299970632876032.assignments[]",
+     279
+    ]
+   ],
+   "tag tag=0x6b": [
+    [
+     "presence.activities[].party.size",
+     18
+    ],
+    [
+     "data.agency_ratings.esrb.descriptors",
+     16
+    ],
+    [
+     "presence.game.party.size",
+     16
+    ],
+    [
+     "data.agency_ratings.apple.descriptors",
+     3
+    ],
+    [
+     "auth.authenticator_types",
+     1
+    ],
+    [
+     "guilds[][].activities[].party.size",
+     1
+    ],
+    [
+     "ops[].range",
+     1
+    ]
+   ],
+   "tagValue tag=0x6b": [
+    [
+     "presence.activities[].party.size",
+     18
+    ],
+    [
+     "data.agency_ratings.esrb.descriptors",
+     16
+    ],
+    [
+     "presence.game.party.size",
+     16
+    ],
+    [
+     "data.agency_ratings.apple.descriptors",
+     3
+    ],
+    [
+     "auth.authenticator_types",
+     1
+    ],
+    [
+     "guilds[][].activities[].party.size",
+     1
+    ],
+    [
+     "ops[].range",
+     1
+    ]
+   ]
+  },
+  "stringEncodings": {
+   "atom": {
+    "count": 39890,
+    "high": 0,
+    "min": 1,
+    "max": 44,
+    "total": 261303
+   },
+   "bin": {
+    "count": 21138,
+    "high": 647,
+    "min": 0,
+    "max": 4400,
+    "total": 259132
+   },
+   "str16": {
+    "count": 56,
+    "high": 0,
+    "min": 1,
+    "max": 10,
+    "total": 156
+   }
+  },
+  "tagsAbsent": [
+   "F double",
+   "c float31",
+   "i large tuple(u32)",
+   "o large bignum",
+   "p str32",
+   "s atom(u8)",
+   "v utf8(u16)",
+   "w utf8(u8)"
+  ],
+  "semantics": {
+   "null": "ETF NIL (0x6a, 2228 шт.) и атом 'nil' (7779 шт.) — оба означают null; декодер отдаёт null и строку \"nil\" соответственно",
+   "bool": "ETF-атомы 'true'/'false' (1376/5605) — в JSON это строки \"true\"/\"false\"",
+   "ints": "0x61 uint8, 0x62 int32, 0x6e small bignum (снежинки, до 63 бит) — bignum в JSON становится строкой",
+   "strings": "0x64 atom (u16 latin1, только ASCII: 39890 шт.), 0x6d binary (u32 utf8: 21138 шт., 647 с не-ASCII — валидный UTF-8), 0x6b string (u16, сырые байты: 56 шт.)",
+   "lists": "0x6c list(u32) с обязательным NIL-хвостом (1431 шт.)",
+   "tuples": "0x68 small tuple(u8) — 279 шт. (guild_experiments, argv-подобные структуры), декодер отдаёт массивами",
+   "parseError": null
+  }
+ },
+ "events": [
+  {
+   "t": "nil",
+   "op": 10,
+   "name": "HELLO",
+   "count": 1,
+   "seq": null,
+   "sizeBytes": 96,
+   "sizeBytesPerEvent": {
+    "min": 96,
+    "median": 96,
+    "max": 96
+   },
+   "rawBytesPerEvent": {
+    "min": 138,
+    "median": 138,
+    "max": 138
+   },
+   "rawBytesTotal": 138,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    1
+   ],
+   "hasTrace": 1,
+   "payloadKind": "object",
+   "fields": {
+    "heartbeat_interval": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 41250
+    }
+   }
+  },
+  {
+   "t": "READY",
+   "op": 0,
+   "name": "READY",
+   "count": 1,
+   "seq": {
+    "min": 1,
+    "max": 1,
+    "count": 1
+   },
+   "sizeBytes": 584149,
+   "sizeBytesPerEvent": {
+    "min": 584149,
+    "median": 584149,
+    "max": 584149
+   },
+   "rawBytesPerEvent": {
+    "min": 577124,
+    "median": 577124,
+    "max": 577124
+   },
+   "rawBytesTotal": 577124,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    2
+   ],
+   "hasTrace": 1,
+   "payloadKind": "object",
+   "fields": {
+    "game_relationships": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "explicit_content_scan_version": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 4
+    },
+    "user_settings_proto": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "<REDACTED:user_settings_proto:4400B>": 1
+     },
+     "len": {
+      "min": 4400,
+      "max": 4400
+     },
+     "example": "REDACTED…<len=4400>"
+    },
+    "subdivision_code": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "HE": 1
+     },
+     "len": {
+      "min": 2,
+      "max": 2
+     },
+     "example": "HE"
+    },
+    "v": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 9
+    },
+    "linked_users": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "regional_feature_config": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "age_gated_features": 687,
+      "should_collect_app_store_signal": "false",
+      "teen_by_default_settings": 23
+     }
+    },
+    "relationships": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "id": "-12866369726921572864",
+       "is_spam_request": "false",
+       "nickname": "nil",
+       "since": "2025-06-21T06:48:57.474000+00:00",
+       "type": 1,
+       "user_id": "-12866369726921572864",
+       "user_ignored": "false"
+      },
+      {
+       "id": "-15395848432987930880",
+       "is_spam_request": "false",
+       "nickname": "nil",
+       "since": "2024-03-25T08:18:19.613000+00:00",
+       "type": 2,
+       "user_id": "-15395848432987930880",
+       "user_ignored": "false"
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 60,
+      "example": {
+       "id": "-12866369726921572864",
+       "is_spam_request": "false",
+       "nickname": "nil",
+       "since": "2025-06-21T06:48:57.474000+00:00",
+       "type": 1,
+       "user_id": "-12866369726921572864",
+       "user_ignored": "false"
+      }
+     }
+    },
+    "guild_experiments": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      [
+       944104242,
+       "nil"
+      ],
+      [
+       "-3262271744",
+       "nil"
+      ]
+     ],
+     "items": {
+      "type": "array",
+      "count": 17,
+      "example": [
+       944104242,
+       "nil"
+      ],
+      "items": {
+       "type": "array|int|int64|null|string",
+       "count": 170,
+       "atoms": {
+        "nil": 49,
+        "2026-02_voice_channel_history_hover": 1,
+        "2025-08_default_invite_expiration_guild": 1
+       },
+       "len": {
+        "min": 3,
+        "max": 39
+       },
+       "example": 944104242,
+       "items": {
+        "type": "object|array",
+        "count": 40,
+        "example": [
+         [
+          [
+           1,
+           [
+            {
+             "e": 10000,
+             "s": 0
+            }
+           ]
+          ]
+         ],
+         [
+          [
+           1604612045,
+           [
+            [
+             1183251248,
+             [
+              "VOICE_IN_THREADS"
+             ]
+            ]
+           ]
+          ]
+         ]
+        ],
+        "items": {
+         "type": "array|null",
+         "count": 59,
+         "example": [
+          [
+           1,
+           [
+            {
+             "e": 10000,
+             "s": 0
+            }
+           ]
+          ]
+         ]
+        }
+       }
+      }
+     }
+    },
+    "api_code_version": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 1
+    },
+    "resume_gateway_url": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "wss://gateway-us-east1-c.discord.gg": 1
+     },
+     "len": {
+      "min": 35,
+      "max": 35
+     },
+     "example": "wss://gateway-us-east1-c.discord.gg"
+    },
+    "session_type": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "normal": 1
+     },
+     "len": {
+      "min": 6,
+      "max": 6
+     },
+     "example": "normal"
+    },
+    "read_state": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "entries": [
+       {
+        "flags": 0,
+        "id": "-14827589263259861248",
+        "last_message_id": "-8892870717163443456",
+        "last_pin_timestamp": "1970-01-01T00:00:00+00:00",
+        "mention_count": 0
+       },
+       {
+        "flags": 1,
+        "id": "-15128898660936450048",
+        "last_message_id": "-11663305219982265600",
+        "last_pin_timestamp": "1970-01-01T00:00:00+00:00",
+        "last_viewed": 4274,
+        "mention_count": 0
+       }
+      ],
+      "partial": "false",
+      "version": 128949
+     }
+    },
+    "apex_experiments": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "assignments": {
+       "1": {
+        "384299970632876032": {
+         "assignments": [
+          [
+           "-3204614656",
+           0,
+           0,
+           8
+          ],
+          [
+           1915366006,
+           1,
+           0,
+           1
+          ]
+         ],
+         "evaluation_id": "ffebaee7"
+        }
+       }
+      }
+     }
+    },
+    "country_code": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "DE": 1
+     },
+     "len": {
+      "min": 2,
+      "max": 2
+     },
+     "example": "DE"
+    },
+    "notification_settings": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "flags": 0
+     }
+    },
+    "geo_ordered_rtc_regions": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      "frankfurt",
+      "brussels"
+     ],
+     "items": {
+      "type": "string",
+      "count": 5,
+      "atoms": {
+       "frankfurt": 1,
+       "brussels": 1,
+       "rotterdam": 1,
+       "paris": 1,
+       "milan": 1
+      },
+      "len": {
+       "min": 5,
+       "max": 9
+      },
+      "example": "frankfurt"
+     }
+    },
+    "tutorial": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "atoms": {
+      "nil": 1
+     },
+     "len": {
+      "min": 3,
+      "max": 3
+     },
+     "example": "nil"
+    },
+    "user_guild_settings": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "entries": "…array(len=2)",
+      "partial": "false",
+      "version": 734
+     }
+    },
+    "merged_members": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      [
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 0,
+        "joined_at": "2026-09-11T12:29:43.951000+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-15040210351226355712"
+        ],
+        "user_id": "-6147072113468506112"
+       }
+      ],
+      [
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 0,
+        "joined_at": "2025-08-21T16:54:27.949000+00:00",
+        "mute": "false",
+        "nick": "Tobio",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": null,
+        "user_id": "-6147072113468506112"
+       }
+      ]
+     ],
+     "items": {
+      "type": "array",
+      "count": 7,
+      "example": [
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 0,
+        "joined_at": "2026-09-11T12:29:43.951000+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-15040210351226355712"
+        ],
+        "user_id": "-6147072113468506112"
+       }
+      ],
+      "items": {
+       "type": "object",
+       "count": 7,
+       "example": {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 0,
+        "joined_at": "2026-09-11T12:29:43.951000+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-15040210351226355712"
+        ],
+        "user_id": "-6147072113468506112"
+       }
+      }
+     }
+    },
+    "user": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "accent_color": "nil",
+      "age_verification_status": 4,
+      "avatar": "e234430751874dcfca60cdd3a53a2673",
+      "avatar_decoration_data": "nil",
+      "banner": "nil",
+      "banner_color": "nil",
+      "bio": "",
+      "bot": "false",
+      "clan": "nil",
+      "collectibles": "nil",
+      "desktop": "true",
+      "discriminator": "0",
+      "display_name_styles": "nil",
+      "email": "REDACTED",
+      "flags": 32,
+      "global_name": "ShadowByte",
+      "id": "-6147072113468506112",
+      "mfa_enabled": "true",
+      "mobile": "true",
+      "nsfw_allowed": "true",
+      "perks": {
+       "active_perks_bitmask": null,
+       "config_by_perk": {}
+      },
+      "phone": "REDACTED",
+      "premium": "false",
+      "premium_type": 0,
+      "primary_guild": "nil",
+      "pronouns": "",
+      "purchased_flags": 6,
+      "store_country": {
+       "country": "DE",
+       "is_locked": "false",
+       "set_at": "nil"
+      },
+      "typing_indicator_style": "…string(len=3)",
+      "username": "…string(len=11)",
+      "vad_colors": "…string(len=3)",
+      "verified": "…string(len=4)"
+     }
+    },
+    "session_id": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "fb577a2d8996904f3ff53bc406b3977d": 1
+     },
+     "len": {
+      "min": 32,
+      "max": 32
+     },
+     "example": "REDACTED"
+    },
+    "consents": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "personalization": {
+       "consented": "true"
+      }
+     }
+    },
+    "guilds": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": {
+      "…first-of": "array(len=2)",
+      "first": {
+       "application_command_counts": {},
+       "channel_settings": {},
+       "channels": "…array(len=2)",
+       "data_mode": "full",
+       "emojis": [
+        {
+         "animated": "false",
+         "available": "true",
+         "id": "-3527262836281581568",
+         "managed": "false",
+         "name": "CoP",
+         "require_colons": "true",
+         "roles": null
+        },
+        {
+         "animated": "false",
+         "available": "true",
+         "id": "-3527269372181616128",
+         "managed": "false",
+         "name": "ClearSky",
+         "require_colons": "true",
+         "roles": null
+        }
+       ],
+       "experiments": {
+        "assignments": null,
+        "evaluation_id": "nil"
+       },
+       "guild_scheduled_events": null,
+       "id": "-14827589263259861248",
+       "joined_at": "2026-09-11T12:29:43.951000+00:00",
+       "large": "false",
+       "lazy": "true",
+       "member_count": 157,
+       "premium_subscription_count": 0,
+       "properties": "…object(45)",
+       "roles": "…array(len=2)",
+       "stage_instances": null,
+       "stickers": "…array(len=2)",
+       "threads": null,
+       "version": "…string(len=16)"
+      }
+     },
+     "items": {
+      "type": "object",
+      "count": 7,
+      "example": {
+       "application_command_counts": {},
+       "channel_settings": {},
+       "channels": "…array(len=2)",
+       "data_mode": "full",
+       "emojis": [
+        {
+         "animated": "false",
+         "available": "true",
+         "id": "-3527262836281581568",
+         "managed": "false",
+         "name": "CoP",
+         "require_colons": "true",
+         "roles": null
+        },
+        {
+         "animated": "false",
+         "available": "true",
+         "id": "-3527269372181616128",
+         "managed": "false",
+         "name": "ClearSky",
+         "require_colons": "true",
+         "roles": null
+        }
+       ],
+       "experiments": {
+        "assignments": null,
+        "evaluation_id": "nil"
+       },
+       "guild_scheduled_events": null,
+       "id": "-14827589263259861248",
+       "joined_at": "2026-09-11T12:29:43.951000+00:00",
+       "large": "false",
+       "lazy": "true",
+       "member_count": 157,
+       "premium_subscription_count": 0,
+       "properties": "…object(45)",
+       "roles": "…array(len=2)",
+       "stage_instances": null,
+       "stickers": "…array(len=2)",
+       "threads": null,
+       "version": "…string(len=16)"
+      }
+     }
+    },
+    "auth_session_id_hash": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "OdKq9gNLX69NrpWTtUFE3MH2d2evCrU0o5eLIUvFP4s=": 1
+     },
+     "len": {
+      "min": 44,
+      "max": 44
+     },
+     "example": "REDACTED"
+    },
+    "auth": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "authenticator_types": "0x02"
+     }
+    },
+    "friend_suggestion_count": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 0
+    },
+    "users": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": {
+      "…first-of": "array(len=2)",
+      "first": {
+       "avatar": "a_f4e1e95983b96c2d26b42399ab57d0b0",
+       "avatar_decoration_data": {
+        "asset": "a_d72066b8cecbadd9fc951913ebcc384f",
+        "expires_at": "nil",
+        "sku_id": "-16241591976128974336"
+       },
+       "bot": "false",
+       "collectibles": {
+        "nameplate": {
+         "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+         "expires_at": "nil",
+         "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+         "palette": "violet",
+         "sku_id": "-10467537627431072256"
+        }
+       },
+       "discriminator": "0",
+       "display_name": "Roman Pony",
+       "display_name_styles": {
+        "colors": [
+         15709354,
+         14970082
+        ],
+        "effect_id": 2,
+        "font_id": 3
+       },
+       "global_name": "Roman Pony",
+       "id": "-5899245288100462592",
+       "primary_guild": "…object(4)",
+       "public_flags": 64,
+       "username": "…string(len=9)",
+       "vad_colors": "…string(len=3)"
+      }
+     },
+     "items": {
+      "type": "object",
+      "count": 146,
+      "example": {
+       "avatar": "a_f4e1e95983b96c2d26b42399ab57d0b0",
+       "avatar_decoration_data": {
+        "asset": "a_d72066b8cecbadd9fc951913ebcc384f",
+        "expires_at": "nil",
+        "sku_id": "-16241591976128974336"
+       },
+       "bot": "false",
+       "collectibles": {
+        "nameplate": {
+         "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+         "expires_at": "nil",
+         "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+         "palette": "violet",
+         "sku_id": "-10467537627431072256"
+        }
+       },
+       "discriminator": "0",
+       "display_name": "Roman Pony",
+       "display_name_styles": {
+        "colors": [
+         15709354,
+         14970082
+        ],
+        "effect_id": 2,
+        "font_id": 3
+       },
+       "global_name": "Roman Pony",
+       "id": "-5899245288100462592",
+       "primary_guild": "…object(4)",
+       "public_flags": 64,
+       "username": "romanpony",
+       "vad_colors": "nil"
+      }
+     }
+    },
+    "broadcaster_user_ids": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "guild_join_requests": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "qos_token": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "<REDACTED:qos_token:132B>": 1
+     },
+     "len": {
+      "min": 132,
+      "max": 132
+     },
+     "example": "REDACTED"
+    },
+    "analytics_token": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "<REDACTED:analytics_token:52B>": 1
+     },
+     "len": {
+      "min": 52,
+      "max": 52
+     },
+     "example": "REDACTED"
+    },
+    "private_channels": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "flags": 0,
+       "id": "-12344321117467458816",
+       "is_message_request": "false",
+       "is_message_request_timestamp": "nil",
+       "is_spam": "false",
+       "last_message_id": "-11501585636411842304",
+       "recipient_flags": 0,
+       "recipient_ids": [
+        "-6974117715061506304"
+       ],
+       "safety_warnings": null,
+       "type": 1
+      },
+      {
+       "flags": 0,
+       "id": "-12347068849638645760",
+       "is_message_request": "false",
+       "is_message_request_timestamp": "nil",
+       "is_spam": "false",
+       "last_message_id": "-11770298417377455616",
+       "last_pin_timestamp": "2021-03-17T13:34:40+00:00",
+       "recipient_flags": 0,
+       "recipient_ids": [
+        "-14025525500038873088"
+       ],
+       "safety_warnings": null,
+       "type": 1
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 17,
+      "example": {
+       "flags": 0,
+       "id": "-12344321117467458816",
+       "is_message_request": "false",
+       "is_message_request_timestamp": "nil",
+       "is_spam": "false",
+       "last_message_id": "-11501585636411842304",
+       "recipient_flags": 0,
+       "recipient_ids": [
+        "-6974117715061506304"
+       ],
+       "safety_warnings": null,
+       "type": 1
+      }
+     }
+    },
+    "ad_personalization_toggles_disabled": {
+     "present": "1/1",
+     "type": "bool",
+     "count": 1,
+     "atoms": {
+      "false": 1
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "static_client_session_id": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "65e79766-8d91-4982-8a90-2b241c291b3a": 1
+     },
+     "len": {
+      "min": 36,
+      "max": 36
+     },
+     "example": "REDACTED"
+    },
+    "experiments": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      [
+       "-2754442240",
+       5
+      ],
+      [
+       1438986391,
+       0
+      ]
+     ],
+     "items": {
+      "type": "array",
+      "count": 6,
+      "example": [
+       "-2754442240",
+       5
+      ],
+      "items": {
+       "type": "int|int64|null",
+       "count": 66,
+       "atoms": {
+        "nil": 18
+       },
+       "len": {
+        "min": 3,
+        "max": 3
+       },
+       "example": "-2754442240"
+      }
+     }
+    },
+    "pending_payments": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "atoms": {
+      "nil": 1
+     },
+     "len": {
+      "min": 3,
+      "max": 3
+     },
+     "example": "nil"
+    },
+    "sessions": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "activities": null,
+       "client_info": {
+        "client": "desktop",
+        "os": "linux",
+        "version": 0
+       },
+       "hidden_activities": null,
+       "processed_at_timestamp": 0,
+       "session_id": "REDACTED",
+       "status": "invisible"
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 1,
+      "example": {
+       "activities": null,
+       "client_info": {
+        "client": "desktop",
+        "os": "linux",
+        "version": 0
+       },
+       "hidden_activities": null,
+       "processed_at_timestamp": 0,
+       "session_id": "REDACTED",
+       "status": "invisible"
+      }
+     }
+    },
+    "connected_accounts": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    }
+   }
+  },
+  {
+   "t": "READY_SUPPLEMENTAL",
+   "op": 0,
+   "name": "READY_SUPPLEMENTAL",
+   "count": 1,
+   "seq": {
+    "min": 2,
+    "max": 2,
+    "count": 1
+   },
+   "sizeBytes": 50696,
+   "sizeBytesPerEvent": {
+    "min": 50696,
+    "median": 50696,
+    "max": 50696
+   },
+   "rawBytesPerEvent": {
+    "min": 48706,
+    "median": 48706,
+    "max": 48706
+   },
+   "rawBytesTotal": 48706,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    3
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "disclose": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      "pomelo"
+     ],
+     "items": {
+      "type": "string",
+      "count": 1,
+      "atoms": {
+       "pomelo": 1
+      },
+      "len": {
+       "min": 6,
+       "max": 6
+      },
+      "example": "pomelo"
+     }
+    },
+    "game_invites": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "guilds": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "activity_instances": null,
+       "embedded_activities": null,
+       "id": "-14827589263259861248",
+       "voice_states": [
+        {
+         "channel_id": "-16172323730280680192",
+         "connected_at": 1792367828,
+         "deaf": "false",
+         "discoverable": "true",
+         "mute": "false",
+         "request_to_speak_timestamp": "nil",
+         "self_deaf": "false",
+         "self_mute": "false",
+         "self_video": "false",
+         "session_id": "REDACTED",
+         "suppress": "false",
+         "user_id": "-220529226497919488"
+        }
+       ]
+      },
+      {
+       "activity_instances": null,
+       "embedded_activities": null,
+       "id": "-1493619043473559296",
+       "voice_states": null
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 7,
+      "example": {
+       "activity_instances": null,
+       "embedded_activities": null,
+       "id": "-14827589263259861248",
+       "voice_states": [
+        {
+         "channel_id": "-16172323730280680192",
+         "connected_at": 1792367828,
+         "deaf": "false",
+         "discoverable": "true",
+         "mute": "false",
+         "request_to_speak_timestamp": "nil",
+         "self_deaf": "false",
+         "self_mute": "false",
+         "self_video": "false",
+         "session_id": "REDACTED",
+         "suppress": "false",
+         "user_id": "-220529226497919488"
+        }
+       ]
+      }
+     }
+    },
+    "lazy_private_channels": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "merged_members": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": {
+      "…first-of": "array(len=2)",
+      "first": [
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 4,
+        "joined_at": "2017-03-08T17:57:37.535000+00:00",
+        "mute": "false",
+        "nick": "𝓚𝓞𝓣_𝓑𝓐𝓨𝓤𝓝(Рома)",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-14968897193132425216",
+         "-15040210351226355712"
+        ],
+        "user_id": "-220529226497919488"
+       },
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 0,
+        "joined_at": "2026-09-06T20:57:33.744000+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-14968897193132425216",
+         "-15040210351226355712"
+        ],
+        "user_id": "-15125927190027304960"
+       }
+      ]
+     },
+     "items": {
+      "type": "array",
+      "count": 7,
+      "example": [
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 4,
+        "joined_at": "2017-03-08T17:57:37.535000+00:00",
+        "mute": "false",
+        "nick": "𝓚𝓞𝓣_𝓑𝓐𝓨𝓤𝓝(Рома)",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-14968897193132425216",
+         "-15040210351226355712"
+        ],
+        "user_id": "-220529226497919488"
+       },
+       {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 0,
+        "joined_at": "2026-09-06T20:57:33.744000+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-14968897193132425216",
+         "-15040210351226355712"
+        ],
+        "user_id": "-15125927190027304960"
+       }
+      ],
+      "items": {
+       "type": "object",
+       "count": 138,
+       "example": {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 4,
+        "joined_at": "2017-03-08T17:57:37.535000+00:00",
+        "mute": "false",
+        "nick": "𝓚𝓞𝓣_𝓑𝓐𝓨𝓤𝓝(Рома)",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": [
+         "-14968897193132425216",
+         "-15040210351226355712"
+        ],
+        "user_id": "-220529226497919488"
+       }
+      }
+     }
+    },
+    "merged_presences": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "friends": [
+       {
+        "activities": null,
+        "client_status": {
+         "desktop": "idle"
+        },
+        "hidden_activities": null,
+        "processed_at_timestamp": "-177376577907456",
+        "restricted_application": "nil",
+        "status": "idle",
+        "user_id": "-15125927190027304960"
+       },
+       {
+        "activities": null,
+        "client_status": {
+         "desktop": "online"
+        },
+        "hidden_activities": null,
+        "processed_at_timestamp": "-177376802526464",
+        "restricted_application": "nil",
+        "status": "online",
+        "user_id": "-14901021939395987712"
+       }
+      ],
+      "guilds": "…array(len=2)"
+     }
+    },
+    "user_activities": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    }
+   }
+  },
+  {
+   "t": "THREAD_LIST_SYNC",
+   "op": 0,
+   "name": "THREAD_LIST_SYNC",
+   "count": 1,
+   "seq": {
+    "min": 3,
+    "max": 3,
+    "count": 1
+   },
+   "sizeBytes": 647,
+   "sizeBytesPerEvent": {
+    "min": 647,
+    "median": 647,
+    "max": 647
+   },
+   "rawBytesPerEvent": {
+    "min": 669,
+    "median": 669,
+    "max": 669
+   },
+   "rawBytesTotal": 669,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    4
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "guild_id": {
+     "present": "1/1",
+     "type": "int64",
+     "count": 1,
+     "example": "-1467272931325252608"
+    },
+    "most_recent_messages": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "threads": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "flags": 2,
+       "guild_id": "-1467272931325252608",
+       "id": "-5314960184493214464",
+       "last_message_id": "-5569685236293315328",
+       "member_count": 0,
+       "member_ids_preview": null,
+       "message_count": 5,
+       "name": "Прежде чем что-либо использовать, делайте бэкап",
+       "owner_id": "-11238311246048526336",
+       "parent_id": "-5307584166571828480",
+       "rate_limit_per_user": 0,
+       "thread_metadata": {
+        "archive_timestamp": "2024-05-30T14:17:04.195000+00:00",
+        "archived": "false",
+        "auto_archive_duration": 60,
+        "create_timestamp": "2024-05-30T14:08:38.531000+00:00",
+        "invitable": "true",
+        "locked": "false"
+       },
+       "total_message_sent": 10,
+       "type": 11
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 1,
+      "example": {
+       "flags": 2,
+       "guild_id": "-1467272931325252608",
+       "id": "-5314960184493214464",
+       "last_message_id": "-5569685236293315328",
+       "member_count": 0,
+       "member_ids_preview": null,
+       "message_count": 5,
+       "name": "Прежде чем что-либо использовать, делайте бэкап",
+       "owner_id": "-11238311246048526336",
+       "parent_id": "-5307584166571828480",
+       "rate_limit_per_user": 0,
+       "thread_metadata": {
+        "archive_timestamp": "2024-05-30T14:17:04.195000+00:00",
+        "archived": "false",
+        "auto_archive_duration": 60,
+        "create_timestamp": "2024-05-30T14:08:38.531000+00:00",
+        "invitable": "true",
+        "locked": "false"
+       },
+       "total_message_sent": 10,
+       "type": 11
+      }
+     }
+    }
+   }
+  },
+  {
+   "t": "CHANNEL_INFO",
+   "op": 0,
+   "name": "CHANNEL_INFO",
+   "count": 1,
+   "seq": {
+    "min": 10,
+    "max": 10,
+    "count": 1
+   },
+   "sizeBytes": 3011,
+   "sizeBytesPerEvent": {
+    "min": 3011,
+    "median": 3011,
+    "max": 3011
+   },
+   "rawBytesPerEvent": {
+    "min": 2341,
+    "median": 2341,
+    "max": 2341
+   },
+   "rawBytesTotal": 2341,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    12
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "channels": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "id": "-12991684826343937536"
+      },
+      {
+       "id": "-16525423052713888256"
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 75,
+      "example": {
+       "id": "-12991684826343937536"
+      }
+     }
+    },
+    "guild_id": {
+     "present": "1/1",
+     "type": "int64",
+     "count": 1,
+     "example": "-1467272931325252608"
+    }
+   }
+  },
+  {
+   "t": "GUILD_MEMBERS_CHUNK",
+   "op": 0,
+   "name": "GUILD_MEMBERS_CHUNK",
+   "count": 1,
+   "seq": {
+    "min": 7,
+    "max": 7,
+    "count": 1
+   },
+   "sizeBytes": 666,
+   "sizeBytesPerEvent": {
+    "min": 666,
+    "median": 666,
+    "max": 666
+   },
+   "rawBytesPerEvent": {
+    "min": 708,
+    "median": 708,
+    "max": 708
+   },
+   "rawBytesTotal": 708,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    9
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "chunk_count": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 1
+    },
+    "chunk_index": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 0
+    },
+    "guild_id": {
+     "present": "1/1",
+     "type": "int64",
+     "count": 1,
+     "example": "-1467272931325252608"
+    },
+    "members": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": [
+      {
+       "avatar": "nil",
+       "banner": "nil",
+       "communication_disabled_until": "nil",
+       "deaf": "false",
+       "flags": 0,
+       "joined_at": "2023-10-16T11:07:28.420000+00:00",
+       "mute": "false",
+       "nick": "Новости",
+       "pending": "false",
+       "premium_since": "nil",
+       "roles": [
+        "-2690948858511381248"
+       ],
+       "user": {
+        "avatar": "b2d4f57616590969848de0fdc4e159eb",
+        "avatar_decoration_data": "nil",
+        "bot": "true",
+        "collectibles": "nil",
+        "discriminator": "3921",
+        "display_name": "nil",
+        "display_name_styles": "nil",
+        "global_name": "nil",
+        "id": "-13390286217619177728",
+        "primary_guild": "nil",
+        "public_flags": 65536,
+        "username": "MonitoRSS",
+        "vad_colors": "nil"
+       }
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 1,
+      "example": {
+       "avatar": "nil",
+       "banner": "nil",
+       "communication_disabled_until": "nil",
+       "deaf": "false",
+       "flags": 0,
+       "joined_at": "2023-10-16T11:07:28.420000+00:00",
+       "mute": "false",
+       "nick": "Новости",
+       "pending": "false",
+       "premium_since": "nil",
+       "roles": [
+        "-2690948858511381248"
+       ],
+       "user": {
+        "avatar": "b2d4f57616590969848de0fdc4e159eb",
+        "avatar_decoration_data": "nil",
+        "bot": "true",
+        "collectibles": "nil",
+        "discriminator": "3921",
+        "display_name": "nil",
+        "display_name_styles": "nil",
+        "global_name": "nil",
+        "id": "-13390286217619177728",
+        "primary_guild": "nil",
+        "public_flags": 65536,
+        "username": "MonitoRSS",
+        "vad_colors": "nil"
+       }
+      }
+     }
+    },
+    "not_found": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    }
+   }
+  },
+  {
+   "t": "GUILD_MEMBER_LIST_UPDATE",
+   "op": 0,
+   "name": "GUILD_MEMBER_LIST_UPDATE",
+   "count": 79,
+   "seq": {
+    "min": 4,
+    "max": 102,
+    "count": 79
+   },
+   "sizeBytes": 233615,
+   "sizeBytesPerEvent": {
+    "min": 936,
+    "median": 1804,
+    "max": 99061
+   },
+   "rawBytesPerEvent": {
+    "min": 969,
+    "median": 1855,
+    "max": 97416
+   },
+   "rawBytesTotal": 234806,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    5,
+    6,
+    8,
+    10,
+    13,
+    14,
+    19,
+    20,
+    21,
+    23,
+    24,
+    28,
+    29,
+    30,
+    31,
+    33,
+    34,
+    35,
+    37,
+    39,
+    40,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    52,
+    54,
+    55,
+    56,
+    58,
+    59,
+    65,
+    66,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    78,
+    79,
+    80,
+    82,
+    83,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    100,
+    101,
+    102,
+    103,
+    104,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    123,
+    124
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "groups": {
+     "present": "79/79",
+     "type": "array",
+     "count": 79,
+     "example": [
+      {
+       "count": 2,
+       "id": "-13808519931321415936"
+      },
+      {
+       "count": 516,
+       "id": "online"
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 158,
+      "example": {
+       "count": 2,
+       "id": "-13808519931321415936"
+      }
+     }
+    },
+    "guild_id": {
+     "present": "79/79",
+     "type": "int64",
+     "count": 79,
+     "example": "-1467272931325252608"
+    },
+    "id": {
+     "present": "79/79",
+     "type": "string",
+     "count": 79,
+     "atoms": {
+      "everyone": 79
+     },
+     "len": {
+      "min": 8,
+      "max": 8
+     },
+     "example": "everyone"
+    },
+    "member_count": {
+     "present": "79/79",
+     "type": "int",
+     "count": 79,
+     "example": 24227
+    },
+    "online_count": {
+     "present": "79/79",
+     "type": "int",
+     "count": 79,
+     "example": 663
+    },
+    "ops": {
+     "present": "79/79",
+     "type": "array",
+     "count": 79,
+     "example": {
+      "…first-of": "array(len=1)",
+      "first": {
+       "items": "…array(len=2)",
+       "op": "SYNC",
+       "range": "0x0063"
+      }
+     },
+     "items": {
+      "type": "object",
+      "count": 100,
+      "example": {
+       "items": "…array(len=2)",
+       "op": "SYNC",
+       "range": "0x0063"
+      }
+     }
+    }
+   }
+  },
+  {
+   "t": "SESSIONS_REPLACE",
+   "op": 0,
+   "name": "SESSIONS_REPLACE",
+   "count": 1,
+   "seq": {
+    "min": 9,
+    "max": 9,
+    "count": 1
+   },
+   "sizeBytes": 219,
+   "sizeBytesPerEvent": {
+    "min": 219,
+    "median": 219,
+    "max": 219
+   },
+   "rawBytesPerEvent": {
+    "min": 260,
+    "median": 260,
+    "max": 260
+   },
+   "rawBytesTotal": 260,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    11
+   ],
+   "hasTrace": 0,
+   "payloadKind": "array",
+   "fields": {
+    "<items>": {
+     "type": "object",
+     "count": 1,
+     "etf": {
+      "map": 1
+     },
+     "example": {
+      "activities": null,
+      "client_info": {
+       "client": "desktop",
+       "os": "linux",
+       "version": 0
+      },
+      "hidden_activities": null,
+      "processed_at_timestamp": "-177376963296256",
+      "session_id": "REDACTED",
+      "status": "invisible"
+     }
+    }
+   }
+  },
+  {
+   "t": "PRESENCE_UPDATE",
+   "op": 0,
+   "name": "PRESENCE_UPDATE",
+   "count": 6,
+   "seq": {
+    "min": 13,
+    "max": 47,
+    "count": 6
+   },
+   "sizeBytes": 1976,
+   "sizeBytesPerEvent": {
+    "min": 184,
+    "median": 189,
+    "max": 753
+   },
+   "rawBytesPerEvent": {
+    "min": 202,
+    "median": 206,
+    "max": 783
+   },
+   "rawBytesTotal": 2113,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    16,
+    17,
+    25,
+    26,
+    60,
+    61
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "activities": {
+     "present": "6/6",
+     "type": "null",
+     "count": 6,
+     "example": null
+    },
+    "client_status": {
+     "present": "6/6",
+     "type": "object",
+     "count": 6,
+     "example": {
+      "desktop": "online"
+     }
+    },
+    "hidden_activities": {
+     "present": "2/6",
+     "type": "null",
+     "count": 2,
+     "example": null
+    },
+    "processed_at_timestamp": {
+     "present": "6/6",
+     "type": "int64",
+     "count": 6,
+     "example": "-177376802526464"
+    },
+    "restricted_application": {
+     "present": "2/6",
+     "type": "null",
+     "count": 2,
+     "atoms": {
+      "nil": 2
+     },
+     "len": {
+      "min": 3,
+      "max": 3
+     },
+     "example": "nil"
+    },
+    "status": {
+     "present": "6/6",
+     "type": "string",
+     "count": 6,
+     "atoms": {
+      "online": 3,
+      "idle": 3
+     },
+     "len": {
+      "min": 4,
+      "max": 6
+     },
+     "example": "online"
+    },
+    "user": {
+     "present": "6/6",
+     "type": "object",
+     "count": 6,
+     "example": {
+      "avatar": "85b02af9ea938ea755c1011e981f5840",
+      "avatar_decoration_data": "nil",
+      "bot": "false",
+      "clan": "nil",
+      "collectibles": "nil",
+      "discriminator": "0",
+      "display_name_styles": "nil",
+      "global_name": "Tคïgค",
+      "id": "-14901021939395987712",
+      "primary_guild": "nil",
+      "username": "taiga_libertarian",
+      "vad_colors": "nil"
+     }
+    },
+    "guild_id": {
+     "present": "4/6",
+     "type": "int64",
+     "count": 4,
+     "example": "-14827589263259861248"
+    }
+   }
+  },
+  {
+   "t": "MESSAGE_CREATE",
+   "op": 0,
+   "name": "MESSAGE_CREATE",
+   "count": 10,
+   "seq": {
+    "min": 48,
+    "max": 74,
+    "count": 10
+   },
+   "sizeBytes": 12271,
+   "sizeBytesPerEvent": {
+    "min": 1069,
+    "median": 1090,
+    "max": 1846
+   },
+   "rawBytesPerEvent": {
+    "min": 1165,
+    "median": 1228,
+    "max": 2009
+   },
+   "rawBytesTotal": 13722,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    62,
+    63,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "guild_id": {
+     "present": "10/10",
+     "type": "int64",
+     "count": 10,
+     "example": "-1467272931325252608"
+    },
+    "attachments": {
+     "present": "10/10",
+     "type": "null",
+     "count": 10,
+     "example": null
+    },
+    "author": {
+     "present": "10/10",
+     "type": "object",
+     "count": 10,
+     "example": {
+      "avatar": "156a0d2872579f1ffcaa5d2127239bfd",
+      "avatar_decoration_data": "nil",
+      "bot": "true",
+      "clan": "nil",
+      "collectibles": "nil",
+      "discriminator": "5803",
+      "display_name_styles": "nil",
+      "global_name": "nil",
+      "id": "-17071683194832551936",
+      "primary_guild": "nil",
+      "public_flags": 65536,
+      "username": "ProBot ✨",
+      "vad_colors": "nil"
+     }
+    },
+    "channel_id": {
+     "present": "10/10",
+     "type": "int64",
+     "count": 10,
+     "example": "-1467273046216692736"
+    },
+    "channel_type": {
+     "present": "10/10",
+     "type": "int",
+     "count": 10,
+     "example": 0
+    },
+    "components": {
+     "present": "10/10",
+     "type": "null",
+     "count": 10,
+     "example": null
+    },
+    "content": {
+     "present": "10/10",
+     "type": "string",
+     "count": 10,
+     "atoms": {
+      "> Привет <@!1560490000590700634> рады видеть тебя на сервере ITSKIDON PC BOOST с тобой нас уже 24228 \n> :arrow_left: Всю необходимую информацию ты сможешь найти в каналах.\n> Если нужна помощь с ПК то пиши в личку админу. :arrow_upper_right:\n> :arrow_left: Или в каналы ❔вопросы-сюда  💻помощь-железо": 1,
+      "": 1,
+      "📰 | **«Сестра, скальпель!» — «Слушаюсь, кожаный»: в Южной Корее роботы ассистировали на операции**\n\nhttps://www.securitylab.ru/news/578911.php": 1,
+      "📰 | **ИИ раздел должницу за просроченный кредит. В Москве сообщили о новом способе шантажа**\n\nhttps://www.securitylab.ru/news/578932.php": 1,
+      "📰 | **Счёт 27:9 не в пользу людей: Claude Code выдавил джунов из найма Anthropic**\n\nhttps://www.securitylab.ru/news/578917.php": 1,
+      "📰 | **53 часа на задачу, над которой ученые бились годами. Claude Mythos сократил расходы на взлом криптографии в 17 раз**\n\nhttps://www.securitylab.ru/news/578909.php": 1,
+      "📰 | **Четырнадцать месяцев позора Пентагона после похода за флешками в соседний ларек**\n\nhttps://www.securitylab.ru/news/578880.php": 1,
+      "📰 | **Великая китайская нейростена. Пекин прячет от мира свои лучшие наработки в кибербезе**\n\nhttps://www.securitylab.ru/news/578893.php": 1,
+      "📰 | **КГБ уже не тот. Вместо черного воронка к вам приедет фальшивое обновление браузера с шифровальщиком**\n\nhttps://www.securitylab.ru/news/578894.php": 1,
+      "📰 | **Секретные файлы целые, а повестки потерялись: хроники грандиозного инфраструктурного факапа в судах США**\n\nhttps://www.securitylab.ru/news/578895.php": 1
+     },
+     "len": {
+      "min": 0,
+      "max": 459
+     },
+     "example": "> Привет <@!1560490000590700634> рады ви…<len=299>"
+    },
+    "edited_timestamp": {
+     "present": "10/10",
+     "type": "null",
+     "count": 10,
+     "atoms": {
+      "nil": 10
+     },
+     "len": {
+      "min": 3,
+      "max": 3
+     },
+     "example": "nil"
+    },
+    "embeds": {
+     "present": "10/10",
+     "type": "array|null",
+     "count": 10,
+     "example": null,
+     "items": {
+      "type": "object",
+      "count": 1,
+      "example": {
+       "author": {
+        "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+        "name": "stanislav_52989",
+        "proxy_icon_url": "https://images-ext-1.discordapp.net/exte…<len=133>"
+       },
+       "color": 3092790,
+       "description": ":writing_hand: **<@!1560490000590700634> был обновлен.**",
+       "fields": [
+        {
+         "inline": "false",
+         "name": "**Роли :**",
+         "value": ":white_check_mark: Пользователь"
+        }
+       ],
+       "footer": {
+        "text": "ITSKIDON PC BOOST"
+       },
+       "id": "-12394242370638462464",
+       "thumbnail": {
+        "content_type": "image/png",
+        "flags": 0,
+        "height": 256,
+        "placeholder": "aeQJLwAnaJiHh3iAe4mHp3eHeXIIJ4cA",
+        "placeholder_version": 1,
+        "proxy_url": "https://images-ext-1.discordapp.net/exte…<len=133>",
+        "url": "https://cdn.discordapp.com/embed/avatars/0.png",
+        "width": 256
+       },
+       "timestamp": "…string(len=32)",
+       "type": "…string(len=4)"
+      }
+     }
+    },
+    "flags": {
+     "present": "10/10",
+     "type": "int",
+     "count": 10,
+     "example": 0
+    },
+    "id": {
+     "present": "10/10",
+     "type": "int64",
+     "count": 10,
+     "example": "-12394240098567211520"
+    },
+    "member": {
+     "present": "10/10",
+     "type": "object",
+     "count": 10,
+     "example": {
+      "avatar": "nil",
+      "banner": "nil",
+      "communication_disabled_until": "nil",
+      "deaf": "false",
+      "flags": 0,
+      "joined_at": "2025-10-29T11:51:15.562000+00:00",
+      "mute": "false",
+      "nick": "nil",
+      "pending": "false",
+      "premium_since": "nil",
+      "roles": [
+       "-16375379901382926848"
+      ]
+     }
+    },
+    "mention_everyone": {
+     "present": "10/10",
+     "type": "bool",
+     "count": 10,
+     "atoms": {
+      "false": 10
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "mention_roles": {
+     "present": "10/10",
+     "type": "null",
+     "count": 10,
+     "example": null
+    },
+    "mentions": {
+     "present": "10/10",
+     "type": "array|null",
+     "count": 10,
+     "example": [
+      {
+       "avatar": "nil",
+       "avatar_decoration_data": "nil",
+       "clan": "nil",
+       "collectibles": "nil",
+       "discriminator": "0",
+       "display_name_styles": "nil",
+       "global_name": "Станислав",
+       "id": "-12103814603318778368",
+       "member": {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 8,
+        "joined_at": "2026-10-19T06:18:07.674760+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": null
+       },
+       "primary_guild": "nil",
+       "public_flags": 0,
+       "username": "stanislav_52989",
+       "vad_colors": "nil"
+      }
+     ],
+     "items": {
+      "type": "object",
+      "count": 1,
+      "example": {
+       "avatar": "nil",
+       "avatar_decoration_data": "nil",
+       "clan": "nil",
+       "collectibles": "nil",
+       "discriminator": "0",
+       "display_name_styles": "nil",
+       "global_name": "Станислав",
+       "id": "-12103814603318778368",
+       "member": {
+        "avatar": "nil",
+        "banner": "nil",
+        "communication_disabled_until": "nil",
+        "deaf": "false",
+        "flags": 8,
+        "joined_at": "2026-10-19T06:18:07.674760+00:00",
+        "mute": "false",
+        "nick": "nil",
+        "pending": "false",
+        "premium_since": "nil",
+        "roles": null
+       },
+       "primary_guild": "nil",
+       "public_flags": 0,
+       "username": "stanislav_52989",
+       "vad_colors": "nil"
+      }
+     }
+    },
+    "pinned": {
+     "present": "10/10",
+     "type": "bool",
+     "count": 10,
+     "atoms": {
+      "false": 10
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "timestamp": {
+     "present": "10/10",
+     "type": "string",
+     "count": 10,
+     "atoms": {
+      "2026-10-19T06:18:08.463000+00:00": 1,
+      "2026-10-19T06:18:10.579000+00:00": 1,
+      "2026-10-19T06:20:23.765000+00:00": 1,
+      "2026-10-19T06:20:24.172000+00:00": 1,
+      "2026-10-19T06:20:24.371000+00:00": 1,
+      "2026-10-19T06:20:26.502000+00:00": 1,
+      "2026-10-19T06:20:26.572000+00:00": 1,
+      "2026-10-19T06:20:26.719000+00:00": 1,
+      "2026-10-19T06:20:26.958000+00:00": 1,
+      "2026-10-19T06:20:27.122000+00:00": 1
+     },
+     "len": {
+      "min": 32,
+      "max": 32
+     },
+     "example": "2026-10-19T06:18:08.463000+00:00"
+    },
+    "tts": {
+     "present": "10/10",
+     "type": "bool",
+     "count": 10,
+     "atoms": {
+      "false": 10
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "type": {
+     "present": "10/10",
+     "type": "int",
+     "count": 10,
+     "example": 0
+    }
+   }
+  },
+  {
+   "t": "MESSAGE_UPDATE",
+   "op": 0,
+   "name": "MESSAGE_UPDATE",
+   "count": 1,
+   "seq": {
+    "min": 50,
+    "max": 50,
+    "count": 1
+   },
+   "sizeBytes": 1871,
+   "sizeBytesPerEvent": {
+    "min": 1871,
+    "median": 1871,
+    "max": 1871
+   },
+   "rawBytesPerEvent": {
+    "min": 2036,
+    "median": 2036,
+    "max": 2036
+   },
+   "rawBytesTotal": 2036,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    64
+   ],
+   "hasTrace": 0,
+   "payloadKind": "object",
+   "fields": {
+    "guild_id": {
+     "present": "1/1",
+     "type": "int64",
+     "count": 1,
+     "example": "-1467272931325252608"
+    },
+    "attachments": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "author": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "avatar": "156a0d2872579f1ffcaa5d2127239bfd",
+      "avatar_decoration_data": "nil",
+      "bot": "true",
+      "clan": "nil",
+      "collectibles": "nil",
+      "discriminator": "5803",
+      "display_name_styles": "nil",
+      "global_name": "nil",
+      "id": "-17071683194832551936",
+      "primary_guild": "nil",
+      "public_flags": 65536,
+      "username": "ProBot ✨",
+      "vad_colors": "nil"
+     }
+    },
+    "channel_id": {
+     "present": "1/1",
+     "type": "int64",
+     "count": 1,
+     "example": "-12225890619869898752"
+    },
+    "channel_type": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 0
+    },
+    "components": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "content": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "": 1
+     },
+     "len": {
+      "min": 0,
+      "max": 0
+     },
+     "example": ""
+    },
+    "edited_timestamp": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "atoms": {
+      "nil": 1
+     },
+     "len": {
+      "min": 3,
+      "max": 3
+     },
+     "example": "nil"
+    },
+    "embeds": {
+     "present": "1/1",
+     "type": "array",
+     "count": 1,
+     "example": {
+      "…first-of": "array(len=1)",
+      "first": {
+       "author": {
+        "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+        "name": "stanislav_52989",
+        "proxy_icon_url": "https://images-ext-1.discordapp.net/exte…<len=133>"
+       },
+       "color": 3092790,
+       "content_scan_version": 4,
+       "description": ":writing_hand: **<@!1560490000590700634> был обновлен.**",
+       "fields": [
+        {
+         "inline": "false",
+         "name": "**Роли :**",
+         "value": ":white_check_mark: Пользователь"
+        }
+       ],
+       "footer": {
+        "text": "ITSKIDON PC BOOST"
+       },
+       "id": "-12394242370638462464",
+       "thumbnail": "…object(8)",
+       "timestamp": "2026-10-19T06:18:10.499000+00:00",
+       "type": "rich"
+      }
+     },
+     "items": {
+      "type": "object",
+      "count": 1,
+      "example": {
+       "author": {
+        "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+        "name": "stanislav_52989",
+        "proxy_icon_url": "https://images-ext-1.discordapp.net/exte…<len=133>"
+       },
+       "color": 3092790,
+       "content_scan_version": 4,
+       "description": ":writing_hand: **<@!1560490000590700634> был обновлен.**",
+       "fields": [
+        {
+         "inline": "false",
+         "name": "**Роли :**",
+         "value": ":white_check_mark: Пользователь"
+        }
+       ],
+       "footer": {
+        "text": "ITSKIDON PC BOOST"
+       },
+       "id": "-12394242370638462464",
+       "thumbnail": "…object(8)",
+       "timestamp": "2026-10-19T06:18:10.499000+00:00",
+       "type": "rich"
+      }
+     }
+    },
+    "flags": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 0
+    },
+    "id": {
+     "present": "1/1",
+     "type": "int64",
+     "count": 1,
+     "example": "-12394242370638462720"
+    },
+    "member": {
+     "present": "1/1",
+     "type": "object",
+     "count": 1,
+     "example": {
+      "avatar": "nil",
+      "banner": "nil",
+      "communication_disabled_until": "nil",
+      "deaf": "false",
+      "flags": 0,
+      "joined_at": "2025-10-29T11:51:15.562000+00:00",
+      "mute": "false",
+      "nick": "nil",
+      "pending": "false",
+      "premium_since": "nil",
+      "roles": [
+       "-16375379901382926848"
+      ]
+     }
+    },
+    "mention_everyone": {
+     "present": "1/1",
+     "type": "bool",
+     "count": 1,
+     "atoms": {
+      "false": 1
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "mention_roles": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "mentions": {
+     "present": "1/1",
+     "type": "null",
+     "count": 1,
+     "example": null
+    },
+    "pinned": {
+     "present": "1/1",
+     "type": "bool",
+     "count": 1,
+     "atoms": {
+      "false": 1
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "timestamp": {
+     "present": "1/1",
+     "type": "string",
+     "count": 1,
+     "atoms": {
+      "2026-10-19T06:18:10.579000+00:00": 1
+     },
+     "len": {
+      "min": 32,
+      "max": 32
+     },
+     "example": "2026-10-19T06:18:10.579000+00:00"
+    },
+    "tts": {
+     "present": "1/1",
+     "type": "bool",
+     "count": 1,
+     "atoms": {
+      "false": 1
+     },
+     "len": {
+      "min": 5,
+      "max": 5
+     },
+     "example": "false"
+    },
+    "type": {
+     "present": "1/1",
+     "type": "int",
+     "count": 1,
+     "example": 0
+    }
+   }
+  },
+  {
+   "t": "nil",
+   "op": 11,
+   "name": "HEARTBEAT_ACK",
+   "count": 21,
+   "seq": null,
+   "sizeBytes": 105,
+   "sizeBytesPerEvent": {
+    "min": 5,
+    "median": 5,
+    "max": 5
+   },
+   "rawBytesPerEvent": {
+    "min": 43,
+    "median": 43,
+    "max": 43
+   },
+   "rawBytesTotal": 903,
+   "framesPerEvent": {
+    "min": 1,
+    "max": 1
+   },
+   "indexes": [
+    7,
+    15,
+    18,
+    22,
+    27,
+    32,
+    36,
+    38,
+    41,
+    50,
+    51,
+    53,
+    57,
+    67,
+    77,
+    81,
+    84,
+    99,
+    105,
+    114,
+    122
+   ],
+   "hasTrace": 0,
+   "payloadKind": "string",
+   "fields": {
+    "<value>": {
+     "type": "null",
+     "count": 21,
+     "etf": {
+      "string": {
+       "atom": 21
+      }
+     },
+     "atoms": {
+      "nil": 21
+     },
+     "len": {
+      "min": 3,
+      "max": 3
+     },
+     "example": "nil"
+    }
+   }
+  }
+ ],
+ "stats": {
+  "messages": 124,
+  "eventTypes": 12,
+  "dispatchCount": 102,
+  "seq": {
+   "count": 102,
+   "min": 1,
+   "max": 102,
+   "missing": []
+  },
+  "wsFrames": 124,
+  "wsFrameBytes": 149212,
+  "decompressedBytes": 883526,
+  "compressionRatio": 0.1689,
+  "payloadBytesTotal": 889322,
+  "payloadShareByType": {
+   "GUILD_MEMBER_LIST_UPDATE": {
+    "bytes": 233615,
+    "sharePct": 26.3
+   },
+   "op_11": {
+    "bytes": 105,
+    "sharePct": 0
+   },
+   "MESSAGE_CREATE": {
+    "bytes": 12271,
+    "sharePct": 1.4
+   },
+   "PRESENCE_UPDATE": {
+    "bytes": 1976,
+    "sharePct": 0.2
+   },
+   "op_10": {
+    "bytes": 96,
+    "sharePct": 0
+   },
+   "READY": {
+    "bytes": 584149,
+    "sharePct": 65.7
+   },
+   "READY_SUPPLEMENTAL": {
+    "bytes": 50696,
+    "sharePct": 5.7
+   },
+   "THREAD_LIST_SYNC": {
+    "bytes": 647,
+    "sharePct": 0.1
+   },
+   "GUILD_MEMBERS_CHUNK": {
+    "bytes": 666,
+    "sharePct": 0.1
+   },
+   "SESSIONS_REPLACE": {
+    "bytes": 219,
+    "sharePct": 0
+   },
+   "CHANNEL_INFO": {
+    "bytes": 3011,
+    "sharePct": 0.3
+   },
+   "MESSAGE_UPDATE": {
+    "bytes": 1871,
+    "sharePct": 0.2
+   }
+  },
+  "capture": {
+   "windowStart": "2026-10-19T06:13:08.626Z",
+   "windowEnd": "2026-10-19T06:23:00.693Z",
+   "windowSec": 592
+  },
+  "ready": {
+   "topLevelKeys": 40,
+   "guilds": 7,
+   "channelsPerGuild": [
+    55,
+    24,
+    45,
+    24,
+    35,
+    83,
+    6
+   ],
+   "channelsTotal": 272,
+   "rolesPerGuild": [
+    31,
+    16,
+    16,
+    6,
+    28,
+    34,
+    1
+   ],
+   "rolesTotal": 132,
+   "emojisPerGuild": [
+    71,
+    150,
+    25,
+    null,
+    71,
+    46,
+    null
+   ],
+   "privateChannels": 17,
+   "privateChannelTypes": [
+    1
+   ],
+   "users": 146,
+   "relationships": 60,
+   "relationshipTypes": [
+    1,
+    2
+   ],
+   "readStateEntries": 157,
+   "userGuildSettingsEntries": 58,
+   "sessions": 1,
+   "mergedMembers": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "experiments": 6,
+   "guildExperiments": 17,
+   "geoRegions": [
+    "frankfurt",
+    "brussels",
+    "rotterdam",
+    "paris",
+    "milan"
+   ],
+   "userSettingsProtoLen": 4400,
+   "readStateVersion": 128949,
+   "userGuildSettingsVersion": 734,
+   "presencesKey": false,
+   "guildKeys": [
+    "application_command_counts",
+    "channel_settings",
+    "channels",
+    "data_mode",
+    "emojis",
+    "experiments",
+    "guild_scheduled_events",
+    "id",
+    "joined_at",
+    "large",
+    "lazy",
+    "member_count",
+    "premium_subscription_count",
+    "properties",
+    "roles",
+    "stage_instances",
+    "stickers",
+    "threads",
+    "version"
+   ],
+   "userKeyCount": 32,
+   "sessionType": "normal"
+  },
+  "readySupplemental": {
+   "guilds": 7,
+   "guildKeys": [
+    "activity_instances",
+    "embedded_activities",
+    "id",
+    "voice_states"
+   ],
+   "mergedMembers": [
+    17,
+    14,
+    7,
+    2,
+    10,
+    87,
+    1
+   ],
+   "friends": 2,
+   "presenceGuilds": 7,
+   "disclose": [
+    "pomelo"
+   ]
+  },
+  "guildMemberListUpdate": {
+   "idsDistinct": [
+    "everyone"
+   ],
+   "guildIds": [
+    "-1467272931325252608"
+   ],
+   "memberCount": {
+    "min": 24227,
+    "max": 24228
+   },
+   "onlineCount": {
+    "min": 657,
+    "max": 679
+   },
+   "itemsPerOp": {
+    "SYNC": {
+     "min": 100,
+     "max": 100,
+     "total": 100,
+     "n": 1,
+     "hasItems": 1,
+     "hasItem": 0,
+     "hasIndex": 0,
+     "hasRange": 1
+    },
+    "UPDATE": {
+     "min": null,
+     "max": 0,
+     "total": 0,
+     "n": 57,
+     "hasItems": 0,
+     "hasItem": 57,
+     "hasIndex": 57,
+     "hasRange": 0
+    },
+    "DELETE": {
+     "min": null,
+     "max": 0,
+     "total": 0,
+     "n": 21,
+     "hasItems": 0,
+     "hasItem": 0,
+     "hasIndex": 21,
+     "hasRange": 0
+    },
+    "INSERT": {
+     "min": null,
+     "max": 0,
+     "total": 0,
+     "n": 21,
+     "hasItems": 0,
+     "hasItem": 21,
+     "hasIndex": 21,
+     "hasRange": 0
+    }
+   },
+   "rangeSamples": [
+    {
+     "hex": "0063",
+     "bytes": [
+      0,
+      99
+     ]
+    }
+   ],
+   "indexRange": {
+    "min": 1,
+    "max": 99
+   },
+   "groupsTotal": 158,
+   "membersTotal": 0,
+   "groupKeys": [
+    "count",
+    "id"
+   ],
+   "opsKeys": {
+    "SYNC:[items,op,range]": 1,
+    "UPDATE:[index,item,op]": 57,
+    "DELETE:[index,op]": 21,
+    "INSERT:[index,item,op]": 21
+   },
+   "itemKinds": {
+    "group": 2,
+    "member": 176
+   }
+  },
+  "messageCreate": {
+   "events": [
+    62,
+    63,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92
+   ],
+   "unionKeys": [
+    "attachments",
+    "author",
+    "channel_id",
+    "channel_type",
+    "components",
+    "content",
+    "edited_timestamp",
+    "embeds",
+    "flags",
+    "guild_id",
+    "id",
+    "member",
+    "mention_everyone",
+    "mention_roles",
+    "mentions",
+    "pinned",
+    "timestamp",
+    "tts",
+    "type"
+   ],
+   "contentLens": [
+    299,
+    0,
+    143,
+    137,
+    127,
+    167,
+    132,
+    137,
+    152,
+    156
+   ],
+   "types": [
+    0
+   ],
+   "flags": [
+    0
+   ],
+   "authorKeys": [
+    "avatar",
+    "avatar_decoration_data",
+    "bot",
+    "clan",
+    "collectibles",
+    "discriminator",
+    "display_name_styles",
+    "global_name",
+    "id",
+    "primary_guild",
+    "public_flags",
+    "username",
+    "vad_colors"
+   ],
+   "memberKeys": [
+    "avatar",
+    "banner",
+    "communication_disabled_until",
+    "deaf",
+    "flags",
+    "joined_at",
+    "mute",
+    "nick",
+    "pending",
+    "premium_since",
+    "roles"
+   ],
+   "mentionKeys": [
+    "avatar",
+    "avatar_decoration_data",
+    "clan",
+    "collectibles",
+    "discriminator",
+    "display_name_styles",
+    "global_name",
+    "id",
+    "member",
+    "primary_guild",
+    "public_flags",
+    "username",
+    "vad_colors"
+   ],
+   "mentionCounts": [
+    1,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "embeds": [
+    null,
+    1,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "attachments": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "absent": [
+    "attachments (всегда null в этом дампе)",
+    "embeds (9/10 null, 1 событие с массивом)",
+    "components",
+    "mention_roles",
+    "reactions",
+    "reference",
+    "sticker_items",
+    "nonce",
+    "webhook_id",
+    "application_id",
+    "message_snapshots"
+   ]
+  },
+  "presence": {
+   "events": 6,
+   "statuses": [
+    "online",
+    "idle"
+   ],
+   "clientStatusKeys": [
+    "desktop"
+   ],
+   "activities": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "withGuildId": 4,
+   "userKeys": [
+    "avatar",
+    "avatar_decoration_data",
+    "bot",
+    "clan",
+    "collectibles",
+    "discriminator",
+    "display_name_styles",
+    "global_name",
+    "id",
+    "primary_guild",
+    "username",
+    "vad_colors",
+    "public_flags"
+   ]
+  },
+  "channelInfo": {
+   "channels": 75,
+   "channelKeys": [
+    "id",
+    "status",
+    "voice_start_time"
+   ]
+  },
+  "threadListSync": {
+   "threads": 1,
+   "threadKeys": [
+    "flags",
+    "guild_id",
+    "id",
+    "last_message_id",
+    "member_count",
+    "member_ids_preview",
+    "message_count",
+    "name",
+    "owner_id",
+    "parent_id",
+    "rate_limit_per_user",
+    "thread_metadata",
+    "total_message_sent",
+    "type"
+   ]
+  },
+  "guildMembersChunk": {
+   "members": 1,
+   "memberKeys": [
+    "avatar",
+    "banner",
+    "communication_disabled_until",
+    "deaf",
+    "flags",
+    "joined_at",
+    "mute",
+    "nick",
+    "pending",
+    "premium_since",
+    "roles",
+    "user"
+   ]
+  },
+  "sessionsReplace": {
+   "keys": [
+    "activities",
+    "client_info",
+    "hidden_activities",
+    "processed_at_timestamp",
+    "session_id",
+    "status"
+   ]
+  },
+  "hello": {
+   "index": 1,
+   "s": null,
+   "t": "nil",
+   "d": {
+    "_trace": [
+     "[\"gateway-prd-arm-us-east1-c-18ff\",{\"micros\":0.0}]"
+    ],
+    "heartbeat_interval": 41250
+   }
+  },
+  "heartbeatAck": {
+   "count": 21,
+   "bytesEach": 43,
+   "identical": true,
+   "d": "nil",
+   "deltasSec": [
+    27,
+    13,
+    17,
+    24,
+    41,
+    41,
+    8,
+    33,
+    39,
+    2,
+    12,
+    29,
+    41,
+    41,
+    14,
+    27,
+    41,
+    41,
+    41,
+    41
+   ]
+  },
+  "heartbeatSent": {
+   "sentTotal": 29,
+   "heartbeatLen90": 9,
+   "hbDeltasSec": [
+    123,
+    41,
+    165,
+    41,
+    83,
+    41,
+    41,
+    41
+   ],
+   "lenHistogram": {
+    "90": 9,
+    "94": 1,
+    "111": 12,
+    "112": 1,
+    "136": 1,
+    "139": 1,
+    "162": 1,
+    "182": 1,
+    "256": 1,
+    "943": 1
+   }
+  },
+  "duplicates": [
+   {
+    "count": 21,
+    "type": "op_11",
+    "indexes": [
+     7,
+     15,
+     18,
+     22,
+     27,
+     32,
+     36,
+     38,
+     41,
+     50,
+     51,
+     53,
+     57,
+     67,
+     77,
+     81,
+     84,
+     99,
+     105,
+     114,
+     122
+    ],
+    "bytes": 43
+   }
+  ],
+  "oracleCheck": {
+   "compared": 124,
+   "mismatches": []
+  }
+ },
+ "noise": [
+  {
+   "what": "HEARTBEAT_ACK (op 11)",
+   "count": 21,
+   "bytes": 43,
+   "reason": "полезной нагрузки нет: d = атом 'nil', все 21 кадра байт-в-байт идентичны (43 байта)",
+   "className": "шум/служебное"
+  },
+  {
+   "what": "GUILD_MEMBER_LIST_UPDATE: ops[].op=UPDATE/DELETE",
+   "count": 78,
+   "bytes": null,
+   "reason": "информативность одного события мала (index + один member), но поток из 78 событий = 63% всего трафика",
+   "className": "низкая информативность на событие"
+  },
+  {
+   "what": "_trace",
+   "count": 2,
+   "bytes": 1943,
+   "reason": "телеметрия маршрутизации (JSON-строка в ETF-binary); в схему не включается",
+   "className": "отброшено"
+  },
+  {
+   "what": "дублирующиеся кадры",
+   "count": 21,
+   "bytes": 903,
+   "reason": "21 одинаковый HEARTBEAT_ACK; других полных дублей среди dispatch-событий нет",
+   "className": "шум"
+  }
+ ],
+ "discarded": [
+  {
+   "path": "d._trace",
+   "where": [
+    "op_10 (HELLO)",
+    "READY"
+   ],
+   "action": "drop",
+   "bytes": 1943,
+   "detail": "телеметрия: [\"gateway-prd-arm-us-east1-c-18ff\",{\"micros\":0.0}] (HELLO) и 1893-байтовая строка (READY)"
+  },
+  {
+   "path": "HEARTBEAT_ACK.d",
+   "where": [
+    "op_11"
+   ],
+   "action": "mark-empty",
+   "detail": "атом 'nil' — нулевая нагрузка"
+  },
+  {
+   "path": "секреты",
+   "where": [
+    "READY.session_id",
+    "READY.auth_session_id_hash",
+    "READY.qos_token",
+    "READY.analytics_token",
+    "READY.static_client_session_id",
+    "READY.user.email",
+    "READY.user.phone",
+    "любые *token/*secret/*password"
+   ],
+   "action": "redact-to-REDACTED",
+   "detail": "значения заменены на \"REDACTED\"; session_type/sessions не скрываются (не секреты)"
+  }
+ ],
+ "limitations": [
+  "снимок живого захвата одной клиентской сессии (одна гильдия в фокусе + 7 гильдий в READY); не все типы событий Discord представлены",
+  "не наблюдались: MESSAGE_DELETE, MESSAGE_REACTION_*, TYPING_START, GUILD_CREATE/UPDATE/DELETE, VOICE_*, PRESENCE_UPDATE с activities, RESUME/dedup-сценарии, READY.presences (ключа нет в дампе)",
+  "клиент→сервер кадры записаны неполно (9 heartbeat-кадров len=90 против 21 ACK) — обратный канал CDP-захвата теряет часть фреймов",
+  "временные метки wsrecv в CDP группируются/батчатся: по ним нельзя восстановить точный ритм ACK (deltas 2..41 c)",
+  "двойное кодирование строк (atom vs binary) наблюдалось, но точное правило выбора не установлено"
+ ]
+}

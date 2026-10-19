@@ -1,0 +1,150 @@
+{
+  "generatedAt": "2026-10-19T10:18:36.485Z",
+  "lab": "/home/sanya/re-deep",
+  "repo": "/home/sanya/orca/project",
+  "passed": 20,
+  "total": 20,
+  "results": [
+    {
+      "id": "LAB-01",
+      "title": "лаборатория доступна",
+      "ok": true,
+      "expected": "каталоги на месте",
+      "actual": "каталоги на месте"
+    },
+    {
+      "id": "PROV-01",
+      "title": "md5/размеры снапшотов D-02 совпадают с провенансом docs/re",
+      "ok": true,
+      "expected": "все совпадения (=)",
+      "actual": "d02-snapshot/capture-run2.snap.jsonl: md5 = abfe14b76cec1e559c3b45522bc44b7a, bytes = 4137676, lines = 10170; d02-snapshot/capture-ready.snap.jsonl: md5 = b43636da09a4a2c0f08d36b1ce66a46a, bytes = 2479139, lines = 5104"
+    },
+    {
+      "id": "GW-01",
+      "title": "gateway/by-type: 164 файла, 12 типов",
+      "ok": true,
+      "expected": "164 файлов, 12 типов",
+      "actual": "164 файлов, 12 типов"
+    },
+    {
+      "id": "GW-02",
+      "title": "READY (002-READY.json): 40 ключей, 7 гильдий, 17 ЛС, 146 users, 60 связей, 157 read_state",
+      "ok": true,
+      "expected": "40 ключей, 7 гильдий, 17 ЛС, 146 users, 60 связей, 157 read_state",
+      "actual": "40 ключей, 7 гильдий, 17 ЛС, 146 users, 60 связей, 157 read_state"
+    },
+    {
+      "id": "GW-03",
+      "title": "ITSKIDON: 83 канала, 34 роли, 46 эмодзи, участников 24228/24229 (динамика)",
+      "ok": true,
+      "expected": "83/34/46, member_count ∈ {24228, 24229} (снапшоты разных секунд)",
+      "actual": "83/34/46, member_count=24228",
+      "note": "оба значения встречаются в сырье: READY=24228, facts-frozen=24229"
+    },
+    {
+      "id": "GW-04",
+      "title": "ready-stats.json: 7 гильдий, 17 ЛС, 60 связей, 40 ключей",
+      "ok": true,
+      "expected": "7 гильдий, 17 ЛС, 60 связей, 40 ключей",
+      "actual": "7 гильдий, 17 ЛС, 60 связей, 40 ключей"
+    },
+    {
+      "id": "GW-05",
+      "title": "summary.json содержит READY (payloadBytes=575853)",
+      "ok": true,
+      "expected": "есть",
+      "actual": "есть"
+    },
+    {
+      "id": "GW-06",
+      "title": "gw-proto: 1544 кадра, 1340 диспатчей, 21 тип",
+      "ok": true,
+      "expected": "1544 кадров, 1340 диспатчей, 21 тип",
+      "actual": "1544 кадров, 1340 диспатчей, 21 типов"
+    },
+    {
+      "id": "ENC-01",
+      "title": "ETF-теги: 11 кодов в сырье совпадают с таблицей docs/re/gateway-protocol.json",
+      "ok": true,
+      "expected": "11 тегов, наборы совпадают",
+      "actual": "сырьё: 11 тегов (0x46,0x61,0x62,0x64,0x68,0x6a,0x6b,0x6c,0x6d,0x6e,0x74); документ: 11 (0x46,0x61,0x62,0x64,0x68,0x6a,0x6b,0x6c,0x6d,0x6e,0x74)"
+    },
+    {
+      "id": "REST-01",
+      "title": "rest-d02.json: 47 маршрутов / 133 запроса v9 / auth 221",
+      "ok": true,
+      "expected": "47 маршрутов, 133 запроса, auth 221",
+      "actual": "47 маршрутов, 133 запросов, auth 221"
+    },
+    {
+      "id": "REST-02",
+      "title": "rest-static.json: 904 эндпоинта (реестр веб-бандла)",
+      "ok": true,
+      "expected": "904",
+      "actual": "904"
+    },
+    {
+      "id": "I18N-01",
+      "title": "i18n-stats: ru 23836 ключей, en 23903, плуральных пар 911",
+      "ok": true,
+      "expected": "ru 23836, en 23903, plural 911",
+      "actual": "ru 23836, en 23903, plural 911"
+    },
+    {
+      "id": "I18N-02",
+      "title": "локали: 31 включённая из 36 (locale-chunk-hashes.json)",
+      "ok": true,
+      "expected": "31",
+      "actual": "31"
+    },
+    {
+      "id": "IPC-01",
+      "title": "backend-ipc: 168 каналов, 115 общих, 35 записей моста, whitelist 43 (30+14)",
+      "ok": true,
+      "expected": "168/115/35/43 (30+14)",
+      "actual": "168/115/35/43 (30+14)"
+    },
+    {
+      "id": "NAT-01",
+      "title": "нативные модули: 9; discord_voice 126 136 024 Б, md5 5fe80ce0…",
+      "ok": true,
+      "expected": "9 модулей; voice 126136024 Б, md5 5fe80ce0f5d8…",
+      "actual": "9 модулей; voice 126136024 Б, md5 5fe80ce0f5d8…"
+    },
+    {
+      "id": "VOICE-01",
+      "title": "RTC-кадры: набор op = {0,1,2,3,4,6,8,15,16}",
+      "ok": true,
+      "expected": "0,1,2,3,4,6,8,15,16",
+      "actual": "0,1,2,3,4,6,8,15,16"
+    },
+    {
+      "id": "VOICE-02",
+      "title": "strace: медиа-пакеты и магия keepalive 1337 присутствуют (s3)",
+      "ok": true,
+      "expected": "1337 найден в strace-media-s3.jsonl",
+      "actual": "1337 найден"
+    },
+    {
+      "id": "SAN-01",
+      "title": "санитизация: capture-run2.jsonl и fixtures/ без токенов и чувствительных ключей",
+      "ok": true,
+      "expected": "чисто: capture + фикстуры (токены и чувствительные ключи отсутствуют)",
+      "actual": "чисто: capture + файлы фикстур"
+    },
+    {
+      "id": "FIX-01",
+      "title": "фикстуры репозитория: манифест и md5 совпадают с копиями",
+      "ok": true,
+      "expected": "12 записей, расхождений: 0",
+      "actual": "12 записей, расхождений: 0"
+    },
+    {
+      "id": "FIX-02",
+      "title": "в фикстуре шлюза присутствует HELLO heartbeat 41250",
+      "ok": true,
+      "expected": "41250 найден",
+      "actual": "41250 найден"
+    }
+  ]
+}

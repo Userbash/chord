@@ -1,0 +1,1400 @@
+{
+  "meta": {
+    "artifact": "Discord 1.0.162 desktop (Linux x64), распакованный app.asar",
+    "generatedAt": "2026-10-19T07:50:12.339Z",
+    "inputs": {
+      "app/bundle.js": {
+        "bytes": 3066301,
+        "lines": 519,
+        "modules": 825,
+        "md5": "23fbdabaafb7acd0d57b2b2aab60fd49"
+      },
+      "core/bundle.js": {
+        "bytes": 402296,
+        "lines": 8,
+        "modules": 81,
+        "md5": "08edd888cca8426f0cbc6c3bb2edbf17"
+      },
+      "core/mainScreenPreload.js": {
+        "bytes": 1105621,
+        "lines": 545
+      },
+      "app/splashScreenPreload.js": {
+        "bytes": 9333,
+        "lines": 30
+      }
+    },
+    "citations": "file:line (#moduleId @byteOffset); строки в бандлах гигантские (до 849148 Б), поэтому позиция даётся byte-offset; сниппеты отформатированы",
+    "related": [
+      "backend-ipc.md (168 каналов DISCORD_* — не дублируется)",
+      "native-re.md (инвентарь .node — не дублируется)"
+    ],
+    "readOnly": [
+      "/home/sanya/re-deep/asar-extract/**",
+      "/home/sanya/re-deep/backend-ipc.md",
+      "/home/sanya/re-deep/native-re.md"
+    ]
+  },
+  "sections": [
+    {
+      "id": "startup",
+      "title": "1. Запуск main-процесса",
+      "summary": "Entry #66321 выбирает app/overlay-host; bootstrap #23151 делает пути/настройки/blackbox/crashpad/Sentry, argv-обработку, single-instance, GPU-флаги и после app.whenReady запускает апдейтер, затем requireNative(\"discord_desktop_core\").startup({...}).",
+      "facts": [
+        {
+          "text": "Две точки входа: --overlay-host → standalone_host.js через requireNative, иначе app-модуль #23151.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#66321",
+              "byte": 51551,
+              "quote": "let mode=null!=process.argv&&process.argv.includes(\"--overlay-host\")?\"overlay-host\":\"app\";if(\"app\"===mo"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#66321",
+              "byte": 52159,
+              "quote": "__webpack_require__(30885)(\"discord_overlay2/standalone_host.js\")}performan"
+            }
+          ]
+        },
+        {
+          "text": "Linux-специфика раннего bootstrap: PULSE_LATENCY_MSEC=30; setName/setDesktopName по каналу.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 15294,
+              "quote": "\"linux\"===process.platform&&void 0===process.env.PULSE_LATENCY_MSEC&&(process.env.PULSE_LATENCY_MSEC=\"30\");let analytics=_"
+            }
+          ]
+        },
+        {
+          "text": "Порядок ранних подсистем: errorHandler → paths.init → appSettings.init → blackbox.init + captureMinidumpFromCrashpadSync → crashReporterSetup.init → chromium-флаги (openh264 на linux) → argv/squirrel → requestSingleInstanceLock.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 16360,
+              "quote": "blackbox.captureMinidumpFromCrashpadSync();let crashReporterSetup=__we"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 16488,
+              "quote": "crashReporterSetup.init(buildInfo,{sentry,getTransport:dsnFunc=>browse"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 19702,
+              "quote": "app.commandLine.appendSwitch(\"openh264-library-path\",openh264Path)}}}();let "
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 21915,
+              "quote": "isFirstInstance=!!allowMultipleInstances||app.requestSingleInstanceLock();function e"
+            }
+          ]
+        },
+        {
+          "text": "app.on(\"ready\") → registerDesktopConnectivityTests(defaultSession) + опциональный warmup DNS/TCP; fallbackDeepLink из launchInfo.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 23148,
+              "quote": "registerDesktopConnectivityTests(session.defaultSession,app.getSystemLocale());let settings"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 23284,
+              "quote": "DESKTOP_TTI_DNSTCP_WARMUP\",!1)===!0){console.log(\"Warming up DNS and T"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 23451,
+              "quote": "launchInfo?.userInfo?.fallbackDeepLink!=null&&openOrQueueUrl(launchInfo.use"
+            }
+          ]
+        },
+        {
+          "text": "whenReady: cleanOldVersions → startup-меню → updater.update(startMinimized,…) → core = requireNative(\"discord_desktop_core\") → core.startup({Constants,GPUSettings,analytics,appSettings,autoStart,buildInfo,crashReporterSetup,logger,moduleUpdater,paths,splashScreen,updater}) → handleOpenUrl(initialUrl) → setMainWindowVisible(!startMinimized,startInactive).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 24463,
+              "quote": "Menu.setApplicationMenu(startupMenu),performance.mark(\"bootstrap-start"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 25224,
+              "quote": "core=requireNative(\"discord_desktop_core\");coreModule=core,core.startu"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 25283,
+              "quote": "core.startup({Constants,GPUSettings,analytics,appSettings,autoStart,bu"
+            }
+          ]
+        },
+        {
+          "text": "core.startup() (entry-модуль core) инициализирует feature-реестр, GPUSettings.replace, cacert.init, app-инъекции, crashReporterSetup, injectFeaturesBackend, clips protocol, окно, popout, трей-окружение; menu = createApplicationMenu(enableDevtools).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 6,
+              "module": "entry `__webpack_exports__`",
+              "byte": 398653,
+              "quote": "bootstrapModules.GPUSettings.replace(GPUSettings),__webpack_require__(8730).init(),__webpack_require__(7912);let app=__webpack_require__(4943);app.injectBuildInfo(build"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 6,
+              "module": "entry `__webpack_exports__`",
+              "byte": 399983,
+              "quote": "let windowNative=__webpack_require__(3386);__webpack_require__(5544),global.crashReporterMetadata=crashReporterSetup.metadata,global.mainAppDirname="
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 6,
+              "module": "entry `__webpack_exports__`",
+              "byte": 400325,
+              "quote": "let enableDevtoolsSetting=global.appSettings.get(\"DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING\",!1),enableDevtools=\"stable\"!==buildInfo.releaseChannel||enableDevtoolsSetting,createApplicationMenu=__webpack_require__(7814);electron_1.Menu.setApplicationMenu(crea"
+            }
+          ]
+        },
+        {
+          "text": "Порядок require внутри core.startup(): #8730 (cacert) → #7912 (ACCESSIBILITY_GET_ENABLED) → #4943 (APP_*) → #7126 (clipboard) → #6577 (CONSTANTS_GET) → #7138 (crash-metadata) → #2236 (DESKTOP_CAPTURER_GET_SOURCES) → #1353 (features) → #9473 (FILE_MANAGER_*) → #8750 (HARDWARE_GET_DISPLAY_COUNT) → #7635 (clips) → #3132 (SPELLCHECK_*) → #1742 (TRACING) → #3386 (windows) → #5544 (webauthn).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 6,
+              "module": "entry `__webpack_exports__`",
+              "byte": 398138,
+              "quote": "performance.mark(\"coremodule-index-startup\"),__webpack_require__(9895).init(bootstrapModules),__webpack_require_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "windows",
+      "title": "2. Окна (BrowserWindow / webPreferences)",
+      "summary": "Три вида окон: splash (300px, frameless, preload splashScreenPreload.js), главное окно 1280x720 min 940x500 (frameless, contextIsolation, preload mainScreenPreload.js, additionalArguments), popout/overlay (nativeWindowOpen, enableRemoteModule:false, outOfProcessOverlay → type toolbar + transparent).",
+      "facts": [
+        {
+          "text": "Splash: width 300, LOADING_WINDOW_HEIGHT, transparent:false, frame:false, resizable:false, center:true, show:false; webPreferences — nodeIntegration:false, sandbox:false, contextIsolation:true, preload splashScreenPreload.js, additionalArguments --splash-media-format=webp|webm.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 91341,
+              "quote": "windowConfig={width:300,height:LOADING_WINDOW_HEIGHT,transparent:!1,frame:!1,resizable:!1,center:!0,show:!1,webPreferences:{node"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 91515,
+              "quote": "preload:path_1.default.join(__dirname,\"splashScreenPreload.js\"),addition"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 91653,
+              "quote": "splashWindow=new electron_1.BrowserWindow(windowConfig)).webContents.o"
+            }
+          ]
+        },
+        {
+          "text": "Splash-каналы: главный имена собираются рантаймом (обёртка #50902 добавляет DISCORD_): SPLASH_SCREEN_READY @92471, SPLASH_SCREEN_QUIT @93327, SPLASH_UPDATE_STATE (webContentsSend @96448), SPLASH_SCREEN_QUOTE @92896; импорт обёртки ipcMain_1=__importDefault(__webpack_require__(50902)) @95489.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 92471,
+              "quote": "ipcMain_1.default.on(\"SPLASH_SCREEN_READY\",()=>{performance.mark(\"spla"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 95489,
+              "quote": "ipcMain_1=__importDefault(__webpack_require__(50902)),logger=__importStar(__webpack_require__(65169)),moduleUpdater=__importStar(__webpack_require__(4"
+            }
+          ]
+        },
+        {
+          "text": "Главное окно: title Discord, backgroundColor из настроек, 1280x720, MIN_WIDTH/MIN_HEIGHT=940x500, transparent:false, frame:false, resizable:true, show:isVisible; webPreferences: enableBlinkFeatures \"EnumerateDevices,AudioOutputDevices\", nodeIntegration:false, sandbox:false, preload mainScreenPreload.js, spellcheck:true, contextIsolation:true, devTools:ENABLE_DEVTOOLS.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 141945,
+              "quote": "title:\"Discord\",backgroundColor:getBackgroundColor(),width:1280,height:720,minWidth:MIN_WIDTH,minHeight:MIN_HEIGHT,transparent:!1,frame:!1,resizable:!0,show:isVisi"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 137043,
+              "quote": "MIN_WIDTH=settings?.get(\"MIN_WIDTH\",940),MIN_HEIGHT=settings?.get(\"MIN_HEIGHT\",500),ENABLE_DEVT"
+            }
+          ]
+        },
+        {
+          "text": "additionalArguments главного окна: всегда --enable-node-leakage-in-renderers; win32 + DESKTOP_NATIVE_PREMAP → --enable-native-premap; http-endpoint → --unsafely-treat-insecure-origin-as-secure=<WEBAPP_ENDPOINT>.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 141472,
+              "quote": "let additionalArguments=[\"--enable-node-leakage-in-renderers\"];\"win32\"=="
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 141535,
+              "quote": "\"win32\"===process.platform&&settings?.get(\"DESKTOP_NATIVE_PREMAP\",!1)===!0&&additionalArguments.push(\"--enable-native-premap\"),exports.WEBAPP_END"
+            }
+          ]
+        },
+        {
+          "text": "Навигационная безопасность: setPermissionRequestHandler @144769 и setPermissionCheckHandler @145714 (notifications/fullscreen/pointerLock/clipboard-sanitized-write — только WEBAPP_ENDPOINT; media — AllowedMediaOrigins), will-navigate @151050, did-fail-load retry через connectionBackoff @147680, select-webauthn-account dialog @146647.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 144738,
+              "quote": "mainWindow.webContents.session.setPermissionRequestHandler((webContents,"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 151023,
+              "quote": "mainWindow.webContents.on(\"will-navigate\",(evt,url)=>{(0,securityUtils_1.checkUrlOriginMatches)(url,exports.WEBAPP_ENDPOINT)||evt.preventDefault()}),mainWindow.webContent"
+            }
+          ]
+        },
+        {
+          "text": "setWindowOpenHandler: popout только при frameName.startsWith(\"DISCORD_\") + same-origin + path \"/popout\"; прочие ссылки → saferShellOpenExternal (allow-list протоколов) и deny.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 147263,
+              "quote": "mainWindow.webContents.setWindowOpenHandler(({url,frameName,features})=>frameName.start"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 147448,
+              "quote": "\"/popout\"===getSanitizedPath(url)?popoutWindows.openOrFocusWindow(url,frameName,features):((0,security"
+            }
+          ]
+        },
+        {
+          "text": "Краши renderer’а: render-process-gone → rendererCrashReason/ExitCode + lastRunsStoredInformation; killed → quit; повтор <5 c → quit; иначе reload (DISCORD_DISABLE_RESTART → quit). child-process-gone: GPU/Utility → троттлинг 30 c и CRASH_REPORTER_NEW_CRASH, reason crashed/oom → Sentry.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 121198,
+              "quote": "electron_1.app.on(\"child-process-gone\",(_event,details)=>{if(0===details"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 121585,
+              "quote": "webContentsSend(\"CRASH_REPORTER_NEW_CRASH\",details):(isFrequentCrash=!"
+            }
+          ]
+        },
+        {
+          "text": "Popout/overlay: DEFAULT_POPOUT_OPTIONS (title \"Discord Popout\", min 320x180, nativeWindowOpen:true, enableRemoteModule:false, contextIsolation:true); ALLOWED_FEATURES — allow-list фич окна; outOfProcessOverlay → title \"Discord Overlay\", type toolbar, alwaysOnTop, frame:false, transparent:true.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#9698",
+              "byte": 182761,
+              "quote": "DEFAULT_POPOUT_OPTIONS={title:\"Discord Popout\",backgroundColor:\"#2f3136\",minWidth:320,minHeight:180,transparent:!1,frame:!1,resizable:!0,show:!0,titleBarStyle:\"darwin\"===process.platform?\"hidden\":void 0,trafficLightPosition:\"darwin"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#9698",
+              "byte": 180977,
+              "quote": "windowOptions.title=\"Discord Overlay\",windowOptions.show=!1,windowOptions.backgroundColor=\"#00000000\",windowOptions.type=\"toolbar\",windowOptions.alwaysOnTop=!0,windowOptions.skipTaskbar=!0,windowOptions.w"
+            }
+          ]
+        },
+        {
+          "text": "WEBAPP_ENDPOINT: env DISCORD_WEBAPP_ENDPOINT → settings WEBAPP_ENDPOINT → stable: миграция discord.com/discordapp.com по маркерам userDataCache.json/domainMigrated → прочие каналы https://<channel>.discord.com; URL_TO_LOAD = endpoint + WEBAPP_PATH (?_=<ts>).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 135531,
+              "quote": "exports.WEBAPP_ENDPOINT=(()=>{if(null!=envVariables.webappEndpoint)return console.log(`Using DISCORD_WEBAPP_ENDPOINT override: ${envVariables.weba"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 136988,
+              "quote": "URL_TO_LOAD=`${exports.WEBAPP_ENDPOINT}${WEBAPP_PATH}`,MIN_WIDTH=setti"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ipc",
+      "title": "3. IPC-обвязка (паттерн DISCORD_*)",
+      "summary": "Префикс DISCORD_ добавляется обёртками (core #2799, app #50902) и enum #595; DiscordIPC (#1999) — фасад над ipcMain/ipcRenderer. Полные цепочки: уведомления, установка нативных модулей, native window handle, Clips/рендер монтажа, webauthn.",
+      "facts": [
+        {
+          "text": "getDiscordIPCEvent: если имя не начинается с DISCORD_ — префикс добавляется (core #3716 @113790; app #50902 @52613).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#3716",
+              "byte": 113782,
+              "quote": "exports.getDiscordIPCEvent=function(ev){return discordPrefixRegex.test(ev)?ev:`DISCORD_${ev}`};var IPCEvents_1=__webpack_require__(595);Object.defineP"
+            }
+          ]
+        },
+        {
+          "text": "Обёртки: core #2799 (@119037) и app #50902 (@52613) — on/removeListener/handle/reply над ipcMain с префиксацией.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#2799",
+              "byte": 119037,
+              "quote": "exports.default={on:(event,callback)=>electron_1.ipcMain.on((0,constants_1.getDiscordIPCEvent)(event),callback),removeListener:(event,callback)=>electron_1.ipcMain.removeListener((0,constants_1.getDiscordIPCEvent)(event),callback),reply:(event,channel"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#50902",
+              "byte": 52613,
+              "quote": "exports.default={on:(event,callback)=>{electron_1.ipcMain.on(getDiscordIPCEvent(event),callback)},removeListener:(eve"
+            }
+          ]
+        },
+        {
+          "text": "Фасад DiscordIPC (#1999 @112951): main.on/main.handle → ipcMain.on/ipcMain.handle; renderer.sendSync/invoke/on → ipcRenderer.*.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#1999",
+              "byte": 112943,
+              "quote": "exports.DiscordIPC={main:class{static on(channel,listener){electron_1.default.ipcMain.on(channel,(...args)=>listener.apply(this,args))}static handle(channel,listener){return electron_1.default.ipcMain.handle(channel,(...args)=>listener.appl"
+            }
+          ]
+        },
+        {
+          "text": "Полный enum каналов — core #595 (168 имён с префиксом DISCORD_) и preload-whitelist (core/mainScreenPreload.js:46) — см. backend-ipc.md, здесь не дублируется.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#595",
+              "byte": 158884,
+              "quote": "(IPCEvents1=IPCEvents||(exports.IPCEvents=IPCEvents={})).ACCESSIBILITY_GET_ENABLED=\"DISCORD_ACCESSIBILITY_GET_ENABLED\",IPCEvents1.APP_ASYNC_"
+            }
+          ]
+        },
+        {
+          "text": "Следствие: в main-модулях app-бандла каналы записаны коротко (префикс — в рантайме), поэтому статический grep по DISCORD_SPLASH_* в app/bundle.js пуст (напр. ipcMain_1.default.on(\"SPLASH_SCREEN_READY\")).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 92471,
+              "quote": "ipcMain_1.default.on(\"SPLASH_SCREEN_READY\",()=>{performance.mark(\"spla"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "native",
+      "title": "4. Нативные биндинги main-процесса",
+      "summary": "requireNative (#30885) = Module.prototype.require с пустыми paths, резолв через Module.globalPaths (#27453/#7453). Используются updater.node, discord_notifications, discord_utils, discord_webauthn, discord_intents, discord_clips (EXE), discord_desktop_core, discord_overlay2. Голос/krisp/zstd/erlpack/cld/game_utils в main не грузятся.",
+      "facts": [
+        {
+          "text": "#30885: new Module(__filename), filename=__filename, paths=[], exports = nativeModule.require.bind(nativeModule) — «requireNative».",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#30885",
+              "byte": 84200,
+              "quote": "30885(module1){\"use strict\";let nativeModule=new(require(\"module\"))(__filename);nativeModule.filename=__filename,nativeModule.paths=[],module1.exports=nativeModule.require.bind(nativeModule)},83669(__unused_rspack_module"
+            }
+          ]
+        },
+        {
+          "text": "Резолв: патч Module._resolveLookupPaths добавляет Module.globalPaths в parent.paths (core #7453 @227925, app #27453 @146799); пути наполняет _commitModulesInner (app #47421 @164666) → addGlobalPath(<host>/modules/<name>-<ver>).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 6,
+              "module": "#7453",
+              "byte": 228173,
+              "quote": "exports.addGlobalPath=function(path){-1===module_1.default.globalPaths.indexOf(path)&&module_1.default.globalPaths.push(path)},exports.globalPath"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#47421",
+              "byte": 164666,
+              "quote": "_commitModulesInner(versions){let{addGlobalPath,globalPathExists}=__webpack_require__(27453),hostPath=this._getHostPath(),modulesPath=path_1.default.join(hostPath,\"modules\");for(let module1 in versions.current_modules){let moduleVers"
+            }
+          ]
+        },
+        {
+          "text": "updater.node: darwin <exe>/../../Resources/updater.node, win32/linux <exe>/../updater.node; вызовы command/command_blocking/known_folder/create_shortcut/destroy, installModule/commitModules.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#47421",
+              "byte": 156352,
+              "quote": "nativeUpdaterModule=require(function(platform){switch(platform){case\"darwin\":return path_1.default.join(process_1.default.execPath,\"..\",\"..\",\"Resources\",\"updater.node\");case\"win32\":case\"linux\":return path_1.default.join(process_1.default.execPath,\"..\",\"updater.node\");default:return console.error(`getUpdaterMod"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#47421",
+              "byte": 157682,
+              "quote": "this.nativeUpdater.command_blocking(JSON.stringify([requestId,detail]))}_handleRes"
+            }
+          ]
+        },
+        {
+          "text": "discord_utils (core #4928 = require(\"discord_utils\")): isWaylandIdleAvailable/getWaylandSystemIdleTimeMs (core #4531), getDiscordClipsCumulativeCpuUsage/getSystemCpuTimes (core #9984, win32).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4531",
+              "byte": 84453,
+              "quote": "if(discordUtils.isWaylandIdleAvailable?.())return Number(discordUtils.getWaylandSystemIdleTimeMs())}catch(error){c"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#9984",
+              "byte": 88846,
+              "quote": "let discordUtils=__webpack_require__(4928);return Number(discordUtils.getDiscordClipsCumulativeCpuUsage?.()??0)}catch(error){ret"
+            }
+          ]
+        },
+        {
+          "text": "discord_notifications: core #7592 грузит require(modulePath)/require(\"discord_notifications\") (модуль-обёртка #5385 = require(\"discord_notifications\")), вызывает setDataPath/setCallbacks/sendNotification/…; на Linux статус unsupported.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 6,
+              "module": "#5385",
+              "byte": 395720,
+              "quote": "5385(module1){\"use strict\";module1.exports=require(\"discord_notifications\")},4928(modul"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7592",
+              "byte": 80021,
+              "quote": "let modulePath=(0,nativeModules_1.getModulePath)(\"discord_notifications\")??path_1.default.join(moduleDataPath,\"discord_notifications\"),lib=require(modulePath);lib.setDataPath(moduleP"
+            }
+          ]
+        },
+        {
+          "text": "discord_webauthn (macOS ≥ 21, core #5544) — webAuthnRegister/webAuthnAuthenticate/signal*; discord_intents (macOS, core #4355) — indexDomains/clearIndex/setActivity/…",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5544",
+              "byte": 105255,
+              "quote": "let webAuthnPath=(0,nativeModules_1.getModulePath)(\"discord_webauthn\")??path_1.default.join(moduleDataPath,\"discord_webauthn\");return new Promise((resolve,_reject)=>{require(webAuthnPath)[method](challenge,function(code,message){return resolve({code,message})})})}function callSignalNative(method,...ar"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4355",
+              "byte": 70466,
+              "quote": "let modulePath=(0,nativeModules_1.getModulePath)(\"discord_intents\")??path_1.default.join(moduleDataPath,\"discord_intents\"),lib=require(modulePath);lib.setDataPath(modulePath),DiscordIPC_1.DiscordIPC.main.h"
+            }
+          ]
+        },
+        {
+          "text": "discord_clips — исполняемый файл (win32 .exe), запускается spawn(\"--render-recipe\",...); это единственный «нативный» вызов через дочерний процесс, а не .node.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7635",
+              "byte": 39395,
+              "quote": "let child=childProcess.spawn(exePath,[\"--render-recipe\",recipeJson,outputPath,metadata],{stdio:[\"ignore\",\"ig"
+            }
+          ]
+        },
+        {
+          "text": "В main отсутствуют: discord_voice, krisp, zstd, erlpack, cld, game_utils, notificationstate, media, cloudsync, premap (0 совпадений в app/core bundle) — полный инвентарь .node в native-re.md.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4928",
+              "byte": 395797,
+              "quote": "4928(module1){\"use strict\";module1.exports=require(\"discord_utils\")},1288(module1){\"use strict\";module1.exports=require(\"electron\")},215(module1){\"use strict\";module1.exports=require(\"ori"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "updater",
+      "title": "5. Автообновление",
+      "summary": "Два пути: новый (updater.node, NEW_UPDATE_ENDPOINT=https://updates.discord.com/) и legacy moduleUpdater (UPDATE_ENDPOINT=https://discord.com/api, /modules/<channel>, /updates/<channel>). Linux-хост-апдейтер умеет только update-manually (скачивание через splash-UI). Splash — конечный автомат с backoff и TaskProgress.",
+      "facts": [
+        {
+          "text": "Выбор: !disableUpdater && tryInitUpdater(buildInfo, NEW_UPDATE_ENDPOINT) → новый апдейтер (+USE_PINNED_UPDATE_MANIFEST), иначе moduleUpdater.init(UPDATE_ENDPOINT).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 1,
+              "module": "#33745",
+              "byte": 6840,
+              "quote": "if(!buildInfo.disableUpdater&&tryInitUpdater(buildInfo,bootstrapConstants.NEW_UPDATE_ENDPOINT)){let updater=getUpda"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 1,
+              "module": "#33745",
+              "byte": 6936,
+              "quote": "let updater=getUpdater(),usePinnedUpdateManifest=settings?.get(\"USE_PINNED_UPDATE_MANIFEST\")??!1,autoStart=__w"
+            }
+          ]
+        },
+        {
+          "text": "Эндпоинты: NEW_UPDATE_ENDPOINT default https://updates.discord.com/; UPDATE_ENDPOINT=API_ENDPOINT default https://discord.com/api; buildInfo.disableUpdater (app #55405 @26169).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 1,
+              "module": "#19192",
+              "byte": 3223,
+              "quote": "exports.NEW_UPDATE_ENDPOINT=settings?.get(\"NEW_UPDATE_ENDPOINT\")||\"https://updates.discord.com/\",exports.ALLOW"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#55405",
+              "byte": 26122,
+              "quote": "join(process.resourcesPath,\"build_info.json\")),disableUpdater:buildInfo.disableUpdater||\"development\"===buildInfo.releaseChannel&&(buildInfo.standaloneModules||null!=buildInfo.localModulesRoot)}},96020(__"
+            }
+          ]
+        },
+        {
+          "text": "Новый путь (app #53006 updateUntilCurrent @98275): updateToLatestWithOptions с retryOptions (skip_host_delta/skip_module_delta/allow_optional_updates) → TaskProgress → startCurrentVersion + setRunningInBackground + collectGarbage → launchMainWindow → LAUNCHING; backoff (@97270) 1 c … DESKTOP_TTI_UPDATE_BACKOFF_MAX_MS (30 c).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 98275,
+              "quote": "async function updateUntilCurrent(){let allowOptionalUpdates=bootstrapConstants.ALLOW_OPTIONAL_UPDATES;console.log(`allowOptionalUpdates: ${allowOptionalUpdates}`);let retryOptions={skip_host_delta:!1,skip_module_delta:{"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#53006",
+              "byte": 97441,
+              "quote": "ackoff_1.default(1e3,updateBackoffMaxMs);(0,buildOverrideUtils_1.registerBuildOverrideUtils)();class TaskProgress{inProgress;finished;allTasks;constructor(){this.inProgress=new Map,this.finished=new Set,this.allTasks=new Se"
+            }
+          ]
+        },
+        {
+          "text": "Linux host-updater (app #2278): new AutoUpdaterLinux; при расхождении версий только emit(\"update-manually\", ver) — установка вручную; splash-UI предлагает deb/tar.gz по https://discord.com/api/download/<channel>?platform=linux&format=.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#2278",
+              "byte": 51236,
+              "quote": "autoUpdater=new AutoUpdaterLinux}module1.exports=autoUpdater},66321(__"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#2278",
+              "byte": 50464,
+              "quote": "this.emit(\"update-manually\",latestVerStr)):versionNewer(currVersion,la"
+            },
+            {
+              "file": "app/splashScreenPreload.js",
+              "line": 1,
+              "module": "preload module 85425",
+              "byte": 0,
+              "quote": "LINUX_DOWNLOAD_URL_BASE=`https://discord.com/api/download/${buildInfo_1.default.releaseChannel}?platform=linux&format=`"
+            }
+          ]
+        },
+        {
+          "text": "Legacy moduleUpdater (app #47924): remoteBaseURL=<endpoint>/modules/<channel>, feedURL=<endpoint>/updates/<channel>?platform=linux&version=<cur>; installPendingUpdates; events INSTALLED_MODULE/DOWNLOADED_MODULE/UPDATE_MANUALLY.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#47924",
+              "byte": 61318,
+              "quote": "if(remoteBaseURL=`${_endpoint}/modules/${_buildInfo.releaseChannel}`,r"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#47924",
+              "byte": 62550,
+              "quote": "}?platform=linux&version=${_buildInfo.version}`),remoteQuery.platform="
+            }
+          ]
+        },
+        {
+          "text": "overlay-host: paths-only init legacy либо tryInitUpdater + startCurrentVersionSync({allowObsoleteHost:true}); quitAndInstallUpdates по DISCORD_QUIT_AND_INSTALL (core #5203 @128351).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#66321",
+              "byte": 52097,
+              "quote": "getUpdater()?.startCurrentVersionSync({allowObsoleteHost:!0})}__webpac"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flags",
+      "title": "6. Фичефлаги и allow-list",
+      "summary": "Никаких Experiments/getFlag: локальный Set (core #2603), declareSupported по месту, выдача в renderer синхронным каналом FEATURES_GET_BROWSER_FEATURES (core #1353). Набор: popout_windows, intents, notifications(+provisional), clips_storage_size, webauthn, staff_dev_tools (по платформе).",
+      "facts": [
+        {
+          "text": "FeatureFlags: Set, declareSupported ругается на дубликаты; init — core #5976, класс — core #2603.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 3,
+              "module": "#2603",
+              "byte": 207910,
+              "quote": "declareSupported(feature){this.supports(feature)?console.error(\"Feature redeclared; is this a duplicate flag? \",feature):this.flags.add(feature)}}},1598(__unused_rspac"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5976",
+              "byte": 7041,
+              "quote": "exports.init=function(){features=new FeatureFlags_1.default},exports.getFeatures=function(){return features};let FeatureFlag"
+            }
+          ]
+        },
+        {
+          "text": "Renderer получает список синхронно: FEATURES_GET_BROWSER_FEATURES → event.returnValue = injectedFeatures.getSupported().",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#1353",
+              "byte": 45734,
+              "quote": "DiscordIPC_1.DiscordIPC.main.on(DiscordIPC_1.IPCEvents.FEATURES_GET_BROWSER_FEATURES,event=>{event.returnValue=injectedFeatures?.getSupported()??[]})},9473(__unused_rspack"
+            }
+          ]
+        },
+        {
+          "text": "Объявления: popout_windows (#9698 @179319), intents (#4355 @71507, macOS), notifications/notifications_provisional (#7592 @80640, macOS≥21/win32), clips_storage_size (#7635 @41095), webauthn (#5544 @105830, macOS≥21), staff_dev_tools (#4520 @187640).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#9698",
+              "byte": 179310,
+              "quote": "features.declareSupported(\"popout_windows\"))},exports.getWindow=functi"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7592",
+              "byte": 80608,
+              "quote": "(0,appFeatures_1.getFeatures)().declareSupported(\"notifications\"),(0,appFeatures_1.getFeatures)().declareSupported(\"notifications_provisional\")}catch(e){moduleStatu"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4355",
+              "byte": 71475,
+              "quote": "(0,appFeatures_1.getFeatures)().declareSupported(\"intents\")}catch(e){c"
+            }
+          ]
+        },
+        {
+          "text": "RENDERER_SET_ALLOWLIST (какие настройки renderer может менять) — #3716 @114237; RENDERER_SET_CHROMIUM_SWITCHES_ALLOWLIST пуст.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#3716",
+              "byte": 114057,
+              "quote": "exports.RENDERER_SET_ALLOWLIST=[\"audioSubsystem\",\"offloadAdmControls\",\"debugLogging\",\"asyncVideoInputDeviceInit\",\"ALWAYS_ALLOW_UPDATES\",\"ALLOW_OPTIONAL_UPDATES\",\"openH264Enabled\",\"DESKTOP_TTI_DNSTCP_WARMUP\",\"DESKTOP_TTI_REMOVE_V8_CACHE_CLEAR\",\"DESKTOP_TTI_REMOVE_SHADER_CACHE_CLEAR\",\"DESKTOP_TTI_EARLY_UPDATE_CHECK\",\"DES"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "net",
+      "title": "7. Сеть, DNS, сертификаты",
+      "summary": "Связность: webRequest-тесты (#51937: webapp, updaterdep; ERR_QUIC_PROTOCOL_ERROR → Sentry) и DNS-телеметрия через net.fetch на dc-telemetry.net (#65445). DNS/TCP-прогрев (#72100). CA-бандл core/data/cacert.pem (#8730). Прокси/user-agent/certificate-error — отсутствуют.",
+      "facts": [
+        {
+          "text": "Connectivity tests: DESKTOP_TESTS={webapp:createDesktopTest(\"app\"), updaterdep:createDesktopTest(\"api/updates\",!0)}; session.webRequest.onErrorOccurred/onCompleted.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#51937",
+              "byte": 38265,
+              "quote": "let DESKTOP_TESTS={webapp:createDesktopTest(\"app\"),updaterdep:createDesktopTest(\"api/updates\",!0)},trackedNetErrQ"
+            }
+          ]
+        },
+        {
+          "text": "DnsReporter: baseDomain dc-telemetry.net, метки idt/loc/chk/res/err/dur, отправка https://<dnsQuery> через net.fetch; ConsoleReporter как запасной.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#65445",
+              "byte": 31374,
+              "quote": "this.baseDomain=baseDomain??\"dc-telemetry.net\",this.clientLocale=clientLocale}encode(sess"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#65445",
+              "byte": 32265,
+              "quote": "await net.fetch(`https://${dnsQuery}`)}catch(err){}}}exports.DnsReport"
+            }
+          ]
+        },
+        {
+          "text": "Warmup: resolveHost для discord.com/cdn.discordapp.com/gateway.discord.gg/updates.discord.com + preconnect к discord.com и cdn.discordapp.com (по DESKTOP_TTI_DNSTCP_WARMUP).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#72100",
+              "byte": 38709,
+              "quote": "defaultSession.preconnect({url:\"https://discord.com\",numSockets:1}),defaultSession.preconnect({url:\"https://cdn.discordapp.com\",numSockets:1})};let electron_1=__we"
+            }
+          ]
+        },
+        {
+          "text": "CA: core #8730 читает data/cacert.pem → getRequestCA() возвращает {ca}; инициализация — из core.startup().",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#8730",
+              "byte": 183540,
+              "quote": "rootCertificateAuthorities=fs_1.default.readFileSync(path_1.default.join(__dirname,\"data\",\"cacert.pem\"))}catch(err){cons"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#8730",
+              "byte": 183810,
+              "quote": "exports.getRequestCA=function(){return requestCA};let fs_1=__importDef"
+            }
+          ]
+        },
+        {
+          "text": "webRequestDispatcher (core #6228) — единый onBeforeRequest на session (union url-паттернов); используется DESKTOP_TTI_HTTP_CDT (core #5203 @144029).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 144003,
+              "quote": "(0,webRequestDispatcher_1.registerBeforeRequest)(mainWindow.webContents.session,\"http-cdt\",details=>{try{let parsedUrl=new"
+            }
+          ]
+        },
+        {
+          "text": "В main нет setProxy/setUserAgent/certificate-error-handler/setCertificateVerifyProc: прокси и UA определяются Electron/ОС, а не приложением.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 0,
+              "note": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crash",
+      "title": "8. Crashpad/Sentry",
+      "summary": "Crashpad-метаданные (release_channel, wm, runtime_environment flatpak/snap/appimage, display_server, distro) + Sentry init (sampleRate=1 на Linux) + electron.crashReporter.start с minidump submitURL; blackbox копирует .dmp из crashDumps/completed в <moduleDataPath>/crashlogs (лимит 10) и оставляет pending_minidump.txt; main отдаёт данные через PROCESS_UTILS_GET_LAST_CRASH и принимает CRASH_REPORTER_UPDATE_METADATA.",
+      "facts": [
+        {
+          "text": "Метаданные Linux: XDG_CURRENT_DESKTOP+GDMSESSION → wm; FLATPAK_ID/SNAP/APPIMAGE/APPDIR → runtime_environment; XDG_SESSION_TYPE → display_server; lsb_release -ds → distro (таймаут 100 мс).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#62457",
+              "byte": 143136,
+              "quote": "exports.metadata.release_channel=buildInfo.releaseChannel;let sentryMe"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#62457",
+              "byte": 143874,
+              "quote": "null!=process.env.APPIMAGE||null!=process.env.APPDIR)&&(runtimeEnvironment=\"appimage\"),exports.metadata.runtime_environment=runtimeEnvironment;let displayServer="
+            }
+          ]
+        },
+        {
+          "text": "Sentry init: dsn=getSentryDSN(channel), environment/release/dist, sampleRate=1 (Linux/macOS) или CHANNEL_SENTRY_SAMPLE, beforeSend добавляет metadata и code-integrity из minidump, addSentryReport; ignoreErrors/denyUrls (BetterDiscord и др.).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#62457",
+              "byte": 141517,
+              "quote": "sentry.sentry.init({dsn:getSentryDSN(buildInfo.releaseChannel),transport:sentry.getTransport(dsnFromUser),environment:buildInfo.releaseChannel,release:buildInfo.sentryRelease??buildInfo.version,dist:buildInfo.sentryDist,sampleRate:(releaseChannel=buildInfo.releaseCha"
+            }
+          ]
+        },
+        {
+          "text": "DSN: buildSentryDSN(key)=\"https://\"+key+\"@o64374.ingest.sentry.io/146342\"; Linux key d2558f321dfc7ab68366d8258fd256c7, macOS 098008bd74508d75b72f31244ddb1d04, DEFAULT 384ce4413de74fe0be270abe03b2b35a, stable 7a60c374cb0e99ac8a57388db6933711, staff de156ff7a3f544cca369e77e3f1f5743.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#62457",
+              "byte": 145360,
+              "quote": "function buildSentryDSN(dsnKey){return\"https://\"+dsnKey+\"@o64374.ingest.sentry.io/146342\"}function getS"
+            }
+          ]
+        },
+        {
+          "text": "electron.crashReporter.start(@sentry/electron #30269): ignoreSystemCrashHandler:true, uploadToServer:true, compress:true, submitURL=minidumpUrlFromDsn(dsn), globalExtra; minidumpUrlFromDsn = <protocol>://<host>/api/<projectId>/minidump/?sentry_key=<key>.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 505,
+              "module": "#30269",
+              "byte": 1583025,
+              "quote": "return`${protocol}://${host}${\"\"!==port?`:${port}`:\"\"}${\"\"!==path?`/${path}`:\"\"}/api/${projectId}/minidump/?sentry_key=${publicKey}`}exports.electronMin"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 505,
+              "module": "#30269",
+              "byte": 1584418,
+              "quote": "crashReporter.start({companyName:\"\",ignoreSystemCrashHandler:!0,productName:electron.app.name||electron.app.getName(),submitURL,uploadToServer:!0,compress:!0,globalExtra})}(clientOptions),electron.app.on(\"render-process-gone\",(_,__,details)"
+            }
+          ]
+        },
+        {
+          "text": "Blackbox: crashDumps/<reports|completed> → свежие .dmp (≤60 c) переносятся в <moduleDataPath>/crashlogs, старые >10 удаляются; pending_minidump.txt — маркер «забрать дамп»; синхронный вызов при старте приложения.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#81598",
+              "byte": 128811,
+              "quote": "essUtils_1.IS_WIN?\"reports\":\"completed\");try{dirContents=fs_1.default.readdirSync(reportsDir)}catch(e){return}let dmpFiles=dirContents.filter(f"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#81598",
+              "byte": 130083,
+              "quote": "pending_minidump.txt\"),dmpFilename),console.log(`blackbox: captured mi"
+            }
+          ]
+        },
+        {
+          "text": "Main-IPC: CRASH_REPORTER_UPDATE_METADATA (@43633) — defaultsDeep + reconcileCrashReporterMetadata + setUser/setTag; UNHANDLED_JS_EXCEPTION (@44500); PROCESS_UTILS_GET_LAST_CRASH (@90131) — getLastCrashReport + pending_minidump.txt (read+unlink) → rendererCrashReason/ExitCode, stored/last/highest memory.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7138",
+              "byte": 43574,
+              "quote": "DiscordIPC_1.DiscordIPC.main.handle(DiscordIPC_1.IPCEvents.CRASH_REPORTER_UPDATE_METADATA,(_,additionalMetadata)=>{let metadata=crashReporterSetup_1.crashReporterSetup.metadata;(0,assert_1.default)(null!=metadata,\"Metadata imported"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#9984",
+              "byte": 89980,
+              "quote": "DiscordIPC_1.DiscordIPC.main.handle(DiscordIPC_1.IPCEvents.PROCESS_UTILS_GET_LAST_CRASH,async _=>{let lastCrashReport=electron_1.default.crashReporter.getLastCrashReport(),pendingMinidumpPath=null,moduleDataPath1=paths_1.paths.getMo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tray",
+      "title": "9. Трей, меню, хоткеи, протоколы",
+      "summary": "Трей (core #1275) — Tray с иконками tray/tray-unread/…, стабильный GUID по каналу (win/mac), меню Open/Mute/Deafen/Voice Settings/Check for Updates/Acknowledgements/Quit, click→onTrayClicked. Меню: startup (File→Exit) и рабочее (per-platform: linux #4380, win32 #4933, darwin #1751) с devtools-гейтом. globalShortcut отсутствует. Протоколы: discord:// (argv/--url/open-url/fallbackDeepLink) и disclip:// (privileged, до ready).",
+      "facts": [
+        {
+          "text": "Трей: TRAY_ICON_NAMES {tray,tray-unread,tray-connected,tray-speaking,tray-muted,tray-deafened}; иконки из app/images/systemtray/<platform>; GUID по каналу (stable 699e423d-73da-42ba-b94e-881ff8672467) только win/mac; Linux — new Tray(icon) без GUID.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 3,
+              "module": "#1275",
+              "byte": 194226,
+              "quote": "let resourcePath=`app/images/systemtray/${process.platform}`,suffix=IS_MACOS?\"Template\":\"\";trayIcons=(0,lodash_1.mapValues)(TRAY_ICON_NAMES,name=>{let image=(0,utils_1.exposeModuleResource)(resourcePath,`${name}${suffix}.png`);return null==image&&console.warn(`s"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 3,
+              "module": "#1275",
+              "byte": 200366,
+              "quote": "(atomTray=IS_WINDOWS||IS_MACOS?new electron_1.Tray(icon,TrayGuidByChannel[buildInfo.releaseChannel]):new electron_1.Tray(icon)).setToolTip(currentStrings.appName),setContextMenu(),(IS_WINDOWS||IS_LINUX)&&atomTray.on(\"click\",options.onTrayClicked)}catch(e){console.error(\"systemTray: "
+            }
+          ]
+        },
+        {
+          "text": "Меню: при старте app #1248 → require.context(\"./\"+platform) → linux #75150 (&File → &Exit Control+Q); после core.startup — core #7814 → #1783(\"./\"+platform) → linux #4380 (Options Control+comma, Exit Control+Q, View/Reload, Help), win32 #4933 (Ctrl+comma, Alt+F4, F11), darwin #1751 (appMenu, Command+comma).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 12,
+              "module": "#75150",
+              "byte": 106235,
+              "quote": "[{label:\"&File\",submenu:[{label:\"&Exit\",click:()=>electron_1.app.quit(),accelerator:\"Control+Q\"}]}]},40467(module1"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7814",
+              "byte": 9024,
+              "quote": "return electron_1.Menu.buildFromTemplate(createMenu(enableDevtools))}},4380(mo"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4380",
+              "byte": 9322,
+              "quote": "{label:\"File\",submenu:[{label:\"Options\",click:()=>electron_1.app.emit(Constants_1.MenuEvents.OPEN_SETTINGS),accelerator:\"Control+,\"},SEPARATOR,{label:\"Exit\",click:()=>electron_1.app.quit(),accelerator:\"Control+Q\"}]},{label:\"Edit\",submenu:[{role:\"u"
+            }
+          ]
+        },
+        {
+          "text": "DevTools: ENABLE_DEVTOOLS = не-stable канал ИЛИ DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING; меню Developer добавляется только при enableDevtools.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 137127,
+              "quote": "ENABLE_DEVTOOLS=\"stable\"!==buildInfo.releaseChannel||settings?.get(\"DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING\",!1),ENABLE_NET_DEBUG=env"
+            }
+          ]
+        },
+        {
+          "text": "Хоткеи: globalShortcut в бандлах отсутствует (0 совпадений); всё — accelerator в меню и события трея.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4380",
+              "byte": 0,
+              "note": true
+            }
+          ]
+        },
+        {
+          "text": "Deep links: extractUrlFromArgs (--url после --, либо argv со «discord://»), second-instance/open-url/continue-activity/fallbackDeepLink → openOrQueueUrl → core.handleOpenUrl (парсит URL protocol===\"discord:\" → path+query → webContentsSend(\"MAIN_WINDOW_PATH\")).",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 21989,
+              "quote": "function extractUrlFromArgs(args){let urlArgIndex=args.indexOf(\"--url\");if(urlArgIndex>=0){let passThroughArgsIndex=args.indexOf(\"--\");if(passThroughArgsIndex<0||pa"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 133204,
+              "quote": "if(\"discord:\"===parsedURL.protocol)return{path:getSanitizedPath(parsedURL.pathname),query:parsedURL.search.replace(/^\\?/,\"\")}}catch(_){}return n"
+            }
+          ]
+        },
+        {
+          "text": "disclip:// регистрируется как privileged до ready (beforeReadyProtocolRegistration, app #46312); значение протокола DISCORD_CLIP_PROTOCOL=\"disclip\" (app #29157); setAsDefaultProtocolClient в asar нет.",
+          "evidence": [
+            {
+              "file": "app/bundle.js",
+              "line": 10,
+              "module": "#23151",
+              "byte": 24127,
+              "quote": "__webpack_require__(46312).beforeReadyProtocolRegistration(),setGPUFla"
+            },
+            {
+              "file": "app/bundle.js",
+              "line": 15,
+              "module": "#29157",
+              "byte": 140824,
+              "quote": "exports.DISCORD_CLIP_PROTOCOL=\"disclip\"},62457(__unused_rspack_module,"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "voice",
+      "title": "10. Голос, Clips, PREMAP",
+      "summary": "В main нет discord_voice/krisp/zstd/erlpack/media/cloudsync — только трей-команды и clips (protocol + spawn). PREMAP существует в mainScreenPreload и включается дополнительным аргументом --enable-native-premap на win32.",
+      "facts": [
+        {
+          "text": "Из main в голос — только push-каналы трея: SYSTEM_TRAY_TOGGLE_MUTE/SYSTEM_TRAY_OPEN_VOICE_SETTINGS (core #5203).",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 139942,
+              "quote": "function openVoiceSettings(){setWindowVisible(!0,!0),webContentsSend(\"SYSTEM_TRAY_OPEN_VOICE_SETTINGS\")}function toggleM"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 140085,
+              "quote": "SYSTEM_TRAY_TOGGLE_MUTE\")}function toggleDeafen(){webContentsSend(\"SYS"
+            }
+          ]
+        },
+        {
+          "text": "Неактивность: POWER_MONITOR_GET_SYSTEM_IDLE_TIME → discord_utils.isWaylandIdleAvailable/getWaylandSystemIdleTimeMs (Linux), иначе 1000*powerMonitor.getSystemIdleTime().",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#4531",
+              "byte": 84453,
+              "quote": "if(discordUtils.isWaylandIdleAvailable?.())return Number(discordUtils.getWaylandSystemIdleTimeMs())}catch(error){console.error(\"Wayland idle time query failed:\",error)}return 1e3*electron.powerMonitor.getSystemIdleTime()}),electron.powerMonitor.on(\"resume"
+            }
+          ]
+        },
+        {
+          "text": "Clips: protocol.handle(\"disclip\") с Range/206/416 + verifyDiscordMP4; IPC LOAD_CLIP (@40257)/LOAD_CLIPS_DIRECTORY/DELETE_CLIP/MOVE_CLIP/UPDATE_CLIP_METADATA/RENDER_MONTAGE_RECIPE; фичефлаг clips_storage_size; MAX_LENGTH для чтения файлов.",
+          "evidence": [
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7635",
+              "byte": 26420,
+              "quote": "electron_1.protocol.handle(constants_1.DISCORD_CLIP_PROTOCOL,async function(request){let originalPathname=new URL(request.url).pathname;\""
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7635",
+              "byte": 40198,
+              "quote": "DiscordIPC_1.DiscordIPC.main.handle(DiscordIPC_1.IPCEvents.LOAD_CLIP,(_,path)=>loa"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#7635",
+              "byte": 41095,
+              "quote": "declareSupported(\"clips_storage_size\"),DiscordIPC_1.DiscordIPC.main.ha"
+            }
+          ]
+        },
+        {
+          "text": "PREMAP (renderer): PREMAP_MODULES=[\"discord_voice\",\"discord_zstd\",\"discord_cloudsync\",\"discord_media\"], запуск только при win32 + --enable-native-premap, флаг добавляет main (core #5203) при DESKTOP_NATIVE_PREMAP.",
+          "evidence": [
+            {
+              "file": "core/mainScreenPreload.js",
+              "line": 543,
+              "module": "preload module 7328",
+              "byte": 0,
+              "quote": "PREMAP_MODULES=[\"discord_voice\",\"discord_zstd\",\"discord_cloudsync\",\"discord_media\"]"
+            },
+            {
+              "file": "core/bundle.js",
+              "line": 1,
+              "module": "#5203",
+              "byte": 141611,
+              "quote": "additionalArguments.push(\"--enable-native-premap\"),exports.WEBAPP_ENDP"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "chains": [
+    {
+      "id": "A",
+      "name": "Уведомления",
+      "ipcChannel": "DISCORD_NOTIFICATIONS_SEND_NOTIFICATION",
+      "rendererSide": "renderer/preload → invoke(channel, options)",
+      "mainHandler": {
+        "file": "core/bundle.js",
+        "line": 1,
+        "module": "#7592",
+        "byte": 78945,
+        "quote": "DiscordIPC_1.DiscordIPC.main.handle(DiscordIPC_1.IPCEvents.NOTIFICATIONS_SEND_NOTIFICATION,async(_event,options)=>(0,notificationModuleStatus_1.normalizeSendResult)(await requireLoadedLib().sendNotification(options)))"
+      },
+      "nativeModule": "discord_notifications",
+      "nativeCall": "require(<committed|moduleDataPath>/discord_notifications) → lib.setDataPath(modulePath) → lib.setCallbacks(...) → lib.sendNotification(options)",
+      "answer": "normalizeSendResult(...) → Promise resolve в renderer; асинхронно lib.setCallbacks → sendToAllWindows(DISCORD_NOTIFICATIONS_RECEIVED_RESPONSE, action, identifier, userText, fallbackDeepLink)",
+      "platformNotes": "Linux: статус unsupportedStatus(process.platform) (@78250) — модуль не грузится, ветки isOSX(kernel>=21)/isWindows не выполняются; фичефлаги notifications/notifications_provisional не объявляются",
+      "evidence": [
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#7592",
+          "byte": 80021,
+          "quote": "let modulePath=(0,nativeModules_1.getModulePath)(\"discord_notifications\")??path_1.default.join(moduleDataPath,\"discord_notifications\"),lib=require(modulePath);lib.setDataPath(moduleP"
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#7592",
+          "byte": 80273,
+          "quote": "sendToAllWindows(DiscordIPC_1.IPCEvents.NOTIFICATIONS_RECEIVED_RESPONSE,action,identifier,userText,fallbackDeepLink)},_identifier=>[\""
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#7592",
+          "byte": 80640,
+          "quote": "declareSupported(\"notifications\"),(0,appFeatures_1.getFeatures)().declareSupported(\"notifications_provisional\")}catch(e){moduleStatus=(0,notificationModuleStatus_1.loadFailedStatus)(process.platform,e"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "name": "Установка/доставка нативного модуля",
+      "ipcChannel": "DISCORD_NATIVE_MODULES_INSTALL (+ DISCORD_NATIVE_MODULES_GET_PATHS, DISCORD_NATIVE_MODULES_GET_MODULE_PATH)",
+      "rendererSide": "preload NativeModules.ensureModule(name)/getModulePath(name) (core/mainScreenPreload.js:46)",
+      "mainHandler": {
+        "file": "core/bundle.js",
+        "line": 1,
+        "module": "#216",
+        "byte": 74005,
+        "quote": "electron.ipcMain.handle(NATIVE_MODULES_INSTALL,async(_,moduleName)=>{let newUpdater=injectedUpdater?.getUpdater();if(null!=newUpdater)return newUpdaterInstall(newUpdater,moduleName);...})"
+      },
+      "nativeModule": "updater.node (new updater) | legacy moduleUpdater",
+      "nativeCall": "updater.installModule(name) + updater.commitModules({}) → _commitModulesInner → addGlobalPath(<host>/modules/<name>-<version>)",
+      "answer": "Promise resolve; затем preload синхронно запрашивает DISCORD_NATIVE_MODULES_GET_PATHS → { mainAppDirname, browserModulePaths: Module.globalPaths } → nativeModule.paths = processPaths(...) → require(<modulePath>)",
+      "platformNotes": "DISCORD_NATIVE_MODULES_GET_HAS_NEW_UPDATER (sync) позволяет preload понять, доступен ли новый апдейтер; на canvas/после commitModules путь модуля также отдаёт DISCORD_NATIVE_MODULES_GET_MODULE_PATH (updater.committedModulePaths)",
+      "evidence": [
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#216",
+          "byte": 73366,
+          "quote": "function getPathsResponse(){return{mainAppDirname:global.mainAppDirname,browserModulePaths:(0,nodeGlobalPaths_1.getGlobalPaths)()}}async function newUp"
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#216",
+          "byte": 73497,
+          "quote": "async function newUpdaterInstall(updater,moduleName){try{await updater.installModule(moduleName),await updater.commitModules({})}catch(e){throw Error(`Failed to install ${moduleName}: ${e}`)}}function getModulePath(name){"
+        },
+        {
+          "file": "app/bundle.js",
+          "line": 15,
+          "module": "#47421",
+          "byte": 164666,
+          "quote": "_commitModulesInner(versions){let{addGlobalPath,globalPathExists}=__webpack_require__(27453),hostPath=this._getHostPath(),modulesPath=path_1.default.join(hostPat"
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#216",
+          "byte": 75414,
+          "quote": "electron.ipcMain.on(NATIVE_MODULES_GET_MODULE_PATH,(event,name)=>{event.returnValue=getModulePath(name)??null})},1279(__unused_r"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "name": "Native window handle",
+      "ipcChannel": "DISCORD_WINDOW_GET_NATIVE_HANDLE",
+      "rendererSide": "preload → invoke(channel, key|null)",
+      "mainHandler": {
+        "file": "core/bundle.js",
+        "line": 1,
+        "module": "#3386",
+        "byte": 111501,
+        "quote": "DiscordIPC_1.DiscordIPC.main.handle(DiscordIPC_1.IPCEvents.WINDOW_GET_NATIVE_HANDLE,(_,key)=>{let win=injectedGetWindow(key);return null!=win?Promise.resolve(win.getNativeWindowHandle().readInt32LE().toString(10)):Promise.resolve(null)})"
+      },
+      "nativeModule": "Electron (BrowserWindow)",
+      "nativeCall": "win.getNativeWindowHandle() → Buffer → readInt32LE()",
+      "answer": "string (десятичное число) в renderer",
+      "platformNotes": "Читаются только 4 байта; на Wayland/64-бит id может быть неполным (см. unknowns)",
+      "evidence": [
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#3386",
+          "byte": 111600,
+          "quote": "win.getNativeWindowHandle().readInt32LE().toString(10)):Promise.resolv"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "name": "Clips: рендер монтажа и disclip://",
+      "ipcChannel": "DISCORD_RENDER_MONTAGE_RECIPE (+ protocol disclip://)",
+      "rendererSide": "renderer → invoke(channel, recipeJson, outputPath, metadata); плеер — <video src=\"disclip://...\">",
+      "mainHandler": {
+        "file": "core/bundle.js",
+        "line": 1,
+        "module": "#7635",
+        "byte": 38211,
+        "quote": "async function renderMontageRecipe(recipeJson,outputPath,metadata){let modulePath,exePath=null==(modulePath=(0,nativeModules_1.getModulePath)(\"discord_clips\")??...)?null:path_1.default.join(modulePath,\"win32\"===process.platform?\"discord_clips.exe\":\"discord_clips\");...}"
+      },
+      "nativeModule": "discord_clips (исполняемый файл)",
+      "nativeCall": "childProcess.spawn(exePath,[\"--render-recipe\",recipeJson,outputPath,metadata])",
+      "answer": "code 0 → verifyNewDiscordMP4Path(outputPath) → resolve; иначе reject (+удаление частичного файла). Для disclip:// — HTTP Range → 206/416, verifyDiscordMP4",
+      "platformNotes": "Путь к exe — updater committedModulePaths или <moduleDataPath>/discord_clips; на Linux имя без .exe",
+      "evidence": [
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#7635",
+          "byte": 39395,
+          "quote": "let child=childProcess.spawn(exePath,[\"--render-recipe\",recipeJson,outputPath,metadata],{stdio:[\"ignore\",\"ig"
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#7635",
+          "byte": 26420,
+          "quote": "electron_1.protocol.handle(constants_1.DISCORD_CLIP_PROTOCOL,async function(request){let originalPathna"
+        },
+        {
+          "file": "app/bundle.js",
+          "line": 15,
+          "module": "#29157",
+          "byte": 140824,
+          "quote": "exports.DISCORD_CLIP_PROTOCOL=\"disclip\"},62457(__unused_rspack_module,"
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "name": "WebAuthn (macOS) и системные метрики (fallback)",
+      "ipcChannel": "DISCORD_WEBAUTHN_REGISTER_MAC / DISCORD_PROCESS_UTILS_GET_SYSTEM_METRICS",
+      "rendererSide": "preload webauthn.webAuthnRegister(challenge); processUtils.getSystemMetrics(useNativeCpuTimes)",
+      "mainHandler": {
+        "file": "core/bundle.js",
+        "line": 1,
+        "module": "#5544",
+        "byte": 105918,
+        "quote": "DiscordIPC_1.DiscordIPC.main.handle(DiscordIPC_1.IPCEvents.WEBAUTHN_REGISTER_MAC,(_event,challenge)=>callNative(\"webAuthnRegister\",challenge))"
+      },
+      "nativeModule": "discord_webauthn | discord_utils",
+      "nativeCall": "require(<modulePath>/discord_webauthn).webAuthnRegister(challenge, cb) | discordUtils.getSystemCpuTimes() (win32)",
+      "answer": "{code,message} | {cpuTotalTick,cpuTotalIdle,memoryTotal,memoryFree}",
+      "platformNotes": "webauthn — только macOS ≥ kernel 21 (ядро — #1279 MIN_MACOS_KERNEL_MAJOR); getSystemCpuTimes — только win32, на Linux всегда fallback os.cpus()",
+      "evidence": [
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#5544",
+          "byte": 105421,
+          "quote": "require(webAuthnPath)[method](challenge,function(code,message){return resolve({code,message})})})}function ca"
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#9984",
+          "byte": 93179,
+          "quote": "PROCESS_UTILS_GET_SYSTEM_METRICS,(_,useNativeCpuTimes=!1)=>{let{cpuTotalTick,cpuTotalIdle}=function(useNativeCpuTimes){if(useNativeCpuTimes&&\"win32\"===process_1.default.platform)try{let discordUtils=__webpack_require__(4928),times=discordUtils.getSystemCpuTimes?.();if(null!=times)return times}catch("
+        },
+        {
+          "file": "core/bundle.js",
+          "line": 1,
+          "module": "#9984",
+          "byte": 93361,
+          "quote": "let discordUtils=__webpack_require__(4928),times=discordUtils.getSystemCpuTimes?.();if(null!=ti"
+        }
+      ]
+    }
+  ],
+  "unknowns": [
+    "Experiments/getFlag в main отсутствуют (0 совпадений) — фичефлаги серверные; локально только Set declareSupported и выдача через FEATURES_GET_BROWSER_FEATURES.",
+    "Нет globalShortcut, setProxy, setUserAgent, certificate-error-обработчика, setAsDefaultProtocolClient, x-scheme-handler в app/core bundle.",
+    "RPC Discord (discord-ipc socket) в main-JS не найден — ни socket, ни commands.json; вероятно, обслуживается вне main-JS.",
+    "Linux-ветки discord_notifications / discord_intents / discord_webauthn недостижимы (isOSX/isWindows/win32-гейты) — статус unsupported, фичефлаги не объявляются.",
+    "getNativeWindowHandle().readInt32LE() — 4 байта; для Wayland/64-бит идентификатор может быть усечён, проверки длины/платформы нет.",
+    "requireNative (#30885) хрупок: резолв зависит от Module.globalPaths, который наполняется только через commitModules (#47421/#27453); пути модуля (#216 getModulePath) без нового апдейтера недоступны.",
+    "Режим --overlay-host: отдельный процесс с собственным апдейтером; взаимодействие с основным приложением передано нативному discord_overlay2 (в JS не описано).",
+    "В app-бандле каналы часто заданы без префикса (префикс добавляет обёртка #50902), из-за чего статический grep по DISCORD_* даёт ложные «отсутствия» (пример: DISCORD_SPLASH_SCREEN_READY).",
+    "Гонка pending_minidump.txt между синхронным blackbox (#81598) и асинхронным PROCESS_UTILS_GET_LAST_CRASH (#9984) не исследована.",
+    "Значения DSN/ключей/GUID (o64374.ingest.sentry.io, ключи каналов, GUID трея) — статика Discord 1.0.162 («из артефакта»); в других каналах/версиях отличаются.",
+    "Остальные 168 каналов, 47 из которых с вычисляемыми именами, разобраны в backend-ipc.md §5; здесь не дублируются."
+  ]
+}

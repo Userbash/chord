@@ -1,0 +1,1002 @@
+{
+ "generated_by": "static REA-free analysis (nm/readelf/strings + asar parsing + runtime inventory)",
+ "metric": "unique_symbols — число УНИКАЛЬНЫХ имён символов в деманглированной таблице определённых символов (nm -C --defined-only), содержащих указанный токен; hits_binary/hits_js — число совпадений в бинарном/JS-файле; source — откуда взято наблюдение.",
+ "target": {
+  "app_dir": "/home/sanya/.config/discord/app-1.0.162",
+  "build_info": {
+   "releaseChannel": "stable",
+   "sentryDist": "stable-linux-x64",
+   "sentryRelease": "discord-desktop-7e0a1fef1fc1295b33b9404e5b77f1ae39d0c6e0",
+   "version": "1.0.162"
+  },
+  "modules_dir": "/home/sanya/.config/discord/app-1.0.162/modules"
+ },
+ "modules": [
+  {
+   "name": "discord_voice",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_voice-1/discord_voice/discord_voice.node",
+   "size": 126136024,
+   "sha256": "96721305d59a4fdcecfa4eec48daabc50dba96c9213e5d3b514e9690d3b208ca",
+   "symtab": {
+    "defined": 85577,
+    "functions": 69621
+   },
+   "dynsym": {
+    "defined": 11726,
+    "global_default_functions": 11367
+   },
+   "stripped": false,
+   "load_memsz": 37219949,
+   "notable": [
+    {
+     "symbol": "discord::media::Connection",
+     "why": "Публичный объект голосового соединения (C++ ядро медиа). Создаётся из JS как VoiceEngine.VoiceConnection.",
+     "unique_symbols": 309
+    },
+    {
+     "symbol": "discord::media::Engine",
+     "why": "Корневой движок: устройства, аудиоподсистема, инициализация.",
+     "unique_symbols": 411
+    },
+    {
+     "symbol": "discord::media::VideoSource",
+     "why": "Источники видео (камера/экран/файл) — самый плотный класс по символам.",
+     "unique_symbols": 29
+    },
+    {
+     "symbol": "discord::media::RemoteUser",
+     "why": "Состояние удалённого участника (его потоки, видео, уровень звука).",
+     "unique_symbols": 85
+    },
+    {
+     "symbol": "ScreenshareHelper",
+     "why": "Служебная логика шаринга экрана (битрейт, слои качества, симулькаст).",
+     "unique_symbols": 27
+    },
+    {
+     "symbol": "MediaPipeFilter",
+     "why": "Фильтр фона/селфи-сегментация: граф MediaPipe + tflite-модели.",
+     "unique_symbols": 56,
+     "loaded_from": "libmediapipe.so (dlopen), selfie_segmentation*.tflite"
+    },
+    {
+     "symbol": "LinuxCaptureSource",
+     "why": "Wayland/PipeWire-захват (Rust): источник кадров на Linux.",
+     "unique_symbols": 26
+    },
+    {
+     "symbol": "PipewireConfig",
+     "why": "Конфиг PipeWire-потока (формат/разрешение/дёргание кадров).",
+     "unique_symbols": 32
+    },
+    {
+     "symbol": "show_portal_picker",
+     "why": "Вызов xdg-desktop-portal picker (выбор окна/экрана пользователем).",
+     "unique_symbols": 7
+    },
+    {
+     "symbol": "capture_gamescope",
+     "why": "Захват Gamescope-сессий (Steam Deck/игровые сессии).",
+     "unique_symbols": 76
+    },
+    {
+     "symbol": "cros_codecs",
+     "why": "Кодеки Chromium (VAAPI/H.264/VP8/VP9/AV1) — аппаратное кодирование.",
+     "unique_symbols": 567
+    },
+    {
+     "symbol": "nvidia_media_encoding",
+     "why": "NVENC-путь кодирования NVIDIA (Rust).",
+     "unique_symbols": 181
+    },
+    {
+     "symbol": "vulkan_utils",
+     "why": "Vulkan Video: конвертация кадров и кодирование (Rust).",
+     "unique_symbols": 118,
+     "strings": [
+      "fused_scale_to_nv12.glsl"
+     ]
+    },
+    {
+     "symbol": "mlspp::hpke",
+     "why": "MLS/HPKE (E2EE, DAVE) — криптослой групповых звонков.",
+     "unique_symbols": 509
+    },
+    {
+     "symbol": "discord::uv",
+     "why": "Rust-биндинги libuv: сетевые сокеты/таймеры в медиа-подсистеме.",
+     "unique_symbols": 1276
+    },
+    {
+     "symbol": "discord::node_api",
+     "why": "Rust-обёртка NAPI: превращает Rust-типы в JS-объекты (VoiceEngine).",
+     "unique_symbols": 1378
+    },
+    {
+     "symbol": "webrtc::internal",
+     "why": "Статически влинкованный libwebrtc: аудио-обработка, RTCP, ANA.",
+     "unique_symbols": 414
+    },
+    {
+     "symbol": "73dc9167f1cd099e525c9ade2e068d1907b78564",
+     "why": "Коммит rustc, которым собран Rust-слой (строка в бинаре).",
+     "source": "strings/JS",
+     "hits_binary": 133
+    },
+    {
+     "symbol": "gpu_encoder_helper",
+     "why": "Ссылка на внешний CLI-пробник GPU-энкодеров; запускается как отдельный процесс.",
+     "source": "strings/JS",
+     "hits_binary": 2
+    }
+   ],
+   "js_api": [
+    "VoiceEngine.initialize / setDebugLogging / consoleLog / platform",
+    "VoiceEngine.createVoiceConnectionWithOptions / createOwnStreamConnectionWithOptions / createReplayConnection",
+    "VoiceEngine.setVideoOutputSink / addDirectVideoOutputSink / getNextVideoOutputFrame",
+    "VoiceEngine.setKrispPath / setMLPath / setImageDataAllocator / setActiveSinksChangeCallback",
+    "VoiceEngine.setAudioSubsystem / queueAudioSubsystem / setOffloadAdmControls / isVaapiEnabled"
+   ],
+   "children": [
+    "libmediapipe.so",
+    "gpu_encoder_helper",
+    "selfie_segmentation.tflite",
+    "selfie_segmentation_landscape.tflite"
+   ],
+   "note": "index.js — обёртка над discord_voice.node; RUN_MEDIA_HOST=false, т.е. в этой сборке медиа-хост не используется."
+  },
+  {
+   "name": "libmediapipe",
+   "kind": "native-lib",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_voice-1/discord_voice/libmediapipe.so",
+   "size": 23793696,
+   "sha256": "4dc7da21837b507ef46b29018670b0b40f78b12652a4a951499f8e9cc3921846",
+   "symtab": {
+    "defined": 35315,
+    "functions": 26942
+   },
+   "dynsym": {
+    "defined": 24183,
+    "global_default_functions": 18989
+   },
+   "stripped": false,
+   "load_memsz": 20072872,
+   "notable": [
+    {
+     "symbol": "mediapipe::api2::",
+     "why": "C++ API MediaPipe: графы калькуляторов (API v2).",
+     "unique_symbols": 528
+    },
+    {
+     "symbol": "ImageToTensorCalculator",
+     "why": "Кадр → тензор для нейросетевого фильтра/сегментации.",
+     "unique_symbols": 158
+    },
+    {
+     "symbol": "InferenceCalculatorCpuImpl",
+     "why": "Инференс на CPU (TFLite).",
+     "unique_symbols": 44
+    },
+    {
+     "symbol": "InferenceCalculatorGlAdvancedImpl",
+     "why": "Инференс с GPU-ускорением (OpenGL).",
+     "unique_symbols": 69
+    },
+    {
+     "symbol": "ImagePropertiesCalculator",
+     "why": "Геометрия кадра (размер/поворот) для графа.",
+     "unique_symbols": 23
+    },
+    {
+     "symbol": "tflite",
+     "why": "Влинкованный TensorFlow Lite (интерпретатор + ядра).",
+     "unique_symbols": 7030
+    }
+   ],
+   "note": "Наличие tflite-моделей selfie_segmentation*.tflite рядом и строки в voice.node указывают на фильтр фона."
+  },
+  {
+   "name": "gpu_encoder_helper",
+   "kind": "cli-binary",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_voice-1/discord_voice/gpu_encoder_helper",
+   "size": 1027416,
+   "sha256": "17c73b9039e417ab3cbb6bdf150c310f4ffc400b1e9a629e64a8b7dea8282d8e",
+   "symtab": {
+    "defined": 0,
+    "functions": 0
+   },
+   "dynsym": {
+    "defined": 0,
+    "global_default_functions": 0
+   },
+   "stripped": true,
+   "load_memsz": 783498,
+   "notable": [
+    {
+     "symbol": "libva.so.2",
+     "why": "dlopen VA-API (Linux-энкодер AMD/Intel) — модуль vaapi_media_encoding::stubs.",
+     "source": "strings/JS",
+     "hits_binary": 1
+    },
+    {
+     "symbol": "libva-drm.so.2",
+     "why": "dlopen VA-API DRM-бэкенд (доступ к /dev/dri).",
+     "source": "strings/JS",
+     "hits_binary": 1
+    },
+    {
+     "symbol": "libnvidia-encode.so.1",
+     "why": "dlopen NVENC; символ NvEncodeAPICreateInstance.",
+     "source": "strings/JS",
+     "hits_binary": 1
+    },
+    {
+     "symbol": "clap",
+     "why": "CLI на Rust clap: пробник-утилита, а не библиотека.",
+     "source": "strings/JS",
+     "hits_binary": 470
+    },
+    {
+     "symbol": "anon.<hash>.N.llvm.<id>",
+     "why": "Все 1871 определённых символов обезличены LLVM-интернализацией при LTO: реальные имена удалены, .symtab при этом остался.",
+     "unique_symbols": 1871,
+     "source": "nm"
+    }
+   ],
+   "note": "ELF PIE, линкуется только с libc/libdl/libpthread/libgcc_s; вендорные библиотеки подгружает в рантайме. Строка 'gpu_encoder_helper' есть и в voice.node (вокруг текста про 'Failed to create native GPU encoder')."
+  },
+  {
+   "name": "discord_krisp",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_krisp-1/discord_krisp/discord_krisp.node",
+   "size": 62078048,
+   "sha256": "3d70b39670d5cf024a6a730bae488af5bd4ec69d6c309d5c8f0f29ce80052f60",
+   "symtab": {
+    "defined": 43990,
+    "functions": 37001
+   },
+   "dynsym": {
+    "defined": 28150,
+    "global_default_functions": 25825
+   },
+   "stripped": false,
+   "load_memsz": 47611273,
+   "notable": [
+    {
+     "symbol": "krispGlobalInit",
+     "why": "Глобальная инициализация Krisp SDK.",
+     "unique_symbols": 6
+    },
+    {
+     "symbol": "krispCreateNcFloat",
+     "why": "Создание шумодава для float-буферов.",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "krispCreateNcInt16",
+     "why": "Создание шумодава для int16-буферов.",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "KrispNCProcess",
+     "why": "Основной цикл шумоподавления (кадр за кадром).",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "KrispVADProcess",
+     "why": "Детектор голосовой активности (VAD) — используется для активации микрофона.",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "InferenceEngine",
+     "why": "KRISP::INFER::InferenceEngine: загрузка сети и инференс.",
+     "unique_symbols": 7,
+     "runtime_export": "KrispVADSetup (есть в рантайм-экспортах)"
+    },
+    {
+     "symbol": "OnnxExecutableNetwork",
+     "why": "Исполнение модели через ONNX Runtime.",
+     "unique_symbols": 59
+    },
+    {
+     "symbol": "CPUExecutionProvider",
+     "why": "Инференс идёт на CPU (GPU-провайдер не подключён).",
+     "unique_symbols": 19
+    },
+    {
+     "symbol": "_initialize",
+     "why": "JS-точка входа: index.js передаёт logDirectory/logLevel.",
+     "unique_symbols": 8
+    },
+    {
+     "symbol": "krisp-nc-processor",
+     "why": "Версия компонента SDK: 4.0.25 (строка).",
+     "source": "strings/JS",
+     "hits_binary": 4
+    },
+    {
+     "symbol": "krisp-vad-v2-processor",
+     "why": "Версия VAD-компонента: 1.0.3 (строка).",
+     "source": "strings/JS",
+     "hits_binary": 2
+    },
+    {
+     "symbol": "/var/lib/jenkins/.conan",
+     "why": "Сборочные пути CI/Conan-кэша Krisp (инфраструктура вендора).",
+     "source": "strings/JS",
+     "hits_binary": 203
+    },
+    {
+     "symbol": "openssl/openblas-символы в dynsym",
+     "why": "Например SHA256_Update, sgemm_small_kernel_tt_HASWELL: статически влинкованные OpenSSL и OpenBLAS выведены в динамические экспорты (28091 экспорт в рантайме).",
+     "source": "runtime-exports"
+    }
+   ],
+   "js_api": [
+    "KrispModule._initialize({logDirectory, logLevel})",
+    "KrispModule._getNcModels(cb) → Promise getNcModels()",
+    "KrispModule._getVadModels(cb) → Promise getVadModels()",
+    "KrispModule._getNcModelFilename(cb) → Promise getNcModelFilename()"
+   ],
+   "children": [
+    "krisp-nc-o-med-v7.kef",
+    "krisp-nc-o-lite-v1.kef",
+    "krisp-nc-o-nb-v2.kef",
+    "krisp-vad-o-v2.kef",
+    "krisp-bvc-o-pro-v3.kef"
+   ],
+   "note": "Имена .kef-моделей в бинаре не встречаются (0 совпадений) — выбор модели приходит извне (JS/серверная конфигурация)."
+  },
+  {
+   "name": "discord_utils",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/discord_utils.node",
+   "size": 19185488,
+   "sha256": "3dc68ed5675318dd32ac2e5416135a85610c9e6421207d9231d281feb4fefd22",
+   "symtab": {
+    "defined": 5212,
+    "functions": 3599
+   },
+   "dynsym": {
+    "defined": 11,
+    "global_default_functions": 11
+   },
+   "stripped": false,
+   "load_memsz": 1328293,
+   "notable": [
+    {
+     "symbol": "discord::input::InputEvents",
+     "why": "Системный хук ввода: PTT и горячие клавиши вне окна.",
+     "unique_symbols": 58
+    },
+    {
+     "symbol": "InputEventRegister",
+     "why": "NAPI-регистрация отслеживаемых клавиш.",
+     "unique_symbols": 12
+    },
+    {
+     "symbol": "InputEventUnregister",
+     "why": "Снятие регистрации клавиш.",
+     "unique_symbols": 7
+    },
+    {
+     "symbol": "InputWatchAll",
+     "why": "Подписка на все события ввода (в JS живёт как inputWatchAll и удаляется из экспортов).",
+     "unique_symbols": 11
+    },
+    {
+     "symbol": "SetCandidateGamesCallback",
+     "why": "Кандидаты игр (для детекта активности).",
+     "unique_symbols": 7
+    },
+    {
+     "symbol": "SetObservedGamesCallback",
+     "why": "Наблюдение за выбранными играми.",
+     "unique_symbols": 14
+    },
+    {
+     "symbol": "SetGameDetectionCallback",
+     "why": "Колбэк детекта запущенной игры.",
+     "unique_symbols": 7
+    },
+    {
+     "symbol": "GetDiscordProcessObserver",
+     "why": "Наблюдатель за процессами (окна/фокус).",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "SetProcessObserverCollectExecutableFingerprint",
+     "why": "Сбор отпечатка исполняемого файла (детект игр/читов).",
+     "unique_symbols": 7
+    },
+    {
+     "symbol": "GetPidFromXWindow",
+     "why": "X11: PID по окну (Linux-детект активного окна).",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "FetchWindowPropertyString",
+     "why": "X11: чтение свойств окна (заголовок/класс).",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "WaylandIdleManager",
+     "why": "Wayland: idle-состояние (авто-away, экономия ресурсов).",
+     "unique_symbols": 19
+    },
+    {
+     "symbol": "NativePermssion",
+     "why": "Проверки разрешений (опечатка 'Permssion' присутствует в бинаре).",
+     "unique_symbols": 22
+    },
+    {
+     "symbol": "GetDiscordMemoryUsage",
+     "why": "Сбор потребления памяти процессом Discord.",
+     "unique_symbols": 3
+    },
+    {
+     "symbol": "GetDiscordClips",
+     "why": "Служебные данные по Clips-функциональности.",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "GetDiscordIsElevated",
+     "why": "Проверка, запущен ли процесс с повышенными правами.",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "_generateLiveMinidump",
+     "why": "JS-обёртка делает живой minidump и отправляет его в Sentry (эндпоинт зашит в JS).",
+     "source": "strings/JS",
+     "hits_js": 1
+    }
+   ],
+   "js_api": [
+    "inputEventRegister / inputEventUnregister (обёртки из input_event.js)",
+    "inputWatchAll / inputCaptureRegisterElement (только в renderer, input_capture.js)",
+    "setCandidateGamesCallback (+ алиас clearCandidateGamesCallback)",
+    "init({logDirectory, logLevel}), getGPUDriverVersions (nvidia-smi, только win32)",
+    "shouldDisplayNotifications → windows-notification-state (Windows-only)",
+    "submitLiveCrashReport (JS: minidump → Sentry)"
+   ],
+   "note": "index.js правит экспорты на месте (delete/добавление методов), поэтому набор API зависит от того, renderer это или main."
+  },
+  {
+   "name": "discord_game_utils",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_game_utils-1/discord_game_utils/discord_game_utils.node",
+   "size": 11478904,
+   "sha256": "4fe8b2382aa28dd84cfaabe66815edebf08105cd17e02935ca3156209c2f5a77",
+   "symtab": {
+    "defined": 4002,
+    "functions": 2642
+   },
+   "dynsym": {
+    "defined": 11,
+    "global_default_functions": 11
+   },
+   "stripped": false,
+   "load_memsz": 1073361,
+   "notable": [
+    {
+     "symbol": "IdentifyGame",
+     "why": "Идентификация игры по окну/процессу.",
+     "unique_symbols": 9
+    },
+    {
+     "symbol": "PlatIdentifyGame",
+     "why": "Платформенная часть идентификации.",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "FindLaunchable",
+     "why": "Поиск запускаемого таргета (exe/ярлык).",
+     "unique_symbols": 11
+    },
+    {
+     "symbol": "SetRecentGames",
+     "why": "Передача списка недавних игр.",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "IsProtocolSchemeRegistered",
+     "why": "Проверка регистрации схемы протокола (discord://).",
+     "unique_symbols": 2
+    },
+    {
+     "symbol": "ReadIcon",
+     "why": "Извлечение иконки игры/ярлыка.",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "argon2_",
+     "why": "Статически влинкованный libsodium: Argon2.",
+     "unique_symbols": 10
+    },
+    {
+     "symbol": "blake2b_",
+     "why": "libsodium: BLAKE2b.",
+     "unique_symbols": 22
+    },
+    {
+     "symbol": "crypto_scalarmult_curve25519",
+     "why": "libsodium: Curve25519.",
+     "unique_symbols": 34
+    },
+    {
+     "symbol": "crypto_onetimeauth_poly1305",
+     "why": "libsodium: Poly1305.",
+     "unique_symbols": 22
+    }
+   ],
+   "js_api": [
+    "module.exports = require('./discord_game_utils.node')"
+   ],
+   "note": "Экспорты ровно 11 (все — C++/libc-плюс рантайм + napi_register_module_v1): реальный API отдаётся через NAPI-объект, а не dynsym."
+  },
+  {
+   "name": "discord_erlpack",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_erlpack-1/discord_erlpack/discord_erlpack.node",
+   "size": 7755832,
+   "sha256": "6cad518145244f5298409e7d0844fc94ae367fdc6f1e177ddf52e371562470c8",
+   "symtab": {
+    "defined": 2546,
+    "functions": 1449
+   },
+   "dynsym": {
+    "defined": 11,
+    "global_default_functions": 11
+   },
+   "stripped": false,
+   "load_memsz": 464973,
+   "notable": [
+    {
+     "symbol": "Decoder::decode",
+     "why": "Точки входа декодера (22 метода по типам термов ETF).",
+     "unique_symbols": 22
+    },
+    {
+     "symbol": "SmallAtom",
+     "why": "Разбор атомов (коротких/обычных).",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "NewFloat",
+     "why": "Разбор нового float-представления ETF.",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "BinaryAsString",
+     "why": "Совместимость: бинарник как строка.",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "Compressed",
+     "why": "Поддержка сжатых термов (zlib-терм).",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "unpack",
+     "why": "Единственная JS-функция в module.exports.",
+     "unique_symbols": 1
+    }
+   ],
+   "js_api": [
+    "module.exports = require('./discord_erlpack.node') → unpack(...)"
+   ],
+   "note": "Пакер (encoder) отсутствует: модуль только распаковывает ETF (Discord Gateway → JS-объекты)."
+  },
+  {
+   "name": "discord_zstd",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_zstd-1/discord_zstd/discord_zstd.node",
+   "size": 873248,
+   "sha256": "bb7cb593f979dd7751e3b949a1dbecaa21aebc6c4923ad96eda3541b56d684db",
+   "symtab": {
+    "defined": 1087,
+    "functions": 838
+   },
+   "dynsym": {
+    "defined": 1,
+    "global_default_functions": 1
+   },
+   "stripped": false,
+   "load_memsz": 747477,
+   "notable": [
+    {
+     "symbol": "DecompressStream",
+     "why": "Rust-класс (napi-rs) потоковой распаковки zstd.",
+     "unique_symbols": 5
+    },
+    {
+     "symbol": "decompress",
+     "why": "Метод распаковки кадра.",
+     "unique_symbols": 105
+    },
+    {
+     "symbol": "get_last_error",
+     "why": "Ошибка последней операции.",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "reset",
+     "why": "Переиспользование контекста декомпрессии.",
+     "unique_symbols": 3
+    },
+    {
+     "symbol": "initialize_logging",
+     "why": "Настройка логов (logDirectory/logLevel/logNumFiles).",
+     "unique_symbols": 1
+    },
+    {
+     "symbol": "FSE_decompress",
+     "why": "Энтропийное декодирование FSE (внутренности zstd).",
+     "unique_symbols": 3
+    },
+    {
+     "symbol": "HUF_decodeStreamX4",
+     "why": "Хаффман-декодер zstd.",
+     "unique_symbols": 1
+    }
+   ],
+   "js_api": [
+    "createContext() → {id, decompress(data), getLastError()} (один активный контекст; повторное использование через reset)"
+   ],
+   "note": "Компрессор отсутствует — модуль только распаковывает (например, сжатые ETF-термы и gateway-полезную нагрузку)."
+  },
+  {
+   "name": "discord_spellcheck(cld)",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_spellcheck-1/discord_spellcheck/node_modules/cld/build/Release/cld.node",
+   "size": 6646552,
+   "sha256": "9365d00f027e8cd9fb7fa5a1e5ab590f333c09d18077bac05865634b45f39021",
+   "symtab": {
+    "defined": 482,
+    "functions": 332
+   },
+   "dynsym": {
+    "defined": 381,
+    "global_default_functions": 312
+   },
+   "stripped": false,
+   "load_memsz": 6598774,
+   "notable": [
+    {
+     "symbol": "NodeCld::Detect",
+     "why": "JS-метод detect(): определение языка текста.",
+     "source": "nm"
+    },
+    {
+     "symbol": "NodeCld::DetectAsync / DetectAsyncWorker",
+     "why": "Асинхронный вариант через Napi::AsyncWorker (не блокирует event loop).",
+     "source": "nm"
+    },
+    {
+     "symbol": "NodeCld::Constants::getLanguages / getEncodings / getDetected",
+     "why": "Справочники языков/кодировок для JS.",
+     "source": "nm"
+    },
+    {
+     "symbol": "CLD2::DetectLanguageSummaryV2",
+     "why": "Ядро Compact Language Detector 2 (Google), влинковано статически.",
+     "source": "nm"
+    },
+    {
+     "symbol": "CLD2::UTF8GenericScan / utf8*_fast",
+     "why": "Сканеры UTF-8 и таблицы (данные в .rodata).",
+     "source": "nm"
+    }
+   ],
+   "js_api": [
+    "module.exports = { cld: require('cld') } → cld.detect(text)"
+   ],
+   "note": "Символы CLD2 (332 функции) выведены в dynsym; NAPI-класс NodeCld::* — обёртка."
+  },
+  {
+   "name": "discord_notificationstate",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/node_modules/windows-notification-state/build/Release/notificationstate.node",
+   "size": 16840,
+   "sha256": "9660a012a89479b0055f7a146521f4eba89b0d0491e3b5a63fe6f2ce3fef74a1",
+   "symtab": {
+    "defined": 14,
+    "functions": 6
+   },
+   "dynsym": {
+    "defined": 0,
+    "global_default_functions": 0
+   },
+   "stripped": false,
+   "load_memsz": 1925,
+   "notable": [
+    {
+     "symbol": "(нет именованных символов кроме CRT)",
+     "why": "14 определённых символов — только CRT-заглушки (_init, frame_dummy, register_tm_clones). napi_register_module_v1 отсутствует, dynsym пуст.",
+     "hits_symtab_def": 14,
+     "source": "nm"
+    },
+    {
+     "symbol": "addon.getNotificationState()",
+     "why": "JS-обёртка windows-notification-state: на не-win32 платформах модуль возвращает {} и функция бросает Error.",
+     "source": "JS"
+    }
+   ],
+   "note": "На Linux модуль бесполезен: код собирается под Windows (QueryUserNotificationState)."
+  },
+  {
+   "name": "updater",
+   "kind": "native-addon",
+   "path": "/home/sanya/.config/discord/app-1.0.162/updater.node",
+   "size": 5812960,
+   "sha256": "44c55e0bc8271162c3e3fd644366f208bbb8a106495bd7cd97ded7d64537b915",
+   "symtab": {
+    "defined": 0,
+    "functions": 0
+   },
+   "dynsym": {
+    "defined": 9,
+    "global_default_functions": 9
+   },
+   "stripped": true,
+   "load_memsz": 5807253,
+   "notable": [
+    {
+     "symbol": "napi_register_module_v1",
+     "why": "Единственная настоящая точка входа addon (символ экспортирован).",
+     "source": "nm -D"
+    },
+    {
+     "symbol": "__externref_table_alloc / __externref_drop_slice / __externref_heap_live_count",
+     "why": "Символы runtime для externref-таблицы: признак wasm2c/компиляции WebAssembly в C.",
+     "source": "nm -D"
+    },
+    {
+     "symbol": "__wbindgen_malloc / __wbindgen_free / __wbindgen_realloc / __wbindgen_exn_store",
+     "why": "Каркас wasm-bindgen: wasm-модуль, обёрнутый в нативный addon.",
+     "source": "nm -D"
+    },
+    {
+     "symbol": "reqwest 0.11.9 / rusqlite / tokio / rustls / brotli / bsdiff+zucchini",
+     "why": "Rust-зависимости из строк: HTTP-клиент, SQLite-база обновлений, асинхронный рантайм, TLS, сжатие, бинарные диффы.",
+     "source": "strings"
+    },
+    {
+     "symbol": "/ci/build/discord/discord/discord_updater/updater_client/src/*.rs",
+     "why": "Пути исходников: api/db/install/lib/query/repair — конвейер обновления модулей.",
+     "source": "strings"
+    }
+   ],
+   "note": "Полностью stripped (0 символов в .symtab); логику видно только по строкам/импортам."
+  },
+  {
+   "name": "discord_desktop_core(core.asar)",
+   "kind": "asar",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_desktop_core-1/discord_desktop_core/core.asar",
+   "size": 1762838,
+   "sha256": "27aacaa590e9511bf3c70f545fe735a7a695612a88b1c3a78739779ff2ceab47",
+   "symtab": null,
+   "dynsym": null,
+   "stripped": null,
+   "load_memsz": null,
+   "notable": [
+    {
+     "symbol": "bundle.js",
+     "why": "Главный процесс: bootstrap, окна, трей, модуль-апдейтер (402296 Б).",
+     "source": "asar"
+    },
+    {
+     "symbol": "mainScreenPreload.js",
+     "why": "Preload главного окна: строит globalThis.DiscordNative и отдаёт nativeModules (1105621 Б).",
+     "source": "asar"
+    },
+    {
+     "symbol": "data/cacert.pem, data/riotgames.pem",
+     "why": "Встроенные CA-сертификаты (в т.ч. для Riot-интеграции).",
+     "source": "asar"
+    }
+   ]
+  },
+  {
+   "name": "app.asar",
+   "kind": "asar",
+   "path": "/home/sanya/.config/discord/app-1.0.162/resources/app.asar",
+   "size": 3621566,
+   "sha256": "6094a8ffdd7740d938f04c9187d7065e2f33e58b48f5ad66ecbe5df3eca69b02",
+   "symtab": null,
+   "dynsym": null,
+   "stripped": null,
+   "load_memsz": null,
+   "notable": [
+    {
+     "symbol": "bundle.js",
+     "why": "Рендерер-бандл (web-приложение Discord).",
+     "source": "asar"
+    }
+   ]
+  },
+  {
+   "name": "discord_rpc",
+   "kind": "js",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_rpc-1/discord_rpc",
+   "size": null,
+   "sha256": null,
+   "symtab": null,
+   "dynsym": null,
+   "stripped": null,
+   "load_memsz": null,
+   "notable": [
+    {
+     "symbol": "RPCIPC.js / RPCWebSocket.js / safeEmitter.js",
+     "why": "Внутренний RPC: IPC и WebSocket-транспорты для локальных приложений/оверлеев.",
+     "source": "JS"
+    },
+    {
+     "symbol": "node_modules/ws",
+     "why": "Единственная зависимость — библиотека WebSocket.",
+     "source": "JS"
+    }
+   ],
+   "js_api": [
+    "module.exports = { RPCIPC, RPCWebSocket }"
+   ],
+   "note": "Нативного кода нет вообще: чисто JS-модуль."
+  }
+ ],
+ "runtime": {
+  "captures": [
+   {
+    "capture_file": "pid-23548-Discord.json",
+    "pid": 23548,
+    "process": "Discord",
+    "at": "2026-10-18T06:43:33.537Z",
+    "modules": [
+     {
+      "name": "updater.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/updater.node",
+      "base": "0x7f0815000000",
+      "size": 5816392,
+      "exports": 9,
+      "symbols": 187,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     },
+     {
+      "name": "discord_utils.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/discord_utils.node",
+      "base": "0x7f0812356000",
+      "size": 1335680,
+      "exports": 11,
+      "symbols": 3807,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     }
+    ]
+   },
+   {
+    "capture_file": "pid-23877-Discord.json",
+    "pid": 23877,
+    "process": "Discord",
+    "at": "2026-10-18T06:43:34.893Z",
+    "modules": [
+     {
+      "name": "discord_voice.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_voice-1/discord_voice/discord_voice.node",
+      "base": "0x7f0a77600000",
+      "size": 37231944,
+      "exports": 11699,
+      "symbols": 50000,
+      "symbolsTruncated": 57065,
+      "runtime_type": "function"
+     },
+     {
+      "name": "discord_utils.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/discord_utils.node",
+      "base": "0x7f0a87db7000",
+      "size": 1335680,
+      "exports": 11,
+      "symbols": 3807,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     },
+     {
+      "name": "discord_erlpack.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_erlpack-1/discord_erlpack/discord_erlpack.node",
+      "base": "0x7f0a88e85000",
+      "size": 472640,
+      "exports": 11,
+      "symbols": 1554,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     },
+     {
+      "name": "discord_zstd.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_zstd-1/discord_zstd/discord_zstd.node",
+      "base": "0x7f0a86444000",
+      "size": 756424,
+      "exports": 1,
+      "symbols": 886,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     },
+     {
+      "name": "discord_game_utils.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_game_utils-1/discord_game_utils/discord_game_utils.node",
+      "base": "0x7f0a83ef6000",
+      "size": 1080528,
+      "exports": 11,
+      "symbols": 2818,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     },
+     {
+      "name": "discord_krisp.node",
+      "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_krisp-1/discord_krisp/discord_krisp.node",
+      "base": "0x7f09e3c90000",
+      "size": 47621928,
+      "exports": 28091,
+      "symbols": 37368,
+      "symbolsTruncated": null,
+      "runtime_type": "function"
+     }
+    ]
+   }
+  ],
+  "facts": [
+   "Все записи в рантайм-инвентарях имеют type=function → это динамические экспорты (dynsym), а не отладочные таблицы.",
+   "voice: 11699 экспортов и 50000 символов при symbolsTruncated=57065 — снимок обрезан, полный список не сохранён.",
+   "krisp: 28091 экспорт / 37368 символов; среди экспортов видны посторонние библиотеки (OpenSSL, OpenBLAS) — они статически влинкованы и «протекли» в dynsym.",
+   "utils/erlpack/game_utils: одинаковые 11 экспортов (C++-операторы new/delete + napi_register_module_v1) — весь API идёт через NAPI-объект.",
+   "zstd: 1 экспорт (napi_register_module_v1), но 886 символов в снимке, включая Rust v0 mangling (_RINvNt..._12discord_zstd).",
+   "Размеры в рантайме ≈ сумма PT_LOAD.memsz по страницам: voice 126 МБ файл → 37.2 МБ отображения; utils 19.2 МБ → 1.33 МБ.",
+   "Первая запись (pid 23548) содержит только updater.node и discord_utils.node → это процесс updater/bootstrap, а не окно."
+  ],
+  "caveats": [
+   "Тип процесса (main/utility/renderer) в артефактах не зафиксирован: нет cmdline, все PID уже мертвы — сопоставление ролей не подтверждено напрямую.",
+   "Локальный JS показывает, что поверхность загрузки voice/krisp — preload главного окна (mainScreenPreload.js), а не отдельный utility-процесс; при этом README репозитория называет его voice-utility. Расхождение не разрешено."
+  ]
+ },
+ "gaps": [
+  {
+   "gap": "Нет декомпиляции",
+   "detail": "REA-провайдеры для глубокого разбора (inspect_binary_layout с pwntools/pyelftools и Ghidra-класс) недоступны в этом окружении; выводы сделаны по символам, строкам, импортам и JS-обёрткам."
+  },
+  {
+   "gap": "Роль процессов",
+   "detail": "Артефакты не содержат cmdline/типа процесса; PID недоступны. Разделение main/utility/renderer опирается только на косвенные признаки (наборы модулей и JS-код)."
+  },
+  {
+   "gap": "Обрезанные символы",
+   "detail": "voice symbolsTruncated=57065 — больше половины строк отброшено лимитом 50000, поэтому «полный» список символов рантайма недоступен."
+  },
+  {
+   "gap": "libsodium в game_utils",
+   "detail": "Присутствуют argon2/blake2b/curve25519/poly1305, но по символам не видно, где именно они применяются (вероятно, проверка целостности/подпись данных детекта) — не доказано."
+  },
+  {
+   "gap": "Вызов gpu_encoder_helper",
+   "detail": "Строка есть в voice.node, но нет JS-склейки в index.js и нет символа-ссылки: реальная точка запуска (spawn) не подтверждена."
+  },
+  {
+   "gap": "Выбор .kef-моделей Krisp",
+   "detail": "Имена моделей в бинаре отсутствуют; логика выбора (JS/серверная конфигурация) не восстановлена."
+  },
+  {
+   "gap": "notificationstate.node",
+   "detail": "На Linux это заглушка: 0 dynsym, 14 CRT-символов; фактическая реализация существует только в Windows-сборке."
+  },
+  {
+   "gap": "updater.node",
+   "detail": "Stripped + wasm2c: без трассировки рантайма восстановить соответствие строк и функций нельзя (трассировка в этой задаче запрещена)."
+  },
+  {
+   "gap": "Аппаратное декодирование FFmpeg",
+   "detail": "В libffmpeg.so из hwaccel-строк есть только d3d11va / av_d3d11va_alloc_context / vaapi / vulkan (перечисление имён), nvenc — 0; nvcuvid/nvdec отсутствуют во всей сборке (Discord, libffmpeg.so, discord_voice.node) — путь аппаратного декодирования на Linux не подтверждён."
+  },
+  {
+   "gap": "Расхождение с README репозитория",
+   "detail": "README утверждает «9–20 динамических экспортов» и скрытые символы voice/krisp; измерено 11726 (voice) и 28150 (krisp) определённых dynsym-записей и 11367/25825 GLOBAL-DEFAULT функций. Настоящая причина «малого числа экспортов» в README — в utils/erlpack/game_utils (там 11), а не в voice/krisp."
+  }
+ ]
+}

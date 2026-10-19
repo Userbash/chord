@@ -1,0 +1,836 @@
+{
+  "liveUnique": 47,
+  "staticEntries": 904,
+  "staticRestEntries": 648,
+  "staticWithMethod": 626,
+  "staticMalformedPaths": 10,
+  "confirmedByStatic": 44,
+  "methodUnresolvedByStatic": 2,
+  "methodConflict": 0,
+  "liveOnly": 1,
+  "details": [
+    {
+      "method": "GET",
+      "path": "/api/v9/channels/{id}/messages",
+      "count": 11,
+      "verdict": "static-confirmed",
+      "staticKey": "MESSAGES",
+      "staticPath": "/channels/{arg}/messages",
+      "staticMethod": "GET|POST",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|POST /channels/{arg}/messages [MESSAGES]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/applications/public",
+      "count": 7,
+      "verdict": "static-confirmed",
+      "staticKey": "APPLICATIONS_PUBLIC",
+      "staticPath": "/applications/public",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /applications/public [APPLICATIONS_PUBLIC]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/games/autocomplete",
+      "count": 6,
+      "verdict": "static-confirmed",
+      "staticKey": "GAMES_AUTOCOMPLETE",
+      "staticPath": "/games/autocomplete",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /games/autocomplete [GAMES_AUTOCOMPLETE]"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v9/channels/{id}/messages/{id}/ack",
+      "count": 5,
+      "verdict": "static-confirmed",
+      "staticKey": "MESSAGE_ACK",
+      "staticPath": "/channels/{arg}/messages/{arg}/ack",
+      "staticMethod": "POST",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{manual,mention_count}",
+        "{token,last_viewed,flags}"
+      ],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "POST /channels/{arg}/messages/{arg}/ack [MESSAGE_ACK]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/quests/@me",
+      "count": 5,
+      "verdict": "static-confirmed",
+      "staticKey": "QUESTS_CURRENT_QUESTS",
+      "staticPath": "/quests/@me",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /quests/@me [QUESTS_CURRENT_QUESTS]",
+        "GET /quests/{arg} [QUEST]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/{id}/profile",
+      "count": 4,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_PROFILE",
+      "staticPath": "/users/{arg}/profile",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{sku_id}"
+      ],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/{arg}/profile [USER_PROFILE]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/billing/subscriptions",
+      "count": 4,
+      "verdict": "static-confirmed",
+      "staticKey": "BILLING_SUBSCRIPTIONS",
+      "staticPath": "/users/@me/billing/subscriptions",
+      "staticMethod": "GET|POST",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|POST /users/@me/billing/subscriptions [BILLING_SUBSCRIPTIONS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/content-inventory/users/@me",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "MY_CONTENT_INVENTORY",
+      "staticPath": "/content-inventory/users/@me",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": true,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /content-inventory/users/@me [MY_CONTENT_INVENTORY]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/games/detectable/exclusions",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "GAMES_BLOCKLIST",
+      "staticPath": "/games/detectable/exclusions",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /games/detectable/exclusions [GAMES_BLOCKLIST]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/partner-sdk/storefront-config",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "SOCIAL_LAYER_STOREFRONT_CONFIG",
+      "staticPath": "/partner-sdk/storefront-config",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /partner-sdk/storefront-config [SOCIAL_LAYER_STOREFRONT_CONFIG]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/promotions",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "PROMOTIONS",
+      "staticPath": "/promotions",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 1,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /promotions [PROMOTIONS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/quests/decision",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "QUEST_FETCH_QUEST_TO_DELIVER",
+      "staticPath": "/quests/decision",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /quests/decision [QUEST_FETCH_QUEST_TO_DELIVER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/quests/get-decisions",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "QUESTS_GET_DECISIONS",
+      "staticPath": "/quests/get-decisions",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /quests/get-decisions [QUESTS_GET_DECISIONS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "ME",
+      "staticPath": "/users/@me",
+      "staticMethod": "GET|PATCH",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{date_of_birth}",
+        "{token}",
+        "{terms,privacy}"
+      ],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|PATCH /users/@me [ME]",
+        "GET /users/{arg} [USER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/achievements/unread-state",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "ORB_USER_CHALLENGES_UNREAD_STATE",
+      "staticPath": "/users/@me/achievements/unread-state",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/achievements/unread-state [ORB_USER_CHALLENGES_UNREAD_STATE]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/activities/statistics/applications",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_ACTIVITY_STATISTICS",
+      "staticPath": "/users/@me/activities/statistics/applications",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 5,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/activities/statistics/applications [USER_ACTIVITY_STATISTICS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/applications/{id}/entitlements",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "ENTITLEMENTS_FOR_APPLICATION",
+      "staticPath": "/users/@me/applications/{arg}/entitlements",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/applications/{arg}/entitlements [ENTITLEMENTS_FOR_APPLICATION]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/billing/checkout-recovery",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "CHECKOUT_RECOVERY",
+      "staticPath": "/users/@me/billing/checkout-recovery",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/billing/checkout-recovery [CHECKOUT_RECOVERY]"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v9/users/@me/billing/user-offer",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_OFFER",
+      "staticPath": "/users/@me/billing/user-offer",
+      "staticMethod": "POST",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "POST /users/@me/billing/user-offer [USER_OFFER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/collectibles-marketing",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "COLLECTIBLES_MARKETING",
+      "staticPath": "/users/@me/collectibles-marketing",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/collectibles-marketing [COLLECTIBLES_MARKETING]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/entitlements",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "ENTITLEMENTS_FOR_USER",
+      "staticPath": "/users/@me/entitlements",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/entitlements [ENTITLEMENTS_FOR_USER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/library",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "LIBRARY",
+      "staticPath": "/users/@me/library",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/library [LIBRARY]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/mfa/webauthn/credentials",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "MFA_WEBAUTHN_CREDENTIALS",
+      "staticPath": "/users/@me/mfa/webauthn/credentials",
+      "staticMethod": "GET|POST",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{name,ticket,credential}"
+      ],
+      "literalHits": 5,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|POST /users/@me/mfa/webauthn/credentials [MFA_WEBAUTHN_CREDENTIALS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/referrals/eligibility",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "GET_REFERRALS_REMAINING",
+      "staticPath": "/users/@me/referrals/eligibility",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/referrals/eligibility [GET_REFERRALS_REMAINING]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/saved-messages",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "GET_SAVED_MESSAGES",
+      "staticPath": "/users/@me/saved-messages",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/saved-messages [GET_SAVED_MESSAGES]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/settings-proto/{num}",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_SETTINGS_PROTO",
+      "staticPath": "/users/@me/settings-proto/{arg}",
+      "staticMethod": "GET|PATCH",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{settings,required_data_version}"
+      ],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|PATCH /users/@me/settings-proto/{arg} [USER_SETTINGS_PROTO]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/virtual-currency/balance",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "VIRTUAL_CURRENCY_USER_BALANCE",
+      "staticPath": "/users/@me/virtual-currency/balance",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/virtual-currency/balance [VIRTUAL_CURRENCY_USER_BALANCE]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/widget-configs/developer",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "WIDGET_CONFIGS_DEVELOPER",
+      "staticPath": "/widget-configs/developer",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /widget-configs/developer [WIDGET_CONFIGS_DEVELOPER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/widget-configs/featured",
+      "count": 3,
+      "verdict": "static-confirmed",
+      "staticKey": "WIDGET_CONFIGS_FEATURED",
+      "staticPath": "/widget-configs/featured",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /widget-configs/featured [WIDGET_CONFIGS_FEATURED]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/activities/shelf",
+      "count": 2,
+      "verdict": "static-confirmed",
+      "staticKey": "ACTIVITY_SHELF",
+      "staticPath": "/activities/shelf",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /activities/shelf [ACTIVITY_SHELF]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/guilds/{id}/application-command-index",
+      "count": 2,
+      "verdict": "static-method-unresolved",
+      "staticKey": "APPLICATION_COMMAND_INDEX_GUILD",
+      "staticPath": "/guilds/{arg}/application-command-index",
+      "staticMethod": null,
+      "staticRest": false,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "(null) /guilds/{arg}/application-command-index [APPLICATION_COMMAND_INDEX_GUILD]"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v9/guilds/{id}/members/@me",
+      "count": 2,
+      "verdict": "static-confirmed",
+      "staticKey": "GUILD_JOIN",
+      "staticPath": "/guilds/{arg}/members/@me",
+      "staticMethod": "PUT",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "PATCH /guilds/{arg}/members/@me [SET_GUILD_MEMBER]",
+        "PUT /guilds/{arg}/members/@me [GUILD_JOIN]",
+        "DELETE|PATCH /guilds/{arg}/members/{arg} [GUILD_MEMBER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/soundboard-default-sounds",
+      "count": 2,
+      "verdict": "static-confirmed",
+      "staticKey": "SOUNDBOARD_DEFAULT_SOUNDS",
+      "staticPath": "/soundboard-default-sounds",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 1,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /soundboard-default-sounds [SOUNDBOARD_DEFAULT_SOUNDS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/{id}/application-identities",
+      "count": 2,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_APPLICATION_IDENTITIES",
+      "staticPath": "/users/{arg}/application-identities",
+      "staticMethod": "GET|PATCH",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|PATCH /users/{arg}/application-identities [USER_APPLICATION_IDENTITIES]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/application-command-index",
+      "count": 2,
+      "verdict": "static-confirmed",
+      "staticKey": "APPLICATION_COMMAND_INDEX_USER",
+      "staticPath": "/users/@me/application-command-index",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/application-command-index [APPLICATION_COMMAND_INDEX_USER]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/notes/{id}",
+      "count": 2,
+      "verdict": "static-confirmed",
+      "staticKey": "NOTE",
+      "staticPath": "/users/@me/notes/{arg}",
+      "staticMethod": "GET|PUT",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{note}"
+      ],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|PUT /users/@me/notes/{arg} [NOTE]"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v9/beaker",
+      "count": 1,
+      "verdict": "static-absent",
+      "staticKey": null,
+      "staticPath": null,
+      "staticMethod": null,
+      "staticRest": false,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 0,
+      "usedMePlaceholder": false,
+      "candidates": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v9/channels/{id}/explicit-media",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "EXPLICIT_MEDIA_SCAN_MESSAGES",
+      "staticPath": "/channels/{arg}/explicit-media",
+      "staticMethod": "PATCH",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{message_ids}"
+      ],
+      "literalHits": 2,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "PATCH /channels/{arg}/explicit-media [EXPLICIT_MEDIA_SCAN_MESSAGES]"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v9/channels/{id}/messages/{id}/reactions/%F0%9F%91%8B/%40me",
+      "count": 1,
+      "verdict": "static-method-unresolved",
+      "staticKey": "REACTION",
+      "staticPath": "/channels/{arg}/messages/{arg}/reactions/{arg}/{arg}",
+      "staticMethod": null,
+      "staticRest": false,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "(null) /channels/{arg}/messages/{arg}/reactions/{arg}/{arg} [REACTION]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/channels/{id}/messages/pins",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "PINS",
+      "staticPath": "/channels/{arg}/messages/pins",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /channels/{arg}/messages/pins [PINS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/channels/{id}/threads/search",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "THREAD_SEARCH",
+      "staticPath": "/channels/{arg}/threads/search",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{threads,members,has_more,first_messages,most_recent_messages}",
+        "{ephemeral}"
+      ],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /channels/{arg}/threads/search [THREAD_SEARCH]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/collectibles-products/{id}",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "COLLECTIBLES_PRODUCTS",
+      "staticPath": "/collectibles-products/{arg}",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 1,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /collectibles-products/{arg} [COLLECTIBLES_PRODUCTS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/games",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "GAMES",
+      "staticPath": "/games",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 1,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /games [GAMES]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/storefront/products/skus",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "STOREFRONT_PRODUCTS_BY_SKU_IDS",
+      "staticPath": "/storefront/products/skus",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /storefront/products/skus [STOREFRONT_PRODUCTS_BY_SKU_IDS]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/billing/payment-sources",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "BILLING_PAYMENT_SOURCES",
+      "staticPath": "/users/@me/billing/payment-sources",
+      "staticMethod": "GET|POST",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 4,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|POST /users/@me/billing/payment-sources [BILLING_PAYMENT_SOURCES]"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v9/users/@me/settings-proto/{num}",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_SETTINGS_PROTO",
+      "staticPath": "/users/@me/settings-proto/{arg}",
+      "staticMethod": "GET|PATCH",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [
+        "{settings,required_data_version}"
+      ],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET|PATCH /users/@me/settings-proto/{arg} [USER_SETTINGS_PROTO]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/survey",
+      "count": 1,
+      "verdict": "static-confirmed",
+      "staticKey": "USER_SURVEY",
+      "staticPath": "/users/@me/survey",
+      "staticMethod": "GET",
+      "staticRest": true,
+      "staticMalformed": false,
+      "staticBodyKeys": [],
+      "literalHits": 3,
+      "usedMePlaceholder": false,
+      "candidates": [
+        "GET /users/@me/survey [USER_SURVEY]"
+      ]
+    }
+  ]
+}

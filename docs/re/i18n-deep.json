@@ -1,0 +1,908 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-19T08:08:59.426Z",
+    "target": "Discord Desktop 1.0.162 (Linux, flatpak)",
+    "sources": [
+      "/home/sanya/re-deep/out/bundles/discord.com_assets_501428.98d57a9bd8cbb604.js",
+      "/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js",
+      "/home/sanya/re-deep/ru-catalog.json",
+      "/home/sanya/re-deep/en-catalog.json",
+      "/home/sanya/re-deep/inline/lang-list.json"
+    ],
+    "keyFormula": "xxh64(id, seed=0) → 8 байт digest в LE-порядке → base64(первые 6 символов, 36 бит) = ключ",
+    "keyFormulaChecked": {
+      "cases": [
+        {
+          "input": "ru",
+          "official": "+irF5O",
+          "mine": "+irF5O"
+        },
+        {
+          "input": "uk",
+          "official": "6Et1LI",
+          "mine": "6Et1LI"
+        },
+        {
+          "input": "en-US",
+          "official": "+dXJII",
+          "mine": "+dXJII"
+        },
+        {
+          "input": "de",
+          "official": "njcCQ9",
+          "mine": "njcCQ9"
+        },
+        {
+          "input": "ja",
+          "official": "fHulc+",
+          "mine": "fHulc+"
+        },
+        {
+          "input": "AKA",
+          "official": "l1QVfj",
+          "mine": "l1QVfj"
+        },
+        {
+          "input": "GIF",
+          "official": "I5gL2H",
+          "mine": "I5gL2H"
+        },
+        {
+          "input": "OK",
+          "official": "TyCVIq",
+          "mine": "TyCVIq"
+        },
+        {
+          "input": "PS5",
+          "official": "oElqN5",
+          "mine": "oElqN5"
+        },
+        {
+          "input": "Dismiss popup window",
+          "official": "T/IUYx",
+          "mine": "T/IUYx"
+        },
+        {
+          "input": "Spotify",
+          "official": "djS8Tc",
+          "mine": "djS8Tc"
+        },
+        {
+          "input": "Channel {name}, created",
+          "official": "t3+xw3",
+          "mine": "t3+xw3"
+        },
+        {
+          "input": "add",
+          "official": "EEAQE1",
+          "mine": "EEAQE1"
+        },
+        {
+          "input": "ADD",
+          "official": "OYkgVk",
+          "mine": "OYkgVk"
+        }
+      ],
+      "ok": "14/14"
+    }
+  },
+  "runtime": {
+    "impl": "собственный рантайм Discord (не IntlMessageFormat/formatjs): MessageLoader (модуль 239127) грузит каталог локали динамическим import, значения — keyless JSON-АST, рендер — FormatBuilder + bindFormatValues (модуль 668317) поверх Intl.* (модули 237341/624067)",
+    "evidence": [
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:17458 · 239127(e,t,r){\"use strict\";var n=this&&this.__awaiter",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:18269 · this.localeImportMap=e,this.supportedLocales=Object.keys(e)",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:19797 · _loadLocale(e){return n(this,void 0,void 0,function*(){",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:20414 · this.messages[e]=(yield o).default",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:5284 · 668317(e,t,r){\"use strict\";Object.defineProperty(t,\"__esModule\",{value:!0}),t.FormatBui...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:12624 · pushLiteralText(e){this.result+=e}",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:2099 · dataFormatterCache=new class{constructor(){this.dateTime=new Map",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:2657 · getPluralRules(...e){return this._getCached(this.pluralRules,e,e=>new Intl.PluralRules(...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:2751 · getRelativeTimeFormatter(...e){return this._getCached(this.relativeTime,e,e=>new Intl.R...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:4369 · formatNumber(r,a){let s=(0,n.resolveFormatConfigOptions)(t.number,a);return i.dataForma...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:3405 · date:{short:{month:\"numeric\",day:\"numeric\",year:\"2-digit\"}",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:3308 · number:{integer:{maximumFractionDigits:0},currency:{style:\"currency\"},percent:{style:\"p...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:15943 · 835751(e,t,r){\"use strict\";Object.defineProperty(t,\"__esModule\",{value:!0}),t.IntlManag...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:16097 · t.DEFAULT_LOCALE=\"en-US\"",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:16473 · this.data=(0,o.makeDataFormatters)([this.currentLocale,this.defaultLocale],this.formatC...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:18497 · withDebugValues(e,t){this._debugKeyMap=e,this._localeFileMap=t}",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:18560 · fallbackWith(e){let t=this;for(;null!=t;)if((t=t._parentLoader)===this)throw Error(",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:19355 · Requested message ${a} does not have a value in the requested locale ${s} nor the defau...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:18915 · return this.fallbackMessage",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:12888 · 446274(e,t,r){\"use strict\";let n;",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:13347 · let i=r(618830),o=\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\".sp...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:13192 · a?n:n.reverse()",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:1033345 · 618830(e,t,r){\"use strict\";r.r(t),r.d(t,{XXH64:()=>u,hash:()=>c})"
+    ],
+    "nodeTypes": [
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:1756 · [n.Literal=0]=\"Literal\"",
+      "0 Literal, 1 Argument, 2 Number, 3 Date, 4 Time, 5 Select, 6 Plural, 7 Pound (#), 8 Tag"
+    ],
+    "formatJsQuirks": [
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:1952 · t.FORMAT_JS_POUND=Object.freeze({type:7})",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:7797 · case i.FormatJsNodeType.Plural:{let t=v[2],n=v[3],i=v[4],o=(()=>{var e;let r=`=${b}`;re..."
+    ]
+  },
+  "plural": {
+    "mechanism": "узел [6, varName, {branch: nodes}, offset, \"cardinal\"|\"ordinal\"]; сперва точный ключ `=<value>`, иначе Intl.PluralRules(type).select(value - offset), затем ветка `.other`; если ветки нет — throw `${value} is not a known option for plural value ...`; `#` (Pound) внутри ветки = Intl.NumberFormat от того же значения",
+    "categories": "ru (CLDR, Intl.PluralRules(\"ru\")): one — 1, 21, 31…; few — 2–4, 22–24…; many — 0, 5–20, 25–30…; other — дробные (1.5); плюс точные селекторы `=N`. В каталоге ru встречаются ветви: other/one/few/many/=0/=1/=2/=-1/=3/=6",
+    "evidence": [
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:8001 · is not a known option for plural value ${g}. Valid options are ${Object.keys(t).join(\",...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:6028 · if(y===i.FormatJsNodeType.Pound){if(\"number\"==typeof h){let e=p.formatNumber(h);r.pushL...",
+      "демо: /home/sanya/re-deep/plural-demo.mjs → plural-demo.txt (Intl.PluralRules ru/en, реальные ключи каталога)"
+    ],
+    "examples": [
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 0,
+        "category": "many",
+        "result": "Пользователь Бот удалён. Получатели не выбраны."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 1,
+        "category": "one",
+        "result": "Пользователь Бот удалён. Выбран 1 получатель."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 2,
+        "category": "few",
+        "result": "Пользователь Бот удалён. Выбрано 2 получателя."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 5,
+        "category": "many",
+        "result": "Пользователь Бот удалён. Выбрано 5 получателей."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 11,
+        "category": "many",
+        "result": "Пользователь Бот удалён. Выбрано 11 получателей."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 21,
+        "category": "one",
+        "result": "Пользователь Бот удалён. Выбран 21 получатель."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 22,
+        "category": "few",
+        "result": "Пользователь Бот удалён. Выбрано 22 получателя."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 25,
+        "category": "many",
+        "result": "Пользователь Бот удалён. Выбрано 25 получателей."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "ru",
+        "n": 101,
+        "category": "one",
+        "result": "Пользователь Бот удалён. Выбран 101 получатель."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "en",
+        "n": 1,
+        "category": "one",
+        "result": "Removed Bot. 1 recipient selected."
+      },
+      {
+        "key": "+yF0ds",
+        "locale": "en",
+        "n": 5,
+        "category": "other",
+        "result": "Removed Bot. 5 recipients selected."
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 0,
+        "category": "many",
+        "result": "0 игр"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 1,
+        "category": "one",
+        "result": "1 игра"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 2,
+        "category": "few",
+        "result": "2 игры"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 5,
+        "category": "many",
+        "result": "5 игр"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 11,
+        "category": "many",
+        "result": "11 игр"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 21,
+        "category": "one",
+        "result": "21 игра"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 22,
+        "category": "few",
+        "result": "22 игры"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 25,
+        "category": "many",
+        "result": "25 игр"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "ru",
+        "n": 101,
+        "category": "one",
+        "result": "101 игра"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "en",
+        "n": 1,
+        "category": "one",
+        "result": "1 game"
+      },
+      {
+        "key": "r/EUap",
+        "locale": "en",
+        "n": 5,
+        "category": "other",
+        "result": "5 games"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 0,
+        "category": "many",
+        "result": "0 часов"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 1,
+        "category": "one",
+        "result": "1 час"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 2,
+        "category": "few",
+        "result": "2 часа"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 5,
+        "category": "many",
+        "result": "5 часов"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 11,
+        "category": "many",
+        "result": "11 часов"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 21,
+        "category": "one",
+        "result": "21 час"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 22,
+        "category": "few",
+        "result": "22 часа"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 25,
+        "category": "many",
+        "result": "25 часов"
+      },
+      {
+        "key": "+sThav",
+        "locale": "ru",
+        "n": 101,
+        "category": "one",
+        "result": "101 час"
+      },
+      {
+        "key": "+sThav",
+        "locale": "en",
+        "n": 1,
+        "category": "one",
+        "result": "1 hour"
+      },
+      {
+        "key": "+sThav",
+        "locale": "en",
+        "n": 5,
+        "category": "other",
+        "result": "5 hours"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 0,
+        "category": "many",
+        "result": "0 участников"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 1,
+        "category": "one",
+        "result": "1 участник"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 2,
+        "category": "few",
+        "result": "2 участника"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 5,
+        "category": "many",
+        "result": "5 участников"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 11,
+        "category": "many",
+        "result": "11 участников"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 21,
+        "category": "one",
+        "result": "21 участник"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 22,
+        "category": "few",
+        "result": "22 участника"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 25,
+        "category": "many",
+        "result": "25 участников"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "ru",
+        "n": 101,
+        "category": "one",
+        "result": "101 участник"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "en",
+        "n": 1,
+        "category": "one",
+        "result": "1 Member"
+      },
+      {
+        "key": "pAQJsJ",
+        "locale": "en",
+        "n": 5,
+        "category": "other",
+        "result": "5 Members"
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 0,
+        "category": "many",
+        "result": "0 чел."
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 1,
+        "category": "one",
+        "result": "1 человек "
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 2,
+        "category": "few",
+        "result": "2 чел."
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 5,
+        "category": "many",
+        "result": "5 чел."
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 11,
+        "category": "many",
+        "result": "11 чел."
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 21,
+        "category": "one",
+        "result": "21 человек "
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 22,
+        "category": "few",
+        "result": "22 чел."
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 25,
+        "category": "many",
+        "result": "25 чел."
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "ru",
+        "n": 101,
+        "category": "one",
+        "result": "101 человек "
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "en",
+        "n": 1,
+        "category": "one",
+        "result": "1 Person"
+      },
+      {
+        "key": "C4WXvc",
+        "locale": "en",
+        "n": 5,
+        "category": "other",
+        "result": "5 People"
+      }
+    ],
+    "exactSelectors": [
+      "=0 (107 ветвей)",
+      "=1 (38)",
+      "=2 (18)",
+      "=-1 (7)",
+      "=3 (1)",
+      "=6 (1)"
+    ],
+    "traps": [
+      "ru `other` обязателен: для дробей и для ветвей без many; часто пишут other = many-форму (см. r/EUap: 5 → «игр», other = «игр»)",
+      "ветвь `many` в ru иногда просто отсутствует (C4WXvc: one/other, other = «чел.»)",
+      "few в ru покрывает 2–4 и 22–24, а не только «2–4»",
+      "во вложенных плуральных ветвях `#` подставляется из СВОЕЙ ветви (currentPluralValue) — вложенные плуралы работают независимо"
+    ]
+  },
+  "richFormat": [
+    {
+      "syntax": "**text**",
+      "meaning": "жирный",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:824318 · strong:{order:z,requiredFirstCharacters:[\"*\"],match:h(/^\\*\\*((?:\\\\[\\s\\S]|[^\\\\])+?)\\*\\*(..."
+    },
+    {
+      "syntax": "__text__",
+      "meaning": "подчёркнутый",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:824595 · u:{order:z++,requiredFirstCharacters:[\"_\"],match:h(/^__((?:\\\\[\\s\\S]|[^\\\\])+?)__(?!_)/"
+    },
+    {
+      "syntax": "~~text~~",
+      "meaning": "зачёркнутый (переопределён в Discord как <s>)",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5891002 · s:{order:s().defaultRules.u.order,requiredFirstCharacters:[\"~\"],match:s().inlineRegex(/..."
+    },
+    {
+      "syntax": "*text* / _text_",
+      "meaning": "курсив (в Slate _только_парный_)",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:823844 · em:{order:z,match:h(RegExp((H?\"^\\\\b_((?:_[_(]|"
+    },
+    {
+      "syntax": "`код`",
+      "meaning": "инлайн-код",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:825091 · inlineCode:{order:z++,requiredFirstCharacters:[\"`\"],match:h(/^(`+)([\\s\\S]*?[^`])\\1(?!`)/"
+    },
+    {
+      "syntax": "```lang\\n...\\n```",
+      "meaning": "блок кода (подсветка hljs, dangerouslySetInnerHTML)",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5887232 · codeBlock:{order:s().defaultRules.codeBlock.order,requiredFirstCharacters:[\"`\"],match:e..."
+    },
+    {
+      "syntax": "||спойлер||",
+      "meaning": "спойлер",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5891144 · spoiler:{order:D.Ay.order,requiredFirstCharacters:[\"|\"],match:e=>v.VFs.exec(e) / discord.com_assets_web.4d4b2f75fdea5470.js:314350 · ie=/^\\|\\|([\\s\\S]+?)\\|\\|/"
+    },
+    {
+      "syntax": "> цитата",
+      "meaning": "блочная цитата",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:819067 · blockQuote:{order:z++,match:m(/^( *>[^\\n]+(\\n[^\\n]+)*\\n*)+\\n{2,}/)"
+    },
+    {
+      "syntax": "# ## ###",
+      "meaning": "заголовок (только 1–3 в Discord)",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5865874 · allowHeading&&(null==n||\"\"===n||null!=n.match(a))?(0,i.anyScopeRegex)(/^ *(#{1,3})(?:\\s+)"
+    },
+    {
+      "syntax": "-# текст",
+      "meaning": "малый текст (subtext)",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5894028 · s=/^ *-# +((?!-#)[^\\n]+)(?:\\n|$)/"
+    },
+    {
+      "syntax": "-/* 1.",
+      "meaning": "список (глубина ≤ 11)",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5870466 · if(!t.allowList||t._listLevel>=11)return null"
+    },
+    {
+      "syntax": "@silent",
+      "meaning": "префикс без уведомления",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5889046 · silentPrefix:{order:D.Ay.order,requiredFirstCharacters:[\"@\"],match:(e,t,n)=>null==n||\"\"..."
+    },
+    {
+      "syntax": "<@123> / <@!123> / @everyone / @here",
+      "meaning": "упоминание пользователя",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5888290 · match(e){let t=/^<@!?(\\d+)>|^(@(?:everyone|here))/.exec(e);return null==t?null:t}"
+    },
+    {
+      "syntax": "<@&123>",
+      "meaning": "упоминание роли",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5887472 · roleMention:{order:D.Ay.order,requiredFirstCharacters:[\"<\"],match:e=>/^<@&(\\d+)>/"
+    },
+    {
+      "syntax": "<#123>",
+      "meaning": "упоминание канала",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5882377 · match:e=>/^<#(\\d+)>/.exec(e)"
+    },
+    {
+      "syntax": "</команда 1 2:123>",
+      "meaning": "упоминание слэш-команды",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5889412 · /^<\\/((?:[-_\\p{Letter}\\p{Number}\\p{sc=Deva}\\p{sc=Thai}]{1,32})"
+    },
+    {
+      "syntax": "<a:name:123> / <:name:123>",
+      "meaning": "кастомный эмодзи",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5883764 · customEmoji:{order:s().defaultRules.codeBlock.order,requiredFirstCharacters:[\"<\"],match..."
+    },
+    {
+      "syntax": ":name: + :name::skin-tone-3:",
+      "meaning": "юникод-эмодзи по имени",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:4453876 · EMOJI_NAME_RE:/^:([^\\s:]+?(?:::skin-tone-\\d)?):/"
+    },
+    {
+      "syntax": "<t:1712345678:R>",
+      "meaning": "таймстамп: t T d D f F s S R",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:5903524 · d=RegExp(`^<t:(-?\\\\d{1,17})(?::(${o}))?>`)"
+    },
+    {
+      "syntax": "<sound:guildId:soundId>",
+      "meaning": "саундборд-эмодзи",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:6975997 · u=/^<sound:(\\d+):(\\d+)>/"
+    },
+    {
+      "syntax": "<id:home> / <id:browse:123>",
+      "meaning": "статическая ссылка-маршрут",
+      "rule": "discord.com_assets_web.4d4b2f75fdea5470.js:314350 · ie=/^\\|\\|([\\s\\S]+?)\\|\\|/,it=/^<id:(home|browse|customize|guide|linked-roles)(?::(\\d+))?..."
+    },
+    {
+      "syntax": "https://… (auto), <https://…>, [t](u)",
+      "meaning": "ссылки",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:822642 · url:{order:z++,requiredFirstCharacters:[\"h\"],match:h(/^(https?:\\/\\/[^\\s<]+[^<.,:;\"')\\]\\..."
+    },
+    {
+      "syntax": "\\* \\_ \\~ \\| \\\\",
+      "meaning": "escape — снимает разметку",
+      "rule": "discord.com_assets_501428.98d57a9bd8cbb604.js:821885 · escape:{order:z++,requiredFirstCharacters:[\"\\\\\"],match:h(/^\\\\([^0-9A-Za-z\\s])/)"
+    }
+  ],
+  "richFormatOrder": {
+    "note": "порядок = поле order, сортировка в движке simple-markdown",
+    "engine": "discord.com_assets_501428.98d57a9bd8cbb604.js:812904 · n.sort(function(t,r){var n=e[t],i=e[r],o=n.order,a=i.order;",
+    "defaultsAscending": [
+      "heading 0",
+      "nptable 1",
+      "lheading 2",
+      "hr 3",
+      "codeBlock(indent) 4",
+      "fence 5",
+      "blockQuote 6",
+      "list 7",
+      "def 8",
+      "table 9",
+      "newline 10",
+      "paragraph 11",
+      "escape 12",
+      "tableSeparator 13",
+      "autolink 14",
+      "mailto 15",
+      "url 16",
+      "link 17",
+      "image 18",
+      "reflink 19",
+      "refimage 20",
+      "em 21",
+      "strong 22",
+      "u 23",
+      "del 24",
+      "inlineCode 25",
+      "br 26",
+      "text 27"
+    ],
+    "discordOverrides": "order = order текстового правила (последнее), отбор через requiredFirstCharacters + качество (quality) для em/strong",
+    "escapeOrder": "discord.com_assets_501428.98d57a9bd8cbb604.js:821885 · escape:{order:z++,requiredFirstCharacters:[\"\\\\\"],match:h(/^\\\\([^0-9A-Za-z\\s])/)",
+    "htmlEscape": "discord.com_assets_501428.98d57a9bd8cbb604.js:815303 · E={\"<\":\"&lt;\",\">\":\"&gt;\",\"&\":\"&amp;",
+    "sanitizeUrl": "discord.com_assets_501428.98d57a9bd8cbb604.js:815163 · if(0===t.indexOf(\"javascript:\")||0===t.indexOf(\"vbscript:\")||0===t.indexOf(\"data:\"))ret..."
+  },
+  "richTagsI18n": {
+    "tags": [
+      "$b → strong/**",
+      "$i → em/*",
+      "$del → del/~~",
+      "$code → code/`",
+      "$link → a[href]/[text](url)",
+      "$p → p/paragraph"
+    ],
+    "evidence": [
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:12050 · DEFAULT_REACT_RICH_TEXT_ELEMENTS={$b:(e,t)=>o(\"strong\",{key:t},e)",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:10895 · i={$b:e=>\"**\"+e.join(\"\")+\"**\",$i:e=>\"*\"+e.join(\"\")+\"*\",$del:e=>\"~~\"+e.join(\"\")+\"~~\",$co...",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:8897 · $b:e=>({type:n.Strong,content:e})",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:9239 · if(!(e in a))throw`${e} is not a known rich text formatting tag`",
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:7236 · if(\"$\"===g[0])r.pushRichTextTag(g,i,o);else{if(\"function\"!=typeof b)throw`expected a fu..."
+    ],
+    "customHooks": "тег без «$» (например F6Hook, usernameHook, tabHook) — значение-функция: получает (nodes, keyPrefix) и возвращает узлы; control-часть тега $link — второй массив (колбэки, напр. onSettingsClick)"
+  },
+  "argFormats": [
+    {
+      "topic": "подстановка",
+      "rule": "Argument-узел [1,\"name\"]: `${name}`; Tag-узел [8,\"$link\",children,control] с «$» — pushRichTextTag, без «$» — функция-хук (nodes, keyPrefix)",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:6138 · let g=v[1];if(!(g in f)&&\"$\"!==g[0])throw new o(g,l,y)"
+    },
+    {
+      "topic": "отсутствующий аргумент",
+      "rule": "throw `No value for variable '<v>' was provided for the localized message '<m>'` (класс ошибки с variableName/originalMessage/nodeType) — тихого фолбэка нет",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:5559 · super(`No value for variable '${e}' was provided for the localized message '${t}'`)"
+    },
+    {
+      "topic": "select",
+      "rule": "[5,var,{...}]: прямое сравнение; нет ветки и нет other → throw",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:7515 · case i.FormatJsNodeType.Select:{let t=v[2],n=b in t?t[b]:t.other;if(null==n)throw"
+    },
+    {
+      "topic": "числовые форматы",
+      "rule": "[2,\"name\"] → Intl.NumberFormat(locale, config.number.*); скелетов в каталоге нет (все узлы 2-элементные)",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:6647 · case i.FormatJsNodeType.Number:{let e=v[2],i=e in d.number?d.number[e]:null!=e?(0,n.par..."
+    },
+    {
+      "topic": "даты/время",
+      "rule": "[3,\"name\",\"medium\"] → formatDate; [4,...] → formatTime; именованные скелеты short/medium/long/full + произвольные (\"M/d\", \"::MMMMd\")",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:6450 · r.pushLiteralText(p.formatDate(b,t));break"
+    },
+    {
+      "topic": "списки/относительное время",
+      "rule": "Intl.ListFormat, Intl.RelativeTimeFormat (через dataFormatterCache); relativeTime только через [3,ts,\"R\"] в сообщениях не встречается (там dayjs-компонент <t:...:R>)",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:4901 · formatRelativeTime(r,a,s){let l=(0,n.resolveFormatConfigOptions)(t.relativeTime,s)"
+    }
+  ],
+  "locales": {
+    "assetList": [
+      "en-US",
+      "en-GB",
+      "zh-CN",
+      "zh-TW",
+      "cs",
+      "da",
+      "nl",
+      "fr",
+      "de",
+      "el",
+      "hu",
+      "it",
+      "ja",
+      "ko",
+      "pl",
+      "pt-PT",
+      "pt-BR",
+      "ru",
+      "sk",
+      "es-419",
+      "es-ES",
+      "sv-SE",
+      "tr",
+      "bg",
+      "uk",
+      "fi",
+      "no",
+      "hr",
+      "ro",
+      "lt",
+      "th",
+      "vi",
+      "hi",
+      "he",
+      "ar",
+      "id"
+    ],
+    "assetListSize": 36,
+    "enabled": [
+      "en-US",
+      "en-GB",
+      "zh-CN",
+      "zh-TW",
+      "cs",
+      "da",
+      "nl",
+      "fr",
+      "de",
+      "el",
+      "hu",
+      "it",
+      "ja",
+      "ko",
+      "pl",
+      "pt-BR",
+      "ru",
+      "es-419",
+      "es-ES",
+      "sv-SE",
+      "tr",
+      "bg",
+      "uk",
+      "fi",
+      "no",
+      "hr",
+      "ro",
+      "lt",
+      "th",
+      "vi",
+      "hi"
+    ],
+    "enabledCount": 31,
+    "disabled": [
+      "pt-PT",
+      "sk",
+      "he",
+      "ar",
+      "id"
+    ],
+    "evidence": [
+      "discord.com_assets_501428.98d57a9bd8cbb604.js:18292 · this.supportedLocales=Object.keys(e)",
+      "проверка: код локали хешируется тем же keyHash и ищется в ru-каталоге; найдены все включённые локали"
+    ]
+  },
+  "numbers": [
+    {
+      "item": "файлы",
+      "evidence": "en bTzRR6 = [[2,\"size\"],\" KB\"]; ru = [[2,\"size\"],\" кб\"]",
+      "note": "число — узел [2,\"size\"], единица «КБ/МБ/ГБ» — литерал в самой строке; байты->единицы считает вызывающий код"
+    },
+    {
+      "item": "скорость",
+      "evidence": "en wnF6TH = [[2,\"size\"],\" KB/S\"], WU+gTX = [[2,\"size\"],\" MB/S\"]",
+      "note": "ru: «кбит/сек», «мбит/сек»"
+    },
+    {
+      "item": "лимит вложения",
+      "evidence": "en DYFPg2 = [\"Your attachment(s) are too large. Maximum total size is \",[1,\"maxSizeMb\"],\" MB.\"]",
+      "note": "аргумент maxSizeMb передаётся уже в МБ"
+    },
+    {
+      "item": "эмодзи-лимит",
+      "evidence": "en kIO9jy = [\"That emoji was too big! Emoji must be under \",[1,\"maxSize\"],\" KB.\"]",
+      "note": "аргумент maxSize (Argument, не Number-узел)"
+    },
+    {
+      "item": "проценты",
+      "evidence": "en 4FUWIL = [\"Get \",[2,\"percent\"],\"% Off Nitro Yearly\"]; ru = [\"Получите скидку \",[2,\"percent\"],\"% на Nitro с годовым тарифом\"]",
+      "note": "число — узел [2,\"percent\"], знак % — литерал"
+    },
+    {
+      "item": "разделитель разрядов ru",
+      "evidence": "Intl.NumberFormat(\"ru\").format(1234567) = \"1 234 567\" (U+00A0 (NBSP))",
+      "note": "Intl.NumberFormat без скелетов; скелеты чисел в каталоге не используются"
+    },
+    {
+      "item": "даты/время",
+      "evidence": "en qxiBnZ = [\"Are you sure you want to cancel? On \",[3,\"timestamp\",\"medium\"],\", \",[1,\"guildName\"],\" will lose access to benefits like:\"]",
+      "note": "скелеты даты: medium, short, long, ::MMMMd, M/d; времени: short"
+    },
+    {
+      "item": "относительное время",
+      "evidence": "discord.com_assets_web.4d4b2f75fdea5470.js:5903051 · R:e=>{let t=r().relativeTimeThreshold(\"s\");r().relativeTimeThreshold(\"s\",60);",
+      "note": "формат <t:...:R> — dayjs fromNow с порогами (1с/1мин/5мин/2ч/45мин); компонент ставит setInterval для обновления"
+    },
+    {
+      "item": "длительность",
+      "evidence": "discord.com_assets_501428.98d57a9bd8cbb604.js:4232 · formatDuration(r,a){let s=(0,n.resolveFormatConfigOptions)(t.time,a);return i.dataForma...",
+      "note": "Intl.DurationFormat, но конфиг берётся из DEFAULT_FORMAT_CONFIG.time (не .duration) — фактическая особенность кода"
+    },
+    {
+      "item": "N участников",
+      "evidence": "ru pAQJsJ = [[6,\"count\",{\"one\":[[7],\" участник\"],\"few\":[[7],\" участника\"],\"other\":[[7],\" участников\"]},0,\"cardinal\"]]; en = [[6,\"count\",{\"one\":[[7],\" Member\"],\"other\":[[7],\" Members\"]},0,\"cardinal\"]]",
+      "note": "ru one/few/other без many; en только one/other"
+    },
+    {
+      "item": "сокращения людей",
+      "evidence": "ru C4WXvc = [[6,\"memberCount\",{\"one\":[[7],\" человек \"],\"other\":[[7],\" чел.\"]},0,\"cardinal\"]]; en = [[6,\"memberCount\",{\"one\":[[7],\" Person\"],\"other\":[[7],\" People\"]},0,\"cardinal\"]]",
+      "note": "ru «other» = «чел.» (сокращение), поэтому few выглядит как «2 чел.»"
+    }
+  ],
+  "discarded": [
+    {
+      "what": "вывод всех сообщений каталога",
+      "why": "ru-каталог: 23 836 ключей / 2 443 841 Б JSON / 32 495 строк — в отчёт вошли только точечные примеры"
+    },
+    {
+      "what": "соседние бандлы",
+      "why": "out/bundles — 3 628 файлов, 61 МБ; разобраны только 501428 (i18n+simple-markdown) и web-бандл (правила Discord); остальные не описаны"
+    },
+    {
+      "what": "не-en/ru локали",
+      "why": "в каталоге ru найдено 31 включённых локалей, но текстов других языков в кэше нет — сверять перевод можно только по ru/en"
+    },
+    {
+      "what": "строки-дубли en в ru-каталоге",
+      "why": "259 значений ru побайтово равны en (0.9%) — это либо непереведённые, либо одинаковые (числа, бренды)"
+    }
+  ],
+  "unknowns": [
+    "полного uk-каталога нет ни в одном локальном кэше (проверено сканированием 3796 файлов V8 code cache + 3785 записей дискового кэша); uk представлен только legacy named-key (58 ключей)",
+    "нет подтверждения, что id-хеши стабильны между версиями: ключ = хеш от ВНУТРЕННЕГО id (из en-текста восстанавливается 5 из 22 803 строк)",
+    "правило highlight в сообщениях отключено (match:()=>null) — в редакторе подсветка есть (skip-правило), в рендере сообщений нет",
+    "точный список «кто вызывает loadAllMessagesInLocale до первого рендера» не разбирался (вне i18n-модуля)",
+    "серверный рендер (embed/поиск) не проверялся — анализировался только локальный web-бандл"
+  ]
+}

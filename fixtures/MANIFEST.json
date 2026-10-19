@@ -1,0 +1,115 @@
+{
+  "$comment": "Курированные конформанс-фикстуры для Rust-клиента (сырьё волны R7, санитизированные). Полная лаборатория — /home/sanya/re-deep; сборка — fixtures/tools/make-fixtures.mjs; сверка — docs/rust-client/verify/verify-re.mjs.",
+  "labRoot": "/home/sanya/re-deep",
+  "fixtures": [
+    {
+      "path": "gateway/ready-stats.json",
+      "source": "gateway/ready-stats.json",
+      "kind": "file",
+      "bytes": 1221,
+      "md5": "972065245b4f215b76314fbd7e89b573",
+      "purpose": "Счётчики READY: 40 ключей, 7 гильдий, 17 ЛС, 60 связей",
+      "usedBy": "T-GW-04, T-DATA-02"
+    },
+    {
+      "path": "gateway/summary.json",
+      "source": "gateway/summary.json",
+      "kind": "file",
+      "bytes": 6481,
+      "md5": "7ceb16f8ed6235d5dddc199cc8975d10",
+      "purpose": "Сводка кадров одного сокета (op/t/s/размеры)",
+      "usedBy": "T-GW-01, T-ENC-04"
+    },
+    {
+      "path": "gw-proto/facts-frozen.json",
+      "source": "gw-proto/facts-frozen.json",
+      "kind": "file",
+      "bytes": 176279,
+      "md5": "6bf6aab01e04f27ea3ac2065465ed517",
+      "purpose": "Замороженные факты волны: ETF-теги (11), счётчики сокетов, READY-числа",
+      "usedBy": "T-ENC-02, T-GW-08"
+    },
+    {
+      "path": "gw-proto/msgs-run2-95974_13072.jsonl",
+      "source": "gw-proto/msgs-run2-95974_13072.jsonl",
+      "kind": "file",
+      "bytes": 70313,
+      "md5": "7beb83a99f3869cf4d68a55b6db298ee",
+      "purpose": "Декодированные кадры одного сокета (1544 всего в 7 файлах)",
+      "usedBy": "T-ENC-04, T-GW-02"
+    },
+    {
+      "path": "rest/rest-static.json",
+      "source": "rest-static.json",
+      "kind": "file",
+      "bytes": 381655,
+      "md5": "8e0ead46addbb2f54f143343d0de2108",
+      "purpose": "Статический реестр REST-эндпоинтов из веб-бандла (904)",
+      "usedBy": "T-REST-01, T-REST-09"
+    },
+    {
+      "path": "i18n/i18n-stats.json",
+      "source": "i18n-stats.json",
+      "kind": "file",
+      "bytes": 28619,
+      "md5": "55219436c3b5cc5e079350c68e018d86",
+      "purpose": "Статистика i18n: 23 836 ru-ключей, рантайм-модули, локали",
+      "usedBy": "T-I18N-01, T-I18N-07"
+    },
+    {
+      "path": "voice/rtc-frames.jsonl",
+      "source": "voice/rtc-frames.jsonl",
+      "kind": "file",
+      "bytes": 3217,
+      "md5": "e8003f12f2eef3136bc31a5bba16ed5b",
+      "purpose": "Кадры RTC-сигнализации (сессия 2)",
+      "usedBy": "T-VOICE-01"
+    },
+    {
+      "path": "voice/rtc-summary.json",
+      "source": "voice/rtc-summary.json",
+      "kind": "file",
+      "bytes": 4267,
+      "md5": "1e5cd42b95893e95bfeac66c988944e0",
+      "purpose": "Сводка RTC-кадров (ops/ключи/длины)",
+      "usedBy": "T-VOICE-01, T-VOICE-03"
+    },
+    {
+      "path": "voice/rtc1-frames.jsonl",
+      "source": "voice/rtc1-frames.jsonl",
+      "kind": "file",
+      "bytes": 3370,
+      "md5": "7f913c8fe659f3e20bee2cb1d5269fd8",
+      "purpose": "Кадры RTC-сигнализации (сессия 1)",
+      "usedBy": "T-VOICE-01"
+    },
+    {
+      "path": "voice/rtc1-summary.json",
+      "source": "voice/rtc1-summary.json",
+      "kind": "file",
+      "bytes": 4540,
+      "md5": "844bc5c2dee845cd03bc72779998d6de",
+      "purpose": "Сводка RTC-кадров сессии 1",
+      "usedBy": "T-VOICE-02, T-VOICE-03"
+    },
+    {
+      "path": "voice/session3.timing",
+      "source": "voice/session3.timing",
+      "kind": "file",
+      "bytes": 203,
+      "md5": "768545e74d4a89805c3918437a0f11f2",
+      "purpose": "Тайминги сессии 3 (ротация медиа-сокета)",
+      "usedBy": "T-VOICE-06"
+    },
+    {
+      "path": "gateway/by-type",
+      "source": "gateway/by-type",
+      "kind": "dir",
+      "files": 164,
+      "bytes": 987601,
+      "md5": "index:b9e46b249efe9858528059d172026217",
+      "purpose": "Декодированные диспатчи по типам (164 файла, 12 типов)",
+      "usedBy": "T-GW-08, T-DATA-06"
+    }
+  ]
+}

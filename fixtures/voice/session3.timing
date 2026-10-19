@@ -1,0 +1,18 @@
+12:38:53
+tcpdump-start(ok)
+12:38:56
+strace-start
+12:39:22
+ui-search-done
+12:39:22
+voice-start
+12:41:09
+leave-sent
+12:41:13
+voice-done
+12:41:19
+strace-stop
+12:41:47
+c-summaries
+12:41:47
+session3 FINISHED

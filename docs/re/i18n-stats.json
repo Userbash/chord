@@ -1,0 +1,1168 @@
+{
+  "generatedAt": "2026-10-19T06:42:44.779Z",
+  "version": {
+    "client": "Discord Desktop (linux) 1.0.162",
+    "webBundle": "web.4d4b2f75fdea5470.js (12.4 МБ)",
+    "i18nRuntime": [
+      "632296",
+      "835751",
+      "239127 (MessageLoader)",
+      "668317 (FormatJS-AST)",
+      "60808 (legacy ICU)",
+      "237341 (Intl-кэш форматтеров)",
+      "446274/618830 (xxh64 + runtimeHashMessageKey)"
+    ]
+  },
+  "sources": {
+    "ru": {
+      "catalogChunk": "https://discord.com/assets/3a79996b9ff5e8c0.js (chunk 902490)",
+      "file": "/home/sanya/re-deep/ru-catalog.json",
+      "keys": 23836,
+      "bytes": 2443841
+    },
+    "en": {
+      "catalogChunk": "https://discord.com/assets/933ace571a9c6560.js (chunk 408250)",
+      "file": "/home/sanya/re-deep/en-catalog.json",
+      "keys": 23903,
+      "bytes": 1427037
+    },
+    "ruFromCodeCache": {
+      "file": "/home/sanya/re-deep/cc-text/470a2c5585a90b79_0.txt",
+      "keys": 23836,
+      "note": "ru-словарь, извлечённый из V8 code cache (совпадает по ключам с ru-каталогом)"
+    },
+    "legacy": {
+      "file": "/home/sanya/re-deep/inline/legacy2/_stats.json",
+      "origin": "named-key модули локалей из web-бандла"
+    },
+    "languages": {
+      "file": "/home/sanya/re-deep/inline/lang-list.json",
+      "origin": "список локалей в бандле"
+    }
+  },
+  "languages": [
+    {
+      "code": "en-US",
+      "name": "English, USA",
+      "englishName": "English, USA"
+    },
+    {
+      "code": "en-GB",
+      "name": "English, GB",
+      "englishName": "English, GB"
+    },
+    {
+      "code": "zh-CN",
+      "name": "中文",
+      "englishName": "Chinese Simplified"
+    },
+    {
+      "code": "zh-TW",
+      "name": "繁體中文",
+      "englishName": "Traditional Chinese"
+    },
+    {
+      "code": "cs",
+      "name": "Čeština",
+      "englishName": "Czech"
+    },
+    {
+      "code": "da",
+      "name": "Dansk",
+      "englishName": "Danish"
+    },
+    {
+      "code": "nl",
+      "name": "Nederlands",
+      "englishName": "Dutch"
+    },
+    {
+      "code": "fr",
+      "name": "Français",
+      "englishName": "French"
+    },
+    {
+      "code": "de",
+      "name": "Deutsch",
+      "englishName": "German"
+    },
+    {
+      "code": "el",
+      "name": "Ελληνικά",
+      "englishName": "Greek"
+    },
+    {
+      "code": "hu",
+      "name": "Magyar",
+      "englishName": "Hungarian"
+    },
+    {
+      "code": "it",
+      "name": "Italiano",
+      "englishName": "Italian"
+    },
+    {
+      "code": "ja",
+      "name": "日本語",
+      "englishName": "Japanese"
+    },
+    {
+      "code": "ko",
+      "name": "한국어",
+      "englishName": "Korean"
+    },
+    {
+      "code": "pl",
+      "name": "Polski",
+      "englishName": "Polish"
+    },
+    {
+      "code": "pt-PT",
+      "name": "Português",
+      "englishName": "Portuguese"
+    },
+    {
+      "code": "pt-BR",
+      "name": "Português do Brasil",
+      "englishName": "Portuguese, Brazilian"
+    },
+    {
+      "code": "ru",
+      "name": "Русский",
+      "englishName": "Russian"
+    },
+    {
+      "code": "sk",
+      "name": "Slovenčina",
+      "englishName": "Slovak"
+    },
+    {
+      "code": "es-419",
+      "name": "Español, LATAM",
+      "englishName": "Spanish, LATAM"
+    },
+    {
+      "code": "es-ES",
+      "name": "Español",
+      "englishName": "Spanish"
+    },
+    {
+      "code": "sv-SE",
+      "name": "Svenska",
+      "englishName": "Swedish"
+    },
+    {
+      "code": "tr",
+      "name": "Türkçe",
+      "englishName": "Turkish"
+    },
+    {
+      "code": "bg",
+      "name": "български",
+      "englishName": "Bulgarian"
+    },
+    {
+      "code": "uk",
+      "name": "Українська",
+      "englishName": "Ukrainian"
+    },
+    {
+      "code": "fi",
+      "name": "Suomi",
+      "englishName": "Finnish"
+    },
+    {
+      "code": "no",
+      "name": "Norwegian",
+      "englishName": "Norwegian"
+    },
+    {
+      "code": "hr",
+      "name": "Hrvatski",
+      "englishName": "Croatian"
+    },
+    {
+      "code": "ro",
+      "name": "Română",
+      "englishName": "Romanian"
+    },
+    {
+      "code": "lt",
+      "name": "Lietuviškai",
+      "englishName": "Lithuanian"
+    },
+    {
+      "code": "th",
+      "name": "ไทย",
+      "englishName": "Thai"
+    },
+    {
+      "code": "vi",
+      "name": "Tiếng Việt",
+      "englishName": "Vietnamese"
+    },
+    {
+      "code": "hi",
+      "name": "हिंदी",
+      "englishName": "Hindi"
+    },
+    {
+      "code": "he",
+      "name": "עִברִית",
+      "englishName": "Hebrew"
+    },
+    {
+      "code": "ar",
+      "name": "العربية",
+      "englishName": "Arabic"
+    },
+    {
+      "code": "id",
+      "name": "Bahasa Indonesia",
+      "englishName": "Indonesian"
+    }
+  ],
+  "keys": {
+    "ru": 23836,
+    "en": 23903,
+    "both": 23836,
+    "onlyEn": 67,
+    "onlyRu": 0,
+    "note": "ключ = 6 символов base64-алфавита; формула: base64(xxh64(id, seed 0) в LE-порядке)[0..6], id — внутренний идентификатор сообщения"
+  },
+  "plural": {
+    "count": 911,
+    "share": 3.82,
+    "enCount": 932,
+    "categories": {
+      "other": 965,
+      "one": 878,
+      "few": 689,
+      "=0": 107,
+      "=1": 38,
+      "many": 28,
+      "=2": 18,
+      "=-1": 7,
+      "=3": 1,
+      "=6": 1
+    },
+    "exactValues": [
+      "=0 (107)",
+      "=1 (38)",
+      "=2 (18)",
+      "=-1 (7)",
+      "=3 (1)",
+      "=6 (1)"
+    ],
+    "renders": {
+      "example": "+yF0ds",
+      "ru": "Пользователь {name} удалён. {count, plural, =0 {...} one {...} few {...} many {...} other {...}}.",
+      "byNumber": [
+        {
+          "n": 1,
+          "category": "one",
+          "text": "Пользователь Бот удалён. Выбран 1 получатель."
+        },
+        {
+          "n": 2,
+          "category": "few",
+          "text": "Пользователь Бот удалён. Выбрано 2 получателя."
+        },
+        {
+          "n": 5,
+          "category": "many",
+          "text": "Пользователь Бот удалён. Выбрано 5 получателей."
+        },
+        {
+          "n": 21,
+          "category": "one",
+          "text": "Пользователь Бот удалён. Выбран 21 получатель."
+        },
+        {
+          "n": 1021,
+          "category": "one",
+          "text": "Пользователь Бот удалён. Выбран 1021 получатель."
+        },
+        {
+          "n": 1022,
+          "category": "few",
+          "text": "Пользователь Бот удалён. Выбрано 1022 получателя."
+        }
+      ],
+      "en": "Removed {name}. {count, plural, =0 {No recipients selected} one {# recipient selected} other {# recipients selected}}.",
+      "note": "категории по Intl.PluralRules(\"ru\"), подстановка # через Intl.NumberFormat(\"ru\") — как в рантайме клиента (модуль 668317)"
+    },
+    "examples": [
+      {
+        "key": "3Pm7uY",
+        "ru": "Новое на «{guildName}»{count, plural, =0 {[node undefined]} other { +#} one { +#} few { +#} many { +#}}",
+        "en": "New in {guildName}{count, plural, =0 {[node undefined]} other { +#}}",
+        "categories": [
+          "=0",
+          "other",
+          "one",
+          "few",
+          "many"
+        ]
+      },
+      {
+        "key": "0CRdJQ",
+        "ru": "Активность на «{guildName}»{count, plural, =0 {[node undefined]} one { +#} few { +#} many { +#} other { +#}}",
+        "en": "Activity in {guildName}{count, plural, =0 {[node undefined]} other { +#}}",
+        "categories": [
+          "=0",
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      {
+        "key": "UoFb3H",
+        "ru": "Упоминания на «{guildName}»{count, plural, =0 {[node undefined]} one { +#} few { +#} many { +#} other { +#}}",
+        "en": "Mentioned in {guildName}{count, plural, =0 {[node undefined]} other { +#}}",
+        "categories": [
+          "=0",
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      {
+        "key": "L9YdGH",
+        "ru": "<channelHook>{channelName}</channelHook>{count, plural, =0 {[node undefined]} one { + #} few { + #} many { + #} other { + #}} • Вас упомянули",
+        "en": "<channelHook>{channelName}</channelHook>  ·  You were mentioned",
+        "categories": [
+          "=0",
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      {
+        "key": "+yF0ds",
+        "ru": "Пользователь {name} удалён. {count, plural, =0 {Получатели не выбраны} one {Выбран # получатель} few {Выбрано # получателя} many {Выбрано # получателей} other {Выбрано # получателей}}.",
+        "en": "Removed {name}. {count, plural, =0 {No recipients selected} one {# recipient selected} other {# recipients selected}}.",
+        "categories": [
+          "=0",
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      {
+        "key": "u2qHzE",
+        "ru": "Пользователь {name} добавлен. {count, plural, =0 {Получатели не выбраны} one {Выбран # получатель} few {Выбрано # получателя} many {Выбрано # получателей} other {Выбрано # получателей}}.",
+        "en": "Added {name}. {count, plural, =0 {No recipients selected} one {# recipient selected} other {# recipients selected}}.",
+        "categories": [
+          "=0",
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      {
+        "key": "r/EUap",
+        "ru": "{count, plural, one {# игра} few {# игры} many {# игр} other {# игр}}",
+        "en": "{count, plural, one {# game} other {# games}}",
+        "categories": [
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      },
+      {
+        "key": "+sThav",
+        "ru": "{hours, plural, one {# час} few {# часа} many {# часов} other {# часа}}",
+        "en": "{hours, plural, one {# hour} other {# hours}}",
+        "categories": [
+          "one",
+          "few",
+          "many",
+          "other"
+        ]
+      }
+    ]
+  },
+  "vars": {
+    "count": 4238,
+    "share": 17.78,
+    "distinct": 972,
+    "top": [
+      {
+        "name": "username",
+        "uses": 434
+      },
+      {
+        "name": "name",
+        "uses": 235
+      },
+      {
+        "name": "onClick",
+        "uses": 170
+      },
+      {
+        "name": "helpdeskArticle",
+        "uses": 165
+      },
+      {
+        "name": "count",
+        "uses": 162
+      },
+      {
+        "name": "guildName",
+        "uses": 162
+      },
+      {
+        "name": "channelName",
+        "uses": 136
+      },
+      {
+        "name": "user",
+        "uses": 133
+      },
+      {
+        "name": "applicationName",
+        "uses": 127
+      },
+      {
+        "name": "price",
+        "uses": 105
+      },
+      {
+        "name": "newValue",
+        "uses": 94
+      },
+      {
+        "name": "duration",
+        "uses": 89
+      }
+    ],
+    "enCount": 4261,
+    "enShare": 17.83,
+    "missingValueBehavior": "throw new Error(`No value for variable '${name}' was provided for the localized message '${msg}'`)"
+  },
+  "rich": {
+    "keysWithTags": 2515,
+    "share": 10.55,
+    "keysWithControl": 976,
+    "top": [
+      {
+        "name": "$b",
+        "uses": 1566
+      },
+      {
+        "name": "$link",
+        "uses": 1139
+      },
+      {
+        "name": "$p",
+        "uses": 202
+      },
+      {
+        "name": "usernameHook",
+        "uses": 97
+      },
+      {
+        "name": "userHook",
+        "uses": 94
+      },
+      {
+        "name": "targetHook",
+        "uses": 62
+      },
+      {
+        "name": "itemHook",
+        "uses": 35
+      },
+      {
+        "name": "channelHook",
+        "uses": 31
+      },
+      {
+        "name": "hook",
+        "uses": 24
+      },
+      {
+        "name": "name0Hook",
+        "uses": 23
+      },
+      {
+        "name": "keybindHook",
+        "uses": 16
+      },
+      {
+        "name": "emojiHook",
+        "uses": 13
+      }
+    ],
+    "tagCount": 211,
+    "reactElements": {
+      "$b": "strong",
+      "$i": "em",
+      "$del": "del",
+      "$code": "code",
+      "$link": "a[href]",
+      "$p": "p"
+    },
+    "markdown": [
+      "**жирный**",
+      "*курсив*",
+      "~~зачёркнутый~~",
+      "`код`",
+      "[текст](url)",
+      "пустая строка = новый параграф"
+    ]
+  },
+  "fallback": {
+    "order": [
+      "запрошенная локаль",
+      "DEFAULT_LOCALE (en-US)",
+      "цепочка fallbackWith(...)",
+      "пустое сообщение + console.warn"
+    ],
+    "defaultLocale": "en-US",
+    "warn": "Requested message \"debug\" (key) does not have a value in the requested locale ru (file) nor the default locale en-US (file)"
+  },
+  "volumes": {
+    "ru": {
+      "keys": 23836,
+      "jsonBytes": 2443841,
+      "strings": 32495,
+      "stringBytes": 1863487,
+      "pluralKeys": 911,
+      "argKeys": 4238,
+      "tagKeys": 2515
+    },
+    "en": {
+      "keys": 23903,
+      "jsonBytes": 1427037,
+      "strings": 31469,
+      "stringBytes": 854339,
+      "pluralKeys": 932,
+      "argKeys": 4261,
+      "tagKeys": 2540
+    },
+    "uk": {
+      "fullCatalogFound": false,
+      "note": "полного uk-каталога нет ни в одном локальном кэше (сканирование 3796 файлов V8 code cache + 3785 записей дискового кэша: найдены только ru и en-US)",
+      "legacyOnly": {
+        "source": "named-key модуль uk из web-бандла",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      }
+    },
+    "legacyAllLocales": [
+      {
+        "locale": "bg",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "cs",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "da",
+        "keys": 56,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "de",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "el",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "en-GB",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "en-US",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "es-ES",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "fi",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "fr",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "hi",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "hr",
+        "keys": 56,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "hu",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "it",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "ja",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "ko",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "lt",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "nl",
+        "keys": 53,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "no",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "pl",
+        "keys": 56,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "pt-BR",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "ro",
+        "keys": 56,
+        "plural": 3,
+        "vars": 4
+      },
+      {
+        "locale": "ru",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "sv-SE",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "th",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "tr",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "uk",
+        "keys": 58,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "vi",
+        "keys": 57,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "zh-CN",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      },
+      {
+        "locale": "zh-TW",
+        "keys": 59,
+        "plural": 2,
+        "vars": 4
+      }
+    ]
+  },
+  "keyHash": {
+    "algorithm": "xxh64(str, seed=0) → 8 байт digest в LE-порядке → base64-алфавит, первые 6 символов (36 бит); последние 2 символа полного digest не используются",
+    "verifiedAgainst": "runtimeHashMessageKey (клиентский модуль 446274) + xxhsum -H1: 14/14 совпадений ключа, 81/81 совпадений хеша",
+    "idIsNotEnglishText": {
+      "singleWordTextsHashingBackToKey": "3 из 2539",
+      "allTextsHashingBackToKey": "5 из 23 897",
+      "screamingSnakeIdsMatched": "1246 из 22 803 (5.46%)",
+      "examplesMatched": [
+        "AKA → l1QVfj",
+        "GIF → I5gL2H",
+        "OK → TyCVIq",
+        "PS4 → fJyyQn",
+        "PS5 → oElqN5"
+      ],
+      "examplesNotMatched": [
+        "\"Dismiss popup window\" → hPBScv",
+        "\"Spotify\" → LcNDLa",
+        "\"Channel {name}, created\" → Wke70b"
+      ]
+    }
+  },
+  "caches": {
+    "ruCatalogs": 42,
+    "enCatalogs": 51,
+    "ruKeysRange": [
+      23207,
+      23836
+    ],
+    "enKeysRange": [
+      6311,
+      23903
+    ],
+    "ruBytesRange": [
+      5685839,
+      5830634
+    ],
+    "enBytesRange": [
+      129053,
+      1432424
+    ]
+  },
+  "samples": [
+    {
+      "key": "323362",
+      "tag": "$link",
+      "ru": "Чтобы изменить это, <$link>перейдите в настройки модерации</$link>[control:{onSettingsClick}]",
+      "en": "To change this, <$link>go to Moderation settings</$link>[control:{onSettingsClick}]"
+    },
+    {
+      "key": "1dT9V4",
+      "tag": "$b",
+      "ru": "Данная функция была автоматически отключена настройками <$b>пониженного движения</$b>.",
+      "en": "This setting has been automatically disabled because of your <$b>Reduced Motion</$b> setting."
+    },
+    {
+      "key": "rwOjn/",
+      "tag": "$p",
+      "ru": "<$p>* Получайте все пользовательские эмодзи с серверов, к которым вы присоединяетесь.</$p><$p>* Используйте их где угодно.</$p><$p>* Разблокируйте 50 дополнительных слотов для загрузки анимированных эмодзи на ваши серверы.</$p>",
+      "en": "<$p>* Unlock all custom emoji from servers you join</$p><$p>* Use all of them, anywhere you want</$p><$p>* Upload animated emoji to servers you own, with 50 extra slots to play with</$p>"
+    },
+    {
+      "key": "JUvC0s",
+      "tag": "$i",
+      "ru": "<$i>Грустный тромбон</$i>",
+      "en": "<$i>Sad Trombone</$i>"
+    }
+  ],
+  "controlSample": {
+    "key": "323362",
+    "tag": "$link",
+    "ru": "Чтобы изменить это, <$link>перейдите в настройки модерации</$link>[control:{onSettingsClick}]",
+    "control": "{onSettingsClick}"
+  },
+  "details": {
+    "ru": {
+      "selectKeys": 6,
+      "poundTotal": 2062,
+      "poundKeys": 752,
+      "distinctArgs": 972,
+      "numberNodes": 447,
+      "dateNodes": 121,
+      "pluralCategories": [
+        [
+          "other",
+          965
+        ],
+        [
+          "one",
+          878
+        ],
+        [
+          "few",
+          689
+        ],
+        [
+          "=0",
+          107
+        ],
+        [
+          "=1",
+          38
+        ],
+        [
+          "many",
+          28
+        ],
+        [
+          "=2",
+          18
+        ],
+        [
+          "=-1",
+          7
+        ],
+        [
+          "=3",
+          1
+        ],
+        [
+          "=6",
+          1
+        ]
+      ],
+      "topArgs": [
+        [
+          "username",
+          434
+        ],
+        [
+          "name",
+          235
+        ],
+        [
+          "onClick",
+          170
+        ],
+        [
+          "helpdeskArticle",
+          165
+        ],
+        [
+          "count",
+          162
+        ],
+        [
+          "guildName",
+          162
+        ],
+        [
+          "channelName",
+          136
+        ],
+        [
+          "user",
+          133
+        ],
+        [
+          "applicationName",
+          127
+        ],
+        [
+          "price",
+          105
+        ],
+        [
+          "newValue",
+          94
+        ],
+        [
+          "duration",
+          89
+        ],
+        [
+          "gameTitle",
+          85
+        ],
+        [
+          "usernameOnClick",
+          79
+        ],
+        [
+          "target",
+          67
+        ],
+        [
+          "helpCenterLink",
+          59
+        ],
+        [
+          "emojiName",
+          50
+        ],
+        [
+          "skuName",
+          49
+        ],
+        [
+          "a",
+          48
+        ],
+        [
+          "date",
+          44
+        ]
+      ],
+      "topTags": [
+        [
+          "$b",
+          1566
+        ],
+        [
+          "$link",
+          1139
+        ],
+        [
+          "$p",
+          202
+        ],
+        [
+          "usernameHook",
+          97
+        ],
+        [
+          "userHook",
+          94
+        ],
+        [
+          "targetHook",
+          62
+        ],
+        [
+          "itemHook",
+          35
+        ],
+        [
+          "channelHook",
+          31
+        ],
+        [
+          "hook",
+          24
+        ],
+        [
+          "name0Hook",
+          23
+        ],
+        [
+          "keybindHook",
+          16
+        ],
+        [
+          "emojiHook",
+          13
+        ],
+        [
+          "$i",
+          13
+        ],
+        [
+          "emphasisHook",
+          13
+        ],
+        [
+          "metadataHook",
+          13
+        ],
+        [
+          "learnMoreHook",
+          12
+        ],
+        [
+          "platformQuantityHook",
+          10
+        ],
+        [
+          "name1Hook",
+          9
+        ],
+        [
+          "applicationName",
+          9
+        ],
+        [
+          "countOthersHook",
+          8
+        ],
+        [
+          "highlightHook",
+          8
+        ],
+        [
+          "gameSheetHook",
+          8
+        ],
+        [
+          "applicationHook",
+          6
+        ],
+        [
+          "user1Hook",
+          6
+        ],
+        [
+          "originalPriceHook",
+          6
+        ]
+      ]
+    },
+    "en": {
+      "pluralKeys": 932,
+      "argKeys": 4261,
+      "tagKeys": 2540,
+      "distinctArgs": 980,
+      "pluralCategories": [
+        [
+          "other",
+          1000
+        ],
+        [
+          "one",
+          943
+        ],
+        [
+          "=0",
+          106
+        ],
+        [
+          "=1",
+          40
+        ],
+        [
+          "=2",
+          18
+        ],
+        [
+          "=-1",
+          7
+        ],
+        [
+          "=3",
+          1
+        ],
+        [
+          "=6",
+          1
+        ]
+      ],
+      "topTags": [
+        [
+          "$b",
+          1590
+        ],
+        [
+          "$link",
+          1145
+        ],
+        [
+          "$p",
+          200
+        ],
+        [
+          "userHook",
+          100
+        ],
+        [
+          "usernameHook",
+          98
+        ],
+        [
+          "targetHook",
+          62
+        ],
+        [
+          "itemHook",
+          35
+        ],
+        [
+          "channelHook",
+          34
+        ],
+        [
+          "hook",
+          24
+        ],
+        [
+          "name0Hook",
+          23
+        ]
+      ]
+    },
+    "intersectionChecked": 23836,
+    "selectExamples": [
+      {
+        "key": "mjOEBk",
+        "ru": "Ежемесячно (каждый {nth, select, 1 {первый} 2 {второй} 3 {третий} 4 {четвёртый} 5 {пятый}} день: {weekday})",
+        "en": "Monthly on the {nth, select, 1 {first} 2 {second} 3 {third} 4 {fourth} 5 {fifth}} {weekday}"
+      },
+      {
+        "key": "4ZN9Ap",
+        "ru": "Повторяется каждый месяц (каждый {nth, select, 1 {первый} 2 {второй} 3 {третий} 4 {четвёртый} 5 {пятый}} день: {weekday})",
+        "en": "Repeats monthly on the {nth, select, 1 {first} 2 {second} 3 {third} 4 {fourth} 5 {fifth}} {weekday}"
+      },
+      {
+        "key": "/tqmfM",
+        "ru": "Устранение шумов {enabled, select, true {enabled} false {отключено} other {управляется}} {inputProfile, select, VOICE_ISOLATION {Voice Isolation} STUDIO {Studio} other {выбранным режимом обработки голоса}}.",
+        "en": "Noise cancellation is {enabled, select, true {enabled} false {disabled} other {controlled}} by the {inputProfile, select, VOICE_ISOLATION {Voice Isolation} STUDIO {Studio} other {selected}} input profile."
+      },
+      {
+        "key": "/tqmfM",
+        "ru": "Устранение шумов {enabled, select, true {enabled} false {отключено} other {управляется}} {inputProfile, select, VOICE_ISOLATION {Voice Isolation} STUDIO {Studio} other {выбранным режимом обработки голоса}}.",
+        "en": "Noise cancellation is {enabled, select, true {enabled} false {disabled} other {controlled}} by the {inputProfile, select, VOICE_ISOLATION {Voice Isolation} STUDIO {Studio} other {selected}} input profile."
+      },
+      {
+        "key": "6nRCFl",
+        "ru": "Вы {also, select, true {также } other {[node undefined]}}можете делиться активностью из {count, plural, one {# игры} other {# игр}}{nameCount, plural, =0 {[node undefined]} one {, включая <$b>{game1}</$b>} other {, включая <$b>{game1}</$b> и <$b>{game2}</$b>}}. Разрешение на публикацию настраивается отдельно для каждой игры.",
+        "en": "You may {also, select, true {also } other {[node undefined]}}be sharing activity from {count, plural, one {# game} other {# games}} you play{nameCount, plural, =0 {[node undefined]} one {, including <$b>{game1}</$b>} other {, including <$b>{game1}</$b> and <$b>{game2}</$b>}}. Restrict sharing on a game-by-game basis."
+      },
+      {
+        "key": "YUbgR8",
+        "ru": "{userCount, select, 1 {<usernameHook>{username}</usernameHook>} 2 {<usernameHook>{username}</usernameHook>Пользователь  и <username2Hook>{username2}</username2Hook>} 3 {<usernameHook>{username}</usernameHook>, <username2Hook>{username2}</username2Hook> и <username3Hook>{username3}</username3Hook>} other {<usernameHook>{username}</usernameHook>, <username2Hook>{username2}</username2Hook> и ещё <othersHook>{otherCount} человек</othersHook>}} {userCount, plural, one {общался} other {общались}} {duration}.",
+        "en": "{userCount, select, 1 {<usernameHook>{username}</usernameHook>} 2 {<usernameHook>{username}</usernameHook> and <username2Hook>{username2}</username2Hook>} 3 {<usernameHook>{username}</usernameHook>, <username2Hook>{username2}</username2Hook>, and <username3Hook>{username3}</username3Hook>} other {<usernameHook>{username}</usernameHook>, <username2Hook>{username2}</username2Hook>, and <othersHook>{otherCount} others</othersHook>}} {userCount, plural, one {was} other {were}} hanging out for {duration}."
+      }
+    ]
+  }
+}

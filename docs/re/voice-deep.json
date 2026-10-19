@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "generatedAt": "2026-10-19T13:20:00+05:00",
+    "client": "Discord 1.0.162 Linux x64 (separate copy, CDP 9223)",
+    "sessions": [
+      { "id": 1, "time": "11:23:52", "rtc": "c-fra19-4da7fe5f.discord.media", "transport": "pcap-не-снят(полностью)", "artifacts": ["rtc1-frames.jsonl", "engine-log-session1.txt"] },
+      { "id": 2, "time": "11:43:27–11:45:01", "rtc": "c-fra19-4da7fe5f.discord.media:2053", "media": "104.29.147.145:19309", "artifacts": ["rtc2-frames.jsonl", "voice-udp3.pcap", "voice-udp3.rtp.json"] },
+      { "id": 3, "time": "12:39:27–12:41:12", "rtc": "c-arn02-5229f1fc.discord.media:2096", "media": "104.29.146.60:19329", "artifacts": ["strace-renderer-s3.log", "strace-media-s3.jsonl", "voice-udp4.pcap", "ss-during-voice-75s.txt"] }
+    ],
+    "sanitization": "токены/ключи/сессии REDACTED; публичные IP — <PUB_IP>"
+  },
+  "signaling": {
+    "transport": "wss TLS, ~300 мс до CONNECTED",
+    "heartbeat_interval_ms": 13750,
+    "ops": {
+      "8": { "dir": "in", "hello": { "v": 8, "heartbeat_interval": 13750 } },
+      "0": { "dir": "out", "identify": ["server_id", "channel_id", "user_id", "session_id", "token", "max_dave_protocol_version:1", "video:true", "streams:[video rid=100 quality=100]"] },
+      "1": { "dir": "out", "select_protocol": ["protocol:udp", "data:{address,port,mode}", "codecs:[opus pt120 prio1000, AV1 pt101 prio1000]"] },
+      "2": { "dir": "in", "ready": ["ssrc", "port", "ip", "modes:[aead_aes256_gcm_rtpsize, aead_xchacha20_poly1305_rtpsize]", "streams[video ssrc/rtx_ssrc/rid/quality/active]"] },
+      "4": { "dir": "in", "session_description": ["mode:aead_aes256_gcm_rtpsize", "secret_key 32Б REDACTED", "media_session_id REDACTED", "dave_protocol_version:1", "secure_frames_version:1", "audio_codec:opus", "video_codec:AV1"] },
+      "15": { "dir": "in", "sink_wants": { "any": 100 } },
+      "16": { "dir": "in", "versions": { "voice": "0.22.1+denbeigh.remove-voice-curator-74a3bd0c5", "rtc_worker": "1.6.98" } },
+      "3": { "dir": "out", "heartbeat": "каждые 13750 мс" },
+      "6": { "dir": "in", "ack": "seq" },
+      "close": { "dir": "in", "code": 1000, "reason": "Force Close" }
+    },
+    "region_selection": "RTCLatencyTestManager: UDP-зонды → ранжирование регионов (сессия2: frankfurt..; сессия3: stockholm..) → c-<region>",
+    "session_params": {
+      "s2": { "ssrc": 17843, "video": 17844, "rtx": 17845, "media": "104.29.147.145:19309", "clientNat": "<PUB_IP>:52287", "clientNatAfter60s": "<PUB_IP>:39587" },
+      "s3": { "ssrc": 9208, "video": 9209, "rtx": 9210, "media": "104.29.146.60:19329", "clientNat": "<PUB_IP>:35251", "clientNatAfter60s": "<PUB_IP>:55460" }
+    }
+  },
+  "udp": {
+    "discovery": {
+      "request": "74 Б: [u16=1][u16=0x0046][u32 ssrc][64Б нулей]",
+      "response": "74 Б: [u16=2][u16=0x0046][u32 ssrc][64Б ASCII addr][u16 порт BE @72]",
+      "behavior": "при входе 2 сокета-кандидата шлют одновременно; используется тот, чей ответ пришёл первым"
+    },
+    "keepalive": { "client": "1337cafe 01000000", "server": "1337f00d 01000000", "cadence_ms": 5000, "observed_intervals_ms": "4963–5023" },
+    "rtp": {
+      "version": 2, "extension": { "present": true, "profile": "0xBEDE", "words": 2, "data_bytes": 8 },
+      "payload_type": 120, "codec": "opus",
+      "layout": "[12Б hdr][4Б ext hdr][8Б ext data][ciphertext][GCM tag 16Б][4Б LE счётчик]",
+      "counter": "0x80000000|n, сквозной для RTP+RTCP на сокете, n с 0",
+      "cadence": "20 мс (RTP ts дельты 960/1050/870; сумма 3840 на 4 кадра @48кГц)",
+      "dtx": "talkspurt ~200мс (10 пакетов) при входе, далее тишина; ciphertext 3Б = comfort-noise/DTX",
+      "anomaly_43B": { "count": 2, "note": "первые 2 пакета talkspurt: нет валидного ext-header и нет трейлера-счётчика; неизвестно", "examples": ["90f84438109919cc000023f819f5e987418252362f4e0076ca9d80de6f7510489d85d21e50a5615b017af3", "9078443910991d8c000023f82d6d6f134451bcebb4dd8580830ab192bc4c207cf7a2b2128bb13cd5e4276e"] }
+    },
+    "rtcp": {
+      "sr": { "pt": 200, "dir": "out", "size": 60, "layout": "[8Б hdr V2 RC=0 len=6][ssrc][20Б шифр. sender info][tag16][счётчик4]", "intervals_ms": { "min": 2998, "median": 5231, "max": 6326 }, "count_session3": 22 },
+      "rr_server": { "pt": 201, "dir": "in", "size": 52, "layout": "[8Б hdr V2 RC=1 len=7][ssrc][24Б шифр. report block][tag16][4Б]", "interval_ms": 1001, "count_session3": 102, "note": "трейлер без флага 0x80000000 (0,1,2,…); поля потерь/джиттера зашифрованы" },
+      "rr_client_empty": { "pt": 201, "dir": "out", "size": 28, "layout": "[8Б hdr V2 RC=0 len=1][ssrc][tag16][счётчик4]", "note": "шлётся сразу после ротации сокета" },
+      "client_receiver_reports": 0
+    },
+    "socket_lifecycle": {
+      "join": "2 параллельных кандидата (discovery одновременно), победитель по первому ответу",
+      "rotation_after_ms": 60080,
+      "rotation_evidence": "strace: 12:39:27.880 socket()+sendmsg(discovery) ×2; 12:40:27.961 socket() → discovery → новый NAT-порт → пустой RR; старый сокет замолкает",
+      "owner": "процесс рендерера (ss: 0.0.0.0:55599, pid 95974, fd=44)"
+    }
+  },
+  "engine": {
+    "codecs": { "dec + enc": ["AV1", "H264", "H265", "VP8"], "experimental": ["AV1", "H265"], "audio": "opus" },
+    "encryption_modes_advertised": ["aead_aes256_gcm_rtpsize", "aead_aes256_gcm", "aead_xchacha20_poly1305_rtpsize", "xsalsa20_poly1305_lite_rtpsize", "xsalsa20_poly1305_lite", "xsalsa20_poly1305_suffix", "xsalsa20_poly1305"],
+    "encryption_mode_selected": "aead_aes256_gcm_rtpsize",
+    "video": { "quality": "1280x720@30, 2.5 Мбит/с ±150к", "rid": "100", "framerate_reducer_after_ms": 15000, "remote_sink_wants": { "any": 100 } },
+    "dave": { "protocol_version": 1, "events": ["DAVE protocol init", "MLS external sender package", "MLS key package → RTC server"] },
+    "krisp": { "model": "krisp-nc-o-med-v7.kef", "note": "codec survey is not available (не критично)" },
+    "disconnect": { "clean": true, "code": 1000, "reason": "Force Close" }
+  },
+  "ui": {
+    "panel": "voice/ui/01-voice-panel.html (61 КБ) + статус ping; кнопки: Микрофон/Звук/Настройки/Отключиться",
+    "enter": "QuickSwitcher Ctrl+K → «тестируем твики» → Enter",
+    "leave": "кнопка Отключиться (aria-label) / sentinel voice/LEAVE"
+  },
+  "unknowns": [
+    "43-байтные первые 2 пакета talkspurt (нет ext/трейлера) — требует расшифровки",
+    "закрытие старых fd при ротации сокета в strace не видно",
+    "RTCP-тела шифрованы → потери/джиттер недоступны снаружи (нужен оракул jitter-буфера)",
+    "VOICE-CRYPTO.md прошлой волны потерян (tmpfs); крипто-поля восстановлены наблюдательно"
+  ]
+}

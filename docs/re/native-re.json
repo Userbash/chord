@@ -1,0 +1,2443 @@
+{
+ "generatedFrom": "readelf/rabin2/nm/strings по app-1.0.162 + распакованный asar + кэш JS-чанков",
+ "jsLinkage": {
+  "mainProcessBundles": {
+   "app/bundle.js": {
+    "nativeVoiceMethodHits": 13,
+    "verdict": "все 13 — ложные срабатывания (Sentry SDK: createTransport/consoleLog; Flux action creators: setWater... не относится к discord_voice)"
+   },
+   "core/bundle.js": {
+    "nativeVoiceMethodHits": 0
+   }
+  },
+  "preload": {
+   "file": "core/mainScreenPreload.js",
+   "nativeModuleRegistryModuleId": 7927,
+   "requireModuleWhitelist": "^discord_[a-z0-9_-]+$ | erlpack",
+   "preloadOnlyModules": [
+    "discord_premap"
+   ],
+   "ipcEvents": [
+    "NATIVE_MODULES_GET_PATHS",
+    "NATIVE_MODULES_INSTALL",
+    "NATIVE_MODULES_GET_HAS_NEW_UPDATER",
+    "NATIVE_MODULES_GET_MODULE_PATH"
+   ],
+   "premapModules": [
+    "discord_voice",
+    "discord_zstd",
+    "discord_cloudsync",
+    "discord_media"
+   ]
+  },
+  "requiredButMissingOnDisk": [
+   "discord_sysimg",
+   "discord_media",
+   "discord_cloudsync",
+   "discord_clips",
+   "discord_premap",
+   "discord_overlay2",
+   "discord_hook",
+   "discord_dispatch",
+   "discord_ml",
+   "discord_updater_bootstrap"
+  ],
+  "moduleGlue": {
+   "discord_voice": {
+    "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_voice-1/discord_voice/index.js",
+    "bytes": 22447,
+    "sha256": "1c12139ccbf818a992fb813b4954a68b1d64b4e96b0f6a97e12862ca5eef764a",
+    "setsOnNativeObject": [
+     "addDirectVideoOutputSink",
+     "createOwnStreamConnectionWithOptions",
+     "createReplayConnection",
+     "createTransport",
+     "createVoiceConnectionWithOptions",
+     "getDebugLogging",
+     "getNextVideoOutputFrame",
+     "platform",
+     "queueAudioSubsystem",
+     "removeDirectVideoOutputSink",
+     "setActiveSinksChangeCallback",
+     "setAudioSubsystem",
+     "setDebugLogging",
+     "setOffloadAdmControls",
+     "setupKrispPath",
+     "setupMLPath"
+    ],
+    "requireNative": [
+     "./discord_voice.node"
+    ]
+   },
+   "discord_krisp": {
+    "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_krisp-1/discord_krisp/index.js",
+    "bytes": 1088,
+    "sha256": "1bb6222c817b3f78ca305d0427048819c64a26c1522e4112edcb7eac7f708adb",
+    "setsOnNativeObject": [
+     "getNcModelFilename",
+     "getNcModels",
+     "getVadModels"
+    ],
+    "requireNative": [
+     "./discord_krisp.node"
+    ]
+   },
+   "discord_utils": {
+    "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/index.js",
+    "bytes": 4726,
+    "sha256": "de838460a97ff880647f577666ac04c8a95ae0a1bf4385e8977aad2523e9e4cb",
+    "setsOnNativeObject": [
+     "clearCandidateGamesCallback",
+     "getGPUDriverVersions",
+     "inputCaptureRegisterElement",
+     "inputEventRegister",
+     "inputEventUnregister",
+     "shouldDisplayNotifications",
+     "submitLiveCrashReport"
+    ],
+    "requireNative": [
+     "./discord_utils.node"
+    ]
+   },
+   "discord_zstd": {
+    "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_zstd-1/discord_zstd/index.js",
+    "bytes": 1274,
+    "sha256": "9788fd02514652111a510bee13262b163cbbc91d43eff9ff1109fe9f3803c78c",
+    "setsOnNativeObject": [],
+    "requireNative": [
+     "./discord_zstd.node"
+    ]
+   }
+  }
+ },
+ "modules": [
+  {
+   "name": "discord_voice",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_voice-1/discord_voice/discord_voice.node",
+   "size": 126136024,
+   "md5": "5fe80ce0f5d89fd53d30b2fb25a6cdac",
+   "sha256": "96721305d59a4fdcecfa4eec48daabc50dba96c9213e5d3b514e9690d3b208ca",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libX11.so.6",
+    "libasound.so.2",
+    "libatomic.so.1",
+    "libc.so.6",
+    "libdl.so.2",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libmediapipe.so",
+    "libpthread.so.0",
+    "libpulse.so.0",
+    "librt.so.1",
+    "libwayland-client.so.0"
+   ],
+   "soname": [
+    "discord_voice.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 410806,
+    "rabin2_z_lines": 113404,
+    "symtab_lines": 86446,
+    "dynsym_lines": 12596,
+    "functions_tT_wW": 69639,
+    "exports_lines": 23436
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1",
+    "node_api_module_get_api_version_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 902,
+     "sample": [
+      "AV_PICTURE_TYPE_NONE",
+      "AV_PICTURE_TYPE_I",
+      "AV_PICTURE_TYPE_P",
+      "AV_PICTURE_TYPE_B",
+      "AV_PICTURE_TYPE_S",
+      "AV_PICTURE_TYPE_SI"
+     ]
+    },
+    {
+     "len": 705,
+     "sample": [
+      "ASN1_LENGTH_MISMATCH",
+      "AUX_ERROR",
+      "BAD_GET_ASN1_OBJECT_CALL",
+      "BAD_OBJECT_HEADER",
+      "BAD_TEMPLATE",
+      "BMPSTRING_IS_WRONG_LENGTH"
+     ]
+    },
+    {
+     "len": 476,
+     "sample": [
+      "get_best15_from32_256",
+      "sra_epi64",
+      "rl_shift",
+      "signmask",
+      "newmask",
+      "merge_64_to_32"
+     ]
+    },
+    {
+     "len": 274,
+     "sample": [
+      "kPixelFormatsSupported",
+      "AV_PIX_FMT_NONE",
+      "AV_PIX_FMT_YUV420P",
+      "AV_PIX_FMT_YUYV422",
+      "AV_PIX_FMT_RGB24",
+      "AV_PIX_FMT_BGR24"
+     ]
+    },
+    {
+     "len": 214,
+     "sample": [
+      "vkGetInstanceProcAddr",
+      "vkCreateInstance",
+      "vkEnumerateInstanceExtensionProperties",
+      "vkEnumerateInstanceLayerProperties",
+      "vkDestroyInstance",
+      "vkEnumeratePhysicalDevices"
+     ]
+    },
+    {
+     "len": 194,
+     "sample": [
+      "vmaf_fex_cambi",
+      "FeatureVector",
+      "AggregateVector",
+      "metadata_cfg",
+      "picture_index",
+      "VmafMetadata"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/dev/dri/renderD",
+     "/dev/nulH",
+     "/dev/null",
+     "/dev/ranH",
+     "/dev/random",
+     "/dev/randompoll",
+     "/dev/uraH",
+     "/dev/urandom",
+     "/etc/localtimeTZunable",
+     "/etc/machine-id",
+     "/etc/timezone/etc/localtime/etc/config/systemGetTimezoneError",
+     "/etc/xdgH",
+     "/etc/zonI",
+     "/etc/zonI3",
+     "/home/discord/discord/discord_common/native/third_party",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/__algorithm/pop_heap.h",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/__string/char_traits.h",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/__tree",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/list",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/string",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/thread",
+     "/home/discord/discord/discord_common/native/third_party/llvm/libcxx/include/vector",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio/build",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio/build/linux-x64-Release",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio/build/linux-x64-Release/install/mysofa/share/libmysofa/default.sofa",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio/build/linux-x64-Release/steam_audio/src/core",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/air_absorption.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/ambisonics_binaural_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/ambisonics_decode_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/ambisonics_encode_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/ambisonics_panning_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/ambisonics_rotate_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_advanced_simulation.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_ambisonics_binaural_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_ambisonics_decode_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_ambisonics_encode_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_ambisonics_panning_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_ambisonics_rotate_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_audio_buffer.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_baking.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_binaural_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_context.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_direct_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_embree_device.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_energy_field.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_geometry.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_hrtf.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_impulse_response.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_indirect_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_opencl_device.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_panning_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_path_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_probes.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_radeonrays_device.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_reconstructor.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_scene.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_serialized_object.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_simulator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_tan_device.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_validation_layer.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/api_virtual_surround_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/array_math.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/audio_buffer.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/baked_reflection_data.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/baked_reflection_simulator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/bands.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/binaural_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/bvh.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/context.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/custom_scene.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/delay.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/delay_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/deviation.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/direct_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/direct_simulator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/directivity.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/distance_attenuation.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/energy_field.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/energy_field_factory.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/eq_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/gain_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/hrtf.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/hrtf_database.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/hrtf_map.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/hrtf_map_factory.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/hybrid_reverb_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/hybrid_reverb_estimator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/iir.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/impulse_response.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/impulse_response_factory.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/indirect_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/instanced_mesh.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/job_graph.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/log.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/math_functions.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/memory_allocator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/mesh.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/null_profiler.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/overlap_add_convolution_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/overlap_save_convolution_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/panning_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/path_data.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/path_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/path_finder.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/path_simulator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/path_visibility.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/pffft_fft.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/probe_batch.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/probe_generator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/probe_manager.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/probe_tree.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/ray.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reconstructor.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reconstructor_factory.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reflection_baker.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reflection_simulator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reflection_simulator_factory.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reverb_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/reverb_estimator.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/sampling.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/scene.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/scene_factory.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/serialized_object.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/sh.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/sh/spherical_harmonics.cc",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/simulation_data.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/simulation_manager.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/sofa_hrtf_map.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/speaker_layout.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/static_mesh.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/thread_pool.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/virtual_surround_effect.cpp",
+     "/home/discord/discord/discord_common/native/third_party/steam_audio_src/steam_audio/core/src/core/window_function.cpp",
+     "/nix/store/1fqml0sv2qi476nz5rh2bizcfihs02jc-alsa-lib-1.2.3-dev/include/alsa",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/arpa",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits/types",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/netinet",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/sys",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/map.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/map/entry.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/navigate.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/node.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/search.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/vec_deque/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/io/buf_read.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/io/impls.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/rc.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/str.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/string.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/sync.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/vec/spec_from_iter_nested.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/future/ready.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/io/io_slice.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/io/io_slice/repr_iovec.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/num/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/ops/function.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/slice/index.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/slice/iter.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/str/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/str/pattern.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/time.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/io/stdio.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/os/fd/raw.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/context.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/list.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/waker.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/zero.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/once.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/once_lock.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sys/sync/once/futex.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/functions.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/lifecycle.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/local.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/scoped.rs",
+     "/nix/store/a1xd2pg84msr690fg0g1v0w64fi49w59-pulseaudio-13.0-dev/include/pulse",
+     "/nix/store/afqyr5ga0bazxirkmi6my57r2m88kv50-glib-2.64.5-dev/include/glib-2.0/glib",
+     "/nix/store/ciazf7whrg6pxly22kx0izy755pjll83-libX11-1.6.8-dev/include/X11",
+     "/nix/store/g10yvm6mj2y73v2gyl8wjlnvva20z4jd-wayland-1.18.0/include",
+     "/nix/store/mxvpxymvhxizkpzxmr6qfvikhmy7wv3n-xorgproto-2019.1/include/X11",
+     "/nix/store/zn53av1a8f8va2ldpa48f1q91fmpii52-pipewire-0.3.7-dev/include/spa-0.2/spa/pod/compare.h",
+     "/nix/store/zn53av1a8f8va2ldpa48f1q91fmpii52-pipewire-0.3.7-dev/include/spa-0.2/spa/pod/filter.h",
+     "/nix/store/zn53av1a8f8va2ldpa48f1q91fmpii52-pipewire-0.3.7-dev/include/spa-0.2/spa/pod/iter.h",
+     "/nix/store/zn53av1a8f8va2ldpa48f1q91fmpii52-pipewire-0.3.7-dev/include/spa-0.2/spa/utils",
+     "/proc",
+     "/proc/",
+     "/proc/seH",
+     "/proc/self/exe",
+     "/proc/self/mountinfo/proc/self/cgroupcpu.cfs_period_us/sys/fs/cgroupcgroup.controllers",
+     "/proc_macro.d7c3da79a2e15711-cgu.0",
+     "/run/user/",
+     "/usr/include",
+     "/usr/include/x86_64-linux-gnu/bits",
+     "/usr/include/x86_64-linux-gnu/bits/types",
+     "/usr/lib/debugpath",
+     "/usr/lib/llvm-16/lib/clang/16/include",
+     "/usr/libK"
+    ],
+    "urls": [
+     "http://)StaticchildDynamicStructureArrayContainerorg.freedesktop.zbus.Errororg.freedesktop.portal.Error.Failedorg.freedesktop.portal.Error.InvalidArgumentorg.freedesktop.portal.Error.NotFoundorg.freedesktop.portal.Error.Existorg.freedesktop.portal.Error.NotAllowedorg.freedesktop.portal.Error.Cancelledorg.freedesktop.portal.Error.WindowDestroyedno",
+     "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd",
+     "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
+     "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
+     "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
+     "http://www.webrtc.org/experiments/rtp-hdrext/color-space",
+     "http://www.webrtc.org/experiments/rtp-hdrext/corruption-detection",
+     "http://www.webrtc.org/experiments/rtp-hdrext/generic-frame-descriptor-00",
+     "http://www.webrtc.org/experiments/rtp-hdrext/inband-cn",
+     "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay",
+     "http://www.webrtc.org/experiments/rtp-hdrext/transport-wide-cc-02",
+     "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type",
+     "http://www.webrtc.org/experiments/rtp-hdrext/video-frame-tracking-id",
+     "http://www.webrtc.org/experiments/rtp-hdrext/video-layers-allocation00",
+     "http://www.webrtc.org/experiments/rtp-hdrext/video-timing",
+     "https://aomediacodec.github.io/av1-rtp-spec/#dependency-descriptor-rtp-header-extension",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#addressesguiddir=ObjectServer",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-names-bus",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-names-busOwnedInterfaceNameOwnedWellKnownNameUniqueNameWellKnownNameinternal",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-names-busWellKnownNameUniqueNameinternal",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-names-errorInvalid",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-names-interfaceInvalid",
+     "https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-names-member/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zbus_names-4.3.1/src/error_name.rs",
+     "https://discord.com/#rtp-hdrext/2018-07-29/speaker",
+     "https://docs.rs/flexi_logger/latest/flexi_logger/error_info/index.html#",
+     "https://docs.rs/flexi_logger/latest/flexi_logger/struct.Logger.html#method.panic_if_error_channel_is_broken).internal",
+     "https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#devsandqueues-lost-device",
+     "https://webrtc.googlesource.com/src/+/refs/heads/main/docs/native-code/rtp-hdrext/playout-delay/,",
+     "https://www.w3.org/2018/credentials/v1"
+    ],
+    "protocols": [
+     "dbus",
+     "hls",
+     "rtcp",
+     "rtp",
+     "rtx",
+     "turn",
+     "webrtc"
+    ],
+    "events": [
+     "SetAudioDeviceModuleErrorCallback",
+     "SetAudioInputInitializationCallback",
+     "SetConnectionFailedCallback",
+     "SetDesktopSourceStatusCallback",
+     "SetDeviceChangeCallback",
+     "SetDeviceHardwareMutedChangeCallback",
+     "SetEncodeCallback",
+     "SetErrorCallback",
+     "SetEventCallback",
+     "SetFrameCallback",
+     "SetLocalVoiceLevelChangedCallback",
+     "SetMlDetectionCallback",
+     "SetMultiSampleAudioCallback",
+     "SetNoAudioInputCallback",
+     "SetNoInputCallback",
+     "SetOnConnectionFailedCallback",
+     "SetOnFirstFrameCallback",
+     "SetOnFirstFrameDeliveredStatsCallback",
+     "SetOnFirstFrameEncryptedStatsCallback",
+     "SetOnMLSFailureCallback",
+     "SetOnRtcpMessageCallback",
+     "SetOnSoundshareCallback",
+     "SetOnSoundshareEndedCallback",
+     "SetOnSoundshareFailedCallback",
+     "SetOnSpeakingCallback",
+     "SetOnSpeakingWhileMutedCallback",
+     "SetOnVideoCallback",
+     "SetOnVideoDecoderFallbackCallback",
+     "SetOnVideoEncoderFallbackCallback",
+     "SetOnVoiceCallback",
+     "SetParametersCallback",
+     "SetPingCallback",
+     "SetPingTimeoutCallback",
+     "SetProtocolVersionChangedCallback",
+     "SetRecordingEventCallback",
+     "SetRenderCallback",
+     "SetSecureFramesStateUpdateCallback",
+     "SetSourcesChangedCallback",
+     "SetSpatialAudioStatusCallback",
+     "SetStatusCallback",
+     "SetSystemMicrophoneModeChangeCallback",
+     "SetVideoCodecErrorCallback",
+     "SetVideoFilterErrorCallback",
+     "SetVideoInputInitializationCallback",
+     "SetVoiceProcessingErrorCallback",
+     "SetVolumeChangeCallback",
+     "onBasis",
+     "onConnectionComplete",
+     "onEnded",
+     "onError",
+     "onExit",
+     "onFallback",
+     "onFirstFrame",
+     "onFirstFrameDelivered",
+     "onFirstFrameEncrypted",
+     "onPing",
+     "onPingTimeout",
+     "onQuit",
+     "onRtcpMessage",
+     "onSoundshare",
+     "onSoundshareEnded",
+     "onSoundshareFailed",
+     "onSpeaking",
+     "onSpeakingWhileMuted",
+     "onSuccess",
+     "onUdpSocketRead",
+     "onVideohook",
+     "setOnClipsMlDetection",
+     "setOnClipsRecordingEvent",
+     "setOnConnectionFailedCallback",
+     "setOnDesktopSourceEnded",
+     "setOnFirstFrameCallback",
+     "setOnFirstFrameDeliveredStatsCallback",
+     "setOnFirstFrameEncryptedStatsCallback",
+     "setOnMLSFailureCallback",
+     "setOnNdiEvent",
+     "setOnRtcpMessageCallback",
+     "setOnSoundshare",
+     "setOnSoundshareEnded",
+     "setOnSoundshareFailed",
+     "setOnSpeakingCallback",
+     "setOnSpeakingWhileMutedCallback",
+     "setOnVideoCallback",
+     "setOnVideoDecoderFallbackCallback",
+     "setOnVideoEncoderFallbackCallback",
+     "setOnVoiceCallback"
+    ]
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 168063,
+    "kept_after_filter": 242743
+   }
+  },
+  {
+   "name": "discord_krisp",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_krisp-1/discord_krisp/discord_krisp.node",
+   "size": 62078048,
+   "md5": "9be929d1d90a8290b051fd07e2c34eb3",
+   "sha256": "3d70b39670d5cf024a6a730bae488af5bd4ec69d6c309d5c8f0f29ce80052f60",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0",
+    "libstdc++.so.6"
+   ],
+   "soname": [
+    "discord_krisp.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 164989,
+    "rabin2_z_lines": 12018,
+    "symtab_lines": 44533,
+    "dynsym_lines": 28693,
+    "functions_tT_wW": 37010,
+    "exports_lines": 38778
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1",
+    "node_api_module_get_api_version_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 7515,
+     "sample": [
+      "openblas_verbose",
+      "openblas_block_factor",
+      "openblas_omp_adaptive_env",
+      "support_avx",
+      "support_avx2",
+      "support_avx512_bf16"
+     ]
+    },
+    {
+     "len": 2362,
+     "sample": [
+      "NCONF_dump_bio",
+      "NCONF_dump_fp",
+      "OPENSSL_INIT_new",
+      "OPENSSL_INIT_set_config_filename",
+      "OPENSSL_INIT_set_config_file_flags",
+      "OPENSSL_INIT_set_config_appname"
+     ]
+    },
+    {
+     "len": 1036,
+     "sample": [
+      "ossl_tolower",
+      "OPENSSL_strncasecmp",
+      "OSSL_PARAM_locate",
+      "WPACKET_init_static_len",
+      "WPACKET_memcpy",
+      "WPACKET_cleanup"
+     ]
+    },
+    {
+     "len": 629,
+     "sample": [
+      "EVP_CIPHER_CTX_get_cipher_data",
+      "EVP_CIPHER_CTX_is_encrypting",
+      "CRYPTO_cbc128_encrypt",
+      "CRYPTO_cbc128_decrypt",
+      "EVP_CIPHER_CTX_get_key_length",
+      "EVP_CIPHER_CTX_get0_cipher"
+     ]
+    },
+    {
+     "len": 595,
+     "sample": [
+      "select",
+      "getentropy",
+      "EVP_MD_settable_ctx_params",
+      "EVP_MD_CTX_set_params",
+      "EVP_MD_gettable_ctx_params",
+      "EVP_MD_CTX_get_params"
+     ]
+    },
+    {
+     "len": 591,
+     "sample": [
+      "ASN1_add_oid_module",
+      "ASN1_add_stable_module",
+      "EVP_add_alg_module",
+      "ossl_config_add_ssl_module",
+      "conf_ssl_get",
+      "conf_ssl_name_find"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/dev/hwrng",
+     "/dev/random",
+     "/dev/srandom",
+     "/dev/tty",
+     "/dev/urandom",
+     "/etc/ssl",
+     "/etc/ssl/cert.pem",
+     "/etc/ssl/certs",
+     "/etc/ssl/private",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits/types",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/netinet",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/sys",
+     "/proc/",
+     "/usr/lib/llvm-16/lib/clang/16/include",
+     "/var/lib/jenkins/.conan/data/krisp-blas/1.2.47/krisp/prod/build/6c4e8c29ce65fcd226b94d1510ed50fe4c63c62e/src/krisp_tensor_utils.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-common/1.4.57/krisp/prod/build/7b8fa792e7c83a4c65b3c21d90e79ba0db670530/src/containers/krisp_matrix.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-core/2.0.57/krisp/prod/package/e5761743b3447ebf65252bfcceb8740d4ca739e6/include/krisp_streamframeprocessors.hpp",
+     "/var/lib/jenkins/.conan/data/krisp-dsp/1.1.60/krisp/prod/build/a29bece52221017935febe139eb937b538efe778/src/krisp_dsp_dftkiss.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-dsp/1.1.60/krisp/prod/build/a29bece52221017935febe139eb937b538efe778/src/krisp_dsp_fft.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-dsp/1.1.60/krisp/prod/build/a29bece52221017935febe139eb937b538efe778/src/krisp_dsp_resampler_libresample.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/executable-networks/src/gru/krisp_gru_layer_norm_executable_network.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/executable-networks/src/gru/krisp_gru_mini_executable_network.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/executable-networks/src/gru/krisp_gru_modify_executable_network.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/executable-networks/src/gru/krisp_gru_modify_vad_executable_network.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/executable-networks/src/gru/krisp_gru_sep_dense_executable_network.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/krisp_native_executable_network_factory.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/networks/src/gru/gru_executable_network_runtime.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/networks/src/gru/gru_layer_norm_executable_network_runtime.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/networks/src/gru/gru_modify_executable_network_runtime.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/networks/src/gru/gru_modify_vad_executable_network_runtime.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/networks/src/gru/gru_sep_dense_executable_network_runtime.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/native/src/networks/src/weight.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-inference-engine/2.2.39/krisp/prod/build/98ace5e78a183a1b93c13b1fcf3b90a2fca89f5a/src/onnxruntime/src/onnx_executable_network.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-mlops/1.0.50/krisp/prod/build/9975b5822cc4379a9b608dc063f73364980ca7da/src/functional/native/krisp_ml_operations_native.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-mlops/1.0.50/krisp/prod/build/9975b5822cc4379a9b608dc063f73364980ca7da/src/layers/mlExt/krisp_ml_linear_ext_layer.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-nc-processor/4.0.25/krisp/prod/build/9d273254f9e92b9a710962fca38dbd4fcd8c04a3/audio/frame_processors/nc/src/deep-filter-net/krisp_nc_df_postprocessor.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-nc-processor/4.0.25/krisp/prod/build/9d273254f9e92b9a710962fca38dbd4fcd8c04a3/audio/frame_processors/nc/src/deep-filter-net/krisp_nc_df_preprocessor.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-nc-processor/4.0.25/krisp/prod/build/9d273254f9e92b9a710962fca38dbd4fcd8c04a3/audio/frame_processors/nc/src/deep-filter-net/krisp_nc_df_processor.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-nc-processor/4.0.25/krisp/prod/build/9d273254f9e92b9a710962fca38dbd4fcd8c04a3/audio/frame_processors/nc/src/krisp_nc_maincleaner.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-vad-v2-processor/1.0.3/krisp/prod/build/63235dae9f8eace418355056e88e3b8220f4df02/audio/frame_processors/vad-v2/src/vad_v2_maincleaner.cpp",
+     "/var/lib/jenkins/.conan/data/krisp-vad-v2-processor/1.0.3/krisp/prod/build/63235dae9f8eace418355056e88e3b8220f4df02/audio/frame_processors/vad-v2/src/vad_v2_processor.cpp",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/build/Release/op_reduction.generated/onnxruntime/contrib_ops/cpu/cpu_contrib_kernels.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/build/Release/op_reduction.generated/onnxruntime/core/providers/cpu/cpu_execution_provider.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/common/logging/logging.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/allocator.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/data_types.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/data_types_internal.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/op_kernel_context.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/op_node_proto_helper.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/ort_value.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/framework/tensor.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/graph/graph.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/include/onnxruntime/core/platform/EigenNonBlockingThreadPool.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/contrib_ops/cpu/activations.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/contrib_ops/cpu/bert/bias_gelu.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/contrib_ops/cpu/fused_conv.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/contrib_ops/cpu/fused_gemm.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/contrib_ops/cpu/quantization/dynamic_quantize_matmul.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/common/logging/logging.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/common/path.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/common/profiler.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/common/safeint.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/common/status.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/common/threadpool.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/flatbuffers/flatbuffers_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/TensorSeq.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/allocation_planner.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/allocator.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/allocator_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/bfc_arena.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/bfc_arena.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/copy.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/data_transfer.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/data_transfer_manager.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/data_types.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/ex_lib_loader.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/execution_frame.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/execution_frame.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/execution_providers.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/execution_steps.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/feeds_fetches_manager.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/feeds_fetches_manager.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/graph_partitioner.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/kernel_def_builder.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/kernel_lookup.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/kernel_registry.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/mem_pattern_planner.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/mldata_type_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/mldata_type_utils.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/node_index_info.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/node_index_info.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/onnxruntime_map_type_info.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/onnxruntime_optional_type_info.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/onnxruntime_sequence_type_info.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/onnxruntime_typeinfo.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/op_kernel.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/op_kernel_context_internal.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/prepacked_weights.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/prepacked_weights_container.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/sequential_executor.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/session_options.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/session_state.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/session_state_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/sparse_tensor.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/sparse_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/stream_execution_context.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/stream_execution_context.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/tensor.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/tensor_allocator_with_mem_pattern.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/tensor_shape.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/tensor_type_and_shape.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/tensorprotoutils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/transpose_helper.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/framework/utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/graph/graph.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/graph/graph_flatbuffers_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/graph/graph_viewer.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/graph/model.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/graph/node_attr_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/graph/op_identifier_utils.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/platform/posix/env.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/common.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/activation/activations.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/activation/activations.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/controlflow/if.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/controlflow/loop.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/element_wise_ranged_transform.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/clip.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/clip.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/einsum.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/einsum.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/einsum_utils/einsum_auxiliary_ops.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/einsum_utils/einsum_compute_preprocessor.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/einsum_utils/einsum_typed_compute_processor.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/element_wise_ops.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/element_wise_ops.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/gemm_base.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/gemm_helper.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/matmul.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/matmul_helper.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/math/softmax.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/nn/batch_norm.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/nn/conv.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/nn/conv_attributes.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/nn/conv_transpose.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/nn/conv_transpose_attributes.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/nn/layer_norm_impl.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/quantization/dynamicquantizelinear.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/reduction/reduction_kernel_base.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/reduction/reduction_ops.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/cast_op.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/concat.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/concatbase.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/gather.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/gather_elements.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/gather_elements.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/gatherbase.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/identity_op.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/pad.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/padbase.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/reshape.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/reshape_helper.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/slice.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/slice.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/split.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/split.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/squeeze.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/tile.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/transpose.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/transpose.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/unsqueeze.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/unsqueeze.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/cpu/tensor/utils.h",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/providers/get_execution_providers.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/IOBinding.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/abi_session_options.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/inference_session.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/inference_session.ccTraceSessionOptiShrinkMemoryArensession.use_ort_model_bytes_direThe",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/onnxruntime_c_api.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/ort_env.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/session/provider_registration.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/util/math_cpu.cc",
+     "/var/lib/jenkins/.conan/data/onnxruntime/1.18.1_22/krisp/stable/build/ba8105072668e0f8f5ef641532a1fca0bafdbf80/src/onnxruntime/core/util/thread_utils.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/arena.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/descriptor.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/descriptor.h",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/descriptor_database.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/dynamic_message.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/dynamic_message.h",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/extension_set.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/extension_set_heavy.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/extension_set_inl.h",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/generated_message_reflection.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/generated_message_util.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/io/coded_stream.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/io/tokenizer.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/io/zero_copy_stream.cc",
+     "/var/lib/jenkins/.conan/data/protobuf/3.21.12_10/krisp/stable/build/a7678beae9a6a5cf0282eeddb896bb17e9c5d9cf/src/src/google/protobuf/io/zero_copy_stream_impl.cc"
+    ],
+    "urls": [
+     "https://github.com/microsoft/onnxruntime/blob/rel-1.14.0/docs/ORT_Format_Update_in_1.13.md"
+    ],
+    "protocols": [
+     "dtls"
+    ],
+    "events": [
+     "onBasis",
+     "onExit",
+     "onUdpSocketRead"
+    ]
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 58297,
+    "kept_after_filter": 106692
+   }
+  },
+  {
+   "name": "discord_utils",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/discord_utils.node",
+   "size": 19185488,
+   "md5": "6bd62709ff518d5014e4bf26f49fe83a",
+   "sha256": "3dc68ed5675318dd32ac2e5416135a85610c9e6421207d9231d281feb4fefd22",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libX11.so.6",
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0",
+    "libwayland-client.so.0"
+   ],
+   "soname": [
+    "discord_utils.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 65723,
+    "rabin2_z_lines": 953,
+    "symtab_lines": 5507,
+    "dynsym_lines": 306,
+    "functions_tT_wW": 3604,
+    "exports_lines": 6
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1",
+    "node_api_module_get_api_version_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 151,
+     "sample": [
+      "UV_FS_UNKNOWN",
+      "UV_FS_CUSTOM",
+      "UV_FS_OPEN",
+      "UV_FS_CLOSE",
+      "UV_FS_READ",
+      "UV_FS_WRITE"
+     ]
+    },
+    {
+     "len": 110,
+     "sample": [
+      "remove",
+      "rename",
+      "pthread_create",
+      "pthread_getspecific",
+      "pthread_setspecific",
+      "pthread_cond_clockwait"
+     ]
+    },
+    {
+     "len": 91,
+     "sample": [
+      "KNodeArrayNode",
+      "KDotSuffix",
+      "KVendorExtQualType",
+      "KQualType",
+      "KConversionOperatorType",
+      "KPostfixQualifiedType"
+     ]
+    },
+    {
+     "len": 84,
+     "sample": [
+      "XPending",
+      "XFreeEventData",
+      "XGenericEventCookie",
+      "XNextEvent",
+      "XAnyEvent",
+      "subwindow"
+     ]
+    },
+    {
+     "len": 77,
+     "sample": [
+      "address_family_not_supported",
+      "address_in_use",
+      "address_not_available",
+      "already_connected",
+      "argument_list_too_long",
+      "argument_out_of_domain"
+     ]
+    },
+    {
+     "len": 74,
+     "sample": [
+      "deflate_copyright",
+      "my_version",
+      "configuration_table",
+      "good_length",
+      "max_lazy",
+      "nice_length"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits/types",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/netinet",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/sys",
+     "/nix/store/9wklj5gqngmx18qs99qnisdrhhn6sql0-libXi-1.7.10-dev/include/X11/extensions",
+     "/nix/store/ciazf7whrg6pxly22kx0izy755pjll83-libX11-1.6.8-dev/include/X11",
+     "/nix/store/g10yvm6mj2y73v2gyl8wjlnvva20z4jd-wayland-1.18.0/include",
+     "/nix/store/mxvpxymvhxizkpzxmr6qfvikhmy7wv3n-xorgproto-2019.1/include/X11",
+     "/proc/",
+     "/usr/lib/llvm-16/lib/clang/16/include"
+    ],
+    "urls": [],
+    "protocols": [],
+    "events": [
+     "SetCandidateGamesCallback",
+     "SetCandidateProcessesChangeCallback",
+     "SetDebugCallback",
+     "SetErrorCallback",
+     "SetGameDetectionCallback",
+     "SetGameDetectionErrorCallback",
+     "SetObservedGamesCallback",
+     "SetObserverDebugCallback",
+     "onChange",
+     "onDetection",
+     "onError",
+     "onExit",
+     "onPressed",
+     "onReleased",
+     "onUdpSocketRead"
+    ]
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 40386,
+    "kept_after_filter": 25337
+   }
+  },
+  {
+   "name": "discord_game_utils",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_game_utils-1/discord_game_utils/discord_game_utils.node",
+   "size": 11478904,
+   "md5": "220450ece4bf9cf40271d370ad175709",
+   "sha256": "4fe8b2382aa28dd84cfaabe66815edebf08105cd17e02935ca3156209c2f5a77",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0"
+   ],
+   "soname": [
+    "discord_game_utils.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 38939,
+    "rabin2_z_lines": 901,
+    "symtab_lines": 4260,
+    "dynsym_lines": 270,
+    "functions_tT_wW": 2646,
+    "exports_lines": 6
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1",
+    "node_api_module_get_api_version_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 150,
+     "sample": [
+      "UV_FS_UNKNOWN",
+      "UV_FS_CUSTOM",
+      "UV_FS_OPEN",
+      "UV_FS_CLOSE",
+      "UV_FS_READ",
+      "UV_FS_WRITE"
+     ]
+    },
+    {
+     "len": 95,
+     "sample": [
+      "fill_segment",
+      "block_",
+      "block_region_",
+      "block_region",
+      "pseudo_rands",
+      "passes"
+     ]
+    },
+    {
+     "len": 91,
+     "sample": [
+      "KNodeArrayNode",
+      "KDotSuffix",
+      "KVendorExtQualType",
+      "KQualType",
+      "KConversionOperatorType",
+      "KPostfixQualifiedType"
+     ]
+    },
+    {
+     "len": 78,
+     "sample": [
+      "address_family_not_supported",
+      "address_in_use",
+      "address_not_available",
+      "already_connected",
+      "argument_list_too_long",
+      "argument_out_of_domain"
+     ]
+    },
+    {
+     "len": 67,
+     "sample": [
+      "GCC_except_table30",
+      "GCC_except_table34",
+      "GCC_except_table35",
+      "GCC_except_table37",
+      "GCC_except_table39",
+      "GCC_except_table41"
+     ]
+    },
+    {
+     "len": 60,
+     "sample": [
+      "acoshf",
+      "asinhf",
+      "atanhf",
+      "copysignf",
+      "expm1f",
+      "hypotf"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/dev/random",
+     "/dev/urandom",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits/types",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/netinet",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/sys",
+     "/proc/",
+     "/usr/lib/llvm-16/lib/clang/16/include",
+     "/usr/shaI",
+     "/usr/share"
+    ],
+    "urls": [],
+    "protocols": [],
+    "events": [
+     "onExit",
+     "onUdpSocketRead"
+    ]
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 21541,
+    "kept_after_filter": 17398
+   }
+  },
+  {
+   "name": "discord_erlpack",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_erlpack-1/discord_erlpack/discord_erlpack.node",
+   "size": 7755832,
+   "md5": "a4bf9140d20dbf172eaa97f71ef5729f",
+   "sha256": "6cad518145244f5298409e7d0844fc94ae367fdc6f1e177ddf52e371562470c8",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0"
+   ],
+   "soname": [
+    "discord_erlpack.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 27776,
+    "rabin2_z_lines": 449,
+    "symtab_lines": 2700,
+    "dynsym_lines": 165,
+    "functions_tT_wW": 1453,
+    "exports_lines": 6
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1",
+    "node_api_module_get_api_version_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 152,
+     "sample": [
+      "UV_FS_UNKNOWN",
+      "UV_FS_CUSTOM",
+      "UV_FS_OPEN",
+      "UV_FS_CLOSE",
+      "UV_FS_READ",
+      "UV_FS_WRITE"
+     ]
+    },
+    {
+     "len": 91,
+     "sample": [
+      "KNodeArrayNode",
+      "KDotSuffix",
+      "KVendorExtQualType",
+      "KQualType",
+      "KConversionOperatorType",
+      "KPostfixQualifiedType"
+     ]
+    },
+    {
+     "len": 78,
+     "sample": [
+      "address_family_not_supported",
+      "address_in_use",
+      "address_not_available",
+      "already_connected",
+      "argument_list_too_long",
+      "argument_out_of_domain"
+     ]
+    },
+    {
+     "len": 67,
+     "sample": [
+      "GCC_except_table30",
+      "GCC_except_table34",
+      "GCC_except_table35",
+      "GCC_except_table37",
+      "GCC_except_table39",
+      "GCC_except_table41"
+     ]
+    },
+    {
+     "len": 62,
+     "sample": [
+      "acoshf",
+      "asinhf",
+      "atanhf",
+      "copysignf",
+      "expm1f",
+      "hypotf"
+     ]
+    },
+    {
+     "len": 44,
+     "sample": [
+      "TagTemplates",
+      "TableEntry",
+      "ForwardRef",
+      "SpecialSub",
+      "WithTags",
+      "BindingsBegin"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/bits/types",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/netinet",
+     "/nix/store/4wy9j24psf9ny4di3anjs7yk2fvfb0gq-glibc-2.31-dev/include/sys",
+     "/usr/lib/llvm-16/lib/clang/16/include"
+    ],
+    "urls": [],
+    "protocols": [],
+    "events": [
+     "onExit",
+     "onUdpSocketRead"
+    ]
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 15941,
+    "kept_after_filter": 11835
+   }
+  },
+  {
+   "name": "updater",
+   "path": "/home/sanya/.config/discord/app-1.0.162/updater.node",
+   "size": 5812960,
+   "md5": "6a77646b1d9e2b9cf4884bc52a306d29",
+   "sha256": "44c55e0bc8271162c3e3fd644366f208bbb8a106495bd7cd97ded7d64537b915",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libc.so.6",
+    "libdl.so.2",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0"
+   ],
+   "soname": [],
+   "instrumentation": {
+    "strings_total_n6": 13188,
+    "rabin2_z_lines": 11885,
+    "symtab_lines": 1,
+    "dynsym_lines": 232,
+    "functions_tT_wW": 0,
+    "exports_lines": 11
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1"
+   ],
+   "napiEntryPointsFoundIn": "dynsym/exports",
+   "camelCaseRuns": [
+    {
+     "len": 132,
+     "sample": [
+      "Savepoint",
+      "AutoCommit",
+      "Transaction",
+      "Checkpoint",
+      "JournalMode",
+      "VFilter"
+     ]
+    },
+    {
+     "len": 74,
+     "sample": [
+      "infinity",
+      "analysis_limit",
+      "application_id",
+      "auto_vacuum",
+      "automatic_index",
+      "busy_timeout"
+     ]
+    },
+    {
+     "len": 55,
+     "sample": [
+      "json_array",
+      "json_array_length",
+      "json_error_position",
+      "json_extract",
+      "json_insert",
+      "json_object"
+     ]
+    },
+    {
+     "len": 50,
+     "sample": [
+      "clock_gettime",
+      "waitid",
+      "pthread_attr_init",
+      "pthread_attr_setstacksize",
+      "pthread_attr_destroy",
+      "pthread_create"
+     ]
+    },
+    {
+     "len": 44,
+     "sample": [
+      "sched_yield",
+      "syscall",
+      "futimes",
+      "pthread_detach",
+      "isatty",
+      "strlen"
+     ]
+    },
+    {
+     "len": 21,
+     "sample": [
+      "ATAUM1",
+      "USATAUAVAWH",
+      "USATAUAVAWL",
+      "USATAUAVAWH",
+      "USATAUAVAWH",
+      "USATAUAVAWH"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/dev/null",
+     "/dev/random",
+     "/dev/uraH",
+     "/dev/urandom",
+     "/etc/timH",
+     "/etc/zoneinfo/abcdefghijklmnopqrstuvwxyz",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/map.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/map/entry.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/navigate.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/btree/node.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/collections/vec_deque/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/io/buf_read.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/io/read.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/io/util.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/str.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/string.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/sync.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/vec/spec_from_iter_nested.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/io/borrowed_buf.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/io/io_slice.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/io/io_slice/repr_iovec.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/io/write.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/ops/function.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/slice/index.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/slice/sort/stable/quicksort.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/str/pattern.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/core/src/time.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/io/stdio.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/os/unix/net/stream.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/array.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/context.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/list.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/mod.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/waker.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/mpmc/zero.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sync/once.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/sys/thread_local/native/lazy.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/lifecycle.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/local.rs",
+     "/option",
+     "/proc",
+     "/proc/seH",
+     "/proc/self/exe",
+     "/usr/lib/debugfatal",
+     "/usr/libI",
+     "/usr/tmp",
+     "/var/tmp"
+    ],
+    "urls": [
+     "http://.css",
+     "http://.jpg",
+     "http://Descriptionrelatively",
+     "http://UA-Compatible",
+     "http://according",
+     "http://addEventListenerresponsible",
+     "http://applicationslink",
+     "http://ator",
+     "http://cript",
+     "http://dictionaryperceptionrevolutionfoundationpx;height:successfulsupportersmillenniumhis",
+     "http://encoding=",
+     "http://familiar",
+     "http://html4/loose.dtd",
+     "http://imEnglish",
+     "http://interested",
+     "http://interpreted",
+     "http://invalid",
+     "http://iparticipation",
+     "http://link",
+     "http://mathematicsmargin-top:eventually",
+     "http://navigation",
+     "http://option",
+     "http://s;text-align:centerfont-weight:",
+     "http://site_name",
+     "http://staticsuggested",
+     "http://style=",
+     "http://whether",
+     "http://www-//W3C//DTD",
+     "http://www.",
+     "http://www./div",
+     "http://www.C//DTD",
+     "http://www.a",
+     "http://www.css",
+     "http://www.hortcut",
+     "http://www.icon",
+     "http://www.interpretation",
+     "http://www.language=",
+     "http://www.style=",
+     "http://www.text-decoration:underthe",
+     "http://www.w3.org/shortcut",
+     "http://www.wencodeURIComponent(",
+     "http://www.years",
+     "http://xt/css",
+     "https://ConflictHTTP/0.9HTTP/2.0HTTP/3.0trailersif-matchif-rangelocation",
+     "https://www.World",
+     "https://www.recent"
+    ],
+    "protocols": [
+     "websocket"
+    ],
+    "events": [
+     "onClick"
+    ]
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 24,
+    "kept_after_filter": 13164
+   }
+  },
+  {
+   "name": "cld",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_spellcheck-1/discord_spellcheck/node_modules/cld/build/Release/cld.node",
+   "size": 6646552,
+   "md5": "303bc2870515fe61b254af02e8746b98",
+   "sha256": "9365d00f027e8cd9fb7fa5a1e5ab590f333c09d18077bac05865634b45f39021",
+   "deps": [
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0",
+    "libstdc++.so.6"
+   ],
+   "soname": [
+    "cld.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 7359,
+    "rabin2_z_lines": 65660,
+    "symtab_lines": 583,
+    "dynsym_lines": 482,
+    "functions_tT_wW": 336,
+    "exports_lines": 664
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1",
+    "node_api_module_get_api_version_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 197,
+     "sample": [
+      "ABKHAZIAN",
+      "AFRIKAANS",
+      "ALBANIAN",
+      "AMHARIC",
+      "ARABIC",
+      "ARMENIAN"
+     ]
+    },
+    {
+     "len": 180,
+     "sample": [
+      "Aacute",
+      "Agrave",
+      "Atilde",
+      "Ccaron",
+      "Ccedil",
+      "Dagger"
+     ]
+    },
+    {
+     "len": 115,
+     "sample": [
+      "CHICHEWA",
+      "Ignore",
+      "LUBA_LULUA",
+      "LUO_KENYA_AND_TANZANIA",
+      "MOLDAVIAN",
+      "MONTENEGRIN"
+     ]
+    },
+    {
+     "len": 27,
+     "sample": [
+      "japanese",
+      "javanese",
+      "kannada",
+      "kashmiri",
+      "kazakh",
+      "kinyarwanda"
+     ]
+    },
+    {
+     "len": 24,
+     "sample": [
+      "abkhazian",
+      "afrikaans",
+      "albanian",
+      "amharic",
+      "arabic",
+      "argentina"
+     ]
+    },
+    {
+     "len": 23,
+     "sample": [
+      "faroese",
+      "fijian",
+      "finnish",
+      "francais",
+      "french",
+      "frisian"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/nix/store/h31cy7jm6g7cfqbhc5pm4rf9c53i3qfb-gcc-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/crtbeginS.o",
+     "/nix/store/h31cy7jm6g7cfqbhc5pm4rf9c53i3qfb-gcc-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/crtendS.o"
+    ],
+    "urls": [],
+    "protocols": [],
+    "events": []
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 910,
+    "kept_after_filter": 6449
+   }
+  },
+  {
+   "name": "discord_zstd",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_zstd-1/discord_zstd/discord_zstd.node",
+   "size": 873248,
+   "md5": "e6fb396136f1e24cddae07dfe00c6133",
+   "sha256": "bb7cb593f979dd7751e3b949a1dbecaa21aebc6c4923ad96eda3541b56d684db",
+   "deps": [
+    "ld-linux-x86-64.so.2",
+    "libc.so.6",
+    "libdl.so.2",
+    "libgcc_s.so.1",
+    "libpthread.so.0"
+   ],
+   "soname": [],
+   "instrumentation": {
+    "strings_total_n6": 2772,
+    "rabin2_z_lines": 411,
+    "symtab_lines": 1172,
+    "dynsym_lines": 86,
+    "functions_tT_wW": 848,
+    "exports_lines": 4
+   },
+   "napiEntryPoints": [
+    "napi_register_module_v1"
+   ],
+   "napiEntryPointsFoundIn": "symtab",
+   "camelCaseRuns": [
+    {
+     "len": 24,
+     "sample": [
+      "napi_get_cb_info",
+      "napi_throw",
+      "napi_get_null",
+      "napi_create_string_utf8",
+      "napi_create_arraybuffer",
+      "napi_get_arraybuffer_info"
+     ]
+    },
+    {
+     "len": 11,
+     "sample": [
+      "BIT_reloadDStream_internal",
+      "HUF_DecompressFastArgs_init",
+      "HUF_decompress4X2_usingDTable_internal_fast_c_loop",
+      "HUF_decompress4X2_usingDTable_internal_fast",
+      "HUF_decompress4X1_usingDTable_internal_fast",
+      "HUF_decompress4X1_usingDTable_internal_fast_c_loop"
+     ]
+    },
+    {
+     "len": 8,
+     "sample": [
+      "OF_bits",
+      "OF_base",
+      "ML_bits",
+      "ML_base",
+      "LL_bits",
+      "LL_base"
+     ]
+    },
+    {
+     "len": 8,
+     "sample": [
+      "GCC_except_table5",
+      "GCC_except_table7",
+      "GCC_except_table30",
+      "GCC_except_table31",
+      "GCC_except_table36",
+      "GCC_except_table38"
+     ]
+    }
+   ],
+   "strings": {
+    "paths": [
+     "/dev/null",
+     "/dev/ranH",
+     "/dev/random",
+     "/dev/randompoll",
+     "/dev/uraH",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/alloc/src/string.rs",
+     "/nix/store/8006w282fgsx3273c878bmqdlbbd81w3-rust-default-1.99.0-nightly-2026-08-02/lib/rustlib/src/rust/library/std/src/thread/local.rs",
+     "/nix/store/h31cy7jm6g7cfqbhc5pm4rf9c53i3qfb-gcc-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/crtbeginS.o",
+     "/nix/store/h31cy7jm6g7cfqbhc5pm4rf9c53i3qfb-gcc-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/crtendS.o",
+     "/proc",
+     "/proc/seH",
+     "/proc/self/exe",
+     "/usr/lib/debugfatal",
+     "/usr/libK"
+    ],
+    "urls": [],
+    "protocols": [],
+    "events": []
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 18,
+    "kept_after_filter": 2754
+   }
+  },
+  {
+   "name": "notificationstate",
+   "path": "/home/sanya/.config/discord/app-1.0.162/modules/discord_utils-1/discord_utils/node_modules/windows-notification-state/build/Release/notificationstate.node",
+   "size": 16840,
+   "md5": "63ad44ea5fec4949b030a6b5f4280cc2",
+   "sha256": "9660a012a89479b0055f7a146521f4eba89b0d0491e3b5a63fe6f2ce3fef74a1",
+   "deps": [
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libpthread.so.0",
+    "libstdc++.so.6"
+   ],
+   "soname": [
+    "notificationstate.node"
+   ],
+   "instrumentation": {
+    "strings_total_n6": 58,
+    "rabin2_z_lines": 2,
+    "symtab_lines": 18,
+    "dynsym_lines": 4,
+    "functions_tT_wW": 10,
+    "exports_lines": 2
+   },
+   "napiEntryPoints": [],
+   "napiEntryPointsFoundIn": "none",
+   "camelCaseRuns": [],
+   "strings": {
+    "paths": [
+     "/nix/store/h31cy7jm6g7cfqbhc5pm4rf9c53i3qfb-gcc-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/crtbeginS.o",
+     "/nix/store/h31cy7jm6g7cfqbhc5pm4rf9c53i3qfb-gcc-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/crtendS.o"
+    ],
+    "urls": [],
+    "protocols": [],
+    "events": []
+   },
+   "discarded": {
+    "generic_symbols_and_libcxx_paths": 5,
+    "kept_after_filter": 53
+   }
+  }
+ ],
+ "voiceApiCrosscheck": {
+  "napiPropertyTableRange_lines": "73279..73372",
+  "napiPropertyTableCount": 94,
+  "napiPropertyTable": [
+   "SupportedSecureFramesProtocolVersion",
+   "setOnVoiceCallback",
+   "setEmitVADLevel",
+   "setEmitVADLevel2",
+   "setTransportOptions",
+   "getNoiseCancellationStats",
+   "setNoiseCancellationEnableStats",
+   "setDeviceChangeCallback",
+   "setOutputDevice",
+   "setInputDevice",
+   "setVideoInputDevice",
+   "getOutputDevices",
+   "getInputDevices",
+   "getVideoInputDevices",
+   "setVideoOutputSink",
+   "addDirectVideoOutputSink",
+   "removeDirectVideoOutputSink",
+   "signalVideoOutputSinkReady",
+   "setImageDataAllocator",
+   "setInputVolume",
+   "setOutputVolume",
+   "setVolumeChangeCallback",
+   "setNoInputThreshold",
+   "setVoiceSampleRateCap",
+   "setVoiceChannelCountCap",
+   "setNoInputCallback",
+   "getCodecCapabilities",
+   "getCodecSurvey",
+   "getAudioSubsystem",
+   "isVaapiEnabled",
+   "isSpatialAudioEnabled",
+   "pingVoiceThread",
+   "getScreenPreviews",
+   "getWindowPreviews",
+   "setPreviewsUseWgc",
+   "setClipBufferLength",
+   "getSystemSteadyClockNowMs",
+   "saveClipEx",
+   "updateClipMetadata",
+   "saveScreenshot",
+   "exportClipToFile",
+   "consoleLog",
+   "writeAudioDebugState",
+   "setAecDump",
+   "startRecordingRawSamples",
+   "stopRecordingRawSamples",
+   "processBatchAudioFiles",
+   "cancelBatchAudioProcessing",
+   "rankRtcRegions",
+   "setVideoInputInitializationCallback",
+   "setAudioInputInitializationCallback",
+   "applyMediaFilterSettings",
+   "applyMediaFilterSettingsWithCallback",
+   "setMaxSyncDelayOverride",
+   "startLocalAudioRecording",
+   "stopLocalAudioRecording",
+   "setLoopback",
+   "setClipsModulePath",
+   "setClipsDataPath",
+   "setClipsSentryConfig",
+   "setClipsUIActive",
+   "setClipsV3MLEnabled",
+   "setClipsAudioModelOverride",
+   "setClipsRecordingEnabled",
+   "setOnClipsMlDetection",
+   "setClipsPerfMonitoring",
+   "setNdiModulePath",
+   "setNdiSentryConfig",
+   "setNdiEnabled",
+   "setNdiParticipantInfo",
+   "setOnNdiEvent",
+   "applyClipsSettings",
+   "applyClipsQualitySettings",
+   "setClipsSource",
+   "setOnClipsRecordingEvent",
+   "getSupportedBandwidthEstimationExperiments",
+   "getMLSSigningKey",
+   "setSidechainCompression",
+   "applySidechainCompressionSettings",
+   "updateFieldTrial",
+   "setNativeDesktopVideoSourcePickerActive",
+   "presentNativeScreenSharePicker",
+   "releaseNativeDesktopVideoSourcePickerStream",
+   "setNativeScreenSharePickerCallbacks",
+   "setAudioDeviceModuleErrorCallback",
+   "setVoiceProcessingErrorCallback",
+   "setVideoFilterErrorCallback",
+   "setSpatialAudioStatusCallback",
+   "pollQueueMetrics",
+   "setSystemMicrophoneModeChangeCallback",
+   "getSystemMicrophoneMode",
+   "showSystemCaptureConfigurationUI",
+   "setKrispPath",
+   "setMLPath"
+  ],
+  "oracleKeys": 110,
+  "oracleInTable": 92,
+  "oracleOrderMatchesTable": true,
+  "tableNotInOracle": [
+   "setVideoOutputSink",
+   "signalVideoOutputSinkReady"
+  ],
+  "oracleNotInTable": [
+   "DegradationPreference",
+   "initialize",
+   "VoiceConnection",
+   "VoiceReplayConnection",
+   "createTransport",
+   "createVoiceConnectionWithOptions",
+   "createOwnStreamConnectionWithOptions",
+   "createReplayConnection",
+   "setAudioSubsystem",
+   "queueAudioSubsystem",
+   "setOffloadAdmControls",
+   "setDebugLogging",
+   "getDebugLogging",
+   "setActiveSinksChangeCallback",
+   "getNextVideoOutputFrame",
+   "platform",
+   "setupKrispPath",
+   "setupMLPath"
+  ]
+ },
+ "krispModels": [
+  {
+   "file": "krisp-bvc-o-pro-v3.kef",
+   "size": 15122004,
+   "sha256": "3f65d975ee4487931aff462e71e740a37b581817f9bad860590b194409688859"
+  },
+  {
+   "file": "krisp-nc-o-lite-v1.kef",
+   "size": 2895574,
+   "sha256": "7fdff67057090f402fb7688b29bf0afbd65cb1ed6a6956d2e304b5f3d84afa48"
+  },
+  {
+   "file": "krisp-nc-o-med-v7.kef",
+   "size": 5880640,
+   "sha256": "1b421bd27f892c6aef041496c939da4f31360fda36d55b83e48435cae89d246f"
+  },
+  {
+   "file": "krisp-nc-o-nb-v2.kef",
+   "size": 2822586,
+   "sha256": "b3d2737fae2e6f900f7efb33aa17a3b6e6548e48ebcfbf5bd2f0746eec04c086"
+  },
+  {
+   "file": "krisp-vad-o-v2.kef",
+   "size": 592233,
+   "sha256": "092c397f12443e5f2bdd07428b9e193ce359f6a08bfb403807c540f18647b3f3"
+  }
+ ],
+ "jsCallbacks": [
+  {
+   "nativeFn": "DegradationPreference",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().DegradationPreference",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "SupportedSecureFramesProtocolVersion",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().SupportedSecureFramesProtocolVersion",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "addDirectVideoOutputSink",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().addDirectVideoOutputSink",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "applySidechainCompressionSettings",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().applySidechainCompressionSettings",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "cancelBatchAudioProcessing",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().cancelBatchAudioProcessing",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "exportClipToFile",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().exportClipToFile",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getAudioSubsystem",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getAudioSubsystem",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getCodecCapabilities",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getCodecCapabilities",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getDebugLogging",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getDebugLogging",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "getDeviceOSMuted",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getDeviceOSMuted",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "getDeviceOSVolume",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getDeviceOSVolume",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "getInputDevices",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getInputDevices",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getOutputDevices",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getOutputDevices",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getScreenPreviews",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getScreenPreviews",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getSingleWindowPreview",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getSingleWindowPreview",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "getStats",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getStats",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "getSupportedBandwidthEstimationExperiments",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getSupportedBandwidthEstimationExperiments",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getSystemMicrophoneMode",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getSystemMicrophoneMode",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getSystemSteadyClockNowMs",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getSystemSteadyClockNowMs",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getVideoInputDevices",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getVideoInputDevices",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "getWindowPreviews",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().getWindowPreviews",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "pingVoiceThread",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().pingVoiceThread",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "platform",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().platform",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "presentNativeScreenSharePicker",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().presentNativeScreenSharePicker",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "processBatchAudioFiles",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().processBatchAudioFiles",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "releaseNativeDesktopVideoSourcePickerStream",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().releaseNativeDesktopVideoSourcePickerStream",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "removeDirectVideoOutputSink",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().removeDirectVideoOutputSink",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setAecDump",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setAecDump",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setAsyncVideoInputDeviceInit",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setAsyncVideoInputDeviceInit",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setAsyncVideoInputDeviceInitSetting",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setAsyncVideoInputDeviceInitSetting",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setAudioSubsystem",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setAudioSubsystem",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setClipBufferLength",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipBufferLength",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsAudioModelOverride",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsAudioModelOverride",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsDataPath",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsDataPath",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsModulePath",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsModulePath",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsPerfMonitoring",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsPerfMonitoring",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsRecordingEnabled",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsRecordingEnabled",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsSentryConfig",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsSentryConfig",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsUIActive",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsUIActive",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setClipsV3MLEnabled",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setClipsV3MLEnabled",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setDebugLogging",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setDebugLogging",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setDeviceHardwareMutedChangeCallback",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setDeviceHardwareMutedChangeCallback",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setEmitVADLevel",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setEmitVADLevel",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setEmitVADLevel2",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setEmitVADLevel2",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setHasFullbandPerformance",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setHasFullbandPerformance",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setInputDevice",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setInputDevice",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setInputVolume",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setInputVolume",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setLoopback",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setLoopback",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setNativeDesktopVideoSourcePickerActive",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setNativeDesktopVideoSourcePickerActive",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setNativeThreadsPriority",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setNativeThreadsPriority",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setNcModels",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setNcModels",
+   "presentInNativeBinary": false
+  },
+  {
+   "nativeFn": "setNoInputThreshold",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setNoInputThreshold",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setNoiseCancellationEnableStats",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setNoiseCancellationEnableStats",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setOutputDevice",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setOutputDevice",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setOutputVolume",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setOutputVolume",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setSidechainCompression",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setSidechainCompression",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setTransportOptions",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setTransportOptions",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setVideoInputDevice",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setVideoInputDevice",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setVoiceChannelCountCap",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setVoiceChannelCountCap",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "setVoiceSampleRateCap",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().setVoiceSampleRateCap",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "showSystemCaptureConfigurationUI",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().showSystemCaptureConfigurationUI",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "startRecordingRawSamples",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().startRecordingRawSamples",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "stopLocalAudioRecording",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().stopLocalAudioRecording",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "stopRecordingRawSamples",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().stopRecordingRawSamples",
+   "presentInNativeBinary": true
+  },
+  {
+   "nativeFn": "updateFieldTrial",
+   "file": "renderer (decoded/3eefa7dae1e2c234_0)",
+   "line": 0,
+   "calls": 0,
+   "snippet": "(0,b.lE)().updateFieldTrial",
+   "presentInNativeBinary": true
+  }
+ ],
+ "discarded": [
+  {
+   "what": "дубликаты файлов модулей (obj.target/*)",
+   "count": 2,
+   "detail": "cld.node (md5 303bc2870515fe61b254af02e8746b98) и notificationstate.node (md5 63ad44ea5fec4949b030a6b5f4280cc2) лежат по два раза; проанализированы один раз"
+  },
+  {
+   "what": "генерические строки libc/libstdc++/libcxx/Itanium-мангалы в дампах strings",
+   "count": 305185
+  },
+  {
+   "what": "gcc_except_table/.eh_frame/LLVM-внутренние символы (.llvm.)",
+   "count": 4375
+  },
+  {
+   "what": "строк, найденных rabin2 -z вне .rodata/.data (не покрывает .text)",
+   "count": 0,
+   "detail": "rabin2 -z читает только .rodata+.data; в discord_voice это 113 402 строки против 410 806 у `strings -a -n 6`; сырые выводы rabin2 сохранены как есть"
+  },
+  {
+   "what": "шум в js-grep по main-процессу",
+   "count": 13,
+   "detail": "срабатывания initialize/platform/consoleLog/createTransport/updateClipMetadata в app/core bundle — Sentry SDK и Flux action-creators, не вызовы discord_voice"
+  }
+ ],
+ "unknowns": [
+  {
+   "topic": "discord_sysimg / discord_media / discord_cloudsync / discord_clips / discord_premap / discord_overlay2 / discord_ml",
+   "state": "не найдены на диске в app-1.0.162",
+   "evidence": "mainScreenPreload.js: requireModule('discord_sysimg'), PREMAP_MODULES=['discord_voice','discord_zstd','discord_cloudsync','discord_media']; decoded/*: requireModule('discord_media'|'discord_clips'|'discord_cloudsync'|'discord_overlay2') — файлов *.node нет (find по app-1.0.162)"
+  },
+  {
+   "topic": "setupKrispPath/setupMLPath как нативные методы",
+   "state": "в бинаре 1.0.162 отсутствуют",
+   "evidence": "index.js:372/378 определяет их в JS и вызывает native setKrispPath/setMLPath (оба есть в бинаре, строки 73371/73372); в живом списке 110 они перечислены как собственные ключи модуля — это ключи JS-обёртки"
+  },
+  {
+   "topic": "13 имён из живой выборки lE() отсутствуют в бинаре",
+   "state": "расхождение версий JS-чанка (кэш) и релиза 1.0.162",
+   "evidence": "getDebugLogging, getDeviceOSMuted, getDeviceOSVolume, getSingleWindowPreview, getStats, setAsyncVideoInputDeviceInit(Setting), setAudioSubsystem, setDebugLogging, setDeviceHardwareMutedChangeCallback, setHasFullbandPerformance, setNativeThreadsPriority, setNcModels — отсутствуют как подстроки; вызываются в JS с `?.`/проверками (capability detection)"
+  },
+  {
+   "topic": "5 имён из lE(): DegradationPreference, platform, createTransport, VoiceConnection, VoiceReplayConnection",
+   "state": "частично разрешено",
+   "evidence": "DegradationPreference/platform — встречаются как подстроки (enum-блок MAINTAIN_RESOLUTION/…/DISABLED рядом со строкой 73275; platform — часть других строк). VoiceConnection/VoiceReplayConnection — точные строки 73459/73460 (NAPI-классы, регистрируются отдельно от таблицы свойств). createTransport — из index.js:191"
+  },
+  {
+   "topic": "назначение krisp-bvc-o-pro-v3.kef (15 МБ) в рантайме",
+   "state": "не разрешено",
+   "evidence": "файл лежит рядом с модулем и не упоминается в JS-строке моделей (krisp-nc-o-nb-v2/-med-v7-fp16/-lite-v1); в index.js — только _getNcModels/_getVadModels"
+  },
+  {
+   "topic": "наличие discord_voice/index.js MediaHost-режима (RUN_MEDIA_HOST=false)",
+   "state": "мёртвая ветка",
+   "evidence": "index.js: 'const RUN_MEDIA_HOST = false' → всегда require('./discord_voice.node'), require('./MediaHost') не исполняется"
+  }
+ ]
+}

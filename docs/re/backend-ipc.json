@@ -1,0 +1,4960 @@
+{
+ "meta": {
+  "subject": "Discord Desktop 1.0.162 (stable, linux-x64)",
+  "artifacts": {
+   "app.asar": {
+    "path": "~/.config/discord/app-1.0.162/resources/app.asar",
+    "bytes": 3621566,
+    "files": 11,
+    "extractedBytes": 3618590,
+    "verifiedSha256": "11/11"
+   },
+   "core.asar": {
+    "path": "~/.config/discord/app-1.0.162/modules/discord_desktop_core-1/discord_desktop_core/core.asar",
+    "bytes": 1762838,
+    "files": 5,
+    "extractedBytes": 1761514,
+    "verifiedSha256": "5/5"
+   }
+  },
+  "method": "ASAR распакован своим инструментом (проверка SHA256 по integrity из заголовка), затем статический разбор rspack-бандлов (свой сканер строк/скобок, без исполнения кода)",
+  "tools": [
+   "tools/asar-extract.mjs",
+   "tools/scan-ipc.mjs",
+   "tools/build-channels.mjs",
+   "tools/dump-module.mjs",
+   "tools/module-strings.mjs"
+  ],
+  "crossChecks": [
+   "enum IPCEvents (#595) — 176 значений, независимый источник имён каналов",
+   "evidence/js-app-graph.json (REA, app.asar): 976 модулей; ipc-операций в графе 0 (граф покрывает только модульность/импорты)",
+   "/home/sanya/re-deep/capture-boot.jsonl (живой CDP-захват splash): подтверждает splashScreenPreload signalReady и onStateUpdate(launching)"
+  ],
+  "prefixRule": "getDiscordIPCEvent(ev) = ev.startsWith(\"DISCORD_\") ? ev : \"DISCORD_\"+ev; используется и в main (core/bundle.js#2799, app/bundle.js#50902), и в preload (core/mainScreenPreload.js#8981)"
+ },
+ "stats": {
+  "filesScanned": [
+   "core/mainScreenPreload.js",
+   "core/bundle.js",
+   "app/bundle.js",
+   "app/splashScreenPreload.js"
+  ],
+  "rawFindings": 428,
+  "modulesScanned": 1266,
+  "ipcEventsEnum": 176,
+  "channels": 168,
+  "channelsWithMainHandler": 152,
+  "channelsWithRendererCall": 129,
+  "channelsBoth": 115,
+  "channelsMainToRenderer": 7,
+  "requestResponse": 128,
+  "fireAndForget": 40,
+  "rejectedNoise": 85,
+  "dynamicChannelSites": 47,
+  "byFile": {
+   "core/mainScreenPreload.js": 144,
+   "core/bundle.js": 226,
+   "app/bundle.js": 51,
+   "app/splashScreenPreload.js": 7
+  },
+  "unprefixedPushLiterals": 2,
+  "dashesApplied": 0,
+  "group:файлы": 9,
+  "group:приложение (app)": 21,
+  "group:прочее": 14,
+  "group:splash/бутстрап": 6,
+  "group:буфер обмена": 8,
+  "group:клипы (clips)": 7,
+  "group:frame debugger": 4,
+  "group:GPU": 3,
+  "group:нативные модули": 5,
+  "group:уведомления": 7,
+  "group:NTP": 3,
+  "group:питание": 8,
+  "group:процессы/метрики": 12,
+  "group:safeStorage": 3,
+  "group:настройки": 4,
+  "group:орфография": 6,
+  "group:кэш пользовательских данных": 3,
+  "group:WebAuthn": 5,
+  "group:окно (window)": 25,
+  "group:Rich Presence (intents)": 2,
+  "group:поиск": 4,
+  "group:трей/панель задач/автозапуск": 9
+ },
+ "bridges": {
+  "expose": "contextBridge.exposeInMainWorld(\"DiscordNative\", DiscordNative) + process.once(\"loaded\") → global.DiscordNative (core/mainScreenPreload.js)",
+  "fields": {
+   "isRenderer": "флаг process.type === \"renderer\"",
+   "setUncaughtExceptionHandler": "function(handler)",
+   "nativeModules": "#7927 requireModule/getModulePath + PREMAP_MODULES",
+   "process": "#8434 (arch/platform)",
+   "os": "#3121 (arch/платформа)",
+   "app": "внешний объект (dock/badge/relaunch/версии)",
+   "clipboard": "#6701",
+   "ipc": "#8981 (whitelist invoke/send/on)",
+   "gpuSettings": "#4276",
+   "window": "#5639 (API по ключу окна)",
+   "powerMonitor": "события питания (push из main)",
+   "ntpClock": "#3939",
+   "spellCheck": "#9121",
+   "crashReporter": "#8986",
+   "desktopCapture": "#9425",
+   "fileManager": "#3466",
+   "clips": "#6752",
+   "processUtils": "#9141",
+   "powerSaveBlocker": "#2853",
+   "frameDebugger": "#3269",
+   "http": "#723",
+   "accessibility": "#7523",
+   "features": "#7064",
+   "settings": "#6434",
+   "userDataCache": "#5984",
+   "thumbar": "#8476",
+   "safeStorage": "#5261",
+   "hardware": "#6955",
+   "tracing": "#1793",
+   "riotGames": "#4482",
+   "cs2Gsi": "#6074",
+   "dotaGsi": "#3288",
+   "webAuthn": "#3797",
+   "gcEvents": "#8408",
+   "sysimg": "#7987"
+  },
+  "ipcWhitelists": {
+   "source": "core/mainScreenPreload.js #8981",
+   "send": {
+    "count": 30,
+    "note": "RENDERER_IPC_SEND_WHITELIST — каналы, которые web-клиент может отправить через DiscordNative.ipc.send()"
+   },
+   "invoke": {
+    "count": 14,
+    "note": "RENDERER_IPC_INVOKE_WHITELIST — каналы, доступные web-клиенту через invoke()"
+   },
+   "unionCount": 43
+  },
+  "windowPrefs": {
+   "splash": {
+    "nodeIntegration": false,
+    "sandbox": false,
+    "contextIsolation": true,
+    "preload": "splashScreenPreload.js",
+    "size": "300xLOADING_WINDOW_HEIGHT",
+    "frame": false
+   },
+   "main": {
+    "nodeIntegration": false,
+    "sandbox": false,
+    "contextIsolation": true,
+    "spellcheck": true,
+    "preload": "mainScreenPreload.js",
+    "enableBlinkFeatures": "EnumerateDevices,AudioOutputDevices"
+   }
+  }
+ },
+ "channels": [
+  {
+   "name": "DISCORD_FILE_MANAGER_GET_MODULE_LOG_PATH_SYNC",
+   "enumMember": "FILE_MANAGER_GET_MODULE_LOG_PATH_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 2,
+    "methods": [
+     "handle",
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 2
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "путь к логу модуля (sendSync)",
+   "args": [
+    "async _=>getLogPath()",
+    "event=>{event.returnValue=getLogPath()}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_MODULE_VERSIONS",
+   "enumMember": "APP_GET_MODULE_VERSIONS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 2
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "версии установленных модулей (через updater)",
+   "args": [
+    "async _=>{let newUpdater=injectedUpdater?.getUpdater();if(null!=newUpdater)return newUpdaterGetModuleVersions(new"
+   ]
+  },
+  {
+   "name": "DISCORD_ACCESSIBILITY_GET_ENABLED",
+   "enumMember": "ACCESSIBILITY_GET_ENABLED",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7912"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "7523"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: accessibility get enabled",
+   "args": [
+    "_=>Promise.resolve(electron_1.default.app.accessibilitySupportEnabled)"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_DOCK_BOUNCE",
+   "enumMember": "APP_DOCK_BOUNCE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app dock bounce",
+   "args": [
+    "type",
+    "async(_,type)=>null!=electron_1.default.app.dock?electron_1.default.app.dock.bounce(type):-1"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_DOCK_CANCEL_BOUNCE",
+   "enumMember": "APP_DOCK_CANCEL_BOUNCE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app dock cancel bounce",
+   "args": [
+    "id",
+    "async(_,id)=>{null!=electron_1.default.app.dock&&electron_1.default.app.dock.cancelBounce(id)}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_DOCK_SET_BADGE",
+   "enumMember": "APP_DOCK_SET_BADGE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: app dock set badge",
+   "args": [
+    "badge",
+    "async(_,badge)=>{null!=electron_1.default.app.dock&&electron_1.default.app.dock.setBadge(badge)}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_ARCH",
+   "enumMember": "APP_GET_ARCH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get arch",
+   "args": [
+    "event=>{event.returnValue=process1.arch}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_BUILD_NUMBER",
+   "enumMember": "APP_GET_BUILD_NUMBER",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get build number",
+   "args": [
+    "event=>{let newUpdater=injectedUpdater?.getUpdater();if(null!=newUpdater){let version;event.returnValue=null!=(versi"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_DEFAULT_DOUBLE_CLICK_ACTION",
+   "enumMember": "APP_GET_DEFAULT_DOUBLE_CLICK_ACTION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get default double click action",
+   "args": [
+    "async _=>electron_1.default.systemPreferences.getUserDefault(\"AppleActionOnDoubleClick\",\"string\")"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_HOST_VERSION_SYNC",
+   "enumMember": "APP_GET_HOST_VERSION_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get host version sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=electron_1.default.app.getVersion()}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_OPEN_ON_START",
+   "enumMember": "APP_GET_OPEN_ON_START",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4973"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get open on start",
+   "args": [
+    "()=>new Promise(resolve=>{autoStart_1.autoStart.isInstalled(resolve)})"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_PATH",
+   "enumMember": "APP_GET_PATH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "1405"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get path",
+   "args": [
+    "path",
+    "async(_,path)=>electron_1.default.app.getPath(path)"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_PREFERRED_SYSTEM_LANGUAGES",
+   "enumMember": "APP_GET_PREFERRED_SYSTEM_LANGUAGES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get preferred system languages",
+   "args": [
+    "async _=>electron_1.default.app.getPreferredSystemLanguages()"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_RELEASE_CHANNEL_SYNC",
+   "enumMember": "APP_GET_RELEASE_CHANNEL_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get release channel sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=injectedBuildInfo.releaseChannel}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_GET_SYSTEM_UI_DIRECTION_SYNC",
+   "enumMember": "APP_GET_SYSTEM_UI_DIRECTION_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app get system ui direction sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=\"rtl\"===electron_1.default.app.commandLine.getSwitchValue(\"force-ui-direction\""
+   ]
+  },
+  {
+   "name": "DISCORD_APP_PAUSE_FRAME_EVICTOR",
+   "enumMember": "APP_PAUSE_FRAME_EVICTOR",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app pause frame evictor",
+   "args": [
+    "async _=>electron_1.default.app.pauseFrameEvictionManager?.()"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_RELAUNCH",
+   "enumMember": "APP_RELAUNCH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "перезапуск приложения (flush session → relaunch)",
+   "args": [
+    "async _=>{electron_1.default.session.defaultSession.flushStorageData(),electron_1.default.app.relaunch(),electron_1.defa"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_SET_BADGE_COUNT",
+   "enumMember": "APP_SET_BADGE_COUNT",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: app set badge count",
+   "args": [
+    "count",
+    "async(_,count)=>{electron_1.default.app.setBadgeCount(count)}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_UNPAUSE_FRAME_EVICTOR",
+   "enumMember": "APP_UNPAUSE_FRAME_EVICTOR",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4943"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: app unpause frame evictor",
+   "args": [
+    "async _=>electron_1.default.app.unpauseFrameEvictionManager?.()"
+   ]
+  },
+  {
+   "name": "DISCORD_CLEAR_BUILD_OVERRIDE",
+   "enumMember": null,
+   "main": {
+    "file": "app/bundle.js",
+    "modules": [
+     "96020"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "85425"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "splash: сбросить build-override",
+   "args": [
+    "async()=>{try{let buildOverrideCookie=await getBuildOverrideCookie();if(null===buildOverrideCookie)return console.log(\"N"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_COPY",
+   "enumMember": "CLIPBOARD_COPY",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard copy",
+   "args": [
+    "async _=>{electron.webContents.getFocusedWebContents()?.copy()}"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_CUT",
+   "enumMember": "CLIPBOARD_CUT",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard cut",
+   "args": [
+    "async _=>{electron.webContents.getFocusedWebContents()?.cut()}"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_HAS_MIXED_CONTENT",
+   "enumMember": "CLIPBOARD_HAS_MIXED_CONTENT",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard has mixed content",
+   "args": [
+    "async event=>{try{let formats=await availableFormats(),textContent=await readText(),hasText=null!=textContent&&textConte"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_PASTE",
+   "enumMember": "CLIPBOARD_PASTE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard paste",
+   "args": [
+    "async _=>{electron.webContents.getFocusedWebContents()?.paste()}"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_READ_TEXT",
+   "enumMember": "CLIPBOARD_READ_TEXT",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard read text",
+   "args": [
+    "async event=>{try{event.returnValue=await readText()}catch{event.returnValue=\"\"}}"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_WRITE_FILE",
+   "enumMember": "CLIPBOARD_WRITE_FILE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard write file",
+   "args": [
+    "filePath",
+    "async(_,filePath)=>{if(\"darwin\"===process.platform){let fileUrl=`file://${filePath}`;await writeBuffer(\"public.file-url\""
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_WRITE_IMAGE",
+   "enumMember": "CLIPBOARD_WRITE_IMAGE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard write image",
+   "args": [
+    "imageArrayBuffer,imageSrc",
+    "async(_,imageArrayBuffer,imageSrc)=>{let nativeImg=electron.nativeImage.createFromBuffer(Buffer.from(imageArrayBuffer)),"
+   ]
+  },
+  {
+   "name": "DISCORD_CLIPBOARD_WRITE_TEXT",
+   "enumMember": "CLIPBOARD_WRITE_TEXT",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7126"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6701"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: clipboard write text",
+   "args": [
+    "text",
+    "async(_,text)=>{await writeText(text)}"
+   ]
+  },
+  {
+   "name": "DISCORD_CONSTANTS_GET",
+   "enumMember": "CONSTANTS_GET",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "6577"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "723"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: constants get",
+   "args": [
+    "\"API_ENDPOINT\"",
+    "(_,name)=>{if(exposedConstants.hasOwnProperty(name))return exposedConstants[name]}"
+   ]
+  },
+  {
+   "name": "DISCORD_CRASH_REPORTER_UPDATE_METADATA",
+   "enumMember": "CRASH_REPORTER_UPDATE_METADATA",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7138"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "8986"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: crash reporter update metadata",
+   "args": [
+    "additionalMetadata",
+    "(_,additionalMetadata)=>{let metadata=crashReporterSetup_1.crashReporterSetup.metadata;(0,assert_1.default"
+   ]
+  },
+  {
+   "name": "DISCORD_DEBUG_STASH_CLIP_DECIDER_DATA",
+   "enumMember": "DEBUG_STASH_CLIP_DECIDER_DATA",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: debug stash clip decider data",
+   "args": [
+    "data,stashName",
+    "(_,data,stashName)=>stashClipDeciderData(data,stashName)"
+   ]
+  },
+  {
+   "name": "DISCORD_DELETE_CLIP",
+   "enumMember": "DELETE_CLIP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "удалить: delete clip",
+   "args": [
+    "path",
+    "(_,path)=>deleteClip(path)"
+   ]
+  },
+  {
+   "name": "DISCORD_DESKTOP_CAPTURER_GET_SOURCES",
+   "enumMember": "DESKTOP_CAPTURER_GET_SOURCES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "2236"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9425"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: desktop capturer get sources",
+   "args": [
+    "options",
+    "async(_,opts)=>{let requiredTypes,electronOptions=(requiredTypes=[\"screen\",\"window\"],{types:opts.types.filte"
+   ]
+  },
+  {
+   "name": "DISCORD_FEATURES_GET_BROWSER_FEATURES",
+   "enumMember": "FEATURES_GET_BROWSER_FEATURES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1353"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "7064"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: features get browser features",
+   "args": [
+    "event=>{event.returnValue=injectedFeatures?.getSupported()??[]}"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_CREATE_DIRECTORY_IF_NOT_EXISTS",
+   "enumMember": "FILE_MANAGER_CREATE_DIRECTORY_IF_NOT_EXISTS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager create directory if not exists",
+   "args": [
+    "path,hidden",
+    "async(_,dirPath,hidden)=>{await (0,fileutils_1.ensureDirectoryExists)(dirPath,hidden)}"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_GET_ASSET_CACHE_PATH",
+   "enumMember": "FILE_MANAGER_GET_ASSET_CACHE_PATH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager get asset cache path",
+   "args": [
+    "async _=>getAssetCachePath()"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_GET_ASSET_CACHE_PATH_SYNC",
+   "enumMember": "FILE_MANAGER_GET_ASSET_CACHE_PATH_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager get asset cache path sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=getAssetCachePath()}"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_GET_MODULE_DATA_PATH_SYNC",
+   "enumMember": "FILE_MANAGER_GET_MODULE_DATA_PATH_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager get module data path sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=getModulePath()}"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_GET_MODULE_PATH",
+   "enumMember": "FILE_MANAGER_GET_MODULE_PATH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager get module path",
+   "args": [
+    "async _=>getModulePath()"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_SHOW_ITEM_IN_FOLDER",
+   "enumMember": "FILE_MANAGER_SHOW_ITEM_IN_FOLDER",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager show item in folder",
+   "args": [
+    "path",
+    "async(_,path)=>{electron_1.default.shell.showItemInFolder(path)}"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_SHOW_OPEN_DIALOG",
+   "enumMember": "FILE_MANAGER_SHOW_OPEN_DIALOG",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager show open dialog",
+   "args": [
+    "{filters,properties}",
+    "async(_,dialogOptions)=>await electron_1.default.dialog.showOpenDialog(dialogOptions)"
+   ]
+  },
+  {
+   "name": "DISCORD_FILE_MANAGER_SHOW_SAVE_DIALOG",
+   "enumMember": "FILE_MANAGER_SHOW_SAVE_DIALOG",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9473"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3466"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: file manager show save dialog",
+   "args": [
+    "options",
+    "async(_,dialogOptions)=>await electron_1.default.dialog.showSaveDialog(dialogOptions)"
+   ]
+  },
+  {
+   "name": "DISCORD_FRAME_DEBUGGER_ATTACH",
+   "enumMember": "FRAME_DEBUGGER_ATTACH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7026"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3269"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "подключить отладчик к iframe (CDP)",
+   "args": [
+    "origin",
+    "(event,frameOrigin)=>attach(requireTrustedCaller(event),function(raw){let origin=\"string\"==typeof raw?originOf(raw)"
+   ]
+  },
+  {
+   "name": "DISCORD_FRAME_DEBUGGER_DETACH",
+   "enumMember": "FRAME_DEBUGGER_DETACH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7026"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3269"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: frame debugger detach",
+   "args": [
+    "event=>{let webContents=requireTrustedCaller(event);return session?.webContents===webContents&&teardown(\"renderer-d"
+   ]
+  },
+  {
+   "name": "DISCORD_FRAME_DEBUGGER_DETACHED",
+   "enumMember": "FRAME_DEBUGGER_DETACHED",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "7026"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": [
+     "send"
+    ]
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3269"
+    ],
+    "callSites": 1
+   },
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push: отладчик отсоединён",
+   "args": [
+    "(_,sessionId,reason)=>{events.emit(DETACHED,sessionId,reason)}",
+    "current.id,reason"
+   ]
+  },
+  {
+   "name": "DISCORD_FRAME_DEBUGGER_RUN_BATCH",
+   "enumMember": "FRAME_DEBUGGER_RUN_BATCH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7026"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3269"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: frame debugger run batch",
+   "args": [
+    "calls",
+    "(event,calls)=>runBatch(requireTrustedCaller(event),calls)"
+   ]
+  },
+  {
+   "name": "DISCORD_GET_BUILD_OVERRIDE_STATUS",
+   "enumMember": null,
+   "main": {
+    "file": "app/bundle.js",
+    "modules": [
+     "96020"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "85425"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "splash: статус build-override (cookie)",
+   "args": [
+    "async()=>{try{let buildOverrideCookie=await getBuildOverrideCookie();return null!==buildOverrideCookie?function(encodedV"
+   ]
+  },
+  {
+   "name": "DISCORD_GPU_SETTINGS_GET_ENABLE_HWACCEL_SYNC",
+   "enumMember": "GPU_SETTINGS_GET_ENABLE_HWACCEL_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1667"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "4276"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: gpu settings get enable hwaccel sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=null!=injectedGpuSettings&&injectedGpuSettings.getEnableHardwareAcceleration()}"
+   ]
+  },
+  {
+   "name": "DISCORD_GPU_SETTINGS_SET_CHROMIUM_SWITCHES",
+   "enumMember": "GPU_SETTINGS_SET_CHROMIUM_SWITCHES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1667"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "4276"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: gpu settings set chromium switches",
+   "args": [
+    "switches",
+    "(_,switches)=>{for(let key of Object.keys(switches))if(!constants_1.RENDERER_SET_CHROMIUM_SWITCHES_ALLOWLIST.includes(ke"
+   ]
+  },
+  {
+   "name": "DISCORD_GPU_SETTINGS_SET_ENABLE_HWACCEL",
+   "enumMember": "GPU_SETTINGS_SET_ENABLE_HWACCEL",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1667"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "4276"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: gpu settings set enable hwaccel",
+   "args": [
+    "enable",
+    "(_,enable)=>{injectedGpuSettings?.setEnableHardwareAcceleration(enable)}"
+   ]
+  },
+  {
+   "name": "DISCORD_HARDWARE_GET_DISPLAY_COUNT",
+   "enumMember": "HARDWARE_GET_DISPLAY_COUNT",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "8750"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6955"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: hardware get display count",
+   "args": [
+    "()=>Promise.resolve(electron_1.screen.getAllDisplays().length)"
+   ]
+  },
+  {
+   "name": "DISCORD_LOAD_CLIP",
+   "enumMember": "LOAD_CLIP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "загрузить клип (discord_clips)",
+   "args": [
+    "path",
+    "(_,path)=>loadClip(path)"
+   ]
+  },
+  {
+   "name": "DISCORD_LOAD_CLIPS_DIRECTORY",
+   "enumMember": "LOAD_CLIPS_DIRECTORY",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "загрузить: load clips directory",
+   "args": [
+    "path",
+    "async(_,dirPath)=>{if(!await (0,fileutils_1.directoryExists)(dirPath))return[];let filenames=await (0,fileutils_1.ge"
+   ]
+  },
+  {
+   "name": "DISCORD_MOVE_CLIP",
+   "enumMember": "MOVE_CLIP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "переместить: move clip",
+   "args": [
+    "sourcePath,destPath",
+    "(_,sourcePath,destPath)=>moveClip(sourcePath,destPath)"
+   ]
+  },
+  {
+   "name": "DISCORD_NATIVE_MODULES_GET_PATHS",
+   "enumMember": "NATIVE_MODULES_GET_PATHS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "216"
+    ],
+    "pushModules": [],
+    "callSites": 2,
+    "methods": [
+     "on",
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "пути поиска нативных модулей (sendSync)",
+   "args": [
+    "event=>{event.returnValue=getPathsResponse()}",
+    "()=>getPathsResponse()"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_RECEIVED_RESPONSE",
+   "enumMember": "NOTIFICATIONS_RECEIVED_RESPONSE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "7592"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push в renderer: пользователь нажал/ответил на уведомление",
+   "args": [
+    "action,identifier,userText,fallbackDeepLink",
+    "action,identifier,userText"
+   ]
+  },
+  {
+   "name": "DISCORD_NTP_CLOCK_GET_SYNC_INFO",
+   "enumMember": "NTP_CLOCK_GET_SYNC_INFO",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7314"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3939"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: ntp clock get sync info",
+   "args": [
+    "()=>Promise.resolve(ntpClock_1.ntpClock.getSyncInfo())"
+   ]
+  },
+  {
+   "name": "DISCORD_NTP_CLOCK_START",
+   "enumMember": "NTP_CLOCK_START",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7314"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3939"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: ntp clock start",
+   "args": [
+    "()=>(ntpClock_1.ntpClock.start(),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_MONITOR_GET_SYSTEM_IDLE_TIME",
+   "enumMember": "POWER_MONITOR_GET_SYSTEM_IDLE_TIME",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4531"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2818"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: power monitor get system idle time",
+   "args": [
+    "_=>{if(\"linux\"===process.platform&&process.env.XDG_SESSION_TYPE?.startsWith(\"wayland\")&&null!=process.env.WAYLAND_DISPLA"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_MONITOR_LOCK_SCREEN",
+   "enumMember": "POWER_MONITOR_LOCK_SCREEN",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "4531"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2818"
+    ],
+    "callSites": 1
+   },
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push: экран заблокирован",
+   "args": [
+    "()=>{events.emit(\"lock-screen\")}"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_MONITOR_RESUME",
+   "enumMember": "POWER_MONITOR_RESUME",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "4531"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2818"
+    ],
+    "callSites": 1
+   },
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push: система проснулась",
+   "args": [
+    "()=>{events.emit(\"resume\")}"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_MONITOR_SUSPEND",
+   "enumMember": "POWER_MONITOR_SUSPEND",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "4531"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2818"
+    ],
+    "callSites": 1
+   },
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push: система уходит в сон",
+   "args": [
+    "()=>{events.emit(\"suspend\")}"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_MONITOR_UNLOCK_SCREEN",
+   "enumMember": "POWER_MONITOR_UNLOCK_SCREEN",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "4531"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2818"
+    ],
+    "callSites": 1
+   },
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push: экран разблокирован",
+   "args": [
+    "()=>{events.emit(\"unlock-screen\")}"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_SAVE_BLOCKER_BLOCK_DISPLAY_SLEEP",
+   "enumMember": "POWER_SAVE_BLOCKER_BLOCK_DISPLAY_SLEEP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7420"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2853"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: power save blocker block display sleep",
+   "args": [
+    "_=>{let newId=electron.powerSaveBlocker.start(\"prevent-display-sleep\");return powerSaveBlockerIds.add(newId),newId}"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_SAVE_BLOCKER_CLEANUP_DISPLAY_SLEEP",
+   "enumMember": "POWER_SAVE_BLOCKER_CLEANUP_DISPLAY_SLEEP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7420"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2853"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: power save blocker cleanup display sleep",
+   "args": [
+    "_=>{for(let id of powerSaveBlockerIds)electron.powerSaveBlocker.stop(id);powerSaveBlockerIds.clear()}"
+   ]
+  },
+  {
+   "name": "DISCORD_POWER_SAVE_BLOCKER_UNBLOCK_DISPLAY_SLEEP",
+   "enumMember": "POWER_SAVE_BLOCKER_UNBLOCK_DISPLAY_SLEEP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7420"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2853"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: power save blocker unblock display sleep",
+   "args": [
+    "id",
+    "(_,id)=>{electron.powerSaveBlocker.stop(id),powerSaveBlockerIds.delete(id)}"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_FLUSH_COOKIES",
+   "enumMember": "PROCESS_UTILS_FLUSH_COOKIES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: process utils flush cookies",
+   "args": [
+    "_=>electron_1.default.session.defaultSession.cookies.flushStore()"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_FLUSH_DNS_CACHE",
+   "enumMember": "PROCESS_UTILS_FLUSH_DNS_CACHE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: process utils flush dns cache",
+   "args": [
+    "_=>{let defaultSession=electron_1.default.session.defaultSession;return null!=defaultSession&&null!=default"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_FLUSH_STORAGE_DATA",
+   "enumMember": "PROCESS_UTILS_FLUSH_STORAGE_DATA",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: process utils flush storage data",
+   "args": [
+    "_=>(electron_1.default.session.defaultSession.flushStorageData(),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_GET_CPU_USAGE",
+   "enumMember": "PROCESS_UTILS_GET_CPU_USAGE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: process utils get cpu usage",
+   "args": [
+    "_=>{let totalCumulativeUsage,totalProcessorUsagePercent=0,sampleTime=performance.now(),processTypeCpuUsage={}"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_GET_GPU_PROCESS_ID",
+   "enumMember": "PROCESS_UTILS_GET_GPU_PROCESS_ID",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: process utils get gpu process id",
+   "args": [
+    "_=>{for(let processMetric of electron_1.default.app.getAppMetrics())if(\"GPU\"===processMetric.type)return"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_GET_LAST_CRASH",
+   "enumMember": "PROCESS_UTILS_GET_LAST_CRASH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: process utils get last crash",
+   "args": [
+    "async _=>{let lastCrashReport=electron_1.default.crashReporter.getLastCrashReport(),pendingMinidumpPath=null"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_GET_MAIN_ARGV_SYNC",
+   "enumMember": "PROCESS_UTILS_GET_MAIN_ARGV_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: process utils get main argv sync (синхронно)",
+   "args": [
+    "event=>{event.returnValue=process_1.default.argv}"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_GET_SYSTEM_INFO",
+   "enumMember": "PROCESS_UTILS_GET_SYSTEM_INFO",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "инфо о системе + GPU",
+   "args": [
+    "async _=>{let gpuInfo;try{gpuInfo=await electron_1.default.app.getGPUInfo(\"basic\")}catch(e){console.warn(\"g"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_GET_SYSTEM_METRICS",
+   "enumMember": "PROCESS_UTILS_GET_SYSTEM_METRICS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "системные метрики (CPU/RAM процессов Electron)",
+   "args": [
+    "useNativeCpuTimes",
+    "(_,useNativeCpuTimes=!1)=>{let{cpuTotalTick,cpuTotalIdle}=function(useNativeCpuTimes){if(useNativeCpuTim"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_SET_CRASH_INFORMATION",
+   "enumMember": "PROCESS_UTILS_SET_CRASH_INFORMATION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: process utils set crash information",
+   "args": [
+    "crashInformation,state",
+    "(_,crashInformation,state)=>(exports.processUtilsSettings.currentStoredInformation[crashInformation]="
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_SET_CRASH_REASON",
+   "enumMember": "PROCESS_UTILS_SET_CRASH_REASON",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: process utils set crash reason",
+   "args": [
+    "reason",
+    "(_,reason)=>(exports.processUtilsSettings.rendererCrashReason=reason,exports.processUtilsSettings.renderer"
+   ]
+  },
+  {
+   "name": "DISCORD_PROCESS_UTILS_SET_MEMORY_INFORMATION",
+   "enumMember": "PROCESS_UTILS_SET_MEMORY_INFORMATION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9984"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9141"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: process utils set memory information",
+   "args": [
+    "{uptimeSeconds:Math.floor(process_1.default.uptime()),memoryUsageKB:memoryInformation.memoryUsageKB,",
+    "(_,memoryInformation)=>{exports.processUtilsSettings.lastMemoryInformation=memoryInformation;let hig"
+   ]
+  },
+  {
+   "name": "DISCORD_RENDER_MONTAGE_RECIPE",
+   "enumMember": "RENDER_MONTAGE_RECIPE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "собрать монтаж клипа",
+   "args": [
+    "recipeJson,outputPath,metadata",
+    "(_,recipeJson,outputPath,metadata)=>renderMontageRecipe(recipeJson,outputPath,metadata)"
+   ]
+  },
+  {
+   "name": "DISCORD_SAFE_STORAGE_DECRYPT_STRING",
+   "enumMember": "SAFE_STORAGE_DECRYPT_STRING",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5454"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5261"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "расшифровка строки",
+   "args": [
+    "encrypted",
+    "(event,encrypted)=>{if(null!=encrypted)try{event.returnValue=electron.safeStorage.decryptString(Buffer.from(encrypted,\"b"
+   ]
+  },
+  {
+   "name": "DISCORD_SAFE_STORAGE_ENCRYPT_STRING",
+   "enumMember": "SAFE_STORAGE_ENCRYPT_STRING",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5454"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5261"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "шифрование строки (DPAPI/keyring)",
+   "args": [
+    "plainText",
+    "(event,plainText)=>{null!=plainText?event.returnValue=electron.safeStorage.encryptString(plainText).toString(\"base64\"):e"
+   ]
+  },
+  {
+   "name": "DISCORD_SAFE_STORAGE_IS_ENCRYPTION_AVAILABLE",
+   "enumMember": "SAFE_STORAGE_IS_ENCRYPTION_AVAILABLE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5454"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5261"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "доступно ли шифрование",
+   "args": [
+    "event=>{event.returnValue=null!=electron.safeStorage&&electron.safeStorage.isEncryptionAvailable()}"
+   ]
+  },
+  {
+   "name": "DISCORD_SETTINGS_GET",
+   "enumMember": "SETTINGS_GET",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7683"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6434"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "прочитать настройку по имени (с дефолтом)",
+   "args": [
+    "name,defaultValue",
+    "(_,name,defaultValue)=>getSettings().get(name,defaultValue)"
+   ]
+  },
+  {
+   "name": "DISCORD_SETTINGS_GET_SYNC",
+   "enumMember": "SETTINGS_GET_SYNC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7683"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6434"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "прочитать настройку синхронно",
+   "args": [
+    "name,defaultValue",
+    "(event,name,defaultValue)=>{event.returnValue=getSettings().get(name,defaultValue)}"
+   ]
+  },
+  {
+   "name": "DISCORD_SETTINGS_SET",
+   "enumMember": "SETTINGS_SET",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7683"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6434"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "записать настройку",
+   "args": [
+    "name,value",
+    "(_,name,value)=>{if(!RENDERER_SET_ALLOWLIST.includes(name))throw Error(`Cannot set setting key: ${name}`);let settings=g"
+   ]
+  },
+  {
+   "name": "DISCORD_SPELLCHECK_GET_AVAILABLE_DICTIONARIES",
+   "enumMember": "SPELLCHECK_GET_AVAILABLE_DICTIONARIES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3132"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9121"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: spellcheck get available dictionaries",
+   "args": [
+    "_=>Promise.resolve(electron.session.defaultSession.availableSpellCheckerLanguages)"
+   ]
+  },
+  {
+   "name": "DISCORD_SPELLCHECK_REPLACE_MISSPELLING",
+   "enumMember": "SPELLCHECK_REPLACE_MISSPELLING",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3132"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9121"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: spellcheck replace misspelling",
+   "args": [
+    "correction",
+    "(event,correction)=>(event.sender.replaceMisspelling(correction),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_SPELLCHECK_SET_LANGUAGES",
+   "enumMember": "SPELLCHECK_SET_LANGUAGES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3132"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9121"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: spellcheck set languages",
+   "args": [
+    "languages",
+    "(_,languages)=>{try{electron.session.defaultSession.setSpellCheckerLanguages([...languages])}catch(_){return con"
+   ]
+  },
+  {
+   "name": "DISCORD_SPELLCHECK_SET_LEARNED_WORDS",
+   "enumMember": "SPELLCHECK_SET_LEARNED_WORDS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3132"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9121"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: spellcheck set learned words",
+   "args": [
+    "learnedWords",
+    "async(_,newLearnedWords)=>{let session=electron.session.defaultSession;_hasLoadedLearnedWords||(_learnedWord"
+   ]
+  },
+  {
+   "name": "DISCORD_SPELLCHECK_SET_LOCALE",
+   "enumMember": "SPELLCHECK_SET_LOCALE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3132"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9121"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "выполнить: spellcheck set locale",
+   "args": [
+    "locale",
+    "(_,locale)=>{try{electron.session.defaultSession.setSpellCheckerLanguages([locale])}catch(_){console.error(`Failed"
+   ]
+  },
+  {
+   "name": "DISCORD_SPLASH_SCREEN_QUIT",
+   "enumMember": null,
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "85425"
+    ],
+    "callSites": 2
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "splash: выход по клику",
+   "args": []
+  },
+  {
+   "name": "DISCORD_TRACING_CAPTURE_PERFORMANCE",
+   "enumMember": "TRACING_CAPTURE_PERFORMANCE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1742"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "1793"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: tracing capture performance",
+   "args": [
+    "options",
+    "async(_event,options)=>{if(isRecording)throw Error(\"TRACE_ALREADY_RECORDING\");isRecording=!0;let tracePath=pa"
+   ]
+  },
+  {
+   "name": "DISCORD_UNHANDLED_JS_EXCEPTION",
+   "enumMember": "UNHANDLED_JS_EXCEPTION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7138"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "8986"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: unhandled js exception",
+   "args": [
+    "_=>{setTimeout(()=>{throw Error(\"UNHANDLED_EXCEPTION \"+process.type)},50)}"
+   ]
+  },
+  {
+   "name": "DISCORD_UPDATE_CLIP_METADATA",
+   "enumMember": "UPDATE_CLIP_METADATA",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7635"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "6752"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "обновить: update clip metadata",
+   "args": [
+    "filepath,metadata",
+    "(_,filepath,metadata)=>updateClipMetadata(filepath,metadata)"
+   ]
+  },
+  {
+   "name": "DISCORD_USER_DATA_CACHE_DELETE",
+   "enumMember": "USER_DATA_CACHE_DELETE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "299"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5984"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "удалить кэш",
+   "args": [
+    "_event=>{!function(){try{let userData,cachePath=getCachePath(),migratedPath=(userData=paths_1.paths.getUserData(),null=="
+   ]
+  },
+  {
+   "name": "DISCORD_USER_DATA_CACHE_GET",
+   "enumMember": "USER_DATA_CACHE_GET",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "299"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5984"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "прочитать дисковый кэш пользовательских данных",
+   "args": [
+    "()=>(function(){let cachePath=getCachePath();if(null===cachePath)return null;try{return JSON.parse(fs_1.default.readFile"
+   ]
+  },
+  {
+   "name": "DISCORD_USER_DATA_CACHE_SAVE",
+   "enumMember": "USER_DATA_CACHE_SAVE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "299"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5984"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "сохранить кэш (fire-and-forget)",
+   "args": [
+    "userData",
+    "(_event,userData)=>{let cachePath;null!==(cachePath=getCachePath())&&fs_1.default.writeFile(cachePath,userData,e=>{null!"
+   ]
+  },
+  {
+   "name": "DISCORD_WEBAUTHN_AUTHENTICATE_MAC",
+   "enumMember": "WEBAUTHN_AUTHENTICATE_MAC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5544"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3797"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: webauthn authenticate mac",
+   "args": [
+    "challenge",
+    "(_event,challenge)=>callNative(\"webAuthnAuthenticate\",challenge)"
+   ]
+  },
+  {
+   "name": "DISCORD_WEBAUTHN_REGISTER_MAC",
+   "enumMember": "WEBAUTHN_REGISTER_MAC",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5544"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3797"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "WebAuthn: регистрация ключа (нативный discord_webauthn)",
+   "args": [
+    "challenge",
+    "(_event,challenge)=>callNative(\"webAuthnRegister\",challenge)"
+   ]
+  },
+  {
+   "name": "DISCORD_WEBAUTHN_SIGNAL_ALL_ACCEPTED_CREDENTIALS",
+   "enumMember": "WEBAUTHN_SIGNAL_ALL_ACCEPTED_CREDENTIALS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5544"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3797"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: webauthn signal all accepted credentials",
+   "args": [
+    "rpId,userId,allAcceptedCredentialIds",
+    "(_event,rpId,userId,allAcceptedCredentialIds)=>callSignalNative(\"signalAllAcceptedCredentials\",r"
+   ]
+  },
+  {
+   "name": "DISCORD_WEBAUTHN_SIGNAL_CURRENT_USER_DETAILS",
+   "enumMember": "WEBAUTHN_SIGNAL_CURRENT_USER_DETAILS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5544"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3797"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: webauthn signal current user details",
+   "args": [
+    "rpId,userId,name,displayName",
+    "(_event,rpId,userId,name,displayName)=>callSignalNative(\"signalCurrentUserDetails\",rpId,userId,name,"
+   ]
+  },
+  {
+   "name": "DISCORD_WEBAUTHN_SIGNAL_UNKNOWN_CREDENTIAL",
+   "enumMember": "WEBAUTHN_SIGNAL_UNKNOWN_CREDENTIAL",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5544"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3797"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: webauthn signal unknown credential",
+   "args": [
+    "rpId,credentialId",
+    "(_event,rpId,credentialId)=>callSignalNative(\"signalUnknownCredential\",rpId,credentialId)"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_BLUR",
+   "enumMember": "WINDOW_BLUR",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "снять фокус с окна (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null==win||win.isDestroyed()||win.blur(),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_CLOSE",
+   "enumMember": "WINDOW_CLOSE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "закрыть окно (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{if(null==key&&\"darwin\"===process_1.default.platform)electron_1.default.Menu.sendActionToFirstResponder(\"hide:\""
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_FLASH_FRAME",
+   "enumMember": "WINDOW_FLASH_FRAME",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "мигнуть иконкой в панели задач (по ключу окна key)",
+   "args": [
+    "flag",
+    "(_,flag)=>{let currentWindow=injectedGetWindow(null);return null==currentWindow||null==currentWindow.flashFrame||curre"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_FOCUS",
+   "enumMember": "WINDOW_FOCUS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "сфокусировать окно (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null!=win&&(win.show(),win.setSkipTaskbar(!1)),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_GET_MEDIA_SOURCE_ID",
+   "enumMember": "WINDOW_GET_MEDIA_SOURCE_ID",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "получить media source id окна (для шаринга экрана) (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return Promise.resolve(win?.getMediaSourceId()??null)}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_GET_NATIVE_HANDLE",
+   "enumMember": "WINDOW_GET_NATIVE_HANDLE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "получить нативный хэндл окна (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null!=win?Promise.resolve(win.getNativeWindowHandle().readInt32L"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_IS_ALWAYS_ON_TOP",
+   "enumMember": "WINDOW_IS_ALWAYS_ON_TOP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "проверить «поверх всех окон» (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null==win?Promise.resolve(!1):Promise.resolve(win.isAlwaysOnTop()"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_MAXIMIZE",
+   "enumMember": "WINDOW_MAXIMIZE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "развернуть окно (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null!=win&&(win.isMaximized()?win.unmaximize():win.maximize()),Promise.r"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_MINIMIZE",
+   "enumMember": "WINDOW_MINIMIZE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "свернуть окно (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null!=win&&win.minimize(),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_OPEN_DOCUMENT_PIP",
+   "enumMember": "WINDOW_OPEN_DOCUMENT_PIP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "открыть Picture-in-Picture для документа (executeJavaScript в renderer)",
+   "args": [
+    "event=>event.sender.executeJavaScript(\"document.getElementById('__document_pip_trigger')?.click()\",!0)"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_RESTORE",
+   "enumMember": "WINDOW_RESTORE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "восстановить окно (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null!=win&&win.restore(),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_ALWAYS_ON_TOP",
+   "enumMember": "WINDOW_SET_ALWAYS_ON_TOP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "включить/выключить «поверх всех окон» (по ключу окна key)",
+   "args": [
+    "key,enabled",
+    "(_,key,enabled)=>{let win=injectedGetWindow(key);return null!=win&&win.setAlwaysOnTop(enabled),Promise.resolve()"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_BACKGROUND_THROTTLING",
+   "enumMember": "WINDOW_SET_BACKGROUND_THROTTLING",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вкл/выкл троттлинг фонового окна (по ключу окна key)",
+   "args": [
+    "enabled",
+    "(_,enabled)=>{let win=injectedGetWindow();return null!=win&&win.webContents.setBackgroundThrottling(enab"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_CONTENT_PROTCTION",
+   "enumMember": "WINDOW_SET_CONTENT_PROTCTION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "защита контента (как в SET_WINDOW_CONTENT_PROTECTION, опечатка в имени) (по ключу окна key)",
+   "args": [
+    "enabled",
+    "(_,enabled)=>{for(let window of injectedGetAllWindows())null==window||windowContentProtectionOverride.has(wi"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_FOCUSABLE",
+   "enumMember": "WINDOW_SET_FOCUSABLE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "сделать окно фокусируемым/нет (по ключу окна key)",
+   "args": [
+    "key,enabled",
+    "(_,key,enabled)=>{let win=injectedGetWindow(key);return null!=win&&win.setFocusable(enabled),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_FRAME_RATE",
+   "enumMember": "WINDOW_SET_FRAME_RATE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "ограничить FPS окна (по ключу окна key)",
+   "args": [
+    "key,fps",
+    "(_,key,fps)=>{let win=injectedGetWindow(key);return null!=win&&win.webContents?.setMaxFPS?.(fps),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_MINIMUM_SIZE",
+   "enumMember": "WINDOW_SET_MINIMUM_SIZE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "минимальный размер окна (по ключу окна key)",
+   "args": [
+    "width,height",
+    "(_,width,height)=>{let win=injectedGetWindow();return null!=win&&win.setMinimumSize(width,height),Promise.resolve"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_PROGRESS_BAR",
+   "enumMember": "WINDOW_SET_PROGRESS_BAR",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "прогресс-бар в панели задач (по ключу окна key)",
+   "args": [
+    "key??null,progress",
+    "(_,key,progress)=>{let win=injectedGetWindow(key);return null!=win&&win.setProgressBar(progress),Promise.resolve("
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_WINDOW_CONTENT_PROTECTION",
+   "enumMember": "WINDOW_SET_WINDOW_CONTENT_PROTECTION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "запретить скриншоты/запись окна (по ключу окна key)",
+   "args": [
+    "key,enabled",
+    "(_,key,enabled)=>{let window=injectedGetWindow(key);if(null!=window){enabled?windowContentProtection"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SHOW_INACTIVE",
+   "enumMember": "WINDOW_SHOW_INACTIVE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "показать окно без фокуса (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let win=injectedGetWindow(key);return null!=win&&win.showInactive(),Promise.resolve()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_TOGGLE_FULLSCREEN",
+   "enumMember": "WINDOW_TOGGLE_FULLSCREEN",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "3386"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": true,
+   "purpose": "полноэкранный режим (по ключу окна key)",
+   "args": [
+    "key",
+    "(_,key)=>{let currentWindow=injectedGetWindow(key);return null==currentWindow?console.error(`window: Unable to f"
+   ]
+  },
+  {
+   "name": "DISCORD_${event}",
+   "enumMember": null,
+   "main": {
+    "file": "app/bundle.js",
+    "modules": [],
+    "pushModules": [
+     "53006"
+    ],
+    "callSites": 0,
+    "methods": [],
+    "pushMethods": [
+     "send"
+    ]
+   },
+   "renderer": null,
+   "push": true,
+   "requestResponse": false,
+   "purpose": "push в splash: имя канала собирается как DISCORD_ + event",
+   "args": [
+    "...args"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_ASYNC_INDEX_TSX_LOADED",
+   "enumMember": "APP_ASYNC_INDEX_TSX_LOADED",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вызвать: app async index tsx loaded",
+   "args": [
+    "()=>{for(let promise of loadingDragCssPromises.splice(0))promise.then(key=>{null!=key&&mainWindow?.webContents."
+   ]
+  },
+  {
+   "name": "DISCORD_APP_BADGE_SET",
+   "enumMember": "APP_BADGE_SET",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "6820"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вызвать: app badge set",
+   "args": [
+    "(_event,count)=>setAppBadge(count,!1)"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_MAIN_BUNDLE_STATS",
+   "enumMember": "APP_MAIN_BUNDLE_STATS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вызвать: app main bundle stats",
+   "args": [
+    "(_event,bundleStats)=>{pendingBundleStats=bundleStats,maybePushDetailedTTI()}"
+   ]
+  },
+  {
+   "name": "DISCORD_APP_PAINT_METRICS",
+   "enumMember": "APP_PAINT_METRICS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вызвать: app paint metrics",
+   "args": [
+    "(_event,metrics)=>{pendingPaintMetrics={fpTimeMs:metrics.main_window_first_paint_time_ms??null,fcpTimeMs:metrics.main_wi"
+   ]
+  },
+  {
+   "name": "DISCORD_GET_MOUSE_COORDINATES",
+   "enumMember": "GET_MOUSE_COORDINATES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9419"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "координаты курсора на экране",
+   "args": [
+    "()=>electron_1.screen.getCursorScreenPoint()"
+   ]
+  },
+  {
+   "name": "DISCORD_INTENTS_RESIGN_ACTIVITY",
+   "enumMember": "INTENTS_RESIGN_ACTIVITY",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4355"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "Rich Presence: снять активность",
+   "args": [
+    "_event=>(lib.resignActivity(),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_INTENTS_SET_ACTIVITY",
+   "enumMember": "INTENTS_SET_ACTIVITY",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4355"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "Rich Presence: установить активность",
+   "args": [
+    "(_event,activity)=>(lib.setActivity(activity),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_MODULE_INSTALLED",
+   "enumMember": null,
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "2100"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: модуль установлен",
+   "args": [
+    "async _=>{moduleVersions=await DiscordIPC_1.DiscordIPC.renderer.invoke(DiscordIPC_1.IPCEvents.APP_GET_MODULE_VERSIONS)}"
+   ]
+  },
+  {
+   "name": "DISCORD_NATIVE_MODULES_FINISH_UPDATER_BOOTSTRAP",
+   "enumMember": "NATIVE_MODULES_FINISH_UPDATER_BOOTSTRAP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "216"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "завершить bootstrap нового загрузчика обновлений",
+   "args": [
+    "(_,[major,minor,revision])=>{if(\"number\"!=typeof major||\"number\"!=typeof minor||\"number\"!=typeof revision)throw Error(\"Y"
+   ]
+  },
+  {
+   "name": "DISCORD_NATIVE_MODULES_GET_HAS_NEW_UPDATER",
+   "enumMember": "NATIVE_MODULES_GET_HAS_NEW_UPDATER",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "216"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "есть ли новый загрузчик обновлений (sendSync)",
+   "args": [
+    "event=>{event.returnValue=injectedUpdater?.getUpdater()!=null}"
+   ]
+  },
+  {
+   "name": "DISCORD_NATIVE_MODULES_GET_MODULE_PATH",
+   "enumMember": "NATIVE_MODULES_GET_MODULE_PATH",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "216"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "путь к нативному модулю по имени (sendSync)",
+   "args": [
+    "(event,name)=>{event.returnValue=getModulePath(name)??null}"
+   ]
+  },
+  {
+   "name": "DISCORD_NATIVE_MODULES_INSTALL",
+   "enumMember": "NATIVE_MODULES_INSTALL",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "216"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "установить нативный модуль (через updater)",
+   "args": [
+    "async(_,moduleName)=>{let newUpdater=injectedUpdater?.getUpdater();if(null!=newUpdater)return newUpdaterInstall(newUpdat"
+   ]
+  },
+  {
+   "name": "DISCORD_NAVIGATION_HISTORY_CLEAR",
+   "enumMember": "NAVIGATION_HISTORY_CLEAR",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вызвать: navigation history clear",
+   "args": [
+    "()=>{null==mainWindow||mainWindow.isDestroyed()||mainWindow.webContents.navigationHistory?.clear()}"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_GET_AUTHORIZATION",
+   "enumMember": "NOTIFICATIONS_GET_AUTHORIZATION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7592"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: notifications get authorization",
+   "args": [
+    "async(_event,provisional)=>await requireLoadedLib().getAuthorization(provisional)"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_GET_MODULE_STATUS",
+   "enumMember": "NOTIFICATIONS_GET_MODULE_STATUS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7592"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: notifications get module status",
+   "args": [
+    "_event=>Promise.resolve(moduleStatus)"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_GET_SETTINGS",
+   "enumMember": "NOTIFICATIONS_GET_SETTINGS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7592"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: notifications get settings",
+   "args": [
+    "async _event=>await requireLoadedLib().getSettings()"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_REMOVE_ALL_NOTIFICATIONS",
+   "enumMember": "NOTIFICATIONS_REMOVE_ALL_NOTIFICATIONS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7592"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: notifications remove all notifications",
+   "args": [
+    "async _event=>{await requireLoadedLib().removeAllNotifications()}"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_REMOVE_NOTIFICATIONS",
+   "enumMember": "NOTIFICATIONS_REMOVE_NOTIFICATIONS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7592"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: notifications remove notifications",
+   "args": [
+    "async(_event,identifiers)=>{await requireLoadedLib().removeNotifications(identifiers)}"
+   ]
+  },
+  {
+   "name": "DISCORD_NOTIFICATIONS_SEND_NOTIFICATION",
+   "enumMember": "NOTIFICATIONS_SEND_NOTIFICATION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "7592"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "показать системное уведомление (нативный discord_notifications)",
+   "args": [
+    "async(_event,options)=>(0,notificationModuleStatus_1.normalizeSendResult)(await requireLoadedLib().sendNo"
+   ]
+  },
+  {
+   "name": "DISCORD_NTP_CLOCK_SYNCED",
+   "enumMember": "NTP_CLOCK_SYNCED",
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "3939"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: NTP-синхронизация завершена",
+   "args": [
+    "(_,info)=>{syncInfo=info,events.emit(SYNC_EVENT,info)}"
+   ]
+  },
+  {
+   "name": "DISCORD_OPEN_EXTERNAL_URL",
+   "enumMember": "OPEN_EXTERNAL_URL",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "открыть внешний URL (saferShellOpenExternal)",
+   "args": [
+    "(_event,externalUrl)=>{(0,securityUtils_1.saferShellOpenExternal)(externalUrl).catch(_=>{console.error(\"Failed to open e"
+   ]
+  },
+  {
+   "name": "DISCORD_SEARCH_CLEAR_INDEX",
+   "enumMember": "SEARCH_CLEAR_INDEX",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4355"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "поиск: очистить индекс",
+   "args": [
+    "_event=>(lib.clearIndex(),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_SEARCH_DELETE_DOMAINS",
+   "enumMember": "SEARCH_DELETE_DOMAINS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4355"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: search delete domains",
+   "args": [
+    "(_event,domains)=>(lib.deleteDomains(domains),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_SEARCH_DELETE_ITEMS",
+   "enumMember": "SEARCH_DELETE_ITEMS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4355"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "вызвать: search delete items",
+   "args": [
+    "(_event,items)=>(lib.deleteItems(items),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_SEARCH_INDEX_DOMAINS",
+   "enumMember": "SEARCH_INDEX_DOMAINS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4355"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "handle"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": true,
+   "purpose": "поиск: индексировать домены",
+   "args": [
+    "(_event,domains)=>(lib.indexDomains(domains),Promise.resolve())"
+   ]
+  },
+  {
+   "name": "DISCORD_SETTINGS_UPDATE_BACKGROUND_COLOR",
+   "enumMember": "SETTINGS_UPDATE_BACKGROUND_COLOR",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "сменить цвет фона окна",
+   "args": [
+    "(_event,backgroundColor)=>{getBackgroundColor()!==backgroundColor&&(settings?.set(BACKGROUND_COLOR_KEY,backgroundColor),"
+   ]
+  },
+  {
+   "name": "DISCORD_SPELLCHECK_RESULT",
+   "enumMember": "SPELLCHECK_RESULT",
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "9121"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: результат проверки орфографии (misspelled word)",
+   "args": [
+    "(_,misspelledWord,dictionarySuggestions)=>{events.emit(\"spellcheck-result\",misspelledWord,dictionarySuggestions)}"
+   ]
+  },
+  {
+   "name": "DISCORD_SPLASH_SCREEN_QUOTE",
+   "enumMember": null,
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "85425"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вызвать: splash screen quote",
+   "args": [
+    "(_,_quote)=>{}"
+   ]
+  },
+  {
+   "name": "DISCORD_SPLASH_SCREEN_READY",
+   "enumMember": null,
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "85425"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "splash готов к показу",
+   "args": []
+  },
+  {
+   "name": "DISCORD_SPLASH_UPDATE_STATE",
+   "enumMember": null,
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "85425"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: состояние splash (checking/launching/...)",
+   "args": [
+    "(_,state)=>{console.log(`splashScreenPreload: onStateUpdate: ${JSON.stringify(state)}`),currentState=state,domReady&&(st"
+   ]
+  },
+  {
+   "name": "DISCORD_SYSTEM_TRAY_SET_APPLICATIONS",
+   "enumMember": "SYSTEM_TRAY_SET_APPLICATIONS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1275"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "трей: список приложений (для голоса)",
+   "args": [
+    "(evt,newApplications)=>{currentApplications=newApplications,setContextMenu()}"
+   ]
+  },
+  {
+   "name": "DISCORD_SYSTEM_TRAY_SET_ICON",
+   "enumMember": "SYSTEM_TRAY_SET_ICON",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1275"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "трей: установить иконку по ключу",
+   "args": [
+    "(evt,iconKey)=>{let previousTrayStates;return previousTrayStates=getTrayStates(),void(currentIconKey=iconKey,applyTraySt"
+   ]
+  },
+  {
+   "name": "DISCORD_SYSTEM_TRAY_SET_STATES",
+   "enumMember": "SYSTEM_TRAY_SET_STATES",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1275"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "трей: состояния (чекбоксы/радио меню)",
+   "args": [
+    "(evt,states)=>{let previousTrayStates;return previousTrayStates=getTrayStates(),void(currentTrayStates=states,applyTrayS"
+   ]
+  },
+  {
+   "name": "DISCORD_SYSTEM_TRAY_SET_STRINGS",
+   "enumMember": "SYSTEM_TRAY_SET_STRINGS",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "1275"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "трей: строки локализации меню",
+   "args": [
+    "(evt,newStrings)=>{currentStrings=newStrings,atomTray?.setToolTip(currentStrings.appName),setContextMenu()}"
+   ]
+  },
+  {
+   "name": "DISCORD_THUMBAR_BUTTONS_UPDATE",
+   "enumMember": "THUMBAR_BUTTONS_UPDATE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "9090"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "панель задач Windows: кнопки",
+   "args": [
+    "(event,buttons,isSystemDarkMode)=>{var buttons1,buttons2;let thumbarButtons,win,touchbarButtons,win1,touchbar;utils"
+   ]
+  },
+  {
+   "name": "DISCORD_TOGGLE_MINIMIZE_TO_TRAY",
+   "enumMember": "TOGGLE_MINIMIZE_TO_TRAY",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4973"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вкл/выкл «сворачивать в трей»",
+   "args": [
+    "(_event,value)=>{var minimizeToTray;return minimizeToTray=value,void(null==settings?console.warn(\"Could not execute 'set"
+   ]
+  },
+  {
+   "name": "DISCORD_TOGGLE_OPEN_ON_STARTUP",
+   "enumMember": "TOGGLE_OPEN_ON_STARTUP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4973"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вкл/выкл автозапуск",
+   "args": [
+    "(_event,value)=>{value?autoStart_1.autoStart.install(NOOP):autoStart_1.autoStart.uninstall(NOOP)}"
+   ]
+  },
+  {
+   "name": "DISCORD_TOGGLE_START_MINIMIZED",
+   "enumMember": "TOGGLE_START_MINIMIZED",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4973"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "вкл/выкл «стартовать свёрнутым»",
+   "args": [
+    "(_event,value)=>{var startMinimized;return startMinimized=value,void(null==settings?console.warn(\"Could not execute 'tog"
+   ]
+  },
+  {
+   "name": "DISCORD_UPDATE_OPEN_ON_STARTUP",
+   "enumMember": "UPDATE_OPEN_ON_STARTUP",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "4973"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "обновить состояние автозапуска",
+   "args": [
+    "_event=>void autoStart_1.autoStart.update(NOOP)"
+   ]
+  },
+  {
+   "name": "DISCORD_UPDATED_QUOTES",
+   "enumMember": "UPDATED_QUOTES",
+   "main": {
+    "file": "app/bundle.js",
+    "modules": [
+     "53006"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: обновлённые фразы splash (quotes_copy.json)",
+   "args": [
+    "(_event,quotes)=>{var quotes1;return quotes1=quotes,void fs_1.default.writeFile(quoteCachePath,JSON.stringify(quotes1),e"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_DEVTOOLS_CLOSED",
+   "enumMember": "WINDOW_DEVTOOLS_CLOSED",
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: devtools закрыты",
+   "args": [
+    "()=>{devtoolsClosedCallback?.()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_DEVTOOLS_OPENED",
+   "enumMember": "WINDOW_DEVTOOLS_OPENED",
+   "main": null,
+   "renderer": {
+    "file": "core/mainScreenPreload.js",
+    "modules": [
+     "5639"
+    ],
+    "callSites": 1
+   },
+   "push": false,
+   "requestResponse": false,
+   "purpose": "push: devtools открыты",
+   "args": [
+    "()=>{devtoolsOpenedCallback?.()}"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_TRAFFIC_LIGHT_APPEARANCE",
+   "enumMember": "WINDOW_SET_TRAFFIC_LIGHT_APPEARANCE",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "macOS: вид traffic-light кнопок (по ключу окна key)",
+   "args": [
+    "(_event,appearance,windowKey)=>{if(\"darwin\"!==process.platform)return;let targetWindow=null==windowKey"
+   ]
+  },
+  {
+   "name": "DISCORD_WINDOW_SET_TRAFFIC_LIGHT_POSITION",
+   "enumMember": "WINDOW_SET_TRAFFIC_LIGHT_POSITION",
+   "main": {
+    "file": "core/bundle.js",
+    "modules": [
+     "5203"
+    ],
+    "pushModules": [],
+    "callSites": 1,
+    "methods": [
+     "on"
+    ],
+    "pushMethods": []
+   },
+   "renderer": null,
+   "push": false,
+   "requestResponse": false,
+   "purpose": "macOS: позиция traffic-light кнопок (по ключу окна key)",
+   "args": [
+    "(_event,position)=>{if(\"darwin\"===process.platform&&!(null==mainWindow||mainWindow.isDestroyed()))try{ma"
+   ]
+  }
+ ],
+ "nativeModules": [
+  {
+   "name": "discord_desktop_core",
+   "loadedBy": "app/bundle.js (requireNative)",
+   "channels": [],
+   "note": "не нативный .node, а точка входа core.asar; core.startup({...})"
+  },
+  {
+   "name": "discord_asset_cache",
+   "loadedBy": "app/bundle.js",
+   "channels": [],
+   "note": "кэш ассетов бутстраппера"
+  },
+  {
+   "name": "discord_utils",
+   "loadedBy": "app/bundle.js, core/mainScreenPreload.js, core/bundle.js",
+   "channels": [
+    "DISCORD_FILE_MANAGER_*",
+    "DISCORD_PROCESS_UTILS_*"
+   ],
+   "note": "пути/файловые утилиты; PRELOAD_ONLY"
+  },
+  {
+   "name": "discord_voice",
+   "loadedBy": "preload (#7927, PREMAP_MODULES) + main",
+   "channels": [],
+   "note": "голосовой движок"
+  },
+  {
+   "name": "discord_media",
+   "loadedBy": "preload (PREMAP_MODULES)",
+   "channels": [],
+   "note": "медиа/WebRTC"
+  },
+  {
+   "name": "discord_zstd",
+   "loadedBy": "preload (PREMAP_MODULES)",
+   "channels": [],
+   "note": "сжатие"
+  },
+  {
+   "name": "discord_cloudsync",
+   "loadedBy": "preload (PREMAP_MODULES)",
+   "channels": [],
+   "note": "синхронизация"
+  },
+  {
+   "name": "discord_premap",
+   "loadedBy": "preload",
+   "channels": [],
+   "note": "premap-загрузчик"
+  },
+  {
+   "name": "discord_hook",
+   "loadedBy": "preload",
+   "channels": [],
+   "note": "хуки (Linux)"
+  },
+  {
+   "name": "discord_sysimg",
+   "loadedBy": "preload #7987 (DiscordNative.sysimg)",
+   "channels": [],
+   "note": "обработка изображений"
+  },
+  {
+   "name": "discord_notifications",
+   "loadedBy": "core/bundle.js #7592",
+   "channels": [
+    "DISCORD_NOTIFICATIONS_*"
+   ],
+   "note": "системные уведомления; ошибки загрузки логируются"
+  },
+  {
+   "name": "discord_intents",
+   "loadedBy": "core/bundle.js #4355",
+   "channels": [
+    "DISCORD_INTENTS_*",
+    "DISCORD_SEARCH_*"
+   ],
+   "note": "Rich Presence; тот же загруженный lib обслуживает и поисковые каналы (clearIndex/indexDomains/deleteDomains/deleteItems)"
+  },
+  {
+   "name": "discord_webauthn",
+   "loadedBy": "core/bundle.js #5544",
+   "channels": [
+    "DISCORD_WEBAUTHN_*"
+   ],
+   "note": "платформенный WebAuthn"
+  },
+  {
+   "name": "discord_clips_main_proc",
+   "loadedBy": "core/bundle.js #7635",
+   "channels": [
+    "DISCORD_LOAD_CLIP",
+    "DISCORD_RENDER_MONTAGE_RECIPE",
+    "DISCORD_*_CLIP*"
+   ],
+   "note": "рендер/хранение клипов, логгер discord_clips_main_proc"
+  }
+ ],
+ "examples": [
+  {
+   "title": "Системное уведомление (renderer → main → нативный модуль → push)",
+   "chain": [
+    "web-клиент: window.DiscordNative.ipc.invoke(\"NOTIFICATIONS_SEND_NOTIFICATION\", opts)",
+    "preload #8981: getDiscordIPCEvent → \"DISCORD_NOTIFICATIONS_SEND_NOTIFICATION\"; проверка RENDERER_IPC_INVOKE_WHITELIST; ipcRenderer.invoke",
+    "main core/bundle.js #7592: IPCEvent handler → requireLoadedLib() = нативный discord_notifications → sendNotification",
+    "main → renderer push: sendToAllWindows(DISCORD_NOTIFICATIONS_RECEIVED_RESPONSE, action, identifier, ...) → webContents.send",
+    "web-клиент получает push через DiscordNative.ipc.on(\"NOTIFICATIONS_RECEIVED_RESPONSE\") (префиксация в preload #8981)"
+   ]
+  },
+  {
+   "title": "Уведомление о трее (renderer send → main handler через префиксующую обёртку)",
+   "chain": [
+    "web-клиент: DiscordNative.ipc.send(\"SYSTEM_TRAY_SET_ICON\", iconKey) (канал в RENDERER_IPC_SEND_WHITELIST)",
+    "preload: ipcRenderer.send(\"DISCORD_SYSTEM_TRAY_SET_ICON\", ...)",
+    "main: ipcMain_1.default.on(\"SYSTEM_TRAY_SET_ICON\") — обёртка вызывает ipcMain.on(getDiscordIPCEvent(\"SYSTEM_TRAY_SET_ICON\")) → реальный канал DISCORD_SYSTEM_TRAY_SET_ICON (core/bundle.js #1275)",
+    "реализация: Electron Tray (new electron_1.Tray) + иконки tray-*/${...}.png"
+   ]
+  },
+  {
+   "title": "Клип (clips): файл и протокол",
+   "chain": [
+    "renderer: DiscordNative.clips.load(path) → invoke DISCORD_LOAD_CLIP (preload #6752)",
+    "main core/bundle.js #7635: нативный discord_clips_main_proc читает mp4, проверяет Content-Range/Content-Type",
+    "main регистрирует кастомный протокол protocol.handle(DISCORD_CLIP_PROTOCOL=\"disclip\") — отдача клипов по диапазонам",
+    "ошибки: \"Invalid clip requested via protocol:\", \"Clip not found\", \"Something went wrong when serving the clip:\""
+   ]
+  },
+  {
+   "title": "Обновление/бутстрап (splash) и модули",
+   "chain": [
+    "splash preload (#85425, app/bundle.js): invoke DISCORD_GET_BUILD_OVERRIDE_STATUS / send DISCORD_SPLASH_SCREEN_READY / on DISCORD_SPLASH_UPDATE_STATE",
+    "app/bundle.js #96020: ipcMain_1.default.handle(IPCEvents.GET_BUILD_OVERRIDE_STATUS) → cookie build-override",
+    "app/bundle.js #53006: splash-окно push-ит состояние: webContents.send(`DISCORD_${event}`, ...) — подтверждено capture-boot.jsonl (onStateUpdate: checking-for-updates → launching)",
+    "установка нативных модулей идёт из main: channels DISCORD_NATIVE_MODULES_GET_PATHS / GET_MODULE_PATH / INSTALL / FINISH_UPDATER_BOOTSTRAP / GET_HAS_NEW_UPDATER (core/bundle.js #216); preload #7927 дёргает их через ipcRenderer",
+    "загрузка ядра: app/bundle.js: core = requireNative(\"discord_desktop_core\"); core.startup({Constants, GPUSettings, analytics, appSettings, autoStart, buildInfo, crashReporterSetup, logger, moduleUpdater, paths, splashScreen, updater}) — обмен между app.asar и core.asar идёт вызовом функции, а не IPC"
+   ]
+  },
+  {
+   "title": "Нативный голос/медиа не ходит через IPC-каналы",
+   "chain": [
+    "preload #7927 nativeModules: requireModule(name) разрешает только /^discord_[a-z0-9_-]+$/ или erlpack и запрещает PRELOAD_ONLY_MODULES",
+    "PREMAP_MODULES = [\"discord_voice\",\"discord_zstd\",\"discord_cloudsync\",\"discord_media\"] — прогреваются через premap",
+    "getModulePath(name) → ipcRenderer.sendSync(DISCORD_NATIVE_MODULES_GET_MODULE_PATH, name) в main",
+    "дальше вызовы идут напрямую в .node-аддон (без DISCORD_* каналов) — отсюда «дыра» в IPC-карте для голоса: его API не видно по каналам"
+   ]
+  }
+ ],
+ "unknowns": [
+  {
+   "gap": "47 call-sites с вычисляемым именем канала (переменная/шаблон)",
+   "detail": "главные: generic-обёртки DiscordIPC.main.on/handle(channel) в preload #1999 и main, push-хелпер sendMainWindow(channel) в core/bundle.js #5203, Sentry ipcUtil.createKey(...) в app/bundle.js (#85575, namespace \"sentry-ipc\" → каналы sentry-ipc.start/scope/envelope/status/structured-log/metric), electron-log __ELECTRON_LOG__/__ELECTRON_LOG_IPC__, DISCORD_${event} в splash",
+   "check": "нужен либо рантайм-лог ipcRenderer/main (CDP-захват), либо ручной обход конкретных хелперов"
+  },
+  {
+   "gap": "Отправители push-каналов (main → renderer) покрыты не полностью",
+   "detail": "каналы вида DISCORD_POWER_MONITOR_RESUME, DISCORD_NTP_CLOCK_SYNCED, DISCORD_MODULE_INSTALLED, DISCORD_SPELLCHECK_RESULT найдены как listener в preload; парные webContents.send идут через хелпер с параметром-каналом или event.sender.send",
+   "check": "тот же CDP-захват или трассировка webContents.send"
+  },
+  {
+   "gap": "15 членов enum IPCEvents не встретились ни как канал",
+   "detail": "APP_GET_ANALYTICS_EVENTS, APP_LOADED, APP_PUSH_ANALYTICS, APP_VIEWED, APP_FIRST_RENDER_AFTER_READY_PAYLOAD, APP_GET_MAIN_BUNDLE_STATS, CHECK_FOR_UPDATES, CRASH_REPORTER_NEW_CRASH, NOTIFICATION_CLOSE, NOTIFICATION_SHOW, NOTIFICATIONS_CLEAR, REQUEST_OPEN_EXTERNAL_URL, QUIT_AND_INSTALL, THUMBAR_BUTTONS_CLICKED, UPDATER_HISTORY_QUERY_AND_TRUNCATE",
+   "check": "все 15 входят в whitelist-ы (send/invoke) или обслуживаются модульным апдейтером #6605 → их вызовы находятся в web-клиенте (Cache_Data) либо диспетчеризуются таблицей; нужен разбор web-бандлов"
+  },
+  {
+   "gap": "Сторона веб-клиента (discord.com bundle) не разбиралась",
+   "detail": "кто именно вызывает 43 whitelisted канала из renderer — в asar не видно; в кэше ~/.config/discord/Cache/Cache_Data лежат JS-бандлы web-клиента",
+   "check": "rg по Cache_Data на \"DiscordNative.ipc\" и разбор web-бандлов"
+  },
+  {
+   "gap": "Нативные .node-модули не дизассемблировались",
+   "detail": "известны только точки входа (discord_voice, discord_notifications, discord_clips_main_proc, discord_webauthn, discord_intents, discord_utils), внутренние функции/экспорты — нет",
+   "check": "REA open_binary/analyze_function по modules/…/*.node"
+  },
+  {
+   "gap": "События модульного апдейтера (core/bundle.js #6605) не привязаны к каналам",
+   "detail": "в #6605 есть enum с именами без префикса (CHECK_FOR_UPDATES, QUIT_AND_INSTALL, MODULE_INSTALLED, UPDATE_AVAILABLE, MODULE_INSTALL_PROGRESS, UPDATER_HISTORY_QUERY_AND_TRUNCATE…); после getDiscordIPCEvent они становятся DISCORD_<NAME>, но статического места регистрации хендлера/отправки нет — вероятно, диспетчеризация через таблицу",
+   "check": "разобрать #6605 и места, где enum передаётся как объект (map), либо снять рантайм-лог"
+  },
+  {
+   "gap": "Назначение каналов выведено из имён/кода обработчиков",
+   "detail": "документация Discord недоступна; формулировки в поле purpose — интерпретация",
+   "check": "код-ревью обработчиков в core/bundle.js (модули указаны) или рантайм-наблюдение"
+  }
+ ],
+ "rejected": [
+  {
+   "what": "webContents-методы без канала (getTitle/isDestroyed/getAllWebContents/getFocusedWebContents/reload/toggleDevTools/insertCSS/setWindowOpenHandler/on/once/off/removeListener/fromId/clearHistory)",
+   "count": 85,
+   "why": "это не IPC-каналы, а работа с объектом окна/EventEmitter"
+  },
+  {
+   "what": "плейсхолдеры в шаблонах ({`DISCORD_${event}`} в splash, `${DISCORD_NAMESPACE}${event}` в core #5203)",
+   "why": "имя канала вычисляется; вынесено в unknowns"
+  },
+  {
+   "what": "первая версия сканера: тело модуля #3288 в preload перекрывало следующий модуль (сдвиг границ)",
+   "why": "исправлено обрезкой по следующей фабрике (clampModules); из-за этого 104 «находки» были дублями одного и того же кода"
+  },
+  {
+   "what": "Sentinel/OpenTelemetry enum-константы (сотни вида gen_ai.*, db.*, package versions)",
+   "why": "не IPC — фильтр оставлен только по DISCORD_*/IPCEvents"
+  }
+ ]
+}

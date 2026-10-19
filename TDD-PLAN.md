@@ -254,7 +254,8 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   Сверка записанных `functions/pid-*.json/.csv` с golden W1d на живом attach — ручной
   чек-лист: на машине `kernel.yama.ptrace_scope=1` (нужен `sysctl kernel.yama.ptrace_scope=0`,
   иначе attach к Discord вне демона невозможен).
-- Актуально (2026-10-19): полный `npm test` — 200 тестов (196 pass / 0 fail / 4 e2e-skip);
+- Замер при приёмке M1: полный `npm test` — 200 тестов (196 pass / 0 fail / 4 e2e-skip).
+  Актуально (после R7/RC): `npm run check` — **215 тестов (211 pass / 0 fail / 4 e2e-skip)**;
   из robustness-backlog открыт только W3R-HARD-06 (P3).
 
 ### M3 — UI-walk
@@ -295,6 +296,32 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   сравнения с референсами — `docs/vesktop-analysis.md` и `docs/discord-qt-analysis.md`; карта —
   `docs/map.md` (Mermaid). Реализация — внешний Rust-проект (сценарий A, READINESS: GO); в этом
   репозитории волны ведутся как спеки/карточки (`TASKS.md` §R4/R5/R6/D) плюс волна добора данных D.
+
+### R7 — глубокий RE: транспорт, медиа, бэкенд, UI, i18n (закрыта 2026-10-19, вне кода CLI)
+
+- Нормативные документы — `docs/re/` (индекс `docs/re/README.md`, графы процессов/вызовов/функций —
+  `docs/re/architecture.md`); сырые доказательства — лаборатория `/home/sanya/re-deep/`
+  (в git не попадают).
+- Закрыто: шлюз (ETF/zstd/опкоды, D-01 — READY/GUILD_CREATE), REST D-02, UI D-03, голос
+  (сигнализация + UDP-структуры + ротация сокета), бэкенд (`main`-процесс, 168 IPC-каналов,
+  9 нативных модулей), i18n. Карточки — `TASKS.md` §R7.
+- Открыто (по запросу): пересоздание `VOICE-CRYPTO.md` (режимы 0–6), вложенный DAVE/MLS,
+  расшифровка talkspurt, GUILD_CREATE через приглашение, spec-pack `messenger-client`.
+
+### RC — Rust-клиент: концепт, архитектура, план, тесты (документы, 2026-10-19, вне кода CLI)
+
+- Пакет `docs/rust-client/`: `CONCEPT.md` (что/зачем, стек, сценарии, критерии), `FEATURES.md`
+  (14 групп функций), `ARCHITECTURE.md` (процессы/крейты/шина/хранилище, 8 графов), `PLAN.md`
+  (волны P0–P8, 60+ карточек), `TEST-PLAN.md` (L1–L5, ~130 тестов на RE-фикстурах); индекс —
+  `README.md`. Назначение: спека-первый вход Rust-проекта — полноценный нативный клиент
+  Discord без Electron/Chromium.
+- Единый проект (RC-07/RC-08): курированные фикстуры `fixtures/` (12 записей, md5-манифест),
+  каркас `rust/` (cargo-воркспейс, 10 крейтов, офлайн), оракул `docs/rust-client/verify/verify-re.mjs`
+  (20 сверок, коды 0/1/2), журнал `VERIFICATION.md`, строение `PROJECT-STRUCTURE.md`, трассировка
+  `TRACEABILITY.md`.
+- В этом репозитории — документы, `tests/meta/rust-client-sync.test.mjs`, фикстуры (`fixtures/`)
+  и каркас (`rust/`); полные артефакты — лаборатория `/home/sanya/re-deep/` (`TEST-PLAN.md` §2).
+  Карточки — `TASKS.md` §RC.
 
 ## 8. Матрица тестов: тест ↔ модуль ↔ экспорты
 
@@ -337,6 +364,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
 | `tests/meta/docs-sync.test.mjs` | — | мета: `HELP` ↔ `README.md` (команды CLI задокументированы) |
 | `tests/meta/backlog-sync.test.mjs` | — | мета: карточки `docs/feature-backlog.md` ↔ README/TASKS/карта |
+| `tests/meta/rust-client-sync.test.mjs` | — | мета: план Rust-клиента (docs/rust-client) ↔ README/TASKS/карта |
 
 Цикл для новой функциональности (рецепт):
 
@@ -385,6 +413,16 @@ npm run check                            # typecheck + все тесты (unit/m
 6. **R1 (19.10.2026)**: опции по данным — свежий READY/GUILD_CREATE (нужен полный
    перезапуск копии) и source maps веб-бандла (нужен согласованный сетевой доступ);
    контекст — `/tmp/opencode/r2-net/READINESS.md`, карточки — `TASKS.md` §R1.
+   Продолжение — **R7 (закрыта 19.10.2026)**: READY снят (4 логина, D-01 — `docs/re/gateway-protocol.md`),
+   REST и UI закрыты (D-02/D-03), бэкенд разобран (`docs/re/main-arch.md`, `backend-ipc.md`,
+   `native-re.md`); source maps и GUILD_CREATE-через-приглашение остаются открытыми.
+7. **RC (19.10.2026)**: план Rust-клиента (нативный клиент без Electron/Chromium) — пакет
+   `docs/rust-client/` (концепт, функции, архитектура, план P0–P8, тест-план); карточки —
+   `TASKS.md` §RC; синхронность — `tests/meta/rust-client-sync.test.mjs`. Единый проект:
+   фикстуры `fixtures/` (12 записей, md5-манифест), каркас `rust/` (cargo, 10 крейтов,
+   офлайн `cargo test`), верификация — `docs/rust-client/verify/verify-re.mjs` (20/20,
+   журнал — `VERIFICATION.md`); неизвестные RE (DAVE/MLS-детали, talkspurt, утраченный
+   `VOICE-CRYPTO.md`) учтены как риски фаз P4/P4.5.
 
 ## 11. Микро-декомпозиция и воркеры
 

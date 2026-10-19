@@ -1,0 +1,173 @@
+[
+ {
+  "dir": "in",
+  "op": 8,
+  "t": null,
+  "keys": "op,d",
+  "len": 47,
+  "preview": "{\"op\":8,\"d\":{\"v\":8,\"heartbeat_interval\":13750}}"
+ },
+ {
+  "dir": "in",
+  "op": 2,
+  "t": null,
+  "keys": "op,d",
+  "len": 274,
+  "preview": "{\"op\":2,\"d\":{\"streams\":[{\"type\":\"video\",\"ssrc\":17844,\"rtx_ssrc\":17845,\"rid\":\"100\",\"quality\":100,\"active\":false}],\"ssrc\":17843,\"port\":19309,\"modes\":[\"aead_aes256_gcm_rtpsize\",\"aead_xchacha20_poly1305_rtpsize\"],\"ip\":\"104.29.147.145\",\"experiments\":[\"fixed_keyframe_interval\"]}}"
+ },
+ {
+  "dir": "in",
+  "op": 16,
+  "t": null,
+  "keys": "op,d",
+  "len": 94,
+  "preview": "{\"op\":16,\"d\":{\"voice\":\"0.22.1+denbeigh.remove-voice-curator-74a3bd0c5\",\"rtc_worker\":\"1.6.98\"}}"
+ },
+ {
+  "dir": "in",
+  "op": 4,
+  "t": null,
+  "keys": "op,d",
+  "len": 194,
+  "preview": "{\"op\":4,\"d\":{\"video_codec\":\"AV1\",\"secure_frames_version\":1,\"secret_key\":\"REDACTED\",\"mode\":\"aead_aes256_gcm_rtpsize\",\"media_session_id\":\"REDACTED\",\"dave_protocol_version\":1,\"audio_codec\":\"opus\"}}"
+ },
+ {
+  "dir": "in",
+  "op": 15,
+  "t": null,
+  "keys": "seq,op,d",
+  "len": 33,
+  "preview": "{\"seq\":0,\"op\":15,\"d\":{\"any\":100}}"
+ },
+ {
+  "dir": "in-bin",
+  "len": 100,
+  "firstHex": "000119404104a245ed085f8bca84f3dc645cd5979ba3343491a0b6a06e350b905e939408af4f1a87b0c701e71bea47b60ca8395d90e492ae66a953a0283c25ba",
+  "sha256": null
+ },
+ {
+  "dir": "in",
+  "op": 6,
+  "t": null,
+  "keys": "op,d",
+  "len": 32,
+  "preview": "{\"op\":6,\"d\":{\"t\":1792392224510}}"
+ },
+ {
+  "dir": "in",
+  "op": 6,
+  "t": null,
+  "keys": "op,d",
+  "len": 32,
+  "preview": "{\"op\":6,\"d\":{\"t\":1792392238260}}"
+ },
+ {
+  "dir": "in",
+  "op": 6,
+  "t": null,
+  "keys": "op,d",
+  "len": 32,
+  "preview": "{\"op\":6,\"d\":{\"t\":1792392252010}}"
+ },
+ {
+  "dir": "in",
+  "op": 6,
+  "t": null,
+  "keys": "op,d",
+  "len": 32,
+  "preview": "{\"op\":6,\"d\":{\"t\":1792392265760}}"
+ },
+ {
+  "dir": "in",
+  "op": 6,
+  "t": null,
+  "keys": "op,d",
+  "len": 32,
+  "preview": "{\"op\":6,\"d\":{\"t\":1792392279510}}"
+ },
+ {
+  "dir": "in",
+  "op": 6,
+  "t": null,
+  "keys": "op,d",
+  "len": 32,
+  "preview": "{\"op\":6,\"d\":{\"t\":1792392293260}}"
+ },
+ {
+  "dir": "out",
+  "op": 0,
+  "t": null,
+  "keys": "op,d",
+  "len": 255,
+  "preview": "{\"op\":0,\"d\":{\"server_id\":\"1014537851418980372\",\"channel_id\":\"1176785373989445703\",\"user_id\":\"384299970632876032\",\"session_id\":\"REDACTED\",\"token\":\"REDACTED\",\"max_dave_protocol_version\":1,\"video\":true,\"streams\":[{\"type\":\"video\",\"rid\":\"100\",\"quality\":100}]}}"
+ },
+ {
+  "dir": "out",
+  "op": 16,
+  "t": null,
+  "keys": "op,d",
+  "len": 16,
+  "preview": "{\"op\":16,\"d\":{}}"
+ },
+ {
+  "dir": "out",
+  "op": 1,
+  "t": null,
+  "keys": "op,d",
+  "len": 828,
+  "preview": "{\"op\":1,\"d\":{\"protocol\":\"udp\",\"data\":{\"address\":\"193.222.99.83\",\"port\":52287,\"mode\":\"aead_aes256_gcm_rtpsize\"},\"address\":\"193.222.99.83\",\"port\":52287,\"mode\":\"aead_aes256_gcm_rtpsize\",\"codecs\":[{\"name\":\"opus\",\"type\":\"audio\",\"priority\":1000,\"payload_type\":120},{\"name\":\"AV1\",\"type\":\"video\",\"priority\":1000,\"payload_type\":101,\"rtx_payload_type\":102,\"encode\":true,\"decode\":true},{\"name\":\"H265\",\"type\":\"vi"
+ },
+ {
+  "dir": "out",
+  "op": 3,
+  "t": null,
+  "keys": "op,d",
+  "len": 44,
+  "preview": "{\"op\":3,\"d\":{\"t\":1792392224510,\"seq_ack\":1}}"
+ },
+ {
+  "dir": "out",
+  "op": 3,
+  "t": null,
+  "keys": "op,d",
+  "len": 44,
+  "preview": "{\"op\":3,\"d\":{\"t\":1792392238260,\"seq_ack\":1}}"
+ },
+ {
+  "dir": "out",
+  "op": 3,
+  "t": null,
+  "keys": "op,d",
+  "len": 44,
+  "preview": "{\"op\":3,\"d\":{\"t\":1792392252010,\"seq_ack\":1}}"
+ },
+ {
+  "dir": "out",
+  "op": 3,
+  "t": null,
+  "keys": "op,d",
+  "len": 44,
+  "preview": "{\"op\":3,\"d\":{\"t\":1792392265760,\"seq_ack\":1}}"
+ },
+ {
+  "dir": "out",
+  "op": 3,
+  "t": null,
+  "keys": "op,d",
+  "len": 44,
+  "preview": "{\"op\":3,\"d\":{\"t\":1792392279510,\"seq_ack\":1}}"
+ },
+ {
+  "dir": "out",
+  "op": 3,
+  "t": null,
+  "keys": "op,d",
+  "len": 44,
+  "preview": "{\"op\":3,\"d\":{\"t\":1792392293260,\"seq_ack\":1}}"
+ },
+ {
+  "dir": "out-bin",
+  "len": 394,
+  "sha256": "f3a8fc9efbb2cd1111e18eb85c3ea6c8a38a3ca70f6c624ccc8abf61efde6c85"
+ }
+]

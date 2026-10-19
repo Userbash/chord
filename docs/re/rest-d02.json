@@ -1,0 +1,3583 @@
+{
+  "provenance": [
+    {
+      "file": "d02-snapshot/capture-run2.snap.jsonl",
+      "label": "run2",
+      "md5": "abfe14b76cec1e559c3b45522bc44b7a",
+      "bytes": 4137676,
+      "lines": 10170
+    },
+    {
+      "file": "d02-snapshot/capture-ready.snap.jsonl",
+      "label": "ready",
+      "md5": "b43636da09a4a2c0f08d36b1ce66a46a",
+      "bytes": 2479139,
+      "lines": 5104
+    }
+  ],
+  "snapshotAt": "2026-10-19T11:51:47+05:00",
+  "eventCounts": {
+    "attached": 2,
+    "req": 6654,
+    "res": 7312,
+    "wsc": 6,
+    "session-armed": 2,
+    "fail": 23,
+    "nav": 4,
+    "load": 3,
+    "wssent-bin": 120,
+    "wsrecv": 494,
+    "hb": 430,
+    "wssent": 19,
+    "wsclosed": 2,
+    "reload-request": 1,
+    "body": 200,
+    "session-closed": 1,
+    "no-target": 1
+  },
+  "requestTypeCount": {
+    "Script": 4266,
+    "Fetch": 30,
+    "XHR": 240,
+    "Other": 7,
+    "Stylesheet": 1619,
+    "Font": 45,
+    "Image": 434,
+    "Media": 11,
+    "Document": 2
+  },
+  "perFile": {
+    "run2": 4395,
+    "ready": 2259
+  },
+  "totals": {
+    "reqEvents": 6654,
+    "uniqueRequestIds": 6651,
+    "duplicateRequestIds": [
+      {
+        "key": "run2|95974.2115",
+        "url": "https://discord.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/d2d3316b729e/main.js?",
+        "occurrence": 2
+      },
+      {
+        "key": "run2|95974.4145",
+        "url": "https://discord.com/assets/web.4d4b2f75fdea5470.js?cdt=1",
+        "occurrence": 2
+      },
+      {
+        "key": "ready|57992.3725",
+        "url": "https://discord.com/assets/web.4d4b2f75fdea5470.js?cdt=1",
+        "occurrence": 2
+      }
+    ],
+    "resEvents": 7312,
+    "apiRequests": 133,
+    "apiUniqueEndpoints": 47,
+    "apiWithRequestBody": 6,
+    "apiRequestBodyRequests": 13,
+    "apiRequestsWithFullAuthHeaderSet": 133,
+    "apiRequestsWithContentType": 13,
+    "apiWithResponseBody": 0,
+    "responseBodiesCaptured": 200,
+    "noiseRequests": 6521
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v9/channels/{id}/messages",
+      "count": 11,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 11
+      },
+      "statusBuckets": {
+        "2xx": 11
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 11,
+      "requestIds": [
+        "run2|95974.2323",
+        "run2|95974.3486",
+        "run2|95974.3741"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 11
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/applications/public",
+      "count": 7,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 7
+      },
+      "statusBuckets": {
+        "2xx": 7
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 7,
+      "requestIds": [
+        "run2|95974.3417",
+        "run2|95974.3732",
+        "run2|95974.3903"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 7
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/games/autocomplete",
+      "count": 6,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 6
+      },
+      "statusBuckets": {
+        "2xx": 6
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 6,
+      "requestIds": [
+        "run2|95974.8051",
+        "run2|95974.8052",
+        "ready|57992.7454"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 6
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v9/channels/{id}/messages/{id}/ack",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 5
+      },
+      "statusBuckets": {
+        "2xx": 5
+      },
+      "reqBodyKeys": [
+        "token",
+        "last_viewed"
+      ],
+      "reqBodySample": "{\"token\":null,\"last_viewed\":4310}",
+      "reqBodySampleRef": "ready|57992.7577",
+      "reqBodyRequests": 5,
+      "requestsWithContentType": 5,
+      "requestsWithFullAuthHeaderSet": 5,
+      "requestIds": [
+        "run2|95974.3831",
+        "run2|95974.4057",
+        "run2|95974.8164"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 5
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/quests/@me",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 5
+      },
+      "statusBuckets": {
+        "2xx": 5
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 5,
+      "requestIds": [
+        "run2|95974.2374",
+        "run2|95974.3418",
+        "run2|95974.7601"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 5
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/{id}/profile",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 4
+      },
+      "statusBuckets": {
+        "2xx": 4
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 4,
+      "requestIds": [
+        "run2|95974.3722",
+        "run2|95974.3764",
+        "run2|95974.3803"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 4
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/billing/subscriptions",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 4
+      },
+      "statusBuckets": {
+        "2xx": 4
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 4,
+      "requestIds": [
+        "run2|95974.3432",
+        "run2|95974.3799",
+        "run2|95974.7591"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 4
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/content-inventory/users/@me",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3434",
+        "run2|95974.8036",
+        "ready|57992.7364"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/games/detectable/exclusions",
+      "count": 3,
+      "statuses": [
+        304
+      ],
+      "statusCounts": {
+        "304": 3
+      },
+      "statusBuckets": {
+        "3xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3428",
+        "run2|95974.7594",
+        "ready|57992.7316"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/partner-sdk/storefront-config",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3433",
+        "run2|95974.7596",
+        "ready|57992.7318"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/promotions",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.2379",
+        "run2|95974.7440",
+        "ready|57992.7100"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/quests/decision",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.2414",
+        "run2|95974.3421",
+        "ready|57992.7371"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/quests/get-decisions",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3478",
+        "run2|95974.7603",
+        "ready|57992.7324"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3733",
+        "run2|95974.7946",
+        "ready|57992.7588"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/achievements/unread-state",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3729",
+        "run2|95974.7942",
+        "ready|57992.7584"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/activities/statistics/applications",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3731",
+        "run2|95974.7944",
+        "ready|57992.7586"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/applications/{id}/entitlements",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.2373",
+        "run2|95974.7499",
+        "ready|57992.7102"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/billing/checkout-recovery",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3424",
+        "run2|95974.7587",
+        "ready|57992.7309"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v9/users/@me/billing/user-offer",
+      "count": 3,
+      "statuses": [
+        204
+      ],
+      "statusCounts": {
+        "204": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [
+        "allow_triggers"
+      ],
+      "reqBodySample": "{\"allow_triggers\":true}",
+      "reqBodySampleRef": "ready|57992.7308",
+      "reqBodyRequests": 3,
+      "requestsWithContentType": 3,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3423",
+        "run2|95974.7586",
+        "ready|57992.7308"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/collectibles-marketing",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3425",
+        "run2|95974.7588",
+        "ready|57992.7310"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/entitlements",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.2372",
+        "run2|95974.7498",
+        "ready|57992.7101"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/library",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3426",
+        "run2|95974.7592",
+        "ready|57992.7314"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/mfa/webauthn/credentials",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3422",
+        "run2|95974.7585",
+        "ready|57992.7307"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/referrals/eligibility",
+      "count": 3,
+      "statuses": [
+        404
+      ],
+      "statusCounts": {
+        "404": 3
+      },
+      "statusBuckets": {
+        "4xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.2324",
+        "run2|95974.7477",
+        "ready|57992.7075"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/saved-messages",
+      "count": 3,
+      "statuses": [
+        404
+      ],
+      "statusCounts": {
+        "404": 3
+      },
+      "statusBuckets": {
+        "4xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3431",
+        "run2|95974.7590",
+        "ready|57992.7312"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/settings-proto/{num}",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.4058",
+        "run2|95974.8043",
+        "ready|57992.7366"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/virtual-currency/balance",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3730",
+        "run2|95974.7943",
+        "ready|57992.7585"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/widget-configs/developer",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3725",
+        "run2|95974.7501",
+        "ready|57992.7104"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/widget-configs/featured",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 3
+      },
+      "statusBuckets": {
+        "2xx": 3
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 3,
+      "requestIds": [
+        "run2|95974.3724",
+        "run2|95974.7500",
+        "ready|57992.7103"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 3
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/activities/shelf",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 2
+      },
+      "statusBuckets": {
+        "2xx": 2
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.8157",
+        "ready|57992.7567"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/guilds/{id}/application-command-index",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 2
+      },
+      "statusBuckets": {
+        "2xx": 2
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.8044",
+        "ready|57992.7439"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v9/guilds/{id}/members/@me",
+      "count": 2,
+      "statuses": [
+        204
+      ],
+      "statusCounts": {
+        "204": 2
+      },
+      "statusBuckets": {
+        "2xx": 2
+      },
+      "reqBodyKeys": [
+        "(empty-object)"
+      ],
+      "reqBodySample": "{}",
+      "reqBodySampleRef": "ready|57992.6989",
+      "reqBodyRequests": 2,
+      "requestsWithContentType": 2,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.7409",
+        "ready|57992.6989"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/soundboard-default-sounds",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 2
+      },
+      "statusBuckets": {
+        "2xx": 2
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.8162",
+        "ready|57992.7573"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/{id}/application-identities",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 2
+      },
+      "statusBuckets": {
+        "2xx": 2
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.3723",
+        "ready|57992.7582"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/application-command-index",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 2
+      },
+      "statusBuckets": {
+        "2xx": 2
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.8045",
+        "ready|57992.7440"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/notes/{id}",
+      "count": 2,
+      "statuses": [
+        404
+      ],
+      "statusCounts": {
+        "404": 2
+      },
+      "statusBuckets": {
+        "4xx": 2
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 2,
+      "requestIds": [
+        "run2|95974.3801",
+        "run2|95974.7989"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 2
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v9/beaker",
+      "count": 1,
+      "statuses": [
+        204
+      ],
+      "statusCounts": {
+        "204": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [
+        "token",
+        "events"
+      ],
+      "reqBodySample": "{\"token\":\"REDACTED\",\"events\":[{\"type\":\"client_telemetry\",\"properties\":{\"client_track_timestamp\":1792392393947,\"rpc_success_count\":26,\"rpc_failure_count\":0,\"first_seen_event_sequence_number\":0,\"last_se…",
+      "reqBodySampleRef": "run2|95974.8268",
+      "reqBodyRequests": 1,
+      "requestsWithContentType": 1,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.8268"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v9/channels/{id}/explicit-media",
+      "count": 1,
+      "statuses": [
+        204
+      ],
+      "statusCounts": {
+        "204": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [
+        "message_ids"
+      ],
+      "reqBodySample": "{\"message_ids\":[\"{id}\"]}",
+      "reqBodySampleRef": "run2|95974.8279",
+      "reqBodyRequests": 1,
+      "requestsWithContentType": 1,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.8279"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v9/channels/{id}/messages/{id}/reactions/%F0%9F%91%8B/%40me",
+      "count": 1,
+      "statuses": [
+        204
+      ],
+      "statusCounts": {
+        "204": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.8046"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/channels/{id}/messages/pins",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.7948"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/channels/{id}/threads/search",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.7947"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/collectibles-products/{id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.3802"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/games",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.3963"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/storefront/products/skus",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.3817"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/billing/payment-sources",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.3798"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v9/users/@me/settings-proto/{num}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "statusCounts": {
+        "200": 1
+      },
+      "statusBuckets": {
+        "2xx": 1
+      },
+      "reqBodyKeys": [
+        "(non-json)"
+      ],
+      "reqBodySample": "{\"settings\":\"REDACTED…",
+      "reqBodySampleRef": "run2|95974.8275",
+      "reqBodyRequests": 1,
+      "requestsWithContentType": 1,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.8275"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v9/users/@me/survey",
+      "count": 1,
+      "statuses": [
+        429
+      ],
+      "statusCounts": {
+        "429": 1
+      },
+      "statusBuckets": {
+        "4xx": 1
+      },
+      "reqBodyKeys": [],
+      "reqBodySample": null,
+      "reqBodySampleRef": null,
+      "reqBodyRequests": 0,
+      "requestsWithContentType": 0,
+      "requestsWithFullAuthHeaderSet": 1,
+      "requestIds": [
+        "run2|95974.8271"
+      ],
+      "host": "discord.com",
+      "authHeaderCasing": {
+        "Authorization": 1
+      },
+      "respBodyKeys": [],
+      "respBodyCaptured": false,
+      "respBodyNote": "тело ответа REST не захвачено (см. responseBodies: захвачены только /assets/*.js)"
+    }
+  ],
+  "queryParams": {
+    "application_ids": 58,
+    "visible_guild_ids": 21,
+    "limit": 16,
+    "platform": 6,
+    "placement": 6,
+    "client_heartbeat_session_id": 6,
+    "client_ad_session_id": 6,
+    "q": 6,
+    "filter_group": 6,
+    "locale": 5,
+    "country_code": 4,
+    "type": 4,
+    "with_mutual_guilds": 4,
+    "with_mutual_friends": 4,
+    "with_mutual_friends_count": 4,
+    "with_sku": 3,
+    "with_application": 3,
+    "entitlement_type": 3,
+    "exclude_ended": 3,
+    "exclude_consumed": 3,
+    "bookmark_ids": 3,
+    "include_inactive": 3,
+    "exclude_unpaid_statuses": 3,
+    "subscription_type": 3,
+    "for_game_profile": 3,
+    "feature": 3,
+    "num_decisions_requested": 3,
+    "sku_ids": 3,
+    "with_profiles": 2,
+    "before": 2,
+    "lurker": 2,
+    "guild_id": 2,
+    "sync_level": 1,
+    "with_bundled_skus": 1,
+    "include_google_sku_ids": 1,
+    "ignore_cache": 1,
+    "game_ids": 1,
+    "archived": 1,
+    "sort_by": 1,
+    "sort_order": 1,
+    "tag_setting": 1,
+    "offset": 1,
+    "around": 1,
+    "location": 1,
+    "disable_auto_seen": 1
+  },
+  "auth": {
+    "withAuthorization": 221,
+    "authorizationCasing": {
+      "Authorization": 218,
+      "authorization": 3
+    },
+    "withSuperProperties": 221,
+    "withLocale": 221,
+    "withTimezone": 221,
+    "withDebugOptions": 221,
+    "withCookie": 0,
+    "cookieNames": [],
+    "endpointsWithAuth": {
+      "GET /api/v9/channels/{id}/messages": {
+        "Authorization": 11
+      },
+      "GET /api/v9/applications/public": {
+        "Authorization": 7
+      },
+      "GET /api/v9/games/autocomplete": {
+        "Authorization": 6
+      },
+      "POST /api/v9/channels/{id}/messages/{id}/ack": {
+        "Authorization": 5
+      },
+      "GET /api/v9/quests/@me": {
+        "Authorization": 5
+      },
+      "GET /api/v9/users/{id}/profile": {
+        "Authorization": 4
+      },
+      "GET /api/v9/users/@me/billing/subscriptions": {
+        "Authorization": 4
+      },
+      "GET /api/v9/content-inventory/users/@me": {
+        "Authorization": 3
+      },
+      "GET /api/v9/games/detectable/exclusions": {
+        "Authorization": 3
+      },
+      "GET /api/v9/partner-sdk/storefront-config": {
+        "Authorization": 3
+      },
+      "GET /api/v9/promotions": {
+        "Authorization": 3
+      },
+      "GET /api/v9/quests/decision": {
+        "Authorization": 3
+      },
+      "GET /api/v9/quests/get-decisions": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me": {
+        "authorization": 3
+      },
+      "GET /api/v9/users/@me/achievements/unread-state": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/activities/statistics/applications": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/applications/{id}/entitlements": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/billing/checkout-recovery": {
+        "Authorization": 3
+      },
+      "POST /api/v9/users/@me/billing/user-offer": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/collectibles-marketing": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/entitlements": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/library": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/mfa/webauthn/credentials": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/referrals/eligibility": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/saved-messages": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/settings-proto/{num}": {
+        "Authorization": 3
+      },
+      "GET /api/v9/users/@me/virtual-currency/balance": {
+        "Authorization": 3
+      },
+      "GET /api/v9/widget-configs/developer": {
+        "Authorization": 3
+      },
+      "GET /api/v9/widget-configs/featured": {
+        "Authorization": 3
+      },
+      "GET /api/v9/activities/shelf": {
+        "Authorization": 2
+      },
+      "GET /api/v9/guilds/{id}/application-command-index": {
+        "Authorization": 2
+      },
+      "PUT /api/v9/guilds/{id}/members/@me": {
+        "Authorization": 2
+      },
+      "GET /api/v9/soundboard-default-sounds": {
+        "Authorization": 2
+      },
+      "GET /api/v9/users/{id}/application-identities": {
+        "Authorization": 2
+      },
+      "GET /api/v9/users/@me/application-command-index": {
+        "Authorization": 2
+      },
+      "GET /api/v9/users/@me/notes/{id}": {
+        "Authorization": 2
+      },
+      "POST /api/v9/beaker": {
+        "Authorization": 1
+      },
+      "PATCH /api/v9/channels/{id}/explicit-media": {
+        "Authorization": 1
+      },
+      "PUT /api/v9/channels/{id}/messages/{id}/reactions/%F0%9F%91%8B/%40me": {
+        "Authorization": 1
+      },
+      "GET /api/v9/channels/{id}/messages/pins": {
+        "Authorization": 1
+      },
+      "GET /api/v9/channels/{id}/threads/search": {
+        "Authorization": 1
+      },
+      "GET /api/v9/collectibles-products/{id}": {
+        "Authorization": 1
+      },
+      "GET /api/v9/games": {
+        "Authorization": 1
+      },
+      "GET /api/v9/storefront/products/skus": {
+        "Authorization": 1
+      },
+      "GET /api/v9/users/@me/billing/payment-sources": {
+        "Authorization": 1
+      },
+      "PATCH /api/v9/users/@me/settings-proto/{num}": {
+        "Authorization": 1
+      },
+      "GET /api/v9/users/@me/survey": {
+        "Authorization": 1
+      }
+    },
+    "scienceWithAuth": 88,
+    "superProperties": {
+      "count": 0,
+      "decoded": {
+        "os": "Linux",
+        "browser": "Discord Client",
+        "release_channel": "stable",
+        "client_version": "1.0.162",
+        "os_version": "7.2.10-1-cachyos",
+        "os_arch": "x64",
+        "app_arch": "x64",
+        "system_locale": "ru",
+        "has_client_mods": false,
+        "client_launch_id": "ab3d725a-82e4-4d66-b77c-64a8463fb04c",
+        "browser_user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36",
+        "browser_version": "42.11.12",
+        "window_manager": "KDE,unknown",
+        "distro": "\"Arch Linux\"",
+        "runtime_environment": "native",
+        "display_server": "wayland",
+        "client_build_number": 641004,
+        "native_build_number": 94186,
+        "client_event_source": null,
+        "launch_signature": "da02ad21-144b-43b5-9618-a18392f1c066",
+        "client_heartbeat_session_id": "f615427c-47a2-49ed-9482-d4b192dd781e",
+        "client_app_state": "focused"
+      },
+      "sampleKey": "run2|95974.2323"
+    },
+    "referers": {
+      "https://discord.com/app?_=1792391311469": 201,
+      "https://discord.com/assets/952007.875e21df2d29b575.css": 45,
+      "https://discord.com/": 336,
+      "https://discord.com/channels/@me": 1348,
+      "https://discord.com/channels/@me/1293192721237938187": 38,
+      "https://discord.com/assets/865429.489808b198db22f7.css": 9,
+      "https://discord.com/assets/720210.f577ebac05fce173.css": 4,
+      "https://discord.com/assets/560570.f3b37058b8929c30.css": 2,
+      "https://discord.com/assets/879641.f747b7ca59340320.css": 1,
+      "https://discord.com/channels/294064825540280335/645271072786350111": 25,
+      "https://discord.com/assets/405714.96e4d930940f0612.css": 1,
+      "https://discord.com/channels/1014537851418980372": 2298,
+      "https://discord.com/channels/1014537851418980372/1176785373989445703": 226,
+      "https://discord.com/channels/1014537851418980372/1056563701764857896": 26,
+      "https://discord.com/channels/1014537851418980372/1163408591315812392": 2007
+    }
+  },
+  "noise": {
+    "groups": {
+      "static-assets": {
+        "count": 6025,
+        "hosts": {
+          "discord.com": 6025
+        },
+        "types": {
+          "Script": 4264,
+          "Fetch": 5,
+          "Stylesheet": 1619,
+          "Font": 45,
+          "Image": 78,
+          "Media": 11,
+          "XHR": 3
+        },
+        "examples": [
+          {
+            "key": "run2|95974.2",
+            "type": "Script",
+            "method": "GET",
+            "url": "https://discord.com/assets/web.4d4b2f75fdea5470.js?cdt=1"
+          },
+          {
+            "key": "run2|95974.2113",
+            "type": "Fetch",
+            "method": "GET",
+            "url": "https://discord.com/assets/34aec3bbe8b005d0.module.wasm"
+          },
+          {
+            "key": "run2|95974.2114",
+            "type": "Script",
+            "method": "GET",
+            "url": "https://discord.com/assets/3678b60bcbb914d4.js"
+          }
+        ]
+      },
+      "cdn-media": {
+        "count": 334,
+        "hosts": {
+          "cdn.discordapp.com": 308,
+          "media.discordapp.net": 4,
+          "images-ext-1.discordapp.net": 22
+        },
+        "types": {
+          "Image": 314,
+          "Other": 6,
+          "XHR": 9,
+          "Fetch": 5
+        },
+        "examples": [
+          {
+            "key": "run2|95974.2380",
+            "type": "Image",
+            "method": "GET",
+            "url": "https://cdn.discordapp.com/icons/274093052673392641/37d6c67e307435efbc5e8e4bd0eeefab.webp?size=100&quality=lossless"
+          },
+          {
+            "key": "run2|95974.2381",
+            "type": "Image",
+            "method": "GET",
+            "url": "https://cdn.discordapp.com/icons/294064825540280335/81805511d8bc5fb4680727e99f041773.webp?size=100&quality=lossless"
+          },
+          {
+            "key": "run2|95974.2382",
+            "type": "Image",
+            "method": "GET",
+            "url": "https://cdn.discordapp.com/icons/1014537851418980372/b4b4c3850182f7e0dbbaa116df2ed3f2.webp?size=100&quality=lossless"
+          }
+        ]
+      },
+      "telemetry-science": {
+        "count": 88,
+        "hosts": {
+          "discord.com": 88
+        },
+        "types": {
+          "XHR": 88
+        },
+        "examples": [
+          {
+            "key": "run2|95974.2417",
+            "type": "XHR",
+            "method": "POST",
+            "url": "https://discord.com/api/v9/science"
+          },
+          {
+            "key": "run2|95974.3413",
+            "type": "XHR",
+            "method": "POST",
+            "url": "https://discord.com/api/v9/science"
+          },
+          {
+            "key": "run2|95974.3435",
+            "type": "XHR",
+            "method": "POST",
+            "url": "https://discord.com/api/v9/science"
+          }
+        ]
+      },
+      "data-url": {
+        "count": 40,
+        "hosts": {
+          "(inline-data)": 40
+        },
+        "types": {
+          "Image": 40
+        },
+        "examples": [
+          {
+            "key": "run2|95974.3790",
+            "type": "Image",
+            "method": "GET",
+            "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAJCAYAAABT2S4KAAAEvElEQVR4AQCBAH7/ACYrLf8mKy3/Jyst/ycrLf8nKy3/Jyst/ycrLf8nKy3/Jyst/ycrLf8oLC7/KCwu/ygsLv8oLC7/KCwu/yktL/8pLS//KS0v/yktL/8pLS//Ki4w/y"
+          },
+          {
+            "key": "run2|95974.3791",
+            "type": "Image",
+            "method": "GET",
+            "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAATCAYAAADxlA/3AAAJ+ElEQVR4AQCBAH7/ACUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn7C"
+          },
+          {
+            "key": "run2|95974.3792",
+            "type": "Image",
+            "method": "GET",
+            "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAgCAYAAAAi7kmXAAAHxklEQVR4AQA5AMb/AC8rKf8vKyn/Lysp/y8rKf8vKyn/Lysp/y8rKf8vKyn/Lysp/y8rKf8vKyn/Lysp/y8rKf8vKyn/ADkAxv8ALysp/y8rKf8vKyn/Lysp/y8rKf8vKy"
+          }
+        ]
+      },
+      "third-party": {
+        "count": 25,
+        "hosts": {
+          "latency.discord.media": 3,
+          "scope": 18,
+          "i.scdn.co": 2,
+          "start": 2
+        },
+        "types": {
+          "XHR": 3,
+          "Fetch": 20,
+          "Image": 2
+        },
+        "examples": [
+          {
+            "key": "run2|95974.3482",
+            "type": "XHR",
+            "method": "GET",
+            "url": "https://latency.discord.media/rtc?v=2"
+          },
+          {
+            "key": "run2|95974.3484",
+            "type": "Fetch",
+            "method": "POST",
+            "url": "sentry-ipc://scope/sentry_key"
+          },
+          {
+            "key": "run2|95974.3727",
+            "type": "Fetch",
+            "method": "POST",
+            "url": "sentry-ipc://scope/sentry_key"
+          }
+        ]
+      },
+      "cloudflare-challenge": {
+        "count": 4,
+        "hosts": {
+          "discord.com": 4
+        },
+        "types": {
+          "Script": 2,
+          "XHR": 1,
+          "Other": 1
+        },
+        "examples": [
+          {
+            "key": "run2|95974.2115",
+            "type": "Script",
+            "method": "GET",
+            "url": "https://discord.com/cdn-cgi/challenge-platform/scripts/jsd/main.js"
+          },
+          {
+            "key": "run2|95974.2115",
+            "type": "Script",
+            "method": "GET",
+            "url": "https://discord.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/d2d3316b729e/main.js?"
+          },
+          {
+            "key": "run2|95974.2116",
+            "type": "XHR",
+            "method": "POST",
+            "url": "https://discord.com/cdn-cgi/challenge-platform/h/b/jsd/oneshot/d2d3316b729e/0.6136024352790642:1792386030:xXSD0q7OtCBFmyu7mgupgOBkHgWGMGnre-kB2YvXedE/a4cdb9214a6c3675"
+          }
+        ]
+      },
+      "discord-other-subdomain": {
+        "count": 3,
+        "hosts": {
+          "status.discord.com": 3
+        },
+        "types": {
+          "XHR": 3
+        },
+        "examples": [
+          {
+            "key": "run2|95974.2322",
+            "type": "XHR",
+            "method": "GET",
+            "url": "https://status.discord.com/api/v2/scheduled-maintenances/upcoming.json"
+          },
+          {
+            "key": "run2|95974.7421",
+            "type": "XHR",
+            "method": "GET",
+            "url": "https://status.discord.com/api/v2/scheduled-maintenances/upcoming.json"
+          },
+          {
+            "key": "ready|57992.7001",
+            "type": "XHR",
+            "method": "GET",
+            "url": "https://status.discord.com/api/v2/scheduled-maintenances/upcoming.json"
+          }
+        ]
+      },
+      "web-navigation": {
+        "count": 2,
+        "hosts": {
+          "discord.com": 2
+        },
+        "types": {
+          "Document": 2
+        },
+        "examples": [
+          {
+            "key": "run2|6ADA9D4ADF1328266712F508A0391F71",
+            "type": "Document",
+            "method": "GET",
+            "url": "https://discord.com/channels/1014537851418980372"
+          },
+          {
+            "key": "ready|36FD23E2231B114F02467FD4714F616D",
+            "type": "Document",
+            "method": "GET",
+            "url": "https://discord.com/channels/1014537851418980372/1163408591315812392"
+          }
+        ]
+      }
+    },
+    "hosts": {
+      "discord.com": 6119,
+      "cdn.discordapp.com": 308,
+      "(inline-data)": 40,
+      "images-ext-1.discordapp.net": 22,
+      "scope": 18,
+      "media.discordapp.net": 4,
+      "status.discord.com": 3,
+      "latency.discord.media": 3,
+      "i.scdn.co": 2,
+      "start": 2
+    },
+    "topPaths": [
+      {
+        "path": "/api/v9/science",
+        "count": 88,
+        "samples": [
+          "https://discord.com/api/v9/science",
+          "https://discord.com/api/v9/science"
+        ]
+      },
+      {
+        "path": "/media/v1/collectibles-shop/{id}/static",
+        "count": 44,
+        "samples": [
+          "https://cdn.discordapp.com/media/v1/collectibles-shop/1409978159255785652/static",
+          "https://cdn.discordapp.com/media/v1/collectibles-shop/1428459896847732788/static"
+        ]
+      },
+      {
+        "path": "?",
+        "count": 40,
+        "samples": [
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAJCAYAAABT2S4KAAAEvElEQVR4AQCBAH7/ACYrLf8mKy3/Jyst/ycrLf8nKy3/Jyst/ycrLf8nKy3/Jyst/ycrLf8oLC7/KCwu/ygsLv8oLC7/KCwu/yktL/8pLS//KS0v/yktL/8pLS//Ki4w/y",
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAATCAYAAADxlA/3AAAJ+ElEQVR4AQCBAH7/ACUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn/yUhJ/8lISf/JSEn7C"
+        ]
+      },
+      {
+        "path": "/sentry_key",
+        "count": 20,
+        "samples": [
+          "sentry-ipc://scope/sentry_key",
+          "sentry-ipc://scope/sentry_key"
+        ]
+      },
+      {
+        "path": "/avatars/{id}/e234430751874dcfca60cdd3a53a2673.webp",
+        "count": 14,
+        "samples": [
+          "https://cdn.discordapp.com/avatars/384299970632876032/e234430751874dcfca60cdd3a53a2673.webp?size=40",
+          "https://cdn.discordapp.com/avatars/384299970632876032/e234430751874dcfca60cdd3a53a2673.webp?size=100"
+        ]
+      },
+      {
+        "path": "/avatars/{id}/a_49f72f47b64c72f2f130cb9fb2808cc1.webp",
+        "count": 6,
+        "samples": [
+          "https://cdn.discordapp.com/avatars/275258435199827968/a_49f72f47b64c72f2f130cb9fb2808cc1.webp?size=40",
+          "https://cdn.discordapp.com/avatars/275258435199827968/a_49f72f47b64c72f2f130cb9fb2808cc1.webp?size=28"
+        ]
+      },
+      {
+        "path": "/detectables/games-v1.json",
+        "count": 6,
+        "samples": [
+          "https://cdn.discordapp.com/detectables/games-v1.json",
+          "https://cdn.discordapp.com/detectables/games-v1.json"
+        ]
+      },
+      {
+        "path": "/detectables/non-games-v1.json",
+        "count": 6,
+        "samples": [
+          "https://cdn.discordapp.com/detectables/non-games-v1.json",
+          "https://cdn.discordapp.com/detectables/non-games-v1.json"
+        ]
+      },
+      {
+        "path": "/media/v1/collectibles-shop/{id}/animated",
+        "count": 6,
+        "samples": [
+          "https://cdn.discordapp.com/media/v1/collectibles-shop/1349849614286585866/animated",
+          "https://cdn.discordapp.com/media/v1/collectibles-shop/1428459896847732788/animated"
+        ]
+      },
+      {
+        "path": "/assets/web.4d4b2f75fdea5470.js",
+        "count": 5,
+        "samples": [
+          "https://discord.com/assets/web.4d4b2f75fdea5470.js?cdt=1",
+          "https://discord.com/assets/web.4d4b2f75fdea5470.js"
+        ]
+      },
+      {
+        "path": "/icons/{id}/81805511d8bc5fb4680727e99f041773.webp",
+        "count": 5,
+        "samples": [
+          "https://cdn.discordapp.com/icons/294064825540280335/81805511d8bc5fb4680727e99f041773.webp?size=100&quality=lossless",
+          "https://cdn.discordapp.com/icons/294064825540280335/81805511d8bc5fb4680727e99f041773.webp?size=20"
+        ]
+      },
+      {
+        "path": "/icons/{id}/b4b4c3850182f7e0dbbaa116df2ed3f2.webp",
+        "count": 5,
+        "samples": [
+          "https://cdn.discordapp.com/icons/1014537851418980372/b4b4c3850182f7e0dbbaa116df2ed3f2.webp?size=100&quality=lossless",
+          "https://cdn.discordapp.com/icons/1014537851418980372/b4b4c3850182f7e0dbbaa116df2ed3f2.webp?size=100&quality=lossless"
+        ]
+      },
+      {
+        "path": "/assets/551a23808b1b6ccd.js",
+        "count": 4,
+        "samples": [
+          "https://discord.com/assets/551a23808b1b6ccd.js",
+          "https://discord.com/assets/551a23808b1b6ccd.js"
+        ]
+      },
+      {
+        "path": "/avatars/{id}/156a0d2872579f1ffcaa5d2127239bfd.webp",
+        "count": 4,
+        "samples": [
+          "https://cdn.discordapp.com/avatars/282859044593598464/156a0d2872579f1ffcaa5d2127239bfd.webp?size=100",
+          "https://cdn.discordapp.com/avatars/282859044593598464/156a0d2872579f1ffcaa5d2127239bfd.webp?size=100"
+        ]
+      },
+      {
+        "path": "/clan-badges/{id}/aef7738ba114e121d617c8c20bf7f1d6.png",
+        "count": 4,
+        "samples": [
+          "https://cdn.discordapp.com/clan-badges/940573867192221696/aef7738ba114e121d617c8c20bf7f1d6.png?size=16",
+          "https://cdn.discordapp.com/clan-badges/223070469148901376/aef7738ba114e121d617c8c20bf7f1d6.png?size=16"
+        ]
+      },
+      {
+        "path": "/assets/34aec3bbe8b005d0.module.wasm",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/34aec3bbe8b005d0.module.wasm",
+          "https://discord.com/assets/34aec3bbe8b005d0.module.wasm"
+        ]
+      },
+      {
+        "path": "/assets/3678b60bcbb914d4.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/3678b60bcbb914d4.js",
+          "https://discord.com/assets/3678b60bcbb914d4.js"
+        ]
+      },
+      {
+        "path": "/assets/792086589bac0680.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/792086589bac0680.js",
+          "https://discord.com/assets/792086589bac0680.js"
+        ]
+      },
+      {
+        "path": "/assets/b59ddd62abc3fa60.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/b59ddd62abc3fa60.js",
+          "https://discord.com/assets/b59ddd62abc3fa60.js"
+        ]
+      },
+      {
+        "path": "/assets/ffbced45651a63c9.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/ffbced45651a63c9.js",
+          "https://discord.com/assets/ffbced45651a63c9.js"
+        ]
+      },
+      {
+        "path": "/assets/2c33f439e68703a0.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/2c33f439e68703a0.js",
+          "https://discord.com/assets/2c33f439e68703a0.js"
+        ]
+      },
+      {
+        "path": "/assets/0343be88300000d0.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/0343be88300000d0.js",
+          "https://discord.com/assets/0343be88300000d0.js"
+        ]
+      },
+      {
+        "path": "/assets/331daa8455b2d7fe.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/331daa8455b2d7fe.js",
+          "https://discord.com/assets/331daa8455b2d7fe.js"
+        ]
+      },
+      {
+        "path": "/assets/ce72b4b334f94bca.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/ce72b4b334f94bca.js",
+          "https://discord.com/assets/ce72b4b334f94bca.js"
+        ]
+      },
+      {
+        "path": "/assets/57c854de79dcbb8c.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/57c854de79dcbb8c.js",
+          "https://discord.com/assets/57c854de79dcbb8c.js"
+        ]
+      },
+      {
+        "path": "/assets/9920666b0eb48508.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/9920666b0eb48508.js",
+          "https://discord.com/assets/9920666b0eb48508.js"
+        ]
+      },
+      {
+        "path": "/assets/5e1b29c85248691a.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/5e1b29c85248691a.js",
+          "https://discord.com/assets/5e1b29c85248691a.js"
+        ]
+      },
+      {
+        "path": "/assets/1e72ad553cb13cd0.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/1e72ad553cb13cd0.js",
+          "https://discord.com/assets/1e72ad553cb13cd0.js"
+        ]
+      },
+      {
+        "path": "/assets/f5a1960cef0d71ef.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/f5a1960cef0d71ef.js",
+          "https://discord.com/assets/f5a1960cef0d71ef.js"
+        ]
+      },
+      {
+        "path": "/assets/d728912e8387fd34.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/d728912e8387fd34.js",
+          "https://discord.com/assets/d728912e8387fd34.js"
+        ]
+      },
+      {
+        "path": "/assets/d252ddaf5bde0a82.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/d252ddaf5bde0a82.js",
+          "https://discord.com/assets/d252ddaf5bde0a82.js"
+        ]
+      },
+      {
+        "path": "/assets/435a55b5da1155fb.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/435a55b5da1155fb.js",
+          "https://discord.com/assets/435a55b5da1155fb.js"
+        ]
+      },
+      {
+        "path": "/assets/cf081c5b2b533b4c.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/cf081c5b2b533b4c.js",
+          "https://discord.com/assets/cf081c5b2b533b4c.js"
+        ]
+      },
+      {
+        "path": "/assets/622dadc6860f7644.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/622dadc6860f7644.js",
+          "https://discord.com/assets/622dadc6860f7644.js"
+        ]
+      },
+      {
+        "path": "/assets/0530a81473713835.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/0530a81473713835.js",
+          "https://discord.com/assets/0530a81473713835.js"
+        ]
+      },
+      {
+        "path": "/assets/530c62e8dc857f51.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/530c62e8dc857f51.js",
+          "https://discord.com/assets/530c62e8dc857f51.js"
+        ]
+      },
+      {
+        "path": "/assets/ba9086ed0483b8f0.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/ba9086ed0483b8f0.js",
+          "https://discord.com/assets/ba9086ed0483b8f0.js"
+        ]
+      },
+      {
+        "path": "/assets/8f9a1871761f0a17.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/8f9a1871761f0a17.js",
+          "https://discord.com/assets/8f9a1871761f0a17.js"
+        ]
+      },
+      {
+        "path": "/assets/54739836a3e5184d.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/54739836a3e5184d.js",
+          "https://discord.com/assets/54739836a3e5184d.js"
+        ]
+      },
+      {
+        "path": "/assets/bc6b49134b6a1a5c.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/bc6b49134b6a1a5c.js",
+          "https://discord.com/assets/bc6b49134b6a1a5c.js"
+        ]
+      },
+      {
+        "path": "/assets/7ffe8efa0dabfc7d.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/7ffe8efa0dabfc7d.js",
+          "https://discord.com/assets/7ffe8efa0dabfc7d.js"
+        ]
+      },
+      {
+        "path": "/assets/a65c50d514720959.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/a65c50d514720959.js",
+          "https://discord.com/assets/a65c50d514720959.js"
+        ]
+      },
+      {
+        "path": "/assets/df1a517988c007e6.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/df1a517988c007e6.js",
+          "https://discord.com/assets/df1a517988c007e6.js"
+        ]
+      },
+      {
+        "path": "/assets/2324fe7693441e4d.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/2324fe7693441e4d.js",
+          "https://discord.com/assets/2324fe7693441e4d.js"
+        ]
+      },
+      {
+        "path": "/assets/123129e5b0435df8.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/123129e5b0435df8.js",
+          "https://discord.com/assets/123129e5b0435df8.js"
+        ]
+      },
+      {
+        "path": "/assets/945573bc9e8b6a61.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/945573bc9e8b6a61.js",
+          "https://discord.com/assets/945573bc9e8b6a61.js"
+        ]
+      },
+      {
+        "path": "/assets/b0afeb759495ffa8.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/b0afeb759495ffa8.js",
+          "https://discord.com/assets/b0afeb759495ffa8.js"
+        ]
+      },
+      {
+        "path": "/assets/bd807b1aa665603f.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/bd807b1aa665603f.js",
+          "https://discord.com/assets/bd807b1aa665603f.js"
+        ]
+      },
+      {
+        "path": "/assets/c38c75f297164398.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/c38c75f297164398.js",
+          "https://discord.com/assets/c38c75f297164398.js"
+        ]
+      },
+      {
+        "path": "/assets/02b14ba717496ffa.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/02b14ba717496ffa.js",
+          "https://discord.com/assets/02b14ba717496ffa.js"
+        ]
+      },
+      {
+        "path": "/assets/b0592ab4be103aeb.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/b0592ab4be103aeb.js",
+          "https://discord.com/assets/b0592ab4be103aeb.js"
+        ]
+      },
+      {
+        "path": "/assets/43ddde7f00163ae6.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/43ddde7f00163ae6.js",
+          "https://discord.com/assets/43ddde7f00163ae6.js"
+        ]
+      },
+      {
+        "path": "/assets/8d20f2497306843c.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/8d20f2497306843c.js",
+          "https://discord.com/assets/8d20f2497306843c.js"
+        ]
+      },
+      {
+        "path": "/assets/a3522d0cc2a5446d.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/a3522d0cc2a5446d.js",
+          "https://discord.com/assets/a3522d0cc2a5446d.js"
+        ]
+      },
+      {
+        "path": "/assets/40380350e9988453.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/40380350e9988453.js",
+          "https://discord.com/assets/40380350e9988453.js"
+        ]
+      },
+      {
+        "path": "/assets/81cd5784a78af79a.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/81cd5784a78af79a.js",
+          "https://discord.com/assets/81cd5784a78af79a.js"
+        ]
+      },
+      {
+        "path": "/assets/fccf7aadf023fd94.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/fccf7aadf023fd94.js",
+          "https://discord.com/assets/fccf7aadf023fd94.js"
+        ]
+      },
+      {
+        "path": "/assets/e10d4c8683336d4c.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/e10d4c8683336d4c.js",
+          "https://discord.com/assets/e10d4c8683336d4c.js"
+        ]
+      },
+      {
+        "path": "/assets/5235c88c17f52646.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/5235c88c17f52646.js",
+          "https://discord.com/assets/5235c88c17f52646.js"
+        ]
+      },
+      {
+        "path": "/assets/52212a2f1e9c74cf.js",
+        "count": 3,
+        "samples": [
+          "https://discord.com/assets/52212a2f1e9c74cf.js",
+          "https://discord.com/assets/52212a2f1e9c74cf.js"
+        ]
+      }
+    ]
+  },
+  "ws": {
+    "connections": [
+      {
+        "key": "run2|95974.1389",
+        "url": "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream"
+      },
+      {
+        "key": "run2|95974.5532",
+        "url": "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream"
+      },
+      {
+        "key": "run2|95974.8158",
+        "url": "wss://c-fra19-4da7fe5f.discord.media:2053/?v=9"
+      },
+      {
+        "key": "run2|95974.8269",
+        "url": "wss://gateway-us-east1-c.discord.gg/?encoding=etf&v=9&compress=zstd-stream"
+      },
+      {
+        "key": "ready|57992.5112",
+        "url": "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream"
+      },
+      {
+        "key": "ready|57992.7568",
+        "url": "wss://c-fra10-9117d00a.discord.media:8443/?v=9"
+      }
+    ],
+    "count": 6,
+    "lifecycle": [
+      {
+        "label": "run2",
+        "ts": 1792391311667,
+        "ev": "attached",
+        "target": {
+          "id": "21E1D10F4479C72F14B19283CDAFE955",
+          "url": "https://discord.com/app?_=1792391311469",
+          "title": ""
+        }
+      },
+      {
+        "label": "run2",
+        "ts": 1792391311786,
+        "ev": "session-armed",
+        "reload": false
+      },
+      {
+        "label": "run2",
+        "ts": 1792391311932,
+        "ev": "nav",
+        "url": "about:blank"
+      },
+      {
+        "label": "run2",
+        "ts": 1792391312038,
+        "ev": "load"
+      },
+      {
+        "label": "run2",
+        "ts": 1792391312041,
+        "ev": "nav",
+        "url": "about:blank"
+      },
+      {
+        "label": "run2",
+        "ts": 1792391988458,
+        "ev": "nav",
+        "url": "https://discord.com/channels/1014537851418980372"
+      },
+      {
+        "label": "run2",
+        "ts": 1792391988792,
+        "ev": "load"
+      },
+      {
+        "label": "ready",
+        "ts": 1792390377889,
+        "ev": "attached",
+        "target": {
+          "id": "C2055CB0575B1751C8F828579C8F42AB",
+          "url": "https://discord.com/channels/1014537851418980372/1163408591315812392",
+          "title": "#📃┃новости | ITSKIDON PC BOOST"
+        }
+      },
+      {
+        "label": "ready",
+        "ts": 1792390385905,
+        "ev": "session-armed",
+        "reload": true
+      },
+      {
+        "label": "ready",
+        "ts": 1792390386389,
+        "ev": "nav",
+        "url": "https://discord.com/channels/1014537851418980372/1163408591315812392"
+      },
+      {
+        "label": "ready",
+        "ts": 1792390387678,
+        "ev": "load"
+      },
+      {
+        "label": "ready",
+        "ts": 1792391139672,
+        "ev": "session-closed",
+        "framesSeen": 177,
+        "reqsSeen": 2259,
+        "bodiesTaken": 200
+      }
+    ]
+  },
+  "responseBodies": {
+    "count": 200,
+    "onlyStaticAssets": true,
+    "byHost": {
+      "discord.com": 200
+    },
+    "apiEndpointsWithBody": [],
+    "bytesTotal": 367961
+  },
+  "unknowns": [
+    {
+      "id": "U-01",
+      "item": "Тела ответов REST",
+      "detail": "В обоих захватах ни одного `body` события для /api/*. Захвачено 200 тел, все — /assets/*.js (md5-проверяемо), лимит 20 000 символов.",
+      "status": "не подтверждено"
+    },
+    {
+      "id": "U-02",
+      "item": "/api/v9/auth/* (вход/регистрация/MFA/сброс пароля)",
+      "detail": "Ни одного запроса к /auth/* ни в одном захвате: сессия уже была активна (токен из TokenStore). Все схемы — только из статики (rest-static §4).",
+      "status": "не подтверждено"
+    },
+    {
+      "id": "U-03",
+      "item": "GET /api/v9/gateway (REST-получение URL шлюза)",
+      "detail": "Отсутствует. Клиент подключается к wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream напрямую.",
+      "status": "не подтверждено (в захвате не вызывался)"
+    },
+    {
+      "id": "U-04",
+      "item": "GET /experiments и /apex/experiments",
+      "detail": "В захвате отсутствуют — согласуется со статикой: ExperimentsStore пропускает запрос при наличии токена (эксперименты приходят в READY).",
+      "status": "не подтверждено (условная ветка)"
+    },
+    {
+      "id": "U-05",
+      "item": "Cookie __dcfduid/__sdcfduid/__cfruid",
+      "detail": "Ни один `req` не содержит заголовка Cookie (CDP не отдаёт cookie-заголовки в requestWillBeSent). Тип/время жизни cookie по живому трафику не проверены.",
+      "status": "не подтверждено"
+    },
+    {
+      "id": "U-06",
+      "item": "Формат значения Authorization (Bearer vs сырой токен)",
+      "detail": "Значения отредактированы санитайзером (Authorization: REDACTED) в обоих файлах, включая .orig. Заявление «сырой токен без Bearer» остаётся статическим (rest-static §4).",
+      "status": "не подтверждено"
+    },
+    {
+      "id": "U-07",
+      "item": "Различие Authorization / authorization",
+      "detail": "3 запроса GET /users/@me пришли с ключом в нижнем регистре. Нельзя отличить реальную разницу в коде клиента от нормализации заголовков CDP/HTTP2.",
+      "status": "не подтверждено (артефакт?)"
+    },
+    {
+      "id": "U-08",
+      "item": "X-Fingerprint / X-Installation-ID / X-Routing-Key / x-client-trace-id",
+      "detail": "Заявлены статикой в prepareRequest, но в живых API-запросах отсутствуют (есть только X-Super-Properties, X-Discord-Locale, X-Discord-Timezone, X-Debug-Options, Accept-Language).",
+      "status": "расхождение статика↔живое"
+    },
+    {
+      "id": "U-09",
+      "item": "Голосовой RTC / voice REST",
+      "detail": "REST-вызовов /voice/* в захвате нет: голос идёт через отдельный текстовый WS (v=8) — см. §6.5, где op:0 Identify с token+session_id подтверждён живьём. Голосовые кадры (UDP/RTP) в CDP не видны.",
+      "status": "частично подтверждено (WS, не REST)"
+    },
+    {
+      "id": "U-10",
+      "item": "capture-run2.jsonl дозаписывается живой сессией",
+      "detail": "Файл растёт во время анализа (mtime 11:51:37, размер 4 105 738 → 4 136 152 байт, req 4390 → 4395). Анализ привязан к снимку d02-snapshot/ (md5 в provenance).",
+      "status": "ограничение методики"
+    }
+  ],
+  "crossRef": {
+    "liveUnique": 47,
+    "staticEntries": 904,
+    "staticRestEntries": 648,
+    "staticWithMethod": 626,
+    "staticMalformedPaths": 10,
+    "confirmedByStatic": 44,
+    "methodUnresolvedByStatic": 2,
+    "methodConflict": 0,
+    "liveOnly": 1,
+    "details": [
+      {
+        "method": "GET",
+        "path": "/api/v9/channels/{id}/messages",
+        "count": 11,
+        "verdict": "static-confirmed",
+        "staticKey": "MESSAGES",
+        "staticPath": "/channels/{arg}/messages",
+        "staticMethod": "GET|POST",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|POST /channels/{arg}/messages [MESSAGES]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/applications/public",
+        "count": 7,
+        "verdict": "static-confirmed",
+        "staticKey": "APPLICATIONS_PUBLIC",
+        "staticPath": "/applications/public",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /applications/public [APPLICATIONS_PUBLIC]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/games/autocomplete",
+        "count": 6,
+        "verdict": "static-confirmed",
+        "staticKey": "GAMES_AUTOCOMPLETE",
+        "staticPath": "/games/autocomplete",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /games/autocomplete [GAMES_AUTOCOMPLETE]"
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/api/v9/channels/{id}/messages/{id}/ack",
+        "count": 5,
+        "verdict": "static-confirmed",
+        "staticKey": "MESSAGE_ACK",
+        "staticPath": "/channels/{arg}/messages/{arg}/ack",
+        "staticMethod": "POST",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{manual,mention_count}",
+          "{token,last_viewed,flags}"
+        ],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "POST /channels/{arg}/messages/{arg}/ack [MESSAGE_ACK]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/quests/@me",
+        "count": 5,
+        "verdict": "static-confirmed",
+        "staticKey": "QUESTS_CURRENT_QUESTS",
+        "staticPath": "/quests/@me",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /quests/@me [QUESTS_CURRENT_QUESTS]",
+          "GET /quests/{arg} [QUEST]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/{id}/profile",
+        "count": 4,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_PROFILE",
+        "staticPath": "/users/{arg}/profile",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{sku_id}"
+        ],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/{arg}/profile [USER_PROFILE]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/billing/subscriptions",
+        "count": 4,
+        "verdict": "static-confirmed",
+        "staticKey": "BILLING_SUBSCRIPTIONS",
+        "staticPath": "/users/@me/billing/subscriptions",
+        "staticMethod": "GET|POST",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|POST /users/@me/billing/subscriptions [BILLING_SUBSCRIPTIONS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/content-inventory/users/@me",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "MY_CONTENT_INVENTORY",
+        "staticPath": "/content-inventory/users/@me",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": true,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /content-inventory/users/@me [MY_CONTENT_INVENTORY]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/games/detectable/exclusions",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "GAMES_BLOCKLIST",
+        "staticPath": "/games/detectable/exclusions",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /games/detectable/exclusions [GAMES_BLOCKLIST]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/partner-sdk/storefront-config",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "SOCIAL_LAYER_STOREFRONT_CONFIG",
+        "staticPath": "/partner-sdk/storefront-config",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /partner-sdk/storefront-config [SOCIAL_LAYER_STOREFRONT_CONFIG]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/promotions",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "PROMOTIONS",
+        "staticPath": "/promotions",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 1,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /promotions [PROMOTIONS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/quests/decision",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "QUEST_FETCH_QUEST_TO_DELIVER",
+        "staticPath": "/quests/decision",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /quests/decision [QUEST_FETCH_QUEST_TO_DELIVER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/quests/get-decisions",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "QUESTS_GET_DECISIONS",
+        "staticPath": "/quests/get-decisions",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /quests/get-decisions [QUESTS_GET_DECISIONS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "ME",
+        "staticPath": "/users/@me",
+        "staticMethod": "GET|PATCH",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{date_of_birth}",
+          "{token}",
+          "{terms,privacy}"
+        ],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|PATCH /users/@me [ME]",
+          "GET /users/{arg} [USER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/achievements/unread-state",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "ORB_USER_CHALLENGES_UNREAD_STATE",
+        "staticPath": "/users/@me/achievements/unread-state",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/achievements/unread-state [ORB_USER_CHALLENGES_UNREAD_STATE]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/activities/statistics/applications",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_ACTIVITY_STATISTICS",
+        "staticPath": "/users/@me/activities/statistics/applications",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 5,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/activities/statistics/applications [USER_ACTIVITY_STATISTICS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/applications/{id}/entitlements",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "ENTITLEMENTS_FOR_APPLICATION",
+        "staticPath": "/users/@me/applications/{arg}/entitlements",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/applications/{arg}/entitlements [ENTITLEMENTS_FOR_APPLICATION]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/billing/checkout-recovery",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "CHECKOUT_RECOVERY",
+        "staticPath": "/users/@me/billing/checkout-recovery",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/billing/checkout-recovery [CHECKOUT_RECOVERY]"
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/api/v9/users/@me/billing/user-offer",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_OFFER",
+        "staticPath": "/users/@me/billing/user-offer",
+        "staticMethod": "POST",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "POST /users/@me/billing/user-offer [USER_OFFER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/collectibles-marketing",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "COLLECTIBLES_MARKETING",
+        "staticPath": "/users/@me/collectibles-marketing",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/collectibles-marketing [COLLECTIBLES_MARKETING]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/entitlements",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "ENTITLEMENTS_FOR_USER",
+        "staticPath": "/users/@me/entitlements",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/entitlements [ENTITLEMENTS_FOR_USER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/library",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "LIBRARY",
+        "staticPath": "/users/@me/library",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/library [LIBRARY]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/mfa/webauthn/credentials",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "MFA_WEBAUTHN_CREDENTIALS",
+        "staticPath": "/users/@me/mfa/webauthn/credentials",
+        "staticMethod": "GET|POST",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{name,ticket,credential}"
+        ],
+        "literalHits": 5,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|POST /users/@me/mfa/webauthn/credentials [MFA_WEBAUTHN_CREDENTIALS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/referrals/eligibility",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "GET_REFERRALS_REMAINING",
+        "staticPath": "/users/@me/referrals/eligibility",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/referrals/eligibility [GET_REFERRALS_REMAINING]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/saved-messages",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "GET_SAVED_MESSAGES",
+        "staticPath": "/users/@me/saved-messages",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/saved-messages [GET_SAVED_MESSAGES]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/settings-proto/{num}",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_SETTINGS_PROTO",
+        "staticPath": "/users/@me/settings-proto/{arg}",
+        "staticMethod": "GET|PATCH",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{settings,required_data_version}"
+        ],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|PATCH /users/@me/settings-proto/{arg} [USER_SETTINGS_PROTO]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/virtual-currency/balance",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "VIRTUAL_CURRENCY_USER_BALANCE",
+        "staticPath": "/users/@me/virtual-currency/balance",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/virtual-currency/balance [VIRTUAL_CURRENCY_USER_BALANCE]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/widget-configs/developer",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "WIDGET_CONFIGS_DEVELOPER",
+        "staticPath": "/widget-configs/developer",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /widget-configs/developer [WIDGET_CONFIGS_DEVELOPER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/widget-configs/featured",
+        "count": 3,
+        "verdict": "static-confirmed",
+        "staticKey": "WIDGET_CONFIGS_FEATURED",
+        "staticPath": "/widget-configs/featured",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /widget-configs/featured [WIDGET_CONFIGS_FEATURED]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/activities/shelf",
+        "count": 2,
+        "verdict": "static-confirmed",
+        "staticKey": "ACTIVITY_SHELF",
+        "staticPath": "/activities/shelf",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /activities/shelf [ACTIVITY_SHELF]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/guilds/{id}/application-command-index",
+        "count": 2,
+        "verdict": "static-method-unresolved",
+        "staticKey": "APPLICATION_COMMAND_INDEX_GUILD",
+        "staticPath": "/guilds/{arg}/application-command-index",
+        "staticMethod": null,
+        "staticRest": false,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "(null) /guilds/{arg}/application-command-index [APPLICATION_COMMAND_INDEX_GUILD]"
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v9/guilds/{id}/members/@me",
+        "count": 2,
+        "verdict": "static-confirmed",
+        "staticKey": "GUILD_JOIN",
+        "staticPath": "/guilds/{arg}/members/@me",
+        "staticMethod": "PUT",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "PATCH /guilds/{arg}/members/@me [SET_GUILD_MEMBER]",
+          "PUT /guilds/{arg}/members/@me [GUILD_JOIN]",
+          "DELETE|PATCH /guilds/{arg}/members/{arg} [GUILD_MEMBER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/soundboard-default-sounds",
+        "count": 2,
+        "verdict": "static-confirmed",
+        "staticKey": "SOUNDBOARD_DEFAULT_SOUNDS",
+        "staticPath": "/soundboard-default-sounds",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 1,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /soundboard-default-sounds [SOUNDBOARD_DEFAULT_SOUNDS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/{id}/application-identities",
+        "count": 2,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_APPLICATION_IDENTITIES",
+        "staticPath": "/users/{arg}/application-identities",
+        "staticMethod": "GET|PATCH",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|PATCH /users/{arg}/application-identities [USER_APPLICATION_IDENTITIES]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/application-command-index",
+        "count": 2,
+        "verdict": "static-confirmed",
+        "staticKey": "APPLICATION_COMMAND_INDEX_USER",
+        "staticPath": "/users/@me/application-command-index",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/application-command-index [APPLICATION_COMMAND_INDEX_USER]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/notes/{id}",
+        "count": 2,
+        "verdict": "static-confirmed",
+        "staticKey": "NOTE",
+        "staticPath": "/users/@me/notes/{arg}",
+        "staticMethod": "GET|PUT",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{note}"
+        ],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|PUT /users/@me/notes/{arg} [NOTE]"
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/api/v9/beaker",
+        "count": 1,
+        "verdict": "static-absent",
+        "staticKey": null,
+        "staticPath": null,
+        "staticMethod": null,
+        "staticRest": false,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 0,
+        "usedMePlaceholder": false,
+        "candidates": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v9/channels/{id}/explicit-media",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "EXPLICIT_MEDIA_SCAN_MESSAGES",
+        "staticPath": "/channels/{arg}/explicit-media",
+        "staticMethod": "PATCH",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{message_ids}"
+        ],
+        "literalHits": 2,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "PATCH /channels/{arg}/explicit-media [EXPLICIT_MEDIA_SCAN_MESSAGES]"
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v9/channels/{id}/messages/{id}/reactions/%F0%9F%91%8B/%40me",
+        "count": 1,
+        "verdict": "static-method-unresolved",
+        "staticKey": "REACTION",
+        "staticPath": "/channels/{arg}/messages/{arg}/reactions/{arg}/{arg}",
+        "staticMethod": null,
+        "staticRest": false,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "(null) /channels/{arg}/messages/{arg}/reactions/{arg}/{arg} [REACTION]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/channels/{id}/messages/pins",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "PINS",
+        "staticPath": "/channels/{arg}/messages/pins",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /channels/{arg}/messages/pins [PINS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/channels/{id}/threads/search",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "THREAD_SEARCH",
+        "staticPath": "/channels/{arg}/threads/search",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{threads,members,has_more,first_messages,most_recent_messages}",
+          "{ephemeral}"
+        ],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /channels/{arg}/threads/search [THREAD_SEARCH]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/collectibles-products/{id}",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "COLLECTIBLES_PRODUCTS",
+        "staticPath": "/collectibles-products/{arg}",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 1,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /collectibles-products/{arg} [COLLECTIBLES_PRODUCTS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/games",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "GAMES",
+        "staticPath": "/games",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 1,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /games [GAMES]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/storefront/products/skus",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "STOREFRONT_PRODUCTS_BY_SKU_IDS",
+        "staticPath": "/storefront/products/skus",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /storefront/products/skus [STOREFRONT_PRODUCTS_BY_SKU_IDS]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/billing/payment-sources",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "BILLING_PAYMENT_SOURCES",
+        "staticPath": "/users/@me/billing/payment-sources",
+        "staticMethod": "GET|POST",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 4,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|POST /users/@me/billing/payment-sources [BILLING_PAYMENT_SOURCES]"
+        ]
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v9/users/@me/settings-proto/{num}",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_SETTINGS_PROTO",
+        "staticPath": "/users/@me/settings-proto/{arg}",
+        "staticMethod": "GET|PATCH",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [
+          "{settings,required_data_version}"
+        ],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET|PATCH /users/@me/settings-proto/{arg} [USER_SETTINGS_PROTO]"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/api/v9/users/@me/survey",
+        "count": 1,
+        "verdict": "static-confirmed",
+        "staticKey": "USER_SURVEY",
+        "staticPath": "/users/@me/survey",
+        "staticMethod": "GET",
+        "staticRest": true,
+        "staticMalformed": false,
+        "staticBodyKeys": [],
+        "literalHits": 3,
+        "usedMePlaceholder": false,
+        "candidates": [
+          "GET /users/@me/survey [USER_SURVEY]"
+        ]
+      }
+    ]
+  }
+}

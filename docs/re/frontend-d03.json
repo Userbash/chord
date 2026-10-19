@@ -1,0 +1,305 @@
+{
+  "meta": {
+    "task": "D-03",
+    "date": "2026-10-19",
+    "client": "Discord web (Electron 42 / Chrome 148), сборка 1.0.162",
+    "cdp": "http://127.0.0.1:9223",
+    "artifacts_dir": "/home/sanya/re-deep/ui8",
+    "tokens_source": "/home/sanya/re-deep/ui/tokens.json (design-tokens.json отсутствует)"
+  },
+  "screens": [
+    {
+      "name": "search",
+      "artifacts": [
+        "20-search-results.json", "20-search-results.html", "20-search-results.jpg",
+        "20a-searchbar.json", "20a-search-open.jpg", "20a-search-typed.jpg",
+        "20b-search-filters.json", "20b-search-filters.html", "20b-search-filters.jpg", "20b-search-filters-has.json",
+        "20c-search-sort.json", "20c-search-sort.jpg", "20d-scope-menu.jpg", "20d-scope-menu.json",
+        "20e-search-typed-rules.jpg", "20f-search-network.json", "20g-search-probe.json",
+        "20h-winner.json", "20i-scope-compare.json", "log-search4.json", "log-search6.json"
+      ],
+      "structure": {
+        "panel": "searchResultsWrap_a98f3b; поле contenteditable editor__25bec; заголовок totalResults",
+        "resultGroup": "searchResultGroup_a7e67f (aria 'канал, категория')",
+        "resultItem": "container__80bf8 / searchResult__80bf8 / message__80bf8; строка wrapper_c19a55 cozy_c19a55 zalgo_c19a55; id=search-result-<id>; иконка svg[aria-label=Текст]",
+        "filters": {
+          "section": "filterSection_e4772e",
+          "fields": [
+            {"label": "От", "placeholder": "Например, pharos12510"},
+            {"label": "В", "placeholder": "Любой контент"},
+            {"label": "Содержит", "placeholder": "Например, «бот»"},
+            {"label": "Упоминания"},
+            {"label": "Дата", "action": "Добавить дату"},
+            {"label": "Тип автора"},
+            {"label": "Закреплено", "placeholder": "Закреплено, Например, «Да»"}
+          ],
+          "inputClass": "input__75098 comboBoxInput__0edde",
+          "buttons": ["Очистить фильтры", "Отмена", "Применить фильтры"],
+          "containsOptions": ["изображение", "видео", "ссылку", "файл", "вложение", "аудио", "опрос", "стикер", "переслать"]
+        },
+        "sort": {"menuClass": "menu_c1e9c4 flexible_c1e9c4", "options": ["По новизне (выбрано, aria-checked)", "Самое старое", "Самое актуальное"]}
+      },
+      "counts": {
+        "resultsProBot": 3302,
+        "resultsPrivet": 49887,
+        "channelScopedResults": 0,
+        "filterSections": 7,
+        "containsOptions": 9,
+        "sortOptions": 3,
+        "domItemsSampled": 6
+      },
+      "network": {
+        "endpoint": "/api/v9/guilds/1014537851418980372/messages/search",
+        "ok": {"query": "content=ProBot", "total_results": 3302},
+        "zero": {"query": "channel_id=1014537851867775060&content=ProBot", "total_results": 0},
+        "winnerInput": "ctrlA + посимвольный ввод (снимает чип области)"
+      }
+    },
+    {
+      "name": "emoji",
+      "artifacts": [
+        "21-emoji-picker.json", "21-emoji-picker.html", "21-emoji-picker.jpg",
+        "21-emoji-search.json", "21-emoji-search.jpg", "21d-emoji-categories.json", "21d-emoji-categories.jpg",
+        "21b-emoji-full.json", "21b-emoji-full.html", "21b-emoji-full.jpg", "21c-emoji-full-search.json", "21c-emoji-full-search.jpg",
+        "log-emoji6.json", "log-emoji7.json", "log-emoji9.json"
+      ],
+      "structure": {
+        "fullPickerRoot": "positionLayer__08434 expressionPickerPositionLayer__74017 theme-dark images-dark layer__59d0d",
+        "tabs": ["Гифки", "Стикеры", "Эмодзи (aria-selected=true)"],
+        "search": "input, placeholder 'Найдите идеальный эмодзи'; кнопка 'Добавить эмодзи'",
+        "sections": ["Лучшие эмодзи сервера ITSKIDON PC BOOST", "Часто используемые"],
+        "grid": "emojiItem_fc7141; lockedEmoji_d982c2",
+        "navRail": {
+          "class": "listItems_affa7e; items categoryItem_b9ee0c/categoryPill_b9ee0c; guild — categoryItemGuildCategory_b9ee0c",
+          "categories": ["top guild emoji", "recent", "ITSKIDON PC BOOST", "people", "nature", "food", "activity", "travel", "objects", "symbols"],
+          "skinTone": "aria 'Выбрать цвет кожи эмодзи (Пусто)'"
+        },
+        "reactionPicker": {
+          "root": "emojiPicker_c0e32c + bodyWrapper_c0e32c; listWrapper_c656ac; categorySection_c656ac; emojiListRow_fc7141",
+          "note": "без поиска и вкладок; открывается пунктом контекстного меню message-add-reaction"
+        },
+        "dmFullPicker": "expressionPickerPositionLayer__74017 / layer__59d0d; navList__08434 (aria 'Категории меню выбора реакции')"
+      },
+      "counts": {
+        "tabCount": 3,
+        "navCategories": 10,
+        "visibleGridChannel": 50,
+        "lockedChannel": 17,
+        "visibleGridDM": 42,
+        "reactionPickerItems": 60,
+        "reactionPickerLocked": 43,
+        "searchFireChannel": 10,
+        "searchFireDM": 11
+      }
+    },
+    {
+      "name": "members",
+      "artifacts": ["22-members.json", "22-members.jpg", "log-members6.json"],
+      "structure": {
+        "wrap": "membersWrap_c8ffbb hiddenMembers_c8ffbb",
+        "group": "membersGroup ('Server Booster — 2', 'В сети — 735')",
+        "row": "member__5d473 member_c8ffbb container__91a9d clickable__91a9d; memberInner__5d473 layout__91a9d",
+        "avatar": "wrapper__44b0c avatar__44b0c avatarStack__44b0c",
+        "name": "name__91a9d text-md/medium__91a9d; username__5d473; subText__91a9d",
+        "searchField": null
+      },
+      "counts": {"realGroups": 2, "groupNodes": 6, "visibleRows": 35, "online": 735, "boosters": 2}
+    },
+    {
+      "name": "settings",
+      "artifacts": [
+        "23-settings-categories.json", "23-settings-voice.json", "23-settings-voice.html", "23-settings-voice.jpg",
+        "23-settings-voice-expanded.jpg", "23-settings-open.jpg", "23-settings-open2.jpg", "23-settings-probe.json", "23-settings-error.jpg",
+        "log-settings7.json", "log-settings8.json", "log-settings9.json", "log-settings10.json", "log-settings11.json", "log-settings12.json", "log-settings13.json"
+      ],
+      "structure": {
+        "root": "container_abd9a8 (1398x961)",
+        "openVia": "кнопка aria-label='Настройки пользователя' (Ctrl+, не сработал в сборке)",
+        "navCategories": [
+          "Учётная запись (Информация об учётной записи, Пароль и безопасность, Статус учётной записи, Семейный центр)",
+          "Данные и конфиденциальность", "Разрешения для сообщений", "Уведомления",
+          "Nitro", "Буст сервера", "Подписки", "Склад подарков", "Выставление счетов",
+          "Голос и видео", "Внешний вид", "Специальные возможности", "Система", "Язык и время",
+          "Зарегистрированные игры", "Конфиденциальность активности", "Подключённые приложения", "Разработчик", "Выйти"
+        ],
+        "navSearchPlaceholder": "Поиск",
+        "voiceTab": {
+          "sections": ["Голос", "Профиль ввода", "Настройки чувствительности ввода", "Шумоподавление", "Камера", "Стриминг", "Звуки", "Связанные настройки", "Расширенные"],
+          "selects": [
+            {"label": "Микрофон", "value": "Система: Easy Effects Source"},
+            {"label": "Динамик", "value": "Система: Easy Effects Sink"},
+            {"label": "Камера", "value": "Нет видеоустройств"},
+            {"label": "Шумоподавление", "value": "Krisp", "note": "combobox, подпись 'Предоставляется Krisp'"}
+          ],
+          "radioGroups": [{"name": "Профиль ввода", "component": "BaseRadioGroup (data-mana-component)", "role": "radiogroup", "options": ["Изоляция голоса", "Студия", "Пользовательский"]}],
+          "switches": [
+            {"label": "Автоматически определять чувствительность ввода", "checked": true},
+            {"label": "Эхоподавление", "checked": true},
+            {"label": "Режим рации", "checked": false},
+            {"label": "Автоматическая регулировка усиления", "checked": true},
+            {"label": "Расширенная активация по голосу", "checked": true},
+            {"label": "Предложение аудиоустройств", "checked": true},
+            {"label": "Предупреждение об отсутствии звука", "checked": true},
+            {"label": "Предупреждение о переключении голосового канала", "checked": true},
+            {"label": "Качество обслуживания", "checked": false},
+            {"label": "Предпросмотр видео (всегда)", "checked": true},
+            {"label": "Показывать предпросмотр стрима", "checked": true},
+            {"label": "Приглушение стрима", "checked": true},
+            {"label": "Звуковая панель: Откл. звук / Включить звук в динамиках / Заглушить / Вкл. микрофон / Камера вкл/выкл / Голосовая связь отключена / Режим рации вкл/выкл / Пользователь вошёл/вышел/перемещён / Исходящий звонок", "checked": true}
+          ],
+          "switchesTotalInDom": 38,
+          "sliders": [
+            {"label": "Громкость микрофона", "min": 0, "max": 100, "now": 100},
+            {"label": "Громкость динамика", "min": 0, "max": 200, "now": 100},
+            {"label": "Сила приглушения стрима", "min": 1, "max": 100, "now": 50, "displayed": "49%"},
+            {"label": null, "min": 0, "max": 100, "now": 26.109350171958468, "note": "подпись вне среза HTML"}
+          ],
+          "buttons": ["Проверка микрофона", "Прекратить проверку", "Проверить видео", "Загрузить журналы", "Показать папку", "Сброс"]
+        }
+      },
+      "counts": {"navRows": 63, "topCategories": 19, "voiceSwitches": 38, "voiceStatesCaptured": 25, "voiceSelects": 4, "voiceSliders": 4, "voiceRadioGroups": 1}
+    }
+  ],
+  "components": [
+    {
+      "name": "Button",
+      "variants": ["primary", "secondary", "critical-primary", "critical-secondary", "overlay-primary", "overlay-secondary", "icon-only", "input-accessory", "active", "expressive", "text-button", "toggle-icon-button"],
+      "states": ["hover/active", "disabled", "loading (aria-busy, spinner fadeIn/fadeOut)", "hasText", "fullWidth", "rounded", "minWidth (--__button-min-width)"],
+      "tokens": ["--button-border-radius (2147483647px)", "--button-border-radius-lg", "--button-danger-background-disabled", "--button-outline-brand-border-active", "--button-outline-primary-text"],
+      "evidence": [
+        "module 657718 @ discord.com_assets_web.4d4b2f75fdea5470.js: function S(e){let{role:t=\"button\",variant:n=\"primary\",size:a=\"md\",...,loading:R,...,disabled:F,minWidth:B,...}",
+        "module 65406 @ discord.com_assets_384209.c316f250feb7e201.js:438: button:\"button_a22cb0\",...,xs:\"xs_a22cb0\",sm:\"sm_a22cb0\",md:\"md_a22cb0\",primary:\"primary_a22cb0\",secondary:\"secondary_a22cb0\",\"critical-primary\":...,active:\"active_a22cb0\"",
+        "live: button_a22cb0 sm_a22cb0 secondary_a22cb0 hasText_a22cb0, data-mana-component=\"button\""
+      ]
+    },
+    {
+      "name": "TextInput / TextArea",
+      "variants": ["однострочный", "textarea", "с чипами (hasTags)", "с ведущей иконкой/текстом (hasLeading/leadingText)", "с трейлингом (hasTrailing)", "combo (comboBoxInput__0edde)"],
+      "states": ["disabled", "invalid/error", "placeholder", "focus", "hasTags"],
+      "tokens": ["--input-background-default", "--input-icon-default", "--input-placeholder-text-default", "--input-border-error-default", "--input-text-error-default"],
+      "evidence": [
+        "module 103557 @ discord.com_assets_05bfdf7077e1fc11.js:1161: ...rows:j,disabled:A,\"data-mana-component\":\"text-area\"",
+        "module 358983 @ discord.com_assets_348181.c6a72b8c6216ab6c.js:10813: input:\"input__75098\", hasLeading, leadingText, hasTrailing, hasTags, iconButton, clearButton",
+        "live: input__75098 comboBoxInput__0edde (фильтры поиска)"
+      ]
+    },
+    {
+      "name": "Menu (Mana)",
+      "variants": ["colorDefault", "colorDanger", "checkbox", "radioSelection", "submenu", "separator"],
+      "states": ["enabled/disabled", "selected (aria-checked)", "focused", "scrolling"],
+      "tokens": ["--menu-scroller-block-padding (8px)", "--menu-border-width (1px)"],
+      "evidence": [
+        "module 798819 @ discord.com_assets_261000.1b6532d3649c0f52.js:6116: menu:\"menu_c1e9c4\", scroller:\"scroller_c1e9c4\", separator:\"separator_c1e9c4\", submenu:..., colorDefault:...",
+        "module 980707: реализация меню (Mana) @ web-бандл",
+        "live: menu_c1e9c4 flexible_c1e9c4 (сортировка поиска)"
+      ]
+    },
+    {
+      "name": "ContextMenu",
+      "variants": ["пункты message-*", "подменю", "checkbox/radio-пункты"],
+      "states": ["open/close (CONTEXT_MENU_OPEN/CLOSE)", "focused item", "disabled item"],
+      "tokens": ["см. Menu"],
+      "evidence": [
+        "opener module 837528 ((0,a.L3)); примитивы L3/Z_/jA — module 442433 (CONTEXT_MENU_OPEN/CLOSE)",
+        "stub module 477782 (пункты return null); keybind-реестр module 696760",
+        "live: пункт message-add-reaction открывает пикер реакций"
+      ]
+    },
+    {
+      "name": "Modal",
+      "variants": ["animationVariant default", "layer-modal"],
+      "states": ["transitionState (enter/exit)", "focus-trap", "onClose", "aria-label/aria-labelledby"],
+      "tokens": ["--modal-background", "--modal-footer-background", "--modal-vertical-padding (16px)", "--modal-width-small (442px)", "--modal-width-medium (602px)", "--modal-width-large (800px)"],
+      "evidence": [
+        "module 521489 @ discord.com_assets_e6c31aeaf72a699a.js: role:\"dialog\", \"data-mana-component\":\"layer-modal\", animationVariant:\"default\", impressionType: MODAL",
+        "module 617986: '[data-mana-component=\"modal\"], [role=\"dialog\"][tabindex=\"-1\"]' (фокус-ловушка)",
+        "live: окно настроек container_abd9a8"
+      ]
+    },
+    {
+      "name": "Popover",
+      "variants": ["обычный/анимированный", "с offset-бордером", "popover меню/статусов/шорткатов"],
+      "states": ["open/close", "позиционирование"],
+      "tokens": ["использует слои layer__59d0d / positionLayer__*"],
+      "evidence": [
+        "module 179657 @ discord.com_assets_267e963ebabea6ad.js:9316: (0,a.jsxs)(\"div\",{\"data-mana-component\":\"popover\"...",
+        "module 43105 @ discord.com_assets_460797267c8bdd59.js:860; module 273875 @ discord.com_assets_49b5f33b11f4e584.js:3991",
+        "live: пикер эмодзи positionLayer__08434 expressionPickerPositionLayer__74017 layer__59d0d"
+      ]
+    },
+    {
+      "name": "Tooltip",
+      "variants": ["обычный", "mini-premium-tooltip"],
+      "states": ["top/bottom/center", "disablePointerEvents", "allowOverflow"],
+      "tokens": ["отдельных --tooltip-* нет (общие текстовые/фоновые)"],
+      "evidence": [
+        "module 233680 @ discord.com_assets_348181.c6a72b8c6216ab6c.js:657: YL:\"tooltip_c36707\", Cy:\"tooltipDisablePointerEvents_c36707\", xQ:\"tooltipPointer_c36707\"...",
+        "module 461536 @ discord.com_assets_bb94c0b7508a1297.js:3161: \"data-mana-component\":\"mini-premium-tooltip\"",
+        "live (пикер): richTooltipContent__9038b, tooltipPremiumFooterSegment__7d7fe"
+      ]
+    },
+    {
+      "name": "Switch",
+      "variants": ["standalone switch", "radio-like toggle"],
+      "states": ["checked/unchecked (атрибут checked у input)", "disabled", "focus (data-react-aria-pressable)"],
+      "tokens": ["--switch-background-selected-default", "--switch-border-default", "--switch-border-selected-hover", "--switch-thumb-background-default", "--switch-thumb-icon-active"],
+      "evidence": [
+        "module 35556 @ discord.com_assets_501428.98d57a9bd8cbb604.js:1181154: inputProps:{...o,role:\"switch\",checked:a}",
+        "module 479909 @ discord.com_assets_838aef4965d49a40.js:100367: {role:\"switch\",\"aria-checked\":c,onClick:...}",
+        "live: <input type=\"checkbox\" role=\"switch\" data-react-aria-pressable checked> (38 шт., вкладка «Голос и видео»)"
+      ]
+    },
+    {
+      "name": "Slider",
+      "variants": ["обычный", "mini", "с метками (hasMarks)"],
+      "states": ["disabled", "defaultValue", "aria-disabled/invalid"],
+      "tokens": ["--slider-track-background"],
+      "evidence": [
+        "module 9761 @ discord.com_assets_500186.e89df1f0566f54ee.js:130: slider:\"slider__4c059\", mini, bar, grabber, disabled, hasMarks",
+        "live: <div role=\"slider\" class=\"slider__4c059\" aria-valuemin/max/now aria-orientation=\"horizontal\" aria-labelledby>"
+      ]
+    },
+    {
+      "name": "Avatar",
+      "variants": ["avatar_fdd9da", "grayscaleAvatar_fdd9da", "avatarWrapper_d8a370 + ring", "avatarStack (стек)"],
+      "states": ["статус (status_*), приглушение (grayscale), кольцо/рамка"],
+      "tokens": ["отдельных --avatar-* нет (общие)"],
+      "evidence": [
+        "module 311582 @ discord.com_assets_113561.4511bb7966772f25.js:259: {m:\"avatar_fdd9da\",X:\"grayscaleAvatar_fdd9da\"}",
+        "module 818888 @ discord.com_assets_120561.03196bb644de78e5.js:123: {R:\"avatarWrapper_d8a370\",h:\"ring_d8a370\"}",
+        "live: wrapper__44b0c avatar__44b0c avatarStack__44b0c"
+      ]
+    },
+    {
+      "name": "Badge",
+      "variants": ["numberBadge", "iconBadge", "premiumBadge", "badge тега сервера (badge_e7c728)", "формы baseShapeRound*"],
+      "states": ["варианты оформления (epic/mythic/rare/expressive)"],
+      "tokens": ["--badge-secondary-background", "--badge-expressive-text", "--badge-epic-border-gradient-end", "--badge-mythic-background и др. (22)"],
+      "evidence": [
+        "module 306091 @ discord.com_assets_880248.92a937f61f4f886c.js:299: numberBadge__463b7 base__463b7, iconBadge__463b7, premiumBadge__463b7",
+        "module 638855 @ discord.com_assets_100212505f0d860a.js:357: badge_e7c728 (tagContainer)",
+        "модули 198476 (numberBadge_c7a32c), 672812 (numberBadge__2ea32)"
+      ]
+    },
+    {
+      "name": "Scroller",
+      "variants": ["auto", "none", "thin", "customTheme", "виртуализованный список (listItems)"],
+      "states": ["scrolling", "fade", "scrollbarGutterStable", "disableScrollAnchor"],
+      "tokens": ["--scrollbar-thin-thumb", "--scrollbar-thin-track", "--scrollbar-auto-thumb", "--scrollbar-auto-track"],
+      "evidence": [
+        "module 6095 @ discord.com_assets_193433.213ada0bddfee7ee.js: scrollerBase_d125d2, auto/none/thin, scrollbarGutterStable, customTheme, fade, content",
+        "live: listItems_affa7e (рейл эмодзи), scroller_affa7e; scroller_c1e9c4 (меню)"
+      ]
+    }
+  ],
+  "unknowns": [
+    "aria-label у эмодзи в результатах поиска «:fire» не заполнен (только спрайты)",
+    "Подпись 4-го ползунка «Голос и видео» (0–100, now≈26.11) вне среза HTML",
+    "Значения селекта «Шумоподавление» кроме текущего «Krisp» не снимались (не открывали список)",
+    "Пикер реакций — «тонкий» вариант без поиска/вкладок; полный доступен только у поля ввода",
+    "Отдельного Mana-компонента Divider нет: separator_c1e9c4 в меню + per-feature divider_* классы",
+    "Ctrl+, в сборке не открывает настройки (открывали шестернёй)",
+    "Чип области поиска (channel_id) стабильно даёт 0 результатов — особенность сборки 1.0.162",
+    "Счётчик «В сети — 735» — онлайн на момент снятия; общее число участников не снималось"
+  ]
+}
