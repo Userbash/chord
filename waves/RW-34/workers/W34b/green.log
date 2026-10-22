@@ -1,0 +1,34 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/notifications_contract.rs (/tmp/opencode/target-w34b/debug/deps/notifications_contract-46ee250d2c4bcc41)
+
+running 25 tests
+test e07_hints_bytes_match_libgio_and_round_trip ... ok
+test n09_notify_actions_reach_mock_as_pairs ... ok
+test n10_close_notification_reaches_mock ... ok
+test n16_live_service_is_flag_gated_and_read_only ... ok
+test n02_auth_external_and_hello_yield_unique_name ... ok
+test n08b_notify_requires_app_name_and_summary ... ok
+test e04_empty_new_strings_are_skipped ... ok
+test n07_capabilities_and_server_information_come_from_mock ... ok
+test n13_foreign_signals_are_skipped ... ok
+test e03_transient_and_suppress_sound_are_bools_including_false ... ok
+test n12_action_and_close_signals_become_events ... ok
+test n11_error_reply_maps_to_remote_error ... ok
+test e02_image_path_and_sound_name_are_string_variants ... ok
+test e05_key_order_is_frozen ... ok
+test n15_repeated_close_and_closed_session_survive ... ok
+test e01_all_eight_hints_reach_mock_with_freedesktop_types ... ok
+test e06_unicode_and_long_new_hints_are_delivered_without_panic ... ok
+test n08_notify_returns_server_id_and_mock_sees_fields ... ok
+test q01_notify_without_hints_sends_empty_dict ... ok
+test q04_desktop_entry_and_resident_have_string_and_bool_variants ... ok
+test q03_category_is_string_variant ... ok
+test q05_all_hints_are_four_entries_in_frozen_order ... ok
+test q02_urgency_is_byte_variant_with_contract_values ... ok
+test q06_empty_category_and_desktop_entry_are_skipped ... ok
+test q07_unicode_and_long_values_are_delivered_without_panic ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+# EXIT=0

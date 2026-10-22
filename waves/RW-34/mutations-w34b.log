@@ -1,0 +1,55 @@
+# W34b — мутации расширенных hints `a{sv}`
+
+baseline: exit=0, SKIP=0
+
+## 01 image_path_key_underscore
+ждём: e01/e02/e07: ключ `image_path` вместо `image-path` (ключ записи)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e01_all_eight_hints_reach_mock_with_freedesktop_types, e02_image_path_and_sound_name_are_string_variants, e05_key_order_is_frozen, e06_unicode_and_long_new_hints_are_delivered_without_panic, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 20 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 02 transient_variant_byte
+ждём: e01/e03/e07: вариант transient `b` заменён на `y` (тип варианта)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e01_all_eight_hints_reach_mock_with_freedesktop_types, e03_transient_and_suppress_sound_are_bools_including_false, e05_key_order_is_frozen, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 21 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 03 empty_image_path_not_skipped
+ждём: e04: пустой image-path уходит на шину (пропуск пустой строки)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e04_empty_new_strings_are_skipped
+  test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 04 sound_name_before_image_path
+ждём: e05/e07: порядок записей изменён (sound-name раньше image-path)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e02_image_path_and_sound_name_are_string_variants, e05_key_order_is_frozen, e06_unicode_and_long_new_hints_are_delivered_without_panic, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 21 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 05 suppress_sound_dropped
+ждём: e01/e05/e07: запись `suppress-sound` потеряна (наличие)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e01_all_eight_hints_reach_mock_with_freedesktop_types, e03_transient_and_suppress_sound_are_bools_including_false, e05_key_order_is_frozen, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 21 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 06 transient_false_skipped
+ждём: e03/e07: `Some(false)` пропущен вместо записи `b:0` (значение false)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e03_transient_and_suppress_sound_are_bools_including_false, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 23 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## Итог
+мутаций: 6
+все мутации убиты, все файлы восстановлены

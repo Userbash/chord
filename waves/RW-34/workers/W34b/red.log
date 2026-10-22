@@ -1,0 +1,181 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0560]: struct `Hints` has no field named `image_path`
+   --> crates/discord-platform/tests/notifications_contract.rs:974:9
+    |
+974 |         image_path: Some("/usr/share/icons/discord-lab.png".to_owned()),
+    |         ^^^^^^^^^^ `Hints` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `sound_name`
+   --> crates/discord-platform/tests/notifications_contract.rs:975:9
+    |
+975 |         sound_name: Some("message-new-instant".to_owned()),
+    |         ^^^^^^^^^^ `Hints` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `transient`
+   --> crates/discord-platform/tests/notifications_contract.rs:977:9
+    |
+977 |         transient: Some(true),
+    |         ^^^^^^^^^ `Hints` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `suppress_sound`
+   --> crates/discord-platform/tests/notifications_contract.rs:978:9
+    |
+978 |         suppress_sound: Some(true),
+    |         ^^^^^^^^^^^^^^ `Hints` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `image_path`
+    --> crates/discord-platform/tests/notifications_contract.rs:1046:17
+     |
+1046 |                 image_path: Some("file:///tmp/avatar.png".to_owned()),
+     |                 ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0560]: struct `Hints` has no field named `sound_name`
+    --> crates/discord-platform/tests/notifications_contract.rs:1047:17
+     |
+1047 |                 sound_name: Some("alarm-clock-elapsed".to_owned()),
+     |                 ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0560]: struct `Hints` has no field named `transient`
+    --> crates/discord-platform/tests/notifications_contract.rs:1074:21
+     |
+1074 |                     transient: Some(transient),
+     |                     ^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0560]: struct `Hints` has no field named `suppress_sound`
+    --> crates/discord-platform/tests/notifications_contract.rs:1075:21
+     |
+1075 |                     suppress_sound: Some(suppress_sound),
+     |                     ^^^^^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0560]: struct `Hints` has no field named `image_path`
+    --> crates/discord-platform/tests/notifications_contract.rs:1112:17
+     |
+1112 |                 image_path: Some(String::new()),
+     |                 ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `sound_name`
+    --> crates/discord-platform/tests/notifications_contract.rs:1113:17
+     |
+1113 |                 sound_name: Some(String::new()),
+     |                 ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `image_path`
+    --> crates/discord-platform/tests/notifications_contract.rs:1131:17
+     |
+1131 |                 image_path: Some(String::new()),
+     |                 ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `resident`
+
+error[E0560]: struct `Hints` has no field named `sound_name`
+    --> crates/discord-platform/tests/notifications_contract.rs:1132:17
+     |
+1132 |                 sound_name: Some(String::new()),
+     |                 ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `resident`
+
+error[E0560]: struct `Hints` has no field named `suppress_sound`
+    --> crates/discord-platform/tests/notifications_contract.rs:1152:9
+     |
+1152 |         suppress_sound: Some(true),
+     |         ^^^^^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `transient`
+    --> crates/discord-platform/tests/notifications_contract.rs:1153:9
+     |
+1153 |         transient: Some(true),
+     |         ^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `sound_name`
+    --> crates/discord-platform/tests/notifications_contract.rs:1155:9
+     |
+1155 |         sound_name: Some("bell".to_owned()),
+     |         ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `image_path`
+    --> crates/discord-platform/tests/notifications_contract.rs:1156:9
+     |
+1156 |         image_path: Some("/tmp/bell.png".to_owned()),
+     |         ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: all struct fields are already assigned
+
+error[E0560]: struct `Hints` has no field named `image_path`
+    --> crates/discord-platform/tests/notifications_contract.rs:1188:9
+     |
+1188 |         image_path: Some(long_unicode.clone()),
+     |         ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `desktop_entry`, `resident`
+
+error[E0560]: struct `Hints` has no field named `sound_name`
+    --> crates/discord-platform/tests/notifications_contract.rs:1189:9
+     |
+1189 |         sound_name: Some(long_ascii.clone()),
+     |         ^^^^^^^^^^ `Hints` does not have this field
+     |
+     = note: available fields are: `urgency`, `desktop_entry`, `resident`
+
+error[E0609]: no field `image_path` on type `Hints`
+    --> crates/discord-platform/tests/notifications_contract.rs:1463:42
+     |
+1463 |             ("image-path", "s") => hints.image_path = value.as_str().map(str::to_owned),
+     |                                          ^^^^^^^^^^ unknown field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0609]: no field `sound_name` on type `Hints`
+    --> crates/discord-platform/tests/notifications_contract.rs:1464:42
+     |
+1464 |             ("sound-name", "s") => hints.sound_name = value.as_str().map(str::to_owned),
+     |                                          ^^^^^^^^^^ unknown field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0609]: no field `transient` on type `Hints`
+    --> crates/discord-platform/tests/notifications_contract.rs:1466:41
+     |
+1466 |             ("transient", "b") => hints.transient = Some(ext_json_bool(value, key)),
+     |                                         ^^^^^^^^^ unknown field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+error[E0609]: no field `suppress_sound` on type `Hints`
+    --> crates/discord-platform/tests/notifications_contract.rs:1467:46
+     |
+1467 |             ("suppress-sound", "b") => hints.suppress_sound = Some(ext_json_bool(value, key)),
+     |                                              ^^^^^^^^^^^^^^ unknown field
+     |
+     = note: available fields are: `urgency`, `category`, `desktop_entry`, `resident`
+
+Some errors have detailed explanations: E0560, E0609.
+For more information about an error, try `rustc --explain E0560`.
+error: could not compile `discord-platform` (test "notifications_contract") due to 22 previous errors
+# EXIT=101

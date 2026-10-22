@@ -1,0 +1,25 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running tests/dbus_contract.rs (/tmp/opencode/target-w34a/debug/deps/dbus_contract-6bbfe12e41a6788d)
+
+running 15 tests
+INFO: ожидаемая ошибка connect: Connection refused (os error 111)
+test a01_parse_path_yields_path_and_no_abstract_name ... ok
+test a02_parse_abstract_keeps_raw_bytes_up_to_kernel_limit ... ok
+test a03_parse_skips_unsupported_and_invalid_entries ... ok
+test n01_bus_address_parse_accepts_path_and_rejects_unsupported ... ok
+test a06_connect_missing_abstract_returns_error_without_panic ... ok
+test n07b_notifications_signatures_match_libdbus_golden ... ok
+test n14_parse_rejects_truncated_and_corrupt_messages_without_panic ... ok
+test n04_header_body_boundary_is_aligned_and_padded_with_zeroes ... ok
+test n02b_external_auth_line_uses_hex_uid_from_proc_status ... ok
+test n05_parse_recovers_header_fields_and_body ... ok
+test n03_marshal_round_trip_matches_libgio_bytes ... ok
+test q08_hints_dict_matches_libgio_bytes_and_round_trips ... ok
+test a07_path_branch_still_connects_to_path_bus ... ok
+test a05_call_over_abstract_bus_returns_mock_reply ... ok
+test a04_connect_abstract_bus_yields_unique_name ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+# EXIT=0

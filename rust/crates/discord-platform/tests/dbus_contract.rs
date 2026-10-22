@@ -8,11 +8,15 @@
 //! (`mock_service.py` на приватном `dbus-daemon`).
 
 use discord_platform::dbus::message::{self, FIELD_REPLY_SERIAL, FIELD_SIGNATURE, MessageType};
-use discord_platform::dbus::{BusAddress, DbusError, Value, auth};
+use discord_platform::dbus::{
+    BusAddress, Connection, DbusError, MAX_ABSTRACT_NAME_BYTES, Value, auth,
+};
 use discord_platform::notifications;
 use discord_platform::notifications::{Hints, Urgency};
+use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Child, Command, Stdio};
+use std::time::{Duration, Instant};
 
 // --- минимальный JSON-ридер фикстур (без внешних зависимостей) -------------------
 
@@ -346,39 +350,39 @@ fn golden_attr(name: &str, key: &str) -> String {
         .to_owned()
 }
 
-// --- n01: адрес шины -------------------------------------------------------------
+// --- n01: адрес шины (path-ветка; abstract — в a01–a07) -------------------------
 
 #[test]
-fn n01_bus_address_parse_accepts_path_and_rejects_abstract() {
+fn n01_bus_address_parse_accepts_path_and_rejects_unsupported() {
     let plain = BusAddress::parse("unix:path=/run/user/1000/bus").expect("unix:path");
-    assert_eq!(plain.path(), Path::new("/run/user/1000/bus"));
+    assert_eq!(plain.path(), Some(Path::new("/run/user/1000/bus")));
+    assert_eq!(plain.abstract_name(), None);
 
-    // abstract-сокеты не поддерживаются и документированы как None.
-    assert_eq!(BusAddress::parse("unix:abstract=/tmp/dbus-abc"), None);
     assert_eq!(BusAddress::parse("tcp:host=localhost,port=1234"), None);
     assert_eq!(BusAddress::parse(""), None);
     assert_eq!(BusAddress::parse("unix:path="), None);
     assert_eq!(BusAddress::parse("мусор"), None);
 
-    // Список адресов: берётся первый поддерживаемый.
-    let list = BusAddress::parse("unix:abstract=/tmp/abstract;unix:path=/tmp/real");
-    assert_eq!(
-        list.map(|address| address.path().to_path_buf()),
-        Some(PathBuf::from("/tmp/real"))
-    );
+    // Список адресов: берётся первый поддерживаемый (abstract поддерживается с W34a).
+    let list =
+        BusAddress::parse("unix:abstract=/tmp/abstract;unix:path=/tmp/real").expect("список");
+    assert_eq!(list.abstract_name(), Some(&b"/tmp/abstract"[..]));
+    assert_eq!(list.path(), None);
 
     // guid и прочие ключи в той же записи не мешают.
     let with_guid = BusAddress::parse("unix:guid=abc,path=/tmp/a").expect("path после guid");
-    assert_eq!(with_guid.path(), Path::new("/tmp/a"));
+    assert_eq!(with_guid.path(), Some(Path::new("/tmp/a")));
 
     // `from_env` — ровно разбор DBUS_SESSION_BUS_ADDRESS (если переменная задана).
     match std::env::var("DBUS_SESSION_BUS_ADDRESS") {
         Ok(value) => {
             let from_env = BusAddress::from_env().expect("адрес из env");
             let parsed = BusAddress::parse(&value).expect("разбор env-адреса");
-            assert_eq!(from_env.path(), parsed.path());
+            assert_eq!(from_env, parsed);
         }
-        Err(_) => println!("SKIP: DBUS_SESSION_BUS_ADDRESS не задан, from_env не проверяется"),
+        Err(_) => {
+            println!("INFO: DBUS_SESSION_BUS_ADDRESS не задан — ветка from_env не проверяется")
+        }
     }
 }
 
@@ -895,4 +899,421 @@ fn q08_hints_dict_matches_libgio_bytes_and_round_trips() {
             "{name}: round-trip a{{sv}}"
         );
     }
+}
+
+// --- W34a (P6-02c): abstract-адреса `unix:abstract=…` ---------------------------
+//
+// Независимый оракул — приватный `dbus-daemon --address=unix:abstract=…` и libdbus-мок
+// `waves/RW-30/dbus/mock_service.py` (журнал TSV). Наш код здесь только клиент.
+// Если окружение запрещает abstract-сокеты, тест печатает `SKIP: причина` и не падает.
+
+const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+const SKIP_NO_PYTHON_DBUS: &str = "нет python3 с модулями dbus и gi";
+const MOCK_DESTINATION: &str = "org.freedesktop.Notifications";
+const MOCK_PATH: &str = "/org/freedesktop/Notifications";
+const MOCK_INTERFACE: &str = "org.freedesktop.Notifications";
+
+/// Приватная шина (`unix:abstract=…` либо штатный `unix:path`) и, по запросу, мок.
+/// Демон, мок и tempdir убираются в `Drop`.
+struct TestBus {
+    address: BusAddress,
+    journal: Option<PathBuf>,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Option<Child>,
+}
+
+impl TestBus {
+    /// Приватная шина строго на abstract-адресе + мок уведомлений.
+    fn abstract_with_mock() -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(SKIP_NO_PYTHON_DBUS.to_owned());
+        }
+        let name = format!("discord-lab-{}-{}", std::process::id(), unique_suffix());
+        Self::start(&format!("unix:abstract={name}"), true)
+    }
+
+    /// Штатная приватная шина `--session`: dbus-daemon печатает `unix:path=…`.
+    fn path_only() -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(SKIP_NO_DAEMON.to_owned());
+        }
+        Self::start("", false)
+    }
+
+    fn start(address_arg: &str, with_mock: bool) -> Result<Self, String> {
+        let dir = std::env::temp_dir().join(format!(
+            "discord-lab-w34a-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let mut daemon = Command::new("dbus-daemon");
+        daemon.args(["--session", "--print-address=1", "--print-pid=1", "--fork"]);
+        if !address_arg.is_empty() {
+            daemon.arg(format!("--address={address_arg}"));
+        }
+        let started = match daemon.output() {
+            Ok(output) => output,
+            Err(err) => {
+                let _ = fs::remove_dir_all(&dir);
+                return Err(format!("запуск dbus-daemon: {err}"));
+            }
+        };
+        if !started.status.success() {
+            let stderr = String::from_utf8_lossy(&started.stderr).trim().to_owned();
+            let _ = fs::remove_dir_all(&dir);
+            return Err(format!("dbus-daemon не поднялся: {stderr}"));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let printed = match lines.next() {
+            Some(line) => line.trim().to_owned(),
+            None => {
+                let _ = fs::remove_dir_all(&dir);
+                return Err("dbus-daemon не напечатал адрес".to_owned());
+            }
+        };
+        let daemon_pid: u32 = match lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())
+            .and_then(|line| {
+                line.trim()
+                    .parse()
+                    .map_err(|err| format!("pid dbus-daemon: {err}"))
+            }) {
+            Ok(pid) => pid,
+            Err(reason) => {
+                let _ = fs::remove_dir_all(&dir);
+                return Err(reason);
+            }
+        };
+
+        // Адрес печатает демон, разбирает наш `BusAddress`: расхождение — дефект
+        // продукта, поэтому паника, а не skip.
+        let address = BusAddress::parse(&printed)
+            .unwrap_or_else(|| panic!("BusAddress::parse не разобрал адрес шины {printed:?}"));
+        if address_arg.starts_with("unix:abstract=") {
+            assert!(
+                address.abstract_name().is_some_and(|name| !name.is_empty()),
+                "демон слушает abstract-адрес {address_arg:?}, напечатано {printed:?}"
+            );
+        }
+
+        let (journal, mock) = if with_mock {
+            let journal = dir.join("journal.tsv");
+            let mut mock = Command::new("python3")
+                .arg(repo_path("waves/RW-30/dbus/mock_service.py"))
+                .arg("--address")
+                .arg(&printed)
+                .arg("--log")
+                .arg(&journal)
+                .stdout(Stdio::null())
+                .stderr(Stdio::piped())
+                .spawn()
+                .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_service.py: {err}")))?;
+            wait_ready(&mut mock, &journal, daemon_pid, &dir)?;
+            (Some(journal), Some(mock))
+        } else {
+            (None, None)
+        };
+
+        Ok(Self {
+            address,
+            journal,
+            dir,
+            daemon_pid,
+            mock,
+        })
+    }
+
+    fn journal_member(&self, member: &str) -> Vec<Vec<String>> {
+        let Some(journal) = self.journal.as_ref() else {
+            return Vec::new();
+        };
+        let text = fs::read_to_string(journal).unwrap_or_default();
+        text.lines()
+            .map(|line| line.split('\t').map(str::to_owned).collect::<Vec<_>>())
+            .filter(|fields| fields.first().map(String::as_str) == Some(member))
+            .collect()
+    }
+
+    /// Ждёт `count` записей журнала: мок пишет их асинхронно.
+    fn wait_for_member(&self, member: &str, count: usize) -> Vec<Vec<String>> {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let records = self.journal_member(member);
+            if records.len() >= count || Instant::now() > deadline {
+                return records;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+}
+
+impl Drop for TestBus {
+    fn drop(&mut self) {
+        if let Some(mock) = self.mock.as_mut() {
+            let _ = mock.kill();
+            let _ = mock.wait();
+        }
+        if self.daemon_pid != 0 {
+            let _ = Command::new("kill")
+                .arg(self.daemon_pid.to_string())
+                .status();
+        }
+        let _ = fs::remove_dir_all(&self.dir);
+    }
+}
+
+/// Убирает приватный демон и tempdir при ошибке старта (skip-путь без `Drop`).
+fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
+    let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
+    let _ = fs::remove_dir_all(dir);
+    reason
+}
+
+/// Ждёт строку `READY` в журнале мока; иначе — причина для skip с очисткой.
+fn wait_ready(mock: &mut Child, journal: &Path, daemon_pid: u32, dir: &Path) -> Result<(), String> {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    loop {
+        if fs::read_to_string(journal)
+            .map(|text| text.contains("READY"))
+            .unwrap_or(false)
+        {
+            return Ok(());
+        }
+        if let Ok(Some(status)) = mock.try_wait() {
+            return Err(abort(
+                daemon_pid,
+                dir,
+                format!("мок-сервис завершился ({status})"),
+            ));
+        }
+        if Instant::now() > deadline {
+            return Err(abort(
+                daemon_pid,
+                dir,
+                "мок-сервис не поднялся за 10 с".to_owned(),
+            ));
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+}
+
+fn repo_path(relative: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .join(relative)
+}
+
+fn command_exists(name: &str) -> bool {
+    Command::new("sh")
+        .arg("-c")
+        .arg(format!("command -v {name}"))
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+fn python_dbus_available() -> bool {
+    Command::new("python3")
+        .args(["-c", "import dbus, gi"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+fn unique_suffix() -> u64 {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|duration| duration.as_nanos() as u64)
+        .unwrap_or(0);
+    nanos ^ (COUNTER.fetch_add(1, Ordering::Relaxed) << 32)
+}
+
+/// Поднимает стенд или печатает `SKIP: причина` и выходит из теста.
+macro_rules! test_bus {
+    ($constructor:expr) => {
+        match $constructor {
+            Ok(bus) => bus,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+// --- a01: разбор `unix:path` -----------------------------------------------------
+
+#[test]
+fn a01_parse_path_yields_path_and_no_abstract_name() {
+    let address = BusAddress::parse("unix:path=/run/user/1000/bus").expect("unix:path");
+    assert_eq!(address.path(), Some(Path::new("/run/user/1000/bus")));
+    assert_eq!(address.abstract_name(), None);
+    assert!(matches!(address, BusAddress::Path(_)));
+}
+
+// --- a02: разбор `unix:abstract` -------------------------------------------------
+
+#[test]
+fn a02_parse_abstract_keeps_raw_bytes_up_to_kernel_limit() {
+    let address = BusAddress::parse("unix:abstract=/tmp/dbus-abc").expect("unix:abstract");
+    assert_eq!(address.abstract_name(), Some(&b"/tmp/dbus-abc"[..]));
+    assert_eq!(address.path(), None);
+    assert!(matches!(address, BusAddress::Abstract(_)));
+
+    // `guid`, который dbus-daemon дописывает к своему адресу, не входит в имя.
+    let with_guid =
+        BusAddress::parse("unix:abstract=discord-lab-42,guid=0f0e2d").expect("abstract + guid");
+    assert_eq!(with_guid.abstract_name(), Some(&b"discord-lab-42"[..]));
+
+    // Linux: имя abstract-сокета — не длиннее 107 байт.
+    let longest = "a".repeat(MAX_ABSTRACT_NAME_BYTES);
+    let at_limit = BusAddress::parse(&format!("unix:abstract={longest}")).expect("107 байт");
+    assert_eq!(
+        at_limit.abstract_name().map(<[u8]>::len),
+        Some(MAX_ABSTRACT_NAME_BYTES)
+    );
+    let too_long = "a".repeat(MAX_ABSTRACT_NAME_BYTES + 1);
+    assert_eq!(
+        BusAddress::parse(&format!("unix:abstract={too_long}")),
+        None
+    );
+}
+
+// --- a03: список `;`, мусор, `tcp:`, NUL -----------------------------------------
+
+#[test]
+fn a03_parse_skips_unsupported_and_invalid_entries() {
+    assert_eq!(BusAddress::parse("tcp:host=localhost,port=1234"), None);
+    assert_eq!(BusAddress::parse(""), None);
+    assert_eq!(BusAddress::parse("мусор"), None);
+    assert_eq!(BusAddress::parse("unix:path="), None);
+    assert_eq!(BusAddress::parse("unix:abstract="), None);
+    assert_eq!(BusAddress::parse("unix:path=/tmp/\0bus"), None);
+    assert_eq!(BusAddress::parse("unix:abstract=bad\0name"), None);
+    assert_eq!(BusAddress::parse("unix:guid=abc"), None);
+
+    // Первый поддерживаемый адрес в списке, а не первый вообще.
+    let mixed = BusAddress::parse("tcp:host=localhost;unix:abstract=bus-name;unix:path=/tmp/b")
+        .expect("abstract в середине списка");
+    assert_eq!(mixed.abstract_name(), Some(&b"bus-name"[..]));
+    assert_eq!(mixed.path(), None);
+
+    // Невалидная запись пропускается, валидная следующая — берётся.
+    let after_invalid = BusAddress::parse("unix:abstract=;unix:path=/tmp/real")
+        .expect("path после пустого abstract");
+    assert_eq!(after_invalid.path(), Some(Path::new("/tmp/real")));
+
+    // Неизвестные ключи (`guid`) в той же записи не мешают.
+    let with_guid = BusAddress::parse("unix:guid=abc,path=/tmp/a").expect("path после guid");
+    assert_eq!(with_guid.path(), Some(Path::new("/tmp/a")));
+}
+
+// --- a04: connect abstract → Hello -----------------------------------------------
+
+#[test]
+fn a04_connect_abstract_bus_yields_unique_name() {
+    let bus = test_bus!(TestBus::abstract_with_mock());
+    assert!(
+        bus.address.abstract_name().is_some(),
+        "стенд обязан быть на abstract-адресе"
+    );
+    assert_eq!(bus.address.path(), None);
+
+    let connection = Connection::connect(&bus.address)
+        .unwrap_or_else(|err| panic!("connect abstract + Hello: {err:?}"));
+    let name = connection.unique_name();
+    assert!(name.starts_with(":1."), "уникальное имя: {name:?}");
+    assert!(!name.is_empty(), "уникальное имя пустое");
+}
+
+// --- a05: вызов через abstract-шину ----------------------------------------------
+
+#[test]
+fn a05_call_over_abstract_bus_returns_mock_reply() {
+    let bus = test_bus!(TestBus::abstract_with_mock());
+    let mut connection =
+        Connection::connect(&bus.address).unwrap_or_else(|err| panic!("connect abstract: {err:?}"));
+
+    let reply = connection
+        .call(
+            MOCK_DESTINATION,
+            MOCK_PATH,
+            MOCK_INTERFACE,
+            "GetCapabilities",
+            &[],
+        )
+        .unwrap_or_else(|err| panic!("GetCapabilities через abstract: {err:?}"));
+    assert_eq!(
+        reply,
+        vec![Value::Array(vec![
+            Value::String("body".to_owned()),
+            Value::String("actions".to_owned()),
+            Value::String("persistence".to_owned()),
+            Value::String("icon-static".to_owned()),
+        ])]
+    );
+
+    // Журнал libdbus-мока подтверждает, что вызов дошёл именно по abstract-шине.
+    let records = bus.wait_for_member("GetCapabilities", 1);
+    assert_eq!(
+        records.len(),
+        1,
+        "мок не увидел GetCapabilities: {:?}",
+        records
+    );
+}
+
+// --- a06: несуществующий abstract ------------------------------------------------
+
+#[test]
+fn a06_connect_missing_abstract_returns_error_without_panic() {
+    let name = format!(
+        "discord-lab-missing-{}-{}",
+        std::process::id(),
+        unique_suffix()
+    );
+    let address = BusAddress::parse(&format!("unix:abstract={name}")).expect("abstract-адрес");
+    assert_eq!(address.abstract_name(), Some(name.as_bytes()));
+
+    match Connection::connect(&address) {
+        Ok(_) => panic!("подключение к несуществующему abstract не должно удаваться"),
+        Err(DbusError::Io(error)) => {
+            println!("INFO: ожидаемая ошибка connect: {error}");
+        }
+        Err(other) => panic!("ожидалась DbusError::Io, получено {other:?}"),
+    }
+}
+
+// --- a07: path-ветка не сломана --------------------------------------------------
+
+#[test]
+fn a07_path_branch_still_connects_to_path_bus() {
+    let bus = test_bus!(TestBus::path_only());
+    assert!(
+        bus.address.path().is_some(),
+        "штатный --session обязан дать unix:path-адрес"
+    );
+    assert_eq!(bus.address.abstract_name(), None);
+
+    let connection =
+        Connection::connect(&bus.address).unwrap_or_else(|err| panic!("connect path: {err:?}"));
+    assert!(
+        connection.unique_name().starts_with(":1."),
+        "уникальное имя: {:?}",
+        connection.unique_name()
+    );
 }

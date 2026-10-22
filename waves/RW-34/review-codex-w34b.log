@@ -1,0 +1,2008 @@
+OpenAI Codex v0.162.1
+--------
+workdir: /home/sanya/orca/project
+model: gpt-6-luna
+provider: codexsale
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a16502-2669-7bb1-89e7-8946998b1fc1
+--------
+user
+Независимое ревью RW-34b (расширенные hints a{sv}).
+
+ПРАВИЛА:
+1. НЕ редактируй /home/sanya/orca/project; писать только /tmp/opencode/w34-codex (<50 МБ).
+2. НЕ копируй workspace/repo/target. Cargo: CARGO_TARGET_DIR=/tmp/opencode/target-codex-w34.
+3. Без сети/live/commit.
+
+Проверь:
+- waves/RW-34/TZ-W34b.md;
+- rust/crates/discord-platform/src/notifications.rs (Hints 8 полей, to_dbus, порядок, пустые строки, false);
+- tests/notifications_contract.rs (e01-e07);
+- waves/RW-34/dbus/{mock_hints2.py,gen-hints-ext.py}, fixtures/dbus/hints-ext.json;
+- run-mutations-w34b.py, mutations-w34b.log, workers/W34b/*, REPORT-W34b.md.
+
+Воспроизведи:
+1. cargo test --offline -p discord-platform --test notifications_contract -- --nocapture (25 passed; harness-SKIP только live).
+2. Независимая сверка `a{sv}`: байты Notify против libgio (фикстура) и типы y/s/b, порядок 8 ключей, пустые строки пропущены, `Some(false)` записан.
+3. Мутации 6/6 в /tmp-копии только изменяемых файлов или временной правкой+restore по md5; baseline SKIP=0.
+4. md5 в отчёте; сигнатура Notify не изменилась; без unsafe/panic/unwrap.
+
+В конце: вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
+
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+codex
+Сверю сначала состояние HEAD и указанные артефакты RW-34b с правилами проекта, затем воспроизведу тесты и независимые DBus/мутационные проверки. Репозиторий останется без изменений; для исполняемых проверок использую только разрешённую временную копию и отдельный Cargo target.
+exec
+/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md" in /home/sanya/orca/project
+ exited 2 in 0ms:
+ M rust/crates/discord-platform/src/dbus/mod.rs
+ M rust/crates/discord-platform/src/notifications.rs
+ M rust/crates/discord-platform/tests/dbus_contract.rs
+ M rust/crates/discord-platform/tests/notifications_contract.rs
+?? fixtures/dbus/hints-ext.json
+?? waves/RW-34/
+c2c3f7525b7c74b71a4a8360d434a0d8d5ceb705
+# discord-lab: session checkpoint (сжатый контекст)
+
+Точка входа для нового диалога. Читать первым; детали — точечно по ссылкам.
+Обновлён 2026-10-22 после RW-33.
+
+## Состояние
+
+- `/home/sanya/orca/project`, `main`, HEAD `86d260b`; RW-10…RW-32 закоммичены и запушены; RW-33 — коммит следующим шагом;
+  коммиты/пуш — координатор.
+- **Принято 46 / 90** карточек (хвосты P7-01b/c/d/e и P6-02b в 90 не входят). Последние волны 2026-10-22:
+  - **RW-33**: P1-10 keyring через libsecret FFI (live ksecretd + secret-tool);
+  - **RW-32**: P6-07 spellcheck (hunspell FFI), P6-02b hints `a{sv}`;
+  - **RW-31**: P6-06 power/idle, P2-03 SQLite-store через FFI к системному libsqlite3;
+  - **RW-30**: P7-01d DurationFormat, P6-02 D-Bus-уведомления (headless, без новых крейтов);
+  - **RW-28**: P7-01c RelativeTimeFormat — ICU-паритет ±2, точные i64 > 2^53 (headless);
+  - **RW-29**: P4-04 RTP-медиа (PT120/0xBEDE, DTX, джиттер по pcap-оракулу), P4-12
+    reconnect/resume, P7-01e `<t:…>`-таймстемпы (headless).
+- Факт: workspace **1043 passed**, core 531, i18n 83, media 13, reconnect 12, platform 86,
+  store 14; fmt/clippy чисто; npm `gate:worker` passed; мутации 8/8, 8/8, 9/9, 6/6, 8/8, 10/10,
+  7/7, 7/7, 8/8, 6/6, 7/7 (все restored по md5, SKIP=0).
+- Гейт: `.gate/worker-2026-10-22T18-57-30-507Z.json`, `waves/RW-33/gate-cargo.log`.
+- Ревью: RW-28 — два прохода (P0 Auto ±2 → решение TL `waves/RW-28/DECISIONS.md`; P1 точность
+  → точные `plural_category_integer`/`format_integer_unsigned`); RW-29 voice — принято,
+  P0/P1/P2=0, 8 P3 в бэклог (`waves/STATE.md` §7).
+
+## Что дальше
+
+1. **B07 = P0-01 / P1-10 / P2-03** (GUI spike, keyring, SQLite) — **заблокирован** до
+   решения владельца: нет `tauri`/`iced`/`egui`/`winit`/`wry` в lock/кэше; `keyring` +
+   Secret Service; `rusqlite` + системный SQLite; живой Discord — только по окну.
+2. **B07 остался только GUI**: keyring и SQLite закрыты; нужен выбор GUI-тулкита
+   (`tauri`/`iced`/`egui` — нет в офлайн-кэше) и окно для live-smoke. Headless-остатки:
+   fd/abstract D-Bus, P4-05/P4-06/P4-08/P4-09 (GUI/зависимости), P7-03/P7-05/P7-07 (UI).
+3. Процесс: batch 3–6 карточек → red-first → targeted → mutation → один batch gate →
+   независимое ревью → accepted → доки один раз. Роли — `docs/rust-client/TEAM.md`.
+
+## Правила (кратко)
+
+- Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
+- Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
+
+## Команды
+
+- `npm run gate:worker` — быстрый гейт (typecheck, meta, unit, smoke).
+- `cd rust && cargo test --offline --workspace` — Rust (npm-гейт его не запускает).
+- Восстановление: `git log --oneline -3` → `git status --short` → `tail -n 5 waves/db.jsonl`
+  → верх `waves/STATE.md`.
+
+## Скиллы
+
+`token-efficiency` (фильтровать чтение, bash вместо Read), `discord-lab-context`
+(навигация по репо), `context-engineering-collection`; `session-compression` избыточен.
+MCP: rea, socraticode, github, basic-memory, context7.
+
+## Известные расхождения
+
+- `docs/rust-client/WAVE-PLAN.md` §«Очередь» сохранил старую нумерацию (B04/B07), тогда как
+  `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
+  ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
+- RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
+  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+- P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
+  `ru-RU`-fallback) — в `waves/STATE.md` §7.
+rg: TEAM.md: No such file or directory (os error 2)
+
+exec
+/usr/bin/bash -lc "sed -n '1,180p' .agents/skills/discord-lab-context/SKILL.md 2>/dev/null || sed -n '1,180p' /home/sanya/orca/project/.agents/skills/discord-lab-context/SKILL.md; rg -n -C 3 \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md docs/rust-client/TEAM.md waves/STATE.md waves/RW-34" in /home/sanya/orca/project
+ succeeded in 0ms:
+---
+name: discord-lab-context
+description: Карта репозитория discord-lab (анализ Discord через Frida/CDP + Rust-клиент с оболочкой Tauri) — что читать первым, где что лежит, команды (гейты, тесты, Rust-воркспейс), каталоги только для чтения, где журнал волн и оракулы RE. Использовать при старте работы в этом репозитории, когда нужен быстрый контекст проекта. Регламент ролей — в скиллах discord-lab-process / discord-lab-worker / discord-lab-review.
+---
+
+# discord-lab — компас по репозиторию
+
+Проект: локальный CLI для анализа Discord (Frida/CDP) и Rust-клиент Discord (оболочка —
+Tauri). Разработка идёт волнами по hard TDD. Источник истины по процессу — `PROCESS.md`.
+
+## Что читать первым (just-in-time)
+
+1. `PROJECT-CONTEXT.md` — краткий статус, ограничения и навигация.
+2. `git rev-parse --short HEAD`; проверяй dirty-файлы только для назначенной области (`git status --short -- <paths>`).
+3. Перед кодом точечно прочитай TZ текущего batch, запись карточки в `TASKS.md`, нужный контракт `TDD-PLAN.md` и применимые разделы `PROCESS.md`/`TEAM.md`.
+4. `waves/STATE.md` используй как указатель текущего состояния; читай только верхний статус и релевантный раздел. Историю `waves/db.jsonl` проверяй через `tail -n 5`.
+5. Полные планы `PLAN.md`/`TEST-PLAN.md` и архивные волны открывай только если контракт/зависимость неясны.
+
+## Карта
+
+- `rust/` — Cargo-воркспейс (10 крейтов): `discord-core` (протокол/ws/dispatch), `discord-codec`,
+  `discord-store`, `discord-platform`, `discord-ui`, `discord-voice`, `discord-media`,
+  `discord-i18n`, `discord-app`, `discord-conformance`.
+- `src/`, `bin/`, `scripts/` — Node ≥ 24 (ESM, JSDoc): CLI, CDP-скрипты, `scripts/gate.mjs`.
+- `tests/` — `unit/`, `meta/` (форматы: §8, журнал волн), `smoke/`, `e2e/`, `helpers/`.
+- `waves/` — журнал волн: `STATE.md` (точка восстановления), `db.jsonl` (append-only),
+  `RW-XX/` (ТЗ, red/green-логи, отчёты), `reviews/`; правила — `waves/README.md`.
+- `fixtures/` — стабы/данные (в т.ч. `gw-proto/`, `rest/`); `docs/re/` — RE-отчёты (оракулы).
+- `docs/` — `map.md`, `feature-backlog.md`, `rust-client/`, `re/`.
+- Скиллы: `.opencode/skills/` (процесс/ревью/воркер) и `.agents/skills/` (официальные Orca +
+  этот компас); `skills-lock.json` — пины установленных скиллов.
+
+## Только для чтения
+
+- `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
+- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+
+## Команды
+
+- `npm run gate:worker` — обязательный быстрый гейт (typecheck, meta, unit, smoke).
+- `npm run gate:release` — полный (+ e2e с автоповтором, coverage, golden-сверка);
+  `gate:qualify` — выпускной; отчёты гейтов — `.gate/*.json`.
+- `npm run check` — typecheck + все тесты; `cd rust && cargo test --offline` — Rust
+  (npm-гейт cargo пока не запускает — прогонять вручную).
+- `npm run golden:freeze` — md5-манифест golden перед серией правок.
+- После сбоя/сна: `git log --oneline -3` + `git status` → `tail -n 5 waves/db.jsonl` →
+  `waves/STATE.md`.
+
+## Запреты (кратко; полный список — `AGENTS.md` / `PROCESS.md`)
+
+- Живой Discord не трогать без согласованного окна (`device.spawn`/attach — по команде).
+- Сеть, новые зависимости, установка пакетов — только с разрешения владельца.
+- Коммиты и пуш делает координатор; воркер не коммитит и не правит чужие файлы.
+- Golden не перезаписывать; тесты под код не «зеленить»; ошибки не глотать молча.
+waves/RW-34/REPORT.md-1-# REPORT RW-34 — B15 headless: abstract D-Bus + расширенные hints
+waves/RW-34/REPORT.md-2-
+waves/RW-34/REPORT.md-3-Волна: RW-34. Дата: 2026-10-23. Статус: принято после gate и ревью.
+waves/RW-34/REPORT.md:4:Контракты: `BATCH-TZ.md`, `TZ-W34a.md`, `TZ-W34b.md`.
+waves/RW-34/REPORT.md-5-
+waves/RW-34/REPORT.md-6-## Результат
+waves/RW-34/REPORT.md-7-
+waves/RW-34/REPORT.md-8-| Карточка | Воркер | Тесты | Мутации |
+waves/RW-34/REPORT.md-9-|---|---|---:|---:|
+waves/RW-34/REPORT.md-10-| P6-02c abstract-адреса D-Bus | PLATFORM-1 / W34a | 15 (dbus_contract) | 6/6 |
+waves/RW-34/REPORT.md:11:| P6-02d hints ext | PLATFORM-2 / W34b | 25 (notifications_contract) | 6/6 |
+waves/RW-34/REPORT.md-12-
+waves/RW-34/REPORT.md-13-## Что сделано
+waves/RW-34/REPORT.md-14-
+--
+waves/RW-34/review-codex-w34b.log-10-session id: 01a16502-2669-7bb1-89e7-8946998b1fc1
+waves/RW-34/review-codex-w34b.log-11---------
+waves/RW-34/review-codex-w34b.log-12-user
+waves/RW-34/review-codex-w34b.log:13:Независимое ревью RW-34b (расширенные hints a{sv}).
+waves/RW-34/review-codex-w34b.log-14-
+waves/RW-34/review-codex-w34b.log-15-ПРАВИЛА:
+waves/RW-34/review-codex-w34b.log-16-1. НЕ редактируй /home/sanya/orca/project; писать только /tmp/opencode/w34-codex (<50 МБ).
+--
+waves/RW-34/review-codex-w34b.log-18-3. Без сети/live/commit.
+waves/RW-34/review-codex-w34b.log-19-
+waves/RW-34/review-codex-w34b.log-20-Проверь:
+waves/RW-34/review-codex-w34b.log:21:- waves/RW-34/TZ-W34b.md;
+waves/RW-34/review-codex-w34b.log-22-- rust/crates/discord-platform/src/notifications.rs (Hints 8 полей, to_dbus, порядок, пустые строки, false);
+waves/RW-34/review-codex-w34b.log-23-- tests/notifications_contract.rs (e01-e07);
+waves/RW-34/review-codex-w34b.log-24-- waves/RW-34/dbus/{mock_hints2.py,gen-hints-ext.py}, fixtures/dbus/hints-ext.json;
+waves/RW-34/review-codex-w34b.log:25:- run-mutations-w34b.py, mutations-w34b.log, workers/W34b/*, REPORT-W34b.md.
+waves/RW-34/review-codex-w34b.log-26-
+waves/RW-34/review-codex-w34b.log-27-Воспроизведи:
+waves/RW-34/review-codex-w34b.log-28-1. cargo test --offline -p discord-platform --test notifications_contract -- --nocapture (25 passed; harness-SKIP только live).
+--
+waves/RW-34/review-codex-w34b.log-43-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+waves/RW-34/review-codex-w34b.log-44-  ... and 6 more ignored settings.
+waves/RW-34/review-codex-w34b.log-45-codex
+waves/RW-34/review-codex-w34b.log:46:Сверю сначала состояние HEAD и указанные артефакты RW-34b с правилами проекта, затем воспроизведу тесты и независимые DBus/мутационные проверки. Репозиторий останется без изменений; для исполняемых проверок использую только разрешённую временную копию и отдельный Cargo target.
+waves/RW-34/review-codex-w34b.log-47-exec
+waves/RW-34/review-codex-w34b.log:48:/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md" in /home/sanya/orca/project
+waves/RW-34/review-codex-w34b.log-49- exited 2 in 0ms:
+waves/RW-34/review-codex-w34b.log-50- M rust/crates/discord-platform/src/dbus/mod.rs
+waves/RW-34/review-codex-w34b.log-51- M rust/crates/discord-platform/src/notifications.rs
+--
+waves/RW-34/REPORT-W34b.md:1:# REPORT W34b — P6-02d расширенные hints `a{sv}` (headless)
+waves/RW-34/REPORT-W34b.md-2-
+waves/RW-34/REPORT-W34b.md-3-- **batch/карточка:** RW-34 / P6-02d, seat PLATFORM-2. Дата: 2026-10-23.
+waves/RW-34/REPORT-W34b.md-4-- **репозиторий:** `discord-lab`, крейт `discord-platform`, поверх принятого P6-02b (RW-32).
+--
+waves/RW-34/REPORT-W34b.md-49-# transient/suppress_sound» и E0609 в хелперах e07
+waves/RW-34/REPORT-W34b.md-50-```
+waves/RW-34/REPORT-W34b.md-51-
+waves/RW-34/REPORT-W34b.md:52:Лог: `waves/RW-34/workers/W34b/red.log`, последняя строка `# EXIT=101`.
+waves/RW-34/REPORT-W34b.md-53-
+waves/RW-34/REPORT-W34b.md-54-## 3. Green
+waves/RW-34/REPORT-W34b.md-55-
+--
+waves/RW-34/REPORT-W34b.md-60-# EXIT=0
+waves/RW-34/REPORT-W34b.md-61-```
+waves/RW-34/REPORT-W34b.md-62-
+waves/RW-34/REPORT-W34b.md:63:Лог: `waves/RW-34/workers/W34b/green.log`, `# EXIT=0`, предупреждений компилятора нет,
+waves/RW-34/REPORT-W34b.md-64-harness-SKIP нет (приватный `dbus-daemon` + `python3-dbus`/`gi` доступны; `n16` — намеренный
+waves/RW-34/REPORT-W34b.md-65-live-skip по флагу `DISCORD_LAB_LIVE_NOTIFY`). 25 тестов = 18 прежних (n/q) + 7 новых e01–e07;
+waves/RW-34/REPORT-W34b.md-66-поведение прежних hints не сломано. `rustfmt --edition 2024 --check` по обоим файлам и
+--
+waves/RW-34/REPORT-W34b.md-108-| `waves/RW-34/dbus/gen-hints-ext.py` | `f0abf041d7b89cd1f3b45ab6f32996f0` |
+waves/RW-34/REPORT-W34b.md-109-| `fixtures/dbus/hints-ext.json` | `d199e7aaa31248a3e81f6a4f0155b325` |
+waves/RW-34/REPORT-W34b.md-110-| `waves/RW-34/run-mutations-w34b.py` | `be0568de858d20dc1a049fbfae262a78` |
+waves/RW-34/REPORT-W34b.md:111:| `waves/RW-34/workers/W34b/red.log` | `5294b708967f5caca99a9ada4b326d5d` |
+waves/RW-34/REPORT-W34b.md:112:| `waves/RW-34/workers/W34b/green.log` | `855a2fe43602d392c702360e24addde2` |
+waves/RW-34/REPORT-W34b.md-113-| `waves/RW-34/mutations-w34b.log` | `49790fd0ceae0d8ec1d690e14a0b85d5` |
+waves/RW-34/REPORT-W34b.md:114:| `waves/RW-34/REPORT-W34b.md` | (этот файл; md5 меняется при правках — уточнит TL) |
+waves/RW-34/REPORT-W34b.md-115-
+waves/RW-34/REPORT-W34b.md-116-Оригинал `waves/RW-32/dbus/mock_hints.py` не изменён:
+waves/RW-34/REPORT-W34b.md-117-`d983d49076c5197cfd03d841d013376f`.
+--
+waves/RW-34/REPORT-W34a.md-21-Изменены только два файла карточки. `notifications.rs`, `message.rs`, `auth.rs`, `power.rs`,
+waves/RW-34/REPORT-W34a.md-22-`lib.rs`, `Cargo.toml`, чужие тесты, golden и доки не трогались; `unsafe` не добавлялся,
+waves/RW-34/REPORT-W34a.md-23-новых зависимостей нет. Правки `notifications.rs`/`notifications_contract.rs` и
+waves/RW-34/REPORT-W34a.md:24:`fixtures/dbus/hints-ext.json` в рабочем дереве — параллельный воркер W34b.
+waves/RW-34/REPORT-W34a.md-25-
+waves/RW-34/REPORT-W34a.md-26-## 2. Red / green
+waves/RW-34/REPORT-W34a.md-27-
+--
+waves/RW-34/REPORT-W34a.md-107-  `SKIP: причина` и не падает.
+waves/RW-34/REPORT-W34a.md-108-- **Совместимость.** `notifications`/`power` используют `Notifier::connect`/`Inhibitor::connect`
+waves/RW-34/REPORT-W34a.md-109-  без изменений; проверено `power_contract` (12/12). `notifications_contract` в этом прогоне
+waves/RW-34/REPORT-W34a.md:110:  не собирался: файл в работе у W34b (независимая причина, к dbus-адресам не относится).
+waves/RW-34/REPORT-W34a.md-111-
+waves/RW-34/REPORT-W34a.md-112-## 6. Проверки
+waves/RW-34/REPORT-W34a.md-113-
+waves/RW-34/REPORT-W34a.md-114-- `rustfmt --edition 2024` по двум файлам карточки — чисто (`cargo fmt -p discord-platform`
+waves/RW-34/REPORT-W34a.md:115:  не запускался целиком, чтобы не форматировать файлы W34b).
+waves/RW-34/REPORT-W34a.md-116-- `cargo clippy --offline -p discord-platform --test dbus_contract -- -D warnings` — 0
+waves/RW-34/REPORT-W34a.md-117-  предупреждений.
+waves/RW-34/REPORT-W34a.md-118-- `cargo test --offline -p discord-platform --test dbus_contract` — 15 passed, SKIP=0.
+--
+waves/RW-34/mutations-w34b.log:1:# W34b — мутации расширенных hints `a{sv}`
+waves/RW-34/mutations-w34b.log-2-
+waves/RW-34/mutations-w34b.log-3-baseline: exit=0, SKIP=0
+waves/RW-34/mutations-w34b.log-4-
+--
+waves/RW-34/run-mutations-w34b.py-1-#!/usr/bin/env python3
+waves/RW-34/run-mutations-w34b.py:2:"""Мутационная проверка контрактов W34b (расширенные hints `a{sv}`).
+waves/RW-34/run-mutations-w34b.py-3-
+waves/RW-34/run-mutations-w34b.py-4-Каждая мутация — один точечный дефект в аддитивном коде P6-02d
+waves/RW-34/run-mutations-w34b.py-5-(`src/notifications.rs`, поля `image_path`/`sound_name`/`transient`/`suppress_sound`).
+--
+waves/RW-34/run-mutations-w34b.py-171-
+waves/RW-34/run-mutations-w34b.py-172-
+waves/RW-34/run-mutations-w34b.py-173-def main():
+waves/RW-34/run-mutations-w34b.py:174:    lines = ["# W34b — мутации расширенных hints `a{sv}`", ""]
+waves/RW-34/run-mutations-w34b.py-175-    failures = []
+waves/RW-34/run-mutations-w34b.py-176-
+waves/RW-34/run-mutations-w34b.py-177-    baseline_code, baseline_output = run_tests()
+--
+waves/RW-34/BATCH-TZ.md-7-| Карточка | Seat | Файлы | Оракул |
+waves/RW-34/BATCH-TZ.md-8-|---|---|---|---|
+waves/RW-34/BATCH-TZ.md-9-| P6-02c abstract-адреса | PLATFORM-1 / W34a | `discord-platform/src/dbus/{mod.rs}`, `tests/dbus_contract.rs` | приватный `dbus-daemon --address=unix:abstract=…` + libdbus-мок |
+waves/RW-34/BATCH-TZ.md:10:| P6-02d hints ext | PLATFORM-2 / W34b | `discord-platform/src/notifications.rs`, `tests/notifications_contract.rs`, `waves/RW-34/dbus/mock_hints2.py`, `fixtures/dbus/hints-ext.json` | libgio/libdbus-мок |
+waves/RW-34/BATCH-TZ.md-11-
+waves/RW-34/BATCH-TZ.md-12-Общие/запрещённые: `src/lib.rs`, `Cargo.toml`, `power.rs`, `spellcheck*`, `keyring*`, чужие тесты,
+waves/RW-34/BATCH-TZ.md-13-golden, сеть, live, commit. Каждый воркер — свой `CARGO_TARGET_DIR=/tmp/opencode/target-w34<a|b>`.
+waves/RW-34/BATCH-TZ.md-14-
+waves/RW-34/BATCH-TZ.md-15-## 2. Контракты
+waves/RW-34/BATCH-TZ.md-16-
+waves/RW-34/BATCH-TZ.md:17:`TZ-W34a.md`, `TZ-W34b.md`.
+waves/RW-34/BATCH-TZ.md-18-
+waves/RW-34/BATCH-TZ.md-19-## 3. Бюджеты
+waves/RW-34/BATCH-TZ.md-20-
+waves/RW-34/BATCH-TZ.md-21-- W34a: 6–8 тестов, мутации 4–6.
+waves/RW-34/BATCH-TZ.md:22:- W34b: 7–9 тестов, мутации 4–6.
+waves/RW-34/BATCH-TZ.md-23-
+waves/RW-34/BATCH-TZ.md-24-## 4. DoD
+waves/RW-34/BATCH-TZ.md-25-
+--
+waves/RW-34/TZ-W34b.md:1:# TZ W34b — P6-02d расширенные hints уведомлений (headless)
+waves/RW-34/TZ-W34b.md-2-
+waves/RW-34/TZ-W34b.md-3-Волна: RW-34. Дата: 2026-10-23. Крейт: `discord-platform`, поверх P6-02b (RW-32).
+waves/RW-34/TZ-W34b.md-4-
+--
+waves/RW-34/TZ-W34b.md-57-
+waves/RW-34/TZ-W34b.md-58-## 5. DoD
+waves/RW-34/TZ-W34b.md-59-
+waves/RW-34/TZ-W34b.md:60:red → green → мутации → отчёт `waves/RW-34/REPORT-W34b.md`.
+--
+waves/RW-34/dbus/gen-hints-ext.py-1-#!/usr/bin/env python3
+waves/RW-34/dbus/gen-hints-ext.py:2:"""Генератор фикстуры W34b (не в файловой матрице карточки; хранится в отчёте).
+waves/RW-34/dbus/gen-hints-ext.py-3-
+waves/RW-34/dbus/gen-hints-ext.py-4-Запуск из корня репозитория: `python3 gen-hints-ext.py`.
+waves/RW-34/dbus/gen-hints-ext.py-5-Пишет `fixtures/dbus/hints-ext.json`: байты `Notify` от libgio + снимок журнала
+--
+waves/RW-34/dbus/gen-hints-ext.py-156-        },
+waves/RW-34/dbus/gen-hints-ext.py-157-        "note": (
+waves/RW-34/dbus/gen-hints-ext.py-158-            "notify_hex — полное сообщение Notify, собранное libgio; порядок hints в dict "
+waves/RW-34/dbus/gen-hints-ext.py:159:            "задан контрактом W34b (urgency, category, desktop-entry, image-path, "
+waves/RW-34/dbus/gen-hints-ext.py-160-            "sound-name, resident, transient, suppress-sound). journal — то, что libdbus "
+waves/RW-34/dbus/gen-hints-ext.py-161-            "демаршалировал в моке mock_hints2.py."
+waves/RW-34/dbus/gen-hints-ext.py-162-        ),
+--
+waves/RW-34/dbus/mock_hints2.py-1-#!/usr/bin/env python3
+waves/RW-34/dbus/mock_hints2.py:2:"""Мок-сервер `org.freedesktop.Notifications` на libdbus для контрактных тестов W34b.
+waves/RW-34/dbus/mock_hints2.py-3-
+waves/RW-34/dbus/mock_hints2.py-4-Копия `waves/RW-32/dbus/mock_hints.py` (оригинал не меняется): логика журнала та же,
+waves/RW-34/dbus/mock_hints2.py:5:поэтому хинты W34b (`image-path`, `sound-name`, `transient`, `suppress-sound`) видны в
+waves/RW-34/dbus/mock_hints2.py-6-журнале без правок оракула.
+waves/RW-34/dbus/mock_hints2.py-7-
+waves/RW-34/dbus/mock_hints2.py-8-Отличие от `waves/RW-30/dbus/mock_service.py` (он не меняется): журнал `Notify`
+
+codex
+В дереве есть незакоммиченные изменения как раз в проверяемых файлах и параллельная часть RW-34a; их не буду затрагивать. Проверяю размеры исходников и механику мутационного скрипта, чтобы собрать минимальную временную копию без `target` и уложиться в лимит.
+exec
+/usr/bin/bash -lc "sed -n '1,180p' waves/RW-34/TZ-W34b.md; sed -n '1,200p' rust/crates/discord-platform/src/notifications.rs; sed -n '1,260p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '1,240p' waves/RW-34/run-mutations-w34b.py; du -sh rust rust/crates/discord-platform waves/RW-34 fixtures/dbus/hints-ext.json" in /home/sanya/orca/project
+ succeeded in 0ms:
+# TZ W34b — P6-02d расширенные hints уведомлений (headless)
+
+Волна: RW-34. Дата: 2026-10-23. Крейт: `discord-platform`, поверх P6-02b (RW-32).
+
+## 1. Замороженный контракт
+
+```rust
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Hints {
+    pub urgency: Option<Urgency>,
+    pub category: Option<String>,
+    pub desktop_entry: Option<String>,
+    pub image_path: Option<String>,
+    pub sound_name: Option<String>,
+    pub resident: Option<bool>,
+    pub transient: Option<bool>,
+    pub suppress_sound: Option<bool>,
+}
+```
+
+Инварианты:
+
+- Ключи freedesktop: `urgency` (`y`), `category` (`s`), `desktop-entry` (`s`),
+  `image-path` (`s`), `sound-name` (`s`), `resident` (`b`), `transient` (`b`),
+  `suppress-sound` (`b`).
+- Порядок записи фиксирован: urgency, category, desktop-entry, image-path, sound-name,
+  resident, transient, suppress-sound.
+- Пустые строки (`category`, `desktop_entry`, `image_path`, `sound_name`) пропускаются;
+  `Some(false)` для boolean — запись с `false` (не пропуск).
+- Сигнатура `Notify` — `susssasa{sv}i`, не меняется; `notify()` = `Hints::default()`.
+- Без `unsafe`; изменения аддитивные, существующие поля/поведение не ломаются.
+
+## 2. Оракул
+
+libdbus-мок (`waves/RW-34/dbus/mock_hints2.py`) журналирует `ключ:сигнатура:значение`;
+`fixtures/dbus/hints-ext.json` — байты `Notify` от libgio и снимок демаршалинга.
+
+## 3. Кейсы (red-first)
+
+| ID | Проверка | Ожидание |
+|---|---|---|
+| e01 | все 8 hints | 8 записей, типы y/s/b |
+| e02 | image-path + sound-name | строки в моке |
+| e03 | transient/suppress-sound | bool, включая false |
+| e04 | пустые строки | пропущены |
+| e05 | порядок ключей | фиксированный |
+| e06 | Unicode/4 КиБ | без паники |
+| e07 | байты a{sv} | round-trip + libgio |
+
+Бюджет: 7–9 тестов; мутации 4–6 (ключ, тип, пропуск пустой, порядок).
+
+## 4. Команды
+
+```sh
+cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w34b cargo test --offline -p discord-platform --test notifications_contract
+```
+
+## 5. DoD
+
+red → green → мутации → отчёт `waves/RW-34/REPORT-W34b.md`.
+//! P6-02: уведомления рабочего стола через `org.freedesktop.Notifications`.
+//!
+//! Discord на Linux **не загружает** нативный модуль уведомлений (`RE-NOTIFICATIONS.md` §1),
+//! поэтому здесь самостоятельный D-Bus-клиент по спецификации freedesktop — не перенос
+//! нативного модуля и не wire-совместимость с Electron (`RE-NOTIFICATIONS.md` §3).
+//!
+//! Поддержано: `Notify`, `CloseNotification`, `GetCapabilities`, `GetServerInformation`,
+//! `AddMatch` + события `ActionInvoked`/`NotificationClosed`.
+//! `hints` — `a{sv}` с восемью freedesktop-хинтами (`urgency`, `category`,
+//! `desktop-entry`, `image-path`, `sound-name`, `resident`, `transient`, `suppress-sound`)
+//! через [`Hints`]/[`Notifier::notify_with_hints`]; `notify` оставляет dict пустым.
+//! DND/группировка/история — уровень приложения (P6-01/P3), не этого модуля.
+
+use std::time::Duration;
+
+use crate::dbus::{BusAddress, Connection, DbusError, Value};
+
+/// Well-known имя сервиса уведомлений.
+pub const DESTINATION: &str = "org.freedesktop.Notifications";
+/// Путь объекта сервиса уведомлений.
+pub const PATH: &str = "/org/freedesktop/Notifications";
+/// Интерфейс сервиса уведомлений.
+pub const INTERFACE: &str = "org.freedesktop.Notifications";
+/// Сигнатура тела `Notify` по спецификации freedesktop.
+///
+/// `actions` на проводе — `as` (плоский список парами id/label), хотя в модели это
+/// `Vec<(String, String)>`; `hints` — `a{sv}` (см. [`Hints`]).
+pub const NOTIFY_SIGNATURE: &str = "susssasa{sv}i";
+/// Таймаут ожидания события (`next_event`).
+pub const EVENT_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Уведомление к отправке.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Notification {
+    pub app_name: String,
+    pub summary: String,
+    pub body: String,
+    pub replaces_id: u32,
+    /// Пары (id действия, подпись) — на проводе разворачиваются в `as`.
+    pub actions: Vec<(String, String)>,
+    /// -1 — таймаут сервера по умолчанию.
+    pub timeout_ms: i32,
+}
+
+/// Важность уведомления — hint `urgency`, на проводе вариант `y`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Urgency {
+    Low,
+    Normal,
+    Critical,
+}
+
+impl Urgency {
+    /// Значение на проводе: `Low` = 0, `Normal` = 1, `Critical` = 2.
+    pub fn code(self) -> u8 {
+        match self {
+            Self::Low => 0,
+            Self::Normal => 1,
+            Self::Critical => 2,
+        }
+    }
+}
+
+/// Хинты `Notify` — минимум freedesktop, передаётся как `a{sv}`.
+///
+/// `Hints::default()` — пустой dict, поэтому
+/// `notify(&notification)` эквивалентен
+/// `notify_with_hints(&notification, &Hints::default())`.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Hints {
+    /// `urgency` (вариант `y`).
+    pub urgency: Option<Urgency>,
+    /// `category` (вариант `s`); пустая строка не отправляется.
+    pub category: Option<String>,
+    /// `desktop-entry` (вариант `s`); пустая строка не отправляется.
+    pub desktop_entry: Option<String>,
+    /// `image-path` (вариант `s`) — URI или путь к иконке; пустая строка не отправляется.
+    pub image_path: Option<String>,
+    /// `sound-name` (вариант `s`) — имя звука темы; пустая строка не отправляется.
+    pub sound_name: Option<String>,
+    /// `resident` (вариант `b`).
+    pub resident: Option<bool>,
+    /// `transient` (вариант `b`); `Some(false)` — запись `b:0`, а не пропуск.
+    pub transient: Option<bool>,
+    /// `suppress-sound` (вариант `b`); `Some(false)` — запись `b:0`, а не пропуск.
+    pub suppress_sound: Option<bool>,
+}
+
+impl Hints {
+    /// Собирает `a{sv}`: только заданные непустые значения, порядок фиксирован —
+    /// `urgency`, `category`, `desktop-entry`, `image-path`, `sound-name`, `resident`,
+    /// `transient`, `suppress-sound`.
+    pub fn to_dbus(&self) -> Value {
+        let mut entries: Vec<(Value, Value)> = Vec::new();
+        if let Some(urgency) = self.urgency {
+            entries.push(variant_entry("urgency", Value::Byte(urgency.code())));
+        }
+        if let Some(category) = non_empty(&self.category) {
+            entries.push(variant_entry(
+                "category",
+                Value::String(category.to_owned()),
+            ));
+        }
+        if let Some(desktop_entry) = non_empty(&self.desktop_entry) {
+            entries.push(variant_entry(
+                "desktop-entry",
+                Value::String(desktop_entry.to_owned()),
+            ));
+        }
+        if let Some(image_path) = non_empty(&self.image_path) {
+            entries.push(variant_entry(
+                "image-path",
+                Value::String(image_path.to_owned()),
+            ));
+        }
+        if let Some(sound_name) = non_empty(&self.sound_name) {
+            entries.push(variant_entry(
+                "sound-name",
+                Value::String(sound_name.to_owned()),
+            ));
+        }
+        if let Some(resident) = self.resident {
+            entries.push(variant_entry("resident", Value::Bool(resident)));
+        }
+        if let Some(transient) = self.transient {
+            entries.push(variant_entry("transient", Value::Bool(transient)));
+        }
+        if let Some(suppress_sound) = self.suppress_sound {
+            entries.push(variant_entry("suppress-sound", Value::Bool(suppress_sound)));
+        }
+        Value::Dict(entries)
+    }
+}
+
+fn non_empty(value: &Option<String>) -> Option<&str> {
+    match value.as_deref() {
+        Some(text) if !text.is_empty() => Some(text),
+        _ => None,
+    }
+}
+
+fn variant_entry(key: &str, value: Value) -> (Value, Value) {
+    (
+        Value::String(key.to_owned()),
+        Value::Variant(Box::new(value)),
+    )
+}
+
+/// Событие уведомления, пришедшее сигналом.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum NotificationEvent {
+    Action { id: u32, action: String },
+    Closed { id: u32, reason: u32 },
+}
+
+/// Клиент сервиса уведомлений.
+#[derive(Debug)]
+pub struct Notifier {
+    connection: Connection,
+}
+
+impl Notifier {
+    /// Подключается к шине (AUTH EXTERNAL + `Hello`), но ничего не отправляет.
+    pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
+        Ok(Self {
+            connection: Connection::connect(address)?,
+        })
+    }
+
+    /// `GetCapabilities() -> as`.
+    pub fn capabilities(&mut self) -> Result<Vec<String>, DbusError> {
+        let body = self.call("GetCapabilities", "", &[])?;
+        let Some(Value::Array(items)) = body.into_iter().next() else {
+            return Err(DbusError::Protocol("GetCapabilities reply is not an array"));
+        };
+        let mut capabilities = Vec::with_capacity(items.len());
+        for item in items {
+            match item {
+                Value::String(capability) => capabilities.push(capability),
+                _ => {
+                    return Err(DbusError::Protocol("GetCapabilities item is not a string"));
+                }
+            }
+        }
+        Ok(capabilities)
+    }
+
+    /// `GetServerInformation() -> ssss`: имя, вендор, версия, версия спецификации.
+    ///
+    /// По D-Bus несколько возвращаемых значений — это последовательность типов тела
+    /// (`ssss`), а не struct: struct-обёртки в теле ответа нет.
+    pub fn server_information(&mut self) -> Result<(String, String, String, String), DbusError> {
+        let body = self.call("GetServerInformation", "", &[])?;
+        let mut values: [String; 4] = Default::default();
+        if body.len() != 4 {
+            return Err(DbusError::Protocol(
+                "GetServerInformation reply does not have 4 values",
+            ));
+        }
+        for (slot, item) in values.iter_mut().zip(body) {
+//! Контракт P6-02: `org.freedesktop.Notifications` через собственный D-Bus-клиент.
+//!
+//! Независимый оракул — приватный `dbus-daemon` (`--session --print-address --fork`) и
+//! мок-сервис `waves/RW-30/dbus/mock_service.py` на **libdbus** (`python3-dbus`), который
+//! отвечает на вызовы, пишет журнал (TSV) и эмитит сигналы. Rust-код здесь — только клиент,
+//! поэтому совпадение поведения не может быть «подогнано» под свою же реализацию.
+//!
+//! Skip-aware: нет `dbus-daemon`, `python3-dbus`/`gi` или мок не поднялся → тест печатает
+//! `SKIP: <причина>` и завершается успешно (окружение недоступно, а не падение).
+//!
+//! Live-сервис на сессионной шине не трогается: `n16` только читает возможности и лишь при
+//! `DISCORD_LAB_LIVE_NOTIFY=1`; уведомления наружу не отправляются.
+
+use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+use discord_platform::notifications::{Hints, Notification, NotificationEvent, Notifier, Urgency};
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::{Child, Command, Stdio};
+use std::time::{Duration, Instant};
+
+const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+const SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
+const MOCK_DESTINATION: &str = "lab.Mock";
+const MOCK_PATH: &str = "/lab/Mock";
+const MOCK_INTERFACE: &str = "lab.Mock.Notifications";
+
+/// Приватная шина + мок-сервис; всё убирается в `Drop`.
+struct Harness {
+    address: String,
+    journal: PathBuf,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Child,
+}
+
+impl Harness {
+    fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(SKIP_NO_PYTHON.to_owned());
+        }
+
+        let dir = std::env::temp_dir().join(format!(
+            "discord-lab-w30b-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let started = Command::new("dbus-daemon")
+            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+            .output()
+            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+        if !started.status.success() {
+            return Err(format!(
+                "dbus-daemon завершился: {}",
+                String::from_utf8_lossy(&started.stderr).trim()
+            ));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let address = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+            .trim()
+            .to_owned();
+        let daemon_pid: u32 = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())?
+            .trim()
+            .parse()
+            .map_err(|err| format!("pid dbus-daemon: {err}"))?;
+
+        let journal = dir.join("journal.tsv");
+        let mut mock = Command::new("python3")
+            .arg(repo_path("waves/RW-30/dbus/mock_service.py"))
+            .arg("--address")
+            .arg(&address)
+            .arg("--log")
+            .arg(&journal)
+            .args(extra_mock_args)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_service.py: {err}")))?;
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            if fs::read_to_string(&journal)
+                .map(|text| text.contains("READY"))
+                .unwrap_or(false)
+            {
+                break;
+            }
+            if let Ok(Some(status)) = mock.try_wait() {
+                let stderr = read_child_stderr(&mut mock);
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    format!("мок-сервис завершился ({status}): {stderr}"),
+                ));
+            }
+            if Instant::now() > deadline {
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    "мок-сервис не поднялся за 10 с".to_owned(),
+                ));
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+
+        Ok(Self {
+            address,
+            journal,
+            dir,
+            daemon_pid,
+            mock,
+        })
+    }
+
+    fn bus_address(&self) -> BusAddress {
+        BusAddress::parse(&self.address).expect("адрес приватного демона")
+    }
+
+    fn journal(&self) -> Vec<Vec<String>> {
+        fs::read_to_string(&self.journal)
+            .unwrap_or_default()
+            .lines()
+            .map(|line| line.split('\t').map(str::to_owned).collect())
+            .collect()
+    }
+
+    fn journal_member(&self, member: &str) -> Vec<Vec<String>> {
+        self.journal()
+            .into_iter()
+            .filter(|fields| fields.first().map(String::as_str) == Some(member))
+            .collect()
+    }
+
+    /// Ждёт появления `count` записей журнала (мок пишет их асинхронно).
+    fn wait_for_member(&self, member: &str, count: usize) -> Vec<Vec<String>> {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let records = self.journal_member(member);
+            if records.len() >= count || Instant::now() > deadline {
+                return records;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+
+    fn kill_daemon(&mut self) {
+        let _ = Command::new("kill")
+            .arg(self.daemon_pid.to_string())
+            .status();
+        self.daemon_pid = 0;
+    }
+}
+
+impl Drop for Harness {
+    fn drop(&mut self) {
+        let _ = self.mock.kill();
+        let _ = self.mock.wait();
+        if self.daemon_pid != 0 {
+            let _ = Command::new("kill")
+                .arg(self.daemon_pid.to_string())
+                .status();
+        }
+        let _ = fs::remove_dir_all(&self.dir);
+    }
+}
+
+/// Убирает приватный демон и tempdir при ошибке старта (skip-путь без `Drop`).
+fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
+    let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
+    let _ = fs::remove_dir_all(dir);
+    reason
+}
+
+fn read_child_stderr(child: &mut Child) -> String {
+    use std::io::Read as _;
+    let mut text = String::new();
+    if let Some(stderr) = child.stderr.as_mut() {
+        let _ = stderr.read_to_string(&mut text);
+    }
+    text.trim().to_owned()
+}
+
+fn repo_path(relative: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .join(relative)
+}
+
+fn command_exists(name: &str) -> bool {
+    Command::new("sh")
+        .arg("-c")
+        .arg(format!("command -v {name}"))
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+fn python_dbus_available() -> bool {
+    Command::new("python3")
+        .args(["-c", "import dbus, gi"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+fn unique_suffix() -> u64 {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|duration| duration.as_nanos() as u64)
+        .unwrap_or(0);
+    nanos ^ (COUNTER.fetch_add(1, Ordering::Relaxed) << 32)
+}
+
+/// Запускает стенд или печатает причину skip и выходит из теста.
+macro_rules! harness {
+    ($extra:expr) => {
+        match Harness::start($extra) {
+            Ok(harness) => harness,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+fn sample_notification() -> Notification {
+    Notification {
+        app_name: "Discord Lab".to_owned(),
+        summary: "Alice".to_owned(),
+        body: "hello".to_owned(),
+        // -1 — «таймаут сервера по умолчанию» (derive(Default) даёт 0, поэтому явно).
+        timeout_ms: -1,
+        ..Notification::default()
+    }
+}
+
+// --- n02/n06: auth EXTERNAL + Hello ----------------------------------------------
+
+#[test]
+fn n02_auth_external_and_hello_yield_unique_name() {
+    let harness = harness!(&[]);
+    let connection = Connection::connect(&harness.bus_address())
+        .unwrap_or_else(|err| panic!("connect + Hello: {err:?}"));
+
+#!/usr/bin/env python3
+"""Мутационная проверка контрактов W34b (расширенные hints `a{sv}`).
+
+Каждая мутация — один точечный дефект в аддитивном коде P6-02d
+(`src/notifications.rs`, поля `image_path`/`sound_name`/`transient`/`suppress_sound`).
+Ожидание: targeted-тесты `notifications_contract` падают (мутация «убита»), причём без
+harness-SKIP. Файл восстанавливается из снимка, совпадение md5 до/после обязательно.
+
+Запуск (из корня репозитория):
+    CARGO_TARGET_DIR=/tmp/opencode/target-w34b python3 waves/RW-34/run-mutations-w34b.py
+
+stdout не перенаправляется в `mutations-w34b.log`: скрипт сам пишет туда журнал,
+а в stdout печатает только итог.
+
+Код выхода: 0 — все мутации убиты и файлы восстановлены; 1 — есть выжившая мутация,
+ошибка восстановления, harness-SKIP в baseline или сбой запуска тестов.
+"""
+
+import hashlib
+import os
+import re
+import subprocess
+import sys
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+CRATE = os.path.join(REPO_ROOT, "rust", "crates", "discord-platform")
+NOTIFICATIONS = os.path.join(CRATE, "src", "notifications.rs")
+LOG_PATH = os.path.join(REPO_ROOT, "waves", "RW-34", "mutations-w34b.log")
+WORKDIR = os.path.join(REPO_ROOT, "rust")
+TESTS = ["notifications_contract"]
+
+IMAGE_PATH_BLOCK = """        if let Some(image_path) = non_empty(&self.image_path) {
+            entries.push(variant_entry(
+                "image-path",
+                Value::String(image_path.to_owned()),
+            ));
+        }
+        if let Some(sound_name) = non_empty(&self.sound_name) {
+            entries.push(variant_entry(
+                "sound-name",
+                Value::String(sound_name.to_owned()),
+            ));
+        }"""
+
+SUPPRESS_BLOCK = """        if let Some(suppress_sound) = self.suppress_sound {
+            entries.push(variant_entry("suppress-sound", Value::Bool(suppress_sound)));
+        }
+"""
+
+TRANSIENT_BLOCK = """        if let Some(transient) = self.transient {
+            entries.push(variant_entry("transient", Value::Bool(transient)));
+        }"""
+
+# (id, имя, файл, фрагмент-оригинал, фрагмент-мутация, что должен поймать)
+MUTATIONS = [
+    (
+        "01",
+        "image_path_key_underscore",
+        NOTIFICATIONS,
+        """        if let Some(image_path) = non_empty(&self.image_path) {
+            entries.push(variant_entry(
+                "image-path",""",
+        """        if let Some(image_path) = non_empty(&self.image_path) {
+            entries.push(variant_entry(
+                "image_path",""",
+        "e01/e02/e07: ключ `image_path` вместо `image-path` (ключ записи)",
+    ),
+    (
+        "02",
+        "transient_variant_byte",
+        NOTIFICATIONS,
+        'entries.push(variant_entry("transient", Value::Bool(transient)));',
+        'entries.push(variant_entry(\n                "transient",\n                Value::Byte(u8::from(transient)),\n            ));',
+        "e01/e03/e07: вариант transient `b` заменён на `y` (тип варианта)",
+    ),
+    (
+        "03",
+        "empty_image_path_not_skipped",
+        NOTIFICATIONS,
+        "if let Some(image_path) = non_empty(&self.image_path) {",
+        "if let Some(image_path) = self.image_path.as_deref() {",
+        "e04: пустой image-path уходит на шину (пропуск пустой строки)",
+    ),
+    (
+        "04",
+        "sound_name_before_image_path",
+        NOTIFICATIONS,
+        IMAGE_PATH_BLOCK,
+        """        if let Some(sound_name) = non_empty(&self.sound_name) {
+            entries.push(variant_entry(
+                "sound-name",
+                Value::String(sound_name.to_owned()),
+            ));
+        }
+        if let Some(image_path) = non_empty(&self.image_path) {
+            entries.push(variant_entry(
+                "image-path",
+                Value::String(image_path.to_owned()),
+            ));
+        }""",
+        "e05/e07: порядок записей изменён (sound-name раньше image-path)",
+    ),
+    (
+        "05",
+        "suppress_sound_dropped",
+        NOTIFICATIONS,
+        SUPPRESS_BLOCK,
+        "",
+        "e01/e05/e07: запись `suppress-sound` потеряна (наличие)",
+    ),
+    (
+        "06",
+        "transient_false_skipped",
+        NOTIFICATIONS,
+        TRANSIENT_BLOCK,
+        """        if let Some(transient) = self.transient {
+            if transient {
+                entries.push(variant_entry("transient", Value::Bool(transient)));
+            }
+        }""",
+        "e03/e07: `Some(false)` пропущен вместо записи `b:0` (значение false)",
+    ),
+]
+
+TEST_LINE = re.compile(r"^test (\S+) \.\.\. FAILED$", re.MULTILINE)
+SUMMARY = re.compile(r"^test result: FAILED\..*$", re.MULTILINE)
+
+
+def md5(path):
+    with open(path, "rb") as handle:
+        return hashlib.md5(handle.read()).hexdigest()
+
+
+def count_skips(output: str) -> int:
+    """SKIP-строки harness без учёта намеренных live-skip (n16, флаг выключен)."""
+    return sum(
+        1
+        for line in output.splitlines()
+        if "SKIP:" in line and "live" not in line.lower()
+    )
+
+
+def run_tests():
+    env = dict(os.environ)
+    env.setdefault("CARGO_TARGET_DIR", "/tmp/opencode/target-w34b")
+    code = 0
+    chunks = []
+    for target in TESTS:
+        completed = subprocess.run(
+            [
+                "cargo",
+                "test",
+                "--offline",
+                "-p",
+                "discord-platform",
+                "--test",
+                target,
+                "--",
+                "--nocapture",
+            ],
+            cwd=WORKDIR,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if completed.returncode != 0:
+            code = completed.returncode
+        chunks.append("### %s\n%s%s" % (target, completed.stdout, completed.stderr))
+    return code, "\n".join(chunks)
+
+
+def main():
+    lines = ["# W34b — мутации расширенных hints `a{sv}`", ""]
+    failures = []
+
+    baseline_code, baseline_output = run_tests()
+    baseline_skips = count_skips(baseline_output)
+    lines.append("baseline: exit=%d, SKIP=%d" % (baseline_code, baseline_skips))
+    if baseline_code != 0 or "test result: ok" not in baseline_output or baseline_skips:
+        lines.append("ОСТАНОВ: базовый прогон не зелёный или содержит SKIP")
+        lines.append(baseline_output[-4000:])
+        write_log(lines)
+        return 1
+    lines.append("")
+
+    for mutation_id, name, path, original, mutated, expectation in MUTATIONS:
+        before_md5 = md5(path)
+        with open(path, encoding="utf-8") as handle:
+            source = handle.read()
+        if source.count(original) != 1:
+            failures.append("%s: фрагмент не найден однозначно" % mutation_id)
+            lines.append(
+                "## %s %s — ОШИБКА: фрагмент найден %d раз"
+                % (mutation_id, name, source.count(original))
+            )
+            continue
+
+        lines.append("## %s %s" % (mutation_id, name))
+        lines.append("ждём: %s" % expectation)
+        lines.append("md5 до: %s" % before_md5)
+
+        try:
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(source.replace(original, mutated, 1))
+            code, output = run_tests()
+            failing = sorted(set(TEST_LINE.findall(output)))
+            skips = count_skips(output)
+            killed = code != 0 and "test result: FAILED" in output and skips == 0
+            verdict = (
+                "KILLED"
+                if killed
+                else ("INCONCLUSIVE (SKIP)" if skips else "SURVIVED")
+            )
+            lines.append("exit: %d, SKIP=%d — %s" % (code, skips, verdict))
+            if failing:
+                lines.append("упавшие тесты: %s" % ", ".join(failing))
+            for match in SUMMARY.findall(output):
+                lines.append("  %s" % match)
+            if not failing:
+                tail = [line for line in output.splitlines() if line.startswith("error")]
+                lines.append("вывод: %s" % " | ".join(tail[:3]))
+            if not killed:
+                failures.append("%s %s: %s" % (mutation_id, name, verdict))
+        finally:
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(source)
+            after_md5 = md5(path)
+            lines.append(
+                "md5 после restore: %s — %s"
+                % (after_md5, "OK" if after_md5 == before_md5 else "РАСХОЖДЕНИЕ")
+            )
+            if after_md5 != before_md5:
+                failures.append("%s: md5 после восстановления не совпал" % mutation_id)
+        lines.append("")
+
+    lines.append("## Итог")
+    lines.append("мутаций: %d" % len(MUTATIONS))
+    if failures:
+        lines.append("проблемы: %s" % "; ".join(failures))
+17G	rust
+232K	waves/RW-34
+12K	fixtures/dbus/hints-ext.json
+
+exec
+/usr/bin/bash -lc "du -sh --exclude=target rust; sed -n '1,140p' waves/RW-34/REPORT-W34b.md; sed -n '1,220p' waves/RW-34/mutations-w34b.log; rg -n \"e0[1-7]|mock_hints2|hints-ext|notify_with_hints|unsafe|unwrap\\(|panic"'!|NOTIFY_SIGNATURE" rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/src/notifications.rs waves/RW-34/dbus/mock_hints2.py' in /home/sanya/orca/project
+ succeeded in 0ms:
+58M	rust
+# REPORT W34b — P6-02d расширенные hints `a{sv}` (headless)
+
+- **batch/карточка:** RW-34 / P6-02d, seat PLATFORM-2. Дата: 2026-10-23.
+- **репозиторий:** `discord-lab`, крейт `discord-platform`, поверх принятого P6-02b (RW-32).
+- Сеть/live-уведомления не использовались; `unsafe` не добавлялся; новых зависимостей нет;
+  `git commit/push` не выполнялись. `dbus/` (mod/message/auth), `power.rs`, `spellcheck*`,
+  `keyring*`, `lib.rs`, `Cargo.toml`, golden-каталоги не тронуты.
+- Полный batch-гейт не запускался (по AGENTS.md §3 это integration-лейн); здесь targeted
+  прогон + мутации.
+
+## 1. Сделано (аддитивно)
+
+`src/notifications.rs`:
+
+- `Hints` расширен четырьмя полями замороженного контракта:
+  `image_path: Option<String>`, `sound_name: Option<String>`, `transient: Option<bool>`,
+  `suppress_sound: Option<bool>` (существующие `urgency`/`category`/`desktop_entry`/
+  `resident` не менялись).
+- `Hints::to_dbus()` пишет `a{sv}` в фиксированном порядке:
+  `urgency` (`y`), `category` (`s`), `desktop-entry` (`s`), `image-path` (`s`),
+  `sound-name` (`s`), `resident` (`b`), `transient` (`b`), `suppress-sound` (`b`).
+  Пустые строки (`category`, `desktop_entry`, `image_path`, `sound_name`) пропускаются
+  через существующий `non_empty`; `Some(false)` для boolean — запись `b:0`, не пропуск.
+- Сигнатура `Notify` (`NOTIFY_SIGNATURE = "susssasa{sv}i"`) не менялась, `notify()` по-прежнему
+  `notify_with_hints(..., &Hints::default())`; обновлена только документация модуля/метода.
+- Диф ограничен `notifications.rs`: +33/−5, поведение старых полей сохранено (q01–q07 зелёные).
+
+Оракулы (независимы от Rust-кода):
+
+- `waves/RW-34/dbus/mock_hints2.py` — копия мока W32b (`mock_hints.py` не изменён, md5
+  оригинала `d983d49076c5197cfd03d841d013376f`); правлена только docstring-шапка, логика
+  журнала (`ключ:сигнатура:значение|…` в порядке провода) идентична. Мок на libdbus, поэтому
+  тип варианта и ключ видит демаршалинг python3-dbus, а не наш маршалер.
+- `fixtures/dbus/hints-ext.json` — 6 наборов, для каждого полные байты
+  `Notify(susssasa{sv}i)` от **libgio** (`Gio.DBusMessage.to_blob()`), плюс снимок журнала
+  `mock_hints2.py` (что реально демаршалировал libdbus) и общий блок `notify`.
+  Наборы: `all_eight`, `image_and_sound`, `bools_false`, `empties_normalized`, `unicode`,
+  `sound_and_image_alt`. Генератор — `waves/RW-34/dbus/gen-hints-ext.py` (дополнительный
+  артефакт волны, вне перечня карточки: нужен для воспроизводимости; см. §7).
+
+## 2. Red
+
+Тесты e01–e07 добавлены до реализации; прогон на старом `Hints` (4 поля):
+
+```sh
+cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w34b \
+  cargo test --offline -p discord-platform --test notifications_contract
+# EXIT=101 — 22 ошибки: E0560 «struct Hints has no field named image_path/sound_name/
+# transient/suppress_sound» и E0609 в хелперах e07
+```
+
+Лог: `waves/RW-34/workers/W34b/red.log`, последняя строка `# EXIT=101`.
+
+## 3. Green
+
+```sh
+cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w34b \
+  cargo test --offline -p discord-platform --test notifications_contract
+# test result: ok. 25 passed; 0 failed; 0 ignored
+# EXIT=0
+```
+
+Лог: `waves/RW-34/workers/W34b/green.log`, `# EXIT=0`, предупреждений компилятора нет,
+harness-SKIP нет (приватный `dbus-daemon` + `python3-dbus`/`gi` доступны; `n16` — намеренный
+live-skip по флагу `DISCORD_LAB_LIVE_NOTIFY`). 25 тестов = 18 прежних (n/q) + 7 новых e01–e07;
+поведение прежних hints не сломано. `rustfmt --edition 2024 --check` по обоим файлам и
+`cargo fmt --all -- --check` — чисто; `cargo clippy -p discord-platform --test
+notifications_contract -- -D warnings` — без замечаний.
+
+## 4. Тесты (7 новых, бюджет 7–9)
+
+| тест | кейс | проверка |
+|---|---|---|
+| `e01_all_eight_hints_reach_mock_with_freedesktop_types` | e01 | все 8 hints → `hints_len=8`, каждая запись `ключ:сигнатура:значение` с типом `y`/`s`/`b` (сверка как множество, порядок — в e05) |
+| `e02_image_path_and_sound_name_are_string_variants` | e02 | `image-path:s:file:///tmp/avatar.png\|sound-name:s:alarm-clock-elapsed` |
+| `e03_transient_and_suppress_sound_are_bools_including_false` | e03 | `transient:b:1\|suppress-sound:b:0` и `transient:b:0\|suppress-sound:b:1` — false не пропускается |
+| `e04_empty_new_strings_are_skipped` | e04 | пустые `image_path`/`sound_name` (и старые строки) не попадают в dict: 2 записи; только пустые строки → 0 записей |
+| `e05_key_order_is_frozen` | e05 | поля заданы в обратном порядке; журнал строго `urgency,category,desktop-entry,image-path,sound-name,resident,transient,suppress-sound` |
+| `e06_unicode_and_long_new_hints_are_delivered_without_panic` | e06 | `image-path` 4096 байт UTF-8, `sound-name` 4096 ASCII, Unicode-category — доставлены без искажений |
+| `e07_hints_bytes_match_libgio_and_round_trip` | e07 | 6 наборов фикстуры: `Hints::to_dbus()` = эталон (ключи/типы/порядок), `parse(libgio bytes).body[6]` = эталон, сборка нашим `message::build` побайтово равна libgio, round-trip `parse` даёт то же тело; сигнатура `susssasa{sv}i` |
+
+## 5. Мутации (6, бюджет 4–6)
+
+`waves/RW-34/run-mutations-w34b.py` (stdout не перенаправляется в лог; журнал пишет сам
+скрипт). Baseline: `exit=0, SKIP=0`. Каждая мутация — один дефект в `src/notifications.rs`,
+restore из снимка с проверкой md5.
+
+| ID | мутация | класс | итог | упавшие тесты |
+|---|---|---|---|---|
+| 01 | `image_path_key_underscore` (`image-path` → `image_path`) | ключ | KILLED | e01, e02, e05, e06, e07 |
+| 02 | `transient_variant_byte` (`b` → `y`) | тип варианта | KILLED | e01, e03, e05, e07 |
+| 03 | `empty_image_path_not_skipped` (`non_empty` → `as_deref`) | пропуск пустой | KILLED | e04 |
+| 04 | `sound_name_before_image_path` | порядок | KILLED | e02, e05, e06, e07 |
+| 05 | `suppress_sound_dropped` | наличие записи | KILLED | e01, e03, e05, e07 |
+| 06 | `transient_false_skipped` (`Some(false)` → пропуск) | значение false | KILLED | e03, e07 |
+
+`KILLED` — только при `test result: FAILED` и `SKIP=0`; исходные md5 восстановлены
+(`0355d73eaa26611bbdc2a9fe38a798e6` до/после каждой мутации). Итог: 6/6 убиты.
+Лог: `waves/RW-34/mutations-w34b.log`.
+
+## 6. Файлы (md5)
+
+| файл | md5 |
+|---|---|
+| `rust/crates/discord-platform/src/notifications.rs` | `0355d73eaa26611bbdc2a9fe38a798e6` |
+| `rust/crates/discord-platform/tests/notifications_contract.rs` | `3496ad0662a6a1d5299c1afe440a27d0` |
+| `waves/RW-34/dbus/mock_hints2.py` | `014f727bf8e38b97cb6ee109c2cd32dc` |
+| `waves/RW-34/dbus/gen-hints-ext.py` | `f0abf041d7b89cd1f3b45ab6f32996f0` |
+| `fixtures/dbus/hints-ext.json` | `d199e7aaa31248a3e81f6a4f0155b325` |
+| `waves/RW-34/run-mutations-w34b.py` | `be0568de858d20dc1a049fbfae262a78` |
+| `waves/RW-34/workers/W34b/red.log` | `5294b708967f5caca99a9ada4b326d5d` |
+| `waves/RW-34/workers/W34b/green.log` | `855a2fe43602d392c702360e24addde2` |
+| `waves/RW-34/mutations-w34b.log` | `49790fd0ceae0d8ec1d690e14a0b85d5` |
+| `waves/RW-34/REPORT-W34b.md` | (этот файл; md5 меняется при правках — уточнит TL) |
+
+Оригинал `waves/RW-32/dbus/mock_hints.py` не изменён:
+`d983d49076c5197cfd03d841d013376f`.
+
+## 7. Воспроизведение фикстуры
+
+```sh
+cd /home/sanya/orca/project && python3 waves/RW-34/dbus/gen-hints-ext.py
+# hints-ext.json: 6 наборов
+# md5 fixtures/dbus/hints-ext.json = d199e7aaa31248a3e81f6a4f0155b325
+```
+
+`gen-hints-ext.py` — единственный не указанный в ТЗ файл (дополнительный артефакт волны):
+байты `Notify` собирает **libgio** (`Gio.DBusMessage.to_blob()`), снимок журнала — приватный
+`dbus-daemon` + `mock_hints2.py` (libdbus). Наборы заданы в порядке контракта (urgency,
+category, desktop-entry, image-path, sound-name, resident, transient, suppress-sound),
+потому что libgio сериализует `a{sv}` в порядке вставки. Проверено: повторный запуск даёт
+тот же md5 фикстуры. Сеть не используется, `ensure_ascii=False`. Если TL считает файл
+лишним — фикстура остаётся валидной, генератор можно удалить (код воспроизводим по истории
+волны).
+
+## 8. Ограничения
+
+- Проверен только targeted-таргет `notifications_contract`; `cargo fmt`/`clippy`/
+  `test --workspace`/`gate:worker` — за integration-лейном RW-34.
+- `e07` опирается на libgio-байты фикстуры; при смене общего блока `notify`
+# W34b — мутации расширенных hints `a{sv}`
+
+baseline: exit=0, SKIP=0
+
+## 01 image_path_key_underscore
+ждём: e01/e02/e07: ключ `image_path` вместо `image-path` (ключ записи)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e01_all_eight_hints_reach_mock_with_freedesktop_types, e02_image_path_and_sound_name_are_string_variants, e05_key_order_is_frozen, e06_unicode_and_long_new_hints_are_delivered_without_panic, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 20 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 02 transient_variant_byte
+ждём: e01/e03/e07: вариант transient `b` заменён на `y` (тип варианта)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e01_all_eight_hints_reach_mock_with_freedesktop_types, e03_transient_and_suppress_sound_are_bools_including_false, e05_key_order_is_frozen, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 21 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 03 empty_image_path_not_skipped
+ждём: e04: пустой image-path уходит на шину (пропуск пустой строки)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e04_empty_new_strings_are_skipped
+  test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 04 sound_name_before_image_path
+ждём: e05/e07: порядок записей изменён (sound-name раньше image-path)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e02_image_path_and_sound_name_are_string_variants, e05_key_order_is_frozen, e06_unicode_and_long_new_hints_are_delivered_without_panic, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 21 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 05 suppress_sound_dropped
+ждём: e01/e05/e07: запись `suppress-sound` потеряна (наличие)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e01_all_eight_hints_reach_mock_with_freedesktop_types, e03_transient_and_suppress_sound_are_bools_including_false, e05_key_order_is_frozen, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 21 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## 06 transient_false_skipped
+ждём: e03/e07: `Some(false)` пропущен вместо записи `b:0` (значение false)
+md5 до: 0355d73eaa26611bbdc2a9fe38a798e6
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: e03_transient_and_suppress_sound_are_bools_including_false, e07_hints_bytes_match_libgio_and_round_trip
+  test result: FAILED. 23 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+md5 после restore: 0355d73eaa26611bbdc2a9fe38a798e6 — OK
+
+## Итог
+мутаций: 6
+все мутации убиты, все файлы восстановлены
+rust/crates/discord-platform/src/notifications.rs:11://! через [`Hints`]/[`Notifier::notify_with_hints`]; `notify` оставляет dict пустым.
+rust/crates/discord-platform/src/notifications.rs:28:pub const NOTIFY_SIGNATURE: &str = "susssasa{sv}i";
+rust/crates/discord-platform/src/notifications.rs:68:/// `notify_with_hints(&notification, &Hints::default())`.
+rust/crates/discord-platform/src/notifications.rs:216:    /// Эквивалент `notify_with_hints(notification, &Hints::default())`.
+rust/crates/discord-platform/src/notifications.rs:218:        self.notify_with_hints(notification, &Hints::default())
+rust/crates/discord-platform/src/notifications.rs:227:    pub fn notify_with_hints(
+rust/crates/discord-platform/src/notifications.rs:259:        let reply = self.call("Notify", NOTIFY_SIGNATURE, &body)?;
+rust/crates/discord-platform/tests/notifications_contract.rs:259:        .unwrap_or_else(|err| panic!("connect + Hello: {err:?}"));
+rust/crates/discord-platform/tests/notifications_contract.rs:375:        other => panic!("ожидался DbusError::Remote, получено {other:?}"),
+rust/crates/discord-platform/tests/notifications_contract.rs:500:        Err(other) => panic!("неожиданная ошибка закрытой сессии: {other:?}"),
+rust/crates/discord-platform/tests/notifications_contract.rs:589:    /// `waves/RW-34/dbus/mock_hints2.py`); префикс tempdir отличает прогоны.
+rust/crates/discord-platform/tests/notifications_contract.rs:735:        panic!(
+rust/crates/discord-platform/tests/notifications_contract.rs:765:    // `notify` — ровно `notify_with_hints(..., Hints::default())`.
+rust/crates/discord-platform/tests/notifications_contract.rs:767:        .notify_with_hints(&sample_notification(), &Hints::default())
+rust/crates/discord-platform/tests/notifications_contract.rs:783:            .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:811:        .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:834:            .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:866:        .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:895:        .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:935:        .notify_with_hints(&notification, &hints)
+rust/crates/discord-platform/tests/notifications_contract.rs:949:// `waves/RW-34/dbus/mock_hints2.py` (журнал `ключ:сигнатура:значение` в порядке провода)
+rust/crates/discord-platform/tests/notifications_contract.rs:950:// и байты `Notify`, собранные libgio (`fixtures/dbus/hints-ext.json`). Rust-код в
+rust/crates/discord-platform/tests/notifications_contract.rs:958:const EXT_MOCK: &str = "waves/RW-34/dbus/mock_hints2.py";
+rust/crates/discord-platform/tests/notifications_contract.rs:1005:// --- e01: все 8 hints — 8 записей, варианты y/s/b --------------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1008:fn e01_all_eight_hints_reach_mock_with_freedesktop_types() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1013:        .notify_with_hints(&sample_notification(), &full_hints())
+rust/crates/discord-platform/tests/notifications_contract.rs:1040:// --- e02: image-path и sound-name — варианты s -----------------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1043:fn e02_image_path_and_sound_name_are_string_variants() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1048:        .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:1067:// --- e03: transient/suppress-sound — b, включая false ----------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1070:fn e03_transient_and_suppress_sound_are_bools_including_false() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1076:            .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:1103:// --- e04: пустые строки новых полей не отправляются ------------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1106:fn e04_empty_new_strings_are_skipped() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1111:        .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:1131:        .notify_with_hints(
+rust/crates/discord-platform/tests/notifications_contract.rs:1147:// --- e05: порядок ключей фиксирован ----------------------------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1150:fn e05_key_order_is_frozen() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1167:        .notify_with_hints(&sample_notification(), &hints)
+rust/crates/discord-platform/tests/notifications_contract.rs:1181:// --- e06: Unicode и 4 КиБ --------------------------------------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1184:fn e06_unicode_and_long_new_hints_are_delivered_without_panic() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1199:        .notify_with_hints(&sample_notification(), &hints)
+rust/crates/discord-platform/tests/notifications_contract.rs:1211:// --- e07: байты a{sv} против libgio + round-trip ---------------------------------
+rust/crates/discord-platform/tests/notifications_contract.rs:1262:    let path = repo_path("fixtures/dbus/hints-ext.json");
+rust/crates/discord-platform/tests/notifications_contract.rs:1264:        fs::read_to_string(&path).unwrap_or_else(|err| panic!("чтение {}: {err}", path.display()));
+rust/crates/discord-platform/tests/notifications_contract.rs:1265:    ext_json_parse(&text).unwrap_or_else(|err| panic!("{} — битый JSON: {err}", path.display()))
+rust/crates/discord-platform/tests/notifications_contract.rs:1444:                .unwrap_or_else(|err| panic!("hex {}: {err}", &text[index..index + 2]))
+rust/crates/discord-platform/tests/notifications_contract.rs:1476:                    other => panic!("{key}: неожиданная urgency {other:?}"),
+rust/crates/discord-platform/tests/notifications_contract.rs:1486:            other => panic!("неизвестная запись hints: {other:?}"),
+rust/crates/discord-platform/tests/notifications_contract.rs:1495:        other => panic!("{key}: ожидался bool, получено {other:?}"),
+rust/crates/discord-platform/tests/notifications_contract.rs:1518:            other => panic!("{key}: неизвестная сигнатура варианта {other:?}"),
+rust/crates/discord-platform/tests/notifications_contract.rs:1530:    let notify = golden.get("notify").expect("hints-ext.json: notify");
+rust/crates/discord-platform/tests/notifications_contract.rs:1535:            .unwrap_or_else(|| panic!("hints-ext.json: notify.{key}"))
+rust/crates/discord-platform/tests/notifications_contract.rs:1541:        .expect("hints-ext.json: notify.actions")
+rust/crates/discord-platform/tests/notifications_contract.rs:1549:            .expect("hints-ext.json: notify.timeout_ms"),
+rust/crates/discord-platform/tests/notifications_contract.rs:1566:fn e07_hints_bytes_match_libgio_and_round_trip() {
+rust/crates/discord-platform/tests/notifications_contract.rs:1575:        Some(notifications::NOTIFY_SIGNATURE),
+rust/crates/discord-platform/tests/notifications_contract.rs:1582:        .expect("hints-ext.json: cases");
+rust/crates/discord-platform/tests/notifications_contract.rs:1610:            .unwrap_or_else(|err| panic!("{name}: байты libgio не разобраны: {err:?}"));
+rust/crates/discord-platform/tests/notifications_contract.rs:1615:            notifications::NOTIFY_SIGNATURE,
+rust/crates/discord-platform/tests/notifications_contract.rs:1634:        .unwrap_or_else(|err| panic!("{name}: сборка сообщения: {err:?}"));
+
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w34 cargo test --offline -p discord-platform --test notifications_contract -- --nocapture' in /home/sanya/orca/project/rust
+ succeeded in 565ms:
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+     Running tests/notifications_contract.rs (/tmp/opencode/target-codex-w34/debug/deps/notifications_contract-46ee250d2c4bcc41)
+
+running 25 tests
+test e07_hints_bytes_match_libgio_and_round_trip ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[343]: Failed to start message bus: Failed to bind socket "/tmp/dbus-Zfmj9DJ6g5": Operation not permitted
+test n11_error_reply_maps_to_remote_error ... ok
+SKIP: live-уведомления выключены (DISCORD_LAB_LIVE_NOTIFY != 1)
+test n16_live_service_is_flag_gated_and_read_only ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[344]: Failed to start message bus: Failed to bind socket "/tmp/dbus-ARno4r0zbl": Operation not permitted
+test e06_unicode_and_long_new_hints_are_delivered_without_panic ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[345]: Failed to start message bus: Failed to bind socket "/tmp/dbus-Oaz40ESJaH": Operation not permitted
+test n07_capabilities_and_server_information_come_from_mock ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[346]: Failed to start message bus: Failed to bind socket "/tmp/dbus-8zumpQ3UgH": Operation not permitted
+SKIP: dbus-daemon завершился: dbus-daemon[342]: Failed to start message bus: Failed to bind socket "/tmp/dbus-ves1vH4d4J": Operation not permitted
+test e02_image_path_and_sound_name_are_string_variants ... ok
+test e05_key_order_is_frozen ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[355]: Failed to start message bus: Failed to bind socket "/tmp/dbus-EmYLmeVYc2": Operation not permitted
+test n10_close_notification_reaches_mock ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[347]: Failed to start message bus: Failed to bind socket "/tmp/dbus-5sQEvvUiy9": Operation not permitted
+test e04_empty_new_strings_are_skipped ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[363]: Failed to start message bus: Failed to bind socket "/tmp/dbus-avi8XR7QcK": Operation not permitted
+test n12_action_and_close_signals_become_events ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[358]: Failed to start message bus: Failed to bind socket "/tmp/dbus-WdgDIwWbku": Operation not permitted
+test n15_repeated_close_and_closed_session_survive ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[367]: Failed to start message bus: Failed to bind socket "/tmp/dbus-P7SSNBhTaP": Operation not permitted
+test e03_transient_and_suppress_sound_are_bools_including_false ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[371]: Failed to start message bus: Failed to bind socket "/tmp/dbus-U93hlW5Wkw": Operation not permitted
+test e01_all_eight_hints_reach_mock_with_freedesktop_types ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[375]: Failed to start message bus: Failed to bind socket "/tmp/dbus-7j4atQWSjH": Operation not permitted
+test n13_foreign_signals_are_skipped ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[376]: Failed to start message bus: Failed to bind socket "/tmp/dbus-WZSBqSTcAg": Operation not permitted
+test n08_notify_returns_server_id_and_mock_sees_fields ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[377]: Failed to start message bus: Failed to bind socket "/tmp/dbus-kbk9Ehlk1T": Operation not permitted
+test n02_auth_external_and_hello_yield_unique_name ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[378]: Failed to start message bus: Failed to bind socket "/tmp/dbus-Jbuatx6b7J": Operation not permitted
+test n08b_notify_requires_app_name_and_summary ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[379]: Failed to start message bus: Failed to bind socket "/tmp/dbus-MPJsqBOb8G": Operation not permitted
+test n09_notify_actions_reach_mock_as_pairs ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[380]: Failed to start message bus: Failed to bind socket "/tmp/dbus-3wg3WObHC9": Operation not permitted
+SKIP: dbus-daemon завершился: dbus-daemon[381]: Failed to start message bus: Failed to bind socket "/tmp/dbus-bTt9LKDuFk": Operation not permitted
+test q07_unicode_and_long_values_are_delivered_without_panic ... ok
+test q02_urgency_is_byte_variant_with_contract_values ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[382]: Failed to start message bus: Failed to bind socket "/tmp/dbus-k9KMivFEto": Operation not permitted
+test q06_empty_category_and_desktop_entry_are_skipped ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[383]: Failed to start message bus: Failed to bind socket "/tmp/dbus-7Fc8RzI9vH": Operation not permitted
+test q04_desktop_entry_and_resident_have_string_and_bool_variants ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[384]: Failed to start message bus: Failed to bind socket "/tmp/dbus-DQFdf1ZN1O": Operation not permitted
+test q03_category_is_string_variant ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[385]: Failed to start message bus: Failed to bind socket "/tmp/dbus-039imliITb": Operation not permitted
+test q01_notify_without_hints_sends_empty_dict ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[386]: Failed to start message bus: Failed to bind socket "/tmp/dbus-uuDQ5AJ7bI": Operation not permitted
+test q05_all_hints_are_four_entries_in_frozen_order ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+
+codex
+Targeted Rust-прогон дал 25 passed, но изолированный `dbus-daemon` не может bind-ить сокет в текущем sandbox: тесты harness помечены `SKIP`, так что заявленный baseline `SKIP=0` здесь не воспроизведён. Чистый e07 всё же прошёл; отдельно выясняю, можно ли прогнать DBus-мок и шесть мутаций в копии без записи в workspace.
+exec
+/usr/bin/bash -lc "sed -n '1,240p' rust/Cargo.toml; cat rust/crates/discord-platform/Cargo.toml; sed -n '1,220p' waves/RW-34/dbus/mock_hints2.py; python3 - <<'PY'
+import json
+p='fixtures/dbus/hints-ext.json'
+d=json.load(open(p))
+print('cases', len(d['cases']))
+for c in d['cases']:
+ print(c['name'], c.get('notify_hex','')[:16], c.keys())
+PY
+md5sum rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/tests/notifications_contract.rs waves/RW-34/dbus/mock_hints2.py waves/RW-34/dbus/gen-hints-ext.py fixtures/dbus/hints-ext.json waves/RW-34/run-mutations-w34b.py waves/RW-34/workers/W34b/red.log waves/RW-34/workers/W34b/green.log waves/RW-34/mutations-w34b.log" in /home/sanya/orca/project
+ succeeded in 0ms:
+# Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
+# Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
+# шлюза: tokio/tokio-tungstenite (WS), rustls с провайдером ring, webpki-roots, futures-util;
+# dev-зависимость `zstd` (C-энкодер) — только для стабов в тестах. После первой сборки (сеть,
+# разрешение владельца 2026-10-19) тесты идут офлайн (`cargo test --offline`).
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.87"
+
+[workspace.dependencies]
+discord-json = { path = "crates/discord-json" }
+discord-codec = { path = "crates/discord-codec" }
+discord-core = { path = "crates/discord-core" }
+discord-conformance = { path = "crates/discord-conformance" }
+# Транспорт шлюза (RW-04). Версии — стартовые из ТЗ, точные фиксирует Cargo.lock.
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time"] }
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
+# TLS-провайдер ring (не aws-lc-rs: без cmake/nasm), tls12 оставлен для совместимости.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+# HTTP/1.1-транспорт REST (RW-10, решение владельца — вариант A): TLS поверх tokio.
+# Версии уже в Cargo.lock/офлайн-кэше; сетевых загрузок нет.
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
+httparse = "1"
+webpki-roots = "1"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+# Энкодер zstd — только для стабов тестов (продукт на чтении использует ruzstd).
+zstd = "0.14"
+[package]
+name = "discord-platform"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Системная интеграция: tray, уведомления, нативные мосты"
+
+[lints.rust]
+unsafe_code = "deny"
+#!/usr/bin/env python3
+"""Мок-сервер `org.freedesktop.Notifications` на libdbus для контрактных тестов W34b.
+
+Копия `waves/RW-32/dbus/mock_hints.py` (оригинал не меняется): логика журнала та же,
+поэтому хинты W34b (`image-path`, `sound-name`, `transient`, `suppress-sound`) видны в
+журнале без правок оракула.
+
+Отличие от `waves/RW-30/dbus/mock_service.py` (он не меняется): журнал `Notify`
+дополнительно фиксирует содержимое `a{sv}` — порядок ключей и **тип варианта** каждого
+значения. Это независимый оракул демаршалинга: hints разбирает libdbus (python3-dbus),
+а не Rust-код W32b, поэтому неверный тип варианта (`u` вместо `y`, `s` вместо `b`)
+виден в журнале.
+
+CLI:
+    mock_hints.py --address <unix:path=...> --log <file> [--fail-notify]
+                  [--next-id 101] [--capabilities body,actions,persistence]
+
+Журнал вызовов — TSV-строки (первое поле — член вызова):
+    READY
+    GetCapabilities
+    GetServerInformation
+    Notify\t<app_name>\t<replaces_id>\t<app_icon>\t<summary>\t<body>\t<hints_len>\t<actions>\t<timeout>\t<hints>
+    CloseNotification\t<id>
+    EmitAction\t<id>\t<action>
+    EmitClosed\t<id>\t<reason>
+    EmitForeign\t<id>
+
+`<hints>` — записи в порядке провода через `|`, каждая `ключ:сигнатура:значение`
+(например `urgency:y:2|category:s:email.arrived|resident:b:1`). Пустой `a{sv}` — пустое
+поле. `<hints_len>` — число записей (для проверки «dict 0 записей, не null»).
+
+Управляющий интерфейс `lab.Mock.Notifications` на `/lab/Mock`: `EmitAction(u, s)`,
+`EmitClosed(u, u)`, `EmitForeign(u)`.
+"""
+
+import argparse
+import os
+import sys
+
+import dbus
+import dbus.lowlevel
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
+from gi.repository import GLib
+
+DESTINATION = "org.freedesktop.Notifications"
+PATH = "/org/freedesktop/Notifications"
+IFACE = "org.freedesktop.Notifications"
+CONTROL_PATH = "/lab/Mock"
+CONTROL_IFACE = "lab.Mock.Notifications"
+CONTROL_DESTINATION = "lab.Mock"
+
+
+def _variant_signature(value):
+    """D-Bus-сигнатура значения из `a{sv}` (libdbus отдаёт типизированные обёртки).
+
+    Проверки идут от наследников `int`: `dbus.Boolean`/`dbus.Byte` тоже int, поэтому
+    порядок важен. Неизвестный тип → `?` (тест увидит расхождение, а не молчание).
+    """
+    if isinstance(value, dbus.Boolean):
+        return "b"
+    if isinstance(value, dbus.Byte):
+        return "y"
+    if isinstance(value, dbus.String):
+        return "s"
+    if isinstance(value, dbus.ObjectPath):
+        return "o"
+    if isinstance(value, dbus.Signature):
+        return "g"
+    if isinstance(value, dbus.Int16):
+        return "n"
+    if isinstance(value, dbus.UInt16):
+        return "q"
+    if isinstance(value, dbus.Int32):
+        return "i"
+    if isinstance(value, dbus.UInt32):
+        return "u"
+    if isinstance(value, dbus.Int64):
+        return "x"
+    if isinstance(value, dbus.UInt64):
+        return "t"
+    if isinstance(value, dbus.Double):
+        return "d"
+    return "?"
+
+
+def _format_hint_value(value, signature):
+    if signature == "b":
+        # dbus.Boolean — наследник int; в журнале нужен стабильный 0/1, а не True/False.
+        return "1" if bool(value) else "0"
+    if signature in ("y", "n", "q", "i", "u", "x", "t"):
+        return str(int(value))
+    return str(value)
+
+
+def format_hints(hints):
+    """`a{sv}` → `ключ:сигнатура:значение|…` в порядке провода (dict python 3.7+ упорядочен)."""
+    parts = []
+    for key, value in hints.items():
+        signature = _variant_signature(value)
+        parts.append("%s:%s:%s" % (key, signature, _format_hint_value(value, signature)))
+    return "|".join(parts)
+
+
+class MockNotifications(dbus.service.Object):
+    def __init__(self, bus, log_path, fail_notify, next_id, capabilities):
+        super().__init__(bus, PATH)
+        self._bus = bus
+        self._log_path = log_path
+        self._fail_notify = fail_notify
+        self._next_id = next_id
+        self._capabilities = capabilities
+        self._control = MockControl(bus, self)
+
+    def _log(self, *fields):
+        with open(self._log_path, "a", encoding="utf-8") as handle:
+            handle.write("\t".join(str(field) for field in fields) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+
+    @staticmethod
+    def _format_actions(actions):
+        # Спека freedesktop: `as` — плоский список парами (id, label, id, label, …).
+        flat = [str(item) for item in actions]
+        pairs = []
+        for index in range(0, len(flat) - 1, 2):
+            pairs.append("%s:%s" % (flat[index], flat[index + 1]))
+        return "|".join(pairs)
+
+    @dbus.service.method(IFACE, in_signature="susssasa{sv}i", out_signature="u")
+    def Notify(self, app_name, replaces_id, app_icon, summary, body, actions, hints, expire_timeout):
+        self._log(
+            "Notify",
+            app_name,
+            int(replaces_id),
+            app_icon,
+            summary,
+            body,
+            len(hints),
+            self._format_actions(actions),
+            int(expire_timeout),
+            format_hints(hints),
+        )
+        if self._fail_notify:
+            raise dbus.exceptions.DBusException(
+                "mock rejected notification",
+                name="org.freedesktop.Notifications.Error.MockRejected",
+            )
+        if int(replaces_id) != 0:
+            return dbus.UInt32(int(replaces_id))
+        self._next_id += 1
+        return dbus.UInt32(self._next_id - 1)
+
+    @dbus.service.method(IFACE, in_signature="u", out_signature="")
+    def CloseNotification(self, notification_id):
+        self._log("CloseNotification", int(notification_id))
+
+    @dbus.service.method(IFACE, in_signature="", out_signature="as")
+    def GetCapabilities(self):
+        self._log("GetCapabilities")
+        return dbus.Array(self._capabilities, signature="s")
+
+    @dbus.service.method(IFACE, in_signature="", out_signature="ssss")
+    def GetServerInformation(self):
+        self._log("GetServerInformation")
+        return dbus.String("MockNotify"), dbus.String("discord-lab"), dbus.String("1.0"), dbus.String("1.2")
+
+    @dbus.service.signal(IFACE, signature="us")
+    def ActionInvoked(self, notification_id, action_key):
+        pass
+
+    @dbus.service.signal(IFACE, signature="uu")
+    def NotificationClosed(self, notification_id, reason):
+        pass
+
+    def emit_action(self, notification_id, action_key):
+        self._log("EmitAction", notification_id, action_key)
+        self.ActionInvoked(dbus.UInt32(notification_id), dbus.String(action_key))
+
+    def emit_closed(self, notification_id, reason):
+        self._log("EmitClosed", notification_id, reason)
+        self.NotificationClosed(dbus.UInt32(notification_id), dbus.UInt32(reason))
+
+    def emit_foreign(self, notification_id):
+        self._log("EmitForeign", notification_id)
+        ping = dbus.lowlevel.SignalMessage(CONTROL_PATH, "lab.Mock.Ping", "Ping")
+        ping.append(dbus.String("foreign"), signature="s")
+        self._bus.send_message(ping)
+
+        bogus = dbus.lowlevel.SignalMessage(PATH, IFACE, "ActionInvoked")
+        bogus.append(dbus.String("not-a-struct"), signature="s")
+        self._bus.send_message(bogus)
+
+
+class MockControl(dbus.service.Object):
+    def __init__(self, bus, notifications):
+        super().__init__(bus, CONTROL_PATH)
+        self._notifications = notifications
+
+    @dbus.service.method(CONTROL_IFACE, in_signature="us", out_signature="")
+    def EmitAction(self, notification_id, action_key):
+        self._notifications.emit_action(int(notification_id), str(action_key))
+
+    @dbus.service.method(CONTROL_IFACE, in_signature="uu", out_signature="")
+    def EmitClosed(self, notification_id, reason):
+        self._notifications.emit_closed(int(notification_id), int(reason))
+
+    @dbus.service.method(CONTROL_IFACE, in_signature="u", out_signature="")
+    def EmitForeign(self, notification_id):
+        self._notifications.emit_foreign(int(notification_id))
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(description="Мок org.freedesktop.Notifications на libdbus (hints)")
+    parser.add_argument("--address", required=True, help="адрес приватной сессионной шины")
+    parser.add_argument("--log", required=True, help="файл журнала вызовов (TSV)")
+    parser.add_argument("--fail-notify", action="store_true", help="Notify отвечает D-Bus-ошибкой")
+    parser.add_argument("--next-id", type=int, default=100, help="первый выданный id уведомления")
+    parser.add_argument(
+        "--capabilities",
+cases 6
+all_eight 6c01000188010000 dict_keys(['name', 'hints', 'notify_hex'])
+image_and_sound 6c010001d0000000 dict_keys(['name', 'hints', 'notify_hex'])
+bools_false 6c010001c0000000 dict_keys(['name', 'hints', 'notify_hex'])
+empties_normalized 6c01000198000000 dict_keys(['name', 'hints', 'notify_hex'])
+unicode 6c010001fc000000 dict_keys(['name', 'hints', 'notify_hex'])
+sound_and_image_alt 6c010001bc000000 dict_keys(['name', 'hints', 'notify_hex'])
+0355d73eaa26611bbdc2a9fe38a798e6  rust/crates/discord-platform/src/notifications.rs
+3496ad0662a6a1d5299c1afe440a27d0  rust/crates/discord-platform/tests/notifications_contract.rs
+014f727bf8e38b97cb6ee109c2cd32dc  waves/RW-34/dbus/mock_hints2.py
+f0abf041d7b89cd1f3b45ab6f32996f0  waves/RW-34/dbus/gen-hints-ext.py
+d199e7aaa31248a3e81f6a4f0155b325  fixtures/dbus/hints-ext.json
+be0568de858d20dc1a049fbfae262a78  waves/RW-34/run-mutations-w34b.py
+5294b708967f5caca99a9ada4b326d5d  waves/RW-34/workers/W34b/red.log
+855a2fe43602d392c702360e24addde2  waves/RW-34/workers/W34b/green.log
+49790fd0ceae0d8ec1d690e14a0b85d5  waves/RW-34/mutations-w34b.log
+
+exec
+/usr/bin/bash -lc "sed -n '560,640p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '940,1010p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '1560,1650p' rust/crates/discord-platform/tests/notifications_contract.rs; rg -n \"unsafe|\\bunwrap\\(|panic"'!|NOTIFY_SIGNATURE" rust/crates/discord-platform/src/notifications.rs; git status --short' in /home/sanya/orca/project
+ succeeded in 0ms:
+// =================================================================================
+// W32b (P6-02b): hints `a{sv}`. Оракул — `waves/RW-32/dbus/mock_hints.py` на libdbus:
+// журнал `Notify` пишет `ключ:сигнатура:значение` в порядке провода, поэтому неверный
+// тип варианта, ключ, пропуск пустой строки или порядок видны как расхождение строки.
+// =================================================================================
+
+const HINTS_SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+const HINTS_SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
+
+/// Приватная шина + мок hints; отличается от `Harness` только скриптом мока
+/// (`waves/RW-32/dbus/mock_hints.py`) и префиксом временного каталога.
+struct HintsHarness {
+    address: String,
+    journal: PathBuf,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Child,
+}
+
+impl HintsHarness {
+    fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
+        Self::start_with_mock(
+            "waves/RW-32/dbus/mock_hints.py",
+            "discord-lab-w32b",
+            extra_mock_args,
+        )
+    }
+
+    /// Тот же стенд, но с другим скриптом мока (W34b использует копию
+    /// `waves/RW-34/dbus/mock_hints2.py`); префикс tempdir отличает прогоны.
+    fn start_with_mock(
+        mock_script: &str,
+        temp_prefix: &str,
+        extra_mock_args: &[&str],
+    ) -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(HINTS_SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(HINTS_SKIP_NO_PYTHON.to_owned());
+        }
+
+        let dir = std::env::temp_dir().join(format!(
+            "{temp_prefix}-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let started = Command::new("dbus-daemon")
+            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+            .output()
+            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+        if !started.status.success() {
+            return Err(format!(
+                "dbus-daemon завершился: {}",
+                String::from_utf8_lossy(&started.stderr).trim()
+            ));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let address = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+            .trim()
+            .to_owned();
+        let daemon_pid: u32 = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())?
+            .trim()
+            .parse()
+            .map_err(|err| format!("pid dbus-daemon: {err}"))?;
+
+        let journal = dir.join("journal.tsv");
+        let mut mock = Command::new("python3")
+            .arg(repo_path(mock_script))
+            .arg("--address")
+            .arg(&address)
+            .arg("--log")
+            .arg(&journal)
+            .args(extra_mock_args)
+    assert_eq!(record[4], "Юникод 📬", "summary дошёл без искажений");
+    assert_eq!(record[5], "тело уведомления");
+    assert_eq!(
+        hints_field(&record),
+        format!("category:s:{long_ascii}|desktop-entry:s:{long_unicode}")
+    );
+}
+// =================================================================================
+// W34b (P6-02d): расширенные hints `a{sv}`. Оракул — копия libdbus-мока
+// `waves/RW-34/dbus/mock_hints2.py` (журнал `ключ:сигнатура:значение` в порядке провода)
+// и байты `Notify`, собранные libgio (`fixtures/dbus/hints-ext.json`). Rust-код в
+// оракуле не участвует, поэтому неверный ключ, тип варианта, пропуск пустой строки или
+// порядок записей видны как расхождение.
+// =================================================================================
+
+use discord_platform::dbus::message::{self, MessageType};
+use discord_platform::notifications;
+
+const EXT_MOCK: &str = "waves/RW-34/dbus/mock_hints2.py";
+const EXT_TEMP_PREFIX: &str = "discord-lab-w34b";
+
+macro_rules! ext_harness {
+    () => {
+        match HintsHarness::start_with_mock(EXT_MOCK, EXT_TEMP_PREFIX, &[]) {
+            Ok(harness) => harness,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+/// Полный набор из восьми hints; значения совпадают с набором `all_eight` фикстуры.
+fn full_hints() -> Hints {
+    Hints {
+        urgency: Some(Urgency::Normal),
+        category: Some("im.received".to_owned()),
+        desktop_entry: Some("discord-lab".to_owned()),
+        image_path: Some("/usr/share/icons/discord-lab.png".to_owned()),
+        sound_name: Some("message-new-instant".to_owned()),
+        resident: Some(true),
+        transient: Some(true),
+        suppress_sound: Some(true),
+    }
+}
+
+/// Запись журнала `hints` → тройки (ключ, сигнатура варианта, значение).
+fn hint_entries(field: &str) -> Vec<(&str, &str, &str)> {
+    if field.is_empty() {
+        return Vec::new();
+    }
+    field
+        .split('|')
+        .map(|entry| {
+            let mut parts = entry.splitn(3, ':');
+            (
+                parts.next().unwrap_or(""),
+                parts.next().unwrap_or(""),
+                parts.next().unwrap_or(""),
+            )
+        })
+        .collect()
+}
+
+// --- e01: все 8 hints — 8 записей, варианты y/s/b --------------------------------
+
+#[test]
+fn e01_all_eight_hints_reach_mock_with_freedesktop_types() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+        hints.to_dbus(),
+        Value::I32(timeout_ms),
+    ]
+}
+
+#[test]
+fn e07_hints_bytes_match_libgio_and_round_trip() {
+    let golden = load_ext_fixture();
+    assert_eq!(
+        golden.get("hints_signature").and_then(ExtJson::as_str),
+        Some("a{sv}"),
+        "hints — именно a{{sv}}"
+    );
+    assert_eq!(
+        golden.get("signature").and_then(ExtJson::as_str),
+        Some(notifications::NOTIFY_SIGNATURE),
+        "сигнатура Notify не меняется"
+    );
+
+    let cases = golden
+        .get("cases")
+        .and_then(ExtJson::as_arr)
+        .expect("hints-ext.json: cases");
+    assert!(
+        cases.len() >= 5,
+        "ожидались наборы all_eight/image_and_sound/bools_false/…, есть {}",
+        cases.len()
+    );
+
+    for case in cases {
+        let name = case
+            .get("name")
+            .and_then(ExtJson::as_str)
+            .expect("case.name");
+        let items = case
+            .get("hints")
+            .and_then(ExtJson::as_arr)
+            .expect("case.hints");
+        let hints = ext_json_hints(items);
+        let expected = ext_json_hints_value(items);
+
+        // Структура, типы вариантов и порядок записей — как в эталоне оракула.
+        assert_eq!(hints.to_dbus(), expected, "{name}: форма a{{sv}}");
+
+        let hex = case
+            .get("notify_hex")
+            .and_then(ExtJson::as_str)
+            .expect("case.notify_hex");
+        let bytes = ext_json_hex_decode(hex);
+        let libgio = message::parse(&bytes)
+            .unwrap_or_else(|err| panic!("{name}: байты libgio не разобраны: {err:?}"));
+        assert_eq!(libgio.kind, MessageType::MethodCall);
+        assert_eq!(libgio.member(), Some("Notify"));
+        assert_eq!(
+            libgio.signature,
+            notifications::NOTIFY_SIGNATURE,
+            "{name}: сигнатура вызова"
+        );
+        assert_eq!(
+            libgio.body.get(6),
+            Some(&expected),
+            "{name}: libdbus/libgio демаршалит другой a{{sv}}"
+        );
+
+        // Побайтовое совпадение с libgio: выравнивание массива 4, dict-entry 8,
+        // сигнатуры вариантов и порядок записей.
+        let body = ext_notify_body(&golden, &hints);
+        let rebuilt = message::build(
+            MessageType::MethodCall,
+            libgio.serial,
+            &libgio.fields,
+            &libgio.signature,
+            &body,
+        )
+        .unwrap_or_else(|err| panic!("{name}: сборка сообщения: {err:?}"));
+        assert_eq!(
+            ext_json_hex_encode(&rebuilt),
+            ext_json_hex_encode(&bytes),
+            "{name}: байты a{{sv}} расходятся с libgio"
+        );
+
+        let round_trip = message::parse(&rebuilt).expect("разбор собранного сообщения");
+        assert_eq!(round_trip.body, body, "{name}: round-trip тела");
+        assert_eq!(
+            round_trip.body.get(6),
+            Some(&expected),
+            "{name}: round-trip a{{sv}}"
+        );
+    }
+}
+28:pub const NOTIFY_SIGNATURE: &str = "susssasa{sv}i";
+259:        let reply = self.call("Notify", NOTIFY_SIGNATURE, &body)?;
+ M rust/crates/discord-platform/src/dbus/mod.rs
+ M rust/crates/discord-platform/src/notifications.rs
+ M rust/crates/discord-platform/tests/dbus_contract.rs
+ M rust/crates/discord-platform/tests/notifications_contract.rs
+?? fixtures/dbus/hints-ext.json
+?? waves/RW-34/
+
+codex
+**Вердикт: доработка проверки; дефектов реализации не обнаружено.**
+
+- **P2 — [notifications_contract.rs](/home/sanya/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:589):** targeted-прогон завершился `25 passed`, но приватный `dbus-daemon` не смог bind-ить сокет (`Operation not permitted`). Поэтому DBus-тесты прошли через harness-SKIP; кроме намеренного live-skip, это не соответствует заявленному условию «SKIP только live». Среда не позволяет подтвердить прохождение e01–e06 через libdbus-мок.
+- **P2 — [run-mutations-w34b.py](/home/sanya/orca/project/waves/RW-34/run-mutations-w34b.py:174):** приложенный журнал сообщает baseline `SKIP=0` и 6/6 убитых мутаций, но независимо воспроизвести мутации в разрешённых условиях не удалось: скрипт пишет в исходники workspace, а копия ограничена 50 МБ. В текущей среде baseline также не может быть `SKIP=0`. Требуется повторить DBus-прогон и мутации в среде, где разрешён bind приватного сокета и доступна изолированная копия.
+
+e07 прошёл и сверил фикстуру libgio: сигнатуру `Notify`, форму и порядок `a{sv}`, типы значений и побайтовое совпадение собранного сообщения. В [notifications.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/notifications.rs:28) сигнатура `susssasa{sv}i` сохранена; восемь полей, порядок, фильтрация пустых строк и запись `Some(false)` соответствуют контракту. В продуктовом модуле нет `unsafe`, `panic!` или `unwrap()`.
+
+MD5 указанных файлов совпали со значениями в отчёте; рабочее дерево осталось без изменений. **P0/P1/P3: 0.**
+tokens used
+49 562
+**Вердикт: доработка проверки; дефектов реализации не обнаружено.**
+
+- **P2 — [notifications_contract.rs](/home/sanya/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:589):** targeted-прогон завершился `25 passed`, но приватный `dbus-daemon` не смог bind-ить сокет (`Operation not permitted`). Поэтому DBus-тесты прошли через harness-SKIP; кроме намеренного live-skip, это не соответствует заявленному условию «SKIP только live». Среда не позволяет подтвердить прохождение e01–e06 через libdbus-мок.
+- **P2 — [run-mutations-w34b.py](/home/sanya/orca/project/waves/RW-34/run-mutations-w34b.py:174):** приложенный журнал сообщает baseline `SKIP=0` и 6/6 убитых мутаций, но независимо воспроизвести мутации в разрешённых условиях не удалось: скрипт пишет в исходники workspace, а копия ограничена 50 МБ. В текущей среде baseline также не может быть `SKIP=0`. Требуется повторить DBus-прогон и мутации в среде, где разрешён bind приватного сокета и доступна изолированная копия.
+
+e07 прошёл и сверил фикстуру libgio: сигнатуру `Notify`, форму и порядок `a{sv}`, типы значений и побайтовое совпадение собранного сообщения. В [notifications.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/notifications.rs:28) сигнатура `susssasa{sv}i` сохранена; восемь полей, порядок, фильтрация пустых строк и запись `Some(false)` соответствуют контракту. В продуктовом модуле нет `unsafe`, `panic!` или `unwrap()`.
+
+MD5 указанных файлов совпали со значениями в отчёте; рабочее дерево осталось без изменений. **P0/P1/P3: 0.**
+CODEX_EXIT=0

@@ -6,9 +6,9 @@
 //!
 //! Поддержано: `Notify`, `CloseNotification`, `GetCapabilities`, `GetServerInformation`,
 //! `AddMatch` + события `ActionInvoked`/`NotificationClosed`.
-//! `hints` — `a{sv}` с минимумом freedesktop (`urgency`, `category`, `desktop-entry`,
-//! `resident`) через [`Hints`]/[`Notifier::notify_with_hints`]; `notify` оставляет dict
-//! пустым. Остальные хинты (`image-path`, `sound-name`, …) не заявляются.
+//! `hints` — `a{sv}` с восемью freedesktop-хинтами (`urgency`, `category`,
+//! `desktop-entry`, `image-path`, `sound-name`, `resident`, `transient`, `suppress-sound`)
+//! через [`Hints`]/[`Notifier::notify_with_hints`]; `notify` оставляет dict пустым.
 //! DND/группировка/история — уровень приложения (P6-01/P3), не этого модуля.
 
 use std::time::Duration;
@@ -74,13 +74,22 @@ pub struct Hints {
     pub category: Option<String>,
     /// `desktop-entry` (вариант `s`); пустая строка не отправляется.
     pub desktop_entry: Option<String>,
+    /// `image-path` (вариант `s`) — URI или путь к иконке; пустая строка не отправляется.
+    pub image_path: Option<String>,
+    /// `sound-name` (вариант `s`) — имя звука темы; пустая строка не отправляется.
+    pub sound_name: Option<String>,
     /// `resident` (вариант `b`).
     pub resident: Option<bool>,
+    /// `transient` (вариант `b`); `Some(false)` — запись `b:0`, а не пропуск.
+    pub transient: Option<bool>,
+    /// `suppress-sound` (вариант `b`); `Some(false)` — запись `b:0`, а не пропуск.
+    pub suppress_sound: Option<bool>,
 }
 
 impl Hints {
     /// Собирает `a{sv}`: только заданные непустые значения, порядок фиксирован —
-    /// `urgency`, `category`, `desktop-entry`, `resident`.
+    /// `urgency`, `category`, `desktop-entry`, `image-path`, `sound-name`, `resident`,
+    /// `transient`, `suppress-sound`.
     pub fn to_dbus(&self) -> Value {
         let mut entries: Vec<(Value, Value)> = Vec::new();
         if let Some(urgency) = self.urgency {
@@ -98,8 +107,26 @@ impl Hints {
                 Value::String(desktop_entry.to_owned()),
             ));
         }
+        if let Some(image_path) = non_empty(&self.image_path) {
+            entries.push(variant_entry(
+                "image-path",
+                Value::String(image_path.to_owned()),
+            ));
+        }
+        if let Some(sound_name) = non_empty(&self.sound_name) {
+            entries.push(variant_entry(
+                "sound-name",
+                Value::String(sound_name.to_owned()),
+            ));
+        }
         if let Some(resident) = self.resident {
             entries.push(variant_entry("resident", Value::Bool(resident)));
+        }
+        if let Some(transient) = self.transient {
+            entries.push(variant_entry("transient", Value::Bool(transient)));
+        }
+        if let Some(suppress_sound) = self.suppress_sound {
+            entries.push(variant_entry("suppress-sound", Value::Bool(suppress_sound)));
         }
         Value::Dict(entries)
     }
@@ -192,7 +219,8 @@ impl Notifier {
     }
 
     /// `Notify(...) -> u` с hints (`a{sv}`): `urgency`, `category`, `desktop-entry`,
-    /// `resident`. Порядок записей фиксирован, пустые строки не отправляются.
+    /// `image-path`, `sound-name`, `resident`, `transient`, `suppress-sound`.
+    /// Порядок записей фиксирован, пустые строки не отправляются.
     ///
     /// `app_name` и `summary` обязаны быть непустыми (иначе `DbusError::Protocol`):
     /// пустой заголовок серверы обычно отбрасывают, и пользователь не увидит уведомление.

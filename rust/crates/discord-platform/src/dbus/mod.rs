@@ -4,12 +4,15 @@
 //! реализации: libgio (`fixtures/dbus/wire.json`) и libdbus-мок на приватном
 //! `dbus-daemon` (`waves/RW-30/dbus/mock_service.py`).
 //!
-//! Что поддержано: `unix:path`-адреса, AUTH EXTERNAL (hex uid), `Hello`, вызовы методов,
-//! ответы/ошибки, `AddMatch` и сигналы, очередь сигналов, пришедших во время `call`.
+//! Что поддержано: `unix:path`- и `unix:abstract`-адреса (Linux), AUTH EXTERNAL (hex uid),
+//! `Hello`, вызовы методов, ответы/ошибки, `AddMatch` и сигналы, очередь сигналов,
+//! пришедших во время `call`.
 //!
 //! Ограничения (документированы, не заявляются как поддержка):
 //! - только little-endian (`l`); big-endian сообщения → `DbusError::Protocol`;
-//! - `unix:abstract=` и `tcp:` адреса не поддерживаются (`BusAddress::parse` → `None`);
+//! - `tcp:` адреса не поддерживаются (`BusAddress::parse` → `None`);
+//! - `unix:abstract=` — только Linux (имя сокета, до [`MAX_ABSTRACT_NAME_BYTES`] байт);
+//!   на других платформах разбор даёт `Abstract`, а `Connection::connect` — `DbusError::Address`;
 //! - percent-кодирование в адресе (`%2F`) не декодируется;
 //! - типы `x`/`t`/`d`/`h`/`n`/`q` и unix-fd не поддержаны (нет в [`Value`]);
 //! - вызовы не ограничены по вложенности, но размеры сообщений ограничены
@@ -33,34 +36,46 @@ pub const MAX_BODY_BYTES: usize = 16 << 20;
 /// Таймаут ожидания ответа на метод (сервис может активироваться через шину).
 pub const CALL_TIMEOUT: Duration = Duration::from_secs(10);
 
+/// Максимальная длина имени abstract-сокета Linux (`sun_path` минус ведущий NUL).
+pub const MAX_ABSTRACT_NAME_BYTES: usize = 107;
+
 /// Адрес шины D-Bus.
 ///
-/// Поддерживается только `unix:path=…` (в т.ч. в списке адресов через `;` — берётся первый
-/// поддерживаемый). `unix:abstract=…` и `tcp:` возвращают `None`: абстрактные сокеты в этой
-/// карточке не реализуются.
+/// Поддерживаются `unix:path=…` и `unix:abstract=…` (в т.ч. в списке адресов через `;` —
+/// берётся первый поддерживаемый). `tcp:` и прочие схемы возвращают `None`: их в этой
+/// карточке нет. Percent-кодирование (`%2F`) не декодируется — байты имени берутся как есть.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BusAddress {
-    path: PathBuf,
+pub enum BusAddress {
+    /// `unix:path=/run/user/1000/bus` — путь файлового сокета.
+    Path(PathBuf),
+    /// `unix:abstract=name` — имя в abstract-пространстве Linux (сырые байты).
+    Abstract(Vec<u8>),
 }
 
 impl BusAddress {
     /// Разбирает значение `DBUS_SESSION_BUS_ADDRESS`.
+    ///
+    /// Записи списка перебираются по порядку; запись с неподдерживаемой схемой, пустым
+    /// значением, NUL внутри значения или слишком длинным abstract-именем пропускается.
     pub fn parse(value: &str) -> Option<Self> {
         for entry in value.split(';') {
             let Some(rest) = entry.strip_prefix("unix:") else {
                 continue;
             };
             for field in rest.split(',') {
-                let Some(path) = field.strip_prefix("path=") else {
-                    continue;
-                };
-                if path.is_empty() {
+                if let Some(path) = field.strip_prefix("path=") {
+                    if let Some(address) = Self::from_path(path) {
+                        return Some(address);
+                    }
                     // `unix:path=` без значения — запись невалидна, пробуем следующий адрес.
                     break;
                 }
-                return Some(Self {
-                    path: PathBuf::from(path),
-                });
+                if let Some(name) = field.strip_prefix("abstract=") {
+                    if let Some(address) = Self::from_abstract_name(name) {
+                        return Some(address);
+                    }
+                    break;
+                }
             }
         }
         None
@@ -73,16 +88,42 @@ impl BusAddress {
             .and_then(|value| Self::parse(&value))
     }
 
-    /// Путь unix-сокета шины.
-    pub fn path(&self) -> &Path {
-        &self.path
+    /// Путь unix-сокета шины; `None` для abstract-адреса.
+    pub fn path(&self) -> Option<&Path> {
+        match self {
+            Self::Path(path) => Some(path),
+            Self::Abstract(_) => None,
+        }
+    }
+
+    /// Имя abstract-сокета (сырые байты); `None` для path-адреса.
+    pub fn abstract_name(&self) -> Option<&[u8]> {
+        match self {
+            Self::Abstract(name) => Some(name),
+            Self::Path(_) => None,
+        }
+    }
+
+    fn from_path(value: &str) -> Option<Self> {
+        if value.is_empty() || value.contains('\0') {
+            return None;
+        }
+        Some(Self::Path(PathBuf::from(value)))
+    }
+
+    fn from_abstract_name(value: &str) -> Option<Self> {
+        let bytes = value.as_bytes();
+        if bytes.is_empty() || bytes.len() > MAX_ABSTRACT_NAME_BYTES || bytes.contains(&0) {
+            return None;
+        }
+        Some(Self::Abstract(bytes.to_vec()))
     }
 }
 
 /// Ошибки D-Bus-клиента.
 #[derive(Debug)]
 pub enum DbusError {
-    /// Адрес шины не разобран или недоступен как `unix:path`.
+    /// Адрес шины не разобран, не поддержан платформой или недоступен как unix-сокет.
     Address,
     /// Ошибка ввода-вывода сокета.
     Io(std::io::Error),
@@ -130,8 +171,11 @@ pub struct Connection {
 
 impl Connection {
     /// Подключается к шине, проходит AUTH EXTERNAL и регистрируется через `Hello`.
+    ///
+    /// `Path` — обычный `UnixStream::connect`; `Abstract` — `SocketAddr::from_abstract_name`
+    /// + `UnixStream::connect_addr` (stable `std`, без `unsafe`).
     pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
-        let stream = UnixStream::connect(address.path()).map_err(DbusError::Io)?;
+        let stream = open_stream(address)?;
         stream
             .set_read_timeout(Some(auth::AUTH_TIMEOUT))
             .map_err(DbusError::Io)?;
@@ -320,6 +364,28 @@ impl Connection {
             self.serial = 1;
         }
         self.serial
+    }
+}
+
+/// Открывает unix-сокет шины по адресу.
+fn open_stream(address: &BusAddress) -> Result<UnixStream, DbusError> {
+    match address {
+        BusAddress::Path(path) => UnixStream::connect(path).map_err(DbusError::Io),
+        BusAddress::Abstract(name) => {
+            #[cfg(target_os = "linux")]
+            {
+                use std::os::linux::net::SocketAddrExt;
+                let target = std::os::unix::net::SocketAddr::from_abstract_name(name)
+                    .map_err(|_| DbusError::Address)?;
+                UnixStream::connect_addr(&target).map_err(DbusError::Io)
+            }
+            #[cfg(not(target_os = "linux"))]
+            {
+                // Abstract-сокеты — свойство Linux; на других платформах честный отказ.
+                let _ = name;
+                Err(DbusError::Address)
+            }
+        }
     }
 }
 

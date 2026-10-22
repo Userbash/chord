@@ -578,6 +578,20 @@ struct HintsHarness {
 
 impl HintsHarness {
     fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
+        Self::start_with_mock(
+            "waves/RW-32/dbus/mock_hints.py",
+            "discord-lab-w32b",
+            extra_mock_args,
+        )
+    }
+
+    /// Тот же стенд, но с другим скриптом мока (W34b использует копию
+    /// `waves/RW-34/dbus/mock_hints2.py`); префикс tempdir отличает прогоны.
+    fn start_with_mock(
+        mock_script: &str,
+        temp_prefix: &str,
+        extra_mock_args: &[&str],
+    ) -> Result<Self, String> {
         if !command_exists("dbus-daemon") {
             return Err(HINTS_SKIP_NO_DAEMON.to_owned());
         }
@@ -586,7 +600,7 @@ impl HintsHarness {
         }
 
         let dir = std::env::temp_dir().join(format!(
-            "discord-lab-w32b-{}-{}",
+            "{temp_prefix}-{}-{}",
             std::process::id(),
             unique_suffix()
         ));
@@ -618,7 +632,7 @@ impl HintsHarness {
 
         let journal = dir.join("journal.tsv");
         let mut mock = Command::new("python3")
-            .arg(repo_path("waves/RW-32/dbus/mock_hints.py"))
+            .arg(repo_path(mock_script))
             .arg("--address")
             .arg(&address)
             .arg("--log")
@@ -627,7 +641,7 @@ impl HintsHarness {
             .stdout(Stdio::null())
             .stderr(Stdio::piped())
             .spawn()
-            .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_hints.py: {err}")))?;
+            .map_err(|err| abort(daemon_pid, &dir, format!("запуск {mock_script}: {err}")))?;
 
         let deadline = Instant::now() + Duration::from_secs(10);
         loop {
@@ -856,6 +870,7 @@ fn q05_all_hints_are_four_entries_in_frozen_order() {
                 category: Some("im.received".to_owned()),
                 desktop_entry: Some("discord-lab".to_owned()),
                 resident: Some(true),
+                ..Hints::default()
             },
         )
         .expect("Notify со всеми hints");
@@ -884,6 +899,7 @@ fn q06_empty_category_and_desktop_entry_are_skipped() {
                 category: Some(String::new()),
                 desktop_entry: Some(String::new()),
                 resident: Some(true),
+                ..Hints::default()
             },
         )
         .expect("Notify с пустыми строками");
@@ -927,4 +943,707 @@ fn q07_unicode_and_long_values_are_delivered_without_panic() {
         hints_field(&record),
         format!("category:s:{long_ascii}|desktop-entry:s:{long_unicode}")
     );
+}
+// =================================================================================
+// W34b (P6-02d): расширенные hints `a{sv}`. Оракул — копия libdbus-мока
+// `waves/RW-34/dbus/mock_hints2.py` (журнал `ключ:сигнатура:значение` в порядке провода)
+// и байты `Notify`, собранные libgio (`fixtures/dbus/hints-ext.json`). Rust-код в
+// оракуле не участвует, поэтому неверный ключ, тип варианта, пропуск пустой строки или
+// порядок записей видны как расхождение.
+// =================================================================================
+
+use discord_platform::dbus::message::{self, MessageType};
+use discord_platform::notifications;
+
+const EXT_MOCK: &str = "waves/RW-34/dbus/mock_hints2.py";
+const EXT_TEMP_PREFIX: &str = "discord-lab-w34b";
+
+macro_rules! ext_harness {
+    () => {
+        match HintsHarness::start_with_mock(EXT_MOCK, EXT_TEMP_PREFIX, &[]) {
+            Ok(harness) => harness,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+/// Полный набор из восьми hints; значения совпадают с набором `all_eight` фикстуры.
+fn full_hints() -> Hints {
+    Hints {
+        urgency: Some(Urgency::Normal),
+        category: Some("im.received".to_owned()),
+        desktop_entry: Some("discord-lab".to_owned()),
+        image_path: Some("/usr/share/icons/discord-lab.png".to_owned()),
+        sound_name: Some("message-new-instant".to_owned()),
+        resident: Some(true),
+        transient: Some(true),
+        suppress_sound: Some(true),
+    }
+}
+
+/// Запись журнала `hints` → тройки (ключ, сигнатура варианта, значение).
+fn hint_entries(field: &str) -> Vec<(&str, &str, &str)> {
+    if field.is_empty() {
+        return Vec::new();
+    }
+    field
+        .split('|')
+        .map(|entry| {
+            let mut parts = entry.splitn(3, ':');
+            (
+                parts.next().unwrap_or(""),
+                parts.next().unwrap_or(""),
+                parts.next().unwrap_or(""),
+            )
+        })
+        .collect()
+}
+
+// --- e01: все 8 hints — 8 записей, варианты y/s/b --------------------------------
+
+#[test]
+fn e01_all_eight_hints_reach_mock_with_freedesktop_types() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    let id = notifier
+        .notify_with_hints(&sample_notification(), &full_hints())
+        .expect("Notify со всеми восемью hints");
+    assert!(id >= 100, "id из ответа мока: {id}");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "8", "все восемь записей a{{sv}}");
+    let entries = hint_entries(hints_field(&record));
+    assert_eq!(entries.len(), 8, "журнал: {:?}", hints_field(&record));
+    // Ключи и типы вариантов заданы freedesktop: y — urgency, s — строки, b — флаги.
+    for expected in [
+        ("urgency", "y", "1"),
+        ("category", "s", "im.received"),
+        ("desktop-entry", "s", "discord-lab"),
+        ("image-path", "s", "/usr/share/icons/discord-lab.png"),
+        ("sound-name", "s", "message-new-instant"),
+        ("resident", "b", "1"),
+        ("transient", "b", "1"),
+        ("suppress-sound", "b", "1"),
+    ] {
+        assert!(
+            entries.contains(&expected),
+            "нет записи {expected:?} в {:?}",
+            hints_field(&record)
+        );
+    }
+}
+
+// --- e02: image-path и sound-name — варианты s -----------------------------------
+
+#[test]
+fn e02_image_path_and_sound_name_are_string_variants() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    notifier
+        .notify_with_hints(
+            &sample_notification(),
+            &Hints {
+                image_path: Some("file:///tmp/avatar.png".to_owned()),
+                sound_name: Some("alarm-clock-elapsed".to_owned()),
+                ..Hints::default()
+            },
+        )
+        .expect("Notify с image-path/sound-name");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "2");
+    assert_eq!(
+        hints_field(&record),
+        "image-path:s:file:///tmp/avatar.png|sound-name:s:alarm-clock-elapsed",
+        "ключи freedesktop `image-path`/`sound-name` с вариантом `s`"
+    );
+}
+
+// --- e03: transient/suppress-sound — b, включая false ----------------------------
+
+#[test]
+fn e03_transient_and_suppress_sound_are_bools_including_false() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    for (transient, suppress_sound) in [(true, false), (false, true)] {
+        notifier
+            .notify_with_hints(
+                &sample_notification(),
+                &Hints {
+                    transient: Some(transient),
+                    suppress_sound: Some(suppress_sound),
+                    ..Hints::default()
+                },
+            )
+            .expect("Notify с transient/suppress-sound");
+    }
+
+    let first = hints_notify_record(&harness, 0);
+    assert_eq!(first[6], "2");
+    assert_eq!(
+        hints_field(&first),
+        "transient:b:1|suppress-sound:b:0",
+        "false — это `b:0`, а не пропуск записи"
+    );
+    let second = hints_notify_record(&harness, 1);
+    assert_eq!(second[6], "2");
+    assert_eq!(
+        hints_field(&second),
+        "transient:b:0|suppress-sound:b:1",
+        "ключи не должны слипаться/меняться местами"
+    );
+}
+
+// --- e04: пустые строки новых полей не отправляются ------------------------------
+
+#[test]
+fn e04_empty_new_strings_are_skipped() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    notifier
+        .notify_with_hints(
+            &sample_notification(),
+            &Hints {
+                urgency: Some(Urgency::Low),
+                category: Some(String::new()),
+                desktop_entry: Some(String::new()),
+                image_path: Some(String::new()),
+                sound_name: Some(String::new()),
+                resident: Some(true),
+                ..Hints::default()
+            },
+        )
+        .expect("Notify с пустыми строками");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "2", "пустые строки не должны стать записями");
+    assert_eq!(hints_field(&record), "urgency:y:0|resident:b:1");
+
+    // Только пустые строки → dict с 0 записей (не null и не записи с "").
+    notifier
+        .notify_with_hints(
+            &sample_notification(),
+            &Hints {
+                category: Some(String::new()),
+                desktop_entry: Some(String::new()),
+                image_path: Some(String::new()),
+                sound_name: Some(String::new()),
+                ..Hints::default()
+            },
+        )
+        .expect("Notify только с пустыми строками");
+    let empty = hints_notify_record(&harness, 1);
+    assert_eq!(empty[6], "0");
+    assert_eq!(hints_field(&empty), "");
+}
+
+// --- e05: порядок ключей фиксирован ----------------------------------------------
+
+#[test]
+fn e05_key_order_is_frozen() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    // Поля заданы в обратном порядке: порядок записей должен следовать контракту,
+    // а не порядку инициализации структуры.
+    let hints = Hints {
+        suppress_sound: Some(true),
+        transient: Some(true),
+        resident: Some(true),
+        sound_name: Some("bell".to_owned()),
+        image_path: Some("/tmp/bell.png".to_owned()),
+        desktop_entry: Some("discord-lab".to_owned()),
+        category: Some("im.received".to_owned()),
+        urgency: Some(Urgency::Critical),
+    };
+    notifier
+        .notify_with_hints(&sample_notification(), &hints)
+        .expect("Notify со всеми hints");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(
+        hints_field(&record),
+        "urgency:y:2|category:s:im.received|desktop-entry:s:discord-lab|\
+         image-path:s:/tmp/bell.png|sound-name:s:bell|resident:b:1|transient:b:1|\
+         suppress-sound:b:1",
+        "порядок: urgency, category, desktop-entry, image-path, sound-name, \
+         resident, transient, suppress-sound"
+    );
+}
+
+// --- e06: Unicode и 4 КиБ --------------------------------------------------------
+
+#[test]
+fn e06_unicode_and_long_new_hints_are_delivered_without_panic() {
+    let harness = ext_harness!();
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    let long_unicode = "я".repeat(2048); // 4096 байт в UTF-8
+    let long_ascii = "a".repeat(4096);
+    assert_eq!(long_unicode.len(), 4096, "длина в байтах, не в символах");
+    let hints = Hints {
+        category: Some("im.📬".to_owned()),
+        image_path: Some(long_unicode.clone()),
+        sound_name: Some(long_ascii.clone()),
+        ..Hints::default()
+    };
+
+    let id = notifier
+        .notify_with_hints(&sample_notification(), &hints)
+        .expect("длинные строки не должны ломать маршалинг");
+    assert!(id >= 100, "id из ответа мока: {id}");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "3");
+    assert_eq!(
+        hints_field(&record),
+        format!("category:s:im.📬|image-path:s:{long_unicode}|sound-name:s:{long_ascii}")
+    );
+}
+
+// --- e07: байты a{sv} против libgio + round-trip ---------------------------------
+
+/// Минимальный JSON-ридер фикстуры (как в `dbus_contract.rs`, без внешних зависимостей).
+#[derive(Debug, Clone, PartialEq)]
+enum ExtJson {
+    Null,
+    Bool(bool),
+    Num(i64),
+    Str(String),
+    Arr(Vec<ExtJson>),
+    Obj(Vec<(String, ExtJson)>),
+}
+
+impl ExtJson {
+    fn get(&self, key: &str) -> Option<&Self> {
+        match self {
+            Self::Obj(entries) => entries
+                .iter()
+                .find(|(name, _)| name == key)
+                .map(|(_, value)| value),
+            _ => None,
+        }
+    }
+
+    fn as_str(&self) -> Option<&str> {
+        match self {
+            Self::Str(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    fn as_i64(&self) -> Option<i64> {
+        match self {
+            Self::Num(value) => Some(*value),
+            _ => None,
+        }
+    }
+
+    fn as_u64(&self) -> Option<u64> {
+        self.as_i64().and_then(|value| u64::try_from(value).ok())
+    }
+
+    fn as_arr(&self) -> Option<&[Self]> {
+        match self {
+            Self::Arr(items) => Some(items),
+            _ => None,
+        }
+    }
+}
+
+fn load_ext_fixture() -> ExtJson {
+    let path = repo_path("fixtures/dbus/hints-ext.json");
+    let text =
+        fs::read_to_string(&path).unwrap_or_else(|err| panic!("чтение {}: {err}", path.display()));
+    ext_json_parse(&text).unwrap_or_else(|err| panic!("{} — битый JSON: {err}", path.display()))
+}
+
+fn ext_json_parse(text: &str) -> Result<ExtJson, String> {
+    fn skip_ws(bytes: &[u8], pos: &mut usize) {
+        while *pos < bytes.len() && (bytes[*pos] as char).is_ascii_whitespace() {
+            *pos += 1;
+        }
+    }
+
+    fn hex4(bytes: &[u8], pos: &mut usize) -> Result<u32, String> {
+        let digits = bytes
+            .get(*pos..*pos + 4)
+            .ok_or_else(|| "обрыв \\u-escape".to_owned())?;
+        let text = std::str::from_utf8(digits).map_err(|err| err.to_string())?;
+        *pos += 4;
+        u32::from_str_radix(text, 16).map_err(|err| format!("\\u{text}: {err}"))
+    }
+
+    fn string(bytes: &[u8], pos: &mut usize) -> Result<String, String> {
+        // Открывающая кавычка.
+        *pos += 1;
+        let mut out = String::new();
+        while let Some(&byte) = bytes.get(*pos) {
+            *pos += 1;
+            match byte {
+                b'"' => return Ok(out),
+                b'\\' => {
+                    let escape = *bytes.get(*pos).ok_or_else(|| "обрыв escape".to_owned())?;
+                    *pos += 1;
+                    match escape {
+                        b'"' => out.push('"'),
+                        b'\\' => out.push('\\'),
+                        b'/' => out.push('/'),
+                        b'b' => out.push('\u{8}'),
+                        b'f' => out.push('\u{c}'),
+                        b'n' => out.push('\n'),
+                        b'r' => out.push('\r'),
+                        b't' => out.push('\t'),
+                        b'u' => {
+                            let code = hex4(bytes, pos)?;
+                            out.push(char::from_u32(code).unwrap_or('\u{fffd}'));
+                        }
+                        other => return Err(format!("неизвестный escape \\{}", other as char)),
+                    }
+                }
+                _ => {
+                    // UTF-8: собираем байт и декодируем по накопленной строке.
+                    let start = *pos - 1;
+                    let width = match byte {
+                        0x00..=0x7f => 1,
+                        0xc0..=0xdf => 2,
+                        0xe0..=0xef => 3,
+                        _ => 4,
+                    };
+                    let end = start + width;
+                    let chunk = bytes
+                        .get(start..end)
+                        .ok_or_else(|| "обрыв UTF-8".to_owned())?;
+                    let text = std::str::from_utf8(chunk).map_err(|err| err.to_string())?;
+                    out.push_str(text);
+                    *pos = end;
+                }
+            }
+        }
+        Err("незакрытая строка".to_owned())
+    }
+
+    fn value(bytes: &[u8], pos: &mut usize) -> Result<ExtJson, String> {
+        skip_ws(bytes, pos);
+        let byte = *bytes
+            .get(*pos)
+            .ok_or_else(|| "неожиданный конец JSON".to_owned())?;
+        match byte {
+            b'{' => {
+                *pos += 1;
+                let mut entries = Vec::new();
+                loop {
+                    skip_ws(bytes, pos);
+                    if bytes.get(*pos) == Some(&b'}') {
+                        *pos += 1;
+                        return Ok(ExtJson::Obj(entries));
+                    }
+                    if bytes.get(*pos) != Some(&b'"') {
+                        return Err(format!("ожидался ключ объекта на позиции {pos}"));
+                    }
+                    let key = string(bytes, pos)?;
+                    skip_ws(bytes, pos);
+                    if bytes.get(*pos) != Some(&b':') {
+                        return Err(format!("ожидалось ':' на позиции {pos}"));
+                    }
+                    *pos += 1;
+                    let item = value(bytes, pos)?;
+                    entries.push((key, item));
+                    skip_ws(bytes, pos);
+                    match bytes.get(*pos) {
+                        Some(b',') => *pos += 1,
+                        Some(b'}') => {
+                            *pos += 1;
+                            return Ok(ExtJson::Obj(entries));
+                        }
+                        _ => return Err(format!("ожидалось ',' или '}}' на позиции {pos}")),
+                    }
+                }
+            }
+            b'[' => {
+                *pos += 1;
+                let mut items = Vec::new();
+                loop {
+                    skip_ws(bytes, pos);
+                    if bytes.get(*pos) == Some(&b']') {
+                        *pos += 1;
+                        return Ok(ExtJson::Arr(items));
+                    }
+                    items.push(value(bytes, pos)?);
+                    skip_ws(bytes, pos);
+                    match bytes.get(*pos) {
+                        Some(b',') => *pos += 1,
+                        Some(b']') => {
+                            *pos += 1;
+                            return Ok(ExtJson::Arr(items));
+                        }
+                        _ => return Err(format!("ожидалось ',' или ']' на позиции {pos}")),
+                    }
+                }
+            }
+            b'"' => Ok(ExtJson::Str(string(bytes, pos)?)),
+            b't' if bytes.get(*pos..*pos + 4) == Some(&b"true"[..]) => {
+                *pos += 4;
+                Ok(ExtJson::Bool(true))
+            }
+            b'f' if bytes.get(*pos..*pos + 5) == Some(&b"false"[..]) => {
+                *pos += 5;
+                Ok(ExtJson::Bool(false))
+            }
+            b'n' if bytes.get(*pos..*pos + 4) == Some(&b"null"[..]) => {
+                *pos += 4;
+                Ok(ExtJson::Null)
+            }
+            b'-' | b'0'..=b'9' => {
+                let start = *pos;
+                while bytes
+                    .get(*pos)
+                    .is_some_and(|byte| byte.is_ascii_digit() || *byte == b'-')
+                {
+                    *pos += 1;
+                }
+                let text =
+                    std::str::from_utf8(&bytes[start..*pos]).map_err(|err| err.to_string())?;
+                text.parse::<i64>()
+                    .map(ExtJson::Num)
+                    .map_err(|err| format!("число {text}: {err}"))
+            }
+            other => Err(format!(
+                "неожиданный символ {} на позиции {pos}",
+                other as char
+            )),
+        }
+    }
+
+    let mut pos = 0;
+    let parsed = value(text.as_bytes(), &mut pos)?;
+    skip_ws(text.as_bytes(), &mut pos);
+    if pos != text.len() {
+        return Err(format!("мусор после JSON на позиции {pos}"));
+    }
+    Ok(parsed)
+}
+
+fn ext_json_hex_decode(text: &str) -> Vec<u8> {
+    assert!(
+        text.len().is_multiple_of(2),
+        "hex нечётной длины: {}",
+        text.len()
+    );
+    (0..text.len())
+        .step_by(2)
+        .map(|index| {
+            u8::from_str_radix(&text[index..index + 2], 16)
+                .unwrap_or_else(|err| panic!("hex {}: {err}", &text[index..index + 2]))
+        })
+        .collect()
+}
+
+fn ext_json_hex_encode(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        out.push_str(&format!("{byte:02x}"));
+    }
+    out
+}
+
+/// `Hints` из набора фикстуры (ключи/значения заданы оракулом).
+fn ext_json_hints(items: &[ExtJson]) -> Hints {
+    let mut hints = Hints::default();
+    for item in items {
+        let key = item
+            .get("key")
+            .and_then(ExtJson::as_str)
+            .expect("hints.key");
+        let signature = item
+            .get("signature")
+            .and_then(ExtJson::as_str)
+            .expect("hints.signature");
+        let value = item.get("value").expect("hints.value");
+        match (key, signature) {
+            ("urgency", "y") => {
+                hints.urgency = Some(match value.as_u64() {
+                    Some(0) => Urgency::Low,
+                    Some(1) => Urgency::Normal,
+                    Some(2) => Urgency::Critical,
+                    other => panic!("{key}: неожиданная urgency {other:?}"),
+                });
+            }
+            ("category", "s") => hints.category = value.as_str().map(str::to_owned),
+            ("desktop-entry", "s") => hints.desktop_entry = value.as_str().map(str::to_owned),
+            ("image-path", "s") => hints.image_path = value.as_str().map(str::to_owned),
+            ("sound-name", "s") => hints.sound_name = value.as_str().map(str::to_owned),
+            ("resident", "b") => hints.resident = Some(ext_json_bool(value, key)),
+            ("transient", "b") => hints.transient = Some(ext_json_bool(value, key)),
+            ("suppress-sound", "b") => hints.suppress_sound = Some(ext_json_bool(value, key)),
+            other => panic!("неизвестная запись hints: {other:?}"),
+        }
+    }
+    hints
+}
+
+fn ext_json_bool(value: &ExtJson, key: &str) -> bool {
+    match value {
+        ExtJson::Bool(flag) => *flag,
+        other => panic!("{key}: ожидался bool, получено {other:?}"),
+    }
+}
+
+/// Ожидаемый `a{sv}` из фикстуры: ключи, порядок и типы вариантов заданы libgio/libdbus.
+fn ext_json_hints_value(items: &[ExtJson]) -> Value {
+    let mut entries = Vec::new();
+    for item in items {
+        let key = item
+            .get("key")
+            .and_then(ExtJson::as_str)
+            .expect("hints.key");
+        let signature = item
+            .get("signature")
+            .and_then(ExtJson::as_str)
+            .expect("hints.signature");
+        let value = item.get("value").expect("hints.value");
+        let inner = match signature {
+            "y" => Value::Byte(
+                u8::try_from(value.as_u64().expect("hints.y")).expect("hints.y в диапазоне u8"),
+            ),
+            "s" => Value::String(value.as_str().expect("hints.s").to_owned()),
+            "b" => Value::Bool(ext_json_bool(value, key)),
+            other => panic!("{key}: неизвестная сигнатура варианта {other:?}"),
+        };
+        entries.push((
+            Value::String(key.to_owned()),
+            Value::Variant(Box::new(inner)),
+        ));
+    }
+    Value::Dict(entries)
+}
+
+/// Тело `Notify` из общих полей фикстуры и нашего `a{sv}`.
+fn ext_notify_body(golden: &ExtJson, hints: &Hints) -> Vec<Value> {
+    let notify = golden.get("notify").expect("hints-ext.json: notify");
+    let text = |key: &str| {
+        notify
+            .get(key)
+            .and_then(ExtJson::as_str)
+            .unwrap_or_else(|| panic!("hints-ext.json: notify.{key}"))
+            .to_owned()
+    };
+    let actions = notify
+        .get("actions")
+        .and_then(ExtJson::as_arr)
+        .expect("hints-ext.json: notify.actions")
+        .iter()
+        .map(|item| Value::String(item.as_str().expect("notify.action").to_owned()))
+        .collect();
+    let timeout_ms = i32::try_from(
+        notify
+            .get("timeout_ms")
+            .and_then(ExtJson::as_i64)
+            .expect("hints-ext.json: notify.timeout_ms"),
+    )
+    .expect("timeout_ms в диапазоне i32");
+
+    vec![
+        Value::String(text("app_name")),
+        Value::U32(0),                // replaces_id
+        Value::String(String::new()), // app_icon
+        Value::String(text("summary")),
+        Value::String(text("body")),
+        Value::Array(actions),
+        hints.to_dbus(),
+        Value::I32(timeout_ms),
+    ]
+}
+
+#[test]
+fn e07_hints_bytes_match_libgio_and_round_trip() {
+    let golden = load_ext_fixture();
+    assert_eq!(
+        golden.get("hints_signature").and_then(ExtJson::as_str),
+        Some("a{sv}"),
+        "hints — именно a{{sv}}"
+    );
+    assert_eq!(
+        golden.get("signature").and_then(ExtJson::as_str),
+        Some(notifications::NOTIFY_SIGNATURE),
+        "сигнатура Notify не меняется"
+    );
+
+    let cases = golden
+        .get("cases")
+        .and_then(ExtJson::as_arr)
+        .expect("hints-ext.json: cases");
+    assert!(
+        cases.len() >= 5,
+        "ожидались наборы all_eight/image_and_sound/bools_false/…, есть {}",
+        cases.len()
+    );
+
+    for case in cases {
+        let name = case
+            .get("name")
+            .and_then(ExtJson::as_str)
+            .expect("case.name");
+        let items = case
+            .get("hints")
+            .and_then(ExtJson::as_arr)
+            .expect("case.hints");
+        let hints = ext_json_hints(items);
+        let expected = ext_json_hints_value(items);
+
+        // Структура, типы вариантов и порядок записей — как в эталоне оракула.
+        assert_eq!(hints.to_dbus(), expected, "{name}: форма a{{sv}}");
+
+        let hex = case
+            .get("notify_hex")
+            .and_then(ExtJson::as_str)
+            .expect("case.notify_hex");
+        let bytes = ext_json_hex_decode(hex);
+        let libgio = message::parse(&bytes)
+            .unwrap_or_else(|err| panic!("{name}: байты libgio не разобраны: {err:?}"));
+        assert_eq!(libgio.kind, MessageType::MethodCall);
+        assert_eq!(libgio.member(), Some("Notify"));
+        assert_eq!(
+            libgio.signature,
+            notifications::NOTIFY_SIGNATURE,
+            "{name}: сигнатура вызова"
+        );
+        assert_eq!(
+            libgio.body.get(6),
+            Some(&expected),
+            "{name}: libdbus/libgio демаршалит другой a{{sv}}"
+        );
+
+        // Побайтовое совпадение с libgio: выравнивание массива 4, dict-entry 8,
+        // сигнатуры вариантов и порядок записей.
+        let body = ext_notify_body(&golden, &hints);
+        let rebuilt = message::build(
+            MessageType::MethodCall,
+            libgio.serial,
+            &libgio.fields,
+            &libgio.signature,
+            &body,
+        )
+        .unwrap_or_else(|err| panic!("{name}: сборка сообщения: {err:?}"));
+        assert_eq!(
+            ext_json_hex_encode(&rebuilt),
+            ext_json_hex_encode(&bytes),
+            "{name}: байты a{{sv}} расходятся с libgio"
+        );
+
+        let round_trip = message::parse(&rebuilt).expect("разбор собранного сообщения");
+        assert_eq!(round_trip.body, body, "{name}: round-trip тела");
+        assert_eq!(
+            round_trip.body.get(6),
+            Some(&expected),
+            "{name}: round-trip a{{sv}}"
+        );
+    }
 }

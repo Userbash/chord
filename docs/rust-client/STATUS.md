@@ -132,8 +132,9 @@
 
 | Проверка | Результат |
 |---|---|
-| `cargo test --offline --workspace` | **1043 passed, 0 failed** |
+| `cargo test --offline --workspace` | **1057 passed, 0 failed** |
 | `cargo test --offline -p discord-core` | **531 passed, 0 failed** |
+| RW-34 `discord-platform` | **100 passed, 0 failed** (+ abstract 15, hints 25) |
 | RW-33 `discord-platform` | **86 passed, 0 failed** (+ keyring 12) |
 | RW-32 `discord-platform` | **74 passed, 0 failed** (dbus 8, notifications 18, power 12, spellcheck 13) |
 | RW-31 `discord-platform` | **53 passed, 0 failed** (41 + power 12) |
@@ -143,8 +144,8 @@
 | RW-29 `discord-voice` | media **13**, reconnect **10 + 2 unit**, 0 failed (P4-04/P4-12) |
 | RW-28/29 `discord-i18n` | **70 passed, 0 failed** (relative 12 + timestamp 14 + прежние 44) |
 | RW-28 мутации | **8/8 caught**, продукт восстановлен по md5 |
-| RW-29…RW-33 мутации | W29a 8/8, W29b 9/9, W29c 6/6, W30a 8/8, W30b 10/10, W31a 7/7, W31b 7/7, W32a 8/8, W32b 6/6, W33a 7/7 (SKIP=0) |
-| RW-33 гейт | passed, `waves/RW-33/gate-cargo.log` / `.gate/worker-2026-10-22T18-57-30-507Z.json` |
+| RW-29…RW-34 мутации | W29a 8/8, W29b 9/9, W29c 6/6, W30a 8/8, W30b 10/10, W31a 7/7, W31b 7/7, W32a 8/8, W32b 6/6, W33a 7/7, W34a 6/6, W34b 6/6 (SKIP=0) |
+| RW-34 гейт | passed, `waves/RW-34/gate-cargo.log` / `.gate/worker-2026-10-22T19-06-01-142Z.json` |
 | RW-26 `discord-voice` | **114 passed, 0 failed** (P4-07 статистика 38 + P4-11 регионы 10 + прежние) |
 | RW-27 `discord-platform` | **23 passed, 0 failed** (1 lib + deep links 13 + autostart 9) |
 | RW-27 `discord-i18n` | **10 passed, 0 failed** (`list_contract`, 1674 кейса) |
@@ -193,7 +194,7 @@
 | `discord-ui` | каркас (контракты, окна нет) |
 | `discord-store` | рабочий: SQLite через FFI (P2-03), миграции/CRUD/kv |
 | `discord-media` | каркас (кодеки/пайплайн не реализованы) |
-| `discord-platform` | частично: deep links, autostart/badge, D-Bus (уведомления/power), spellcheck, keyring (трей/PTT нет) |
+| `discord-platform` | частично: deep links, autostart, D-Bus (уведомления/power/abstract), spellcheck, keyring (трей/PTT/fd нет) |
 
 Итого: **7 рабочих/частично рабочих крейтов + 1 тестовый + 5 каркасов**. Это не
 «приложение готово», а работающее ядро протокола, данных, сигнализации, крипто-контура,

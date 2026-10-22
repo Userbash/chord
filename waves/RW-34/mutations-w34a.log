@@ -1,0 +1,61 @@
+# W34a — мутации D-Bus abstract-адресов (`discord-platform/src/dbus/mod.rs`)
+
+targeted: cargo test --offline -p discord-platform --test dbus_contract -- --nocapture
+CARGO_TARGET_DIR=/tmp/opencode/target-w34a
+
+md5 rust/crates/discord-platform/src/dbus/mod.rs: f7761028d173f04b600dddb8adfa0933
+md5 rust/crates/discord-platform/tests/dbus_contract.rs: 2802321a4df54e275c3d8d10bf93654d
+
+baseline: exit=0, SKIP=0, test result=ok
+
+## 01 path_nul_not_rejected (src/dbus/mod.rs)
+ждём: a03: `unix:path=/tmp/\0bus` разбирается в Path с NUL вместо None
+md5 до: f7761028d173f04b600dddb8adfa0933
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: a03_parse_skips_unsupported_and_invalid_entries
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+md5 после restore: f7761028d173f04b600dddb8adfa0933 — OK
+
+## 02 abstract_empty_name_allowed (src/dbus/mod.rs)
+ждём: a03: `unix:abstract=` даёт пустое имя вместо None
+md5 до: f7761028d173f04b600dddb8adfa0933
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: a03_parse_skips_unsupported_and_invalid_entries
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+md5 после restore: f7761028d173f04b600dddb8adfa0933 — OK
+
+## 03 abstract_limit_off_by_one (src/dbus/mod.rs)
+ждём: a02: имя ровно в 107 байт (предел ядра) отвергается
+md5 до: f7761028d173f04b600dddb8adfa0933
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: a02_parse_abstract_keeps_raw_bytes_up_to_kernel_limit
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+md5 после restore: f7761028d173f04b600dddb8adfa0933 — OK
+
+## 04 abstract_name_swallows_guid (src/dbus/mod.rs)
+ждём: a02/a04: имя abstract забирает `,guid=…` из адреса, напечатанного dbus-daemon
+md5 до: f7761028d173f04b600dddb8adfa0933
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: a02_parse_abstract_keeps_raw_bytes_up_to_kernel_limit, a04_connect_abstract_bus_yields_unique_name, a05_call_over_abstract_bus_returns_mock_reply
+  test result: FAILED. 12 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+md5 после restore: f7761028d173f04b600dddb8adfa0933 — OK
+
+## 05 address_list_first_entry_only (src/dbus/mod.rs)
+ждём: a03: список `;` не перебирается — `tcp:…;unix:abstract=…` даёт None
+md5 до: f7761028d173f04b600dddb8adfa0933
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: a03_parse_skips_unsupported_and_invalid_entries
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+md5 после restore: f7761028d173f04b600dddb8adfa0933 — OK
+
+## 06 connect_addr_name_truncated (src/dbus/mod.rs)
+ждём: a04/a05: connect_addr идёт в усечённое abstract-имя (connection refused)
+md5 до: f7761028d173f04b600dddb8adfa0933
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: a04_connect_abstract_bus_yields_unique_name, a05_call_over_abstract_bus_returns_mock_reply
+  test result: FAILED. 13 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+md5 после restore: f7761028d173f04b600dddb8adfa0933 — OK
+
+## Итог
+мутаций: 6
+вердикт: OK — все мутации убиты, файлы восстановлены

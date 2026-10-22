@@ -1,0 +1,263 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0432]: unresolved import `discord_platform::dbus::MAX_ABSTRACT_NAME_BYTES`
+  --> crates/discord-platform/tests/dbus_contract.rs:12:40
+   |
+12 |     BusAddress, Connection, DbusError, MAX_ABSTRACT_NAME_BYTES, Value, auth,
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^ no `MAX_ABSTRACT_NAME_BYTES` in `dbus`
+
+error[E0277]: can't compare `&Path` with `Option<&Path>`
+   --> crates/discord-platform/tests/dbus_contract.rs:358:5
+    |
+358 |     assert_eq!(plain.path(), Some(Path::new("/run/user/1000/bus")));
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<&Path>`
+    |
+    = help: the trait `PartialEq<Option<&Path>>` is not implemented for `&Path`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+              `&Path` implements `PartialEq<Cow<'_, Path>>`
+              `&Path` implements `PartialEq<OsStr>`
+              `&Path` implements `PartialEq<OsString>`
+              `&Path` implements `PartialEq<PathBuf>`
+              `Path` implements `PartialEq<&OsStr>`
+              `Path` implements `PartialEq<Cow<'_, OsStr>>`
+              `Path` implements `PartialEq<Cow<'_, Path>>`
+            and 6 others
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+   --> crates/discord-platform/tests/dbus_contract.rs:359:22
+    |
+359 |     assert_eq!(plain.abstract_name(), None);
+    |                      ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+   --> crates/discord-platform/tests/dbus_contract.rs:368:21
+    |
+368 |     assert_eq!(list.abstract_name(), Some(&b"/tmp/abstract"[..]));
+    |                     ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0277]: can't compare `&Path` with `Option<_>`
+   --> crates/discord-platform/tests/dbus_contract.rs:369:5
+    |
+369 |     assert_eq!(list.path(), None);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<_>`
+    |
+    = help: the trait `PartialEq<Option<_>>` is not implemented for `&Path`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+              `&Path` implements `PartialEq<Cow<'_, Path>>`
+              `&Path` implements `PartialEq<OsStr>`
+              `&Path` implements `PartialEq<OsString>`
+              `&Path` implements `PartialEq<PathBuf>`
+              `Path` implements `PartialEq<&OsStr>`
+              `Path` implements `PartialEq<Cow<'_, OsStr>>`
+              `Path` implements `PartialEq<Cow<'_, Path>>`
+            and 6 others
+
+error[E0277]: can't compare `&Path` with `Option<&Path>`
+   --> crates/discord-platform/tests/dbus_contract.rs:373:5
+    |
+373 |     assert_eq!(with_guid.path(), Some(Path::new("/tmp/a")));
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<&Path>`
+    |
+    = help: the trait `PartialEq<Option<&Path>>` is not implemented for `&Path`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+              `&Path` implements `PartialEq<Cow<'_, Path>>`
+              `&Path` implements `PartialEq<OsStr>`
+              `&Path` implements `PartialEq<OsString>`
+              `&Path` implements `PartialEq<PathBuf>`
+              `Path` implements `PartialEq<&OsStr>`
+              `Path` implements `PartialEq<Cow<'_, OsStr>>`
+              `Path` implements `PartialEq<Cow<'_, Path>>`
+            and 6 others
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+   --> crates/discord-platform/tests/dbus_contract.rs:999:25
+    |
+999 |                 address.abstract_name().is_some_and(|name| !name.is_empty()),
+    |                         ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0277]: can't compare `&Path` with `Option<&Path>`
+    --> crates/discord-platform/tests/dbus_contract.rs:1167:5
+     |
+1167 |     assert_eq!(address.path(), Some(Path::new("/run/user/1000/bus")));
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<&Path>`
+     |
+     = help: the trait `PartialEq<Option<&Path>>` is not implemented for `&Path`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `&Path` implements `PartialEq<Cow<'_, Path>>`
+               `&Path` implements `PartialEq<OsStr>`
+               `&Path` implements `PartialEq<OsString>`
+               `&Path` implements `PartialEq<PathBuf>`
+               `Path` implements `PartialEq<&OsStr>`
+               `Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `Path` implements `PartialEq<Cow<'_, Path>>`
+             and 6 others
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1168:24
+     |
+1168 |     assert_eq!(address.abstract_name(), None);
+     |                        ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0599]: no associated function or constant named `Path` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1169:43
+     |
+1169 |     assert!(matches!(address, BusAddress::Path(_)));
+     |                                           ^^^^ associated function or constant not found in `BusAddress`
+     |
+help: there is a method `path` with a similar name
+    --> crates/discord-platform/src/dbus/mod.rs:77:5
+     |
+  77 |     pub fn path(&self) -> &Path {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1177:24
+     |
+1177 |     assert_eq!(address.abstract_name(), Some(&b"/tmp/dbus-abc"[..]));
+     |                        ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0277]: can't compare `&Path` with `Option<_>`
+    --> crates/discord-platform/tests/dbus_contract.rs:1178:5
+     |
+1178 |     assert_eq!(address.path(), None);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<_>`
+     |
+     = help: the trait `PartialEq<Option<_>>` is not implemented for `&Path`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `&Path` implements `PartialEq<Cow<'_, Path>>`
+               `&Path` implements `PartialEq<OsStr>`
+               `&Path` implements `PartialEq<OsString>`
+               `&Path` implements `PartialEq<PathBuf>`
+               `Path` implements `PartialEq<&OsStr>`
+               `Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `Path` implements `PartialEq<Cow<'_, Path>>`
+             and 6 others
+
+error[E0599]: no associated function or constant named `Abstract` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1179:43
+     |
+1179 |     assert!(matches!(address, BusAddress::Abstract(_)));
+     |                                           ^^^^^^^^ associated function or constant not found in `BusAddress`
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1184:26
+     |
+1184 |     assert_eq!(with_guid.abstract_name(), Some(&b"discord-lab-42"[..]));
+     |                          ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1190:18
+     |
+1190 |         at_limit.abstract_name().map(<[u8]>::len),
+     |                  ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1213:22
+     |
+1213 |     assert_eq!(mixed.abstract_name(), Some(&b"bus-name"[..]));
+     |                      ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0277]: can't compare `&Path` with `Option<_>`
+    --> crates/discord-platform/tests/dbus_contract.rs:1214:5
+     |
+1214 |     assert_eq!(mixed.path(), None);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<_>`
+     |
+     = help: the trait `PartialEq<Option<_>>` is not implemented for `&Path`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `&Path` implements `PartialEq<Cow<'_, Path>>`
+               `&Path` implements `PartialEq<OsStr>`
+               `&Path` implements `PartialEq<OsString>`
+               `&Path` implements `PartialEq<PathBuf>`
+               `Path` implements `PartialEq<&OsStr>`
+               `Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `Path` implements `PartialEq<Cow<'_, Path>>`
+             and 6 others
+
+error[E0277]: can't compare `&Path` with `Option<&Path>`
+    --> crates/discord-platform/tests/dbus_contract.rs:1219:5
+     |
+1219 |     assert_eq!(after_invalid.path(), Some(Path::new("/tmp/real")));
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<&Path>`
+     |
+     = help: the trait `PartialEq<Option<&Path>>` is not implemented for `&Path`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `&Path` implements `PartialEq<Cow<'_, Path>>`
+               `&Path` implements `PartialEq<OsStr>`
+               `&Path` implements `PartialEq<OsString>`
+               `&Path` implements `PartialEq<PathBuf>`
+               `Path` implements `PartialEq<&OsStr>`
+               `Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `Path` implements `PartialEq<Cow<'_, Path>>`
+             and 6 others
+
+error[E0277]: can't compare `&Path` with `Option<&Path>`
+    --> crates/discord-platform/tests/dbus_contract.rs:1223:5
+     |
+1223 |     assert_eq!(with_guid.path(), Some(Path::new("/tmp/a")));
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<&Path>`
+     |
+     = help: the trait `PartialEq<Option<&Path>>` is not implemented for `&Path`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `&Path` implements `PartialEq<Cow<'_, Path>>`
+               `&Path` implements `PartialEq<OsStr>`
+               `&Path` implements `PartialEq<OsString>`
+               `&Path` implements `PartialEq<PathBuf>`
+               `Path` implements `PartialEq<&OsStr>`
+               `Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `Path` implements `PartialEq<Cow<'_, Path>>`
+             and 6 others
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1232:21
+     |
+1232 |         bus.address.abstract_name().is_some(),
+     |                     ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0277]: can't compare `&Path` with `Option<_>`
+    --> crates/discord-platform/tests/dbus_contract.rs:1235:5
+     |
+1235 |     assert_eq!(bus.address.path(), None);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Path == Option<_>`
+     |
+     = help: the trait `PartialEq<Option<_>>` is not implemented for `&Path`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `&Path` implements `PartialEq<Cow<'_, Path>>`
+               `&Path` implements `PartialEq<OsStr>`
+               `&Path` implements `PartialEq<OsString>`
+               `&Path` implements `PartialEq<PathBuf>`
+               `Path` implements `PartialEq<&OsStr>`
+               `Path` implements `PartialEq<Cow<'_, OsStr>>`
+               `Path` implements `PartialEq<Cow<'_, Path>>`
+             and 6 others
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1291:24
+     |
+1291 |     assert_eq!(address.abstract_name(), Some(name.as_bytes()));
+     |                        ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+error[E0599]: no method named `is_some` found for reference `&Path` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1308:28
+     |
+1308 |         bus.address.path().is_some(),
+     |                            ^^^^^^^ method not found in `&Path`
+
+error[E0599]: no method named `abstract_name` found for struct `BusAddress` in the current scope
+    --> crates/discord-platform/tests/dbus_contract.rs:1311:28
+     |
+1311 |     assert_eq!(bus.address.abstract_name(), None);
+     |                            ^^^^^^^^^^^^^ method not found in `BusAddress`
+
+Some errors have detailed explanations: E0277, E0432, E0599.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `discord-platform` (test "dbus_contract") due to 24 previous errors
+# EXIT=101
