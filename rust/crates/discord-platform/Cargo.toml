@@ -6,4 +6,4 @@ license.workspace = true
 description = "Системная интеграция: tray, уведомления, нативные мосты"
 
 [lints.rust]
-unsafe_code = "forbid"
+unsafe_code = "deny"

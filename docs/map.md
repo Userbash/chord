@@ -154,14 +154,14 @@ flowchart TB
 
 | Показатель | Значение |
 |---|---|
-| Принято карточек | **44 / 90** (…, P3-15, P4-01, P4-02, **P4-03**, **P4-04**, **P4-07**, **P4-11**, **P4-12**, **P6-02**, **P6-06**, **P2-03**, **P6-03**, **P6-04**, P7-01, **P7-02**, P7-04, **P8-01**, P8-03, P8-04; хвосты P7-01b/c/d/e) |
-| В работе | **RW-31 принят 2026-10-22**; следующий — B07 (GUI/keyring/SQLite), ждёт владельца |
-| Осталось | **46** (P0 3, P1 1, P2 0, P3 15, P4 5, P4.5 3, P5 7, P6 6, P7 4, P8 2) |
-| Rust-тесты | **1010 / 1010** (workspace), **531 / 531** (`discord-core`), **83** (`discord-i18n`: +relative 12, +timestamp 14, +duration 13), media 13 + reconnect 12 (`discord-voice`), 53 (`discord-platform`: +dbus/notifications 18, +power 12), 14 (`discord-store`) |
-| Гейт | passed — `waves/RW-31/gate-cargo.log` / `.gate/worker-2026-10-22T18-08-42-326Z.json`; мутации 8/8…10/10, 7/7, 7/7 |
+| Принято карточек | **45 / 90** (…, P3-15, P4-01, P4-02, **P4-03**, **P4-04**, **P4-07**, **P4-11**, **P4-12**, **P6-02**, **P6-06**, **P6-07**, **P2-03**, **P6-03**, **P6-04**, P7-01, **P7-02**, P7-04, **P8-01**, P8-03, P8-04; хвосты P7-01b/c/d/e) |
+| В работе | **RW-32 принят 2026-10-22**; следующий — B07 (GUI/keyring/SQLite), ждёт владельца |
+| Осталось | **45** (P0 3, P1 1, P2 0, P3 15, P4 5, P4.5 3, P5 7, P6 5, P7 4, P8 2) |
+| Rust-тесты | **1031 / 1031** (workspace), **531 / 531** (`discord-core`), **83** (`discord-i18n`: +relative 12, +timestamp 14, +duration 13), media 13 + reconnect 12 (`discord-voice`), 74 (`discord-platform`: dbus 8, notifications 18, power 12, spellcheck 13), 14 (`discord-store`) |
+| Гейт | passed — `waves/RW-32/gate-cargo.log` / `.gate/worker-2026-10-22T18-33-30-356Z.json`; мутации 8/8…10/10, 7/7, 7/7, 8/8, 6/6 |
 | Крейты | 13: 8 рабочих/частично (`codec`, `core`, `json`, `i18n`, `voice`, **`perf`**, **`updater`**, **`store`**), 1 тестовый (`conformance`), 4 каркаса |
 | Следующий batch | **B07** (GUI/keyring/SQLite); headless-остатки: P6-06 (power/idle), P2-03 (SQLite через FFI) — отдельными волнами |
-| Контракты | RW-31 принят (`RW-31`); RW-30 (`RW-30`); RW-28/RW-29 (`RW-28`, `RW-29`); (`RW-28`, `RW-29`); RW-26/RW-27 (`RW-26`, `RW-27`); B06 (`RW-25`); B05 (`RW-24`), B04 (`RW-23`), B03 (`RW-22`), B02 (`RW-21`), B01 (`RW-19`, `RW-20`) |
+| Контракты | RW-32 принят (`RW-32`); RW-31 (`RW-31`); RW-30 (`RW-30`); RW-28/RW-29 (`RW-28`, `RW-29`); (`RW-28`, `RW-29`); RW-26/RW-27 (`RW-26`, `RW-27`); B06 (`RW-25`); B05 (`RW-24`), B04 (`RW-23`), B03 (`RW-22`), B02 (`RW-21`), B01 (`RW-19`, `RW-20`) |
 | Блокеры | GUI-крейты, `keyring`, `rusqlite`, окно живого Discord, rate limit агентов |
 
 ```mermaid
@@ -205,6 +205,10 @@ flowchart LR
     n12["P4-03 SRTP-крипта: AES-GCM, XChaCha, HKDF"]:::ok
     n13["P7-02 перф-харнесс: 24k участников, 100k сообщений"]:::ok
     n14["P8-01 updater: манифест, Ed25519, staged-замена, откат"]:::ok
+  end
+  subgraph B13["B13 / RW-32 — принято 2026-10-22"]
+    q9["P6-07 spellcheck (hunspell)"]:::ok
+    q10["P6-02b hints a{sv}"]:::ok
   end
   subgraph B12["B12 / RW-31 — принято 2026-10-22"]
     q7["P6-06 power/idle"]:::ok
@@ -252,6 +256,8 @@ flowchart LR
   n12 --> q6
   n12 --> q7
   q7 --> q8
+  n12 --> q9
+  q6 --> q10
   q2 --> q3
   n12 --> b1
   d5 --> b1

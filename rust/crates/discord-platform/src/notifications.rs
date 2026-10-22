@@ -6,8 +6,9 @@
 //!
 //! Поддержано: `Notify`, `CloseNotification`, `GetCapabilities`, `GetServerInformation`,
 //! `AddMatch` + события `ActionInvoked`/`NotificationClosed`.
-//! `hints` намеренно пустой `a{sv}`: полный набор хинтов (urgency, image-path, …) —
-//! отдельное расширение, когда появится UI-потребитель.
+//! `hints` — `a{sv}` с минимумом freedesktop (`urgency`, `category`, `desktop-entry`,
+//! `resident`) через [`Hints`]/[`Notifier::notify_with_hints`]; `notify` оставляет dict
+//! пустым. Остальные хинты (`image-path`, `sound-name`, …) не заявляются.
 //! DND/группировка/история — уровень приложения (P6-01/P3), не этого модуля.
 
 use std::time::Duration;
@@ -23,7 +24,7 @@ pub const INTERFACE: &str = "org.freedesktop.Notifications";
 /// Сигнатура тела `Notify` по спецификации freedesktop.
 ///
 /// `actions` на проводе — `as` (плоский список парами id/label), хотя в модели это
-/// `Vec<(String, String)>`; `hints` — пустой `a{sv}`.
+/// `Vec<(String, String)>`; `hints` — `a{sv}` (см. [`Hints`]).
 pub const NOTIFY_SIGNATURE: &str = "susssasa{sv}i";
 /// Таймаут ожидания события (`next_event`).
 pub const EVENT_TIMEOUT: Duration = Duration::from_secs(5);
@@ -39,6 +40,83 @@ pub struct Notification {
     pub actions: Vec<(String, String)>,
     /// -1 — таймаут сервера по умолчанию.
     pub timeout_ms: i32,
+}
+
+/// Важность уведомления — hint `urgency`, на проводе вариант `y`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Urgency {
+    Low,
+    Normal,
+    Critical,
+}
+
+impl Urgency {
+    /// Значение на проводе: `Low` = 0, `Normal` = 1, `Critical` = 2.
+    pub fn code(self) -> u8 {
+        match self {
+            Self::Low => 0,
+            Self::Normal => 1,
+            Self::Critical => 2,
+        }
+    }
+}
+
+/// Хинты `Notify` — минимум freedesktop, передаётся как `a{sv}`.
+///
+/// `Hints::default()` — пустой dict, поэтому
+/// `notify(&notification)` эквивалентен
+/// `notify_with_hints(&notification, &Hints::default())`.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Hints {
+    /// `urgency` (вариант `y`).
+    pub urgency: Option<Urgency>,
+    /// `category` (вариант `s`); пустая строка не отправляется.
+    pub category: Option<String>,
+    /// `desktop-entry` (вариант `s`); пустая строка не отправляется.
+    pub desktop_entry: Option<String>,
+    /// `resident` (вариант `b`).
+    pub resident: Option<bool>,
+}
+
+impl Hints {
+    /// Собирает `a{sv}`: только заданные непустые значения, порядок фиксирован —
+    /// `urgency`, `category`, `desktop-entry`, `resident`.
+    pub fn to_dbus(&self) -> Value {
+        let mut entries: Vec<(Value, Value)> = Vec::new();
+        if let Some(urgency) = self.urgency {
+            entries.push(variant_entry("urgency", Value::Byte(urgency.code())));
+        }
+        if let Some(category) = non_empty(&self.category) {
+            entries.push(variant_entry(
+                "category",
+                Value::String(category.to_owned()),
+            ));
+        }
+        if let Some(desktop_entry) = non_empty(&self.desktop_entry) {
+            entries.push(variant_entry(
+                "desktop-entry",
+                Value::String(desktop_entry.to_owned()),
+            ));
+        }
+        if let Some(resident) = self.resident {
+            entries.push(variant_entry("resident", Value::Bool(resident)));
+        }
+        Value::Dict(entries)
+    }
+}
+
+fn non_empty(value: &Option<String>) -> Option<&str> {
+    match value.as_deref() {
+        Some(text) if !text.is_empty() => Some(text),
+        _ => None,
+    }
+}
+
+fn variant_entry(key: &str, value: Value) -> (Value, Value) {
+    (
+        Value::String(key.to_owned()),
+        Value::Variant(Box::new(value)),
+    )
 }
 
 /// Событие уведомления, пришедшее сигналом.
@@ -106,11 +184,23 @@ impl Notifier {
         Ok((name, vendor, version, specification))
     }
 
-    /// `Notify(...) -> u`: серверный id уведомления.
+    /// `Notify(...) -> u`: серверный id уведомления, hints пустые (`a{sv}` с 0 записей).
+    ///
+    /// Эквивалент `notify_with_hints(notification, &Hints::default())`.
+    pub fn notify(&mut self, notification: &Notification) -> Result<u32, DbusError> {
+        self.notify_with_hints(notification, &Hints::default())
+    }
+
+    /// `Notify(...) -> u` с hints (`a{sv}`): `urgency`, `category`, `desktop-entry`,
+    /// `resident`. Порядок записей фиксирован, пустые строки не отправляются.
     ///
     /// `app_name` и `summary` обязаны быть непустыми (иначе `DbusError::Protocol`):
     /// пустой заголовок серверы обычно отбрасывают, и пользователь не увидит уведомление.
-    pub fn notify(&mut self, notification: &Notification) -> Result<u32, DbusError> {
+    pub fn notify_with_hints(
+        &mut self,
+        notification: &Notification,
+        hints: &Hints,
+    ) -> Result<u32, DbusError> {
         if notification.app_name.is_empty() {
             return Err(DbusError::Protocol("empty app_name"));
         }
@@ -134,7 +224,7 @@ impl Notifier {
             Value::String(notification.summary.clone()),
             Value::String(notification.body.clone()),
             Value::Array(actions),
-            Value::Dict(Vec::new()), // hints: пустой a{sv}
+            hints.to_dbus(), // a{sv}: пустой Hints → 0 записей, не null
             Value::I32(notification.timeout_ms),
         ];
 

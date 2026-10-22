@@ -1,0 +1,79 @@
+# W32a — мутации spellcheck (`discord-platform/src/spellcheck.rs`, `src/ffi_hunspell.rs`)
+
+targeted: cargo test --offline -p discord-platform --test spellcheck_contract -- --nocapture
+CARGO_TARGET_DIR=/tmp/opencode/target-w32a
+
+md5 spellcheck.rs: bab7bb232b44412ebe1e42910f539474
+md5 ffi_hunspell.rs: 715ab2bbef06a98a27038e2dec24f2fb
+md5 fixtures/hunspell/test.aff: d2cd9ba27bcff9b6100199782b828dcd
+md5 fixtures/hunspell/test.dic: 70e5b0a545d205933eb793f83049fad4
+
+baseline: exit=0, SKIP=0, test result ok=да
+
+## 01 word_boundary_trailing_hyphen (spellcheck.rs)
+ждём: h07: дефис в конце слова приклеивается к слову
+md5 до: bab7bb232b44412ebe1e42910f539474
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h07_tokenize_cyrillic_hyphen_apostrophe
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: bab7bb232b44412ebe1e42910f539474 — OK
+
+## 02 url_skip_removed (spellcheck.rs)
+ждём: h08: URL разбирается на слова (https/example/com/…)
+md5 до: bab7bb232b44412ebe1e42910f539474
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h08_tokenize_skips_urls_emails_code_mentions_and_emoji
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: bab7bb232b44412ebe1e42910f539474 — OK
+
+## 03 suggest_limit_zero (spellcheck.rs)
+ждём: h04: suggest не возвращает вариантов, hello не находится
+md5 до: bab7bb232b44412ebe1e42910f539474
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h04_suggest_finds_hello_and_is_bounded
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: bab7bb232b44412ebe1e42910f539474 — OK
+
+## 04 add_ignored (ffi_hunspell.rs)
+ждём: h05: add сообщает успех, но слово не попадает в словарь
+md5 до: 715ab2bbef06a98a27038e2dec24f2fb
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h05_add_and_remove_change_check
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 715ab2bbef06a98a27038e2dec24f2fb — OK
+
+## 05 drop_without_destroy (ffi_hunspell.rs)
+ждём: h11: 100 циклов create/drop утекают память (RSS-порог)
+md5 до: 715ab2bbef06a98a27038e2dec24f2fb
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h11_drop_cycles_do_not_leak_or_crash
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+md5 после restore: 715ab2bbef06a98a27038e2dec24f2fb — OK
+
+## 06 nul_guard_removed (spellcheck.rs)
+ждём: h12: NUL в пути больше не даёт SpellError::Nul
+md5 до: bab7bb232b44412ebe1e42910f539474
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h12_nul_in_path_is_error_without_panic
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: bab7bb232b44412ebe1e42910f539474 — OK
+
+## 07 mention_skip_removed (spellcheck.rs)
+ждём: h08: <@alice>/<#general> дают слова alice/general
+md5 до: bab7bb232b44412ebe1e42910f539474
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h08_tokenize_skips_urls_emails_code_mentions_and_emoji
+  test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: bab7bb232b44412ebe1e42910f539474 — OK
+
+## 08 spell_always_true (ffi_hunspell.rs)
+ждём: h03: check принимает любое слово (helo/приветъ)
+md5 до: 715ab2bbef06a98a27038e2dec24f2fb
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: h03_check_rejects_unknown_words, h05_add_and_remove_change_check
+  test result: FAILED. 11 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 715ab2bbef06a98a27038e2dec24f2fb — OK
+
+## Итог
+мутаций: 8
+все мутации убиты, все файлы и фикстуры восстановлены

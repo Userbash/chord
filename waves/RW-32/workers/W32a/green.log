@@ -1,0 +1,22 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/spellcheck_contract.rs (/tmp/opencode/target-w32a/debug/deps/spellcheck_contract-387ea7f9e40c77d3)
+
+running 13 tests
+test h06_tokenize_ascii_offsets_and_punctuation ... ok
+test h07_tokenize_cyrillic_hyphen_apostrophe ... ok
+test h08_tokenize_skips_urls_emails_code_mentions_and_emoji ... ok
+test h09_empty_and_wordless_texts_are_empty ... ok
+test h02_check_accepts_dictionary_words ... ok
+test h13_not_send_sync_and_tokenize_never_panics ... ok
+test h03_check_rejects_unknown_words ... ok
+test h05_add_and_remove_change_check ... ok
+test h12_nul_in_path_is_error_without_panic ... ok
+test h01_new_on_fixtures_is_ok ... ok
+test h10_broken_or_missing_dictionary_is_error ... ok
+test h04_suggest_finds_hello_and_is_bounded ... ok
+test h11_drop_cycles_do_not_leak_or_crash ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

@@ -1,0 +1,60 @@
+# W32b — мутации hints `a{sv}`
+
+baseline: exit=0, SKIP=0
+
+## 01 urgency_variant_u32
+ждём: q02/q05/q08: вариант urgency `y` заменён на `u` (тип варианта)
+md5 до: 84a41a3b7bd10563590c3f169f6fc18a
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: q02_urgency_is_byte_variant_with_contract_values, q05_all_hints_are_four_entries_in_frozen_order, q06_empty_category_and_desktop_entry_are_skipped, q08_hints_dict_matches_libgio_bytes_and_round_trips
+  test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+  test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
+
+## 02 urgency_key_typo
+ждём: q02/q05: ключ `urgency` с опечаткой (ключ записи)
+md5 до: 84a41a3b7bd10563590c3f169f6fc18a
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: q02_urgency_is_byte_variant_with_contract_values, q05_all_hints_are_four_entries_in_frozen_order, q06_empty_category_and_desktop_entry_are_skipped, q08_hints_dict_matches_libgio_bytes_and_round_trips
+  test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+  test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
+
+## 03 empty_strings_not_skipped
+ждём: q06: пустые category/desktop-entry уходят на шину (пропуск пустой строки)
+md5 до: 84a41a3b7bd10563590c3f169f6fc18a
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: q06_empty_category_and_desktop_entry_are_skipped
+  test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
+
+## 04 desktop_entry_key_underscore
+ждём: q04/q05: ключ `desktop_entry` вместо `desktop-entry`
+md5 до: 84a41a3b7bd10563590c3f169f6fc18a
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: q04_desktop_entry_and_resident_have_string_and_bool_variants, q05_all_hints_are_four_entries_in_frozen_order, q07_unicode_and_long_values_are_delivered_without_panic, q08_hints_dict_matches_libgio_bytes_and_round_trips
+  test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+  test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
+
+## 05 resident_dropped
+ждём: q04/q05: запись `resident` потеряна (наличие)
+md5 до: 84a41a3b7bd10563590c3f169f6fc18a
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: q04_desktop_entry_and_resident_have_string_and_bool_variants, q05_all_hints_are_four_entries_in_frozen_order, q06_empty_category_and_desktop_entry_are_skipped, q08_hints_dict_matches_libgio_bytes_and_round_trips
+  test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+  test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
+
+## 06 desktop_entry_before_category
+ждём: q05/q08: порядок записей изменён (desktop-entry раньше category)
+md5 до: 84a41a3b7bd10563590c3f169f6fc18a
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: q05_all_hints_are_four_entries_in_frozen_order, q07_unicode_and_long_values_are_delivered_without_panic, q08_hints_dict_matches_libgio_bytes_and_round_trips
+  test result: FAILED. 16 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+  test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
+
+## Итог
+мутаций: 6
+все мутации убиты, все файлы восстановлены

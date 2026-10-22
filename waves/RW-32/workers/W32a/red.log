@@ -1,0 +1,40 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0599]: no method named `check` found for struct `SpellChecker` in the current scope
+   --> crates/discord-platform/tests/spellcheck_contract.rs:135:21
+    |
+135 |     assert!(checker.check("hello"));
+    |                     ^^^^^ method not found in `SpellChecker`
+
+error[E0599]: no method named `check` found for struct `SpellChecker` in the current scope
+   --> crates/discord-platform/tests/spellcheck_contract.rs:148:25
+    |
+148 |         assert!(checker.check(word), "слово {word:?} должно быть в словаре");
+    |                         ^^^^^ method not found in `SpellChecker`
+
+error[E0599]: no method named `check` found for struct `SpellChecker` in the current scope
+   --> crates/discord-platform/tests/spellcheck_contract.rs:160:26
+    |
+160 |         assert!(!checker.check(word), "слова {word:?} нет в словаре");
+    |                          ^^^^^ method not found in `SpellChecker`
+
+error[E0599]: no method named `check` found for struct `SpellChecker` in the current scope
+   --> crates/discord-platform/tests/spellcheck_contract.rs:195:22
+    |
+195 |     assert!(!checker.check("zorblax"));
+    |                      ^^^^^ method not found in `SpellChecker`
+
+error[E0599]: no method named `check` found for struct `SpellChecker` in the current scope
+   --> crates/discord-platform/tests/spellcheck_contract.rs:198:17
+    |
+198 |         checker.check("zorblax"),
+    |                 ^^^^^ method not found in `SpellChecker`
+
+error[E0599]: no method named `check` found for struct `SpellChecker` in the current scope
+   --> crates/discord-platform/tests/spellcheck_contract.rs:206:18
+    |
+206 |         !checker.check("zorblax"),
+    |                  ^^^^^ method not found in `SpellChecker`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-platform` (test "spellcheck_contract") due to 6 previous errors
+# EXIT=101

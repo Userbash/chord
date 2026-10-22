@@ -12,7 +12,7 @@
 //! `DISCORD_LAB_LIVE_NOTIFY=1`; уведомления наружу не отправляются.
 
 use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
-use discord_platform::notifications::{Notification, NotificationEvent, Notifier};
+use discord_platform::notifications::{Hints, Notification, NotificationEvent, Notifier, Urgency};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
@@ -84,7 +84,7 @@ impl Harness {
             .stdout(Stdio::null())
             .stderr(Stdio::piped())
             .spawn()
-            .map_err(|err| format!("запуск mock_service.py: {err}"))?;
+            .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_service.py: {err}")))?;
 
         let deadline = Instant::now() + Duration::from_secs(10);
         loop {
@@ -96,10 +96,18 @@ impl Harness {
             }
             if let Ok(Some(status)) = mock.try_wait() {
                 let stderr = read_child_stderr(&mut mock);
-                return Err(format!("мок-сервис завершился ({status}): {stderr}"));
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    format!("мок-сервис завершился ({status}): {stderr}"),
+                ));
             }
             if Instant::now() > deadline {
-                return Err("мок-сервис не поднялся за 10 с".to_owned());
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    "мок-сервис не поднялся за 10 с".to_owned(),
+                ));
             }
             std::thread::sleep(Duration::from_millis(50));
         }
@@ -163,6 +171,13 @@ impl Drop for Harness {
         }
         let _ = fs::remove_dir_all(&self.dir);
     }
+}
+
+/// Убирает приватный демон и tempdir при ошибке старта (skip-путь без `Drop`).
+fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
+    let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
+    let _ = fs::remove_dir_all(dir);
+    reason
 }
 
 fn read_child_stderr(child: &mut Child) -> String {
@@ -540,4 +555,376 @@ fn n16_live_service_is_flag_gated_and_read_only() {
         Ok(capabilities) => println!("live capabilities: {capabilities:?}"),
         Err(err) => println!("SKIP: GetCapabilities на live-шине: {err:?}"),
     }
+}
+
+// =================================================================================
+// W32b (P6-02b): hints `a{sv}`. Оракул — `waves/RW-32/dbus/mock_hints.py` на libdbus:
+// журнал `Notify` пишет `ключ:сигнатура:значение` в порядке провода, поэтому неверный
+// тип варианта, ключ, пропуск пустой строки или порядок видны как расхождение строки.
+// =================================================================================
+
+const HINTS_SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+const HINTS_SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
+
+/// Приватная шина + мок hints; отличается от `Harness` только скриптом мока
+/// (`waves/RW-32/dbus/mock_hints.py`) и префиксом временного каталога.
+struct HintsHarness {
+    address: String,
+    journal: PathBuf,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Child,
+}
+
+impl HintsHarness {
+    fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(HINTS_SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(HINTS_SKIP_NO_PYTHON.to_owned());
+        }
+
+        let dir = std::env::temp_dir().join(format!(
+            "discord-lab-w32b-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let started = Command::new("dbus-daemon")
+            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+            .output()
+            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+        if !started.status.success() {
+            return Err(format!(
+                "dbus-daemon завершился: {}",
+                String::from_utf8_lossy(&started.stderr).trim()
+            ));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let address = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+            .trim()
+            .to_owned();
+        let daemon_pid: u32 = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())?
+            .trim()
+            .parse()
+            .map_err(|err| format!("pid dbus-daemon: {err}"))?;
+
+        let journal = dir.join("journal.tsv");
+        let mut mock = Command::new("python3")
+            .arg(repo_path("waves/RW-32/dbus/mock_hints.py"))
+            .arg("--address")
+            .arg(&address)
+            .arg("--log")
+            .arg(&journal)
+            .args(extra_mock_args)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_hints.py: {err}")))?;
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            if fs::read_to_string(&journal)
+                .map(|text| text.contains("READY"))
+                .unwrap_or(false)
+            {
+                break;
+            }
+            if let Ok(Some(status)) = mock.try_wait() {
+                let stderr = read_child_stderr(&mut mock);
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    format!("мок-сервис завершился ({status}): {stderr}"),
+                ));
+            }
+            if Instant::now() > deadline {
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    "мок-сервис не поднялся за 10 с".to_owned(),
+                ));
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+
+        Ok(Self {
+            address,
+            journal,
+            dir,
+            daemon_pid,
+            mock,
+        })
+    }
+
+    fn bus_address(&self) -> BusAddress {
+        BusAddress::parse(&self.address).expect("адрес приватного демона")
+    }
+
+    fn journal_member(&self, member: &str) -> Vec<Vec<String>> {
+        fs::read_to_string(&self.journal)
+            .unwrap_or_default()
+            .lines()
+            .map(|line| line.split('\t').map(str::to_owned).collect::<Vec<String>>())
+            .filter(|fields| fields.first().map(String::as_str) == Some(member))
+            .collect()
+    }
+
+    fn wait_for_member(&self, member: &str, count: usize) -> Vec<Vec<String>> {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let records = self.journal_member(member);
+            if records.len() >= count || Instant::now() > deadline {
+                return records;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+}
+
+impl Drop for HintsHarness {
+    fn drop(&mut self) {
+        let _ = self.mock.kill();
+        let _ = self.mock.wait();
+        if self.daemon_pid != 0 {
+            let _ = Command::new("kill")
+                .arg(self.daemon_pid.to_string())
+                .status();
+        }
+        let _ = fs::remove_dir_all(&self.dir);
+    }
+}
+
+macro_rules! hints_harness {
+    ($extra:expr) => {
+        match HintsHarness::start($extra) {
+            Ok(harness) => harness,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+/// Запись журнала `Notify` по индексу (ждёт, пока мок допишет).
+fn hints_notify_record(harness: &HintsHarness, index: usize) -> Vec<String> {
+    let records = harness.wait_for_member("Notify", index + 1);
+    records.get(index).cloned().unwrap_or_else(|| {
+        panic!(
+            "журнал Notify: ожидалась запись #{index}, есть {}",
+            records.len()
+        )
+    })
+}
+
+/// Поле `hints` журнала: `ключ:сигнатура:значение|…` (пусто для пустого `a{sv}`).
+fn hints_field(record: &[String]) -> &str {
+    record.get(9).map(String::as_str).unwrap_or("")
+}
+
+// --- q01: notify без hints → пустой a{sv} (0 записей, не null) --------------------
+
+#[test]
+fn q01_notify_without_hints_sends_empty_dict() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    let id = notifier
+        .notify(&sample_notification())
+        .expect("Notify без hints");
+    assert!(id >= 100, "id из ответа мока: {id}");
+
+    let first = hints_notify_record(&harness, 0);
+    // Notify\tapp\treplaces\tapp_icon\tsummary\tbody\thints_len\tactions\ttimeout\thints
+    assert_eq!(first.len(), 10, "формат журнала: {first:?}");
+    assert_eq!(first[6], "0", "hints_len: пустой a{{sv}}");
+    assert_eq!(hints_field(&first), "", "a{{sv}} пустой, а не null");
+
+    // `notify` — ровно `notify_with_hints(..., Hints::default())`.
+    notifier
+        .notify_with_hints(&sample_notification(), &Hints::default())
+        .expect("Notify с Hints::default()");
+    let second = hints_notify_record(&harness, 1);
+    assert_eq!(second[6], "0", "Hints::default() — тоже 0 записей");
+    assert_eq!(hints_field(&second), "");
+}
+
+// --- q02: urgency → вариант y (0/1/2) --------------------------------------------
+
+#[test]
+fn q02_urgency_is_byte_variant_with_contract_values() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    for urgency in [Urgency::Low, Urgency::Normal, Urgency::Critical] {
+        notifier
+            .notify_with_hints(
+                &sample_notification(),
+                &Hints {
+                    urgency: Some(urgency),
+                    ..Hints::default()
+                },
+            )
+            .expect("Notify с urgency");
+    }
+
+    for (index, code) in ["0", "1", "2"].iter().enumerate() {
+        let record = hints_notify_record(&harness, index);
+        assert_eq!(
+            hints_field(&record),
+            format!("urgency:y:{code}"),
+            "Low/Normal/Critical → байты 0/1/2 в варианте `y`"
+        );
+    }
+}
+
+// --- q03: category → вариант s ---------------------------------------------------
+
+#[test]
+fn q03_category_is_string_variant() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    notifier
+        .notify_with_hints(
+            &sample_notification(),
+            &Hints {
+                category: Some("email.arrived".to_owned()),
+                ..Hints::default()
+            },
+        )
+        .expect("Notify с category");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "1");
+    assert_eq!(hints_field(&record), "category:s:email.arrived");
+}
+
+// --- q04: desktop-entry + resident (s + b) ---------------------------------------
+
+#[test]
+fn q04_desktop_entry_and_resident_have_string_and_bool_variants() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    for resident in [true, false] {
+        notifier
+            .notify_with_hints(
+                &sample_notification(),
+                &Hints {
+                    desktop_entry: Some("discord-lab".to_owned()),
+                    resident: Some(resident),
+                    ..Hints::default()
+                },
+            )
+            .expect("Notify с desktop-entry/resident");
+    }
+
+    let first = hints_notify_record(&harness, 0);
+    assert_eq!(
+        hints_field(&first),
+        "desktop-entry:s:discord-lab|resident:b:1"
+    );
+    let second = hints_notify_record(&harness, 1);
+    assert_eq!(
+        hints_field(&second),
+        "desktop-entry:s:discord-lab|resident:b:0",
+        "false — это b:0, а не отсутствие записи"
+    );
+}
+
+// --- q05: все hints вместе → 4 записи в фиксированном порядке --------------------
+
+#[test]
+fn q05_all_hints_are_four_entries_in_frozen_order() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    notifier
+        .notify_with_hints(
+            &sample_notification(),
+            &Hints {
+                urgency: Some(Urgency::Normal),
+                category: Some("im.received".to_owned()),
+                desktop_entry: Some("discord-lab".to_owned()),
+                resident: Some(true),
+            },
+        )
+        .expect("Notify со всеми hints");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "4", "четыре записи a{{sv}}");
+    assert_eq!(
+        hints_field(&record),
+        "urgency:y:1|category:s:im.received|desktop-entry:s:discord-lab|resident:b:1",
+        "порядок: urgency, category, desktop-entry, resident"
+    );
+}
+
+// --- q06: пустые строки не отправляются ------------------------------------------
+
+#[test]
+fn q06_empty_category_and_desktop_entry_are_skipped() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    notifier
+        .notify_with_hints(
+            &sample_notification(),
+            &Hints {
+                urgency: Some(Urgency::Critical),
+                category: Some(String::new()),
+                desktop_entry: Some(String::new()),
+                resident: Some(true),
+            },
+        )
+        .expect("Notify с пустыми строками");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[6], "2", "пустые строки не должны стать записями");
+    assert_eq!(hints_field(&record), "urgency:y:2|resident:b:1");
+}
+
+// --- q07: Unicode и длинная строка (4 КиБ) ---------------------------------------
+
+#[test]
+fn q07_unicode_and_long_values_are_delivered_without_panic() {
+    let harness = hints_harness!(&[]);
+    let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
+
+    let long_ascii = "a".repeat(4096);
+    let long_unicode = "я".repeat(2048); // 4096 байт в UTF-8
+    let notification = Notification {
+        app_name: "Discord Lab".to_owned(),
+        summary: "Юникод 📬".to_owned(),
+        body: "тело уведомления".to_owned(),
+        timeout_ms: -1,
+        ..Notification::default()
+    };
+    let hints = Hints {
+        category: Some(long_ascii.clone()),
+        desktop_entry: Some(long_unicode.clone()),
+        ..Hints::default()
+    };
+
+    let id = notifier
+        .notify_with_hints(&notification, &hints)
+        .expect("длинные строки не должны ломать маршалинг");
+    assert!(id >= 100, "id из ответа мока: {id}");
+
+    let record = hints_notify_record(&harness, 0);
+    assert_eq!(record[4], "Юникод 📬", "summary дошёл без искажений");
+    assert_eq!(record[5], "тело уведомления");
+    assert_eq!(
+        hints_field(&record),
+        format!("category:s:{long_ascii}|desktop-entry:s:{long_unicode}")
+    );
 }

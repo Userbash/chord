@@ -10,6 +10,7 @@
 use discord_platform::dbus::message::{self, FIELD_REPLY_SERIAL, FIELD_SIGNATURE, MessageType};
 use discord_platform::dbus::{BusAddress, DbusError, Value, auth};
 use discord_platform::notifications;
+use discord_platform::notifications::{Hints, Urgency};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -704,4 +705,194 @@ fn n07b_notifications_signatures_match_libdbus_golden() {
     let parsed = message::parse(&reply).expect("разбор MethodReturn");
     assert_eq!(parsed.reply_serial(), Some(0));
     assert_eq!(parsed.body, body);
+}
+
+// --- q08: hints `a{sv}` — байты libgio и round-trip ------------------------------
+
+/// Собирает `Hints` из эталонного набора `fixtures/dbus/hints.json`.
+fn json_hints(items: &[Json]) -> Hints {
+    let mut hints = Hints::default();
+    for item in items {
+        let key = item.get("key").and_then(Json::as_str).expect("hints.key");
+        let signature = item
+            .get("signature")
+            .and_then(Json::as_str)
+            .expect("hints.signature");
+        let value = item.get("value").expect("hints.value");
+        match (key, signature) {
+            ("urgency", "y") => {
+                hints.urgency = Some(match value.as_u64() {
+                    Some(0) => Urgency::Low,
+                    Some(1) => Urgency::Normal,
+                    Some(2) => Urgency::Critical,
+                    other => panic!("{key}: неожиданная urgency {other:?}"),
+                });
+            }
+            ("category", "s") => hints.category = value.as_str().map(str::to_owned),
+            ("desktop-entry", "s") => hints.desktop_entry = value.as_str().map(str::to_owned),
+            ("resident", "b") => {
+                hints.resident = Some(match value {
+                    Json::Bool(flag) => *flag,
+                    other => panic!("{key}: ожидался bool, получено {other:?}"),
+                });
+            }
+            other => panic!("неизвестная запись hints: {other:?}"),
+        }
+    }
+    hints
+}
+
+/// Ожидаемый `a{sv}` из фикстуры: ключи, порядок и **типы вариантов** заданы оракулом.
+fn json_hints_value(items: &[Json]) -> Value {
+    let mut entries = Vec::new();
+    for item in items {
+        let key = item.get("key").and_then(Json::as_str).expect("hints.key");
+        let signature = item
+            .get("signature")
+            .and_then(Json::as_str)
+            .expect("hints.signature");
+        let value = item.get("value").expect("hints.value");
+        let inner = match signature {
+            "y" => Value::Byte(
+                u8::try_from(value.as_u64().expect("hints.y")).expect("hints.y в диапазоне u8"),
+            ),
+            "s" => Value::String(value.as_str().expect("hints.s").to_owned()),
+            "b" => Value::Bool(match value {
+                Json::Bool(flag) => *flag,
+                other => panic!("{key}: ожидался bool, получено {other:?}"),
+            }),
+            other => panic!("{key}: неизвестная сигнатура варианта {other:?}"),
+        };
+        entries.push((
+            Value::String(key.to_owned()),
+            Value::Variant(Box::new(inner)),
+        ));
+    }
+    Value::Dict(entries)
+}
+
+/// Тело `Notify`, собранное из тех же общих полей, что и golden в `hints.json`.
+fn hints_notify_body(golden: &Json, hints: &Hints) -> Vec<Value> {
+    let notify = golden.get("notify").expect("hints.json: notify");
+    let text = |key: &str| {
+        notify
+            .get(key)
+            .and_then(Json::as_str)
+            .unwrap_or_else(|| panic!("hints.json: notify.{key}"))
+            .to_owned()
+    };
+    let actions = notify
+        .get("actions")
+        .and_then(Json::as_arr)
+        .expect("hints.json: notify.actions")
+        .iter()
+        .map(|item| Value::String(item.as_str().expect("notify.action").to_owned()))
+        .collect();
+    let timeout_ms = match notify
+        .get("timeout_ms")
+        .expect("hints.json: notify.timeout_ms")
+    {
+        Json::Num(value) => *value as i32,
+        other => panic!("timeout_ms: {other:?}"),
+    };
+
+    vec![
+        Value::String(text("app_name")),
+        Value::U32(0),                // replaces_id
+        Value::String(String::new()), // app_icon
+        Value::String(text("summary")),
+        Value::String(text("body")),
+        Value::Array(actions),
+        hints.to_dbus(),
+        Value::I32(timeout_ms),
+    ]
+}
+
+#[test]
+fn q08_hints_dict_matches_libgio_bytes_and_round_trips() {
+    let golden = load_fixture("hints.json");
+    assert_eq!(
+        golden.get("hints_signature").and_then(Json::as_str),
+        Some("a{sv}"),
+        "hints — именно a{{sv}}"
+    );
+    assert_eq!(
+        golden.get("signature").and_then(Json::as_str),
+        Some(notifications::NOTIFY_SIGNATURE),
+        "сигнатура Notify не меняется"
+    );
+
+    let cases = golden
+        .get("cases")
+        .and_then(Json::as_arr)
+        .expect("hints.json: cases");
+    assert!(
+        cases.len() >= 5,
+        "ожидались наборы empty/urgency/category/desktop-entry+resident/all, есть {}",
+        cases.len()
+    );
+
+    for case in cases {
+        let name = case.get("name").and_then(Json::as_str).expect("case.name");
+        let items = case
+            .get("hints")
+            .and_then(Json::as_arr)
+            .expect("case.hints");
+        let hints = json_hints(items);
+        let expected = json_hints_value(items);
+
+        // Структура, типы вариантов и порядок записей: urgency, category, desktop-entry,
+        // resident (в фикстуре dict уже в этом порядке).
+        assert_eq!(hints.to_dbus(), expected, "{name}: форма a{{sv}}");
+        assert_eq!(
+            hints.to_dbus(),
+            hints.to_dbus(),
+            "{name}: порядок записей нестабилен"
+        );
+
+        let hex = case
+            .get("notify_hex")
+            .and_then(Json::as_str)
+            .expect("case.notify_hex");
+        let bytes = hex_decode(hex);
+        let libgio = message::parse(&bytes)
+            .unwrap_or_else(|err| panic!("{name}: байты libgio не разобраны: {err:?}"));
+        assert_eq!(libgio.kind, MessageType::MethodCall);
+        assert_eq!(libgio.member(), Some("Notify"));
+        assert_eq!(
+            libgio.signature,
+            notifications::NOTIFY_SIGNATURE,
+            "{name}: сигнатура вызова"
+        );
+        assert_eq!(
+            libgio.body.get(6),
+            Some(&expected),
+            "{name}: libdbus/libgio демаршалит другой a{{sv}}"
+        );
+
+        // Сборка нашего сообщения из разобранных полей заголовка и нашего `a{sv}`:
+        // побайтовое совпадение с libgio проверяет выравнивание и порядок записей.
+        let body = hints_notify_body(&golden, &hints);
+        let rebuilt = message::build(
+            MessageType::MethodCall,
+            libgio.serial,
+            &libgio.fields,
+            &libgio.signature,
+            &body,
+        )
+        .unwrap_or_else(|err| panic!("{name}: сборка сообщения: {err:?}"));
+        assert_eq!(
+            hex_encode(&rebuilt),
+            hex_encode(&bytes),
+            "{name}: байты a{{sv}} расходятся с libgio"
+        );
+
+        let round_trip = message::parse(&rebuilt).expect("разбор собранного сообщения");
+        assert_eq!(round_trip.body, body, "{name}: round-trip тела");
+        assert_eq!(
+            round_trip.body.get(6),
+            Some(&expected),
+            "{name}: round-trip a{{sv}}"
+        );
+    }
 }

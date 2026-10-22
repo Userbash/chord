@@ -1,0 +1,15 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0599]: no method named `notify_with_hints` found for mutable reference `&mut Notifier` in the current scope
+   --> crates/discord-platform/src/notifications.rs:191:14
+    |
+191 |         self.notify_with_hints(notification, &Hints::default())
+    |              ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `notify_with_hints_missing` with a similar name
+    |
+191 |         self.notify_with_hints_missing(notification, &Hints::default())
+    |                               ++++++++
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-platform` (lib) due to 1 previous error
+# EXIT=101
