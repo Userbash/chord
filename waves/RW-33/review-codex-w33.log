@@ -1,0 +1,2572 @@
+OpenAI Codex v0.162.1
+--------
+workdir: /home/sanya/orca/project
+model: gpt-6-luna
+provider: codexsale
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a164ed-03a2-7683-8238-f83f1c332974
+--------
+user
+Независимое ревью RW-33/P1-10 keyring через FFI к libsecret.
+
+ПРАВИЛА:
+1. НЕ редактируй /home/sanya/orca/project — только чтение.
+2. НЕ копируй workspace/repo/target. Работай в repo, cargo с CARGO_TARGET_DIR=/tmp/opencode/target-codex-w33. Мелкие файлы — только в /tmp/opencode/w33-codex (<50 МБ).
+3. Без сети, live Discord, commit. Синтетические секреты, после тестов clear.
+
+Проверь:
+- waves/RW-33/TZ-W33a.md, BATCH-TZ.md;
+- rust/crates/discord-platform/src/keyring.rs, ffi_secret.rs, src/lib.rs;
+- rust/crates/discord-platform/tests/keyring_contract.rs;
+- waves/RW-33/run-mutations-w33a.py, mutations-w33a.log, REPORT-W33a.md, workers/W33a/*.log.
+
+Воспроизведи:
+1. cargo test --offline -p discord-platform --test keyring_contract -- --nocapture с DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd) и без флага; проверь 12 passed и что live реально не SKIP.
+2. Независимый оракул: secret-tool lookup/clear после нашего store; secret-tool store -> наш lookup; проверь отсутствие секрета в Debug и логах.
+3. Мутации 7/7 в /tmp-копии только изменяемых файлов или с временной правкой и restore по md5; baseline без harness-SKIP (live-skip допустим).
+4. FFI safety: сигнатуры glib/libsecret, GError освобождается, SecretValue/g_free без утечек/double-free, schema flag DONT_MATCH_NAME, Drop без двойного unref, !Send + !Sync.
+5. md5 в отчёте; отсутствие unsafe вне ffi_secret.rs; panic/unwrap/expect в продакшн-пути; секреты не логируются.
+
+В конце: вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой и воспроизведением.
+
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+codex
+Сначала сверю HEAD, рабочее дерево и локальный контекст проекта, затем прочитаю только перечисленные артефакты и правила приёмки. Работу веду read-only в репозитории; запуск cargo направлю в указанный `/tmp` target-dir, а тестовые секреты очищу после проверки.
+exec
+/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-33|W33a|P1-10|§4\\.2|3\\.13|3\\.14|3\\.15\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md waves/RW-33/TZ-W33a.md waves/RW-33/BATCH-TZ.md" in /home/sanya/orca/project
+ exited 2 in 0ms:
+ M rust/crates/discord-platform/src/lib.rs
+?? rust/crates/discord-platform/src/ffi_secret.rs
+?? rust/crates/discord-platform/src/keyring.rs
+?? rust/crates/discord-platform/tests/keyring_contract.rs
+?? waves/RW-33/
+86d260bec5a208f4b756e78e959dd1e54dcda6fd
+# discord-lab: session checkpoint (сжатый контекст)
+
+Точка входа для нового диалога. Читать первым; детали — точечно по ссылкам.
+Обновлён 2026-10-22 после RW-32.
+
+## Состояние
+
+- `/home/sanya/orca/project`, `main`, HEAD `62bdfa6`; RW-10…RW-31 закоммичены и запушены; RW-32 — коммит следующим шагом;
+  коммиты/пуш — координатор.
+- **Принято 45 / 90** карточек (хвосты P7-01b/c/d/e и P6-02b в 90 не входят). Последние волны 2026-10-22:
+  - **RW-32**: P6-07 spellcheck (hunspell FFI), P6-02b hints `a{sv}`;
+  - **RW-31**: P6-06 power/idle, P2-03 SQLite-store через FFI к системному libsqlite3;
+  - **RW-30**: P7-01d DurationFormat, P6-02 D-Bus-уведомления (headless, без новых крейтов);
+  - **RW-28**: P7-01c RelativeTimeFormat — ICU-паритет ±2, точные i64 > 2^53 (headless);
+  - **RW-29**: P4-04 RTP-медиа (PT120/0xBEDE, DTX, джиттер по pcap-оракулу), P4-12
+    reconnect/resume, P7-01e `<t:…>`-таймстемпы (headless).
+- Факт: workspace **1031 passed**, core 531, i18n 83, media 13, reconnect 12, platform 74,
+  store 14; fmt/clippy чисто; npm `gate:worker` passed; мутации 8/8, 8/8, 9/9, 6/6, 8/8, 10/10,
+  7/7, 7/7, 8/8, 6/6 (все restored по md5, SKIP=0).
+- Гейт: `.gate/worker-2026-10-22T18-33-30-356Z.json`, `waves/RW-32/gate-cargo.log`.
+- Ревью: RW-28 — два прохода (P0 Auto ±2 → решение TL `waves/RW-28/DECISIONS.md`; P1 точность
+  → точные `plural_category_integer`/`format_integer_unsigned`); RW-29 voice — принято,
+  P0/P1/P2=0, 8 P3 в бэклог (`waves/STATE.md` §7).
+
+## Что дальше
+
+1. **B07 = P0-01 / P1-10 / P2-03** (GUI spike, keyring, SQLite) — **заблокирован** до
+   решения владельца: нет `tauri`/`iced`/`egui`/`winit`/`wry` в lock/кэше; `keyring` +
+   Secret Service; `rusqlite` + системный SQLite; живой Discord — только по окну.
+2. Следующий headless-блок — **P1-10 keyring** через FFI к `libsecret 0.21`
+   (`org.freedesktop.secrets`, ksecretd, CLI-оракул `secret-tool`). Остальное: fd/abstract
+   D-Bus, P4-05/P4-06/P4-08/P4-09 (GUI/зависимости), P7-03/P7-05/P7-07 (UI). B07 остался
+   GUI+keyring: SQLite-часть закрыта.
+3. Процесс: batch 3–6 карточек → red-first → targeted → mutation → один batch gate →
+   независимое ревью → accepted → доки один раз. Роли — `docs/rust-client/TEAM.md`.
+
+## Правила (кратко)
+
+- Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
+- Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
+
+## Команды
+
+- `npm run gate:worker` — быстрый гейт (typecheck, meta, unit, smoke).
+- `cd rust && cargo test --offline --workspace` — Rust (npm-гейт его не запускает).
+- Восстановление: `git log --oneline -3` → `git status --short` → `tail -n 5 waves/db.jsonl`
+  → верх `waves/STATE.md`.
+
+## Скиллы
+
+`token-efficiency` (фильтровать чтение, bash вместо Read), `discord-lab-context`
+(навигация по репо), `context-engineering-collection`; `session-compression` избыточен.
+MCP: rea, socraticode, github, basic-memory, context7.
+
+## Известные расхождения
+
+- `docs/rust-client/WAVE-PLAN.md` §«Очередь» сохранил старую нумерацию (B04/B07), тогда как
+  `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
+  ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
+- RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
+  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+- P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
+  `ru-RU`-fallback) — в `waves/STATE.md` §7.
+rg: TEAM.md: No such file or directory (os error 2)
+waves/RW-33/BATCH-TZ.md:1:# BATCH RW-33 — P1-10 keyring через libsecret (headless)
+waves/RW-33/BATCH-TZ.md:9:| P1-10 Keyring (libsecret FFI) | SEC-1 / W33a | `discord-platform/src/keyring.rs`, `src/ffi_secret.rs`, `src/lib.rs` (+2 строки), `tests/keyring_contract.rs`, `waves/RW-33/keyring/*` | системный `libsecret 0.21` + `org.freedesktop.secrets` | `secret-tool` CLI + реальный ksecretd на сессионной шине |
+waves/RW-33/BATCH-TZ.md:17:`TZ-W33a.md` §1.
+PROCESS.md:37:| 4. Воркер: ветка, миграции, gate, отчёт | TDD в своих файлах; «миграции» → совместимость форматов (§6); `npm run gate:worker`; отчёт (§4.2). Изоляция: общая папка + непересекающиеся файлы (уровень L1), orca-worktree + ветка `w/<task>` (уровень L2 — при включённом remote/CI) |
+PROCESS.md:92:- отчёт по шаблону §4.2. Задача закрывается не отчётом, а приёмкой Team Lead.
+PROCESS.md:136:3.13 **Параллелизм и ускорение (пожелания владельца, 2026-10-19).** Владелец: использовать больше
+PROCESS.md:151:3.14 **Batch-волна и конвейер (2026-10-20).** Волна больше не равна одной карточке. Единица
+PROCESS.md:180:3.15 **Пропускная способность и KPI.** Ориентир: **2–3 batch-волны в день** и **6–8 принятых
+PROCESS.md:211:DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; файлы+md5; §8-строка;
+TASKS.md:49:P1-10 keyring через FFI libsecret (libsecret 0.21 + ksecretd + secret-tool доступны).
+TASKS.md:335:Правила волны — `PROCESS.md` (ТЗ §4.1, отчёт §4.2, gate:worker). ТЗ: `/tmp/opencode/spec-w4fix-*.txt`.
+TASKS.md:457:4. Отчёт по шаблону `PROCESS.md` §4.2: файлы, кейсы, провенанс, команды, риски.
+TASKS.md:774:Старт RW-08 (2026-10-19): P1-07, REST-клиент — первый параллельный запуск (PROCESS.md §3.13,
+TASKS.md:792:Старт RW-09 (2026-10-20): P1-08, X-Super-Properties — вторая параллельная волна (PROCESS.md §3.13).
+waves/RW-33/TZ-W33a.md:1:# TZ W33a — P1-10 Keyring через FFI к libsecret (headless)
+waves/RW-33/TZ-W33a.md:3:Волна: RW-33. Дата: 2026-10-22. Крейт: `discord-platform`. Сеть/live Discord не используются.
+waves/RW-33/TZ-W33a.md:71:`waves/RW-33/REPORT-W33a.md`.
+waves/STATE.md:92:- Осталось: **45** — P0: 3, P1: 1 (`P1-10`), P2: 0, P3: 15, P4: 5, P4.5: 3,
+waves/STATE.md:97:- SQLite (`P2-03`), keyring (`P1-10`), GUI (`P0-01`/P3) и live — только после решения
+waves/STATE.md:419:| `keyring` (`P1-10`) | разрешение на зависимость + Secret Service/KWallet |
+waves/STATE.md:509:  T-HARN-07, keyring/лог-скан — P1-10/T-SEC.
+
+codex
+Рабочее дерево уже содержит незакоммиченные изменения именно в проверяемом наборе, поэтому буду считать их предметом ревью и не трогать. `PROJECT-CONTEXT.md` отстаёт от фактического HEAD; для оценки беру текущий HEAD `86d260b` и соответствующую карточку RW-33.
+exec
+/usr/bin/bash -lc "sed -n '1,180p' waves/RW-33/TZ-W33a.md && sed -n '1,160p' waves/RW-33/BATCH-TZ.md && sed -n '1,260p' rust/crates/discord-platform/src/keyring.rs && sed -n '1,300p' rust/crates/discord-platform/src/ffi_secret.rs && rg -n \"keyring|ffi_secret\" rust/crates/discord-platform/src/lib.rs && sed -n '1,300p' rust/crates/discord-platform/tests/keyring_contract.rs" in /home/sanya/orca/project
+ succeeded in 0ms:
+# TZ W33a — P1-10 Keyring через FFI к libsecret (headless)
+
+Волна: RW-33. Дата: 2026-10-22. Крейт: `discord-platform`. Сеть/live Discord не используются.
+Система: `libsecret 0.21.8`, `org.freedesktop.secrets` (ksecretd), CLI-оракул `secret-tool`.
+
+## 1. Замороженный контракт
+
+```rust
+pub struct Keyring { /* *mut SecretService */ }
+pub struct KeyringError { /* ... */ }
+
+impl Keyring {
+    /// Подключение к default collection через `secret_service_get_sync`.
+    pub fn connect() -> Result<Self, KeyringError>;
+    pub fn store(&mut self, key: &str, secret: &str) -> Result<(), KeyringError>;
+    pub fn lookup(&mut self, key: &str) -> Result<Option<String>, KeyringError>;
+    pub fn clear(&mut self, key: &str) -> Result<bool, KeyringError>;
+}
+```
+
+Инварианты:
+
+- **FFI**: только `src/ffi_secret.rs` (`#[allow(unsafe_code)]`, `// SAFETY:`); линковка
+  `#[link(name = "secret-1")]`, `#[link(name = "glib-2.0")]`, `#[link(name = "gobject-2.0")]`,
+  `#[link(name = "gio-2.0")]`. Схема — `secret_schema_newv` (не variadic), атрибут `key`
+  (string), имя схемы `com.discordlab.Token`; коллекция — default (`NULL`), метка — `"discord-lab token"`.
+- `store`: пустой `key` → `KeyringError::InvalidKey`; NUL в `key`/`secret` → `InvalidKey`/`InvalidSecret`;
+  успех — `secret_service_store_sync` вернул TRUE; `GError` → `KeyringError::Secret { code, message }`.
+- `lookup`: отсутствие записи → `Ok(None)`; найденное значение копируется в `String` и
+  освобождается `g_free`; невалидный UTF-8 → `KeyringError::Encoding`.
+- `clear`: TRUE → `Ok(true)`, отсутствие/ошибка → `Ok(false)`/`Err`; повторный clear — `Ok(false)`.
+- `Drop`: `g_object_unref(service)` и `secret_schema_unref(schema)` ровно один раз; `!Send + !Sync`.
+- Секреты не логируются, не попадают в `Debug` (ручной `Debug` без значения секрета).
+- Никаких паник/`unwrap`/`expect` в продакшн-пути; ошибки glib не теряются.
+
+## 2. Оракул и проверка
+
+- Реальный ksecretd на сессионной шине: `secret-tool store/lookup/clear` (independent CLI) ↔
+  наш `Keyring`. Live-кейсы skip-aware (`DISCORD_LAB_KEYRING_LIVE=1`), иначе `SKIP: причина`.
+- Unit-кейсы (валидация, Debug-redaction, double clear) — без шины.
+- Секреты синтетические, после каждого live-кейса `clear`; уникальный ключ включает `pid`.
+
+## 3. Кейсы (red-first)
+
+| ID | Проверка | Ожидание |
+|---|---|---|
+| k01 | `connect` к ksecretd | Ok (live), иначе skip |
+| k02 | store → lookup | значение совпадает |
+| k03 | lookup отсутствующего | `Ok(None)` |
+| k04 | clear существующего | `Ok(true)`, затем `Ok(None)` |
+| k05 | перезапись | новое значение |
+| k06 | Unicode-секрет | дословно |
+| k07 | secret-tool lookup после нашего store | значение совпадает |
+| k08 | secret-tool store → наш lookup | значение совпадает |
+| k09 | пустой ключ | `InvalidKey` |
+| k10 | NUL в ключе/секрете | ошибка, без паники |
+| k11 | повторный clear | `Ok(false)` |
+| k12 | `Debug` не печатает секрет | редекция |
+
+Бюджет: 10–12 тестов; мутации 5–7 (schema attr, store/clear, NULL→None, g_free, Debug).
+
+## 4. Команды
+
+```sh
+cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w33a cargo test --offline -p discord-platform --test keyring_contract
+```
+
+## 5. DoD
+
+red → green → мутации (`--nocapture`, harness-SKIP=0 для не-live, restore по md5) → отчёт
+`waves/RW-33/REPORT-W33a.md`.
+# BATCH RW-33 — P1-10 keyring через libsecret (headless)
+
+Дата: 2026-10-22. Team Lead: TL-1. Статус: **frozen**.
+
+## 1. Состав
+
+| Карточка | Seat | Файлы | Зависит от | Оракул |
+|---|---|---|---|---|
+| P1-10 Keyring (libsecret FFI) | SEC-1 / W33a | `discord-platform/src/keyring.rs`, `src/ffi_secret.rs`, `src/lib.rs` (+2 строки), `tests/keyring_contract.rs`, `waves/RW-33/keyring/*` | системный `libsecret 0.21` + `org.freedesktop.secrets` | `secret-tool` CLI + реальный ksecretd на сессионной шине |
+
+Запрещено: чужие модули/тесты, `Cargo.toml`/workspace-манифесты (кроме одной строки lint в
+`discord-platform/Cargo.toml`, если понадобится), golden, сеть, live Discord, commit.
+`unsafe` — только в `ffi_secret.rs` с `// SAFETY:`; `unsafe_code = "deny"` уже стоит.
+
+## 2. Контракт
+
+`TZ-W33a.md` §1.
+
+## 3. Кейсы и бюджет
+
+k01–k12, 10–12 тестов; live-кейсы skip-aware (`DISCORD_LAB_KEYRING_LIVE=1`), мутации 5–7.
+
+## 4. Гейт и DoD
+
+`CARGO_TARGET_DIR=/tmp/opencode/target-w33a`, targeted-тесты; полный gate — один раз в
+integration-лейне. DoD: red → green → мутации (SKIP=0 для не-live) → отчёт → ревью → accepted.
+
+## 5. Ограничения
+
+Секреты в тестах — синтетические (`test-secret-…`), после теста `clear`; реальные токены
+не используются. Если ksecretd требует разблокировки — live-кейсы skip с причиной.
+//! P1-10: хранение токена в Secret Service (`org.freedesktop.secrets`) через libsecret.
+//!
+//! Безопасный API поверх [`crate::ffi_secret`] (единственное место с `unsafe`):
+//! [`Keyring::connect`] поднимает default-сервис сессионной шины, `store`/`lookup`/`clear`
+//! работают с одной схемой `com.discordlab.Token` и строковым атрибутом `key`. Метка записи —
+//! `discord-lab token`, коллекция — default (`collection = NULL`).
+//!
+//! Инварианты (TZ W33a §1):
+//!
+//! - пустой ключ и NUL в ключе → [`KeyringError::InvalidKey`]; NUL в секрете →
+//!   [`KeyringError::InvalidSecret`]; невалидный UTF-8 из сервиса → [`KeyringError::Encoding`];
+//!   ошибка glib/libsecret → [`KeyringError::Secret`] с кодом и сообщением (без секрета).
+//! - `lookup` отсутствующей записи → `Ok(None)`; `clear` отсутствующей → `Ok(false)`,
+//!   повторный `clear` — тоже `Ok(false)`.
+//! - [`Keyring`] — `!Send + !Sync` (libsecret/GDBus-сервис не переносится между потоками);
+//!   `Service`/`Schema` освобождаются ровно один раз при разрушении `Keyring`.
+//! - Ручной [`std::fmt::Debug`] печатает только имя схемы и метку: значение секрета и
+//!   внутренние указатели не выводятся и не логируются.
+//!
+//! Ограничения (осознанные):
+//!
+//! - Проверка live-кейсов — реальный ksecretd на сессионной шине и CLI `secret-tool`;
+//!   секреты синтетические. Если коллекция заблокирована, синхронный вызов может ждать
+//!   разблокировки (prompt) — live-кейсы запускаются только по `DISCORD_LAB_KEYRING_LIVE=1`.
+//! - Wire-совместимость с крейтом `keyring` не заявляется: свой формат атрибутов
+//!   (`key`, схема `com.discordlab.Token`), без миграции чужих записей.
+
+use std::fmt;
+use std::marker::PhantomData;
+
+use crate::ffi_secret::{FfiError, Schema, Service};
+
+/// Имя схемы записей (TZ W33a §1).
+pub const SCHEMA_NAME: &str = "com.discordlab.Token";
+/// Строковый атрибут, по которому ищется запись.
+const ATTRIBUTE_KEY: &str = "key";
+/// Метка записи в Secret Service.
+const LABEL: &str = "discord-lab token";
+
+/// Ошибка keyring. Не содержит значения секрета.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum KeyringError {
+    /// Пустой ключ или NUL-байт в ключе.
+    InvalidKey,
+    /// NUL-байт в секрете (не представим C-строкой).
+    InvalidSecret,
+    /// Сервис вернул значение, которое не является UTF-8.
+    Encoding,
+    /// Ошибка glib/libsecret: код `GError` (0 — ошибка без `GError`) и сообщение.
+    Secret { code: i32, message: String },
+}
+
+impl fmt::Display for KeyringError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidKey => formatter.write_str("пустой ключ или NUL-байт в ключе"),
+            Self::InvalidSecret => formatter.write_str("NUL-байт в секрете"),
+            Self::Encoding => formatter.write_str("значение из Secret Service не является UTF-8"),
+            Self::Secret { code, message } => {
+                write!(formatter, "Secret Service (код {code}): {message}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for KeyringError {}
+
+impl From<FfiError> for KeyringError {
+    fn from(error: FfiError) -> Self {
+        Self::Secret {
+            code: error.code,
+            message: error.message,
+        }
+    }
+}
+
+/// Клиент Secret Service с default-коллекцией. Однопоточный: `!Send + !Sync`.
+pub struct Keyring {
+    service: Service,
+    schema: Schema,
+    /// Явная фиксация `!Send + !Sync` независимо от состава полей.
+    _not_send_sync: PhantomData<*mut ()>,
+}
+
+impl fmt::Debug for Keyring {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("Keyring")
+            .field("schema", &SCHEMA_NAME)
+            .field("label", &LABEL)
+            .finish_non_exhaustive()
+    }
+}
+
+impl Keyring {
+    /// Подключение к default-сервису через `secret_service_get_sync`.
+    pub fn connect() -> Result<Self, KeyringError> {
+        let service = Service::connect()?;
+        let schema = Schema::new(SCHEMA_NAME, ATTRIBUTE_KEY)?;
+        Ok(Self {
+            service,
+            schema,
+            _not_send_sync: PhantomData,
+        })
+    }
+
+    /// Записывает секрет по ключу (перезапись существующей записи — обновление значения).
+    pub fn store(&mut self, key: &str, secret: &str) -> Result<(), KeyringError> {
+        validate_key(key)?;
+        if secret.contains('\0') {
+            return Err(KeyringError::InvalidSecret);
+        }
+        self.service
+            .store(&self.schema, ATTRIBUTE_KEY, key, LABEL, secret)
+            .map_err(KeyringError::from)
+    }
+
+    /// Читает секрет по ключу; отсутствие записи — `Ok(None)`.
+    pub fn lookup(&mut self, key: &str) -> Result<Option<String>, KeyringError> {
+        validate_key(key)?;
+        let Some(bytes) = self
+            .service
+            .lookup(&self.schema, ATTRIBUTE_KEY, key)
+            .map_err(KeyringError::from)?
+        else {
+            return Ok(None);
+        };
+        String::from_utf8(bytes)
+            .map(Some)
+            .map_err(|_| KeyringError::Encoding)
+    }
+
+    /// Удаляет запись по ключу: `true` — запись была и удалена, `false` — записи не было.
+    pub fn clear(&mut self, key: &str) -> Result<bool, KeyringError> {
+        validate_key(key)?;
+        self.service
+            .clear(&self.schema, ATTRIBUTE_KEY, key)
+            .map_err(KeyringError::from)
+    }
+}
+
+/// Ключ должен быть непустой C-строкой: пустой ключ бессмысленен, NUL не представим в C.
+fn validate_key(key: &str) -> Result<(), KeyringError> {
+    if key.is_empty() || key.contains('\0') {
+        return Err(KeyringError::InvalidKey);
+    }
+    Ok(())
+}
+//! Тонкая обёртка над системным `libsecret 0.21` — единственное место крейта, где есть `unsafe`.
+//!
+//! Линкуются системные `libsecret-1`, `glib-2.0`, `gobject-2.0`, `gio-2.0`
+//! (TZ W33a §1). Используются не-variadic вызовы `secret_service_*_sync` и
+//! `secret_schema_newv`, чтобы не зависеть от соглашения о variadic-хвостах.
+//!
+//! Инварианты безопасности:
+//!
+//! - [`Service`], [`Schema`], [`Table`] и [`Value`] владеют ровно одним C-объектом и
+//!   освобождают его ровно один раз в [`Drop`]; ни один тип не `Clone`, второго владельца нет.
+//! - `GError*` читается (код + сообщение) и освобождается `g_error_free` на каждом пути,
+//!   включая успешный: `take_error` вызывается до проверки результата.
+//! - Значение из `secret_value_get` копируется `g_strndup` (освобождается `g_free`) до
+//!   `secret_value_unref`, поэтому наружу не уходит указатель на чужую память.
+//! - Секреты не попадают в сообщения об ошибках и не логируются: только код и текст glib.
+//! - Каждый `unsafe`-блок снабжён `// SAFETY:`; наружу торчит безопасный API.
+
+use std::ffi::{CStr, CString};
+use std::os::raw::{c_char, c_int, c_uint, c_void};
+use std::ptr::{self, NonNull};
+use std::slice;
+
+/// `SECRET_SCHEMA_DONT_MATCH_NAME` (`secret-schema.h` 0.21): имя схемы не участвует в поиске.
+///
+/// Без флага libsecret добавляет в атрибуты поиска `xdg:schema`, и записи, созданные
+/// `secret-tool` (схема `org.freedesktop.Secret.Generic`), не находятся — а CLI-оракул
+/// k07/k08 в TZ §3 требует совместимости в обе стороны.
+const SECRET_SCHEMA_DONT_MATCH_NAME: c_int = 1 << 1;
+/// `SECRET_SERVICE_NONE`.
+const SECRET_SERVICE_NONE: c_int = 0;
+/// MIME-тип текстового секрета (`secret_value_new`).
+const CONTENT_TYPE: &[u8] = b"text/plain\0";
+
+/// Непрозрачный `SecretService` (раскладку знает только библиотека).
+#[repr(C)]
+pub(crate) struct SecretService {
+    _private: [u8; 0],
+}
+
+/// Непрозрачный `SecretValue`.
+#[repr(C)]
+pub(crate) struct SecretValue {
+    _private: [u8; 0],
+}
+
+/// Непрозрачный `SecretSchema`.
+#[repr(C)]
+pub(crate) struct SecretSchema {
+    _private: [u8; 0],
+}
+
+/// Непрозрачный `GHashTable`.
+#[repr(C)]
+pub(crate) struct GHashTable {
+    _private: [u8; 0],
+}
+
+/// `GError` из glib: `{ GQuark domain; gint code; gchar *message; }`.
+#[repr(C)]
+struct GError {
+    domain: c_uint,
+    code: c_int,
+    message: *mut c_char,
+}
+
+type GHashFunc = Option<unsafe extern "C" fn(*const c_void) -> c_uint>;
+type GEqualFunc = Option<unsafe extern "C" fn(*const c_void, *const c_void) -> c_int>;
+type GDestroyNotify = Option<unsafe extern "C" fn(*mut c_void)>;
+
+// SAFETY: имена и сигнатуры сверены с `/usr/include/libsecret-1/libsecret/*.h` (0.21.8) и
+// `/usr/include/glib-2.0/glib/*.h`; линковка — системные библиотеки.
+#[link(name = "glib-2.0")]
+unsafe extern "C" {
+    fn g_free(memory: *mut c_void);
+    fn g_strdup(text: *const c_char) -> *mut c_char;
+    fn g_strndup(text: *const c_char, length: usize) -> *mut c_char;
+    fn g_str_hash(value: *const c_void) -> c_uint;
+    fn g_str_equal(left: *const c_void, right: *const c_void) -> c_int;
+    fn g_hash_table_new_full(
+        hash_func: GHashFunc,
+        key_equal_func: GEqualFunc,
+        key_destroy_func: GDestroyNotify,
+        value_destroy_func: GDestroyNotify,
+    ) -> *mut GHashTable;
+    fn g_hash_table_insert(table: *mut GHashTable, key: *mut c_void, value: *mut c_void);
+    fn g_hash_table_unref(table: *mut GHashTable);
+    fn g_error_free(error: *mut GError);
+}
+
+// SAFETY: сигнатура сверена с `/usr/include/glib-2.0/gobject/gobject.h`.
+#[link(name = "gobject-2.0")]
+unsafe extern "C" {
+    fn g_object_unref(object: *mut c_void);
+}
+
+// SAFETY: сигнатура сверена с `/usr/include/glib-2.0/gio/gioerror.h`; линковка `gio-2.0`
+// зафиксирована контрактом TZ §1. Прямой вызов не нужен: ошибки D-Bus приходят в `GError`
+// от libsecret. Декларация оставлена как явная фиксация зависимости.
+#[link(name = "gio-2.0")]
+unsafe extern "C" {
+    #[allow(dead_code)]
+    fn g_dbus_error_is_remote_error(error: *mut GError) -> c_int;
+}
+
+// SAFETY: сигнатуры сверены с `/usr/include/libsecret-1/libsecret/secret-service.h`,
+// `secret-value.h`, `secret-schema.h`, `secret-types.h` (0.21.8).
+#[link(name = "secret-1")]
+unsafe extern "C" {
+    fn secret_service_get_sync(
+        flags: c_int,
+        cancellable: *mut c_void,
+        error: *mut *mut GError,
+    ) -> *mut SecretService;
+    fn secret_service_store_sync(
+        service: *mut SecretService,
+        schema: *const SecretSchema,
+        attributes: *mut GHashTable,
+        collection: *const c_char,
+        label: *const c_char,
+        value: *mut SecretValue,
+        cancellable: *mut c_void,
+        error: *mut *mut GError,
+    ) -> c_int;
+    fn secret_service_lookup_sync(
+        service: *mut SecretService,
+        schema: *const SecretSchema,
+        attributes: *mut GHashTable,
+        cancellable: *mut c_void,
+        error: *mut *mut GError,
+    ) -> *mut SecretValue;
+    fn secret_service_clear_sync(
+        service: *mut SecretService,
+        schema: *const SecretSchema,
+        attributes: *mut GHashTable,
+        cancellable: *mut c_void,
+        error: *mut *mut GError,
+    ) -> c_int;
+    fn secret_value_new(
+        secret: *const c_char,
+        length: isize,
+        content_type: *const c_char,
+    ) -> *mut SecretValue;
+    fn secret_value_get(value: *mut SecretValue, length: *mut usize) -> *const c_char;
+    fn secret_value_unref(value: *mut c_void);
+    fn secret_schema_newv(
+        name: *const c_char,
+        flags: c_int,
+        attribute_names_and_types: *mut GHashTable,
+    ) -> *mut SecretSchema;
+    fn secret_schema_unref(schema: *mut SecretSchema);
+}
+
+/// Ошибка FFI-слоя: код `GError` (0 — ошибка без `GError`) и текст.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct FfiError {
+    pub(crate) code: i32,
+    pub(crate) message: String,
+}
+
+impl FfiError {
+    fn new(code: i32, message: impl Into<String>) -> Self {
+        Self {
+            code,
+            message: message.into(),
+        }
+    }
+}
+
+impl std::fmt::Display for FfiError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.message)
+    }
+}
+
+/// Забирает `GError*` (если он есть): копирует код и сообщение, освобождает структуру.
+fn take_error(error: *mut GError) -> Option<FfiError> {
+    if error.is_null() {
+        return None;
+    }
+    // SAFETY: `error` — ненулевой указатель на `GError`, заполненный glib/libsecret; поля
+    // валидны до `g_error_free`, сообщение — NUL-терминированная строка (может быть NULL).
+    let (code, message) = unsafe {
+        let code = (*error).code;
+        let message = if (*error).message.is_null() {
+            String::new()
+        } else {
+            CStr::from_ptr((*error).message)
+                .to_string_lossy()
+                .into_owned()
+        };
+        (code, message)
+    };
+    // SAFETY: `error` получен от glib и ещё не освобождён; освобождаем ровно один раз.
+    unsafe { g_error_free(error) };
+    Some(FfiError::new(code, message))
+}
+
+/// Копия C-строки (`g_strdup`), владение — у вызывающего (дальше передаётся в `GHashTable`).
+fn duplicate(text: &str) -> Result<NonNull<c_char>, FfiError> {
+    let c_text = CString::new(text).map_err(|_| FfiError::new(0, "строка содержит NUL-байт"))?;
+    // SAFETY: `c_text` — валидная NUL-терминированная строка, живёт до конца вызова;
+    // g_strdup копирует её в память glib.
+    NonNull::new(unsafe { g_strdup(c_text.as_ptr()) })
+        .ok_or_else(|| FfiError::new(0, "g_strdup вернул NULL"))
+}
+
+/// Владелец `GHashTable`: ключи C-строки, значения — C-строки либо `GINT_TO_POINTER`.
+pub(crate) struct Table {
+    raw: NonNull<GHashTable>,
+}
+
+impl Table {
+    fn new(key_destroy: GDestroyNotify, value_destroy: GDestroyNotify) -> Result<Self, FfiError> {
+        // SAFETY: g_str_hash/g_str_equal — штатные функции сравнения C-строк; деструкторы
+        // вызываются glib при удалении элементов и уничтожении таблицы.
+        let raw = unsafe {
+            g_hash_table_new_full(
+                Some(g_str_hash),
+                Some(g_str_equal),
+                key_destroy,
+                value_destroy,
+            )
+        };
+        NonNull::new(raw)
+            .map(|raw| Self { raw })
+            .ok_or_else(|| FfiError::new(0, "g_hash_table_new_full вернул NULL"))
+    }
+
+    /// Таблица атрибутов `{ name: value }` — обе строки освобождаются `g_free`.
+    fn strings() -> Result<Self, FfiError> {
+        Self::new(Some(g_free), Some(g_free))
+    }
+
+    /// Таблица имён схемы `{ name: GINT_TO_POINTER(type) }` — освобождаются только ключи.
+    fn names() -> Result<Self, FfiError> {
+        Self::new(Some(g_free), None)
+    }
+
+    fn put_string(&mut self, name: &str, value: &str) -> Result<(), FfiError> {
+        let key = duplicate(name)?;
+        let value = duplicate(value)?;
+        // SAFETY: таблица жива и принадлежит `self`; ключ и значение — свежие копии glib,
+        // владение передаётся таблице (освободятся её деструкторами).
+        unsafe {
+            g_hash_table_insert(
+                self.raw.as_ptr(),
+                key.as_ptr().cast::<c_void>(),
+                value.as_ptr().cast::<c_void>(),
+            );
+        }
+        Ok(())
+    }
+
+    fn put_name(&mut self, name: &str) -> Result<(), FfiError> {
+        let key = duplicate(name)?;
+        // SAFETY: таблица жива; ключ — свежая копия glib, значение — GINT_TO_POINTER(0)
+        // (`SECRET_SCHEMA_ATTRIBUTE_STRING`), освобождать его не нужно.
+        unsafe {
+            g_hash_table_insert(
+                self.raw.as_ptr(),
+                key.as_ptr().cast::<c_void>(),
+                ptr::null_mut(),
+            );
+        }
+        Ok(())
+    }
+
+    fn as_ptr(&self) -> *mut GHashTable {
+        self.raw.as_ptr()
+    }
+}
+
+impl Drop for Table {
+    fn drop(&mut self) {
+        // SAFETY: таблица создана `g_hash_table_new_full` и ещё не освобождена; владение
+        // единственное (`Table` не `Clone`), поэтому `g_hash_table_unref` — ровно один раз.
+        unsafe { g_hash_table_unref(self.raw.as_ptr()) };
+    }
+}
+
+/// Живой `SecretService*` (default-подключение). `!Send + !Sync` обеспечивает вызывающий слой.
+pub(crate) struct Service {
+    raw: NonNull<SecretService>,
+}
+
+impl Service {
+    /// `secret_service_get_sync(SECRET_SERVICE_NONE)` — default-сервис сессионной шины.
+    pub(crate) fn connect() -> Result<Self, FfiError> {
+        let mut error: *mut GError = ptr::null_mut();
+        // SAFETY: out-параметр `&mut error` валиден; cancellable = NULL; функция возвращает
+        // новую ссылку на сервис или NULL с заполненным GError.
+        let raw =
+            unsafe { secret_service_get_sync(SECRET_SERVICE_NONE, ptr::null_mut(), &mut error) };
+        if let Some(error) = take_error(error) {
+            return Err(error);
+        }
+        NonNull::new(raw)
+            .map(|raw| Self { raw })
+            .ok_or_else(|| FfiError::new(0, "secret_service_get_sync вернул NULL без GError"))
+    }
+12:pub mod keyring;
+20:mod ffi_secret;
+//! Контракт P1-10: keyring через FFI к системному `libsecret 0.21` (headless).
+//!
+//! Независимый оракул — реальный `org.freedesktop.secrets` (ksecretd) на сессионной шине и
+//! CLI `secret-tool` (store/lookup/clear), а не наша же реализация. Секреты — синтетические
+//! (`test-secret-…`), ключ уникален и содержит pid; после каждого кейса запись очищается.
+//!
+//! Гейтинг (TZ W33a §2/§3):
+//!
+//! - k01–k08 и live-часть k12 требуют `DISCORD_LAB_KEYRING_LIVE=1` и доступного сервиса;
+//!   иначе печатают `SKIP: причина` и завершаются успешно (окружение, а не падение).
+//! - k09–k12 (валидация, double clear, Debug-redaction) запускаются без live-флага; они
+//!   подключаются к сервису (другого способа получить [`Keyring`] в замороженном API нет) и
+//!   печатают `SKIP`, только если сервиса в окружении действительно нет.
+//!
+//! Мутационная проверка опирается на k02 (утечка копии значения не должна расти по RSS),
+//! k03 (NULL → `Ok(None)`), k07/k08 (атрибут схемы и CLI-оракул), k11 (double clear) и k12
+//! (ручной `Debug` без секрета и без внутренних указателей).
+
+use std::io::Write;
+use std::process::{Command, Stdio};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Mutex, MutexGuard};
+
+use discord_platform::keyring::{Keyring, KeyringError};
+
+const LIVE_ENV: &str = "DISCORD_LAB_KEYRING_LIVE";
+const SCHEMA_NAME: &str = "com.discordlab.Token";
+/// Порог роста RSS на серии lookup (КиБ). Утечка копии — 4096+1 байт на вызов.
+const RSS_LIMIT_KILOBYTES: u64 = 4 * 1024;
+const LEAK_ITERATIONS: usize = 2000;
+const LEAK_SECRET_BYTES: usize = 4096;
+
+static SEQ: AtomicU64 = AtomicU64::new(0);
+/// Live-кейсы трогают общий сервис и коллекцию: сериализуем их внутри тестового бинарника.
+static LIVE_LOCK: Mutex<()> = Mutex::new(());
+
+fn skip(reason: &str) {
+    println!("SKIP: {reason}");
+}
+
+fn live_enabled() -> bool {
+    matches!(std::env::var(LIVE_ENV), Ok(value) if value == "1")
+}
+
+/// Уникальный ключ: pid + порядковый номер (кейсы идут параллельно).
+fn unique_key(tag: &str) -> String {
+    format!(
+        "w33a-{tag}-{}-{}",
+        std::process::id(),
+        SEQ.fetch_add(1, Ordering::Relaxed)
+    )
+}
+
+fn live_lock() -> MutexGuard<'static, ()> {
+    LIVE_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
+/// Подключение к реальному сервису. `require_live` — гейт по `DISCORD_LAB_KEYRING_LIVE`.
+fn keyring(require_live: bool) -> Option<(Keyring, MutexGuard<'static, ()>)> {
+    if require_live && !live_enabled() {
+        skip(&format!("{LIVE_ENV} != 1 (live-кейс не запускается)"));
+        return None;
+    }
+    let guard = live_lock();
+    match Keyring::connect() {
+        Ok(keyring) => Some((keyring, guard)),
+        Err(error) => {
+            skip(&format!("нет org.freedesktop.secrets: {error}"));
+            None
+        }
+    }
+}
+
+/// Запись с синтетическим ключом; очищается в `Drop` (best-effort).
+struct Entry {
+    keyring: Keyring,
+    key: String,
+}
+
+impl Entry {
+    fn new(keyring: Keyring, tag: &str) -> Self {
+        Self {
+            keyring,
+            key: unique_key(tag),
+        }
+    }
+
+    fn store(&mut self, secret: &str) {
+        self.keyring
+            .store(&self.key, secret)
+            .expect("store синтетического секрета");
+    }
+
+    fn lookup(&mut self) -> Option<String> {
+        self.keyring.lookup(&self.key).expect("lookup")
+    }
+
+    fn clear(&mut self) -> bool {
+        self.keyring.clear(&self.key).expect("clear")
+    }
+}
+
+impl Drop for Entry {
+    fn drop(&mut self) {
+        // best-effort: если сервис уже недоступен, уборка не должна ронять тест.
+        let _ = self.keyring.clear(&self.key);
+    }
+}
+
+fn has_secret_tool() -> bool {
+    let Some(path) = std::env::var_os("PATH") else {
+        return false;
+    };
+    std::env::split_paths(&path).any(|directory| directory.join("secret-tool").is_file())
+}
+
+fn secret_tool_lookup(key: &str) -> Option<String> {
+    let output = Command::new("secret-tool")
+        .args(["lookup", "key", key])
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let text = String::from_utf8(output.stdout).ok()?;
+    Some(text.trim_end_matches(['\n', '\r']).to_owned())
+}
+
+/// `secret-tool store` читает сам секрет из stdin, атрибуты — из argv.
+fn secret_tool_store(key: &str, secret: &str) -> bool {
+    let mut child = match Command::new("secret-tool")
+        .args(["store", "--label", "w33a secret-tool oracle", "key", key])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(_) => return false,
+    };
+    if let Some(mut stdin) = child.stdin.take() {
+        // best-effort: ошибка записи проявится как неуспешный exit secret-tool ниже.
+        let _ = stdin.write_all(secret.as_bytes());
+    }
+    matches!(child.wait_with_output(), Ok(output) if output.status.success())
+}
+
+fn secret_tool_clear(key: &str) -> bool {
+    matches!(
+        Command::new("secret-tool")
+            .args(["clear", "key", key])
+            .output(),
+        Ok(output) if output.status.success()
+    )
+}
+
+fn rss_kilobytes() -> Option<u64> {
+    let status = std::fs::read_to_string("/proc/self/status").ok()?;
+    status.lines().find_map(|line| {
+        let rest = line.strip_prefix("VmRSS:")?;
+        rest.split_whitespace().next()?.parse().ok()
+    })
+}
+
+#[test]
+fn k01_connect_to_default_collection() {
+    let Some((keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    assert!(format!("{keyring:?}").contains(SCHEMA_NAME));
+}
+
+#[test]
+fn k02_store_then_lookup_roundtrip_without_leak() {
+    let Some((keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    let mut entry = Entry::new(keyring, "roundtrip");
+    entry.store("test-secret-roundtrip");
+    assert_eq!(entry.lookup().as_deref(), Some("test-secret-roundtrip"));
+
+    // Повторные lookup не должны накапливать память: копия значения освобождается g_free.
+    let big = "x".repeat(LEAK_SECRET_BYTES);
+    entry.store(&big);
+    for _ in 0..50 {
+        assert_eq!(
+            entry.lookup().map(|value| value.len()),
+            Some(LEAK_SECRET_BYTES)
+        );
+    }
+    let before = rss_kilobytes().expect("VmRSS до серии lookup");
+    for _ in 0..LEAK_ITERATIONS {
+        let value = entry.lookup().expect("lookup в серии");
+        assert_eq!(value.len(), LEAK_SECRET_BYTES);
+    }
+    let after = rss_kilobytes().expect("VmRSS после серии lookup");
+    assert!(
+        after.saturating_sub(before) < RSS_LIMIT_KILOBYTES,
+        "рост RSS на {LEAK_ITERATIONS} lookup: {before} → {after} КиБ (порог {RSS_LIMIT_KILOBYTES})"
+    );
+}
+
+#[test]
+fn k03_lookup_missing_returns_none() {
+    let Some((mut keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    let key = unique_key("missing");
+    assert_eq!(keyring.lookup(&key).expect("lookup отсутствующего"), None);
+}
+
+#[test]
+fn k04_clear_existing_then_lookup_none() {
+    let Some((keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    let mut entry = Entry::new(keyring, "clear");
+    entry.store("test-secret-clear");
+    assert!(
+        entry.clear(),
+        "clear существующей записи должен вернуть true"
+    );
+    assert_eq!(entry.lookup(), None);
+}
+
+#[test]
+fn k05_overwrite_replaces_value() {
+    let Some((keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    let mut entry = Entry::new(keyring, "overwrite");
+    entry.store("test-secret-first");
+    entry.store("test-secret-second");
+    assert_eq!(entry.lookup().as_deref(), Some("test-secret-second"));
+}
+
+#[test]
+fn k06_unicode_secret_roundtrip() {
+    let Some((keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    let mut entry = Entry::new(keyring, "unicode");
+    let secret = "test-secret-кириллица-ünïcode-🔐-Ω";
+    entry.store(secret);
+    assert_eq!(entry.lookup().as_deref(), Some(secret));
+}
+
+#[test]
+fn k07_secret_tool_reads_our_store() {
+    let Some((keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    if !has_secret_tool() {
+        skip("нет CLI secret-tool");
+        return;
+    }
+    let mut entry = Entry::new(keyring, "cli-read");
+    let secret = "test-secret-cli-read";
+    entry.store(secret);
+    assert_eq!(secret_tool_lookup(&entry.key).as_deref(), Some(secret));
+}
+
+#[test]
+fn k08_our_lookup_reads_secret_tool_store() {
+    let Some((mut keyring, _guard)) = keyring(true) else {
+        return;
+    };
+    if !has_secret_tool() {
+        skip("нет CLI secret-tool");
+        return;
+    }
+    let key = unique_key("cli-write");
+    let secret = "test-secret-cli-write";
+    if !secret_tool_store(&key, secret) {
+        skip("secret-tool store не удался (сервис/коллекция недоступны)");
+        return;
+    }
+    let found = keyring.lookup(&key).expect("lookup записи secret-tool");
+    // best-effort уборка чужими руками: запись создана CLI, а не нашим store.
+    let _ = keyring.clear(&key);
+    let _ = secret_tool_clear(&key);
+    assert_eq!(found.as_deref(), Some(secret));
+}
+
+#[test]
+fn k09_empty_key_is_invalid() {
+    let Some((mut keyring, _guard)) = keyring(false) else {
+        return;
+    };
+    assert_eq!(
+        keyring.store("", "test-secret-empty-key"),
+        Err(KeyringError::InvalidKey)
+    );
+    assert_eq!(keyring.lookup(""), Err(KeyringError::InvalidKey));
+}
+
+#[test]
+fn k10_nul_in_key_or_secret_is_error_without_panic() {
+
+exec
+/usr/bin/bash -lc "sed -n '301,520p' rust/crates/discord-platform/tests/keyring_contract.rs && sed -n '240,560p' rust/crates/discord-platform/src/ffi_secret.rs && sed -n '1,200p' waves/RW-33/run-mutations-w33a.py && sed -n '1,220p' waves/RW-33/mutations-w33a.log && sed -n '1,200p' waves/RW-33/REPORT-W33a.md && find waves/RW-33/workers/W33a -maxdepth 1 -type f -printf '%f\\n' && rg -n \"unsafe|unwrap\\(|expect\\(|panic"'!|println!|dbg!|secret" rust/crates/discord-platform/src/keyring.rs rust/crates/discord-platform/src/ffi_secret.rs rust/crates/discord-platform/src/lib.rs' in /home/sanya/orca/project
+ succeeded in 0ms:
+    let Some((mut keyring, _guard)) = keyring(false) else {
+        return;
+    };
+    assert_eq!(
+        keyring.store("bad\0key", "test-secret"),
+        Err(KeyringError::InvalidKey)
+    );
+    assert_eq!(keyring.lookup("bad\0key"), Err(KeyringError::InvalidKey));
+    assert_eq!(
+        keyring.store(&unique_key("nul-secret"), "test-secret\0tail"),
+        Err(KeyringError::InvalidSecret)
+    );
+}
+
+#[test]
+fn k11_repeated_clear_returns_false() {
+    let Some((keyring, _guard)) = keyring(false) else {
+        return;
+    };
+    let mut entry = Entry::new(keyring, "double-clear");
+    entry.store("test-secret-double-clear");
+    assert!(entry.clear(), "первый clear — true");
+    assert!(
+        !entry.clear(),
+        "повторный clear отсутствующей записи — false"
+    );
+    assert_eq!(entry.lookup(), None);
+}
+
+#[test]
+fn k12_debug_does_not_print_secret_or_pointers() {
+    let Some((keyring, _guard)) = keyring(false) else {
+        return;
+    };
+    let mut entry = Entry::new(keyring, "debug");
+    let secret = "test-secret-debug-do-not-leak";
+    entry.store(secret);
+
+    let debug = format!("{:?}", entry.keyring);
+    assert!(
+        debug.contains("Keyring"),
+        "Debug содержит имя типа: {debug}"
+    );
+    assert!(
+        debug.contains(SCHEMA_NAME),
+        "Debug содержит имя схемы: {debug}"
+    );
+    assert!(
+        !debug.contains("0x"),
+        "Debug без внутренних указателей: {debug}"
+    );
+    assert!(
+        !debug.contains("secret"),
+        "Debug без поля/значения секрета: {debug}"
+    );
+    assert!(!debug.contains(secret), "Debug не печатает секрет: {debug}");
+
+    // Ошибка валидации тоже не должна нести значение секрета.
+    let error = entry
+        .keyring
+        .store(&unique_key("debug-error"), "test-secret\0tail")
+        .expect_err("NUL в секрете — ошибка");
+    assert_eq!(error, KeyringError::InvalidSecret);
+    let error_debug = format!("{error:?}");
+    let error_display = error.to_string();
+    assert!(!error_debug.contains(secret), "Debug ошибки без секрета");
+    assert!(
+        !error_display.contains(secret),
+        "Display ошибки без секрета"
+    );
+}
+        let key = duplicate(name)?;
+        let value = duplicate(value)?;
+        // SAFETY: таблица жива и принадлежит `self`; ключ и значение — свежие копии glib,
+        // владение передаётся таблице (освободятся её деструкторами).
+        unsafe {
+            g_hash_table_insert(
+                self.raw.as_ptr(),
+                key.as_ptr().cast::<c_void>(),
+                value.as_ptr().cast::<c_void>(),
+            );
+        }
+        Ok(())
+    }
+
+    fn put_name(&mut self, name: &str) -> Result<(), FfiError> {
+        let key = duplicate(name)?;
+        // SAFETY: таблица жива; ключ — свежая копия glib, значение — GINT_TO_POINTER(0)
+        // (`SECRET_SCHEMA_ATTRIBUTE_STRING`), освобождать его не нужно.
+        unsafe {
+            g_hash_table_insert(
+                self.raw.as_ptr(),
+                key.as_ptr().cast::<c_void>(),
+                ptr::null_mut(),
+            );
+        }
+        Ok(())
+    }
+
+    fn as_ptr(&self) -> *mut GHashTable {
+        self.raw.as_ptr()
+    }
+}
+
+impl Drop for Table {
+    fn drop(&mut self) {
+        // SAFETY: таблица создана `g_hash_table_new_full` и ещё не освобождена; владение
+        // единственное (`Table` не `Clone`), поэтому `g_hash_table_unref` — ровно один раз.
+        unsafe { g_hash_table_unref(self.raw.as_ptr()) };
+    }
+}
+
+/// Живой `SecretService*` (default-подключение). `!Send + !Sync` обеспечивает вызывающий слой.
+pub(crate) struct Service {
+    raw: NonNull<SecretService>,
+}
+
+impl Service {
+    /// `secret_service_get_sync(SECRET_SERVICE_NONE)` — default-сервис сессионной шины.
+    pub(crate) fn connect() -> Result<Self, FfiError> {
+        let mut error: *mut GError = ptr::null_mut();
+        // SAFETY: out-параметр `&mut error` валиден; cancellable = NULL; функция возвращает
+        // новую ссылку на сервис или NULL с заполненным GError.
+        let raw =
+            unsafe { secret_service_get_sync(SECRET_SERVICE_NONE, ptr::null_mut(), &mut error) };
+        if let Some(error) = take_error(error) {
+            return Err(error);
+        }
+        NonNull::new(raw)
+            .map(|raw| Self { raw })
+            .ok_or_else(|| FfiError::new(0, "secret_service_get_sync вернул NULL без GError"))
+    }
+
+    /// `secret_service_store_sync` в default-коллекцию (`collection = NULL`).
+    ///
+    /// `attribute` — имя атрибута схемы (`key`), `value` — значение атрибута (сам ключ).
+    pub(crate) fn store(
+        &self,
+        schema: &Schema,
+        attribute: &str,
+        value: &str,
+        label: &str,
+        secret: &str,
+    ) -> Result<(), FfiError> {
+        let mut attributes = Table::strings()?;
+        attributes.put_string(attribute, value)?;
+        let c_label =
+            CString::new(label).map_err(|_| FfiError::new(0, "метка содержит NUL-байт"))?;
+        let c_secret =
+            CString::new(secret).map_err(|_| FfiError::new(0, "секрет содержит NUL-байт"))?;
+        let length = isize::try_from(c_secret.as_bytes().len())
+            .map_err(|_| FfiError::new(0, "секрет длиннее isize::MAX"))?;
+        // SAFETY: строка и content_type — валидные NUL-терминированные строки; length —
+        // точная длина без терминатора; функция копирует секрет в новый SecretValue.
+        let value = unsafe {
+            secret_value_new(
+                c_secret.as_ptr(),
+                length,
+                CONTENT_TYPE.as_ptr().cast::<c_char>(),
+            )
+        };
+        let Some(value) = NonNull::new(value) else {
+            return Err(FfiError::new(0, "secret_value_new вернул NULL"));
+        };
+        let mut error: *mut GError = ptr::null_mut();
+        // SAFETY: сервис и схема живы; таблица атрибутов — валидный GHashTable на время
+        // вызова (libsecret читает её синхронно); collection = NULL — default-коллекция;
+        // value принадлежит нам, метка валидна; out-параметр `&mut error` корректен.
+        let stored = unsafe {
+            secret_service_store_sync(
+                self.raw.as_ptr(),
+                schema.raw.as_ptr(),
+                attributes.as_ptr(),
+                ptr::null(),
+                c_label.as_ptr(),
+                value.as_ptr(),
+                ptr::null_mut(),
+                &mut error,
+            )
+        };
+        // SAFETY: `value` создан `secret_value_new`, ещё не освобождён; владение единственное,
+        // libsecret скопировал секрет при записи. Освобождаем ровно один раз.
+        unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+        if let Some(error) = take_error(error) {
+            return Err(error);
+        }
+        if stored == 0 {
+            return Err(FfiError::new(0, "secret_service_store_sync вернул FALSE"));
+        }
+        Ok(())
+    }
+
+    /// `secret_service_lookup_sync`: `None` — записи нет; байты копируются из `SecretValue`.
+    pub(crate) fn lookup(
+        &self,
+        schema: &Schema,
+        attribute: &str,
+        value: &str,
+    ) -> Result<Option<Vec<u8>>, FfiError> {
+        let mut attributes = Table::strings()?;
+        attributes.put_string(attribute, value)?;
+        let mut error: *mut GError = ptr::null_mut();
+        // SAFETY: сервис/схема живы, таблица атрибутов валидна на время вызова;
+        // cancellable = NULL; функция возвращает новую ссылку SecretValue или NULL.
+        let value = unsafe {
+            secret_service_lookup_sync(
+                self.raw.as_ptr(),
+                schema.raw.as_ptr(),
+                attributes.as_ptr(),
+                ptr::null_mut(),
+                &mut error,
+            )
+        };
+        if let Some(error) = take_error(error) {
+            return Err(error);
+        }
+        let Some(value) = NonNull::new(value) else {
+            return Ok(None);
+        };
+        let mut length: usize = 0;
+        // SAFETY: `value` — живой SecretValue, принадлежащий нам; `&mut length` — корректный
+        // out-параметр; возвращённый указатель валиден до `secret_value_unref` ниже.
+        let data = unsafe { secret_value_get(value.as_ptr(), &mut length) };
+        if data.is_null() {
+            // SAFETY: `value` ещё не освобождён; владение единственное.
+            unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+            return Err(FfiError::new(0, "secret_value_get вернул NULL"));
+        }
+        // SAFETY: `data` валиден на `length` байт; g_strndup копирует их в память glib,
+        // завершая NUL, и возвращает владение копией нам.
+        let copy = unsafe { g_strndup(data, length) };
+        let Some(copy) = NonNull::new(copy) else {
+            // SAFETY: `value` ещё не освобождён; владение единственное.
+            unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+            return Err(FfiError::new(0, "g_strndup вернул NULL"));
+        };
+        // SAFETY: копия содержит ровно `length` валидных байт (плюс терминатор), она жива и
+        // принадлежит нам; читаем только `length` байт.
+        let bytes = unsafe { slice::from_raw_parts(copy.as_ptr().cast::<u8>(), length) }.to_vec();
+        // SAFETY: `copy` получен от g_strndup и ещё не освобождён; владение единственное.
+        unsafe { g_free(copy.as_ptr().cast::<c_void>()) };
+        // SAFETY: `value` ещё не освобождён; владение единственное.
+        unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+        Ok(Some(bytes))
+    }
+
+    /// `secret_service_clear_sync`: `false` — записи не было (GError пуст).
+    pub(crate) fn clear(
+        &self,
+        schema: &Schema,
+        attribute: &str,
+        value: &str,
+    ) -> Result<bool, FfiError> {
+        let mut attributes = Table::strings()?;
+        attributes.put_string(attribute, value)?;
+        let mut error: *mut GError = ptr::null_mut();
+        // SAFETY: сервис/схема живы, таблица атрибутов валидна на время вызова;
+        // cancellable = NULL; out-параметр `&mut error` корректен.
+        let cleared = unsafe {
+            secret_service_clear_sync(
+                self.raw.as_ptr(),
+                schema.raw.as_ptr(),
+                attributes.as_ptr(),
+                ptr::null_mut(),
+                &mut error,
+            )
+        };
+        if let Some(error) = take_error(error) {
+            return Err(error);
+        }
+        Ok(cleared != 0)
+    }
+}
+
+impl Drop for Service {
+    fn drop(&mut self) {
+        // SAFETY: сервис получен `secret_service_get_sync` и ещё не освобождён; владение
+        // единственное (`Service` не `Clone`), `g_object_unref` — ровно один раз.
+        unsafe { g_object_unref(self.raw.as_ptr().cast::<c_void>()) };
+    }
+}
+
+/// Живая `SecretSchema*` (`secret_schema_newv`); освобождается `secret_schema_unref`.
+pub(crate) struct Schema {
+    raw: NonNull<SecretSchema>,
+    /// libsecret копирует имена атрибутов, но таблица держится живой до конца схемы, чтобы
+    /// не зависеть от этого: освобождение ключей произойдёт после `secret_schema_unref`.
+    _attributes: Table,
+}
+
+impl Schema {
+    /// Схема `name` с одним строковым атрибутом `attribute` (не-variadic `secret_schema_newv`).
+    pub(crate) fn new(name: &str, attribute: &str) -> Result<Self, FfiError> {
+        let c_name = CString::new(name).map_err(|_| FfiError::new(0, "имя схемы содержит NUL"))?;
+        let mut attributes = Table::names()?;
+        attributes.put_name(attribute)?;
+        // SAFETY: имя — валидная C-строка; таблица `{ name: GINT_TO_POINTER(STRING) }` жива
+        // на время вызова и остаётся живой в `Schema`; функция копирует имена в новую схему.
+        let raw = unsafe {
+            secret_schema_newv(
+                c_name.as_ptr(),
+                SECRET_SCHEMA_DONT_MATCH_NAME,
+                attributes.as_ptr(),
+            )
+        };
+        let raw =
+            NonNull::new(raw).ok_or_else(|| FfiError::new(0, "secret_schema_newv вернул NULL"))?;
+        Ok(Self {
+            raw,
+            _attributes: attributes,
+        })
+    }
+}
+
+impl Drop for Schema {
+    fn drop(&mut self) {
+        // SAFETY: схема создана `secret_schema_newv` и ещё не освобождена; владение
+        // единственное, `secret_schema_unref` — ровно один раз.
+        unsafe { secret_schema_unref(self.raw.as_ptr()) };
+    }
+}
+#!/usr/bin/env python3
+"""Мутационная проверка контракта W33a (keyring через FFI к `libsecret 0.21`).
+
+Каждая мутация — один точечный дефект в продуктовом коде `discord-platform`
+(`src/keyring.rs` или `src/ffi_secret.rs`). Ожидание: targeted-тесты `keyring_contract`
+падают (`test result: FAILED`). `KILLED` — только при ненулевом exit code и `FAILED`;
+если live-кейсы ушли в `SKIP` (нет сервиса/флага), вердикт `INCONCLUSIVE`, а не `KILLED`.
+
+Прогоны идут с `DISCORD_LAB_KEYRING_LIVE=1` (реальный ksecretd + `secret-tool`), поэтому
+baseline обязан быть зелёным с нулём `SKIP:`. Исходники восстанавливаются из снимка,
+совпадение md5 до/после обязательно; чужие файлы не трогаются.
+
+Запуск (из корня репозитория):
+    python3 waves/RW-33/run-mutations-w33a.py
+
+Код выхода: 0 — все мутации убиты и файлы восстановлены; 1 — выжившая мутация,
+ошибка восстановления, не найден фрагмент или baseline не зелёный.
+"""
+
+import hashlib
+import os
+import re
+import subprocess
+import sys
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+CRATE = os.path.join(REPO_ROOT, "rust", "crates", "discord-platform")
+KEYRING = os.path.join(CRATE, "src", "keyring.rs")
+FFI = os.path.join(CRATE, "src", "ffi_secret.rs")
+LIB = os.path.join(CRATE, "src", "lib.rs")
+TEST = os.path.join(CRATE, "tests", "keyring_contract.rs")
+LOG_PATH = os.path.join(REPO_ROOT, "waves", "RW-33", "mutations-w33a.log")
+WORKDIR = os.path.join(REPO_ROOT, "rust")
+TARGET_DIR = os.environ.get("CARGO_TARGET_DIR", "/tmp/opencode/target-w33a")
+TESTS = ["--test", "keyring_contract", "--", "--nocapture"]
+
+# (id, имя, файл, фрагмент-оригинал, фрагмент-мутация, что должен поймать)
+MUTATIONS = [
+    (
+        "01",
+        "schema_attribute_renamed",
+        KEYRING,
+        'const ATTRIBUTE_KEY: &str = "key";',
+        'const ATTRIBUTE_KEY: &str = "ke";',
+        "k07/k08: CLI secret-tool ищет записи по атрибуту `key`, а мы пишем `ke`",
+    ),
+    (
+        "02",
+        "store_not_persisted",
+        KEYRING,
+        """        self.service
+            .store(&self.schema, ATTRIBUTE_KEY, key, LABEL, secret)
+            .map_err(KeyringError::from)""",
+        "        Ok(())",
+        "k02/k05/k07: store сообщает успех, но запись не создаётся",
+    ),
+    (
+        "03",
+        "clear_always_true",
+        KEYRING,
+        """        self.service
+            .clear(&self.schema, ATTRIBUTE_KEY, key)
+            .map_err(KeyringError::from)""",
+        "        Ok(true)",
+        "k11: повторный clear отсутствующей записи возвращает true",
+    ),
+    (
+        "04",
+        "lookup_null_is_error",
+        FFI,
+        """        let Some(value) = NonNull::new(value) else {
+            return Ok(None);
+        };
+        let mut length: usize = 0;""",
+        """        let Some(value) = NonNull::new(value) else {
+            return Err(FfiError::new(0, "мутация: NULL вместо Ok(None)"));
+        };
+        let mut length: usize = 0;""",
+        "k03: отсутствие записи становится ошибкой, а не Ok(None)",
+    ),
+    (
+        "05",
+        "secret_copy_not_freed",
+        FFI,
+        "        unsafe { g_free(copy.as_ptr().cast::<c_void>()) };",
+        "        // мутация: копия значения не освобождается (утечка len+1 байт на lookup)",
+        "k02: 2000 lookup с 4 КиБ секретом дают рост RSS > 4 МиБ (утечка g_strndup-копии)",
+    ),
+    (
+        "06",
+        "debug_prints_pointer",
+        KEYRING,
+        """        formatter
+            .debug_struct("Keyring")
+            .field("schema", &SCHEMA_NAME)
+            .field("label", &LABEL)
+            .finish_non_exhaustive()""",
+        """        formatter
+            .debug_struct("Keyring")
+            .field("service", &format!("{:p}", &self.service))
+            .field("label", &LABEL)
+            .finish_non_exhaustive()""",
+        "k12: ручная редакция Debug заменена печатью адреса внутреннего объекта",
+    ),
+    (
+        "07",
+        "empty_key_allowed",
+        KEYRING,
+        "    if key.is_empty() || key.contains('\\0') {",
+        "    if key.contains('\\0') {",
+        "k09: пустой ключ больше не отвергается (InvalidKey)",
+    ),
+]
+
+TEST_LINE = re.compile(r"^test (\S+) \.\.\. FAILED$", re.MULTILINE)
+SUMMARY = re.compile(r"^test result: FAILED\..*$", re.MULTILINE)
+RESULT_LINE = re.compile(r"^test result: (ok|FAILED)\.", re.MULTILINE)
+
+
+def md5(path):
+    with open(path, "rb") as handle:
+        return hashlib.md5(handle.read()).hexdigest()
+
+
+def run_tests():
+    env = dict(os.environ)
+    env["CARGO_TARGET_DIR"] = TARGET_DIR
+    env["DISCORD_LAB_KEYRING_LIVE"] = "1"
+    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS
+    completed = subprocess.run(
+        command,
+        cwd=WORKDIR,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return completed.returncode, completed.stdout + completed.stderr
+
+
+def cleanup_synthetic():
+    """Убирает синтетические записи схемы после мутанта (CLI-оракул, не наш код).
+
+    Мутация `clear_always_true` делает `clear` (в том числе в `Drop` тестовой записи)
+    no-op, поэтому записи прогона удаляются независимым `secret-tool`.
+    """
+    try:
+        completed = subprocess.run(
+            ["secret-tool", "clear", "xdg:schema", "com.discordlab.Token"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        return "пропущено (%s)" % error
+    return "ok" if completed.returncode == 0 else "код %d" % completed.returncode
+
+
+def write_log(lines):
+    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+    with open(LOG_PATH, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines) + "\n")
+    print("\n".join(lines[-12:]))
+    print("\nлог: %s" % LOG_PATH)
+
+
+def main():
+    lines = [
+        "# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)",
+        "",
+        "targeted: cargo test --offline -p discord-platform --test keyring_contract -- --nocapture",
+        "live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)",
+        "CARGO_TARGET_DIR=%s" % TARGET_DIR,
+        "",
+    ]
+    failures = []
+    sources = {}
+    source_md5 = {}
+    protected = [KEYRING, FFI, LIB, TEST]
+    for path in protected:
+        with open(path, encoding="utf-8") as handle:
+            sources[path] = handle.read()
+        source_md5[path] = md5(path)
+    for path in (KEYRING, FFI, LIB, TEST):
+        lines.append("md5 %s: %s" % (os.path.relpath(path, REPO_ROOT), source_md5[path]))
+    lines.append("")
+
+    baseline_code, baseline_output = run_tests()
+    baseline_skips = baseline_output.count("SKIP:")
+    baseline_result = RESULT_LINE.search(baseline_output)
+    baseline_ok = baseline_code == 0 and (
+        baseline_result is not None and baseline_result.group(1) == "ok"
+    )
+    lines.append(
+        "baseline: exit=%d, SKIP=%d, test result=%s"
+        % (
+            baseline_code,
+            baseline_skips,
+            baseline_result.group(1) if baseline_result else "нет",
+# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)
+
+targeted: cargo test --offline -p discord-platform --test keyring_contract -- --nocapture
+live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)
+CARGO_TARGET_DIR=/tmp/opencode/target-w33a
+
+md5 rust/crates/discord-platform/src/keyring.rs: 31793d97a750fd22facd13492db7397e
+md5 rust/crates/discord-platform/src/ffi_secret.rs: 282c0caa2b55d80cecc63216cf85dfb9
+md5 rust/crates/discord-platform/src/lib.rs: 59c95a2d17060856365d7c5b47072660
+md5 rust/crates/discord-platform/tests/keyring_contract.rs: 5155be7dccfc676be912c1b026ab82c8
+
+baseline: exit=0, SKIP=0, test result=ok
+очистка синтетических записей: код 1
+
+## 01 schema_attribute_renamed (keyring.rs)
+ждём: k07/k08: CLI secret-tool ищет записи по атрибуту `key`, а мы пишем `ke`
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k07_secret_tool_reads_our_store, k08_our_lookup_reads_secret_tool_store
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: код 1
+
+## 02 store_not_persisted (keyring.rs)
+ждём: k02/k05/k07: store сообщает успех, но запись не создаётся
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k02_store_then_lookup_roundtrip_without_leak, k04_clear_existing_then_lookup_none, k05_overwrite_replaces_value, k06_unicode_secret_roundtrip, k07_secret_tool_reads_our_store, k11_repeated_clear_returns_false
+  test result: FAILED. 6 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: код 1
+
+## 03 clear_always_true (keyring.rs)
+ждём: k11: повторный clear отсутствующей записи возвращает true
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k04_clear_existing_then_lookup_none, k11_repeated_clear_returns_false
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok
+
+## 04 lookup_null_is_error (ffi_secret.rs)
+ждём: k03: отсутствие записи становится ошибкой, а не Ok(None)
+md5 до: 282c0caa2b55d80cecc63216cf85dfb9
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k03_lookup_missing_returns_none, k04_clear_existing_then_lookup_none, k11_repeated_clear_returns_false
+  test result: FAILED. 9 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+md5 после restore: 282c0caa2b55d80cecc63216cf85dfb9 — OK
+очистка синтетических записей: код 1
+
+## 05 secret_copy_not_freed (ffi_secret.rs)
+ждём: k02: 2000 lookup с 4 КиБ секретом дают рост RSS > 4 МиБ (утечка g_strndup-копии)
+md5 до: 282c0caa2b55d80cecc63216cf85dfb9
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k02_store_then_lookup_roundtrip_without_leak
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+md5 после restore: 282c0caa2b55d80cecc63216cf85dfb9 — OK
+очистка синтетических записей: код 1
+
+## 06 debug_prints_pointer (keyring.rs)
+ждём: k12: ручная редакция Debug заменена печатью адреса внутреннего объекта
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k01_connect_to_default_collection, k12_debug_does_not_print_secret_or_pointers
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: код 1
+
+## 07 empty_key_allowed (keyring.rs)
+ждём: k09: пустой ключ больше не отвергается (InvalidKey)
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k09_empty_key_is_invalid
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok
+
+## Итог
+мутаций: 7
+вердикт: OK — все мутации убиты, файлы восстановлены
+# REPORT W33a — P1-10 Keyring через FFI к libsecret (headless)
+
+Волна: **RW-33**. Batch: `BATCH-TZ.md`. Карточка: **P1-10** (seat SEC-1 / W33a).
+Дата: 2026-10-22. Статус: **готово к приёмке** (red → green → мутации 7/7 → отчёт).
+
+Окружение: `libsecret 0.21.8.2`, `org.freedesktop.secrets` = ksecretd (сессионная шина,
+коллекция разблокирована), CLI-оракул `secret-tool`; `DISCORD_LAB_KEYRING_LIVE=1` для live.
+
+## 1. Файлы и md5
+
+| Файл | md5 |
+|---|---|
+| `rust/crates/discord-platform/src/keyring.rs` | `31793d97a750fd22facd13492db7397e` |
+| `rust/crates/discord-platform/src/ffi_secret.rs` | `282c0caa2b55d80cecc63216cf85dfb9` |
+| `rust/crates/discord-platform/src/lib.rs` | `59c95a2d17060856365d7c5b47072660` |
+| `rust/crates/discord-platform/tests/keyring_contract.rs` | `5155be7dccfc676be912c1b026ab82c8` |
+| `waves/RW-33/run-mutations-w33a.py` | `2a9edf368f3d48c839d27c863b12b7e0` |
+| `waves/RW-33/workers/W33a/red.log` | `d12e0e844fa513a105b52bc33818b7b0` |
+| `waves/RW-33/workers/W33a/green.log` | `2cd32831e0704f21436099a6ce086f5a` |
+| `waves/RW-33/mutations-w33a.log` | `3155b5407b8c9826e10ce17cbb4225b9` |
+
+`lib.rs`: добавлены только `pub mod keyring;`, `#[allow(unsafe_code)] mod ffi_secret;`
+(3 строки). `Cargo.toml`/`Cargo.lock`, чужие модули/тесты, доки и golden не менялись.
+`unsafe` — только в `ffi_secret.rs`; `unsafe_code = "deny"` действует, allow стоит на `mod`.
+
+## 2. Red / green
+
+- Red: `cargo test … --test keyring_contract` → **EXIT=101**, `E0432: unresolved import
+  discord_platform::keyring` (`workers/W33a/red.log`). Тесты k01–k12 написаны до кода.
+- Green 1/2 (`DISCORD_LAB_KEYRING_LIVE=1`, реальный ksecretd + `secret-tool`):
+  **12 passed, 0 failed, SKIP=0**, **EXIT=0**.
+- Green 2/2 (без live-флага): 12 passed, **EXIT=0**; k01–k08 печатают
+  `SKIP: DISCORD_LAB_KEYRING_LIVE != 1`, k09–k12 выполняются.
+- Live-прогон повторён 3 раза подряд на финальном коде: 12/12 зелёные (стабильность
+  RSS-проверки k02 и отсутствие гонок на общей коллекции).
+
+Команда: `cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w33a cargo test --offline
+-p discord-platform --test keyring_contract`.
+
+## 3. Кейсы (TZ §3)
+
+| ID | Тест | Тип | Результат |
+|---|---|---|---|
+| k01 | `connect` к default-сервису | live | ok |
+| k02 | store → lookup; серия 2000 lookup с 4 КиБ секретом без роста RSS > 4 МиБ (копия освобождается `g_free`) | live | ok |
+| k03 | lookup отсутствующей записи → `Ok(None)` | live | ok |
+| k04 | clear существующей → `true`, затем lookup `None` | live | ok |
+| k05 | перезапись значения | live | ok |
+| k06 | Unicode-секрет (кириллица/умлауты/эмодзи/Ω) дословно | live | ok |
+| k07 | наш store → `secret-tool lookup key …` | live + CLI | ok |
+| k08 | `secret-tool store` → наш lookup | live + CLI | ok |
+| k09 | пустой ключ → `InvalidKey` (store и lookup) | без live-флага | ok |
+| k10 | NUL в ключе → `InvalidKey`, NUL в секрете → `InvalidSecret`, без паники | без live-флага | ok |
+| k11 | повторный clear отсутствующей → `Ok(false)` | без live-флага | ok |
+| k12 | ручной `Debug`: есть имя схемы, нет секрета, нет `0x`-указателей; error Debug/Display без секрета | без live-флага (+store) | ok |
+
+Итого 12 тестов (бюджет 10–12). Live-кейсы skip-aware; unit-кейсы от live-флага не зависят.
+
+## 4. Мутации
+
+`waves/RW-33/run-mutations-w33a.py`, targeted с `-- --nocapture`, baseline —
+`exit=0, SKIP=0, test result=ok`. **7/7 KILLED**, md5 восстановлены, чужие файлы не тронуты:
+
+| # | Мутация | Убита тестами |
+|---|---|---|
+| 01 | атрибут схемы `key` → `ke` | k07, k08 |
+| 02 | `store` не пишет, возвращает `Ok(())` | k02, k04, k05, k06, k07, k11 |
+| 03 | `clear` всегда `Ok(true)` | k04, k11 |
+| 04 | NULL значения → `Err` вместо `Ok(None)` | k03, k04, k11 |
+| 05 | убрано `g_free` копии `g_strndup` (утечка len+1 на lookup) | k02 (RSS 2000×4 КиБ) |
+| 06 | `Debug` печатает адрес внутреннего объекта вместо ручной редакции | k01, k12 |
+| 07 | пустой ключ больше не отвергается | k09 |
+
+Мутация 03 (`clear` no-op) оставляет синтетические записи в коллекции; скрипт после каждого
+прогона (и baseline) очищает их независимым `secret-tool clear xdg:schema
+com.discordlab.Token`. После финального прогона `secret-tool search --all xdg:schema
+com.discordlab.Token` пуст.
+
+## 5. Решения и ограничения
+
+- **Схема.** `secret_schema_newv("com.discordlab.Token", SECRET_SCHEMA_DONT_MATCH_NAME,
+  {key: STRING})`; коллекция `NULL` (default), метка `discord-lab token`. `DONT_MATCH_NAME`
+  выбран осознанно: без него libsecret добавляет в поиск `xdg:schema`, и записи `secret-tool`
+  (схема `org.freedesktop.Secret.Generic`) не находятся — k08 из TZ §3 требовал бы провала.
+  Имя схемы при этом сохраняется в записи (`xdg:schema = com.discordlab.Token`).
+- **FFI.** Не-variadic `secret_service_store_sync`/`lookup_sync`/`clear_sync`,
+  `secret_schema_newv`; `GError` читается и `g_error_free` на всех путях; значение копируется
+  `g_strndup` → `String`/`Vec<u8>` → `g_free` до `secret_value_unref`; `secret_value_new` +
+  `secret_value_unref` для записи; `g_hash_table_new_full` с `g_str_hash`/`g_str_equal`.
+  `gio-2.0` линкуется по контракту (прямых вызовов gio нет, декларация помечена `allow(dead_code)`).
+- **Владение.** `Service` (`g_object_unref`) и `Schema` (`secret_schema_unref`) освобождаются
+  ровно один раз в `Drop` полей `Keyring`; сам `Keyring` `Drop` не реализует, чтобы не было
+  двойного unref. `!Send + !Sync` — `PhantomData<*mut ()>`.
+- **Ошибки.** Пустой/NUL-ключ и NUL-секрет отсекаются до C. `clear` отсутствующей записи у
+  ksecretd — `FALSE` **без** `GError` → `Ok(false)`; `GError` → `Err(Secret { code, message })`.
+  Невалидный UTF-8 из сервиса → `Encoding`. Секрет не попадает в `Debug`/`Display`/сообщения.
+- **Unit-кейсы и сервис.** Замороженный API не содержит конструктора без сервиса, поэтому
+  k09–k12 подключаются к ksecretd (без live-флага) и печатают `SKIP`, только если сервиса в
+  окружении нет; это единственное расхождение с буквой TZ §2 «без шины» и оно зафиксировано.
+- **Блокировка коллекции.** `*_sync` может ждать prompt разблокировки; live-кейсы запускаются
+  только по `DISCORD_LAB_KEYRING_LIVE=1`. В текущем окружении ksecretd разблокирован, prompt не
+  появлялся. На заблокированной коллекции возможен блокирующий вызов — это известный риск
+  (headless без GUI-агента), в коде не обходится.
+- **Секреты.** Только синтетические (`test-secret-…`, 4 КиБ `x` для RSS-кейса), ключи
+  уникальны (`w33a-<tag>-<pid>-<seq>`), после кейсов выполняется `clear` (+ CLI-очистка).
+- **Совместимость.** Wire-совместимость с крейтом `keyring` и миграция чужих записей не
+  заявляются: свой атрибут `key`/схема; пароля/токена в файлах нет.
+- **Порог RSS** (4 МиБ на 2000 lookup, замеренный baseline ~72 КиБ) зависит от аллокатора;
+  при регрессе тест печатает before/after. Мутация 05 стабильно даёт ~8 МиБ.
+
+## 6. Проверки
+
+- `cargo fmt --check -p discord-platform` — чисто.
+- `cargo clippy --offline -p discord-platform --all-targets -- -D warnings` — 0 предупреждений.
+- `cargo test --offline -p discord-platform --no-run` — все тесты крейта компилируются.
+- Полный `gate:worker`/workspace-тесты не запускались: batch-воркер делает только targeted,
+  общий гейт — один раз в integration-лейне (BATCH-TZ §4).
+red.log
+green.log
+rust/crates/discord-platform/src/lib.rs:17:#[allow(unsafe_code)]
+rust/crates/discord-platform/src/lib.rs:19:#[allow(unsafe_code)]
+rust/crates/discord-platform/src/lib.rs:20:mod ffi_secret;
+rust/crates/discord-platform/src/keyring.rs:1://! P1-10: хранение токена в Secret Service (`org.freedesktop.secrets`) через libsecret.
+rust/crates/discord-platform/src/keyring.rs:3://! Безопасный API поверх [`crate::ffi_secret`] (единственное место с `unsafe`):
+rust/crates/discord-platform/src/keyring.rs:12://!   ошибка glib/libsecret → [`KeyringError::Secret`] с кодом и сообщением (без секрета).
+rust/crates/discord-platform/src/keyring.rs:15://! - [`Keyring`] — `!Send + !Sync` (libsecret/GDBus-сервис не переносится между потоками);
+rust/crates/discord-platform/src/keyring.rs:22://! - Проверка live-кейсов — реальный ksecretd на сессионной шине и CLI `secret-tool`;
+rust/crates/discord-platform/src/keyring.rs:31:use crate::ffi_secret::{FfiError, Schema, Service};
+rust/crates/discord-platform/src/keyring.rs:49:    /// Ошибка glib/libsecret: код `GError` (0 — ошибка без `GError`) и сообщение.
+rust/crates/discord-platform/src/keyring.rs:96:    /// Подключение к default-сервису через `secret_service_get_sync`.
+rust/crates/discord-platform/src/keyring.rs:108:    pub fn store(&mut self, key: &str, secret: &str) -> Result<(), KeyringError> {
+rust/crates/discord-platform/src/keyring.rs:110:        if secret.contains('\0') {
+rust/crates/discord-platform/src/keyring.rs:114:            .store(&self.schema, ATTRIBUTE_KEY, key, LABEL, secret)
+rust/crates/discord-platform/src/ffi_secret.rs:1://! Тонкая обёртка над системным `libsecret 0.21` — единственное место крейта, где есть `unsafe`.
+rust/crates/discord-platform/src/ffi_secret.rs:3://! Линкуются системные `libsecret-1`, `glib-2.0`, `gobject-2.0`, `gio-2.0`
+rust/crates/discord-platform/src/ffi_secret.rs:4://! (TZ W33a §1). Используются не-variadic вызовы `secret_service_*_sync` и
+rust/crates/discord-platform/src/ffi_secret.rs:5://! `secret_schema_newv`, чтобы не зависеть от соглашения о variadic-хвостах.
+rust/crates/discord-platform/src/ffi_secret.rs:13://! - Значение из `secret_value_get` копируется `g_strndup` (освобождается `g_free`) до
+rust/crates/discord-platform/src/ffi_secret.rs:14://!   `secret_value_unref`, поэтому наружу не уходит указатель на чужую память.
+rust/crates/discord-platform/src/ffi_secret.rs:16://! - Каждый `unsafe`-блок снабжён `// SAFETY:`; наружу торчит безопасный API.
+rust/crates/discord-platform/src/ffi_secret.rs:23:/// `SECRET_SCHEMA_DONT_MATCH_NAME` (`secret-schema.h` 0.21): имя схемы не участвует в поиске.
+rust/crates/discord-platform/src/ffi_secret.rs:25:/// Без флага libsecret добавляет в атрибуты поиска `xdg:schema`, и записи, созданные
+rust/crates/discord-platform/src/ffi_secret.rs:26:/// `secret-tool` (схема `org.freedesktop.Secret.Generic`), не находятся — а CLI-оракул
+rust/crates/discord-platform/src/ffi_secret.rs:31:/// MIME-тип текстового секрета (`secret_value_new`).
+rust/crates/discord-platform/src/ffi_secret.rs:66:type GHashFunc = Option<unsafe extern "C" fn(*const c_void) -> c_uint>;
+rust/crates/discord-platform/src/ffi_secret.rs:67:type GEqualFunc = Option<unsafe extern "C" fn(*const c_void, *const c_void) -> c_int>;
+rust/crates/discord-platform/src/ffi_secret.rs:68:type GDestroyNotify = Option<unsafe extern "C" fn(*mut c_void)>;
+rust/crates/discord-platform/src/ffi_secret.rs:70:// SAFETY: имена и сигнатуры сверены с `/usr/include/libsecret-1/libsecret/*.h` (0.21.8) и
+rust/crates/discord-platform/src/ffi_secret.rs:73:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:92:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:98:// от libsecret. Декларация оставлена как явная фиксация зависимости.
+rust/crates/discord-platform/src/ffi_secret.rs:100:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:105:// SAFETY: сигнатуры сверены с `/usr/include/libsecret-1/libsecret/secret-service.h`,
+rust/crates/discord-platform/src/ffi_secret.rs:106:// `secret-value.h`, `secret-schema.h`, `secret-types.h` (0.21.8).
+rust/crates/discord-platform/src/ffi_secret.rs:107:#[link(name = "secret-1")]
+rust/crates/discord-platform/src/ffi_secret.rs:108:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:109:    fn secret_service_get_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:114:    fn secret_service_store_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:124:    fn secret_service_lookup_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:131:    fn secret_service_clear_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:138:    fn secret_value_new(
+rust/crates/discord-platform/src/ffi_secret.rs:139:        secret: *const c_char,
+rust/crates/discord-platform/src/ffi_secret.rs:143:    fn secret_value_get(value: *mut SecretValue, length: *mut usize) -> *const c_char;
+rust/crates/discord-platform/src/ffi_secret.rs:144:    fn secret_value_unref(value: *mut c_void);
+rust/crates/discord-platform/src/ffi_secret.rs:145:    fn secret_schema_newv(
+rust/crates/discord-platform/src/ffi_secret.rs:150:    fn secret_schema_unref(schema: *mut SecretSchema);
+rust/crates/discord-platform/src/ffi_secret.rs:180:    // SAFETY: `error` — ненулевой указатель на `GError`, заполненный glib/libsecret; поля
+rust/crates/discord-platform/src/ffi_secret.rs:182:    let (code, message) = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:194:    unsafe { g_error_free(error) };
+rust/crates/discord-platform/src/ffi_secret.rs:203:    NonNull::new(unsafe { g_strdup(c_text.as_ptr()) })
+rust/crates/discord-platform/src/ffi_secret.rs:216:        let raw = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:244:        unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:258:        unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:277:        unsafe { g_hash_table_unref(self.raw.as_ptr()) };
+rust/crates/discord-platform/src/ffi_secret.rs:287:    /// `secret_service_get_sync(SECRET_SERVICE_NONE)` — default-сервис сессионной шины.
+rust/crates/discord-platform/src/ffi_secret.rs:293:            unsafe { secret_service_get_sync(SECRET_SERVICE_NONE, ptr::null_mut(), &mut error) };
+rust/crates/discord-platform/src/ffi_secret.rs:299:            .ok_or_else(|| FfiError::new(0, "secret_service_get_sync вернул NULL без GError"))
+rust/crates/discord-platform/src/ffi_secret.rs:302:    /// `secret_service_store_sync` в default-коллекцию (`collection = NULL`).
+rust/crates/discord-platform/src/ffi_secret.rs:311:        secret: &str,
+rust/crates/discord-platform/src/ffi_secret.rs:317:        let c_secret =
+rust/crates/discord-platform/src/ffi_secret.rs:318:            CString::new(secret).map_err(|_| FfiError::new(0, "секрет содержит NUL-байт"))?;
+rust/crates/discord-platform/src/ffi_secret.rs:319:        let length = isize::try_from(c_secret.as_bytes().len())
+rust/crates/discord-platform/src/ffi_secret.rs:323:        let value = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:324:            secret_value_new(
+rust/crates/discord-platform/src/ffi_secret.rs:325:                c_secret.as_ptr(),
+rust/crates/discord-platform/src/ffi_secret.rs:331:            return Err(FfiError::new(0, "secret_value_new вернул NULL"));
+rust/crates/discord-platform/src/ffi_secret.rs:335:        // вызова (libsecret читает её синхронно); collection = NULL — default-коллекция;
+rust/crates/discord-platform/src/ffi_secret.rs:337:        let stored = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:338:            secret_service_store_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:349:        // SAFETY: `value` создан `secret_value_new`, ещё не освобождён; владение единственное,
+rust/crates/discord-platform/src/ffi_secret.rs:350:        // libsecret скопировал секрет при записи. Освобождаем ровно один раз.
+rust/crates/discord-platform/src/ffi_secret.rs:351:        unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:356:            return Err(FfiError::new(0, "secret_service_store_sync вернул FALSE"));
+rust/crates/discord-platform/src/ffi_secret.rs:361:    /// `secret_service_lookup_sync`: `None` — записи нет; байты копируются из `SecretValue`.
+rust/crates/discord-platform/src/ffi_secret.rs:373:        let value = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:374:            secret_service_lookup_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:390:        // out-параметр; возвращённый указатель валиден до `secret_value_unref` ниже.
+rust/crates/discord-platform/src/ffi_secret.rs:391:        let data = unsafe { secret_value_get(value.as_ptr(), &mut length) };
+rust/crates/discord-platform/src/ffi_secret.rs:394:            unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:395:            return Err(FfiError::new(0, "secret_value_get вернул NULL"));
+rust/crates/discord-platform/src/ffi_secret.rs:399:        let copy = unsafe { g_strndup(data, length) };
+rust/crates/discord-platform/src/ffi_secret.rs:402:            unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:407:        let bytes = unsafe { slice::from_raw_parts(copy.as_ptr().cast::<u8>(), length) }.to_vec();
+rust/crates/discord-platform/src/ffi_secret.rs:409:        unsafe { g_free(copy.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:411:        unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:415:    /// `secret_service_clear_sync`: `false` — записи не было (GError пуст).
+rust/crates/discord-platform/src/ffi_secret.rs:427:        let cleared = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:428:            secret_service_clear_sync(
+rust/crates/discord-platform/src/ffi_secret.rs:445:        // SAFETY: сервис получен `secret_service_get_sync` и ещё не освобождён; владение
+rust/crates/discord-platform/src/ffi_secret.rs:447:        unsafe { g_object_unref(self.raw.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:451:/// Живая `SecretSchema*` (`secret_schema_newv`); освобождается `secret_schema_unref`.
+rust/crates/discord-platform/src/ffi_secret.rs:454:    /// libsecret копирует имена атрибутов, но таблица держится живой до конца схемы, чтобы
+rust/crates/discord-platform/src/ffi_secret.rs:455:    /// не зависеть от этого: освобождение ключей произойдёт после `secret_schema_unref`.
+rust/crates/discord-platform/src/ffi_secret.rs:460:    /// Схема `name` с одним строковым атрибутом `attribute` (не-variadic `secret_schema_newv`).
+rust/crates/discord-platform/src/ffi_secret.rs:467:        let raw = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:468:            secret_schema_newv(
+rust/crates/discord-platform/src/ffi_secret.rs:475:            NonNull::new(raw).ok_or_else(|| FfiError::new(0, "secret_schema_newv вернул NULL"))?;
+rust/crates/discord-platform/src/ffi_secret.rs:485:        // SAFETY: схема создана `secret_schema_newv` и ещё не освобождена; владение
+rust/crates/discord-platform/src/ffi_secret.rs:486:        // единственное, `secret_schema_unref` — ровно один раз.
+rust/crates/discord-platform/src/ffi_secret.rs:487:        unsafe { secret_schema_unref(self.raw.as_ptr()) };
+
+codex
+По исходникам выявил один важный нюанс, который проверю фактическим запуском: тесты без live-флага всё равно подключаются к Secret Service для части кейсов, а live-кейсы могут завершиться `SKIP` с кодом 0. Сейчас отдельно запускаю требуемые команды и проверю доступность `secret-tool`/ksecretd по выводу тестов, не полагаясь на заявленные логи.
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w33a DISCORD_LAB_KEYRING_LIVE=1 cargo test --offline -p discord-platform --test keyring_contract -- --nocapture' in /home/sanya/orca/project/rust
+ succeeded in 284ms:
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running tests/keyring_contract.rs (/tmp/opencode/target-codex-w33a/debug/deps/keyring_contract-21c22226c2c3030e)
+
+running 12 tests
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k03_lookup_missing_returns_none ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k04_clear_existing_then_lookup_none ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k01_connect_to_default_collection ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k02_store_then_lookup_roundtrip_without_leak ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k05_overwrite_replaces_value ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k07_secret_tool_reads_our_store ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k06_unicode_secret_roundtrip ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k08_our_lookup_reads_secret_tool_store ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k09_empty_key_is_invalid ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k11_repeated_clear_returns_false ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k10_nul_in_key_or_secret_is_error_without_panic ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k12_debug_does_not_print_secret_or_pointers ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w33a cargo test --offline -p discord-platform --test keyring_contract -- --nocapture' in /home/sanya/orca/project/rust
+ succeeded in 0ms:
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/keyring_contract.rs (/tmp/opencode/target-codex-w33a/debug/deps/keyring_contract-21c22226c2c3030e)
+
+running 12 tests
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+test k01_connect_to_default_collection ... ok
+test k02_store_then_lookup_roundtrip_without_leak ... ok
+test k04_clear_existing_then_lookup_none ... ok
+test k03_lookup_missing_returns_none ... ok
+test k06_unicode_secret_roundtrip ... ok
+test k05_overwrite_replaces_value ... ok
+test k07_secret_tool_reads_our_store ... ok
+test k08_our_lookup_reads_secret_tool_store ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k09_empty_key_is_invalid ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k10_nul_in_key_or_secret_is_error_without_panic ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k11_repeated_clear_returns_false ... ok
+SKIP: нет org.freedesktop.secrets: Secret Service (код 14): Could not connect: Operation not permitted
+test k12_debug_does_not_print_secret_or_pointers ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+exec
+/usr/bin/bash -lc "command -v secret-tool || true; printenv DBUS_SESSION_BUS_ADDRESS; pgrep -a -f 'gnome-keyring-daemon|keepassxc|kwallet|secret' || true; sed -n '1,220p' waves/RW-33/mutations-w33a.log; sed -n '1,120p' waves/RW-33/workers/W33a/red.log; sed -n '1,120p' waves/RW-33/workers/W33a/green.log; md5sum rust/crates/discord-platform/src/keyring.rs rust/crates/discord-platform/src/ffi_secret.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/tests/keyring_contract.rs; rg -n \"unsafe|unwrap\\(|expect\\(|panic"'!|dbg!|println!|eprintln!" rust/crates/discord-platform/src --glob '"'*.rs'" in /home/sanya/orca/project
+ succeeded in 0ms:
+/usr/bin/secret-tool
+unix:path=/run/user/1000/bus
+1 codex-linux-sandbox --sandbox-policy-cwd /home/sanya/orca/project --command-cwd /home/sanya/orca/project --permission-profile {"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"path","path":"/home/sanya/orca/project"},"access":"write"},{"path":{"type":"special","value":{"kind":"slash_tmp"}},"access":"write"},{"path":{"type":"special","value":{"kind":"tmpdir"}},"access":"write"},{"path":{"type":"path","path":"/home/sanya/orca/project/.git"},"access":"read","missing_path_behavior":"skip"},{"path":{"type":"path","path":"/home/sanya/orca/project/.agents"},"access":"read","missing_path_behavior":"skip"},{"path":{"type":"path","path":"/home/sanya/orca/project/.codex"},"access":"read","missing_path_behavior":"skip"},{"path":{"type":"path","path":"/home/sanya/orca/project/.aws"},"access":"read","missing_path_behavior":"skip"}]},"network":"restricted"} --apply-seccomp-then-exec -- /usr/bin/bash -c __CODEX_SNAPSHOT_OVERRIDE_SET_0="${CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS+x}" __CODEX_SNAPSHOT_OVERRIDE_0="${CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS-}" __CODEX_SNAPSHOT_OVERRIDE_SET_1="${CODEX_PERMISSION_PROFILE+x}" __CODEX_SNAPSHOT_OVERRIDE_1="${CODEX_PERMISSION_PROFILE-}" __CODEX_SNAPSHOT_OVERRIDE_SET_2="${CODEX_PLUGIN_METRICS_OUTPUT+x}" __CODEX_SNAPSHOT_OVERRIDE_2="${CODEX_PLUGIN_METRICS_OUTPUT-}" __CODEX_SNAPSHOT_OVERRIDE_SET_3="${CODEX_SESSION_ID+x}" __CODEX_SNAPSHOT_OVERRIDE_3="${CODEX_SESSION_ID-}" __CODEX_SNAPSHOT_OVERRIDE_SET_4="${CODEX_THREAD_ID+x}" __CODEX_SNAPSHOT_OVERRIDE_4="${CODEX_THREAD_ID-}" __CODEX_SNAPSHOT_OVERRIDE_SET_5="${CODEX_VERSION+x}" __CODEX_SNAPSHOT_OVERRIDE_5="${CODEX_VERSION-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_0="${ALL_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_0="${ALL_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_1="${BUNDLE_HTTPS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_1="${BUNDLE_HTTPS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_2="${BUNDLE_HTTP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_2="${BUNDLE_HTTP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_3="${BUNDLE_NO_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_3="${BUNDLE_NO_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_4="${BUNDLE_SSL_CA_CERT+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_4="${BUNDLE_SSL_CA_CERT-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_5="${CARGO_HTTP_CAINFO+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_5="${CARGO_HTTP_CAINFO-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_6="${CODEX_CA_CERTIFICATE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_6="${CODEX_CA_CERTIFICATE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_7="${CODEX_NETWORK_ALLOW_LOCAL_BINDING+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_7="${CODEX_NETWORK_ALLOW_LOCAL_BINDING-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_8="${CODEX_NETWORK_PROXY_ACTIVE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_8="${CODEX_NETWORK_PROXY_ACTIVE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_9="${CODEX_NETWORK_PROXY_ATTRIBUTION+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_9="${CODEX_NETWORK_PROXY_ATTRIBUTION-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_10="${CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_10="${CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_11="${CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_11="${CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_12="${CURL_CA_BUNDLE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_12="${CURL_CA_BUNDLE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_13="${DOCKER_HTTPS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_13="${DOCKER_HTTPS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_14="${DOCKER_HTTP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_14="${DOCKER_HTTP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_15="${ELECTRON_GET_USE_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_15="${ELECTRON_GET_USE_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_16="${FTP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_16="${FTP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_17="${GIT_SSL_CAINFO+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_17="${GIT_SSL_CAINFO-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_18="${HTTPS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_18="${HTTPS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_19="${HTTP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_19="${HTTP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_20="${NODE_EXTRA_CA_CERTS+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_20="${NODE_EXTRA_CA_CERTS-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_21="${NODE_USE_ENV_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_21="${NODE_USE_ENV_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_22="${NO_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_22="${NO_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_23="${NPM_CONFIG_CAFILE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_23="${NPM_CONFIG_CAFILE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_24="${NPM_CONFIG_HTTPS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_24="${NPM_CONFIG_HTTPS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_25="${NPM_CONFIG_HTTP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_25="${NPM_CONFIG_HTTP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_26="${NPM_CONFIG_NOPROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_26="${NPM_CONFIG_NOPROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_27="${NPM_CONFIG_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_27="${NPM_CONFIG_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_28="${PIP_CERT+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_28="${PIP_CERT-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_29="${PIP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_29="${PIP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_30="${REQUESTS_CA_BUNDLE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_30="${REQUESTS_CA_BUNDLE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_31="${SSL_CERT_FILE+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_31="${SSL_CERT_FILE-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_32="${WSS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_32="${WSS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_33="${WS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_33="${WS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_34="${YARN_HTTPS_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_34="${YARN_HTTPS_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_35="${YARN_HTTP_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_35="${YARN_HTTP_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_36="${YARN_NO_PROXY+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_36="${YARN_NO_PROXY-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_37="${all_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_37="${all_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_38="${ftp_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_38="${ftp_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_39="${http_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_39="${http_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_40="${https_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_40="${https_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_41="${no_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_41="${no_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_42="${npm_config_cafile+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_42="${npm_config_cafile-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_43="${npm_config_http_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_43="${npm_config_http_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_44="${npm_config_https_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_44="${npm_config_https_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_45="${npm_config_noproxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_45="${npm_config_noproxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_46="${npm_config_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_46="${npm_config_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_47="${ws_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_47="${ws_proxy-}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_48="${wss_proxy+x}" __CODEX_SNAPSHOT_PROXY_OVERRIDE_48="${wss_proxy-}" __CODEX_SNAPSHOT_PROXY_ENV_SET="${CODEX_NETWORK_PROXY_ACTIVE+x}"  if . '/home/sanya/.local/share/codex-resume-home/shell_snapshots/01a164ed-03a2-7683-8238-f83f1c332974.1792694616997291053.sh' >/dev/null 2>&1; then :; fi  if [ -n "${__CODEX_SNAPSHOT_OVERRIDE_SET_0}" ]; then   if [ -z "${CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS+x}" ] || [ "${CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS-}" != "${__CODEX_SNAPSHOT_OVERRIDE_0}" ]; then export CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS="${__CODEX_SNAPSHOT_OVERRIDE_0}"; else export CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS; fi else builtin unset CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS 2>/dev/null || command unset CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS; fi builtin unset __CODEX_SNAPSHOT_OVERRIDE_SET_0 __CODEX_SNAPSHOT_OVERRIDE_0 2>/dev/null || command unset __CODEX_SNAPSHOT_OVERRIDE_SET_0 __CODEX_SNAPSHOT_OVERRIDE_0 if [ -n "${__CODEX_SNAPSHOT_OVERRIDE_SET_1}" ]; then   if [ -z "${CODEX_PERMISSION_PROFILE+x}" ] || [ "${CODEX_PERMISSION_PROFILE-}" != "${__CODEX_SNAPSHOT_OVERRIDE_1}" ]; then export CODEX_PERMISSION_PROFILE="${__CODEX_SNAPSHOT_OVERRIDE_1}"; else export CODEX_PERMISSION_PROFILE; fi else builtin unset CODEX_PERMISSION_PROFILE 2>/dev/null || command unset CODEX_PERMISSION_PROFILE; fi builtin unset __CODEX_SNAPSHOT_OVERRIDE_SET_1 __CODEX_SNAPSHOT_OVERRIDE_1 2>/dev/null || command unset __CODEX_SNAPSHOT_OVERRIDE_SET_1 __CODEX_SNAPSHOT_OVERRIDE_1 if [ -n "${__CODEX_SNAPSHOT_OVERRIDE_SET_2}" ]; then   if [ -z "${CODEX_PLUGIN_METRICS_OUTPUT+x}" ] || [ "${CODEX_PLUGIN_METRICS_OUTPUT-}" != "${__CODEX_SNAPSHOT_OVERRIDE_2}" ]; then export CODEX_PLUGIN_METRICS_OUTPUT="${__CODEX_SNAPSHOT_OVERRIDE_2}"; else export CODEX_PLUGIN_METRICS_OUTPUT; fi else builtin unset CODEX_PLUGIN_METRICS_OUTPUT 2>/dev/null || command unset CODEX_PLUGIN_METRICS_OUTPUT; fi builtin unset __CODEX_SNAPSHOT_OVERRIDE_SET_2 __CODEX_SNAPSHOT_OVERRIDE_2 2>/dev/null || command unset __CODEX_SNAPSHOT_OVERRIDE_SET_2 __CODEX_SNAPSHOT_OVERRIDE_2 if [ -n "${__CODEX_SNAPSHOT_OVERRIDE_SET_3}" ]; then   if [ -z "${CODEX_SESSION_ID+x}" ] || [ "${CODEX_SESSION_ID-}" != "${__CODEX_SNAPSHOT_OVERRIDE_3}" ]; then export CODEX_SESSION_ID="${__CODEX_SNAPSHOT_OVERRIDE_3}"; else export CODEX_SESSION_ID; fi else builtin unset CODEX_SESSION_ID 2>/dev/null || command unset CODEX_SESSION_ID; fi builtin unset __CODEX_SNAPSHOT_OVERRIDE_SET_3 __CODEX_SNAPSHOT_OVERRIDE_3 2>/dev/null || command unset __CODEX_SNAPSHOT_OVERRIDE_SET_3 __CODEX_SNAPSHOT_OVERRIDE_3 if [ -n "${__CODEX_SNAPSHOT_OVERRIDE_SET_4}" ]; then   if [ -z "${CODEX_THREAD_ID+x}" ] || [ "${CODEX_THREAD_ID-}" != "${__CODEX_SNAPSHOT_OVERRIDE_4}" ]; then export CODEX_THREAD_ID="${__CODEX_SNAPSHOT_OVERRIDE_4}"; else export CODEX_THREAD_ID; fi else builtin unset CODEX_THREAD_ID 2>/dev/null || command unset CODEX_THREAD_ID; fi builtin unset __CODEX_SNAPSHOT_OVERRIDE_SET_4 __CODEX_SNAPSHOT_OVERRIDE_4 2>/dev/null || command unset __CODEX_SNAPSHOT_OVERRIDE_SET_4 __CODEX_SNAPSHOT_OVERRIDE_4 if [ -n "${__CODEX_SNAPSHOT_OVERRIDE_SET_5}" ]; then   if [ -z "${CODEX_VERSION+x}" ] || [ "${CODEX_VERSION-}" != "${__CODEX_SNAPSHOT_OVERRIDE_5}" ]; then export CODEX_VERSION="${__CODEX_SNAPSHOT_OVERRIDE_5}"; else export CODEX_VERSION; fi else builtin unset CODEX_VERSION 2>/dev/null || command unset CODEX_VERSION; fi builtin unset __CODEX_SNAPSHOT_OVERRIDE_SET_5 __CODEX_SNAPSHOT_OVERRIDE_5 2>/dev/null || command unset __CODEX_SNAPSHOT_OVERRIDE_SET_5 __CODEX_SNAPSHOT_OVERRIDE_5 if [ -n "$__CODEX_SNAPSHOT_PROXY_ENV_SET" ] || [ -n "${CODEX_NETWORK_PROXY_ACTIVE+x}" ]; then if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_0}" ]; then   if [ -z "${ALL_PROXY+x}" ] || [ "${ALL_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_0}" ]; then export ALL_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_0}"; else export ALL_PROXY; fi else builtin unset ALL_PROXY 2>/dev/null || command unset ALL_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_0 __CODEX_SNAPSHOT_PROXY_OVERRIDE_0 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_0 __CODEX_SNAPSHOT_PROXY_OVERRIDE_0 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_1}" ]; then   if [ -z "${BUNDLE_HTTPS_PROXY+x}" ] || [ "${BUNDLE_HTTPS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_1}" ]; then export BUNDLE_HTTPS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_1}"; else export BUNDLE_HTTPS_PROXY; fi else builtin unset BUNDLE_HTTPS_PROXY 2>/dev/null || command unset BUNDLE_HTTPS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_1 __CODEX_SNAPSHOT_PROXY_OVERRIDE_1 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_1 __CODEX_SNAPSHOT_PROXY_OVERRIDE_1 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_2}" ]; then   if [ -z "${BUNDLE_HTTP_PROXY+x}" ] || [ "${BUNDLE_HTTP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_2}" ]; then export BUNDLE_HTTP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_2}"; else export BUNDLE_HTTP_PROXY; fi else builtin unset BUNDLE_HTTP_PROXY 2>/dev/null || command unset BUNDLE_HTTP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_2 __CODEX_SNAPSHOT_PROXY_OVERRIDE_2 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_2 __CODEX_SNAPSHOT_PROXY_OVERRIDE_2 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_3}" ]; then   if [ -z "${BUNDLE_NO_PROXY+x}" ] || [ "${BUNDLE_NO_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_3}" ]; then export BUNDLE_NO_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_3}"; else export BUNDLE_NO_PROXY; fi else builtin unset BUNDLE_NO_PROXY 2>/dev/null || command unset BUNDLE_NO_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_3 __CODEX_SNAPSHOT_PROXY_OVERRIDE_3 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_3 __CODEX_SNAPSHOT_PROXY_OVERRIDE_3 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_4}" ]; then   if [ -z "${BUNDLE_SSL_CA_CERT+x}" ] || [ "${BUNDLE_SSL_CA_CERT-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_4}" ]; then export BUNDLE_SSL_CA_CERT="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_4}"; else export BUNDLE_SSL_CA_CERT; fi else builtin unset BUNDLE_SSL_CA_CERT 2>/dev/null || command unset BUNDLE_SSL_CA_CERT; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_4 __CODEX_SNAPSHOT_PROXY_OVERRIDE_4 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_4 __CODEX_SNAPSHOT_PROXY_OVERRIDE_4 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_5}" ]; then   if [ -z "${CARGO_HTTP_CAINFO+x}" ] || [ "${CARGO_HTTP_CAINFO-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_5}" ]; then export CARGO_HTTP_CAINFO="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_5}"; else export CARGO_HTTP_CAINFO; fi else builtin unset CARGO_HTTP_CAINFO 2>/dev/null || command unset CARGO_HTTP_CAINFO; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_5 __CODEX_SNAPSHOT_PROXY_OVERRIDE_5 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_5 __CODEX_SNAPSHOT_PROXY_OVERRIDE_5 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_6}" ]; then   if [ -z "${CODEX_CA_CERTIFICATE+x}" ] || [ "${CODEX_CA_CERTIFICATE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_6}" ]; then export CODEX_CA_CERTIFICATE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_6}"; else export CODEX_CA_CERTIFICATE; fi else builtin unset CODEX_CA_CERTIFICATE 2>/dev/null || command unset CODEX_CA_CERTIFICATE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_6 __CODEX_SNAPSHOT_PROXY_OVERRIDE_6 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_6 __CODEX_SNAPSHOT_PROXY_OVERRIDE_6 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_7}" ]; then   if [ -z "${CODEX_NETWORK_ALLOW_LOCAL_BINDING+x}" ] || [ "${CODEX_NETWORK_ALLOW_LOCAL_BINDING-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_7}" ]; then export CODEX_NETWORK_ALLOW_LOCAL_BINDING="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_7}"; else export CODEX_NETWORK_ALLOW_LOCAL_BINDING; fi else builtin unset CODEX_NETWORK_ALLOW_LOCAL_BINDING 2>/dev/null || command unset CODEX_NETWORK_ALLOW_LOCAL_BINDING; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_7 __CODEX_SNAPSHOT_PROXY_OVERRIDE_7 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_7 __CODEX_SNAPSHOT_PROXY_OVERRIDE_7 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_8}" ]; then   if [ -z "${CODEX_NETWORK_PROXY_ACTIVE+x}" ] || [ "${CODEX_NETWORK_PROXY_ACTIVE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_8}" ]; then export CODEX_NETWORK_PROXY_ACTIVE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_8}"; else export CODEX_NETWORK_PROXY_ACTIVE; fi else builtin unset CODEX_NETWORK_PROXY_ACTIVE 2>/dev/null || command unset CODEX_NETWORK_PROXY_ACTIVE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_8 __CODEX_SNAPSHOT_PROXY_OVERRIDE_8 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_8 __CODEX_SNAPSHOT_PROXY_OVERRIDE_8 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_9}" ]; then   if [ -z "${CODEX_NETWORK_PROXY_ATTRIBUTION+x}" ] || [ "${CODEX_NETWORK_PROXY_ATTRIBUTION-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_9}" ]; then export CODEX_NETWORK_PROXY_ATTRIBUTION="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_9}"; else export CODEX_NETWORK_PROXY_ATTRIBUTION; fi else builtin unset CODEX_NETWORK_PROXY_ATTRIBUTION 2>/dev/null || command unset CODEX_NETWORK_PROXY_ATTRIBUTION; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_9 __CODEX_SNAPSHOT_PROXY_OVERRIDE_9 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_9 __CODEX_SNAPSHOT_PROXY_OVERRIDE_9 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_10}" ]; then   if [ -z "${CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS+x}" ] || [ "${CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_10}" ]; then export CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_10}"; else export CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS; fi else builtin unset CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS 2>/dev/null || command unset CODEX_NETWORK_PROXY_BROKERED_CREDENTIALS; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_10 __CODEX_SNAPSHOT_PROXY_OVERRIDE_10 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_10 __CODEX_SNAPSHOT_PROXY_OVERRIDE_10 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_11}" ]; then   if [ -z "${CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE+x}" ] || [ "${CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_11}" ]; then export CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_11}"; else export CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE; fi else builtin unset CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE 2>/dev/null || command unset CODEX_NETWORK_PROXY_CREDENTIAL_BROKER_ACTIVE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_11 __CODEX_SNAPSHOT_PROXY_OVERRIDE_11 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_11 __CODEX_SNAPSHOT_PROXY_OVERRIDE_11 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_12}" ]; then   if [ -z "${CURL_CA_BUNDLE+x}" ] || [ "${CURL_CA_BUNDLE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_12}" ]; then export CURL_CA_BUNDLE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_12}"; else export CURL_CA_BUNDLE; fi else builtin unset CURL_CA_BUNDLE 2>/dev/null || command unset CURL_CA_BUNDLE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_12 __CODEX_SNAPSHOT_PROXY_OVERRIDE_12 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_12 __CODEX_SNAPSHOT_PROXY_OVERRIDE_12 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_13}" ]; then   if [ -z "${DOCKER_HTTPS_PROXY+x}" ] || [ "${DOCKER_HTTPS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_13}" ]; then export DOCKER_HTTPS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_13}"; else export DOCKER_HTTPS_PROXY; fi else builtin unset DOCKER_HTTPS_PROXY 2>/dev/null || command unset DOCKER_HTTPS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_13 __CODEX_SNAPSHOT_PROXY_OVERRIDE_13 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_13 __CODEX_SNAPSHOT_PROXY_OVERRIDE_13 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_14}" ]; then   if [ -z "${DOCKER_HTTP_PROXY+x}" ] || [ "${DOCKER_HTTP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_14}" ]; then export DOCKER_HTTP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_14}"; else export DOCKER_HTTP_PROXY; fi else builtin unset DOCKER_HTTP_PROXY 2>/dev/null || command unset DOCKER_HTTP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_14 __CODEX_SNAPSHOT_PROXY_OVERRIDE_14 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_14 __CODEX_SNAPSHOT_PROXY_OVERRIDE_14 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_15}" ]; then   if [ -z "${ELECTRON_GET_USE_PROXY+x}" ] || [ "${ELECTRON_GET_USE_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_15}" ]; then export ELECTRON_GET_USE_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_15}"; else export ELECTRON_GET_USE_PROXY; fi else builtin unset ELECTRON_GET_USE_PROXY 2>/dev/null || command unset ELECTRON_GET_USE_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_15 __CODEX_SNAPSHOT_PROXY_OVERRIDE_15 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_15 __CODEX_SNAPSHOT_PROXY_OVERRIDE_15 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_16}" ]; then   if [ -z "${FTP_PROXY+x}" ] || [ "${FTP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_16}" ]; then export FTP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_16}"; else export FTP_PROXY; fi else builtin unset FTP_PROXY 2>/dev/null || command unset FTP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_16 __CODEX_SNAPSHOT_PROXY_OVERRIDE_16 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_16 __CODEX_SNAPSHOT_PROXY_OVERRIDE_16 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_17}" ]; then   if [ -z "${GIT_SSL_CAINFO+x}" ] || [ "${GIT_SSL_CAINFO-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_17}" ]; then export GIT_SSL_CAINFO="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_17}"; else export GIT_SSL_CAINFO; fi else builtin unset GIT_SSL_CAINFO 2>/dev/null || command unset GIT_SSL_CAINFO; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_17 __CODEX_SNAPSHOT_PROXY_OVERRIDE_17 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_17 __CODEX_SNAPSHOT_PROXY_OVERRIDE_17 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_18}" ]; then   if [ -z "${HTTPS_PROXY+x}" ] || [ "${HTTPS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_18}" ]; then export HTTPS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_18}"; else export HTTPS_PROXY; fi else builtin unset HTTPS_PROXY 2>/dev/null || command unset HTTPS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_18 __CODEX_SNAPSHOT_PROXY_OVERRIDE_18 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_18 __CODEX_SNAPSHOT_PROXY_OVERRIDE_18 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_19}" ]; then   if [ -z "${HTTP_PROXY+x}" ] || [ "${HTTP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_19}" ]; then export HTTP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_19}"; else export HTTP_PROXY; fi else builtin unset HTTP_PROXY 2>/dev/null || command unset HTTP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_19 __CODEX_SNAPSHOT_PROXY_OVERRIDE_19 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_19 __CODEX_SNAPSHOT_PROXY_OVERRIDE_19 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_20}" ]; then   if [ -z "${NODE_EXTRA_CA_CERTS+x}" ] || [ "${NODE_EXTRA_CA_CERTS-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_20}" ]; then export NODE_EXTRA_CA_CERTS="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_20}"; else export NODE_EXTRA_CA_CERTS; fi else builtin unset NODE_EXTRA_CA_CERTS 2>/dev/null || command unset NODE_EXTRA_CA_CERTS; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_20 __CODEX_SNAPSHOT_PROXY_OVERRIDE_20 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_20 __CODEX_SNAPSHOT_PROXY_OVERRIDE_20 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_21}" ]; then   if [ -z "${NODE_USE_ENV_PROXY+x}" ] || [ "${NODE_USE_ENV_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_21}" ]; then export NODE_USE_ENV_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_21}"; else export NODE_USE_ENV_PROXY; fi else builtin unset NODE_USE_ENV_PROXY 2>/dev/null || command unset NODE_USE_ENV_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_21 __CODEX_SNAPSHOT_PROXY_OVERRIDE_21 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_21 __CODEX_SNAPSHOT_PROXY_OVERRIDE_21 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_22}" ]; then   if [ -z "${NO_PROXY+x}" ] || [ "${NO_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_22}" ]; then export NO_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_22}"; else export NO_PROXY; fi else builtin unset NO_PROXY 2>/dev/null || command unset NO_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_22 __CODEX_SNAPSHOT_PROXY_OVERRIDE_22 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_22 __CODEX_SNAPSHOT_PROXY_OVERRIDE_22 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_23}" ]; then   if [ -z "${NPM_CONFIG_CAFILE+x}" ] || [ "${NPM_CONFIG_CAFILE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_23}" ]; then export NPM_CONFIG_CAFILE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_23}"; else export NPM_CONFIG_CAFILE; fi else builtin unset NPM_CONFIG_CAFILE 2>/dev/null || command unset NPM_CONFIG_CAFILE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_23 __CODEX_SNAPSHOT_PROXY_OVERRIDE_23 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_23 __CODEX_SNAPSHOT_PROXY_OVERRIDE_23 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_24}" ]; then   if [ -z "${NPM_CONFIG_HTTPS_PROXY+x}" ] || [ "${NPM_CONFIG_HTTPS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_24}" ]; then export NPM_CONFIG_HTTPS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_24}"; else export NPM_CONFIG_HTTPS_PROXY; fi else builtin unset NPM_CONFIG_HTTPS_PROXY 2>/dev/null || command unset NPM_CONFIG_HTTPS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_24 __CODEX_SNAPSHOT_PROXY_OVERRIDE_24 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_24 __CODEX_SNAPSHOT_PROXY_OVERRIDE_24 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_25}" ]; then   if [ -z "${NPM_CONFIG_HTTP_PROXY+x}" ] || [ "${NPM_CONFIG_HTTP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_25}" ]; then export NPM_CONFIG_HTTP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_25}"; else export NPM_CONFIG_HTTP_PROXY; fi else builtin unset NPM_CONFIG_HTTP_PROXY 2>/dev/null || command unset NPM_CONFIG_HTTP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_25 __CODEX_SNAPSHOT_PROXY_OVERRIDE_25 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_25 __CODEX_SNAPSHOT_PROXY_OVERRIDE_25 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_26}" ]; then   if [ -z "${NPM_CONFIG_NOPROXY+x}" ] || [ "${NPM_CONFIG_NOPROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_26}" ]; then export NPM_CONFIG_NOPROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_26}"; else export NPM_CONFIG_NOPROXY; fi else builtin unset NPM_CONFIG_NOPROXY 2>/dev/null || command unset NPM_CONFIG_NOPROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_26 __CODEX_SNAPSHOT_PROXY_OVERRIDE_26 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_26 __CODEX_SNAPSHOT_PROXY_OVERRIDE_26 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_27}" ]; then   if [ -z "${NPM_CONFIG_PROXY+x}" ] || [ "${NPM_CONFIG_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_27}" ]; then export NPM_CONFIG_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_27}"; else export NPM_CONFIG_PROXY; fi else builtin unset NPM_CONFIG_PROXY 2>/dev/null || command unset NPM_CONFIG_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_27 __CODEX_SNAPSHOT_PROXY_OVERRIDE_27 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_27 __CODEX_SNAPSHOT_PROXY_OVERRIDE_27 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_28}" ]; then   if [ -z "${PIP_CERT+x}" ] || [ "${PIP_CERT-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_28}" ]; then export PIP_CERT="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_28}"; else export PIP_CERT; fi else builtin unset PIP_CERT 2>/dev/null || command unset PIP_CERT; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_28 __CODEX_SNAPSHOT_PROXY_OVERRIDE_28 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_28 __CODEX_SNAPSHOT_PROXY_OVERRIDE_28 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_29}" ]; then   if [ -z "${PIP_PROXY+x}" ] || [ "${PIP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_29}" ]; then export PIP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_29}"; else export PIP_PROXY; fi else builtin unset PIP_PROXY 2>/dev/null || command unset PIP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_29 __CODEX_SNAPSHOT_PROXY_OVERRIDE_29 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_29 __CODEX_SNAPSHOT_PROXY_OVERRIDE_29 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_30}" ]; then   if [ -z "${REQUESTS_CA_BUNDLE+x}" ] || [ "${REQUESTS_CA_BUNDLE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_30}" ]; then export REQUESTS_CA_BUNDLE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_30}"; else export REQUESTS_CA_BUNDLE; fi else builtin unset REQUESTS_CA_BUNDLE 2>/dev/null || command unset REQUESTS_CA_BUNDLE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_30 __CODEX_SNAPSHOT_PROXY_OVERRIDE_30 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_30 __CODEX_SNAPSHOT_PROXY_OVERRIDE_30 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_31}" ]; then   if [ -z "${SSL_CERT_FILE+x}" ] || [ "${SSL_CERT_FILE-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_31}" ]; then export SSL_CERT_FILE="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_31}"; else export SSL_CERT_FILE; fi else builtin unset SSL_CERT_FILE 2>/dev/null || command unset SSL_CERT_FILE; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_31 __CODEX_SNAPSHOT_PROXY_OVERRIDE_31 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_31 __CODEX_SNAPSHOT_PROXY_OVERRIDE_31 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_32}" ]; then   if [ -z "${WSS_PROXY+x}" ] || [ "${WSS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_32}" ]; then export WSS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_32}"; else export WSS_PROXY; fi else builtin unset WSS_PROXY 2>/dev/null || command unset WSS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_32 __CODEX_SNAPSHOT_PROXY_OVERRIDE_32 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_32 __CODEX_SNAPSHOT_PROXY_OVERRIDE_32 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_33}" ]; then   if [ -z "${WS_PROXY+x}" ] || [ "${WS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_33}" ]; then export WS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_33}"; else export WS_PROXY; fi else builtin unset WS_PROXY 2>/dev/null || command unset WS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_33 __CODEX_SNAPSHOT_PROXY_OVERRIDE_33 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_33 __CODEX_SNAPSHOT_PROXY_OVERRIDE_33 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_34}" ]; then   if [ -z "${YARN_HTTPS_PROXY+x}" ] || [ "${YARN_HTTPS_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_34}" ]; then export YARN_HTTPS_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_34}"; else export YARN_HTTPS_PROXY; fi else builtin unset YARN_HTTPS_PROXY 2>/dev/null || command unset YARN_HTTPS_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_34 __CODEX_SNAPSHOT_PROXY_OVERRIDE_34 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_34 __CODEX_SNAPSHOT_PROXY_OVERRIDE_34 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_35}" ]; then   if [ -z "${YARN_HTTP_PROXY+x}" ] || [ "${YARN_HTTP_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_35}" ]; then export YARN_HTTP_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_35}"; else export YARN_HTTP_PROXY; fi else builtin unset YARN_HTTP_PROXY 2>/dev/null || command unset YARN_HTTP_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_35 __CODEX_SNAPSHOT_PROXY_OVERRIDE_35 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_35 __CODEX_SNAPSHOT_PROXY_OVERRIDE_35 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_36}" ]; then   if [ -z "${YARN_NO_PROXY+x}" ] || [ "${YARN_NO_PROXY-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_36}" ]; then export YARN_NO_PROXY="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_36}"; else export YARN_NO_PROXY; fi else builtin unset YARN_NO_PROXY 2>/dev/null || command unset YARN_NO_PROXY; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_36 __CODEX_SNAPSHOT_PROXY_OVERRIDE_36 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_36 __CODEX_SNAPSHOT_PROXY_OVERRIDE_36 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_37}" ]; then   if [ -z "${all_proxy+x}" ] || [ "${all_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_37}" ]; then export all_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_37}"; else export all_proxy; fi else builtin unset all_proxy 2>/dev/null || command unset all_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_37 __CODEX_SNAPSHOT_PROXY_OVERRIDE_37 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_37 __CODEX_SNAPSHOT_PROXY_OVERRIDE_37 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_38}" ]; then   if [ -z "${ftp_proxy+x}" ] || [ "${ftp_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_38}" ]; then export ftp_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_38}"; else export ftp_proxy; fi else builtin unset ftp_proxy 2>/dev/null || command unset ftp_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_38 __CODEX_SNAPSHOT_PROXY_OVERRIDE_38 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_38 __CODEX_SNAPSHOT_PROXY_OVERRIDE_38 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_39}" ]; then   if [ -z "${http_proxy+x}" ] || [ "${http_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_39}" ]; then export http_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_39}"; else export http_proxy; fi else builtin unset http_proxy 2>/dev/null || command unset http_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_39 __CODEX_SNAPSHOT_PROXY_OVERRIDE_39 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_39 __CODEX_SNAPSHOT_PROXY_OVERRIDE_39 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_40}" ]; then   if [ -z "${https_proxy+x}" ] || [ "${https_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_40}" ]; then export https_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_40}"; else export https_proxy; fi else builtin unset https_proxy 2>/dev/null || command unset https_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_40 __CODEX_SNAPSHOT_PROXY_OVERRIDE_40 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_40 __CODEX_SNAPSHOT_PROXY_OVERRIDE_40 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_41}" ]; then   if [ -z "${no_proxy+x}" ] || [ "${no_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_41}" ]; then export no_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_41}"; else export no_proxy; fi else builtin unset no_proxy 2>/dev/null || command unset no_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_41 __CODEX_SNAPSHOT_PROXY_OVERRIDE_41 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_41 __CODEX_SNAPSHOT_PROXY_OVERRIDE_41 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_42}" ]; then   if [ -z "${npm_config_cafile+x}" ] || [ "${npm_config_cafile-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_42}" ]; then export npm_config_cafile="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_42}"; else export npm_config_cafile; fi else builtin unset npm_config_cafile 2>/dev/null || command unset npm_config_cafile; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_42 __CODEX_SNAPSHOT_PROXY_OVERRIDE_42 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_42 __CODEX_SNAPSHOT_PROXY_OVERRIDE_42 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_43}" ]; then   if [ -z "${npm_config_http_proxy+x}" ] || [ "${npm_config_http_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_43}" ]; then export npm_config_http_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_43}"; else export npm_config_http_proxy; fi else builtin unset npm_config_http_proxy 2>/dev/null || command unset npm_config_http_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_43 __CODEX_SNAPSHOT_PROXY_OVERRIDE_43 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_43 __CODEX_SNAPSHOT_PROXY_OVERRIDE_43 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_44}" ]; then   if [ -z "${npm_config_https_proxy+x}" ] || [ "${npm_config_https_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_44}" ]; then export npm_config_https_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_44}"; else export npm_config_https_proxy; fi else builtin unset npm_config_https_proxy 2>/dev/null || command unset npm_config_https_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_44 __CODEX_SNAPSHOT_PROXY_OVERRIDE_44 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_44 __CODEX_SNAPSHOT_PROXY_OVERRIDE_44 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_45}" ]; then   if [ -z "${npm_config_noproxy+x}" ] || [ "${npm_config_noproxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_45}" ]; then export npm_config_noproxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_45}"; else export npm_config_noproxy; fi else builtin unset npm_config_noproxy 2>/dev/null || command unset npm_config_noproxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_45 __CODEX_SNAPSHOT_PROXY_OVERRIDE_45 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_45 __CODEX_SNAPSHOT_PROXY_OVERRIDE_45 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_46}" ]; then   if [ -z "${npm_config_proxy+x}" ] || [ "${npm_config_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_46}" ]; then export npm_config_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_46}"; else export npm_config_proxy; fi else builtin unset npm_config_proxy 2>/dev/null || command unset npm_config_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_46 __CODEX_SNAPSHOT_PROXY_OVERRIDE_46 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_46 __CODEX_SNAPSHOT_PROXY_OVERRIDE_46 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_47}" ]; then   if [ -z "${ws_proxy+x}" ] || [ "${ws_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_47}" ]; then export ws_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_47}"; else export ws_proxy; fi else builtin unset ws_proxy 2>/dev/null || command unset ws_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_47 __CODEX_SNAPSHOT_PROXY_OVERRIDE_47 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_47 __CODEX_SNAPSHOT_PROXY_OVERRIDE_47 if [ -n "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_48}" ]; then   if [ -z "${wss_proxy+x}" ] || [ "${wss_proxy-}" != "${__CODEX_SNAPSHOT_PROXY_OVERRIDE_48}" ]; then export wss_proxy="${__CODEX_SNAPSHOT_PROXY_OVERRIDE_48}"; else export wss_proxy; fi else builtin unset wss_proxy 2>/dev/null || command unset wss_proxy; fi builtin unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_48 __CODEX_SNAPSHOT_PROXY_OVERRIDE_48 2>/dev/null || command unset __CODEX_SNAPSHOT_PROXY_OVERRIDE_SET_48 __CODEX_SNAPSHOT_PROXY_OVERRIDE_48 fi if [ -n "${PATH:-}" ]; then export PATH='/home/sanya/.codex/packages/app-server-daemon/releases/0.162.1-x86_64-unknown-linux-musl/codex-path':"$PATH"; else export PATH='/home/sanya/.codex/packages/app-server-daemon/releases/0.162.1-x86_64-unknown-linux-musl/codex-path'; fi  exec '/usr/bin/bash' -c 'command -v secret-tool || true; printenv DBUS_SESSION_BUS_ADDRESS; pgrep -a -f '"'"'gnome-keyring-daemon|keepassxc|kwallet|secret'"'"' || true; sed -n '"'"'1,220p'"'"' waves/RW-33/mutations-w33a.log; sed -n '"'"'1,120p'"'"' waves/RW-33/workers/W33a/red.log; sed -n '"'"'1,120p'"'"' waves/RW-33/workers/W33a/green.log; md5sum rust/crates/discord-platform/src/keyring.rs rust/crates/discord-platform/src/ffi_secret.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/tests/keyring_contract.rs; rg -n "unsafe|unwrap\(|expect\(|panic!|dbg!|println!|eprintln!" rust/crates/discord-platform/src --glob '"'"'*.rs'"'"''
+2 /usr/bin/bash -c command -v secret-tool || true; printenv DBUS_SESSION_BUS_ADDRESS; pgrep -a -f 'gnome-keyring-daemon|keepassxc|kwallet|secret' || true; sed -n '1,220p' waves/RW-33/mutations-w33a.log; sed -n '1,120p' waves/RW-33/workers/W33a/red.log; sed -n '1,120p' waves/RW-33/workers/W33a/green.log; md5sum rust/crates/discord-platform/src/keyring.rs rust/crates/discord-platform/src/ffi_secret.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/tests/keyring_contract.rs; rg -n "unsafe|unwrap\(|expect\(|panic!|dbg!|println!|eprintln!" rust/crates/discord-platform/src --glob '*.rs'
+# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)
+
+targeted: cargo test --offline -p discord-platform --test keyring_contract -- --nocapture
+live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)
+CARGO_TARGET_DIR=/tmp/opencode/target-w33a
+
+md5 rust/crates/discord-platform/src/keyring.rs: 31793d97a750fd22facd13492db7397e
+md5 rust/crates/discord-platform/src/ffi_secret.rs: 282c0caa2b55d80cecc63216cf85dfb9
+md5 rust/crates/discord-platform/src/lib.rs: 59c95a2d17060856365d7c5b47072660
+md5 rust/crates/discord-platform/tests/keyring_contract.rs: 5155be7dccfc676be912c1b026ab82c8
+
+baseline: exit=0, SKIP=0, test result=ok
+очистка синтетических записей: код 1
+
+## 01 schema_attribute_renamed (keyring.rs)
+ждём: k07/k08: CLI secret-tool ищет записи по атрибуту `key`, а мы пишем `ke`
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k07_secret_tool_reads_our_store, k08_our_lookup_reads_secret_tool_store
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: код 1
+
+## 02 store_not_persisted (keyring.rs)
+ждём: k02/k05/k07: store сообщает успех, но запись не создаётся
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k02_store_then_lookup_roundtrip_without_leak, k04_clear_existing_then_lookup_none, k05_overwrite_replaces_value, k06_unicode_secret_roundtrip, k07_secret_tool_reads_our_store, k11_repeated_clear_returns_false
+  test result: FAILED. 6 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: код 1
+
+## 03 clear_always_true (keyring.rs)
+ждём: k11: повторный clear отсутствующей записи возвращает true
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k04_clear_existing_then_lookup_none, k11_repeated_clear_returns_false
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok
+
+## 04 lookup_null_is_error (ffi_secret.rs)
+ждём: k03: отсутствие записи становится ошибкой, а не Ok(None)
+md5 до: 282c0caa2b55d80cecc63216cf85dfb9
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k03_lookup_missing_returns_none, k04_clear_existing_then_lookup_none, k11_repeated_clear_returns_false
+  test result: FAILED. 9 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+md5 после restore: 282c0caa2b55d80cecc63216cf85dfb9 — OK
+очистка синтетических записей: код 1
+
+## 05 secret_copy_not_freed (ffi_secret.rs)
+ждём: k02: 2000 lookup с 4 КиБ секретом дают рост RSS > 4 МиБ (утечка g_strndup-копии)
+md5 до: 282c0caa2b55d80cecc63216cf85dfb9
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k02_store_then_lookup_roundtrip_without_leak
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+md5 после restore: 282c0caa2b55d80cecc63216cf85dfb9 — OK
+очистка синтетических записей: код 1
+
+## 06 debug_prints_pointer (keyring.rs)
+ждём: k12: ручная редакция Debug заменена печатью адреса внутреннего объекта
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k01_connect_to_default_collection, k12_debug_does_not_print_secret_or_pointers
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: код 1
+
+## 07 empty_key_allowed (keyring.rs)
+ждём: k09: пустой ключ больше не отвергается (InvalidKey)
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k09_empty_key_is_invalid
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok
+
+## Итог
+мутаций: 7
+вердикт: OK — все мутации убиты, файлы восстановлены
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0432]: unresolved import `discord_platform::keyring`
+  --> crates/discord-platform/tests/keyring_contract.rs:24:23
+   |
+24 | use discord_platform::keyring::{Keyring, KeyringError};
+   |                       ^^^^^^^ could not find `keyring` in `discord_platform`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-platform` (test "keyring_contract") due to 1 previous error
+# EXIT=101
+# green 1/2: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool), 2026-10-22T23:42:11+05:00
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/keyring_contract.rs (/tmp/opencode/target-w33a/debug/deps/keyring_contract-21c22226c2c3030e)
+
+running 12 tests
+test k01_connect_to_default_collection ... ok
+test k02_store_then_lookup_roundtrip_without_leak ... ok
+test k05_overwrite_replaces_value ... ok
+test k03_lookup_missing_returns_none ... ok
+test k04_clear_existing_then_lookup_none ... ok
+test k06_unicode_secret_roundtrip ... ok
+test k08_our_lookup_reads_secret_tool_store ... ok
+test k07_secret_tool_reads_our_store ... ok
+test k09_empty_key_is_invalid ... ok
+test k10_nul_in_key_or_secret_is_error_without_panic ... ok
+test k11_repeated_clear_returns_false ... ok
+test k12_debug_does_not_print_secret_or_pointers ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+
+# EXIT=0
+
+# green 2/2: без DISCORD_LAB_KEYRING_LIVE (live-кейсы skip), 2026-10-22T23:42:12+05:00
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/keyring_contract.rs (/tmp/opencode/target-w33a/debug/deps/keyring_contract-21c22226c2c3030e)
+
+running 12 tests
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+SKIP: DISCORD_LAB_KEYRING_LIVE != 1 (live-кейс не запускается)
+test k03_lookup_missing_returns_none ... ok
+test k01_connect_to_default_collection ... ok
+test k05_overwrite_replaces_value ... ok
+test k02_store_then_lookup_roundtrip_without_leak ... ok
+test k04_clear_existing_then_lookup_none ... ok
+test k07_secret_tool_reads_our_store ... ok
+test k06_unicode_secret_roundtrip ... ok
+test k08_our_lookup_reads_secret_tool_store ... ok
+test k09_empty_key_is_invalid ... ok
+test k10_nul_in_key_or_secret_is_error_without_panic ... ok
+test k11_repeated_clear_returns_false ... ok
+test k12_debug_does_not_print_secret_or_pointers ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+# EXIT=0
+31793d97a750fd22facd13492db7397e  rust/crates/discord-platform/src/keyring.rs
+282c0caa2b55d80cecc63216cf85dfb9  rust/crates/discord-platform/src/ffi_secret.rs
+59c95a2d17060856365d7c5b47072660  rust/crates/discord-platform/src/lib.rs
+5155be7dccfc676be912c1b026ab82c8  rust/crates/discord-platform/tests/keyring_contract.rs
+rust/crates/discord-platform/src/keyring.rs:3://! Безопасный API поверх [`crate::ffi_secret`] (единственное место с `unsafe`):
+rust/crates/discord-platform/src/ffi_secret.rs:1://! Тонкая обёртка над системным `libsecret 0.21` — единственное место крейта, где есть `unsafe`.
+rust/crates/discord-platform/src/ffi_secret.rs:16://! - Каждый `unsafe`-блок снабжён `// SAFETY:`; наружу торчит безопасный API.
+rust/crates/discord-platform/src/ffi_secret.rs:66:type GHashFunc = Option<unsafe extern "C" fn(*const c_void) -> c_uint>;
+rust/crates/discord-platform/src/ffi_secret.rs:67:type GEqualFunc = Option<unsafe extern "C" fn(*const c_void, *const c_void) -> c_int>;
+rust/crates/discord-platform/src/ffi_secret.rs:68:type GDestroyNotify = Option<unsafe extern "C" fn(*mut c_void)>;
+rust/crates/discord-platform/src/ffi_secret.rs:73:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:92:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:100:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:108:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_secret.rs:182:    let (code, message) = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:194:    unsafe { g_error_free(error) };
+rust/crates/discord-platform/src/ffi_secret.rs:203:    NonNull::new(unsafe { g_strdup(c_text.as_ptr()) })
+rust/crates/discord-platform/src/ffi_secret.rs:216:        let raw = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:244:        unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:258:        unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:277:        unsafe { g_hash_table_unref(self.raw.as_ptr()) };
+rust/crates/discord-platform/src/ffi_secret.rs:293:            unsafe { secret_service_get_sync(SECRET_SERVICE_NONE, ptr::null_mut(), &mut error) };
+rust/crates/discord-platform/src/ffi_secret.rs:323:        let value = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:337:        let stored = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:351:        unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:373:        let value = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:391:        let data = unsafe { secret_value_get(value.as_ptr(), &mut length) };
+rust/crates/discord-platform/src/ffi_secret.rs:394:            unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:399:        let copy = unsafe { g_strndup(data, length) };
+rust/crates/discord-platform/src/ffi_secret.rs:402:            unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:407:        let bytes = unsafe { slice::from_raw_parts(copy.as_ptr().cast::<u8>(), length) }.to_vec();
+rust/crates/discord-platform/src/ffi_secret.rs:409:        unsafe { g_free(copy.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:411:        unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:427:        let cleared = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:447:        unsafe { g_object_unref(self.raw.as_ptr().cast::<c_void>()) };
+rust/crates/discord-platform/src/ffi_secret.rs:467:        let raw = unsafe {
+rust/crates/discord-platform/src/ffi_secret.rs:487:        unsafe { secret_schema_unref(self.raw.as_ptr()) };
+rust/crates/discord-platform/src/spellcheck.rs:3://! Безопасный API поверх `ffi_hunspell` (единственное место с `unsafe`):
+rust/crates/discord-platform/src/power.rs:19://! экран. Только `std` + [`crate::dbus`], без `unsafe` и новых зависимостей.
+rust/crates/discord-platform/src/ffi_hunspell.rs:1://! Тонкая обёртка над системным `libhunspell` — единственное место крейта, где есть `unsafe`.
+rust/crates/discord-platform/src/ffi_hunspell.rs:16://! - Каждый `unsafe`-блок снабжён `// SAFETY:`; наружу торчит безопасный API.
+rust/crates/discord-platform/src/ffi_hunspell.rs:32:unsafe extern "C" {
+rust/crates/discord-platform/src/ffi_hunspell.rs:87:        let raw = unsafe { hunspell_create(c_aff.as_ptr(), c_dic.as_ptr()) };
+rust/crates/discord-platform/src/ffi_hunspell.rs:101:        unsafe { hunspell_spell(self.raw.as_ptr(), c_word.as_ptr()) != 0 }
+rust/crates/discord-platform/src/ffi_hunspell.rs:115:        let count = unsafe { hunspell_suggest(self.raw.as_ptr(), &mut list, c_word.as_ptr()) };
+rust/crates/discord-platform/src/ffi_hunspell.rs:123:        let entries = unsafe { slice::from_raw_parts(list, count_usize) };
+rust/crates/discord-platform/src/ffi_hunspell.rs:130:            let text = unsafe { CStr::from_ptr(*entry) }
+rust/crates/discord-platform/src/ffi_hunspell.rs:137:        unsafe { hunspell_free_list(self.raw.as_ptr(), &mut list, count) };
+rust/crates/discord-platform/src/ffi_hunspell.rs:148:        unsafe { hunspell_add(self.raw.as_ptr(), c_word.as_ptr()) == 0 }
+rust/crates/discord-platform/src/ffi_hunspell.rs:158:        unsafe { hunspell_remove(self.raw.as_ptr(), c_word.as_ptr()) == 0 }
+rust/crates/discord-platform/src/ffi_hunspell.rs:166:        unsafe { hunspell_destroy(self.raw.as_ptr()) };
+rust/crates/discord-platform/src/lib.rs:17:#[allow(unsafe_code)]
+rust/crates/discord-platform/src/lib.rs:19:#[allow(unsafe_code)]
+rust/crates/discord-platform/src/dbus/mod.rs:1://! P6-02: минимальный D-Bus-клиент на `std` (без `zbus`/`notify-rust`, без `unsafe`).
+rust/crates/discord-platform/src/dbus/auth.rs:3://! UID берётся без `unsafe` и без внешних крейтов — из `/proc/self/status` (`Uid:`).
+
+codex
+Запуск подтвердил ограничение среды: `secret-tool` установлен, но D-Bus вызов из sandbox возвращает `Operation not permitted`, поэтому live-флаг не даёт реального прогона. Без флага также получаются 12 passed, но live кейсы помечены `SKIP`, а оставшиеся 4 кейса тоже skip’аются при недоступном сервисе; продолжаю статическую проверку ABI, отчёта и очистки мутаций.
+exec
+/usr/bin/bash -lc "rg -n \"secret_service_(get|store|lookup|clear)_sync|secret_value_(new|get|unref)|secret_schema_(newv|unref)|DONT_MATCH_NAME|typedef struct _GError|g_strndup|g_free\" /usr/include/libsecret-1/libsecret /usr/include/glib-2.0/glib/gerror.h /usr/include/glib-2.0/glib/gstrfuncs.h; rg -n \"md5|secret|SKIP|baseline|cleanup|очист\" waves/RW-33/REPORT-W33a.md waves/RW-33/mutations-w33a.log waves/RW-33/run-mutations-w33a.py; nl -ba rust/crates/discord-platform/src/lib.rs | sed -n '1,35p'; nl -ba rust/crates/discord-platform/tests/keyring_contract.rs | sed -n '35,90p'; nl -ba waves/RW-33/run-mutations-w33a.py | sed -n '100,300p'; git status --short" in /home/sanya/orca/project
+ succeeded in 0ms:
+/usr/include/glib-2.0/glib/gstrfuncs.h:281: * ought to be freed with g_free from the caller at some point.
+/usr/include/glib-2.0/glib/gstrfuncs.h:292:gchar*	              g_strndup	       (const gchar *str,
+/usr/include/glib-2.0/glib/gstrfuncs.h:497:  g_free (*str_pointer);
+/usr/include/glib-2.0/glib/gstrfuncs.h:562:      g_free (new_str);
+/usr/include/glib-2.0/glib/gstrfuncs.h:566:  g_free (*str_pointer);
+/usr/include/glib-2.0/glib/gerror.h:43:typedef struct _GError GError;
+/usr/include/libsecret-1/libsecret/secret-value.h:30:#define             SECRET_TYPE_VALUE              (secret_value_get_type ())
+/usr/include/libsecret-1/libsecret/secret-value.h:32:GType               secret_value_get_type          (void);
+/usr/include/libsecret-1/libsecret/secret-value.h:34:SecretValue *       secret_value_new               (const gchar *secret,
+/usr/include/libsecret-1/libsecret/secret-value.h:38:SecretValue *       secret_value_new_full          (gchar *secret,
+/usr/include/libsecret-1/libsecret/secret-value.h:43:const gchar *       secret_value_get               (SecretValue *value,
+/usr/include/libsecret-1/libsecret/secret-value.h:46:const gchar *       secret_value_get_text          (SecretValue *value);
+/usr/include/libsecret-1/libsecret/secret-value.h:48:const gchar *       secret_value_get_content_type  (SecretValue *value);
+/usr/include/libsecret-1/libsecret/secret-value.h:52:void                secret_value_unref             (gpointer value);
+/usr/include/libsecret-1/libsecret/secret-value.h:54:gchar *             secret_value_unref_to_password (SecretValue *value,
+/usr/include/libsecret-1/libsecret/secret-value.h:57:G_DEFINE_AUTOPTR_CLEANUP_FUNC (SecretValue, secret_value_unref)
+/usr/include/libsecret-1/libsecret/secret-schema.h:40:	SECRET_SCHEMA_DONT_MATCH_NAME = 1 << 1
+/usr/include/libsecret-1/libsecret/secret-schema.h:65:SecretSchema *    secret_schema_newv               (const gchar *name,
+/usr/include/libsecret-1/libsecret/secret-schema.h:71:void              secret_schema_unref              (SecretSchema *schema);
+/usr/include/libsecret-1/libsecret/secret-service.h:102:SecretService *      secret_service_get_sync                      (SecretServiceFlags flags,
+/usr/include/libsecret-1/libsecret/secret-service.h:240:gboolean             secret_service_store_sync                    (SecretService *service,
+/usr/include/libsecret-1/libsecret/secret-service.h:260:SecretValue *        secret_service_lookup_sync                   (SecretService *service,
+/usr/include/libsecret-1/libsecret/secret-service.h:277:gboolean             secret_service_clear_sync                    (SecretService *service,
+waves/RW-33/run-mutations-w33a.py:2:"""Мутационная проверка контракта W33a (keyring через FFI к `libsecret 0.21`).
+waves/RW-33/run-mutations-w33a.py:5:(`src/keyring.rs` или `src/ffi_secret.rs`). Ожидание: targeted-тесты `keyring_contract`
+waves/RW-33/run-mutations-w33a.py:7:если live-кейсы ушли в `SKIP` (нет сервиса/флага), вердикт `INCONCLUSIVE`, а не `KILLED`.
+waves/RW-33/run-mutations-w33a.py:9:Прогоны идут с `DISCORD_LAB_KEYRING_LIVE=1` (реальный ksecretd + `secret-tool`), поэтому
+waves/RW-33/run-mutations-w33a.py:10:baseline обязан быть зелёным с нулём `SKIP:`. Исходники восстанавливаются из снимка,
+waves/RW-33/run-mutations-w33a.py:11:совпадение md5 до/после обязательно; чужие файлы не трогаются.
+waves/RW-33/run-mutations-w33a.py:17:ошибка восстановления, не найден фрагмент или baseline не зелёный.
+waves/RW-33/run-mutations-w33a.py:29:FFI = os.path.join(CRATE, "src", "ffi_secret.rs")
+waves/RW-33/run-mutations-w33a.py:45:        "k07/k08: CLI secret-tool ищет записи по атрибуту `key`, а мы пишем `ke`",
+waves/RW-33/run-mutations-w33a.py:52:            .store(&self.schema, ATTRIBUTE_KEY, key, LABEL, secret)
+waves/RW-33/run-mutations-w33a.py:83:        "secret_copy_not_freed",
+waves/RW-33/run-mutations-w33a.py:120:def md5(path):
+waves/RW-33/run-mutations-w33a.py:122:        return hashlib.md5(handle.read()).hexdigest()
+waves/RW-33/run-mutations-w33a.py:141:def cleanup_synthetic():
+waves/RW-33/run-mutations-w33a.py:145:    no-op, поэтому записи прогона удаляются независимым `secret-tool`.
+waves/RW-33/run-mutations-w33a.py:149:            ["secret-tool", "clear", "xdg:schema", "com.discordlab.Token"],
+waves/RW-33/run-mutations-w33a.py:170:        "# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)",
+waves/RW-33/run-mutations-w33a.py:173:        "live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)",
+waves/RW-33/run-mutations-w33a.py:179:    source_md5 = {}
+waves/RW-33/run-mutations-w33a.py:184:        source_md5[path] = md5(path)
+waves/RW-33/run-mutations-w33a.py:186:        lines.append("md5 %s: %s" % (os.path.relpath(path, REPO_ROOT), source_md5[path]))
+waves/RW-33/run-mutations-w33a.py:189:    baseline_code, baseline_output = run_tests()
+waves/RW-33/run-mutations-w33a.py:190:    baseline_skips = baseline_output.count("SKIP:")
+waves/RW-33/run-mutations-w33a.py:191:    baseline_result = RESULT_LINE.search(baseline_output)
+waves/RW-33/run-mutations-w33a.py:192:    baseline_ok = baseline_code == 0 and (
+waves/RW-33/run-mutations-w33a.py:193:        baseline_result is not None and baseline_result.group(1) == "ok"
+waves/RW-33/run-mutations-w33a.py:196:        "baseline: exit=%d, SKIP=%d, test result=%s"
+waves/RW-33/run-mutations-w33a.py:198:            baseline_code,
+waves/RW-33/run-mutations-w33a.py:199:            baseline_skips,
+waves/RW-33/run-mutations-w33a.py:200:            baseline_result.group(1) if baseline_result else "нет",
+waves/RW-33/run-mutations-w33a.py:203:    if not baseline_ok:
+waves/RW-33/run-mutations-w33a.py:205:        lines.append(baseline_output[-4000:])
+waves/RW-33/run-mutations-w33a.py:208:    if baseline_skips:
+waves/RW-33/run-mutations-w33a.py:210:            "ВНИМАНИЕ: baseline содержит SKIP (%d) — live-кейсы не проверены, мутации могут быть INCONCLUSIVE"
+waves/RW-33/run-mutations-w33a.py:211:            % baseline_skips
+waves/RW-33/run-mutations-w33a.py:213:    lines.append("очистка синтетических записей: %s" % cleanup_synthetic())
+waves/RW-33/run-mutations-w33a.py:217:        before_md5 = md5(path)
+waves/RW-33/run-mutations-w33a.py:233:        lines.append("md5 до: %s" % before_md5)
+waves/RW-33/run-mutations-w33a.py:240:            skips = output.count("SKIP:")
+waves/RW-33/run-mutations-w33a.py:245:                verdict = "KILLED (с SKIP=%d)" % skips
+waves/RW-33/run-mutations-w33a.py:247:                verdict = "INCONCLUSIVE (SKIP=%d)" % skips
+waves/RW-33/run-mutations-w33a.py:250:            lines.append("exit: %d, SKIP=%d — %s" % (code, skips, verdict))
+waves/RW-33/run-mutations-w33a.py:262:            after_md5 = md5(path)
+waves/RW-33/run-mutations-w33a.py:264:                "md5 после restore: %s — %s"
+waves/RW-33/run-mutations-w33a.py:265:                % (after_md5, "OK" if after_md5 == before_md5 else "РАСХОЖДЕНИЕ")
+waves/RW-33/run-mutations-w33a.py:267:            if after_md5 != before_md5:
+waves/RW-33/run-mutations-w33a.py:268:                failures.append("%s: md5 после восстановления не совпал" % mutation_id)
+waves/RW-33/run-mutations-w33a.py:269:            lines.append("очистка синтетических записей: %s" % cleanup_synthetic())
+waves/RW-33/run-mutations-w33a.py:272:    residual = [path for path, digest in source_md5.items() if md5(path) != digest]
+waves/RW-33/mutations-w33a.log:1:# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)
+waves/RW-33/mutations-w33a.log:4:live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)
+waves/RW-33/mutations-w33a.log:7:md5 rust/crates/discord-platform/src/keyring.rs: 31793d97a750fd22facd13492db7397e
+waves/RW-33/mutations-w33a.log:8:md5 rust/crates/discord-platform/src/ffi_secret.rs: 282c0caa2b55d80cecc63216cf85dfb9
+waves/RW-33/mutations-w33a.log:9:md5 rust/crates/discord-platform/src/lib.rs: 59c95a2d17060856365d7c5b47072660
+waves/RW-33/mutations-w33a.log:10:md5 rust/crates/discord-platform/tests/keyring_contract.rs: 5155be7dccfc676be912c1b026ab82c8
+waves/RW-33/mutations-w33a.log:12:baseline: exit=0, SKIP=0, test result=ok
+waves/RW-33/mutations-w33a.log:13:очистка синтетических записей: код 1
+waves/RW-33/mutations-w33a.log:16:ждём: k07/k08: CLI secret-tool ищет записи по атрибуту `key`, а мы пишем `ke`
+waves/RW-33/mutations-w33a.log:17:md5 до: 31793d97a750fd22facd13492db7397e
+waves/RW-33/mutations-w33a.log:18:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:19:упавшие тесты: k07_secret_tool_reads_our_store, k08_our_lookup_reads_secret_tool_store
+waves/RW-33/mutations-w33a.log:21:md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+waves/RW-33/mutations-w33a.log:22:очистка синтетических записей: код 1
+waves/RW-33/mutations-w33a.log:26:md5 до: 31793d97a750fd22facd13492db7397e
+waves/RW-33/mutations-w33a.log:27:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:28:упавшие тесты: k02_store_then_lookup_roundtrip_without_leak, k04_clear_existing_then_lookup_none, k05_overwrite_replaces_value, k06_unicode_secret_roundtrip, k07_secret_tool_reads_our_store, k11_repeated_clear_returns_false
+waves/RW-33/mutations-w33a.log:30:md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+waves/RW-33/mutations-w33a.log:31:очистка синтетических записей: код 1
+waves/RW-33/mutations-w33a.log:35:md5 до: 31793d97a750fd22facd13492db7397e
+waves/RW-33/mutations-w33a.log:36:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:39:md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+waves/RW-33/mutations-w33a.log:40:очистка синтетических записей: ok
+waves/RW-33/mutations-w33a.log:42:## 04 lookup_null_is_error (ffi_secret.rs)
+waves/RW-33/mutations-w33a.log:44:md5 до: 282c0caa2b55d80cecc63216cf85dfb9
+waves/RW-33/mutations-w33a.log:45:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:48:md5 после restore: 282c0caa2b55d80cecc63216cf85dfb9 — OK
+waves/RW-33/mutations-w33a.log:49:очистка синтетических записей: код 1
+waves/RW-33/mutations-w33a.log:51:## 05 secret_copy_not_freed (ffi_secret.rs)
+waves/RW-33/mutations-w33a.log:53:md5 до: 282c0caa2b55d80cecc63216cf85dfb9
+waves/RW-33/mutations-w33a.log:54:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:57:md5 после restore: 282c0caa2b55d80cecc63216cf85dfb9 — OK
+waves/RW-33/mutations-w33a.log:58:очистка синтетических записей: код 1
+waves/RW-33/mutations-w33a.log:62:md5 до: 31793d97a750fd22facd13492db7397e
+waves/RW-33/mutations-w33a.log:63:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:64:упавшие тесты: k01_connect_to_default_collection, k12_debug_does_not_print_secret_or_pointers
+waves/RW-33/mutations-w33a.log:66:md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+waves/RW-33/mutations-w33a.log:67:очистка синтетических записей: код 1
+waves/RW-33/mutations-w33a.log:71:md5 до: 31793d97a750fd22facd13492db7397e
+waves/RW-33/mutations-w33a.log:72:exit: 101, SKIP=0 — KILLED
+waves/RW-33/mutations-w33a.log:75:md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+waves/RW-33/mutations-w33a.log:76:очистка синтетических записей: ok
+waves/RW-33/REPORT-W33a.md:1:# REPORT W33a — P1-10 Keyring через FFI к libsecret (headless)
+waves/RW-33/REPORT-W33a.md:6:Окружение: `libsecret 0.21.8.2`, `org.freedesktop.secrets` = ksecretd (сессионная шина,
+waves/RW-33/REPORT-W33a.md:7:коллекция разблокирована), CLI-оракул `secret-tool`; `DISCORD_LAB_KEYRING_LIVE=1` для live.
+waves/RW-33/REPORT-W33a.md:9:## 1. Файлы и md5
+waves/RW-33/REPORT-W33a.md:11:| Файл | md5 |
+waves/RW-33/REPORT-W33a.md:14:| `rust/crates/discord-platform/src/ffi_secret.rs` | `282c0caa2b55d80cecc63216cf85dfb9` |
+waves/RW-33/REPORT-W33a.md:22:`lib.rs`: добавлены только `pub mod keyring;`, `#[allow(unsafe_code)] mod ffi_secret;`
+waves/RW-33/REPORT-W33a.md:24:`unsafe` — только в `ffi_secret.rs`; `unsafe_code = "deny"` действует, allow стоит на `mod`.
+waves/RW-33/REPORT-W33a.md:30:- Green 1/2 (`DISCORD_LAB_KEYRING_LIVE=1`, реальный ksecretd + `secret-tool`):
+waves/RW-33/REPORT-W33a.md:31:  **12 passed, 0 failed, SKIP=0**, **EXIT=0**.
+waves/RW-33/REPORT-W33a.md:33:  `SKIP: DISCORD_LAB_KEYRING_LIVE != 1`, k09–k12 выполняются.
+waves/RW-33/REPORT-W33a.md:50:| k07 | наш store → `secret-tool lookup key …` | live + CLI | ok |
+waves/RW-33/REPORT-W33a.md:51:| k08 | `secret-tool store` → наш lookup | live + CLI | ok |
+waves/RW-33/REPORT-W33a.md:61:`waves/RW-33/run-mutations-w33a.py`, targeted с `-- --nocapture`, baseline —
+waves/RW-33/REPORT-W33a.md:62:`exit=0, SKIP=0, test result=ok`. **7/7 KILLED**, md5 восстановлены, чужие файлы не тронуты:
+waves/RW-33/REPORT-W33a.md:75:прогона (и baseline) очищает их независимым `secret-tool clear xdg:schema
+waves/RW-33/REPORT-W33a.md:76:com.discordlab.Token`. После финального прогона `secret-tool search --all xdg:schema
+waves/RW-33/REPORT-W33a.md:81:- **Схема.** `secret_schema_newv("com.discordlab.Token", SECRET_SCHEMA_DONT_MATCH_NAME,
+waves/RW-33/REPORT-W33a.md:83:  выбран осознанно: без него libsecret добавляет в поиск `xdg:schema`, и записи `secret-tool`
+waves/RW-33/REPORT-W33a.md:86:- **FFI.** Не-variadic `secret_service_store_sync`/`lookup_sync`/`clear_sync`,
+waves/RW-33/REPORT-W33a.md:87:  `secret_schema_newv`; `GError` читается и `g_error_free` на всех путях; значение копируется
+waves/RW-33/REPORT-W33a.md:88:  `g_strndup` → `String`/`Vec<u8>` → `g_free` до `secret_value_unref`; `secret_value_new` +
+waves/RW-33/REPORT-W33a.md:89:  `secret_value_unref` для записи; `g_hash_table_new_full` с `g_str_hash`/`g_str_equal`.
+waves/RW-33/REPORT-W33a.md:91:- **Владение.** `Service` (`g_object_unref`) и `Schema` (`secret_schema_unref`) освобождаются
+waves/RW-33/REPORT-W33a.md:95:  ksecretd — `FALSE` **без** `GError` → `Ok(false)`; `GError` → `Err(Secret { code, message })`.
+waves/RW-33/REPORT-W33a.md:98:  k09–k12 подключаются к ksecretd (без live-флага) и печатают `SKIP`, только если сервиса в
+waves/RW-33/REPORT-W33a.md:101:  только по `DISCORD_LAB_KEYRING_LIVE=1`. В текущем окружении ksecretd разблокирован, prompt не
+waves/RW-33/REPORT-W33a.md:104:- **Секреты.** Только синтетические (`test-secret-…`, 4 КиБ `x` для RSS-кейса), ключи
+waves/RW-33/REPORT-W33a.md:105:  уникальны (`w33a-<tag>-<pid>-<seq>`), после кейсов выполняется `clear` (+ CLI-очистка).
+waves/RW-33/REPORT-W33a.md:108:- **Порог RSS** (4 МиБ на 2000 lookup, замеренный baseline ~72 КиБ) зависит от аллокатора;
+     1	//! # discord-platform
+     2	//!
+     3	//! Системная интеграция: трей, системные уведомления, буфер обмена, ярлыки.
+     4	//! Заменяет наблюдавшиеся IPC-каналы Electron-клиента (`DISCORD_NOTIFICATIONS_*` и др.).
+     5	//!
+     6	//! Спека: `docs/re/backend-ipc.md` (168 корневых каналов; мост DiscordNative — 35 записей).
+     7	//! План: P6 (UI/интеграция); тесты: T-SYS-*.
+     8	
+     9	pub mod autostart;
+    10	pub mod dbus;
+    11	pub mod deep_link;
+    12	pub mod keyring;
+    13	pub mod notifications;
+    14	pub mod power;
+    15	pub mod spellcheck;
+    16	
+    17	#[allow(unsafe_code)]
+    18	mod ffi_hunspell;
+    19	#[allow(unsafe_code)]
+    20	mod ffi_secret;
+    21	
+    22	/// Корневых IPC-каналов наследия Electron, наблюдавшихся в волне R7.
+    23	pub const LEGACY_ROOT_CHANNELS: usize = 168;
+    24	
+    25	/// Объединённый whitelist renderer→main (send 30 ∪ invoke 14).
+    26	pub const LEGACY_IPC_WHITELIST_UNION: usize = 43;
+    27	
+    28	/// Записей в мосте `window.DiscordNative` (expose + fields).
+    29	pub const LEGACY_BRIDGE_ENTRIES: usize = 35;
+    30	
+    31	/// Каналов уведомлений (`NOTIFICATIONS_*`), которые заменяются нативно.
+    32	pub const NOTIFICATION_CHANNELS: usize = 7;
+    33	
+    34	#[cfg(test)]
+    35	mod tests {
+    35	static LIVE_LOCK: Mutex<()> = Mutex::new(());
+    36	
+    37	fn skip(reason: &str) {
+    38	    println!("SKIP: {reason}");
+    39	}
+    40	
+    41	fn live_enabled() -> bool {
+    42	    matches!(std::env::var(LIVE_ENV), Ok(value) if value == "1")
+    43	}
+    44	
+    45	/// Уникальный ключ: pid + порядковый номер (кейсы идут параллельно).
+    46	fn unique_key(tag: &str) -> String {
+    47	    format!(
+    48	        "w33a-{tag}-{}-{}",
+    49	        std::process::id(),
+    50	        SEQ.fetch_add(1, Ordering::Relaxed)
+    51	    )
+    52	}
+    53	
+    54	fn live_lock() -> MutexGuard<'static, ()> {
+    55	    LIVE_LOCK
+    56	        .lock()
+    57	        .unwrap_or_else(|poisoned| poisoned.into_inner())
+    58	}
+    59	
+    60	/// Подключение к реальному сервису. `require_live` — гейт по `DISCORD_LAB_KEYRING_LIVE`.
+    61	fn keyring(require_live: bool) -> Option<(Keyring, MutexGuard<'static, ()>)> {
+    62	    if require_live && !live_enabled() {
+    63	        skip(&format!("{LIVE_ENV} != 1 (live-кейс не запускается)"));
+    64	        return None;
+    65	    }
+    66	    let guard = live_lock();
+    67	    match Keyring::connect() {
+    68	        Ok(keyring) => Some((keyring, guard)),
+    69	        Err(error) => {
+    70	            skip(&format!("нет org.freedesktop.secrets: {error}"));
+    71	            None
+    72	        }
+    73	    }
+    74	}
+    75	
+    76	/// Запись с синтетическим ключом; очищается в `Drop` (best-effort).
+    77	struct Entry {
+    78	    keyring: Keyring,
+    79	    key: String,
+    80	}
+    81	
+    82	impl Entry {
+    83	    fn new(keyring: Keyring, tag: &str) -> Self {
+    84	        Self {
+    85	            keyring,
+    86	            key: unique_key(tag),
+    87	        }
+    88	    }
+    89	
+    90	    fn store(&mut self, secret: &str) {
+   100	            .field("service", &format!("{:p}", &self.service))
+   101	            .field("label", &LABEL)
+   102	            .finish_non_exhaustive()""",
+   103	        "k12: ручная редакция Debug заменена печатью адреса внутреннего объекта",
+   104	    ),
+   105	    (
+   106	        "07",
+   107	        "empty_key_allowed",
+   108	        KEYRING,
+   109	        "    if key.is_empty() || key.contains('\\0') {",
+   110	        "    if key.contains('\\0') {",
+   111	        "k09: пустой ключ больше не отвергается (InvalidKey)",
+   112	    ),
+   113	]
+   114	
+   115	TEST_LINE = re.compile(r"^test (\S+) \.\.\. FAILED$", re.MULTILINE)
+   116	SUMMARY = re.compile(r"^test result: FAILED\..*$", re.MULTILINE)
+   117	RESULT_LINE = re.compile(r"^test result: (ok|FAILED)\.", re.MULTILINE)
+   118	
+   119	
+   120	def md5(path):
+   121	    with open(path, "rb") as handle:
+   122	        return hashlib.md5(handle.read()).hexdigest()
+   123	
+   124	
+   125	def run_tests():
+   126	    env = dict(os.environ)
+   127	    env["CARGO_TARGET_DIR"] = TARGET_DIR
+   128	    env["DISCORD_LAB_KEYRING_LIVE"] = "1"
+   129	    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS
+   130	    completed = subprocess.run(
+   131	        command,
+   132	        cwd=WORKDIR,
+   133	        env=env,
+   134	        capture_output=True,
+   135	        text=True,
+   136	        check=False,
+   137	    )
+   138	    return completed.returncode, completed.stdout + completed.stderr
+   139	
+   140	
+   141	def cleanup_synthetic():
+   142	    """Убирает синтетические записи схемы после мутанта (CLI-оракул, не наш код).
+   143	
+   144	    Мутация `clear_always_true` делает `clear` (в том числе в `Drop` тестовой записи)
+   145	    no-op, поэтому записи прогона удаляются независимым `secret-tool`.
+   146	    """
+   147	    try:
+   148	        completed = subprocess.run(
+   149	            ["secret-tool", "clear", "xdg:schema", "com.discordlab.Token"],
+   150	            capture_output=True,
+   151	            text=True,
+   152	            check=False,
+   153	            timeout=60,
+   154	        )
+   155	    except (OSError, subprocess.SubprocessError) as error:
+   156	        return "пропущено (%s)" % error
+   157	    return "ok" if completed.returncode == 0 else "код %d" % completed.returncode
+   158	
+   159	
+   160	def write_log(lines):
+   161	    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+   162	    with open(LOG_PATH, "w", encoding="utf-8") as handle:
+   163	        handle.write("\n".join(lines) + "\n")
+   164	    print("\n".join(lines[-12:]))
+   165	    print("\nлог: %s" % LOG_PATH)
+   166	
+   167	
+   168	def main():
+   169	    lines = [
+   170	        "# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)",
+   171	        "",
+   172	        "targeted: cargo test --offline -p discord-platform --test keyring_contract -- --nocapture",
+   173	        "live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)",
+   174	        "CARGO_TARGET_DIR=%s" % TARGET_DIR,
+   175	        "",
+   176	    ]
+   177	    failures = []
+   178	    sources = {}
+   179	    source_md5 = {}
+   180	    protected = [KEYRING, FFI, LIB, TEST]
+   181	    for path in protected:
+   182	        with open(path, encoding="utf-8") as handle:
+   183	            sources[path] = handle.read()
+   184	        source_md5[path] = md5(path)
+   185	    for path in (KEYRING, FFI, LIB, TEST):
+   186	        lines.append("md5 %s: %s" % (os.path.relpath(path, REPO_ROOT), source_md5[path]))
+   187	    lines.append("")
+   188	
+   189	    baseline_code, baseline_output = run_tests()
+   190	    baseline_skips = baseline_output.count("SKIP:")
+   191	    baseline_result = RESULT_LINE.search(baseline_output)
+   192	    baseline_ok = baseline_code == 0 and (
+   193	        baseline_result is not None and baseline_result.group(1) == "ok"
+   194	    )
+   195	    lines.append(
+   196	        "baseline: exit=%d, SKIP=%d, test result=%s"
+   197	        % (
+   198	            baseline_code,
+   199	            baseline_skips,
+   200	            baseline_result.group(1) if baseline_result else "нет",
+   201	        )
+   202	    )
+   203	    if not baseline_ok:
+   204	        lines.append("ОСТАНОВ: базовый прогон не зелёный")
+   205	        lines.append(baseline_output[-4000:])
+   206	        write_log(lines)
+   207	        return 1
+   208	    if baseline_skips:
+   209	        lines.append(
+   210	            "ВНИМАНИЕ: baseline содержит SKIP (%d) — live-кейсы не проверены, мутации могут быть INCONCLUSIVE"
+   211	            % baseline_skips
+   212	        )
+   213	    lines.append("очистка синтетических записей: %s" % cleanup_synthetic())
+   214	    lines.append("")
+   215	
+   216	    for mutation_id, name, path, original, mutated, expectation in MUTATIONS:
+   217	        before_md5 = md5(path)
+   218	        with open(path, encoding="utf-8") as handle:
+   219	            source = handle.read()
+   220	        occurrences = source.count(original)
+   221	        if occurrences != 1:
+   222	            detail = (
+   223	                "фрагмент не найден"
+   224	                if occurrences == 0
+   225	                else "фрагмент не уникален (%d)" % occurrences
+   226	            )
+   227	            failures.append("%s: %s" % (mutation_id, detail))
+   228	            lines.append("## %s %s — ОШИБКА: %s" % (mutation_id, name, detail))
+   229	            continue
+   230	
+   231	        lines.append("## %s %s (%s)" % (mutation_id, name, os.path.basename(path)))
+   232	        lines.append("ждём: %s" % expectation)
+   233	        lines.append("md5 до: %s" % before_md5)
+   234	
+   235	        try:
+   236	            with open(path, "w", encoding="utf-8") as handle:
+   237	                handle.write(source.replace(original, mutated, 1))
+   238	            code, output = run_tests()
+   239	            failing = sorted(set(TEST_LINE.findall(output)))
+   240	            skips = output.count("SKIP:")
+   241	            failed_result = "test result: FAILED" in output
+   242	            if failed_result and code != 0 and skips == 0:
+   243	                verdict = "KILLED"
+   244	            elif failed_result and code != 0:
+   245	                verdict = "KILLED (с SKIP=%d)" % skips
+   246	            elif skips:
+   247	                verdict = "INCONCLUSIVE (SKIP=%d)" % skips
+   248	            else:
+   249	                verdict = "SURVIVED"
+   250	            lines.append("exit: %d, SKIP=%d — %s" % (code, skips, verdict))
+   251	            if failing:
+   252	                lines.append("упавшие тесты: %s" % ", ".join(failing))
+   253	            for match in SUMMARY.findall(output):
+   254	                lines.append("  %s" % match)
+   255	            if verdict != "KILLED" and not verdict.startswith("KILLED "):
+   256	                tail = [line for line in output.splitlines() if line.startswith("error")]
+   257	                lines.append("вывод: %s" % " | ".join(tail[:3]))
+   258	                failures.append("%s %s: %s" % (mutation_id, name, verdict))
+   259	        finally:
+   260	            with open(path, "w", encoding="utf-8") as handle:
+   261	                handle.write(source)
+   262	            after_md5 = md5(path)
+   263	            lines.append(
+   264	                "md5 после restore: %s — %s"
+   265	                % (after_md5, "OK" if after_md5 == before_md5 else "РАСХОЖДЕНИЕ")
+   266	            )
+   267	            if after_md5 != before_md5:
+   268	                failures.append("%s: md5 после восстановления не совпал" % mutation_id)
+   269	            lines.append("очистка синтетических записей: %s" % cleanup_synthetic())
+   270	        lines.append("")
+   271	
+   272	    residual = [path for path, digest in source_md5.items() if md5(path) != digest]
+   273	    if residual:
+   274	        failures.append(
+   275	            "не восстановлены: %s" % ", ".join(os.path.basename(path) for path in residual)
+   276	        )
+   277	
+   278	    lines.append("## Итог")
+   279	    lines.append("мутаций: %d" % len(MUTATIONS))
+   280	    if failures:
+   281	        lines.append("проблемы: %s" % "; ".join(failures))
+   282	        lines.append("вердикт: FAIL")
+   283	        write_log(lines)
+   284	        return 1
+   285	    lines.append("вердикт: OK — все мутации убиты, файлы восстановлены")
+   286	    write_log(lines)
+   287	    return 0
+   288	
+   289	
+   290	if __name__ == "__main__":
+   291	    sys.exit(main())
+ M rust/crates/discord-platform/src/lib.rs
+?? rust/crates/discord-platform/src/ffi_secret.rs
+?? rust/crates/discord-platform/src/keyring.rs
+?? rust/crates/discord-platform/tests/keyring_contract.rs
+?? waves/RW-33/
+
+codex
+**Вердикт: доработка; приёмку RW-33 сейчас подтвердить нельзя.** Сборка проходит, но в этом запуске live-проверки не дошли до ksecretd: с `DISCORD_LAB_KEYRING_LIVE=1` тесты вывели `SKIP: ... Operation not permitted`, хотя итог был `12 passed`. Без флага тоже `12 passed`, но live-кейсы пропущены, а оставшиеся кейсы пропущены из-за недоступной шины. Значит, заявленный реальный обмен с `secret-tool` в текущем окружении не воспроизведён.
+
+**Замечания**
+
+- **P1 — live-результат легко принять за успешную проверку.** В [keyring_contract.rs](/home/sanya/orca/project/rust/crates/discord-platform/tests/keyring_contract.rs:60) ошибка подключения превращается в `SKIP` и успешное завершение теста. Оба запуска здесь завершились `12 passed`; live запуск напечатал skips. Это допустимо для обычного skip-aware прогона, но не подтверждает условие «live реально не SKIP». Нужен повтор в окружении с доступным ksecretd, где live-прогон покажет `SKIP=0`.
+
+- **P2 — возможна утечка при ошибке второго выделения памяти.** В [ffi_secret.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/ffi_secret.rs:239) `put_string` выделяет ключ, затем значение. Если `duplicate(value)` вернёт ошибку, выделенный ключ не освобождается. В обычном тестовом сценарии не воспроизводится; это путь ошибки выделения памяти.
+
+**Остальное**
+
+Статически сверил используемые объявления с заголовками libsecret/GLib: типы sync-функций, `secret_schema_newv`, `secret_value_*`, `g_free` и значение `SECRET_SCHEMA_DONT_MATCH_NAME` согласуются с установленными заголовками. `GError` освобождается через `g_error_free`; значения освобождаются через `secret_value_unref`, копия lookup — через `g_free`; `Service` и `Schema` имеют по одному `Drop`, двойного unref не видно. `PhantomData<*mut ()>` фиксирует `!Send + !Sync`. В целевом коде паник/`unwrap`/`expect` не нашёл; секреты не включаются в `Debug` или сообщения ошибок. В крейте есть другой unsafe-модуль `ffi_hunspell`; утверждение отчёта об unsafe только в `ffi_secret.rs` верно лишь для нового keyring-кода, не для всего крейта.
+
+Отчёт указывает 7/7 убитых мутаций и совпавшие md5 после восстановления. Однако в [mutations-w33a.log](/home/sanya/orca/project/waves/RW-33/mutations-w33a.log:13) baseline-очистка и очистка ряда мутаций завершились с кодом 1. В текущем окружении очистку проверить нельзя из-за запрета D-Bus. Репозиторий не менял; текущие md5 четырёх проверяемых файлов совпадают с указанными в логе: `keyring.rs` `31793d97a750fd22facd13492db7397e`, `ffi_secret.rs` `282c0caa2b55d80cecc63216cf85dfb9`, `lib.rs` `59c95a2d17060856365d7c5b47072660`, `keyring_contract.rs` `5155be7dccfc676be912c1b026ab82c8`. Мутационный harness повторно не запускал: он временно пишет в файлы репозитория и лог, что противоречит вашему read-only ограничению.
+tokens used
+59 468
+**Вердикт: доработка; приёмку RW-33 сейчас подтвердить нельзя.** Сборка проходит, но в этом запуске live-проверки не дошли до ksecretd: с `DISCORD_LAB_KEYRING_LIVE=1` тесты вывели `SKIP: ... Operation not permitted`, хотя итог был `12 passed`. Без флага тоже `12 passed`, но live-кейсы пропущены, а оставшиеся кейсы пропущены из-за недоступной шины. Значит, заявленный реальный обмен с `secret-tool` в текущем окружении не воспроизведён.
+
+**Замечания**
+
+- **P1 — live-результат легко принять за успешную проверку.** В [keyring_contract.rs](/home/sanya/orca/project/rust/crates/discord-platform/tests/keyring_contract.rs:60) ошибка подключения превращается в `SKIP` и успешное завершение теста. Оба запуска здесь завершились `12 passed`; live запуск напечатал skips. Это допустимо для обычного skip-aware прогона, но не подтверждает условие «live реально не SKIP». Нужен повтор в окружении с доступным ksecretd, где live-прогон покажет `SKIP=0`.
+
+- **P2 — возможна утечка при ошибке второго выделения памяти.** В [ffi_secret.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/ffi_secret.rs:239) `put_string` выделяет ключ, затем значение. Если `duplicate(value)` вернёт ошибку, выделенный ключ не освобождается. В обычном тестовом сценарии не воспроизводится; это путь ошибки выделения памяти.
+
+**Остальное**
+
+Статически сверил используемые объявления с заголовками libsecret/GLib: типы sync-функций, `secret_schema_newv`, `secret_value_*`, `g_free` и значение `SECRET_SCHEMA_DONT_MATCH_NAME` согласуются с установленными заголовками. `GError` освобождается через `g_error_free`; значения освобождаются через `secret_value_unref`, копия lookup — через `g_free`; `Service` и `Schema` имеют по одному `Drop`, двойного unref не видно. `PhantomData<*mut ()>` фиксирует `!Send + !Sync`. В целевом коде паник/`unwrap`/`expect` не нашёл; секреты не включаются в `Debug` или сообщения ошибок. В крейте есть другой unsafe-модуль `ffi_hunspell`; утверждение отчёта об unsafe только в `ffi_secret.rs` верно лишь для нового keyring-кода, не для всего крейта.
+
+Отчёт указывает 7/7 убитых мутаций и совпавшие md5 после восстановления. Однако в [mutations-w33a.log](/home/sanya/orca/project/waves/RW-33/mutations-w33a.log:13) baseline-очистка и очистка ряда мутаций завершились с кодом 1. В текущем окружении очистку проверить нельзя из-за запрета D-Bus. Репозиторий не менял; текущие md5 четырёх проверяемых файлов совпадают с указанными в логе: `keyring.rs` `31793d97a750fd22facd13492db7397e`, `ffi_secret.rs` `282c0caa2b55d80cecc63216cf85dfb9`, `lib.rs` `59c95a2d17060856365d7c5b47072660`, `keyring_contract.rs` `5155be7dccfc676be912c1b026ab82c8`. Мутационный harness повторно не запускал: он временно пишет в файлы репозитория и лог, что противоречит вашему read-only ограничению.
+CODEX_EXIT=0

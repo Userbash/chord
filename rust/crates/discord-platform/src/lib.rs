@@ -9,12 +9,15 @@
 pub mod autostart;
 pub mod dbus;
 pub mod deep_link;
+pub mod keyring;
 pub mod notifications;
 pub mod power;
 pub mod spellcheck;
 
 #[allow(unsafe_code)]
 mod ffi_hunspell;
+#[allow(unsafe_code)]
+mod ffi_secret;
 
 /// Корневых IPC-каналов наследия Electron, наблюдавшихся в волне R7.
 pub const LEGACY_ROOT_CHANNELS: usize = 168;

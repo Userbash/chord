@@ -1,0 +1,21 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/keyring_contract.rs (/tmp/opencode/target-w33a/debug/deps/keyring_contract-21c22226c2c3030e)
+
+running 12 tests
+test k01_connect_to_default_collection ... ok
+test k02_store_then_lookup_roundtrip_without_leak ... ok
+test k03_lookup_missing_returns_none ... ok
+test k05_overwrite_replaces_value ... ok
+test k06_unicode_secret_roundtrip ... ok
+test k07_secret_tool_reads_our_store ... ok
+test k08_our_lookup_reads_secret_tool_store ... ok
+test k10_nul_in_key_or_secret_is_error_without_panic ... ok
+test k09_empty_key_is_invalid ... ok
+test k12_debug_does_not_print_secret_or_pointers ... ok
+test k11_repeated_clear_returns_false ... ok
+test k04_clear_existing_then_lookup_none ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
+
+# EXIT=0

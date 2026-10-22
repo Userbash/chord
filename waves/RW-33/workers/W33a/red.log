@@ -1,0 +1,269 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+warning: constant `SECRET_SERVICE_NONE` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:24:7
+   |
+24 | const SECRET_SERVICE_NONE: c_int = 0;
+   |       ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `CONTENT_TYPE` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:26:7
+   |
+26 | const CONTENT_TYPE: &[u8] = b"text/plain\0";
+   |       ^^^^^^^^^^^^
+
+warning: struct `SecretService` is never constructed
+  --> crates/discord-platform/src/ffi_secret.rs:30:19
+   |
+30 | pub(crate) struct SecretService {
+   |                   ^^^^^^^^^^^^^
+
+warning: struct `SecretValue` is never constructed
+  --> crates/discord-platform/src/ffi_secret.rs:36:19
+   |
+36 | pub(crate) struct SecretValue {
+   |                   ^^^^^^^^^^^
+
+warning: struct `SecretSchema` is never constructed
+  --> crates/discord-platform/src/ffi_secret.rs:42:19
+   |
+42 | pub(crate) struct SecretSchema {
+   |                   ^^^^^^^^^^^^
+
+warning: struct `GHashTable` is never constructed
+  --> crates/discord-platform/src/ffi_secret.rs:48:19
+   |
+48 | pub(crate) struct GHashTable {
+   |                   ^^^^^^^^^^
+
+warning: type alias `GHashFunc` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:60:6
+   |
+60 | type GHashFunc = Option<unsafe extern "C" fn(*const c_void) -> c_uint>;
+   |      ^^^^^^^^^
+
+warning: type alias `GEqualFunc` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:61:6
+   |
+61 | type GEqualFunc = Option<unsafe extern "C" fn(*const c_void, *const c_void) -> c_int>;
+   |      ^^^^^^^^^^
+
+warning: type alias `GDestroyNotify` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:62:6
+   |
+62 | type GDestroyNotify = Option<unsafe extern "C" fn(*mut c_void)>;
+   |      ^^^^^^^^^^^^^^
+
+warning: struct `FfiError` is never constructed
+   --> crates/discord-platform/src/ffi_secret.rs:148:19
+    |
+148 | pub(crate) struct FfiError {
+    |                   ^^^^^^^^
+
+warning: associated function `new` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:154:8
+    |
+153 | impl FfiError {
+    | ------------- associated function in this implementation
+154 |     fn new(code: i32, message: impl Into<String>) -> Self {
+    |        ^^^
+
+warning: function `take_error` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:169:4
+    |
+169 | fn take_error(error: *mut GError) -> Option<FfiError> {
+    |    ^^^^^^^^^^
+
+warning: function `duplicate` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:192:4
+    |
+192 | fn duplicate(text: &str) -> Result<NonNull<c_char>, FfiError> {
+    |    ^^^^^^^^^
+
+warning: struct `Table` is never constructed
+   --> crates/discord-platform/src/ffi_secret.rs:201:19
+    |
+201 | pub(crate) struct Table {
+    |                   ^^^^^
+
+warning: associated items `new`, `strings`, `names`, `put_string`, `put_name`, and `as_ptr` are never used
+   --> crates/discord-platform/src/ffi_secret.rs:206:8
+    |
+205 | impl Table {
+    | ---------- associated items in this implementation
+206 |     fn new(key_destroy: GDestroyNotify, value_destroy: GDestroyNotify) -> Result<Self, FfiError> {
+    |        ^^^
+...
+223 |     fn strings() -> Result<Self, FfiError> {
+    |        ^^^^^^^
+...
+228 |     fn names() -> Result<Self, FfiError> {
+    |        ^^^^^
+...
+232 |     fn put_string(&mut self, name: &str, value: &str) -> Result<(), FfiError> {
+    |        ^^^^^^^^^^
+...
+255 |     fn put_name(&mut self, name: &str) -> Result<(), FfiError> {
+    |        ^^^^^^^^
+...
+269 |     fn as_ptr(&self) -> *mut GHashTable {
+    |        ^^^^^^
+
+warning: struct `Service` is never constructed
+   --> crates/discord-platform/src/ffi_secret.rs:283:19
+    |
+283 | pub(crate) struct Service {
+    |                   ^^^^^^^
+
+warning: associated items `connect`, `store`, `lookup`, and `clear` are never used
+   --> crates/discord-platform/src/ffi_secret.rs:289:19
+    |
+287 | impl Service {
+    | ------------ associated items in this implementation
+288 |     /// `secret_service_get_sync(SECRET_SERVICE_NONE)` — default-сервис сессионной шины.
+289 |     pub(crate) fn connect() -> Result<Self, FfiError> {
+    |                   ^^^^^^^
+...
+306 |     pub(crate) fn store(
+    |                   ^^^^^
+...
+363 |     pub(crate) fn lookup(
+    |                   ^^^^^^
+...
+408 |     pub(crate) fn clear(
+    |                   ^^^^^
+
+warning: struct `Schema` is never constructed
+   --> crates/discord-platform/src/ffi_secret.rs:444:19
+    |
+444 | pub(crate) struct Schema {
+    |                   ^^^^^^
+
+warning: associated function `new` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:453:19
+    |
+451 | impl Schema {
+    | ----------- associated function in this implementation
+452 |     /// Схема `name` с одним строковым атрибутом `attribute` (не-variadic `secret_schema_newv`).
+453 |     pub(crate) fn new(name: &str, attribute: &str) -> Result<Self, FfiError> {
+    |                   ^^^
+
+warning: function `g_free` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:68:8
+   |
+68 |     fn g_free(memory: *mut c_void);
+   |        ^^^^^^
+
+warning: function `g_strdup` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:69:8
+   |
+69 |     fn g_strdup(text: *const c_char) -> *mut c_char;
+   |        ^^^^^^^^
+
+warning: function `g_str_hash` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:70:8
+   |
+70 |     fn g_str_hash(value: *const c_void) -> c_uint;
+   |        ^^^^^^^^^^
+
+warning: function `g_str_equal` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:71:8
+   |
+71 |     fn g_str_equal(left: *const c_void, right: *const c_void) -> c_int;
+   |        ^^^^^^^^^^^
+
+warning: function `g_hash_table_new_full` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:72:8
+   |
+72 |     fn g_hash_table_new_full(
+   |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `g_hash_table_insert` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:78:8
+   |
+78 |     fn g_hash_table_insert(table: *mut GHashTable, key: *mut c_void, value: *mut c_void);
+   |        ^^^^^^^^^^^^^^^^^^^
+
+warning: function `g_hash_table_unref` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:79:8
+   |
+79 |     fn g_hash_table_unref(table: *mut GHashTable);
+   |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `g_error_free` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:80:8
+   |
+80 |     fn g_error_free(error: *mut GError);
+   |        ^^^^^^^^^^^^
+
+warning: function `g_object_unref` is never used
+  --> crates/discord-platform/src/ffi_secret.rs:86:8
+   |
+86 |     fn g_object_unref(object: *mut c_void);
+   |        ^^^^^^^^^^^^^^
+
+warning: function `secret_service_get_sync` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:102:8
+    |
+102 |     fn secret_service_get_sync(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `secret_service_store_sync` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:107:8
+    |
+107 |     fn secret_service_store_sync(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `secret_service_lookup_sync` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:117:8
+    |
+117 |     fn secret_service_lookup_sync(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `secret_service_clear_sync` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:124:8
+    |
+124 |     fn secret_service_clear_sync(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `secret_value_new` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:131:8
+    |
+131 |     fn secret_value_new(
+    |        ^^^^^^^^^^^^^^^^
+
+warning: function `secret_value_get` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:136:8
+    |
+136 |     fn secret_value_get(value: *mut SecretValue, length: *mut usize) -> *const c_char;
+    |        ^^^^^^^^^^^^^^^^
+
+warning: function `secret_value_unref` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:137:8
+    |
+137 |     fn secret_value_unref(value: *mut c_void);
+    |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `secret_schema_newv` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:138:8
+    |
+138 |     fn secret_schema_newv(
+    |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `secret_schema_unref` is never used
+   --> crates/discord-platform/src/ffi_secret.rs:143:8
+    |
+143 |     fn secret_schema_unref(schema: *mut SecretSchema);
+    |        ^^^^^^^^^^^^^^^^^^^
+
+warning: `discord-platform` (lib) generated 37 warnings
+error[E0432]: unresolved import `discord_platform::keyring`
+  --> crates/discord-platform/tests/keyring_contract.rs:24:23
+   |
+24 | use discord_platform::keyring::{Keyring, KeyringError};
+   |                       ^^^^^^^ could not find `keyring` in `discord_platform`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-platform` (test "keyring_contract") due to 1 previous error
+# EXIT=101

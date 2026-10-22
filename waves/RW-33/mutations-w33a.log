@@ -1,0 +1,80 @@
+# W33a — мутации keyring (`discord-platform/src/keyring.rs`, `src/ffi_secret.rs`)
+
+targeted: cargo test --offline -p discord-platform --test keyring_contract -- --nocapture
+live: DISCORD_LAB_KEYRING_LIVE=1 (реальный ksecretd + secret-tool)
+CARGO_TARGET_DIR=/tmp/opencode/target-w33a
+
+md5 rust/crates/discord-platform/src/keyring.rs: 31793d97a750fd22facd13492db7397e
+md5 rust/crates/discord-platform/src/ffi_secret.rs: 0c7c59c3fec6954b90c20e71bce17fc8
+md5 rust/crates/discord-platform/src/lib.rs: 59c95a2d17060856365d7c5b47072660
+md5 rust/crates/discord-platform/tests/keyring_contract.rs: 49e339786446173b9d71997826d4dbf4
+
+baseline: exit=0, SKIP=0, test result=ok
+очистка синтетических записей: ok (exit=1)
+
+## 01 schema_attribute_renamed (keyring.rs)
+ждём: k07/k08: CLI secret-tool ищет записи по атрибуту `key`, а мы пишем `ke`
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k07_secret_tool_reads_our_store, k08_our_lookup_reads_secret_tool_store
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.79s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok (exit=1)
+
+## 02 store_not_persisted (keyring.rs)
+ждём: k02/k05/k07: store сообщает успех, но запись не создаётся
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k02_store_then_lookup_roundtrip_without_leak, k04_clear_existing_then_lookup_none, k05_overwrite_replaces_value, k06_unicode_secret_roundtrip, k07_secret_tool_reads_our_store, k11_repeated_clear_returns_false
+  test result: FAILED. 6 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok (exit=1)
+
+## 03 clear_always_true (keyring.rs)
+ждём: k11: повторный clear отсутствующей записи возвращает true
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k04_clear_existing_then_lookup_none, k11_repeated_clear_returns_false
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok (exit=0)
+
+## 04 lookup_null_is_error (ffi_secret.rs)
+ждём: k03: отсутствие записи становится ошибкой, а не Ok(None)
+md5 до: 0c7c59c3fec6954b90c20e71bce17fc8
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k03_lookup_missing_returns_none, k04_clear_existing_then_lookup_none, k11_repeated_clear_returns_false
+  test result: FAILED. 9 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+md5 после restore: 0c7c59c3fec6954b90c20e71bce17fc8 — OK
+очистка синтетических записей: ok (exit=1)
+
+## 05 secret_length_truncated (ffi_secret.rs)
+ждём: k02: значение секрета обрезано на 1 байт
+md5 до: 0c7c59c3fec6954b90c20e71bce17fc8
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k02_store_then_lookup_roundtrip_without_leak, k05_overwrite_replaces_value, k06_unicode_secret_roundtrip, k08_our_lookup_reads_secret_tool_store
+  test result: FAILED. 8 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+md5 после restore: 0c7c59c3fec6954b90c20e71bce17fc8 — OK
+очистка синтетических записей: ok (exit=1)
+
+## 06 debug_prints_pointer (keyring.rs)
+ждём: k12: ручная редакция Debug заменена печатью адреса внутреннего объекта
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k01_connect_to_default_collection, k12_debug_does_not_print_secret_or_pointers
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok (exit=1)
+
+## 07 empty_key_allowed (keyring.rs)
+ждём: k09: пустой ключ больше не отвергается (InvalidKey)
+md5 до: 31793d97a750fd22facd13492db7397e
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: k09_empty_key_is_invalid
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.78s
+md5 после restore: 31793d97a750fd22facd13492db7397e — OK
+очистка синтетических записей: ok (exit=0)
+
+## Итог
+мутаций: 7
+вердикт: OK — все мутации убиты, файлы восстановлены
