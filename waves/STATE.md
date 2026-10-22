@@ -1,5 +1,8 @@
 # STATE — где мы и что дальше
 
+- Обновлено: **2026-10-23**. **RW-35** (P6-06c fd-передача D-Bus + logind sleep-inhibitor) **принят** —
+  расширение P6-06; `libc` одобрен; живые прогоны (abstract-шина, реальный logind) без harness-SKIP;
+  мутации 6/6; workspace **1067**; fmt/clippy 0. Headless-контур закрыт.
 - Обновлено: **2026-10-23**. **RW-34** (P6-02c abstract D-Bus, P6-02d hints ext) **принят** —
   расширения P6-02, счётчик PLAN не меняется; живые прогоны на abstract-шине без harness-SKIP,
   мутации 6/6 и 6/6; workspace **1057**; fmt/clippy 0.
@@ -55,10 +58,10 @@
 
 | Проверка | Результат |
 |---|---|
-| Rust-воркспейс | **1057 passed / 0 failed** (`cargo test --offline --workspace`) |
+| Rust-воркспейс | **1067 passed / 0 failed** (`cargo test --offline --workspace`) |
 | `discord-core` | **531 passed / 0 failed** |
 | `discord-i18n` RW-28/30 | **83 passed / 0 failed** (+ duration 13; 8 lib + контракты + relative 12 + timestamp 14) |
-| `discord-platform` RW-30…34 | **100 passed / 0 failed** (dbus 15, notifications 25, power 12, spellcheck 13, keyring 12 + прежние) |
+| `discord-platform` RW-30…35 | **110 passed / 0 failed** (dbus 21, notifications 25, power 16, spellcheck 13, keyring 12 + прежние) |
 | `discord-store` RW-31 | **14 passed / 0 failed** (SQLite-store P2-03) |
 | `discord-voice` RW-29 | media **13**, reconnect **10 + 2 unit**; крейт целиком — 0 failed |
 | `discord-voice` RW-26 | **114 passed / 0 failed** (P4-07 16+10+12, P4-11 10) |
@@ -75,8 +78,8 @@
 | Мутации B06 | **18 caught, 0 missed**, продукт восстановлен по md5 |
 | Мутации RW-26 | **19 caught, 0 missed** (P4-07 11 + P4-11 8) |
 | Мутации RW-27 | **6/6 неэквивалентных + 2 эквивалентных** (list), **14/14** (platform) |
-| Мутации RW-28…RW-34 | RW-28 8/8, W29a 8/8, W29b 9/9, W29c 6/6, W30a 8/8, W30b 10/10, W31a 7/7, W31b 7/7, W32a 8/8, W32b 6/6, W33a 7/7, W34a 6/6, W34b 6/6 (SKIP=0) |
-| Гейт RW-34 | **passed**, `.gate/worker-2026-10-22T19-06-01-142Z.json`, `waves/RW-34/gate-cargo.log` |
+| Мутации RW-28…RW-35 | RW-28 8/8, W29a 8/8, W29b 9/9, W29c 6/6, W30a 8/8, W30b 10/10, W31a 7/7, W31b 7/7, W32a 8/8, W32b 6/6, W33a 7/7, W34a 6/6, W34b 6/6, W35a 6/6 (SKIP=0) |
+| Гейт RW-35 | **passed**, `.gate/worker-2026-10-22T19-41-26-571Z.json`, `waves/RW-35/gate-cargo.log` |
 | Гейт RW-27 | **passed**, `.gate/worker-2026-10-22T13-58-02-813Z.json`, `waves/RW-27/gate-cargo-final.log` |
 | Гейт RW-26 | **passed**, `.gate/worker-2026-10-22T11-40-00-985Z.json`, `waves/RW-26/gate-worker-b09.log` |
 | Мутации B05 | **20 caught, 0 missed, 0 inconclusive**, продукт восстановлен по md5 |
@@ -396,10 +399,10 @@ GUI-окна и пользовательского приложения пока
 
 1. RW-28/RW-29 приняты: `review`, `gate`, `accepted` — в `waves/db.jsonl`; доки
    синхронизированы один раз (этот проход).
-2. **B07 остался только GUI**: keyring (P1-10) и SQLite (P2-03) закрыты; нужен выбор GUI-тулкита
-   (`tauri`/`iced`/`egui` — нет в офлайн-кэше) и окно для live-smoke. Headless-остатки:
-   fd-передача (`SCM_RIGHTS`, `logind.Inhibit`; `SocketAncillary` нестабилен, `libc 0.2.19x` есть
-   в офлайн-кэше — нужно решение владельца), P4-05/P4-06/P4-08/P4-09, P7-03/P7-05/P7-07 (UI).
+2. **B07 остался только GUI**: keyring, SQLite и fd-передача закрыты; нужен выбор GUI-тулкита
+   (`tauri`/`iced`/`egui` — нет в офлайн-кэше) и окно для live-smoke. Headless-контур закрыт:
+   дальше только P4-05/P4-06/P4-08/P4-09 (аудио-устройства/Opus), P4.5 DAVE, P5 стриминг,
+   P6-01/P6-05/P6-07 UI и P7-03/05/07 — требуют GUI/зависимостей.
 3. RW-28 закрыл RelativeTimeFormat, RW-29 — RTP-медиа, reconnect и `<t:…>`; контракты —
    `waves/RW-28/`, `waves/RW-29/` (уточнения RTP/джиттера — `TZ-W29b.md` §6).
 4. Red-first → targeted → mutation → один batch gate → независимое ревью → accepted.
@@ -429,6 +432,11 @@ GUI-окна и пользовательского приложения пока
 
 ## 7. Бэклог P3 (не блокирует)
 
+- RW-35/P6-06c: `NEGOTIATE_UNIX_FD` дублирует auth-логику в `dbus/mod.rs` (~60 строк),
+  `auth::authenticate` без fd — перенести/задокументировать; `Value::Clone`/`Signal::Clone`
+  клонируют владение сырым fd (API-ловушка); нет тестов на дубликат индекса/лишний fd/лимит
+  отправки; `CONTROL_BYTES` с магической 16; дубликат поля UNIX_FDS; два live-флага
+  (`DISCORD_LAB_LIVE_POWER`/`DISCORD_LAB_POWER_LIVE`); нет общего дедлайна чтения сообщения.
 - RW-34/P6-02c: тест границы abstract использует продакшн-константу (не литерал 107) — стоит
   захардкодить 107/108; percent-encoding не декодируется (задокументировано); `BusAddress`
   struct→enum и `path(): Option` — не аддитивно (TZ §1); SKIP-эвристика мутаций W34a/W34b

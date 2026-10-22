@@ -12,15 +12,18 @@
 //! - [`IdlePolicy`] — авто-статус `online/idle/dnd` по времени бездействия. Точные пороги
 //!   в RE клиента не подтверждены, поэтому [`IdlePolicy::DEFAULT`] — конфигурация с явной
 //!   пометкой, а не «факт» Discord.
+//! - [`PowerMonitor::inhibit_sleep`] — fd-ингибитор сна: `login1.Manager.Inhibit(ssss) -> h`
+//!   через SCM_RIGHTS, владение fd — [`SleepInhibitor`] (`Drop` → `close`).
 //!
-//! Ограничения (осознанные, в бэклоге): fd-ингибитор сна (`Inhibit("sleep", …)` через
-//! SCM_RIGHTS) не реализован; Wayland `ext-idle-notify-v1` и X11 `XScreenSaver` без
-//! клиентских библиотек недоступны; live-проверка только читает состояние и не гасит
-//! экран. Только `std` + [`crate::dbus`], без `unsafe` и новых зависимостей.
+//! Ограничения (осознанные, в бэклоге): Wayland `ext-idle-notify-v1` и X11 `XScreenSaver`
+//! без клиентских библиотек недоступны; live-проверка только читает состояние и по флагу
+//! `DISCORD_LAB_POWER_LIVE=1` ставит ингибитор на время теста (в CI флаг выключен).
+//! Только `std` + [`crate::dbus`] + `libc` (изоляция `unsafe` — `dbus/fd.rs`).
 
+use std::os::fd::RawFd;
 use std::time::Duration;
 
-use crate::dbus::{BusAddress, Connection, DbusError, Signal, Value};
+use crate::dbus::{BusAddress, Connection, DbusError, Signal, Value, fd};
 
 /// Well-known имя сервиса скринсейвера (сессионная шина).
 pub const SCREENSAVER_DESTINATION: &str = "org.freedesktop.ScreenSaver";
@@ -49,6 +52,14 @@ pub const LOGIN1_PATH: &str = "/org/freedesktop/login1";
 pub const LOGIN1_INTERFACE: &str = "org.freedesktop.login1.Manager";
 /// Сигнал `PrepareForSleep(b)`: `true` — уходим в сон, `false` — проснулись.
 pub const SLEEP_SIGNAL: &str = "PrepareForSleep";
+/// Метод `Inhibit` менеджера logind.
+pub const SLEEP_INHIBIT_METHOD: &str = "Inhibit";
+/// Что ингибируем: только сон.
+pub const SLEEP_INHIBIT_WHAT: &str = "sleep";
+/// `who` для журнала logind.
+pub const SLEEP_INHIBIT_WHO: &str = "discord-lab";
+/// Режим ингибитора: `block` (не `delay`/`prepare`).
+pub const SLEEP_INHIBIT_MODE: &str = "block";
 
 /// `org.freedesktop.ScreenSaver`: ингибитор гашения экрана в звонке.
 #[derive(Debug)]
@@ -153,6 +164,53 @@ pub enum PowerEvent {
     WakingUp,
 }
 
+/// Владелец fd ингибитора сна: пока fd открыт, logind не усыпляет систему.
+///
+/// fd не клонируется (`Clone` не реализован); `Drop` закрывает его ровно один раз, после
+/// чего ингибитор снят. Переживание `fork` не гарантируется: fd принадлежит процессу.
+#[derive(Debug)]
+pub struct SleepInhibitor {
+    fd: RawFd,
+}
+
+impl SleepInhibitor {
+    /// Тестовый хук: сырой fd ингибитора (владелец — структура).
+    pub fn fd(&self) -> RawFd {
+        self.fd
+    }
+}
+
+impl Drop for SleepInhibitor {
+    fn drop(&mut self) {
+        fd::close_fd(self.fd);
+    }
+}
+
+/// Берёт первый `h` из ответа `Inhibit`, закрывает лишние fd; без fd — ошибка.
+fn take_inhibitor(values: &[Value], fds: Vec<RawFd>) -> Result<SleepInhibitor, DbusError> {
+    let chosen = values.iter().find_map(|value| match value {
+        Value::UnixFd(raw) => Some(*raw),
+        _ => None,
+    });
+    let Some(chosen) = chosen else {
+        fd::close_all(&fds);
+        return Err(DbusError::Protocol("Inhibit reply without unix fd"));
+    };
+    let mut kept = false;
+    for raw in fds {
+        if !kept && raw == chosen {
+            kept = true;
+        } else {
+            fd::close_fd(raw);
+        }
+    }
+    if !kept {
+        // Ответ ссылался на fd, которого нет в очереди: закрывать больше нечего.
+        return Err(DbusError::Protocol("Inhibit fd is not in the message"));
+    }
+    Ok(SleepInhibitor { fd: chosen })
+}
+
 /// `org.freedesktop.login1.Manager`: подписка на сон/пробуждение.
 #[derive(Debug)]
 pub struct PowerMonitor {
@@ -165,6 +223,32 @@ impl PowerMonitor {
         Ok(Self {
             connection: Connection::connect(address)?,
         })
+    }
+
+    /// `Inhibit("sleep", "discord-lab", why, "block") -> h`: блокировать сон, пока жив fd.
+    ///
+    /// fd приходит ancillary-данными (`SCM_RIGHTS`) и хранится в [`SleepInhibitor`]:
+    /// `Drop` закрывает его, что и снимает ингибитор. Пустой `why` отвергается локально
+    /// (`Protocol`) — такой вызов не уходит на шину. Любая ошибка (`ERROR`, нет fd,
+    /// обрыв) возвращает `Err`, уже полученные fd закрываются.
+    pub fn inhibit_sleep(&mut self, why: &str) -> Result<SleepInhibitor, DbusError> {
+        if why.is_empty() {
+            return Err(DbusError::Protocol("empty why"));
+        }
+        let body = [
+            ('s', Value::String(SLEEP_INHIBIT_WHAT.to_owned())),
+            ('s', Value::String(SLEEP_INHIBIT_WHO.to_owned())),
+            ('s', Value::String(why.to_owned())),
+            ('s', Value::String(SLEEP_INHIBIT_MODE.to_owned())),
+        ];
+        let (values, fds) = self.connection.call_with_fds(
+            LOGIN1_DESTINATION,
+            LOGIN1_PATH,
+            LOGIN1_INTERFACE,
+            SLEEP_INHIBIT_METHOD,
+            &body,
+        )?;
+        take_inhibitor(&values, fds)
     }
 
     /// `AddMatch` на `PrepareForSleep` менеджера logind.
@@ -190,10 +274,12 @@ impl PowerMonitor {
                 return Ok(None);
             }
             match self.connection.next_signal(remaining) {
-                Ok(signal) => {
+                Ok(mut signal) => {
                     if let Some(event) = sleep_event(&signal) {
                         return Ok(Some(event));
                     }
+                    // Не наш сигнал: если в теле пришли fd, их нужно закрыть.
+                    signal.close_fds();
                 }
                 Err(DbusError::Timeout) => return Ok(None),
                 Err(error) => return Err(error),

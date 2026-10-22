@@ -1,0 +1,62 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0432]: unresolved import `discord_platform::power`
+  --> crates/discord-platform/tests/power_contract.rs:16:23
+   |
+16 | use discord_platform::power::{
+   |                       ^^^^^ could not find `power` in `discord_platform`
+
+warning: method call on a diverging inference variable
+   --> crates/discord-platform/tests/power_contract.rs:917:24
+    |
+917 |     match screen_saver.is_active() {
+    |                        ^^^^^^^^^
+    |
+    = help: consider providing a type annotation
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+    = note: `#[warn(method_call_on_diverging_infer_var)]` (part of `#[warn(future_incompatible)]`) on by default
+
+error[E0599]: no method named `is_active` found for type `!` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:917:24
+    |
+917 |     match screen_saver.is_active() {
+    |                        ^^^^^^^^^ method not found in `!`
+
+error[E0599]: no method named `idle_seconds` found for type `!` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:921:24
+    |
+921 |     match screen_saver.idle_seconds() {
+    |                        ^^^^^^^^^^^^ method not found in `!`
+
+warning: unreachable call
+   --> crates/discord-platform/tests/power_contract.rs:921:24
+    |
+921 |     match screen_saver.idle_seconds() {
+    |           ------------ ^^^^^^^^^^^^ unreachable call
+    |           |
+    |           any code following this expression is unreachable
+    |
+    = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method call on a diverging inference variable
+    --> crates/discord-platform/tests/power_contract.rs:1287:19
+     |
+1287 |     match monitor.inhibit_sleep("discord-lab live check") {
+     |                   ^^^^^^^^^^^^^
+     |
+     = help: consider providing a type annotation
+     = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+     = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+
+error[E0599]: no method named `inhibit_sleep` found for type `!` in the current scope
+    --> crates/discord-platform/tests/power_contract.rs:1287:19
+     |
+1287 |     match monitor.inhibit_sleep("discord-lab live check") {
+     |                   ^^^^^^^^^^^^^ method not found in `!`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+warning: `discord-platform` (test "power_contract") generated 3 warnings
+error: could not compile `discord-platform` (test "power_contract") due to 4 previous errors; 5 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+# EXIT=101

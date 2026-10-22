@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "discord-lab-rust-workspace",
-  "documentNamespace": "https://discord-lab.local/spdx/86bb5b9eb4c9354848f2e195d136c0327dea4ead2f3e8f54ab12e2d244030277",
+  "documentNamespace": "https://discord-lab.local/spdx/671b691c5c8454eb315cf17f7641b9a6bda02d1aa48954350e5798c3b903b3da",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -1958,6 +1958,11 @@
       "spdxElementId": "SPDXRef-Package-discord-perf-0.1.0",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-platform-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-libc-0.2.191"
     },
     {
       "spdxElementId": "SPDXRef-Package-discord-ui-0.1.0",

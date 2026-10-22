@@ -1,0 +1,10 @@
+# W35a mutations: baseline + 6 мутаций
+# тесты: cargo test --offline -p discord-platform --test dbus_contract --test power_contract -- --nocapture
+BASELINE: OK (test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s; test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s)
+m1-unix-fd-index: KILLED | test result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s | expected: f09_call_with_fds_sends_two_pipe_fds_to_service
+m2-inhibitor-close: KILLED | test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s; test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s | expected: f03_drop_closes_inhibitor_fd_exactly_once
+m3-msg-ctrunc: KILLED | test result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s | expected: f06_control_truncation_is_protocol_and_closes_received_fds
+m4-sendmsg-fds: KILLED | test result: FAILED. 19 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s | expected: f09_call_with_fds_sends_two_pipe_fds_to_service
+m5-empty-why: KILLED | test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s; test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s | expected: f08_empty_why_is_protocol_and_never_reaches_bus
+m6-unix-fds-header: KILLED | test result: FAILED. 19 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s | expected: f09_call_with_fds_sends_two_pipe_fds_to_service
+ИТОГО: KILLED 6/6

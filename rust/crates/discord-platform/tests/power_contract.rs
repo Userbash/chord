@@ -16,9 +16,10 @@ use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
 use discord_platform::power::{
     IdlePolicy, LOGIN1_DESTINATION, LOGIN1_INTERFACE, LOGIN1_PATH, PowerEvent, PowerMonitor,
     PresenceStatus, SCREENSAVER_DESTINATION, SCREENSAVER_INTERFACE, SCREENSAVER_PATH, SLEEP_SIGNAL,
-    ScreenSaver,
+    ScreenSaver, SleepInhibitor,
 };
 use std::fs;
+use std::os::fd::RawFd;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -941,6 +942,362 @@ fn p12_missing_environment_is_skip_with_reason() {
         Err(reason) => {
             // Именно этот путь срабатывает в CI без python3-dbus: тест не падает.
             println!("SKIP: {reason}");
+        }
+    }
+}
+
+// --- W35a (P6-06c): sleep-inhibitor через fd (`Inhibit(h)`) -----------------------
+//
+// Оракул — libdbus-мок `waves/RW-35/power/mock_logind.py` на приватном `dbus-daemon`:
+// `org.freedesktop.login1.Manager.Inhibit(ssss) -> h` отдаёт настоящий memfd, журналирует
+// аргументы и умеет отвечать ERROR (`error`) или «не смог выделить fd» (`no-fd`).
+// Валидность fd проверяется через `/proc/self/fd`, утечки — по числу открытых fd.
+
+const LOGIND_CONTROL_DESTINATION: &str = "lab.Mock.Login1";
+const LOGIND_CONTROL_PATH: &str = "/lab/Mock";
+const LOGIND_CONTROL_INTERFACE: &str = "lab.Mock.Login1";
+
+/// Приватная шина + мок logind; всё убирается в `Drop`.
+struct LogindHarness {
+    address: String,
+    journal: PathBuf,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Child,
+}
+
+impl LogindHarness {
+    fn start(inhibit_mode: &str) -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(SKIP_NO_PYTHON.to_owned());
+        }
+
+        let dir = std::env::temp_dir().join(format!(
+            "discord-lab-w35a-power-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let started = Command::new("dbus-daemon")
+            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+            .output()
+            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+        if !started.status.success() {
+            let _ = fs::remove_dir_all(&dir);
+            return Err(format!(
+                "dbus-daemon завершился: {}",
+                String::from_utf8_lossy(&started.stderr).trim()
+            ));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let address = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+            .trim()
+            .to_owned();
+        let daemon_pid: u32 = match lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())
+            .and_then(|line| {
+                line.trim()
+                    .parse()
+                    .map_err(|err| format!("pid dbus-daemon: {err}"))
+            }) {
+            Ok(pid) => pid,
+            Err(reason) => {
+                let _ = fs::remove_dir_all(&dir);
+                return Err(reason);
+            }
+        };
+
+        let journal = dir.join("journal.tsv");
+        let mut mock = Command::new("python3")
+            .arg(repo_path("waves/RW-35/power/mock_logind.py"))
+            .arg("--address")
+            .arg(&address)
+            .arg("--log")
+            .arg(&journal)
+            .arg("--inhibit-mode")
+            .arg(inhibit_mode)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_logind.py: {err}")))?;
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            if fs::read_to_string(&journal)
+                .map(|text| text.contains("READY"))
+                .unwrap_or(false)
+            {
+                break;
+            }
+            if let Ok(Some(status)) = mock.try_wait() {
+                let stderr = read_child_stderr(&mut mock);
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    format!("mock_logind.py завершился ({status}): {stderr}"),
+                ));
+            }
+            if Instant::now() > deadline {
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    "mock_logind.py не поднялся за 10 с".to_owned(),
+                ));
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+
+        Ok(Self {
+            address,
+            journal,
+            dir,
+            daemon_pid,
+            mock,
+        })
+    }
+
+    fn bus_address(&self) -> BusAddress {
+        BusAddress::parse(&self.address).expect("адрес приватного демона")
+    }
+
+    fn journal_member(&self, member: &str) -> Vec<Vec<String>> {
+        fs::read_to_string(&self.journal)
+            .unwrap_or_default()
+            .lines()
+            .map(|line| line.split('\t').map(str::to_owned).collect::<Vec<_>>())
+            .filter(|fields| fields.first().map(String::as_str) == Some(member))
+            .collect()
+    }
+
+    fn wait_for_member(&self, member: &str, count: usize) -> Vec<Vec<String>> {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let records = self.journal_member(member);
+            if records.len() >= count || Instant::now() > deadline {
+                return records;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+
+    /// Переключает режим мока через управляющее соединение (оракул, не наш клиент).
+    fn set_inhibit_mode(&self, mode: &str) {
+        let mut control =
+            Connection::connect(&self.bus_address()).expect("управляющее соединение с моком");
+        control
+            .call(
+                LOGIND_CONTROL_DESTINATION,
+                LOGIND_CONTROL_PATH,
+                LOGIND_CONTROL_INTERFACE,
+                "SetInhibitMode",
+                &[('s', Value::String(mode.to_owned()))],
+            )
+            .unwrap_or_else(|err| panic!("SetInhibitMode({mode}): {err:?}"));
+    }
+}
+
+impl Drop for LogindHarness {
+    fn drop(&mut self) {
+        let _ = self.mock.kill();
+        let _ = self.mock.wait();
+        if self.daemon_pid != 0 {
+            let _ = Command::new("kill")
+                .arg(self.daemon_pid.to_string())
+                .status();
+        }
+        let _ = fs::remove_dir_all(&self.dir);
+    }
+}
+
+macro_rules! logind_harness {
+    ($mode:expr) => {
+        match LogindHarness::start($mode) {
+            Ok(harness) => harness,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+/// Число открытых fd, чей `/proc/self/fd`-линк содержит `needle`.
+///
+/// Счёт по содержимому линка, а не по всему `/proc/self/fd`: тесты бинарника идут
+/// параллельно и открывают свои сокеты, общий счётчик был бы недетерминирован.
+/// Сериализует тесты, которые считают fd по общим именам memfd мока.
+static INHIBIT_FD_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+fn inhibit_fd_lock() -> std::sync::MutexGuard<'static, ()> {
+    INHIBIT_FD_LOCK
+        .lock()
+        .unwrap_or_else(|error| error.into_inner())
+}
+
+fn count_fds_matching(needle: &str) -> usize {
+    fs::read_dir("/proc/self/fd")
+        .map(|entries| {
+            entries
+                .filter_map(|entry| fs::read_link(entry.ok()?.path()).ok())
+                .filter(|target| target.to_string_lossy().contains(needle))
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+fn fd_is_open(fd: RawFd) -> bool {
+    Path::new(&format!("/proc/self/fd/{fd}")).exists()
+}
+
+fn fd_link(fd: RawFd) -> String {
+    fs::read_link(format!("/proc/self/fd/{fd}"))
+        .map(|target| target.to_string_lossy().into_owned())
+        .unwrap_or_default()
+}
+
+// --- f02: mock Inhibit → fd и аргументы в журнале ---------------------------------
+
+#[test]
+fn f02_inhibit_sleep_returns_fd_and_journals_arguments() {
+    let _fd_guard = inhibit_fd_lock();
+    let harness = logind_harness!("ok");
+    let mut monitor = PowerMonitor::connect(&harness.bus_address()).expect("PowerMonitor::connect");
+
+    let inhibitor = monitor
+        .inhibit_sleep("In call")
+        .expect("Inhibit(sleep, discord-lab, In call, block)");
+    let raw = inhibitor.fd();
+    assert!(raw >= 0, "fd ингибитора: {raw}");
+    assert!(fd_is_open(raw), "fd {raw} не открыт");
+    assert!(
+        fd_link(raw).contains("memfd:discord-lab-inhibit"),
+        "fd {raw} — не memfd мока: {:?}",
+        fd_link(raw)
+    );
+
+    let records = harness.wait_for_member("Inhibit", 1);
+    let fields = records.first().expect("журнал Inhibit пуст");
+    assert_eq!(
+        fields,
+        &vec![
+            "Inhibit".to_owned(),
+            "sleep".to_owned(),
+            "discord-lab".to_owned(),
+            "In call".to_owned(),
+            "block".to_owned(),
+        ],
+        "аргументы Inhibit в журнале оракула"
+    );
+
+    // ERROR от сервиса — ошибка, не паника и не «пустой» ингибитор.
+    harness.set_inhibit_mode("error");
+    match monitor.inhibit_sleep("In call") {
+        Err(DbusError::Remote { name, .. }) => assert_eq!(
+            name, "org.freedesktop.login1.NotAuthorized",
+            "имя ошибки из ответа мока"
+        ),
+        other => panic!("ожидался DbusError::Remote, получено {other:?}"),
+    }
+
+    // Сервис не смог отдать fd — тоже ошибка; fd не появился.
+    harness.set_inhibit_mode("no-fd");
+    assert!(
+        matches!(
+            monitor.inhibit_sleep("In call"),
+            Err(DbusError::Remote { .. })
+        ),
+        "ответ без fd обязан быть ошибкой"
+    );
+    assert_eq!(harness.wait_for_member("Inhibit", 3).len(), 3);
+}
+
+// --- f03: Drop закрывает fd ровно один раз ---------------------------------------
+
+#[test]
+fn f03_drop_closes_inhibitor_fd_exactly_once() {
+    let _fd_guard = inhibit_fd_lock();
+    let harness = logind_harness!("ok");
+    let mut monitor = PowerMonitor::connect(&harness.bus_address()).expect("PowerMonitor::connect");
+
+    assert_eq!(count_fds_matching("discord-lab-inhibit"), 0);
+    let inhibitor: SleepInhibitor = monitor.inhibit_sleep("In call").expect("Inhibit");
+    let raw = inhibitor.fd();
+    assert_eq!(
+        count_fds_matching("discord-lab-inhibit"),
+        1,
+        "ингибитор держит ровно один fd"
+    );
+    assert!(fd_is_open(raw), "fd {raw} должен быть открыт");
+
+    drop(inhibitor);
+    assert_eq!(
+        count_fds_matching("discord-lab-inhibit"),
+        0,
+        "Drop обязан закрыть fd (close ровно один раз)"
+    );
+    assert!(!fd_is_open(raw), "fd {raw} остался открыт после Drop");
+}
+
+// --- f08: пустой why → Protocol, без вызова ---------------------------------------
+
+#[test]
+fn f08_empty_why_is_protocol_and_never_reaches_bus() {
+    let harness = logind_harness!("ok");
+    let mut monitor = PowerMonitor::connect(&harness.bus_address()).expect("PowerMonitor::connect");
+
+    assert!(
+        matches!(monitor.inhibit_sleep(""), Err(DbusError::Protocol(_))),
+        "пустой why обязан быть Protocol"
+    );
+    assert!(
+        harness.journal_member("Inhibit").is_empty(),
+        "невалидный Inhibit не должен уходить на шину"
+    );
+}
+
+// --- f10: live logind — только по флагу и skip-aware ------------------------------
+
+#[test]
+fn f10_live_logind_inhibit_is_flag_gated_and_skip_aware() {
+    if std::env::var("DISCORD_LAB_POWER_LIVE").as_deref() != Ok("1") {
+        println!("SKIP: live logind выключен (DISCORD_LAB_POWER_LIVE != 1)");
+        return;
+    }
+    let value = std::env::var("DBUS_SYSTEM_BUS_ADDRESS")
+        .unwrap_or_else(|_| "unix:path=/run/dbus/system_bus_socket".to_owned());
+    let Some(address) = BusAddress::parse(&value) else {
+        println!("SKIP: адрес системной шины не разобран: {value:?}");
+        return;
+    };
+    let mut monitor = match PowerMonitor::connect(&address) {
+        Ok(monitor) => monitor,
+        Err(err) => {
+            println!("SKIP: live logind недоступен: {err:?}");
+            return;
+        }
+    };
+    match monitor.inhibit_sleep("discord-lab live check") {
+        Ok(inhibitor) => {
+            let raw = inhibitor.fd();
+            assert!(raw >= 0, "live fd ингибитора: {raw}");
+            assert!(
+                Path::new(&format!("/proc/self/fd/{raw}")).exists(),
+                "live fd {raw} не открыт"
+            );
+            println!("INFO: live logind Inhibit: fd={raw}");
+            drop(inhibitor);
+        }
+        Err(err) => {
+            // Live-окружение без logind/прав — skip, а не падение.
+            println!("SKIP: live Inhibit недоступен: {err:?}");
         }
     }
 }

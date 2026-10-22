@@ -9,11 +9,12 @@
 
 use discord_platform::dbus::message::{self, FIELD_REPLY_SERIAL, FIELD_SIGNATURE, MessageType};
 use discord_platform::dbus::{
-    BusAddress, Connection, DbusError, MAX_ABSTRACT_NAME_BYTES, Value, auth,
+    BusAddress, Connection, DbusError, MAX_ABSTRACT_NAME_BYTES, Value, auth, fd,
 };
 use discord_platform::notifications;
 use discord_platform::notifications::{Hints, Urgency};
 use std::fs;
+use std::os::fd::{AsRawFd, RawFd};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -1315,5 +1316,463 @@ fn a07_path_branch_still_connects_to_path_bus() {
         connection.unique_name().starts_with(":1."),
         "уникальное имя: {:?}",
         connection.unique_name()
+    );
+}
+
+// --- W35a (P6-06c): передача unix-fd (SCM_RIGHTS) --------------------------------
+//
+// Оракул — спецификация D-Bus (тело `h` = u32-индекс в массив fd, приложенный к
+// сообщению ancillary-данными) и libdbus-мок `waves/RW-35/power/mock_logind.py`,
+// который отдаёт реальные fd через настоящий `dbus-daemon`. Тесты не подгоняют
+// поведение под нашу реализацию: fd-ы создаются моком/тестом и проверяются через
+// `/proc/self/fd`.
+
+const LOGIN1_DESTINATION: &str = "org.freedesktop.login1";
+const LOGIN1_PATH: &str = "/org/freedesktop/login1";
+const LOGIN1_INTERFACE: &str = "org.freedesktop.login1.Manager";
+const LOGIND_CONTROL_DESTINATION: &str = "lab.Mock.Login1";
+const LOGIND_CONTROL_PATH: &str = "/lab/Mock";
+const LOGIND_CONTROL_INTERFACE: &str = "lab.Mock.Login1";
+
+fn fd_is_open(fd: RawFd) -> bool {
+    Path::new(&format!("/proc/self/fd/{fd}")).exists()
+}
+
+/// Число открытых fd, чей `/proc/self/fd`-линк содержит `needle`.
+///
+/// Счёт по содержимому линка, а не по всему `/proc/self/fd`: тесты одного бинарника идут
+/// параллельно и открывают свои сокеты/файлы, общий счётчик был бы недетерминирован.
+fn count_fds_matching(needle: &str) -> usize {
+    fs::read_dir("/proc/self/fd")
+        .map(|entries| {
+            entries
+                .filter_map(|entry| fs::read_link(entry.ok()?.path()).ok())
+                .filter(|target| target.to_string_lossy().contains(needle))
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+fn fd_link(fd: RawFd) -> String {
+    fs::read_link(format!("/proc/self/fd/{fd}"))
+        .map(|target| target.to_string_lossy().into_owned())
+        .unwrap_or_default()
+}
+
+/// Приватная шина + `mock_logind.py`; всё убирается в `Drop`.
+struct LogindBus {
+    address: String,
+    journal: PathBuf,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Child,
+}
+
+impl LogindBus {
+    fn start() -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(SKIP_NO_PYTHON_DBUS.to_owned());
+        }
+
+        let dir = std::env::temp_dir().join(format!(
+            "discord-lab-w35a-dbus-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let started = Command::new("dbus-daemon")
+            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+            .output()
+            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+        if !started.status.success() {
+            let _ = fs::remove_dir_all(&dir);
+            return Err(format!(
+                "dbus-daemon завершился: {}",
+                String::from_utf8_lossy(&started.stderr).trim()
+            ));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let address = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+            .trim()
+            .to_owned();
+        let daemon_pid: u32 = match lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())
+            .and_then(|line| {
+                line.trim()
+                    .parse()
+                    .map_err(|err| format!("pid dbus-daemon: {err}"))
+            }) {
+            Ok(pid) => pid,
+            Err(reason) => {
+                let _ = fs::remove_dir_all(&dir);
+                return Err(reason);
+            }
+        };
+
+        let journal = dir.join("journal.tsv");
+        let mut mock = Command::new("python3")
+            .arg(repo_path("waves/RW-35/power/mock_logind.py"))
+            .arg("--address")
+            .arg(&address)
+            .arg("--log")
+            .arg(&journal)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|err| abort(daemon_pid, &dir, format!("запуск mock_logind.py: {err}")))?;
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            if fs::read_to_string(&journal)
+                .map(|text| text.contains("READY"))
+                .unwrap_or(false)
+            {
+                break;
+            }
+            if let Ok(Some(status)) = mock.try_wait() {
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    format!("mock_logind.py завершился ({status})"),
+                ));
+            }
+            if Instant::now() > deadline {
+                return Err(abort(
+                    daemon_pid,
+                    &dir,
+                    "mock_logind.py не поднялся за 10 с".to_owned(),
+                ));
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+
+        Ok(Self {
+            address,
+            journal,
+            dir,
+            daemon_pid,
+            mock,
+        })
+    }
+
+    fn bus_address(&self) -> BusAddress {
+        BusAddress::parse(&self.address).expect("адрес приватного демона")
+    }
+
+    fn journal_member(&self, member: &str) -> Vec<Vec<String>> {
+        fs::read_to_string(&self.journal)
+            .unwrap_or_default()
+            .lines()
+            .map(|line| line.split('\t').map(str::to_owned).collect::<Vec<_>>())
+            .filter(|fields| fields.first().map(String::as_str) == Some(member))
+            .collect()
+    }
+
+    fn wait_for_member(&self, member: &str, count: usize) -> Vec<Vec<String>> {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let records = self.journal_member(member);
+            if records.len() >= count || Instant::now() > deadline {
+                return records;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+}
+
+impl Drop for LogindBus {
+    fn drop(&mut self) {
+        let _ = self.mock.kill();
+        let _ = self.mock.wait();
+        if self.daemon_pid != 0 {
+            let _ = Command::new("kill")
+                .arg(self.daemon_pid.to_string())
+                .status();
+        }
+        let _ = fs::remove_dir_all(&self.dir);
+    }
+}
+
+macro_rules! logind_bus {
+    () => {
+        match LogindBus::start() {
+            Ok(bus) => bus,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+/// Тело `Inhibit(sleep, discord-lab, why, block)`.
+fn inhibit_body(why: &str) -> [(char, Value); 4] {
+    [
+        ('s', Value::String("sleep".to_owned())),
+        ('s', Value::String("discord-lab".to_owned())),
+        ('s', Value::String(why.to_owned())),
+        ('s', Value::String("block".to_owned())),
+    ]
+}
+
+/// Смещение тела в собранном сообщении (после заголовка, выравнивание 8).
+fn body_offset(bytes: &[u8]) -> usize {
+    let fields_len = u32::from_le_bytes(bytes[12..16].try_into().expect("fields len")) as usize;
+    (16 + fields_len + 7) & !7
+}
+
+// --- f01: `h` — индекс в массиве fd, а не «просто u32» ---------------------------
+
+#[test]
+fn f01_unix_fd_value_round_trips_through_per_message_index() {
+    let (reader, _writer) = std::io::pipe().expect("pipe");
+    let raw = reader.as_raw_fd();
+    // fd принадлежит тесту; `OwnedFd` забыт, чтобы закрытие через `fd::close_fd`
+    // не было двойным (std в debug-сборке ловит такой close и абортит процесс).
+    std::mem::forget(reader);
+
+    let (bytes, fds) = message::build_with_fds(
+        MessageType::MethodReturn,
+        1,
+        &[
+            (FIELD_SIGNATURE, Value::String("h".to_owned())),
+            (FIELD_REPLY_SERIAL, Value::U32(0)),
+        ],
+        "h",
+        &[Value::UnixFd(raw)],
+    )
+    .expect("сборка MethodReturn с h");
+    assert_eq!(fds, vec![raw], "fd сообщения — ровно переданный");
+    let offset = body_offset(&bytes);
+    assert_eq!(
+        u32::from_le_bytes(bytes[offset..offset + 4].try_into().expect("index")),
+        0,
+        "в теле `h` лежит индекс 0, а не значение fd"
+    );
+    assert_eq!(bytes[offset + 4..].len(), 0, "тело `h` — ровно 4 байта");
+
+    let parsed = message::parse_with_fds(&bytes, fds).expect("разбор h");
+    assert_eq!(parsed.signature, "h");
+    assert_eq!(parsed.body, vec![Value::UnixFd(raw)], "индекс → fd");
+
+    // Владелец fd после разбора — тест; закрываем ровно один раз.
+    fd::close_fd(raw);
+}
+
+// --- f04: два fd в одном сообщении -----------------------------------------------
+
+#[test]
+fn f04_two_fds_in_one_reply_are_received_in_order_and_closed() {
+    let bus = logind_bus!();
+    let mut connection =
+        Connection::connect(&bus.bus_address()).unwrap_or_else(|err| panic!("connect: {err:?}"));
+
+    assert_eq!(count_fds_matching("discord-lab-first"), 0);
+    assert_eq!(count_fds_matching("discord-lab-second"), 0);
+    let (values, fds) = connection
+        .call_with_fds(
+            LOGIND_CONTROL_DESTINATION,
+            LOGIND_CONTROL_PATH,
+            LOGIND_CONTROL_INTERFACE,
+            "TwoFds",
+            &[],
+        )
+        .unwrap_or_else(|err| panic!("TwoFds: {err:?}"));
+
+    assert_eq!(fds.len(), 2, "оба fd из одного сообщения: {fds:?}");
+    assert_eq!(
+        values,
+        vec![Value::UnixFd(fds[0]), Value::UnixFd(fds[1])],
+        "порядок fd — порядок тел `h`"
+    );
+    for raw in &fds {
+        assert!(fd_is_open(*raw), "fd {raw} не открыт");
+        let link = fd_link(*raw);
+        assert!(
+            link.contains("memfd:discord-lab"),
+            "fd {raw} — не memfd мока: {link:?}"
+        );
+    }
+    assert_eq!(
+        count_fds_matching("discord-lab-first"),
+        1,
+        "первый fd ещё открыт"
+    );
+    assert_eq!(
+        count_fds_matching("discord-lab-second"),
+        1,
+        "второй fd ещё открыт"
+    );
+
+    for raw in &fds {
+        fd::close_fd(*raw);
+    }
+    assert_eq!(count_fds_matching("discord-lab-first"), 0);
+    assert_eq!(count_fds_matching("discord-lab-second"), 0);
+    assert_eq!(bus.wait_for_member("TwoFds", 1).len(), 1);
+}
+
+// --- f05: индекс вне диапазона ----------------------------------------------------
+
+#[test]
+fn f05_out_of_range_index_is_protocol_and_fds_are_closed() {
+    // Ровно один fd в очереди и один в заголовке UNIX_FDS, а индекс в теле — 7:
+    // это проверяет именно границу индекса, а не сверку счётчика.
+    let prefix = format!("w35a-f05-{}-{}", std::process::id(), unique_suffix());
+    let path = std::env::temp_dir().join(format!("{prefix}-0"));
+    let file = fs::File::create(&path).expect("temp file");
+    let _ = fs::remove_file(&path);
+    let raw = file.as_raw_fd();
+    std::mem::forget(file);
+    assert_eq!(count_fds_matching(&prefix), 1, "подготовлен fd");
+
+    let (mut bytes, _declared) = message::build_with_fds(
+        MessageType::MethodReturn,
+        2,
+        &[
+            (FIELD_SIGNATURE, Value::String("h".to_owned())),
+            (FIELD_REPLY_SERIAL, Value::U32(0)),
+        ],
+        "h",
+        &[Value::UnixFd(raw)],
+    )
+    .expect("сборка MethodReturn с h");
+    let offset = body_offset(&bytes);
+    bytes[offset..offset + 4].copy_from_slice(&7u32.to_le_bytes());
+    let queue = vec![raw];
+
+    let result = message::parse_with_fds(&bytes, queue);
+    assert!(
+        matches!(result, Err(DbusError::Protocol(_))),
+        "индекс вне диапазона → Protocol, получено {result:?}"
+    );
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "fd из сообщения с битым индексом обязан быть закрыт"
+    );
+}
+
+// --- f06: MSG_CTRUNC (ancillary не влез в буфер) ----------------------------------
+
+#[test]
+fn f06_control_truncation_is_protocol_and_closes_received_fds() {
+    let (sender, receiver) = std::os::unix::net::UnixStream::pair().expect("socketpair");
+    // Уникальные имена файлов: счёт по линкам `/proc/self/fd` не пересекается с другими
+    // параллельными тестами процесса.
+    let prefix = format!("w35a-f06-{}-{}", std::process::id(), unique_suffix());
+    let mut files = Vec::new();
+    for index in 0..fd::MAX_FDS_PER_MESSAGE + 4 {
+        let path = std::env::temp_dir().join(format!("{prefix}-{index}"));
+        files.push(fs::File::create(&path).expect("temp file"));
+        let _ = fs::remove_file(&path);
+    }
+    let raw: Vec<RawFd> = files.iter().map(AsRawFd::as_raw_fd).collect();
+
+    fd::send_with_fds(&sender, b"x", &raw).expect("sendmsg с лишними fd");
+    // Копии в ядре уже отправлены; закрываем исходные fd отправителя.
+    drop(files);
+    assert_eq!(count_fds_matching(&prefix), 0);
+
+    let mut buffer = [0u8; 1];
+    let mut received = Vec::new();
+    let result = fd::recv_exact_with_fds(&receiver, &mut buffer, &mut received);
+    assert!(
+        matches!(result, Err(DbusError::Protocol(_))),
+        "MSG_CTRUNC → Protocol, получено {result:?}"
+    );
+    assert!(received.is_empty(), "обрезанные fd не отдаются наружу");
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "все доставленные fd закрыты, недоехавшие закрыл ядро"
+    );
+}
+
+// --- f07: `call` закрывает fd из ответа ------------------------------------------
+
+#[test]
+fn f07_plain_call_closes_fds_from_reply_and_reports_protocol() {
+    let bus = logind_bus!();
+    let mut connection =
+        Connection::connect(&bus.bus_address()).unwrap_or_else(|err| panic!("connect: {err:?}"));
+
+    assert_eq!(count_fds_matching("discord-lab-inhibit"), 0);
+    let body = inhibit_body("In call");
+    let result: Result<Vec<Value>, DbusError> = connection.call(
+        LOGIN1_DESTINATION,
+        LOGIN1_PATH,
+        LOGIN1_INTERFACE,
+        "Inhibit",
+        &body,
+    );
+    assert!(
+        matches!(result, Err(DbusError::Protocol(_))),
+        "fd без владельца в `call` → Protocol, получено {result:?}"
+    );
+    assert_eq!(
+        count_fds_matching("discord-lab-inhibit"),
+        0,
+        "fd из ответа закрыт, утечки нет"
+    );
+    assert_eq!(
+        bus.wait_for_member("Inhibit", 1).len(),
+        1,
+        "вызов дошёл до мока"
+    );
+}
+
+// --- f09: отправка двух fd (SCM_RIGHTS) ------------------------------------------
+
+#[test]
+fn f09_call_with_fds_sends_two_pipe_fds_to_service() {
+    use std::io::Write as _;
+
+    let bus = logind_bus!();
+    let mut connection =
+        Connection::connect(&bus.bus_address()).unwrap_or_else(|err| panic!("connect: {err:?}"));
+
+    let (first_reader, mut first_writer) = std::io::pipe().expect("pipe 1");
+    let (second_reader, mut second_writer) = std::io::pipe().expect("pipe 2");
+    first_writer.write_all(b"alpha").expect("write alpha");
+    second_writer.write_all(b"beta").expect("write beta");
+    // EOF обязателен: мок читает fd до конца, иначе ответа не будет.
+    drop(first_writer);
+    drop(second_writer);
+
+    let body = [
+        ('h', Value::UnixFd(first_reader.as_raw_fd())),
+        ('h', Value::UnixFd(second_reader.as_raw_fd())),
+    ];
+    let (reply, fds) = connection
+        .call_with_fds(
+            LOGIND_CONTROL_DESTINATION,
+            LOGIND_CONTROL_PATH,
+            LOGIND_CONTROL_INTERFACE,
+            "AcceptFds",
+            &body,
+        )
+        .unwrap_or_else(|err| panic!("AcceptFds: {err:?}"));
+    assert!(fds.is_empty(), "ответ AcceptFds без fd: {fds:?}");
+    assert_eq!(reply, vec![Value::String("ok".to_owned())]);
+
+    let records = bus.wait_for_member("AcceptFds", 1);
+    let fields = records.first().expect("журнал AcceptFds пуст");
+    assert_eq!(
+        fields,
+        &vec![
+            "AcceptFds".to_owned(),
+            "alpha".to_owned(),
+            "beta".to_owned()
+        ],
+        "мок прочитал содержимое обоих отправленных fd"
     );
 }
