@@ -131,10 +131,10 @@ cf818d22ba71c168d243cd6c3b82fb73  waves/RW-30/dbus/mock_service.py
 31dd93d6f04d78eea3b187d80abfb875  waves/RW-30/dbus/gen-golden.py
 61e3324ad66823306caa422392f9d461  fixtures/dbus/wire.json
 822a879ed08cbd24de8aa687fe28905d  fixtures/dbus/notifications.json
-06bd70aadc4285828fc51625c6edd4cb  waves/RW-30/run-mutations-w30b.py
+e6157cf5a5fb0f63df350277b07e5613  waves/RW-30/run-mutations-w30b.py
 300ab8b04918dae7102fdf4a78a4444b  waves/RW-30/workers/W30b/red.log
 7694ed5380297311547ca75fcfe06a84  waves/RW-30/workers/W30b/green.log
-2acc21e5b81b2c735f8fa7f3d258082d  waves/RW-30/mutations-w30b.log
+996f45a6561f55be587729424fb943a0  waves/RW-30/mutations-w30b.log
 ```
 
 `src/lib.rs` не переформатировался: добавлены только `pub mod dbus;` и
@@ -213,3 +213,9 @@ P2 (сигнатура `GetServerInformation` в фикстуре; мутаци�
   только при `test result: FAILED` и `SKIP=0`; прогон переснят: **10/10 KILLED, SKIP=0**,
   все restore по md5 совпали. Red/green перегенерены на финальных байтах (`E0599` на
   отсутствующем `server_information`, `# EXIT=101` / `# EXIT=0`, 7+11 passed).
+
+## 9. Уточнение после codex (2026-10-22)
+
+Раннер переведён на `cargo test -- --nocapture`, чтобы `SKIP:` был реально виден; детекция
+`SKIP` игнорирует намеренные live-skip (строки с «live»). Прогон переснят: **10/10 KILLED,
+SKIP=0**, restore по md5 (`dbus_contract` 7, `notifications_contract` 11).

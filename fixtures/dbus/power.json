@@ -1,0 +1,91 @@
+{
+  "oracle": "mock_power.py (python3-dbus/libdbus) на приватном dbus-daemon",
+  "note": "Сигнатуры и формы ответов зафиксированы по журналу libdbus-сервиса; пороги IdlePolicy — конфигурация, не RE-факт.",
+  "services": [
+    {
+      "destination": "org.freedesktop.ScreenSaver",
+      "path": "/org/freedesktop/ScreenSaver",
+      "interface": "org.freedesktop.ScreenSaver",
+      "methods": [
+        {
+          "member": "Inhibit",
+          "signature": "ss",
+          "reply_signature": "u",
+          "reply": 41,
+          "note": "Inhibit(app_name, reason) -> cookie"
+        },
+        {
+          "member": "UnInhibit",
+          "signature": "u",
+          "reply_signature": "",
+          "reply": null,
+          "note": "каноническое имя freedesktop; при UnknownMethod клиент пробует Uninhibit"
+        },
+        {
+          "member": "Uninhibit",
+          "signature": "u",
+          "reply_signature": "",
+          "reply": null,
+          "note": "fallback для сервисов с другим регистром"
+        },
+        {
+          "member": "IsActive",
+          "signature": "",
+          "reply_signature": "b",
+          "reply": true
+        },
+        {
+          "member": "GetSessionIdleTime",
+          "signature": "",
+          "reply_signature": "u",
+          "reply": 1234,
+          "note": "KDE; на других окружениях метод может отсутствовать → Ok(None)"
+        }
+      ]
+    },
+    {
+      "destination": "org.freedesktop.login1",
+      "path": "/org/freedesktop/login1",
+      "interface": "org.freedesktop.login1.Manager",
+      "methods": [],
+      "signals": [
+        {
+          "member": "PrepareForSleep",
+          "signature": "b",
+          "body": [true],
+          "note": "true → GoingToSleep"
+        },
+        {
+          "member": "PrepareForSleep",
+          "signature": "b",
+          "body": [false],
+          "note": "false → WakingUp"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "name": "org.freedesktop.DBus.Error.UnknownMethod",
+      "meaning": "GetSessionIdleTime отсутствует → idle_seconds() = Ok(None)"
+    },
+    {
+      "name": "org.freedesktop.DBus.Error.UnknownInterface",
+      "meaning": "интерфейс ScreenSaver отсутствует → idle_seconds() = Ok(None)"
+    },
+    {
+      "name": "org.freedesktop.ScreenSaver.Error.InvalidCookie",
+      "meaning": "неизвестный cookie в UnInhibit → DbusError::Remote, не паника"
+    }
+  ],
+  "journal": [
+    ["READY"],
+    ["Inhibit", "Discord Lab", "In call", "41"],
+    ["UnInhibit", "41"],
+    ["IsActive", "1"],
+    ["GetSessionIdleTime", "value", "1234"],
+    ["EmitPrepareForSleep", "1"],
+    ["EmitPrepareForSleep", "0"],
+    ["EmitForeign"]
+  ]
+}

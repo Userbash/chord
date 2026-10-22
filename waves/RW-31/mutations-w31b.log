@@ -1,0 +1,73 @@
+# W31b — мутации SQLite-store (`discord-store/src/lib.rs`)
+
+targeted: cargo test --offline -p discord-store --test store_contract -- --nocapture
+CARGO_TARGET_DIR=/tmp/opencode/target-w31b
+
+baseline: exit=0, SKIP=0, test result ok=да
+
+## 01 foreign_keys_off
+ждём: s06: FK выключен, сообщение без канала молча сохраняется
+вхождений: 1
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s06_message_without_channel_is_constraint
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## 02 order_by_asc
+ждём: s04/s05: обратный порядок истории и пагинации
+вхождений: 3
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s04_messages_order_limit_zero_and_clamp, s05_keyset_pagination_is_strict_and_gapless
+  test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## 03 limit_clamp_removed
+ждём: s04: limit > 1000 не клампится до 1000
+вхождений: 1
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s04_messages_order_limit_zero_and_clamp
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## 04 upsert_to_insert
+ждём: s03: повторный put_message падает на PK вместо обновления
+вхождений: 1
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s03_message_upsert_without_duplicates
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## 05 soft_delete_flag_cleared
+ждём: s07: soft delete не скрывает сообщение из messages
+вхождений: 1
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s07_soft_delete_hides_message
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## 06 bind_to_concatenation
+ждём: s10: channel_id/id подставляются в SQL конкатенацией, враждебный id ломает запрос
+вхождений: 1
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s10_sql_injection_is_stored_literally
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## 07 user_version_two
+ждём: s01/s12: версия схемы не 1 (повторный migrate упирается в Migration/оракул)
+вхождений: 1
+md5 до: b9016340be1146f8dca889a22b95c7e7
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: s01_migrate_sets_schema_version_and_is_idempotent, s09_reopen_file_keeps_data_and_version, s10_sql_injection_is_stored_literally, s12_python_oracle_matches_file
+  test result: FAILED. 10 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
+
+## Итог
+мутаций: 7
+все мутации убиты, все файлы восстановлены

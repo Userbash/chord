@@ -1,0 +1,201 @@
+   Compiling discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:162:22
+    |
+162 |     let rows = store.messages(CHANNEL, None, 10).expect("messages");
+    |                      ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+162 |     let rows = store.messages_missing(CHANNEL, None, 10).expect("messages");
+    |                              ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:179:22
+    |
+179 |     let rows = store.messages(CHANNEL, None, 10).expect("messages");
+    |                      ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+179 |     let rows = store.messages_missing(CHANNEL, None, 10).expect("messages");
+    |                              ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:187:14
+    |
+186 | /         store
+187 | |             .messages(CHANNEL, None, 0)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+187 |             .messages_missing(CHANNEL, None, 0)
+    |                      ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:199:25
+    |
+199 |     let clamped = store.messages(CHANNEL, None, 5_000).expect("clamp");
+    |                         ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+199 |     let clamped = store.messages_missing(CHANNEL, None, 5_000).expect("clamp");
+    |                                 ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:203:15
+    |
+203 |         store.messages(CHANNEL, None, 1_001).expect("clamp").len(),
+    |               ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+203 |         store.messages_missing(CHANNEL, None, 1_001).expect("clamp").len(),
+    |                       ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:241:14
+    |
+240 |           let page = store
+    |  ____________________-
+241 | |             .messages(CHANNEL, before.as_deref(), 3)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+241 |             .messages_missing(CHANNEL, before.as_deref(), 3)
+    |                      ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:291:14
+    |
+290 | /         store
+291 | |             .messages("missing-channel", None, 10)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+291 |             .messages_missing("missing-channel", None, 10)
+    |                      ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:311:22
+    |
+311 |     let rows = store.messages(CHANNEL, None, 10).expect("messages");
+    |                      ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+311 |     let rows = store.messages_missing(CHANNEL, None, 10).expect("messages");
+    |                              ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:328:15
+    |
+328 |         store.messages(CHANNEL, None, 10).expect("messages").len(),
+    |               ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+328 |         store.messages_missing(CHANNEL, None, 10).expect("messages").len(),
+    |                       ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:384:15
+    |
+384 |         store.messages(CHANNEL, None, 10).expect("messages"),
+    |               ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+384 |         store.messages_missing(CHANNEL, None, 10).expect("messages"),
+    |                       ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:410:23
+    |
+410 |     let again = store.messages(hostile_channel, None, 10).expect("messages");
+    |                       ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+410 |     let again = store.messages_missing(hostile_channel, None, 10).expect("messages");
+    |                               ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:420:10
+    |
+419 |       let older = store
+    |  _________________-
+420 | |         .messages(hostile_channel, Some(second_id), 10)
+    | |_________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+420 |         .messages_missing(hostile_channel, Some(second_id), 10)
+    |                  ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:433:14
+    |
+432 | /         store
+433 | |             .messages(hostile_channel, None, 10)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+433 |             .messages_missing(hostile_channel, None, 10)
+    |                      ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:637:22
+    |
+637 |     let rows = store.messages(CHANNEL, None, 10).expect("messages");
+    |                      ^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+637 |     let rows = store.messages_missing(CHANNEL, None, 10).expect("messages");
+    |                              ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:650:14
+    |
+649 | /         store
+650 | |             .messages(CHANNEL, None, 10)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+650 |             .messages_missing(CHANNEL, None, 10)
+    |                      ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:659:14
+    |
+658 | /         store
+659 | |             .messages(CHANNEL, Some("no-such-id"), 10)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+659 |             .messages_missing(CHANNEL, Some("no-such-id"), 10)
+    |                      ++++++++
+
+error[E0599]: no method named `messages` found for struct `Store` in the current scope
+   --> crates/discord-store/tests/store_contract.rs:666:14
+    |
+665 | /         store
+666 | |             .messages("no-such-channel", Some("m-1"), 10)
+    | |_____________-^^^^^^^^
+    |
+help: there is a method `messages_missing` with a similar name
+    |
+666 |             .messages_missing("no-such-channel", Some("m-1"), 10)
+    |                      ++++++++
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-store` (test "store_contract") due to 17 previous errors
+# EXIT=101

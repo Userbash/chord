@@ -1,0 +1,2936 @@
+Reading additional input from stdin...
+OpenAI Codex v0.162.1
+--------
+workdir: /home/sanya/orca/project
+model: gpt-6-luna
+provider: codexsale
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a164c4-2bc5-7220-9d9c-50614276a3c7
+--------
+user
+Независимое ревью RW-31/P6-06 power/idle. ЖЁСТКИЕ ПРАВИЛА: (1) НЕ редактируй файлы в /home/sanya/orca/project — только чтение; (2) писать только в /tmp/opencode/w31a-codex, НЕ копируй весь workspace (без target/.git); (3) CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a; (4) без сети/git commit. Проверь: waves/RW-31/TZ-W31a.md, RE-POWER.md; discord-platform/src/power.rs; src/lib.rs (+1 строка); tests/power_contract.rs; waves/RW-31/power/mock_power.py; fixtures/dbus/power.json; логи workers/W31a; run-mutations-w31a.py; REPORT-W31a.md. Воспроизведи targeted-тесты (12) в своём target-dir и мутации в /tmp-копии (7/7, restore по md5, baseline без SKIP), проверь контракт: ScreenSaver Inhibit/UnInhibit(+fallback)/IsActive/GetSessionIdleTime (UnknownMethod→Ok(None)), PowerMonitor PrepareForSleep(true/false), таймаут Ok(None), фильтр чужих сигналов, IdlePolicy границы/переполнение, пустые app/reason → Protocol, отсутствие unsafe/panic/unwrap/expect, md5 в отчёте. В конце вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+codex
+Сначала проверю исходный `HEAD`, рабочее состояние и точные ревью-артефакты по контексту проекта. Все команды, записи и мутационные прогоны направлю в указанный каталог `/tmp`; исходный workspace останется только для чтения.
+exec
+/usr/bin/bash -lc "sed -n '1,220p' PROJECT-CONTEXT.md && git rev-parse HEAD && git status --short && rg --files waves/RW-31 workers | rg '("'^waves/RW-31/(TZ-W31a'"\\.md|RE-POWER\\.md|REPORT-W31a\\.md|power/mock_power\\.py)|power_contract\\.rs|W31a|run-mutations-w31a\\.py)'" in /home/sanya/orca/project
+ succeeded in 0ms:
+# discord-lab: session checkpoint (сжатый контекст)
+
+Точка входа для нового диалога. Читать первым; детали — точечно по ссылкам.
+Обновлён 2026-10-22 после RW-30.
+
+## Состояние
+
+- `/home/sanya/orca/project`, `main`, HEAD `ebf5efd`; принятые волны RW-10…RW-29 закоммичены и запушены; RW-30 — коммит
+  следующим шагом; коммиты/пуш — координатор.
+- **Принято 42 / 90** карточек (хвосты P7-01b/c/d/e в 90 не входят). Последние волны 2026-10-22:
+  - **RW-30**: P7-01d DurationFormat, P6-02 D-Bus-уведомления (headless, без новых крейтов);
+  - **RW-28**: P7-01c RelativeTimeFormat — ICU-паритет ±2, точные i64 > 2^53 (headless);
+  - **RW-29**: P4-04 RTP-медиа (PT120/0xBEDE, DTX, джиттер по pcap-оракулу), P4-12
+    reconnect/resume, P7-01e `<t:…>`-таймстемпы (headless).
+- Факт: workspace **984 passed**, core 531, i18n 83 (relative 12 + timestamp 14 + duration 13),
+  media 13, reconnect 12, platform 41 (dbus 7 + notifications 11); fmt/clippy чисто;
+  npm `gate:worker` passed; мутации 8/8, 8/8, 9/9, 6/6, 8/8, 10/10 (все restored по md5).
+- Гейт: `.gate/worker-2026-10-22T17-54-26-464Z.json`, `waves/RW-30/gate-cargo.log`.
+- Ревью: RW-28 — два прохода (P0 Auto ±2 → решение TL `waves/RW-28/DECISIONS.md`; P1 точность
+  → точные `plural_category_integer`/`format_integer_unsigned`); RW-29 voice — принято,
+  P0/P1/P2=0, 8 P3 в бэклог (`waves/STATE.md` §7).
+
+## Что дальше
+
+1. **B07 = P0-01 / P1-10 / P2-03** (GUI spike, keyring, SQLite) — **заблокирован** до
+   решения владельца: нет `tauri`/`iced`/`egui`/`winit`/`wry` в lock/кэше; `keyring` +
+   Secret Service; `rusqlite` + системный SQLite; живой Discord — только по окну.
+2. Headless-остатки: **P6-06** power/idle (контракт `waves/RW-31/TZ-W31a.md`, на общем
+   D-Bus-клиенте), **P2-03** SQLite через FFI к системному `libsqlite3` (решение —
+   `waves/RW-31/SQLITE-DECISION.md`, нужен «ок» владельца на `unsafe` в модуле `ffi`);
+   P4-05/P4-06/P4-08/P4-09 требуют GUI/зависимостей.
+3. Процесс: batch 3–6 карточек → red-first → targeted → mutation → один batch gate →
+   независимое ревью → accepted → доки один раз. Роли — `docs/rust-client/TEAM.md`.
+
+## Правила (кратко)
+
+- Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
+- Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
+
+## Команды
+
+- `npm run gate:worker` — быстрый гейт (typecheck, meta, unit, smoke).
+- `cd rust && cargo test --offline --workspace` — Rust (npm-гейт его не запускает).
+- Восстановление: `git log --oneline -3` → `git status --short` → `tail -n 5 waves/db.jsonl`
+  → верх `waves/STATE.md`.
+
+## Скиллы
+
+`token-efficiency` (фильтровать чтение, bash вместо Read), `discord-lab-context`
+(навигация по репо), `context-engineering-collection`; `session-compression` избыточен.
+MCP: rea, socraticode, github, basic-memory, context7.
+
+## Известные расхождения
+
+- `docs/rust-client/WAVE-PLAN.md` §«Очередь» сохранил старую нумерацию (B04/B07), тогда как
+  `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
+  ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
+- RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
+  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+- P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
+  `ru-RU`-fallback) — в `waves/STATE.md` §7.
+171a6d597620cc99c9bfb35f9c1121c0e9336364
+ M rust/crates/discord-platform/src/lib.rs
+?? fixtures/dbus/power.json
+?? rust/crates/discord-platform/src/power.rs
+?? rust/crates/discord-platform/tests/power_contract.rs
+?? waves/RW-31/BATCH-TZ.md
+?? waves/RW-31/REPORT-W31a.md
+?? waves/RW-31/TZ-W31b.md
+?? waves/RW-31/mutations-w31a.log
+?? waves/RW-31/power/
+?? waves/RW-31/review-codex-w31a.log
+?? waves/RW-31/run-mutations-w31a.py
+?? waves/RW-31/workers/
+rg: workers: No such file or directory (os error 2)
+waves/RW-31/REPORT-W31a.md
+waves/RW-31/run-mutations-w31a.py
+waves/RW-31/workers/W31a/green.log
+waves/RW-31/workers/W31a/red.log
+waves/RW-31/RE-POWER.md
+waves/RW-31/TZ-W31a.md
+waves/RW-31/power/mock_power.py
+
+codex
+В рабочем дереве уже лежат незакоммиченные файлы RW-31, поэтому ревью относится к текущему содержимому при `HEAD 171a6d5`, а не к старому checkpoint в `PROJECT-CONTEXT.md`. Прочитаю только правила отчёта/гейта и конкретные контрактные материалы, затем соберу отдельную копию проверяемых файлов в `/tmp` без `.git` и `target`.
+exec
+/usr/bin/bash -lc "sed -n '1,220p' .agents/skills/discord-lab-context/SKILL.md; rg -n '§ ?4\\.2|4\\.2|red|mutation|P6-06|RW-31' PROCESS.md docs/rust-client/TEAM.md TASKS.md TDD-PLAN.md waves/STATE.md" in /home/sanya/orca/project
+ succeeded in 0ms:
+---
+name: discord-lab-context
+description: Карта репозитория discord-lab (анализ Discord через Frida/CDP + Rust-клиент с оболочкой Tauri) — что читать первым, где что лежит, команды (гейты, тесты, Rust-воркспейс), каталоги только для чтения, где журнал волн и оракулы RE. Использовать при старте работы в этом репозитории, когда нужен быстрый контекст проекта. Регламент ролей — в скиллах discord-lab-process / discord-lab-worker / discord-lab-review.
+---
+
+# discord-lab — компас по репозиторию
+
+Проект: локальный CLI для анализа Discord (Frida/CDP) и Rust-клиент Discord (оболочка —
+Tauri). Разработка идёт волнами по hard TDD. Источник истины по процессу — `PROCESS.md`.
+
+## Что читать первым (just-in-time)
+
+1. `PROJECT-CONTEXT.md` — краткий статус, ограничения и навигация.
+2. `git rev-parse --short HEAD`; проверяй dirty-файлы только для назначенной области (`git status --short -- <paths>`).
+3. Перед кодом точечно прочитай TZ текущего batch, запись карточки в `TASKS.md`, нужный контракт `TDD-PLAN.md` и применимые разделы `PROCESS.md`/`TEAM.md`.
+4. `waves/STATE.md` используй как указатель текущего состояния; читай только верхний статус и релевантный раздел. Историю `waves/db.jsonl` проверяй через `tail -n 5`.
+5. Полные планы `PLAN.md`/`TEST-PLAN.md` и архивные волны открывай только если контракт/зависимость неясны.
+
+## Карта
+
+- `rust/` — Cargo-воркспейс (10 крейтов): `discord-core` (протокол/ws/dispatch), `discord-codec`,
+  `discord-store`, `discord-platform`, `discord-ui`, `discord-voice`, `discord-media`,
+  `discord-i18n`, `discord-app`, `discord-conformance`.
+- `src/`, `bin/`, `scripts/` — Node ≥ 24 (ESM, JSDoc): CLI, CDP-скрипты, `scripts/gate.mjs`.
+- `tests/` — `unit/`, `meta/` (форматы: §8, журнал волн), `smoke/`, `e2e/`, `helpers/`.
+- `waves/` — журнал волн: `STATE.md` (точка восстановления), `db.jsonl` (append-only),
+  `RW-XX/` (ТЗ, red/green-логи, отчёты), `reviews/`; правила — `waves/README.md`.
+- `fixtures/` — стабы/данные (в т.ч. `gw-proto/`, `rest/`); `docs/re/` — RE-отчёты (оракулы).
+- `docs/` — `map.md`, `feature-backlog.md`, `rust-client/`, `re/`.
+- Скиллы: `.opencode/skills/` (процесс/ревью/воркер) и `.agents/skills/` (официальные Orca +
+  этот компас); `skills-lock.json` — пины установленных скиллов.
+
+## Только для чтения
+
+- `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
+- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+
+## Команды
+
+- `npm run gate:worker` — обязательный быстрый гейт (typecheck, meta, unit, smoke).
+- `npm run gate:release` — полный (+ e2e с автоповтором, coverage, golden-сверка);
+  `gate:qualify` — выпускной; отчёты гейтов — `.gate/*.json`.
+- `npm run check` — typecheck + все тесты; `cd rust && cargo test --offline` — Rust
+  (npm-гейт cargo пока не запускает — прогонять вручную).
+- `npm run golden:freeze` — md5-манифест golden перед серией правок.
+- После сбоя/сна: `git log --oneline -3` + `git status` → `tail -n 5 waves/db.jsonl` →
+  `waves/STATE.md`.
+
+## Запреты (кратко; полный список — `AGENTS.md` / `PROCESS.md`)
+
+- Живой Discord не трогать без согласованного окна (`device.spawn`/attach — по команде).
+- Сеть, новые зависимости, установка пакетов — только с разрешения владельца.
+- Коммиты и пуш делает координатор; воркер не коммитит и не правит чужие файлы.
+- Golden не перезаписывать; тесты под код не «зеленить»; ошибки не глотать молча.
+waves/STATE.md:4:  headless, без новых зависимостей; ревью codex (P1/P2 закрыты red-first), мутации 8/8 и 10/10
+waves/STATE.md:14:  без новых зависимостей. Ревью TL-1/REV-2: P0/P1/P2=0 после red-first фиксов;
+waves/STATE.md:20:  (2×P1) — 6 находок, все закрыты red-first; `discord-voice` 65, `discord-perf` 17,
+waves/STATE.md:106:  red-first/актуализацией; P0/P1/P2=0. Targeted 32, workspace **902**, npm gate 214;
+waves/STATE.md:118:- Ревью TL-1: P0/P1/P2=0 после red-first (timestamp wrap, `#[path]`-копия теста,
+waves/STATE.md:132:  (`PacketCrypter::HeaderLength` / `SpaceRequiredToEncrypt`,
+waves/STATE.md:145:  10 000 upserts; green: 0.03 с (тест `r19` в `discord-core/tests/presence_reducer.rs`).
+waves/STATE.md:149:  счётчика). Все 6 закрыты red-first, P0/P1/P2 = 0. Локальный LLM (Qwen 27B) дал второе
+waves/STATE.md:162:  depth 11, saturating ordered numbers, exact timestamp/slash tokens.
+waves/STATE.md:167:  timestamp/slash закрыты red-first; `he many`/NBSP — не баги для ICU 78/`format()`
+waves/STATE.md:171:  review A/B, red/green, MD5SUMS).
+waves/STATE.md:181:- Review A: 4 P2 закрыты red-first (RR split, encode, peer/SSRC, schedule integration).
+waves/STATE.md:196:  endpoint/region, redaction; реальные rtc1/rtc2; 12 тестов. Review B: Debug/endpoint fixes.
+waves/STATE.md:202:  review-A/B/C, red/green, gate). P3: `$link` URL (P7-01), UDP/DAVE (P4-02/P4.5),
+waves/STATE.md:208:  preservation, limits, redacted Debug; 18 тестов. Review round 1 P2 (Debug fixed64 id/
+waves/STATE.md:209:  locale) закрыт red-first; round 2 accepted, P3 MAX_FIELDS закрыт t18 + M13.
+waves/STATE.md:212:  oracle; 13 тестов. Codec targeted 43/43, mutations 11/11.
+waves/STATE.md:215:- Gate: `waves/RW-21/gate-worker-b02.json`; mutations `RW-21/mutations/`; docs/test matrix —
+waves/STATE.md:225:  red-first v09b/v09c/v09d + мутанты clear-before-loop/first-wins. Round 2 — **accepted**,
+waves/STATE.md:230:- Integration I0/I1: `state/mod.rs`, `state/types.rs`, `state/reducer.rs`, `ready/snapshot.rs`,
+waves/STATE.md:231:  `lib.rs`; shared-тесты адаптированы. Targeted 33/33, core 506, workspace 548, fmt/clippy 0,
+waves/STATE.md:243:  `is_message_read`); закрыт red-first s11 (`Some(700) != None`, exit 101), s06 исправлен,
+waves/STATE.md:247:- Red: W17a compile-red, W17b 0/14 behavior-red, W17c compile-red (59 E0599), P2-1 s11;
+waves/STATE.md:251:- Артефакты: `waves/RW-17/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS/REPORT, тесты, red/green,
+waves/STATE.md:252:  mutation-logs, gate), ревью — `waves/reviews/review-p2-07.md`.
+waves/STATE.md:258:  изобретается (ignored, P2-09); сборка по `(guild, nonce)`, first-wins count, duplicate
+waves/STATE.md:263:  закрыт red-first (`r13`, exit 101); повторное ревью — **«принято»**, P0/P1/P2=0
+waves/STATE.md:267:- Red: compile-red exit 101 + behavior-red r12/r13 exit 101; green targeted 43/43, core 378,
+waves/STATE.md:279:  закрыт red-first (`red-w15-p21.log` exit 101 → green), P3 закрыты; повторное ревью —
+waves/STATE.md:284:- Red: compile-red, exit 101; green targeted 40/40, core 335, workspace 377; fmt/clippy чисто;
+waves/STATE.md:293:- Ревью round 1 — P2-1 (root re-exports), P0/P1=0; закрыт red-first, P3-2/cap/expect
+waves/STATE.md:300:### RW-13 — P2-02 state/reducer/selectors, принято 2026-10-20
+waves/STATE.md:302:- W13a `types.rs`, W13b `reducer.rs`, W13c `selectors.rs`: READY/SUPPLEMENTAL/RESUMED,
+waves/STATE.md:304:- Чистый reducer, `BTreeMap`-индексы, stale-политика (включая malformed), эффекты только
+waves/STATE.md:305:  `SubscribeMembers`, диагностика, redaction; 42 state-теста.
+waves/STATE.md:306:- Ревью round 1 — «не принято» (P1 stale malformed + 5 P2), все закрыты red-first;
+waves/STATE.md:308:- Red фиксов: `red-review-findings.log` (compile), `red-review-findings-runtime.log`
+waves/STATE.md:330:- Независимое ревью P2-01: round 1 — «не принято» (P1/P2/P3), все P1/P2 закрыты red-first;
+waves/STATE.md:332:- P2-01: `ready_review.rs` 7 кейсов; атом-строки, вложенные `ignored`-пути с `d.`,
+waves/STATE.md:337:  `p2-01-review-fixes.md`, red/green/workspace/clippy-логи, md5, `p2-04-*`).
+waves/STATE.md:348:  merged 7×1, крупная гильдия `member_count=24228`; диагностика и redaction.
+waves/STATE.md:353:- State: чистый reducer `(State, Event) -> (State, Effects)`, индексы `BTreeMap`,
+waves/STATE.md:355:  MESSAGE_CREATE/UPDATE, stale-политика, `SubscribeMembers`, селекторы, redaction.
+waves/STATE.md:370:- Voice signaling: op0/1/2/3/4/6/8/15/16, endpoint/region, secret redaction; без UDP/DAVE.
+waves/STATE.md:384:   по зависимостям/окну. Headless-остатки: P6-06 (power/idle на общем D-Bus-клиенте —
+waves/STATE.md:385:   контракт `waves/RW-31/TZ-W31a.md`), P2-03 (SQLite через FFI, решение —
+waves/STATE.md:386:   `waves/RW-31/SQLITE-DECISION.md`), P4-05/P4-06/P4-08/P4-09 (GUI/зависимости).
+waves/STATE.md:389:4. Red-first → targeted → mutation → один batch gate → независимое ревью → accepted.
+waves/STATE.md:401:| mutation catch rate | ≥ 90 % | **19/19, 6/6 (+2 эквивалентных), 14/14 = 100 %** |
+waves/STATE.md:419:- RW-30/P7-01d: ICU-паритет привязан к Node 24.21/ICU 78; capacity в `join_chunks` не учитывает
+waves/STATE.md:422:  (5 из 186 проверок ревью; relative-путь не затронут). Мутации `run-mutations.py` пишут
+waves/STATE.md:435:- RW-27/P6-04: `DeepLink::raw` — публичное поле с `token`; redaction только в `Debug`,
+waves/STATE.md:509:- RW-17/P2-07: red-лог W17b снят до финального форматирования (номера строк, причина
+waves/STATE.md:510:  та же); старый `mutations.txt` 4/4 помечен superseded, актуальный `MUTATIONS.md` 7/7;
+waves/STATE.md:513:- RW-16/P2-05: P3-2 red-лог r13 снят до двух last-wins assert-ов (сдвиг строк, причина
+waves/STATE.md:517:- RW-15/P2-04: P3-1…3 закрыты test-only; P3-4 tests-red пуст (compile-red).
+waves/STATE.md:518:- RW-14/P2-06: P3-1 Before-trim/Around-deferred не в committed-тестах; P3-2 page/page
+PROCESS.md:37:| 4. Воркер: ветка, миграции, gate, отчёт | TDD в своих файлах; «миграции» → совместимость форматов (§6); `npm run gate:worker`; отчёт (§4.2). Изоляция: общая папка + непересекающиеся файлы (уровень L1), orca-worktree + ветка `w/<task>` (уровень L2 — при включённом remote/CI) |
+PROCESS.md:60:| Module worker | агент | один модуль + его тесты: red → green → targeted-отчёт; только свои файлы | не трогает общие `types.rs`/`reducer.rs`/`mod.rs`/`lib.rs`, не обновляет доки |
+PROCESS.md:63:| Independent reviewer | агент, не автор | P0/P1/P2/P3, границы файлов, red-first, безопасность | не правит код во время ревью |
+PROCESS.md:66:| Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
+PROCESS.md:84:ТЗ по шаблону §4.1. Требования: множества файлов не пересекаются; у каждой задачи — red-кейсы и
+PROCESS.md:88:- red-first: тест написан и **прогнан** до реализации (падение зафиксировано командой и результатом);
+PROCESS.md:92:- отчёт по шаблону §4.2. Задача закрывается не отчётом, а приёмкой Team Lead.
+PROCESS.md:94:3.5 **Ревью.** Team Lead принимает batch: границы файлов, red-first, независимые оракулы (не
+PROCESS.md:149:  и shared-файлы. Третий code worker — только после green пары и явного решения TL-1.
+PROCESS.md:160:B(n-1)                                                   → QA/mutation → gate → review
+PROCESS.md:166:  подволны `a` (types/parser) → `b` (reducer) → `c` (selectors) стартуют только после green
+PROCESS.md:171:- общие файлы (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`,
+PROCESS.md:175:  в integration-лейне, а не каждым воркером; воркер сдаёт targeted red/green;
+PROCESS.md:176:- ревью — после batch-гейта и параллельно по карточкам; P0/P1/P2 закрываются red-first, после
+PROCESS.md:191:- tests/card и mutation catch rate;
+PROCESS.md:207:Запрещено: <всё остальное: чужие тесты, src вне списка, доки, golden, shared-файлы>
+PROCESS.md:208:Кейсы (red-first): <ID тестов, ожидание, границы; бюджет — TEST-PLAN §1.1>
+PROCESS.md:211:DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; файлы+md5; §8-строка;
+PROCESS.md:215:4.2 **Отчёт воркера**
+PROCESS.md:220:- red: <команда> → <результат до реализации, exit code>;
+PROCESS.md:233:- [ ] red-first подтверждён прогоном, а не словами;
+PROCESS.md:271:- [ ] ревьюеры не авторы; P0/P1/P2 закрыты red-first;
+TDD-PLAN.md:3:Дата плана: 2026-10-18. Обновлено: 2026-10-19 (M1–M2 приняты, red-базлайн закрыт, CI,
+TDD-PLAN.md:10:воркеров — `TASKS.md`. Реализация идёт строго по тестам (red → green → refactor).
+TDD-PLAN.md:203:### M0 — red-базлайн (сделан)
+TDD-PLAN.md:329:сигнатурой с телом `Не реализовано: <имя>`; red-прогон показывал очередь работ, а `tsc`
+TDD-PLAN.md:440:  квалификации; см. `PROCESS.md`); мета-тесты зелёные; у новых тестов есть red-прогон
+TASKS.md:41:headless-остатки — P6-06 (power/idle) и P2-03 (SQLite через FFI, см. `waves/RW-31/`).
+TASKS.md:168:Правило TDD: на каждый пункт red-кейс → минимальная правка.
+TASKS.md:170:| ID | Находка | Файл | Кейс (red) | Приоритет | Статус |
+TASKS.md:327:Правила волны — `PROCESS.md` (ТЗ §4.1, отчёт §4.2, gate:worker). ТЗ: `/tmp/opencode/spec-w4fix-*.txt`.
+TASKS.md:373:`tests/meta/fixtures-tracked.test.mjs` (red→green); прогон подтверждён в чистом клоне.
+TASKS.md:446:3. Прогон: `node --test <свои файлы>` (red — падение до реализации), затем
+TASKS.md:449:4. Отчёт по шаблону `PROCESS.md` §4.2: файлы, кейсы, провенанс, команды, риски.
+TASKS.md:554:| RC-05 | Тесты | Уровни L1–L5; манифест RE-фикстур; каталог ~130 тестов (T-ENC/GW/REST/DATA/MSG/SRCH/VOICE/MEDIA/UI/I18N/SYS/SEC/HARN); протокол red-first | `docs/rust-client/TEST-PLAN.md` |
+TASKS.md:593:проверка) подтверждает red-first и оракулы. С 2026-10-20 действует batch-конвейер: 3–6 карточек,
+TASKS.md:595:`docs/rust-client/WAVE-PLAN.md`). Журнал волн (артефакты, red/green-логи, точка восстановления) —
+TASKS.md:608:| RW-07 | Роутер диспатчей: op0 → типизированные события 21 типа; неизвестные → raw (`kind: None` + счётчик); payload без разбора | P1-06 | `dispatch.rs` (`DispatchKind` 21 тип, `DispatchEvent`, `route_dispatch`); `ws.rs` (`events`/`take_events`/`unknown_dispatches` в пайпе); оракулы: union `msgs-*.jsonl` — 21 тип/1340 событий; сокет `.1389` — 44 терма/36 op0 (окно ruzstd, 704 Б хвоста) | T-GW-08 | воркер: субагент; приёмка: координатор | принято 2026-10-19 (независимое ревью; ниты N1–N3 закрыты red-first, N4 — в backlog) |
+TASKS.md:609:| RW-08 | REST-клиент: каталог 47 маршрутов, 6 auth-заголовков, коды, ретраи/таймауты (3 параллельных воркера + рефакторинг W8d + ревью W8r) | P1-07 | `routes.rs` — 47 маршрутов/`find`/`render_path` (T-REST-01); `headers.rs` — 6 заголовков + классы кодов (T-REST-02); `retry.rs` — таймауты/ретраи идемпотентных, POST/PATCH без ретраев, локальный стаб (T-REST-03); без новых зависимостей; реальный TLS-транспорт — открытый вопрос | T-REST-01…03 | воркеры: субагенты W8a–W8c; рефакторинг: W8d; ревью: W8r | принято 2026-10-20 (ревью W8r: блокеров нет, 14/14 мутаций; нит покрытия backoff закрыт red-first — кейс N6) |
+TASKS.md:610:| RW-09 | X-Super-Properties: генератор 22 полей (base64 JSON), конфигурируемо, политика «честные значения» (3 параллельных воркера + рефакторинг W9d + ревью W9r) | P1-08 | W9a `base64.rs` — RFC 4648 вручную; W9b `super_properties.rs` — JSON-запись/разбор 22 полей и base64 (T-REST-04); W9c `identity.rs` — честные значения из системы (ОС/ядро/локаль/дистрибутив/дисплей/оконный менеджер), свои поля идентичности, UUID v4 вручную; оракул — живой заголовок `95974.2323` (снимок D-02) + §6.2 `rest-d02.md`; без новых зависимостей | T-REST-04 | воркеры: субагенты W9a–W9c; рефакторинг: W9d; ревью: W9r | принято 2026-10-20 (ревью W9r: блокеров нет, 20/21 мутаций; ниты N1/N6 закрыты red-first, N4/N5 исправлены, N2 аннотирован, N3 — в backlog) |
+TASKS.md:611:| RW-10 | HTTP/1.1-транспорт REST (вариант A: tokio + tokio-rustls, ручной фрейминг) — 2 параллельных воркера W10a/W10b | P1-07 (инфраструктура) | `http1.rs` — запрос/ответ/CL/chunked/лимиты/инъекции; `transport.rs` — Endpoint, TCP/TLS, SAN, таймауты, чтение по CL/chunked/until-close; фикстуры CA→leaf; зависимости `tokio-rustls 0.26`, `httparse 1` (офлайн) | 30 (16+14) | воркеры: W10a/W10b; ревью: отдельный агент | ревью 2026-10-20: «принято с нитами» (повторное ревью — «принято с нитами», P0/P1/P2 нет); P1/P2-ниты закрыты red/green (`tests` 16+14; полный red/green `nits-red-final`/`nits-green-final`), P3 N1–N9 — очередь (`waves/reviews/review-rw-10-11-round2.md`); принято 2026-10-20 |
+TASKS.md:613:| RW-12 | P2-01 READY-парсер + I1 REST-фасад (независимые дорожки) | P2-01 / инфраструктура | I1 `client.rs` — auth+транспорт+429/5xx+телеметрия; P2-01 — A1: 40 top-level, guilds/channels/roles/emojis/stickers, private, users, relationships, read_state, UGS, sessions, merged_members, диагностика | I1 16; P2-01 14+13+11+7 | I1: координатор; P2-01: W12a/W12b/W12c + review | **Принято 2026-10-20.** I1 — независимое ревью «Принято» (`waves/reviews/review-i1.md`), P3-7 backlog. P2-01 — review round 1 «не принято» (P1/P2/P3), все P1/P2 закрыты red-first; round 3 «принято», P0/P1/P2=0 (`waves/reviews/review-p2-01-round3.md`). Red-final 0/7, green 7/7; core **233**, workspace **275**, fmt/clippy чисто; legacy `ready_data` удалён (P-4); гейт passed `.gate/worker-2026-10-20T09-56-10-288Z.json`; артефакты `waves/RW-12/reports/` |
+TASKS.md:614:| RW-13 | P2-02 state/reducer/selectors (3 параллельных воркера W13a/W13b/W13c) | P2-02 | `state/types.rs` — State/Event/парсеры, диагностика, redaction; `state/reducer.rs` — `apply`/`apply_dispatch`/`apply_frame`, stale-политика, слияние, `SubscribeMembers`; `state/selectors.rs` — выборки; корневые re-exports | 42 (15+19+8) | W13a/W13b/W13c; review: отдельный агент | **Принято 2026-10-20.** Review round 1 — «не принято»: P1 stale malformed + 5 P2 (author upsert, private DM, supplemental index, root exports, property-test); все закрыты red-first, повторное ревью — «принято», P0/P1/P2=0 (`waves/reviews/review-p2-02.md`). Red фиксов: 4 runtime + compile-r19, exit 101; green 42; core **275**, workspace **317**, fmt/clippy чисто; gate passed `.gate/worker-2026-10-20T10-58-32-180Z.json`; артефакты `waves/RW-13/`. |
+TASKS.md:615:| RW-14 | P2-06 memory history/pagination (W14a/W14b/W14c) | P2-06 | `history/types.rs` — bounded window, Live > Page, trim Latest/Before/After/Around; `pagination.rs` — Cursor/PageRequest/MessagePage/PageToken, generation/stale, atomic ChannelMismatch, dedup; `selectors.rs` — recent/range/window_around и др. | 20 (7+5+8) | W14a/W14b/W14c; review: отдельный агент | **Принято 2026-10-20.** Review round 1 — P2-1 (root re-exports), P0/P1=0; закрыт red-first, P3-2/cap/expect исправлены; повторное ревью — «принято», P0/P1/P2=0 (`waves/reviews/review-p2-06.md`). Red: compile W14a/b + behavior W14c + root/counts, exit 101; green 20; core **295**, workspace **337**, fmt/clippy чисто; gate passed `.gate/worker-2026-10-20T11-45-30-914Z.json`; scope memory-only (REST response/JSON/SQLite/перезапуск вне волны); артефакты `waves/RW-14/`. |
+TASKS.md:616:| RW-15 | P2-04 member list: GATEWAY upsert/delta, op37-подписки, range/ranges, удаление | P2-04 | `state/member_list.rs` — типы и парсеры; `member_list_reducer.rs` — upsert/delta/range/ranges, stale/duplicate; `member_list_selectors.rs` — выборки; `Effect::SubscribeMembers`; без живого op37 | 40 (14+17+9) | W15a/W15b/W15c; review: отдельный агент | **Принято 2026-10-20.** Review round 1 — P2-1 (duplicate при INSERT в позицию существующего id), P0/P1=0; закрыт red-first, P3 закрыты; повторное ревью — «принято», P0/P1/P2=0 (`waves/reviews/review-p2-04.md`). Green targeted 40/40, core **335**, workspace **377**, fmt/clippy чисто; gate passed `.gate/worker-2026-10-20T12-43-25-346Z.json`; артефакты `waves/RW-15/`. |
+TASKS.md:617:| RW-16 | P2-05 memory-only chunks/догрузка: `GUILD_MEMBERS_CHUNK`, merge members, `not_found`, `Effect::RequestPresence` | P2-05 | `state/member_chunk.rs` — типы/парсер; `member_chunk_reducer.rs` — additive merge по guild, chunk_index/count, not_found; `member_chunk_selectors.rs` — диапазоны/прогресс; `presences[]` не разбирается до P2-09 | 43 (19+13+11) | W16a/W16b/W16c; review: отдельный агент | **Принято 2026-10-20.** Review round 1 — P2-1 duplicate-index, закрыт red-first; round 2 — «принято», P0/P1/P2=0 (`waves/reviews/review-p2-05.md`). Green targeted 43/43, core **378**, workspace **420**, fmt/clippy чисто; gate passed `.gate/worker-2026-10-20T13-21-59-680Z.json`; mutation 3/3; артефакты `waves/RW-16/`. |
+TASKS.md:618:| RW-17 | P2-07 memory-only read-state/бейджи: `MESSAGE_ACK`, mentions, badge, ack-point | P2-07 | `state/read_state.rs` — `MessageAck`/parse; `read_state_reducer.rs` — lazy upsert, non-channel/stale guard, manual/non-manual mentions, version watermark; `read_state_selectors.rs` — mentions/guild/private/badge/ack-point/is_message_read; без unread-count, REST ACK, SQLite/UI/сети | 40 (12+17+11) | W17a/W17b/W17c; review: отдельный агент | **Принято 2026-10-20.** Review round 1 — P2-1 (channel fallback в `last_acked_id` давал ложный read), P0/P1=0; закрыт red-first s11, s06 исправлен; round 2 — «принято», P0/P1/P2=0 (`waves/reviews/review-p2-07.md`). Green targeted 40/40, core **418**, workspace **460**, fmt/clippy чисто; gate passed `.gate/worker-2026-10-20T15-10-13-521Z.json`; mutation 7/7; артефакты `waves/RW-17/`. |
+TASKS.md:619:| RW-18 | P2-09 memory-only presence: `PRESENCE_UPDATE`, scopes, activities, member-list/chunk presences | P2-09 | `state/presence.rs` — типы/парсер; `presence_reducer.rs` — upsert/offline+hidden/supplemental/member-list/chunk; `presence_selectors.rs` — статусы/scopes/activities/online ids; без сети/UI/SQLite/исходящих запросов | 54 (18+18+18) | W18a/W18b/W18c; review: отдельный агент | **Принято 2026-10-21.** Round 1 — P0/P1=0, P2=2 + P3=14, все закрыты red-first; round 2 — «принято», P0/P1/P2=0, P3=8 backlog (`waves/reviews/review-p2-09-round2.md`); mutation 13/13, md5 15/15; gate passed `waves/RW-18/gate-worker.json`; core **473**, workspace **515**; артефакты `waves/RW-18/`. |
+TASKS.md:620:| RW-19 | P2-10 memory-only voice states: snapshot, `VOICE_STATE_UPDATE`, timers, channel status | P2-10 | `state/voice/{types,parser,reducer,selectors}.rs`; ключ `(guild,user)`, таймеры `(guild,channel)`, `channel_id=nil` — выход; без live/сети/исходящих voice-запросов | 18 (types 6, reducer 8, selectors 4) | CORE-1/W19; TL-2 I0/I1; review: отдельный агент | **Принято 2026-10-21.** Review round 1 — P2-1 (snapshot additivity/last-wins/remove), закрыт red-first v09b/v09c/v09d + мутанты clear-before-loop/first-wins; round 2 — P0/P1/P2=0, P3=11 backlog (`waves/reviews/review-p2-10-round2.md`); B01 mutations 18/18; gate passed; core 506, workspace 548. |
+TASKS.md:621:| RW-20 | P2-11 memory-only typing TTL: `TYPING_START`, 10 000 мс, сброс/удаление | P2-11 | `state/typing/{types,parser,reducer,selectors}.rs`; детерминированное время через `received_at_ms`; удаление по `MESSAGE_CREATE`/READY; без wire `TYPING_STOP`, unread-count, UI/сети | 15 (types 5, reducer 5, selectors 5) | CORE-2/W20; TL-2 I0/I1; review: отдельный агент | **Принято 2026-10-21.** Review — P0/P1/P2=0, P3=10 backlog (`waves/reviews/review-p2-11.md`); typing mutations 8/8; fixture `RW-20/tests-data/typing-run2.jsonl` (28 START); t01 — capture `idx 117`, `s=192`. |
+TASKS.md:623:| RW-22 | B03: P3-15 i18n runtime + P4-01 voice signaling + P7-04 read-only API + P8-03 CI/release | P3-15, P4-01, P7-04, P8-03 | `discord-json`; `discord-i18n` hash/AST/plural/markdown; `discord-voice` signaling; `rest::resources`; `scripts/{ci,release}.sh` | JSON 11; i18n 8; voice 12; REST 6; CI 4; core 530; workspace 618 | CLIENT-1, VOICE-1, CORE-1, OPS-1; review A/B/C | **Принято 2026-10-21.** Review A/B/C: P1 fence не воспроизвёлся (regression добавлен), P2 plural/link/Debug/endpoint закрыты red-first; round 2 P0/P1/P2=0; мутации 18/18; gate `waves/RW-22/gate-worker-b03.json`. |
+TASKS.md:624:| RW-23 | B04: P4-02 UDP media transport + P8-04 reproducible SBOM/licenses | P4-02, P8-04 | `discord-voice/src/udp.rs` + `tests/udp.rs`; `scripts/sbom.mjs`; `ci.sh`/`release.sh`; `sbom_contract.rs` | UDP 15; SBOM 5; core 530; workspace 638 | VOICE-1/W24a, OPS-1/W24b; review A/B | **Принято 2026-10-21.** Discovery/keepalive/rotation/RTCP+SRTCP, fallible encode, peer/SSRC, rotate_if_due; SBOM 85 lock packages, strict SPDX, CI/release. Review A 4 P2 + B 2 P1/3 P2 закрыты red-first; мутации 21 caught + 1 inconclusive; gate `waves/RW-23/gate-worker-b04.log`; workspace 638. |
+TASKS.md:625:| RW-24 | B05: P7-01 полный i18n — locale registry/CLDR cardinal+ordinal, числа/валюты, даты/время, 23 markdown-правила | P7-01 | `discord-i18n/src/{locale,plural,format,format_data,markdown,lib}.rs`; `tests/{locale,plural,format,i18n,markdown}_contract.rs`; `tests/data/cldr-oracle.json`; генератор `waves/RW-24/gen-format-data.mjs` | i18n 33 (8 lib + 25 новых); core 530; workspace 663 | CLIENT-1/W25a, W25b; integration TL; review A/B | **Принято 2026-10-21.** 36 локалей/31 включена, CLDR cardinal/ordinal, exact `=N` до offset, числа/валюты, 4 стиля даты/времени UTC, `th` +543, localized names/timezone, skeleton, 23 markdown-правила с safe URL/bounded depth, fallback current→default→en-US. Review A/B: P0/P1/P2=0 после red-first; мутации 20/20 caught; gate `waves/RW-24/gate-worker-b05-final.log` / `.gate/worker-2026-10-21T08-58-08-129Z.json`; артефакты `waves/RW-24/`. |
+TASKS.md:626:| RW-25 | B06 (headless): P4-03 SRTP-крипта + P7-02 перф-харнесс + P8-01 updater | P4-03, P7-02, P8-01 | `discord-voice/src/crypto/{mod,aes,gcm,chacha,kdf}.rs` + `src/srtp.rs` + `tests/{crypto_vectors,srtp_contract}.rs`; новый крейт `discord-perf` (`src/workload.rs`, `tests/perf_contract.rs`); новый крейт `discord-updater` (`src/{manifest,plan}.rs`, `tests/updater_contract.rs`); без новых внешних зависимостей (кроме офлайн-кэша: `ring`, `sha2`, `serde_json`) | voice 65 (38 новых); perf 17; updater 34 + 1 doctest; core 531; workspace 785 | VOICE-1/W26a, OPS-1/W26b, OPS-1/W26c; интеграция TL-2 (I1: O(n²) presence); review: codex + TL-1 | **Принято 2026-10-22.** P4-03: AES-256/GCM, ChaCha20/XChaCha20-Poly1305, HKDF-SHA1 без зависимостей; S-box алгебраический (таблицы убраны — side-channel через кэш); раскладка `[clear][ciphertext][tag 16][counter 4 LE]` по capture (`waves/RW-25/research/RE-SRTP-LAYOUT.md`) и по функциям клиента (`PacketCrypter::HeaderLength`/`SpaceRequiredToEncrypt`, `RE-NATIVE-SRTP.md`); исходящий счётчик `0x80000000|n`, общий RTP+SRTCP; AAD = открытая часть в `*_rtpsize`; совместимость с wire Discord **не заявлена** (нет ключевого материала). P7-02: 24 229 участников + 100 000 сообщений на реальном редьюсере, холодный старт ~47 мс при бюджете 1500 мс, гейт регрессии >10 %. P8-01: манифест + Ed25519 над исходными байтами тела, SHA-256 до перемещений, staged-замена, откат с проверкой backup, запрет downgrade, защита от path traversal. Ревью: 2×P0 + 4×P1 (codex + TL-1) закрыты red-first; мутации **18/18**; gate passed `.gate/worker-2026-10-22T05-52-40-267Z.json`; артефакты `waves/RW-25/`.
+TASKS.md:629:| RW-27 | B09 (headless): P7-01b ListFormat + P6-04 deep links + P6-03 автозапуск/бейдж | P7-01b, P6-04, P6-03 | `discord-i18n/src/{list,list_data}.rs` + `tests/list_contract.rs`; `discord-platform/src/{deep_link,autostart}.rs` + `tests/{deep_link,autostart}_contract.rs`; оракул `waves/RW-27/fixtures/list-oracle.json` | targeted 32; workspace 902 | CLIENT-1/W27a, PLATFORM-1/W27b; integration TL-2; review REV-2 | **Принято 2026-10-22.** P7-01b: 31 локаль × 3 стиля × 3 типа, 279 строк, 1674 кейса ICU. P6-04: `discord://` разбор, RE-маршруты, `extract_deep_link`, redaction `raw`/`query`/`fragment` в `Debug`. P6-03: XDG Desktop Entry с Exec-quoting (reserved-набор 1.5), Unity badge, `autostart_path`. Ревью: 2×P2 закрыты red-first (Exec-quoting, доказательная база); мутации list 6/6 + 2 эквивалентных, platform 14/14; gate `.gate/worker-2026-10-22T13-58-02-813Z.json`; артефакты `waves/RW-27/`. |
+TASKS.md:632:| RW-30 | B11 (headless): P7-01d DurationFormat + P6-02 D-Bus-уведомления | P7-01d, P6-02 | `discord-i18n/src/{duration,duration_data}.rs` + `tests/duration_contract.rs`; `discord-platform/src/dbus/{mod,auth,message}.rs` + `notifications.rs` + `tests/{dbus_contract,notifications_contract}.rs`; оракулы `tests/data/duration-oracle.json`, `fixtures/dbus/*`; генераторы `waves/RW-30/{gen-duration-data.mjs,dbus/*.py}` | duration 13; dbus 7 + notifications 11 (workspace 984) | CLIENT-1/W30a, PLATFORM-1/W30b; review: независимый агент + codex | **Принято 2026-10-22.** DurationFormat: 31 локаль × 3 стиля × 8 единиц (4464 паттерна, 4092 кейса ICU), точные категории/группировка. D-Bus: собственный std-клиент (auth EXTERNAL, Hello, вызовы, сигналы), Notify/Close/GetCapabilities/GetServerInformation, события ActionInvoked/NotificationClosed; без unsafe/новых крейтов; оракул — приватный dbus-daemon + libdbus-мок. Ревью codex: P1 md5/P2 фикстура/P2 SKIP в мутациях — закрыты red-first (10/10, SKIP=0). Мутации 8/8 и 10/10; gate `.gate/worker-2026-10-22T17-54-26-464Z.json`. |
+TASKS.md:635:воркспейс 34/34 зелёные (`cargo test --offline`); red-first — падения заглушек (9+12) и 21/21 на
+TASKS.md:636:финальных тестах (логи `/tmp/opencode/rw-01/red*.txt`); `cargo clippy -D warnings` и `cargo
+TASKS.md:644:`cargo test --offline`); red-first — 9/9 падений на заглушке (`/tmp/opencode/rw-02/red.txt`; нит:
+TASKS.md:645:лог снят до финальной правки тестов — номера строк разошлись, содержательно red воспроизведён
+TASKS.md:658:59/59; `cargo test --offline`); red-first — 12/12 падений на заглушке (`/tmp/opencode/rw-03/red.txt`;
+TASKS.md:659:у прерванной попытки был невалидный red-лог с ошибками компиляции — сохранён как
+TASKS.md:660:`red-prev-attempt.txt`); `clippy -D warnings` / `fmt --check` чисты; `gate:worker` passed
+TASKS.md:673:`cargo test --offline`); red-first — 10/10 падений (первый прогон `red-first.txt` с сетевой
+TASKS.md:674:сборкой и воспроизведённый `red.txt` на заглушке `ws-stub.rs`; ревьюер независимо воспроизвёл
+TASKS.md:675:red байт-в-байт); `clippy -D warnings` / `fmt --check` чисты; `gate:worker` passed
+TASKS.md:695:payload вместо `{op:2, d:{…}}` (red `red-contract-fix.txt`), догнал волну до конца. red-first:
+TASKS.md:696:`red.txt` — 12 failed / 1 passed (пройденный — негативный контроль старого пути RW-04);
+TASKS.md:700:3 дыры закрыты тестами red-first при живых мутантах (`ready_accepts_string_user_id`,
+TASKS.md:713:`RunOptions` не расширялся — существующие тесты RW-05 не правились. red-first на финальной
+TASKS.md:714:редакции: 11/12 падений (`red.txt`, `# EXIT=101`, md5 теста `60bf79f4…`; прошёл только
+TASKS.md:724:`/tmp/opencode/review-rw-0506.md`) — **RW-05 «принято с нитами»** (red-first подтверждён логом и
+TASKS.md:727:«принято с нитами»** (репродукция red 1:1, md5/оракулы сошлись, 18/21 мутаций поймано; выжившие
+TASKS.md:728:R4 порог-константа, R10 RESUME до HELLO, R11 варианты ошибок — дыры покрытия, закрыты red-first:
+TASKS.md:729:`red-gap-tests.txt` `# EXIT=101`, 10 passed/3 failed ровно по целевым тестам, md5 теста
+TASKS.md:730:`9852c2ca…`, копия red-версии сохранена). Инцидент: после мутаций ревьюера restore без `touch`
+TASKS.md:752:`Cargo.toml/lock` не тронуты), red-репродукция 1:1, оракулы пересчитаны независимо (python:
+TASKS.md:755:закрыты координатором red-first (`/tmp/opencode/rw-07/red-gap.log`: 9 passed / 3 failed ровно
+TASKS.md:756:по целевым, `# EXIT=101`, md5 теста `fbb4e1bf…`, копия `dispatch_router-gap-red.rs`); продукт
+TASKS.md:776:теста W8a и добавления кейса N6 red переснят (см. `waves/RW-08/red/`). Итоги: `discord-core`
+TASKS.md:779:(red 0/11 → green 11/11, `# EXIT=101`). Отчёт: `waves/RW-08/report.md`; ревью:
+TASKS.md:787:`/home/sanya/re-deep/d02-snapshot` (requestId `95974.2323`; md5 выдержек в ТЗ). Новые зависимости
+TASKS.md:794:red переснят (`waves/RW-09/red/`; mutation-red — `w9a-red-mutation-n1.log`). Итоги: `discord-core`
+TASKS.md:796:«принято с нитами», 20/21 мутаций; ниты N1/N6 закрыты red-first, N4/N5 исправлены, N2 аннотирован,
+TASKS.md:840:- Процесс (нит ревью RW-04): в red/green-логи волн включать `# EXIT=…` и md5 тест-файла — связь
+TASKS.md:841:  «red снят на финальном тесте» должна доказываться содержимым лога, а не mtime.
+docs/rust-client/TEAM.md:7:заняты research, QA, review, gate и docs и не конкурируют за `target-dir` и shared-файлы.
+docs/rust-client/TEAM.md:15:  Общие файлы (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`,
+docs/rust-client/TEAM.md:34:  TL --> QUALITY["Quality guild<br/>TEST-1 oracle, QA-1 mutations,<br/>REV-1/2 review, SEC-1 security"]
+docs/rust-client/TEAM.md:47:| TL-2 | Rust Tech Lead | архитектура, integration-патч общих файлов, разрешение конфликтов, разблокировка | `state/types.rs`, `reducer.rs`, `mod.rs`, `lib.rs`, каркасы | не принимает карточку единолично |
+docs/rust-client/TEAM.md:50:| CORE-1..3 | Core module workers | state/parsers/reducer/selectors/net | свои модули и их тесты | не трогает shared-файлы, чужие тесты, доки |
+docs/rust-client/TEAM.md:54:| QA-1 | Mutation/QA engineer | мутации, флейки, restore по md5, batch-прогоны | mutation-логи/скрипты | не меняет контракт под мутант |
+docs/rust-client/TEAM.md:55:| REV-1/2 | Independent reviewers | P0/P1/P2/P3, границы, red-first, безопасность | только review-артефакты | не правит код во время ревью |
+docs/rust-client/TEAM.md:58:| DOC-1 | Docs/journal | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`map`/`db.jsonl` после accepted | доки и журнал | не обновляет доки в red-фазе |
+docs/rust-client/TEAM.md:74:| Модульный red → green | A | C | I | R | C | I | I |
+docs/rust-client/TEAM.md:79:| Закрытие P0/P1/P2 red-first | A/R | C | C | R | C | C | I |
+docs/rust-client/TEAM.md:88:  C --> D["3. Integration<br/>TL-2: shared files"]
+docs/rust-client/TEAM.md:90:  E --> F["5. QA/mutation<br/>targeted + restore"]
+docs/rust-client/TEAM.md:94:  I -- "да" --> J["red-first fix"]
+docs/rust-client/TEAM.md:122:b: W19 reducer       ∥ W20 reducer          → I1 API patch
+docs/rust-client/TEAM.md:123:c: W19 selectors     ∥ W20 selectors        → QA/mutations
+docs/rust-client/TEAM.md:132:  shared-файлов. Скорость даёт перекрытие code/QA/review, а не шесть одновременных компиляций.
+docs/rust-client/TEAM.md:145:- Воркер не запускает полный `gate:worker`; он сдаёт targeted red/green. Полный gate — один раз
+docs/rust-client/TEAM.md:147:- Документы и журнал не обновляются в red-фазе; только после accepted.
+docs/rust-client/TEAM.md:152:2. Не редактируй shared-файлы и чужие тесты. Нужен новый экспорт — заявка TL-2, не сам.
+docs/rust-client/TEAM.md:153:3. Сначала тест: запусти targeted red, сохрани команду, exit code и лог.
+docs/rust-client/TEAM.md:157:7. Отчёт по PROCESS.md §4.2: batch, red, green, targeted, файлы+md5, риски, следующий шаг.
+docs/rust-client/TEAM.md:169:red: <команда> → exit 101, <лог>
+docs/rust-client/TEAM.md:181:- замораживает контракт и назначает владельцев shared-файлов;
+docs/rust-client/TEAM.md:202:| P0/P1 на ревью | TL-1 | стоп batch, red-first, повторный gate |
+docs/rust-client/TEAM.md:203:| P2 на ревью | автор + TL-2 | red-first в этом же batch |
+docs/rust-client/TEAM.md:234:| b | `voice/{reducer}` + v07–v11 | `typing/{reducer}` + t06–t10 | I1: EventPayload/routes/apply/from_frame_at |
+docs/rust-client/TEAM.md:235:| c | `voice/{selectors}` + v12–v15 | `typing/{selectors}` + t11–t15 | QA/mutations; gate |
+
+exec
+/usr/bin/bash -lc "sed -n '1,210p' waves/RW-31/TZ-W31a.md; sed -n '1,240p' waves/RW-31/RE-POWER.md; sed -n '1,260p' waves/RW-31/REPORT-W31a.md; sed -n '1,260p' rust/crates/discord-platform/src/power.rs; sed -n '1,80p' rust/crates/discord-platform/src/lib.rs;" in /home/sanya/orca/project
+ succeeded in 0ms:
+# TZ W31a — P6-06 Питание и idle (headless)
+
+Волна: RW-31. Дата: 2026-10-22. Крейт: `discord-platform`. Сеть не используется.
+Опирается на D-Bus-клиент P6-02 (`discord-platform/src/dbus/*`, RW-30).
+
+## 1. Замороженный контракт
+
+```rust
+use crate::dbus::{BusAddress, Connection, DbusError, Signal};
+
+/// org.freedesktop.ScreenSaver (сессионная шина): не гасить экран в звонке.
+pub struct ScreenSaver { /* Connection */ }
+impl ScreenSaver {
+    pub fn connect(address: &BusAddress) -> Result<Self, DbusError>;
+    pub fn inhibit(&mut self, app_name: &str, reason: &str) -> Result<u32, DbusError>; // cookie
+    pub fn uninhibit(&mut self, cookie: u32) -> Result<(), DbusError>;
+    pub fn is_active(&mut self) -> Result<bool, DbusError>;
+    /// `org.freedesktop.ScreenSaver.GetSessionIdleTime` (KDE); `None` — метод не поддержан.
+    pub fn idle_seconds(&mut self) -> Result<Option<u64>, DbusError>;
+}
+
+/// org.freedesktop.login1.Manager (системная шина): события сна/пробуждения.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PowerEvent { GoingToSleep, WakingUp }
+
+pub struct PowerMonitor { /* Connection */ }
+impl PowerMonitor {
+    pub fn connect(address: &BusAddress) -> Result<Self, DbusError>;
+    pub fn subscribe(&mut self) -> Result<(), DbusError>; // AddMatch PrepareForSleep
+    pub fn next_event(&mut self, timeout: std::time::Duration) -> Result<Option<PowerEvent>, DbusError>;
+}
+
+/// Авто-статус по бездействию (порог — конфигурация, не RE-факт).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PresenceStatus { Online, Idle, Dnd }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct IdlePolicy { pub idle_after_secs: u64, pub dnd_after_secs: u64 }
+impl IdlePolicy {
+    pub const DEFAULT: Self; // 600 / 1800 — продуктовые значения, не подтверждены RE
+    pub fn status(&self, idle_secs: u64) -> PresenceStatus;
+}
+```
+
+Инварианты:
+
+- `status`: `idle_secs < idle_after` → `Online`; `idle_after <= idle_secs < dnd_after` → `Idle`;
+  `>= dnd_after` → `Dnd`; `idle_after == dnd_after` → `Dnd` при `>=`; нулевые пороги
+  трактуются как «сразу idle/dnd»; `u64::MAX` без переполнения.
+- `ScreenSaver::inhibit`: `Inhibit(s,s) -> u`; пустые `app_name`/`reason` → `DbusError::Protocol`.
+  `uninhibit`: `UnInhibit(u)` (имя метода сервиса — `UnInhibit`; проверить и при расхождении
+  принимать `Uninhibit`, зафиксировать в отчёте); неизвестный cookie — ошибка сервера, не паника.
+- `idle_seconds`: если сервер вернул `UnknownMethod`/`UnknownInterface` — `Ok(None)`; прочие
+  ошибки — `Err`.
+- `PowerMonitor`: путь `/org/freedesktop/login1`, интерфейс `org.freedesktop.login1.Manager`,
+  сигнал `PrepareForSleep(b)`; `true` → `GoingToSleep`, `false` → `WakingUp`; чужие сигналы
+  пропускаются; таймаут → `Ok(None)`.
+- Никаких паник/`unsafe`/новых зависимостей; только `std` + `crate::dbus`.
+- Соединение закрыто/битый пакет → `DbusError`, без паники.
+
+## 2. Доказательная база
+
+`waves/RW-31/RE-POWER.md`: `POWER_MONITOR_*` IPC-каналы и `POWER_SAVE_BLOCKER_*`
+(`/home/sanya/re-deep/backend-ipc.md`), `discord_utils` (Wayland-idle, X11) в
+`docs/re/architecture.md`, `native-re.md` §WaylandIdleManager. Точные пороги idle→status в RE
+не зафиксированы — вынесены в конфигурацию с явной пометкой.
+
+## 3. Кейсы (red-first)
+
+| ID | Проверка | Ожидание |
+|---|---|---|
+| p01 | `IdlePolicy::status` границы 0/599/600/601/1799/1800 | Online/Idle/Dnd |
+| p02 | `inhibit` на мок-сервисе | cookie, мок видит app/reason |
+| p03 | `uninhibit(cookie)` | мок получил вызов |
+| p04 | `is_active` true/false | значение мока |
+| p05 | `idle_seconds` Some/UnknownMethod | `Some(n)` / `None` |
+| p06 | `PrepareForSleep(true/false)` | GoingToSleep/WakingUp |
+| p07 | чужие сигналы между событиями | пропущены |
+| p08 | таймаут `next_event` | `Ok(None)` |
+| p09 | пустые app_name/reason | `Protocol` |
+| p10 | закрытое соединение | ошибка, без паники |
+| p11 | live-сервис сессии | skip-aware |
+| p12 | нет `dbus-daemon`/python-dbus | skip с причиной |
+
+Бюджет: 10–12 тестов; мутации 5–7 (границы policy, sleep-флаг, таймаут, UnknownMethod,
+cookie, фильтр сигналов).
+
+## 4. Команды
+
+```sh
+cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w31a cargo test --offline -p discord-platform --test power_contract
+```
+
+Полный gate — один раз в integration-лейне.
+
+## 5. DoD
+
+red-лог с exit code → green → мутации (restore по md5) → отчёт `waves/RW-31/REPORT-W31a.md`.
+# RE: питание, ингибиторы и idle (P6-06)
+
+Дата: 2026-10-22. Источник — только чтение `/home/sanya/re-deep/backend-ipc.md`,
+`main-arch.md`, `native-re.md`, `docs/re/architecture.md`.
+
+## 1. Что делает клиент
+
+IPC-каналы питания (`backend-ipc.md`, раздел «питание», 8 каналов):
+
+| Канал | Смысл |
+|---|---|
+| `DISCORD_POWER_MONITOR_GET_SYSTEM_IDLE_TIME` | запрос времени бездействия системы |
+| `DISCORD_POWER_MONITOR_SUSPEND` / `RESUME` | push: система уходит в сон / просыпается |
+| `DISCORD_POWER_MONITOR_LOCK_SCREEN` / `UNLOCK_SCREEN` | push: блокировка/разблокировка |
+| `POWER_SAVE_BLOCKER_BLOCK_DISPLAY_SLEEP` / `UNBLOCK_DISPLAY_SLEEP` / `CLEANUP_DISPLAY_SLEEP` | ингибитор гашения экрана |
+
+Main (`main-arch.md` §10.1) держит `POWER_MONITOR_*` в `core #4531`; на Linux idle берётся из
+`discord_utils.isWaylandIdleAvailable()/getWaylandSystemIdleTimeMs()` с fallback
+(`core #4531 @82812`). `discord_utils` (19,2 МБ) содержит `WaylandIdleManager` и X11-idle
+(`docs/re/architecture.md`, `native-re.md` §WaylandIdleManager, лог `Wayland idle manager shut down`).
+
+## 2. Отображение на Linux
+
+- Экран в звонке не гасится ингибитором: `org.freedesktop.ScreenSaver.Inhibit/UnInhibit`
+  (сессионная шина) — универсальный freedesktop-путь, не требует нативного модуля.
+- Сон/пробуждение: `org.freedesktop.login1.Manager.PrepareForSleep(b)` (системная шина);
+  ингибитор сна `Inhibit("sleep", …)` возвращает **fd**, поэтому в этой карточке не
+  реализуется (нужен SCM_RIGHTS; вынесено в бэклог).
+- Idle-время: `ScreenSaver.GetSessionIdleTime` доступен в KDE; на других окружениях метод
+  может отсутствовать — контракт возвращает `Option<u64>`, а не ошибку.
+- Авто-статус: значения `online/idle/dnd` подтверждены в gateway-схеме
+  (`docs/re/gateway-schema.md`: атомы `online`×312, `idle`×116, `dnd`×92). **Точные пороги**
+  «idle через N минут» в RE не найдены — вынесены в `IdlePolicy` как конфигурация
+  (DEFAULT 600/1800 помечен как продуктовое значение, не факт клиента).
+
+## 3. Ограничения
+
+- Wayland `ext-idle-notify-v1` и X11 `XScreenSaver` без клиентских библиотек не реализуются;
+  D-Bus `GetSessionIdleTime` — единственный headless-путь.
+- Live-проверка на рабочем столе — только skip-aware/по флагу, без реального гашения экрана.
+- Wire-совместимость с нативным `discord_utils` не заявляется: это самостоятельная
+  freedesktop-реализация.
+# REPORT W31a — P6-06 Питание и idle (headless)
+
+Батч: RW-31, карточка P6-06, seat PLATFORM-1 / W31a. Дата: 2026-10-22.
+Репозиторий: `discord-lab`, крейт `discord-platform`. Сеть не использовалась, `unsafe` нет,
+новых зависимостей нет (только `std` + уже принятый `crate::dbus` из P6-02).
+
+## 1. Что сделано
+
+- `power::{ScreenSaver, PowerMonitor, PowerEvent, PresenceStatus, IdlePolicy}` по
+  замороженному контракту `TZ-W31a.md` §1.
+  - `ScreenSaver`: `connect`, `inhibit(app, reason) -> cookie`, `uninhibit(cookie)`,
+    `is_active`, `idle_seconds` (`GetSessionIdleTime`, KDE).
+  - `PowerMonitor`: `connect`, `subscribe` (`AddMatch PrepareForSleep`), `next_event(timeout)`.
+  - `IdlePolicy::DEFAULT` = 600/1800 с; `status` — только сравнения `u64`, без арифметики.
+- `src/lib.rs` — ровно одна строка `pub mod power;` после `pub mod notifications;`
+  (файл не переформатировался).
+- `tests/power_contract.rs` — 12 тестов p01–p12 на приватном `dbus-daemon` + libdbus-моке.
+- `waves/RW-31/power/mock_power.py` — мок на `python3-dbus`/libdbus: два well-known имени
+  (`org.freedesktop.ScreenSaver`, `org.freedesktop.login1`), журнал вызовов TSV и
+  управляющий интерфейс `lab.Mock.Power`.
+- `fixtures/dbus/power.json` — оракульные адреса/сигнатуры/формы ответов libdbus-сервиса;
+  используется в p02 (ScreenSaver) и p06 (login1).
+- `waves/RW-31/run-mutations-w31a.py` — 7 мутаций с restore по md5.
+
+## 2. Оракул
+
+Независимый от Rust: сервисы и транспорт — python3-dbus (libdbus) на приватном
+`dbus-daemon --session --fork`. Мок журналирует каждый вызов, умеет:
+
+- `Inhibit` → инкрементный cookie (старт 41), `UnInhibit` и алиас `Uninhibit`;
+- неизвестный cookie → D-Bus-ошибка `org.freedesktop.ScreenSaver.Error.InvalidCookie`;
+- `--force-uninhibit-alias` → `UnInhibit` отвечает `UnknownMethod` (проверка fallback);
+- `IsActive` c переключением через `SetActive`;
+- `GetSessionIdleTime` в режимах `value` / `unknown-method` / `unknown-interface` / `error`;
+- `PrepareForSleep(b)` и «чужие» сигналы (другой интерфейс + `PrepareForSleep` с телом `s`).
+
+Мок и фикстура ничего не пишут в golden-каталоги; live Discord не запускался.
+
+## 3. Red / green
+
+Red (до реализации, модуля `power` нет):
+
+```
+cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w31a \
+  cargo test --offline -p discord-platform --test power_contract
+error[E0432]: unresolved import `discord_platform::power`
+...
+# EXIT=101
+```
+
+Лог: `waves/RW-31/workers/W31a/red.log` (md5 `4a7baf30739b249fa889e5c53094e7cc`).
+
+Green (предписанный target-dir, предупреждений нет):
+
+```
+running 12 tests
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+# EXIT=0
+```
+
+Лог: `waves/RW-31/workers/W31a/green.log` (md5 `b03fcea3a8b81c9970164777314cf8c0`).
+
+## 4. Тесты
+
+| ID | Тест | Итог |
+|---|---|---|
+| p01 | `p01_idle_policy_boundaries` — 0/599/600/601/1799/1800, нулевые и равные пороги, `u64::MAX` | ok |
+| p02 | `p02_inhibit_returns_cookie_and_mock_sees_fields` — cookie 41, app/reason в журнале, сверка с `power.json` | ok |
+| p03 | `p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error` — `UnInhibit`, `InvalidCookie` → `Remote`, fallback `Uninhibit` | ok |
+| p04 | `p04_is_active_reflects_mock_state` — true → `SetActive(false)` → false | ok |
+| p05 | `p05_idle_seconds_handles_unsupported_and_failing_services` — `Some(1234)`, `UnknownMethod` → `None`, `UnknownInterface` → `None`, прочая ошибка → `Err` | ok |
+| p06 | `p06_prepare_for_sleep_maps_to_events` — true/false, сверка сигнала с `power.json` | ok |
+| p07 | `p07_foreign_signals_are_skipped` — чужой интерфейс и тело `s` пропущены, затем WakingUp/GoingToSleep | ok |
+| p08 | `p08_next_event_timeout_is_none` — 150 мс → `Ok(None)` | ok |
+| p09 | `p09_inhibit_requires_app_name_and_reason` — пустые поля → `Protocol`, на шину ничего не уходит | ok |
+| p10 | `p10_closed_connection_returns_error_without_panic` — убитый демон → `DbusError`/`None`, без паники | ok |
+| p11 | `p11_live_service_is_flag_gated_and_read_only` | skip: `live-питание выключено (DISCORD_LAB_LIVE_POWER != 1)` |
+| p12 | `p12_missing_environment_is_skip_with_reason` | ok (окружение готово; ветка skip проверена пустым PATH) |
+
+В этом окружении `dbus-daemon` и `python3-dbus`/`gi` есть, поэтому skip только у p11 —
+она гейтится флагом и в live-режиме тоже только читает `IsActive`/`GetSessionIdleTime`,
+не вызывая `Inhibit` и не гася экран. Отсутствие `dbus-daemon`/`python3-dbus` даёт
+`SKIP: <причина>` через макрос `harness!`/`environment_ready` (не падение).
+
+## 5. Мутации
+
+`CARGO_TARGET_DIR=/tmp/opencode/target-w31a python3 waves/RW-31/run-mutations-w31a.py`
+→ exit 0. Baseline: exit=0, SKIP=0. Лог: `waves/RW-31/mutations-w31a.log`
+(md5 `7a089b0dbc687069b288ae9f3b0bca83`).
+
+| # | Мутация | Убита тестом |
+|---|---|---|
+| 01 | граница `idle_after` (`>=` → `>`) | p01 |
+| 02 | флаг sleep перевёрнут | p06, p07 |
+| 03 | таймаут → `Err` вместо `Ok(None)` | p08 |
+| 04 | `UnknownMethod`/`UnknownInterface` больше не `Ok(None)` | p03, p05 |
+| 05 | cookie +1 | p02, p03 |
+| 06 | `PrepareForSleep` с чужим телом принимается за событие | p07 |
+| 07 | удалён fallback `UnInhibit` → `Uninhibit` | p03 |
+
+Все 7 мутаций `KILLED` при `test result: FAILED` и `SKIP=0`; после каждой restore,
+md5 совпал. Итоговый md5 `src/power.rs` — `135f4c047fa33b2fd5b90192696c6233`.
+
+## 6. Файлы и md5
+
+| Файл | md5 |
+|---|---|
+| `rust/crates/discord-platform/src/power.rs` | `135f4c047fa33b2fd5b90192696c6233` |
+| `rust/crates/discord-platform/src/lib.rs` | `28f7cf155af907ce64dc9eb381b413ea` |
+| `rust/crates/discord-platform/tests/power_contract.rs` | `0a8c3d14365d41ccf39a53bbdaa3b427` |
+| `waves/RW-31/power/mock_power.py` | `b5764c2b0ca0266f148b06f45559a192` |
+| `fixtures/dbus/power.json` | `eb49fc2b08429b75bb9a9513cba847a9` |
+| `waves/RW-31/run-mutations-w31a.py` | `89fb9171f93783bc7da32bcd90b696b8` |
+| `waves/RW-31/workers/W31a/red.log` | `4a7baf30739b249fa889e5c53094e7cc` |
+| `waves/RW-31/workers/W31a/green.log` | `b03fcea3a8b81c9970164777314cf8c0` |
+| `waves/RW-31/mutations-w31a.log` | `7a089b0dbc687069b288ae9f3b0bca83` |
+
+`dbus/`, `notifications.rs`, `discord-core`, `discord-voice`, `discord-i18n`, чужие тесты,
+`Cargo.toml`/`Cargo.lock`, доки и golden не изменялись.
+
+## 7. Ограничения и заметки
+
+- **Пороги idle** — конфигурация (`IdlePolicy`), не RE-факт: точные значения нативного
+  клиента в RE не зафиксированы; DEFAULT 600/1800 помечен как продуктовое значение.
+- **fd-ингибитор сна** (`Inhibit("sleep", …)` → fd через SCM_RIGHTS) не реализован —
+  клиент `dbus` не поддерживает unix-fd; вынесено в бэклог. В этой карточке только
+  `PrepareForSleep` как push-событие.
+- **Live не гасит экран**: p11 только читает `IsActive`/`GetSessionIdleTime` по флагу
+  `DISCORD_LAB_LIVE_POWER=1`; `Inhibit` на живой сессии не вызывается.
+- **Имя метода**: каноническое `UnInhibit` (freedesktop/KDE); мок дополнительно отдаёт
+  `Uninhibit`, клиент пробует его только при `UnknownMethod`/`UnknownInterface`.
+  Расхождение зафиксировано в коде и фикстуре.
+- **Типы**: `GetSessionIdleTime` отдаёт `u` (секунды); контракт возвращает `u64`,
+  расширение без потерь.
+- Wayland `ext-idle-notify-v1` и X11 `XScreenSaver` не реализуются (нет клиентских
+  библиотек); `GetSessionIdleTime` — единственный headless-путь к idle.
+- Соединение не переиспользуется между `ScreenSaver` и `PowerMonitor`: у них разные шины
+  (сессионная/системная) в реальном окружении.
+//! P6-06: питание и idle через freedesktop D-Bus (headless).
+//!
+//! Три независимых части, каждая — самостоятельная freedesktop-реализация, а не перенос
+//! нативного `discord_utils` (wire-совместимость не заявляется, `RE-POWER.md` §3):
+//!
+//! - [`ScreenSaver`] (`org.freedesktop.ScreenSaver`, сессионная шина) — не гасить экран
+//!   во время звонка: `Inhibit`/`UnInhibit`/`IsActive`, плюс KDE-метод
+//!   `GetSessionIdleTime` (на других окружениях может отсутствовать — `Ok(None)`).
+//! - [`PowerMonitor`] (`org.freedesktop.login1.Manager`, системная шина) — события
+//!   `PrepareForSleep(b)`: `true` → [`PowerEvent::GoingToSleep`], `false` →
+//!   [`PowerEvent::WakingUp`].
+//! - [`IdlePolicy`] — авто-статус `online/idle/dnd` по времени бездействия. Точные пороги
+//!   в RE клиента не подтверждены, поэтому [`IdlePolicy::DEFAULT`] — конфигурация с явной
+//!   пометкой, а не «факт» Discord.
+//!
+//! Ограничения (осознанные, в бэклоге): fd-ингибитор сна (`Inhibit("sleep", …)` через
+//! SCM_RIGHTS) не реализован; Wayland `ext-idle-notify-v1` и X11 `XScreenSaver` без
+//! клиентских библиотек недоступны; live-проверка только читает состояние и не гасит
+//! экран. Только `std` + [`crate::dbus`], без `unsafe` и новых зависимостей.
+
+use std::time::Duration;
+
+use crate::dbus::{BusAddress, Connection, DbusError, Signal, Value};
+
+/// Well-known имя сервиса скринсейвера (сессионная шина).
+pub const SCREENSAVER_DESTINATION: &str = "org.freedesktop.ScreenSaver";
+/// Путь объекта скринсейвера.
+pub const SCREENSAVER_PATH: &str = "/org/freedesktop/ScreenSaver";
+/// Интерфейс скринсейвера.
+pub const SCREENSAVER_INTERFACE: &str = "org.freedesktop.ScreenSaver";
+/// `Inhibit(application_name: s, reason_for_inhibit: s) -> cookie: u`.
+pub const INHIBIT_METHOD: &str = "Inhibit";
+/// Сигнатура `Inhibit`.
+pub const INHIBIT_SIGNATURE: &str = "ss";
+/// Каноническое имя снятия ингибитора.
+pub const UNINHIBIT_METHOD: &str = "UnInhibit";
+/// Вариант имени, который встречается у части сервисов; используется только как fallback.
+pub const UNINHIBIT_FALLBACK_METHOD: &str = "Uninhibit";
+/// `IsActive() -> b`.
+pub const IS_ACTIVE_METHOD: &str = "IsActive";
+/// `GetSessionIdleTime() -> u` (KDE; метод не входит в базовую спеку freedesktop).
+pub const IDLE_METHOD: &str = "GetSessionIdleTime";
+
+/// Well-known имя systemd-logind (системная шина).
+pub const LOGIN1_DESTINATION: &str = "org.freedesktop.login1";
+/// Путь объекта менеджера logind.
+pub const LOGIN1_PATH: &str = "/org/freedesktop/login1";
+/// Интерфейс менеджера logind.
+pub const LOGIN1_INTERFACE: &str = "org.freedesktop.login1.Manager";
+/// Сигнал `PrepareForSleep(b)`: `true` — уходим в сон, `false` — проснулись.
+pub const SLEEP_SIGNAL: &str = "PrepareForSleep";
+
+/// `org.freedesktop.ScreenSaver`: ингибитор гашения экрана в звонке.
+#[derive(Debug)]
+pub struct ScreenSaver {
+    connection: Connection,
+}
+
+impl ScreenSaver {
+    /// Подключается к шине (AUTH EXTERNAL + `Hello`), ничего не вызывая.
+    pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
+        Ok(Self {
+            connection: Connection::connect(address)?,
+        })
+    }
+
+    /// `Inhibit(app_name, reason) -> cookie`: серверный cookie для снятия ингибитора.
+    ///
+    /// Пустые `app_name`/`reason` отвергаются локально (`DbusError::Protocol`): такие
+    /// вызовы бессмысленны для сервиса и не должны уходить на шину.
+    pub fn inhibit(&mut self, app_name: &str, reason: &str) -> Result<u32, DbusError> {
+        if app_name.is_empty() {
+            return Err(DbusError::Protocol("empty app_name"));
+        }
+        if reason.is_empty() {
+            return Err(DbusError::Protocol("empty reason"));
+        }
+        let body = [
+            Value::String(app_name.to_owned()),
+            Value::String(reason.to_owned()),
+        ];
+        let reply = self.call(INHIBIT_METHOD, INHIBIT_SIGNATURE, &body)?;
+        match reply.into_iter().next() {
+            Some(Value::U32(cookie)) => Ok(cookie),
+            _ => Err(DbusError::Protocol("Inhibit reply is not a u32 cookie")),
+        }
+    }
+
+    /// `UnInhibit(cookie)`: снимает ингибитор.
+    ///
+    /// Если сервис не знает `UnInhibit` (`UnknownMethod`/`UnknownInterface`), пробуется
+    /// вариант `Uninhibit` — регистр в имени метода различается между реализациями.
+    /// Неизвестный cookie возвращается сервером как `DbusError::Remote`, не паника.
+    pub fn uninhibit(&mut self, cookie: u32) -> Result<(), DbusError> {
+        let body = [Value::U32(cookie)];
+        match self.call(UNINHIBIT_METHOD, "u", &body) {
+            Ok(_) => Ok(()),
+            Err(DbusError::Remote { name, .. }) if is_unknown_member(&name) => {
+                self.call(UNINHIBIT_FALLBACK_METHOD, "u", &body)?;
+                Ok(())
+            }
+            Err(error) => Err(error),
+        }
+    }
+
+    /// `IsActive() -> b`: активен ли сейчас скринсейвер/блокировка.
+    pub fn is_active(&mut self) -> Result<bool, DbusError> {
+        let reply = self.call(IS_ACTIVE_METHOD, "", &[])?;
+        match reply.into_iter().next() {
+            Some(Value::Bool(active)) => Ok(active),
+            _ => Err(DbusError::Protocol("IsActive reply is not a bool")),
+        }
+    }
+
+    /// `GetSessionIdleTime() -> u` в секундах.
+    ///
+    /// `Ok(None)` — метод или интерфейс не поддержан (`UnknownMethod`/`UnknownInterface`):
+    /// это штатная ситуация вне KDE, а не ошибка. Прочие ошибки остаются `Err`.
+    pub fn idle_seconds(&mut self) -> Result<Option<u64>, DbusError> {
+        match self.call(IDLE_METHOD, "", &[]) {
+            Ok(reply) => match reply.into_iter().next() {
+                Some(Value::U32(seconds)) => Ok(Some(u64::from(seconds))),
+                _ => Err(DbusError::Protocol(
+                    "GetSessionIdleTime reply is not a u32",
+                )),
+            },
+            Err(DbusError::Remote { name, .. }) if is_unknown_member(&name) => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
+
+    fn call(
+        &mut self,
+        member: &str,
+        signature: &str,
+        body: &[Value],
+    ) -> Result<Vec<Value>, DbusError> {
+        self.connection.call_typed(
+            SCREENSAVER_DESTINATION,
+            SCREENSAVER_PATH,
+            SCREENSAVER_INTERFACE,
+            member,
+            signature,
+            body,
+        )
+    }
+}
+
+/// Событие питания от `org.freedesktop.login1.Manager`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PowerEvent {
+    /// `PrepareForSleep(true)`.
+    GoingToSleep,
+    /// `PrepareForSleep(false)`.
+    WakingUp,
+}
+
+/// `org.freedesktop.login1.Manager`: подписка на сон/пробуждение.
+#[derive(Debug)]
+pub struct PowerMonitor {
+    connection: Connection,
+}
+
+impl PowerMonitor {
+    /// Подключается к шине, ничего не подписывая.
+    pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
+        Ok(Self {
+            connection: Connection::connect(address)?,
+        })
+    }
+
+    /// `AddMatch` на `PrepareForSleep` менеджера logind.
+    pub fn subscribe(&mut self) -> Result<(), DbusError> {
+        // sender не фиксируется: шина приписывает сигналы уникальному имени отправителя,
+        // а path/interface/member клиент проверяет сам в `sleep_event`.
+        let rule = format!(
+            "type='signal',path='{LOGIN1_PATH}',interface='{LOGIN1_INTERFACE}',\
+             member='{SLEEP_SIGNAL}'"
+        );
+        self.connection.add_match(&rule)
+    }
+
+    /// Следующее событие сна/пробуждения.
+    ///
+    /// Чужие сигналы и `PrepareForSleep` с неожиданным телом пропускаются (не ошибка);
+    /// таймаут ожидания — `Ok(None)`. Битое/закрытое соединение — `DbusError`.
+    pub fn next_event(&mut self, timeout: Duration) -> Result<Option<PowerEvent>, DbusError> {
+        loop {
+            match self.connection.next_signal(timeout) {
+                Ok(signal) => {
+                    if let Some(event) = sleep_event(&signal) {
+                        return Ok(Some(event));
+                    }
+                }
+                Err(DbusError::Timeout) => return Ok(None),
+                Err(error) => return Err(error),
+            }
+        }
+    }
+}
+
+fn sleep_event(signal: &Signal) -> Option<PowerEvent> {
+    if signal.path != LOGIN1_PATH
+        || signal.interface != LOGIN1_INTERFACE
+        || signal.member != SLEEP_SIGNAL
+    {
+        return None;
+    }
+    // Сигнатура `b`: тело — одно значение, без struct-обёртки.
+    match signal.body.as_slice() {
+        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+        [Value::Bool(false)] => Some(PowerEvent::WakingUp),
+        _ => None,
+    }
+}
+
+fn is_unknown_member(name: &str) -> bool {
+    matches!(
+        name,
+        "org.freedesktop.DBus.Error.UnknownMethod"
+            | "org.freedesktop.DBus.Error.UnknownInterface"
+    )
+}
+
+/// Авто-статус присутствия по времени бездействия.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PresenceStatus {
+    /// Пользователь активен.
+    Online,
+    /// Бездействие достигло `idle_after_secs`.
+    Idle,
+    /// Бездействие достигло `dnd_after_secs`.
+    Dnd,
+}
+
+/// Пороги `idle → status` — конфигурация продукта, а не RE-факт клиента Discord.
+///
+/// [`IdlePolicy::DEFAULT`] (600/1800 с) — продуктовые значения из ТЗ P6-06; точные пороги
+/// нативного клиента в RE не зафиксированы (`RE-POWER.md` §2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct IdlePolicy {
+    /// С какого времени бездействия статус становится `Idle`.
+    pub idle_after_secs: u64,
+    /// С какого времени бездействия статус становится `Dnd`.
+    pub dnd_after_secs: u64,
+}
+
+impl IdlePolicy {
+    /// 10 минут до `Idle`, 30 минут до `Dnd` — конфигурация, не подтверждённый RE-факт.
+    pub const DEFAULT: Self = Self {
+        idle_after_secs: 600,
+        dnd_after_secs: 1800,
+    };
+
+    /// Статус по времени бездействия.
+    ///
+    /// `idle_after == dnd_after` → `Dnd` уже при `>=`; нулевые пороги срабатывают сразу;
+    /// сравнения только `u64`, без арифметики — переполнение невозможно.
+    pub fn status(&self, idle_secs: u64) -> PresenceStatus {
+        if idle_secs >= self.dnd_after_secs {
+//! # discord-platform
+//!
+//! Системная интеграция: трей, системные уведомления, буфер обмена, ярлыки.
+//! Заменяет наблюдавшиеся IPC-каналы Electron-клиента (`DISCORD_NOTIFICATIONS_*` и др.).
+//!
+//! Спека: `docs/re/backend-ipc.md` (168 корневых каналов; мост DiscordNative — 35 записей).
+//! План: P6 (UI/интеграция); тесты: T-SYS-*.
+
+pub mod autostart;
+pub mod dbus;
+pub mod deep_link;
+pub mod notifications;
+pub mod power;
+
+/// Корневых IPC-каналов наследия Electron, наблюдавшихся в волне R7.
+pub const LEGACY_ROOT_CHANNELS: usize = 168;
+
+/// Объединённый whitelist renderer→main (send 30 ∪ invoke 14).
+pub const LEGACY_IPC_WHITELIST_UNION: usize = 43;
+
+/// Записей в мосте `window.DiscordNative` (expose + fields).
+pub const LEGACY_BRIDGE_ENTRIES: usize = 35;
+
+/// Каналов уведомлений (`NOTIFICATIONS_*`), которые заменяются нативно.
+pub const NOTIFICATION_CHANNELS: usize = 7;
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn legacy_channel_counts_match_re() {
+        assert_eq!(super::LEGACY_ROOT_CHANNELS, 168);
+        assert_eq!(super::LEGACY_IPC_WHITELIST_UNION, 43);
+        assert_eq!(super::LEGACY_BRIDGE_ENTRIES, 35);
+        assert_eq!(super::NOTIFICATION_CHANNELS, 7);
+    }
+}
+
+exec
+/usr/bin/bash -lc "sed -n '240,420p' rust/crates/discord-platform/src/power.rs; sed -n '1,360p' rust/crates/discord-platform/tests/power_contract.rs; sed -n '1,240p' waves/RW-31/run-mutations-w31a.py; sed -n '1,180p' waves/RW-31/power/mock_power.py; cat fixtures/dbus/power.json; cat rust/Cargo.toml; cat rust/crates/discord-platform/Cargo.toml; md5sum rust/crates/discord-platform/src/power.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/tests/power_contract.rs waves/RW-31/power/mock_power.py fixtures/dbus/power.json waves/RW-31/run-mutations-w31a.py waves/RW-31/workers/W31a/red.log waves/RW-31/workers/W31a/green.log waves/RW-31/mutations-w31a.log" in /home/sanya/orca/project
+ succeeded in 0ms:
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct IdlePolicy {
+    /// С какого времени бездействия статус становится `Idle`.
+    pub idle_after_secs: u64,
+    /// С какого времени бездействия статус становится `Dnd`.
+    pub dnd_after_secs: u64,
+}
+
+impl IdlePolicy {
+    /// 10 минут до `Idle`, 30 минут до `Dnd` — конфигурация, не подтверждённый RE-факт.
+    pub const DEFAULT: Self = Self {
+        idle_after_secs: 600,
+        dnd_after_secs: 1800,
+    };
+
+    /// Статус по времени бездействия.
+    ///
+    /// `idle_after == dnd_after` → `Dnd` уже при `>=`; нулевые пороги срабатывают сразу;
+    /// сравнения только `u64`, без арифметики — переполнение невозможно.
+    pub fn status(&self, idle_secs: u64) -> PresenceStatus {
+        if idle_secs >= self.dnd_after_secs {
+            PresenceStatus::Dnd
+        } else if idle_secs >= self.idle_after_secs {
+            PresenceStatus::Idle
+        } else {
+            PresenceStatus::Online
+        }
+    }
+}
+//! Контракт P6-06: питание и idle через freedesktop D-Bus (`ScreenSaver`, `login1`).
+//!
+//! Независимый оракул — приватный `dbus-daemon` (`--session --print-address --fork`) и
+//! мок-сервисы `waves/RW-31/power/mock_power.py` на **libdbus** (`python3-dbus`): они
+//! регистрируют `org.freedesktop.ScreenSaver` и `org.freedesktop.login1`, журналируют
+//! вызовы (TSV) и эмитят `PrepareForSleep`/чужие сигналы. Rust-код здесь — только клиент,
+//! поэтому поведение не может быть «подогнано» под свою же реализацию.
+//!
+//! Skip-aware: нет `dbus-daemon`, `python3-dbus`/`gi` или мок не поднялся → тест печатает
+//! `SKIP: <причина>` и завершается успешно (окружение недоступно, а не падение).
+//!
+//! Live-проверка (`p11`) выключена по умолчанию и только читает состояние
+//! (`IsActive`/`GetSessionIdleTime`): экран не гасится, ингибитор не ставится.
+
+use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+use discord_platform::power::{
+    IdlePolicy, PowerEvent, PowerMonitor, PresenceStatus, ScreenSaver, LOGIN1_DESTINATION,
+    LOGIN1_INTERFACE, LOGIN1_PATH, SCREENSAVER_DESTINATION, SCREENSAVER_INTERFACE,
+    SCREENSAVER_PATH, SLEEP_SIGNAL,
+};
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::{Child, Command, Stdio};
+use std::time::{Duration, Instant};
+
+const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+const SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
+const MOCK_DESTINATION: &str = "lab.Mock";
+const MOCK_PATH: &str = "/lab/Mock";
+const MOCK_INTERFACE: &str = "lab.Mock.Power";
+
+/// Приватная шина + мок-сервисы; всё убирается в `Drop`.
+struct Harness {
+    address: String,
+    journal: PathBuf,
+    dir: PathBuf,
+    daemon_pid: u32,
+    mock: Child,
+}
+
+impl Harness {
+    fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
+        if !command_exists("dbus-daemon") {
+            return Err(SKIP_NO_DAEMON.to_owned());
+        }
+        if !python_dbus_available() {
+            return Err(SKIP_NO_PYTHON.to_owned());
+        }
+
+        let dir = std::env::temp_dir().join(format!(
+            "discord-lab-w31a-{}-{}",
+            std::process::id(),
+            unique_suffix()
+        ));
+        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+
+        let started = Command::new("dbus-daemon")
+            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+            .output()
+            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+        if !started.status.success() {
+            return Err(format!(
+                "dbus-daemon завершился: {}",
+                String::from_utf8_lossy(&started.stderr).trim()
+            ));
+        }
+        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+        let address = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+            .trim()
+            .to_owned();
+        let daemon_pid: u32 = lines
+            .next()
+            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())?
+            .trim()
+            .parse()
+            .map_err(|err| format!("pid dbus-daemon: {err}"))?;
+
+        let journal = dir.join("journal.tsv");
+        let mut mock = Command::new("python3")
+            .arg(repo_path("waves/RW-31/power/mock_power.py"))
+            .arg("--address")
+            .arg(&address)
+            .arg("--log")
+            .arg(&journal)
+            .args(extra_mock_args)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|err| format!("запуск mock_power.py: {err}"))?;
+
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            if fs::read_to_string(&journal)
+                .map(|text| text.contains("READY"))
+                .unwrap_or(false)
+            {
+                break;
+            }
+            if let Ok(Some(status)) = mock.try_wait() {
+                let stderr = read_child_stderr(&mut mock);
+                return Err(format!("мок-питание завершился ({status}): {stderr}"));
+            }
+            if Instant::now() > deadline {
+                return Err("мок-питание не поднялся за 10 с".to_owned());
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+
+        Ok(Self {
+            address,
+            journal,
+            dir,
+            daemon_pid,
+            mock,
+        })
+    }
+
+    fn bus_address(&self) -> BusAddress {
+        BusAddress::parse(&self.address).expect("адрес приватного демона")
+    }
+
+    fn journal(&self) -> Vec<Vec<String>> {
+        fs::read_to_string(&self.journal)
+            .unwrap_or_default()
+            .lines()
+            .map(|line| line.split('\t').map(str::to_owned).collect())
+            .collect()
+    }
+
+    fn journal_member(&self, member: &str) -> Vec<Vec<String>> {
+        self.journal()
+            .into_iter()
+            .filter(|fields| fields.first().map(String::as_str) == Some(member))
+            .collect()
+    }
+
+    /// Ждёт появления `count` записей журнала (мок пишет их асинхронно).
+    fn wait_for_member(&self, member: &str, count: usize) -> Vec<Vec<String>> {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let records = self.journal_member(member);
+            if records.len() >= count || Instant::now() > deadline {
+                return records;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+
+    fn kill_daemon(&mut self) {
+        let _ = Command::new("kill")
+            .arg(self.daemon_pid.to_string())
+            .status();
+        self.daemon_pid = 0;
+    }
+}
+
+impl Drop for Harness {
+    fn drop(&mut self) {
+        let _ = self.mock.kill();
+        let _ = self.mock.wait();
+        if self.daemon_pid != 0 {
+            let _ = Command::new("kill")
+                .arg(self.daemon_pid.to_string())
+                .status();
+        }
+        let _ = fs::remove_dir_all(&self.dir);
+    }
+}
+
+fn read_child_stderr(child: &mut Child) -> String {
+    use std::io::Read as _;
+    let mut text = String::new();
+    if let Some(stderr) = child.stderr.as_mut() {
+        let _ = stderr.read_to_string(&mut text);
+    }
+    text.trim().to_owned()
+}
+
+fn repo_path(relative: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .join(relative)
+}
+
+fn command_exists(name: &str) -> bool {
+    Command::new("sh")
+        .arg("-c")
+        .arg(format!("command -v {name}"))
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+/// Та же проба, но с явным PATH — используется в `p12` для проверки skip-ветки.
+fn command_exists_in_path(path: &str, name: &str) -> bool {
+    Command::new("sh")
+        .arg("-c")
+        .arg(format!("PATH={path} command -v {name}"))
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+fn python_dbus_available() -> bool {
+    Command::new("python3")
+        .args(["-c", "import dbus, gi"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
+}
+
+/// Готовность окружения без запуска стенда: причина skip или `Ok(())`.
+fn environment_ready() -> Result<(), String> {
+    if !command_exists("dbus-daemon") {
+        return Err(SKIP_NO_DAEMON.to_owned());
+    }
+    if !python_dbus_available() {
+        return Err(SKIP_NO_PYTHON.to_owned());
+    }
+    Ok(())
+}
+
+fn unique_suffix() -> u64 {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|duration| duration.as_nanos() as u64)
+        .unwrap_or(0);
+    nanos ^ (COUNTER.fetch_add(1, Ordering::Relaxed) << 32)
+}
+
+/// Запускает стенд или печатает причину skip и выходит из теста.
+macro_rules! harness {
+    ($extra:expr) => {
+        match Harness::start($extra) {
+            Ok(harness) => harness,
+            Err(reason) => {
+                println!("SKIP: {reason}");
+                return;
+            }
+        }
+    };
+}
+
+fn control_connection(harness: &Harness) -> Connection {
+    Connection::connect(&harness.bus_address()).expect("управляющее соединение с моком")
+}
+
+fn call_control(connection: &mut Connection, member: &str, body: &[(char, Value)]) {
+    connection
+        .call(MOCK_DESTINATION, MOCK_PATH, MOCK_INTERFACE, member, body)
+        .unwrap_or_else(|err| panic!("{member}: {err:?}"));
+}
+
+// --- JSON-фикстура (минимальный парсер, как в dbus_contract) ---------------------
+
+#[derive(Debug)]
+enum Json {
+    Null,
+    Bool(bool),
+    Num(f64),
+    Str(String),
+    Arr(Vec<Json>),
+    Obj(Vec<(String, Json)>),
+}
+
+impl Json {
+    fn parse(text: &str) -> Result<Self, String> {
+        let mut parser = JsonParser {
+            bytes: text.as_bytes(),
+            pos: 0,
+        };
+        let value = parser.value()?;
+        parser.skip_ws();
+        if parser.pos != parser.bytes.len() {
+            return Err(format!("мусор после JSON на позиции {}", parser.pos));
+        }
+        Ok(value)
+    }
+
+    fn get(&self, key: &str) -> Option<&Json> {
+        match self {
+            Self::Obj(entries) => entries
+                .iter()
+                .find(|(name, _)| name == key)
+                .map(|(_, value)| value),
+            _ => None,
+        }
+    }
+
+    fn as_str(&self) -> Option<&str> {
+        match self {
+            Self::Str(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    fn as_u64(&self) -> Option<u64> {
+        match self {
+            Self::Num(value) if *value >= 0.0 => Some(*value as u64),
+            _ => None,
+        }
+    }
+
+    fn as_bool(&self) -> Option<bool> {
+        match self {
+            Self::Bool(value) => Some(*value),
+            _ => None,
+        }
+    }
+
+    fn as_arr(&self) -> Option<&[Json]> {
+        match self {
+            Self::Arr(items) => Some(items),
+            _ => None,
+        }
+    }
+}
+
+struct JsonParser<'a> {
+    bytes: &'a [u8],
+    pos: usize,
+}
+
+impl JsonParser<'_> {
+    fn skip_ws(&mut self) {
+        while matches!(self.bytes.get(self.pos), Some(b' ' | b'\n' | b'\r' | b'\t')) {
+            self.pos += 1;
+        }
+    }
+
+    fn expect(&mut self, byte: u8) -> Result<(), String> {
+        if self.bytes.get(self.pos) == Some(&byte) {
+            self.pos += 1;
+            Ok(())
+        } else {
+            Err(format!(
+                "ожидался {:?} на позиции {}",
+                byte as char, self.pos
+            ))
+        }
+    }
+
+    fn value(&mut self) -> Result<Json, String> {
+        self.skip_ws();
+        match self.bytes.get(self.pos).copied() {
+            Some(b'{') => self.object(),
+            Some(b'[') => self.array(),
+            Some(b'"') => Ok(Json::Str(self.string()?)),
+            Some(b't') => self.literal("true", Json::Bool(true)),
+#!/usr/bin/env python3
+"""Мутационная проверка контракта W31a (питание и idle).
+
+Каждая мутация — один точечный дефект в `discord-platform/src/power.rs`. Ожидание:
+targeted-тесты `power_contract` падают (мутация «убита»). Файл восстанавливается из
+снимка, совпадение md5 до/после обязательно.
+
+Запуск (из корня репозитория):
+    CARGO_TARGET_DIR=/tmp/opencode/target-w31a python3 waves/RW-31/run-mutations-w31a.py
+
+Код выхода: 0 — все мутации убиты и файл восстановлен; 1 — выжившая мутация,
+ошибка восстановления или сбой запуска тестов.
+"""
+
+import hashlib
+import os
+import re
+import subprocess
+import sys
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+CRATE = os.path.join(REPO_ROOT, "rust", "crates", "discord-platform")
+POWER = os.path.join(CRATE, "src", "power.rs")
+LOG_PATH = os.path.join(REPO_ROOT, "waves", "RW-31", "mutations-w31a.log")
+WORKDIR = os.path.join(REPO_ROOT, "rust")
+TESTS = ["--test", "power_contract"]
+
+# (id, имя, фрагмент-оригинал, фрагмент-мутация, что должен поймать)
+MUTATIONS = [
+    (
+        "01",
+        "policy_idle_boundary_off_by_one",
+        """        } else if idle_secs >= self.idle_after_secs {""",
+        """        } else if idle_secs > self.idle_after_secs {""",
+        "p01: граница idle_after (600) съезжает на 601",
+    ),
+    (
+        "02",
+        "sleep_flag_reversed",
+        """        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+        [Value::Bool(false)] => Some(PowerEvent::WakingUp),""",
+        """        [Value::Bool(true)] => Some(PowerEvent::WakingUp),
+        [Value::Bool(false)] => Some(PowerEvent::GoingToSleep),""",
+        "p06: true/false у PrepareForSleep перепутаны",
+    ),
+    (
+        "03",
+        "timeout_becomes_error",
+        """                Err(DbusError::Timeout) => return Ok(None),""",
+        """                Err(DbusError::Timeout) => return Err(DbusError::Timeout),""",
+        "p08: таймаут next_event становится ошибкой вместо Ok(None)",
+    ),
+    (
+        "04",
+        "unknown_method_is_fatal",
+        """fn is_unknown_member(name: &str) -> bool {
+    matches!(
+        name,
+        "org.freedesktop.DBus.Error.UnknownMethod"
+            | "org.freedesktop.DBus.Error.UnknownInterface"
+    )
+}""",
+        """fn is_unknown_member(name: &str) -> bool {
+    let _ = name;
+    false
+}""",
+        "p05: UnknownMethod/UnknownInterface больше не дают Ok(None)",
+    ),
+    (
+        "05",
+        "cookie_off_by_one",
+        """            Some(Value::U32(cookie)) => Ok(cookie),""",
+        """            Some(Value::U32(cookie)) => Ok(cookie.wrapping_add(1)),""",
+        "p02/p03: cookie ингибитора сдвинут на 1",
+    ),
+    (
+        "06",
+        "signal_filter_accepts_garbage",
+        """        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+        [Value::Bool(false)] => Some(PowerEvent::WakingUp),
+        _ => None,""",
+        """        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+        [Value::Bool(false)] => Some(PowerEvent::WakingUp),
+        _ => Some(PowerEvent::GoingToSleep),""",
+        "p07: PrepareForSleep с чужим телом принимается за событие",
+    ),
+    (
+        "07",
+        "uninhibit_fallback_removed",
+        """            Err(DbusError::Remote { name, .. }) if is_unknown_member(&name) => {
+                self.call(UNINHIBIT_FALLBACK_METHOD, "u", &body)?;
+                Ok(())
+            }""",
+        """            Err(DbusError::Remote { name, .. }) if is_unknown_member(&name) => {
+                Err(DbusError::Remote {
+                    name,
+                    message: "fallback disabled".to_owned(),
+                })
+            }""",
+        "p03: нет fallback UnInhibit → Uninhibit",
+    ),
+]
+
+TEST_LINE = re.compile(r"^test (\S+) \.\.\. FAILED$", re.MULTILINE)
+SUMMARY = re.compile(r"^test result: FAILED\..*$", re.MULTILINE)
+
+
+def md5(path):
+    with open(path, "rb") as handle:
+        return hashlib.md5(handle.read()).hexdigest()
+
+
+def run_tests():
+    env = dict(os.environ)
+    env.setdefault("CARGO_TARGET_DIR", "/tmp/opencode/target-w31a")
+    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS
+    completed = subprocess.run(
+        command,
+        cwd=WORKDIR,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return completed.returncode, completed.stdout + completed.stderr
+
+
+def main():
+    lines = ["# W31a — мутации питания/idle", ""]
+    failures = []
+
+    baseline_code, baseline_output = run_tests()
+    baseline_skips = baseline_output.count("SKIP:")
+    baseline_ok = baseline_code == 0 and "test result: ok" in baseline_output
+    lines.append("baseline: exit=%d, SKIP=%d" % (baseline_code, baseline_skips))
+    if not baseline_ok or baseline_skips:
+        lines.append("ОСТАНОВ: базовый прогон не зелёный или содержит SKIP")
+        lines.append(baseline_output[-4000:])
+        write_log(lines)
+        return 1
+    lines.append("")
+
+    for mutation_id, name, original, mutated, expectation in MUTATIONS:
+        before_md5 = md5(POWER)
+        with open(POWER, encoding="utf-8") as handle:
+            source = handle.read()
+        if original not in source:
+            failures.append("%s: фрагмент не найден" % mutation_id)
+            lines.append("## %s %s — ОШИБКА: фрагмент не найден" % (mutation_id, name))
+            continue
+
+        lines.append("## %s %s" % (mutation_id, name))
+        lines.append("ждём: %s" % expectation)
+        lines.append("md5 до: %s" % before_md5)
+
+        try:
+            with open(POWER, "w", encoding="utf-8") as handle:
+                handle.write(source.replace(original, mutated, 1))
+            code, output = run_tests()
+            failing = sorted(set(TEST_LINE.findall(output)))
+            skips = output.count("SKIP:")
+            killed = code != 0 and "test result: FAILED" in output and skips == 0
+            verdict = "KILLED" if killed else ("INCONCLUSIVE (SKIP)" if skips else "SURVIVED")
+            lines.append("exit: %d, SKIP=%d — %s" % (code, skips, verdict))
+            if failing:
+                lines.append("упавшие тесты: %s" % ", ".join(failing))
+            for match in SUMMARY.findall(output):
+                lines.append("  %s" % match)
+            if not failing:
+                tail = [line for line in output.splitlines() if line.startswith("error")]
+                lines.append("вывод: %s" % " | ".join(tail[:3]))
+            if not killed:
+                failures.append("%s %s: %s" % (mutation_id, name, verdict))
+        finally:
+            with open(POWER, "w", encoding="utf-8") as handle:
+                handle.write(source)
+            after_md5 = md5(POWER)
+            lines.append(
+                "md5 после restore: %s — %s"
+                % (after_md5, "OK" if after_md5 == before_md5 else "РАСХОЖДЕНИЕ")
+            )
+            if after_md5 != before_md5:
+                failures.append("%s: md5 после восстановления не совпал" % mutation_id)
+        lines.append("")
+
+    lines.append("## Итог")
+    lines.append("мутаций: %d" % len(MUTATIONS))
+    if failures:
+        lines.append("проблемы: %s" % "; ".join(failures))
+        write_log(lines)
+        return 1
+    lines.append("все мутации убиты, все файлы восстановлены")
+    write_log(lines)
+    return 0
+
+
+def write_log(lines):
+    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+    with open(LOG_PATH, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines) + "\n")
+    print("\n".join(lines[-8:]))
+    print("\nлог: %s" % LOG_PATH)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+#!/usr/bin/env python3
+"""Мок-сервисы питания на libdbus для контрактных тестов W31a.
+
+Оракул независим от Rust-реализации: сервисы и транспорт — python3-dbus (libdbus) на
+приватном `dbus-daemon`. На одной шине поднимаются два well-known имени:
+
+- `org.freedesktop.ScreenSaver` (`/org/freedesktop/ScreenSaver`): `Inhibit`, `UnInhibit`,
+  алиас `Uninhibit` (fallback), `IsActive`, `GetSessionIdleTime`. `GetSessionIdleTime`
+  умеет отвечать значением или D-Bus-ошибкой (`UnknownMethod`/`UnknownInterface`/своя),
+  чтобы проверить ветку `Ok(None)`/`Err` контракта.
+- `org.freedesktop.login1` (`/org/freedesktop/login1`, интерфейс Manager): сигнал
+  `PrepareForSleep(b)`; методами не пользуется — клиент только `AddMatch`.
+
+Управляющий интерфейс `lab.Mock.Power` на `/lab/Mock`: `EmitPrepareForSleep(b)`,
+`EmitForeign()`, `SetActive(b)`, `SetIdleMode(s)`, `SetIdleSeconds(u)`.
+
+CLI:
+    mock_power.py --address <unix:path=...> --log <file>
+                  [--cookie-start 41] [--active] [--idle-seconds 1234]
+                  [--idle-mode value|unknown-method|unknown-interface|error]
+                  [--force-uninhibit-alias]
+
+Журнал вызовов — TSV-строки (первое поле — член вызова):
+    READY
+    Inhibit\t<app_name>\t<reason>\t<cookie>
+    UnInhibit\t<cookie>
+    Uninhibit\t<cookie>
+    IsActive\t<0|1>
+    GetSessionIdleTime\t<mode>\t<seconds>
+    EmitPrepareForSleep\t<1|0>
+    EmitForeign
+    SetActive\t<1|0>
+    SetIdleMode\t<mode>
+    SetIdleSeconds\t<seconds>
+
+Сервис ничего не пишет в stderr в штатном режиме (тест читает журнал файлом).
+"""
+
+import argparse
+import os
+import sys
+
+import dbus
+import dbus.lowlevel
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
+from gi.repository import GLib
+
+SCREENSAVER_DESTINATION = "org.freedesktop.ScreenSaver"
+SCREENSAVER_PATH = "/org/freedesktop/ScreenSaver"
+SCREENSAVER_IFACE = "org.freedesktop.ScreenSaver"
+
+LOGIN1_DESTINATION = "org.freedesktop.login1"
+LOGIN1_PATH = "/org/freedesktop/login1"
+LOGIN1_IFACE = "org.freedesktop.login1.Manager"
+
+CONTROL_PATH = "/lab/Mock"
+CONTROL_IFACE = "lab.Mock.Power"
+CONTROL_DESTINATION = "lab.Mock"
+
+IDLE_MODES = ("value", "unknown-method", "unknown-interface", "error")
+
+
+class MockScreenSaver(dbus.service.Object):
+    def __init__(self, bus, log_path, cookie_start, active, idle_seconds, idle_mode, force_alias):
+        super().__init__(bus, SCREENSAVER_PATH)
+        self._log_path = log_path
+        self._next_cookie = cookie_start
+        self._issued = set()
+        self._active = active
+        self._idle_seconds = idle_seconds
+        self._idle_mode = idle_mode
+        self._force_uninhibit_alias = force_alias
+
+    def _log(self, *fields):
+        with open(self._log_path, "a", encoding="utf-8") as handle:
+            handle.write("\t".join(str(field) for field in fields) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+
+    def _consume_cookie(self, cookie):
+        if cookie not in self._issued:
+            # Неизвестный cookie — ошибка сервера: клиент обязан вернуть Err, не паниковать.
+            raise dbus.exceptions.DBusException(
+                "unknown cookie %d" % cookie,
+                name="org.freedesktop.ScreenSaver.Error.InvalidCookie",
+            )
+        self._issued.discard(cookie)
+
+    @dbus.service.method(SCREENSAVER_IFACE, in_signature="ss", out_signature="u")
+    def Inhibit(self, app_name, reason):
+        cookie = self._next_cookie
+        self._next_cookie += 1
+        self._issued.add(cookie)
+        self._log("Inhibit", str(app_name), str(reason), cookie)
+        return dbus.UInt32(cookie)
+
+    @dbus.service.method(SCREENSAVER_IFACE, in_signature="u", out_signature="")
+    def UnInhibit(self, cookie):
+        self._log("UnInhibit", int(cookie))
+        if self._force_uninhibit_alias:
+            # Сервис без `UnInhibit` (только `Uninhibit`): клиент обязан попробовать алиас.
+            raise dbus.exceptions.DBusException(
+                "mock exposes only Uninhibit",
+                name="org.freedesktop.DBus.Error.UnknownMethod",
+            )
+        self._consume_cookie(int(cookie))
+
+    @dbus.service.method(SCREENSAVER_IFACE, in_signature="u", out_signature="")
+    def Uninhibit(self, cookie):
+        self._log("Uninhibit", int(cookie))
+        self._consume_cookie(int(cookie))
+
+    @dbus.service.method(SCREENSAVER_IFACE, in_signature="", out_signature="b")
+    def IsActive(self):
+        self._log("IsActive", 1 if self._active else 0)
+        return dbus.Boolean(self._active)
+
+    @dbus.service.method(SCREENSAVER_IFACE, in_signature="", out_signature="u")
+    def GetSessionIdleTime(self):
+        self._log("GetSessionIdleTime", self._idle_mode, self._idle_seconds)
+        if self._idle_mode == "unknown-method":
+            raise dbus.exceptions.DBusException(
+                "GetSessionIdleTime is not implemented",
+                name="org.freedesktop.DBus.Error.UnknownMethod",
+            )
+        if self._idle_mode == "unknown-interface":
+            raise dbus.exceptions.DBusException(
+                "org.freedesktop.ScreenSaver is not implemented",
+                name="org.freedesktop.DBus.Error.UnknownInterface",
+            )
+        if self._idle_mode == "error":
+            raise dbus.exceptions.DBusException(
+                "mock idle failure",
+                name="org.freedesktop.ScreenSaver.Error.MockFailure",
+            )
+        return dbus.UInt32(self._idle_seconds)
+
+    # --- управление из теста (не входит в контракт ScreenSaver) -----------------
+
+    def set_active(self, active):
+        self._active = bool(active)
+        self._log("SetActive", 1 if self._active else 0)
+
+    def set_idle_mode(self, mode):
+        self._idle_mode = mode
+        self._log("SetIdleMode", mode)
+
+    def set_idle_seconds(self, seconds):
+        self._idle_seconds = int(seconds)
+        self._log("SetIdleSeconds", int(seconds))
+
+
+class MockLogin1(dbus.service.Object):
+    def __init__(self, bus, log_path):
+        super().__init__(bus, LOGIN1_PATH)
+        self._bus = bus
+        self._log_path = log_path
+
+    def _log(self, *fields):
+        with open(self._log_path, "a", encoding="utf-8") as handle:
+            handle.write("\t".join(str(field) for field in fields) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+
+    @dbus.service.signal(LOGIN1_IFACE, signature="b")
+    def PrepareForSleep(self, start):
+        pass
+
+    def emit_prepare_for_sleep(self, start):
+        self._log("EmitPrepareForSleep", 1 if start else 0)
+        self.PrepareForSleep(dbus.Boolean(start))
+
+    def emit_foreign(self):
+        """Шлёт чужие сигналы: другой интерфейс и PrepareForSleep с телом `s`."""
+        self._log("EmitForeign")
+        ping = dbus.lowlevel.SignalMessage(CONTROL_PATH, "lab.Mock.Ping", "Ping")
+        ping.append(dbus.String("foreign"), signature="s")
+        self._bus.send_message(ping)
+
+{
+  "oracle": "mock_power.py (python3-dbus/libdbus) на приватном dbus-daemon",
+  "note": "Сигнатуры и формы ответов зафиксированы по журналу libdbus-сервиса; пороги IdlePolicy — конфигурация, не RE-факт.",
+  "services": [
+    {
+      "destination": "org.freedesktop.ScreenSaver",
+      "path": "/org/freedesktop/ScreenSaver",
+      "interface": "org.freedesktop.ScreenSaver",
+      "methods": [
+        {
+          "member": "Inhibit",
+          "signature": "ss",
+          "reply_signature": "u",
+          "reply": 41,
+          "note": "Inhibit(app_name, reason) -> cookie"
+        },
+        {
+          "member": "UnInhibit",
+          "signature": "u",
+          "reply_signature": "",
+          "reply": null,
+          "note": "каноническое имя freedesktop; при UnknownMethod клиент пробует Uninhibit"
+        },
+        {
+          "member": "Uninhibit",
+          "signature": "u",
+          "reply_signature": "",
+          "reply": null,
+          "note": "fallback для сервисов с другим регистром"
+        },
+        {
+          "member": "IsActive",
+          "signature": "",
+          "reply_signature": "b",
+          "reply": true
+        },
+        {
+          "member": "GetSessionIdleTime",
+          "signature": "",
+          "reply_signature": "u",
+          "reply": 1234,
+          "note": "KDE; на других окружениях метод может отсутствовать → Ok(None)"
+        }
+      ]
+    },
+    {
+      "destination": "org.freedesktop.login1",
+      "path": "/org/freedesktop/login1",
+      "interface": "org.freedesktop.login1.Manager",
+      "methods": [],
+      "signals": [
+        {
+          "member": "PrepareForSleep",
+          "signature": "b",
+          "body": [true],
+          "note": "true → GoingToSleep"
+        },
+        {
+          "member": "PrepareForSleep",
+          "signature": "b",
+          "body": [false],
+          "note": "false → WakingUp"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "name": "org.freedesktop.DBus.Error.UnknownMethod",
+      "meaning": "GetSessionIdleTime отсутствует → idle_seconds() = Ok(None)"
+    },
+    {
+      "name": "org.freedesktop.DBus.Error.UnknownInterface",
+      "meaning": "интерфейс ScreenSaver отсутствует → idle_seconds() = Ok(None)"
+    },
+    {
+      "name": "org.freedesktop.ScreenSaver.Error.InvalidCookie",
+      "meaning": "неизвестный cookie в UnInhibit → DbusError::Remote, не паника"
+    }
+  ],
+  "journal": [
+    ["READY"],
+    ["Inhibit", "Discord Lab", "In call", "41"],
+    ["UnInhibit", "41"],
+    ["IsActive", "1"],
+    ["GetSessionIdleTime", "value", "1234"],
+    ["EmitPrepareForSleep", "1"],
+    ["EmitPrepareForSleep", "0"],
+    ["EmitForeign"]
+  ]
+}
+# Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
+# Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
+# шлюза: tokio/tokio-tungstenite (WS), rustls с провайдером ring, webpki-roots, futures-util;
+# dev-зависимость `zstd` (C-энкодер) — только для стабов в тестах. После первой сборки (сеть,
+# разрешение владельца 2026-10-19) тесты идут офлайн (`cargo test --offline`).
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.87"
+
+[workspace.dependencies]
+discord-json = { path = "crates/discord-json" }
+discord-codec = { path = "crates/discord-codec" }
+discord-core = { path = "crates/discord-core" }
+discord-conformance = { path = "crates/discord-conformance" }
+# Транспорт шлюза (RW-04). Версии — стартовые из ТЗ, точные фиксирует Cargo.lock.
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time"] }
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
+# TLS-провайдер ring (не aws-lc-rs: без cmake/nasm), tls12 оставлен для совместимости.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+# HTTP/1.1-транспорт REST (RW-10, решение владельца — вариант A): TLS поверх tokio.
+# Версии уже в Cargo.lock/офлайн-кэше; сетевых загрузок нет.
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
+httparse = "1"
+webpki-roots = "1"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+# Энкодер zstd — только для стабов тестов (продукт на чтении использует ruzstd).
+zstd = "0.14"
+[package]
+name = "discord-platform"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Системная интеграция: tray, уведомления, нативные мосты"
+
+[lints.rust]
+unsafe_code = "forbid"
+135f4c047fa33b2fd5b90192696c6233  rust/crates/discord-platform/src/power.rs
+28f7cf155af907ce64dc9eb381b413ea  rust/crates/discord-platform/src/lib.rs
+0a8c3d14365d41ccf39a53bbdaa3b427  rust/crates/discord-platform/tests/power_contract.rs
+b5764c2b0ca0266f148b06f45559a192  waves/RW-31/power/mock_power.py
+eb49fc2b08429b75bb9a9513cba847a9  fixtures/dbus/power.json
+89fb9171f93783bc7da32bcd90b696b8  waves/RW-31/run-mutations-w31a.py
+4a7baf30739b249fa889e5c53094e7cc  waves/RW-31/workers/W31a/red.log
+b03fcea3a8b81c9970164777314cf8c0  waves/RW-31/workers/W31a/green.log
+7a089b0dbc687069b288ae9f3b0bca83  waves/RW-31/mutations-w31a.log
+
+codex
+Файловые MD5 из отчёта совпадают с текущими файлами. Обнаружилась важная проверка для мутационного скрипта: он жёстко вычисляет корень по собственному расположению и пишет `mutations-w31a.log` рядом с собой, поэтому запускаю его только после выборочного staging нужных исходников в `/tmp`, с тем же относительным деревом путей и отдельным target-dir.
+exec
+/usr/bin/bash -lc "sed -n '1,90p' rust/crates/discord-platform/src/dbus/mod.rs; sed -n '1,100p' rust/crates/discord-platform/src/dbus.rs; tail -n 8 waves/RW-31/workers/W31a/red.log; tail -n 20 waves/RW-31/workers/W31a/green.log; sed -n '150,215p' PROCESS.md; rg -n 'P6-06|RW-31' TASKS.md TDD-PLAN.md" in /home/sanya/orca/project
+ succeeded in 0ms:
+//! P6-02: минимальный D-Bus-клиент на `std` (без `zbus`/`notify-rust`, без `unsafe`).
+//!
+//! Оракул — спецификация D-Bus (wire-формат, little-endian, выравнивание) и независимые
+//! реализации: libgio (`fixtures/dbus/wire.json`) и libdbus-мок на приватном
+//! `dbus-daemon` (`waves/RW-30/dbus/mock_service.py`).
+//!
+//! Что поддержано: `unix:path`-адреса, AUTH EXTERNAL (hex uid), `Hello`, вызовы методов,
+//! ответы/ошибки, `AddMatch` и сигналы, очередь сигналов, пришедших во время `call`.
+//!
+//! Ограничения (документированы, не заявляются как поддержка):
+//! - только little-endian (`l`); big-endian сообщения → `DbusError::Protocol`;
+//! - `unix:abstract=` и `tcp:` адреса не поддерживаются (`BusAddress::parse` → `None`);
+//! - percent-кодирование в адресе (`%2F`) не декодируется;
+//! - типы `x`/`t`/`d`/`h`/`n`/`q` и unix-fd не поддержаны (нет в [`Value`]);
+//! - вызовы не ограничены по вложенности, но размеры сообщений ограничены
+//!   [`MAX_HEADER_BYTES`]/[`MAX_BODY_BYTES`].
+
+pub mod auth;
+pub mod message;
+
+use std::collections::VecDeque;
+use std::io::{ErrorKind, Read, Write};
+use std::os::unix::net::UnixStream;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
+
+pub use message::MessageType;
+
+/// Максимальный размер полей заголовка: защита от мусорной длины из сокета.
+pub const MAX_HEADER_BYTES: usize = 1 << 20;
+/// Максимальный размер тела сообщения.
+pub const MAX_BODY_BYTES: usize = 16 << 20;
+/// Таймаут ожидания ответа на метод (сервис может активироваться через шину).
+pub const CALL_TIMEOUT: Duration = Duration::from_secs(10);
+
+/// Адрес шины D-Bus.
+///
+/// Поддерживается только `unix:path=…` (в т.ч. в списке адресов через `;` — берётся первый
+/// поддерживаемый). `unix:abstract=…` и `tcp:` возвращают `None`: абстрактные сокеты в этой
+/// карточке не реализуются.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BusAddress {
+    path: PathBuf,
+}
+
+impl BusAddress {
+    /// Разбирает значение `DBUS_SESSION_BUS_ADDRESS`.
+    pub fn parse(value: &str) -> Option<Self> {
+        for entry in value.split(';') {
+            let Some(rest) = entry.strip_prefix("unix:") else {
+                continue;
+            };
+            for field in rest.split(',') {
+                let Some(path) = field.strip_prefix("path=") else {
+                    continue;
+                };
+                if path.is_empty() {
+                    // `unix:path=` без значения — запись невалидна, пробуем следующий адрес.
+                    break;
+                }
+                return Some(Self {
+                    path: PathBuf::from(path),
+                });
+            }
+        }
+        None
+    }
+
+    /// Адрес из переменной окружения `DBUS_SESSION_BUS_ADDRESS`.
+    pub fn from_env() -> Option<Self> {
+        std::env::var("DBUS_SESSION_BUS_ADDRESS")
+            .ok()
+            .and_then(|value| Self::parse(&value))
+    }
+
+    /// Путь unix-сокета шины.
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+}
+
+/// Ошибки D-Bus-клиента.
+#[derive(Debug)]
+pub enum DbusError {
+    /// Адрес шины не разобран или недоступен как `unix:path`.
+    Address,
+    /// Ошибка ввода-вывода сокета.
+    Io(std::io::Error),
+    /// Отказ аутентификации (`REJECTED`/`ERROR`/нет uid).
+    Auth(&'static str),
+sed: can't read rust/crates/discord-platform/src/dbus.rs: No such file or directory
+    |
+    = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+warning: `discord-platform` (test "power_contract") generated 2 warnings
+error: could not compile `discord-platform` (test "power_contract") due to 3 previous errors; 3 warnings emitted
+# EXIT=101
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/power_contract.rs (/tmp/opencode/target-w31a/debug/deps/power_contract-63f6fed638df53cf)
+
+running 12 tests
+test p01_idle_policy_boundaries ... ok
+test p11_live_service_is_flag_gated_and_read_only ... ok
+test p12_missing_environment_is_skip_with_reason ... ok
+test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
+test p04_is_active_reflects_mock_state ... ok
+test p10_closed_connection_returns_error_without_panic ... ok
+test p09_inhibit_requires_app_name_and_reason ... ok
+test p06_prepare_for_sleep_maps_to_events ... ok
+test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
+test p07_foreign_signals_are_skipped ... ok
+test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+test p08_next_event_timeout_is_none ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+# EXIT=0
+
+3.14 **Batch-волна и конвейер (2026-10-20).** Волна больше не равна одной карточке. Единица
+учёта — **batch** из 3–6 карточек, у которого один замороженный контракт, один integration-патч
+общих файлов и один общий gate. Карточки внутри batch идут параллельно, если их файлы не
+пересекаются.
+
+Конвейер (перекрытие стадий — главный источник скорости):
+
+```text
+B(n)   research → freeze → integration → [CORE-1 ∥ CORE-2] a → b → c
+B(n-1)                                                   → QA/mutation → gate → review
+B(n-2)                                                                       → accepted → docs
+```
+
+Правила конвейера:
+- в кодовой фазе — **два активных воркера** (пара: W19 voice ∥ W20 typing), а не 4–6;
+  подволны `a` (types/parser) → `b` (reducer) → `c` (selectors) стартуют только после green
+  предыдущей пары;
+- одновременно **не более двух batch** (один code, один gate/review) и не более двух фоновых
+  запусков агентов;
+- следующий фоновый агент стартует после завершения одного из текущих (защита от rate limit);
+- общие файлы (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`,
+  `STATUS.md`, `ROADMAP.md`, `TASKS.md`, `docs/map.md`, `waves/*`) правит только Team Lead или
+  назначенный Tech Lead; воркеру они запрещены;
+- полный `cargo test --workspace` / `clippy` / `gate:worker` запускается **один раз на batch**
+  в integration-лейне, а не каждым воркером; воркер сдаёт targeted red/green;
+- ревью — после batch-гейта и параллельно по карточкам; P0/P1/P2 закрываются red-first, после
+  фиксов — **повторный batch gate**; P3 уходят в backlog и не тормозят batch;
+- доки и журнал обновляются **один раз после accepted**, а не в каждой итерации.
+
+3.15 **Пропускная способность и KPI.** Ориентир: **2–3 batch-волны в день** и **6–8 принятых
+карточек в день** при **двух активных кодовых воркерах** и 2–3 ревьюерах/QA; скорость даёт
+перекрытие code/QA/review и однократный gate, а не число одновременных компиляций. 73 оставшиеся карточки — это не 73
+волны: при batch по 3–6 карточек это ~18–22 batch-волны, то есть ~10–13 рабочих дней с учётом
+20–25 % на ревью/переделку. Без снятия блокеров (GUI, SQLite, keyring, live-окно) верхняя граница
+ниже: сейчас готовы к запуску только ~12 карточек.
+
+Метрики (обновляются в `waves/STATE.md`, не чаще одного раза на batch):
+- accepted cards/day; batch cycle time;
+- first-pass gate rate; доля batch, вернувшихся из ревью;
+- P0/P1/P2 на ревью (цель: P0/P1 = 0, P2 → 0 до accepted);
+- tests/card и mutation catch rate;
+- blocked cards и время ожидания решения владельца.
+
+## 4. Шаблоны
+
+4.1 **ТЗ воркера**
+
+Готовые заготовки — `waves/_TEMPLATES/BATCH-TZ.md`, `TEST-MATRIX.md`, `WORKER-REPORT.md`,
+`MUTATIONS.md`.
+
+```
+### ТЗ <batch>/<ID> — <название>
+Роль/место: <CORE-1 / TEST-1 / REV-1 …; кто владелец файлов>
+Batch: <RW-NN>; зависимости: <какие карточки уже accepted / какой контракт заморожен>
+Цель: <1–3 строки; видимый контракт, если меняется поведение CLI>
+Файлы (только эти): <точные пути; общие файлы перечислены как «только Tech Lead»>
+Запрещено: <всё остальное: чужие тесты, src вне списка, доки, golden, shared-файлы>
+Кейсы (red-first): <ID тестов, ожидание, границы; бюджет — TEST-PLAN §1.1>
+Оракул/провенанс: <jq/awk/md5/реальный артефакт/строка фикстуры>
+Как проверять: <targeted-команда; cargo — только в своём слоте, не параллельно>
+DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; файлы+md5; §8-строка;
+     полный gate — у Integration/QA на batch, не у воркера
+```
+
+4.2 **Отчёт воркера**
+TASKS.md:41:headless-остатки — P6-06 (power/idle) и P2-03 (SQLite через FFI, см. `waves/RW-31/`).
+
+exec
+/usr/bin/bash -lc "rg -n 'repo_path\\(' rust/crates/discord-platform/tests/power_contract.rs" in /home/sanya/orca/project
+ succeeded in 0ms:
+83:            .arg(repo_path("waves/RW-31/power/mock_power.py"))
+182:fn repo_path(relative: &str) -> PathBuf {
+
+exec
+/usr/bin/bash -lc "mkdir -p /tmp/opencode/w31a-codex/rust/crates/discord-platform /tmp/opencode/w31a-codex/waves/RW-31/power /tmp/opencode/w31a-codex/fixtures/dbus /tmp/opencode/target-codex-w31a && cp -a rust/crates/discord-platform/src /tmp/opencode/w31a-codex/rust/crates/discord-platform/ && mkdir -p /tmp/opencode/w31a-codex/rust/crates/discord-platform/tests && cp rust/crates/discord-platform/tests/power_contract.rs /tmp/opencode/w31a-codex/rust/crates/discord-platform/tests/ && cp waves/RW-31/power/mock_power.py waves/RW-31/run-mutations-w31a.py /tmp/opencode/w31a-codex/waves/RW-31/ && cp fixtures/dbus/power.json /tmp/opencode/w31a-codex/fixtures/dbus/ && cp waves/RW-31/run-mutations-w31a.py /tmp/opencode/w31a-codex/waves/RW-31/ && cp waves/RW-31/power/mock_power.py /tmp/opencode/w31a-codex/waves/RW-31/power/ && printf '[package]\\nname = \"discord-platform\"\\nversion = \"0.1.0\"\\nedition = \"2024\"\\n\\n[lints.rust]\\nunsafe_code = \"forbid\"\\n' > /tmp/opencode/w31a-codex/rust/crates/discord-platform/Cargo.toml && printf '[workspace]\\nmembers = [\"crates/discord-platform\"]\\nresolver = \"2\"\\n' > /tmp/opencode/w31a-codex/rust/Cargo.toml && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract" in /home/sanya/orca/project
+ exited 101 in 0ms:
+error: could not find `Cargo.toml` in `/home/sanya/orca/project` or any parent directory
+
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract' in /tmp/opencode/w31a-codex/rust
+ succeeded in 351ms:
+   Compiling discord-platform v0.1.0 (/tmp/opencode/w31a-codex/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/power_contract.rs (/tmp/opencode/target-codex-w31a/debug/deps/power_contract-63f6fed638df53cf)
+
+running 12 tests
+test p01_idle_policy_boundaries ... ok
+test p11_live_service_is_flag_gated_and_read_only ... ok
+test p04_is_active_reflects_mock_state ... ok
+test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
+test p09_inhibit_requires_app_name_and_reason ... ok
+test p10_closed_connection_returns_error_without_panic ... ok
+test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
+test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+test p07_foreign_signals_are_skipped ... ok
+test p06_prepare_for_sleep_maps_to_events ... ok
+test p08_next_event_timeout_is_none ... ok
+test p12_missing_environment_is_skip_with_reason ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+
+codex
+Targeted-команда завершилась `12/12`, но тесты могут скрыть `SKIP` без `--nocapture`; кроме того, тестовый helper вычисляет путь мока относительно `rust/`. Сейчас поправлю только staging в `/tmp`, проверю фактический запуск libdbus-мока и затем прогоню мутации так, чтобы проверялся baseline с `SKIP=0`.
+exec
+/usr/bin/bash -lc 'mkdir -p /tmp/opencode/w31a-codex/rust/waves/RW-31/power && cp /tmp/opencode/w31a-codex/waves/RW-31/power/mock_power.py /tmp/opencode/w31a-codex/rust/waves/RW-31/power/ && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract -- --nocapture' in /tmp/opencode/w31a-codex/rust
+ succeeded in 0ms:
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/power_contract.rs (/tmp/opencode/target-codex-w31a/debug/deps/power_contract-63f6fed638df53cf)
+
+running 12 tests
+test p01_idle_policy_boundaries ... ok
+SKIP: live-питание выключено (DISCORD_LAB_LIVE_POWER != 1)
+test p11_live_service_is_flag_gated_and_read_only ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[58]: Failed to start message bus: Failed to bind socket "/tmp/dbus-73BE32ijHQ": Operation not permitted
+test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[59]: Failed to start message bus: Failed to bind socket "/tmp/dbus-DyjqVTdD6N": Operation not permitted
+test p08_next_event_timeout_is_none ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[60]: Failed to start message bus: Failed to bind socket "/tmp/dbus-T4R4mGJoH9": Operation not permitted
+test p09_inhibit_requires_app_name_and_reason ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[61]: Failed to start message bus: Failed to bind socket "/tmp/dbus-hPXLkJDfcp": Operation not permitted
+test p07_foreign_signals_are_skipped ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[62]: Failed to start message bus: Failed to bind socket "/tmp/dbus-7fwDixgtTo": Operation not permitted
+test p06_prepare_for_sleep_maps_to_events ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[65]: Failed to start message bus: Failed to bind socket "/tmp/dbus-959RRJHP20": Operation not permitted
+test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[66]: Failed to start message bus: Failed to bind socket "/tmp/dbus-FZMYbq8ruq": Operation not permitted
+test p10_closed_connection_returns_error_without_panic ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[67]: Failed to start message bus: Failed to bind socket "/tmp/dbus-9JJwmeBrbJ": Operation not permitted
+test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[68]: Failed to start message bus: Failed to bind socket "/tmp/dbus-twZS5Xl1OW": Operation not permitted
+test p04_is_active_reflects_mock_state ... ok
+test p12_missing_environment_is_skip_with_reason ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+
+exec
+/usr/bin/bash -lc "CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a python3 waves/RW-31/run-mutations-w31a.py; rg -n 'unsafe|panic"'!|unwrap'"\\(|expect\\(' rust/crates/discord-platform/src/power.rs; rg -n 'fn next_signal|set_read_timeout|Timeout' rust/crates/discord-platform/src/dbus/mod.rs; md5sum /tmp/opencode/w31a-codex/rust/crates/discord-platform/src/power.rs /tmp/opencode/w31a-codex/waves/RW-31/mutations-w31a.log" in /tmp/opencode/w31a-codex
+ succeeded in 1524ms:
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## Итог
+мутаций: 7
+проблемы: 02 sleep_flag_reversed: SURVIVED; 03 timeout_becomes_error: SURVIVED; 04 unknown_method_is_fatal: SURVIVED; 05 cookie_off_by_one: SURVIVED; 06 signal_filter_accepts_garbage: SURVIVED; 07 uninhibit_fallback_removed: SURVIVED
+
+лог: /tmp/opencode/w31a-codex/waves/RW-31/mutations-w31a.log
+19://! экран. Только `std` + [`crate::dbus`], без `unsafe` и новых зависимостей.
+96:    Timeout,
+136:            .set_read_timeout(Some(auth::AUTH_TIMEOUT))
+244:    pub fn next_signal(&mut self, timeout: Duration) -> Result<Signal, DbusError> {
+291:            .set_read_timeout(Some(timeout))
+345:            Err(DbusError::Timeout)
+135f4c047fa33b2fd5b90192696c6233  /tmp/opencode/w31a-codex/rust/crates/discord-platform/src/power.rs
+edec791b89e87b927f8e387deb8b1bbf  /tmp/opencode/w31a-codex/waves/RW-31/mutations-w31a.log
+
+codex
+Изоляция выявила, что sandbox запрещает `dbus-daemon` bind-ить приватный unix-сокет. В обычном тестовом выводе skip-причины скрываются harness’ом, из-за чего мутационный скрипт засчитывает такой baseline как `SKIP=0`; фактически в replay выжили D-Bus-мутации. Проверю номера строк и связанные таймауты, затем зафиксирую вердикт с ограничением воспроизведения.
+exec
+/usr/bin/bash -lc "nl -ba waves/RW-31/run-mutations-w31a.py | sed -n '60,145p'; nl -ba rust/crates/discord-platform/src/power.rs | sed -n '150,255p'; nl -ba rust/crates/discord-platform/src/dbus/mod.rs | sed -n '235,305p'; nl -ba rust/crates/discord-platform/tests/power_contract.rs | sed -n '45,105p;350,570p'; rg -n 'SKIP|skip|baseline|test result|EXIT' waves/RW-31/workers/W31a/red.log waves/RW-31/workers/W31a/green.log waves/RW-31/mutations-w31a.log" in /home/sanya/orca/project
+ succeeded in 0ms:
+    60	            | "org.freedesktop.DBus.Error.UnknownInterface"
+    61	    )
+    62	}""",
+    63	        """fn is_unknown_member(name: &str) -> bool {
+    64	    let _ = name;
+    65	    false
+    66	}""",
+    67	        "p05: UnknownMethod/UnknownInterface больше не дают Ok(None)",
+    68	    ),
+    69	    (
+    70	        "05",
+    71	        "cookie_off_by_one",
+    72	        """            Some(Value::U32(cookie)) => Ok(cookie),""",
+    73	        """            Some(Value::U32(cookie)) => Ok(cookie.wrapping_add(1)),""",
+    74	        "p02/p03: cookie ингибитора сдвинут на 1",
+    75	    ),
+    76	    (
+    77	        "06",
+    78	        "signal_filter_accepts_garbage",
+    79	        """        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+    80	        [Value::Bool(false)] => Some(PowerEvent::WakingUp),
+    81	        _ => None,""",
+    82	        """        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+    83	        [Value::Bool(false)] => Some(PowerEvent::WakingUp),
+    84	        _ => Some(PowerEvent::GoingToSleep),""",
+    85	        "p07: PrepareForSleep с чужим телом принимается за событие",
+    86	    ),
+    87	    (
+    88	        "07",
+    89	        "uninhibit_fallback_removed",
+    90	        """            Err(DbusError::Remote { name, .. }) if is_unknown_member(&name) => {
+    91	                self.call(UNINHIBIT_FALLBACK_METHOD, "u", &body)?;
+    92	                Ok(())
+    93	            }""",
+    94	        """            Err(DbusError::Remote { name, .. }) if is_unknown_member(&name) => {
+    95	                Err(DbusError::Remote {
+    96	                    name,
+    97	                    message: "fallback disabled".to_owned(),
+    98	                })
+    99	            }""",
+   100	        "p03: нет fallback UnInhibit → Uninhibit",
+   101	    ),
+   102	]
+   103	
+   104	TEST_LINE = re.compile(r"^test (\S+) \.\.\. FAILED$", re.MULTILINE)
+   105	SUMMARY = re.compile(r"^test result: FAILED\..*$", re.MULTILINE)
+   106	
+   107	
+   108	def md5(path):
+   109	    with open(path, "rb") as handle:
+   110	        return hashlib.md5(handle.read()).hexdigest()
+   111	
+   112	
+   113	def run_tests():
+   114	    env = dict(os.environ)
+   115	    env.setdefault("CARGO_TARGET_DIR", "/tmp/opencode/target-w31a")
+   116	    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS
+   117	    completed = subprocess.run(
+   118	        command,
+   119	        cwd=WORKDIR,
+   120	        env=env,
+   121	        capture_output=True,
+   122	        text=True,
+   123	        check=False,
+   124	    )
+   125	    return completed.returncode, completed.stdout + completed.stderr
+   126	
+   127	
+   128	def main():
+   129	    lines = ["# W31a — мутации питания/idle", ""]
+   130	    failures = []
+   131	
+   132	    baseline_code, baseline_output = run_tests()
+   133	    baseline_skips = baseline_output.count("SKIP:")
+   134	    baseline_ok = baseline_code == 0 and "test result: ok" in baseline_output
+   135	    lines.append("baseline: exit=%d, SKIP=%d" % (baseline_code, baseline_skips))
+   136	    if not baseline_ok or baseline_skips:
+   137	        lines.append("ОСТАНОВ: базовый прогон не зелёный или содержит SKIP")
+   138	        lines.append(baseline_output[-4000:])
+   139	        write_log(lines)
+   140	        return 1
+   141	    lines.append("")
+   142	
+   143	    for mutation_id, name, original, mutated, expectation in MUTATIONS:
+   144	        before_md5 = md5(POWER)
+   145	        with open(POWER, encoding="utf-8") as handle:
+   150	#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+   151	pub enum PowerEvent {
+   152	    /// `PrepareForSleep(true)`.
+   153	    GoingToSleep,
+   154	    /// `PrepareForSleep(false)`.
+   155	    WakingUp,
+   156	}
+   157	
+   158	/// `org.freedesktop.login1.Manager`: подписка на сон/пробуждение.
+   159	#[derive(Debug)]
+   160	pub struct PowerMonitor {
+   161	    connection: Connection,
+   162	}
+   163	
+   164	impl PowerMonitor {
+   165	    /// Подключается к шине, ничего не подписывая.
+   166	    pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
+   167	        Ok(Self {
+   168	            connection: Connection::connect(address)?,
+   169	        })
+   170	    }
+   171	
+   172	    /// `AddMatch` на `PrepareForSleep` менеджера logind.
+   173	    pub fn subscribe(&mut self) -> Result<(), DbusError> {
+   174	        // sender не фиксируется: шина приписывает сигналы уникальному имени отправителя,
+   175	        // а path/interface/member клиент проверяет сам в `sleep_event`.
+   176	        let rule = format!(
+   177	            "type='signal',path='{LOGIN1_PATH}',interface='{LOGIN1_INTERFACE}',\
+   178	             member='{SLEEP_SIGNAL}'"
+   179	        );
+   180	        self.connection.add_match(&rule)
+   181	    }
+   182	
+   183	    /// Следующее событие сна/пробуждения.
+   184	    ///
+   185	    /// Чужие сигналы и `PrepareForSleep` с неожиданным телом пропускаются (не ошибка);
+   186	    /// таймаут ожидания — `Ok(None)`. Битое/закрытое соединение — `DbusError`.
+   187	    pub fn next_event(&mut self, timeout: Duration) -> Result<Option<PowerEvent>, DbusError> {
+   188	        loop {
+   189	            match self.connection.next_signal(timeout) {
+   190	                Ok(signal) => {
+   191	                    if let Some(event) = sleep_event(&signal) {
+   192	                        return Ok(Some(event));
+   193	                    }
+   194	                }
+   195	                Err(DbusError::Timeout) => return Ok(None),
+   196	                Err(error) => return Err(error),
+   197	            }
+   198	        }
+   199	    }
+   200	}
+   201	
+   202	fn sleep_event(signal: &Signal) -> Option<PowerEvent> {
+   203	    if signal.path != LOGIN1_PATH
+   204	        || signal.interface != LOGIN1_INTERFACE
+   205	        || signal.member != SLEEP_SIGNAL
+   206	    {
+   207	        return None;
+   208	    }
+   209	    // Сигнатура `b`: тело — одно значение, без struct-обёртки.
+   210	    match signal.body.as_slice() {
+   211	        [Value::Bool(true)] => Some(PowerEvent::GoingToSleep),
+   212	        [Value::Bool(false)] => Some(PowerEvent::WakingUp),
+   213	        _ => None,
+   214	    }
+   215	}
+   216	
+   217	fn is_unknown_member(name: &str) -> bool {
+   218	    matches!(
+   219	        name,
+   220	        "org.freedesktop.DBus.Error.UnknownMethod"
+   221	            | "org.freedesktop.DBus.Error.UnknownInterface"
+   222	    )
+   223	}
+   224	
+   225	/// Авто-статус присутствия по времени бездействия.
+   226	#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+   227	pub enum PresenceStatus {
+   228	    /// Пользователь активен.
+   229	    Online,
+   230	    /// Бездействие достигло `idle_after_secs`.
+   231	    Idle,
+   232	    /// Бездействие достигло `dnd_after_secs`.
+   233	    Dnd,
+   234	}
+   235	
+   236	/// Пороги `idle → status` — конфигурация продукта, а не RE-факт клиента Discord.
+   237	///
+   238	/// [`IdlePolicy::DEFAULT`] (600/1800 с) — продуктовые значения из ТЗ P6-06; точные пороги
+   239	/// нативного клиента в RE не зафиксированы (`RE-POWER.md` §2).
+   240	#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+   241	pub struct IdlePolicy {
+   242	    /// С какого времени бездействия статус становится `Idle`.
+   243	    pub idle_after_secs: u64,
+   244	    /// С какого времени бездействия статус становится `Dnd`.
+   245	    pub dnd_after_secs: u64,
+   246	}
+   247	
+   248	impl IdlePolicy {
+   249	    /// 10 минут до `Idle`, 30 минут до `Dnd` — конфигурация, не подтверждённый RE-факт.
+   250	    pub const DEFAULT: Self = Self {
+   251	        idle_after_secs: 600,
+   252	        dnd_after_secs: 1800,
+   253	    };
+   254	
+   255	    /// Статус по времени бездействия.
+   235	            "/org/freedesktop/DBus",
+   236	            "org.freedesktop.DBus",
+   237	            "AddMatch",
+   238	            &[('s', Value::String(rule.to_owned()))],
+   239	        )?;
+   240	        Ok(())
+   241	    }
+   242	
+   243	    /// Следующий сигнал (уже пришедшие отдаются из очереди).
+   244	    pub fn next_signal(&mut self, timeout: Duration) -> Result<Signal, DbusError> {
+   245	        loop {
+   246	            if let Some(signal) = self.pending.pop_front() {
+   247	                return Ok(signal);
+   248	            }
+   249	            let message = self.read_message(timeout)?;
+   250	            match message.kind {
+   251	                MessageType::Signal => return Ok(signal_from(message)),
+   252	                // Ответы на уже завершённые вызовы и чужие method call'ы игнорируются:
+   253	                // сервер не должен присылать их в этот момент, но падать из-за них нельзя.
+   254	                MessageType::MethodReturn | MessageType::Error | MessageType::MethodCall => {
+   255	                    continue;
+   256	                }
+   257	            }
+   258	        }
+   259	    }
+   260	
+   261	    fn await_reply(&mut self, serial: u32) -> Result<Vec<Value>, DbusError> {
+   262	        loop {
+   263	            let message = self.read_message(CALL_TIMEOUT)?;
+   264	            match message.kind {
+   265	                MessageType::Signal => self.pending.push_back(signal_from(message)),
+   266	                MessageType::MethodCall => continue,
+   267	                MessageType::MethodReturn => {
+   268	                    if message.reply_serial() == Some(serial) {
+   269	                        return Ok(message.body);
+   270	                    }
+   271	                }
+   272	                MessageType::Error => {
+   273	                    if message.reply_serial() == Some(serial) {
+   274	                        let name = message.error_name().unwrap_or("<unknown error>").to_owned();
+   275	                        let text = match message.body.first() {
+   276	                            Some(Value::String(text)) => text.clone(),
+   277	                            _ => String::new(),
+   278	                        };
+   279	                        return Err(DbusError::Remote {
+   280	                            name,
+   281	                            message: text,
+   282	                        });
+   283	                    }
+   284	                }
+   285	            }
+   286	        }
+   287	    }
+   288	
+   289	    fn read_message(&mut self, timeout: Duration) -> Result<message::Message, DbusError> {
+   290	        self.stream
+   291	            .set_read_timeout(Some(timeout))
+   292	            .map_err(DbusError::Io)?;
+   293	
+   294	        let mut header = [0u8; 16];
+   295	        read_exact(&mut self.stream, &mut header)?;
+   296	        if header[0] != b'l' {
+   297	            return Err(DbusError::Protocol("only little-endian is supported"));
+   298	        }
+   299	        let body_len = u32::from_le_bytes([header[4], header[5], header[6], header[7]]) as usize;
+   300	        let fields_len =
+   301	            u32::from_le_bytes([header[12], header[13], header[14], header[15]]) as usize;
+   302	        if fields_len > MAX_HEADER_BYTES {
+   303	            return Err(DbusError::Protocol("header too large"));
+   304	        }
+   305	        if body_len > MAX_BODY_BYTES {
+    45	        }
+    46	        if !python_dbus_available() {
+    47	            return Err(SKIP_NO_PYTHON.to_owned());
+    48	        }
+    49	
+    50	        let dir = std::env::temp_dir().join(format!(
+    51	            "discord-lab-w31a-{}-{}",
+    52	            std::process::id(),
+    53	            unique_suffix()
+    54	        ));
+    55	        fs::create_dir_all(&dir).map_err(|err| format!("tempdir {}: {err}", dir.display()))?;
+    56	
+    57	        let started = Command::new("dbus-daemon")
+    58	            .args(["--session", "--print-address=1", "--print-pid=1", "--fork"])
+    59	            .output()
+    60	            .map_err(|err| format!("запуск dbus-daemon: {err}"))?;
+    61	        if !started.status.success() {
+    62	            return Err(format!(
+    63	                "dbus-daemon завершился: {}",
+    64	                String::from_utf8_lossy(&started.stderr).trim()
+    65	            ));
+    66	        }
+    67	        let stdout = String::from_utf8_lossy(&started.stdout).into_owned();
+    68	        let mut lines = stdout.lines().filter(|line| !line.trim().is_empty());
+    69	        let address = lines
+    70	            .next()
+    71	            .ok_or_else(|| "dbus-daemon не напечатал адрес".to_owned())?
+    72	            .trim()
+    73	            .to_owned();
+    74	        let daemon_pid: u32 = lines
+    75	            .next()
+    76	            .ok_or_else(|| "dbus-daemon не напечатал pid".to_owned())?
+    77	            .trim()
+    78	            .parse()
+    79	            .map_err(|err| format!("pid dbus-daemon: {err}"))?;
+    80	
+    81	        let journal = dir.join("journal.tsv");
+    82	        let mut mock = Command::new("python3")
+    83	            .arg(repo_path("waves/RW-31/power/mock_power.py"))
+    84	            .arg("--address")
+    85	            .arg(&address)
+    86	            .arg("--log")
+    87	            .arg(&journal)
+    88	            .args(extra_mock_args)
+    89	            .stdout(Stdio::null())
+    90	            .stderr(Stdio::piped())
+    91	            .spawn()
+    92	            .map_err(|err| format!("запуск mock_power.py: {err}"))?;
+    93	
+    94	        let deadline = Instant::now() + Duration::from_secs(10);
+    95	        loop {
+    96	            if fs::read_to_string(&journal)
+    97	                .map(|text| text.contains("READY"))
+    98	                .unwrap_or(false)
+    99	            {
+   100	                break;
+   101	            }
+   102	            if let Ok(Some(status)) = mock.try_wait() {
+   103	                let stderr = read_child_stderr(&mut mock);
+   104	                return Err(format!("мок-питание завершился ({status}): {stderr}"));
+   105	            }
+   350	            ))
+   351	        }
+   352	    }
+   353	
+   354	    fn value(&mut self) -> Result<Json, String> {
+   355	        self.skip_ws();
+   356	        match self.bytes.get(self.pos).copied() {
+   357	            Some(b'{') => self.object(),
+   358	            Some(b'[') => self.array(),
+   359	            Some(b'"') => Ok(Json::Str(self.string()?)),
+   360	            Some(b't') => self.literal("true", Json::Bool(true)),
+   361	            Some(b'f') => self.literal("false", Json::Bool(false)),
+   362	            Some(b'n') => self.literal("null", Json::Null),
+   363	            Some(byte) if byte == b'-' || byte.is_ascii_digit() => self.number(),
+   364	            other => Err(format!(
+   365	                "неожиданный байт {other:?} на позиции {}",
+   366	                self.pos
+   367	            )),
+   368	        }
+   369	    }
+   370	
+   371	    fn literal(&mut self, text: &str, value: Json) -> Result<Json, String> {
+   372	        if self.bytes[self.pos..].starts_with(text.as_bytes()) {
+   373	            self.pos += text.len();
+   374	            Ok(value)
+   375	        } else {
+   376	            Err(format!("ожидался литерал {text} на позиции {}", self.pos))
+   377	        }
+   378	    }
+   379	
+   380	    fn number(&mut self) -> Result<Json, String> {
+   381	        let start = self.pos;
+   382	        if self.bytes.get(self.pos) == Some(&b'-') {
+   383	            self.pos += 1;
+   384	        }
+   385	        while matches!(self.bytes.get(self.pos), Some(byte) if byte.is_ascii_digit()) {
+   386	            self.pos += 1;
+   387	        }
+   388	        if self.bytes.get(self.pos) == Some(&b'.') {
+   389	            self.pos += 1;
+   390	            while matches!(self.bytes.get(self.pos), Some(byte) if byte.is_ascii_digit()) {
+   391	                self.pos += 1;
+   392	            }
+   393	        }
+   394	        let text =
+   395	            std::str::from_utf8(&self.bytes[start..self.pos]).map_err(|err| err.to_string())?;
+   396	        text.parse::<f64>()
+   397	            .map(Json::Num)
+   398	            .map_err(|err| format!("число {text:?}: {err}"))
+   399	    }
+   400	
+   401	    fn string(&mut self) -> Result<String, String> {
+   402	        self.expect(b'"')?;
+   403	        let mut out = String::new();
+   404	        loop {
+   405	            let Some(&byte) = self.bytes.get(self.pos) else {
+   406	                return Err("незакрытая строка".to_owned());
+   407	            };
+   408	            self.pos += 1;
+   409	            match byte {
+   410	                b'"' => return Ok(out),
+   411	                b'\\' => {
+   412	                    let Some(&escaped) = self.bytes.get(self.pos) else {
+   413	                        return Err("незакрытый escape".to_owned());
+   414	                    };
+   415	                    self.pos += 1;
+   416	                    out.push(match escaped {
+   417	                        b'"' => '"',
+   418	                        b'\\' => '\\',
+   419	                        b'n' => '\n',
+   420	                        b't' => '\t',
+   421	                        b'r' => '\r',
+   422	                        other => return Err(format!("escape \\{}", other as char)),
+   423	                    });
+   424	                }
+   425	                _ => out.push(byte as char),
+   426	            }
+   427	        }
+   428	    }
+   429	
+   430	    fn array(&mut self) -> Result<Json, String> {
+   431	        self.expect(b'[')?;
+   432	        let mut items = Vec::new();
+   433	        self.skip_ws();
+   434	        if self.bytes.get(self.pos) == Some(&b']') {
+   435	            self.pos += 1;
+   436	            return Ok(Json::Arr(items));
+   437	        }
+   438	        loop {
+   439	            items.push(self.value()?);
+   440	            self.skip_ws();
+   441	            match self.bytes.get(self.pos) {
+   442	                Some(b',') => self.pos += 1,
+   443	                Some(b']') => {
+   444	                    self.pos += 1;
+   445	                    return Ok(Json::Arr(items));
+   446	                }
+   447	                other => return Err(format!("ожидался ',' или ']', получено {other:?}")),
+   448	            }
+   449	        }
+   450	    }
+   451	
+   452	    fn object(&mut self) -> Result<Json, String> {
+   453	        self.expect(b'{')?;
+   454	        let mut entries = Vec::new();
+   455	        self.skip_ws();
+   456	        if self.bytes.get(self.pos) == Some(&b'}') {
+   457	            self.pos += 1;
+   458	            return Ok(Json::Obj(entries));
+   459	        }
+   460	        loop {
+   461	            self.skip_ws();
+   462	            let key = self.string()?;
+   463	            self.skip_ws();
+   464	            self.expect(b':')?;
+   465	            let value = self.value()?;
+   466	            entries.push((key, value));
+   467	            self.skip_ws();
+   468	            match self.bytes.get(self.pos) {
+   469	                Some(b',') => self.pos += 1,
+   470	                Some(b'}') => {
+   471	                    self.pos += 1;
+   472	                    return Ok(Json::Obj(entries));
+   473	                }
+   474	                other => return Err(format!("ожидался ',' или '}}', получено {other:?}")),
+   475	            }
+   476	        }
+   477	    }
+   478	}
+   479	
+   480	fn load_fixture(name: &str) -> Json {
+   481	    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+   482	        .join("../../../fixtures/dbus")
+   483	        .join(name);
+   484	    let text = std::fs::read_to_string(&path)
+   485	        .unwrap_or_else(|err| panic!("фикстура {}: {err}", path.display()));
+   486	    Json::parse(&text).unwrap_or_else(|err| panic!("JSON {}: {err}", path.display()))
+   487	}
+   488	
+   489	fn fixture_service<'a>(golden: &'a Json, destination: &str) -> &'a Json {
+   490	    golden
+   491	        .get("services")
+   492	        .and_then(Json::as_arr)
+   493	        .expect("power.json: services")
+   494	        .iter()
+   495	        .find(|service| service.get("destination").and_then(Json::as_str) == Some(destination))
+   496	        .unwrap_or_else(|| panic!("power.json: нет сервиса {destination}"))
+   497	}
+   498	
+   499	fn fixture_method<'a>(service: &'a Json, member: &str) -> &'a Json {
+   500	    service
+   501	        .get("methods")
+   502	        .and_then(Json::as_arr)
+   503	        .expect("power.json: methods")
+   504	        .iter()
+   505	        .find(|method| method.get("member").and_then(Json::as_str) == Some(member))
+   506	        .unwrap_or_else(|| panic!("power.json: нет метода {member}"))
+   507	}
+   508	
+   509	// --- p01: границы IdlePolicy ------------------------------------------------------
+   510	
+   511	#[test]
+   512	fn p01_idle_policy_boundaries() {
+   513	    let policy = IdlePolicy::DEFAULT;
+   514	    assert_eq!(policy.idle_after_secs, 600);
+   515	    assert_eq!(policy.dnd_after_secs, 1800);
+   516	
+   517	    assert_eq!(policy.status(0), PresenceStatus::Online);
+   518	    assert_eq!(policy.status(599), PresenceStatus::Online);
+   519	    assert_eq!(policy.status(600), PresenceStatus::Idle);
+   520	    assert_eq!(policy.status(601), PresenceStatus::Idle);
+   521	    assert_eq!(policy.status(1799), PresenceStatus::Idle);
+   522	    assert_eq!(policy.status(1800), PresenceStatus::Dnd);
+   523	    assert_eq!(policy.status(u64::MAX), PresenceStatus::Dnd);
+   524	
+   525	    // Нулевые пороги — «сразу idle/dnd», без переполнения и делений.
+   526	    let immediate_idle = IdlePolicy {
+   527	        idle_after_secs: 0,
+   528	        dnd_after_secs: 10,
+   529	    };
+   530	    assert_eq!(immediate_idle.status(0), PresenceStatus::Idle);
+   531	    let immediate_dnd = IdlePolicy {
+   532	        idle_after_secs: 0,
+   533	        dnd_after_secs: 0,
+   534	    };
+   535	    assert_eq!(immediate_dnd.status(0), PresenceStatus::Dnd);
+   536	
+   537	    // idle_after == dnd_after → Dnd при `>=`.
+   538	    let equal = IdlePolicy {
+   539	        idle_after_secs: 5,
+   540	        dnd_after_secs: 5,
+   541	    };
+   542	    assert_eq!(equal.status(4), PresenceStatus::Online);
+   543	    assert_eq!(equal.status(5), PresenceStatus::Dnd);
+   544	}
+   545	
+   546	// --- p02: Inhibit → cookie и поля доходят до сервиса ------------------------------
+   547	
+   548	#[test]
+   549	fn p02_inhibit_returns_cookie_and_mock_sees_fields() {
+   550	    // Фикстура libdbus фиксирует адреса/сигнатуры, с которыми сверяется клиент.
+   551	    let golden = load_fixture("power.json");
+   552	    let screensaver = fixture_service(&golden, SCREENSAVER_DESTINATION);
+   553	    assert_eq!(
+   554	        screensaver.get("path").and_then(Json::as_str),
+   555	        Some(SCREENSAVER_PATH)
+   556	    );
+   557	    assert_eq!(
+   558	        screensaver.get("interface").and_then(Json::as_str),
+   559	        Some(SCREENSAVER_INTERFACE)
+   560	    );
+   561	    let inhibit = fixture_method(screensaver, "Inhibit");
+   562	    assert_eq!(inhibit.get("signature").and_then(Json::as_str), Some("ss"));
+   563	    assert_eq!(
+   564	        inhibit.get("reply_signature").and_then(Json::as_str),
+   565	        Some("u")
+   566	    );
+   567	    assert_eq!(inhibit.get("reply").and_then(Json::as_u64), Some(41));
+   568	
+   569	    let harness = harness!(&[]);
+   570	    let mut screen_saver = ScreenSaver::connect(&harness.bus_address()).expect("ScreenSaver::connect");
+waves/RW-31/mutations-w31a.log:3:baseline: exit=0, SKIP=0
+waves/RW-31/mutations-w31a.log:8:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:10:  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+waves/RW-31/mutations-w31a.log:16:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:17:упавшие тесты: p06_prepare_for_sleep_maps_to_events, p07_foreign_signals_are_skipped
+waves/RW-31/mutations-w31a.log:18:  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+waves/RW-31/mutations-w31a.log:24:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:26:  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+waves/RW-31/mutations-w31a.log:32:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:34:  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+waves/RW-31/mutations-w31a.log:40:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:42:  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+waves/RW-31/mutations-w31a.log:48:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:49:упавшие тесты: p07_foreign_signals_are_skipped
+waves/RW-31/mutations-w31a.log:50:  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+waves/RW-31/mutations-w31a.log:56:exit: 101, SKIP=0 — KILLED
+waves/RW-31/mutations-w31a.log:58:  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+waves/RW-31/workers/W31a/green.log:8:test p12_missing_environment_is_skip_with_reason ... ok
+waves/RW-31/workers/W31a/green.log:15:test p07_foreign_signals_are_skipped ... ok
+waves/RW-31/workers/W31a/green.log:19:test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+waves/RW-31/workers/W31a/green.log:21:# EXIT=0
+waves/RW-31/workers/W31a/red.log:45:# EXIT=101
+
+exec
+/usr/bin/bash -lc "sed -n '1,90p' waves/RW-31/mutations-w31a.log; sed -n '1,90p' /tmp/opencode/w31a-codex/waves/RW-31/mutations-w31a.log; sed -n '570,630p' rust/crates/discord-platform/tests/power_contract.rs" in /home/sanya/orca/project
+ succeeded in 0ms:
+# W31a — мутации питания/idle
+
+baseline: exit=0, SKIP=0
+
+## 01 policy_idle_boundary_off_by_one
+ждём: p01: граница idle_after (600) съезжает на 601
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p01_idle_policy_boundaries
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 02 sleep_flag_reversed
+ждём: p06: true/false у PrepareForSleep перепутаны
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p06_prepare_for_sleep_maps_to_events, p07_foreign_signals_are_skipped
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 03 timeout_becomes_error
+ждём: p08: таймаут next_event становится ошибкой вместо Ok(None)
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p08_next_event_timeout_is_none
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 04 unknown_method_is_fatal
+ждём: p05: UnknownMethod/UnknownInterface больше не дают Ok(None)
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error, p05_idle_seconds_handles_unsupported_and_failing_services
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 05 cookie_off_by_one
+ждём: p02/p03: cookie ингибитора сдвинут на 1
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p02_inhibit_returns_cookie_and_mock_sees_fields, p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 06 signal_filter_accepts_garbage
+ждём: p07: PrepareForSleep с чужим телом принимается за событие
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p07_foreign_signals_are_skipped
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 07 uninhibit_fallback_removed
+ждём: p03: нет fallback UnInhibit → Uninhibit
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## Итог
+мутаций: 7
+все мутации убиты, все файлы восстановлены
+# W31a — мутации питания/idle
+
+baseline: exit=0, SKIP=0
+
+## 01 policy_idle_boundary_off_by_one
+ждём: p01: граница idle_after (600) съезжает на 601
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p01_idle_policy_boundaries
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 02 sleep_flag_reversed
+ждём: p06: true/false у PrepareForSleep перепутаны
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 03 timeout_becomes_error
+ждём: p08: таймаут next_event становится ошибкой вместо Ok(None)
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 04 unknown_method_is_fatal
+ждём: p05: UnknownMethod/UnknownInterface больше не дают Ok(None)
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 05 cookie_off_by_one
+ждём: p02/p03: cookie ингибитора сдвинут на 1
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 06 signal_filter_accepts_garbage
+ждём: p07: PrepareForSleep с чужим телом принимается за событие
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## 07 uninhibit_fallback_removed
+ждём: p03: нет fallback UnInhibit → Uninhibit
+md5 до: 135f4c047fa33b2fd5b90192696c6233
+exit: 0, SKIP=0 — SURVIVED
+вывод: 
+md5 после restore: 135f4c047fa33b2fd5b90192696c6233 — OK
+
+## Итог
+мутаций: 7
+проблемы: 02 sleep_flag_reversed: SURVIVED; 03 timeout_becomes_error: SURVIVED; 04 unknown_method_is_fatal: SURVIVED; 05 cookie_off_by_one: SURVIVED; 06 signal_filter_accepts_garbage: SURVIVED; 07 uninhibit_fallback_removed: SURVIVED
+    let mut screen_saver = ScreenSaver::connect(&harness.bus_address()).expect("ScreenSaver::connect");
+
+    let cookie = screen_saver
+        .inhibit("Discord Lab", "In call")
+        .expect("Inhibit с валидными полями");
+    assert_eq!(cookie, 41, "cookie должен прийти из ответа мока");
+
+    let records = harness.wait_for_member("Inhibit", 1);
+    let fields = records.first().expect("журнал Inhibit пуст");
+    assert_eq!(fields.len(), 4, "формат журнала: {fields:?}");
+    assert_eq!(fields[1], "Discord Lab");
+    assert_eq!(fields[2], "In call");
+    assert_eq!(fields[3], "41");
+}
+
+// --- p03: UnInhibit, fallback Uninhibit и неизвестный cookie ----------------------
+
+#[test]
+fn p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error() {
+    let harness = harness!(&[]);
+    let mut screen_saver = ScreenSaver::connect(&harness.bus_address()).expect("ScreenSaver::connect");
+
+    let cookie = screen_saver.inhibit("Discord Lab", "In call").expect("Inhibit");
+    screen_saver.uninhibit(cookie).expect("UnInhibit");
+
+    let records = harness.wait_for_member("UnInhibit", 1);
+    assert_eq!(
+        records.first().map(|fields| fields[1].as_str()),
+        Some("41"),
+        "каноническое имя метода — UnInhibit"
+    );
+    assert!(
+        harness.journal_member("Uninhibit").is_empty(),
+        "fallback не должен вызываться, если UnInhibit поддержан"
+    );
+
+    // Неизвестный cookie — ошибка сервера (не паника).
+    match screen_saver.uninhibit(9999) {
+        Err(DbusError::Remote { name, .. }) => {
+            assert_eq!(
+                name, "org.freedesktop.ScreenSaver.Error.InvalidCookie",
+                "имя ошибки из журнала/ERROR-ответа"
+            );
+        }
+        other => panic!("ожидался DbusError::Remote для неизвестного cookie, получено {other:?}"),
+    }
+
+    // Сервис знает только `Uninhibit`: клиент обязан попробовать алиас.
+    let alias_harness = harness!(&["--force-uninhibit-alias"]);
+    let mut alias_client =
+        ScreenSaver::connect(&alias_harness.bus_address()).expect("ScreenSaver::connect (alias)");
+    let alias_cookie = alias_client
+        .inhibit("Discord Lab", "In call")
+        .expect("Inhibit (alias)");
+    alias_client
+        .uninhibit(alias_cookie)
+        .expect("fallback Uninhibit после UnknownMethod");
+    assert_eq!(
+        alias_harness.wait_for_member("Uninhibit", 1).len(),
+        1,
+        "fallback-метод должен дойти до сервиса"
+
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract -- --nocapture' in /tmp/opencode/w31a-codex/rust
+ succeeded in 104ms:
+   Compiling discord-platform v0.1.0 (/tmp/opencode/w31a-codex/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/power_contract.rs (/tmp/opencode/target-codex-w31a/debug/deps/power_contract-63f6fed638df53cf)
+
+running 12 tests
+test p01_idle_policy_boundaries ... ok
+SKIP: live-питание выключено (DISCORD_LAB_LIVE_POWER != 1)
+test p11_live_service_is_flag_gated_and_read_only ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[284]: Failed to start message bus: Failed to bind socket "/tmp/dbus-bDSZodjOIg": Operation not permitted
+SKIP: dbus-daemon завершился: dbus-daemon[282]: Failed to start message bus: Failed to bind socket "/tmp/dbus-xzXOUUS3Bg": Operation not permitted
+SKIP: dbus-daemon завершился: dbus-daemon[281]: Failed to start message bus: Failed to bind socket "/tmp/dbus-Dq38FU7InM": Operation not permitted
+SKIP: dbus-daemon завершился: dbus-daemon[285]: Failed to start message bus: Failed to bind socket "/tmp/dbus-2lw2dooOLv": Operation not permitted
+SKIP: dbus-daemon завершился: dbus-daemon[283]: Failed to start message bus: Failed to bind socket "/tmp/dbus-ezyRHRyHyX": Operation not permitted
+test p07_foreign_signals_are_skipped ... ok
+test p10_closed_connection_returns_error_without_panic ... ok
+test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+test p06_prepare_for_sleep_maps_to_events ... ok
+test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[286]: Failed to start message bus: Failed to bind socket "/tmp/dbus-EqN3wydI4d": Operation not permitted
+test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[287]: Failed to start message bus: Failed to bind socket "/tmp/dbus-OlpXUfkn4y": Operation not permitted
+test p08_next_event_timeout_is_none ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[288]: Failed to start message bus: Failed to bind socket "/tmp/dbus-yIqu2i66LC": Operation not permitted
+test p04_is_active_reflects_mock_state ... ok
+SKIP: dbus-daemon завершился: dbus-daemon[290]: Failed to start message bus: Failed to bind socket "/tmp/dbus-JynQ4f08vG": Operation not permitted
+test p09_inhibit_requires_app_name_and_reason ... ok
+test p12_missing_environment_is_skip_with_reason ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+
+codex
+**Вердикт: доработка.** Текущий replay в заданном sandbox не подтверждает D-Bus-контракт и 7/7 мутаций: `dbus-daemon` не может bind-ить приватный сокет. Без `--nocapture` skip-причины скрыты тестовым harness’ом, поэтому скрипт считает их нулём. Отчёт заявляет успешный прогон, но независимо подтвердить его здесь не удалось.
+
+- **P1 — тесты и мутации:** в [run-mutations-w31a.py](/home/sanya/orca/project/waves/RW-31/run-mutations-w31a.py:132) baseline ищет `SKIP:` в обычном выводе `cargo test`; replay показал, что skip-сообщения скрыты harness’ом. Поэтому `SKIP=0` не доказывает запуск интеграционных кейсов, а результаты мутаций могут быть ложноположительными. Нужен способ надёжно выявлять skip и повторный прогон с доступным приватным D-Bus.
+- **P2 — таймаут:** [power.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/power.rs:187) повторно передаёт полный `timeout` после каждого пропущенного сигнала. Поток чужих сигналов может продлить ожидание сверх заданного срока. Рассчитать остаток от общего deadline.
+
+Отчётные MD5 для исходников, теста, мока, фикстуры, скрипта и логов совпали. IdlePolicy, fallback `UnInhibit`, неизвестные методы, пустые поля, фильтрация формы сигналов и отсутствие `unsafe`/panic/unwrap/expect в production-модуле соответствуют проверенному контракту. Целевые тесты дали `12 passed`, но при replay D-Bus-тесты пропускались из-за запрета сокета, так что этот итог не является проверкой интеграционного поведения. Исходный workspace не изменял; проверка выполнялась из `/tmp/opencode/w31a-codex` с указанным target-dir.
+tokens used
+63 758
+**Вердикт: доработка.** Текущий replay в заданном sandbox не подтверждает D-Bus-контракт и 7/7 мутаций: `dbus-daemon` не может bind-ить приватный сокет. Без `--nocapture` skip-причины скрыты тестовым harness’ом, поэтому скрипт считает их нулём. Отчёт заявляет успешный прогон, но независимо подтвердить его здесь не удалось.
+
+- **P1 — тесты и мутации:** в [run-mutations-w31a.py](/home/sanya/orca/project/waves/RW-31/run-mutations-w31a.py:132) baseline ищет `SKIP:` в обычном выводе `cargo test`; replay показал, что skip-сообщения скрыты harness’ом. Поэтому `SKIP=0` не доказывает запуск интеграционных кейсов, а результаты мутаций могут быть ложноположительными. Нужен способ надёжно выявлять skip и повторный прогон с доступным приватным D-Bus.
+- **P2 — таймаут:** [power.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/power.rs:187) повторно передаёт полный `timeout` после каждого пропущенного сигнала. Поток чужих сигналов может продлить ожидание сверх заданного срока. Рассчитать остаток от общего deadline.
+
+Отчётные MD5 для исходников, теста, мока, фикстуры, скрипта и логов совпали. IdlePolicy, fallback `UnInhibit`, неизвестные методы, пустые поля, фильтрация формы сигналов и отсутствие `unsafe`/panic/unwrap/expect в production-модуле соответствуют проверенному контракту. Целевые тесты дали `12 passed`, но при replay D-Bus-тесты пропускались из-за запрета сокета, так что этот итог не является проверкой интеграционного поведения. Исходный workspace не изменял; проверка выполнялась из `/tmp/opencode/w31a-codex` с указанным target-dir.
+CODEX_EXIT=0

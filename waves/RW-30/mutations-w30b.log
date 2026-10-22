@@ -1,14 +1,13 @@
+# W30b — мутации D-Bus/уведомлений
+
+baseline: exit=0, SKIP=0
+
+## 01 auth_hex_of_number
+ждём: n02/n02b: hex от числа вместо hex от десятичной записи uid
+md5 до: ca96abc04abeac0c0b723d72b44389e9
 exit: 101, SKIP=0 — KILLED
-упавшие тесты: n08_notify_returns_server_id_and_mock_sees_fields
-  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
-md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
-
-## Итог
-мутаций: 10
-все мутации убиты, все файлы восстановлены
-
-лог: /home/sanya/orca/project/waves/RW-30/mutations-w30b.log
-hed in 0.00s
+упавшие тесты: n02b_external_auth_line_uses_hex_uid_from_proc_status
+  test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 md5 после restore: ca96abc04abeac0c0b723d72b44389e9 — OK
 
 ## 02 struct_alignment_4
@@ -24,7 +23,7 @@ md5 после restore: 268747b9eaf390b6ae00b3ee5f0e13eb — OK
 md5 до: 530bdc2ede02a3e0a549c2d3c7b62c3c
 exit: 101, SKIP=0 — KILLED
 упавшие тесты: n02_auth_external_and_hello_yield_unique_name, n07_capabilities_and_server_information_come_from_mock, n08_notify_returns_server_id_and_mock_sees_fields, n08b_notify_requires_app_name_and_summary, n09_notify_actions_reach_mock_as_pairs, n10_close_notification_reaches_mock, n11_error_reply_maps_to_remote_error, n12_action_and_close_signals_become_events, n13_foreign_signals_are_skipped, n15_repeated_close_and_closed_session_survive
-  test result: FAILED. 1 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.36s
+  test result: FAILED. 1 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.37s
 md5 после restore: 530bdc2ede02a3e0a549c2d3c7b62c3c — OK
 
 ## 04 error_reply_as_success
@@ -48,7 +47,7 @@ md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
 md5 до: d673bf2bbf821f09944ce79e92c87f43
 exit: 101, SKIP=0 — KILLED
 упавшие тесты: n12_action_and_close_signals_become_events
-  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.36s
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.32s
 md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
 
 ## 07 event_filter_accepts_garbage
@@ -72,7 +71,7 @@ md5 после restore: 530bdc2ede02a3e0a549c2d3c7b62c3c — OK
 md5 до: d673bf2bbf821f09944ce79e92c87f43
 exit: 101, SKIP=0 — KILLED
 упавшие тесты: n08b_notify_requires_app_name_and_summary
-  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
 md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
 
 ## 10 hints_not_empty
@@ -80,7 +79,7 @@ md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
 md5 до: d673bf2bbf821f09944ce79e92c87f43
 exit: 101, SKIP=0 — KILLED
 упавшие тесты: n08_notify_returns_server_id_and_mock_sees_fields
-  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
 md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
 
 ## Итог

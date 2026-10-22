@@ -167,10 +167,19 @@ def md5(path):
         return hashlib.md5(handle.read()).hexdigest()
 
 
+def count_skips(output: str) -> int:
+    """SKIP-строки harness без учёта намеренных live-skip (p11/n16)."""
+    return sum(
+        1
+        for line in output.splitlines()
+        if "SKIP:" in line and "live" not in line.lower()
+    )
+
+
 def run_tests():
     env = dict(os.environ)
     env.setdefault("CARGO_TARGET_DIR", "/tmp/opencode/target-w30b")
-    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS
+    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS + ["--", "--nocapture"]
     completed = subprocess.run(
         command,
         cwd=WORKDIR,
@@ -187,7 +196,7 @@ def main():
     failures = []
 
     baseline_code, baseline_output = run_tests()
-    baseline_skips = baseline_output.count("SKIP:")
+    baseline_skips = count_skips(baseline_output)
     lines.append("baseline: exit=%d, SKIP=%d" % (baseline_code, baseline_skips))
     if baseline_code != 0 or "test result: ok" not in baseline_output or baseline_skips:
         lines.append("ОСТАНОВ: базовый прогон не зелёный или содержит SKIP")
@@ -214,7 +223,7 @@ def main():
                 handle.write(source.replace(original, mutated, 1))
             code, output = run_tests()
             failing = sorted(set(TEST_LINE.findall(output)))
-            skips = output.count("SKIP:")
+            skips = count_skips(output)
             killed = code != 0 and "FAILED" in output and skips == 0
             verdict = (
                 "KILLED"

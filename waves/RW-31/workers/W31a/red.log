@@ -1,0 +1,70 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:532:23
+    |
+532 |     assert_eq!(policy.status(0), PresenceStatus::Online);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:533:23
+    |
+533 |     assert_eq!(policy.status(599), PresenceStatus::Online);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:534:23
+    |
+534 |     assert_eq!(policy.status(600), PresenceStatus::Idle);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:535:23
+    |
+535 |     assert_eq!(policy.status(601), PresenceStatus::Idle);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:536:23
+    |
+536 |     assert_eq!(policy.status(1799), PresenceStatus::Idle);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:537:23
+    |
+537 |     assert_eq!(policy.status(1800), PresenceStatus::Dnd);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:538:23
+    |
+538 |     assert_eq!(policy.status(u64::MAX), PresenceStatus::Dnd);
+    |                       ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:545:31
+    |
+545 |     assert_eq!(immediate_idle.status(0), PresenceStatus::Idle);
+    |                               ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:550:30
+    |
+550 |     assert_eq!(immediate_dnd.status(0), PresenceStatus::Dnd);
+    |                              ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:557:22
+    |
+557 |     assert_eq!(equal.status(4), PresenceStatus::Online);
+    |                      ^^^^^^ method not found in `IdlePolicy`
+
+error[E0599]: no method named `status` found for struct `IdlePolicy` in the current scope
+   --> crates/discord-platform/tests/power_contract.rs:558:22
+    |
+558 |     assert_eq!(equal.status(5), PresenceStatus::Dnd);
+    |                      ^^^^^^ method not found in `IdlePolicy`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-platform` (test "power_contract") due to 11 previous errors
+# EXIT=101

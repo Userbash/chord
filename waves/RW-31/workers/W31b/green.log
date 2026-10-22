@@ -1,0 +1,23 @@
+   Compiling discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/store_contract.rs (/tmp/opencode/target-w31b/debug/deps/store_contract-c31bf509e85e802b)
+
+running 14 tests
+test s11_missing_directory_is_open_error ... ok
+test s08_kv_set_get_overwrite ... ok
+test s02_channel_upsert_roundtrip ... ok
+test s01_migrate_sets_schema_version_and_is_idempotent ... ok
+test s06_message_without_channel_is_constraint ... ok
+test s03_message_upsert_without_duplicates ... ok
+test s10_sql_injection_is_stored_literally ... ok
+test s07_soft_delete_hides_message ... ok
+test s14_unknown_cursor_yields_empty_page ... ok
+test s05_keyset_pagination_is_strict_and_gapless ... ok
+test s09_reopen_file_keeps_data_and_version ... ok
+test s13_nul_rejected_and_large_string_kept ... ok
+test s04_messages_order_limit_zero_and_clamp ... ok
+test s12_python_oracle_matches_file ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+# EXIT=0

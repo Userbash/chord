@@ -1,0 +1,63 @@
+# W31a — мутации питания/idle
+
+baseline: exit=0, SKIP=0
+
+## 01 policy_idle_boundary_off_by_one
+ждём: p01: граница idle_after (600) съезжает на 601
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p01_idle_policy_boundaries
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## 02 sleep_flag_reversed
+ждём: p06: true/false у PrepareForSleep перепутаны
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p06_prepare_for_sleep_maps_to_events, p07_foreign_signals_are_skipped
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## 03 timeout_becomes_error
+ждём: p08: таймаут next_event становится ошибкой вместо Ok(None)
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p08_next_event_timeout_is_none
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## 04 unknown_method_is_fatal
+ждём: p05: UnknownMethod/UnknownInterface больше не дают Ok(None)
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error, p05_idle_seconds_handles_unsupported_and_failing_services
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## 05 cookie_off_by_one
+ждём: p02/p03: cookie ингибитора сдвинут на 1
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p02_inhibit_returns_cookie_and_mock_sees_fields, p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error
+  test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## 06 signal_filter_accepts_garbage
+ждём: p07: PrepareForSleep с чужим телом принимается за событие
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p07_foreign_signals_are_skipped
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## 07 uninhibit_fallback_removed
+ждём: p03: нет fallback UnInhibit → Uninhibit
+md5 до: fe15c0d192234de71dea7c0715f58469
+exit: 101, SKIP=0 — KILLED
+упавшие тесты: p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error
+  test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+md5 после restore: fe15c0d192234de71dea7c0715f58469 — OK
+
+## Итог
+мутаций: 7
+все мутации убиты, все файлы восстановлены

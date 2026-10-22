@@ -6,4 +6,4 @@ license.workspace = true
 description = "Локальное хранилище (SQLite) и миграции схемы"
 
 [lints.rust]
-unsafe_code = "forbid"
+unsafe_code = "deny"

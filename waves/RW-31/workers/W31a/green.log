@@ -1,0 +1,21 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/power_contract.rs (/tmp/opencode/target-w31a/debug/deps/power_contract-63f6fed638df53cf)
+
+running 12 tests
+test p01_idle_policy_boundaries ... ok
+test p11_live_service_is_flag_gated_and_read_only ... ok
+test p12_missing_environment_is_skip_with_reason ... ok
+test p09_inhibit_requires_app_name_and_reason ... ok
+test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
+test p10_closed_connection_returns_error_without_panic ... ok
+test p04_is_active_reflects_mock_state ... ok
+test p06_prepare_for_sleep_maps_to_events ... ok
+test p07_foreign_signals_are_skipped ... ok
+test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
+test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+test p08_next_event_timeout_is_none ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+# EXIT=0
