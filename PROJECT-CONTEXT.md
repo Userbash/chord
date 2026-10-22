@@ -5,8 +5,8 @@
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `0163945`; дерево dirty (принятые волны не
-  закоммичены; commit/push — только координатор).
+- `/home/sanya/orca/project`, `main`, HEAD `b3c0c0f`; принятые волны RW-10…RW-29 (+RW-30 в ревью) закоммичены и
+  запушены в `origin/main`; коммиты — координатор.
 - **Принято 43 / 90** карточек. Последние волны 2026-10-22:
   - **RW-28**: P7-01c RelativeTimeFormat — ICU-паритет ±2, точные i64 > 2^53 (headless);
   - **RW-29**: P4-04 RTP-медиа (PT120/0xBEDE, DTX, джиттер по pcap-оракулу), P4-12
