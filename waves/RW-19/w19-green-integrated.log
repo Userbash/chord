@@ -1,0 +1,37 @@
+# 2026-10-21 00:37:05 +05
+# cargo test --offline -p discord-core --test voice_state_types --test voice_state_reducer --test voice_state_selectors
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 5 tests
+test v10_timer_and_status_boundaries ... ok
+test v11_stale_and_malformed_events ... ok
+test v08_move_and_leave_last_wins ... ok
+test v07_join_inserts_voice_and_member_user ... ok
+test v09_supplemental_snapshot_then_ready_reset ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_selectors.rs (target/debug/deps/voice_state_selectors-e4ffa869ecfade79)
+
+running 4 tests
+test v14_connected_duration_boundaries ... ok
+test v12_self_voice_state ... ok
+test v15_channel_timer_and_status ... ok
+test v13_channel_users_sorted_and_counts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_types.rs (target/debug/deps/voice_state_types-f822a2fdd61c2b43)
+
+running 6 tests
+test v02_live_join_111 ... ok
+test v03_live_leave_51 ... ok
+test v04_timer_and_status_values ... ok
+test v06_member_mismatch_and_malformed ... ok
+test v05_optional_and_broken_table ... ok
+test v01_snapshot_003_exact_fields ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT=0

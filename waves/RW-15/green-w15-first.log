@@ -1,0 +1,39 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0308]: mismatched types
+   --> crates/discord-core/src/state/member_list.rs:457:69
+    |
+457 |     let user = parse_user(user_raw, &format!("{path}.member.user"), diagnostics)?;
+    |                ---------- arguments to this function are incorrect  ^^^^^^^^^^^ expected `&mut ReadyDiagnostics`, found `&mut StateDiagnostics`
+    |
+    = note: expected mutable reference `&mut ReadyDiagnostics`
+               found mutable reference `&mut StateDiagnostics`
+note: function defined here
+   --> crates/discord-core/src/ready/social.rs:250:15
+    |
+250 | pub(crate) fn parse_user(
+    |               ^^^^^^^^^^
+...
+253 |     diagnostics: &mut ReadyDiagnostics,
+    |     ----------------------------------
+
+error[E0308]: mismatched types
+   --> crates/discord-core/src/state/member_list.rs:458:86
+    |
+458 |     let member = parse_member_fields(member_raw, user.id, &format!("{path}.member"), diagnostics);
+    |                  ------------------- arguments to this function are incorrect        ^^^^^^^^^^^ expected `&mut ReadyDiagnostics`, found `&mut StateDiagnostics`
+    |
+    = note: expected mutable reference `&mut ReadyDiagnostics`
+               found mutable reference `&mut StateDiagnostics`
+note: function defined here
+   --> crates/discord-core/src/ready/social.rs:500:15
+    |
+500 | pub(crate) fn parse_member_fields(
+    |               ^^^^^^^^^^^^^^^^^^^
+...
+504 |     diagnostics: &mut ReadyDiagnostics,
+    |     ----------------------------------
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `discord-core` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `discord-core` (lib) due to 2 previous errors

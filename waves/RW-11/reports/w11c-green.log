@@ -1,0 +1,18 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/rest_ack.rs (target/debug/deps/rest_ack-7f6e73d854da646b)
+
+running 9 tests
+test case1_target_matches_oracle_path ... ok
+test case2_empty_ids ... ok
+test case4_body_with_token ... ok
+test case2_non_numeric_ids ... ok
+test case3_body_without_token_is_oracle_exact ... ok
+test case5_quote_backslash_and_newline ... ok
+test case5_utf8_passes_unchanged ... ok
+test case5_all_controls_are_lowercase_u00xx ... ok
+test case6_u64_max_has_no_loss ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

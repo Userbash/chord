@@ -1,0 +1,38 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running tests/locale_contract.rs (rust/target/debug/deps/locale_contract-a9f436064cd54c41)
+
+running 2 tests
+test locale_resolution_uses_available_enabled_exact_then_language_then_default ... ok
+test registry_and_disabled_locales_match_the_frozen_inventory ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+COMMAND EXIT CODE: 0
+
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
+
+running 2 tests
+test plural_edge_cases_follow_the_locale_contract ... ok
+test every_oracle_cardinal_and_ordinal_sample_matches ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+COMMAND EXIT CODE: 0
+
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/format_contract.rs (rust/target/debug/deps/format_contract-9421ae848a51de36)
+
+running 3 tests
+test locale_specific_number_options_currency_and_skeletons_are_supported ... ok
+test all_locale_numbers_match_the_independent_intl_oracle ... ok
+test all_locale_dates_and_times_match_the_independent_intl_oracle ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+COMMAND EXIT CODE: 0
+

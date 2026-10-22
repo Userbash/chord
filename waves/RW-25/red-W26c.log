@@ -1,0 +1,36 @@
+=== RED ПРОГОН W26c (P8-01, крейт discord-updater) ===
+Дата: 2026-10-22
+target-dir: /tmp/opencode/target-w26c
+
+$ cd /home/sanya/orca/project/rust
+$ export CARGO_TARGET_DIR=/tmp/opencode/target-w26c
+$ cargo test --offline -p discord-updater --test updater_contract
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+error[E0432]: unresolved imports `discord_updater::manifest::Manifest`, `discord_updater::manifest::ManifestError`, `discord_updater::manifest::Version`, `discord_updater::manifest::parse_manifest`, `discord_updater::manifest::sha256_hex`, `discord_updater::manifest::sign_manifest`, `discord_updater::manifest::verify_manifest`
+  --> crates/discord-updater/tests/updater_contract.rs:21:5
+   |
+21 |     Manifest, ManifestError, Version, parse_manifest, sha256_hex, sign_manifest, verify_manifest,
+   |     ^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `verify_manifest` in `manifest`
+   |     |         |              |        |               |           |
+   |     |         |              |        |               |           no `sign_manifest` in `manifest`
+   |     |         |              |        |               no `sha256_hex` in `manifest`
+   |     |         |              |        no `parse_manifest` in `manifest`
+   |     |         |              no `Version` in `manifest`
+   |     |         no `ManifestError` in `manifest`
+   |     no `Manifest` in `manifest`
+
+error[E0432]: unresolved imports `discord_updater::plan::PlanError`, `discord_updater::plan::PlanStep`, `discord_updater::plan::UpdatePlan`, `discord_updater::plan::apply_local_steps`, `discord_updater::plan::plan_update`, `discord_updater::plan::rollback`
+  --> crates/discord-updater/tests/updater_contract.rs:24:5
+   |
+24 |     PlanError, PlanStep, UpdatePlan, apply_local_steps, plan_update, rollback,
+   |     ^^^^^^^^^  ^^^^^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^ no `rollback` in `plan`
+   |     |          |         |           |                  |
+   |     |          |         |           |                  no `plan_update` in `plan`
+   |     |          |         |           no `apply_local_steps` in `plan`
+   |     |          |         no `UpdatePlan` in `plan`
+   |     |          no `PlanStep` in `plan`
+   |     no `PlanError` in `plan`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-updater` (test "updater_contract") due to 2 previous errors
+EXIT_CODE=101

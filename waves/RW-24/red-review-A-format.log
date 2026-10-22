@@ -1,0 +1,26 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test format_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/format_contract.rs (target/debug/deps/format_contract-9421ae848a51de36)
+
+running 3 tests
+test locale_specific_number_options_currency_and_skeletons_are_supported ... FAILED
+test all_locale_numbers_match_the_independent_intl_oracle ... ok
+test all_locale_dates_and_times_match_the_independent_intl_oracle ... ok
+
+failures:
+
+---- locale_specific_number_options_currency_and_skeletons_are_supported stdout ----
+
+thread 'locale_specific_number_options_currency_and_skeletons_are_supported' (58143) panicked at crates/discord-i18n/tests/format_contract.rs:118:5:
+assertion `left == right` failed
+  left: "1,234.50 XXX"
+ right: "1234.50 XXX"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    locale_specific_number_options_currency_and_skeletons_are_supported
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-i18n --test format_contract`

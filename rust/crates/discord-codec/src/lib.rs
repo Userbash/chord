@@ -6,13 +6,17 @@
 //! инкрементальный `createZstdDecompress` без `end()`).
 //! План: P1-01/P1-02; тесты: T-ENC-01…05 (`docs/rust-client/TEST-PLAN.md` §3.1).
 //!
-//! Статус: ETF-кодек реализован (RW-01/P0-02; T-ENC-01…03 + fuzz-lite; приёмка 2026-10-19);
-//! zstd-стрим — прототип (RW-02/P0-03; T-ENC-04) поверх `ruzstd`; доработка удержания окна — P1-02.
+//! Статус: ETF-кодек реализован (RW-01/P0-02; checked-энкодер и границы — P1-01/B02);
+//! zstd-стрим — рабочий терминальный контракт (RW-02/P0-03; P1-02/B02) поверх `ruzstd`.
+//! Удержание окна незавершённого кадра — документированное ограничение streaming API, не потеря.
 
 pub mod etf;
 pub mod zstd;
 
-pub use etf::{EtfError, EtfValue, MAX_DEPTH, decode, decode_term, encode, encode_term};
+pub use etf::{
+    EtfEncodeError, EtfError, EtfValue, MAX_DEPTH, decode, decode_term, encode, encode_checked,
+    encode_term, encode_term_checked,
+};
 pub use zstd::{ZstdError, ZstdStream};
 
 /// Тег ETF `NEW_FLOAT_EXT` (double BE) — 0x46 (`F`), 240 вхождений в захвате.

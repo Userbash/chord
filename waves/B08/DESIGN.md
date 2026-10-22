@@ -1,0 +1,1 @@
+Batch B08 — plural cardinal/ordinal fix (P7-01). Red: plural_contract line 67/69. Fix: add v==0 guard for ar cardinal ranges and uk ordinal range (CLDR requires integer operands for ranges). Golden oracle verified with Node Intl.PluralRules.

@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 1 test
+test license_expression_precedence_and_with_exceptions_are_checked ... FAILED
+
+failures:
+
+---- license_expression_precedence_and_with_exceptions_are_checked stdout ----
+
+thread 'license_expression_precedence_and_with_exceptions_are_checked' (34366) panicked at crates/discord-conformance/tests/sbom_contract.rs:149:9:
+assertion `left == right` failed: expression="MIT !!!", stderr=
+  left: Some(0)
+ right: Some(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    license_expression_precedence_and_with_exceptions_are_checked
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`

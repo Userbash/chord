@@ -1,0 +1,4 @@
+1db8bb7acd0f22bb47ac1f70064f53ee  rust/crates/discord-core/tests/state_types.rs
+4d6ba4092147485d4126a2957e14c9f3  rust/crates/discord-core/tests/state_reducer.rs
+b2e1456af69b1049e34dc4520038e9d9  rust/crates/discord-core/tests/state_selectors.rs
+744e0f472e936b4e292618a08dca4ac0  rust/crates/discord-core/tests/support/state_fixture.rs

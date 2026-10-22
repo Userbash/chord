@@ -1,0 +1,519 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:60:24
+   |
+60 |     assert_eq!(history.channel_count(), 2);
+   |                        ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `total_len` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:61:24
+   |
+61 |     assert_eq!(history.total_len(), 4);
+   |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `len` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:62:24
+   |
+62 |     assert_eq!(history.len(CHANNEL_A), 3);
+   |                        ^^^ method not found in `History`
+
+error[E0599]: no method named `len` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:63:24
+   |
+63 |     assert_eq!(history.len(CHANNEL_B), 1);
+   |                        ^^^ method not found in `History`
+
+error[E0599]: no method named `is_empty` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:64:22
+   |
+64 |     assert!(!history.is_empty(CHANNEL_A));
+   |                      ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:66:29
+   |
+66 |     assert_eq!(ids(&history.messages(CHANNEL_A)), vec![10, 20, 30]);
+   |                             ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:67:29
+   |
+67 |     assert_eq!(ids(&history.messages(CHANNEL_B)), vec![100]);
+   |                             ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `message` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:70:17
+   |
+70 |         history.message(CHANNEL_A, 20).map(|m| m.content.as_str()),
+   |                 ^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `message` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:73:21
+   |
+73 |     assert!(history.message(CHANNEL_A, 100).is_none());
+   |                     ^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `message` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:74:21
+   |
+74 |     assert!(history.message(CHANNEL_B, 20).is_none());
+   |                     ^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `is_empty` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:76:21
+   |
+76 |     assert!(history.is_empty(UNKNOWN));
+   |                     ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `len` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:77:24
+   |
+77 |     assert_eq!(history.len(UNKNOWN), 0);
+   |                        ^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:78:21
+   |
+78 |     assert!(history.messages(UNKNOWN).is_empty());
+   |                     ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `message` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:79:21
+   |
+79 |     assert!(history.message(UNKNOWN, 10).is_none());
+   |                     ^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_older` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:86:24
+   |
+86 |     assert_eq!(history.has_older(UNKNOWN), None);
+   |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_newer` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:87:24
+   |
+87 |     assert_eq!(history.has_newer(UNKNOWN), None);
+   |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_older` found for struct `History` in the current scope
+  --> crates/discord-core/tests/history_selectors.rs:99:24
+   |
+99 |     assert_eq!(history.has_older(CHANNEL_A), None);
+   |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_newer` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:100:24
+    |
+100 |     assert_eq!(history.has_newer(CHANNEL_A), None);
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_older` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:111:24
+    |
+111 |     assert_eq!(history.has_older(CHANNEL_A), Some(false));
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_newer` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:112:24
+    |
+112 |     assert_eq!(history.has_newer(CHANNEL_A), None);
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_older` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:123:24
+    |
+123 |     assert_eq!(history.has_older(CHANNEL_A), Some(false));
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_newer` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:124:24
+    |
+124 |     assert_eq!(history.has_newer(CHANNEL_A), Some(true));
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_older` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:135:24
+    |
+135 |     assert_eq!(history.has_older(CHANNEL_A), Some(false));
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_newer` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:136:24
+    |
+136 |     assert_eq!(history.has_newer(CHANNEL_A), Some(true));
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:147:29
+    |
+147 |     assert_eq!(ids(&history.recent(CHANNEL_A, 3)), vec![40, 30, 20]);
+    |                             ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:148:29
+    |
+148 |     assert_eq!(ids(&history.recent(CHANNEL_A, 99)), vec![40, 30, 20, 10]);
+    |                             ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:149:21
+    |
+149 |     assert!(history.recent(CHANNEL_A, 0).is_empty());
+    |                     ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:150:21
+    |
+150 |     assert!(history.recent(UNKNOWN, 3).is_empty());
+    |                     ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `oldest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:152:24
+    |
+152 |     assert_eq!(history.oldest(CHANNEL_A).map(|m| m.id), Some(10));
+    |                        ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `newest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:153:24
+    |
+153 |     assert_eq!(history.newest(CHANNEL_A).map(|m| m.id), Some(40));
+    |                        ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `oldest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:154:21
+    |
+154 |     assert!(history.oldest(UNKNOWN).is_none());
+    |                     ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `newest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:155:21
+    |
+155 |     assert!(history.newest(UNKNOWN).is_none());
+    |                     ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:166:29
+    |
+166 |     assert_eq!(ids(&history.range(CHANNEL_A, 10, 30)), vec![10, 20, 30]);
+    |                             ^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:167:29
+    |
+167 |     assert_eq!(ids(&history.range(CHANNEL_A, 20, 20)), vec![20]);
+    |                             ^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:168:29
+    |
+168 |     assert_eq!(ids(&history.range(CHANNEL_A, 15, 25)), vec![20]);
+    |                             ^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:170:22
+    |
+170 |         ids(&history.range(CHANNEL_A, 0, u64::MAX)),
+    |                      ^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:173:21
+    |
+173 |     assert!(history.range(CHANNEL_A, 30, 10).is_empty());
+    |                     ^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:174:21
+    |
+174 |     assert!(history.range(CHANNEL_A, 50, 60).is_empty());
+    |                     ^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:175:21
+    |
+175 |     assert!(history.range(UNKNOWN, 0, 40).is_empty());
+    |                     ^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:187:29
+    |
+187 |     assert_eq!(ids(&history.window_around(CHANNEL_A, 4, 2)), vec![3, 5]);
+    |                             ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:188:21
+    |
+188 |     assert!(history.window_around(CHANNEL_A, 4, 0).is_empty());
+    |                     ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:190:22
+    |
+190 |         ids(&history.window_around(CHANNEL_A, 4, 4)),
+    |                      ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:193:21
+    |
+193 |     assert!(history.window_around(UNKNOWN, 4, 3).is_empty());
+    |                     ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:196:29
+    |
+196 |     assert_eq!(ids(&history.window_around(CHANNEL_A, 4, 3)), vec![3, 4, 5]);
+    |                             ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:199:22
+    |
+199 |         ids(&history.window_around(CHANNEL_A, 4, 4)),
+    |                      ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:217:28
+    |
+217 |     let channels = history.channel_count();
+    |                            ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `total_len` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:218:25
+    |
+218 |     let total = history.total_len();
+    |                         ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:222:26
+    |
+222 |             ids(&history.messages(CHANNEL_A)),
+    |                          ^^^^^^^^ method not found in `&History`
+
+error[E0599]: no method named `recent` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:223:26
+    |
+223 |             ids(&history.recent(CHANNEL_A, 2)),
+    |                          ^^^^^^ method not found in `&History`
+
+error[E0599]: no method named `range` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:224:26
+    |
+224 |             ids(&history.range(CHANNEL_A, 10, 30)),
+    |                          ^^^^^ method not found in `&History`
+
+error[E0599]: no method named `window_around` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:225:26
+    |
+225 |             ids(&history.window_around(CHANNEL_A, 20, 2)),
+    |                          ^^^^^^^^^^^^^ method not found in `&History`
+
+error[E0599]: no method named `messages` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:226:26
+    |
+226 |             ids(&history.messages(UNKNOWN)),
+    |                          ^^^^^^^^ method not found in `&History`
+
+error[E0599]: no method named `recent` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:227:26
+    |
+227 |             ids(&history.recent(UNKNOWN, 2)),
+    |                          ^^^^^^ method not found in `&History`
+
+error[E0599]: no method named `range` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:228:26
+    |
+228 |             ids(&history.range(UNKNOWN, 0, 10)),
+    |                          ^^^^^ method not found in `&History`
+
+error[E0599]: no method named `window_around` found for reference `&History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:229:26
+    |
+229 |             ids(&history.window_around(UNKNOWN, 1, 2)),
+    |                          ^^^^^^^^^^^^^ method not found in `&History`
+
+error[E0599]: no method named `message` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:234:17
+    |
+234 |         history.message(CHANNEL_A, 20),
+    |                 ^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `oldest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:235:17
+    |
+235 |         history.oldest(CHANNEL_A),
+    |                 ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `newest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:236:17
+    |
+236 |         history.newest(CHANNEL_A),
+    |                 ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_older` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:237:17
+    |
+237 |         history.has_older(CHANNEL_A),
+    |                 ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `has_newer` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:238:17
+    |
+238 |         history.has_newer(CHANNEL_A),
+    |                 ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:243:24
+    |
+243 |     assert_eq!(history.channel_count(), channels);
+    |                        ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `total_len` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:244:24
+    |
+244 |     assert_eq!(history.total_len(), total);
+    |                        ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `len` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:245:24
+    |
+245 |     assert_eq!(history.len(UNKNOWN), 0);
+    |                        ^^^ method not found in `History`
+
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:246:24
+    |
+246 |     assert_eq!(history.channel_count(), 2);
+    |                        ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:250:22
+    |
+250 |         ids(&history.messages(CHANNEL_A)),
+    |                      ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:251:20
+    |
+251 |         ids(&other.messages(CHANNEL_A))
+    |                    ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:254:22
+    |
+254 |         ids(&history.recent(CHANNEL_A, 2)),
+    |                      ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:255:20
+    |
+255 |         ids(&other.recent(CHANNEL_A, 2))
+    |                    ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:258:22
+    |
+258 |         ids(&history.window_around(CHANNEL_A, 20, 3)),
+    |                      ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `window_around` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:259:20
+    |
+259 |         ids(&other.window_around(CHANNEL_A, 20, 3))
+    |                    ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:267:22
+    |
+267 |     assert_eq!(empty.channel_count(), 0);
+    |                      ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `total_len` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:268:22
+    |
+268 |     assert_eq!(empty.total_len(), 0);
+    |                      ^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `is_empty` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:269:19
+    |
+269 |     assert!(empty.is_empty(1));
+    |                   ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:270:19
+    |
+270 |     assert!(empty.messages(1).is_empty());
+    |                   ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:271:19
+    |
+271 |     assert!(empty.recent(1, 5).is_empty());
+    |                   ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `oldest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:272:19
+    |
+272 |     assert!(empty.oldest(1).is_none());
+    |                   ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `newest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:273:19
+    |
+273 |     assert!(empty.newest(1).is_none());
+    |                   ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:274:22
+    |
+274 |     assert_eq!(empty.channel_count(), 0);
+    |                      ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `channel_count` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:281:24
+    |
+281 |     assert_eq!(history.channel_count(), 1);
+    |                        ^^^^^^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `messages` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:309:29
+    |
+309 |     assert_eq!(ids(&history.messages(channel)), vec![first, second, third]);
+    |                             ^^^^^^^^ method not found in `History`
+
+error[E0599]: no method named `recent` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:310:29
+    |
+310 |     assert_eq!(ids(&history.recent(channel, 2)), vec![third, second]);
+    |                             ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `oldest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:311:24
+    |
+311 |     assert_eq!(history.oldest(channel).map(|m| m.id), Some(first));
+    |                        ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `newest` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:312:24
+    |
+312 |     assert_eq!(history.newest(channel).map(|m| m.id), Some(third));
+    |                        ^^^^^^ method not found in `History`
+
+error[E0599]: no method named `range` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:314:22
+    |
+314 |         ids(&history.range(channel, first, second)),
+    |                      ^^^^^ method not found in `History`
+
+error[E0599]: no method named `len` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:317:24
+    |
+317 |     assert_eq!(history.len(channel), 3);
+    |                        ^^^ method not found in `History`
+
+error[E0599]: no method named `total_len` found for struct `History` in the current scope
+   --> crates/discord-core/tests/history_selectors.rs:318:24
+    |
+318 |     assert_eq!(history.total_len(), 3);
+    |                        ^^^^^^^^^ method not found in `History`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "history_selectors") due to 86 previous errors

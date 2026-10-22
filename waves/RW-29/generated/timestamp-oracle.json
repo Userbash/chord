@@ -1,0 +1,4050 @@
+{
+  "source": {
+    "runtime": "Node v24.21.0",
+    "icu": "78.3",
+    "formatter": "Intl.DateTimeFormat / Intl.RelativeTimeFormat, timeZone: \"UTC\"",
+    "generator": "waves/RW-29/gen-timestamp-data.mjs",
+    "normalization": "U+202F/U+00A0 -> U+0020"
+  },
+  "styles": [
+    "t",
+    "T",
+    "d",
+    "D",
+    "f",
+    "F"
+  ],
+  "locales": [
+    "bg",
+    "cs",
+    "da",
+    "de",
+    "el",
+    "en-GB",
+    "en-US",
+    "es-419",
+    "es-ES",
+    "fi",
+    "fr",
+    "hi",
+    "hr",
+    "hu",
+    "it",
+    "ja",
+    "ko",
+    "lt",
+    "nl",
+    "no",
+    "pl",
+    "pt-BR",
+    "ro",
+    "ru",
+    "sv-SE",
+    "th",
+    "tr",
+    "uk",
+    "vi",
+    "zh-CN",
+    "zh-TW"
+  ],
+  "moments": [
+    1623488460,
+    -1,
+    1893456000
+  ],
+  "cases": [
+    {
+      "locale": "bg",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "bg",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "bg",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "bg",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "bg",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "bg",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "bg",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021 г."
+    },
+    {
+      "locale": "bg",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969 г."
+    },
+    {
+      "locale": "bg",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030 г."
+    },
+    {
+      "locale": "bg",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 юни 2021 г."
+    },
+    {
+      "locale": "bg",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 декември 1969 г."
+    },
+    {
+      "locale": "bg",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 януари 2030 г."
+    },
+    {
+      "locale": "bg",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021 г., 9:01"
+    },
+    {
+      "locale": "bg",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969 г., 23:59"
+    },
+    {
+      "locale": "bg",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030 г., 0:00"
+    },
+    {
+      "locale": "bg",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "събота, 12 юни 2021 г. в 9:01"
+    },
+    {
+      "locale": "bg",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "сряда, 31 декември 1969 г. в 23:59"
+    },
+    {
+      "locale": "bg",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "вторник, 1 януари 2030 г. в 0:00"
+    },
+    {
+      "locale": "cs",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "cs",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "cs",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "cs",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "cs",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "cs",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "cs",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12. 06. 2021"
+    },
+    {
+      "locale": "cs",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31. 12. 1969"
+    },
+    {
+      "locale": "cs",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01. 01. 2030"
+    },
+    {
+      "locale": "cs",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12. června 2021"
+    },
+    {
+      "locale": "cs",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31. prosince 1969"
+    },
+    {
+      "locale": "cs",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1. ledna 2030"
+    },
+    {
+      "locale": "cs",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12. 06. 2021 9:01"
+    },
+    {
+      "locale": "cs",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31. 12. 1969 23:59"
+    },
+    {
+      "locale": "cs",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01. 01. 2030 0:00"
+    },
+    {
+      "locale": "cs",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sobota 12. června 2021 v 9:01"
+    },
+    {
+      "locale": "cs",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "středa 31. prosince 1969 v 23:59"
+    },
+    {
+      "locale": "cs",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "úterý 1. ledna 2030 v 0:00"
+    },
+    {
+      "locale": "da",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9.01"
+    },
+    {
+      "locale": "da",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23.59"
+    },
+    {
+      "locale": "da",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0.00"
+    },
+    {
+      "locale": "da",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9.01.00"
+    },
+    {
+      "locale": "da",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23.59.59"
+    },
+    {
+      "locale": "da",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0.00.00"
+    },
+    {
+      "locale": "da",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "da",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "da",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "da",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12. juni 2021"
+    },
+    {
+      "locale": "da",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31. december 1969"
+    },
+    {
+      "locale": "da",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1. januar 2030"
+    },
+    {
+      "locale": "da",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9.01"
+    },
+    {
+      "locale": "da",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23.59"
+    },
+    {
+      "locale": "da",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0.00"
+    },
+    {
+      "locale": "da",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "lørdag den 12. juni 2021 kl. 9.01"
+    },
+    {
+      "locale": "da",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "onsdag den 31. december 1969 kl. 23.59"
+    },
+    {
+      "locale": "da",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "tirsdag den 1. januar 2030 kl. 0.00"
+    },
+    {
+      "locale": "de",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "de",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "de",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "de",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "de",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "de",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "de",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "de",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "de",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "de",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12. Juni 2021"
+    },
+    {
+      "locale": "de",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31. Dezember 1969"
+    },
+    {
+      "locale": "de",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1. Januar 2030"
+    },
+    {
+      "locale": "de",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9:01"
+    },
+    {
+      "locale": "de",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23:59"
+    },
+    {
+      "locale": "de",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0:00"
+    },
+    {
+      "locale": "de",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "Samstag, 12. Juni 2021 um 9:01"
+    },
+    {
+      "locale": "de",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "Mittwoch, 31. Dezember 1969 um 23:59"
+    },
+    {
+      "locale": "de",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "Dienstag, 1. Januar 2030 um 0:00"
+    },
+    {
+      "locale": "el",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "11:59 μ.μ."
+    },
+    {
+      "locale": "el",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "12:00 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "11:59:59 μ.μ."
+    },
+    {
+      "locale": "el",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "12:00:00 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "el",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "el",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "el",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 Ιουνίου 2021"
+    },
+    {
+      "locale": "el",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 Δεκεμβρίου 1969"
+    },
+    {
+      "locale": "el",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 Ιανουαρίου 2030"
+    },
+    {
+      "locale": "el",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 11:59 μ.μ."
+    },
+    {
+      "locale": "el",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 12:00 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "Σάββατο 12 Ιουνίου 2021 στις 9:01 π.μ."
+    },
+    {
+      "locale": "el",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "Τετάρτη 31 Δεκεμβρίου 1969 στις 11:59 μ.μ."
+    },
+    {
+      "locale": "el",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "Τρίτη 1 Ιανουαρίου 2030 στις 12:00 π.μ."
+    },
+    {
+      "locale": "en-GB",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "en-GB",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "en-GB",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "en-GB",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "en-GB",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "en-GB",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "en-GB",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "en-GB",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "en-GB",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "en-GB",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 June 2021"
+    },
+    {
+      "locale": "en-GB",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 December 1969"
+    },
+    {
+      "locale": "en-GB",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 January 2030"
+    },
+    {
+      "locale": "en-GB",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01"
+    },
+    {
+      "locale": "en-GB",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 23:59"
+    },
+    {
+      "locale": "en-GB",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 0:00"
+    },
+    {
+      "locale": "en-GB",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "Saturday, 12 June 2021 at 9:01"
+    },
+    {
+      "locale": "en-GB",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "Wednesday, 31 December 1969 at 23:59"
+    },
+    {
+      "locale": "en-GB",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "Tuesday, 1 January 2030 at 0:00"
+    },
+    {
+      "locale": "en-US",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "11:59 PM"
+    },
+    {
+      "locale": "en-US",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "12:00 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "11:59:59 PM"
+    },
+    {
+      "locale": "en-US",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "12:00:00 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "06/12/2021"
+    },
+    {
+      "locale": "en-US",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "12/31/1969"
+    },
+    {
+      "locale": "en-US",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "en-US",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "June 12, 2021"
+    },
+    {
+      "locale": "en-US",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "December 31, 1969"
+    },
+    {
+      "locale": "en-US",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "January 1, 2030"
+    },
+    {
+      "locale": "en-US",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "06/12/2021, 9:01 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "12/31/1969, 11:59 PM"
+    },
+    {
+      "locale": "en-US",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 12:00 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "Saturday, June 12, 2021 at 9:01 AM"
+    },
+    {
+      "locale": "en-US",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "Wednesday, December 31, 1969 at 11:59 PM"
+    },
+    {
+      "locale": "en-US",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "Tuesday, January 1, 2030 at 12:00 AM"
+    },
+    {
+      "locale": "es-419",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "11:59 p.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "12:00 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "11:59:59 p.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "12:00:00 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "es-419",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "es-419",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "es-419",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 de junio de 2021"
+    },
+    {
+      "locale": "es-419",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 de diciembre de 1969"
+    },
+    {
+      "locale": "es-419",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 de enero de 2030"
+    },
+    {
+      "locale": "es-419",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 11:59 p.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 12:00 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sábado, 12 de junio de 2021, 9:01 a.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "miércoles, 31 de diciembre de 1969, 11:59 p.m."
+    },
+    {
+      "locale": "es-419",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "martes, 1 de enero de 2030, 12:00 a.m."
+    },
+    {
+      "locale": "es-ES",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "es-ES",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "es-ES",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "es-ES",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "es-ES",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "es-ES",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "es-ES",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "es-ES",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "es-ES",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "es-ES",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 de junio de 2021"
+    },
+    {
+      "locale": "es-ES",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 de diciembre de 1969"
+    },
+    {
+      "locale": "es-ES",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 de enero de 2030"
+    },
+    {
+      "locale": "es-ES",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01"
+    },
+    {
+      "locale": "es-ES",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 23:59"
+    },
+    {
+      "locale": "es-ES",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 0:00"
+    },
+    {
+      "locale": "es-ES",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sábado, 12 de junio de 2021, 9:01"
+    },
+    {
+      "locale": "es-ES",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "miércoles, 31 de diciembre de 1969, 23:59"
+    },
+    {
+      "locale": "es-ES",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "martes, 1 de enero de 2030, 0:00"
+    },
+    {
+      "locale": "fi",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9.01"
+    },
+    {
+      "locale": "fi",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23.59"
+    },
+    {
+      "locale": "fi",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0.00"
+    },
+    {
+      "locale": "fi",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9.01.00"
+    },
+    {
+      "locale": "fi",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23.59.59"
+    },
+    {
+      "locale": "fi",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0.00.00"
+    },
+    {
+      "locale": "fi",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "fi",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "fi",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "fi",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12. kesäkuuta 2021"
+    },
+    {
+      "locale": "fi",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31. joulukuuta 1969"
+    },
+    {
+      "locale": "fi",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1. tammikuuta 2030"
+    },
+    {
+      "locale": "fi",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021 klo 9.01"
+    },
+    {
+      "locale": "fi",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969 klo 23.59"
+    },
+    {
+      "locale": "fi",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030 klo 0.00"
+    },
+    {
+      "locale": "fi",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "lauantaina 12. kesäkuuta 2021 klo 9.01"
+    },
+    {
+      "locale": "fi",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "keskiviikkona 31. joulukuuta 1969 klo 23.59"
+    },
+    {
+      "locale": "fi",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "tiistaina 1. tammikuuta 2030 klo 0.00"
+    },
+    {
+      "locale": "fr",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "fr",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "fr",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "fr",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "fr",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "fr",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "fr",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "fr",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "fr",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "fr",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 juin 2021"
+    },
+    {
+      "locale": "fr",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 décembre 1969"
+    },
+    {
+      "locale": "fr",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 janvier 2030"
+    },
+    {
+      "locale": "fr",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021 9:01"
+    },
+    {
+      "locale": "fr",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969 23:59"
+    },
+    {
+      "locale": "fr",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030 0:00"
+    },
+    {
+      "locale": "fr",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "samedi 12 juin 2021 à 9:01"
+    },
+    {
+      "locale": "fr",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "mercredi 31 décembre 1969 à 23:59"
+    },
+    {
+      "locale": "fr",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "mardi 1 janvier 2030 à 0:00"
+    },
+    {
+      "locale": "hi",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01 am"
+    },
+    {
+      "locale": "hi",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "11:59 pm"
+    },
+    {
+      "locale": "hi",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "12:00 am"
+    },
+    {
+      "locale": "hi",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00 am"
+    },
+    {
+      "locale": "hi",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "11:59:59 pm"
+    },
+    {
+      "locale": "hi",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "12:00:00 am"
+    },
+    {
+      "locale": "hi",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "hi",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "hi",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "hi",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 जून 2021"
+    },
+    {
+      "locale": "hi",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 दिसंबर 1969"
+    },
+    {
+      "locale": "hi",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 जनवरी 2030"
+    },
+    {
+      "locale": "hi",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01 am"
+    },
+    {
+      "locale": "hi",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 11:59 pm"
+    },
+    {
+      "locale": "hi",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 12:00 am"
+    },
+    {
+      "locale": "hi",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "शनिवार, 12 जून 2021 को 9:01 am बजे"
+    },
+    {
+      "locale": "hi",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "बुधवार, 31 दिसंबर 1969 को 11:59 pm बजे"
+    },
+    {
+      "locale": "hi",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "मंगलवार, 1 जनवरी 2030 को 12:00 am बजे"
+    },
+    {
+      "locale": "hr",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "hr",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "hr",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "hr",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "hr",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "hr",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "hr",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12. 06. 2021."
+    },
+    {
+      "locale": "hr",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31. 12. 1969."
+    },
+    {
+      "locale": "hr",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01. 01. 2030."
+    },
+    {
+      "locale": "hr",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12. lipnja 2021."
+    },
+    {
+      "locale": "hr",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31. prosinca 1969."
+    },
+    {
+      "locale": "hr",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1. siječnja 2030."
+    },
+    {
+      "locale": "hr",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12. 06. 2021. 9:01"
+    },
+    {
+      "locale": "hr",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31. 12. 1969. 23:59"
+    },
+    {
+      "locale": "hr",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01. 01. 2030. 0:00"
+    },
+    {
+      "locale": "hr",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "subota, 12. lipnja 2021. u 9:01"
+    },
+    {
+      "locale": "hr",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "srijeda, 31. prosinca 1969. u 23:59"
+    },
+    {
+      "locale": "hr",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "utorak, 1. siječnja 2030. u 0:00"
+    },
+    {
+      "locale": "hu",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "hu",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "hu",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "hu",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "hu",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "hu",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "hu",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021. 06. 12."
+    },
+    {
+      "locale": "hu",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969. 12. 31."
+    },
+    {
+      "locale": "hu",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030. 01. 01."
+    },
+    {
+      "locale": "hu",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "2021. június 12."
+    },
+    {
+      "locale": "hu",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "1969. december 31."
+    },
+    {
+      "locale": "hu",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "2030. január 1."
+    },
+    {
+      "locale": "hu",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021. 06. 12. 9:01"
+    },
+    {
+      "locale": "hu",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969. 12. 31. 23:59"
+    },
+    {
+      "locale": "hu",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030. 01. 01. 0:00"
+    },
+    {
+      "locale": "hu",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "2021. június 12., szombat 9:01"
+    },
+    {
+      "locale": "hu",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "1969. december 31., szerda 23:59"
+    },
+    {
+      "locale": "hu",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "2030. január 1., kedd 0:00"
+    },
+    {
+      "locale": "it",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "it",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "it",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "it",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "it",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "it",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "it",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "it",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "it",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "it",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 giugno 2021"
+    },
+    {
+      "locale": "it",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 dicembre 1969"
+    },
+    {
+      "locale": "it",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 gennaio 2030"
+    },
+    {
+      "locale": "it",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01"
+    },
+    {
+      "locale": "it",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 23:59"
+    },
+    {
+      "locale": "it",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 0:00"
+    },
+    {
+      "locale": "it",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sabato 12 giugno 2021 alle ore 9:01"
+    },
+    {
+      "locale": "it",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "mercoledì 31 dicembre 1969 alle ore 23:59"
+    },
+    {
+      "locale": "it",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "martedì 1 gennaio 2030 alle ore 0:00"
+    },
+    {
+      "locale": "ja",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "ja",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "ja",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "ja",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "ja",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "ja",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "ja",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021/06/12"
+    },
+    {
+      "locale": "ja",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969/12/31"
+    },
+    {
+      "locale": "ja",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030/01/01"
+    },
+    {
+      "locale": "ja",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "2021年6月12日"
+    },
+    {
+      "locale": "ja",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "1969年12月31日"
+    },
+    {
+      "locale": "ja",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "2030年1月1日"
+    },
+    {
+      "locale": "ja",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021/06/12 9:01"
+    },
+    {
+      "locale": "ja",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969/12/31 23:59"
+    },
+    {
+      "locale": "ja",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030/01/01 0:00"
+    },
+    {
+      "locale": "ja",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "2021年6月12日土曜日 9:01"
+    },
+    {
+      "locale": "ja",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "1969年12月31日水曜日 23:59"
+    },
+    {
+      "locale": "ja",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "2030年1月1日火曜日 0:00"
+    },
+    {
+      "locale": "ko",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "오전 9:01"
+    },
+    {
+      "locale": "ko",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "오후 11:59"
+    },
+    {
+      "locale": "ko",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "오전 12:00"
+    },
+    {
+      "locale": "ko",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "오전 9:01:00"
+    },
+    {
+      "locale": "ko",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "오후 11:59:59"
+    },
+    {
+      "locale": "ko",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "오전 12:00:00"
+    },
+    {
+      "locale": "ko",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021. 06. 12."
+    },
+    {
+      "locale": "ko",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969. 12. 31."
+    },
+    {
+      "locale": "ko",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030. 01. 01."
+    },
+    {
+      "locale": "ko",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "2021년 6월 12일"
+    },
+    {
+      "locale": "ko",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "1969년 12월 31일"
+    },
+    {
+      "locale": "ko",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "2030년 1월 1일"
+    },
+    {
+      "locale": "ko",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021. 06. 12. 오전 9:01"
+    },
+    {
+      "locale": "ko",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969. 12. 31. 오후 11:59"
+    },
+    {
+      "locale": "ko",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030. 01. 01. 오전 12:00"
+    },
+    {
+      "locale": "ko",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "2021년 6월 12일 토요일 오전 9:01"
+    },
+    {
+      "locale": "ko",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "1969년 12월 31일 수요일 오후 11:59"
+    },
+    {
+      "locale": "ko",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "2030년 1월 1일 화요일 오전 12:00"
+    },
+    {
+      "locale": "lt",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "lt",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "lt",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "lt",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "lt",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "lt",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "lt",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021-06-12"
+    },
+    {
+      "locale": "lt",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969-12-31"
+    },
+    {
+      "locale": "lt",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030-01-01"
+    },
+    {
+      "locale": "lt",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "2021 m. birželio 12 d."
+    },
+    {
+      "locale": "lt",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "1969 m. gruodžio 31 d."
+    },
+    {
+      "locale": "lt",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "2030 m. sausio 1 d."
+    },
+    {
+      "locale": "lt",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021-06-12 9:01"
+    },
+    {
+      "locale": "lt",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969-12-31 23:59"
+    },
+    {
+      "locale": "lt",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030-01-01 0:00"
+    },
+    {
+      "locale": "lt",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "2021 m. birželio 12 d., šeštadienis 9:01"
+    },
+    {
+      "locale": "lt",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "1969 m. gruodžio 31 d., trečiadienis 23:59"
+    },
+    {
+      "locale": "lt",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "2030 m. sausio 1 d., antradienis 0:00"
+    },
+    {
+      "locale": "nl",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "nl",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "nl",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "nl",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "nl",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "nl",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "nl",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12-06-2021"
+    },
+    {
+      "locale": "nl",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31-12-1969"
+    },
+    {
+      "locale": "nl",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01-01-2030"
+    },
+    {
+      "locale": "nl",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 juni 2021"
+    },
+    {
+      "locale": "nl",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 december 1969"
+    },
+    {
+      "locale": "nl",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 januari 2030"
+    },
+    {
+      "locale": "nl",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12-06-2021, 9:01"
+    },
+    {
+      "locale": "nl",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31-12-1969, 23:59"
+    },
+    {
+      "locale": "nl",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01-01-2030, 0:00"
+    },
+    {
+      "locale": "nl",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "zaterdag 12 juni 2021 om 9:01"
+    },
+    {
+      "locale": "nl",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "woensdag 31 december 1969 om 23:59"
+    },
+    {
+      "locale": "nl",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "dinsdag 1 januari 2030 om 0:00"
+    },
+    {
+      "locale": "no",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "no",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "no",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "no",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "no",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "no",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "no",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "no",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "no",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "no",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12. juni 2021"
+    },
+    {
+      "locale": "no",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31. desember 1969"
+    },
+    {
+      "locale": "no",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1. januar 2030"
+    },
+    {
+      "locale": "no",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9:01"
+    },
+    {
+      "locale": "no",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23:59"
+    },
+    {
+      "locale": "no",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0:00"
+    },
+    {
+      "locale": "no",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "lørdag 12. juni 2021 kl. 9:01"
+    },
+    {
+      "locale": "no",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "onsdag 31. desember 1969 kl. 23:59"
+    },
+    {
+      "locale": "no",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "tirsdag 1. januar 2030 kl. 0:00"
+    },
+    {
+      "locale": "pl",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "pl",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "pl",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "pl",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "pl",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "pl",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "pl",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "pl",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "pl",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "pl",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 czerwca 2021"
+    },
+    {
+      "locale": "pl",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 grudnia 1969"
+    },
+    {
+      "locale": "pl",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 stycznia 2030"
+    },
+    {
+      "locale": "pl",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9:01"
+    },
+    {
+      "locale": "pl",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23:59"
+    },
+    {
+      "locale": "pl",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0:00"
+    },
+    {
+      "locale": "pl",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sobota, 12 czerwca 2021 9:01"
+    },
+    {
+      "locale": "pl",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "środa, 31 grudnia 1969 23:59"
+    },
+    {
+      "locale": "pl",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "wtorek, 1 stycznia 2030 0:00"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 de junho de 2021"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 de dezembro de 1969"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 de janeiro de 2030"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021, 9:01"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/1969, 23:59"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030, 0:00"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sábado, 12 de junho de 2021 às 9:01"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "quarta-feira, 31 de dezembro de 1969 às 23:59"
+    },
+    {
+      "locale": "pt-BR",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "terça-feira, 1 de janeiro de 2030 às 0:00"
+    },
+    {
+      "locale": "ro",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "ro",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "ro",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "ro",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "ro",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "ro",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "ro",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "ro",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "ro",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "ro",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 iunie 2021"
+    },
+    {
+      "locale": "ro",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 decembrie 1969"
+    },
+    {
+      "locale": "ro",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 ianuarie 2030"
+    },
+    {
+      "locale": "ro",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9:01"
+    },
+    {
+      "locale": "ro",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23:59"
+    },
+    {
+      "locale": "ro",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0:00"
+    },
+    {
+      "locale": "ro",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "sâmbătă, 12 iunie 2021 la 9:01"
+    },
+    {
+      "locale": "ro",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "miercuri, 31 decembrie 1969 la 23:59"
+    },
+    {
+      "locale": "ro",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "marți, 1 ianuarie 2030 la 0:00"
+    },
+    {
+      "locale": "ru",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "ru",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "ru",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "ru",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "ru",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "ru",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "ru",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "ru",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "ru",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "ru",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 июня 2021 г."
+    },
+    {
+      "locale": "ru",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 декабря 1969 г."
+    },
+    {
+      "locale": "ru",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 января 2030 г."
+    },
+    {
+      "locale": "ru",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9:01"
+    },
+    {
+      "locale": "ru",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23:59"
+    },
+    {
+      "locale": "ru",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0:00"
+    },
+    {
+      "locale": "ru",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "суббота, 12 июня 2021 г. в 9:01"
+    },
+    {
+      "locale": "ru",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "среда, 31 декабря 1969 г. в 23:59"
+    },
+    {
+      "locale": "ru",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "вторник, 1 января 2030 г. в 0:00"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021-06-12"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969-12-31"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030-01-01"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 juni 2021"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 december 1969"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 januari 2030"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021-06-12 9:01"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969-12-31 23:59"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030-01-01 0:00"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "lördag 12 juni 2021 kl. 9:01"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "onsdag 31 december 1969 kl. 23:59"
+    },
+    {
+      "locale": "sv-SE",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "tisdag 1 januari 2030 kl. 0:00"
+    },
+    {
+      "locale": "th",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "th",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "th",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "th",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "th",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "th",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "th",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2564"
+    },
+    {
+      "locale": "th",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/2512"
+    },
+    {
+      "locale": "th",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2573"
+    },
+    {
+      "locale": "th",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 มิถุนายน 2564"
+    },
+    {
+      "locale": "th",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 ธันวาคม 2512"
+    },
+    {
+      "locale": "th",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 มกราคม 2573"
+    },
+    {
+      "locale": "th",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12/06/2564 9:01"
+    },
+    {
+      "locale": "th",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31/12/2512 23:59"
+    },
+    {
+      "locale": "th",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01/01/2573 0:00"
+    },
+    {
+      "locale": "th",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "วันเสาร์ที่ 12 มิถุนายน 2564 เวลา 9:01"
+    },
+    {
+      "locale": "th",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "วันพุธที่ 31 ธันวาคม 2512 เวลา 23:59"
+    },
+    {
+      "locale": "th",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "วันอังคารที่ 1 มกราคม 2573 เวลา 0:00"
+    },
+    {
+      "locale": "tr",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "tr",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "tr",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "tr",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "tr",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "tr",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "tr",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "tr",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "tr",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "tr",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 Haziran 2021"
+    },
+    {
+      "locale": "tr",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 Aralık 1969"
+    },
+    {
+      "locale": "tr",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 Ocak 2030"
+    },
+    {
+      "locale": "tr",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021 9:01"
+    },
+    {
+      "locale": "tr",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969 23:59"
+    },
+    {
+      "locale": "tr",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030 0:00"
+    },
+    {
+      "locale": "tr",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "12 Haziran 2021 Cumartesi 9:01"
+    },
+    {
+      "locale": "tr",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "31 Aralık 1969 Çarşamba 23:59"
+    },
+    {
+      "locale": "tr",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "1 Ocak 2030 Salı 0:00"
+    },
+    {
+      "locale": "uk",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "uk",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "uk",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "uk",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "uk",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "uk",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "uk",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021"
+    },
+    {
+      "locale": "uk",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31.12.1969"
+    },
+    {
+      "locale": "uk",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030"
+    },
+    {
+      "locale": "uk",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 червня 2021 р."
+    },
+    {
+      "locale": "uk",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 грудня 1969 р."
+    },
+    {
+      "locale": "uk",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 січня 2030 р."
+    },
+    {
+      "locale": "uk",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "12.06.2021, 9:01"
+    },
+    {
+      "locale": "uk",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "31.12.1969, 23:59"
+    },
+    {
+      "locale": "uk",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "01.01.2030, 0:00"
+    },
+    {
+      "locale": "uk",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "субота, 12 червня 2021 р. о 9:01"
+    },
+    {
+      "locale": "uk",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "середа, 31 грудня 1969 р. о 23:59"
+    },
+    {
+      "locale": "uk",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "вівторок, 1 січня 2030 р. о 0:00"
+    },
+    {
+      "locale": "vi",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "vi",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "vi",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "vi",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "vi",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "vi",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "vi",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "12/06/2021"
+    },
+    {
+      "locale": "vi",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "31/12/1969"
+    },
+    {
+      "locale": "vi",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "01/01/2030"
+    },
+    {
+      "locale": "vi",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "12 tháng 6, 2021"
+    },
+    {
+      "locale": "vi",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "31 tháng 12, 1969"
+    },
+    {
+      "locale": "vi",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "1 tháng 1, 2030"
+    },
+    {
+      "locale": "vi",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "9:01 12/06/2021"
+    },
+    {
+      "locale": "vi",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "23:59 31/12/1969"
+    },
+    {
+      "locale": "vi",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "0:00 01/01/2030"
+    },
+    {
+      "locale": "vi",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "lúc 9:01 Thứ Bảy, 12 tháng 6, 2021"
+    },
+    {
+      "locale": "vi",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "lúc 23:59 Thứ Tư, 31 tháng 12, 1969"
+    },
+    {
+      "locale": "vi",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "lúc 0:00 Thứ Ba, 1 tháng 1, 2030"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "9:01"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "23:59"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "0:00"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "9:01:00"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "23:59:59"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "0:00:00"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021/06/12"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969/12/31"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030/01/01"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "2021年6月12日"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "1969年12月31日"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "2030年1月1日"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021/06/12 9:01"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969/12/31 23:59"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030/01/01 0:00"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "2021年6月12日星期六 9:01"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "1969年12月31日星期三 23:59"
+    },
+    {
+      "locale": "zh-CN",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "2030年1月1日星期二 0:00"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "t",
+      "timestamp": 1623488460,
+      "expected": "上午9:01"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "t",
+      "timestamp": -1,
+      "expected": "下午11:59"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "t",
+      "timestamp": 1893456000,
+      "expected": "上午12:00"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "T",
+      "timestamp": 1623488460,
+      "expected": "上午9:01:00"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "T",
+      "timestamp": -1,
+      "expected": "下午11:59:59"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "T",
+      "timestamp": 1893456000,
+      "expected": "上午12:00:00"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "d",
+      "timestamp": 1623488460,
+      "expected": "2021/06/12"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "d",
+      "timestamp": -1,
+      "expected": "1969/12/31"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "d",
+      "timestamp": 1893456000,
+      "expected": "2030/01/01"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "D",
+      "timestamp": 1623488460,
+      "expected": "2021年6月12日"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "D",
+      "timestamp": -1,
+      "expected": "1969年12月31日"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "D",
+      "timestamp": 1893456000,
+      "expected": "2030年1月1日"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "f",
+      "timestamp": 1623488460,
+      "expected": "2021/06/12 上午9:01"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "f",
+      "timestamp": -1,
+      "expected": "1969/12/31 下午11:59"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "f",
+      "timestamp": 1893456000,
+      "expected": "2030/01/01 上午12:00"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "F",
+      "timestamp": 1623488460,
+      "expected": "2021年6月12日星期六 上午9:01"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "F",
+      "timestamp": -1,
+      "expected": "1969年12月31日星期三 下午11:59"
+    },
+    {
+      "locale": "zh-TW",
+      "style": "F",
+      "timestamp": 1893456000,
+      "expected": "2030年1月1日星期二 上午12:00"
+    }
+  ],
+  "relative": {
+    "locales": [
+      "en-US",
+      "ru",
+      "de",
+      "ja"
+    ],
+    "now": 1800000000,
+    "cases": [
+      {
+        "locale": "en-US",
+        "delta": 30,
+        "unit": "second",
+        "value": 30,
+        "expected": "in 30 seconds"
+      },
+      {
+        "locale": "en-US",
+        "delta": -30,
+        "unit": "second",
+        "value": -30,
+        "expected": "30 seconds ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 300,
+        "unit": "minute",
+        "value": 5,
+        "expected": "in 5 minutes"
+      },
+      {
+        "locale": "en-US",
+        "delta": -300,
+        "unit": "minute",
+        "value": -5,
+        "expected": "5 minutes ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 10800,
+        "unit": "hour",
+        "value": 3,
+        "expected": "in 3 hours"
+      },
+      {
+        "locale": "en-US",
+        "delta": -10800,
+        "unit": "hour",
+        "value": -3,
+        "expected": "3 hours ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 172800,
+        "unit": "day",
+        "value": 2,
+        "expected": "in 2 days"
+      },
+      {
+        "locale": "en-US",
+        "delta": -172800,
+        "unit": "day",
+        "value": -2,
+        "expected": "2 days ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 1814400,
+        "unit": "week",
+        "value": 3,
+        "expected": "in 3 weeks"
+      },
+      {
+        "locale": "en-US",
+        "delta": -1814400,
+        "unit": "week",
+        "value": -3,
+        "expected": "3 weeks ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 12960000,
+        "unit": "month",
+        "value": 5,
+        "expected": "in 5 months"
+      },
+      {
+        "locale": "en-US",
+        "delta": -12960000,
+        "unit": "month",
+        "value": -5,
+        "expected": "5 months ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 63072000,
+        "unit": "year",
+        "value": 2,
+        "expected": "in 2 years"
+      },
+      {
+        "locale": "en-US",
+        "delta": -63072000,
+        "unit": "year",
+        "value": -2,
+        "expected": "2 years ago"
+      },
+      {
+        "locale": "en-US",
+        "delta": 0,
+        "unit": "second",
+        "value": 0,
+        "expected": "now"
+      },
+      {
+        "locale": "ru",
+        "delta": 30,
+        "unit": "second",
+        "value": 30,
+        "expected": "через 30 секунд"
+      },
+      {
+        "locale": "ru",
+        "delta": -30,
+        "unit": "second",
+        "value": -30,
+        "expected": "30 секунд назад"
+      },
+      {
+        "locale": "ru",
+        "delta": 300,
+        "unit": "minute",
+        "value": 5,
+        "expected": "через 5 минут"
+      },
+      {
+        "locale": "ru",
+        "delta": -300,
+        "unit": "minute",
+        "value": -5,
+        "expected": "5 минут назад"
+      },
+      {
+        "locale": "ru",
+        "delta": 10800,
+        "unit": "hour",
+        "value": 3,
+        "expected": "через 3 часа"
+      },
+      {
+        "locale": "ru",
+        "delta": -10800,
+        "unit": "hour",
+        "value": -3,
+        "expected": "3 часа назад"
+      },
+      {
+        "locale": "ru",
+        "delta": 172800,
+        "unit": "day",
+        "value": 2,
+        "expected": "послезавтра"
+      },
+      {
+        "locale": "ru",
+        "delta": -172800,
+        "unit": "day",
+        "value": -2,
+        "expected": "позавчера"
+      },
+      {
+        "locale": "ru",
+        "delta": 1814400,
+        "unit": "week",
+        "value": 3,
+        "expected": "через 3 недели"
+      },
+      {
+        "locale": "ru",
+        "delta": -1814400,
+        "unit": "week",
+        "value": -3,
+        "expected": "3 недели назад"
+      },
+      {
+        "locale": "ru",
+        "delta": 12960000,
+        "unit": "month",
+        "value": 5,
+        "expected": "через 5 месяцев"
+      },
+      {
+        "locale": "ru",
+        "delta": -12960000,
+        "unit": "month",
+        "value": -5,
+        "expected": "5 месяцев назад"
+      },
+      {
+        "locale": "ru",
+        "delta": 63072000,
+        "unit": "year",
+        "value": 2,
+        "expected": "через 2 года"
+      },
+      {
+        "locale": "ru",
+        "delta": -63072000,
+        "unit": "year",
+        "value": -2,
+        "expected": "2 года назад"
+      },
+      {
+        "locale": "ru",
+        "delta": 0,
+        "unit": "second",
+        "value": 0,
+        "expected": "сейчас"
+      },
+      {
+        "locale": "de",
+        "delta": 30,
+        "unit": "second",
+        "value": 30,
+        "expected": "in 30 Sekunden"
+      },
+      {
+        "locale": "de",
+        "delta": -30,
+        "unit": "second",
+        "value": -30,
+        "expected": "vor 30 Sekunden"
+      },
+      {
+        "locale": "de",
+        "delta": 300,
+        "unit": "minute",
+        "value": 5,
+        "expected": "in 5 Minuten"
+      },
+      {
+        "locale": "de",
+        "delta": -300,
+        "unit": "minute",
+        "value": -5,
+        "expected": "vor 5 Minuten"
+      },
+      {
+        "locale": "de",
+        "delta": 10800,
+        "unit": "hour",
+        "value": 3,
+        "expected": "in 3 Stunden"
+      },
+      {
+        "locale": "de",
+        "delta": -10800,
+        "unit": "hour",
+        "value": -3,
+        "expected": "vor 3 Stunden"
+      },
+      {
+        "locale": "de",
+        "delta": 172800,
+        "unit": "day",
+        "value": 2,
+        "expected": "übermorgen"
+      },
+      {
+        "locale": "de",
+        "delta": -172800,
+        "unit": "day",
+        "value": -2,
+        "expected": "vorgestern"
+      },
+      {
+        "locale": "de",
+        "delta": 1814400,
+        "unit": "week",
+        "value": 3,
+        "expected": "in 3 Wochen"
+      },
+      {
+        "locale": "de",
+        "delta": -1814400,
+        "unit": "week",
+        "value": -3,
+        "expected": "vor 3 Wochen"
+      },
+      {
+        "locale": "de",
+        "delta": 12960000,
+        "unit": "month",
+        "value": 5,
+        "expected": "in 5 Monaten"
+      },
+      {
+        "locale": "de",
+        "delta": -12960000,
+        "unit": "month",
+        "value": -5,
+        "expected": "vor 5 Monaten"
+      },
+      {
+        "locale": "de",
+        "delta": 63072000,
+        "unit": "year",
+        "value": 2,
+        "expected": "in 2 Jahren"
+      },
+      {
+        "locale": "de",
+        "delta": -63072000,
+        "unit": "year",
+        "value": -2,
+        "expected": "vor 2 Jahren"
+      },
+      {
+        "locale": "de",
+        "delta": 0,
+        "unit": "second",
+        "value": 0,
+        "expected": "jetzt"
+      },
+      {
+        "locale": "ja",
+        "delta": 30,
+        "unit": "second",
+        "value": 30,
+        "expected": "30 秒後"
+      },
+      {
+        "locale": "ja",
+        "delta": -30,
+        "unit": "second",
+        "value": -30,
+        "expected": "30 秒前"
+      },
+      {
+        "locale": "ja",
+        "delta": 300,
+        "unit": "minute",
+        "value": 5,
+        "expected": "5 分後"
+      },
+      {
+        "locale": "ja",
+        "delta": -300,
+        "unit": "minute",
+        "value": -5,
+        "expected": "5 分前"
+      },
+      {
+        "locale": "ja",
+        "delta": 10800,
+        "unit": "hour",
+        "value": 3,
+        "expected": "3 時間後"
+      },
+      {
+        "locale": "ja",
+        "delta": -10800,
+        "unit": "hour",
+        "value": -3,
+        "expected": "3 時間前"
+      },
+      {
+        "locale": "ja",
+        "delta": 172800,
+        "unit": "day",
+        "value": 2,
+        "expected": "明後日"
+      },
+      {
+        "locale": "ja",
+        "delta": -172800,
+        "unit": "day",
+        "value": -2,
+        "expected": "一昨日"
+      },
+      {
+        "locale": "ja",
+        "delta": 1814400,
+        "unit": "week",
+        "value": 3,
+        "expected": "3 週間後"
+      },
+      {
+        "locale": "ja",
+        "delta": -1814400,
+        "unit": "week",
+        "value": -3,
+        "expected": "3 週間前"
+      },
+      {
+        "locale": "ja",
+        "delta": 12960000,
+        "unit": "month",
+        "value": 5,
+        "expected": "5 か月後"
+      },
+      {
+        "locale": "ja",
+        "delta": -12960000,
+        "unit": "month",
+        "value": -5,
+        "expected": "5 か月前"
+      },
+      {
+        "locale": "ja",
+        "delta": 63072000,
+        "unit": "year",
+        "value": 2,
+        "expected": "2 年後"
+      },
+      {
+        "locale": "ja",
+        "delta": -63072000,
+        "unit": "year",
+        "value": -2,
+        "expected": "2 年前"
+      },
+      {
+        "locale": "ja",
+        "delta": 0,
+        "unit": "second",
+        "value": 0,
+        "expected": "今"
+      }
+    ]
+  },
+  "ladder": [
+    {
+      "delta": 0,
+      "now": 1800000000,
+      "timestamp": 1800000000,
+      "unit": "second",
+      "value": 0,
+      "expected": "now"
+    },
+    {
+      "delta": 59,
+      "now": 1800000000,
+      "timestamp": 1800000059,
+      "unit": "second",
+      "value": 59,
+      "expected": "in 59 seconds"
+    },
+    {
+      "delta": -59,
+      "now": 1800000000,
+      "timestamp": 1799999941,
+      "unit": "second",
+      "value": -59,
+      "expected": "59 seconds ago"
+    },
+    {
+      "delta": 60,
+      "now": 1800000000,
+      "timestamp": 1800000060,
+      "unit": "minute",
+      "value": 1,
+      "expected": "in 1 minute"
+    },
+    {
+      "delta": -60,
+      "now": 1800000000,
+      "timestamp": 1799999940,
+      "unit": "minute",
+      "value": -1,
+      "expected": "1 minute ago"
+    },
+    {
+      "delta": 119,
+      "now": 1800000000,
+      "timestamp": 1800000119,
+      "unit": "minute",
+      "value": 1,
+      "expected": "in 1 minute"
+    },
+    {
+      "delta": 3599,
+      "now": 1800000000,
+      "timestamp": 1800003599,
+      "unit": "minute",
+      "value": 59,
+      "expected": "in 59 minutes"
+    },
+    {
+      "delta": 3600,
+      "now": 1800000000,
+      "timestamp": 1800003600,
+      "unit": "hour",
+      "value": 1,
+      "expected": "in 1 hour"
+    },
+    {
+      "delta": -3600,
+      "now": 1800000000,
+      "timestamp": 1799996400,
+      "unit": "hour",
+      "value": -1,
+      "expected": "1 hour ago"
+    },
+    {
+      "delta": 7199,
+      "now": 1800000000,
+      "timestamp": 1800007199,
+      "unit": "hour",
+      "value": 1,
+      "expected": "in 1 hour"
+    },
+    {
+      "delta": 86399,
+      "now": 1800000000,
+      "timestamp": 1800086399,
+      "unit": "hour",
+      "value": 23,
+      "expected": "in 23 hours"
+    },
+    {
+      "delta": 86400,
+      "now": 1800000000,
+      "timestamp": 1800086400,
+      "unit": "day",
+      "value": 1,
+      "expected": "tomorrow"
+    },
+    {
+      "delta": 172800,
+      "now": 1800000000,
+      "timestamp": 1800172800,
+      "unit": "day",
+      "value": 2,
+      "expected": "in 2 days"
+    },
+    {
+      "delta": 604799,
+      "now": 1800000000,
+      "timestamp": 1800604799,
+      "unit": "day",
+      "value": 6,
+      "expected": "in 6 days"
+    },
+    {
+      "delta": 604800,
+      "now": 1800000000,
+      "timestamp": 1800604800,
+      "unit": "week",
+      "value": 1,
+      "expected": "next week"
+    },
+    {
+      "delta": 1814400,
+      "now": 1800000000,
+      "timestamp": 1801814400,
+      "unit": "week",
+      "value": 3,
+      "expected": "in 3 weeks"
+    },
+    {
+      "delta": 2591999,
+      "now": 1800000000,
+      "timestamp": 1802591999,
+      "unit": "week",
+      "value": 4,
+      "expected": "in 4 weeks"
+    },
+    {
+      "delta": 2592000,
+      "now": 1800000000,
+      "timestamp": 1802592000,
+      "unit": "month",
+      "value": 1,
+      "expected": "next month"
+    },
+    {
+      "delta": 12960000,
+      "now": 1800000000,
+      "timestamp": 1812960000,
+      "unit": "month",
+      "value": 5,
+      "expected": "in 5 months"
+    },
+    {
+      "delta": 31535999,
+      "now": 1800000000,
+      "timestamp": 1831535999,
+      "unit": "month",
+      "value": 12,
+      "expected": "in 12 months"
+    },
+    {
+      "delta": 31536000,
+      "now": 1800000000,
+      "timestamp": 1831536000,
+      "unit": "year",
+      "value": 1,
+      "expected": "next year"
+    },
+    {
+      "delta": -31536000,
+      "now": 1800000000,
+      "timestamp": 1768464000,
+      "unit": "year",
+      "value": -1,
+      "expected": "last year"
+    },
+    {
+      "delta": 63072000,
+      "now": 1800000000,
+      "timestamp": 1863072000,
+      "unit": "year",
+      "value": 2,
+      "expected": "in 2 years"
+    },
+    {
+      "delta": -63072000,
+      "now": 1800000000,
+      "timestamp": 1736928000,
+      "unit": "year",
+      "value": -2,
+      "expected": "2 years ago"
+    }
+  ],
+  "extreme": [
+    {
+      "locale": "en-US",
+      "style": "R",
+      "timestamp": "-9223372036854775808",
+      "now": "9223372036854775807",
+      "unit": "year",
+      "value": "-292471208677",
+      "expected": "292,471,208,677 years ago"
+    },
+    {
+      "locale": "en-US",
+      "style": "R",
+      "timestamp": "9223372036854775807",
+      "now": "-9223372036854775808",
+      "unit": "year",
+      "value": "292471208677",
+      "expected": "in 292,471,208,677 years"
+    }
+  ]
+}

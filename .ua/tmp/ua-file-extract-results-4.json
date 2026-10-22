@@ -1,0 +1,1883 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "filesUnreadable": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 3,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 3,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "rust/crates/discord-codec/src/etf.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 554,
+      "nonEmptyLines": 510,
+      "functions": [
+        {
+          "name": "fmt",
+          "startLine": 80,
+          "endLine": 106,
+          "params": [
+            "f"
+          ]
+        },
+        {
+          "name": "get",
+          "startLine": 134,
+          "endLine": 142,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "as_int",
+          "startLine": 145,
+          "endLine": 150,
+          "params": []
+        },
+        {
+          "name": "as_float",
+          "startLine": 153,
+          "endLine": 158,
+          "params": []
+        },
+        {
+          "name": "as_atom",
+          "startLine": 161,
+          "endLine": 166,
+          "params": []
+        },
+        {
+          "name": "as_str",
+          "startLine": 169,
+          "endLine": 174,
+          "params": []
+        },
+        {
+          "name": "as_list",
+          "startLine": 177,
+          "endLine": 182,
+          "params": []
+        },
+        {
+          "name": "as_map",
+          "startLine": 185,
+          "endLine": 190,
+          "params": []
+        },
+        {
+          "name": "decode",
+          "startLine": 196,
+          "endLine": 203,
+          "params": [
+            "buf"
+          ]
+        },
+        {
+          "name": "decode_term",
+          "startLine": 206,
+          "endLine": 210,
+          "params": [
+            "buf"
+          ]
+        },
+        {
+          "name": "encode",
+          "startLine": 213,
+          "endLine": 218,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "encode_term",
+          "startLine": 221,
+          "endLine": 225,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "new",
+          "startLine": 234,
+          "endLine": 236,
+          "params": [
+            "buf"
+          ]
+        },
+        {
+          "name": "remaining",
+          "startLine": 239,
+          "endLine": 241,
+          "params": []
+        },
+        {
+          "name": "peek",
+          "startLine": 244,
+          "endLine": 252,
+          "params": []
+        },
+        {
+          "name": "take",
+          "startLine": 255,
+          "endLine": 265,
+          "params": [
+            "n"
+          ]
+        },
+        {
+          "name": "u8",
+          "startLine": 267,
+          "endLine": 269,
+          "params": []
+        },
+        {
+          "name": "u16_be",
+          "startLine": 271,
+          "endLine": 274,
+          "params": []
+        },
+        {
+          "name": "u32_be",
+          "startLine": 276,
+          "endLine": 279,
+          "params": []
+        },
+        {
+          "name": "i32_be",
+          "startLine": 281,
+          "endLine": 284,
+          "params": []
+        },
+        {
+          "name": "f64_be",
+          "startLine": 286,
+          "endLine": 291,
+          "params": []
+        },
+        {
+          "name": "term",
+          "startLine": 294,
+          "endLine": 350,
+          "params": [
+            "depth"
+          ]
+        },
+        {
+          "name": "float_ext",
+          "startLine": 353,
+          "endLine": 363,
+          "params": [
+            "at"
+          ]
+        },
+        {
+          "name": "latin1",
+          "startLine": 366,
+          "endLine": 369,
+          "params": [
+            "len"
+          ]
+        },
+        {
+          "name": "utf8",
+          "startLine": 372,
+          "endLine": 377,
+          "params": [
+            "len",
+            "at"
+          ]
+        },
+        {
+          "name": "tuple",
+          "startLine": 380,
+          "endLine": 387,
+          "params": [
+            "count",
+            "depth",
+            "at"
+          ]
+        },
+        {
+          "name": "list",
+          "startLine": 390,
+          "endLine": 406,
+          "params": [
+            "depth",
+            "at"
+          ]
+        },
+        {
+          "name": "map",
+          "startLine": 409,
+          "endLine": 419,
+          "params": [
+            "depth",
+            "at"
+          ]
+        },
+        {
+          "name": "big_int",
+          "startLine": 422,
+          "endLine": 447,
+          "params": [
+            "digits",
+            "at"
+          ]
+        },
+        {
+          "name": "check_depth",
+          "startLine": 451,
+          "endLine": 457,
+          "params": [
+            "depth",
+            "at"
+          ]
+        },
+        {
+          "name": "write_term",
+          "startLine": 460,
+          "endLine": 499,
+          "params": [
+            "value",
+            "out"
+          ]
+        },
+        {
+          "name": "write_binary",
+          "startLine": 505,
+          "endLine": 509,
+          "params": [
+            "text",
+            "out"
+          ]
+        },
+        {
+          "name": "write_atom",
+          "startLine": 515,
+          "endLine": 528,
+          "params": [
+            "name",
+            "out"
+          ]
+        },
+        {
+          "name": "write_int",
+          "startLine": 531,
+          "endLine": 548,
+          "params": [
+            "number",
+            "out"
+          ]
+        },
+        {
+          "name": "min_digits",
+          "startLine": 551,
+          "endLine": 554,
+          "params": [
+            "magnitude"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "EtfError",
+          "startLine": 62,
+          "endLine": 77,
+          "methods": [
+            "fmt"
+          ],
+          "properties": [
+            "UnexpectedEof",
+            "UnknownTag",
+            "BigIntOverflow",
+            "InvalidUtf8",
+            "ListTailNotNil",
+            "MalformedFloat",
+            "DepthLimit"
+          ]
+        },
+        {
+          "name": "EtfValue",
+          "startLine": 113,
+          "endLine": 130,
+          "methods": [
+            "get",
+            "as_int",
+            "as_float",
+            "as_atom",
+            "as_str",
+            "as_list",
+            "as_map"
+          ],
+          "properties": [
+            "Nil",
+            "Atom",
+            "Int",
+            "Float",
+            "Str",
+            "Tuple",
+            "List",
+            "Map"
+          ]
+        },
+        {
+          "name": "Reader",
+          "startLine": 228,
+          "endLine": 231,
+          "methods": [],
+          "properties": [
+            "buf",
+            "pos"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "EtfError",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "EtfValue",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "get",
+          "line": 134,
+          "isDefault": false
+        },
+        {
+          "name": "as_int",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "as_float",
+          "line": 153,
+          "isDefault": false
+        },
+        {
+          "name": "as_atom",
+          "line": 161,
+          "isDefault": false
+        },
+        {
+          "name": "as_str",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "as_list",
+          "line": 177,
+          "isDefault": false
+        },
+        {
+          "name": "as_map",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "decode",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "decode_term",
+          "line": 206,
+          "isDefault": false
+        },
+        {
+          "name": "encode",
+          "line": 213,
+          "isDefault": false
+        },
+        {
+          "name": "encode_term",
+          "line": 221,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get",
+          "callee": "pairs.iter().find_map",
+          "lineNumber": 138
+        },
+        {
+          "caller": "get",
+          "callee": "pairs.iter",
+          "lineNumber": 138
+        },
+        {
+          "caller": "get",
+          "callee": "Some",
+          "lineNumber": 139
+        },
+        {
+          "caller": "as_int",
+          "callee": "Some",
+          "lineNumber": 147
+        },
+        {
+          "caller": "as_float",
+          "callee": "Some",
+          "lineNumber": 155
+        },
+        {
+          "caller": "as_atom",
+          "callee": "Some",
+          "lineNumber": 163
+        },
+        {
+          "caller": "as_atom",
+          "callee": "name.as_str",
+          "lineNumber": 163
+        },
+        {
+          "caller": "as_str",
+          "callee": "Some",
+          "lineNumber": 171
+        },
+        {
+          "caller": "as_str",
+          "callee": "text.as_str",
+          "lineNumber": 171
+        },
+        {
+          "caller": "as_list",
+          "callee": "Some",
+          "lineNumber": 179
+        },
+        {
+          "caller": "as_list",
+          "callee": "items.as_slice",
+          "lineNumber": 179
+        },
+        {
+          "caller": "as_map",
+          "callee": "Some",
+          "lineNumber": 187
+        },
+        {
+          "caller": "as_map",
+          "callee": "pairs.as_slice",
+          "lineNumber": 187
+        },
+        {
+          "caller": "decode",
+          "callee": "Reader::new",
+          "lineNumber": 197
+        },
+        {
+          "caller": "decode",
+          "callee": "reader.peek",
+          "lineNumber": 198
+        },
+        {
+          "caller": "decode",
+          "callee": "reader.term",
+          "lineNumber": 201
+        },
+        {
+          "caller": "decode",
+          "callee": "Ok",
+          "lineNumber": 202
+        },
+        {
+          "caller": "decode_term",
+          "callee": "Reader::new",
+          "lineNumber": 207
+        },
+        {
+          "caller": "decode_term",
+          "callee": "reader.term",
+          "lineNumber": 208
+        },
+        {
+          "caller": "decode_term",
+          "callee": "Ok",
+          "lineNumber": 209
+        },
+        {
+          "caller": "encode",
+          "callee": "Vec::new",
+          "lineNumber": 214
+        },
+        {
+          "caller": "encode",
+          "callee": "out.push",
+          "lineNumber": 215
+        },
+        {
+          "caller": "encode",
+          "callee": "write_term",
+          "lineNumber": 216
+        },
+        {
+          "caller": "encode_term",
+          "callee": "Vec::new",
+          "lineNumber": 222
+        },
+        {
+          "caller": "encode_term",
+          "callee": "write_term",
+          "lineNumber": 223
+        },
+        {
+          "caller": "remaining",
+          "callee": "self.buf.len().saturating_sub",
+          "lineNumber": 240
+        },
+        {
+          "caller": "remaining",
+          "callee": "self.buf.len",
+          "lineNumber": 240
+        },
+        {
+          "caller": "peek",
+          "callee": "self.buf\n            .get(self.pos)\n            .copied().ok_or",
+          "lineNumber": 245
+        },
+        {
+          "caller": "peek",
+          "callee": "self.buf\n            .get(self.pos).copied",
+          "lineNumber": 245
+        },
+        {
+          "caller": "peek",
+          "callee": "self.buf.get",
+          "lineNumber": 245
+        },
+        {
+          "caller": "take",
+          "callee": "self.remaining",
+          "lineNumber": 256
+        },
+        {
+          "caller": "take",
+          "callee": "Err",
+          "lineNumber": 257
+        },
+        {
+          "caller": "take",
+          "callee": "Ok",
+          "lineNumber": 264
+        },
+        {
+          "caller": "u8",
+          "callee": "Ok",
+          "lineNumber": 268
+        },
+        {
+          "caller": "u8",
+          "callee": "self.take",
+          "lineNumber": 268
+        },
+        {
+          "caller": "u16_be",
+          "callee": "self.take",
+          "lineNumber": 272
+        },
+        {
+          "caller": "u16_be",
+          "callee": "Ok",
+          "lineNumber": 273
+        },
+        {
+          "caller": "u16_be",
+          "callee": "u16::from_be_bytes",
+          "lineNumber": 273
+        },
+        {
+          "caller": "u32_be",
+          "callee": "self.take",
+          "lineNumber": 277
+        },
+        {
+          "caller": "u32_be",
+          "callee": "Ok",
+          "lineNumber": 278
+        },
+        {
+          "caller": "u32_be",
+          "callee": "u32::from_be_bytes",
+          "lineNumber": 278
+        },
+        {
+          "caller": "i32_be",
+          "callee": "self.take",
+          "lineNumber": 282
+        },
+        {
+          "caller": "i32_be",
+          "callee": "Ok",
+          "lineNumber": 283
+        },
+        {
+          "caller": "i32_be",
+          "callee": "i32::from_be_bytes",
+          "lineNumber": 283
+        },
+        {
+          "caller": "f64_be",
+          "callee": "self.take",
+          "lineNumber": 287
+        },
+        {
+          "caller": "f64_be",
+          "callee": "raw.copy_from_slice",
+          "lineNumber": 289
+        },
+        {
+          "caller": "f64_be",
+          "callee": "Ok",
+          "lineNumber": 290
+        },
+        {
+          "caller": "f64_be",
+          "callee": "f64::from_be_bytes",
+          "lineNumber": 290
+        },
+        {
+          "caller": "term",
+          "callee": "self.u8",
+          "lineNumber": 296
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 298
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Float",
+          "lineNumber": 298
+        },
+        {
+          "caller": "term",
+          "callee": "self.f64_be",
+          "lineNumber": 298
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 299
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Int",
+          "lineNumber": 299
+        },
+        {
+          "caller": "term",
+          "callee": "i64::from",
+          "lineNumber": 299
+        },
+        {
+          "caller": "term",
+          "callee": "self.u8",
+          "lineNumber": 299
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 300
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Int",
+          "lineNumber": 300
+        },
+        {
+          "caller": "term",
+          "callee": "i64::from",
+          "lineNumber": 300
+        },
+        {
+          "caller": "term",
+          "callee": "self.i32_be",
+          "lineNumber": 300
+        },
+        {
+          "caller": "term",
+          "callee": "self.float_ext",
+          "lineNumber": 301
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 303
+        },
+        {
+          "caller": "term",
+          "callee": "self.u16_be",
+          "lineNumber": 303
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 304
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Atom",
+          "lineNumber": 304
+        },
+        {
+          "caller": "term",
+          "callee": "self.latin1",
+          "lineNumber": 304
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 307
+        },
+        {
+          "caller": "term",
+          "callee": "self.u8",
+          "lineNumber": 307
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 308
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Atom",
+          "lineNumber": 308
+        },
+        {
+          "caller": "term",
+          "callee": "self.latin1",
+          "lineNumber": 308
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 311
+        },
+        {
+          "caller": "term",
+          "callee": "self.u8",
+          "lineNumber": 311
+        },
+        {
+          "caller": "term",
+          "callee": "self.tuple",
+          "lineNumber": 312
+        },
+        {
+          "caller": "term",
+          "callee": "self.u32_be",
+          "lineNumber": 315
+        },
+        {
+          "caller": "term",
+          "callee": "self.tuple",
+          "lineNumber": 316
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 318
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 320
+        },
+        {
+          "caller": "term",
+          "callee": "self.u16_be",
+          "lineNumber": 320
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 321
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Str",
+          "lineNumber": 321
+        },
+        {
+          "caller": "term",
+          "callee": "self.latin1",
+          "lineNumber": 321
+        },
+        {
+          "caller": "term",
+          "callee": "self.list",
+          "lineNumber": 323
+        },
+        {
+          "caller": "term",
+          "callee": "self.u32_be",
+          "lineNumber": 325
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 327
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Str",
+          "lineNumber": 327
+        },
+        {
+          "caller": "term",
+          "callee": "self.utf8",
+          "lineNumber": 327
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 330
+        },
+        {
+          "caller": "term",
+          "callee": "self.u8",
+          "lineNumber": 330
+        },
+        {
+          "caller": "term",
+          "callee": "self.big_int",
+          "lineNumber": 331
+        },
+        {
+          "caller": "term",
+          "callee": "self.u32_be",
+          "lineNumber": 334
+        },
+        {
+          "caller": "term",
+          "callee": "self.big_int",
+          "lineNumber": 335
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 338
+        },
+        {
+          "caller": "term",
+          "callee": "self.u16_be",
+          "lineNumber": 338
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 340
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Atom",
+          "lineNumber": 340
+        },
+        {
+          "caller": "term",
+          "callee": "self.utf8",
+          "lineNumber": 340
+        },
+        {
+          "caller": "term",
+          "callee": "usize::from",
+          "lineNumber": 343
+        },
+        {
+          "caller": "term",
+          "callee": "self.u8",
+          "lineNumber": 343
+        },
+        {
+          "caller": "term",
+          "callee": "Ok",
+          "lineNumber": 345
+        },
+        {
+          "caller": "term",
+          "callee": "EtfValue::Atom",
+          "lineNumber": 345
+        },
+        {
+          "caller": "term",
+          "callee": "self.utf8",
+          "lineNumber": 345
+        },
+        {
+          "caller": "term",
+          "callee": "self.map",
+          "lineNumber": 347
+        },
+        {
+          "caller": "term",
+          "callee": "Err",
+          "lineNumber": 348
+        },
+        {
+          "caller": "float_ext",
+          "callee": "self.take",
+          "lineNumber": 354
+        },
+        {
+          "caller": "float_ext",
+          "callee": "raw.len",
+          "lineNumber": 355
+        },
+        {
+          "caller": "float_ext",
+          "callee": "std::str::from_utf8(&raw[..end]).map_err",
+          "lineNumber": 359
+        },
+        {
+          "caller": "float_ext",
+          "callee": "std::str::from_utf8",
+          "lineNumber": 359
+        },
+        {
+          "caller": "float_ext",
+          "callee": "text.parse::<f64>()\n            .map(EtfValue::Float).map_err",
+          "lineNumber": 360
+        },
+        {
+          "caller": "float_ext",
+          "callee": "text.parse::<f64>().map",
+          "lineNumber": 360
+        },
+        {
+          "caller": "float_ext",
+          "callee": "text.parse::<f64>",
+          "lineNumber": 360
+        },
+        {
+          "caller": "latin1",
+          "callee": "self.take",
+          "lineNumber": 367
+        },
+        {
+          "caller": "latin1",
+          "callee": "Ok",
+          "lineNumber": 368
+        },
+        {
+          "caller": "latin1",
+          "callee": "bytes.iter().map(|&byte| char::from(byte)).collect",
+          "lineNumber": 368
+        },
+        {
+          "caller": "latin1",
+          "callee": "bytes.iter().map",
+          "lineNumber": 368
+        },
+        {
+          "caller": "latin1",
+          "callee": "bytes.iter",
+          "lineNumber": 368
+        },
+        {
+          "caller": "latin1",
+          "callee": "char::from",
+          "lineNumber": 368
+        },
+        {
+          "caller": "utf8",
+          "callee": "self.take",
+          "lineNumber": 373
+        },
+        {
+          "caller": "utf8",
+          "callee": "std::str::from_utf8(bytes)\n            .map(str::to_owned).map_err",
+          "lineNumber": 374
+        },
+        {
+          "caller": "utf8",
+          "callee": "std::str::from_utf8(bytes).map",
+          "lineNumber": 374
+        },
+        {
+          "caller": "utf8",
+          "callee": "std::str::from_utf8",
+          "lineNumber": 374
+        },
+        {
+          "caller": "tuple",
+          "callee": "check_depth",
+          "lineNumber": 381
+        },
+        {
+          "caller": "tuple",
+          "callee": "Vec::new",
+          "lineNumber": 382
+        },
+        {
+          "caller": "tuple",
+          "callee": "items.push",
+          "lineNumber": 384
+        },
+        {
+          "caller": "tuple",
+          "callee": "self.term",
+          "lineNumber": 384
+        },
+        {
+          "caller": "tuple",
+          "callee": "Ok",
+          "lineNumber": 386
+        },
+        {
+          "caller": "tuple",
+          "callee": "EtfValue::Tuple",
+          "lineNumber": 386
+        },
+        {
+          "caller": "list",
+          "callee": "check_depth",
+          "lineNumber": 391
+        },
+        {
+          "caller": "list",
+          "callee": "self.u32_be",
+          "lineNumber": 392
+        },
+        {
+          "caller": "list",
+          "callee": "Vec::new",
+          "lineNumber": 393
+        },
+        {
+          "caller": "list",
+          "callee": "items.push",
+          "lineNumber": 395
+        },
+        {
+          "caller": "list",
+          "callee": "self.term",
+          "lineNumber": 395
+        },
+        {
+          "caller": "list",
+          "callee": "self.u8",
+          "lineNumber": 398
+        },
+        {
+          "caller": "list",
+          "callee": "Err",
+          "lineNumber": 400
+        },
+        {
+          "caller": "list",
+          "callee": "Ok",
+          "lineNumber": 405
+        },
+        {
+          "caller": "list",
+          "callee": "EtfValue::List",
+          "lineNumber": 405
+        },
+        {
+          "caller": "map",
+          "callee": "check_depth",
+          "lineNumber": 410
+        },
+        {
+          "caller": "map",
+          "callee": "self.u32_be",
+          "lineNumber": 411
+        },
+        {
+          "caller": "map",
+          "callee": "Vec::new",
+          "lineNumber": 412
+        },
+        {
+          "caller": "map",
+          "callee": "self.term",
+          "lineNumber": 414
+        },
+        {
+          "caller": "map",
+          "callee": "self.term",
+          "lineNumber": 415
+        },
+        {
+          "caller": "map",
+          "callee": "pairs.push",
+          "lineNumber": 416
+        },
+        {
+          "caller": "map",
+          "callee": "Ok",
+          "lineNumber": 418
+        },
+        {
+          "caller": "map",
+          "callee": "EtfValue::Map",
+          "lineNumber": 418
+        },
+        {
+          "caller": "big_int",
+          "callee": "Err",
+          "lineNumber": 424
+        },
+        {
+          "caller": "big_int",
+          "callee": "self.u8",
+          "lineNumber": 426
+        },
+        {
+          "caller": "big_int",
+          "callee": "self.take",
+          "lineNumber": 427
+        },
+        {
+          "caller": "big_int",
+          "callee": "bytes.iter().rev",
+          "lineNumber": 429
+        },
+        {
+          "caller": "big_int",
+          "callee": "bytes.iter",
+          "lineNumber": 429
+        },
+        {
+          "caller": "big_int",
+          "callee": "u128::from",
+          "lineNumber": 430
+        },
+        {
+          "caller": "big_int",
+          "callee": "Err",
+          "lineNumber": 435
+        },
+        {
+          "caller": "big_int",
+          "callee": "Ok",
+          "lineNumber": 437
+        },
+        {
+          "caller": "big_int",
+          "callee": "EtfValue::Int",
+          "lineNumber": 437
+        },
+        {
+          "caller": "big_int",
+          "callee": "Err",
+          "lineNumber": 440
+        },
+        {
+          "caller": "big_int",
+          "callee": "Ok",
+          "lineNumber": 443
+        },
+        {
+          "caller": "big_int",
+          "callee": "EtfValue::Int",
+          "lineNumber": 443
+        },
+        {
+          "caller": "big_int",
+          "callee": "Ok",
+          "lineNumber": 445
+        },
+        {
+          "caller": "big_int",
+          "callee": "EtfValue::Int",
+          "lineNumber": 445
+        },
+        {
+          "caller": "check_depth",
+          "callee": "Err",
+          "lineNumber": 453
+        },
+        {
+          "caller": "check_depth",
+          "callee": "Ok",
+          "lineNumber": 455
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 462
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_int",
+          "lineNumber": 463
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 465
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 466
+        },
+        {
+          "caller": "write_term",
+          "callee": "number.to_be_bytes",
+          "lineNumber": 466
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_binary",
+          "lineNumber": 468
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_atom",
+          "lineNumber": 469
+        },
+        {
+          "caller": "write_term",
+          "callee": "items.len",
+          "lineNumber": 471
+        },
+        {
+          "caller": "write_term",
+          "callee": "usize::from",
+          "lineNumber": 471
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 472
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 473
+        },
+        {
+          "caller": "write_term",
+          "callee": "items.len",
+          "lineNumber": 473
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 475
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 476
+        },
+        {
+          "caller": "write_term",
+          "callee": "(items.len() as u32).to_be_bytes",
+          "lineNumber": 476
+        },
+        {
+          "caller": "write_term",
+          "callee": "items.len",
+          "lineNumber": 476
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_term",
+          "lineNumber": 479
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 483
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 484
+        },
+        {
+          "caller": "write_term",
+          "callee": "(items.len() as u32).to_be_bytes",
+          "lineNumber": 484
+        },
+        {
+          "caller": "write_term",
+          "callee": "items.len",
+          "lineNumber": 484
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_term",
+          "lineNumber": 486
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 488
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.push",
+          "lineNumber": 491
+        },
+        {
+          "caller": "write_term",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 492
+        },
+        {
+          "caller": "write_term",
+          "callee": "(pairs.len() as u32).to_be_bytes",
+          "lineNumber": 492
+        },
+        {
+          "caller": "write_term",
+          "callee": "pairs.len",
+          "lineNumber": 492
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_term",
+          "lineNumber": 494
+        },
+        {
+          "caller": "write_term",
+          "callee": "write_term",
+          "lineNumber": 495
+        },
+        {
+          "caller": "write_binary",
+          "callee": "out.push",
+          "lineNumber": 506
+        },
+        {
+          "caller": "write_binary",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 507
+        },
+        {
+          "caller": "write_binary",
+          "callee": "(text.len() as u32).to_be_bytes",
+          "lineNumber": 507
+        },
+        {
+          "caller": "write_binary",
+          "callee": "text.len",
+          "lineNumber": 507
+        },
+        {
+          "caller": "write_binary",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 508
+        },
+        {
+          "caller": "write_binary",
+          "callee": "text.as_bytes",
+          "lineNumber": 508
+        },
+        {
+          "caller": "write_atom",
+          "callee": "name.as_bytes",
+          "lineNumber": 516
+        },
+        {
+          "caller": "write_atom",
+          "callee": "bytes.is_ascii",
+          "lineNumber": 517
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.push",
+          "lineNumber": 518
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 519
+        },
+        {
+          "caller": "write_atom",
+          "callee": "(bytes.len() as u16).to_be_bytes",
+          "lineNumber": 519
+        },
+        {
+          "caller": "write_atom",
+          "callee": "bytes.len",
+          "lineNumber": 519
+        },
+        {
+          "caller": "write_atom",
+          "callee": "bytes.len",
+          "lineNumber": 520
+        },
+        {
+          "caller": "write_atom",
+          "callee": "usize::from",
+          "lineNumber": 520
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.push",
+          "lineNumber": 521
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.push",
+          "lineNumber": 522
+        },
+        {
+          "caller": "write_atom",
+          "callee": "bytes.len",
+          "lineNumber": 522
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.push",
+          "lineNumber": 524
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 525
+        },
+        {
+          "caller": "write_atom",
+          "callee": "(bytes.len() as u16).to_be_bytes",
+          "lineNumber": 525
+        },
+        {
+          "caller": "write_atom",
+          "callee": "bytes.len",
+          "lineNumber": 525
+        },
+        {
+          "caller": "write_atom",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 527
+        },
+        {
+          "caller": "write_int",
+          "callee": "(0..=i64::from(u8::MAX)).contains",
+          "lineNumber": 532
+        },
+        {
+          "caller": "write_int",
+          "callee": "i64::from",
+          "lineNumber": 532
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.push",
+          "lineNumber": 533
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.push",
+          "lineNumber": 534
+        },
+        {
+          "caller": "write_int",
+          "callee": "i32::try_from",
+          "lineNumber": 537
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.push",
+          "lineNumber": 538
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 539
+        },
+        {
+          "caller": "write_int",
+          "callee": "narrow.to_be_bytes",
+          "lineNumber": 539
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.push",
+          "lineNumber": 542
+        },
+        {
+          "caller": "write_int",
+          "callee": "number.unsigned_abs",
+          "lineNumber": 543
+        },
+        {
+          "caller": "write_int",
+          "callee": "min_digits",
+          "lineNumber": 544
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.push",
+          "lineNumber": 545
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.push",
+          "lineNumber": 546
+        },
+        {
+          "caller": "write_int",
+          "callee": "u8::from",
+          "lineNumber": 546
+        },
+        {
+          "caller": "write_int",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 547
+        },
+        {
+          "caller": "write_int",
+          "callee": "magnitude.to_le_bytes",
+          "lineNumber": 547
+        },
+        {
+          "caller": "write_int",
+          "callee": "usize::from",
+          "lineNumber": 547
+        },
+        {
+          "caller": "min_digits",
+          "callee": "magnitude.leading_zeros",
+          "lineNumber": 552
+        },
+        {
+          "caller": "min_digits",
+          "callee": "bits.div_ceil(8).max",
+          "lineNumber": 553
+        },
+        {
+          "caller": "min_digits",
+          "callee": "bits.div_ceil",
+          "lineNumber": 553
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 13,
+        "functionCount": 35,
+        "classCount": 3
+      }
+    },
+    {
+      "path": "rust/crates/discord-codec/src/lib.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 50,
+      "nonEmptyLines": 41,
+      "callGraph": [
+        {
+          "caller": "etf_tags_are_the_frozen_eleven",
+          "callee": "codes.sort_unstable",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "rust/crates/discord-codec/src/zstd.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 193,
+      "nonEmptyLines": 178,
+      "functions": [
+        {
+          "name": "fmt",
+          "startLine": 54,
+          "endLine": 65,
+          "params": [
+            "f"
+          ]
+        },
+        {
+          "name": "new",
+          "startLine": 87,
+          "endLine": 94,
+          "params": []
+        },
+        {
+          "name": "push",
+          "startLine": 114,
+          "endLine": 172,
+          "params": [
+            "frame"
+          ]
+        },
+        {
+          "name": "compressed_consumed",
+          "startLine": 175,
+          "endLine": 177,
+          "params": []
+        },
+        {
+          "name": "is_finished",
+          "startLine": 184,
+          "endLine": 186,
+          "params": []
+        },
+        {
+          "name": "default",
+          "startLine": 190,
+          "endLine": 192,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "ZstdError",
+          "startLine": 38,
+          "endLine": 51,
+          "methods": [
+            "fmt"
+          ],
+          "properties": [
+            "MissingMagic",
+            "Decode",
+            "TrailingData"
+          ]
+        },
+        {
+          "name": "ZstdStream",
+          "startLine": 74,
+          "endLine": 83,
+          "methods": [
+            "new",
+            "push",
+            "compressed_consumed",
+            "is_finished",
+            "default"
+          ],
+          "properties": [
+            "decoder",
+            "pending",
+            "magic_checked",
+            "target"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ZstdError",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "ZstdStream",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "new",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "push",
+          "line": 114,
+          "isDefault": false
+        },
+        {
+          "name": "compressed_consumed",
+          "line": 175,
+          "isDefault": false
+        },
+        {
+          "name": "is_finished",
+          "line": 184,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "new",
+          "callee": "FrameDecoder::new",
+          "lineNumber": 89
+        },
+        {
+          "caller": "new",
+          "callee": "Vec::new",
+          "lineNumber": 90
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.extend_from_slice",
+          "lineNumber": 115
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.len",
+          "lineNumber": 118
+        },
+        {
+          "caller": "push",
+          "callee": "crate::ZSTD_FRAME_MAGIC.len",
+          "lineNumber": 118
+        },
+        {
+          "caller": "push",
+          "callee": "Ok",
+          "lineNumber": 120
+        },
+        {
+          "caller": "push",
+          "callee": "Vec::new",
+          "lineNumber": 120
+        },
+        {
+          "caller": "push",
+          "callee": "crate::ZSTD_FRAME_MAGIC.len",
+          "lineNumber": 122
+        },
+        {
+          "caller": "push",
+          "callee": "Err",
+          "lineNumber": 123
+        },
+        {
+          "caller": "push",
+          "callee": "Vec::new",
+          "lineNumber": 128
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.bytes_read_from_source",
+          "lineNumber": 131
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.len",
+          "lineNumber": 131
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.bytes_read_from_source",
+          "lineNumber": 134
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.decode_from_to",
+          "lineNumber": 135
+        },
+        {
+          "caller": "push",
+          "callee": "Err",
+          "lineNumber": 139
+        },
+        {
+          "caller": "push",
+          "callee": "error.to_string",
+          "lineNumber": 140
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.bytes_read_from_source().saturating_sub",
+          "lineNumber": 147
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.bytes_read_from_source",
+          "lineNumber": 147
+        },
+        {
+          "caller": "push",
+          "callee": "usize::try_from(delta)\n                .unwrap_or(usize::MAX).min",
+          "lineNumber": 148
+        },
+        {
+          "caller": "push",
+          "callee": "usize::try_from(delta).unwrap_or",
+          "lineNumber": 148
+        },
+        {
+          "caller": "push",
+          "callee": "usize::try_from",
+          "lineNumber": 148
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.len",
+          "lineNumber": 150
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.drain",
+          "lineNumber": 152
+        },
+        {
+          "caller": "push",
+          "callee": "out.extend_from_slice",
+          "lineNumber": 155
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.bytes_read_from_source",
+          "lineNumber": 165
+        },
+        {
+          "caller": "push",
+          "callee": "self.decoder.is_finished",
+          "lineNumber": 166
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.is_empty",
+          "lineNumber": 166
+        },
+        {
+          "caller": "push",
+          "callee": "Err",
+          "lineNumber": 167
+        },
+        {
+          "caller": "push",
+          "callee": "self.pending.len",
+          "lineNumber": 168
+        },
+        {
+          "caller": "push",
+          "callee": "Ok",
+          "lineNumber": 171
+        },
+        {
+          "caller": "compressed_consumed",
+          "callee": "self.decoder.bytes_read_from_source",
+          "lineNumber": 176
+        },
+        {
+          "caller": "is_finished",
+          "callee": "self.decoder.is_finished",
+          "lineNumber": 185
+        },
+        {
+          "caller": "default",
+          "callee": "Self::new",
+          "lineNumber": 191
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 2
+      }
+    }
+  ]
+}

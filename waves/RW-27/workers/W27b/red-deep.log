@@ -1,0 +1,10 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0432]: unresolved import `discord_platform::deep_link`
+  --> crates/discord-platform/tests/deep_link_contract.rs:11:23
+   |
+11 | use discord_platform::deep_link::{
+   |                       ^^^^^^^^^ could not find `deep_link` in `discord_platform`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-platform` (test "deep_link_contract") due to 1 previous error
+EXIT=101

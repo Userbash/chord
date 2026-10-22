@@ -1,0 +1,9 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::rest::resources`
+ --> crates/discord-core/tests/rest_resources.rs:1:25
+  |
+1 | use discord_core::rest::resources::{path, resource, ResourceError, ResourceKind, RESOURCES};
+  |                         ^^^^^^^^^ could not find `resources` in `rest`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "rest_resources") due to 1 previous error

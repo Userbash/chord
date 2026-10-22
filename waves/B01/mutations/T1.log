@@ -1,0 +1,61 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `TYPING_TTL_MS`
+  --> crates/discord-core/src/state/typing/reducer.rs:11:20
+   |
+11 | use super::types::{TYPING_TTL_MS, TypingEntry, TypingStart};
+   |                    ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running tests/typing_reducer.rs (target/debug/deps/typing_reducer-28e230d19c89448d)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... FAILED
+test t06_start_creates_entry_and_upserts_member ... FAILED
+test t10_reset_clock_stale_malformed_prune ... FAILED
+test t09_message_create_removes_author_pair ... ok
+test t08_fixture_28_starts_two_pairs ... FAILED
+
+failures:
+
+---- t07_repeat_restarts_ttl stdout ----
+
+thread 't07_repeat_restarts_ttl' (649369) panicked at crates/discord-core/tests/typing_reducer.rs:137:5:
+assertion `left == right` failed
+  left: 1008000
+ right: 1018000
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- t06_start_creates_entry_and_upserts_member stdout ----
+
+thread 't06_start_creates_entry_and_upserts_member' (649368) panicked at crates/discord-core/tests/typing_reducer.rs:111:5:
+assertion `left == right` failed
+  left: 1000000
+ right: 1010000
+
+---- t10_reset_clock_stale_malformed_prune stdout ----
+
+thread 't10_reset_clock_stale_malformed_prune' (649372) panicked at crates/discord-core/tests/typing_reducer.rs:229:5:
+assertion `left == right` failed
+  left: 1000000
+ right: 1010000
+
+---- t08_fixture_28_starts_two_pairs stdout ----
+
+thread 't08_fixture_28_starts_two_pairs' (649370) panicked at crates/discord-core/tests/typing_reducer.rs:170:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+
+failures:
+    t06_start_creates_entry_and_upserts_member
+    t07_repeat_restarts_ttl
+    t08_fixture_28_starts_two_pairs
+    t10_reset_clock_stale_malformed_prune
+
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test typing_reducer`

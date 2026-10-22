@@ -1,0 +1,48 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 5 tests
+test v10_timer_and_status_boundaries ... ok
+test v11_stale_and_malformed_events ... FAILED
+test v07_join_inserts_voice_and_member_user ... FAILED
+test v08_move_and_leave_last_wins ... FAILED
+test v09_supplemental_snapshot_then_ready_reset ... FAILED
+
+failures:
+
+---- v11_stale_and_malformed_events stdout ----
+
+thread 'v11_stale_and_malformed_events' (644672) panicked at crates/discord-core/tests/voice_state_reducer.rs:282:10:
+запись после join
+
+---- v07_join_inserts_voice_and_member_user stdout ----
+
+thread 'v07_join_inserts_voice_and_member_user' (644668) panicked at crates/discord-core/tests/voice_state_reducer.rs:107:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- v08_move_and_leave_last_wins stdout ----
+
+thread 'v08_move_and_leave_last_wins' (644669) panicked at crates/discord-core/tests/voice_state_reducer.rs:127:48:
+запись после move
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- v09_supplemental_snapshot_then_ready_reset stdout ----
+
+thread 'v09_supplemental_snapshot_then_ready_reset' (644670) panicked at crates/discord-core/tests/voice_state_reducer.rs:144:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+
+failures:
+    v07_join_inserts_voice_and_member_user
+    v08_move_and_leave_last_wins
+    v09_supplemental_snapshot_then_ready_reset
+    v11_stale_and_malformed_events
+
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_reducer`

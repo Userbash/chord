@@ -1,0 +1,43 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0559]: variant `DiscoveryPacket::Request` has no field named `port`
+  --> crates/discord-voice/tests/udp.rs:64:51
+   |
+64 |         Ok(DiscoveryPacket::Request { ssrc: 9208, port: 0 })
+   |                                                   ^^^^ `DiscoveryPacket::Request` does not have this field
+   |
+   = note: all struct fields are already assigned
+
+error[E0559]: variant `DiscoveryPacket::Request` has no field named `port`
+  --> crates/discord-voice/tests/udp.rs:69:51
+   |
+69 |         Ok(DiscoveryPacket::Request { ssrc: 9208, port: 33801 })
+   |                                                   ^^^^ `DiscoveryPacket::Request` does not have this field
+   |
+   = note: all struct fields are already assigned
+
+error[E0559]: variant `DiscoveryPacket::Request` has no field named `port`
+  --> crates/discord-voice/tests/udp.rs:72:48
+   |
+72 |         DiscoveryPacket::Request { ssrc: 9208, port: 33801 }.encode(),
+   |                                                ^^^^ `DiscoveryPacket::Request` does not have this field
+   |
+   = note: all struct fields are already assigned
+
+error[E0559]: variant `DiscoveryPacket::Request` has no field named `port`
+   --> crates/discord-voice/tests/udp.rs:176:51
+    |
+176 |         Ok(DiscoveryPacket::Request { ssrc: 9208, port: 0 })
+    |                                                   ^^^^ `DiscoveryPacket::Request` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0559]: variant `DiscoveryPacket::Request` has no field named `port`
+   --> crates/discord-voice/tests/udp.rs:213:13
+    |
+213 |             port: client.local_addr().unwrap().port()
+    |             ^^^^ `DiscoveryPacket::Request` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+For more information about this error, try `rustc --explain E0559`.
+error: could not compile `discord-voice` (test "udp") due to 5 previous errors

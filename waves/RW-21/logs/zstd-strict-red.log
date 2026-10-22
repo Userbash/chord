@@ -1,0 +1,51 @@
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+error[E0599]: no method named `is_dead` found for struct `ZstdStream` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:172:21
+    |
+172 |     assert!(!stream.is_dead(), "свежий поток живой");
+    |                     ^^^^^^^ method not found in `ZstdStream`
+
+error[E0599]: no method named `is_dead` found for struct `ZstdStream` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:183:20
+    |
+183 |     assert!(stream.is_dead(), "MissingMagic терминален");
+    |                    ^^^^^^^ method not found in `ZstdStream`
+
+error[E0599]: no variant, associated function, or constant named `Poisoned` found for enum `ZstdError` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:184:55
+    |
+184 |     assert!(matches!(stream.push(&[]), Err(ZstdError::Poisoned)));
+    |                                                       ^^^^^^^^ variant, associated function, or constant not found in `ZstdError`
+
+error[E0599]: no variant, associated function, or constant named `Poisoned` found for enum `ZstdError` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:187:24
+    |
+187 |         Err(ZstdError::Poisoned)
+    |                        ^^^^^^^^ variant, associated function, or constant not found in `ZstdError`
+
+error[E0599]: no method named `is_dead` found for struct `ZstdStream` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:200:20
+    |
+200 |     assert!(stream.is_dead(), "Decode терминален");
+    |                    ^^^^^^^ method not found in `ZstdStream`
+
+error[E0599]: no variant, associated function, or constant named `Poisoned` found for enum `ZstdError` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:201:55
+    |
+201 |     assert!(matches!(stream.push(&[]), Err(ZstdError::Poisoned)));
+    |                                                       ^^^^^^^^ variant, associated function, or constant not found in `ZstdError`
+
+error[E0599]: no method named `is_dead` found for struct `ZstdStream` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:214:20
+    |
+214 |     assert!(stream.is_dead(), "TrailingData терминален");
+    |                    ^^^^^^^ method not found in `ZstdStream`
+
+error[E0599]: no variant, associated function, or constant named `Poisoned` found for enum `ZstdError` in the current scope
+   --> crates/discord-codec/tests/zstd_stream.rs:215:55
+    |
+215 |     assert!(matches!(stream.push(&[]), Err(ZstdError::Poisoned)));
+    |                                                       ^^^^^^^^ variant, associated function, or constant not found in `ZstdError`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-codec` (test "zstd_stream") due to 8 previous errors

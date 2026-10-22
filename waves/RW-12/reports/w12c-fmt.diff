@@ -1,0 +1,79 @@
+--- /tmp/opencode/w12c-test.pre-fmt.rs	2026-10-20 13:44:09.624097003 +0500
++++ rust/crates/discord-core/tests/ready_read_state.rs	2026-10-20 13:44:09.633632364 +0500
+@@ -206,10 +206,7 @@
+         !settings.partial,
+         "jq: .d.user_guild_settings.partial == \"false\""
+     );
+-    assert_eq!(
+-        settings.version, 734,
+-        "jq: .d.user_guild_settings.version"
+-    );
++    assert_eq!(settings.version, 734, "jq: .d.user_guild_settings.version");
+ 
+     let overrides: usize = settings
+         .entries
+@@ -274,10 +271,7 @@
+ 
+     assert_eq!(overrides.len(), 1328);
+     assert_eq!(
+-        overrides
+-            .iter()
+-            .filter(|over| over.flags.is_none())
+-            .count(),
++        overrides.iter().filter(|over| over.flags.is_none()).count(),
+         75,
+         "75/1328 без flags"
+     );
+@@ -381,7 +375,8 @@
+ /// C7: битые типы контейнеров/версии — дефолт + `ignored`, без `Err`.
+ #[test]
+ fn c7_broken_types_fall_back_with_ignored() {
+-    let ready = parse_payload(r#","read_state":{"entries":5,"version":"x"},"user_guild_settings":5"#);
++    let ready =
++        parse_payload(r#","read_state":{"entries":5,"version":"x"},"user_guild_settings":5"#);
+ 
+     assert!(ready.read_state.entries.is_empty());
+     assert_eq!(ready.read_state.version, 0);
+@@ -429,14 +424,14 @@
+         if flagged {
+             assert_eq!(
+                 diagnostics,
+-                [
+-                    "d.read_state.partial",
+-                    "d.user_guild_settings.partial"
+-                ],
++                ["d.read_state.partial", "d.user_guild_settings.partial"],
+                 "неизвестная форма partial ({raw}) → false + ignored"
+             );
+         } else {
+-            assert!(diagnostics.is_empty(), "лишняя диагностика для {raw}: {diagnostics:?}");
++            assert!(
++                diagnostics.is_empty(),
++                "лишняя диагностика для {raw}: {diagnostics:?}"
++            );
+         }
+     }
+ }
+@@ -449,7 +444,8 @@
+     assert_eq!(bare.user_guild_settings, UserGuildSettings::default());
+     assert!(c_diagnostics(&bare).is_empty());
+ 
+-    let empty = parse_payload(r#","read_state":{"entries":[]},"user_guild_settings":{"entries":[]}"#);
++    let empty =
++        parse_payload(r#","read_state":{"entries":[]},"user_guild_settings":{"entries":[]}"#);
+     assert!(empty.read_state.entries.is_empty());
+     assert_eq!(empty.read_state.version, 0);
+     assert!(!empty.read_state.partial);
+@@ -480,7 +476,11 @@
+ 
+     let state = &ready.read_state;
+     assert_eq!(
+-        state.entries.iter().map(|entry| entry.id).collect::<Vec<_>>(),
++        state
++            .entries
++            .iter()
++            .map(|entry| entry.id)
++            .collect::<Vec<_>>(),
+         [1_u64, 2]
+     );
+ 

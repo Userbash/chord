@@ -1,0 +1,92 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
+
+running 16 tests
+test p08t11_unsupported_type_preserves_wire ... ok
+test p08t12_base64_errors ... ok
+test p08t14_known_field_wrong_wire_type ... ok
+test p08t13_wire_errors ... ok
+test p08t15_empty_wrapper_vs_absent ... ok
+test p08t04_appearance ... FAILED
+test p08t01_ready_identity ... FAILED
+test p08t03_versions_and_inbox ... FAILED
+test p08t02_ready_top_level_fields ... FAILED
+test p08t05_voice_and_video ... FAILED
+test p08t06_text_and_images ... FAILED
+test p08t09_raw_preserves_unknown_fields ... FAILED
+test p08t08_status_and_localization ... FAILED
+test p08t07_notifications ... FAILED
+test p08t16_debug_redacts_payload ... FAILED
+test p08t10_update_type2_frecency ... ok
+
+failures:
+
+---- p08t04_appearance stdout ----
+
+thread 'p08t04_appearance' (702486) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t01_ready_identity stdout ----
+
+thread 'p08t01_ready_identity' (702483) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- p08t03_versions_and_inbox stdout ----
+
+thread 'p08t03_versions_and_inbox' (702485) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t02_ready_top_level_fields stdout ----
+
+thread 'p08t02_ready_top_level_fields' (702484) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t05_voice_and_video stdout ----
+
+thread 'p08t05_voice_and_video' (702487) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t06_text_and_images stdout ----
+
+thread 'p08t06_text_and_images' (702488) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t09_raw_preserves_unknown_fields stdout ----
+
+thread 'p08t09_raw_preserves_unknown_fields' (702491) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t08_status_and_localization stdout ----
+
+thread 'p08t08_status_and_localization' (702490) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t07_notifications stdout ----
+
+thread 'p08t07_notifications' (702489) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+---- p08t16_debug_redacts_payload stdout ----
+
+thread 'p08t16_debug_redacts_payload' (702498) panicked at crates/discord-core/tests/settings_proto.rs:18:65:
+READY settings: WrongWireType { field: 3, expected: 0, actual: 1 }
+
+
+failures:
+    p08t01_ready_identity
+    p08t02_ready_top_level_fields
+    p08t03_versions_and_inbox
+    p08t04_appearance
+    p08t05_voice_and_video
+    p08t06_text_and_images
+    p08t07_notifications
+    p08t08_status_and_localization
+    p08t09_raw_preserves_unknown_fields
+    p08t16_debug_redacts_payload
+
+test result: FAILED. 6 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test settings_proto`
+EXIT=101

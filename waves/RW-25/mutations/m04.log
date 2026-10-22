@@ -1,0 +1,97 @@
+# мутация M4: rust/crates/discord-voice/src/srtp.rs
+# old: '            let clear_len = rtp_header_len(packet)?;\n            let (ciphertext, tag) =\n                self.seal(&pack'
+# new: '            let clear_len = RTP_HEADER_MIN;\n            let (ciphertext, tag) =\n                self.seal(&packet[clear_'
+# команда: cargo test --offline -p discord-voice --test srtp_contract
+# exit code: 101
+# восстановлено по md5: True
+
+lformed_43b_k ... FAILED
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... FAILED
+test rtp_version_k ... FAILED
+test srtcp_layout_k ... ok
+test incoming_counter_non_monotonic_k ... FAILED
+test srtcp_roundtrip_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_tamper_k ... ok
+test rtp_counter_shared_k ... ok
+
+failures:
+
+---- short_packet_k stdout ----
+
+thread 'short_packet_k' (117630) panicked at crates/discord-voice/src/srtp.rs:280:34:
+range start index 12 out of range for slice of length 5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rtp_layout_k stdout ----
+
+thread 'rtp_layout_k' (117626) panicked at crates/discord-voice/tests/srtp_contract.rs:92:5:
+assertion `left == right` failed: clear-область байт-в-байт
+  left: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 63, 88, 20, 205, 125, 103, 102, 165, 124, 3, 231, 47]
+ right: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 166, 43, 240, 204, 127, 192, 184, 38]
+
+---- rtp_roundtrip_k stdout ----
+
+thread 'rtp_roundtrip_k' (117627) panicked at crates/discord-voice/tests/srtp_contract.rs:179:40:
+расшифрование RTP: MalformedHeader { reason: "длина RTP-расширения не влезает в кадр" }
+
+---- decrypt_nonce_reuse_rejected_k stdout ----
+
+thread 'decrypt_nonce_reuse_rejected_k' (117618) panicked at crates/discord-voice/tests/srtp_contract.rs:545:38:
+первая расшифровка: MalformedHeader { reason: "длина RTP-расширения не влезает в кадр" }
+
+---- rtp_ext_len_k stdout ----
+
+thread 'rtp_ext_len_k' (117625) panicked at crates/discord-voice/tests/srtp_contract.rs:415:5:
+assertion failed: matches!(ctx.encrypt_rtp(&frame), Err(SrtpError::MalformedHeader { .. }))
+
+---- rtp_tamper_k stdout ----
+
+thread 'rtp_tamper_k' (117628) panicked at crates/discord-voice/tests/srtp_contract.rs:203:5:
+assertion `left == right` failed: правка ciphertext ломает аутентификацию
+  left: Err(MalformedHeader { reason: "длина RTP-расширения не влезает в кадр" })
+ right: Err(AuthenticationFailed)
+
+---- malformed_43b_k stdout ----
+
+thread 'malformed_43b_k' (117621) panicked at crates/discord-voice/tests/srtp_contract.rs:250:14:
+пакет talkspurt не является кадром нашего формата: [144, 248, 68, 56, 16, 153, 25, 204, 0, 0, 35, 248, 152, 115, 253, 72, 154, 206, 196, 95, 44, 141, 95, 127, 164, 67, 131, 187, 78, 139, 7, 147, 81, 104, 247, 102, 67, 66, 255, 227, 87, 44, 161, 177, 142, 91, 151, 38, 85, 148, 208, 68, 70, 59, 7, 246, 9, 49, 82, 0, 0, 0, 128]
+
+---- xchacha_rtpsize_k stdout ----
+
+thread 'xchacha_rtpsize_k' (117636) panicked at crates/discord-voice/tests/srtp_contract.rs:478:5:
+assertion `left == right` failed
+  left: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 51, 67, 50, 35, 240, 244, 187, 79, 17, 116, 37, 196]
+ right: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 166, 43, 240, 204, 127, 192, 184, 38]
+
+---- rtp_version_k stdout ----
+
+thread 'rtp_version_k' (117629) panicked at crates/discord-voice/tests/srtp_contract.rs:403:5:
+assertion failed: matches!(ctx.encrypt_rtp(&frame), Err(SrtpError::MalformedHeader { .. }))
+
+---- incoming_counter_non_monotonic_k stdout ----
+
+thread 'incoming_counter_non_monotonic_k' (117619) panicked at crates/discord-voice/tests/srtp_contract.rs:458:37:
+расшифрование: MalformedHeader { reason: "длина RTP-расширения не влезает в кадр" }
+
+
+failures:
+    decrypt_nonce_reuse_rejected_k
+    incoming_counter_non_monotonic_k
+    malformed_43b_k
+    rtp_ext_len_k
+    rtp_layout_k
+    rtp_roundtrip_k
+    rtp_tamper_k
+    rtp_version_k
+    short_packet_k
+    xchacha_rtpsize_k
+
+test result: FAILED. 12 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-mut/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+

@@ -1,0 +1,83 @@
+{
+  "oracle": "Gio.DBusMessage.to_blob() (GLib 2.90.1)",
+  "endianness": "little",
+  "note": "Байты собраны libgio; порядок заголовочных полей принадлежит оракулу.",
+  "messages": [
+    {
+      "name": "notify_call",
+      "kind": "method_call",
+      "serial": 7,
+      "path": "/org/freedesktop/Notifications",
+      "interface": "org.freedesktop.Notifications",
+      "member": "Notify",
+      "destination": "org.freedesktop.Notifications",
+      "signature": "susssasa{sv}i",
+      "body": [
+        "Discord Lab",
+        0,
+        "",
+        "Alice",
+        "hello",
+        [
+          "open",
+          "Open"
+        ],
+        {},
+        -1
+      ],
+      "hex": "6c0100015c000000070000009f00000001016f001e0000002f6f72672f667265656465736b746f702f4e6f74696669636174696f6e730000020173001d0000006f72672e667265656465736b746f702e4e6f74696669636174696f6e73000000060173001d0000006f72672e667265656465736b746f702e4e6f74696669636174696f6e73000000080167000d73757373736173617b73767d6900000000000003017300060000004e6f7469667900000b000000446973636f7264204c61620000000000000000000000000005000000416c6963650000000500000068656c6c6f00000015000000040000006f70656e00000000040000004f70656e000000000000000000000000ffffffff"
+    },
+    {
+      "name": "action_invoked_signal",
+      "kind": "signal",
+      "serial": 3,
+      "path": "/org/freedesktop/Notifications",
+      "interface": "org.freedesktop.Notifications",
+      "member": "ActionInvoked",
+      "signature": "us",
+      "body": [
+        100,
+        "open"
+      ],
+      "hex": "6c0401010d000000030000006e00000001016f001e0000002f6f72672f667265656465736b746f702f4e6f74696669636174696f6e730000020173001d0000006f72672e667265656465736b746f702e4e6f74696669636174696f6e730000000801670002757300030173000d000000416374696f6e496e766f6b656400000064000000040000006f70656e00"
+    },
+    {
+      "name": "capabilities_reply",
+      "kind": "method_return",
+      "serial": 4,
+      "reply_serial": 7,
+      "signature": "as",
+      "body": [
+        [
+          "body",
+          "actions",
+          "persistence",
+          "icon-static"
+        ]
+      ],
+      "hex": "6c0201013c0000000400000010000000080167000261730005017500070000003800000004000000626f64790000000007000000616374696f6e73000b00000070657273697374656e6365000b00000069636f6e2d73746174696300"
+    },
+    {
+      "name": "error_reply",
+      "kind": "error",
+      "serial": 5,
+      "reply_serial": 7,
+      "error_name": "org.freedesktop.Notifications.Error.MockRejected",
+      "signature": "s",
+      "body": [
+        "mock rejected notification"
+      ],
+      "hex": "6c0301011f000000050000005000000004017300300000006f72672e667265656465736b746f702e4e6f74696669636174696f6e732e4572726f722e4d6f636b52656a65637465640000000000000000080167000173000005017500070000001a0000006d6f636b2072656a6563746564206e6f74696669636174696f6e00"
+    },
+    {
+      "name": "pairs_signal",
+      "kind": "signal",
+      "serial": 6,
+      "path": "/lab/Mock",
+      "interface": "lab.Mock.Pairs",
+      "member": "Pairs",
+      "signature": "a(ss)",
+      "hex": "6c04010126000000060000004e00000001016f00090000002f6c61622f4d6f636b00000000000000020173000e0000006c61622e4d6f636b2e5061697273000008016700056128737329000000000000030173000500000050616972730000001e00000000000000010000006100000001000000620000000100000063000000010000006400"
+    }
+  ]
+}

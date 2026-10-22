@@ -1,0 +1,113 @@
+{
+  "appearance": {
+    "developer_mode": 1,
+    "theme": 3,
+    "timestamp_hour_cycle": 2,
+    "ui_density": 1
+  },
+  "base64_len": 4400,
+  "inbox_current_tab": 2,
+  "localization": {
+    "locale": "ru",
+    "timezone_offset": -300
+  },
+  "md5": "1e2807c24f67aac86214b3a066e2af49",
+  "notifications": {
+    "notification_center_acked_before_id": 1041362756533751819,
+    "notify_friends_on_go_live": false
+  },
+  "raw_len": 3300,
+  "sha256": "c79fca65e321cae5135401f22ee9041809958a34e52e959d0a1a63a04f7c5672",
+  "source": "/home/sanya/re-deep/gateway/by-type/002-READY.json",
+  "status": {
+    "show_current_game": false,
+    "status": "invisible",
+    "status_created_at_ms": 1766220108588
+  },
+  "text_and_images": {
+    "animate_emoji": false,
+    "animate_stickers": 2,
+    "convert_emoticons": true,
+    "dm_spam_filter_v2": 3,
+    "enable_tts_command": false,
+    "explicit_content_filter": 2,
+    "expression_suggestions_enabled": true,
+    "gif_auto_play": false,
+    "inline_attachment_media": true,
+    "inline_embed_media": true,
+    "message_display_compact": false,
+    "render_embeds": true,
+    "render_reactions": true,
+    "view_image_descriptions": true,
+    "view_nsfw_commands": false,
+    "view_nsfw_guilds": false
+  },
+  "top_level": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    16,
+    19,
+    23,
+    25
+  ],
+  "versions": {
+    "client_version": 21,
+    "data_version": 3027,
+    "server_version": null
+  },
+  "voice_and_video": {
+    "afk_timeout": 600,
+    "always_preview_video": true,
+    "disable_stream_previews": false,
+    "native_phone_integration_enabled": true,
+    "stream_notifications_enabled": true
+  }
+}
+{
+  "base64_len": 17436,
+  "lengths": {
+    "1": 5,
+    "2": 887,
+    "4": 108,
+    "6": 2730,
+    "7": 964,
+    "9": 412,
+    "11": 64,
+    "12": 6642,
+    "13": 1241
+  },
+  "md5": "570a1895f75f4b4b4c208dbd2b38fea0",
+  "partial": "false",
+  "raw_len": 13077,
+  "sha256": "8cd02970195054bbf5bfc481486264df9027213101432548f4a1b26a8d1531e5",
+  "source": "/home/sanya/re-deep/gw-proto/msgs-run2-95974_13072.jsonl",
+  "top_level": [
+    1,
+    2,
+    4,
+    6,
+    7,
+    9,
+    11,
+    12,
+    13
+  ],
+  "type": 2,
+  "versions": {
+    "client_version": 10,
+    "data_version": 7547,
+    "server_version": null
+  }
+}

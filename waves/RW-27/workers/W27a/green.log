@@ -1,0 +1,19 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/list_contract.rs (/tmp/opencode/target-w27a/debug/deps/list_contract-7de67ba2443e6e81)
+
+running 10 tests
+test empty_and_single_item_lists_are_locale_independent ... ok
+test en_us_long_conjunction_scales_from_empty_to_five ... ok
+test middle_separator_repeats_for_inner_items ... ok
+test locale_codes_are_case_insensitive ... ok
+test ru_long_conjunction_and_disjunction ... ok
+test pair_separator_depends_on_type_and_style ... ok
+test short_and_narrow_styles_match_oracle_for_en_de_ja ... ok
+test zh_cn_long_unit_joins_without_separators ... ok
+test unknown_and_disabled_locales_fall_back_to_en_us ... ok
+test oracle_fixture_matches_all_1620_cases ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+EXIT_CODE=0

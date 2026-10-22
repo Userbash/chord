@@ -1,0 +1,21 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/relative_contract.rs (/tmp/opencode/target-w28/debug/deps/relative_contract-ec0420d8bd877682)
+
+running 12 tests
+test t01_en_long_always_past_future_and_grouping ... ok
+test t02_ru_plural_categories_past_and_future ... ok
+test t03_other_locales_match_icu ... ok
+test t06_short_and_narrow_styles ... ok
+test t07_all_units_are_supported ... ok
+test t05_auto_falls_back_to_numeric_outside_specials ... ok
+test t08_unknown_and_disabled_locales_fall_back_to_en_us ... ok
+test t10_zero_and_extreme_values_do_not_panic ... ok
+test t04_auto_special_forms_follow_icu ... ok
+test t12_integer_values_above_f64_precision_keep_digits_and_category ... ok
+test t11_no_unsubstituted_placeholders_across_all_rows ... ok
+test t09_oracle_matrix_matches_exactly ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+# EXIT=0

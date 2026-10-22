@@ -1,0 +1,496 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::state::voice`
+  --> crates/discord-core/tests/voice_state_reducer.rs:13:26
+   |
+13 | use discord_core::state::voice::{
+   |                          ^^^^^ could not find `voice` in `state`
+
+error[E0432]: unresolved import `discord_core::state::voice`
+  --> crates/discord-core/tests/voice_state_selectors.rs:12:26
+   |
+12 | use discord_core::state::voice::{
+   |                          ^^^^^ could not find `voice` in `state`
+
+error[E0432]: unresolved import `discord_core::state::voice`
+  --> crates/discord-core/tests/voice_state_types.rs:13:26
+   |
+13 | use discord_core::state::voice::{
+   |                          ^^^^^ could not find `voice` in `state`
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:100:22
+    |
+100 |     assert_eq!(state.voice_states.len(), 1);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no variant, associated function, or constant named `VoiceStateUpdate` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/voice_state_types.rs:31:23
+   |
+31 |         EventPayload::VoiceStateUpdate(update) => (update, diagnostics),
+   |                       ^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `VoiceChannelStartTime` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/voice_state_types.rs:39:23
+   |
+39 |         EventPayload::VoiceChannelStartTime(update) => (update, diagnostics),
+   |                       ^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no method named `self_voice_state` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:68:19
+   |
+68 |     assert!(state.self_voice_state().is_none());
+   |                   ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no variant, associated function, or constant named `VoiceChannelStatus` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/voice_state_types.rs:47:23
+   |
+47 |         EventPayload::VoiceChannelStatus(update) => (update, diagnostics),
+   |                       ^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no method named `voice_channel_of` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:101:22
+    |
+101 |     assert_eq!(state.voice_channel_of(GUILD, USER), Some(CHANNEL));
+    |                      ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_self_in_voice` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:69:20
+   |
+69 |     assert!(!state.is_self_in_voice());
+   |                    ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `voice_states` on type `discord_core::state::ReadySupplemental`
+  --> crates/discord-core/tests/voice_state_types.rs:99:29
+   |
+99 |     assert_eq!(supplemental.voice_states.len(), 1);
+   |                             ^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `guild_ids`, `merged_members`, `merged_presences`
+
+error[E0609]: no field `voice_states` on type `discord_core::state::ReadySupplemental`
+   --> crates/discord-core/tests/voice_state_types.rs:100:31
+    |
+100 |     let voice = &supplemental.voice_states[0];
+    |                               ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_ids`, `merged_members`, `merged_presences`
+
+error[E0599]: no method named `self_voice_state` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:72:23
+   |
+72 |     let voice = state.self_voice_state().expect("self voice после join");
+   |                       ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:120:23
+    |
+120 |     let voice = state.voice_state(GUILD, USER).expect("запись после move");
+    |                       ^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:128:19
+    |
+128 |     assert!(state.voice_states.is_empty());
+    |                   ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:130:24
+    |
+130 |     let before = state.voice_states.clone();
+    |                        ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:135:22
+    |
+135 |     assert_eq!(state.voice_states, before);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:143:22
+    |
+143 |     assert_eq!(state.voice_states.len(), 1);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `is_self_in_voice` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:75:19
+   |
+75 |     assert!(state.is_self_in_voice());
+   |                   ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:145:10
+    |
+144 |       let voice = state
+    |  _________________-
+145 | |         .voice_state(274_093_052_673_392_641, 289_091_818_442_719_242)
+    | |         -^^^^^^^^^^^ method not found in `State`
+    | |_________|
+    |
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:151:19
+    |
+151 |     assert!(state.voice_states.is_empty());
+    |                   ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_channel_start_times` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:152:19
+    |
+152 |     assert!(state.voice_channel_start_times.is_empty());
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_channel_statuses` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:153:19
+    |
+153 |     assert!(state.voice_channel_statuses.is_empty());
+    |                   ^^^^^^^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `voice_users_in_channel` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:90:10
+   |
+89 |       let user_ids: Vec<u64> = state
+   |  ______________________________-
+90 | |         .voice_users_in_channel(1, 10)
+   | |         -^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+   | |_________|
+   |
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:171:15
+    |
+171 |         state.voice_channel_start_time(GUILD, CHANNEL),
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_user_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:95:22
+    |
+ 95 |     assert_eq!(state.voice_channel_user_count(1, 10), 3);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:183:22
+    |
+183 |     assert_eq!(state.voice_channel_start_time(GUILD, CHANNEL), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_user_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:96:22
+    |
+ 96 |     assert_eq!(state.voice_channel_user_count(1, 20), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:202:22
+    |
+202 |     assert_eq!(state.voice_channel_start_time(GUILD, CHANNEL), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `voice_channel_start_times` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:205:14
+    |
+205 |             .voice_channel_start_times
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+Some errors have detailed explanations: E0432, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error[E0599]: no method named `voice_channel_user_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:97:22
+    |
+ 97 |     assert_eq!(state.voice_channel_user_count(2, 20), 1);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `discord-core` (test "voice_state_types") due to 6 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:217:22
+    |
+217 |     assert_eq!(state.voice_channel_status(GUILD, CHANNEL), Some("Music"));
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:98:22
+   |
+98 |     assert_eq!(state.voice_state_count(), 4);
+   |                      ^^^^^^^^^^^^^^^^^
+   |
+help: there is a method `message_count` with a similar name
+   |
+98 -     assert_eq!(state.voice_state_count(), 4);
+98 +     assert_eq!(state.message_count(), 4);
+   |
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:227:22
+    |
+227 |     assert_eq!(state.voice_channel_status(GUILD, CHANNEL), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_guild_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/voice_state_selectors.rs:99:22
+   |
+99 |     assert_eq!(state.voice_guild_count(), 2);
+   |                      ^^^^^^^^^^^^^^^^^
+   |
+help: there is a method `guild_count` with a similar name
+   |
+99 -     assert_eq!(state.voice_guild_count(), 2);
+99 +     assert_eq!(state.guild_count(), 2);
+   |
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_selectors.rs:106:11
+    |
+106 |     state.voice_states.insert((1, 1), voice(1, 1, Some(10), Some(100)));
+    |           ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_selectors.rs:108:10
+    |
+108 |         .voice_states
+    |          ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_selectors.rs:111:10
+    |
+111 |         .voice_states
+    |          ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_selectors.rs:114:10
+    |
+114 |         .voice_states
+    |          ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_reducer.rs:245:22
+    |
+245 |     assert_eq!(state.voice_channel_status(GUILD, CHANNEL), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:255:24
+    |
+255 |     let joined = state.voice_states.clone();
+    |                        ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:261:22
+    |
+261 |     assert_eq!(state.voice_states, joined);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `voice_states` on type `State`
+   --> crates/discord-core/tests/voice_state_reducer.rs:266:22
+    |
+266 |     assert_eq!(state.voice_states, joined);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:117:22
+    |
+117 |     assert_eq!(state.voice_connected_for_ms(1, 1, 100_000), Some(0));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:118:22
+    |
+118 |     assert_eq!(state.voice_connected_for_ms(1, 1, 199_900), Some(99_900));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:119:22
+    |
+119 |     assert_eq!(state.voice_connected_for_ms(1, 1, 99_000), Some(0));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:121:15
+    |
+121 |         state.voice_connected_for_ms(1, 1, u64::MAX),
+    |               ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:124:22
+    |
+124 |     assert_eq!(state.voice_connected_for_ms(1, 2, 100_000), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:125:22
+    |
+125 |     assert_eq!(state.voice_connected_for_ms(1, 3, 100_000), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error: could not compile `discord-core` (test "voice_state_reducer") due to 22 previous errors
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:126:22
+    |
+126 |     assert_eq!(state.voice_connected_for_ms(1, 4, 100_000), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_connected_for_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:127:22
+    |
+127 |     assert_eq!(state.voice_connected_for_ms(1, 99, 100_000), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:130:15
+    |
+130 |         state.voice_state(1, 1).expect("запись").connected_at_ms(),
+    |               ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:134:15
+    |
+134 |         state.voice_state(1, 2).expect("запись").connected_at_ms(),
+    |               ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:138:15
+    |
+138 |         state.voice_state(1, 3).expect("запись").connected_at_ms(),
+    |               ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_state` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:142:15
+    |
+142 |         state.voice_state(1, 4).expect("запись").connected_at_ms(),
+    |               ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:184:22
+    |
+184 |     assert_eq!(state.voice_channel_start_time(1, 10), Some(100));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_elapsed_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:185:22
+    |
+185 |     assert_eq!(state.voice_channel_elapsed_ms(1, 10, 199_900), Some(99_900));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:186:22
+    |
+186 |     assert_eq!(state.voice_channel_status(1, 10), Some("Music"));
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:188:22
+    |
+188 |     assert_eq!(state.voice_channel_start_time(2, 10), Some(200));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_elapsed_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:189:22
+    |
+189 |     assert_eq!(state.voice_channel_elapsed_ms(2, 10, 200_500), Some(500));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:190:22
+    |
+190 |     assert_eq!(state.voice_channel_status(2, 10), Some("Other"));
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:192:22
+    |
+192 |     assert_eq!(state.voice_channel_start_time(1, 11), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_elapsed_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:193:22
+    |
+193 |     assert_eq!(state.voice_channel_elapsed_ms(1, 11, 199_900), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:194:22
+    |
+194 |     assert_eq!(state.voice_channel_status(1, 11), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:204:22
+    |
+204 |     assert_eq!(state.voice_channel_status(1, 10), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:213:22
+    |
+213 |     assert_eq!(state.voice_channel_start_time(1, 10), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_elapsed_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:214:22
+    |
+214 |     assert_eq!(state.voice_channel_elapsed_ms(1, 10, 199_900), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_start_time` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:216:22
+    |
+216 |     assert_eq!(state.voice_channel_start_time(2, 10), Some(200));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `voice_channel_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/voice_state_selectors.rs:217:22
+    |
+217 |     assert_eq!(state.voice_channel_status(2, 10), Some("Other"));
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error: could not compile `discord-core` (test "voice_state_selectors") due to 41 previous errors
+EXIT=101

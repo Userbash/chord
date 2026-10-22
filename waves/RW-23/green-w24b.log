@@ -1,0 +1,42 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 4 tests
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... ok
+test ci_and_release_dry_runs_keep_their_contracts ... ok
+test checks_allowlist_and_rejects_forbidden_license ... FAILED
+test generates_spdx_23_with_locked_packages_and_licenses ... ok
+
+failures:
+
+---- checks_allowlist_and_rejects_forbidden_license stdout ----
+
+thread 'checks_allowlist_and_rejects_forbidden_license' (17) panicked at crates/discord-conformance/tests/sbom_contract.rs:61:5:
+stderr=sbom: r-efi@6.0.0: NOASSERTION
+sbom: wasi@0.11.1+wasi-snapshot-preview1: NOASSERTION
+sbom: webpki-roots@0.26.11: CDLA-Permissive-2.0
+sbom: webpki-roots@1.0.9: CDLA-Permissive-2.0
+sbom: windows-link@0.2.1: NOASSERTION
+sbom: windows-sys@0.52.0: NOASSERTION
+sbom: windows-sys@0.61.2: NOASSERTION
+sbom: windows-targets@0.52.6: NOASSERTION
+sbom: windows_aarch64_gnullvm@0.52.6: NOASSERTION
+sbom: windows_aarch64_msvc@0.52.6: NOASSERTION
+sbom: windows_i686_gnu@0.52.6: NOASSERTION
+sbom: windows_i686_gnullvm@0.52.6: NOASSERTION
+sbom: windows_i686_msvc@0.52.6: NOASSERTION
+sbom: windows_x86_64_gnu@0.52.6: NOASSERTION
+sbom: windows_x86_64_gnullvm@0.52.6: NOASSERTION
+sbom: windows_x86_64_msvc@0.52.6: NOASSERTION
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    checks_allowlist_and_rejects_forbidden_license
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`
+
+TARGETED_REPEAT_EXIT=101

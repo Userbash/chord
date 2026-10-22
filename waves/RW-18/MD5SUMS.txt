@@ -1,0 +1,15 @@
+8f2ee74346d9dfbf6da417d3ebba0d93  rust/crates/discord-core/src/state/presence.rs
+52b8c6352e7ddcde7f932bf08b1d8996  rust/crates/discord-core/src/state/presence_reducer.rs
+dab270cb7135cf347754fc02ef9fd557  rust/crates/discord-core/src/state/presence_selectors.rs
+7a8e15736342ff81beccf0417321b83e  rust/crates/discord-core/src/state/types.rs
+786dc1034f9d86a48a57b42b906ca7be  rust/crates/discord-core/src/state/reducer.rs
+b06ea1fbd9560c7053cc3ace705d9e5a  rust/crates/discord-core/src/state/member_list.rs
+a033fbc27523881b1085806600400576  rust/crates/discord-core/src/state/member_chunk.rs
+319a3bf60e8e6c7720a2f8e91ffab4a8  rust/crates/discord-core/src/state/mod.rs
+9a91964e71910c14983238c77d8d523e  rust/crates/discord-core/src/lib.rs
+e18b1025c7ff43d139e499b4ac4caee5  rust/crates/discord-core/tests/presence_types.rs
+d850010ac7df1b8f8a692d2372f72f71  rust/crates/discord-core/tests/presence_reducer.rs
+d6b23ae733599c973f3df24303706902  rust/crates/discord-core/tests/presence_selectors.rs
+113f966c48729f183b6730e32cb9166e  rust/crates/discord-core/tests/state_types.rs
+6a93b494e67c8174c6bd9d0236e29bc7  rust/crates/discord-core/tests/state_reducer.rs
+488b8f31c053aac6415a130701c2805f  rust/crates/discord-core/tests/member_chunk_types.rs

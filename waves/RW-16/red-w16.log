@@ -1,0 +1,354 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::state::MemberChunkAssembly`
+  --> crates/discord-core/tests/member_chunk_reducer.rs:10:41
+   |
+10 | use discord_core::state::{EventPayload, MemberChunkAssembly, State, apply_frame};
+   |                                         ^^^^^^^^^^^^^^^^^^^ no `MemberChunkAssembly` in `state`
+
+error[E0432]: unresolved imports `discord_core::state::MemberChunk`, `discord_core::state::MemberChunkMember`
+  --> crates/discord-core/tests/member_chunk_types.rs:11:31
+   |
+11 |     EventError, EventPayload, MemberChunk, MemberChunkMember, StateDiagnostics, Event,
+   |                               ^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `MemberChunkMember` in `state`
+   |                               |
+   |                               no `MemberChunk` in `state`
+
+error[E0609]: no field `member_chunks` on type `&'a State`
+  --> crates/discord-core/tests/member_chunk_reducer.rs:73:10
+   |
+73 |         .member_chunks
+   |          ^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:113:19
+    |
+113 |     assert!(state.member_chunks.contains_key(&(999, None)));
+    |                   ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:213:22
+    |
+213 |     assert_eq!(state.member_chunks.len(), 2);
+    |                      ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0599]: no method named `member_chunks` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:66:22
+   |
+66 |     assert_eq!(state.member_chunks(GUILD).count(), 1);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:236:24
+    |
+236 |     let before = state.member_chunks.len();
+    |                        ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:241:22
+    |
+241 |     assert_eq!(state.member_chunks.len(), before);
+    |                      ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0599]: no variant, associated function, or constant named `GuildMembersChunk` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/member_chunk_types.rs:18:23
+   |
+18 |         EventPayload::GuildMembersChunk(chunk) => (chunk, event.diagnostics),
+   |                       ^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:251:19
+    |
+251 |     assert!(state.member_chunks.is_empty());
+    |                   ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:298:22
+    |
+298 |     assert_eq!(state.member_chunks.len(), 2);
+    |                      ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:299:19
+    |
+299 |     assert!(state.member_chunks.contains_key(&(999, None)));
+    |                   ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0609]: no field `member_chunks` on type `State`
+   --> crates/discord-core/tests/member_chunk_reducer.rs:302:14
+    |
+302 |             .member_chunks
+    |              ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 15 others
+
+error[E0599]: no method named `member_chunks` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:67:22
+   |
+67 |     assert_eq!(state.member_chunks(999).count(), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_chunk` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:78:19
+   |
+78 |     assert!(state.member_chunk(GUILD, None).is_some());
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_chunk` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:79:19
+   |
+79 |     assert!(state.member_chunk(GUILD, Some("a")).is_some());
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_chunk` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:80:19
+   |
+80 |     assert!(state.member_chunk(GUILD, Some("b")).is_none());
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_chunk_is_complete` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:91:20
+   |
+91 |     assert!(!state.member_chunk_is_complete(GUILD, Some("n")));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0432, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error[E0599]: no method named `member_chunk_is_complete` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:97:19
+   |
+97 |     assert!(state.member_chunk_is_complete(GUILD, Some("n")));
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error: could not compile `discord-core` (test "member_chunk_reducer") due to 10 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0599]: no method named `member_chunk_len` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_chunk_selectors.rs:98:22
+   |
+98 |     assert_eq!(state.member_chunk_len(GUILD, Some("n")), 2);
+   |                      ^^^^^^^^^^^^^^^^
+   |
+help: there is a method `member_list_len` with a similar name
+   |
+98 -     assert_eq!(state.member_chunk_len(GUILD, Some("n")), 2);
+98 +     assert_eq!(state.member_list_len(GUILD, Some("n")), 2);
+   |
+
+Some errors have detailed explanations: E0432, E0599.
+error[E0599]: no method named `member_chunk_members` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:116:14
+    |
+115 | /         state
+116 | |             .member_chunk_members(GUILD, Some("n"))
+    | |             -^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error: could not compile `discord-core` (test "member_chunk_types") due to 2 previous errors
+error[E0599]: no method named `member_chunk_member_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:121:22
+    |
+121 |     assert_eq!(state.member_chunk_member_count(GUILD, Some("n")), 2);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_member_at` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:30:5
+    |
+ 30 | /     pub fn member_list_member_at<'a>(
+ 31 | |         &'a self,
+ 32 | |         guild_id: u64,
+ 33 | |         id: &MemberListId,
+ 34 | |         index: usize,
+ 35 | |     ) -> Option<(&'a GuildMember, &'a User, &'a MemberPresence)> {
+    | |________________________________________________________________^
+
+error[E0599]: no method named `member_chunk_member` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:128:10
+    |
+127 |       let member = state
+    |  __________________-
+128 | |         .member_chunk_member(GUILD, None, 159_985_870_458_322_944)
+    | |         -^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_________|
+    |
+
+error[E0599]: no method named `member_chunk_member` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:133:14
+    |
+132 | /         state
+133 | |             .member_chunk_member(GUILD, None, 707_997_415_642_365_992)
+    | |             -^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `member_chunk_not_found` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:142:15
+    |
+142 |         state.member_chunk_not_found(GUILD, None),
+    |               ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_chunk_not_found` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:145:19
+    |
+145 |     assert!(state.member_chunk_not_found(999, None).is_empty());
+    |                   ^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_presence_effect` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:152:10
+    |
+151 |       let effect = state
+    |  __________________-
+152 | |         .member_list_presence_effect(
+    | |_________-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_range` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:81:5
+    |
+ 81 |     pub fn member_list_range(&self, guild_id: u64, id: &MemberListId) -> Option<MemberListRange> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `member_list_presence_effect` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:189:15
+    |
+189 |         state.member_list_presence_effect(
+    |         ------^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_range` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:81:5
+    |
+ 81 |     pub fn member_list_range(&self, guild_id: u64, id: &MemberListId) -> Option<MemberListRange> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `member_list_presence_effect` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:200:15
+    |
+200 |         state.member_list_presence_effect(
+    |         ------^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_range` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:81:5
+    |
+ 81 |     pub fn member_list_range(&self, guild_id: u64, id: &MemberListId) -> Option<MemberListRange> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `member_list_presence_effect` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:214:15
+    |
+214 |         state.member_list_presence_effect(
+    |         ------^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_range` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:81:5
+    |
+ 81 |     pub fn member_list_range(&self, guild_id: u64, id: &MemberListId) -> Option<MemberListRange> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `member_list_presence_effect` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:223:15
+    |
+223 |         state.member_list_presence_effect(
+    |         ------^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_range` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:81:5
+    |
+ 81 |     pub fn member_list_range(&self, guild_id: u64, id: &MemberListId) -> Option<MemberListRange> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `member_list_presence_effect` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:231:15
+    |
+231 |         state.member_list_presence_effect(
+    |         ------^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_range` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:81:5
+    |
+ 81 |     pub fn member_list_range(&self, guild_id: u64, id: &MemberListId) -> Option<MemberListRange> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `member_chunk_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:243:22
+    |
+243 |     assert_eq!(state.member_chunk_count(), 1);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_count` with a similar name
+    |
+243 -     assert_eq!(state.member_chunk_count(), 1);
+243 +     assert_eq!(state.member_list_count(), 1);
+    |
+
+error[E0599]: no method named `member_chunk_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:245:22
+    |
+245 |     assert_eq!(state.member_chunk_count(), 1);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_count` with a similar name
+    |
+245 -     assert_eq!(state.member_chunk_count(), 1);
+245 +     assert_eq!(state.member_list_count(), 1);
+    |
+
+error[E0599]: no method named `member_chunk_is_complete` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:251:20
+    |
+251 |     assert!(!state.member_chunk_is_complete(GUILD, Some("missing")));
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_chunk_len` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:252:22
+    |
+252 |     assert_eq!(state.member_chunk_len(GUILD, Some("missing")), 0);
+    |                      ^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_len` with a similar name
+    |
+252 -     assert_eq!(state.member_chunk_len(GUILD, Some("missing")), 0);
+252 +     assert_eq!(state.member_list_len(GUILD, Some("missing")), 0);
+    |
+
+error[E0599]: no method named `member_chunk_member_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:253:22
+    |
+253 |     assert_eq!(state.member_chunk_member_count(GUILD, Some("missing")), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `member_list_member_at` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/member_list_selectors.rs:30:5
+    |
+ 30 | /     pub fn member_list_member_at<'a>(
+ 31 | |         &'a self,
+ 32 | |         guild_id: u64,
+ 33 | |         id: &MemberListId,
+ 34 | |         index: usize,
+ 35 | |     ) -> Option<(&'a GuildMember, &'a User, &'a MemberPresence)> {
+    | |________________________________________________________________^
+
+error[E0599]: no method named `member_chunk_members` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_chunk_selectors.rs:256:14
+    |
+255 | /         state
+256 | |             .member_chunk_members(GUILD, Some("missing"))
+    | |             -^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "member_chunk_selectors") due to 26 previous errors

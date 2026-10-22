@@ -1,0 +1,28 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/discord_json-25f0936865b675ab)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/json_contract.rs (target/debug/deps/json_contract-c38e41847ad3ad2a)
+
+running 1 test
+test rejects_malformed_and_dangerous_input ... FAILED
+
+failures:
+
+---- rejects_malformed_and_dangerous_input stdout ----
+
+thread 'rejects_malformed_and_dangerous_input' (92962) panicked at crates/discord-json/tests/json_contract.rs:101:34:
+{"a":1,"a":2}: Object({})
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rejects_malformed_and_dangerous_input
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-json --test json_contract`

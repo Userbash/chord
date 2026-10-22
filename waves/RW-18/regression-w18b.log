@@ -1,0 +1,161 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/member_chunk_reducer.rs (target/debug/deps/member_chunk_reducer-df5171b69ffe9435)
+
+running 13 tests
+test r12_single_chunk_without_nonce_is_new_response_without_duplicate ... ok
+test r09_invalid_index_is_malformed_and_does_not_change_state ... ok
+test r10_existing_guild_member_is_updated_not_duplicated ... ok
+test r05_chunk_count_mismatch_is_diagnostic_and_first_wins ... ok
+test r04_duplicate_index_last_wins_with_diagnostic ... ok
+test r02_unknown_guild_is_diagnostic_but_assembly_is_stored ... ok
+test r01_apply_022_stores_assembly_and_merges_members ... ok
+test r03_out_of_order_chunks_are_complete_and_ordered_by_index ... ok
+test r11_two_guilds_have_independent_assemblies ... ok
+test r06_nonce_correlates_two_assemblies ... ok
+test r07_not_found_is_stored_without_removing_members ... ok
+test r13_uncorrelated_multi_chunk_duplicate_index_is_diagnostic ... ok
+test r08_stale_sequence_is_noop ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/member_chunk_selectors.rs (target/debug/deps/member_chunk_selectors-b30210037970b740)
+
+running 11 tests
+test s01_member_chunks_are_filtered_by_guild ... ok
+test s07_presence_effect_full_range_skips_groups ... ok
+test s03_is_complete_false_until_all_indices_arrive ... ok
+test s10_member_chunk_count ... ok
+test s02_member_chunk_selects_by_nonce_and_none ... ok
+test s04_members_iterator_orders_by_chunk_index ... ok
+test s11_unknown_nonce_has_empty_selectors ... ok
+test s05_member_chunk_member_lookup ... ok
+test s08_presence_effect_subrange_and_only_groups ... ok
+test s06_not_found_is_flattened_in_chunk_order ... ok
+test s09_presence_effect_missing_list_or_bad_range_is_none ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/member_chunk_types.rs (target/debug/deps/member_chunk_types-a60a42a06d68394c)
+
+running 19 tests
+test c06_members_wrong_type_is_ignored ... ok
+test c02_legacy_009_original_is_invalid_id ... ok
+test c05_members_null_is_empty_without_diagnostics ... ok
+test c03_legacy_009_corrected_guild_keeps_negative_member_malformed ... ok
+test c07_bad_member_is_malformed_and_others_kept ... ok
+test c08_not_found_skips_bad_ids_and_keeps_good ... ok
+test c09_missing_chunk_index_is_fatal ... ok
+test c10_missing_chunk_count_is_fatal ... ok
+test c12_chunk_index_out_of_range_is_fatal ... ok
+test c11_zero_chunk_count_is_fatal ... ok
+test c13_presences_unconfirmed_shape_is_diagnosed ... ok
+test c01_parse_022_shape_matches_jq_oracle ... ok
+test c15_non_numeric_guild_id_is_invalid ... ok
+test c16_root_reexports_are_available ... ok
+test c14_duplicate_member_last_wins_with_diagnostic ... ok
+test c04_nonce_absent_is_none_and_preserved_when_present ... ok
+test c17_empty_and_non_text_nonce_are_ignored ... ok
+test c18_not_found_wrong_container_is_ignored ... ok
+test c19_missing_members_is_empty_without_diagnostics ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-60f05fc60e2f6b38)
+
+running 17 tests
+test m09_update_out_of_range_creates_stub ... ok
+test m11_out_of_range_ops_and_insert_into_empty ... ok
+test m10_duplicate_member_is_diagnostic ... ok
+test m13_unknown_guild_is_inconsistency ... ok
+test m15_insert_duplicate_at_same_position_is_diagnostic ... ok
+test m01_sync_008_creates_member_list ... ok
+test m04_insert_034_after_sync ... ok
+test m05_delete_075_after_sync_and_insert ... ok
+test m16_two_lists_of_same_guild_are_independent ... ok
+test m17_update_in_range_replaces_without_shift ... ok
+test m12_stale_sequence_is_ignored ... ok
+test m08_second_sync_resets_list ... ok
+test m07_group_insert_079 ... ok
+test m02_two_lists_across_guilds_do_not_overwrite_each_other ... ok
+test m03_sync_021_groups_and_counts ... ok
+test m06_delete_insert_045_after_sync ... ok
+test m14_member_list_has_no_cross_state_side_effects ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/member_list_selectors.rs (target/debug/deps/member_list_selectors-06a810add0186c94)
+
+running 9 tests
+test s05_missing_list_is_empty_and_safe ... ok
+test s02_member_at_and_index_of ... ok
+test s07_group_entry_is_not_a_member ... ok
+test s03_group_and_range ... ok
+test s01_list_and_items_are_visible ... ok
+test s09_two_lists_of_same_guild_are_independent ... ok
+test s04_is_loaded_before_and_after_sync ... ok
+test s08_member_list_count_counts_lists ... ok
+test s06_two_lists_across_guilds_are_independent ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/member_list_types.rs (target/debug/deps/member_list_types-0123e5ca6cb9da3d)
+
+running 14 tests
+test m06_negative_member_id_is_diagnostic_and_does_not_poison_list ... ok
+test m07_malformed_header_is_fatal_but_not_panic ... ok
+test m08_range_forms_and_invalid_range ... ok
+test m09_unknown_op_is_skipped_and_other_ops_apply ... ok
+test m11_root_reexports_are_available ... ok
+test m04_parse_079_group_insert ... ok
+test m10_presence_missing_and_roles_null_are_safe ... ok
+test m03_parse_034_insert_and_045_ops_in_order ... ok
+test m13_bad_groups_and_empty_client_status_are_diagnostic ... ok
+test m14_bad_insert_item_has_single_malformed_diagnostic ... ok
+test m01_parse_008_shape_and_presence ... ok
+test m02_parse_021_counts_groups_and_flat_items ... ok
+test m05_legacy_005_006_are_rejected_on_negative_guild_id ... ok
+test m12_legacy_005_006_shape_with_corrected_guild_id ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/state_reducer.rs (target/debug/deps/state_reducer-d852b519b8dfb27d)
+
+running 19 tests
+test r06_channel_info_upserts_and_creates_stub_guild ... ok
+test r11_malformed_dispatch_is_diagnostic ... ok
+test r10_unknown_and_unsupported_are_non_fatal ... FAILED
+test r12_message_update_unknown_message ... ok
+test r13_effects_api_declares_all_four_kinds ... ok
+test r15_malformed_update_does_not_upsert_author ... ok
+test r17_supplemental_invalid_raw_index_is_inconsistency ... ok
+test r19_crate_root_reexports ... ok
+test r04_sessions_replace_replaces_sessions ... ok
+test r01_state_from_real_ready_matches_jq ... ok
+test r07_message_create_and_update ... ok
+test r08_stale_sequence_is_ignored ... ok
+test r14_stale_malformed_dispatch_does_not_rewind_sequence ... ok
+test r16_message_in_private_channel_is_known ... ok
+test r05_thread_list_sync_upserts ... ok
+test r18_resumed_is_noop ... ok
+test r03_supplemental_merges_members_by_raw_guild_index ... ok
+test r09_ready_resets_sequence_and_state ... ok
+test r02_ready_is_deterministic_and_emits_sorted_effects ... ok
+
+failures:
+
+---- r10_unknown_and_unsupported_are_non_fatal stdout ----
+
+thread 'r10_unknown_and_unsupported_are_non_fatal' (496256) panicked at crates/discord-core/tests/state_reducer.rs:280:5:
+assertion `left == right` failed
+  left: []
+ right: ["PRESENCE_UPDATE"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r10_unknown_and_unsupported_are_non_fatal
+
+test result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p discord-core --test state_reducer`

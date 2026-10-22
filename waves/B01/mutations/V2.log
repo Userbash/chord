@@ -1,0 +1,26 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 5 tests
+test v10_timer_and_status_boundaries ... ok
+test v11_stale_and_malformed_events ... ok
+test v08_move_and_leave_last_wins ... ok
+test v07_join_inserts_voice_and_member_user ... FAILED
+test v09_supplemental_snapshot_then_ready_reset ... ok
+
+failures:
+
+---- v07_join_inserts_voice_and_member_user stdout ----
+
+thread 'v07_join_inserts_voice_and_member_user' (645252) panicked at crates/discord-core/tests/voice_state_reducer.rs:109:46:
+member upsert в State.users
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v07_join_inserts_voice_and_member_user
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_reducer`

@@ -1,0 +1,74 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running unittests src/lib.rs (target/debug/deps/discord_core-013ef6b2760c3c7c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-9b1a4bc4c8336405)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-8b324482d2c23b21)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+     Running tests/history_pagination.rs (target/debug/deps/history_pagination-77a27aa43e2b6154)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/history_selectors.rs (target/debug/deps/history_selectors-866d410b2bc174c7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+     Running tests/history_types.rs (target/debug/deps/history_types-7f09d4976ba92b89)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/identify_ready.rs (target/debug/deps/identify_ready-6d0f39a31471c1dc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-60f05fc60e2f6b38)
+
+running 2 tests
+test m01_sync_008_creates_member_list ... ok
+test m14_member_list_has_no_cross_state_side_effects ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.03s
+
+     Running tests/member_list_selectors.rs (target/debug/deps/member_list_selectors-06a810add0186c94)
+
+running 1 test
+test s08_member_list_count_counts_lists ... FAILED
+
+failures:
+
+---- s08_member_list_count_counts_lists stdout ----
+
+thread 's08_member_list_count_counts_lists' (325940) panicked at crates/discord-core/tests/member_list_selectors.rs:150:5:
+assertion `left == right` failed
+  left: 1
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    s08_member_list_count_counts_lists
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test member_list_selectors`

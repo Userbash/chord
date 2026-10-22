@@ -1,0 +1,33 @@
+=== W26a-fix / F-A4 — GREEN ===
+дата: 2026-10-22T11:12:47+05:00
+
+изменено: src/crypto/mod.rs — вариант CryptoError::MessageTooLong { limit }, константы GCM_MAX_MESSAGE_LEN / CHACHA_MAX_MESSAGE_LEN, общий помощник check_message_len;
+src/crypto/gcm.rs и src/crypto/chacha.rs — публичные check_message_len (проверка до аллокации) и вызов проверки в encrypt/decrypt.
+
+красный прогон: waves/RW-25/red-W26a-fix4.log (exit code 101, ошибка компиляции: нет варианта MessageTooLong и метода check_message_len)
+
+$ cargo test --offline -p discord-voice --test crypto_vectors
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/crypto_vectors.rs (/tmp/opencode/target-w26a/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
+
+running 16 tests
+test aead_rejects_overlong_message_k ... ok
+test aes256_wrong_key_len ... ok
+test aes256_key_debug_redacted_k ... ok
+test chacha20poly1305_k ... ok
+test hkdf_sha1_k ... ok
+test aes256_k ... ok
+test aes256_decrypt_k ... ok
+test hkdf_sha1_zero_salt_k ... ok
+test xchacha20poly1305_k ... ok
+test gcm_short_input_k ... ok
+test gcm_empty_plaintext_k ... ok
+test gcm_k ... ok
+test sbox_matches_fips197_k ... ok
+test gcm_aad_k ... ok
+test gcm_tamper_k ... ok
+test hkdf_sha1_limits_k ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit code: 0

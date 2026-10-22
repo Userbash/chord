@@ -1,0 +1,13 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/rest_telemetry.rs (target/debug/deps/rest_telemetry-72c447a4024bc1ee)
+
+running 4 tests
+test allows_lookalikes_and_other_paths ... ok
+test blocks_exact_first_segments ... ok
+test empty_target_is_allowed ... ok
+test guard_target_blocks_and_passes_through ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

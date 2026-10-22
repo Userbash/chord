@@ -1,0 +1,82 @@
+# мутация M5: rust/crates/discord-voice/src/srtp.rs
+# old: '        header_len += 4 + 4 * ext_len_words;'
+# new: '        header_len += 4;'
+# команда: cargo test --offline -p discord-voice --test srtp_contract
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test short_packet_k ... ok
+test incoming_srtcp_k ... ok
+test unsupported_mode_k ... ok
+test counter_overflow_k ... ok
+test malformed_43b_k ... FAILED
+test rtp_layout_k ... FAILED
+test rtp_version_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... FAILED
+test rtp_ext_len_k ... FAILED
+test rtp_roundtrip_k ... ok
+test srtcp_layout_k ... ok
+test rtp_tamper_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test rtp_counter_shared_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+
+failures:
+
+---- malformed_43b_k stdout ----
+
+thread 'malformed_43b_k' (117871) panicked at crates/discord-voice/tests/srtp_contract.rs:250:14:
+пакет talkspurt не является кадром нашего формата: [144, 248, 68, 56, 16, 153, 25, 204, 0, 0, 35, 248, 25, 245, 233, 135, 192, 4, 70, 249, 244, 2, 150, 31, 201, 94, 223, 215, 1, 171, 19, 45, 188, 123, 197, 197, 156, 72, 68, 35, 18, 157, 109, 218, 144, 97, 11, 210, 253, 190, 42, 71, 85, 123, 103, 120, 189, 9, 41, 0, 0, 0, 128]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rtp_layout_k stdout ----
+
+thread 'rtp_layout_k' (117876) panicked at crates/discord-voice/tests/srtp_contract.rs:92:5:
+assertion `left == right` failed: clear-область байт-в-байт
+  left: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 39, 173, 228, 3, 164, 140, 46, 79]
+ right: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 166, 43, 240, 204, 127, 192, 184, 38]
+
+---- xchacha_rtpsize_k stdout ----
+
+thread 'xchacha_rtpsize_k' (117886) panicked at crates/discord-voice/tests/srtp_contract.rs:478:5:
+assertion `left == right` failed
+  left: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 43, 182, 194, 237, 41, 31, 243, 165]
+ right: [144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 166, 43, 240, 204, 127, 192, 184, 38]
+
+---- rtp_ext_len_k stdout ----
+
+thread 'rtp_ext_len_k' (117875) panicked at crates/discord-voice/tests/srtp_contract.rs:415:5:
+assertion failed: matches!(ctx.encrypt_rtp(&frame), Err(SrtpError::MalformedHeader { .. }))
+
+
+failures:
+    malformed_43b_k
+    rtp_ext_len_k
+    rtp_layout_k
+    xchacha_rtpsize_k
+
+test result: FAILED. 18 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: unused variable: `ext_len_words`
+   --> crates/discord-voice/src/srtp.rs:588:13
+    |
+588 |         let ext_len_words = usize::from(u16::from_be_bytes([
+    |             ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_ext_len_words`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-mut/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+

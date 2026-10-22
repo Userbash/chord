@@ -1,0 +1,167 @@
+=== W26a-fix / F-A4 — RED (до реализации) ===
+дата: 2026-10-22T11:07:40+05:00
+
+$ cargo test --offline -p discord-voice --test crypto_vectors
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::crypto::CHACHA_MAX_MESSAGE_LEN`, `discord_voice::crypto::GCM_MAX_MESSAGE_LEN`
+  --> crates/discord-voice/tests/crypto_vectors.rs:18:22
+   |
+18 |     AES256_KEY_SIZE, CHACHA_MAX_MESSAGE_LEN, CryptoError, GCM_MAX_MESSAGE_LEN, GCM_NONCE_SIZE,
+   |                      ^^^^^^^^^^^^^^^^^^^^^^               ^^^^^^^^^^^^^^^^^^^ no `GCM_MAX_MESSAGE_LEN` in `crypto`
+   |                      |
+   |                      no `CHACHA_MAX_MESSAGE_LEN` in `crypto`
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `Gcm` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:385:14
+    |
+385 |         Gcm::check_message_len(usize::MAX),
+    |              ^^^^^^^^^^^^^^^^^ associated function or constant not found in `Gcm`
+    |
+note: if you're trying to build a new `Gcm`, consider using `Gcm::new` which returns `Gcm`
+   --> crates/discord-voice/src/crypto/gcm.rs:19:5
+    |
+ 19 |     pub fn new(key: &Aes256Key) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant named `MessageTooLong` found for enum `CryptoError`
+   --> crates/discord-voice/tests/crypto_vectors.rs:386:26
+    |
+386 |         Err(CryptoError::MessageTooLong {
+    |                          ^^^^^^^^^^^^^^ variant not found in `CryptoError`
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `Gcm` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:391:14
+    |
+391 |         Gcm::check_message_len(GCM_MAX_MESSAGE_LEN + 1),
+    |              ^^^^^^^^^^^^^^^^^ associated function or constant not found in `Gcm`
+    |
+note: if you're trying to build a new `Gcm`, consider using `Gcm::new` which returns `Gcm`
+   --> crates/discord-voice/src/crypto/gcm.rs:19:5
+    |
+ 19 |     pub fn new(key: &Aes256Key) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant named `MessageTooLong` found for enum `CryptoError`
+   --> crates/discord-voice/tests/crypto_vectors.rs:392:26
+    |
+392 |         Err(CryptoError::MessageTooLong {
+    |                          ^^^^^^^^^^^^^^ variant not found in `CryptoError`
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `Gcm` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:396:18
+    |
+396 |     assert!(Gcm::check_message_len(1024).is_ok());
+    |                  ^^^^^^^^^^^^^^^^^ associated function or constant not found in `Gcm`
+    |
+note: if you're trying to build a new `Gcm`, consider using `Gcm::new` which returns `Gcm`
+   --> crates/discord-voice/src/crypto/gcm.rs:19:5
+    |
+ 19 |     pub fn new(key: &Aes256Key) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `Gcm` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:397:18
+    |
+397 |     assert!(Gcm::check_message_len(GCM_MAX_MESSAGE_LEN).is_ok());
+    |                  ^^^^^^^^^^^^^^^^^ associated function or constant not found in `Gcm`
+    |
+note: if you're trying to build a new `Gcm`, consider using `Gcm::new` which returns `Gcm`
+   --> crates/discord-voice/src/crypto/gcm.rs:19:5
+    |
+ 19 |     pub fn new(key: &Aes256Key) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `ChaCha20Poly1305` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:400:27
+    |
+400 |         ChaCha20Poly1305::check_message_len(usize::MAX),
+    |                           ^^^^^^^^^^^^^^^^^ associated function or constant not found in `ChaCha20Poly1305`
+    |
+note: if you're trying to build a new `ChaCha20Poly1305`, consider using `ChaCha20Poly1305::new` which returns `ChaCha20Poly1305`
+   --> crates/discord-voice/src/crypto/chacha.rs:18:5
+    |
+ 18 |     pub fn new(key: &[u8; CHACHA_KEY_SIZE]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant named `MessageTooLong` found for enum `CryptoError`
+   --> crates/discord-voice/tests/crypto_vectors.rs:401:26
+    |
+401 |         Err(CryptoError::MessageTooLong {
+    |                          ^^^^^^^^^^^^^^ variant not found in `CryptoError`
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `ChaCha20Poly1305` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:406:27
+    |
+406 |         ChaCha20Poly1305::check_message_len(CHACHA_MAX_MESSAGE_LEN + 1),
+    |                           ^^^^^^^^^^^^^^^^^ associated function or constant not found in `ChaCha20Poly1305`
+    |
+note: if you're trying to build a new `ChaCha20Poly1305`, consider using `ChaCha20Poly1305::new` which returns `ChaCha20Poly1305`
+   --> crates/discord-voice/src/crypto/chacha.rs:18:5
+    |
+ 18 |     pub fn new(key: &[u8; CHACHA_KEY_SIZE]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant named `MessageTooLong` found for enum `CryptoError`
+   --> crates/discord-voice/tests/crypto_vectors.rs:407:26
+    |
+407 |         Err(CryptoError::MessageTooLong {
+    |                          ^^^^^^^^^^^^^^ variant not found in `CryptoError`
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `ChaCha20Poly1305` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:411:31
+    |
+411 |     assert!(ChaCha20Poly1305::check_message_len(1024).is_ok());
+    |                               ^^^^^^^^^^^^^^^^^ associated function or constant not found in `ChaCha20Poly1305`
+    |
+note: if you're trying to build a new `ChaCha20Poly1305`, consider using `ChaCha20Poly1305::new` which returns `ChaCha20Poly1305`
+   --> crates/discord-voice/src/crypto/chacha.rs:18:5
+    |
+ 18 |     pub fn new(key: &[u8; CHACHA_KEY_SIZE]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `ChaCha20Poly1305` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:412:31
+    |
+412 |     assert!(ChaCha20Poly1305::check_message_len(CHACHA_MAX_MESSAGE_LEN).is_ok());
+    |                               ^^^^^^^^^^^^^^^^^ associated function or constant not found in `ChaCha20Poly1305`
+    |
+note: if you're trying to build a new `ChaCha20Poly1305`, consider using `ChaCha20Poly1305::new` which returns `ChaCha20Poly1305`
+   --> crates/discord-voice/src/crypto/chacha.rs:18:5
+    |
+ 18 |     pub fn new(key: &[u8; CHACHA_KEY_SIZE]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `XChaCha20Poly1305` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:415:28
+    |
+415 |         XChaCha20Poly1305::check_message_len(usize::MAX),
+    |                            ^^^^^^^^^^^^^^^^^ associated function or constant not found in `XChaCha20Poly1305`
+    |
+note: if you're trying to build a new `XChaCha20Poly1305`, consider using `XChaCha20Poly1305::new` which returns `XChaCha20Poly1305`
+   --> crates/discord-voice/src/crypto/chacha.rs:50:5
+    |
+ 50 |     pub fn new(key: &[u8; CHACHA_KEY_SIZE]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant named `MessageTooLong` found for enum `CryptoError`
+   --> crates/discord-voice/tests/crypto_vectors.rs:416:26
+    |
+416 |         Err(CryptoError::MessageTooLong {
+    |                          ^^^^^^^^^^^^^^ variant not found in `CryptoError`
+
+error[E0599]: no associated function or constant named `check_message_len` found for struct `XChaCha20Poly1305` in the current scope
+   --> crates/discord-voice/tests/crypto_vectors.rs:420:32
+    |
+420 |     assert!(XChaCha20Poly1305::check_message_len(1024).is_ok());
+    |                                ^^^^^^^^^^^^^^^^^ associated function or constant not found in `XChaCha20Poly1305`
+    |
+note: if you're trying to build a new `XChaCha20Poly1305`, consider using `XChaCha20Poly1305::new` which returns `XChaCha20Poly1305`
+   --> crates/discord-voice/src/crypto/chacha.rs:50:5
+    |
+ 50 |     pub fn new(key: &[u8; CHACHA_KEY_SIZE]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "crypto_vectors") due to 16 previous errors
+exit code: 101

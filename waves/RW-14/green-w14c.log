@@ -1,0 +1,16 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s
+     Running tests/history_selectors.rs (target/debug/deps/history_selectors-866d410b2bc174c7)
+
+running 8 tests
+test s02_bounds_tri_state ... ok
+test s03_recent_oldest_newest ... ok
+test s01_channels_do_not_leak ... ok
+test s05_window_around_tie_and_ascending ... ok
+test s04_range_is_inclusive ... ok
+test s07_default_empty_and_debug_hides_content ... ok
+test s06_read_only_and_deterministic ... ok
+test s08_real_fixtures_order ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

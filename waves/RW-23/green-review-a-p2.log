@@ -1,0 +1,23 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 15 tests
+test discovery_matches_strace_request_and_response_oracles ... ok
+test empty_receiver_report_has_exact_rtcp_header_and_ssrc ... ok
+test empty_srtcp_receiver_report_matches_capture ... ok
+test encode_rejects_invalid_response ... ok
+test keepalive_constants_match_re_and_interval ... ok
+test keepalive_sequence_matches_capture_and_increments ... ok
+test discovery_receivers_reject_oversized_datagrams ... ok
+test response_round_trips_and_rejects_malformed_fields ... ok
+test receivers_reject_foreign_peer_and_wrong_ssrc ... ok
+test rotation_boundary_and_action_match_capture_contract ... ok
+test rotate_changes_loopback_port_and_closes_old_socket ... ok
+test parser_never_panics_on_prefixes_or_arbitrary_packets ... ok
+test rotate_srtcp_sends_captured_28_byte_rr ... ok
+test rotate_if_due_integrates_schedule_and_socket ... ok
+test loopback_send_receive_discovery_keepalive_and_timeout ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

@@ -1,0 +1,43 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/rest_http1.rs (target/debug/deps/rest_http1-4977f16e590edf4c)
+
+running 14 tests
+test chunked_flag_rules ... ok
+test content_length_rules ... ok
+test decode_chunked_errors ... FAILED
+test decode_chunked_extensions_and_trailers ... ok
+test decode_chunked_rfc_example ... ok
+test decode_chunked_incomplete_at_every_split ... ok
+test encode_request_checks_supplied_content_length ... ok
+test encode_request_get_has_no_content_length ... ok
+test encode_request_post_adds_content_length ... ok
+test encode_request_rejects_injection_and_bad_target ... ok
+test header_lookup_is_case_insensitive ... ok
+test parse_head_200 ... ok
+test parse_head_versions_and_malformed ... FAILED
+test parse_head_incomplete_and_limit ... ok
+
+failures:
+
+---- decode_chunked_errors stdout ----
+
+thread 'decode_chunked_errors' (72911) panicked at crates/discord-core/tests/rest_http1.rs:293:5:
+assertion failed: matches!(decode_chunked(b"10\r\n0123456789abcdef", 4),
+    Err(Http1Error::BodyTooLarge))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- parse_head_versions_and_malformed stdout ----
+
+thread 'parse_head_versions_and_malformed' (72922) panicked at crates/discord-core/tests/rest_http1.rs:161:9:
+"garbage\r\n\r\n": обязан быть MalformedHead
+
+
+failures:
+    decode_chunked_errors
+    parse_head_versions_and_malformed
+
+test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_http1`
+# EXIT=101

@@ -1,0 +1,12 @@
+Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/voice_state_reducer.rs:218:
+         },
+     );
+     assert_eq!(state.voice_channel_start_time(GUILD, CHANNEL), Some(0));
+[31m-    assert_eq!(state.voice_channel_elapsed_ms(GUILD, CHANNEL, 1_500), Some(1_500));
+(B[m[32m+    assert_eq!(
+(B[m[32m+        state.voice_channel_elapsed_ms(GUILD, CHANNEL, 1_500),
+(B[m[32m+        Some(1_500)
+(B[m[32m+    );
+(B[m     // Парсер не пропускает отрицательный timer; reducer обязан не паниковать и убрать запись.
+     apply_start_time(
+         &mut state,

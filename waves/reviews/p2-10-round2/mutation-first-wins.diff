@@ -1,0 +1,13 @@
+--- /tmp/opencode/p2-10-round2/reducer.orig	2026-10-21 01:35:43.431703330 +0500
++++ crates/discord-core/src/state/voice/reducer.rs	2026-10-21 01:35:49.784250880 +0500
+@@ -62,7 +62,9 @@
+ fn apply_voice_state(state: &mut State, voice: VoiceState) {
+     let key = (voice.guild_id, voice.user_id);
+     if voice.channel_id.is_some() {
+-        state.voice_states.insert(key, voice);
++        if !state.voice_states.contains_key(&key) {
++            state.voice_states.insert(key, voice);
++        }
+     } else {
+         state.voice_states.remove(&key);
+     }

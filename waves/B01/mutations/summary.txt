@@ -1,0 +1,16 @@
+V1	join/leave inverted	EXIT=101	crates/discord-core/src/state/voice/reducer.rs
+V2	member upsert condition inverted	EXIT=101	crates/discord-core/src/state/voice/reducer.rs
+V3	zero timer treated as clear	EXIT=101	crates/discord-core/src/state/voice/reducer.rs
+V4	status condition inverted	EXIT=101	crates/discord-core/src/state/voice/reducer.rs
+V5	channel users ignore guild	EXIT=101	crates/discord-core/src/state/voice/selectors.rs
+V6	connected duration underflow	EXIT=101	crates/discord-core/src/state/voice/selectors.rs
+V7	guild count counts entries	EXIT=101	crates/discord-core/src/state/voice/selectors.rs
+V8	snapshot drops all states	EXIT=101	crates/discord-core/src/state/voice/reducer.rs
+T1	TTL zero	EXIT=101	crates/discord-core/src/state/typing/reducer.rs
+T2	MESSAGE_CREATE does not remove	EXIT=101	crates/discord-core/src/state/typing/reducer.rs
+T3	prune removes active boundary entry	EXIT=101	crates/discord-core/src/state/typing/reducer.rs
+T4	active boundary inclusive	EXIT=101	crates/discord-core/src/state/typing/types.rs
+T5	expired shown	EXIT=101	crates/discord-core/src/state/typing/selectors.rs
+T6	guild filter ignores guild id	EXIT=101	crates/discord-core/src/state/typing/selectors.rs
+T7	channel count counts entries	EXIT=101	crates/discord-core/src/state/typing/selectors.rs
+T8	typing member upsert inverted	EXIT=101	crates/discord-core/src/state/typing/reducer.rs

@@ -1,0 +1,44 @@
+
+> discord-function-lab@0.1.0 test:smoke
+> node --test 'tests/smoke/**/*.test.mjs'
+
+▶ discord-lab CLI
+  ✔ --help: код 0 и список команд (23.563442ms)
+  ✔ без аргументов печатает справку и выходит с 0 (21.498209ms)
+  ✔ --version печатает версию из package.json (18.541585ms)
+  ✔ неизвестная команда → код 1 и сообщение в stderr (16.116291ms)
+  ✔ cdp при недоступном endpoint → код 2 и понятная ошибка (32.697973ms)
+  ✔ числовые и regex аргументы отклоняются до обращения к Frida (72.938337ms)
+  ✔ битый package.json для --version возвращает код 2 без стека (24.715563ms)
+✔ discord-lab CLI (211.148431ms)
+▶ demangle (c++filt)
+  ✔ деманглит имена, сохраняя порядок; неманагленные — как есть (5.261047ms)
+  ✔ обрабатывает реальные discord_voice-символы и сохраняет неманагленные имена (1.382572ms)
+  ✔ пустой список → пустой список без запуска процесса (0.20925ms)
+  ✔ зависший c++filt → таймаут с kill (202.89442ms)
+  ✔ ранний выход c++filt → EPIPE не роняет процесс (4.451876ms)
+  ✔ ENOENT (PATH="") → reject без краха (0.867181ms)
+✔ demangle (c++filt) (215.885347ms)
+▶ discord-lab hook
+  ✔ неизвестный pid → код 2 из-за недоступной Frida или attach-ошибки (533.7175ms)
+  ✔ ошибка подготовки каталога лога → код 2 без стека (532.139948ms)
+✔ discord-lab hook (1066.698878ms)
+▶ discord-lab inventory
+  ✔ неизвестный pid → код 2 из-за недоступной Frida или пропущенной цели (532.726598ms)
+✔ discord-lab inventory (533.500089ms)
+▶ discord-lab pids
+  ✔ pids --all перечисляет процессы в формате '<pid>\t<name>' (536.473073ms)
+✔ discord-lab pids (537.272945ms)
+▶ discord-lab summarize
+  ✔ пишет <лог>.by-function.csv и печатает сводку (26.446435ms)
+  ✔ без аргументов и без logs/calls-*.jsonl (cwd) → код 1 с подсказкой (16.881192ms)
+  ✔ полный реальный voice-лог: stdout и CSV совпадают с независимым оракулом (27.228106ms)
+✔ discord-lab summarize (71.319574ms)
+ℹ tests 20
+ℹ suites 6
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1095.991567

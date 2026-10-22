@@ -1,0 +1,49 @@
+
+running 16 tests
+test compound_packet_limit_is_enforced ... ok
+test compound_report_and_sdes_are_both_parsed ... ok
+test compound_at_the_limit_is_accepted ... ok
+test empty_input_is_an_empty_compound ... ok
+test impossible_length_for_receiver_report_is_rejected ... ok
+test cumulative_loss_extremes_are_sign_extended ... FAILED
+test padding_bit_is_rejected_explicitly ... ok
+test real_sender_report_parses_sender_info_and_20_byte_trailer ... ok
+test real_receiver_report_keeps_encrypted_block_and_detects_trailer ... ok
+test sender_report_without_sender_info_is_invalid ... ok
+test session2_receiver_report_has_20_byte_trailer ... ok
+test trailer_that_starts_with_version_two_is_not_mistaken_for_rtcp ... ok
+test synthetic_report_block_uses_24_bit_signed_cumulative_loss ... FAILED
+test truncated_packet_reports_required_size ... ok
+test unknown_payload_types_are_opaque_not_errors ... ok
+test wrong_version_on_first_packet_is_an_error ... ok
+
+failures:
+
+---- cumulative_loss_extremes_are_sign_extended stdout ----
+
+thread 'cumulative_loss_extremes_are_sign_extended' (230308) panicked at crates/discord-voice/tests/rtcp_contract.rs:189:9:
+assertion `left == right` failed
+  left: 16777214
+ right: -2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- synthetic_report_block_uses_24_bit_signed_cumulative_loss stdout ----
+
+thread 'synthetic_report_block_uses_24_bit_signed_cumulative_loss' (230316) panicked at crates/discord-voice/tests/rtcp_contract.rs:154:5:
+assertion `left == right` failed
+  left: ReportBlock { ssrc: 287454020, fraction_lost: 64, cumulative_lost: 16777215, extended_highest_seq: 65536, jitter: 4660, last_sr: 286335522, delay_since_last_sr: 32768 }
+ right: ReportBlock { ssrc: 287454020, fraction_lost: 64, cumulative_lost: -1, extended_highest_seq: 65536, jitter: 4660, last_sr: 286335522, delay_since_last_sr: 32768 }
+
+
+failures:
+    cumulative_loss_extremes_are_sign_extended
+    synthetic_report_block_uses_24_bit_signed_cumulative_loss
+
+test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- stderr ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/rtcp_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/rtcp_contract-7dc3be166e1775b8)
+error: test failed, to rerun pass `-p discord-voice --test rtcp_contract`

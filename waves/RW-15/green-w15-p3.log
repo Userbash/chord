@@ -1,0 +1,68 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-60f05fc60e2f6b38)
+
+running 15 tests
+test m09_update_out_of_range_creates_stub ... ok
+test m11_out_of_range_ops_and_insert_into_empty ... ok
+test m10_duplicate_member_is_diagnostic ... ok
+test m13_unknown_guild_is_inconsistency ... ok
+test m15_insert_duplicate_at_same_position_is_diagnostic ... ok
+test m01_sync_008_creates_member_list ... ok
+test m04_insert_034_after_sync ... ok
+test m05_delete_075_after_sync_and_insert ... ok
+test m12_stale_sequence_is_ignored ... ok
+test m08_second_sync_resets_list ... ok
+test m06_delete_insert_045_after_sync ... ok
+test m07_group_insert_079 ... ok
+test m02_two_lists_do_not_overwrite_each_other ... ok
+test m03_sync_021_groups_and_counts ... ok
+test m14_member_list_has_no_cross_state_side_effects ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/member_list_selectors.rs (target/debug/deps/member_list_selectors-06a810add0186c94)
+
+running 8 tests
+test s05_missing_list_is_empty_and_safe ... ok
+test s03_group_and_range ... ok
+test s02_member_at_and_index_of ... ok
+test s01_list_and_items_are_visible ... ok
+test s07_group_entry_is_not_a_member ... ok
+test s04_is_loaded_before_and_after_sync ... ok
+test s08_member_list_count_counts_lists ... ok
+test s06_two_lists_of_one_guild_are_independent ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/member_list_types.rs (target/debug/deps/member_list_types-0123e5ca6cb9da3d)
+
+running 12 tests
+test m07_malformed_header_is_fatal_but_not_panic ... ok
+test m06_negative_member_id_is_diagnostic_and_does_not_poison_list ... ok
+test m04_parse_079_group_insert ... ok
+test m03_parse_034_insert_and_045_ops_in_order ... ok
+test m09_unknown_op_is_skipped_and_other_ops_apply ... FAILED
+test m11_root_reexports_are_available ... ok
+test m10_presence_missing_and_roles_null_are_safe ... ok
+test m08_range_forms_and_invalid_range ... ok
+test m01_parse_008_shape_and_presence ... ok
+test m02_parse_021_counts_groups_and_flat_items ... ok
+test m05_legacy_005_006_are_rejected_on_negative_guild_id ... ok
+test m12_legacy_005_006_shape_with_corrected_guild_id ... ok
+
+failures:
+
+---- m09_unknown_op_is_skipped_and_other_ops_apply stdout ----
+
+thread 'm09_unknown_op_is_skipped_and_other_ops_apply' (342568) panicked at crates/discord-core/tests/member_list_types.rs:339:5:
+assertion failed: event.diagnostics.ignored.iter().any(|entry| entry.contains("FROBNICATE"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    m09_unknown_op_is_skipped_and_other_ops_apply
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test member_list_types`

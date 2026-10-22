@@ -1,0 +1,79 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running tests/rest_ack.rs (target/debug/deps/rest_ack-7f6e73d854da646b)
+
+running 9 tests
+test case1_target_matches_oracle_path ... FAILED
+test case2_non_numeric_ids ... FAILED
+test case3_body_without_token_is_oracle_exact ... FAILED
+test case5_quote_backslash_and_newline ... FAILED
+test case5_all_controls_are_lowercase_u00xx ... FAILED
+test case4_body_with_token ... FAILED
+test case6_u64_max_has_no_loss ... FAILED
+test case5_utf8_passes_unchanged ... FAILED
+test case2_empty_ids ... FAILED
+
+failures:
+
+---- case1_target_matches_oracle_path stdout ----
+
+thread 'case1_target_matches_oracle_path' (48735) panicked at crates/discord-core/src/rest/ack.rs:25:5:
+not yet implemented: W11c: build_ack_target
+
+---- case2_non_numeric_ids stdout ----
+
+thread 'case2_non_numeric_ids' (48737) panicked at crates/discord-core/src/rest/ack.rs:25:5:
+not yet implemented: W11c: build_ack_target
+
+---- case3_body_without_token_is_oracle_exact stdout ----
+
+thread 'case3_body_without_token_is_oracle_exact' (48738) panicked at crates/discord-core/src/rest/ack.rs:32:5:
+not yet implemented: W11c: build_ack_body
+
+---- case5_quote_backslash_and_newline stdout ----
+
+thread 'case5_quote_backslash_and_newline' (48741) panicked at crates/discord-core/src/rest/ack.rs:32:5:
+not yet implemented: W11c: build_ack_body
+
+---- case5_all_controls_are_lowercase_u00xx stdout ----
+
+thread 'case5_all_controls_are_lowercase_u00xx' (48740) panicked at crates/discord-core/src/rest/ack.rs:32:5:
+not yet implemented: W11c: build_ack_body
+
+---- case4_body_with_token stdout ----
+
+thread 'case4_body_with_token' (48739) panicked at crates/discord-core/src/rest/ack.rs:32:5:
+not yet implemented: W11c: build_ack_body
+
+---- case6_u64_max_has_no_loss stdout ----
+
+thread 'case6_u64_max_has_no_loss' (48743) panicked at crates/discord-core/src/rest/ack.rs:32:5:
+not yet implemented: W11c: build_ack_body
+
+---- case5_utf8_passes_unchanged stdout ----
+
+thread 'case5_utf8_passes_unchanged' (48742) panicked at crates/discord-core/src/rest/ack.rs:32:5:
+not yet implemented: W11c: build_ack_body
+
+---- case2_empty_ids stdout ----
+
+thread 'case2_empty_ids' (48736) panicked at crates/discord-core/src/rest/ack.rs:25:5:
+not yet implemented: W11c: build_ack_target
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    case1_target_matches_oracle_path
+    case2_empty_ids
+    case2_non_numeric_ids
+    case3_body_without_token_is_oracle_exact
+    case4_body_with_token
+    case5_all_controls_are_lowercase_u00xx
+    case5_quote_backslash_and_newline
+    case5_utf8_passes_unchanged
+    case6_u64_max_has_no_loss
+
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_ack`
+# EXIT=101

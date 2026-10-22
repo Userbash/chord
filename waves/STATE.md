@@ -1,67 +1,528 @@
 # STATE — где мы и что дальше
 
-- Обновлено: 2026-10-20 (координатор, приёмка RW-09).
+- Обновлено: **2026-10-22**. **RW-28** (P7-01c RelativeTimeFormat) и **RW-29** (P4-04 RTP-медиа,
+  P4-12 reconnect, P7-01e `<t:…>`) **приняты** — headless, без новых зависимостей. Ревью:
+  RW-28 — два прохода (P0 Auto ±2 → TL-решение ICU-паритет; P1 точность >2^53 → точные
+  `plural_category_integer`/`format_integer_unsigned`), RW-29 voice — принято P0/P1/P2=0,
+  8 P3 в бэклог. Мутации: RW-28 8/8, W29a 8/8, W29b 9/9, W29c 6/6. Workspace **953**, i18n **70**,
+  voice media 13 + reconnect 12, timestamp 14; fmt/clippy 0; gate passed.
+- Обновлено: **2026-10-22**. **RW-26** (P4-07 статистика, P4-11 регионы) и **RW-27**
+  (P7-01b ListFormat, P6-04 deep links, P6-03 автозапуск/бейдж) **приняты** — headless,
+  без новых зависимостей. Ревью TL-1/REV-2: P0/P1/P2=0 после red-first фиксов;
+  targeted 32; `discord-voice` 114, core 531, workspace **902**; fmt/clippy 0; gate passed;
+  мутации RW-26 **19/19**, RW-27 **6/6 неэквивалентных + 2 эквивалентных**, platform **14/14**.
+- Обновлено: **2026-10-22**. B06 / RW-25 **принят** — первая **headless**-волна: P4-03
+  SRTP-крипта, P7-02 перф-харнесс, P8-01 updater. Офлайн, без новых внешних зависимостей
+  (только офлайн-кэш: `ring`, `sha2`, `serde_json`). Ревью: codex (2×P0, 2×P1) + TL-1
+  (2×P1) — 6 находок, все закрыты red-first; `discord-voice` 65, `discord-perf` 17,
+  `discord-updater` 35, core 531, workspace **785**; fmt/clippy 0; gate passed;
+  мутации **18/18 caught, 0 missed**.
+- Процесс: batch-конвейер — 3–6 карточек на волну, кодовые воркеры параллельно, у каждого
+  свой `target-dir` (иначе cargo блокируется общим lock'ом), один integration-лейн общих
+  файлов, targeted у воркеров, один общий gate, review после gate, доки один раз после
+  accepted. Роли — `docs/rust-client/TEAM.md`; план — `WAVE-PLAN.md`. Следующий batch —
+  **B07** (GUI/keyring/SQLite), заблокирован до решения владельца; headless-остатки P3/P7
+  можно вести отдельными волнами.
 - Репозиторий: `origin` = `https://github.com/Userbash/discord-lab.git`, ветка `main`.
-  Выложено в `origin/main` 2026-10-19 (пуш `c425686..449ac61`): `8294f66` — код RW-01…RW-07 и
-  пакет доков, `449ac61` — журнал `waves/` и мета-тест `waves-sync`. Дальнейшие коммиты — `git log`.
-- Тесты Rust: `discord-core` **116**, воркспейс **158/158**; clippy `-D warnings` / fmt чисто.
-- Последний гейт: `.gate/worker-2026-10-19T21-15-05-608Z.json` (passed; зафиксирован событием
-  `accepted` в `waves/db.jsonl`).
+  HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-29, I1, I2,
+  P2-01/P2-02/P2-04…P2-11, P4-03/P4-04/P4-07/P4-11/P4-12, P6-03/P6-04, P7-01/01b/01c/01e/02,
+  P8-01, B01…B06 accepted, удаление legacy `ready_data` и правки доков **не закоммичены**.
+  Коммит/push — только координатор.
 - Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
-- Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
-- Пожелания владельца (2026-10-19): параллелить куски, воркеров запускать одновременно,
-  код-ревью и рефакторинг — отдельными агентами; столько воркеров, сколько независимых кусков
-  (`PROCESS.md` §3.13, `AGENTS.md` п.7).
+- Живой Discord: прежний PID 95828 уже не существует, запущен 1.0.165 (PID 16632) —
+  не трогать без команды владельца. RE велся **статически** по модулю `discord_voice.node`
+  без attach к живому процессу (`waves/RW-25/research/RE-NATIVE-SRTP.md`).
 
-## Прогресс плана (`docs/rust-client/PLAN.md`)
+## 1. Факт
 
-- Закрыто: RW-01…RW-09 — карточки P0-02, P0-03, P1-03 (две волны: RW-03 + RW-04), P1-04,
-  P1-05, P1-06, P1-07, P1-08. Всего 8 карточек из 90.
-- Осталось: **82 карточки** — P0: 5, P1: 6, P2: 11, P3: 16, P4: 12, P4.5: 3, P5: 7,
-  P6: 10, P7: 7, P8: 5. Нумерация волн продолжается с RW-10; крупные карточки делятся
-  (пример: P1-03 = RW-03 + RW-04).
+| Проверка | Результат |
+|---|---|
+| Rust-воркспейс | **953 passed / 0 failed** (`cargo test --offline --workspace`) |
+| `discord-core` | **531 passed / 0 failed** |
+| `discord-i18n` RW-28 | **70 passed / 0 failed** (8 lib + 3+6+10+2+13+2 + relative 12 + timestamp 14) |
+| `discord-voice` RW-29 | media **13**, reconnect **10 + 2 unit**; крейт целиком — 0 failed |
+| `discord-voice` RW-26 | **114 passed / 0 failed** (P4-07 16+10+12, P4-11 10) |
+| `discord-platform` RW-27 | **23 passed / 0 failed** (1 lib + deep links 13 + autostart 9) |
+| `discord-i18n` RW-27 | **10 passed / 0 failed** в `list_contract` (1674 кейса) |
+| `discord-perf` B06 | **17 passed / 0 failed** (перф-харнесс P7-02) |
+| `discord-updater` B06 | **34 passed / 0 failed** + 1 doctest (P8-01) |
+| `discord-i18n` B05 | **33 passed / 0 failed** (8 lib + 25 новых) |
+| B04 UDP / SBOM | **15 / 5 passed**, 0 failed |
+| B03 JSON / i18n / voice | **11 / 8 / 12 passed**, 0 failed |
+| B03 REST / CI contract | **6 / 4 passed**, 0 failed |
+| B02 settings / codec / conformance | **18 / 43 / 6 passed**, 0 failed |
+| fmt / clippy | `cargo fmt --check` чисто; clippy `-D warnings` — 0 |
+| Мутации B06 | **18 caught, 0 missed**, продукт восстановлен по md5 |
+| Мутации RW-26 | **19 caught, 0 missed** (P4-07 11 + P4-11 8) |
+| Мутации RW-27 | **6/6 неэквивалентных + 2 эквивалентных** (list), **14/14** (platform) |
+| Мутации RW-28/RW-29 | RW-28 **8/8**, W29a **8/8**, W29b **9/9**, W29c **6/6** (все restored по md5) |
+| Гейт RW-28/RW-29 | **passed**, `.gate/worker-2026-10-22T17-12-46-556Z.json`, `waves/RW-29/gate-cargo.log` |
+| Гейт RW-27 | **passed**, `.gate/worker-2026-10-22T13-58-02-813Z.json`, `waves/RW-27/gate-cargo-final.log` |
+| Гейт RW-26 | **passed**, `.gate/worker-2026-10-22T11-40-00-985Z.json`, `waves/RW-26/gate-worker-b09.log` |
+| Мутации B05 | **20 caught, 0 missed, 0 inconclusive**, продукт восстановлен по md5 |
+| Мутации B04 | 21 caught, 1 inconclusive (не засчитана), продукт восстановлен по md5 |
+| Гейт B06 | **passed**, `waves/RW-25/gate-worker-b06.log`, `.gate/worker-2026-10-22T05-52-40-267Z.json` |
+| Контракты B06 | `RW-25/WAVE-PLAN.md`, `TZ-W26a.md`, `TZ-W26b.md`, `TZ-W26c.md`, `REVIEW-CHECKLIST.md` |
+| Журнал | `waves/db.jsonl`; принятые волны RW-01…RW-27 (RW-26/RW-27 — `accepted` 2026-10-22) |
+| Граф | `.ua/knowledge-graph.json` — устарел; offline-пересборка недоступна, зафиксировано после B05 |
 
-## Предыдущая волна: RW-08 = P1-07 (REST-клиент) — принята 2026-10-20
+## 2. Прогресс плана (`docs/rust-client/PLAN.md`)
 
-- Первый параллельный запуск (§3.13): W8a — 47 маршрутов (`rest/routes.rs`, T-REST-01),
-  W8b — 6 auth-заголовков и коды (`rest/headers.rs`, T-REST-02), W8c — таймауты/ретраи
-  (`rest/retry.rs`, T-REST-03, стаб `127.0.0.1`); рефакторинг W8d; ревью W8r —
-  «принято с нитами», 14/14 мутаций; нит покрытия закрыт red-first кейсом N6.
-- Итоги: 24 новых кейса, `discord-core` 95, воркспейс 137/137, clippy/fmt чисто, гейт passed;
-  новых зависимостей нет; сеть — только loopback.
-- Артефакты: `waves/RW-08/` (ТЗ, отчёт, red-логи/копии, отчёты воркеров, снимки `final/`);
-  ревью — `waves/reviews/review-rw-08.md`.
+- Принято: **43 / 90** — RW-29: `P4-04`, `P4-12` (+ хвост `P7-01e`); RW-28: хвост `P7-01c`;
+  RW-27: `P7-01b`, `P6-03`, `P6-04`; RW-26: `P4-07`, `P4-11`;
+  B06: `P4-03`, `P7-02`, `P8-01`; B05: `P7-01`; B04: `P4-02`,
+  `P8-04`; B03: `P3-15`, `P4-01`, `P7-04`, `P8-03`; B02: `P2-08`, `P1-01`, `P1-02`,
+  `P0-04`, `P0-07`; `P0-02`, `P0-03`, `P1-03`…`P1-09`, `P1-11`, `P1-12`, `P2-01`,
+  `P2-02`, `P2-04`…`P2-11`.
+- Осталось: **49** — P0: 3, P1: 1 (`P1-10`), P2: 1 (`P2-03`), P3: 15, P4: 5, P4.5: 3,
+  P5: 7, P6: 8, P7: 4, P8: 2.
+- B06 закрыл headless-контур: крипто-слой SRTP (без зависимостей), перф-гейт регрессии
+  и контур обновления. Следующий batch — **B07** (GUI/keyring/SQLite) — после решения
+  владельца; headless-остатки — отдельно.
+- SQLite (`P2-03`), keyring (`P1-10`), GUI (`P0-01`/P3) и live — только после решения
+  владельца по зависимостям/окну.
 
-## Последняя волна: RW-09 = P1-08 (X-Super-Properties) — принята 2026-10-20
+## 3. Последние волны
 
-- Вторая параллельная волна (§3.13): W9a — base64 RFC 4648, W9b — JSON+base64 супер-свойств
-  (T-REST-04), W9c — честная идентичность/сборка; рефакторинг W9d; ревью W9r — «принято с
-  нитами», 20/21 мутаций; ниты N1/N6 закрыты red-first, N4/N5 исправлены, N2 аннотирован,
-  N3 — в backlog.
-- Итоги: 21 новый кейс, `discord-core` 116, воркспейс 158/158, clippy/fmt чисто, гейт passed;
-  без новых зависимостей и сети; оракул — живой заголовок `95974.2323` (снимок D-02, 22 поля,
-  base64 1084 симв. → 811 Б JSON).
-- Артефакты: `waves/RW-09/` (ТЗ, отчёт, red-логи/копии, отчёты воркеров, патч W9d, снимки
-  `final/` с манифестом); ревью — `waves/reviews/review-rw-09.md`.
+### RW-27 — P7-01b + P6-04 + P6-03, принято 2026-10-22
 
-## Как продолжить после сбоя/сна
+Headless i18n/platform, без новых зависимостей.
+
+- **P7-01b ListFormat** (`discord-i18n`): 31 включённая локаль × 3 стиля × 3 типа,
+  `list_data.rs` из Node 24 / ICU (279 строк), 1674 кейса оракула; fallback en-US.
+- **P6-04 Deep links** (`discord-platform`): `discord://` host/path/query/fragment,
+  лимит 4096, control-chars, `extract_deep_link` по RE §9.4, маршруты login/one-time,
+  oauth2/authorize, app/open, app/settings, library, channels; `Debug` редактирует
+  `raw`/`query`/`fragment`.
+- **P6-03 Автозапуск/бейдж**: XDG Desktop Entry с Exec-quoting (reserved-набор 1.5),
+  `autostart_path`, Unity badge, `app_uri`; без D-Bus/I/O.
+- Ревью REV-2: 2×P2 (Exec-quoting; расхождение доказательной базы W27a) закрыты
+  red-first/актуализацией; P0/P1/P2=0. Targeted 32, workspace **902**, npm gate 214;
+  мутации 6/6 + 2 эквивалентных, platform 14/14. Артефакты — `waves/RW-27/`.
+
+### RW-26 — P4-07 + P4-11, принято 2026-10-22
+
+Headless голосовой транспорт: статистика и регионы.
+
+- **P4-07** (`discord-voice`): compound-парсер RTCP (SR/RR/SDES/BYE/APP, SRTCP-трейлер
+  16/20), RFC 3550 loss/jitter по открытым RTP-заголовкам, `RttEstimator`/`StatsWindow`.
+- **P4-11**: парсер реального `regions-rtc.json` (5×5 endpoint'ов), `ranked_region_names`
+  (измеренные → geo → лексика), `plan_probes`/`complete_probe`; wire-формат проб не
+  изобретался (UNKNOWN в RE).
+- Ревью TL-1: P0/P1/P2=0 после red-first (timestamp wrap, `#[path]`-копия теста,
+  граница compound-лимита). Voice **114**, workspace 869 (на момент волны); мутации 19/19.
+  Артефакты — `waves/RW-26/`.
+
+### B06 / RW-25 — P4-03 + P7-02 + P8-01, принято 2026-10-22
+
+Первая **headless**-волна: офлайн, без новых внешних зависимостей (только офлайн-кэш
+cargo: `ring`, `sha2`, `serde_json`). Три независимых лейна, у каждого свой `target-dir`.
+
+- **P4-03 SRTP-крипта** (`discord-voice`): AES-256, AES-256-GCM, ChaCha20/XChaCha20-Poly1305,
+  HKDF-SHA1 — **без зависимостей**. S-box алгебраический (`affine(x^254)`, «русский крестьянин»
+  с масками), таблицы убраны — табличный вариант давал side-channel через кэш. Раскладка
+  `[clear][ciphertext][tag 16][counter 4 LE]` подтверждена capture'ом
+  (`research/RE-SRTP-LAYOUT.md`) и функциями самого клиента 1.0.165
+  (`PacketCrypter::HeaderLength` / `SpaceRequiredToEncrypt`,
+  `research/RE-NATIVE-SRTP.md`): исходящий счётчик `0x80000000 | n`, общий для RTP и SRTCP;
+  AAD = открытая часть в режимах `*_rtpsize`. 38 тестов, KAT по NIST/RFC.
+  **Совместимость с wire Discord не заявлена** — ключевого материала в capture нет.
+- **P7-02 перф-харнесс** (`discord-perf`, новый крейт): детерминированная нагрузка
+  (SplitMix64) — 24 229 участников + 100 000 сообщений на реальном редьюсере; гейт регрессии
+  >10 % (T-HARN-04); холодный старт ~47 мс при бюджете 1500 мс. 17 тестов.
+- **P8-01 updater** (`discord-updater`, новый крейт): манифест релиза, подпись Ed25519 над
+  исходными байтами тела, проверка SHA-256 **до** перемещений, staged-замена, откат с
+  проверкой целостности backup, запрет downgrade, защита от path traversal. 34 теста +
+  1 doctest. Сети в карточке нет.
+- **Интеграция I1** (TL-2): устранён O(n²) в `upsert_presence` (полное сканирование
+  `state.presences` + `retain`) — диапазон по ключу `(user_id, scope)`. Red: 3.17 с на
+  10 000 upserts; green: 0.03 с (тест `r19` в `discord-core/tests/presence_reducer.rs`).
+- Ревью: codex — 2×P0 (side-channel S-box; path traversal + неподписанный манифест в
+  updater) и 2×P1 (откат поверх существующего файла на Windows; переполнение счётчика
+  ChaCha20); TL-1 — 2×P1 (повтор nonce на приёме, трейлер из открытого канала; перемотка
+  счётчика). Все 6 закрыты red-first, P0/P1/P2 = 0. Локальный LLM (Qwen 27B) дал второе
+  мнение (`research/llm-review.md`): его разбор байт SRTCP отклонён арифметикой, приняты
+  пункты про нулевую базу регрессии, целостность backup и stale-seq.
+- Workspace **785**, core 531, voice 65, perf 17, updater 35; fmt/clippy 0; gate passed;
+  мутации **18/18 caught, 0 missed**. Артефакты — `waves/RW-25/`.
+
+### B05 / RW-24 — P7-01, принято 2026-10-21
+
+- P7-01: `locale.rs` — 36 кодов, 31 включён, 5 отключены; exact/case/language/en-US,
+  canonical/fallback chain. `plural.rs` — CLDR cardinal/ordinal, `=N` до offset, offset,
+  дроби/отрицательные/миллионы, 56 значений × 36 × 2 типа. `format.rs` — grouping 3/2,
+  NBSP/U+202F, integer/percent/currency, 4 date/time style UTC, `th` +543, localized
+  names/timezone, skeleton. `markdown.rs` — 23 правила, safe URL, UTF-8/fuzz, nested list,
+  depth 11, saturating ordered numbers, exact timestamp/slash tokens.
+- `lib.rs`: AST `Date/Time` style, Number/Plural через модули, `InvalidArgument` для
+  не-числа, disabled-locale reject, fallback current → default → en-US.
+- Red/green: W25a 7/7, W25b 5/5; review A/B фиксы 3/3, 6/6, 12/12; i18n **33/33**.
+- Review A/B: P1 exact/offset, P2 currency/Number string, P1 list overflow, P2 nested list/
+  timestamp/slash закрыты red-first; `he many`/NBSP — не баги для ICU 78/`format()`
+  (см. `REVIEW-RESOLUTION-B05.md`). Итог P0/P1/P2=0; P3 — backlog.
+- Workspace 663, core 530; fmt/clippy 0; gate passed; мутации **20/20**. Артефакты —
+  `waves/RW-24/` (REPORT-B05, TEST-MATRIX-B05, MUTATIONS-B05, MUTATION-REPORT-B05,
+  review A/B, red/green, MD5SUMS).
+
+### B04 / RW-23 — P4-02 + P8-04, принято 2026-10-21
+
+- P4-02: discovery 74 B (request port 0/33801), keepalive 8 B/5 s с LE-счётчиком,
+  rotation 60 080 мс, 8 B RTCP empty RR, 28 B SRTCP wrapper, loopback socket; `encode`
+  fallible, peer+SSRC validation, `rotate_if_due`. Без live/DNS/TLS/DAVE.
+- P8-04: offline SPDX 2.3 на 85 `Cargo.lock`-пакетов, host metadata + version-pinned
+  platform license fallback, strict AND/OR/WITH, invalid-token reject, CDLA allowlist,
+  LLVM exception только WITH; CI mandatory hook, release `-ef` + SHA256SUMS.
+- Review A: 4 P2 закрыты red-first (RR split, encode, peer/SSRC, schedule integration).
+  Review B: 2 P1 + 3 P2 закрыты (locked packages, tokenizer, CDLA/LLVM, release, test gaps).
+- Targeted UDP 15/15, SBOM 5/5; core 530, workspace 638; fmt/clippy 0; gate passed;
+  мутации 21 caught + 1 inconclusive. Артефакты — `waves/RW-23/`.
+- P3 backlog: skip-aware loopback reporting; pinned license fallback требует ревью при
+  обновлении lock; cargo-deny optional; live/DAVE вне scope.
+
+### B03 / RW-22 — P3-15 + P4-01 + P7-04 + P8-03, принято 2026-10-21
+
+- Foundation `discord-json`: строгий RFC 8259 parser/writer без зависимостей, duplicate-key
+  reject, Unicode/surrogate, depth/node limits, raw-числа, ошибки без payload; 11 тестов.
+- P3-15: `xxh64`/6-символьный ключ, 36/31/5 локалей, AST/fallback, CLDR plural (`=N`,
+  offset, дроби → other), rich-теги, безопасный markdown; реальные ru/en каталоги
+  23 836/23 903; 8 тестов. Review A: P1 fence не воспроизвёлся, P2 plural/link закрыты.
+- P4-01: op0/1/2/3/4/6/8/15/16, Hello/Ready/SessionDescription/Identify/SelectProtocol,
+  endpoint/region, redaction; реальные rtc1/rtc2; 12 тестов. Review B: Debug/endpoint fixes.
+- P7-04: 8 D-02 GET-ресурсов, точные пути, id validation, saved 404; 6 тестов + JSON oracle.
+- P8-03: `scripts/ci.sh`, `scripts/release.sh`, workflow, deny, ETF bench; 4 теста,
+  реальный `ci: OK`, release 445 040 B + SHA256SUMS.
+- Gate `waves/RW-22/gate-worker-b03.json`; мутации 18/18; review C round 2 — P0/P1/P2=0.
+- Артефакты: `waves/RW-22/` (REPORT-B03, TEST-MATRIX-B03, MUTATIONS-B03, DESIGN-FOUNDATION,
+  review-A/B/C, red/green, gate). P3: `$link` URL (P7-01), UDP/DAVE (P4-02/P4.5),
+  query P7-04 (D-02 не подтверждает), cargo-deny/SBOM (P8-04).
+
+### B02 / RW-21 — P2-08 + P1-01 + P1-02 + P0-04 + P0-07, принято 2026-10-21
+
+- P2-08: structural protobuf/base64, type 1 typed sections, type 2 structural, unknown
+  preservation, limits, redacted Debug; 18 тестов. Review round 1 P2 (Debug fixed64 id/
+  locale) закрыт red-first; round 2 accepted, P3 MAX_FIELDS закрыт t18 + M13.
+- P1-01: checked ETF encoder, u16/u32/MAX_DEPTH limits, 50k fuzz/truncation; 6 тестов.
+  P1-02: terminal `ZstdError`/`Poisoned`/`is_dead`, fresh `is_finished`, window-retention
+  oracle; 13 тестов. Codec targeted 43/43, mutations 11/11.
+- P0-04: repo→lab loader, typed errors, `RE_REQUIRE_LAB=1`; 6 тестов. P0-07: LEGAL policy
+  vs actual state. Reviews: P1/P0 accepted with P3, P3 fixed; P0/P1/P2=0.
+- Gate: `waves/RW-21/gate-worker-b02.json`; mutations `RW-21/mutations/`; docs/test matrix —
+  `REPORT-B02.md`, `TEST-MATRIX-B02.md`.
+
+
+
+### B01 / RW-19–20 — P2-10 voice + P2-11 typing, принято 2026-10-21
+
+- P2-10: `READY_SUPPLEMENTAL` snapshot аддитивен, `VOICE_STATE_UPDATE` join/move/leave
+  last-wins, `(guild,user)` store, timer/status, member upsert только при совпадении id;
+  18 тестов. Review round 1 дал P2-1 (additivity/last-wins/remove не покрыты); закрыт
+  red-first v09b/v09c/v09d + мутанты clear-before-loop/first-wins. Round 2 — **accepted**,
+  P0/P1/P2=0, P3=11.
+- P2-11: `TYPING_START` TTL 10 000 мс, repeat restarts, `MESSAGE_CREATE` снимает пару,
+  READY сбрасывает, время только из `received_at_ms`/`now_ms`; 15 тестов. Review —
+  **accepted**, P0/P1/P2=0, P3=10.
+- Integration I0/I1: `state/mod.rs`, `state/types.rs`, `state/reducer.rs`, `ready/snapshot.rs`,
+  `lib.rs`; shared-тесты адаптированы. Targeted 33/33, core 506, workspace 548, fmt/clippy 0,
+  gate passed `.gate/worker-2026-10-20T20-31-37-021Z.json`; мутации 18/18.
+- Артефакты: `waves/B01/`, `waves/RW-19/`, `waves/RW-20/`, ревью —
+  `waves/reviews/review-p2-10-round2.md`, `review-p2-11.md`.
+
+### RW-17 — P2-07 memory-only read-state/бейджи, принято 2026-10-20
+
+- W17a/W17b/W17c: `MessageAck` + парсер, `EventPayload::MessageAck`/маршрут, `apply_ack`,
+  селекторы mentions/guild/private/badge/ack-point; channel использует только
+  `last_message_id`, non-channel — `last_acked_id`; manual/non-manual mentions; version
+  watermark без max-guard; stale guard по message-id; 40 тестов (12/17/11).
+- Ревью round 1 — P0/P1=0, **P2=1** (channel fallback в `last_acked_id` давал ложный
+  `is_message_read`); закрыт red-first s11 (`Some(700) != None`, exit 101), s06 исправлен,
+  Correction 2. Round 2 — **принято**, P0/P1/P2=0, P3=5 backlog.
+- Scope: memory-only; REST ACK/`Effect::AckMessage` не генерируется, unread-count не
+  выдуман, `MESSAGE_ACKED`/non-channel ACK не расширяются; SQLite/UI/сеть/live вне волны.
+- Red: W17a compile-red, W17b 0/14 behavior-red, W17c compile-red (59 E0599), P2-1 s11;
+  все exit 101. Green targeted 40/40, core 418, workspace 460; fmt/clippy чисто; gate
+  passed `.gate/worker-2026-10-20T15-10-13-521Z.json`. Мутации 7/7 пойманы, md5
+  восстановлены.
+- Артефакты: `waves/RW-17/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS/REPORT, тесты, red/green,
+  mutation-logs, gate), ревью — `waves/reviews/review-p2-07.md`.
+
+### RW-16 — P2-05 memory-only chunks/догрузка, принято 2026-10-20
+
+- W16a/W16b/W16c: `MemberChunk`/`Assembly`, подтверждённые поля `guild_id`,
+  `chunk_index/count`, `members`, `not_found`; optional `nonce`; `presences[]` не
+  изобретается (ignored, P2-09); сборка по `(guild, nonce)`, first-wins count, duplicate
+  last-wins, out-of-order, `is_complete`; аддитивный merge `Guild.members`/`State.users`;
+  `not_found` не удаляет; селекторы; `Effect::RequestPresence` для видимого диапазона —
+  только декларация.
+- Ревью round 1 — P2-1 (`duplicate-index` подавлялся для `nonce=None/count>1`), P0/P1=0;
+  закрыт red-first (`r13`, exit 101); повторное ревью — **«принято»**, P0/P1/P2=0
+  (`waves/reviews/review-p2-05.md`).
+- Scope: memory-only; op8/op37/op14 wire и `nonce`-корреляция не подтверждены capture;
+  `presences[]` внутри chunk — P2-09; SQLite/UI/сеть вне волны.
+- Red: compile-red exit 101 + behavior-red r12/r13 exit 101; green targeted 43/43, core 378,
+  workspace 420; fmt/clippy чисто; gate passed
+  `.gate/worker-2026-10-20T13-21-59-680Z.json`. Мутации 3/3 пойманы (`is_complete`,
+  duplicate-условие, merge-replace), продукт восстановлен по md5.
+- Артефакты: `waves/RW-16/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-15 — P2-04 memory-only member list, принято 2026-10-20
+
+- W15a/W15b/W15c: `MemberListId` raw string, плоский `group|member`, SYNC/INSERT/UPDATE/DELETE,
+  сдвиги/резет, snapshot groups/counts, duplicate/out-of-range/unknown-op диагностика,
+  минимальный presence, селекторы; 39 тестов.
+- Ревью round 1 — P2-1 (INSERT в позицию существующего id не давал duplicate), P0/P1=0;
+  закрыт red-first (`red-w15-p21.log` exit 101 → green), P3 закрыты; повторное ревью —
+  **«принято»** (`waves/reviews/review-p2-04.md`).
+- Scope: memory-only; op37/op14 wire не подтверждён capture и не добавлялся
+  (`Effect::SubscribeMembers` — интерфейс); chunks/P2-05, full presence/P2-09,
+  `State.users` merge, SQLite/UI/сеть — вне волны.
+- Red: compile-red, exit 101; green targeted 40/40, core 335, workspace 377; fmt/clippy чисто;
+  gate passed `.gate/worker-2026-10-20T12-43-25-346Z.json`.
+- Артефакты: `waves/RW-15/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-14 — P2-06 memory history/pagination, принято 2026-10-20
+
+- W14a `types.rs`, W14b `pagination.rs`, W14c `selectors.rs`: bounded per-channel window,
+  `Latest`/`Before`/`After`/`Around`, generation-токены/stale, `Live > Page`, page/page
+  last-wins, tri-state bounds, селекторы; 20 тестов.
+- Ревью round 1 — P2-1 (root re-exports), P0/P1=0; закрыт red-first, P3-2/cap/expect
+  исправлены; повторное ревью — **«принято»** (`waves/reviews/review-p2-06.md`).
+- Scope: memory-only; REST response/JSON/SQLite/перезапуск/таймауты вне волны.
+- Red: compile W14a/b + behavior W14c + root/counts, exit 101; green 20/20; workspace 337,
+  core 295; fmt/clippy чисто; gate passed.
+- Артефакты: `waves/RW-14/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-13 — P2-02 state/reducer/selectors, принято 2026-10-20
+
+- W13a `types.rs`, W13b `reducer.rs`, W13c `selectors.rs`: READY/SUPPLEMENTAL/RESUMED,
+  `SESSIONS_REPLACE`, `THREAD_LIST_SYNC`, `CHANNEL_INFO`, `MESSAGE_CREATE`/`UPDATE`.
+- Чистый reducer, `BTreeMap`-индексы, stale-политика (включая malformed), эффекты только
+  `SubscribeMembers`, диагностика, redaction; 42 state-теста.
+- Ревью round 1 — «не принято» (P1 stale malformed + 5 P2), все закрыты red-first;
+  повторное ревью — **«принято»**, P0/P1/P2 = 0 (`waves/reviews/review-p2-02.md`).
+- Red фиксов: `red-review-findings.log` (compile), `red-review-findings-runtime.log`
+  (4 fail, exit 101); green 19/19; workspace 317, core 275; fmt/clippy чисто; gate passed.
+- Артефакты: `waves/RW-13/` (DESIGN/TZ/RESEARCH/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-10 — HTTP/1.1 + TCP/TLS (инфраструктура P1-07), принято 2026-10-20
+
+- W10a — `http1.rs`: запрос/ответ, CL/chunked, лимиты, anti-smuggling, строгий TE.
+- W10b — `transport.rs`: `Endpoint`, TCP/TLS, SAN, DNS/connect/read/write-таймауты.
+- Повторное ревью — «принято с нитами», P0/P1/P2 нет; P3 N1–N9 — очередь.
+- Артефакты: `waves/RW-10/`; ревью — `waves/reviews/review-rw-10-11-round2.md`.
+
+### RW-11 — rate-limit / telemetry-off / ack, принято 2026-10-20
+
+- W11a — `rate_limit.rs` 429/5xx/401/бэкoff; W11b — `telemetry.rs`; W11c — `ack.rs`.
+- Повторное ревью — «принято с нитами», P0/P1/P2 нет; P3-3/P3-4/P3-6 и тестовые P3 — очередь.
+- Артефакты: `waves/RW-11/`; ревью — `waves/reviews/review-rw-10-11-round2.md`.
+
+### RW-12 — I1 REST-фасад + P2-01 READY, принято 2026-10-20
+
+- I1 `rest/client.rs`: auth + транспорт + 429/5xx + telemetry-off; 16/16 green после нитов;
+  независимое ревью — **«Принято»** (`waves/reviews/review-i1.md`), P3-7 — backlog.
+- P2-01: A1 READY-модель, 40 top-level ключей; воркеры W12a/W12b/W12c — 14+13+11 кейсов.
+- Независимое ревью P2-01: round 1 — «не принято» (P1/P2/P3), все P1/P2 закрыты red-first;
+  round 3 — **«принято»**, P0/P1/P2 = 0 (`waves/reviews/review-p2-01-round3.md`).
+- P2-01: `ready_review.rs` 7 кейсов; атом-строки, вложенные `ignored`-пути с `d.`,
+  сырой индекс `merged_members`, явный `[]` → `malformed`, дубликат гильдии — last wins.
+- Legacy `ready_data` удалён из сборки и публичного API (P-4): было 9 тестов; core 242 → 233,
+  workspace 284 → 275.
+- Артефакты: `waves/RW-12/reports/` (`w12a.md`, `w12b.md`, `w12c.md`,
+  `p2-01-review-fixes.md`, red/green/workspace/clippy-логи, md5, `p2-04-*`).
+
+## 4. Что реализовано в ядре
+
+- ETF-кодек: 11 тегов Discord, big-int, round-trip, fuzz-lite.
+- zstd-stream: кадры 0/2+, окно 64 КиБ, непрерывный контекст.
+- Шлюз: HELLO, heartbeat 41 250/ACK/RTT/zombie, IDENTIFY, RESUME, 21 диспатч, WS-транспорт.
+- REST: 47 маршрутов, 6 auth-заголовков, 429/5xx/backoff, телеметрия-off, HTTP/1.1 + TLS,
+  X-Super-Properties, ack/read-state, фасад `ApiClient`.
+- READY: 7 гильдий, 272 канала, 132 роли, 363 эмодзи, 51 стикер, 17 ЛС, 146 users,
+  60 relationships, read_state 157/128949, UGS 58/734, 1328 overrides, 1 сессия,
+  merged 7×1, крупная гильдия `member_count=24228`; диагностика и redaction.
+- History: memory-only bounded history, `Latest/Before/After/Around`, generation-токены,
+  `Live > Page`, dedup, селекторы; без JSON/SQLite/сети.
+- Members: memory-only `GUILD_MEMBER_LIST_UPDATE`, raw list id, плоский `group|member`, ops,
+  duplicate/out-of-range диагностика, минимальный presence, селекторы; без op37 wire/chunks.
+- State: чистый reducer `(State, Event) -> (State, Effects)`, индексы `BTreeMap`,
+  READY/SUPPLEMENTAL/RESUMED, SESSIONS_REPLACE, THREAD_LIST_SYNC, CHANNEL_INFO,
+  MESSAGE_CREATE/UPDATE, stale-политика, `SubscribeMembers`, селекторы, redaction.
+- Read-state: memory-only `MESSAGE_ACK`, ленивое создание записи, non-channel/stale guard,
+  manual/non-manual mentions, version watermark, mentions/бейджи/ack-point селекторы;
+  без unread-count, REST ACK и UI.
+- JSON: строгий parser/writer, duplicate/Unicode/depth/node/truncation, реальные каталоги/кадры.
+- Крипто-контур SRTP: AES-256/AES-256-GCM/ChaCha20/XChaCha20-Poly1305/HKDF-SHA1 без
+  зависимостей, S-box без таблиц; раскладка `[clear][ciphertext][tag16][counter4]` по capture;
+  счётчик исходящих кадров `0x80000000|n` общий RTP+SRTCP; AAD = открытая часть;
+  без wire-совместимости с Discord.
+- Перф-контур: детерминированная нагрузка 24k участников + 100k сообщений, замеры на
+  реальном редьюсере, гейт регрессии >10 %, база CI-истории в JSON.
+- Контур обновления: манифест + подпись Ed25519, проверка хэша до перемещений,
+  staged-замена, откат с проверкой backup, запрет downgrade; без сети.
+- I18N: hash/locale/AST, CLDR cardinal/ordinal, числа/валюты, даты/время UTC, 23 markdown-
+  правила, fallback current→default→en-US; реальные ru/en.
+- Voice signaling: op0/1/2/3/4/6/8/15/16, endpoint/region, secret redaction; без UDP/DAVE.
+- REST read-only: 8 D-02 GET-ресурсов, id validation, saved 404; без write/query.
+- CI/release: offline `ci.sh`, `release.sh`, workflow, deny.toml, ETF bench smoke.
+
+Крейты: `discord-codec`, `discord-core`, `discord-json`, `discord-i18n`, `discord-voice`,
+`discord-perf` и `discord-updater` — рабочие/частично; `discord-conformance` — тестовый;
+`discord-app`, `discord-ui`, `discord-store`, `discord-media`, `discord-platform` — каркасы.
+GUI-окна и пользовательского приложения пока нет.
+
+## 5. Следующий шаг: B07
+
+1. RW-28/RW-29 приняты: `review`, `gate`, `accepted` — в `waves/db.jsonl`; доки
+   синхронизированы один раз (этот проход).
+2. Следующий batch — **B07** (GUI/keyring/SQLite) — заблокирован до решения владельца
+   по зависимостям/окну. Оставшиеся headless-задачи: `DurationFormat` (i18n), P6-02/P6-06
+   (D-Bus/системный сервис — можно сделать офлайн-маршалинг, но нужен системный тест),
+   P4-05/P4-06/P4-08/P4-09 (устройства/PTT/mute/NS/soundboard — требуют GUI или зависимости).
+3. RW-28 закрыл RelativeTimeFormat, RW-29 — RTP-медиа, reconnect и `<t:…>`; контракты —
+   `waves/RW-28/`, `waves/RW-29/` (уточнения RTP/джиттера — `TZ-W29b.md` §6).
+4. Red-first → targeted → mutation → один batch gate → независимое ревью → accepted.
+5. Блокеры (SQLite/keyring/GUI/live) не обходить: ждать решения владельца.
+
+### 5.1 KPI batch-конвейера
+
+| Метрика | Цель | Факт RW-26/RW-27 |
+|---|---:|---:|
+| batch-волн/день | 2–3 | 2 (RW-26, RW-27) |
+| accepted cards/day | 6–8 | 5 (P4-07, P4-11, P7-01b, P6-03, P6-04) |
+| first-pass gate | ≥ 70 % | 2/2 gate passed (RW-27 — после фиксов) |
+| P0/P1 на ревью | 0 | 0 |
+| P2 до accepted | 0 | 2 (RW-27: Exec-quoting, доказуемость) — закрыты |
+| mutation catch rate | ≥ 90 % | **19/19, 6/6 (+2 эквивалентных), 14/14 = 100 %** |
+| tests/card | S 6–10, M 10–16, L 16–24 | 36 (P4-07), 10 (P4-11), 10/9/13 (RW-27) |
+| active code workers | 2 | 3 (W27a, W27b, TL-2 — раздельные target-dir) |
+
+## 6. Блокеры (решения владельца)
+
+| Блокер | Что нужно |
+|---|---|
+| GUI: `tauri`/`iced`/`egui`/`winit`/`wry`/`tao` отсутствуют в `Cargo.lock`/кэше | разрешение на загрузку конкретного набора **или** временный TUI/headless |
+| `keyring` (`P1-10`) | разрешение на зависимость + Secret Service/KWallet |
+| `rusqlite`/`libsqlite3-sys` (`P2-03`) | разрешение на зависимость + системный SQLite |
+| Живой Discord (PID 95828) | окно владельца для live-smoke; без него — только фикстуры/loopback |
+
+## 7. Бэклог P3 (не блокирует)
+
+- RW-28: `format_number_with` печатает ASCII `-` вместо U+2212 для `sv-SE/fi/no/hr/lt`
+  (5 из 186 проверок ревью; relative-путь не затронут). Мутации `run-mutations.py` пишут
+  в продукт in-place и имеют фиксированный target-dir — при SIGKILL восстановление не
+  гарантировано.
+- RW-29/P4-04: история дублей джиттера ограничена 512 seq (дубль старше — `Late`);
+  мутационные скрипты временно мутируют продукт (SIGKILL → восстановление не гарантировано)
+  и не сверяют md5 тестов; m02 не проверяет seq/ts/marker аномалий, нет теста дубля после
+  вытеснения 512, padding/CSRC не покрыты мутациями; `payload_type & 0x7f` молча обрезает
+  PT ≥ 128; фикстура RTP читается из `fixtures/` вне крейта.
+- RW-29/P4-12: точные клиентские задержки reconnect не измерены (jitter в capture не
+  наблюдался), op9-ветка нормативная, wire-совместимость не заявляется.
+- RW-29/P7-01e: рендер только UTC, NNBSP/NBSP нормализуются в пробел; `t/T` собраны из
+  явных компонентов (гибкие day periods zh-TW не воспроизведены); `f` = короткая дата +
+  время по ТЗ (в клиенте раскладка иная); wire-совместимость не заявляется.
+- RW-27/P6-04: `DeepLink::raw` — публичное поле с `token`; redaction только в `Debug`,
+  потребитель не должен логировать поле. `AppSettings` принимает trailing `/`, host
+  сравнивается case-insensitive — либеральнее RE. Реальный лаунчер/D-Bus не проверялись.
+- RW-27/P6-03: `Name` в desktop-файле не проходит string-escaping (`\t`, `\`), отказ
+  только на `\n`/`\r`/`\0`; строгий spec для литерального `\` (`\\\\`) не реализован.
+- RW-27/P7-01b: `format_list` без language-fallback (`ru-RU`/`de-DE` → en-US), контракт
+  заморожен; fallback-строка en-US и `join(", ")` недостижимы на полной таблице.
+- RW-26/P4-07: SRTCP-трейлер с version=2 и валидной длиной может быть разобран как пустой
+  RR (~1/4 тегов); `ReceptionStats.seen` — неограниченный `BTreeSet` (нужен bounded 4096);
+  вытеснение sender-report по NTP-ключу, а не по времени вставки.
+- RW-26/P4-11: `plan_probes` без `wrapping_add` для `sequence + offset`; канонический порт
+  (отказ `01`/`+1`) — гигиена ввода, не подтверждён RE.
+- B06/P4-03: (1) RFC 3711 §4.3.1 KDF не реализован — текст недоступен офлайн,
+  `srtp_key_derive` сделан на HKDF-SHA1; (2) вывод сессионных ключей/nonce — внутренняя
+  реализация Discord, wire-совместимость **не заявлена**; (3) входящий 4-байтный трейлер
+  трактуется как непрозрачный (монотонность в capture не подтверждена); (4) окно приёма
+  1024 трейлеров — «очень старый» повтор вне окна теоретически проходит; (5) предел
+  `n ≤ 0x7FFF_FFFF` (старший бит — маркер) — при ином кодировании граница изменится;
+  (6) S-box без таблиц медленнее табличного (~13 умножений GF(2^8) на байт) — при
+  включении в горячий путь нужен замер.
+- B06/P7-02: базовые цифры CI-истории сняты на машине воркера — переснять на референсной;
+  `delta_pct = INFINITY` при нулевой базе не сериализуется в JSON; нужна ли отдельная CLI
+  прогона базы вместо печати JSON из теста; публичные `base_state()`/`PERF_*` в
+  `discord-perf` — оставить (нужны независимому оракулу) или сузить.
+- B06/P8-01: сети в карточке нет — загрузка артефакта отдельным подэтапом; `size` артефакта
+  не сверяется (ТЗ требовал только хэш); метка `<имя>.bak.sha256` остаётся в каталоге
+  установки и не снимается шагом `RemoveBackup` (исполняется вне карточки); откат проверен
+  только на Linux (на Windows `rename` не заменяет файл — порядок изменён, но фактический
+  прогон на Windows не выполнялся).
+- B05/P7-01: `$link` URL/аргумент не типизирован (подтверждённого URL нет); полные
+  переводы 31 локали, `ListFormat`/`RelativeTimeFormat`/`DurationFormat`, `<t:R>`-таймеры;
+  `format_percent` без локального пробела для ru/fr/de; строгая грамматика аргументов
+  slash-команды; устаревшее `he many` в TZ-W25a помечено.
+- B04/P4-02: loopback-тесты skip-aware, в текущем окружении прошли; нативный skip в stable
+  Rust отсутствует — отчёт в stderr. SRTCP-крипто/DAVE — P4-03/P4.5.
+- B04/P8-04: license fallback для 14 platform-пакетов version-pinned; ревьюить при
+  обновлении `Cargo.lock`. `cargo-deny` локально skip без инструмента.
+- B03/P3-15: `$link` URL из control/аргумента не типизирован (подтверждённого URL нет);
+  даты/время и продвинутые number skeletons — P7-01.
+- B03/P4-01: UDP discovery/keepalive/ротация/DAVE — P4-02/P4.5; audio-only SelectProtocol
+  и полный набор codecs — уточнить на следующем capture.
+- B03/P7-04: `ResourceQuery` не вводился (D-02 не подтверждает query); путь без `/api/v9`
+  по TZ-W22c.
+- B03/P8-03: cargo-deny локально skip без инструмента; bench smoke, порог 10 % — P7-02;
+  SBOM — P8-04.
+- B03/JSON: лимит 4M узлов — защита от DoS, не бюджет памяти; `Other.raw` нельзя логировать.
+- B02/P1-02: последнее окно незавершённого zstd-кадра не отдаётся — ограничение streaming
+  API `ruzstd`, контракт 759 280/824 816 зафиксирован; для «дочитать» нужен другой декодер.
+- B02/P0-04: T-HARN-02/03 (полный gateway/REST replay) — отдельная карточка, нужен
+  JSON-компаратор; скелет намеренно не тащит зависимость.
+- B02/P0-07: юридическая оценка ToS/распространения — за владельцем; SBOM/cargo-deny —
+  T-HARN-07, keyring/лог-скан — P1-10/T-SEC.
+- B02/P2-08: type 2 favorite/frecency semantics не типизирована; `status_expires_at_ms`
+  и custom_status остаются structural/raw до отдельного capture.
+- P2-01: публичный `value` (P3-3), схематичность §3.5-псевдокода, диагностика пустых групп
+  `merged_members`, устаревший doc `ReadyError::NotReady`.
+- RW-10: N1 пустой TE+CL, N2/N3 варианты ошибок chunked/обрыва, N4 overflow max_body,
+  N5 O(n²) re-decode, N6 пробелы покрытия, N7 флейк read-timeout, N8 doc-md5 telemetry,
+  N9 strict-TE (ТЗ обновлён).
+- RW-11: P3-3 глубина JSON-сканера, P3-4 нормализация telemetry-пути, P3-6 ссылки D-02,
+  P3-1/P3-2/P3-5 тесты Host/TE/httparse.
+- I1: P3-7 `AUTH_HEADER_NAMES` вместо литералов.
+- RW-18/P2-09 (8 P3, не блокируют):
+  - P2-09-P3-1: `a16` не проверяет missing/null `merged_presences` и отсутствие лишней
+    группы в `guilds[0]` (тест-пробел, код уже верен);
+  - P2-09-P3-2: `r04`/`r10` не проверяют отсутствие ложных `presences:user:*:missing`;
+  - P2-09-P3-3: doc-comment `presence_selectors.rs`/`member_list.rs` и
+    `TEST-CORRECTIONS.md`/`REPORT.md`/`STATE.md` отстают от online-first семантики;
+  - P2-09-P3-4: `Invisible`/`Unknown` в fallback-агрегате не зафиксированы контрактом;
+  - P2-09-P3-5: `hidden_activities(user)` не объединяет hidden другого scope при online;
+  - P2-09-P3-6: `InvalidId.value` для отсутствующего `user.id` равен `"map"` вместо
+    `Missing`/точного значения;
+  - P2-09-P3-7: non-list `presences` в chunk даёт две диагностики вместо одной;
+  - P2-09-P3-8: мёртвая ветка в `parse_merged_presences` после `else { continue; }`.
+- RW-17/P2-07: red-лог W17b снят до финального форматирования (номера строк, причина
+  та же); старый `mutations.txt` 4/4 помечен superseded, актуальный `MUTATIONS.md` 7/7;
+  live-smoke нет; unread-count и cap/prune read-state не вводились (вне scope); non-channel
+  ACK отклоняется целиком, включая version.
+- RW-16/P2-05: P3-2 red-лог r13 снят до двух last-wins assert-ов (сдвиг строк, причина
+  падения та же); P3-3 нет отдельного regression на `nonce=Some/count>1` duplicate
+  (покрыто r04/r13 + probe); cap/prune сборок не введён; повтор `none/count=1` заменяет
+  снимок chunk-а.
+- RW-15/P2-04: P3-1…3 закрыты test-only; P3-4 tests-red пуст (compile-red).
+- RW-14/P2-06: P3-1 Before-trim/Around-deferred не в committed-тестах; P3-2 page/page
+  last-wins и повтор токена покрыты частично; P3-4 cap 256 не покрыт тестом; P3-6
+  `Inserted` может быть сразу вытеснен; P3-7 поздняя страница может вернуть вытесненный live-id.
+- RW-13/P2-02: P3-1 покрытие веток (дубликаты/пустой SESSIONS_REPLACE, перенос канала,
+  смена channel_id, duplicate MESSAGE_CREATE, seq=None); P3-3 синтетические thread-id;
+  P3-5 `r19` не вызывает `apply_dispatch`/`apply_frame`; P3-6 пустая группа supplemental
+  с невалидным raw-индексом не даёт inconsistency.
+- RW-09/N3: политика `IdentityConfig::Some("")`.
+- N4: рост буфера `GatewayPipe::events` до дренажа.
+- P1-02: вернуть строгую проверку `s == 113` после пересмотра декодера.
+
+## 8. Как продолжить после сбоя/сна
 
 1. `git log --oneline -3` и `git status` — всё ли зафиксировано.
-2. `tail -n 5 waves/db.jsonl` и этот файл — последнее событие и следующий шаг.
-3. Карточка: `docs/rust-client/PLAN.md` (следующая по порядку) + регламент `PROCESS.md` §3–§4.
-4. Прогоны: `cd rust && cargo test --offline`; гейт: `npm run gate:worker` (meta/unit/smoke).
-5. После приёмки: артефакты → `waves/RW-XX/`, дописать `db.jsonl`, обновить `STATE.md`,
-   коммит + push в `origin/main`.
-
-## Открытые вопросы / бэклог
-
-- HTTP-транспорт: **решено владельцем 2026-10-20 — вариант A** (ручной HTTP/1.1 на
-  tokio+tokio-rustls; разбор — `waves/TRANSPORT.md` §6); разрешены прямые `tokio-rustls`
-  (+опц. `httparse`/`bytes`) в `Cargo.toml` без сетевых загрузок. Очередь: волна транспорта
-  (RW-10), затем P1-09 (rate-limit/ошибки; стаб-сервер).
-- RW-09/N3 (политика идентичности): `IdentityConfig` с `Some("")` возвращает пустую строку
-  дословно (не «отсутствие»/`unknown`); решить при живом подключении генератора (`TASKS.md`).
-- N4 (дизайн): буфер `GatewayPipe::events` растёт до дренажа; точку дренажа определить в
-  цикле приложения после P1-07 (`TASKS.md`, Backlog).
-- P1-02: вернуть строгую проверку `s == 113` после пересмотра декодера (`TASKS.md`, Backlog).
-- Дальняя дорожка: `wss://` без рантайм-кейса; `Reconnect` не шлёт close-кадр (RW-04).
+2. `tail -n 8 waves/db.jsonl` и этот файл — последнее событие и следующий шаг.
+3. Batch: `docs/rust-client/WAVE-PLAN.md` + `TEAM.md`; карточки — `PLAN.md`;
+   регламент — `PROCESS.md` §3–§4.
+4. Факт и счётчик: `docs/rust-client/STATUS.md`; роли/WIP — `TEAM.md`.
+5. Воркер: targeted-тест; integration/QA: `cd rust && cargo test --offline --workspace`,
+   fmt/clippy, затем `npm run gate:worker`.
+6. После приёмки: артефакты → `waves/RW-XX/`, дописать `db.jsonl`, один раз обновить
+   `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`map`, коммит + push (координатор).

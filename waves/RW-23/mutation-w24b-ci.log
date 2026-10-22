@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 1 test
+test ci_and_release_dry_runs_keep_their_contracts ... FAILED
+
+failures:
+
+---- ci_and_release_dry_runs_keep_their_contracts stdout ----
+
+thread 'ci_and_release_dry_runs_keep_their_contracts' (23011) panicked at crates/discord-conformance/tests/sbom_contract.rs:124:5:
+CI должен реально вызывать SBOM, а не только печатать шаг в dry-run
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ci_and_release_dry_runs_keep_their_contracts
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`

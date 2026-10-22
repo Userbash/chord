@@ -1,0 +1,17 @@
+Повтор мутантов P2-1 (read-only ревью, изолированная копия)
+================================================================
+Копия: /tmp/opencode/p2-10-round2/rust (crates + Cargo.toml/lock), фикстуры:
+/tmp/opencode/p2-10-round2/fixtures. Продукт в репозитории не менялся.
+
+control (8 reducer tests, исходный reducer): EXIT=0, 8 passed
+clear-before-loop (state.voice_states.clear() в apply_snapshot):
+  v09b FAILED, EXIT=101, left=1 right=2
+first-wins (insert только при отсутствии ключа):
+  v09c FAILED, EXIT=101, left=Some(1176785373989445703)
+  right=Some(1176785373989445704)
+restore: md5 reducer = 8e3ff3ad7d2016463847101e1336973b (совпал с backup)
+
+Замечание: в сохранённых логах waves/B01/mutations/p2-10-*.log строки
+panics 228/250; текущий файл после rustfmt даёт 221/245. Значения и
+семантика падений совпадают; сравнение нормализованных логов — diff пуст
+(кроме пути, PID, времени сборки и номеров строк).

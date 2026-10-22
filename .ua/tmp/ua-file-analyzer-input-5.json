@@ -1,0 +1,14 @@
+{
+  "projectRoot": "/home/sanya/orca/project",
+  "batchFiles": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 22,
+      "fileCategory": "infra"
+    }
+  ],
+  "batchImportData": {
+    ".github/workflows/ci.yml": []
+  }
+}

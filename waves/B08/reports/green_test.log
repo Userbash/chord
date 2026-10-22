@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/plural_contract.rs (target/debug/deps/plural_contract-ba1d015e13c13f5b)
+
+running 1 test
+test plural_edge_cases_follow_the_locale_contract ... FAILED
+
+failures:
+
+---- plural_edge_cases_follow_the_locale_contract stdout ----
+
+thread 'plural_edge_cases_follow_the_locale_contract' (105426) panicked at crates/discord-i18n/tests/plural_contract.rs:69:5:
+assertion `left == right` failed
+  left: "few"
+ right: "other"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    plural_edge_cases_follow_the_locale_contract
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --test plural_contract`

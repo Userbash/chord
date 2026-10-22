@@ -1,0 +1,17 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/autostart_contract.rs (/tmp/opencode/target-w27b/debug/deps/autostart_contract-e7c50141cc09313a)
+
+running 9 tests
+test a01_minimal_entry_matches_desktop_entry_shape ... ok
+test a02_hidden_disables_autostart_via_gnome_key ... ok
+test a05_rejects_empty_and_control_fields ... ok
+test a03_exec_escapes_spaces_quotes_and_field_codes ... ok
+test a04_exec_escapes_shell_reserved_and_empty_args ... ok
+test a07_badge_pairs_are_stable_and_typed ... ok
+test a06_autostart_path_is_xdg_autostart_file ... ok
+test a08_app_uri_is_unity_application_uri ... ok
+test a09_exec_quotes_xdg_reserved_characters ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

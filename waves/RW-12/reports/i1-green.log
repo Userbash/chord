@@ -1,0 +1,21 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running tests/rest_client.rs (target/debug/deps/rest_client-e2176b38eeaa98e2)
+
+running 12 tests
+test invalid_base_rejected ... ok
+test telemetry_blocked_before_network ... ok
+test telemetry_lookalike_reaches_server ... ok
+test explicit_auth_header_is_not_duplicated ... ok
+test auth_headers_added_in_order ... ok
+test content_type_and_length_for_json_body ... ok
+test no_retry_for_401_and_404 ... ok
+test retry_429_for_post ... ok
+test exhausted_429_returns_rate_limited ... ok
+test retry_5xx_only_for_idempotent ... ok
+test retry_429_then_success_with_delay ... ok
+test attempt_timeout_retries_idempotent_only ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+# EXIT=0

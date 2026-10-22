@@ -1,0 +1,62 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/ready_review.rs (target/debug/deps/ready_review-48deb859a1b1a8a2)
+
+running 6 tests
+test r2_non_map_d_is_not_ready ... FAILED
+test r1_atom_strings_are_text ... FAILED
+test r4_merged_members_keep_raw_guild_index ... FAILED
+test r3_nested_wrong_types_are_ignored ... FAILED
+test r5_explicit_empty_merged_members_is_malformed ... FAILED
+test r6_ignored_paths_use_d_prefix ... FAILED
+
+failures:
+
+---- r2_non_map_d_is_not_ready stdout ----
+
+thread 'r2_non_map_d_is_not_ready' (211020) panicked at crates/discord-core/tests/ready_review.rs:101:5:
+assertion `left == right` failed
+  left: Err(WrongType { path: "d", expected: "map", found: "int" })
+ right: Err(NotReady)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- r1_atom_strings_are_text stdout ----
+
+thread 'r1_atom_strings_are_text' (211019) panicked at crates/discord-core/tests/ready_review.rs:85:5:
+assertion `left == right` failed
+  left: None
+ right: Some("normal")
+
+---- r4_merged_members_keep_raw_guild_index stdout ----
+
+thread 'r4_merged_members_keep_raw_guild_index' (211022) panicked at crates/discord-core/tests/ready_review.rs:154:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- r3_nested_wrong_types_are_ignored stdout ----
+
+thread 'r3_nested_wrong_types_are_ignored' (211021) panicked at crates/discord-core/tests/ready_review.rs:125:5:
+ignored: []
+
+---- r5_explicit_empty_merged_members_is_malformed stdout ----
+
+thread 'r5_explicit_empty_merged_members_is_malformed' (211023) panicked at crates/discord-core/tests/ready_review.rs:178:5:
+malformed: []
+
+---- r6_ignored_paths_use_d_prefix stdout ----
+
+thread 'r6_ignored_paths_use_d_prefix' (211024) panicked at crates/discord-core/tests/ready_review.rs:208:5:
+ignored: []
+
+
+failures:
+    r1_atom_strings_are_text
+    r2_non_map_d_is_not_ready
+    r3_nested_wrong_types_are_ignored
+    r4_merged_members_keep_raw_guild_index
+    r5_explicit_empty_merged_members_is_malformed
+    r6_ignored_paths_use_d_prefix
+
+test result: FAILED. 0 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test ready_review`

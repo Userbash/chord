@@ -1,0 +1,39 @@
+# P102-M2-poison-check-removed
+file=rust/crates/discord-codec/src/zstd.rs
+exit=101 caught=True
+--- tail ---
+
+failures:
+
+---- decode_error_poisons_stream stdout ----
+
+thread 'decode_error_poisons_stream' (17078) panicked at crates/discord-codec/tests/zstd_stream.rs:201:5:
+assertion failed: matches!(stream.push(&[]), Err(ZstdError::Poisoned))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- missing_magic_poisons_stream stdout ----
+
+thread 'missing_magic_poisons_stream' (17084) panicked at crates/discord-codec/tests/zstd_stream.rs:184:5:
+assertion failed: matches!(stream.push(&[]), Err(ZstdError::Poisoned))
+
+---- trailing_data_poisons_stream stdout ----
+
+thread 'trailing_data_poisons_stream' (17089) panicked at crates/discord-codec/tests/zstd_stream.rs:215:5:
+assertion failed: matches!(stream.push(&[]), Err(ZstdError::Poisoned))
+
+
+failures:
+    decode_error_poisons_stream
+    missing_magic_poisons_stream
+    trailing_data_poisons_stream
+
+test result: FAILED. 10 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
+     Running tests/etf_full.rs (target/debug/deps/etf_full-7c2aa4b7f6f1b01e)
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-d126ed1f27d8f3ed)
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-bc59c90ef9dfec1e)
+     Running tests/zstd_stream.rs (target/debug/deps/zstd_stream-dbfb7a88c1079559)
+error: test failed, to rerun pass `-p discord-codec --test zstd_stream`

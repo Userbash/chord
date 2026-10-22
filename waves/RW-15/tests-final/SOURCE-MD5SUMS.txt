@@ -1,0 +1,2 @@
+9cb1861b6928cfa1091a8cc23ef03013  rust/crates/discord-core/src/state/member_list.rs
+0213df3d814f3ec164eef98a5ceb8723  rust/crates/discord-core/src/state/member_list_selectors.rs

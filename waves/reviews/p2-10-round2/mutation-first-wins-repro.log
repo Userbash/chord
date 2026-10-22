@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/tmp/opencode/p2-10-round2/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 1 test
+test v09c_snapshot_duplicate_last_wins ... FAILED
+
+failures:
+
+---- v09c_snapshot_duplicate_last_wins stdout ----
+
+thread 'v09c_snapshot_duplicate_last_wins' (686004) panicked at crates/discord-core/tests/voice_state_reducer.rs:245:5:
+assertion `left == right` failed
+  left: Some(1176785373989445703)
+ right: Some(1176785373989445704)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v09c_snapshot_duplicate_last_wins
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_reducer`

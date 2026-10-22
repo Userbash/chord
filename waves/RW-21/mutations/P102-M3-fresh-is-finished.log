@@ -1,0 +1,39 @@
+# P102-M3-fresh-is-finished
+file=rust/crates/discord-codec/src/zstd.rs
+exit=101 caught=True
+--- tail ---
+test decode_error_poisons_stream ... ok
+test corrupted_frame_is_reported ... ok
+test lab_midstream_socket_is_rejected ... ok
+test missing_magic_is_rejected ... ok
+test missing_magic_poisons_stream ... ok
+test trailing_data_poisons_stream ... ok
+test synth_frame_byte_by_byte ... ok
+test synth_frame_decodes_whole ... ok
+test trailing_bytes_after_finished_frame ... ok
+test magic_split_across_pushes ... ok
+test synth_frame_split_in_three ... ok
+test lab_stream_1389_matches_oracle ... ok
+
+failures:
+
+---- fresh_stream_is_not_finished_and_not_dead stdout ----
+
+thread 'fresh_stream_is_not_finished_and_not_dead' (17608) panicked at crates/discord-codec/tests/zstd_stream.rs:171:5:
+у свежего потока кадра ещё нет
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    fresh_stream_is_not_finished_and_not_dead
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
+     Running tests/etf_full.rs (target/debug/deps/etf_full-7c2aa4b7f6f1b01e)
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-d126ed1f27d8f3ed)
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-bc59c90ef9dfec1e)
+     Running tests/zstd_stream.rs (target/debug/deps/zstd_stream-dbfb7a88c1079559)
+error: test failed, to rerun pass `-p discord-codec --test zstd_stream`

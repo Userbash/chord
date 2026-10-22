@@ -1,0 +1,86 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unreachable statement
+  --> crates/discord-core/src/state/presence_reducer.rs:67:5
+   |
+66 |       return;
+   |       ------ any code following this expression is unreachable
+67 | /     let Some(status) = member.status.as_deref().filter(|status| !status.is_empty()) else {
+68 | |         return;
+69 | |     };
+   | |______^ unreachable statement
+   |
+   = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `state`
+  --> crates/discord-core/src/state/presence_reducer.rs:61:5
+   |
+61 |     state: &mut State,
+   |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `guild_id`
+  --> crates/discord-core/src/state/presence_reducer.rs:62:5
+   |
+62 |     guild_id: u64,
+   |     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_guild_id`
+
+warning: unused variable: `user_id`
+  --> crates/discord-core/src/state/presence_reducer.rs:63:5
+   |
+63 |     user_id: u64,
+   |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_user_id`
+
+warning: unused variable: `member`
+  --> crates/discord-core/src/state/presence_reducer.rs:64:5
+   |
+64 |     member: &MemberPresence,
+   |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_member`
+
+warning: `discord-core` (lib) generated 5 warnings (run `cargo fix --lib -p discord-core` to apply 4 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running tests/presence_reducer.rs (target/debug/deps/presence_reducer-7d0dd0594ee1511b)
+
+running 18 tests
+test r06_offline_unknown_is_noop ... ok
+test r05_supplemental_missing_user_inconsistency ... ok
+test r03_private_scope ... ok
+test r01_live_update_applies_presence_and_user ... ok
+test r07_offline_removes_single_scope ... ok
+test r11_member_list_offline_unknown_is_noop ... ok
+test r02_live_update_last_wins ... ok
+test r09_offline_with_hidden_stays_visible ... ok
+test r15_stale_sequence_does_not_change_presence ... ok
+test r16_ready_resets_presence ... ok
+test r18_member_list_empty_status_is_diagnosed ... ok
+test r08_offline_other_guild_keeps_online_until_all_offline ... ok
+test r13_chunk_presences_are_applied ... ok
+test r14_chunk_without_presences ... ok
+test r17_member_list_delete_keeps_presence ... FAILED
+test r10_member_list_presence_integration ... FAILED
+test r04_supplemental_initial_snapshot ... ok
+test r12_member_list_does_not_touch_users ... ok
+
+failures:
+
+---- r17_member_list_delete_keeps_presence stdout ----
+
+thread 'r17_member_list_delete_keeps_presence' (549046) panicked at crates/discord-core/tests/presence_reducer.rs:492:5:
+assertion failed: scope_count(&state, user_id) > 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- r10_member_list_presence_integration stdout ----
+
+thread 'r10_member_list_presence_integration' (549039) panicked at crates/discord-core/tests/presence_reducer.rs:343:5:
+assertion `left == right` failed
+  left: 28
+ right: 34
+
+
+failures:
+    r10_member_list_presence_integration
+    r17_member_list_delete_keeps_presence
+
+test result: FAILED. 16 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-core --test presence_reducer`

@@ -1,0 +1,25 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test locale_contract registry_and_disabled_locales_match_the_frozen_inventory -- --exact
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/locale_contract.rs (target/debug/deps/locale_contract-a9f436064cd54c41)
+
+running 1 test
+test registry_and_disabled_locales_match_the_frozen_inventory ... FAILED
+
+failures:
+
+---- registry_and_disabled_locales_match_the_frozen_inventory stdout ----
+
+thread 'registry_and_disabled_locales_match_the_frozen_inventory' (63298) panicked at crates/discord-i18n/tests/locale_contract.rs:15:9:
+assertion `left == right` failed
+  left: true
+ right: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    registry_and_disabled_locales_match_the_frozen_inventory
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --test locale_contract`

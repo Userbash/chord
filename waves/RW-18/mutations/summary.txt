@@ -1,0 +1,13 @@
+M1	scope selection max->min	CAUGHT	101
+M2	offline cleanup disabled	CAUGHT	101
+M3	activity priority flattened	CAUGHT	101
+M4	member-list presence application disabled	CAUGHT	101
+M5	chunk default guild removed	CAUGHT	101
+M6	offline hidden visibility ignored	CAUGHT	101
+M7	multiple playing not collapsed	CAUGHT	101
+M8	is_vr_online always false	CAUGHT	101
+M9	mobile desktop/vr guard removed	CAUGHT	101
+M10	displayable tie-break removed	CAUGHT	101
+M11	stale sequence guard allows equal seq	CAUGHT	101
+M12	guild_id zero accepted	CAUGHT	101
+M13	empty member status accepted	CAUGHT	101

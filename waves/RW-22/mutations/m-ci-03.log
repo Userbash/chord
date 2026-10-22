@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/ci_contract.rs (target/debug/deps/ci_contract-a0101caa715bedf9)
+
+running 1 test
+test release_dry_run_is_offline_and_writes_dist_only ... FAILED
+
+failures:
+
+---- release_dry_run_is_offline_and_writes_dist_only stdout ----
+
+thread 'release_dry_run_is_offline_and_writes_dist_only' (97833) panicked at crates/discord-conformance/tests/ci_contract.rs:66:5:
+assertion failed: stdout.contains("sha256sum")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    release_dry_run_is_offline_and_writes_dist_only
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-conformance --test ci_contract`

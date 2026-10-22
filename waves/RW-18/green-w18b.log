@@ -1,0 +1,25 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/presence_reducer.rs (target/debug/deps/presence_reducer-7d0dd0594ee1511b)
+
+running 17 tests
+test r03_private_scope ... ok
+test r06_offline_unknown_is_noop ... ok
+test r02_live_update_last_wins ... ok
+test r01_live_update_applies_presence_and_user ... ok
+test r05_supplemental_missing_user_inconsistency ... ok
+test r09_offline_with_hidden_stays_visible ... ok
+test r07_offline_removes_single_scope ... ok
+test r08_offline_other_guild_keeps_online_until_all_offline ... ok
+test r11_member_list_offline_unknown_is_noop ... ok
+test r15_stale_sequence_does_not_change_presence ... ok
+test r13_chunk_presences_are_applied ... ok
+test r16_ready_resets_presence ... ok
+test r14_chunk_without_presences ... ok
+test r17_member_list_delete_keeps_presence ... ok
+test r04_supplemental_initial_snapshot ... ok
+test r10_member_list_presence_integration ... ok
+test r12_member_list_does_not_touch_users ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

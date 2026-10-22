@@ -1,0 +1,121 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/ready_social.rs (target/debug/deps/ready_social-f7bbcd81a878c2c1)
+
+running 13 tests
+test b09_partial_user_synthetic ... FAILED
+test b07_merged_members_length_mismatch_synthetic ... FAILED
+test b08_duplicates_last_wins_synthetic ... FAILED
+test b11_absent_or_nil_collections_synthetic ... ok
+test b12_wrong_type_collections_synthetic ... FAILED
+test b10_broken_user_id_synthetic ... FAILED
+test b12_wrong_type_relationships_synthetic ... FAILED
+test b04_relationships_fixture ... FAILED
+test b02_top_level_user_fixture ... FAILED
+test b03_private_channels_fixture ... FAILED
+test b01_users_fixture_partial_fields ... FAILED
+test b05_sessions_fixture_redacted_debug ... FAILED
+test b06_merged_members_fixture ... FAILED
+
+failures:
+
+---- b09_partial_user_synthetic stdout ----
+
+thread 'b09_partial_user_synthetic' (175975) panicked at crates/discord-core/tests/ready_social.rs:367:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- b07_merged_members_length_mismatch_synthetic stdout ----
+
+thread 'b07_merged_members_length_mismatch_synthetic' (175973) panicked at crates/discord-core/tests/ready_social.rs:324:5:
+assertion `left == right` failed
+  left: []
+ right: [10]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- b08_duplicates_last_wins_synthetic stdout ----
+
+thread 'b08_duplicates_last_wins_synthetic' (175974) panicked at crates/discord-core/tests/ready_social.rs:346:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- b12_wrong_type_collections_synthetic stdout ----
+
+thread 'b12_wrong_type_collections_synthetic' (175978) panicked at crates/discord-core/tests/ready_social.rs:470:9:
+ignored d.users: []
+
+---- b10_broken_user_id_synthetic stdout ----
+
+thread 'b10_broken_user_id_synthetic' (175976) panicked at crates/discord-core/tests/ready_social.rs:388:5:
+assertion `left == right` failed
+  left: []
+ right: ["users[0]"]
+
+---- b12_wrong_type_relationships_synthetic stdout ----
+
+thread 'b12_wrong_type_relationships_synthetic' (175979) panicked at crates/discord-core/tests/ready_social.rs:483:5:
+assertion `left == right` failed
+  left: []
+ right: ["d.relationships"]
+
+---- b04_relationships_fixture stdout ----
+
+thread 'b04_relationships_fixture' (175970) panicked at crates/discord-core/tests/ready_social.rs:203:5:
+assertion `left == right` failed
+  left: 0
+ right: 60
+
+---- b02_top_level_user_fixture stdout ----
+
+thread 'b02_top_level_user_fixture' (175968) panicked at crates/discord-core/tests/ready_social.rs:129:5:
+assertion `left == right` failed
+  left: None
+ right: Some("pharos12510")
+
+---- b03_private_channels_fixture stdout ----
+
+thread 'b03_private_channels_fixture' (175969) panicked at crates/discord-core/tests/ready_social.rs:155:5:
+assertion `left == right` failed
+  left: 0
+ right: 17
+
+---- b01_users_fixture_partial_fields stdout ----
+
+thread 'b01_users_fixture_partial_fields' (175967) panicked at crates/discord-core/tests/ready_social.rs:59:5:
+assertion `left == right` failed
+  left: 0
+ right: 146
+
+---- b05_sessions_fixture_redacted_debug stdout ----
+
+thread 'b05_sessions_fixture_redacted_debug' (175971) panicked at crates/discord-core/tests/ready_social.rs:259:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- b06_merged_members_fixture stdout ----
+
+thread 'b06_merged_members_fixture' (175972) panicked at crates/discord-core/tests/ready_social.rs:281:5:
+assertion failed: ready.guilds.iter().all(|guild| guild.members.len() == 1)
+
+
+failures:
+    b01_users_fixture_partial_fields
+    b02_top_level_user_fixture
+    b03_private_channels_fixture
+    b04_relationships_fixture
+    b05_sessions_fixture_redacted_debug
+    b06_merged_members_fixture
+    b07_merged_members_length_mismatch_synthetic
+    b08_duplicates_last_wins_synthetic
+    b09_partial_user_synthetic
+    b10_broken_user_id_synthetic
+    b12_wrong_type_collections_synthetic
+    b12_wrong_type_relationships_synthetic
+
+test result: FAILED. 1 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test ready_social`
+# EXIT=101

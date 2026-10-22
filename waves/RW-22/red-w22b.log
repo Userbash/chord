@@ -1,0 +1,25 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::parse_frame`, `discord_voice::select_region`, `discord_voice::Hello`, `discord_voice::Identify`, `discord_voice::Ready`, `discord_voice::SelectProtocol`, `discord_voice::SessionDescription`, `discord_voice::VoiceOp`, `discord_voice::VoicePayload`, `discord_voice::VoiceServerUpdate`
+ --> crates/discord-voice/tests/signaling.rs:3:5
+  |
+3 |     parse_frame, select_region, Hello, Identify, Ready, SelectProtocol, SessionDescription,
+  |     ^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^  ^^^^^^^^  ^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^ no `SessionDescription` in the root
+  |     |            |              |      |         |      |
+  |     |            |              |      |         |      no `SelectProtocol` in the root
+  |     |            |              |      |         no `Ready` in the root
+  |     |            |              |      no `Identify` in the root
+  |     |            |              no `Hello` in the root
+  |     |            no `select_region` in the root
+  |     no `parse_frame` in the root
+4 |     VoiceOp, VoicePayload, VoiceServerUpdate, OBSERVED_RTC_OPS,
+  |     ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `VoiceServerUpdate` in the root
+  |     |        |
+  |     |        no `VoicePayload` in the root
+  |     no `VoiceOp` in the root
+  |
+  = help: consider importing one of these items instead:
+          std::future::Ready
+          std::task::Poll::Ready
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "signaling") due to 1 previous error

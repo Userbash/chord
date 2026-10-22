@@ -1,0 +1,55 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
+
+running 1 test
+test tests::voice_constants_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 11 tests
+test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
+test endpoint_with_existing_version_query_is_not_duplicated ... FAILED
+test frame_parser_preserves_raw_other_and_rejects_missing_payload ... ok
+test region_selection_orders_latency_ties_and_manual_choice ... ok
+test secret_key_is_decoded_validated_and_redacted ... ok
+test select_protocol_codecs_match_capture_contract ... ok
+test unknown_payload_debug_does_not_leak_secrets ... FAILED
+test outgoing_identify_and_select_protocol_are_wire_serializable ... FAILED
+test voice_server_update_builds_valid_websocket_url_without_leaking_token ... ok
+test capture_frames_match_signal_contract ... ok
+test every_prefix_of_frame_is_panic_free ... ok
+
+failures:
+
+---- endpoint_with_existing_version_query_is_not_duplicated stdout ----
+
+thread 'endpoint_with_existing_version_query_is_not_duplicated' (91859) panicked at crates/discord-voice/tests/signaling.rs:380:5:
+assertion `left == right` failed
+  left: "wss://voice.example:2096/?v=9/?v=9"
+ right: "wss://voice.example:2096/?v=9"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- unknown_payload_debug_does_not_leak_secrets stdout ----
+
+thread 'unknown_payload_debug_does_not_leak_secrets' (91866) panicked at crates/discord-voice/tests/signaling.rs:369:5:
+assertion failed: !debug.contains("super-secret")
+
+---- outgoing_identify_and_select_protocol_are_wire_serializable stdout ----
+
+thread 'outgoing_identify_and_select_protocol_are_wire_serializable' (91862) panicked at crates/discord-voice/tests/signaling.rs:341:5:
+assertion `left == right` failed: capture содержит address и на верхнем уровне d
+  left: None
+ right: Some("104.29.147.145")
+
+
+failures:
+    endpoint_with_existing_version_query_is_not_duplicated
+    outgoing_identify_and_select_protocol_are_wire_serializable
+    unknown_payload_debug_does_not_leak_secrets
+
+test result: FAILED. 8 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.07s
+
+error: test failed, to rerun pass `-p discord-voice --test signaling`

@@ -1,0 +1,51 @@
+
+running 12 tests
+test negative_rtt_is_clamped_to_zero ... FAILED
+test ntp_middle_uses_high_word ... ok
+test unknown_or_zero_lsr_returns_none ... ok
+test rtt_with_25_percent_dlsr ... FAILED
+test window_average_and_max_ignore_missing_rtt ... ok
+test rtt_without_dlsr_is_plain_round_trip ... ok
+test window_keeps_capacity_and_reports_latest ... ok
+test window_loss_delta_can_be_negative_after_stream_restart ... ok
+test window_loss_delta_uses_first_and_last_sample ... ok
+test window_with_single_sample_has_no_loss_delta_or_rtt ... ok
+test rtt_subtracts_dlsr ... FAILED
+test zero_capacity_window_is_treated_as_one ... ok
+
+failures:
+
+---- negative_rtt_is_clamped_to_zero stdout ----
+
+thread 'negative_rtt_is_clamped_to_zero' (232097) panicked at crates/discord-voice/tests/stats_contract.rs:78:5:
+assertion `left == right` failed
+  left: Some(100.0)
+ right: Some(0.0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rtt_with_25_percent_dlsr stdout ----
+
+thread 'rtt_with_25_percent_dlsr' (232100) panicked at crates/discord-voice/tests/stats_contract.rs:61:5:
+assertion failed: (rtt.unwrap() - 150.0).abs() < 1e-9
+
+---- rtt_subtracts_dlsr stdout ----
+
+thread 'rtt_subtracts_dlsr' (232099) panicked at crates/discord-voice/tests/stats_contract.rs:44:5:
+assertion `left == right` failed
+  left: Some(100.0)
+ right: Some(0.0)
+
+
+failures:
+    negative_rtt_is_clamped_to_zero
+    rtt_subtracts_dlsr
+    rtt_with_25_percent_dlsr
+
+test result: FAILED. 9 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- stderr ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/stats_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/stats_contract-451fd10ac6a48c5d)
+error: test failed, to rerun pass `-p discord-voice --test stats_contract`

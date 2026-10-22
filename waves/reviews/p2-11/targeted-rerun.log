@@ -1,0 +1,34 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/typing_reducer.rs (rust/target/debug/deps/typing_reducer-28e230d19c89448d)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... ok
+test t06_start_creates_entry_and_upserts_member ... ok
+test t09_message_create_removes_author_pair ... ok
+test t10_reset_clock_stale_malformed_prune ... ok
+test t08_fixture_28_starts_two_pairs ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_selectors.rs (rust/target/debug/deps/typing_selectors-707910d4567a1486)
+
+running 5 tests
+test t12_users_sorted_and_expired_hidden ... ok
+test t13_guild_split ... ok
+test t11_empty_and_self_boundary ... ok
+test t14_counts_and_expiry_boundary ... ok
+test t15_fixture_final_state ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_types.rs (rust/target/debug/deps/typing_types-a46997663e6b90db)
+
+running 5 tests
+test t03_minimal_dm_shape ... ok
+test t01_capture_117_fields ... ok
+test t04_required_and_optional_field_table ... ok
+test t05_member_errors_and_event_clock ... ok
+test t02_fixture_28_events_pairs_and_timestamps ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

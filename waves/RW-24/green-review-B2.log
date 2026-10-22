@@ -1,0 +1,19 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test markdown_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/markdown_contract.rs (target/debug/deps/markdown_contract-5713afa49f3299b6)
+
+running 11 tests
+test arbitrary_utf8_input_never_panics ... ok
+test ordered_list_number_overflow_does_not_panic ... ok
+test multiline_blockquote_keeps_the_quote_prefix ... ok
+test keeps_html_as_inert_text_and_preserves_unclosed_markers ... ok
+test nested_lists_preserve_structure_and_indent ... ok
+test renderer_revalidates_manually_constructed_links ... ok
+test rejects_unsafe_urls_but_keeps_labels ... ok
+test supports_nested_styles_and_protects_code ... ok
+test timestamp_and_slash_command_tokens_are_exact ... ok
+test renders_the_23_frozen_markdown_rules ... ok
+test parsing_and_rendering_are_bounded_for_arbitrary_boundaries ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

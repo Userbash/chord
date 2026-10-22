@@ -1,0 +1,33 @@
+# I1 (P7-02, волна B06) — green: диапазон по ключу (user_id, scope) вместо полного скана
+# команда: cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w26b cargo test --offline -p discord-core --test presence_reducer
+# exit code: 0
+
+
+running 19 tests
+test r01_live_update_applies_presence_and_user ... ok
+test r06_offline_unknown_is_noop ... ok
+test r03_private_scope ... ok
+test r05_supplemental_missing_user_inconsistency ... ok
+test r02_live_update_last_wins ... ok
+test r08_offline_other_guild_keeps_online_until_all_offline ... ok
+test r07_offline_removes_single_scope ... ok
+test r09_offline_with_hidden_stays_visible ... ok
+test r11_member_list_offline_unknown_is_noop ... ok
+test r13_chunk_presences_are_applied ... ok
+test r15_stale_sequence_does_not_change_presence ... ok
+test r18_member_list_empty_status_is_diagnosed ... ok
+test r14_chunk_without_presences ... ok
+test r16_ready_resets_presence ... ok
+test r17_member_list_delete_keeps_presence ... ok
+test r19_presence_upsert_scales_without_full_store_scan ... ok
+test r04_supplemental_initial_snapshot ... ok
+test r10_member_list_presence_integration ... ok
+test r12_member_list_does_not_touch_users ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running tests/presence_reducer.rs (/tmp/opencode/target-w26b/debug/deps/presence_reducer-044f175e2014162a)
+

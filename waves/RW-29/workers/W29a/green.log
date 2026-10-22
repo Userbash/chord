@@ -1,0 +1,28 @@
+# RW-29 / W29a — GREEN (timestamp_contract после реализации)
+# command: CARGO_TARGET_DIR=/tmp/opencode/target-w29a cargo test --offline -p discord-i18n --test timestamp_contract
+# date: 2026-10-22T22:05:33+05:00
+
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/timestamp_contract.rs (/tmp/opencode/target-w29a/debug/deps/timestamp_contract-9e677c262cb706b5)
+
+running 14 tests
+test t01_style_codes_map_to_all_seven_styles ... ok
+test t04_ru_all_calendar_styles ... ok
+test t06_relative_ladder_units_and_truncation ... ok
+test t07_tokens_are_replaced_left_to_right_and_text_is_preserved ... ok
+test t03_en_short_and_long_date ... ok
+test t02_en_short_and_long_time_and_date_time ... ok
+test t05_relative_en_and_ru_use_auto_forms ... ok
+test t08_invalid_tokens_are_left_as_is ... ok
+test t09_unknown_and_disabled_locales_fall_back_to_en_us ... ok
+test t10_extreme_i64_values_do_not_panic ... ok
+test t14_relative_oracle_and_ladder_cases_match ... ok
+test t12_generated_data_invariants ... ok
+test t13_every_enabled_locale_renders_and_disabled_locales_fall_back ... ok
+test t11_oracle_matrix_matches_exactly ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+# EXIT=0

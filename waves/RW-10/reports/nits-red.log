@@ -1,0 +1,53 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.70s
+     Running tests/rest_http1.rs (target/debug/deps/rest_http1-4977f16e590edf4c)
+
+running 16 tests
+test content_length_rules ... ok
+test decode_chunked_errors ... ok
+test chunked_flag_rules ... FAILED
+test decode_chunked_extensions_and_trailers ... ok
+test decode_chunked_incomplete_at_every_split ... ok
+test decode_chunked_rfc_example ... ok
+test encode_request_checks_supplied_content_length ... ok
+test encode_request_get_has_no_content_length ... ok
+test decode_chunked_rejects_oversized_size_line_and_trailers ... FAILED
+test encode_request_post_adds_content_length ... ok
+test encode_request_rejects_injection_and_bad_target ... ok
+test header_lookup_is_case_insensitive ... ok
+test encode_request_rejects_transfer_encoding ... FAILED
+test parse_head_200 ... ok
+test parse_head_versions_and_malformed ... ok
+test parse_head_incomplete_and_limit ... ok
+
+failures:
+
+---- chunked_flag_rules stdout ----
+
+thread 'chunked_flag_rules' (122872) panicked at crates/discord-core/tests/rest_http1.rs:232:5:
+assertion `left == right` failed
+  left: Ok(false)
+ right: Err(ConflictingFraming)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- decode_chunked_rejects_oversized_size_line_and_trailers stdout ----
+
+thread 'decode_chunked_rejects_oversized_size_line_and_trailers' (122877) panicked at crates/discord-core/tests/rest_http1.rs:328:5:
+assertion failed: matches!(decode_chunked(oversized_line.as_bytes(), 1024),
+    Err(Http1Error::MalformedChunk(_)))
+
+---- encode_request_rejects_transfer_encoding stdout ----
+
+thread 'encode_request_rejects_transfer_encoding' (122883) panicked at crates/discord-core/tests/rest_http1.rs:89:6:
+клиент не кодирует chunked-запрос: [80, 79, 83, 84, 32, 47, 99, 104, 97, 110, 110, 101, 108, 115, 47, 49, 47, 109, 101, 115, 115, 97, 103, 101, 115, 32, 72, 84, 84, 80, 47, 49, 46, 49, 13, 10, 84, 114, 97, 110, 115, 102, 101, 114, 45, 69, 110, 99, 111, 100, 105, 110, 103, 58, 32, 99, 104, 117, 110, 107, 101, 100, 13, 10, 67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32, 53, 13, 10, 13, 10, 104, 101, 108, 108, 111]
+
+
+failures:
+    chunked_flag_rules
+    decode_chunked_rejects_oversized_size_line_and_trailers
+    encode_request_rejects_transfer_encoding
+
+test result: FAILED. 13 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_http1`
+# EXIT=101

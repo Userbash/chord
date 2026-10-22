@@ -1,0 +1,39 @@
+# P101-M5-tuple-threshold-off
+file=rust/crates/discord-codec/src/etf.rs
+exit=101 caught=True
+--- tail ---
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 9 tests
+test accessors_keep_types_strict ... ok
+test big_int_rejects_overflow_and_keeps_signed_borders ... ok
+test canonical_encoder_matches_fixed_bytes ... ok
+test decoder_reports_specific_errors ... ok
+test roundtrip_covers_every_variant_and_border_values ... ok
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... FAILED
+test nesting_depth_limit_is_enforced ... ok
+test truncated_hello_prefixes_are_errors_not_panics ... ok
+test fuzz_lite_never_panics_on_garbage ... ok
+
+failures:
+
+---- canonical_encoder_uses_expected_tags_for_atoms_and_big_containers stdout ----
+
+thread 'canonical_encoder_uses_expected_tags_for_atoms_and_big_containers' (15533) panicked at crates/discord-codec/tests/etf_properties.rs:196:5:
+assertion failed: hex(&etf::encode_term(&tuple255)).starts_with("68ff")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    canonical_encoder_uses_expected_tags_for_atoms_and_big_containers
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
+     Running tests/etf_full.rs (target/debug/deps/etf_full-7c2aa4b7f6f1b01e)
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-d126ed1f27d8f3ed)
+error: test failed, to rerun pass `-p discord-codec --test etf_properties`

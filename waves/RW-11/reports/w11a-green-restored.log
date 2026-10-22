@@ -1,0 +1,19 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/rest_rate_limit.rs (target/debug/deps/rest_rate_limit-90be462df593002f)
+
+running 10 tests
+test case1_retry_after_header ... ok
+test case2_retry_after_body_and_global ... ok
+test case3_header_has_priority_over_body ... ok
+test case4_reset_after_fallback_and_metadata ... ok
+test case6_status_classification ... ok
+test case7_retry_delay_429_capped ... ok
+test case7_retry_delay_5xx_exponential ... ok
+test case5_malformed_values_do_not_panic ... ok
+test case7_retry_delay_no_retry_for_auth_and_client ... ok
+test case8_should_retry_by_method ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

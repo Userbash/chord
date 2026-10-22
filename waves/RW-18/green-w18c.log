@@ -1,0 +1,22 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/presence_selectors.rs (target/debug/deps/presence_selectors-0c75f6f5813611bf)
+
+running 14 tests
+test s01_status_and_defaults ... ok
+test s04_offline_scope_is_not_selected ... ok
+test s02_aggregate_uses_latest_processed ... ok
+test s05_scope_and_user_selectors ... ok
+test s06_activity_order ... ok
+test s07_multiple_playing_collapse ... ok
+test s08_activity_selectors ... ok
+test s03_tie_breaks_by_activity_count ... ok
+test s13_empty_state_selectors ... ok
+test s09_client_status_and_mobile_vr ... ok
+test s10_online_selectors ... ok
+test s11_activities_by_guild ... ok
+test s12_hidden_activities ... ok
+test s14_member_presence_activities ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

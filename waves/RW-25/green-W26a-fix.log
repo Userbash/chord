@@ -1,0 +1,173 @@
+=== W26a-fix / F-A1..F-A4 — ИТОГОВЫЙ GREEN ===
+дата: 2026-10-22T11:13:19+05:00
+target-dir: /tmp/opencode/target-w26a (свой слот)
+
+$ cargo test --offline -p discord-voice --test crypto_vectors
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/crypto_vectors.rs (/tmp/opencode/target-w26a/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
+
+running 16 tests
+test aead_rejects_overlong_message_k ... ok
+test aes256_key_debug_redacted_k ... ok
+test aes256_wrong_key_len ... ok
+test chacha20poly1305_k ... ok
+test aes256_decrypt_k ... ok
+test aes256_k ... ok
+test hkdf_sha1_k ... ok
+test gcm_short_input_k ... ok
+test hkdf_sha1_zero_salt_k ... ok
+test xchacha20poly1305_k ... ok
+test gcm_empty_plaintext_k ... ok
+test gcm_k ... ok
+test sbox_matches_fips197_k ... ok
+test gcm_aad_k ... ok
+test gcm_tamper_k ... ok
+test hkdf_sha1_limits_k ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit code: 0
+
+$ cargo test --offline -p discord-voice --test srtp_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-w26a/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test incoming_srtcp_k ... ok
+test unsupported_mode_k ... ok
+test short_packet_k ... ok
+test rtp_layout_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... ok
+test counter_overflow_k ... ok
+test rtp_version_k ... ok
+test rtp_roundtrip_k ... ok
+test rtp_tamper_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_layout_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test rtp_counter_shared_k ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit code: 0
+
+$ cargo test --offline -p discord-voice
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/opencode/target-w26a/debug/deps/discord_voice-37c479f94835c760)
+
+running 1 test
+test tests::voice_constants_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/crypto_vectors.rs (/tmp/opencode/target-w26a/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
+
+running 16 tests
+test aead_rejects_overlong_message_k ... ok
+test aes256_key_debug_redacted_k ... ok
+test chacha20poly1305_k ... ok
+test hkdf_sha1_k ... ok
+test aes256_decrypt_k ... ok
+test hkdf_sha1_zero_salt_k ... ok
+test xchacha20poly1305_k ... ok
+test aes256_k ... ok
+test aes256_wrong_key_len ... ok
+test gcm_short_input_k ... ok
+test gcm_k ... ok
+test sbox_matches_fips197_k ... ok
+test gcm_empty_plaintext_k ... ok
+test gcm_aad_k ... ok
+test gcm_tamper_k ... ok
+test hkdf_sha1_limits_k ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/signaling.rs (/tmp/opencode/target-w26a/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 11 tests
+test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
+test endpoint_with_existing_version_query_is_not_duplicated ... ok
+test frame_parser_preserves_raw_other_and_rejects_missing_payload ... ok
+test region_selection_orders_latency_ties_and_manual_choice ... ok
+test unknown_payload_debug_does_not_leak_secrets ... ok
+test select_protocol_codecs_match_capture_contract ... ok
+test secret_key_is_decoded_validated_and_redacted ... ok
+test voice_server_update_builds_valid_websocket_url_without_leaking_token ... ok
+test outgoing_identify_and_select_protocol_are_wire_serializable ... ok
+test capture_frames_match_signal_contract ... ok
+test every_prefix_of_frame_is_panic_free ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.13s
+
+     Running tests/srtp_contract.rs (/tmp/opencode/target-w26a/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test short_packet_k ... ok
+test incoming_srtcp_k ... ok
+test rtp_version_k ... ok
+test counter_overflow_k ... ok
+test unsupported_mode_k ... ok
+test rtp_layout_k ... ok
+test xchacha_rtpsize_k ... ok
+test srtcp_version_k ... ok
+test srtcp_layout_k ... ok
+test rtp_roundtrip_k ... ok
+test rtp_tamper_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test rtp_counter_shared_k ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/udp.rs (/tmp/opencode/target-w26a/debug/deps/udp-2085edaca45a0fbf)
+
+running 15 tests
+test discovery_matches_strace_request_and_response_oracles ... ok
+test empty_receiver_report_has_exact_rtcp_header_and_ssrc ... ok
+test encode_rejects_invalid_response ... ok
+test discovery_receivers_reject_oversized_datagrams ... ok
+test keepalive_constants_match_re_and_interval ... ok
+test empty_srtcp_receiver_report_matches_capture ... ok
+test keepalive_sequence_matches_capture_and_increments ... ok
+test response_round_trips_and_rejects_malformed_fields ... ok
+test receivers_reject_foreign_peer_and_wrong_ssrc ... ok
+test rotate_changes_loopback_port_and_closes_old_socket ... ok
+test parser_never_panics_on_prefixes_or_arbitrary_packets ... ok
+test rotate_if_due_integrates_schedule_and_socket ... ok
+test rotation_boundary_and_action_match_capture_contract ... ok
+test rotate_srtcp_sends_captured_28_byte_rr ... ok
+test loopback_send_receive_discovery_keepalive_and_timeout ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests discord_voice
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit code: 0
+
+$ cargo fmt -p discord-voice
+exit code: 0
+
+$ cargo clippy --offline -p discord-voice --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+exit code: 0

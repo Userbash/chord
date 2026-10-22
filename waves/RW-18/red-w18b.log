@@ -1,0 +1,20 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `apply`
+  --> crates/discord-core/tests/presence_reducer.rs:14:77
+   |
+14 |     Event, EventPayload, PresenceScope, PresenceStatus, State, apply_frame, apply,
+   |                                                                             ^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0609]: no field `presences` on type `MemberChunk`
+   --> crates/discord-core/tests/presence_reducer.rs:418:19
+    |
+418 |     assert!(chunk.presences.is_empty());
+    |                   ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `nonce`, `chunk_index`, `chunk_count`, `members`, `not_found`
+
+For more information about this error, try `rustc --explain E0609`.
+warning: `discord-core` (test "presence_reducer") generated 1 warning
+error: could not compile `discord-core` (test "presence_reducer") due to 1 previous error; 1 warning emitted

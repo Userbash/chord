@@ -1,0 +1,15 @@
+rust/crates/discord-core/src/state/presence.rs: ЦЕЛ
+rust/crates/discord-core/src/state/presence_reducer.rs: ЦЕЛ
+rust/crates/discord-core/src/state/presence_selectors.rs: ЦЕЛ
+rust/crates/discord-core/src/state/types.rs: ЦЕЛ
+rust/crates/discord-core/src/state/reducer.rs: ЦЕЛ
+rust/crates/discord-core/src/state/member_list.rs: ЦЕЛ
+rust/crates/discord-core/src/state/member_chunk.rs: ЦЕЛ
+rust/crates/discord-core/src/state/mod.rs: ЦЕЛ
+rust/crates/discord-core/src/lib.rs: ЦЕЛ
+rust/crates/discord-core/tests/presence_types.rs: ЦЕЛ
+rust/crates/discord-core/tests/presence_reducer.rs: ЦЕЛ
+rust/crates/discord-core/tests/presence_selectors.rs: ЦЕЛ
+rust/crates/discord-core/tests/state_types.rs: ЦЕЛ
+rust/crates/discord-core/tests/state_reducer.rs: ЦЕЛ
+rust/crates/discord-core/tests/member_chunk_types.rs: ЦЕЛ

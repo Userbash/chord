@@ -1,0 +1,19 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
+
+running 1 test
+
+thread 'p08t17_section_debug_redacts_sensitive_values' (12271) panicked at crates/discord-core/tests/settings_proto.rs:324:5:
+NotificationSettings { show_in_app_notifications: None, notify_friends_on_go_live: Some(false), notification_center_acked_before_id: Some(1041362756533751819), enable_burst_reaction_notifications: None, quiet_mode: None, reaction_notifications: None, game_activity_notifications: None, custom_status_push_notifications: None }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test p08t17_section_debug_redacts_sensitive_values ... FAILED
+
+failures:
+
+failures:
+    p08t17_section_debug_redacts_sensitive_values
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test settings_proto`

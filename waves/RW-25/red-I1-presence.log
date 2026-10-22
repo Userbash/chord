@@ -1,0 +1,44 @@
+# I1 (P7-02, волна B06) — red: upsert presence не должен сканировать весь store
+# команда: cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w26b cargo test --offline -p discord-core --test presence_reducer r19_presence
+# код: presence_reducer.rs ДО фикса (полное сканирование BTreeMap + retain -> O(n^2))
+# exit code: 101
+
+
+running 1 test
+test r19_presence_upsert_scales_without_full_store_scan ... FAILED
+
+failures:
+
+---- r19_presence_upsert_scales_without_full_store_scan stdout ----
+
+thread 'r19_presence_upsert_scales_without_full_store_scan' (51424) panicked at crates/discord-core/tests/presence_reducer.rs:537:5:
+upsert presence на 10000 пользователей занял 3.170622677s — ожидается менее 2 c (полное сканирование store даёт O(n²))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r19_presence_upsert_scales_without_full_store_scan
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 18 filtered out; finished in 3.17s
+
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `first`
+   --> crates/discord-core/src/state/presence_reducer.rs:110:9
+    |
+110 |     let first = (user_id, PresenceScope::Guild(0));
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_first`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `last`
+   --> crates/discord-core/src/state/presence_reducer.rs:111:9
+    |
+111 |     let last = (user_id, PresenceScope::Private);
+    |         ^^^^ help: if this is intentional, prefix it with an underscore: `_last`
+
+warning: `discord-core` (lib) generated 2 warnings (run `cargo fix --lib -p discord-core` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+     Running tests/presence_reducer.rs (/tmp/opencode/target-w26b/debug/deps/presence_reducer-044f175e2014162a)
+error: test failed, to rerun pass `-p discord-core --test presence_reducer`
+

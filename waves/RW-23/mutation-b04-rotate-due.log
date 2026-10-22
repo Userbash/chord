@@ -1,0 +1,37 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: unused variable: `now_ms`
+   --> crates/discord-voice/src/udp.rs:420:9
+    |
+420 |         now_ms: u64,
+    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_now_ms`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `schedule`
+   --> crates/discord-voice/src/udp.rs:421:9
+    |
+421 |         schedule: &mut RotationSchedule,
+    |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_schedule`
+
+warning: `discord-voice` (lib) generated 2 warnings (run `cargo fix --lib -p discord-voice` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test rotate_if_due_integrates_schedule_and_socket ... FAILED
+
+failures:
+
+---- rotate_if_due_integrates_schedule_and_socket stdout ----
+
+thread 'rotate_if_due_integrates_schedule_and_socket' (33533) panicked at crates/discord-voice/tests/udp.rs:287:10:
+rotation is due
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rotate_if_due_integrates_schedule_and_socket
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test udp`

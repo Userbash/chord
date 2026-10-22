@@ -1,0 +1,69 @@
+# мутация M3: rust/crates/discord-voice/src/srtp.rs
+# old: 'let out = self.gcm.encrypt(&nonce, aad, plaintext)?;'
+# new: 'let out = self.gcm.encrypt(&nonce, &[], plaintext)?;'
+# команда: cargo test --offline -p discord-voice --test srtp_contract
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test incoming_srtcp_k ... ok
+test rtp_ext_len_k ... ok
+test rtp_version_k ... ok
+test short_packet_k ... ok
+test counter_overflow_k ... ok
+test rtp_layout_k ... ok
+test rtp_roundtrip_k ... FAILED
+test unsupported_mode_k ... ok
+test srtcp_roundtrip_k ... FAILED
+test decrypt_nonce_reuse_rejected_k ... FAILED
+test rtp_tamper_k ... ok
+test srtcp_layout_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... ok
+test non_rtpsize_mode_k ... ok
+test incoming_counter_non_monotonic_k ... FAILED
+test srtcp_tamper_k ... ok
+test rtp_counter_shared_k ... ok
+
+failures:
+
+---- rtp_roundtrip_k stdout ----
+
+thread 'rtp_roundtrip_k' (117376) panicked at crates/discord-voice/tests/srtp_contract.rs:179:40:
+расшифрование RTP: AuthenticationFailed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- srtcp_roundtrip_k stdout ----
+
+thread 'srtcp_roundtrip_k' (117381) panicked at crates/discord-voice/tests/srtp_contract.rs:190:42:
+расшифрование SRTCP: AuthenticationFailed
+
+---- decrypt_nonce_reuse_rejected_k stdout ----
+
+thread 'decrypt_nonce_reuse_rejected_k' (117367) panicked at crates/discord-voice/tests/srtp_contract.rs:545:38:
+первая расшифровка: AuthenticationFailed
+
+---- incoming_counter_non_monotonic_k stdout ----
+
+thread 'incoming_counter_non_monotonic_k' (117368) panicked at crates/discord-voice/tests/srtp_contract.rs:458:37:
+расшифрование: AuthenticationFailed
+
+
+failures:
+    decrypt_nonce_reuse_rejected_k
+    incoming_counter_non_monotonic_k
+    rtp_roundtrip_k
+    srtcp_roundtrip_k
+
+test result: FAILED. 18 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-mut/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+

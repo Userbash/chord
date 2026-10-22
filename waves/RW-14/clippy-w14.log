@@ -1,0 +1,80 @@
+    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error: this `impl` can be derived
+  --> crates/discord-core/src/history/types.rs:84:1
+   |
+84 | / impl Default for WindowDirection {
+85 | |     fn default() -> Self {
+86 | |         Self::Latest
+87 | |     }
+88 | | }
+   | |_^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#derivable_impls
+   = note: `-D clippy::derivable-impls` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::derivable_impls)]`
+help: replace the manual implementation with a derive attribute and mark the default variant
+   |
+77 + #[derive(Default)]
+78 | pub(crate) enum WindowDirection {
+79 ~     #[default]
+80 ~     Latest,
+   |
+
+error: this `impl` can be derived
+   --> crates/discord-core/src/history/types.rs:110:1
+    |
+110 | / impl Default for History {
+111 | |     fn default() -> Self {
+112 | |         Self {
+113 | |             config: HistoryConfig::default(),
+...   |
+118 | | }
+    | |_^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#derivable_impls
+help: replace the manual implementation with a derive attribute
+    |
+104 + #[derive(Default)]
+105 | pub struct History {
+    |
+
+error: usage of `contains_key` followed by `insert` on a `BTreeMap`
+   --> crates/discord-core/src/history/types.rs:179:13
+    |
+179 | /             if channel.messages.contains_key(&message_id) {
+180 | |                 channel.messages.insert(message_id, message);
+181 | |                 channel.live_ids.insert(message_id);
+182 | |                 return LiveOutcome::Replaced;
+183 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#map_entry
+    = note: `-D clippy::map-entry` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::map_entry)]`
+help: try
+    |
+179 ~             if let std::collections::btree_map::Entry::Occupied(mut e) = channel.messages.entry(message_id) {
+180 +                 e.insert(message);
+181 +                 channel.live_ids.insert(message_id);
+182 +                 return LiveOutcome::Replaced;
+183 +             }
+    |
+
+error: this `map_or` can be simplified
+   --> crates/discord-core/src/history/types.rs:199:22
+    |
+199 |                 ) && newest.map_or(true, |newest| message_id > newest)
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#unnecessary_map_or
+    = note: `-D clippy::unnecessary-map-or` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::unnecessary_map_or)]`
+help: use `is_none_or` instead
+    |
+199 -                 ) && newest.map_or(true, |newest| message_id > newest)
+199 +                 ) && newest.is_none_or(|newest| message_id > newest)
+    |
+
+error: could not compile `discord-core` (lib test) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `discord-core` (lib) due to 4 previous errors

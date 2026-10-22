@@ -1,0 +1,16 @@
+{
+  "projectRoot": "/home/sanya/orca/project",
+  "batchFiles": [
+    {"path": "rust/crates/discord-codec/src/etf.rs", "language": "rust", "sizeLines": 554, "fileCategory": "code"},
+    {"path": "rust/crates/discord-codec/src/lib.rs", "language": "rust", "sizeLines": 50, "fileCategory": "code"},
+    {"path": "rust/crates/discord-codec/src/zstd.rs", "language": "rust", "sizeLines": 193, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "rust/crates/discord-codec/src/etf.rs": [],
+    "rust/crates/discord-codec/src/lib.rs": [
+      "rust/crates/discord-codec/src/etf.rs",
+      "rust/crates/discord-codec/src/zstd.rs"
+    ],
+    "rust/crates/discord-codec/src/zstd.rs": []
+  }
+}

@@ -1,0 +1,5 @@
+Исправление W24a готово. `DiscoveryPacket::Request` теперь несёт `port: u16`; парсер принимает ненулевой порт при нулевой address-части, encoder записывает порт BE в offset 72, а `send_discovery` и ротация используют фактический локальный порт. Оба receive-метода читают до 128 байт и отвергают datagram длиннее ожидаемого.
+
+Red завершился с exit 101, green и targeted-повтор прошли **9/9**. Новая мутация на запрет ненулевого request port поймана. Мутацию truncation выполнил, но loopback-проверка была пропущена из-за `PermissionDenied`, поэтому она не засчитана как caught.
+
+Отчёт и логи находятся в [report-W24a-fix.txt](/home/sanya/orca/project/waves/RW-23/report-W24a-fix.txt). Loopback-тесты в этой среде не проверили сетевое поведение; workspace gate не запускал. Коммитов нет.

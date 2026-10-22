@@ -1,0 +1,51 @@
+# команда: cargo test --offline -p discord-core --test rest_client
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running tests/rest_client.rs (target/debug/deps/rest_client-e2176b38eeaa98e2)
+
+running 16 tests
+test debug_redacts_authorization ... FAILED
+test invalid_base_rejected ... ok
+test telemetry_blocked_before_network ... ok
+test content_type_and_length_for_json_body ... ok
+test explicit_auth_header_is_not_duplicated ... ok
+test auth_headers_added_in_order ... ok
+test protocol_error_maps_to_transport_without_retry ... FAILED
+test telemetry_lookalike_reaches_server ... ok
+test no_retry_for_401_and_404 ... ok
+test exhausted_429_returns_rate_limited ... ok
+test retry_429_for_post ... ok
+test retry_5xx_only_for_idempotent ... ok
+test retry_429_then_success_with_delay ... ok
+test transport_read_timeout_is_retried_for_get ... FAILED
+test attempt_timeout_retries_idempotent_only ... ok
+test transport_read_timeout_is_not_retried_for_post ... ok
+
+failures:
+
+---- debug_redacts_authorization stdout ----
+
+thread 'debug_redacts_authorization' (181259) panicked at crates/discord-core/tests/rest_client.rs:561:5:
+токен утёк в Debug ApiConfig: ApiConfig { base: "https://discord.com/api/v9", auth: ApiAuth { authorization: "Bot test-token", super_properties: "sp-base64", locale: "en-US", timezone: "UTC", debug_options: "debug", accept_language: "en-US,en;q=0.9" }, http: HttpClientConfig { roots: RootCertStore { roots: "(121 roots)" }, connect_timeout: 10s, max_body_bytes: 8388608, read_timeout: 30s, write_timeout: 10s }, retry: ApiRetryPolicy { max_attempts: 3, max_retry_after: 30s, backoff: 250ms, attempt_timeout: 30s } }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- protocol_error_maps_to_transport_without_retry stdout ----
+
+thread 'protocol_error_maps_to_transport_without_retry' (181264) panicked at crates/discord-core/tests/rest_client.rs:539:5:
+ожидался Transport(Protocol), получено InvalidRequest("MalformedHead(\"поле без двоеточия: \\\"Broken-Header\\\"\")")
+
+---- transport_read_timeout_is_retried_for_get stdout ----
+
+thread 'transport_read_timeout_is_retried_for_get' (181271) panicked at crates/discord-core/tests/rest_client.rs:480:10:
+GET обязан повторить транспортный таймаут чтения: Transport(Timeout("чтение ответа"))
+
+
+failures:
+    debug_redacts_authorization
+    protocol_error_maps_to_transport_without_retry
+    transport_read_timeout_is_retried_for_get
+
+test result: FAILED. 13 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+error: test failed, to rerun pass `-p discord-core --test rest_client`
+# EXIT=101

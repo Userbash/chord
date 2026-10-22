@@ -1,0 +1,35 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/ready_core.rs (target/debug/deps/ready_core-f21a4e45919e92d3)
+
+running 14 tests
+test a10_empty_and_nil_guild_collections ... ok
+test a11_negative_ids_are_rejected ... ok
+test a1_minimal_ready_defaults ... ok
+test a14_from_dispatch_rejects_non_ready_frames ... ok
+test a13_debug_redacts_secrets ... ok
+test a4_unavailable_guild_synthetic ... ok
+test a5_unknown_fields_are_kept_in_raw ... ok
+test a6_minimal_channel_and_guild_defaults ... ok
+test a7_broken_anchors_are_fatal ... ok
+test a8_broken_guild_and_channel_elements_are_skipped ... FAILED
+test a9_duplicates_last_wins_first_position ... ok
+test a12_channel_role_emoji_sticker_details ... ok
+test a2_full_fixture_counts_match_jq_oracle ... ok
+test a3_large_guild_matches_capture ... ok
+
+failures:
+
+---- a8_broken_guild_and_channel_elements_are_skipped stdout ----
+
+thread 'a8_broken_guild_and_channel_elements_are_skipped' (210974) panicked at crates/discord-core/tests/ready_core.rs:316:5:
+ignored: ["guilds[1].channels[0].position"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    a8_broken_guild_and_channel_elements_are_skipped
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test ready_core`

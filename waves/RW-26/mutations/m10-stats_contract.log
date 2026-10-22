@@ -1,0 +1,54 @@
+
+running 12 tests
+test negative_rtt_is_clamped_to_zero ... ok
+test ntp_middle_uses_high_word ... ok
+test rtt_subtracts_dlsr ... ok
+test unknown_or_zero_lsr_returns_none ... ok
+test window_average_and_max_ignore_missing_rtt ... ok
+test window_keeps_capacity_and_reports_latest ... ok
+test rtt_with_25_percent_dlsr ... ok
+test rtt_without_dlsr_is_plain_round_trip ... ok
+test window_loss_delta_can_be_negative_after_stream_restart ... FAILED
+test window_loss_delta_uses_first_and_last_sample ... FAILED
+test window_with_single_sample_has_no_loss_delta_or_rtt ... ok
+test zero_capacity_window_is_treated_as_one ... ok
+
+failures:
+
+---- window_loss_delta_can_be_negative_after_stream_restart stdout ----
+
+thread 'window_loss_delta_can_be_negative_after_stream_restart' (232593) panicked at crates/discord-voice/tests/stats_contract.rs:141:5:
+assertion `left == right` failed
+  left: Some(2)
+ right: Some(-98)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- window_loss_delta_uses_first_and_last_sample stdout ----
+
+thread 'window_loss_delta_uses_first_and_last_sample' (232594) panicked at crates/discord-voice/tests/stats_contract.rs:112:5:
+assertion `left == right` failed
+  left: Some(9)
+ right: Some(4)
+
+
+failures:
+    window_loss_delta_can_be_negative_after_stream_restart
+    window_loss_delta_uses_first_and_last_sample
+
+test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- stderr ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: unused variable: `first`
+   --> crates/discord-voice/src/stats.rs:155:13
+    |
+155 |         let first = self.samples.front()?;
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_first`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/stats_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/stats_contract-451fd10ac6a48c5d)
+error: test failed, to rerun pass `-p discord-voice --test stats_contract`

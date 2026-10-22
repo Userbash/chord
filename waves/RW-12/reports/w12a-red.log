@@ -1,0 +1,100 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/ready_core.rs (target/debug/deps/ready_core-f21a4e45919e92d3)
+
+running 14 tests
+test a11_negative_ids_are_rejected ... FAILED
+test a10_empty_and_nil_guild_collections ... FAILED
+test a1_minimal_ready_defaults ... ok
+test a13_debug_redacts_secrets ... ok
+test a14_from_dispatch_rejects_non_ready_frames ... ok
+test a4_unavailable_guild_synthetic ... FAILED
+test a5_unknown_fields_are_kept_in_raw ... FAILED
+test a7_broken_anchors_are_fatal ... ok
+test a6_minimal_channel_and_guild_defaults ... FAILED
+test a8_broken_guild_and_channel_elements_are_skipped ... FAILED
+test a9_duplicates_last_wins_first_position ... FAILED
+test a3_large_guild_matches_capture ... FAILED
+test a2_full_fixture_counts_match_jq_oracle ... FAILED
+test a12_channel_role_emoji_sticker_details ... FAILED
+
+failures:
+
+---- a11_negative_ids_are_rejected stdout ----
+
+thread 'a11_negative_ids_are_rejected' (160897) panicked at crates/discord-core/tests/ready_core.rs:404:5:
+assertion `left == right` failed
+  left: []
+ right: ["guilds[0]", "guilds[1]"]
+
+---- a10_empty_and_nil_guild_collections stdout ----
+
+thread 'a10_empty_and_nil_guild_collections' (160896) panicked at crates/discord-core/tests/ready_core.rs:387:30:
+index out of bounds: the len is 0 but the index is 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- a4_unavailable_guild_synthetic stdout ----
+
+thread 'a4_unavailable_guild_synthetic' (160904) panicked at crates/discord-core/tests/ready_core.rs:187:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- a5_unknown_fields_are_kept_in_raw stdout ----
+
+thread 'a5_unknown_fields_are_kept_in_raw' (160905) panicked at crates/discord-core/tests/ready_core.rs:221:21:
+index out of bounds: the len is 0 but the index is 0
+
+---- a6_minimal_channel_and_guild_defaults stdout ----
+
+thread 'a6_minimal_channel_and_guild_defaults' (160906) panicked at crates/discord-core/tests/ready_core.rs:235:30:
+index out of bounds: the len is 0 but the index is 0
+
+---- a8_broken_guild_and_channel_elements_are_skipped stdout ----
+
+thread 'a8_broken_guild_and_channel_elements_are_skipped' (160908) panicked at crates/discord-core/tests/ready_core.rs:308:5:
+assertion `left == right` failed: битая гильдия пропущена
+  left: 0
+ right: 1
+
+---- a9_duplicates_last_wins_first_position stdout ----
+
+thread 'a9_duplicates_last_wins_first_position' (160909) panicked at crates/discord-core/tests/ready_core.rs:339:5:
+assertion `left == right` failed: дубликат гильдии схлопнут
+  left: 0
+ right: 1
+
+---- a3_large_guild_matches_capture stdout ----
+
+thread 'a3_large_guild_matches_capture' (160903) panicked at crates/discord-core/tests/ready_core.rs:44:28:
+гильдия 1014537851418980372 не найдена
+
+---- a2_full_fixture_counts_match_jq_oracle stdout ----
+
+thread 'a2_full_fixture_counts_match_jq_oracle' (160902) panicked at crates/discord-core/tests/ready_core.rs:113:5:
+assertion `left == right` failed
+  left: 0
+ right: 7
+
+---- a12_channel_role_emoji_sticker_details stdout ----
+
+thread 'a12_channel_role_emoji_sticker_details' (160898) panicked at crates/discord-core/tests/ready_core.rs:44:28:
+гильдия 1014537851418980372 не найдена
+
+
+failures:
+    a10_empty_and_nil_guild_collections
+    a11_negative_ids_are_rejected
+    a12_channel_role_emoji_sticker_details
+    a2_full_fixture_counts_match_jq_oracle
+    a3_large_guild_matches_capture
+    a4_unavailable_guild_synthetic
+    a5_unknown_fields_are_kept_in_raw
+    a6_minimal_channel_and_guild_defaults
+    a8_broken_guild_and_channel_elements_are_skipped
+    a9_duplicates_last_wins_first_position
+
+test result: FAILED. 4 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-core --test ready_core`
+# EXIT=101

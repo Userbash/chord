@@ -1,0 +1,7 @@
+**Отчёт W22a / P3-15**
+
+- Red: `set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log` → exit **101**, compile-red по отсутствующему API.
+- Green: та же команда с `tee /tmp/green-w22a.log` → exit **0**; **6 unit-тестов прошли**, doc-tests: 0.
+- Изменены только [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-i18n/Cargo.toml) и [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs). `git diff --check` чистый.
+- Логи оставлены в `/tmp`: запись в `waves/RW-22/` нарушила бы запрет менять `waves/*`.
+- Date/Time форматирование отложено в P7-01 и возвращает `UnsupportedNode`. `$link` без подтверждённого URL рендерит только children. Batch gate не запускался.

@@ -1,0 +1,33 @@
+# P208-M13-max-fields-off-by-one
+exit=101 caught=True
+--- tail ---
+test p08t09_raw_preserves_unknown_fields ... ok
+test p08t05_voice_and_video ... ok
+test p08t07_notifications ... ok
+test p08t04_appearance ... ok
+test p08t06_text_and_images ... ok
+test p08t08_status_and_localization ... ok
+test p08t16_debug_redacts_payload ... ok
+test p08t17_section_debug_redacts_sensitive_values ... ok
+test p08t10_update_type2_frecency ... ok
+test p08t18_max_fields_boundary ... FAILED
+
+failures:
+
+---- p08t18_max_fields_boundary stdout ----
+
+thread 'p08t18_max_fields_boundary' (39711) panicked at crates/discord-core/tests/settings_proto.rs:348:5:
+assertion failed: matches!(ProtoMessage::decode(&over),
+    Err(SettingsProtoError::TooManyFields { limit }) if limit == MAX_FIELDS)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    p08t18_max_fields_boundary
+
+test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
+error: test failed, to rerun pass `-p discord-core --test settings_proto`

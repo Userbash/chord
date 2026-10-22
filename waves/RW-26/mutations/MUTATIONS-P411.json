@@ -1,0 +1,96 @@
+{
+ "wave": "RW-26",
+ "card": "P4-11",
+ "caught": 8,
+ "total": 8,
+ "results": [
+  {
+   "id": 1,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "median even-count rounding",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  },
+  {
+   "id": 2,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "unmeasured regions must follow measured",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  },
+  {
+   "id": 3,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "geo tie-break before lexical",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  },
+  {
+   "id": 4,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "canonical port spelling",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  },
+  {
+   "id": 5,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "endpoint deduplication",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.1
+  },
+  {
+   "id": 6,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "probe endpoint rotation",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  },
+  {
+   "id": 7,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "probe timeout comparison",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  },
+  {
+   "id": 8,
+   "file": "rust/crates/discord-voice/src/regions.rs",
+   "target": "regions_contract",
+   "what": "manual region honoured/rejected",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "restored_md5": "31d5e542fd1df5aa3cbdc2ab560868ae",
+   "seconds": 0.2
+  }
+ ]
+}

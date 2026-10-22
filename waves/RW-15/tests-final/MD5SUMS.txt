@@ -1,0 +1,3 @@
+0c17b43c174c00df654bdc9a49c6e5ba  rust/crates/discord-core/tests/member_list_types.rs
+5f720093305d01cb7a347ffa32babba6  rust/crates/discord-core/tests/member_list_reducer.rs
+b6264511826a9a58264970da3040734a  rust/crates/discord-core/tests/member_list_selectors.rs

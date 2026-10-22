@@ -1,0 +1,16 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/ready_review.rs (target/debug/deps/ready_review-48deb859a1b1a8a2)
+
+running 7 tests
+test r2_non_map_d_is_not_ready ... ok
+test r1_atom_strings_are_text ... ok
+test r4_merged_members_keep_raw_guild_index ... ok
+test r3_nested_wrong_types_are_ignored ... ok
+test r6_ignored_paths_use_d_prefix ... ok
+test r5_explicit_empty_merged_members_is_malformed ... ok
+test r7_duplicate_guild_keeps_last_member_group ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

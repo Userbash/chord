@@ -94,7 +94,7 @@ sequenceDiagram
 
 - `gateway-task`: сокет, heartbeat (41,25 с), zstd-декодер, ETF-декодер, seq-tracking, reconnect
   (op7 → RESUME; при неудаче — новый IDENTIFY).
-- `rest-pool`: пул соединений `reqwest`, очереди по маршрутам, обработка 429 (Retry-After), метрики.
+- `rest-pool`: ручной HTTP/1.1 на `tokio` + `tokio-rustls` (без `reqwest`), один запрос на соединение, обработка 429 (Retry-After), метрики; keep-alive — отдельная волна.
 - `reducer`: единственный владелец изменяемой модели; чистая функция `(state, event) -> (state, effects)`.
 - Эффекты: персист в SQLite, звук, уведомление, обновление заголовка окна/бейджа.
 - UI-поток (главный): получает снапшоты/дельты, рендерит, шлёт команды.

@@ -1,0 +1,54 @@
+# мутация M14: rust/crates/discord-perf/src/workload.rs
+# old: 'REGRESSION_THRESHOLD_PCT: f64 = 10.0'
+# new: 'REGRESSION_THRESHOLD_PCT: f64 = 100.0'
+# команда: cargo test --offline -p discord-perf --test perf_contract
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 17 tests
+test budget_cold_start_k ... ok
+test metric_names_k ... ok
+test json_float_roundtrip_k ... ok
+test regression_below_threshold_k ... ok
+test regression_detected_k ... FAILED
+test regression_none_k ... ok
+test regression_zero_baseline_k ... ok
+test regression_zero_baseline_to_nonzero_k ... ok
+test spec_reference_k ... ok
+test threshold_constant_k ... FAILED
+test ingest_applied_k ... ok
+test report_shape_k ... ok
+test presence_for_every_member_k ... ok
+test json_roundtrip_k ... ok
+test determinism_k ... ok
+test different_seed_k ... ok
+test reference_report_k ... ok
+
+failures:
+
+---- regression_detected_k stdout ----
+
+thread 'regression_detected_k' (120918) panicked at crates/discord-perf/tests/perf_contract.rs:261:18:
+ожидалась регрессия, получено None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- threshold_constant_k stdout ----
+
+thread 'threshold_constant_k' (120924) panicked at crates/discord-perf/tests/perf_contract.rs:442:5:
+assertion `left == right` failed
+  left: 100.0
+ right: 10.0
+
+
+failures:
+    regression_detected_k
+    threshold_constant_k
+
+test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.89s
+
+   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/perf_contract.rs (/tmp/opencode/target-mut/debug/deps/perf_contract-8e876c4fc0d7c5ac)
+error: test failed, to rerun pass `-p discord-perf --test perf_contract`
+

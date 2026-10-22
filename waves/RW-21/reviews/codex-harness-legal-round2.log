@@ -1,0 +1,2327 @@
+Reading additional input from stdin...
+OpenAI Codex v0.162.1
+--------
+workdir: /home/sanya/orca/project
+model: gpt-6-luna
+provider: codexsale
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a15d04-4ee7-71d2-9f35-198afd80b479
+--------
+user
+Independent read-only re-review of P0-04 and P0-07 after addressing your prior 3 P2 findings. Do not edit files. Your prior review: (1) claimed manifest_path points to fixtures/MANIFEST.json but file is not there; this appears false. Evidence: default fixtures_root() is <repo>/fixtures; manifest_path() is fixtures_root().join("MANIFEST.json"); realpath is /home/sanya/orca/project/fixtures/MANIFEST.json; cargo test -p discord-conformance --offline passes 6/6 including manifest_is_readable_and_has_versioned_provenance, and the test now explicitly asserts manifest_path()==fixtures_root().join("MANIFEST.json") and endswith fixtures/MANIFEST.json. Please verify statically/with read-only realpath and retract if the claim was mistaken. (2) lab skip: added RE_REQUIRE_LAB guard in rust/crates/discord-conformance/tests/fixtures.rs; with RE_LAB_ROOT=/nonexistent RE_REQUIRE_LAB=1 it fails exit 101 (waves/RW-21/logs/b02-conformance-require-red.log), with real lab and RE_REQUIRE_LAB=1 it passes 6/6 (b02-conformance-require-green2.log); normal no-env run remains soft-skip with reason per repo TEST-PLAN. (3) LEGAL.md now separates policy/target from verified implementation: keyring not implemented, token in-memory until P1-10, IP/payload scan and SBOM/cargo-deny are backlog, checklist uses [x]/[~]/[ ]. Review updated files. Return verdict accepted / accepted with P3 / changes required, P0/P1/P2 counts and findings file:line. Do not repeat prior findings unless still present.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+codex
+Сверяю обязательный контекст процесса и актуальные файлы P0-04/P0-07, затем проверю пути и тестовые доказательства в read-only режиме. Ничего менять не буду.
+exec
+/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'LEGAL.md' -g 'AGENTS.md' -g '*P0-04*' -g '*P0-07*' -g 'fixtures.rs' -g 'MANIFEST.json' -g '*b02-conformance-require*'" in /home/sanya/orca/project
+ succeeded in 0ms:
+/home/sanya/orca/project
+waves/RW-21/DESIGN-P0-04.md
+TASKS.md
+waves/RW-21/logs/b02-conformance-require-green2.log
+waves/RW-21/logs/b02-conformance-require-green.log
+waves/RW-21/logs/b02-conformance-require-red.log
+docs/rust-client/LEGAL.md
+docs/rust-client/TEAM.md
+AGENTS.md
+PROCESS.md
+fixtures/MANIFEST.json
+waves/STATE.md
+TDD-PLAN.md
+rust/crates/discord-conformance/tests/fixtures.rs
+
+exec
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,200p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+exec
+/usr/bin/bash -lc "sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/sanya/orca/project
+ succeeded in 0ms:
+# PROCESS.md — производственный процесс discord-lab
+
+Адаптация производственного процесса проекта (задача → концепт → декомпозиция → воркеры → ревью →
+сборка → kit → полный gate → qualification → выкладка → включения → push) к реалиям `discord-lab`:
+локальный CLI (Node ≥ 24, Frida 17, CDP), без собственного сервера, без денег. Роль «денег» —
+**golden-данные** (`logs/`, `functions/`, `evidence/`) и **живые операции** с Discord.
+
+Источники истины: этот файл (процесс); `TDD-PLAN.md` (план M0–M6, контракты §6–§8);
+`TASKS.md` (карточки, статусы, backlog); `AGENTS.md` (краткие правила агентам).
+При конфликте: PROCESS.md → TDD-PLAN.md → TASKS.md.
+
+## 0. Принципы
+
+1. **Владелец решает.** Что увидит пользователь CLI (команды, флаги, вывод, коды) — утверждает
+   владелец («Да»/«Доработать»). В код едет только одобренное; остальное — в backlog.
+2. **Strict TDD.** Красный тест → минимальный код → зелёный. Без теста продуктовый код не пишется.
+   Мета-инфраструктура (гейты, доки, скрипты процесса) проверяется прогоном.
+3. **Маленькие куски.** Волна → воркеры с непересекающимися файлами → гейт воркера → приёмка.
+   Ошибка ловится, пока она в одном маленьком куске.
+4. **Golden неприкосновенен.** `logs/`, `functions/`, `evidence/` — только чтение. Запись вне
+   штатных команд (`hook`, `inventory`) — инцидент; в git они не попадают (приватные).
+5. **Живые операции — по согласию.** Frida attach/spawn и UI-walk на живом Discord — только с
+   разрешения владельца (окно). По умолчанию — безопасное поведение (skip / код 2).
+6. **Второй взгляд на чувствительное.** Изменения живых путей (attach/hook/walk/spawn), форматов
+   golden или удаляющие данные — дополнительно смотрит вторая модель (§4.4).
+7. **Skip ≠ pass.** Пропуск теста не считается прохождением: он попадает в отчёт гейта
+   (`passed_with_skips`) и должен быть объяснён до выкладки.
+8. **Русский язык** — доки, сообщения CLI, отчёты. Код — ESM, `// @ts-check` + JSDoc, Node ≥ 24.
+
+## 1. Карта соответствия (их процесс → наш проект)
+
+| Этап | Эквивалент в discord-lab |
+| --- | --- |
+| 1. Задача, issue, карточка | Карточка в `TASKS.md`: ID, микрозадача, владелец, статус `[ ]/[~]/[x]`; срок = волна; история решений — TASKS + отчёты `.gate/*.json` |
+| 2. Концепт (видит игрок) | Видимый контракт CLI: команды/флаги/вывод/коды (TDD-PLAN §6, ТЗ). Стенд = прогон после реализации; владелец говорит «Да»/«Доработать» |
+| 3. Декомпозиция | Волна `W<N>`: матрица непересекающихся файлов + ТЗ каждому воркеру (§4.1). «Проверки денег» → оракулы golden (jq/awk/md5, реальные артефакты) |
+| 4. Воркер: ветка, миграции, gate, отчёт | TDD в своих файлах; «миграции» → совместимость форматов (§6); `npm run gate:worker`; отчёт (§4.2). Изоляция: общая папка + непересекающиеся файлы (уровень L1), orca-worktree + ветка `w/<task>` (уровень L2 — при включённом remote/CI) |
+| 5. Ревью; вторая модель на деньги | Приёмка координатором (§4.3); чувствительные изменения — вторая модель (§4.4) |
+| 6. Сборка ветки выпуска | Приёмка волны в общий master-поток: `gate:release`, md5-аудит области, дубли §8/нумерации (ловит meta-тест) |
+| 7. Kit | `npm pack` tarball + план выкладки/откат (§4.5) + fallback (предыдущий tarball/тег). Kit руками не правится: правка → новая версия и новый `gate:qualify` |
+| 8. Полный gate (~22 шага, 2,5 ч) | `npm run gate:release`: typecheck → meta → unit → smoke → e2e (повтор при падении) → coverage → golden-сверка (≈6 фаз, минуты) |
+| 9. Qualification | `npm run gate:qualify`: сборка tarball, изолированный прогон пакета, файл `.gate/qualification-<version>-<ts>.json` (sha256 + коммит). После записи пакет не пересобирается; выкладка сверяет `--verify-qualification` |
+| 10. Выкладка по шагам | Мини-версия (§3.10): preflight → install (temp) → check (живой smoke) → switch (по решению владельца) → rollback (fallback). Окна: живые операции только по согласованию |
+| 11. Включения по решению | Новшества едут выключенными: заглушки «появится в Mx» (код 2); живые возможности — за флагами (`DISCORD_LAB_LIVE_CDP`, `--spawn`, `CDP_ENDPOINT`). Выключение — без выпуска. Повтор не дублирует данные (уникальные имена `pid-NNN`) |
+| 12. Push | `master` + аннотированные теги `v<version>`; ветки `wave/<N>`. Коммиты — координатор (L1). Remote (GitHub) и push — только по решению владельца |
+
+## 2. Роли
+
+С 2026-10-20 действует модель **«отдел разработки»**: роли — это посадочные места (seats), а не
+обязательно отдельные процессы. Один агент может занимать несколько мест в разных волнах, но
+**автор карточки не ревьюит её**, а безопасность live-путей не проверяет автор. Подробная
+организация, RACI и протокол запуска — `docs/rust-client/TEAM.md`.
+
+| Роль | Кто | Отвечает за | Не делает |
+| --- | --- | --- | --- |
+| Владелец | пользователь | приоритеты, одобрение контрактов/зависимостей, окна живых прогонов, выкладка | не пишет код и ТЗ |
+| Team Lead (L1) | ведущая сессия | очередь карточек, batch-план, контракты, приёмка, журнал, финальный gate, выпуск | не ревьюит свой код; не правит чужие файлы без назначения |
+| Rust Tech Lead (L2) | старший агент | архитектура, общий integration-патч, разрешение контрактных конфликтов, разблокировка воркеров | не принимает карточку единолично |
+| Research engineer | агент | read-only RE, фикстуры, провенанс, oracle-команды | не пишет продуктовый код |
+| Module worker | агент | один модуль + его тесты: red → green → targeted-отчёт; только свои файлы | не трогает общие `types.rs`/`reducer.rs`/`mod.rs`/`lib.rs`, не обновляет доки |
+| Test/oracle engineer | агент | независимые тесты, фикстуры, проверка контракта, test budget | не «зеленит» тест под код |
+| Mutation/QA engineer | агент | мутации, флейки, восстановление исходников, batch-гейт | не меняет контракт под мутант |
+| Independent reviewer | агент, не автор | P0/P1/P2/P3, границы файлов, red-first, безопасность | не правит код во время ревью |
+| Security reviewer | отдельный агент | секреты, недоверенный ввод, live-пути, отмена/таймауты | не совмещает с авторством чувствительного пути |
+| Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
+| Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
+| Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+
+Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
+общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
+
+
+## 3. Этапы детально
+
+3.1 **Задача.** Владелец ставит задачу → координатор заводит карточку в `TASKS.md` (ID, микрозадача,
+владелец, DoD, статус). Крупные задачи режутся на микрозадачи при старте волны.
+
+3.2 **Концепт.** Для всего, что видит пользователь CLI, координатор пишет короткий контракт:
+команда, флаги, вывод, коды 0/1/2, тексты сообщений. Контракт идёт в ТЗ и (по мере сил) в TDD-PLAN §6.
+Только после «Да» владельца пишется код.
+
+3.3 **Декомпозиция.** Batch-волна `RW-NN`: 3–6 микрозадач, матрица «файлы воркера / запрещено»,
+ТЗ по шаблону §4.1. Требования: множества файлов не пересекаются; у каждой задачи — red-кейсы и
+оракул; у batch — один integration-патч общих файлов и приёмочный прогон.
+
+3.4 **Воркер.** Строго по ТЗ:
+- red-first: тест написан и **прогнан** до реализации (падение зафиксировано командой и результатом);
+- минимальная реализация; зелёный **targeted**-прогон;
+- полный `npm run gate:worker` — один раз на batch в integration/QA, не каждым воркером;
+- изменения форматов артефактов — только обратно совместимые (§6);
+- отчёт по шаблону §4.2. Задача закрывается не отчётом, а приёмкой Team Lead.
+
+3.5 **Ревью.** Team Lead принимает batch: границы файлов, red-first, независимые оракулы (не
+подгонка), отсутствие молчаливого поглощения ошибок в новых путях, таймеры/память, tsc/meta.
+Ревью — после batch-гейта, независимыми агентами, параллельно по карточкам.
+Чувствительные изменения дополнительно проходят вторую модель (§4.4).
+
+3.6 **Сборка волны.** Приёмка в общий master-поток: `gate:release`, md5-аудит области изменений
+против базлайна, отсутствие дублей §8. Конфликты (две строки §8 на файл и т.п.) разбираются руками.
+
+3.7 **Kit.** Пакет версии `vX.Y.Z`:
+- `discord-lab-<version>.tgz` (`npm pack`; состав — только `files` из package.json);
+- план выкладки и откат (§4.5);
+- fallback — предыдущий tarball/тег.
+Kit не правится руками: любая правка → новый `npm run gate:qualify` (новый sha256).
+
+3.8 **gate:release.** Фазы: typecheck (2 tsconfig) → meta (§8) → unit → smoke → e2e (при падении —
+автоматический повтор; в отчёте оба результата) → coverage (пороги 90/80/90) → golden-сверка (если
+заморожен манифест: `npm run golden:freeze`).
+
+3.9 **Qualification.** `npm run gate:qualify`: то же + сборка tarball, проверка содержимого (нет
+`logs/`, `functions/`, `node_modules`), изолированный прогон (`--help`, `--version`,
+`inventory --pid 99999999` → код 2), запись `.gate/qualification-<version>-<ts>.json`. Перед
+выкладкой: `node scripts/gate.mjs --verify-qualification <файл>` (sha256 + коммит).
+
+3.10 **Выкладка (для CLI).** Шаги, у каждого — результат:
+1) **preflight:** `git status` чист; golden-манифест проходит; версия = тег = package.json;
+2) **install:** tarball в temp-каталог; `--help`/`--version`/`inventory --pid 99999999` (код 2);
+3) **check:** живой smoke на машине владельца (`pids` — реальные процессы; live-прогоны — опционально,
+по окну);
+4) **switch:** установка для пользователя (`npm i -g`/симлинк) — по решению владельца;
+5) **rollback:** установка fallback-tarball предыдущей версии.
+Окна живых операций: только по согласованию с владельцем и не в момент его активной работы;
+`--spawn` (спавн Discord) — всегда вручную. После switch откат — только fallback; «корректирующий
+выпуск» = новый patch-номер через полный цикл.
+
+3.11 **Включения.** Новые функции едут выключенными: заглушки отвечают «появится в Mx» (код 2);
+живые возможности — за флагами (`DISCORD_LAB_LIVE_CDP=1`, `--spawn`, `CDP_ENDPOINT`). Включение:
+пробный прогон → включение → проверка; известна обратная операция (снять флаг). Повтор операции не
+дублирует данные (уникальные имена файлов, не перезапись golden).
+
+3.12 **Push.** Ветки `wave/<N>` → `master`; тег `vX.Y.Z` — после qualification. Remote (GitHub)
+и push — только по решению владельца; сообщения коммитов: `<волна>: <суть>`.
+
+3.13 **Параллелизм и ускорение (пожелания владельца, 2026-10-19).** Владелец: использовать больше
+возможностей распараллеливания; где задача хорошо делится — не писать последовательно, а
+запускать асинхронно; код-ревью и рефакторинг передавать агентам и отдельным воркерам; создавать
+столько воркеров, сколько нужно для скорости.
+- Волна режется на максимально независимые куски (пересечение файлов — пусто); куски
+  запускаются **одновременно**, а не по очереди.
+- Контракты (типы, сигнатуры, общие каркасы, тест-данные) координатор замораживает до старта —
+  воркеры не блокируют друг друга; общие файлы правит только координатор.
+- Код-ревью — отдельному агенту-ревьюеру (не автору кода; §4.4), координатор — финальная приёмка.
+- Рефакторинг — отдельному воркеру после зелёного: только не-поведенческие правки; тесты-спека
+  заморожены (md5 до/после); повторные прогоны + гейт.
+- Число **активных кодовых** воркеров — два: по одному на карточку пары. Остальные seats
+  (research, QA, review, gate, docs) работают параллельно, но не конкурируют за `target-dir`
+  и shared-файлы. Третий code worker — только после green пары и явного решения TL-1.
+
+3.14 **Batch-волна и конвейер (2026-10-20).** Волна больше не равна одной карточке. Единица
+учёта — **batch** из 3–6 карточек, у которого один замороженный контракт, один integration-патч
+общих файлов и один общий gate. Карточки внутри batch идут параллельно, если их файлы не
+пересекаются.
+
+Конвейер (перекрытие стадий — главный источник скорости):
+
+```text
+B(n)   research → freeze → integration → [CORE-1 ∥ CORE-2] a → b → c
+B(n-1)                                                   → QA/mutation → gate → review
+B(n-2)                                                                       → accepted → docs
+```
+
+Правила конвейера:
+- в кодовой фазе — **два активных воркера** (пара: W19 voice ∥ W20 typing), а не 4–6;
+  подволны `a` (types/parser) → `b` (reducer) → `c` (selectors) стартуют только после green
+  предыдущей пары;
+- одновременно **не более двух batch** (один code, один gate/review) и не более двух фоновых
+  запусков агентов;
+- следующий фоновый агент стартует после завершения одного из текущих (защита от rate limit);
+- общие файлы (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`,
+  `STATUS.md`, `ROADMAP.md`, `TASKS.md`, `docs/map.md`, `waves/*`) правит только Team Lead или
+  назначенный Tech Lead; воркеру они запрещены;
+- полный `cargo test --workspace` / `clippy` / `gate:worker` запускается **один раз на batch**
+  в integration-лейне, а не каждым воркером; воркер сдаёт targeted red/green;
+- ревью — после batch-гейта и параллельно по карточкам; P0/P1/P2 закрываются red-first, после
+  фиксов — **повторный batch gate**; P3 уходят в backlog и не тормозят batch;
+- доки и журнал обновляются **один раз после accepted**, а не в каждой итерации.
+
+3.15 **Пропускная способность и KPI.** Ориентир: **2–3 batch-волны в день** и **6–8 принятых
+карточек в день** при **двух активных кодовых воркерах** и 2–3 ревьюерах/QA; скорость даёт
+перекрытие code/QA/review и однократный gate, а не число одновременных компиляций. 73 оставшиеся карточки — это не 73
+волны: при batch по 3–6 карточек это ~18–22 batch-волны, то есть ~10–13 рабочих дней с учётом
+20–25 % на ревью/переделку. Без снятия блокеров (GUI, SQLite, keyring, live-окно) верхняя граница
+ниже: сейчас готовы к запуску только ~12 карточек.
+
+Метрики (обновляются в `waves/STATE.md`, не чаще одного раза на batch):
+- accepted cards/day; batch cycle time;
+- first-pass gate rate; доля batch, вернувшихся из ревью;
+- P0/P1/P2 на ревью (цель: P0/P1 = 0, P2 → 0 до accepted);
+- tests/card и mutation catch rate;
+- blocked cards и время ожидания решения владельца.
+
+## 4. Шаблоны
+
+4.1 **ТЗ воркера**
+
+Готовые заготовки — `waves/_TEMPLATES/BATCH-TZ.md`, `TEST-MATRIX.md`, `WORKER-REPORT.md`,
+`MUTATIONS.md`.
+
+```
+### ТЗ <batch>/<ID> — <название>
+Роль/место: <CORE-1 / TEST-1 / REV-1 …; кто владелец файлов>
+Batch: <RW-NN>; зависимости: <какие карточки уже accepted / какой контракт заморожен>
+Цель: <1–3 строки; видимый контракт, если меняется поведение CLI>
+Файлы (только эти): <точные пути; общие файлы перечислены как «только Tech Lead»>
+Запрещено: <всё остальное: чужие тесты, src вне списка, доки, golden, shared-файлы>
+Кейсы (red-first): <ID тестов, ожидание, границы; бюджет — TEST-PLAN §1.1>
+Оракул/провенанс: <jq/awk/md5/реальный артефакт/строка фикстуры>
+Как проверять: <targeted-команда; cargo — только в своём слоте, не параллельно>
+DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; файлы+md5; §8-строка;
+     полный gate — у Integration/QA на batch, не у воркера
+```
+
+4.2 **Отчёт воркера**
+
+```
+- batch/карточка: <RW-NN / P2-xx>;
+- сделано: <что, где, чем проверено>;
+- red: <команда> → <результат до реализации, exit code>;
+- green: <команда> → <результат, exit code>;
+- targeted: <файл лога / число тестов>;
+- gate:worker: <batch-вердикт Integration/QA; воркер полный gate не запускает>;
+- файлы: <список + md5>;
+- риски/вопросы: <...>;
+- следующий шаг: <кому передать>
+```
+
+4.3 **Чек-лист ревью (координатор)**
+
+- [ ] batch-гейт уже прошёл; review идёт после него, а не вместо него;
+- [ ] границы: изменения только в файлах ТЗ (md5-аудит / `git status`);
+- [ ] red-first подтверждён прогоном, а не словами;
+- [ ] тесты сверяют контракт с независимым оракулом, а не подгонку под код;
+- [ ] бюджет тестов §TEST-PLAN 1.1 соблюдён или исключение объяснено;
+- [ ] новые пути не глотают ошибки молча (catch либо с последствием, либо с комментарием);
+- [ ] нет утечек: таймеры очищены, массивы не растут без границ, слушатели одноразовые;
+- [ ] `npm run gate:worker` зелёный; tsc чистый; meta зелёная;
+- [ ] §8/статусы/доки обновлены там, где положено;
+- [ ] для чувствительных изменений пройден §4.4.
+# TEAM — отдел разработки Rust-клиента
+
+Статус: введён 2026-10-20 после RW-18. Это операционная надстройка к `PROCESS.md` §2/§3.13–§3.15.
+Цель — не «больше агентов», а **предсказуемая пропускная способность**: 2–3 batch-волны в день,
+6–8 принятых карточек в день, P0/P1 = 0 и отсутствие гонок за файлы. В кодовой фазе
+одновременно работают **два активных воркера** — по одному на карточку пары; остальные seats
+заняты research, QA, review, gate и docs и не конкурируют за `target-dir` и shared-файлы.
+
+## 1. Модель
+
+- **Batch-волна** — 3–6 независимых карточек. Не одна карточка на волну.
+- **Seat** — роль в отделе. Один агент может занимать несколько seats в разных batch, но
+  автор карточки не ревьюит её, а security-ревью не делает автор live-пути.
+- **File ownership** — главный закон параллелизма: два агента никогда не пишут один файл.
+  Общие файлы (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`,
+  `STATUS.md`, `ROADMAP.md`, `TASKS.md`, `docs/map.md`, `waves/*`) принадлежат Team Lead/Tech Lead.
+- **Contract before code** — DESIGN/TZ, сигнатуры, ключи состояния, диагностические пути и
+  test ID замораживаются до первой строки продукта.
+- **Pipeline** — batch-ы перекрываются: пока B(n) пишется, B(n−1) проходит gate/ревью, B(n−2)
+  принимается и документируется. Это ускоряет поток сильнее, чем увеличение числа кодеров.
+
+## 2. Организационная схема
+
+```mermaid
+flowchart TB
+  OWNER["Владелец<br/>приоритеты, зависимости, live-окно"] --> TL["TL-1 Team Lead (L1)<br/>поставка, контракты, приёмка, журнал"]
+  TL --> TECHL["TL-2 Rust Tech Lead<br/>архитектура, общие файлы, разблокировка"]
+
+  TECHL --> CORE["Core stream<br/>CORE-1..3<br/>gateway/REST/state/protocol"]
+  TECHL --> CLIENT["Client stream<br/>CLIENT-1..2<br/>UI headless/platform/i18n"]
+  TECHL --> VOICE["Media/Voice stream<br/>VOICE-1<br/>voice/media"]
+
+  TL --> RESEARCH["Research guild<br/>RE-1 protocol / RE-2 artifacts"]
+  TL --> QUALITY["Quality guild<br/>TEST-1 oracle, QA-1 mutations,<br/>REV-1/2 review, SEC-1 security"]
+  TL --> OPS["Delivery guild<br/>OPS-1 integration/build,<br/>DOC-1 docs/journal, REL-1 release"]
+
+  QUALITY -. "независимое ревью" .-> CORE
+  QUALITY -. "независимое ревью" .-> CLIENT
+  QUALITY -. "независимое ревью" .-> VOICE
+```
+
+## 3. Посадочные места (seats)
+
+| Seat | Роль | Мандат | Пишет | Не делает |
+| --- | --- | --- | --- | --- |
+| TL-1 | Team Lead / Delivery | очередь, batch-план, ТЗ, контракты, приёмка, финальный gate, журнал, выпуск | общие доки, `waves/*`, integration-решения | не ревьюит свой код |
+| TL-2 | Rust Tech Lead | архитектура, integration-патч общих файлов, разрешение конфликтов, разблокировка | `state/types.rs`, `reducer.rs`, `mod.rs`, `lib.rs`, каркасы | не принимает карточку единолично |
+| RE-1 | Protocol research | gateway/REST/voice/typing, подтверждённые поля, oracle-команды | research-доки, read-only артефакты | не пишет продукт |
+| RE-2 | Artifact/fixture research | фикстуры, provenance, md5, независимые выборки | research/fixture-доки | не «нормализует» golden |
+| CORE-1..3 | Core module workers | state/parsers/reducer/selectors/net | свои модули и их тесты | не трогает shared-файлы, чужие тесты, доки |
+| CLIENT-1..2 | Client module workers | UI-модели, i18n, platform-адаптеры | свои модули и их тесты | не запускает GUI/live без окна |
+| VOICE-1 | Media/Voice worker | voice signaling, media-контракты | свои модули и их тесты | не изобретает wire без capture |
+| TEST-1 | Test/oracle engineer | независимые тесты, фикстуры, test budget, проверка контракта | тесты/фикстуры в своём наборе | не «зеленит» тест под код |
+| QA-1 | Mutation/QA engineer | мутации, флейки, restore по md5, batch-прогоны | mutation-логи/скрипты | не меняет контракт под мутант |
+| REV-1/2 | Independent reviewers | P0/P1/P2/P3, границы, red-first, безопасность | только review-артефакты | не правит код во время ревью |
+| SEC-1 | Security reviewer | секреты, недоверенный ввод, live-пути, отмена/таймауты | security-review | не совмещает с авторством |
+| OPS-1 | Integration/build | сведение batch, cargo, `gate:worker`, артефакты | integration-скрипты/логи | не переписывает логику авторов |
+| DOC-1 | Docs/journal | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`map`/`db.jsonl` после accepted | доки и журнал | не обновляет доки в red-фазе |
+| REL-1 | Release/qualification | `gate:release`/`gate:qualify`, kit, qualification, откат | release-артефакты | не выпускает без приёмки |
+
+Не каждый seat — отдельный процесс в каждой волне. Например, в маленьком batch TL-1 может
+быть OPS-1, а TEST-1 — REV-2, но **автор/ревьюер** и **автор/security** не совпадают.
+
+## 4. RACI по жизненному циклу карточки
+
+`R` — делает, `A` — отвечает, `C` — консультирует, `I` — информируется.
+
+| Этап | TL-1 | TL-2 | RE | Worker | TEST/QA | REV | OPS/DOC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Выбор batch и файловая матрица | A/R | C | I | I | I | I | I |
+| Research и oracle | A | C | R | I | C | I | I |
+| DESIGN/TZ freeze | A/R | C | C | I | C | I | I |
+| Integration-патч общих файлов | A | R | I | I | I | I | I |
+| Модульный red → green | A | C | I | R | C | I | I |
+| Targeted-логи и отчёт | A | I | I | R | C | I | I |
+| Мутации и restore | A | C | I | C | R | I | I |
+| Batch gate | A | C | I | I | R | I | R |
+| Независимое ревью | A | C | I | I | C | R | I |
+| Закрытие P0/P1/P2 red-first | A/R | C | C | R | C | C | I |
+| `accepted`, журнал, доки | A/R | I | I | I | I | C | R |
+
+## 5. Конвейер batch-волны
+
+```mermaid
+flowchart LR
+  A["0. Intake<br/>3–6 карточек"] --> B["1. Research<br/>2 RE параллельно"]
+  B --> C["2. Freeze<br/>DESIGN/TZ + файлы"]
+  C --> D["3. Integration<br/>TL-2: shared files"]
+  D --> E["4. Code pair<br/>2 активных воркера"]
+  E --> F["5. QA/mutation<br/>targeted + restore"]
+  F --> G["6. Batch gate<br/>fmt/clippy/core/workspace"]
+  G --> H["7. Review<br/>REV-1/2 параллельно"]
+  H --> I{"P0/P1/P2?"}
+  I -- "да" --> J["red-first fix"]
+  J --> G
+  I -- "нет" --> K["8. accepted + docs"]
+```
+
+Таймбоксы — ориентиры, не обещания: intake 10 мин, research 20–30, freeze 15, integration 20,
+code 45–90, QA 20, gate 15, review 20–30, fix 20, accept/docs 10. Batch может идти 2–4 часа;
+поток из трёх перекрывающихся batch даёт 2–3 batch/день.
+
+### 5.1 Пайплайн, а не очередь
+
+```text
+время →
+B01:  research → freeze → integration → code → QA → gate → review → accepted
+B02:                 research → freeze → integration → code → QA → gate → review → accepted
+B03:                                  research → freeze → integration → code → QA → gate → review
+```
+
+Правило: **не ждать полного accepted предыдущего batch**, если контракт следующего уже
+заморожен и файлы не пересекаются. Ждать нужно только реальную зависимость (API/тип/фикстуру).
+
+### 5.2 Кодовая пара и подволны a/b/c
+
+Одна карточка = один активный воркер. Две карточки batch идут **парой**; каждая карточка
+проходит три подволны, и только после green пары стартует следующая:
+
+```text
+a: W19 types/parser  ∥ W20 types/parser     → I0 scaffolding
+b: W19 reducer       ∥ W20 reducer          → I1 API patch
+c: W19 selectors     ∥ W20 selectors        → QA/mutations
+```
+
+- `I0` — TL-2 объявляет новые модули и store-поля, чтобы parser-тесты вообще компилировались.
+- `I1` — **единый общий API-патч**: `EventPayload`, routes, `apply`/`apply_frame_at`,
+  `MESSAGE_CREATE` hook, `ReadySupplemental`, re-exports. Воркеры его не трогают.
+- После `c` — один batch gate, затем два ревьюера параллельно; review не блокирует следующую
+  пару, если её файлы не пересекаются.
+- Третий кодовый воркер не запускается «для скорости»: он создаёт конфликт `target-dir` и
+  shared-файлов. Скорость даёт перекрытие code/QA/review, а не шесть одновременных компиляций.
+
+## 6. WIP, запуск агентов и cargo
+
+- В кодовой фазе — **2 активных кодовых воркера** (по одному на карточку пары), не 6. Pool
+  seats (CORE/CLIENT/VOICE/TEST/QA/REV) шире, но code WIP ограничен парой.
+- В работе не более **2 batch**: один в code, один в gate/review; полностью параллельный
+  третий batch — только после завершения одного.
+- Фоновых агентов запускать **не более 2 одновременно**; следующий стартует после завершения
+  одного. Это ограничение провайдера, а не процесса. При стабильном лимите можно поднять до 3–4,
+  но не «взрывом».
+- Один общий `target-dir`: **не запускать несколько cargo одновременно**. Cargo-команды идут
+  через integration/QA-лейн или последовательные слоты; иначе агенты блокируют друг друга.
+- Воркер не запускает полный `gate:worker`; он сдаёт targeted red/green. Полный gate — один раз
+  на batch.
+- Документы и журнал не обновляются в red-фазе; только после accepted.
+
+## 7. Playbook воркера (параллельная работа)
+
+1. Прочитай своё ТЗ и список файлов в нём; проверь, что твои файлы не пересекаются с соседями.
+2. Не редактируй shared-файлы и чужие тесты. Нужен новый экспорт — заявка TL-2, не сам.
+3. Сначала тест: запусти targeted red, сохрани команду, exit code и лог.
+4. Минимальный green; снова targeted; сохрани лог.
+5. Не запускай полный workspace/clippy/gate и не обновляй доки.
+6. Если 10–15 минут нет прогресса — эскалируй Team Lead с точной командой и ошибкой.
+7. Отчёт по PROCESS.md §4.2: batch, red, green, targeted, файлы+md5, риски, следующий шаг.
+8. Не коммить, не пушить, не трогать golden, не ходить в сеть.
+9. Если нашёл дефект в чужом модуле — опиши, не правь; это отдельная карточка/ревью.
+10. Если тест «зелёный» только после правки ожидания — остановись и оформи
+    `TEST-CORRECTIONS.md`, а не подгоняй.
+
+### 7.1 Сообщение о передаче
+
+```text
+batch: RW-NN / card: P2-xx
+seat: CORE-2
+files: <точные пути>
+red: <команда> → exit 101, <лог>
+green: <команда> → N/N, exit 0, <лог>
+targeted: <лог/число>
+blocked: <нет/что именно>
+next: <TL-2 интеграция / QA / review>
+```
+
+## 8. Team Lead: что делает и чего не делает
+
+Делает:
+- держит ready-queue и rolling plan на 2 batch вперёд;
+- выбирает batch по зависимостям и file matrix;
+- замораживает контракт и назначает владельцев shared-файлов;
+- запускает не более 2 фоновых агентов и перезапускает упавших по одному;
+- сводит integration-патч, запускает batch gate;
+- принимает только после P0/P1/P2=0 и зелёного gate;
+- один раз обновляет `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`map`/`db.jsonl`;
+- ведёт KPI и backlog P3.
+
+Не делает:
+- не пишет модульный код вместо воркера (кроме integration);
+- не ревьюит свой код;
+- не обновляет доки до accepted;
+- не запускает 3–6 фоновых агентов «в надежде, что хватит лимита»;
+- не тащит P3 в текущий batch.
+
+## 9. Эскалации
+
+| Триггер | Кому | Действие |
+| --- | --- | --- |
+| Пересечение файлов | TL-1 | остановить одного, переразбить batch; не мержить вручную |
+| Неясный контракт/поле | TL-2 + RE | research; неизвестное — интерфейс/`Effect`/stub, не выдумывать |
+
+ succeeded in 0ms:
+# TASKS.md — микро-декомпозиция работ `discord-lab`
+
+Обновлено: 2026-10-18 (волны W1–W4 закрыты и приняты: M1 и M2 сделаны — 176 тестов,
+172 pass / 0 fail / 4 e2e-skip; покрытие 99.3/90.5/97.6; пост-W4 аудит — в backlog ниже).
+Обновлено: 2026-10-19 (волны R7/RC: спека `docs/re/`, план Rust-клиента `docs/rust-client/`,
+фикстуры `fixtures/`, каркас `rust/`; полный `npm run check` — 215 тестов, 211 pass / 0 fail /
+4 e2e-skip; верификация сырья — 20/20).
+Введён производственный процесс `PROCESS.md` (роли, гейты `gate:worker/release/qualify`,
+шаблоны ТЗ/отчётов) и `AGENTS.md` — краткие правила агентам-воркерам. Контекст и
+правила — `TDD-PLAN.md` (§8 — машиночитаемая таблица «тест ↔ модуль ↔ экспорты»;
+мета-контроль — `tests/meta/plan-sync.test.mjs`).
+Дополнено 2026-10-19: раздел «R1 — разведка gateway» (карточки; согласовано владельцем).
+Итог 2026-10-19: волна R1 закрыта — статусы, каталог опкодов и артефакты в разделе «R1».
+Дополнено 2026-10-19 (2): раздел «R4/R5/R6/D — перенос недостающих функций» по референсам
+(Vesktop v1.6.7, discord-qt v0.5.1); полные описания и критерии — `docs/feature-backlog.md`.
+Дополнено 2026-10-19 (3): раздел «R7 — глубокий RE: транспорт, медиа, бэкенд, UI, i18n»
+(закрыт; нормативные доки — `docs/re/`). Волна R7 закрыла карточки D-01–D-03.
+Дополнено 2026-10-19 (4): раздел «RC — Rust-клиент: концепт, архитектура, план, тесты»
+(документы готовы; пакет — `docs/rust-client/`).
+Дополнено 2026-10-20: batch-конвейер (3–6 карточек на волну, один gate, review после gate) —
+`docs/rust-client/TEAM.md` и `docs/rust-client/WAVE-PLAN.md`; RW-18 (P2-09) принят,
+RW-19/RW-20 (P2-10/P2-11) — активная пара B01.
+Дополнено 2026-10-21: B01 принят (P2-10/P2-11); B02/RW-21 — P2-08 settings-proto.
+
+## Как читать
+
+- **ID**: `W<волна>-<группа>-<номер>` — инфраструктура/тесты/делегирование;
+  `M<милестоун>-<МОДУЛЬ>-<номер>` — реализация по тестам.
+- **Статусы**: `[ ]` todo · `[~]` in progress · `[x]` done · `[!]` blocked · `[s]` skip.
+- **Владельцы**: `C` — координатор (неделимая часть: план, мета-тесты, инфраструктура,
+  интеграция и приёмка), `W1a…W1d` и `W3a…W3e` — воркеры соответствующих волн.
+- Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
+  Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
+- Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
+  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
+  при появлении remote/CI. Коммиты делает координатор.
+
+## Волновая карта
+
+```
+W0 (C) ──► W1 (W1a…W1d) ──► W1-fix ──► W2 (C) ──► W3 (M1: W3a…W3e)
+план,      углубление       4 дефекта   приёмка      реализация ядра,
+мета,      тестов golden-   спеки       и проверки   CLI-хаб, паритет
+инфра      данными
+
+W3R (hardening: cxxfilt/CDP/args) ⊕ W4 (M2: frida → CLI) ──► W5 (walk-движок, M3) ──► W6 (отчёты, M4)
+                          ──► W7 (CI/мутации, M5) ──► W8 (паритет, M6)
+
+R1 (разведка gateway: WS/ETF/zstd, опкоды, голос) ──► закрыт 2026-10-19 (артефакты /tmp/opencode/r2-net/)
+
+R2-NET/R3 (медиа/кэш-ассеты/UI-трассы/крипто) ──► закрыты 2026-10-19 (артефакты /tmp/opencode/)
+R7 (глубокий RE: шлюз, голос, бэкенд/IPC, REST, UI, i18n) ──► закрыт 2026-10-19 (доки — docs/re/)
+RC (Rust-клиент: концепт, функции, архитектура, план P0–P8, тест-план) ──► документы готовы 2026-10-19 (docs/rust-client/)
+D (добор данных: READY, REST-методы, UI-трассы II — D-01…D-03 закрыты R7) ⊕ R4 (оболочка ОС, P0) ──► R5 (стриминг/аудио, P1) ──► R6 (платформа, P2)
+бэклог переноса: docs/feature-backlog.md (41 функция; карточки ниже)
+```
+
+Критерий делегирования: задача попадает воркеру, если её можно выполнить в общей
+папке с непересекающимся множеством файлов. Всё, что связывает волны (план,
+метатесты, интеграция, финальные прогоны), остаётся у `C`.
+
+## W0 — план, мета-контроль, инфраструктура (координатор)
+
+| ID | Действие | Артефакт | Статус |
+| --- | --- | --- | --- |
+| W0-01 | Аудит и обновление плана: §4 методы, §7 M0.5, §8 машиночитаемость, §11 воркеры | `TDD-PLAN.md` | [x] |
+| W0-02 | Микро-декомпозиция (этот файл): волны, ID, матрица файлов, протокол | `TASKS.md` | [x] |
+| W0-03 | Мета-тест «§8 ↔ тесты ↔ модули ↔ экспорты» | `tests/meta/plan-sync.test.mjs` | [x] |
+| W0-04 | Скрипты `test:meta`, `check`; пороги покрытия 90/80/90 | `package.json` | [x] |
+| W0-05 | Режим параллельных воркеров: Orca Run, диспетчеризация, общая папка вместо копий | Orca Run `run_949f9e36ec2b` | [x] |
+| W0-06 | Интеграция результатов волн, финальные `npm run check`, обновление документов | все | [~] |
+
+## W1 — углубление тестов golden-данными (4 воркера параллельно)
+
+Общая приёмка W1: `node --test <свои файлы>` — все падения только «Не реализовано: …»;
+`npx tsc -p tsconfig.json --noEmit` — 0; отчёт с провенансом (артефакт + md5 + оракул)
+и командами; изменены только назначенные файлы.
+
+| ID | Владелец | Цель | Владеет файлами | Статус |
+| --- | --- | --- | --- | --- |
+| W1a-01 | W1a | Golden `calls`: фикстура из `logs/calls-voice-28170.jsonl` (6 функций, 4297 вызовов) + стресс-кейс | `tests/unit/calls.test.mjs`, `tests/fixtures/logs/calls-voice*.jsonl` | [x] |
+| W1a-02 | W1a | Smoke `summarize` на полном реальном логе: CSV построчно равен оракулу `jq \| sort \| uniq -c` | `tests/smoke/summarize.smoke.test.mjs` | [x] |
+| W1b-01 | W1b | Golden `parseVisited`/`buildWalkRecord` из `logs/ui-walk-settings.jsonl` (56 записей) и `logs/ui-walk-menus.jsonl` (52) | `tests/unit/walk-log.test.mjs`, `tests/fixtures/logs/walk-*.jsonl` | [x] |
+| W1b-02 | W1b | `consoleIssues` на реальных `topFunctions`/ошибках журналов; границы обрезки 220 | `tests/unit/walk-log.test.mjs` | [x] |
+| W1b-03 | W1b | `topFunctions` и `isBlacklisted` на реальных подписях из журналов и `scripts/ui-walk-settings.mjs` | `tests/unit/profile.test.mjs`, `tests/unit/blacklist.test.mjs` | [x] |
+| W1c-01 | W1c | Golden `parseNmPosix`/`staticFunctionsCsv` на выдержках из `functions/static/*.nm.txt` (T/t/W/w, размеры, дубликаты) | `tests/unit/nm.test.mjs`, `tests/fixtures/nm/*` | [x] |
+| W1c-02 | W1c | `classifyName` golden по `functions/domains/<domain>.csv` (демангленные имена → ожидаемый домен), `domainCsv`/`formatDomainSummary` | `tests/unit/domains.test.mjs`, `tests/fixtures/domains/*` | [x] |
+| W1c-03 | W1c | Smoke `cxxfilt`: реальные манагленные имена из `functions/static/*.nm.txt`; порядок и неманагленные | `tests/smoke/cxxfilt.smoke.test.mjs` | [x] |
+| W1d-01 | W1d | Golden `inventory` по `functions/pid-23548-Discord.csv/.json` (заголовок, kind/type, offset, safeName) | `tests/unit/inventory.test.mjs`, `tests/fixtures/inventory/*` | [x] |
+| W1d-02 | W1d | `screenshotName`/`relativeToRoot` по реальным именам `evidence/screens/*.png` (кириллица, пунктуация, длина) | `tests/unit/paths.test.mjs` | [x] |
+| W1d-03 | W1d | Края `parseArgs`/`csv`/`isDiscordProcess` (повторы ключей, `--`-подобные токены, пустые значения, регистр процессов) | `tests/unit/args.test.mjs`, `tests/unit/csv.test.mjs`, `tests/unit/processes.test.mjs` | [x] |
+
+## W1-fix — устранение дефектов спеки, найденных приёмкой (владельцы файлов)
+
+| ID | Владелец | Дефект | Правка | Статус |
+| --- | --- | --- | --- | --- |
+| W1-fix-01 | W1d | `paths`: кейс шага 24 ссылался на несуществующие подпись/файл (`ui-menu-24-…-Утилиты.png`); prefix завязан на номера шагов | реальные тройки 23/24/35 из журнала; prefix задаётся явно в кейсе | [x] |
+| W1-fix-02 | W1b | `profile`: assert `getBoundingClientRect hits === 5` недостижим в top-8; `blacklist`: «Сначала выйти» → false против подстрочного правила; `walk-log`: вакуумный кейс shouldBail | golden top-8 из журналов (771/697-оракул); подстрока → true; явный ноль error-записей | [x] |
+| W1-fix-03 | W1c | `domains`: нет header-only фикстур dtls/ice/stun → ENOENT после реализации | добавлены 3 файла (md5 заголовка `97f6689a…`) | [x] |
+
+## W2 — приёмка волны W1 (координатор) — закрыт
+
+| ID | Действие | Статус |
+| --- | --- | --- |
+| W2-01 | Область правок: `find -newer` + diff против pristine-копий — только назначенные файлы | [x] |
+| W2-02 | Независимая перепроверка golden своим оракулом (jq/awk/c++filt/nm, md5, байтовые сверки) | [x] |
+| W2-03 | Финальный прогон в основной копии (`npm run check`: typecheck+meta зелёные; 153 теста — 7 pass / 142 fail / 4 skip) | [x] |
+| W2-04 | Детерминизм (повторные прогоны), обновление §8/счётчиков/статусов TASKS | [x] |
+
+## W3 — реализация M1 воркерами (микрозадачи M1-* ниже)
+
+| ID | Воркер | Файлы реализации | Покрывает | Статус |
+| --- | --- | --- | --- | --- |
+| W3a | W1d-терминал | `src/core/{args,csv,paths,processes,inventory}.mjs` | M1-ARGS…M1-INV | [x] |
+| W3b | W1c-терминал | `src/core/calls.mjs`, `src/core/report/{nm,domains}.mjs`, `src/adapters/cxxfilt.mjs` | M1-CALLS…M1-CXXFILT | [x] |
+| W3c | W1b-терминал | `src/core/ui/{profile,blacklist,walk-log}.mjs` | M1-PROFILE/BLACK/WALK | [x] |
+| W3d | новый воркер | `src/core/cdp/client.mjs` | M1-CDP-01…07 | [x] |
+| W3e | W1c-терминал (после W3a–W3d) | `src/cli/run.mjs` (bin не менялся) | M1-CLI, M1-SUM | [x] |
+
+Правило волны: код пишется только под тесты; тесты не меняются (дефект спеки —
+вопрос координатору); после каждой пары микрозадач — прогон своих тестов; W3e
+запускается, когда зависимости (`calls`, `cdp`) уже реализованы.
+
+Приёмка W3 (координатор): область правок — ровно 14 `src`-файлов (13 из W3a–W3d +
+`run.mjs`, плюс doc-правка координатора в `run.mjs` после приёмки); `bin/discord-lab.mjs`
+и `src/core/not-implemented.mjs` не тронуты; тесты воркеры не меняли. `npm run check`:
+typecheck + meta + 153 теста — 148 pass / 0 fail / 5 skip (pids — честный skip до M2
+через код 2 + «Frida недоступна»; 4 e2e — skip-aware без браузера/live-CDP).
+`npm run test:coverage`: пороги 90/80/90 пройдены (факт 100 / 100 / 90.48; отчёт
+считает только модули, загруженные unit-тестами — расширение гейта в M5-COV-01).
+
+## W3-specfix — дефекты спеки, найденные воркерами при реализации (правки координатора)
+
+Оба дефекта воркеры не «подгоняли» кодом, а подняли через `ask` — протокол сработал;
+правки внесены координатором с двойным оракулом и зафиксированы здесь.
+
+| ID | Дефект | Правка | Статус |
+| --- | --- | --- | --- |
+| W3-specfix-01 | `blacklist`: кейс «не блокирует подписи из реальных журналов» требовал `false` для всех 108 записей, но строгое объединённое правило обязано блокировать 3 реальные подписи | кейс заменён на «блокирует ровно три подписи-исключения…»: «Статус учётной записи» (settings-4), «Игнорировать и заблокировать» (settings-26), «Меню сервера2 → Скрыть заглушенные каналы» (menus-38); оракул — union-regex по всем 108 записям обеих фикстур; остальные 105 записей обязаны быть разрешены | [x] |
+| W3-specfix-02 | `domains`: в ожидаемой строке `latency` было 13 пробелов против 12 у printf-формата и реального `functions/domains/summary.txt` | в `tests/unit/domains.test.mjs` исправлен ровно один пробел; после правки 12/12 зелёные; оракулы: `printf '%-12s %8d'` + байты `summary.txt` | [x] |
+
+## W3-review — находки ревью кода (Node/память/безопасность), волна хардненинга
+
+Ревью 2026-10-18 (полный отчёт: `/tmp/opencode/review-w3/security-review.md`; выполнено
+координатором — неделимая аналитика). Графы: SocratiCode — 55 файлов / 44 ребра / 0 циклов;
+реальные call-логи плоские (caller не пишется) — истинный граф вызовов невозможен без
+backtrace (вопрос в TDD-PLAN §10). Уязвимостей (инъекции/eval/ReDoS) не найдено: `spawn` без
+shell, `JSON.parse` недоверенного ввода в try, пути санитизированы; найденное — устойчивость.
+Правило TDD: на каждый пункт red-кейс → минимальная правка.
+
+| ID | Находка | Файл | Кейс (red) | Приоритет | Статус |
+| --- | --- | --- | --- | --- | --- |
+| W3R-HARD-01 | `demangle`: нет таймаута (подтверждено прогоном: висяк); при раннем выходе `c++filt` (EPIPE, ввод > буфера канала) запись в `child.stdin` без 'error'-обработчика → uncaught-исключение (подтверждено) | `src/adapters/cxxfilt.mjs` | `tests/smoke/cxxfilt.smoke.test.mjs` (fake c++filt через PATH) | P1 | [x] W4h1 |
+| W3R-HARD-02 | `listTargets`: fetch без таймаута; `response.json()` без проверки массива | `src/core/cdp/client.mjs` | `tests/unit/cdp.test.mjs` | P1 | [x] W4h2 |
+| W3R-HARD-03 | CDP `events`: неограниченный рост + нет окна событий на шаг (M3: `consoleIssues` считает всю сессию) | `src/core/cdp/client.mjs` | `tests/unit/cdp.test.mjs` | P1 (дизайн M3) | [x] W4h2 |
+| W3R-HARD-04 | `send()`: синхронный throw `ws.send` после close оставляет pending+timer до таймаута | `src/core/cdp/client.mjs` | `tests/unit/cdp.test.mjs` | P2 | [x] W4h2 |
+| W3R-HARD-05 | `parseArgs`: reserved keys (`_`, `modules`, `__proto__`, `constructor`) перезаписывают структуру результата | `src/core/args.mjs` | `tests/unit/args.test.mjs` | P2 | [x] W4h3 |
+| W3R-HARD-06 | `packageVersion` без try; `parseCallLog`/`parseVisited` без счётчика битых строк; нет `engines` в `package.json` | `src/cli/run.mjs`, `src/core/calls.mjs`, `src/core/ui/walk-log.mjs`, `package.json` | свои unit | P3 | [ ] |
+| W3R-PLAN-01 | TDD-PLAN §11: воркеры «в копиях проекта» — расхождение с фактическим протоколом (общая папка) | `TDD-PLAN.md` | — (док, координатор) | — | [x] |
+
+Итог волны W4 (2026-10-18, приёмка координатора): HARD-01…05 закрыты — cxxfilt
+(`timeoutMs=30000` + SIGKILL при таймауте + обработка stdin `'error'`; 6/6 smoke), CDP
+(таймауты `listTargets`/`send`, проверка массива целей, окно событий `mark`/`eventsSince`,
+`drainEvents` очищает на месте, отказ `send` после `close`; 23/23 unit), args (RESERVED-ключи;
+18/18). Полная приёмка: `npm run check` — 176 тестов (172 pass / 0 fail / 4 e2e-skip);
+покрытие 99.30/90.45/97.56; tsc 0; md5-аудит — правки только в назначенных файлах. HARD-06
+(P3) остаётся в backlog. Вопрос W4b о заглушке-контракте легитимен: контракты усилены
+`assert.doesNotMatch(/появится в M2/)` (`tests/smoke/hook.smoke.test.mjs`, `inventory.smoke.test.mjs`).
+Отклонение по терминалам: все четыре codex-терминала волны — retained (живые агенты под M3).
+
+## M1 — ядро без I/O: микрозадачи реализации
+
+Формат: `M1-<МОДУЛЬ>-<номер>` — один кластер поведения (кейсы — в тестовом файле).
+Правило TDD: задача закрывается только зелёным тестом; красный прогон до кода обязателен.
+
+### M1-ARGS — `src/core/args.mjs` (`parseArgs`)
+
+| ID | Микрозадача | Кейсы в `tests/unit/args.test.mjs` |
+| --- | --- | --- |
+| M1-ARGS-01 | База: пустой argv → `_`/`modules` пусты; позиционные в `_` по порядку | «пустой argv», «позиционные токены» |
+| M1-ARGS-02 | Пары `--key value` и `--key=value` | «--key value съедает…», «--key=value…» |
+| M1-ARGS-03 | Флаги: `--flag` → `true`; `--key=` → `""`; флаг перед флагом не съедает | «--flag без значения», «--key=», «флаг перед другим флагом» |
+| M1-ARGS-04 | `--module` повторяется и копится в `modules` (ключа `module` нет) | «--module повторяется…» |
+| M1-ARGS-05 | Числа строками; значения с regex/слешами; продолжение после пары; повторное вхождение ключа (W1d) | «числовые значения…», «значение может содержать…», «разбор продолжается…», «повтор обычного ключа…» |
+
+### M1-CSV — `src/core/csv.mjs`
+
+| ID | Микрозадача | Кейсы |
+| --- | --- | --- |
+| M1-CSV-01 | `safeName`: буквы/цифры/`.`/`-`/`_` сохраняются; прочее → `_`; кириллица → `_` | 3 кейса `safeName` (+W1d real-имена) |
+| M1-CSV-02 | `csv`: все ячейки в кавычках, числа → строки, удвоение кавычек | 2 кейса `csv` (+W1d заголовок инвентаря) |
+| M1-CSV-03 | `csv`: запятые и переносы строк не ломают ячейку; пустая таблица → `""` | 2 кейса `csv` |
+
+### M1-PATHS — `src/core/paths.mjs`
+
+| ID | Микрозадача | Кейсы |
+| --- | --- | --- |
+| M1-PATHS-01 | `projectRoot` + `logsDir`/`functionsDir`/`screensDir` внутри корня | 2 кейса |
+| M1-PATHS-02 | `screenshotName`: нумерация с ведущим нулём, кириллица сохраняется, 3-значный номер | 2 кейса (+W1d real-имена) |
+| M1-PATHS-03 | `screenshotName`: пунктуация → один дефис, обрезка slug до 40, пустая подпись → `item` | 3 кейса |
+| M1-PATHS-04 | `relativeToRoot`: внутри корня → относительный; вне → как есть | 2 кейса |
+
+### M1-PROC — `src/core/processes.mjs`
+
+| ID | Микрозадача | Кейсы |
+| --- | --- | --- |
+| M1-PROC-01 | `isDiscordProcess`: регистронезависимо; `vesktop` исключён; чужие процессы — `false` | 3 кейса (+W1d варианты имён) |
+| M1-PROC-02 | `filterDiscordProcesses`: сохраняет порядок; пустой список → пустой | 2 кейса |
+
+### M1-INV — `src/core/inventory.mjs`
+
+| ID | Микрозадача | Кейсы |
+| --- | --- | --- |
+| M1-INV-01 | `inventoryCounts`: суммарные символы/экспорты; пусто → нули | 2 кейса (+W1d фрагмент реального JSON) |
+| M1-INV-02 | `inventoryCsvRows`: заголовок; символы `kind=symbol/type=function`; экспорты; `safeName`; без модулей | 3 кейса (+W1d jq-оракул) |
+| M1-INV-03 | `inventoryJson`: `{pid, process, at, modules}`, имя процесса как есть | 1 кейс (+W1d round-trip реального JSON) |
+
+### M1-PROFILE — `src/core/ui/profile.mjs`
+
+# План: `discord-lab` — полноценное CLI-приложение на строгом TDD
+
+Дата плана: 2026-10-18. Обновлено: 2026-10-19 (M1–M2 приняты, red-базлайн закрыт, CI,
+сверка тестов и статусов; ранее — 2026-10-18: декомпозиция, мета-контроль, углубление).
+Процесс (роли, волны, гейты, шаблоны ТЗ/отчётов) — `PROCESS.md`; правила агентам — `AGENTS.md`.
+
+Статус (2026-10-19): **M1 (ядро) и M2 (Frida-слой) приняты; красного нет** — полный прогон
+`npm test`: 200 тестов — 196 pass / 0 fail / 4 skip (e2e без браузера, skip-aware). Впереди
+M3–M6 (walk-движок, отчёты, жёсткость, паритет). Микро-декомпозиция работ и маршрут для
+воркеров — `TASKS.md`. Реализация идёт строго по тестам (red → green → refactor).
+
+## 1. Продукт и принципы
+
+Продукт — CLI-приложение **`discord-lab`** (пакет `discord-function-lab`):
+лаборатория разбора Discord-клиента превращается из набора разрозненных скриптов
+в один инструмент с библиотечным ядром.
+
+Принципы:
+
+1. **Без сборки.** Всё запускается обычным `node` напрямую: `.mjs` + JSDoc-типы,
+   `tsc --noEmit` только проверяет типы (уже работает в проекте).
+2. **Строгий TDD.** Ни строки прод-логики без красного теста на это поведение.
+   Порядок: тест → красный → минимальная реализация → зелёный → рефактор.
+3. **Три уровня тестов** (unit / smoke / e2e) на встроенном раннере `node:test`
+   (0 зависимостей). Уровни описаны в §4.
+4. **Тесты — контракт.** Публичные сигнатуры и форматы данных зафиксированы тестами;
+   тесты нельзя править, чтобы «позеленело» — правится код (или отдельным коммитом
+   исправляется сам тест, если он описывал неверный контракт).
+5. **Паритет до M6.** Существующие `scripts/*` продолжают работать; `src/` заменяет
+   их постепенно, по милестоунам, без одновременного переключения поведения.
+
+## 2. Целевая структура
+
+```
+bin/discord-lab.mjs        точка входа (#!/usr/bin/env node), тонкая: run(argv) -> код выхода
+
+src/core/                  доменное ядро: чистые функции, ноль I/O
+  types.d.ts               общие типы (CDP, записи, инвентарь) — только типы
+  args.mjs                 parseArgs: --key value / --key=value / --flag / --module (повторяемый)
+  csv.mjs                  safeName, csv (экранирование как в scripts/logger.mjs)
+  paths.mjs                корень проекта, logs/ functions/ evidence/screens/, имена скриншотов (slug)
+  processes.mjs            isDiscordProcess / filterDiscordProcesses
+  inventory.mjs            строки CSV и JSON инвентаря (--max-symbols-логика формата)
+  calls.mjs                записи вызовов: isCallPayload, callLine, parseCallLog, summarizeCallLines
+  hook-io.mjs              openCallLog, waitForStop — потоковая запись и ожидание hook-лога
+  report/nm.mjs            parseNmPosix, staticFunctionsCsv (паритет extract-static-functions.sh)
+  report/domains.mjs       classifyName по таблице доменов, domainCsv, formatDomainSummary
+  cdp/client.mjs           CDP: resolveEndpoint/resolveTargetHint/listTargets/pickTarget/
+                           createCdpClient (WebSocket инжектится) / evaluate
+  ui/profile.mjs           topFunctions: топ функций из CPU-профиля (+NOISE)
+  ui/blacklist.mjs         isBlacklisted: запрещённые пункты UI-прогонов (объединение всех версий)
+  ui/walk-log.mjs          parseVisited, buildWalkRecord, consoleIssues, shouldBail, pickNextItem
+  ui/engine.mjs (M3)       шаг walk: клик → профиль → скриншот → запись (адаптеры discord/fixture)
+
+src/cli/                   команды: оркестрация + вывод (M1–M2: pids/inventory/hook/summarize/cdp; M3–M4: walk/domains/static)
+  run.mjs                  маршрутизация команд, help/version, коды выхода
+
+src/adapters/              границы с внешним миром
+  cxxfilt.mjs              demangle(names) через c++filt (spawn)
+  frida.mjs                Frida-слой: loadDevice/loadAgentSource/listProcesses/attach/
+                           collectInventory/parseHookMessage/startHook/stopHook (устройство инжектится)
+
+tests/
+  unit/                    чистые контракты (быстро, без процессов и сети)
+  meta/                    мета-тесты: «план §8 ↔ тесты ↔ экспорты», «фикстуры ↔ git», «README ↔ команды CLI»
+  smoke/                   реальный CLI-процесс; Frida только информационно (skip-aware)
+  e2e/                     реальный CDP-браузер; live-Discord — opt-in (skip-aware)
+  helpers/                 FakeWebSocket, запуск CLI, tmp-каталоги, поиск/запуск браузера
+  fixtures/                sample/golden-фикстуры (провенанс: артефакт + md5 + оракул)
+
+TDD-PLAN.md                этот план
+TASKS.md                   микро-декомпозиция задач, волны, протокол воркеров
+```
+
+Слои и правила зависимостей:
+
+- `src/core/**` — **чистые функции и структуры**: не читают файлы, не ходят в сеть,
+  не спавнят процессы, не трогают `process.env` напрямую (env передаётся аргументом,
+  например `resolveEndpoint(env)`). Это делает unit-тесты мгновенными.
+- `src/adapters/**` и `src/cli/**` — **грязный слой**: процессы, сеть, диск, Frida.
+  Всё внешнее инжектится: `WebSocket` (CDP), `fetch`, Frida-устройство, часы.
+- Типы: новые модули используют `src/core/types.d.ts`; старые скрипты остаются
+  на `scripts/cdp-types.d.ts` до милестоуна M6 (унификация типов — шаг M6).
+
+## 3. Как это запускается
+
+```bash
+npm test              # все уровни: unit + meta + smoke + e2e (e2e сами пропускаются без среды)
+npm run test:unit     # только unit
+npm run test:meta     # мета-тесты: план §8 ↔ файлы тестов ↔ экспорты модулей
+npm run test:smoke    # CLI + Frida (skip, если Frida недоступна)
+npm run test:e2e      # CDP против headless-браузера (нужен CHROME_BIN или chromium в PATH)
+npm run test:watch    # unit в режиме наблюдения
+npm run test:coverage # покрытие src/** с порогами: строки ≥ 90, функции ≥ 80, ветки ≥ 90
+                      # (M1: 99.30/90.45/97.56 — зелёный; расширение на cli/adapters — M5)
+npm run typecheck     # tsc: scripts/ + src/ + bin/ + tests/
+npm run check         # typecheck + все тесты — «одна кнопка» перед приёмкой шага
+npm run gate:worker   # гейт воркера: типы → мета → unit → smoke (PROCESS.md §3)
+npm run gate:release  # гейт выпуска: worker + e2e (повтор при падении) + покрытие + golden-сверка
+npm run gate:qualify  # квалификация: release + tarball + изолированный прогон пакета
+```
+
+Переменные окружения тестов:
+
+- `CHROME_BIN` — путь к chromium/chrome/brave/edge для e2e (иначе e2e пропускается);
+- `DISCORD_LAB_LIVE_CDP` — endpoint запущенного Discord с remote-debugging
+  (например `http://127.0.0.1:9223`); включает live-проверки e2e (только чтение);
+- `CDP_ENDPOINT` / `CDP_TARGET` — обычные переменные CDP-клиента.
+
+## 4. Тестовая стратегия
+
+| Уровень | Что проверяет | Среда | Скорость | Где живёт |
+| --- | --- | --- | --- | --- |
+| unit | чистые функции `src/core`: разбор, форматирование, фильтры, маршрутизация CDP-сообщений; golden-данные из реальных артефактов | без процессов и сети (чтение фикстур/бандлов разрешено) | ~секунды | `tests/unit` |
+| meta | соответствие «план §8 ↔ тесты ↔ экспорты»: ничего не пропущено и не придумано | чтение файлов репозитория, без процессов | мгновенно | `tests/meta` |
+| smoke | реальный процесс `bin/discord-lab.mjs`: help/version/ошибки, `summarize` на фикстурах и реальных логах, `pids` через живой Frida | процессы, локальный ФС; Frida — skip-aware | секунды | `tests/smoke` |
+| e2e | CLI против реального CDP: headless-браузер на fixture-странице; live-Discord (opt-in) — только чтение | браузер/живой Discord | десятки секунд | `tests/e2e` |
+
+Правила «жёсткого» TDD, действующие в проекте:
+
+1. Один цикл = один новый/изменённый тест. Красный → минимальный зелёный → рефактор.
+2. Никакой «логики на будущее»: реализуется только то, что требует тест.
+3. Unit-тесты не запускают процессы и не ходят в сеть; входные данные — чтение фикстур
+   или сборка в памяти; запись — только в `mkdtemp` (`tests/helpers/tmp.mjs`).
+   Время, WebSocket, fetch, Frida — инжектируемые зависимости (см. `FakeWebSocket`).
+4. Тесты детерминированы: фиксированные данные, явные сортировки; `skip` разрешён
+   только из-за отсутствия среды (нет браузера / Frida / live-endpoint), не из-за багов.
+5. Ничего не пишется в рабочие каталоги проекта из тестов — только в tmp.
+6. Каждый зелёный шаг сохраняется (см. §5 про git); сообщения коммитов: `test: …`,
+   `feat: …`, `fix: …`.
+7. Покрытие — следствие TDD, а не самоцель; тем не менее гейт: `src/core` ≥ 90% строк
+   (M1), мутационная проверка — M5.
+8. Мета-контроль: §8 плана и тесты не должны разъезжаться —
+   `npm run test:meta` падает на любом расхождении (см. «Методы углубления тестов»).
+
+### Методы углубления тестов (волна W1 и далее)
+
+1. **Golden из реальных артефактов.** Ожидания строятся независимыми оракулами
+   (`jq`, `sort | uniq`, `awk`, `c++filt`) по реальным логам и таблицам (`logs/**`,
+   `functions/**`), а не из кода под тестом. В тесте фиксируются: имя артефакта,
+   его md5 и пайплайн-оракул (в комментарии). Компактные копии — в
+   `tests/fixtures/**` (≤ 64 КиБ); полные артефакты — только в smoke-проверках
+   (skip, если файла нет).
+2. **Инварианты, границы, стресс.** Пустой ввод; битые и неполные строки; дубликаты;
+   кириллица, кавычки, запятые, переносы; очень длинные имена; стресс-объёмы
+   (10⁵+ записей) — с проверкой корректности, а не только «не упало».
+3. **Поведенческие матрицы.** Один кейс = одна строка таблицы кейсов (например,
+   чёрный список UI-пунктов: блокировка/пропуск/обычные пункты), чтобы при
+   провале было видно, какое именно правило сломалось.
+4. **Мета-тесты.** `tests/meta/plan-sync.test.mjs` связывает: тестовый файл ↔ строка
+   §8 ↔ модуль (существует, импортируется) ↔ экспорты (каждый упомянут и протестирован);
+   `fixtures-tracked.test.mjs` — фикстуры отслеживаются git; `docs-sync.test.mjs` —
+   команды CLI из `HELP` упомянуты в `README.md`.
+5. **Проверка кода.** `npm run check` (typecheck + все уровни) — обязательный прогон
+   после каждого шага; пороги покрытия `test:coverage` — гейт M1; повторный прогон
+   после интеграции воркеров — часть приёмки.
+6. **Приёмочный аудит координатора и фикс-волны.** Аудит W2 сверяет область правок
+   (`find -newer`, diff против pristine-копий), провенанс (md5 источников) и golden
+   своим независимым оракулом. Дефект спеки не правится молча — возвращается владельцу
+   файла отдельным ТЗ (пример: W1-fix закрыл 4 дефекта — paths-кейс шага 24,
+   недостижимый assert в profile, отсутствующие header-only фикстуры dtls/ice/stun,
+   blacklist-кейс против подстрочного правила).
+
+## 5. Инфраструктура и качество
+
+- **Раннер**: `node:test` (Node 24). Ноль зависимостей и конфигов.
+- **Покрытие**: `npm run test:coverage` (`--experimental-test-coverage`,
+  include только `src/**`).
+- **git** (сделан 2026-10-18): baseline `4188bd0`, тег `v0.1.0`, ветка `main`, remote
+  `origin` = `github.com/Userbash/discord-lab`; серверная защита `main` недоступна
+  (free-план) — аккуратность коммитов на коммиттере.
+- **CI** (сделан 2026-10-18, досрочно к M5): `.github/workflows/ci.yml` на push в `main`
+  и pull request — `npm ci && npm run gate:worker` (типы → мета → unit → smoke). Остаётся
+  на M5: e2e в CI (chromium пакетом), отчёт покрытия, мутации. Live-Discord в CI
+  не запускается.
+- **Мутации (M5, опционально)**: Stryker на `src/core` с порогом выживаемости ≤ 20%;
+  цель — доказать, что тесты «настоящие», а не тавтологичные.
+
+## 6. Матрица паритета: что чем заменяется
+
+| Сейчас | Станет | Тесты | Milestone |
+| --- | --- | --- | --- |
+| `scripts/logger.mjs pids` | `discord-lab pids [--all]` | `processes.test`, `pids.smoke` | M2 |
+| `scripts/logger.mjs inventory` | `discord-lab inventory` | `inventory.test`, smoke (M2) | M1/M2 |
+| `scripts/logger.mjs hook` | `discord-lab hook` | fake-device unit (M2) | M2 |
+| `scripts/cdp.mjs <sub>` | `discord-lab cdp <sub>` | `cdp.test`, `cdp-browser.e2e` | M1/M3 |
+| `scripts/ui-walk-settings.mjs` | `discord-lab walk settings` | `walk-log.test`, `profile.test`, `blacklist.test`, `walk-fixture.e2e` | M3 |
+| `scripts/ui-walk-settings2.mjs` | то же (режим «добить пропущенные» внутри walk) | `parseVisited` unit | M3 |
+| `scripts/ui-walk-menus.mjs`, `ui-menu-extra.mjs` | `discord-lab walk menus` | те же + fixture e2e | M3 |
+| `scripts/summarize-calls.sh` | `discord-lab summarize [файлы]` | `calls.test`, `summarize.smoke` | M1/M4 |
+| `scripts/extract-domains.sh` + `domain-report.sh` | `discord-lab domains` | `domains.test`, `cxxfilt.smoke` | M4 |
+| `scripts/extract-static-functions.sh` | `discord-lab static` | `nm.test` | M4 |
+| `scripts/analyze.sh` (REA) | остаётся тонкой обёрткой (внешний `rea`) | — | вне scope |
+
+Строки M1–M2 закрыты (команды `pids`/`inventory`/`hook`/`summarize`/`cdp targets`
+работают и покрыты тестами); открыты строки M3–M4: `walk`, `domains`, `static`.
+
+## 7. Дорожная карта
+
+Статусы на 2026-10-19: M0–M2 — сделаны, M3–M6 — впереди; DoD выполненных милстоунов
+ниже сохранены как хроника приёмок.
+
+### M0 — red-базлайн (сделан)
+
+- [x] Приняты решения: CLI `discord-lab`, `node:test`, каркас без логики.
+- [x] Каркас `src/` + `bin/` — только сигнатуры, тела `notImplemented`.
+- [x] Тесты unit (12 файлов) / smoke (4) / e2e (3), helpers, фикстуры.
+- [x] `package.json`: тест-скрипты; `tsconfig.json` покрывает `src/`, `bin/`, `tests/`.
+- DoD: `npm test` — красный, каждый провал называет функцию («Не реализовано: …»),
+  `npm run typecheck` — зелёный.
+
+### M0.5 — декомпозиция, мета-контроль, углубление тестов (сделан)
+
+- [x] Микро-декомпозиция: `TASKS.md` — волны W0–W8, ID микрозадач, матрица
+  непересекающихся файлов, протокол воркеров и приёмки.
+- [x] `tests/meta/plan-sync.test.mjs`: §8 ↔ тестовые файлы ↔ модули ↔ экспорты.
+- [x] `package.json`: `test:meta`, `check`; пороги покрытия в `test:coverage`.
+- [x] Углубление unit/smoke golden-тестами из реальных артефактов (4 воркера, W1 +
+  приёмка W2 + фикс-волна W1-fix): calls (voice/стресс-лог),
+  walk-log/profile/blacklist (реальный walk-журнал), nm/domains/cxxfilt (таблицы
+# STATE — где мы и что дальше
+
+- Обновлено: **2026-10-21**. B01 (P2-10 voice, P2-11 typing) **принят** после двух
+  независимых ревью: round 2 P2-10 — P0/P1/P2=0, P3=11; P2-11 — P0/P1/P2=0, P3=10.
+  Targeted 33/33, core 506, workspace 548, мутации 18/18, gate passed.
+- Процесс: с 2026-10-20 действует **batch-конвейер** — 3–6 карточек на волну, **два активных
+  кодовых воркера** (пара W19 voice ∥ W20 typing), подволны a/b/c, один integration-лейн
+  общих файлов (I0 store + I1 API), targeted у воркеров, один общий gate, review после gate,
+  доки один раз после accepted. Роли — `docs/rust-client/TEAM.md`; план — `WAVE-PLAN.md`.
+  Цель: 2–3 batch/день, 6–8 accepted cards/day, 73 карточки за 10–13 рабочих дней после
+  снятия блокеров.
+- Репозиторий: `origin` = `https://github.com/Userbash/discord-lab.git`, ветка `main`.
+  HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-21, I1,
+  P2-01/P2-02/P2-04/P2-05/P2-06/P2-07/P2-09/P2-10/P2-11, B01 accepted, B02 research,
+  удаление legacy `ready_data` и правки доков **не закоммичены**. Коммит/push — только координатор.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
+
+## 1. Факт
+
+| Проверка | Результат |
+|---|---|
+| Rust-воркспейс | **548 passed / 0 failed** (`cargo test --offline --workspace`) |
+| `discord-core` | **506 passed / 0 failed** |
+| P2-10 voice tests | **18 passed / 0 failed** (types 6, reducer 8, selectors 4) |
+| P2-11 typing tests | **15 passed / 0 failed** (types 5, reducer 5, selectors 5) |
+| P2-09 presence tests | **54 passed / 0 failed** (types 18, reducer 18, selectors 18; +1 unit) |
+| P2-07 read-state tests | **40 passed / 0 failed** (types 12, reducer 17, selectors 11) |
+| P2-05 chunk tests | **43 passed / 0 failed** (types 19, reducer 13, selectors 11) |
+| P2-04 member list tests | **40 passed / 0 failed** (types 14, reducer 17, selectors 9) |
+| P2-06 history tests | **20 passed / 0 failed** (types 7, pagination 5, selectors 8) |
+| P2-06 red | compile-red W14a/b + behavior-red W14c + root/counts, `EXIT=101` |
+| P2-02 state tests | **42 passed / 0 failed** (types 15, reducer 19, selectors 8) |
+| P2-02 red фиксов | runtime 4 fail (r14–r17) + compile-r19, оба `EXIT=101` |
+| P2-01 `ready_review` | red-final **0/7**, `# EXIT=101`; green **7/7**, `# EXIT=0` |
+| fmt / clippy | `cargo fmt --check` чисто; clippy `-D warnings` — `# CLIPPY_EXIT=0` |
+| Мутации B01 | **18/18 caught** (voice 8+2, typing 8), исходники восстановлены по md5 (`B01/MUTATIONS.md`) |
+| Гейт B01 | **passed**, `B01/gate-worker.json` (`.gate/worker-2026-10-20T20-31-37-021Z.json`) |
+| Контракты B01 | P2-10/P2-11 заморожены: `RW-19/DESIGN-P2-10.md`, `RW-20/DESIGN-P2-11.md`; P2-08 — `RW-21/DESIGN-P2-08.md` (B02 research) |
+| P2-10 research | готов: snapshot `003` + 8 live `VOICE_STATE_UPDATE`, 7 timer, 3 status (`RW-19/RESEARCH-P2-10.md`) |
+| P2-11 fixture | 28 минимизированных START в `RW-20/tests-data/typing-run2.jsonl` |
+| P2-08 research | READY `user_settings_proto` 4400 b64 / 3300 B; UPDATE type 2 17436 b64 / 13077 B; схема подтверждена JS-бандлом (`RW-21/RESEARCH-P2-08.md`) |
+| Журнал | `waves/db.jsonl`; принятые волны RW-01…RW-20 (P2-10/P2-11 — `accepted` 2026-10-21) |
+| Граф | `.ua/knowledge-graph.json` — устарел; пересобрать после B01 |
+
+## 2. Прогресс плана (`docs/rust-client/PLAN.md`)
+
+- Принято: **20 / 90** — `P0-02`, `P0-03`, `P1-03`…`P1-09`, `P1-11`, `P1-12`, `P2-01`,
+  `P2-02`, `P2-04`, `P2-05`, `P2-06`, `P2-07`, `P2-09`, `P2-10`, `P2-11`.
+- Осталось: **70** — P0: 5, P1: 3 (`P1-01`, `P1-02`, `P1-10`), P2: 2 (`P2-03`, `P2-08`),
+  P3: 16, P4: 12, P4.5: 3, P5: 7, P6: 10, P7: 7, P8: 5.
+- RW-11 дал `P1-09/P1-11/P1-12`; RW-12 дал `P2-01`; RW-13 дал `P2-02`; RW-14 дал
+  `P2-06`; RW-15 дал `P2-04`; RW-16 дал `P2-05`; RW-17 дал `P2-07`; RW-18 дал `P2-09`;
+  RW-19/20 дали `P2-10/P2-11`; RW-10 — транспортная инфраструктура к уже принятой `P1-07`.
+- Текущий batch **B02 / RW-21**: **P2-08** (settings-proto, structural decoder + типизированные
+  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
+  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
+  уже готов и не требует внешних решений.
+
+## 3. Последние волны
+
+### B01 / RW-19–20 — P2-10 voice + P2-11 typing, принято 2026-10-21
+
+- P2-10: `READY_SUPPLEMENTAL` snapshot аддитивен, `VOICE_STATE_UPDATE` join/move/leave
+  last-wins, `(guild,user)` store, timer/status, member upsert только при совпадении id;
+  18 тестов. Review round 1 дал P2-1 (additivity/last-wins/remove не покрыты); закрыт
+  red-first v09b/v09c/v09d + мутанты clear-before-loop/first-wins. Round 2 — **accepted**,
+  P0/P1/P2=0, P3=11.
+- P2-11: `TYPING_START` TTL 10 000 мс, repeat restarts, `MESSAGE_CREATE` снимает пару,
+  READY сбрасывает, время только из `received_at_ms`/`now_ms`; 15 тестов. Review —
+  **accepted**, P0/P1/P2=0, P3=10.
+- Integration I0/I1: `state/mod.rs`, `state/types.rs`, `state/reducer.rs`, `ready/snapshot.rs`,
+  `lib.rs`; shared-тесты адаптированы. Targeted 33/33, core 506, workspace 548, fmt/clippy 0,
+  gate passed `.gate/worker-2026-10-20T20-31-37-021Z.json`; мутации 18/18.
+- Артефакты: `waves/B01/`, `waves/RW-19/`, `waves/RW-20/`, ревью —
+  `waves/reviews/review-p2-10-round2.md`, `review-p2-11.md`.
+
+### RW-17 — P2-07 memory-only read-state/бейджи, принято 2026-10-20
+
+- W17a/W17b/W17c: `MessageAck` + парсер, `EventPayload::MessageAck`/маршрут, `apply_ack`,
+  селекторы mentions/guild/private/badge/ack-point; channel использует только
+  `last_message_id`, non-channel — `last_acked_id`; manual/non-manual mentions; version
+  watermark без max-guard; stale guard по message-id; 40 тестов (12/17/11).
+- Ревью round 1 — P0/P1=0, **P2=1** (channel fallback в `last_acked_id` давал ложный
+  `is_message_read`); закрыт red-first s11 (`Some(700) != None`, exit 101), s06 исправлен,
+  Correction 2. Round 2 — **принято**, P0/P1/P2=0, P3=5 backlog.
+- Scope: memory-only; REST ACK/`Effect::AckMessage` не генерируется, unread-count не
+  выдуман, `MESSAGE_ACKED`/non-channel ACK не расширяются; SQLite/UI/сеть/live вне волны.
+- Red: W17a compile-red, W17b 0/14 behavior-red, W17c compile-red (59 E0599), P2-1 s11;
+  все exit 101. Green targeted 40/40, core 418, workspace 460; fmt/clippy чисто; gate
+  passed `.gate/worker-2026-10-20T15-10-13-521Z.json`. Мутации 7/7 пойманы, md5
+  восстановлены.
+- Артефакты: `waves/RW-17/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS/REPORT, тесты, red/green,
+  mutation-logs, gate), ревью — `waves/reviews/review-p2-07.md`.
+
+### RW-16 — P2-05 memory-only chunks/догрузка, принято 2026-10-20
+
+- W16a/W16b/W16c: `MemberChunk`/`Assembly`, подтверждённые поля `guild_id`,
+  `chunk_index/count`, `members`, `not_found`; optional `nonce`; `presences[]` не
+  изобретается (ignored, P2-09); сборка по `(guild, nonce)`, first-wins count, duplicate
+  last-wins, out-of-order, `is_complete`; аддитивный merge `Guild.members`/`State.users`;
+  `not_found` не удаляет; селекторы; `Effect::RequestPresence` для видимого диапазона —
+  только декларация.
+- Ревью round 1 — P2-1 (`duplicate-index` подавлялся для `nonce=None/count>1`), P0/P1=0;
+  закрыт red-first (`r13`, exit 101); повторное ревью — **«принято»**, P0/P1/P2=0
+  (`waves/reviews/review-p2-05.md`).
+- Scope: memory-only; op8/op37/op14 wire и `nonce`-корреляция не подтверждены capture;
+  `presences[]` внутри chunk — P2-09; SQLite/UI/сеть вне волны.
+- Red: compile-red exit 101 + behavior-red r12/r13 exit 101; green targeted 43/43, core 378,
+  workspace 420; fmt/clippy чисто; gate passed
+  `.gate/worker-2026-10-20T13-21-59-680Z.json`. Мутации 3/3 пойманы (`is_complete`,
+  duplicate-условие, merge-replace), продукт восстановлен по md5.
+- Артефакты: `waves/RW-16/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-15 — P2-04 memory-only member list, принято 2026-10-20
+
+- W15a/W15b/W15c: `MemberListId` raw string, плоский `group|member`, SYNC/INSERT/UPDATE/DELETE,
+  сдвиги/резет, snapshot groups/counts, duplicate/out-of-range/unknown-op диагностика,
+  минимальный presence, селекторы; 39 тестов.
+- Ревью round 1 — P2-1 (INSERT в позицию существующего id не давал duplicate), P0/P1=0;
+  закрыт red-first (`red-w15-p21.log` exit 101 → green), P3 закрыты; повторное ревью —
+  **«принято»** (`waves/reviews/review-p2-04.md`).
+- Scope: memory-only; op37/op14 wire не подтверждён capture и не добавлялся
+  (`Effect::SubscribeMembers` — интерфейс); chunks/P2-05, full presence/P2-09,
+  `State.users` merge, SQLite/UI/сеть — вне волны.
+- Red: compile-red, exit 101; green targeted 40/40, core 335, workspace 377; fmt/clippy чисто;
+  gate passed `.gate/worker-2026-10-20T12-43-25-346Z.json`.
+- Артефакты: `waves/RW-15/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-14 — P2-06 memory history/pagination, принято 2026-10-20
+
+- W14a `types.rs`, W14b `pagination.rs`, W14c `selectors.rs`: bounded per-channel window,
+  `Latest`/`Before`/`After`/`Around`, generation-токены/stale, `Live > Page`, page/page
+  last-wins, tri-state bounds, селекторы; 20 тестов.
+- Ревью round 1 — P2-1 (root re-exports), P0/P1=0; закрыт red-first, P3-2/cap/expect
+  исправлены; повторное ревью — **«принято»** (`waves/reviews/review-p2-06.md`).
+- Scope: memory-only; REST response/JSON/SQLite/перезапуск/таймауты вне волны.
+- Red: compile W14a/b + behavior W14c + root/counts, exit 101; green 20/20; workspace 337,
+  core 295; fmt/clippy чисто; gate passed.
+- Артефакты: `waves/RW-14/` (RESEARCH/DESIGN/TZ/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-13 — P2-02 state/reducer/selectors, принято 2026-10-20
+
+- W13a `types.rs`, W13b `reducer.rs`, W13c `selectors.rs`: READY/SUPPLEMENTAL/RESUMED,
+  `SESSIONS_REPLACE`, `THREAD_LIST_SYNC`, `CHANNEL_INFO`, `MESSAGE_CREATE`/`UPDATE`.
+- Чистый reducer, `BTreeMap`-индексы, stale-политика (включая malformed), эффекты только
+  `SubscribeMembers`, диагностика, redaction; 42 state-теста.
+- Ревью round 1 — «не принято» (P1 stale malformed + 5 P2), все закрыты red-first;
+  повторное ревью — **«принято»**, P0/P1/P2 = 0 (`waves/reviews/review-p2-02.md`).
+- Red фиксов: `red-review-findings.log` (compile), `red-review-findings-runtime.log`
+  (4 fail, exit 101); green 19/19; workspace 317, core 275; fmt/clippy чисто; gate passed.
+- Артефакты: `waves/RW-13/` (DESIGN/TZ/RESEARCH/TEST-CORRECTIONS, тесты, логи, gate).
+
+### RW-10 — HTTP/1.1 + TCP/TLS (инфраструктура P1-07), принято 2026-10-20
+
+- W10a — `http1.rs`: запрос/ответ, CL/chunked, лимиты, anti-smuggling, строгий TE.
+- W10b — `transport.rs`: `Endpoint`, TCP/TLS, SAN, DNS/connect/read/write-таймауты.
+- Повторное ревью — «принято с нитами», P0/P1/P2 нет; P3 N1–N9 — очередь.
+- Артефакты: `waves/RW-10/`; ревью — `waves/reviews/review-rw-10-11-round2.md`.
+
+### RW-11 — rate-limit / telemetry-off / ack, принято 2026-10-20
+
+- W11a — `rate_limit.rs` 429/5xx/401/бэкoff; W11b — `telemetry.rs`; W11c — `ack.rs`.
+- Повторное ревью — «принято с нитами», P0/P1/P2 нет; P3-3/P3-4/P3-6 и тестовые P3 — очередь.
+- Артефакты: `waves/RW-11/`; ревью — `waves/reviews/review-rw-10-11-round2.md`.
+
+### RW-12 — I1 REST-фасад + P2-01 READY, принято 2026-10-20
+
+- I1 `rest/client.rs`: auth + транспорт + 429/5xx + telemetry-off; 16/16 green после нитов;
+  независимое ревью — **«Принято»** (`waves/reviews/review-i1.md`), P3-7 — backlog.
+- P2-01: A1 READY-модель, 40 top-level ключей; воркеры W12a/W12b/W12c — 14+13+11 кейсов.
+- Независимое ревью P2-01: round 1 — «не принято» (P1/P2/P3), все P1/P2 закрыты red-first;
+  round 3 — **«принято»**, P0/P1/P2 = 0 (`waves/reviews/review-p2-01-round3.md`).
+- P2-01: `ready_review.rs` 7 кейсов; атом-строки, вложенные `ignored`-пути с `d.`,
+  сырой индекс `merged_members`, явный `[]` → `malformed`, дубликат гильдии — last wins.
+- Legacy `ready_data` удалён из сборки и публичного API (P-4): было 9 тестов; core 242 → 233,
+  workspace 284 → 275.
+- Артефакты: `waves/RW-12/reports/` (`w12a.md`, `w12b.md`, `w12c.md`,
+  `p2-01-review-fixes.md`, red/green/workspace/clippy-логи, md5, `p2-04-*`).
+
+
+exec
+/usr/bin/bash -lc 'git status --short && git diff -- docs/rust-client/LEGAL.md rust/crates/discord-conformance/tests/fixtures.rs && git diff --cached -- docs/rust-client/LEGAL.md rust/crates/discord-conformance/tests/fixtures.rs' in /home/sanya/orca/project
+ succeeded in 0ms:
+ M AGENTS.md
+ M PROCESS.md
+ M README.md
+ M TASKS.md
+ M docs/map.md
+ M docs/rust-client/ARCHITECTURE.md
+ M docs/rust-client/PLAN.md
+ M docs/rust-client/README.md
+ M docs/rust-client/TEST-PLAN.md
+ M rust/Cargo.lock
+ M rust/Cargo.toml
+ M rust/README.md
+ M rust/crates/discord-codec/src/etf.rs
+ M rust/crates/discord-codec/src/lib.rs
+ M rust/crates/discord-codec/src/zstd.rs
+ M rust/crates/discord-codec/tests/zstd_stream.rs
+ M rust/crates/discord-conformance/src/lib.rs
+ M rust/crates/discord-core/Cargo.toml
+ M rust/crates/discord-core/src/lib.rs
+ M rust/crates/discord-core/src/ready.rs
+ M rust/crates/discord-core/src/rest/mod.rs
+ M waves/README.md
+ M waves/STATE.md
+ M waves/db.jsonl
+?? .ua/
+?? docs/rust-client/CODE-STANDARD.md
+?? docs/rust-client/CODEX-WORKERS.md
+?? docs/rust-client/DEVELOPMENT-PROMPT.md
+?? docs/rust-client/LEGAL.md
+?? docs/rust-client/ROADMAP.md
+?? docs/rust-client/STATUS.md
+?? docs/rust-client/TEAM.md
+?? docs/rust-client/WAVE-PLAN.md
+?? rust/crates/discord-codec/tests/etf_full.rs
+?? rust/crates/discord-conformance/tests/
+?? rust/crates/discord-core/src/history/
+?? rust/crates/discord-core/src/ready/
+?? rust/crates/discord-core/src/rest/ack.rs
+?? rust/crates/discord-core/src/rest/client.rs
+?? rust/crates/discord-core/src/rest/http1.rs
+?? rust/crates/discord-core/src/rest/rate_limit.rs
+?? rust/crates/discord-core/src/rest/telemetry.rs
+?? rust/crates/discord-core/src/rest/transport.rs
+?? rust/crates/discord-core/src/settings/
+?? rust/crates/discord-core/src/state/
+?? rust/crates/discord-core/tests/data/rest-test-ca.der
+?? rust/crates/discord-core/tests/data/rest-test-cert.der
+?? rust/crates/discord-core/tests/data/rest-test-key.der
+?? rust/crates/discord-core/tests/data/settings-frecency-update-13072.b64
+?? rust/crates/discord-core/tests/data/settings-frecency-update-8269.b64
+?? rust/crates/discord-core/tests/data/settings-frecency-update-8608.b64
+?? rust/crates/discord-core/tests/data/settings-preloaded-ready-4400.b64
+?? rust/crates/discord-core/tests/data/typing-run2.jsonl
+?? rust/crates/discord-core/tests/history_pagination.rs
+?? rust/crates/discord-core/tests/history_selectors.rs
+?? rust/crates/discord-core/tests/history_types.rs
+?? rust/crates/discord-core/tests/member_chunk_reducer.rs
+?? rust/crates/discord-core/tests/member_chunk_selectors.rs
+?? rust/crates/discord-core/tests/member_chunk_types.rs
+?? rust/crates/discord-core/tests/member_list_reducer.rs
+?? rust/crates/discord-core/tests/member_list_selectors.rs
+?? rust/crates/discord-core/tests/member_list_types.rs
+?? rust/crates/discord-core/tests/presence_reducer.rs
+?? rust/crates/discord-core/tests/presence_selectors.rs
+?? rust/crates/discord-core/tests/presence_types.rs
+?? rust/crates/discord-core/tests/read_state_reducer.rs
+?? rust/crates/discord-core/tests/read_state_selectors.rs
+?? rust/crates/discord-core/tests/read_state_types.rs
+?? rust/crates/discord-core/tests/ready_core.rs
+?? rust/crates/discord-core/tests/ready_fixture.rs
+?? rust/crates/discord-core/tests/ready_read_state.rs
+?? rust/crates/discord-core/tests/ready_review.rs
+?? rust/crates/discord-core/tests/ready_social.rs
+?? rust/crates/discord-core/tests/rest_ack.rs
+?? rust/crates/discord-core/tests/rest_client.rs
+?? rust/crates/discord-core/tests/rest_http1.rs
+?? rust/crates/discord-core/tests/rest_rate_limit.rs
+?? rust/crates/discord-core/tests/rest_telemetry.rs
+?? rust/crates/discord-core/tests/rest_transport.rs
+?? rust/crates/discord-core/tests/settings_proto.rs
+?? rust/crates/discord-core/tests/state_reducer.rs
+?? rust/crates/discord-core/tests/state_selectors.rs
+?? rust/crates/discord-core/tests/state_types.rs
+?? rust/crates/discord-core/tests/support/
+?? rust/crates/discord-core/tests/typing_reducer.rs
+?? rust/crates/discord-core/tests/typing_selectors.rs
+?? rust/crates/discord-core/tests/typing_types.rs
+?? rust/crates/discord-core/tests/voice_state_reducer.rs
+?? rust/crates/discord-core/tests/voice_state_selectors.rs
+?? rust/crates/discord-core/tests/voice_state_types.rs
+?? waves/B01/
+?? waves/GUI-AUDIT.md
+?? waves/RW-10/
+?? waves/RW-11/
+?? waves/RW-12/
+?? waves/RW-13/
+?? waves/RW-14/
+?? waves/RW-15/
+?? waves/RW-16/
+?? waves/RW-17/
+?? waves/RW-18/
+?? waves/RW-19/
+?? waves/RW-20/
+?? waves/RW-21/
+?? waves/TASK-TREE-RUST.md
+?? waves/_TEMPLATES/
+?? waves/reviews/p2-09-round2/
+?? waves/reviews/p2-09/
+?? waves/reviews/p2-10-round2/
+?? waves/reviews/p2-10/
+?? waves/reviews/p2-11/
+?? waves/reviews/review-i1.md
+?? waves/reviews/review-p2-01-round2.md
+?? waves/reviews/review-p2-01-round3.md
+?? waves/reviews/review-p2-01.md
+?? waves/reviews/review-p2-02.md
+?? waves/reviews/review-p2-04.md
+?? waves/reviews/review-p2-05.md
+?? waves/reviews/review-p2-06.md
+?? waves/reviews/review-p2-07.md
+?? waves/reviews/review-p2-09-round2.md
+?? waves/reviews/review-p2-09.md
+?? waves/reviews/review-p2-10-round2.md
+?? waves/reviews/review-p2-10.md
+?? waves/reviews/review-p2-11.md
+?? waves/reviews/review-rw-10-11-round2.md
+?? waves/reviews/review-rw-10-11.md
+
+exec
+/usr/bin/bash -lc "realpath fixtures/MANIFEST.json && stat -c '%F %n' fixtures/MANIFEST.json && nl -ba rust/crates/discord-conformance/tests/fixtures.rs | sed -n '1,240p' && nl -ba docs/rust-client/LEGAL.md | sed -n '1,260p'" in /home/sanya/orca/project
+ succeeded in 0ms:
+/home/sanya/orca/project/fixtures/MANIFEST.json
+regular file fixtures/MANIFEST.json
+     1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
+     2	//!
+     3	//! Курированные фикстуры обязательны; lab-файлы опциональны — при отсутствии лаборатории
+     4	//! тест печатает причину и завершается skip-ом, а не падением.
+     5	
+     6	use discord_conformance::{
+     7	    ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
+     8	    manifest_text, resolve,
+     9	};
+    10	use std::fs;
+    11	use std::path::{Path, PathBuf};
+    12	
+    13	/// Lab-файл опционален для обычного прогона, но `RE_REQUIRE_LAB=1` превращает его
+    14	/// отсутствие в ошибку: acceptance не должен молча засчитывать skip как pass.
+    15	fn lab_file_or_skip(path: &Path) -> bool {
+    16	    if path.is_file() {
+    17	        return true;
+    18	    }
+    19	    if std::env::var_os("RE_REQUIRE_LAB").is_some() {
+    20	        panic!(
+    21	            "RE_REQUIRE_LAB задан, но lab-файл отсутствует: {} (RE_LAB_ROOT={})",
+    22	            path.display(),
+    23	            lab_root().display()
+    24	        );
+    25	    }
+    26	    eprintln!(
+    27	        "skip: нет lab-файла {} (RE_LAB_ROOT={})",
+    28	        path.display(),
+    29	        lab_root().display()
+    30	    );
+    31	    false
+    32	}
+    33	
+    34	#[test]
+    35	fn manifest_is_readable_and_has_versioned_provenance() {
+    36	    let path = manifest_path();
+    37	    assert_eq!(
+    38	        path,
+    39	        fixtures_root().join("MANIFEST.json"),
+    40	        "манифест лежит в корне фикстур, а не в подкаталоге"
+    41	    );
+    42	    assert!(
+    43	        path.ends_with("fixtures/MANIFEST.json"),
+    44	        "ожидался <repo>/fixtures/MANIFEST.json, получен {}",
+    45	        path.display()
+    46	    );
+    47	    assert!(path.is_file(), "нет манифеста фикстур {}", path.display());
+    48	    let text = manifest_text().expect("манифест читается");
+    49	    assert!(text.contains("\"labRoot\""), "манифест фиксирует labRoot");
+    50	    assert!(text.contains("\"fixtures\""), "манифест содержит список");
+    51	    assert!(
+    52	        text.matches("\"md5\"").count() >= 12,
+    53	        "ожидается ≥12 записей с md5"
+    54	    );
+    55	    assert!(
+    56	        fixtures_root().is_dir(),
+    57	        "корень фикстур отсутствует: {}",
+    58	        fixtures_root().display()
+    59	    );
+    60	}
+    61	
+    62	#[test]
+    63	fn repository_fixture_resolves() {
+    64	    let fixture = resolve("gateway/ready-stats.json").expect("READY-статистика есть в fixtures/");
+    65	    assert_eq!(fixture.source, FixtureSource::Repository);
+    66	    assert_eq!(fixture.name, "gateway/ready-stats.json");
+    67	    assert!(fixture.path.is_file());
+    68	}
+    69	
+    70	#[test]
+    71	fn load_helpers_match_direct_read() {
+    72	    let fixture = resolve("gateway/ready-stats.json").expect("READY-статистика есть в fixtures/");
+    73	    let direct = fs::read(&fixture.path).expect("прямое чтение");
+    74	    assert!(!direct.is_empty());
+    75	    let via_fixture = fixture.read_bytes().expect("Fixture::read_bytes");
+    76	    let via_helper = load_bytes("gateway/ready-stats.json").expect("load_bytes");
+    77	    assert_eq!(via_fixture, direct);
+    78	    assert_eq!(via_helper, direct);
+    79	    let text = load_text("gateway/ready-stats.json").expect("load_text");
+    80	    assert_eq!(text.as_bytes(), direct.as_slice());
+    81	}
+    82	
+    83	#[test]
+    84	fn lab_only_fixture_resolves_when_lab_is_present() {
+    85	    let lab_file = lab_root().join("gw-proto/zstd-frames-95974_1389.hexl");
+    86	    if !lab_file_or_skip(&lab_file) {
+    87	        return;
+    88	    }
+    89	    let fixture = resolve("gw-proto/zstd-frames-95974_1389.hexl").expect("lab-фикстура");
+    90	    assert_eq!(fixture.source, FixtureSource::Lab);
+    91	    assert_eq!(fixture.path, lab_file);
+    92	    let bytes = fixture.read_bytes().expect("lab read");
+    93	    assert!(bytes.len() > 100_000, "lab-поток непустой");
+    94	}
+    95	
+    96	#[test]
+    97	fn invalid_names_and_missing_fixtures_are_typed_errors() {
+    98	    for name in ["", "../etc/passwd", "/etc/passwd"] {
+    99	        assert!(
+   100	            matches!(
+   101	                resolve(name),
+   102	                Err(ConformanceError::InvalidName { name: ref found }) if found == name
+   103	            ),
+   104	            "ожидался InvalidName для {name:?}"
+   105	        );
+   106	    }
+   107	    match resolve("__definitely_missing_fixture__") {
+   108	        Err(ConformanceError::NotFound {
+   109	            name,
+   110	            repository,
+   111	            lab,
+   112	        }) => {
+   113	            assert_eq!(name, "__definitely_missing_fixture__");
+   114	            assert!(repository.ends_with("__definitely_missing_fixture__"));
+   115	            assert!(lab.ends_with("__definitely_missing_fixture__"));
+   116	        }
+   117	        other => panic!("ожидался NotFound, получено {other:?}"),
+   118	    }
+   119	}
+   120	
+   121	#[test]
+   122	fn roots_honor_environment_overrides_without_mutation() {
+   123	    if let Ok(value) = std::env::var("RE_FIXTURES_ROOT") {
+   124	        assert_eq!(fixtures_root(), PathBuf::from(value));
+   125	    } else {
+   126	        assert!(
+   127	            fixtures_root().ends_with("fixtures"),
+   128	            "по умолчанию корень — <repo>/fixtures: {}",
+   129	            fixtures_root().display()
+   130	        );
+   131	    }
+   132	    if let Ok(value) = std::env::var("RE_LAB_ROOT") {
+   133	        assert_eq!(lab_root(), PathBuf::from(value));
+   134	    } else {
+   135	        assert_eq!(lab_root(), PathBuf::from("/home/sanya/re-deep"));
+   136	    }
+   137	}
+     1	# Правовая рамка Rust-клиента (P0-07)
+     2	
+     3	Статус: рабочий документ проекта, не юридическая консультация. Владелец проекта принимает
+     4	решение о запуске и распространении; при конфликте с ToS Discord приоритет у ToS.
+     5	
+     6	## 1. Границы проекта
+     7	
+     8	- Это **неофициальный** клиент; он не аффилирован с Discord Inc. и не выдаёт себя за
+     9	  официальный клиент.
+    10	- Реверс-инжиниринг и модификация клиента ограничены ToS Discord. Анализ допускается только
+    11	  для собственного установленного клиента на своей машине и в пределах применимого права.
+    12	- Запрещено использовать проект для обхода платных функций, DRM, банов, анти-абьюза, читов,
+    13	  массовых рассылок, спама, скрейпинга чужих данных или распространения изменённых сборок.
+    14	- Автоматизация действий в аккаунте (сообщения, реакции, голос) включается только явным
+    15	  действием пользователя; фоновые циклы и «самоботы» не являются целью проекта.
+    16	- Сетевые лимиты Discord соблюдаются: клиент не должен ретраить агрессивнее серверных
+    17	  `Retry-After`, обходить 429 или использовать несколько аккаунтов для обхода лимитов.
+    18	
+    19	## 2. Телеметрия и сеть
+    20	
+    21	- **Телеметрия выключена по умолчанию**: `POST /science`, `POST /beaker` и аналогичные
+    22	  аналитические события не отправляются. Это фиксируется тестами `T-REST-*`/telemetry-off.
+    23	- Исходящий трафик ограничен функциями, которые явно запросил пользователь: шлюз, REST,
+    24	  голосовая сигнализация/медиа. Скрытых аналитических, рекламных и «обучающих» отправок нет.
+    25	- **Политика редакции (частично реализована):** локальные журналы не должны содержать
+    26	  токенов, `analytics_token`, `qos_token`, публичных IP и бинарных payload. Сейчас redaction
+    27	  покрывает `Debug`/CLI-модели (`REDACTED`, `<redacted>`); полный скан файловых логов и
+    28	  замена IP/payload — требование P1-10/T-SEC, а не заявленная готовая гарантия.
+    29	- Захваты и фикстуры хранятся локально; публикация сырья допускается только после санитизации
+    30	  и проверки провенанса (`fixtures/MANIFEST.json`). Это правило процесса; полный
+    31	  автоматический санитайзер — отдельная задача T-HARN-07, пока проверка ручная.
+    32	
+    33	## 3. Честный отпечаток клиента
+    34	
+    35	- Клиент не маскируется под официальный Discord и не обещает «невидимость» для анти-абьюза.
+    36	- `X-Super-Properties` и user-agent формируются из документированных полей RE; политика —
+    37	  **честный нативный отпечаток**, без подмены чужих версий, без случайного шума для обхода
+    38	  детекта и без скрытых полей, которых нет в спецификации.
+    39	- Отпечаток конфигурируем для тестов и отладки, но значения по умолчанию прозрачны и
+    40	  воспроизводимы; тесты фиксируют состав полей.
+    41	- Ограничения и этическая оценка: `CONCEPT.md` §7 (риск «анти-абьюз/отпечаток» — высокий).
+    42	
+    43	## 4. Аккаунт, токен и данные
+    44	
+    45	- **Целевое требование (P1-10):** токен хранится в системном keyring; в файлах/логах/
+    46	  фикстурах — только `REDACTED`. Keyring **ещё не реализован**: до разрешения зависимости
+    47	  токен живёт только in-memory/в явном конфиге, а не в файле настроек.
+    48	- Пароль и MFA не журналируются; ошибки входа не содержат секретов — это текущий контракт
+    49	  `Debug`/CLI, полный аудит логов входит в T-SEC.
+    50	- Пользовательские данные (сообщения, участники, настройки) остаются локальными; экспорт —
+    51	  только по явной команде пользователя (политика; реализация экспорта — будущие карточки).
+    52	- Удаление профиля/кэша **должно** удалять токены и чувствительные журналы; тесты появятся
+    53	  вместе с хранилищем (P2-03/P1-10), до этого это требование, а не проверенная функция.
+    54	
+    55	## 5. Ассеты и лицензии
+    56	
+    57	- **Политика:** не распространяем чужие шрифты, иконки, звуки, emoji и иные ассеты Discord
+    58	  без лицензии. Используются собственные или открытые ассеты с совместимой лицензией;
+    59	  источник фиксируется. Проверка конкретного набора ассетов — при его добавлении.
+    60	- Код проекта — MIT OR Apache-2.0 (подтверждено `rust/Cargo.toml`); сторонние крейты — по
+    61	  их лицензиям. Автоматический `cargo deny`/SBOM **ещё не настроен** — отдельная карточка
+    62	  T-HARN-07, поэтому лицензии зависимостей пока не считаются проверенными.
+    63	- Название и логотипы Discord не используются как бренд проекта; README содержит дисклеймер
+    64	  о неофициальности (проверено).
+    65	
+    66	## 6. Живые операции и approval
+    67	
+    68	Следующие действия требуют явного окна, согласованного владельцем, и не выполняются
+    69	автоматически: подключение к живому Discord, `device.spawn`/attach, голосовой транспорт,
+    70	исходящие сообщения/реакции, запись GUI. До approval используются только сохранённые
+    71	санитизированные фикстуры и офлайн-тесты.
+    72	
+    73	## 7. Чек-лист P0-07
+    74	
+    75	Статусы: `[x]` проверено текущим кодом/процессом, `[~]` политика или частичная реализация,
+    76	`[ ]` ещё не реализовано.
+    77	
+    78	- [x] README/документация содержит ToS-дисклеймер и «неофициальный клиент».
+    79	- [x] Телеметрия off зафиксирована как требование и покрыта тестами `rest_telemetry`.
+    80	- [x] Политика честного отпечатка без обхода анти-абьюза (X-Super-Properties, без шума).
+    81	- [~] Секреты в `Debug`/CLI редактируются; полный скан логов, IP и payload — P1-10/T-SEC.
+    82	- [~] Чужие ассеты не распространяются; проверка лицензий/SBOM — T-HARN-07.
+    83	- [x] Живые операции — только по approval владельца (правило `AGENTS.md`/`PROCESS.md`).
+    84	
+    85	Остаточный риск: юридическая оценка ToS и распространения остаётся за владельцем; документ
+    86	не заменяет консультацию юриста. Незакрытые `[~]`/`[ ]` — не «сделано», а backlog.
+
+codex
+Подтверждено: реальный `fixtures/MANIFEST.json` существует именно по заявленному пути, и тест закрепляет это. По legal-документу разделение политики и текущей реализации теперь явно; сейчас проверю контракт библиотеки, точный режим обязательного lab и привязку документов к карточкам.
+exec
+/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-conformance/src/lib.rs && sed -n '1,180p' rust/crates/discord-conformance/Cargo.toml" in /home/sanya/orca/project
+ succeeded in 0ms:
+//! # discord-conformance
+//!
+//! Доступ к курированным конформанс-фикстурам RE (`fixtures/` в корне репозитория;
+//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+//!
+//! Тесты уровня L1–L3 (`docs/rust-client/TEST-PLAN.md` §3) читают артефакты отсюда,
+//! поэтому путь переопределяется переменной `RE_FIXTURES_ROOT` (например, для CI).
+//! Если курированной фикстуры нет, загрузчик смотрит в лабораторию (`RE_LAB_ROOT`).
+//! Отсутствие лаборатории — это `NotFound`/skip в тесте, а не паника библиотеки.
+
+use std::fmt;
+use std::io;
+use std::path::{Component, Path, PathBuf};
+
+/// Источник найденной фикстуры.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FixtureSource {
+    /// Курированная копия в `fixtures/` репозитория.
+    Repository,
+    /// Сырьё в лаборатории (`/home/sanya/re-deep` либо `RE_LAB_ROOT`).
+    Lab,
+}
+
+/// Разрешённая фикстура: относительное имя, источник и абсолютный/рабочий путь.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Fixture {
+    /// Имя относительно корня фикстур (например, `gateway/ready-stats.json`).
+    pub name: String,
+    /// Где именно найден файл.
+    pub source: FixtureSource,
+    /// Путь, по которому найден файл.
+    pub path: PathBuf,
+}
+
+impl Fixture {
+    /// Прочитать фикстуру как байты.
+    pub fn read_bytes(&self) -> Result<Vec<u8>, ConformanceError> {
+        read_bytes(&self.path)
+    }
+
+    /// Прочитать фикстуру как UTF-8-текст.
+    pub fn read_text(&self) -> Result<String, ConformanceError> {
+        read_text(&self.path)
+    }
+}
+
+/// Ошибка загрузчика фикстур.
+#[derive(Debug)]
+pub enum ConformanceError {
+    /// Имя пустое, абсолютное или содержит `..`.
+    InvalidName {
+        /// Отклонённое имя.
+        name: String,
+    },
+    /// Файл не найден ни в репозитории, ни в лаборатории.
+    NotFound {
+        /// Относительное имя.
+        name: String,
+        /// Проверенный путь репозитория.
+        repository: PathBuf,
+        /// Проверенный путь лаборатории.
+        lab: PathBuf,
+    },
+    /// Ошибка чтения/метаданных (кроме `NotFound`).
+    Io {
+        /// Путь, на котором произошла ошибка.
+        path: PathBuf,
+        /// Исходная ошибка ОС.
+        source: io::Error,
+    },
+    /// Файл прочитан, но не является UTF-8.
+    Utf8 {
+        /// Путь к файлу.
+        path: PathBuf,
+    },
+}
+
+impl fmt::Display for ConformanceError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidName { name } => {
+                write!(formatter, "недопустимое имя фикстуры: {name:?}")
+            }
+            Self::NotFound {
+                name,
+                repository,
+                lab,
+            } => write!(
+                formatter,
+                "фикстура {name:?} не найдена: {} или {}",
+                repository.display(),
+                lab.display()
+            ),
+            Self::Io { path, source } => {
+                write!(formatter, "ошибка чтения {}: {source}", path.display())
+            }
+            Self::Utf8 { path } => {
+                write!(formatter, "фикстура {} не является UTF-8", path.display())
+            }
+        }
+    }
+}
+
+impl std::error::Error for ConformanceError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::Io { source, .. } => Some(source),
+            _ => None,
+        }
+    }
+}
+
+/// Корень конформанс-фикстур: `RE_FIXTURES_ROOT` либо `<repo>/fixtures`.
+pub fn fixtures_root() -> PathBuf {
+    if let Ok(env_root) = std::env::var("RE_FIXTURES_ROOT") {
+        return PathBuf::from(env_root);
+    }
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
+}
+
+/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/sanya/re-deep`.
+pub fn lab_root() -> PathBuf {
+    PathBuf::from(
+        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+    )
+}
+
+/// Путь к манифесту фикстур.
+pub fn manifest_path() -> PathBuf {
+    fixtures_root().join("MANIFEST.json")
+}
+
+/// Текст манифеста фикстур.
+pub fn manifest_text() -> Result<String, ConformanceError> {
+    read_text(&manifest_path())
+}
+
+/// Найти фикстуру: сначала курированную копию, затем лабораторию.
+///
+/// Возвращает [`ConformanceError::InvalidName`] до любых обращений к файловой системе,
+/// поэтому имя не может выйти за корень.
+pub fn resolve(name: &str) -> Result<Fixture, ConformanceError> {
+    validate_name(name)?;
+    let repository = fixtures_root().join(name);
+    if repository.is_file() {
+        return Ok(Fixture {
+            name: name.to_string(),
+            source: FixtureSource::Repository,
+            path: repository,
+        });
+    }
+    let lab = lab_root().join(name);
+    if lab.is_file() {
+        return Ok(Fixture {
+            name: name.to_string(),
+            source: FixtureSource::Lab,
+            path: lab,
+        });
+    }
+    Err(ConformanceError::NotFound {
+        name: name.to_string(),
+        repository,
+        lab,
+    })
+}
+
+/// Прочитать фикстуру как байты (repo → lab).
+pub fn load_bytes(name: &str) -> Result<Vec<u8>, ConformanceError> {
+    resolve(name)?.read_bytes()
+}
+
+/// Прочитать фикстуру как UTF-8-текст (repo → lab).
+pub fn load_text(name: &str) -> Result<String, ConformanceError> {
+    resolve(name)?.read_text()
+}
+
+/// Проверка относительного имени без выхода за корень.
+fn validate_name(name: &str) -> Result<(), ConformanceError> {
+    let path = Path::new(name);
+    let invalid = name.is_empty()
+        || path.is_absolute()
+        || path.components().any(|component| {
+            matches!(
+                component,
+                Component::ParentDir | Component::RootDir | Component::Prefix(_)
+            )
+        });
+    if invalid {
+        Err(ConformanceError::InvalidName {
+            name: name.to_string(),
+        })
+    } else {
+        Ok(())
+    }
+}
+
+/// Чтение с типизированной ошибкой; `NotFound` здесь тоже `Io` — вызывающий уже разрешил путь.
+fn read_bytes(path: &Path) -> Result<Vec<u8>, ConformanceError> {
+    std::fs::read(path).map_err(|source| ConformanceError::Io {
+        path: path.to_path_buf(),
+        source,
+    })
+}
+
+fn read_text(path: &Path) -> Result<String, ConformanceError> {
+    let bytes = read_bytes(path)?;
+    String::from_utf8(bytes).map_err(|_| ConformanceError::Utf8 {
+        path: path.to_path_buf(),
+    })
+}
+[package]
+name = "discord-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Доступ к конформанс-фикстурам лаборатории (fixtures/)"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+exec
+/usr/bin/bash -lc "for f in waves/RW-21/logs/b02-conformance-require-red.log waves/RW-21/logs/b02-conformance-require-green2.log; do printf '\\n--- %s ---\\n' \""'$f"; sed -n '"'1,120p' \""'$f"; done; printf '"'\\n--- DESIGN ---\\n'; sed -n '1,220p' waves/RW-21/DESIGN-P0-04.md" in /home/sanya/orca/project
+ succeeded in 0ms:
+
+--- waves/RW-21/logs/b02-conformance-require-red.log ---
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/discord_conformance-8d2b42bc27c94d92)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixtures.rs (target/debug/deps/fixtures-8f066d7b3b4308eb)
+
+running 6 tests
+test invalid_names_and_missing_fixtures_are_typed_errors ... ok
+test load_helpers_match_direct_read ... ok
+test repository_fixture_resolves ... ok
+test lab_only_fixture_resolves_when_lab_is_present ... FAILED
+test roots_honor_environment_overrides_without_mutation ... ok
+test manifest_is_readable_and_has_versioned_provenance ... ok
+
+failures:
+
+---- lab_only_fixture_resolves_when_lab_is_present stdout ----
+
+thread 'lab_only_fixture_resolves_when_lab_is_present' (53404) panicked at crates/discord-conformance/tests/fixtures.rs:20:9:
+RE_REQUIRE_LAB задан, но lab-файл отсутствует: /nonexistent/gw-proto/zstd-frames-95974_1389.hexl (RE_LAB_ROOT=/nonexistent)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    lab_only_fixture_resolves_when_lab_is_present
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-conformance --test fixtures`
+
+--- waves/RW-21/logs/b02-conformance-require-green2.log ---
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/discord_conformance-8d2b42bc27c94d92)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixtures.rs (target/debug/deps/fixtures-8f066d7b3b4308eb)
+
+running 6 tests
+test invalid_names_and_missing_fixtures_are_typed_errors ... ok
+test load_helpers_match_direct_read ... ok
+test repository_fixture_resolves ... ok
+test manifest_is_readable_and_has_versioned_provenance ... ok
+test roots_honor_environment_overrides_without_mutation ... ok
+test lab_only_fixture_resolves_when_lab_is_present ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_conformance
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- DESIGN ---
+# B02 / P0-04 — conformance harness skeleton (contract)
+
+Дата: 2026-10-21. Карточка **P0-04** (M). Файлы: `discord-conformance/src/lib.rs`,
+`discord-conformance/tests/fixtures.rs`. Без новых зависимостей: только `std`.
+
+## 1. Цель
+
+Дать тестам один детерминированный загрузчик фикстур: сначала курированный `fixtures/`
+репозитория, затем сырьё `/home/sanya/re-deep` (переопределяется `RE_LAB_ROOT`). Ошибки
+типизированы, путь и источник видны в отчёте; отсутствие lab — skip-aware на уровне теста,
+а не паника загрузчика.
+
+## 2. Контракт
+
+```rust
+pub enum FixtureSource { Repository, Lab }
+pub struct Fixture { pub name: String, pub source: FixtureSource, pub path: PathBuf }
+pub enum ConformanceError { InvalidName{..}, NotFound{..}, Io{..}, Utf8{..} }
+
+pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
+pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+pub fn manifest_path() -> PathBuf;
+pub fn manifest_text() -> Result<String, ConformanceError>;
+pub fn resolve(name: &str) -> Result<Fixture, ConformanceError>; // repo → lab
+pub fn load_bytes(name: &str) -> Result<Vec<u8>, ConformanceError>;
+pub fn load_text(name: &str) -> Result<String, ConformanceError>;
+```
+
+`name` — относительный путь без `..`/корня; иначе `InvalidName`. `NotFound` содержит оба
+проверенных пути. `Fixture::read_bytes/read_text` доступны и после `resolve`. Никакой
+сетевой/записывающей логики.
+
+Обычный прогон без lab — soft-skip с причиной (правило `TEST-PLAN.md`). Для приёмки
+`RE_REQUIRE_LAB=1` превращает отсутствие lab-файла в падение, чтобы skip не засчитывался
+как pass.
+
+## 3. Тесты (T-HARN-01)
+
+| ID | Проверка |
+|---|---|
+| h01 | манифест читается, содержит `labRoot` и ≥12 `md5`; `fixtures_root` существует |
+| h02 | `resolve("gateway/ready-stats.json")` → Repository, файл непустой и читается |
+| h03 | `resolve` lab-only файла (`gw-proto/zstd-frames-95974_1389.hexl`) → Lab; нет lab → skip |
+| h04 | абсолютный путь/`..` → `InvalidName`; отсутствующий → `NotFound` с двумя путями |
+| h05 | `load_text`/`load_bytes` возвращают те же байты, что прямой `fs::read` |
+| h06 | `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` переопределяют корни (проверка функций, без записи) |
+
+T-HARN-02/03 (полный реплей gateway/REST) остаются отдельными карточками: P0-04 — скелет
+загрузчика, не подмена протокольных тестов.
+
+exec
+/usr/bin/bash -lc "sed -n '1,160p' fixtures/MANIFEST.json && rg -n \"keyring|token|telemetry|asset|SBOM|cargo deny|P0-07|P0-04|checklist|T-HARN-07\" docs/rust-client/LEGAL.md docs/rust-client/STATUS.md docs/rust-client/ROADMAP.md TASKS.md" in /home/sanya/orca/project
+ succeeded in 0ms:
+{
+  "$comment": "Курированные конформанс-фикстуры для Rust-клиента (сырьё волны R7, санитизированные). Полная лаборатория — /home/sanya/re-deep; сборка — fixtures/tools/make-fixtures.mjs; сверка — docs/rust-client/verify/verify-re.mjs.",
+  "labRoot": "/home/sanya/re-deep",
+  "fixtures": [
+    {
+      "path": "gateway/ready-stats.json",
+      "source": "gateway/ready-stats.json",
+      "kind": "file",
+      "bytes": 1221,
+      "md5": "972065245b4f215b76314fbd7e89b573",
+      "purpose": "Счётчики READY: 40 ключей, 7 гильдий, 17 ЛС, 60 связей",
+      "usedBy": "T-GW-04, T-DATA-02"
+    },
+    {
+      "path": "gateway/summary.json",
+      "source": "gateway/summary.json",
+      "kind": "file",
+      "bytes": 6481,
+      "md5": "7ceb16f8ed6235d5dddc199cc8975d10",
+      "purpose": "Сводка кадров одного сокета (op/t/s/размеры)",
+      "usedBy": "T-GW-01, T-ENC-04"
+    },
+    {
+      "path": "gw-proto/facts-frozen.json",
+      "source": "gw-proto/facts-frozen.json",
+      "kind": "file",
+      "bytes": 176279,
+      "md5": "6bf6aab01e04f27ea3ac2065465ed517",
+      "purpose": "Замороженные факты волны: ETF-теги (11), счётчики сокетов, READY-числа",
+      "usedBy": "T-ENC-02, T-GW-08"
+    },
+    {
+      "path": "gw-proto/msgs-run2-95974_13072.jsonl",
+      "source": "gw-proto/msgs-run2-95974_13072.jsonl",
+      "kind": "file",
+      "bytes": 70313,
+      "md5": "7beb83a99f3869cf4d68a55b6db298ee",
+      "purpose": "Декодированные кадры одного сокета (1544 всего в 7 файлах)",
+      "usedBy": "T-ENC-04, T-GW-02"
+    },
+    {
+      "path": "rest/rest-static.json",
+      "source": "rest-static.json",
+      "kind": "file",
+      "bytes": 381655,
+      "md5": "8e0ead46addbb2f54f143343d0de2108",
+      "purpose": "Статический реестр REST-эндпоинтов из веб-бандла (904)",
+      "usedBy": "T-REST-01, T-REST-09"
+    },
+    {
+      "path": "i18n/i18n-stats.json",
+      "source": "i18n-stats.json",
+      "kind": "file",
+      "bytes": 28619,
+      "md5": "55219436c3b5cc5e079350c68e018d86",
+      "purpose": "Статистика i18n: 23 836 ru-ключей, рантайм-модули, локали",
+      "usedBy": "T-I18N-01, T-I18N-07"
+    },
+    {
+      "path": "voice/rtc-frames.jsonl",
+      "source": "voice/rtc-frames.jsonl",
+      "kind": "file",
+      "bytes": 3217,
+      "md5": "e8003f12f2eef3136bc31a5bba16ed5b",
+      "purpose": "Кадры RTC-сигнализации (сессия 2)",
+      "usedBy": "T-VOICE-01"
+    },
+    {
+      "path": "voice/rtc-summary.json",
+      "source": "voice/rtc-summary.json",
+      "kind": "file",
+      "bytes": 4267,
+      "md5": "1e5cd42b95893e95bfeac66c988944e0",
+      "purpose": "Сводка RTC-кадров (ops/ключи/длины)",
+      "usedBy": "T-VOICE-01, T-VOICE-03"
+    },
+    {
+      "path": "voice/rtc1-frames.jsonl",
+      "source": "voice/rtc1-frames.jsonl",
+      "kind": "file",
+      "bytes": 3370,
+      "md5": "7f913c8fe659f3e20bee2cb1d5269fd8",
+      "purpose": "Кадры RTC-сигнализации (сессия 1)",
+      "usedBy": "T-VOICE-01"
+    },
+    {
+      "path": "voice/rtc1-summary.json",
+      "source": "voice/rtc1-summary.json",
+      "kind": "file",
+      "bytes": 4540,
+      "md5": "844bc5c2dee845cd03bc72779998d6de",
+      "purpose": "Сводка RTC-кадров сессии 1",
+      "usedBy": "T-VOICE-02, T-VOICE-03"
+    },
+    {
+      "path": "voice/session3.timing",
+      "source": "voice/session3.timing",
+      "kind": "file",
+      "bytes": 203,
+      "md5": "768545e74d4a89805c3918437a0f11f2",
+      "purpose": "Тайминги сессии 3 (ротация медиа-сокета)",
+      "usedBy": "T-VOICE-06"
+    },
+    {
+      "path": "gateway/by-type",
+      "source": "gateway/by-type",
+      "kind": "dir",
+      "files": 164,
+      "bytes": 987601,
+      "md5": "index:b9e46b249efe9858528059d172026217",
+      "purpose": "Декодированные диспатчи по типам (164 файла, 12 типов)",
+      "usedBy": "T-GW-08, T-DATA-06"
+    }
+  ]
+}
+TASKS.md:532:| RC-01 | Концепт | Цель и рамки, 10 групп возможностей, стек (tokio/tungstenite/zstd/SQLite/keyring…), сценарии, критерии MVP/полного, риски | `docs/rust-client/CONCEPT.md` |
+TASKS.md:539:| RC-08 | Верификация данных | 20 автосверок сырьё↔доки: md5 снапшотов D-02, READY-числа (7/17/146/60/157), кадры gw-proto (1544/1340/21), 11 ETF-тегов, REST (47/133/221), i18n (23 836/31), IPC (168/43/35), модули (9), RTC-опы, санитизация (вырезан реальный `analytics_token` из декода READY), целостность фикстур — все 20/20 | `docs/rust-client/verify/verify-re.mjs`, `verify/report.json`, `VERIFICATION.md` |
+TASKS.md:588:| RW-05 | Идентификация: IDENTIFY (op2) по структуре веб-клиента + READY-сводка; отправка IDENTIFY после HELLO | P1-04 | поля op2 `{token, capabilities, properties, presence, compress, client_state, qos_token}` (оракул — бандл веб-клиента `out/bundles/discord.com_assets_web.*.js`, факты `rest-static.md` §4); `capabilities` 1734653/1767421; READY — сводка по run2-оракулу (40 ключей, 7/17/146/60, read_state 157/128949, user_guild_settings 58/734); T-GW-02 на стабе, T-GW-04 лаб-тест | T-GW-02, T-GW-04 | воркер: субагент; приёмка: координатор | принято 2026-10-19 (независимое ревью; ниты закрыты) |
+TASKS.md:589:| RW-06 | Resume/реконнект: op6 `{token,session_id,seq}`, политика resume (3 с/30 с), флаг op9 `d`, непрерывный `s` | P1-05 | `resume.rs` (`build_resume_frame`, `ResumeState`, `plan_reconnect`, порог 30 000 мс); `ws.rs` (`connect_and_run_resume`, op6 после HELLO, `resume_state()`, `last_invalid_session_resumable()`); T-GW-05 швы 663→664 и 331→332, T-GW-06 стаб-сценарий «op7 → RESUME → RESUMED без потерь», T-GW-07 политика разрыва | T-GW-05…07 | воркер: субагент; приёмка: координатор | принято 2026-10-19 (независимое ревью; дыры R4/R10/R11 закрыты) |
+TASKS.md:594:| RW-11 | Rate-limit/ошибки, телеметрия-off, ack/read-state — 3 параллельных воркера W11a/W11b/W11c | P1-09, P1-11, P1-12 | `rate_limit.rs` — retry-after/JSON-поля/429/5xx/401/бэкофф; `telemetry.rs` — блок science/beaker/track; `ack.rs` — target/body с токеном | 23 (10+4+9) | воркеры: W11a–W11c; ревью: отдельный агент | ревью 2026-10-20: «принято с нитами» (повторное ревью — «принято с нитами», P0/P1/P2 нет); P3 (JSON-сканер, нормализация telemetry, ссылки, httparse, тесты Host/TE) — очередь; принято 2026-10-20 |
+TASKS.md:680:токена, `build_resume_frame` `{op:6,d:{token,session_id,seq}}`, `ResumeState`,
+docs/rust-client/ROADMAP.md:23:по реальному READY/`USER_SETTINGS_PROTO_UPDATE` уже готов. P1-01/P1-02/P0-04/P0-07 идут
+docs/rust-client/ROADMAP.md:37:  P0-04 (conformance harness), P0-07 (legal).
+docs/rust-client/ROADMAP.md:69:| **B02** | P2-08, P1-01, P1-02, P0-04, P0-07 | settings-proto (текущая), ETF full, zstd strict, conformance harness, legal | P0-02/P0-03 |
+docs/rust-client/ROADMAP.md:71:| **B04** | P0-01, P1-10, P2-03 | GUI spike, keyring, SQLite — **только после решения владельца** | зависимости/окно |
+docs/rust-client/ROADMAP.md:80:- **D. Платформа** — P1-10 keyring и P2-03 SQLite отдельными решениями владельца.
+docs/rust-client/ROADMAP.md:99:3. **keyring:** разрешить `keyring` + Secret Service/KWallet. До этого токен — только
+docs/rust-client/ROADMAP.md:114:SQLite/keyring/GUI до решения владельца по зависимостям.
+docs/rust-client/STATUS.md:111:| `discord-platform` | каркас (keyring/трей/PTT нет) |
+docs/rust-client/STATUS.md:121:- SQLite (`P2-03`) и keyring (`P1-10`) — нет зависимостей в офлайн-кэше;
+docs/rust-client/STATUS.md:132:| `keyring` (P1-10) | разрешение на зависимость + Secret Service/KWallet |
+docs/rust-client/LEGAL.md:1:# Правовая рамка Rust-клиента (P0-07)
+docs/rust-client/LEGAL.md:22:  аналитические события не отправляются. Это фиксируется тестами `T-REST-*`/telemetry-off.
+docs/rust-client/LEGAL.md:26:  токенов, `analytics_token`, `qos_token`, публичных IP и бинарных payload. Сейчас redaction
+docs/rust-client/LEGAL.md:31:  автоматический санитайзер — отдельная задача T-HARN-07, пока проверка ручная.
+docs/rust-client/LEGAL.md:45:- **Целевое требование (P1-10):** токен хранится в системном keyring; в файлах/логах/
+docs/rust-client/LEGAL.md:61:  их лицензиям. Автоматический `cargo deny`/SBOM **ещё не настроен** — отдельная карточка
+docs/rust-client/LEGAL.md:62:  T-HARN-07, поэтому лицензии зависимостей пока не считаются проверенными.
+docs/rust-client/LEGAL.md:73:## 7. Чек-лист P0-07
+docs/rust-client/LEGAL.md:79:- [x] Телеметрия off зафиксирована как требование и покрыта тестами `rest_telemetry`.
+docs/rust-client/LEGAL.md:82:- [~] Чужие ассеты не распространяются; проверка лицензий/SBOM — T-HARN-07.
+
+exec
+/usr/bin/bash -lc 'rg -n "P0-04|P0-07|T-HARN-01|RE_REQUIRE_LAB|manifest_path|fn fixtures_root|fn lab_root|MANIFEST" TASKS.md TDD-PLAN.md waves/STATE.md waves/RW-21 rust/crates/discord-conformance' in /home/sanya/orca/project
+ succeeded in 0ms:
+waves/STATE.md:56:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
+waves/STATE.md:57:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
+waves/STATE.md:217:5. После P2-08 — P1-01/P1-02/P0-04/P0-07 в B02, не более двух активных code workers.
+rust/crates/discord-conformance/tests/fixtures.rs:1://! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
+rust/crates/discord-conformance/tests/fixtures.rs:7:    ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
+rust/crates/discord-conformance/tests/fixtures.rs:13:/// Lab-файл опционален для обычного прогона, но `RE_REQUIRE_LAB=1` превращает его
+rust/crates/discord-conformance/tests/fixtures.rs:19:    if std::env::var_os("RE_REQUIRE_LAB").is_some() {
+rust/crates/discord-conformance/tests/fixtures.rs:21:            "RE_REQUIRE_LAB задан, но lab-файл отсутствует: {} (RE_LAB_ROOT={})",
+rust/crates/discord-conformance/tests/fixtures.rs:36:    let path = manifest_path();
+rust/crates/discord-conformance/tests/fixtures.rs:39:        fixtures_root().join("MANIFEST.json"),
+rust/crates/discord-conformance/tests/fixtures.rs:43:        path.ends_with("fixtures/MANIFEST.json"),
+rust/crates/discord-conformance/tests/fixtures.rs:44:        "ожидался <repo>/fixtures/MANIFEST.json, получен {}",
+waves/RW-21/REPORT-B02.md:4:**P1-02** (zstd strict), **P0-04** (conformance skeleton), **P0-07** (legal).
+waves/RW-21/REPORT-B02.md:18:- **P0-04**: `discord-conformance` loader repo→lab, `RE_FIXTURES_ROOT`/`RE_LAB_ROOT`,
+waves/RW-21/REPORT-B02.md:19:  типизированные `InvalidName`/`NotFound`/`Io`/`Utf8`, 5 тестов T-HARN-01.
+waves/RW-21/REPORT-B02.md:20:- **P0-07**: `docs/rust-client/LEGAL.md` (ToS, telemetry off, честный отпечаток, секреты,
+waves/RW-21/REPORT-B02.md:36:| P0-04 red | `fixtures` на старом API | compile-red, exit 101 — `logs/conformance-red.log` |
+waves/RW-21/REPORT-B02.md:37:| P0-04 green | `discord-conformance` | **5 passed** — `logs/b02-conformance-targeted.log` |
+waves/RW-21/REPORT-B02.md:92:- P0-04: реализован скелет T-HARN-01; полный replay T-HARN-02/03 — отдельная карточка
+waves/RW-21/REPORT-B02.md:94:- P0-07: юридическая оценка ToS/распространения — за владельцем; документ не заменяет юриста.
+waves/RW-21/TEST-MATRIX-B02.md:3:Дата: 2026-10-21. Batch: **B02**. Карточки: P2-08, P1-01, P1-02, P0-04, P0-07.
+waves/RW-21/TEST-MATRIX-B02.md:11:| P0-04 conformance | `fixtures` 5 | `fixtures/MANIFEST.json` + `/home/sanya/re-deep`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-targeted.log` 5/5 |
+waves/RW-21/TEST-MATRIX-B02.md:12:| P0-07 legal | docs-only (без runtime) | `README.md` §Правовая рамка, `CONCEPT.md` §1/§7 | — | `LEGAL.md` + README/rust-README |
+waves/RW-21/TEST-MATRIX-B02.md:31:- P0-04 — скелет загрузчика (T-HARN-01); полный побайтовый replay T-HARN-02/03 требует
+waves/RW-21/TEST-MATRIX-B02.md:33:- P0-07 — правовая рамка и чек-лист; юридическую оценку даёт владелец.
+rust/crates/discord-conformance/src/lib.rs:4://! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+rust/crates/discord-conformance/src/lib.rs:114:pub fn fixtures_root() -> PathBuf {
+rust/crates/discord-conformance/src/lib.rs:118:    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
+rust/crates/discord-conformance/src/lib.rs:122:pub fn lab_root() -> PathBuf {
+rust/crates/discord-conformance/src/lib.rs:129:pub fn manifest_path() -> PathBuf {
+rust/crates/discord-conformance/src/lib.rs:130:    fixtures_root().join("MANIFEST.json")
+rust/crates/discord-conformance/src/lib.rs:135:    read_text(&manifest_path())
+TASKS.md:538:| RC-07 | Единая структура | Объединение RE и Rust-клиента: курированные фикстуры `fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5), cargo-воркспейс `rust/` (10 крейтов, офлайн `cargo test` — на 2026-10-20 **337** тестов, ядро **295**), строение и трассировка (141 F → спека → фикстуры → 133 T) | `fixtures/`, `rust/`, `docs/rust-client/PROJECT-STRUCTURE.md`, `TRACEABILITY.md` |
+waves/RW-21/reviews/codex-harness-legal-round2.log:14:Independent read-only re-review of P0-04 and P0-07 after addressing your prior 3 P2 findings. Do not edit files. Your prior review: (1) claimed manifest_path points to fixtures/MANIFEST.json but file is not there; this appears false. Evidence: default fixtures_root() is <repo>/fixtures; manifest_path() is fixtures_root().join("MANIFEST.json"); realpath is /home/sanya/orca/project/fixtures/MANIFEST.json; cargo test -p discord-conformance --offline passes 6/6 including manifest_is_readable_and_has_versioned_provenance, and the test now explicitly asserts manifest_path()==fixtures_root().join("MANIFEST.json") and endswith fixtures/MANIFEST.json. Please verify statically/with read-only realpath and retract if the claim was mistaken. (2) lab skip: added RE_REQUIRE_LAB guard in rust/crates/discord-conformance/tests/fixtures.rs; with RE_LAB_ROOT=/nonexistent RE_REQUIRE_LAB=1 it fails exit 101 (waves/RW-21/logs/b02-conformance-require-red.log), with real lab and RE_REQUIRE_LAB=1 it passes 6/6 (b02-conformance-require-green2.log); normal no-env run remains soft-skip with reason per repo TEST-PLAN. (3) LEGAL.md now separates policy/target from verified implementation: keyring not implemented, token in-memory until P1-10, IP/payload scan and SBOM/cargo-deny are backlog, checklist uses [x]/[~]/[ ]. Review updated files. Return verdict accepted / accepted with P3 / changes required, P0/P1/P2 counts and findings file:line. Do not repeat prior findings unless still present.
+waves/RW-21/reviews/codex-harness-legal-round2.log:26:Сверяю обязательный контекст процесса и актуальные файлы P0-04/P0-07, затем проверю пути и тестовые доказательства в read-only режиме. Ничего менять не буду.
+waves/RW-21/reviews/codex-harness-legal-round2.log:28:/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'LEGAL.md' -g 'AGENTS.md' -g '*P0-04*' -g '*P0-07*' -g 'fixtures.rs' -g 'MANIFEST.json' -g '*b02-conformance-require*'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal-round2.log:31:waves/RW-21/DESIGN-P0-04.md
+waves/RW-21/reviews/codex-harness-legal-round2.log:40:fixtures/MANIFEST.json
+waves/RW-21/reviews/codex-harness-legal-round2.log:987:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
+waves/RW-21/reviews/codex-harness-legal-round2.log:988:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
+waves/RW-21/reviews/codex-harness-legal-round2.log:1245:/usr/bin/bash -lc "realpath fixtures/MANIFEST.json && stat -c '%F %n' fixtures/MANIFEST.json && nl -ba rust/crates/discord-conformance/tests/fixtures.rs | sed -n '1,240p' && nl -ba docs/rust-client/LEGAL.md | sed -n '1,260p'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal-round2.log:1247:/home/sanya/orca/project/fixtures/MANIFEST.json
+waves/RW-21/reviews/codex-harness-legal-round2.log:1248:regular file fixtures/MANIFEST.json
+waves/RW-21/reviews/codex-harness-legal-round2.log:1249:     1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
+waves/RW-21/reviews/codex-harness-legal-round2.log:1255:     7	    ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
+waves/RW-21/reviews/codex-harness-legal-round2.log:1261:    13	/// Lab-файл опционален для обычного прогона, но `RE_REQUIRE_LAB=1` превращает его
+waves/RW-21/reviews/codex-harness-legal-round2.log:1267:    19	    if std::env::var_os("RE_REQUIRE_LAB").is_some() {
+waves/RW-21/reviews/codex-harness-legal-round2.log:1269:    21	            "RE_REQUIRE_LAB задан, но lab-файл отсутствует: {} (RE_LAB_ROOT={})",
+waves/RW-21/reviews/codex-harness-legal-round2.log:1284:    36	    let path = manifest_path();
+waves/RW-21/reviews/codex-harness-legal-round2.log:1287:    39	        fixtures_root().join("MANIFEST.json"),
+waves/RW-21/reviews/codex-harness-legal-round2.log:1291:    43	        path.ends_with("fixtures/MANIFEST.json"),
+waves/RW-21/reviews/codex-harness-legal-round2.log:1292:    44	        "ожидался <repo>/fixtures/MANIFEST.json, получен {}",
+waves/RW-21/reviews/codex-harness-legal-round2.log:1386:     1	# Правовая рамка Rust-клиента (P0-07)
+waves/RW-21/reviews/codex-harness-legal-round2.log:1415:    30	  и проверки провенанса (`fixtures/MANIFEST.json`). Это правило процесса; полный
+waves/RW-21/reviews/codex-harness-legal-round2.log:1458:    73	## 7. Чек-лист P0-07
+waves/RW-21/reviews/codex-harness-legal-round2.log:1474:Подтверждено: реальный `fixtures/MANIFEST.json` существует именно по заявленному пути, и тест закрепляет это. По legal-документу разделение политики и текущей реализации теперь явно; сейчас проверю контракт библиотеки, точный режим обязательного lab и привязку документов к карточкам.
+waves/RW-21/reviews/review-harness-legal-codex.md:5:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+waves/RW-21/reviews/review-harness-legal-codex.md:7:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+waves/RW-21/reviews/review-harness-legal-codex.md:9:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+waves/RW-21/reviews/review-harness-legal-codex.md:11:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+waves/RW-21/reviews/codex-harness-legal.log:14:Independent read-only review of B02 cards P0-04 (conformance fixture loader skeleton) and P0-07 (legal framework docs). Do not edit files. Sources: rust/crates/discord-conformance/src/lib.rs, tests/fixtures.rs, fixtures/MANIFEST.json, waves/RW-21/DESIGN-P0-04.md, docs/rust-client/LEGAL.md, docs/rust-client/README.md, rust/README.md, docs/rust-client/PLAN.md, docs/rust-client/CONCEPT.md (if present), rust/Cargo.toml workspace license. Check: path traversal and absolute/empty names, symlink/TOCTOU assumptions appropriate for test loader, repo-to-lab fallback, env overrides, typed errors, no writes/network, skip-aware lab test, manifest provenance; whether T-HARN-01 scope is honestly bounded and T-HARN-02/03 not falsely claimed. For LEGAL: claims must match actual repo/current implementation (license, telemetry, keyring, assets, live approval), no unapproved legal guarantee, no false claim that unimplemented keyring exists. Return verdict accepted / accepted with P3 / changes required, findings with file:line and severity P0/P1/P2/P3, explicitly list P0/P1/P2 counts.
+waves/RW-21/reviews/codex-harness-legal.log:495:| B02 / RW-21 | P1-01, P1-02, P0-04, P0-07, P2-08 | TL-2, CORE-3, TEST-1, OPS-1 | research/freeze P2-08 готов; пара P1-01/P1-02 |
+waves/RW-21/reviews/codex-harness-legal.log:985:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
+waves/RW-21/reviews/codex-harness-legal.log:986:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
+waves/RW-21/reviews/codex-harness-legal.log:1096:/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P0-04.md' in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:1098:     1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
+waves/RW-21/reviews/codex-harness-legal.log:1104:     7	    ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
+waves/RW-21/reviews/codex-harness-legal.log:1112:    15	    let path = manifest_path();
+waves/RW-21/reviews/codex-harness-legal.log:1208:     4	//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+waves/RW-21/reviews/codex-harness-legal.log:1318:   114	pub fn fixtures_root() -> PathBuf {
+waves/RW-21/reviews/codex-harness-legal.log:1322:   118	    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
+waves/RW-21/reviews/codex-harness-legal.log:1326:   122	pub fn lab_root() -> PathBuf {
+waves/RW-21/reviews/codex-harness-legal.log:1333:   129	pub fn manifest_path() -> PathBuf {
+waves/RW-21/reviews/codex-harness-legal.log:1334:   130	    fixtures_root().join("MANIFEST.json")
+waves/RW-21/reviews/codex-harness-legal.log:1339:   135	    read_text(&manifest_path())
+waves/RW-21/reviews/codex-harness-legal.log:1417:     1	# B02 / P0-04 — conformance harness skeleton (contract)
+waves/RW-21/reviews/codex-harness-legal.log:1419:     3	Дата: 2026-10-21. Карточка **P0-04** (M). Файлы: `discord-conformance/src/lib.rs`,
+waves/RW-21/reviews/codex-harness-legal.log:1436:    20	pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
+waves/RW-21/reviews/codex-harness-legal.log:1437:    21	pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+waves/RW-21/reviews/codex-harness-legal.log:1438:    22	pub fn manifest_path() -> PathBuf;
+waves/RW-21/reviews/codex-harness-legal.log:1449:    33	## 3. Тесты (T-HARN-01)
+waves/RW-21/reviews/codex-harness-legal.log:1460:    44	T-HARN-02/03 (полный реплей gateway/REST) остаются отдельными карточками: P0-04 — скелет
+waves/RW-21/reviews/codex-harness-legal.log:1500:/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/fixtures/MANIFEST.json' in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:1502:nl: rust/crates/discord-conformance/fixtures/MANIFEST.json: No such file or directory
+waves/RW-21/reviews/codex-harness-legal.log:1613:    56	`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
+waves/RW-21/reviews/codex-harness-legal.log:1632:    75	- `../../fixtures/MANIFEST.json` — провенанс фикстур (источник, md5, T-ID).
+waves/RW-21/reviews/codex-harness-legal.log:1647:     1	# Правовая рамка Rust-клиента (P0-07)
+waves/RW-21/reviews/codex-harness-legal.log:1674:    28	  и проверки провенанса (`fixtures/MANIFEST.json`).
+waves/RW-21/reviews/codex-harness-legal.log:1700:    54	  `cargo deny`/SBOM — отдельная карточка P0-07-adjacent (T-HARN-07).
+waves/RW-21/reviews/codex-harness-legal.log:1711:    65	## 7. Чек-лист P0-07
+waves/RW-21/reviews/codex-harness-legal.log:1770:    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/sanya/re-deep`, запуск из `cargo test` | T-HARN-01…03 | — | M |
+waves/RW-21/reviews/codex-harness-legal.log:1773:    50	| P0-07 | Ревизия правовой рамки | README клиента: ToS, телеметрия off, честный отпечаток | — | — | S |
+waves/RW-21/reviews/codex-harness-legal.log:2407:     1	# Правовая рамка Rust-клиента (P0-07)
+waves/RW-21/reviews/codex-harness-legal.log:2434:    28	  и проверки провенанса (`fixtures/MANIFEST.json`).
+waves/RW-21/reviews/codex-harness-legal.log:2460:    54	  `cargo deny`/SBOM — отдельная карточка P0-07-adjacent (T-HARN-07).
+waves/RW-21/reviews/codex-harness-legal.log:2471:    65	## 7. Чек-лист P0-07
+waves/RW-21/reviews/codex-harness-legal.log:2539:    56	`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
+waves/RW-21/reviews/codex-harness-legal.log:2558:    75	- `../../fixtures/MANIFEST.json` — провенанс фикстур (источник, md5, T-ID).
+waves/RW-21/reviews/codex-harness-legal.log:2617:    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/sanya/re-deep`, запуск из `cargo test` | T-HARN-01…03 | — | M |
+waves/RW-21/reviews/codex-harness-legal.log:2620:    50	| P0-07 | Ревизия правовой рамки | README клиента: ToS, телеметрия off, честный отпечаток | — | — | S |
+waves/RW-21/reviews/codex-harness-legal.log:2710:/usr/bin/bash -lc "rg --files | rg '("'^|/)MANIFEST'"\\.json"'$|LEGAL'"\\.md|CONCEPT\\.md|Cargo\\.toml"'$'"'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:2760:fixtures/MANIFEST.json
+waves/RW-21/reviews/codex-harness-legal.log:2969:/usr/bin/bash -lc "nl -ba fixtures/MANIFEST.json | sed -n '1,120p'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:3059:    28	  и проверки провенанса (`fixtures/MANIFEST.json`).
+waves/RW-21/reviews/codex-harness-legal.log:3085:    54	  `cargo deny`/SBOM — отдельная карточка P0-07-adjacent (T-HARN-07).
+waves/RW-21/reviews/codex-harness-legal.log:3096:    65	## 7. Чек-лист P0-07
+waves/RW-21/reviews/codex-harness-legal.log:3422:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+waves/RW-21/reviews/codex-harness-legal.log:3424:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+waves/RW-21/reviews/codex-harness-legal.log:3426:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+waves/RW-21/reviews/codex-harness-legal.log:3428:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+waves/RW-21/reviews/codex-harness-legal.log:3437:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+waves/RW-21/reviews/codex-harness-legal.log:3439:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+waves/RW-21/reviews/codex-harness-legal.log:3441:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+waves/RW-21/reviews/codex-harness-legal.log:3443:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+waves/RW-21/DESIGN-P0-04.md:1:# B02 / P0-04 — conformance harness skeleton (contract)
+waves/RW-21/DESIGN-P0-04.md:3:Дата: 2026-10-21. Карточка **P0-04** (M). Файлы: `discord-conformance/src/lib.rs`,
+waves/RW-21/DESIGN-P0-04.md:20:pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
+waves/RW-21/DESIGN-P0-04.md:21:pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+waves/RW-21/DESIGN-P0-04.md:22:pub fn manifest_path() -> PathBuf;
+waves/RW-21/DESIGN-P0-04.md:34:`RE_REQUIRE_LAB=1` превращает отсутствие lab-файла в падение, чтобы skip не засчитывался
+waves/RW-21/DESIGN-P0-04.md:37:## 3. Тесты (T-HARN-01)
+waves/RW-21/DESIGN-P0-04.md:48:T-HARN-02/03 (полный реплей gateway/REST) остаются отдельными карточками: P0-04 — скелет
+waves/RW-21/reviews/codex-codec.log:571:| B02 / RW-21 | P1-01, P1-02, P0-04, P0-07, P2-08 | TL-2, CORE-3, TEST-1, OPS-1 | research/freeze P2-08 готов; пара P1-01/P1-02 |
+waves/RW-21/reviews/codex-codec.log:750:    51	fn lab_root() -> PathBuf {
+waves/RW-21/reviews/codex-codec.log:774:    75	    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/synth-zstd-frame.hexl");
+waves/RW-21/reviews/codex-codec.log:1053:     4	**P1-02** (zstd strict), **P0-04** (conformance skeleton), **P0-07** (legal).
+waves/RW-21/reviews/codex-codec.log:1067:    18	- **P0-04**: `discord-conformance` loader repo→lab, `RE_FIXTURES_ROOT`/`RE_LAB_ROOT`,
+waves/RW-21/reviews/codex-codec.log:1068:    19	  типизированные `InvalidName`/`NotFound`/`Io`/`Utf8`, 5 тестов T-HARN-01.
+waves/RW-21/reviews/codex-codec.log:1069:    20	- **P0-07**: `docs/rust-client/LEGAL.md` (ToS, telemetry off, честный отпечаток, секреты,
+waves/RW-21/reviews/codex-codec.log:1085:    36	| P0-04 red | `fixtures` на старом API | compile-red, exit 101 — `logs/conformance-red.log` |
+waves/RW-21/reviews/codex-codec.log:1086:    37	| P0-04 green | `discord-conformance` | **5 passed** — `logs/b02-conformance-targeted.log` |
+waves/RW-21/reviews/codex-codec.log:1141:    92	- P0-04: реализован скелет T-HARN-01; полный replay T-HARN-02/03 — отдельная карточка
+waves/RW-21/reviews/codex-codec.log:1143:    94	- P0-07: юридическая оценка ToS/распространения — за владельцем; документ не заменяет юриста.
+waves/RW-21/reviews/codex-codec.log:2730:     4	**P1-02** (zstd strict), **P0-04** (conformance skeleton), **P0-07** (legal).
+waves/RW-21/reviews/codex-codec.log:2744:    18	- **P0-04**: `discord-conformance` loader repo→lab, `RE_FIXTURES_ROOT`/`RE_LAB_ROOT`,
+waves/RW-21/reviews/codex-codec.log:2745:    19	  типизированные `InvalidName`/`NotFound`/`Io`/`Utf8`, 5 тестов T-HARN-01.
+waves/RW-21/reviews/codex-codec.log:2746:    20	- **P0-07**: `docs/rust-client/LEGAL.md` (ToS, telemetry off, честный отпечаток, секреты,
+waves/RW-21/reviews/codex-codec.log:2762:    36	| P0-04 red | `fixtures` на старом API | compile-red, exit 101 — `logs/conformance-red.log` |
+waves/RW-21/reviews/codex-codec.log:2763:    37	| P0-04 green | `discord-conformance` | **5 passed** — `logs/b02-conformance-targeted.log` |
+waves/RW-21/reviews/codex-codec.log:2818:    92	- P0-04: реализован скелет T-HARN-01; полный replay T-HARN-02/03 — отдельная карточка
+waves/RW-21/reviews/codex-codec.log:2820:    94	- P0-07: юридическая оценка ToS/распространения — за владельцем; документ не заменяет юриста.
+waves/RW-21/reviews/codex-codec.log:3488:    51	fn lab_root() -> PathBuf {
+waves/RW-21/reviews/codex-codec.log:3512:    75	    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/synth-zstd-frame.hexl");
+waves/RW-21/reviews/codex-codec.log:4406:    51	fn lab_root() -> PathBuf {
+waves/RW-21/reviews/codex-codec.log:4430:    75	    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/synth-zstd-frame.hexl");
+waves/RW-21/reviews/codex-p2-08-round2.log:2682:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
+waves/RW-21/reviews/codex-p2-08-round2.log:2683:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
+waves/RW-21/reviews/codex-p2-08.log:607:waves/RW-21/DESIGN-P0-04.md
+waves/RW-21/reviews/codex-p2-08.log:3419:   607	waves/RW-21/DESIGN-P0-04.md
+waves/RW-21/logs/conformance-red.log:5:7 |     ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
+waves/RW-21/logs/conformance-red.log:20:8 +     manifest_path, resolve,
+waves/RW-21/logs/b02-conformance-require-red.log:23:RE_REQUIRE_LAB задан, но lab-файл отсутствует: /nonexistent/gw-proto/zstd-frames-95974_1389.hexl (RE_LAB_ROOT=/nonexistent)
+
+codex
+В обновлённом тестовом коде нашёл важный нюанс: `RE_REQUIRE_LAB` считается включённым при любом наличии переменной, даже если значение `0` или пустое. Сверяю это с контрактом `=1` и прежним выводом о пропуске: этот флаг переводит отсутствие фикстуры в красный прогон, но обычный `cargo test` всё ещё возвращает успешный статус с сообщением `skip`.
+exec
+/usr/bin/bash -lc "nl -ba rust/crates/discord-conformance/src/lib.rs | sed -n '108,150p'; nl -ba docs/rust-client/LEGAL.md | sed -n '19,90p'; nl -ba waves/RW-21/DESIGN-P0-04.md | sed -n '22,52p'" in /home/sanya/orca/project
+ succeeded in 0ms:
+   108	            _ => None,
+   109	        }
+   110	    }
+   111	}
+   112	
+   113	/// Корень конформанс-фикстур: `RE_FIXTURES_ROOT` либо `<repo>/fixtures`.
+   114	pub fn fixtures_root() -> PathBuf {
+   115	    if let Ok(env_root) = std::env::var("RE_FIXTURES_ROOT") {
+   116	        return PathBuf::from(env_root);
+   117	    }
+   118	    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
+   119	}
+   120	
+   121	/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/sanya/re-deep`.
+   122	pub fn lab_root() -> PathBuf {
+   123	    PathBuf::from(
+   124	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+   125	    )
+   126	}
+   127	
+   128	/// Путь к манифесту фикстур.
+   129	pub fn manifest_path() -> PathBuf {
+   130	    fixtures_root().join("MANIFEST.json")
+   131	}
+   132	
+   133	/// Текст манифеста фикстур.
+   134	pub fn manifest_text() -> Result<String, ConformanceError> {
+   135	    read_text(&manifest_path())
+   136	}
+   137	
+   138	/// Найти фикстуру: сначала курированную копию, затем лабораторию.
+   139	///
+   140	/// Возвращает [`ConformanceError::InvalidName`] до любых обращений к файловой системе,
+   141	/// поэтому имя не может выйти за корень.
+   142	pub fn resolve(name: &str) -> Result<Fixture, ConformanceError> {
+   143	    validate_name(name)?;
+   144	    let repository = fixtures_root().join(name);
+   145	    if repository.is_file() {
+   146	        return Ok(Fixture {
+   147	            name: name.to_string(),
+   148	            source: FixtureSource::Repository,
+   149	            path: repository,
+   150	        });
+    19	## 2. Телеметрия и сеть
+    20	
+    21	- **Телеметрия выключена по умолчанию**: `POST /science`, `POST /beaker` и аналогичные
+    22	  аналитические события не отправляются. Это фиксируется тестами `T-REST-*`/telemetry-off.
+    23	- Исходящий трафик ограничен функциями, которые явно запросил пользователь: шлюз, REST,
+    24	  голосовая сигнализация/медиа. Скрытых аналитических, рекламных и «обучающих» отправок нет.
+    25	- **Политика редакции (частично реализована):** локальные журналы не должны содержать
+    26	  токенов, `analytics_token`, `qos_token`, публичных IP и бинарных payload. Сейчас redaction
+    27	  покрывает `Debug`/CLI-модели (`REDACTED`, `<redacted>`); полный скан файловых логов и
+    28	  замена IP/payload — требование P1-10/T-SEC, а не заявленная готовая гарантия.
+    29	- Захваты и фикстуры хранятся локально; публикация сырья допускается только после санитизации
+    30	  и проверки провенанса (`fixtures/MANIFEST.json`). Это правило процесса; полный
+    31	  автоматический санитайзер — отдельная задача T-HARN-07, пока проверка ручная.
+    32	
+    33	## 3. Честный отпечаток клиента
+    34	
+    35	- Клиент не маскируется под официальный Discord и не обещает «невидимость» для анти-абьюза.
+    36	- `X-Super-Properties` и user-agent формируются из документированных полей RE; политика —
+    37	  **честный нативный отпечаток**, без подмены чужих версий, без случайного шума для обхода
+    38	  детекта и без скрытых полей, которых нет в спецификации.
+    39	- Отпечаток конфигурируем для тестов и отладки, но значения по умолчанию прозрачны и
+    40	  воспроизводимы; тесты фиксируют состав полей.
+    41	- Ограничения и этическая оценка: `CONCEPT.md` §7 (риск «анти-абьюз/отпечаток» — высокий).
+    42	
+    43	## 4. Аккаунт, токен и данные
+    44	
+    45	- **Целевое требование (P1-10):** токен хранится в системном keyring; в файлах/логах/
+    46	  фикстурах — только `REDACTED`. Keyring **ещё не реализован**: до разрешения зависимости
+    47	  токен живёт только in-memory/в явном конфиге, а не в файле настроек.
+    48	- Пароль и MFA не журналируются; ошибки входа не содержат секретов — это текущий контракт
+    49	  `Debug`/CLI, полный аудит логов входит в T-SEC.
+    50	- Пользовательские данные (сообщения, участники, настройки) остаются локальными; экспорт —
+    51	  только по явной команде пользователя (политика; реализация экспорта — будущие карточки).
+    52	- Удаление профиля/кэша **должно** удалять токены и чувствительные журналы; тесты появятся
+    53	  вместе с хранилищем (P2-03/P1-10), до этого это требование, а не проверенная функция.
+    54	
+    55	## 5. Ассеты и лицензии
+    56	
+    57	- **Политика:** не распространяем чужие шрифты, иконки, звуки, emoji и иные ассеты Discord
+    58	  без лицензии. Используются собственные или открытые ассеты с совместимой лицензией;
+    59	  источник фиксируется. Проверка конкретного набора ассетов — при его добавлении.
+    60	- Код проекта — MIT OR Apache-2.0 (подтверждено `rust/Cargo.toml`); сторонние крейты — по
+    61	  их лицензиям. Автоматический `cargo deny`/SBOM **ещё не настроен** — отдельная карточка
+    62	  T-HARN-07, поэтому лицензии зависимостей пока не считаются проверенными.
+    63	- Название и логотипы Discord не используются как бренд проекта; README содержит дисклеймер
+    64	  о неофициальности (проверено).
+    65	
+    66	## 6. Живые операции и approval
+    67	
+    68	Следующие действия требуют явного окна, согласованного владельцем, и не выполняются
+    69	автоматически: подключение к живому Discord, `device.spawn`/attach, голосовой транспорт,
+    70	исходящие сообщения/реакции, запись GUI. До approval используются только сохранённые
+    71	санитизированные фикстуры и офлайн-тесты.
+    72	
+    73	## 7. Чек-лист P0-07
+    74	
+    75	Статусы: `[x]` проверено текущим кодом/процессом, `[~]` политика или частичная реализация,
+    76	`[ ]` ещё не реализовано.
+    77	
+    78	- [x] README/документация содержит ToS-дисклеймер и «неофициальный клиент».
+    79	- [x] Телеметрия off зафиксирована как требование и покрыта тестами `rest_telemetry`.
+    80	- [x] Политика честного отпечатка без обхода анти-абьюза (X-Super-Properties, без шума).
+    81	- [~] Секреты в `Debug`/CLI редактируются; полный скан логов, IP и payload — P1-10/T-SEC.
+    82	- [~] Чужие ассеты не распространяются; проверка лицензий/SBOM — T-HARN-07.
+    83	- [x] Живые операции — только по approval владельца (правило `AGENTS.md`/`PROCESS.md`).
+    84	
+    85	Остаточный риск: юридическая оценка ToS и распространения остаётся за владельцем; документ
+    86	не заменяет консультацию юриста. Незакрытые `[~]`/`[ ]` — не «сделано», а backlog.
+    22	pub fn manifest_path() -> PathBuf;
+    23	pub fn manifest_text() -> Result<String, ConformanceError>;
+    24	pub fn resolve(name: &str) -> Result<Fixture, ConformanceError>; // repo → lab
+    25	pub fn load_bytes(name: &str) -> Result<Vec<u8>, ConformanceError>;
+    26	pub fn load_text(name: &str) -> Result<String, ConformanceError>;
+    27	```
+    28	
+    29	`name` — относительный путь без `..`/корня; иначе `InvalidName`. `NotFound` содержит оба
+    30	проверенных пути. `Fixture::read_bytes/read_text` доступны и после `resolve`. Никакой
+    31	сетевой/записывающей логики.
+    32	
+    33	Обычный прогон без lab — soft-skip с причиной (правило `TEST-PLAN.md`). Для приёмки
+    34	`RE_REQUIRE_LAB=1` превращает отсутствие lab-файла в падение, чтобы skip не засчитывался
+    35	как pass.
+    36	
+    37	## 3. Тесты (T-HARN-01)
+    38	
+    39	| ID | Проверка |
+    40	|---|---|
+    41	| h01 | манифест читается, содержит `labRoot` и ≥12 `md5`; `fixtures_root` существует |
+    42	| h02 | `resolve("gateway/ready-stats.json")` → Repository, файл непустой и читается |
+    43	| h03 | `resolve` lab-only файла (`gw-proto/zstd-frames-95974_1389.hexl`) → Lab; нет lab → skip |
+    44	| h04 | абсолютный путь/`..` → `InvalidName`; отсутствующий → `NotFound` с двумя путями |
+    45	| h05 | `load_text`/`load_bytes` возвращают те же байты, что прямой `fs::read` |
+    46	| h06 | `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` переопределяют корни (проверка функций, без записи) |
+    47	
+    48	T-HARN-02/03 (полный реплей gateway/REST) остаются отдельными карточками: P0-04 — скелет
+    49	загрузчика, не подмена протокольных тестов.
+
+exec
+/usr/bin/bash -lc 'rg -n "прогон|skip-aware|Skip ≠ pass|skip|T-HARN-01|P0-04|P0-07" docs/rust-client/TEST-PLAN.md waves/RW-21/REPORT-B02.md waves/RW-21/TEST-MATRIX-B02.md docs/rust-client/TEAM.md PROCESS.md' in /home/sanya/orca/project
+exec
+/usr/bin/bash -lc 'rg -n "P0-04|P0-07" docs/rust-client/TASKS.md TASKS.md' in /home/sanya/orca/project
+ exited 2 in 0ms:
+rg: docs/rust-client/TASKS.md: No such file or directory (os error 2)
+
+ succeeded in 0ms:
+PROCESS.md:17:   Мета-инфраструктура (гейты, доки, скрипты процесса) проверяется прогоном.
+PROCESS.md:23:   разрешения владельца (окно). По умолчанию — безопасное поведение (skip / код 2).
+PROCESS.md:26:7. **Skip ≠ pass.** Пропуск теста не считается прохождением: он попадает в отчёт гейта
+PROCESS.md:27:   (`passed_with_skips`) и должен быть объяснён до выкладки.
+PROCESS.md:35:| 2. Концепт (видит игрок) | Видимый контракт CLI: команды/флаги/вывод/коды (TDD-PLAN §6, ТЗ). Стенд = прогон после реализации; владелец говорит «Да»/«Доработать» |
+PROCESS.md:42:| 9. Qualification | `npm run gate:qualify`: сборка tarball, изолированный прогон пакета, файл `.gate/qualification-<version>-<ts>.json` (sha256 + коммит). После записи пакет не пересобирается; выкладка сверяет `--verify-qualification` |
+PROCESS.md:56:| Владелец | пользователь | приоритеты, одобрение контрактов/зависимостей, окна живых прогонов, выкладка | не пишет код и ТЗ |
+PROCESS.md:65:| Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
+PROCESS.md:85:оракул; у batch — один integration-патч общих файлов и приёмочный прогон.
+PROCESS.md:89:- минимальная реализация; зелёный **targeted**-прогон;
+PROCESS.md:113:`logs/`, `functions/`, `node_modules`), изолированный прогон (`--help`, `--version`,
+PROCESS.md:120:3) **check:** живой smoke на машине владельца (`pids` — реальные процессы; live-прогоны — опционально,
+PROCESS.md:130:пробный прогон → включение → проверка; известна обратная операция (снять флаг). Повтор операции не
+PROCESS.md:146:  заморожены (md5 до/после); повторные прогоны + гейт.
+PROCESS.md:233:- [ ] red-first подтверждён прогоном, а не словами;
+PROCESS.md:260:- [ ] пробный прогон на одном объекте;
+PROCESS.md:286:integration-лейн, чтобы не дублировать полный прогон 4–6 раз.
+PROCESS.md:288:«Пропуск прохождением не считается»: skip-и фиксируются в отчёте и в warnings гейта.
+PROCESS.md:306:**Гейт** — прогон проверок (§5). **Kit** — собранный tarball + план выкладки/откат (§3.7).
+PROCESS.md:307:**Qualification** — прогон на собранном пакете с записью хешей (§3.9). **Golden** — реальные
+PROCESS.md:309:golden, удаления (§4.4). **Приёмка** — проверка отчёта координатором с независимым прогоном.
+waves/RW-21/TEST-MATRIX-B02.md:3:Дата: 2026-10-21. Batch: **B02**. Карточки: P2-08, P1-01, P1-02, P0-04, P0-07.
+waves/RW-21/TEST-MATRIX-B02.md:4:Все тесты офлайн; lab-файлы read-only; при отсутствии lab — skip с причиной.
+waves/RW-21/TEST-MATRIX-B02.md:11:| P0-04 conformance | `fixtures` 5 | `fixtures/MANIFEST.json` + `/home/sanya/re-deep`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-targeted.log` 5/5 |
+waves/RW-21/TEST-MATRIX-B02.md:12:| P0-07 legal | docs-only (без runtime) | `README.md` §Правовая рамка, `CONCEPT.md` §1/§7 | — | `LEGAL.md` + README/rust-README |
+waves/RW-21/TEST-MATRIX-B02.md:31:- P0-04 — скелет загрузчика (T-HARN-01); полный побайтовый replay T-HARN-02/03 требует
+waves/RW-21/TEST-MATRIX-B02.md:33:- P0-07 — правовая рамка и чек-лист; юридическую оценку даёт владелец.
+docs/rust-client/TEST-PLAN.md:14:| L4 | E2E-smoke | ручной прогон на живом Discord (не в CI): вход, чат, голос | чек-лист `smoke.md` |
+docs/rust-client/TEST-PLAN.md:18:(живой аккаунт не задействуется в CI); L5 — ночной прогон.
+docs/rust-client/TEST-PLAN.md:44:- **Skip-aware.** Нет внешней среды — skip с причиной; skip не считается pass.
+docs/rust-client/TEST-PLAN.md:48:`cargo test --workspace` → `npm run gate:worker`. Полный прогон не дублируется каждым воркером.
+docs/rust-client/TEST-PLAN.md:261:| T-HARN-01 | L2 | загрузчик фикстур находит /home/sanya/re-deep, контракт версий | манифест |
+docs/rust-client/TEST-PLAN.md:274:3. Красный/зелёный прогон сохраняются в отчёт задачи (как в `AGENTS.md` этого репозитория).
+waves/RW-21/REPORT-B02.md:4:**P1-02** (zstd strict), **P0-04** (conformance skeleton), **P0-07** (legal).
+waves/RW-21/REPORT-B02.md:18:- **P0-04**: `discord-conformance` loader repo→lab, `RE_FIXTURES_ROOT`/`RE_LAB_ROOT`,
+waves/RW-21/REPORT-B02.md:19:  типизированные `InvalidName`/`NotFound`/`Io`/`Utf8`, 5 тестов T-HARN-01.
+waves/RW-21/REPORT-B02.md:20:- **P0-07**: `docs/rust-client/LEGAL.md` (ToS, telemetry off, честный отпечаток, секреты,
+waves/RW-21/REPORT-B02.md:36:| P0-04 red | `fixtures` на старом API | compile-red, exit 101 — `logs/conformance-red.log` |
+waves/RW-21/REPORT-B02.md:37:| P0-04 green | `discord-conformance` | **5 passed** — `logs/b02-conformance-targeted.log` |
+waves/RW-21/REPORT-B02.md:92:- P0-04: реализован скелет T-HARN-01; полный replay T-HARN-02/03 — отдельная карточка
+waves/RW-21/REPORT-B02.md:94:- P0-07: юридическая оценка ToS/распространения — за владельцем; документ не заменяет юриста.
+docs/rust-client/TEAM.md:54:| QA-1 | Mutation/QA engineer | мутации, флейки, restore по md5, batch-прогоны | mutation-логи/скрипты | не меняет контракт под мутант |
+docs/rust-client/TEAM.md:205:| Нужна зависимость/сеть/live | владелец | запрос через TL-1; до разрешения — stub/skip |
+docs/rust-client/TEAM.md:226:| B02 / RW-21 | P1-01, P1-02, P0-04, P0-07, P2-08 | TL-2, CORE-3, TEST-1, OPS-1 | research/freeze P2-08 готов; пара P1-01/P1-02 |
+
+codex
+**Verdict: accepted with P3** — P0: 0, P1: 0, P2: 0. One P3 remains.
+
+- **P3 — `RE_REQUIRE_LAB` treats any set value as enabled.** The contract says `RE_REQUIRE_LAB=1`; the code checks only whether the variable exists, so `RE_REQUIRE_LAB=0` or an empty value also fails when the lab fixture is missing ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:19)). This is a minor mismatch; the documented `=1` case works.
+- **Retracted the manifest-path finding.** `realpath` resolves to `/home/sanya/orca/project/fixtures/MANIFEST.json`; the library builds that path from `fixtures_root()`, and the test asserts it ([lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:128), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:35)).
+- The lab-required red/green logs show the missing fixture fails and the present fixture passes. The ordinary path still returns success after printing `skip`; that remains a `cargo test` limitation under the repo’s “Skip ≠ pass” rule ([PROCESS.md](/home/sanya/orca/project/PROCESS.md:26), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:26)). Treat the required-lab run as the acceptance check.
+- `LEGAL.md` now marks keyring, log scanning, IP/payload redaction, and dependency license automation as incomplete or backlog items ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:25), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:45), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:57), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:75)).
+tokens used
+49 881
+**Verdict: accepted with P3** — P0: 0, P1: 0, P2: 0. One P3 remains.
+
+- **P3 — `RE_REQUIRE_LAB` treats any set value as enabled.** The contract says `RE_REQUIRE_LAB=1`; the code checks only whether the variable exists, so `RE_REQUIRE_LAB=0` or an empty value also fails when the lab fixture is missing ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:19)). This is a minor mismatch; the documented `=1` case works.
+- **Retracted the manifest-path finding.** `realpath` resolves to `/home/sanya/orca/project/fixtures/MANIFEST.json`; the library builds that path from `fixtures_root()`, and the test asserts it ([lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:128), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:35)).
+- The lab-required red/green logs show the missing fixture fails and the present fixture passes. The ordinary path still returns success after printing `skip`; that remains a `cargo test` limitation under the repo’s “Skip ≠ pass” rule ([PROCESS.md](/home/sanya/orca/project/PROCESS.md:26), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:26)). Treat the required-lab run as the acceptance check.
+- `LEGAL.md` now marks keyring, log scanning, IP/payload redaction, and dependency license automation as incomplete or backlog items ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:25), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:45), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:57), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:75)).

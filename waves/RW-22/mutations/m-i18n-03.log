@@ -1,0 +1,24 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 1 test
+test tests::markdown_is_safe_and_handles_unclosed_markers ... FAILED
+
+failures:
+
+---- tests::markdown_is_safe_and_handles_unclosed_markers stdout ----
+
+thread 'tests::markdown_is_safe_and_handles_unclosed_markers' (94092) panicked at crates/discord-i18n/src/lib.rs:930:9:
+assertion `left == right` failed
+  left: "[x](javascript:alert(1))"
+ right: "x"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::markdown_is_safe_and_handles_unclosed_markers
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --lib`

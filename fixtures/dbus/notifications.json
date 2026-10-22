@@ -1,0 +1,86 @@
+{
+  "oracle": "mock_service.py (python3-dbus/libdbus) на приватном dbus-daemon",
+  "destination": "org.freedesktop.Notifications",
+  "path": "/org/freedesktop/Notifications",
+  "methods": [
+    {
+      "member": "GetCapabilities",
+      "signature": "",
+      "reply_signature": "as",
+      "reply": [
+        "body",
+        "actions",
+        "persistence",
+        "icon-static"
+      ]
+    },
+    {
+      "member": "GetServerInformation",
+      "signature": "",
+      "reply_signature": "(ssss)",
+      "reply": [
+        "MockNotify",
+        "discord-lab",
+        "1.0",
+        "1.2"
+      ]
+    },
+    {
+      "member": "Notify",
+      "signature": "susssasa{sv}i",
+      "reply_signature": "u",
+      "reply": 100,
+      "note": "actions на проводе — `as` парами id/label (спека freedesktop)"
+    },
+    {
+      "member": "CloseNotification",
+      "signature": "u",
+      "reply_signature": "",
+      "reply": null
+    }
+  ],
+  "signals": [
+    {
+      "member": "ActionInvoked",
+      "signature": "(us)",
+      "body": [
+        100,
+        "open"
+      ]
+    },
+    {
+      "member": "NotificationClosed",
+      "signature": "(uu)",
+      "body": [
+        100,
+        2
+      ]
+    }
+  ],
+  "journal": [
+    [
+      "READY"
+    ],
+    [
+      "GetCapabilities"
+    ],
+    [
+      "GetServerInformation"
+    ],
+    [
+      "Notify",
+      "Discord Lab",
+      "0",
+      "",
+      "Alice",
+      "hello",
+      "0",
+      "open:Open|reply:Reply",
+      "-1"
+    ],
+    [
+      "CloseNotification",
+      "100"
+    ]
+  ]
+}

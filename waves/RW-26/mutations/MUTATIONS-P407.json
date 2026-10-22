@@ -1,0 +1,129 @@
+{
+ "wave": "RW-26",
+ "card": "P4-07",
+ "caught": 11,
+ "total": 11,
+ "results": [
+  {
+   "id": 1,
+   "file": "rust/crates/discord-voice/src/rtcp.rs",
+   "target": "rtcp_contract",
+   "what": "24-bit sign extension",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "36d8ec252d00e703f025de32774e162b",
+   "restored_md5": "36d8ec252d00e703f025de32774e162b",
+   "seconds": 0.2
+  },
+  {
+   "id": 2,
+   "file": "rust/crates/discord-voice/src/rtcp.rs",
+   "target": "rtcp_contract",
+   "what": "truncated-first-packet vs trailer",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "36d8ec252d00e703f025de32774e162b",
+   "restored_md5": "36d8ec252d00e703f025de32774e162b",
+   "seconds": 0.2
+  },
+  {
+   "id": 3,
+   "file": "rust/crates/discord-voice/src/rtcp.rs",
+   "target": "rtcp_contract",
+   "what": "RR minimum length",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "36d8ec252d00e703f025de32774e162b",
+   "restored_md5": "36d8ec252d00e703f025de32774e162b",
+   "seconds": 0.2
+  },
+  {
+   "id": 4,
+   "file": "rust/crates/discord-voice/src/rtcp.rs",
+   "target": "rtcp_contract",
+   "what": "compound packet limit",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "36d8ec252d00e703f025de32774e162b",
+   "restored_md5": "36d8ec252d00e703f025de32774e162b",
+   "seconds": 0.2
+  },
+  {
+   "id": 5,
+   "file": "rust/crates/discord-voice/src/reception.rs",
+   "target": "reception_contract",
+   "what": "RFC 3550 jitter gain",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "restored_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "seconds": 0.2
+  },
+  {
+   "id": 6,
+   "file": "rust/crates/discord-voice/src/reception.rs",
+   "target": "reception_contract",
+   "what": "duplicate counter",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "restored_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "seconds": 0.2
+  },
+  {
+   "id": 7,
+   "file": "rust/crates/discord-voice/src/reception.rs",
+   "target": "reception_contract",
+   "what": "forward sequence wrap",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "restored_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "seconds": 0.1
+  },
+  {
+   "id": 8,
+   "file": "rust/crates/discord-voice/src/stats.rs",
+   "target": "stats_contract",
+   "what": "DLSR subtraction",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "05fa2b04a0f2c6bc623d748cf84895cd",
+   "restored_md5": "05fa2b04a0f2c6bc623d748cf84895cd",
+   "seconds": 0.2
+  },
+  {
+   "id": 9,
+   "file": "rust/crates/discord-voice/src/stats.rs",
+   "target": "stats_contract",
+   "what": "zero-capacity window",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "05fa2b04a0f2c6bc623d748cf84895cd",
+   "restored_md5": "05fa2b04a0f2c6bc623d748cf84895cd",
+   "seconds": 0.1
+  },
+  {
+   "id": 10,
+   "file": "rust/crates/discord-voice/src/stats.rs",
+   "target": "stats_contract",
+   "what": "loss delta window",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "05fa2b04a0f2c6bc623d748cf84895cd",
+   "restored_md5": "05fa2b04a0f2c6bc623d748cf84895cd",
+   "seconds": 0.1
+  },
+  {
+   "id": 11,
+   "file": "rust/crates/discord-voice/src/reception.rs",
+   "target": "reception_contract",
+   "what": "RTP timestamp wrap",
+   "exit": 101,
+   "caught": true,
+   "updated_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "restored_md5": "e067e1ecbe0f7907843b2466ef82b090",
+   "seconds": 0.2
+  }
+ ]
+}

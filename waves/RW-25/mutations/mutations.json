@@ -1,0 +1,187 @@
+{
+  "results": [
+    {
+      "id": 1,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "trailer",
+      "log": "waves/RW-25/mutations/m01.log"
+    },
+    {
+      "id": 2,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "tag",
+      "log": "waves/RW-25/mutations/m02.log"
+    },
+    {
+      "id": 3,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "aad",
+      "log": "waves/RW-25/mutations/m03.log"
+    },
+    {
+      "id": 4,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "clear",
+      "log": "waves/RW-25/mutations/m04.log"
+    },
+    {
+      "id": 5,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "ext",
+      "log": "waves/RW-25/mutations/m05.log"
+    },
+    {
+      "id": 6,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "counter",
+      "log": "waves/RW-25/mutations/m06.log"
+    },
+    {
+      "id": 7,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "xchacha",
+      "log": "waves/RW-25/mutations/m07.log"
+    },
+    {
+      "id": 8,
+      "file": "rust/crates/discord-voice/src/crypto/aes.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "affine",
+      "log": "waves/RW-25/mutations/m08.log"
+    },
+    {
+      "id": 15,
+      "file": "rust/crates/discord-voice/src/crypto/aes.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "gfmul",
+      "log": "waves/RW-25/mutations/m15.log"
+    },
+    {
+      "id": 16,
+      "file": "rust/crates/discord-voice/src/crypto/kdf.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "hkdf",
+      "log": "waves/RW-25/mutations/m16.log"
+    },
+    {
+      "id": 17,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "srtcp",
+      "log": "waves/RW-25/mutations/m17.log"
+    },
+    {
+      "id": 18,
+      "file": "rust/crates/discord-voice/src/srtp.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "nonce",
+      "log": "waves/RW-25/mutations/m18.log"
+    },
+    {
+      "id": 9,
+      "file": "rust/crates/discord-updater/src/plan.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "name",
+      "log": "waves/RW-25/mutations/m09.log"
+    },
+    {
+      "id": 10,
+      "file": "rust/crates/discord-updater/src/plan.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "digest",
+      "log": "waves/RW-25/mutations/m10.log"
+    },
+    {
+      "id": 11,
+      "file": "rust/crates/discord-updater/src/plan.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "slash",
+      "log": "waves/RW-25/mutations/m11.log"
+    },
+    {
+      "id": 12,
+      "file": "rust/crates/discord-updater/src/manifest.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "version",
+      "log": "waves/RW-25/mutations/m12.log"
+    },
+    {
+      "id": 13,
+      "file": "rust/crates/discord-updater/src/plan.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 0.1,
+      "marker": "backup",
+      "log": "waves/RW-25/mutations/m13.log"
+    },
+    {
+      "id": 14,
+      "file": "rust/crates/discord-perf/src/workload.rs",
+      "status": "caught",
+      "exit_code": 101,
+      "restored": true,
+      "elapsed_s": 1.0,
+      "marker": "threshold",
+      "log": "waves/RW-25/mutations/m14.log"
+    }
+  ],
+  "caught": 18,
+  "missed": 0,
+  "pattern_missing": 0
+}

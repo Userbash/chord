@@ -1,0 +1,33 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/dbus_contract.rs (/tmp/opencode/target-w30b/debug/deps/dbus_contract-6bbfe12e41a6788d)
+
+running 7 tests
+test n01_bus_address_parse_accepts_path_and_rejects_abstract ... ok
+test n07b_notifications_signatures_match_libdbus_golden ... ok
+test n14_parse_rejects_truncated_and_corrupt_messages_without_panic ... ok
+test n04_header_body_boundary_is_aligned_and_padded_with_zeroes ... ok
+test n02b_external_auth_line_uses_hex_uid_from_proc_status ... ok
+test n05_parse_recovers_header_fields_and_body ... ok
+test n03_marshal_round_trip_matches_libgio_bytes ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/notifications_contract.rs (/tmp/opencode/target-w30b/debug/deps/notifications_contract-46ee250d2c4bcc41)
+
+running 11 tests
+test n16_live_service_is_flag_gated_and_read_only ... ok
+test n13_foreign_signals_are_skipped ... ok
+test n10_close_notification_reaches_mock ... ok
+test n08_notify_returns_server_id_and_mock_sees_fields ... ok
+test n02_auth_external_and_hello_yield_unique_name ... ok
+test n09_notify_actions_reach_mock_as_pairs ... ok
+test n11_error_reply_maps_to_remote_error ... ok
+test n08b_notify_requires_app_name_and_summary ... ok
+test n12_action_and_close_signals_become_events ... ok
+test n07_capabilities_and_server_information_come_from_mock ... ok
+test n15_repeated_close_and_closed_session_survive ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+# EXIT=0

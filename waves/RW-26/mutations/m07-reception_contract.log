@@ -1,0 +1,43 @@
+
+running 10 tests
+test empty_stats_are_zeroed ... ok
+test duplicate_does_not_inflate_received_or_jitter ... ok
+test parses_real_rtp_headers ... ok
+test gap_across_wrap_counts_one_lost_packet ... FAILED
+test real_capture_matches_rfc_jitter_oracle ... ok
+test rejects_non_rtp_and_short_input ... ok
+test reordering_is_reported_but_not_lost ... ok
+test timestamp_wrap_does_not_spike_jitter ... ok
+test sequence_wrap_does_not_create_loss ... FAILED
+test zero_clock_rate_does_not_panic ... ok
+
+failures:
+
+---- gap_across_wrap_counts_one_lost_packet stdout ----
+
+thread 'gap_across_wrap_counts_one_lost_packet' (231858) panicked at crates/discord-voice/tests/reception_contract.rs:133:5:
+assertion `left == right` failed
+  left: 1
+ right: 3
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- sequence_wrap_does_not_create_loss stdout ----
+
+thread 'sequence_wrap_does_not_create_loss' (231863) panicked at crates/discord-voice/tests/reception_contract.rs:121:5:
+assertion `left == right` failed
+  left: 2
+ right: 4
+
+
+failures:
+    gap_across_wrap_counts_one_lost_packet
+    sequence_wrap_does_not_create_loss
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- stderr ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/reception_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/reception_contract-fd7fc5e0e62019fd)
+error: test failed, to rerun pass `-p discord-voice --test reception_contract`

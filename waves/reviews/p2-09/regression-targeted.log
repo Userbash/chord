@@ -1,0 +1,116 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running tests/member_chunk_types.rs (target/debug/deps/member_chunk_types-a60a42a06d68394c)
+
+running 19 tests
+test c02_legacy_009_original_is_invalid_id ... ok
+test c05_members_null_is_empty_without_diagnostics ... ok
+test c06_members_wrong_type_is_ignored ... ok
+test c03_legacy_009_corrected_guild_keeps_negative_member_malformed ... ok
+test c08_not_found_skips_bad_ids_and_keeps_good ... ok
+test c07_bad_member_is_malformed_and_others_kept ... ok
+test c09_missing_chunk_index_is_fatal ... ok
+test c10_missing_chunk_count_is_fatal ... ok
+test c12_chunk_index_out_of_range_is_fatal ... ok
+test c01_parse_022_shape_matches_jq_oracle ... ok
+test c14_duplicate_member_last_wins_with_diagnostic ... ok
+test c15_non_numeric_guild_id_is_invalid ... ok
+test c13_presences_unconfirmed_shape_is_diagnosed ... ok
+test c16_root_reexports_are_available ... ok
+test c04_nonce_absent_is_none_and_preserved_when_present ... ok
+test c11_zero_chunk_count_is_fatal ... ok
+test c17_empty_and_non_text_nonce_are_ignored ... ok
+test c18_not_found_wrong_container_is_ignored ... ok
+test c19_missing_members_is_empty_without_diagnostics ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-60f05fc60e2f6b38)
+
+running 17 tests
+test m09_update_out_of_range_creates_stub ... ok
+test m11_out_of_range_ops_and_insert_into_empty ... ok
+test m10_duplicate_member_is_diagnostic ... ok
+test m13_unknown_guild_is_inconsistency ... ok
+test m15_insert_duplicate_at_same_position_is_diagnostic ... ok
+test m04_insert_034_after_sync ... ok
+test m01_sync_008_creates_member_list ... ok
+test m05_delete_075_after_sync_and_insert ... ok
+test m16_two_lists_of_same_guild_are_independent ... ok
+test m17_update_in_range_replaces_without_shift ... ok
+test m12_stale_sequence_is_ignored ... ok
+test m03_sync_021_groups_and_counts ... ok
+test m06_delete_insert_045_after_sync ... ok
+test m07_group_insert_079 ... ok
+test m08_second_sync_resets_list ... ok
+test m02_two_lists_across_guilds_do_not_overwrite_each_other ... ok
+test m14_member_list_has_no_cross_state_side_effects ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/member_list_types.rs (target/debug/deps/member_list_types-0123e5ca6cb9da3d)
+
+running 14 tests
+test m06_negative_member_id_is_diagnostic_and_does_not_poison_list ... ok
+test m08_range_forms_and_invalid_range ... ok
+test m04_parse_079_group_insert ... ok
+test m07_malformed_header_is_fatal_but_not_panic ... ok
+test m10_presence_missing_and_roles_null_are_safe ... ok
+test m03_parse_034_insert_and_045_ops_in_order ... ok
+test m11_root_reexports_are_available ... ok
+test m14_bad_insert_item_has_single_malformed_diagnostic ... ok
+test m09_unknown_op_is_skipped_and_other_ops_apply ... ok
+test m13_bad_groups_and_empty_client_status_are_diagnostic ... ok
+test m01_parse_008_shape_and_presence ... ok
+test m02_parse_021_counts_groups_and_flat_items ... ok
+test m12_legacy_005_006_shape_with_corrected_guild_id ... ok
+test m05_legacy_005_006_are_rejected_on_negative_guild_id ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/state_reducer.rs (target/debug/deps/state_reducer-d852b519b8dfb27d)
+
+running 19 tests
+test r06_channel_info_upserts_and_creates_stub_guild ... ok
+test r12_message_update_unknown_message ... ok
+test r10_unknown_and_unsupported_are_non_fatal ... ok
+test r13_effects_api_declares_all_four_kinds ... ok
+test r11_malformed_dispatch_is_diagnostic ... ok
+test r17_supplemental_invalid_raw_index_is_inconsistency ... ok
+test r15_malformed_update_does_not_upsert_author ... ok
+test r19_crate_root_reexports ... ok
+test r14_stale_malformed_dispatch_does_not_rewind_sequence ... ok
+test r07_message_create_and_update ... ok
+test r08_stale_sequence_is_ignored ... ok
+test r05_thread_list_sync_upserts ... ok
+test r03_supplemental_merges_members_by_raw_guild_index ... ok
+test r18_resumed_is_noop ... ok
+test r16_message_in_private_channel_is_known ... ok
+test r01_state_from_real_ready_matches_jq ... ok
+test r04_sessions_replace_replaces_sessions ... ok
+test r09_ready_resets_sequence_and_state ... ok
+test r02_ready_is_deterministic_and_emits_sorted_effects ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/state_types.rs (target/debug/deps/state_types-2bdb06ab4c25c7bf)
+
+running 15 tests
+test t03_sessions_replace_parses_array ... ok
+test t05_channel_info_synthetic_channel_fields ... ok
+test t04_thread_fixture_negative_guild_id_is_invalid ... ok
+test t04b_thread_synthetic_fields_from_fixture ... ok
+test t08_unknown_and_unsupported_events ... ok
+test t09_message_without_channel_is_error ... ok
+test t10_sessions_replace_wrong_type ... ok
+test t07_message_update_real_fixture ... ok
+test t06_message_create_real_fixture ... ok
+test t12_supplemental_length_mismatch_is_diagnostic ... ok
+test t13_minimal_ready_state_is_redacted ... ok
+test t05b_channel_info_negative_ids_are_diagnostics ... ok
+test t02_ready_supplemental_groups_match_oracle ... ok
+test t11_state_debug_redacts_secrets ... ok
+test t01_ready_event_parses_real_fixture ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

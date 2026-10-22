@@ -1,0 +1,39 @@
+
+running 16 tests
+test compound_at_the_limit_is_accepted ... ok
+test compound_packet_limit_is_enforced ... ok
+test compound_report_and_sdes_are_both_parsed ... ok
+test empty_input_is_an_empty_compound ... ok
+test cumulative_loss_extremes_are_sign_extended ... ok
+test padding_bit_is_rejected_explicitly ... ok
+test real_receiver_report_keeps_encrypted_block_and_detects_trailer ... ok
+test impossible_length_for_receiver_report_is_rejected ... FAILED
+test real_sender_report_parses_sender_info_and_20_byte_trailer ... ok
+test sender_report_without_sender_info_is_invalid ... ok
+test session2_receiver_report_has_20_byte_trailer ... ok
+test synthetic_report_block_uses_24_bit_signed_cumulative_loss ... ok
+test trailer_that_starts_with_version_two_is_not_mistaken_for_rtcp ... ok
+test truncated_packet_reports_required_size ... ok
+test unknown_payload_types_are_opaque_not_errors ... ok
+test wrong_version_on_first_packet_is_an_error ... ok
+
+failures:
+
+---- impossible_length_for_receiver_report_is_rejected stdout ----
+
+thread 'impossible_length_for_receiver_report_is_rejected' (230829) panicked at crates/discord-voice/src/rtcp.rs:262:9:
+index out of bounds: the len is 0 but the index is 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    impossible_length_for_receiver_report_is_rejected
+
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- stderr ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/rtcp_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/rtcp_contract-7dc3be166e1775b8)
+error: test failed, to rerun pass `-p discord-voice --test rtcp_contract`

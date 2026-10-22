@@ -19,3 +19,14 @@ mod tests {
         assert_eq!(super::COMPONENT_CONTRACTS, 12);
     }
 }
+// Модули — контракты компонент (D-03), восстановленные как headless-скелеты.
+// Публичные: GUI-каркас (P3-01 и далее) заблокирован до решения владельца по
+// тулкиту, но контракты уже зафиксированы и должны быть доступны крейтам-потребителям.
+pub mod chat_view;
+pub mod dialog_window;
+pub mod member_list;
+pub mod navigation;
+pub mod search_overlay;
+pub mod tray_manager;
+pub mod user_profile;
+pub mod window_manager;

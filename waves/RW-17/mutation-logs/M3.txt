@@ -1,0 +1,80 @@
+
+running 17 tests
+test r03_manual_ack_sets_mention_count ... ok
+test r01_fixture_ack_updates_channel_entry ... FAILED
+test r04_manual_ack_without_mention_count_clears_mentions ... ok
+test r06_non_manual_ack_ignores_mention_count ... ok
+test r16_version_is_assigned_without_max_guard ... ok
+test r09_missing_optional_fields_preserve_previous_values ... FAILED
+test r11_repeated_acks_are_idempotent_with_growing_version ... ok
+test r10_non_channel_entry_is_guarded ... ok
+test r02_unknown_channel_creates_entry_at_end ... FAILED
+test r05_negative_manual_mention_count_is_clamped ... ok
+test r15_forward_ack_advances_ack_point ... FAILED
+test r07_stale_message_id_is_rejected_with_diagnostic ... ok
+test r08_equal_message_id_updates_metadata_without_duplicate ... FAILED
+test r14_ack_does_not_touch_unrelated_entry_fields ... FAILED
+test r13_broken_ack_is_malformed_and_keeps_monotonic_seq ... ok
+test r17_unknown_channel_version_has_no_max_guard ... ok
+test r12_stale_sequence_does_not_touch_read_state ... ok
+
+failures:
+
+---- r01_fixture_ack_updates_channel_entry stdout ----
+
+thread 'r01_fixture_ack_updates_channel_entry' (465982) panicked at crates/discord-core/tests/read_state_reducer.rs:100:5:
+assertion `left == right` failed
+  left: Some(4309)
+ right: Some(4310)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- r09_missing_optional_fields_preserve_previous_values stdout ----
+
+thread 'r09_missing_optional_fields_preserve_previous_values' (465990) panicked at crates/discord-core/tests/read_state_reducer.rs:313:5:
+assertion `left == right` failed
+  left: Some(0)
+ right: Some(3)
+
+---- r02_unknown_channel_creates_entry_at_end stdout ----
+
+thread 'r02_unknown_channel_creates_entry_at_end' (465983) panicked at crates/discord-core/tests/read_state_reducer.rs:147:5:
+assertion `left == right` failed
+  left: None
+ right: Some(7)
+
+---- r15_forward_ack_advances_ack_point stdout ----
+
+thread 'r15_forward_ack_advances_ack_point' (465996) panicked at crates/discord-core/tests/read_state_reducer.rs:472:5:
+assertion `left == right` failed
+  left: Some(0)
+ right: Some(1)
+
+---- r08_equal_message_id_updates_metadata_without_duplicate stdout ----
+
+thread 'r08_equal_message_id_updates_metadata_without_duplicate' (465989) panicked at crates/discord-core/tests/read_state_reducer.rs:274:5:
+assertion `left == right` failed
+  left: Some(0)
+ right: Some(1)
+
+---- r14_ack_does_not_touch_unrelated_entry_fields stdout ----
+
+thread 'r14_ack_does_not_touch_unrelated_entry_fields' (465995) panicked at crates/discord-core/tests/read_state_reducer.rs:437:5:
+assertion `left == right` failed
+  left: Some(4309)
+ right: Some(4310)
+
+
+failures:
+    r01_fixture_ack_updates_channel_entry
+    r02_unknown_channel_creates_entry_at_end
+    r08_equal_message_id_updates_metadata_without_duplicate
+    r09_missing_optional_fields_preserve_previous_values
+    r14_ack_does_not_touch_unrelated_entry_fields
+    r15_forward_ack_advances_ack_point
+
+test result: FAILED. 11 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running tests/read_state_reducer.rs (target/debug/deps/read_state_reducer-225e30b1d9ab34aa)
+error: test failed, to rerun pass `-p discord-core --test read_state_reducer`

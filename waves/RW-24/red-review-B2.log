@@ -1,0 +1,48 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test markdown_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/markdown_contract.rs (target/debug/deps/markdown_contract-5713afa49f3299b6)
+
+running 11 tests
+test arbitrary_utf8_input_never_panics ... ok
+test multiline_blockquote_keeps_the_quote_prefix ... ok
+test renderer_revalidates_manually_constructed_links ... ok
+test nested_lists_preserve_structure_and_indent ... FAILED
+test rejects_unsafe_urls_but_keeps_labels ... ok
+test ordered_list_number_overflow_does_not_panic ... FAILED
+test keeps_html_as_inert_text_and_preserves_unclosed_markers ... ok
+test supports_nested_styles_and_protects_code ... ok
+test timestamp_and_slash_command_tokens_are_exact ... FAILED
+test renders_the_23_frozen_markdown_rules ... ok
+test parsing_and_rendering_are_bounded_for_arbitrary_boundaries ... ok
+
+failures:
+
+---- nested_lists_preserve_structure_and_indent stdout ----
+
+thread 'nested_lists_preserve_structure_and_indent' (57143) panicked at crates/discord-i18n/tests/markdown_contract.rs:134:5:
+assertion `left == right` failed
+  left: "- outer\n- inner\n- deep\n- next"
+ right: "- outer\n  - inner\n    - deep\n- next"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ordered_list_number_overflow_does_not_panic stdout ----
+
+thread 'ordered_list_number_overflow_does_not_panic' (57144) panicked at crates/discord-i18n/src/markdown.rs:121:39:
+attempt to add with overflow
+
+---- timestamp_and_slash_command_tokens_are_exact stdout ----
+
+thread 'timestamp_and_slash_command_tokens_are_exact' (57150) panicked at crates/discord-i18n/tests/markdown_contract.rs:154:9:
+assertion `left == right` failed: <t:1712345678:Rbad>
+  left: "<t:1712345678:R>"
+ right: "<t:1712345678:Rbad>"
+
+
+failures:
+    nested_lists_preserve_structure_and_indent
+    ordered_list_number_overflow_does_not_panic
+    timestamp_and_slash_command_tokens_are_exact
+
+test result: FAILED. 8 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-i18n --test markdown_contract`

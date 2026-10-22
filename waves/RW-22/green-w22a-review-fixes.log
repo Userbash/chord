@@ -1,0 +1,22 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 8 tests
+test tests::hash_vectors_and_locale_selection ... ok
+test tests::ru_plural_categories ... ok
+test tests::number_formatting_uses_locale_separators_and_keeps_fraction ... ok
+test tests::plural_exact_and_fractional_categories_are_cldr_safe ... ok
+test tests::locale_math_is_consistent ... ok
+test tests::catalog_translate_plural_and_rich_tags ... ok
+test tests::real_catalogs_match_independent_inventory ... ok
+test tests::markdown_is_safe_and_handles_unclosed_markers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+   Doc-tests discord_i18n
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

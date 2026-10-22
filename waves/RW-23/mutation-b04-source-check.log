@@ -1,0 +1,50 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: unused variable: `peer`
+   --> crates/discord-voice/src/udp.rs:303:20
+    |
+303 |         let (size, peer) = self.recv_from(&mut bytes)?;
+    |                    ^^^^ help: if this is intentional, prefix it with an underscore: `_peer`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `peer`
+   --> crates/discord-voice/src/udp.rs:339:20
+    |
+339 |         let (size, peer) = self.recv_from(&mut bytes)?;
+    |                    ^^^^ help: if this is intentional, prefix it with an underscore: `_peer`
+
+warning: method `ensure_peer` is never used
+   --> crates/discord-voice/src/udp.rs:321:8
+    |
+263 | impl UdpMediaSocket {
+    | ------------------- method in this implementation
+...
+321 |     fn ensure_peer(&self, peer: SocketAddr) -> Result<(), UdpError> {
+    |        ^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 3 warnings (run `cargo fix --lib -p discord-voice` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test receivers_reject_foreign_peer_and_wrong_ssrc ... FAILED
+
+failures:
+
+---- receivers_reject_foreign_peer_and_wrong_ssrc stdout ----
+
+thread 'receivers_reject_foreign_peer_and_wrong_ssrc' (33301) panicked at crates/discord-voice/tests/udp.rs:236:5:
+assertion `left == right` failed
+  left: Ok(Response { ssrc: 9208, address: "127.0.0.1", port: 19329 })
+ right: Err(UnexpectedPeer)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    receivers_reject_foreign_peer_and_wrong_ssrc
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test udp`

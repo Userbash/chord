@@ -1,0 +1,19 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_core::Cursor`, `discord_core::HistoryDiagnostics`, `discord_core::MessagePage`, `discord_core::PageApply`, `discord_core::PageError`, `discord_core::PageRequest`, `discord_core::PageToken`
+  --> crates/discord-core/tests/history_types.rs:11:5
+   |
+11 |     Cursor, HistoryDiagnostics, MessagePage, PageApply, PageError, PageRequest, PageToken,
+   |     ^^^^^^  ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^ no `PageToken` in the root
+   |     |       |                   |            |          |          |
+   |     |       |                   |            |          |          no `PageRequest` in the root
+   |     |       |                   |            |          no `PageError` in the root
+   |     |       |                   |            no `PageApply` in the root
+   |     |       |                   no `MessagePage` in the root
+   |     |       no `HistoryDiagnostics` in the root
+   |     no `Cursor` in the root
+   |
+   = help: consider importing this struct instead:
+           std::io::Cursor
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "history_types") due to 1 previous error

@@ -1,22 +1,42 @@
 name: ci
+
 on:
   push:
     branches: [main]
   pull_request:
+
 permissions:
   contents: read
-env:
-  LC_ALL: C
+
 jobs:
-  gates:
-    name: gates
+  test:
+    name: fmt-clippy-test-bench
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run gate:worker
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - name: Local CI contract
+        run: bash scripts/ci.sh --online --skip-release
+
+  package:
+    name: release-artifact
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - name: Release artifact
+        run: bash scripts/release.sh --online
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: discord-rs-linux-x64
+          path: rust/dist/

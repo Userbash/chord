@@ -1,0 +1,106 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `channel_id`
+  --> crates/discord-core/src/rest/ack.rs:33:25
+   |
+33 | pub fn build_ack_target(channel_id: &str, message_id: &str) -> Result<String, AckError> {
+   |                         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_channel_id`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `message_id`
+  --> crates/discord-core/src/rest/ack.rs:33:43
+   |
+33 | pub fn build_ack_target(channel_id: &str, message_id: &str) -> Result<String, AckError> {
+   |                                           ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_message_id`
+
+warning: unused variable: `token`
+  --> crates/discord-core/src/rest/ack.rs:45:23
+   |
+45 | pub fn build_ack_body(token: Option<&str>, last_viewed: u64) -> String {
+   |                       ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `last_viewed`
+  --> crates/discord-core/src/rest/ack.rs:45:44
+   |
+45 | pub fn build_ack_body(token: Option<&str>, last_viewed: u64) -> String {
+   |                                            ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_last_viewed`
+
+warning: `discord-core` (lib) generated 4 warnings (run `cargo fix --lib -p discord-core` to apply 4 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running tests/rest_ack.rs (target/debug/deps/rest_ack-7f6e73d854da646b)
+
+running 9 tests
+test case1_target_matches_oracle_path ... FAILED
+test case2_empty_ids ... FAILED
+test case2_non_numeric_ids ... FAILED
+test case4_body_with_token ... FAILED
+test case3_body_without_token_is_oracle_exact ... FAILED
+test case5_quote_backslash_and_newline ... FAILED
+test case5_all_controls_are_lowercase_u00xx ... FAILED
+test case5_utf8_passes_unchanged ... FAILED
+test case6_u64_max_has_no_loss ... FAILED
+
+failures:
+
+---- case1_target_matches_oracle_path stdout ----
+
+thread 'case1_target_matches_oracle_path' (85505) panicked at crates/discord-core/src/rest/ack.rs:34:5:
+not yet implemented: mutation-red: W11c
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- case2_empty_ids stdout ----
+
+thread 'case2_empty_ids' (85506) panicked at crates/discord-core/src/rest/ack.rs:34:5:
+not yet implemented: mutation-red: W11c
+
+---- case2_non_numeric_ids stdout ----
+
+thread 'case2_non_numeric_ids' (85507) panicked at crates/discord-core/src/rest/ack.rs:34:5:
+not yet implemented: mutation-red: W11c
+
+---- case4_body_with_token stdout ----
+
+thread 'case4_body_with_token' (85509) panicked at crates/discord-core/src/rest/ack.rs:46:5:
+not yet implemented: mutation-red: W11c
+
+---- case3_body_without_token_is_oracle_exact stdout ----
+
+thread 'case3_body_without_token_is_oracle_exact' (85508) panicked at crates/discord-core/src/rest/ack.rs:46:5:
+not yet implemented: mutation-red: W11c
+
+---- case5_quote_backslash_and_newline stdout ----
+
+thread 'case5_quote_backslash_and_newline' (85511) panicked at crates/discord-core/src/rest/ack.rs:46:5:
+not yet implemented: mutation-red: W11c
+
+---- case5_all_controls_are_lowercase_u00xx stdout ----
+
+thread 'case5_all_controls_are_lowercase_u00xx' (85510) panicked at crates/discord-core/src/rest/ack.rs:46:5:
+not yet implemented: mutation-red: W11c
+
+---- case5_utf8_passes_unchanged stdout ----
+
+thread 'case5_utf8_passes_unchanged' (85512) panicked at crates/discord-core/src/rest/ack.rs:46:5:
+not yet implemented: mutation-red: W11c
+
+---- case6_u64_max_has_no_loss stdout ----
+
+thread 'case6_u64_max_has_no_loss' (85513) panicked at crates/discord-core/src/rest/ack.rs:46:5:
+not yet implemented: mutation-red: W11c
+
+
+failures:
+    case1_target_matches_oracle_path
+    case2_empty_ids
+    case2_non_numeric_ids
+    case3_body_without_token_is_oracle_exact
+    case4_body_with_token
+    case5_all_controls_are_lowercase_u00xx
+    case5_quote_backslash_and_newline
+    case5_utf8_passes_unchanged
+    case6_u64_max_has_no_loss
+
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_ack`
+# EXIT=101

@@ -1,0 +1,45 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test markdown_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/markdown_contract.rs (target/debug/deps/markdown_contract-5713afa49f3299b6)
+
+running 8 tests
+test arbitrary_utf8_input_never_panics ... FAILED
+test multiline_blockquote_keeps_the_quote_prefix ... FAILED
+test renderer_revalidates_manually_constructed_links ... FAILED
+test rejects_unsafe_urls_but_keeps_labels ... ok
+test keeps_html_as_inert_text_and_preserves_unclosed_markers ... ok
+test supports_nested_styles_and_protects_code ... ok
+test renders_the_23_frozen_markdown_rules ... ok
+test parsing_and_rendering_are_bounded_for_arbitrary_boundaries ... ok
+
+failures:
+
+---- arbitrary_utf8_input_never_panics stdout ----
+
+thread 'arbitrary_utf8_input_never_panics' (53388) panicked at crates/discord-i18n/src/markdown.rs:404:40:
+end byte index 7 is not a char boundary; it is inside '🦀' (bytes 4..8 of string)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- multiline_blockquote_keeps_the_quote_prefix stdout ----
+
+thread 'multiline_blockquote_keeps_the_quote_prefix' (53390) panicked at crates/discord-i18n/tests/markdown_contract.rs:125:5:
+assertion `left == right` failed
+  left: "> first\nsecond"
+ right: "> first\n> second"
+
+---- renderer_revalidates_manually_constructed_links stdout ----
+
+thread 'renderer_revalidates_manually_constructed_links' (53393) panicked at crates/discord-i18n/tests/markdown_contract.rs:118:5:
+assertion `left == right` failed
+  left: "[x](javascript:alert(1))"
+ right: "x"
+
+
+failures:
+    arbitrary_utf8_input_never_panics
+    multiline_blockquote_keeps_the_quote_prefix
+    renderer_revalidates_manually_constructed_links
+
+test result: FAILED. 5 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-i18n --test markdown_contract`

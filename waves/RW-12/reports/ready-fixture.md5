@@ -1,0 +1,3 @@
+75341b0deba81caf7a9982bd715e1412  rust/crates/discord-core/tests/ready_fixture.rs
+9eaa57db534e4a9874203879bf329e1a  rust/crates/discord-core/tests/support/mod.rs
+6b7dd87ae187a2d05734029e075eb405  rust/crates/discord-core/tests/support/ready_fixture.rs

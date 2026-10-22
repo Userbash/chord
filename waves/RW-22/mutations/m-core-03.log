@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/rest_resources.rs (target/debug/deps/rest_resources-d5b2fcdc8f51d592)
+
+running 1 test
+test path_renders_only_the_application_id ... FAILED
+
+failures:
+
+---- path_renders_only_the_application_id stdout ----
+
+thread 'path_renders_only_the_application_id' (97661) panicked at crates/discord-core/tests/rest_resources.rs:85:9:
+assertion `left == right` failed
+  left: Ok("/quests/@me")
+ right: Err(UnexpectedId)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    path_renders_only_the_application_id
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_resources`

@@ -1,0 +1,103 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/ready_read_state.rs (target/debug/deps/ready_read_state-cd12d825edf9c25b)
+
+running 11 tests
+test c10_broken_ids_skip_elements_with_malformed ... FAILED
+test c7_broken_types_fall_back_with_ignored ... FAILED
+test c9_missing_or_empty_read_state_is_default ... ok
+test c8_partial_accepts_bool_forms_and_flags_unknown ... FAILED
+test c6_user_guild_settings_duplicate_guild_id_last_wins ... FAILED
+test c3_read_state_duplicate_id_last_wins ... FAILED
+test c1_read_state_fixture_matches_oracle ... FAILED
+test c4_user_guild_settings_fixture_matches_oracle ... FAILED
+test c2_entries_without_optional_fields_are_none ... FAILED
+test c5_channel_override_optionals_match_oracle ... FAILED
+test c11_user_and_guild_snowflakes_are_accepted_as_read_state_ids ... FAILED
+
+failures:
+
+---- c10_broken_ids_skip_elements_with_malformed stdout ----
+
+thread 'c10_broken_ids_skip_elements_with_malformed' (168631) panicked at crates/discord-core/tests/ready_read_state.rs:482:5:
+assertion `left == right` failed
+  left: []
+ right: [1, 2]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- c7_broken_types_fall_back_with_ignored stdout ----
+
+thread 'c7_broken_types_fall_back_with_ignored' (168639) panicked at crates/discord-core/tests/ready_read_state.rs:392:5:
+assertion `left == right` failed: неверный тип необязательного поля → дефолт + ignored
+  left: []
+ right: ["d.read_state.entries", "d.read_state.version", "d.user_guild_settings"]
+
+---- c8_partial_accepts_bool_forms_and_flags_unknown stdout ----
+
+thread 'c8_partial_accepts_bool_forms_and_flags_unknown' (168640) panicked at crates/discord-core/tests/ready_read_state.rs:419:9:
+assertion `left == right` failed: read_state.partial для "true"
+  left: false
+ right: true
+
+---- c6_user_guild_settings_duplicate_guild_id_last_wins stdout ----
+
+thread 'c6_user_guild_settings_duplicate_guild_id_last_wins' (168638) panicked at crates/discord-core/tests/ready_read_state.rs:366:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+
+---- c3_read_state_duplicate_id_last_wins stdout ----
+
+thread 'c3_read_state_duplicate_id_last_wins' (168635) panicked at crates/discord-core/tests/ready_read_state.rs:182:5:
+assertion `left == right` failed: дубликат схлопнут в одну запись
+  left: 0
+ right: 1
+
+---- c1_read_state_fixture_matches_oracle stdout ----
+
+thread 'c1_read_state_fixture_matches_oracle' (168633) panicked at crates/discord-core/tests/ready_read_state.rs:67:5:
+assertion `left == right` failed: jq: .d.read_state.entries|length
+  left: 0
+ right: 157
+
+---- c4_user_guild_settings_fixture_matches_oracle stdout ----
+
+thread 'c4_user_guild_settings_fixture_matches_oracle' (168636) panicked at crates/discord-core/tests/ready_read_state.rs:200:5:
+assertion `left == right` failed: jq: .d.user_guild_settings.entries|length
+  left: 0
+ right: 58
+
+---- c2_entries_without_optional_fields_are_none stdout ----
+
+thread 'c2_entries_without_optional_fields_are_none' (168634) panicked at crates/discord-core/tests/ready_read_state.rs:48:28:
+нет read_state-записи с id 384299970632876032
+
+---- c5_channel_override_optionals_match_oracle stdout ----
+
+thread 'c5_channel_override_optionals_match_oracle' (168637) panicked at crates/discord-core/tests/ready_read_state.rs:275:5:
+assertion `left == right` failed
+  left: 0
+ right: 1328
+
+---- c11_user_and_guild_snowflakes_are_accepted_as_read_state_ids stdout ----
+
+thread 'c11_user_and_guild_snowflakes_are_accepted_as_read_state_ids' (168632) panicked at crates/discord-core/tests/ready_read_state.rs:48:28:
+нет read_state-записи с id 384299970632876032
+
+
+failures:
+    c10_broken_ids_skip_elements_with_malformed
+    c11_user_and_guild_snowflakes_are_accepted_as_read_state_ids
+    c1_read_state_fixture_matches_oracle
+    c2_entries_without_optional_fields_are_none
+    c3_read_state_duplicate_id_last_wins
+    c4_user_guild_settings_fixture_matches_oracle
+    c5_channel_override_optionals_match_oracle
+    c6_user_guild_settings_duplicate_guild_id_last_wins
+    c7_broken_types_fall_back_with_ignored
+    c8_partial_accepts_bool_forms_and_flags_unknown
+
+test result: FAILED. 1 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test ready_read_state`
+# EXIT=101

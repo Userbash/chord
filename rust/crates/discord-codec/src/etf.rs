@@ -108,6 +108,48 @@ impl fmt::Display for EtfError {
 
 impl std::error::Error for EtfError {}
 
+/// Ошибка checked-энкодера ETF.
+///
+/// Обычный [`encode`] сохраняет прежний infallible-API для доверенных значений Discord;
+/// внешние/пользовательские значения должны кодироваться через [`encode_checked`], чтобы
+/// превышение wire-лимита не превращалось в молчаливое усечение длины.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EtfEncodeError {
+    /// Превышена [`MAX_DEPTH`] при входе в контейнер.
+    DepthLimit { limit: usize },
+    /// Длина binary-строки не помещается в `u32`.
+    BinaryTooLong { len: usize },
+    /// Длина атома не помещается в `u16`.
+    AtomTooLong { len: usize },
+    /// Количество элементов контейнера не помещается в `u32`.
+    ContainerTooLong {
+        kind: &'static str,
+        len: usize,
+        max: usize,
+    },
+}
+
+impl fmt::Display for EtfEncodeError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::DepthLimit { limit } => {
+                write!(formatter, "превышена глубина ETF-контейнера {limit}")
+            }
+            Self::BinaryTooLong { len } => {
+                write!(formatter, "binary-строка {len} Б не влезает в u32")
+            }
+            Self::AtomTooLong { len } => {
+                write!(formatter, "атом {len} Б не влезает в u16")
+            }
+            Self::ContainerTooLong { kind, len, max } => {
+                write!(formatter, "{kind}: {len} элементов > {max}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for EtfEncodeError {}
+
 /// Значение терма ETF (erlpack-совместимая модель).
 #[derive(Debug, Clone, PartialEq)]
 pub enum EtfValue {
@@ -210,18 +252,34 @@ pub fn decode_term(buf: &[u8]) -> Result<(EtfValue, usize), EtfError> {
 }
 
 /// Канонический энкод терма: `0x83` + терм.
+///
+/// Для доверенных значений Discord. Для внешних данных используйте [`encode_checked`]:
+/// иначе превышение wire-лимита (binary > `u32`, atom > `u16`, контейнер > `u32`, глубина
+/// > [`MAX_DEPTH`]) приведёт к явной панике, а не к усечению длины.
 pub fn encode(value: &EtfValue) -> Vec<u8> {
+    encode_checked(value).unwrap_or_else(|error| panic!("ETF encode: {error}"))
+}
+
+/// Проверяемый канонический энкод: `0x83` + терм.
+pub fn encode_checked(value: &EtfValue) -> Result<Vec<u8>, EtfEncodeError> {
     let mut out = Vec::new();
     out.push(VERSION_BYTE);
-    write_term(value, &mut out);
-    out
+    write_term(value, &mut out, 1)?;
+    Ok(out)
 }
 
 /// Канонический энкод терма без префикса.
+///
+/// Для доверенных значений; см. [`encode`] и [`encode_term_checked`].
 pub fn encode_term(value: &EtfValue) -> Vec<u8> {
+    encode_term_checked(value).unwrap_or_else(|error| panic!("ETF encode: {error}"))
+}
+
+/// Проверяемый канонический энкод без префикса `0x83`.
+pub fn encode_term_checked(value: &EtfValue) -> Result<Vec<u8>, EtfEncodeError> {
     let mut out = Vec::new();
-    write_term(value, &mut out);
-    out
+    write_term(value, &mut out, 1)?;
+    Ok(out)
 }
 
 /// Позиционный читатель с проверкой границ **до** любых выделений памяти.
@@ -456,8 +514,8 @@ fn check_depth(depth: usize, at: usize) -> Result<(), EtfError> {
     }
 }
 
-/// Канонический энкод терма (без префикса `0x83`) в буфер.
-fn write_term(value: &EtfValue, out: &mut Vec<u8>) {
+/// Канонический энкод терма в буфер.
+fn write_term(value: &EtfValue, out: &mut Vec<u8>, depth: usize) -> Result<(), EtfEncodeError> {
     match value {
         EtfValue::Nil => out.push(TAG_NIL_EXT),
         EtfValue::Int(number) => write_int(*number, out),
@@ -465,9 +523,17 @@ fn write_term(value: &EtfValue, out: &mut Vec<u8>) {
             out.push(TAG_NEW_FLOAT_EXT);
             out.extend_from_slice(&number.to_be_bytes());
         }
-        EtfValue::Str(text) => write_binary(text, out),
-        EtfValue::Atom(name) => write_atom(name, out),
+        EtfValue::Str(text) => write_binary(text, out)?,
+        EtfValue::Atom(name) => write_atom(name, out)?,
         EtfValue::Tuple(items) => {
+            check_encode_depth(depth)?;
+            if items.len() > u32::MAX as usize {
+                return Err(EtfEncodeError::ContainerTooLong {
+                    kind: "tuple",
+                    len: items.len(),
+                    max: u32::MAX as usize,
+                });
+            }
             if items.len() <= usize::from(u8::MAX) {
                 out.push(TAG_SMALL_TUPLE_EXT);
                 out.push(items.len() as u8);
@@ -476,44 +542,71 @@ fn write_term(value: &EtfValue, out: &mut Vec<u8>) {
                 out.extend_from_slice(&(items.len() as u32).to_be_bytes());
             }
             for item in items {
-                write_term(item, out);
+                write_term(item, out, depth + 1)?;
             }
         }
         EtfValue::List(items) => {
+            check_encode_depth(depth)?;
+            if items.len() > u32::MAX as usize {
+                return Err(EtfEncodeError::ContainerTooLong {
+                    kind: "list",
+                    len: items.len(),
+                    max: u32::MAX as usize,
+                });
+            }
             out.push(TAG_LIST_EXT);
             out.extend_from_slice(&(items.len() as u32).to_be_bytes());
             for item in items {
-                write_term(item, out);
+                write_term(item, out, depth + 1)?;
             }
             out.push(TAG_NIL_EXT);
         }
         EtfValue::Map(pairs) => {
+            check_encode_depth(depth)?;
+            if pairs.len() > u32::MAX as usize {
+                return Err(EtfEncodeError::ContainerTooLong {
+                    kind: "map",
+                    len: pairs.len(),
+                    max: u32::MAX as usize,
+                });
+            }
             out.push(TAG_MAP_EXT);
             out.extend_from_slice(&(pairs.len() as u32).to_be_bytes());
             for (key, value) in pairs {
-                write_term(key, out);
-                write_term(value, out);
+                write_term(key, out, depth + 1)?;
+                write_term(value, out, depth + 1)?;
             }
         }
+    }
+    Ok(())
+}
+
+/// Проверка глубины при входе в контейнер (корень — уровень 1).
+fn check_encode_depth(depth: usize) -> Result<(), EtfEncodeError> {
+    if depth > MAX_DEPTH {
+        Err(EtfEncodeError::DepthLimit { limit: MAX_DEPTH })
+    } else {
+        Ok(())
     }
 }
 
 /// `0x6d`: бинарник — u32 BE длина + UTF-8 (`0x6b`/`0x63` энкодер не производит).
-///
-/// NB (находка ревью RW-01): >4 ГиБ усечётся (`as u32`) — на практике термы ≤ ~1 МБ
-/// (крупнейший реальный READY ~577 КБ); жёсткий вариант — в P1.
-fn write_binary(text: &str, out: &mut Vec<u8>) {
+fn write_binary(text: &str, out: &mut Vec<u8>) -> Result<(), EtfEncodeError> {
+    if text.len() > u32::MAX as usize {
+        return Err(EtfEncodeError::BinaryTooLong { len: text.len() });
+    }
     out.push(TAG_BINARY_EXT);
     out.extend_from_slice(&(text.len() as u32).to_be_bytes());
     out.extend_from_slice(text.as_bytes());
+    Ok(())
 }
 
 /// Атом: чистый ASCII → `0x64`; иначе ≤255 Б → `0x77`; иначе → `0x76`.
-///
-/// NB (находка ревью RW-01): при длине >65535 Б поле длины усечётся (`as u16`) — на реальных
-/// данных Discord недостижимо (атомы — ключи/статусы в десятки байт); жёсткий вариант — в P1.
-fn write_atom(name: &str, out: &mut Vec<u8>) {
+fn write_atom(name: &str, out: &mut Vec<u8>) -> Result<(), EtfEncodeError> {
     let bytes = name.as_bytes();
+    if bytes.len() > u16::MAX as usize {
+        return Err(EtfEncodeError::AtomTooLong { len: bytes.len() });
+    }
     if bytes.is_ascii() {
         out.push(TAG_ATOM_EXT);
         out.extend_from_slice(&(bytes.len() as u16).to_be_bytes());
@@ -525,6 +618,7 @@ fn write_atom(name: &str, out: &mut Vec<u8>) {
         out.extend_from_slice(&(bytes.len() as u16).to_be_bytes());
     }
     out.extend_from_slice(bytes);
+    Ok(())
 }
 
 /// Целое: `0..=255` → `0x61`; диапазон i32 → `0x62`; иначе big-int `0x6e` (знак, затем LE-цифры).

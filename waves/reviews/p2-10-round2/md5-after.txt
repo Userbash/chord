@@ -1,0 +1,2 @@
+8e3ff3ad7d2016463847101e1336973b  crates/discord-core/src/state/voice/reducer.rs
+9d019883be4cef4cd651f97bfe1febe1  crates/discord-core/tests/voice_state_reducer.rs

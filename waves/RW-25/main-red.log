@@ -1,0 +1,40 @@
+ 13 + #[derive(Ord)]
+ 14 | pub enum SearchContentKind {
+    |
+
+error[E0277]: the trait bound `search_overlay::SearchContentKind: Ord` is not satisfied
+   --> crates/discord-ui/src/search_overlay.rs:554:44
+    |
+554 |         assert!(!filters.contains.contains(&SearchContentKind::Image));
+    |                                   -------- ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Ord` is not implemented for `search_overlay::SearchContentKind`
+    |                                   |
+    |                                   required by a bound introduced by this call
+    |
+note: required by a bound in `BTreeSet::<T, A>::contains`
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/alloc/src/collections/btree/set.rs:606:4
+help: consider annotating `search_overlay::SearchContentKind` with `#[derive(Ord)]`
+    |
+ 13 + #[derive(Ord)]
+ 14 | pub enum SearchContentKind {
+    |
+
+error[E0277]: the trait bound `search_overlay::SearchContentKind: Ord` is not satisfied
+   --> crates/discord-ui/src/search_overlay.rs:562:32
+    |
+562 |         query.filters.contains.insert(SearchContentKind::Link);
+    |                                ^^^^^^ ----------------------- `search_overlay::SearchContentKind` doesn't satisfy the trait bound
+    |                                |
+    |                                the trait `Ord` is not implemented for `search_overlay::SearchContentKind`
+    |
+note: required by a bound in `BTreeSet::<T, A>::insert`
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/alloc/src/collections/btree/set.rs:900:4
+help: consider annotating `search_overlay::SearchContentKind` with `#[derive(Ord)]`
+    |
+ 13 + #[derive(Ord)]
+ 14 | pub enum SearchContentKind {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `discord-ui` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `discord-ui` (lib test) due to 8 previous errors

@@ -1,0 +1,80 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 7 tests
+test tests::hash_vectors_and_locale_selection ... ok
+test tests::locale_math_is_consistent ... ok
+test tests::ru_plural_categories ... ok
+test tests::number_formatting_uses_locale_separators_and_keeps_fraction ... ok
+test tests::catalog_translate_plural_and_rich_tags ... ok
+test tests::markdown_is_safe_and_handles_unclosed_markers ... ok
+test tests::real_catalogs_match_independent_inventory ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_json-25f0936865b675ab)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/json_contract.rs (target/debug/deps/json_contract-c38e41847ad3ad2a)
+
+running 11 tests
+test error_display_has_offset_but_not_payload ... ok
+test numbers_preserve_raw_and_parse_integers ... ok
+test rejects_malformed_and_dangerous_input ... ok
+test parses_scalars_arrays_and_objects ... ok
+test depth_limit_is_enforced_without_panic ... ok
+test truncated_inputs_never_panic ... ok
+test parses_real_voice_frames_when_lab_is_available ... ok
+test supports_unicode_escapes_and_rejects_lone_low_surrogate ... ok
+test writer_round_trips_unicode_escapes_and_numbers ... ok
+test writer_can_round_trip_a_real_voice_frame ... ok
+test parses_real_catalogs_when_lab_is_available ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
+
+running 1 test
+test tests::voice_constants_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 9 tests
+test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
+test frame_parser_preserves_raw_other_and_rejects_missing_payload ... ok
+test region_selection_orders_latency_ties_and_manual_choice ... ok
+test select_protocol_codecs_match_capture_contract ... ok
+test secret_key_is_decoded_validated_and_redacted ... ok
+test voice_server_update_builds_valid_websocket_url_without_leaking_token ... ok
+test outgoing_identify_and_select_protocol_are_wire_serializable ... ok
+test capture_frames_match_signal_contract ... ok
+test every_prefix_of_frame_is_panic_free ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.11s
+
+   Doc-tests discord_i18n
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_json
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_voice
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

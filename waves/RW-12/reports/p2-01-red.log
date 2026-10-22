@@ -1,0 +1,82 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `data`
+   --> crates/discord-core/src/ready_data.rs:288:22
+    |
+288 |     pub fn from_data(data: &EtfValue) -> Result<Self, ReadyParseError> {
+    |                      ^^^^ help: if this is intentional, prefix it with an underscore: `_data`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/ready_data.rs (target/debug/deps/ready_data-761b3da4affbb4de)
+
+running 9 tests
+test from_dispatch_rejects_non_ready ... ok
+test minimal_ready_has_defaults_and_only_guilds_required ... FAILED
+test atom_nil_is_absent_and_int_bool_is_accepted ... FAILED
+test missing_guild_id_reports_element_path ... FAILED
+test full_ready_parses_40_keys_and_nested ... FAILED
+test unknown_fields_are_ignored_but_counted ... FAILED
+test wrong_guilds_type_is_error ... FAILED
+test wrong_user_type_reports_path ... FAILED
+test missing_guilds_is_error ... FAILED
+
+failures:
+
+---- minimal_ready_has_defaults_and_only_guilds_required stdout ----
+
+thread 'minimal_ready_has_defaults_and_only_guilds_required' (110128) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+---- atom_nil_is_absent_and_int_bool_is_accepted stdout ----
+
+thread 'atom_nil_is_absent_and_int_bool_is_accepted' (110125) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- missing_guild_id_reports_element_path stdout ----
+
+thread 'missing_guild_id_reports_element_path' (110129) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+---- full_ready_parses_40_keys_and_nested stdout ----
+
+thread 'full_ready_parses_40_keys_and_nested' (110127) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+---- unknown_fields_are_ignored_but_counted stdout ----
+
+thread 'unknown_fields_are_ignored_but_counted' (110131) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+---- wrong_guilds_type_is_error stdout ----
+
+thread 'wrong_guilds_type_is_error' (110132) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+---- wrong_user_type_reports_path stdout ----
+
+thread 'wrong_user_type_reports_path' (110133) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+---- missing_guilds_is_error stdout ----
+
+thread 'missing_guilds_is_error' (110130) panicked at crates/discord-core/src/ready_data.rs:289:9:
+not yet implemented: red: P2-01 READY parser
+
+
+failures:
+    atom_nil_is_absent_and_int_bool_is_accepted
+    full_ready_parses_40_keys_and_nested
+    minimal_ready_has_defaults_and_only_guilds_required
+    missing_guild_id_reports_element_path
+    missing_guilds_is_error
+    unknown_fields_are_ignored_but_counted
+    wrong_guilds_type_is_error
+    wrong_user_type_reports_path
+
+test result: FAILED. 1 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test ready_data`
+# EXIT=101

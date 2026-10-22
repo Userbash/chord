@@ -1,0 +1,31 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/reconnect_contract.rs (/tmp/opencode/target-w29c/debug/deps/reconnect_contract-82a49deede000b1b)
+
+running 10 tests
+test r01_first_resumable_disconnect_resumes_after_one_second ... ok
+test r02_six_resumable_disconnects_follow_the_backoff_table ... ok
+test r03_after_max_attempts_policy_gives_up_without_delay ... ok
+test r05_on_established_resets_attempt_and_backoff ... ok
+test r04_invalid_session_identifies_after_one_second ... ok
+test r06_non_resumable_disconnect_identifies_with_backoff ... ok
+test r08_policy_is_reusable_after_give_up ... ok
+test r07_zero_max_attempts_is_one_and_long_series_saturates ... ok
+test r09_invalid_session_respects_the_same_attempt_limit ... ok
+test r10_backoff_table_is_the_frozen_contract ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (/tmp/opencode/target-w29c/debug/deps/discord_voice-37c479f94835c760)
+
+running 2 tests
+test reconnect::tests::attempt_saturates_at_u32_max_without_overflow ... ok
+test reconnect::tests::backoff_index_is_clamped_to_last_entry ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+# EXIT_LIB=0

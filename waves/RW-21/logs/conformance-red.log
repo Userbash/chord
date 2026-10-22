@@ -1,0 +1,24 @@
+   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+error[E0432]: unresolved imports `discord_conformance::ConformanceError`, `discord_conformance::FixtureSource`, `discord_conformance::lab_root`, `discord_conformance::load_bytes`, `discord_conformance::load_text`, `discord_conformance::manifest_text`, `discord_conformance::resolve`
+ --> crates/discord-conformance/tests/fixtures.rs:7:5
+  |
+7 |     ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
+  |     ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^                 ^^^^^^^^  ^^^^^^^^^^  ^^^^^^^^^ no `load_text` in the root
+  |     |                 |                             |         |
+  |     |                 |                             |         no `load_bytes` in the root
+  |     |                 |                             no `lab_root` in the root
+  |     |                 no `FixtureSource` in the root
+  |     no `ConformanceError` in the root
+8 |     manifest_text, resolve,
+  |     ^^^^^^^^^^^^^  ^^^^^^^ no `resolve` in the root
+  |     |
+  |     no `manifest_text` in the root
+  |
+help: a similar name exists in the module
+  |
+8 -     manifest_text, resolve,
+8 +     manifest_path, resolve,
+  |
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-conformance` (test "fixtures") due to 1 previous error

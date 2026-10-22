@@ -1,0 +1,81 @@
+   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 4 tests
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... FAILED
+test ci_and_release_dry_runs_keep_their_contracts ... FAILED
+test checks_allowlist_and_rejects_forbidden_license ... FAILED
+test generates_spdx_23_with_locked_packages_and_licenses ... FAILED
+
+failures:
+
+---- sbom_and_hooks_stay_offline_and_use_no_network_clients stdout ----
+
+thread 'sbom_and_hooks_stay_offline_and_use_no_network_clients' (122) panicked at crates/discord-conformance/tests/sbom_contract.rs:97:71:
+sbom script: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ci_and_release_dry_runs_keep_their_contracts stdout ----
+
+thread 'ci_and_release_dry_runs_keep_their_contracts' (120) panicked at crates/discord-conformance/tests/sbom_contract.rs:80:5:
+assertion failed: String::from_utf8_lossy(&ci.stdout).to_lowercase().contains("sbom")
+
+---- checks_allowlist_and_rejects_forbidden_license stdout ----
+
+thread 'checks_allowlist_and_rejects_forbidden_license' (119) panicked at crates/discord-conformance/tests/sbom_contract.rs:61:5:
+stderr=node:internal/modules/cjs/loader:1568
+  throw err;
+  ^
+
+Error: Cannot find module '/home/sanya/orca/project/scripts/sbom.mjs'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1169:12)
+    at Module._load (node:internal/modules/cjs/loader:1341:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.21.0
+
+
+---- generates_spdx_23_with_locked_packages_and_licenses stdout ----
+
+thread 'generates_spdx_23_with_locked_packages_and_licenses' (121) panicked at crates/discord-conformance/tests/sbom_contract.rs:30:5:
+stderr=node:internal/modules/cjs/loader:1568
+  throw err;
+  ^
+
+Error: Cannot find module '/home/sanya/orca/project/scripts/sbom.mjs'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1169:12)
+    at Module._load (node:internal/modules/cjs/loader:1341:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.21.0
+
+
+
+failures:
+    checks_allowlist_and_rejects_forbidden_license
+    ci_and_release_dry_runs_keep_their_contracts
+    generates_spdx_23_with_locked_packages_and_licenses
+    sbom_and_hooks_stay_offline_and_use_no_network_clients
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`
+
+RED_EXIT=101

@@ -1,0 +1,13 @@
+25a8c4d0cf86d067e0d8b320d17261ac  rust/crates/discord-i18n/src/locale.rs
+e34095b967a5a6aece93a6b79a64c726  rust/crates/discord-i18n/src/plural.rs
+2ce60ebb1223638b562f5ba1108b9c46  rust/crates/discord-i18n/src/format.rs
+2d30c803b5a27cc7ba5ddc9ad0061ff3  rust/crates/discord-i18n/src/format_data.rs
+6251a8dc1ca28027f393cd454f09b3dd  rust/crates/discord-i18n/src/markdown.rs
+d541856a3cf44a43ab6ccc5a122d9e05  rust/crates/discord-i18n/src/lib.rs
+859b387dd043b031d1685a2cc273cc7d  rust/crates/discord-i18n/tests/locale_contract.rs
+22b11f9fcaa341221705488c83c3c0e3  rust/crates/discord-i18n/tests/plural_contract.rs
+94db0f5ad54a7cfd623644d10caacb60  rust/crates/discord-i18n/tests/format_contract.rs
+4c6959babd1134691668499557e334b6  rust/crates/discord-i18n/tests/markdown_contract.rs
+6d120f9ec21f6b48df2f53fdc4d5e7cb  rust/crates/discord-i18n/tests/i18n_contract.rs
+e3ee5688307588fba1616fe763625435  rust/crates/discord-i18n/tests/data/cldr-oracle.json
+92a301cf047ed123310cdf53158e3cce  waves/RW-24/gen-format-data.mjs

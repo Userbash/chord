@@ -1,0 +1,11 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/ready_fixture.rs (target/debug/deps/ready_fixture-f5dc378fde7757cf)
+
+running 2 tests
+test adapter_reads_ready_fixture_and_matches_oracle_counts ... ok
+test adapter_maps_capture_shape_nil_bool_ids_and_numbers ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+# EXIT=0

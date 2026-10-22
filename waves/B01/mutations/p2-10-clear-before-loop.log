@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 1 test
+test v09b_snapshot_merges_into_existing_store ... FAILED
+
+failures:
+
+---- v09b_snapshot_merges_into_existing_store stdout ----
+
+thread 'v09b_snapshot_merges_into_existing_store' (674541) panicked at crates/discord-core/tests/voice_state_reducer.rs:228:5:
+assertion `left == right` failed
+  left: 1
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v09b_snapshot_merges_into_existing_store
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_reducer`

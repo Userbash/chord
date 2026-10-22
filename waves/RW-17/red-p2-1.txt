@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/read_state_selectors.rs (target/debug/deps/read_state_selectors-8f95bd74defd5f50)
+
+running 1 test
+test s11_channel_ack_point_does_not_use_last_acked_id ... FAILED
+
+failures:
+
+---- s11_channel_ack_point_does_not_use_last_acked_id stdout ----
+
+thread 's11_channel_ack_point_does_not_use_last_acked_id' (451739) panicked at crates/discord-core/tests/read_state_selectors.rs:303:5:
+assertion `left == right` failed
+  left: Some(700)
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    s11_channel_ack_point_does_not_use_last_acked_id
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test read_state_selectors`

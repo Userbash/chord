@@ -1,0 +1,65 @@
+   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 5 tests
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... ok
+test ci_and_release_dry_runs_keep_their_contracts ... FAILED
+test generates_spdx_23_with_locked_packages_and_licenses ... FAILED
+test checks_allowlist_and_rejects_forbidden_license ... ok
+test license_expression_precedence_and_with_exceptions_are_checked ... FAILED
+
+failures:
+
+---- ci_and_release_dry_runs_keep_their_contracts stdout ----
+
+thread 'ci_and_release_dry_runs_keep_their_contracts' (29512) panicked at crates/discord-conformance/tests/sbom_contract.rs:189:5:
+release должен сравнивать source/destination по inode
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- generates_spdx_23_with_locked_packages_and_licenses stdout ----
+
+thread 'generates_spdx_23_with_locked_packages_and_licenses' (29513) panicked at crates/discord-conformance/tests/sbom_contract.rs:93:5:
+SPDX validation failed: node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+71 !== 85
+
+    at [eval]:1:192
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_string:71:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 71,
+  expected: 85,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.21.0
+
+
+---- license_expression_precedence_and_with_exceptions_are_checked stdout ----
+
+thread 'license_expression_precedence_and_with_exceptions_are_checked' (29514) panicked at crates/discord-conformance/tests/sbom_contract.rs:145:9:
+assertion `left == right` failed: expression="MIT !!!", stderr=
+  left: Some(0)
+ right: Some(1)
+
+
+failures:
+    ci_and_release_dry_runs_keep_their_contracts
+    generates_spdx_23_with_locked_packages_and_licenses
+    license_expression_precedence_and_with_exceptions_are_checked
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`

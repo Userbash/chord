@@ -1,0 +1,22 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 1 test
+test secret_key_is_decoded_validated_and_redacted ... FAILED
+
+failures:
+
+---- secret_key_is_decoded_validated_and_redacted stdout ----
+
+thread 'secret_key_is_decoded_validated_and_redacted' (80995) panicked at crates/discord-voice/tests/signaling.rs:128:5:
+assertion failed: parse_frame(r#"{"op":4,"d":{"mode":"m","secret_key":"AA==","media_session_id":"x","dave_protocol_version":1,"secure_frames_version":1}}"#).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    secret_key_is_decoded_validated_and_redacted
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test signaling`

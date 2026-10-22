@@ -1,0 +1,9 @@
+('M1', 'past/future перепутаны', 101, 'caught', ['t02_ru_plural_categories_past_and_future', 't01_en_long_always_past_future_and_grouping'], True)
+('M2', 'категория всегда other', 101, 'caught', ['t02_ru_plural_categories_past_and_future', 't06_short_and_narrow_styles'], True)
+('M3', 'Auto игнорируется', 101, 'caught', ['t02_ru_plural_categories_past_and_future', 't03_other_locales_match_icu'], True)
+('M4', 'Short → long', 101, 'caught', ['t03_other_locales_match_icu', 't06_short_and_narrow_styles'], True)
+('M5', 'плейсхолдер не замещается', 101, 'caught', ['t02_ru_plural_categories_past_and_future', 't01_en_long_always_past_future_and_grouping'], True)
+('M6', 'без группировки', 101, 'caught', ['t01_en_long_always_past_future_and_grouping', 't10_zero_and_extreme_values_do_not_panic'], True)
+('M7', 'ноль считается прошлым', 101, 'caught', ['t10_zero_and_extreme_values_do_not_panic', 't09_oracle_matrix_matches_exactly'], True)
+('M8', 'Minute → second', 101, 'caught', ['t03_other_locales_match_icu', 't06_short_and_narrow_styles'], True)
+caught=8/8 restored_all=True base_md5=19af4fc5c86b3380f70f2733ad84cd2a

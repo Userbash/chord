@@ -1,0 +1,4 @@
+M1 allowlist: --check-license MIT exit=1; expected 1 => CAUGHT; исходник восстановлен.
+M2 SPDX field: targeted generation exit=101; expected nonzero => CAUGHT; исходник восстановлен.
+M3 lock parse: generation targeted exit=101; expected nonzero => CAUGHT; исходник восстановлен.
+M4 ci hook: dry-run targeted exit=101; expected nonzero => CAUGHT; исходник восстановлен.

@@ -1,0 +1,20 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running tests/read_state_types.rs (target/debug/deps/read_state_types-8f41770f545249d2)
+
+running 12 tests
+test a02_minimal_ack_defaults_optional_fields ... ok
+test a01_fixture_046_fields_and_empty_diagnostics ... ok
+test a06_missing_required_fields_are_fatal ... ok
+test a03_nil_optional_fields_are_defaults_without_diagnostics ... ok
+test a05_manual_mention_and_version_parse ... ok
+test a07_invalid_required_ids_are_fatal ... ok
+test a08_non_map_data_is_fatal ... ok
+test a09_event_from_frame_routes_message_ack ... ok
+test a04_wrong_optional_types_are_ignored ... ok
+test a11_repeated_ack_with_new_version_is_not_duplicate ... ok
+test a12_negative_fields_have_typed_behavior ... ok
+test a10_broken_ack_is_malformed_without_state_change ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

@@ -1,0 +1,39 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running tests/history_pagination.rs (target/debug/deps/history_pagination-77a27aa43e2b6154)
+
+running 5 tests
+test h07_effect_mapping_and_queries ... ok
+test h08_before_page_and_channel_mismatch ... ok
+test h11_empty_pages_duplicates_and_stale_tokens ... ok
+test h09_after_and_around_windows ... ok
+test h10_live_precedence_and_eviction ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/history_selectors.rs (target/debug/deps/history_selectors-866d410b2bc174c7)
+
+running 8 tests
+test s02_bounds_tri_state ... ok
+test s01_channels_do_not_leak ... ok
+test s05_window_around_tie_and_ascending ... ok
+test s03_recent_oldest_newest ... ok
+test s07_default_empty_and_debug_hides_content ... ok
+test s04_range_is_inclusive ... ok
+test s06_read_only_and_deterministic ... ok
+test s08_real_fixtures_order ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/history_types.rs (target/debug/deps/history_types-7f09d4976ba92b89)
+
+running 6 tests
+test h01_config_and_validation ... ok
+test h06_debug_does_not_print_content ... ok
+test h03_live_replacement_is_last_wins ... ok
+test h05_latest_window_and_independent_channels ... ok
+test h02_real_create_fixtures ... ok
+test h04_update_upserts_full_message ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,33 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: variable does not need to be mutable
+   --> crates/discord-voice/tests/udp.rs:146:9
+    |
+146 |     let mut schedule = RotationSchedule::new(100);
+    |         ----^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (test "udp") generated 1 warning (run `cargo fix --test "udp" -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test rotation_boundary_and_action_match_capture_contract ... FAILED
+
+failures:
+
+---- rotation_boundary_and_action_match_capture_contract stdout ----
+
+thread 'rotation_boundary_and_action_match_capture_contract' (111) panicked at crates/discord-voice/tests/udp.rs:149:5:
+assertion failed: !schedule.due(60_180)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rotation_boundary_and_action_match_capture_contract
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test udp`

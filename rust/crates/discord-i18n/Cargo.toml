@@ -5,5 +5,8 @@ edition.workspace = true
 license.workspace = true
 description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
 
+[dependencies]
+discord-json = { workspace = true }
+
 [lints.rust]
 unsafe_code = "forbid"

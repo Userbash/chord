@@ -1,0 +1,87 @@
+# W30b — мутации D-Bus/уведомлений
+
+baseline: exit=0
+
+## 01 auth_hex_of_number
+ждём: n02/n02b: hex от числа вместо hex от десятичной записи uid
+md5 до: ca96abc04abeac0c0b723d72b44389e9
+exit: 101 — KILLED
+упавшие тесты: n02b_external_auth_line_uses_hex_uid_from_proc_status
+  test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: ca96abc04abeac0c0b723d72b44389e9 — OK
+
+## 02 struct_alignment_4
+ждём: n03/n04/n05: выравнивание struct/dict-entry 8 → 4
+md5 до: c13dd0b3d8392e59fa52b6b08d61cdf9
+exit: 101 — KILLED
+упавшие тесты: n03_marshal_round_trip_matches_libgio_bytes, n04_header_body_boundary_is_aligned_and_padded_with_zeroes, n05_parse_recovers_header_fields_and_body
+  test result: FAILED. 4 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 после restore: c13dd0b3d8392e59fa52b6b08d61cdf9 — OK
+
+## 03 reply_serial_off_by_one
+ждём: n02/n07…: ответ не сопоставляется по reply_serial
+md5 до: e62642f0182393833f6947e63c9a6eaa
+exit: 101 — KILLED
+упавшие тесты: n02_auth_external_and_hello_yield_unique_name, n07_capabilities_and_server_information_come_from_mock, n08_notify_returns_server_id_and_mock_sees_fields, n08b_notify_requires_app_name_and_summary, n09_notify_actions_reach_mock_as_pairs, n10_close_notification_reaches_mock, n11_error_reply_maps_to_remote_error, n12_action_and_close_signals_become_events, n13_foreign_signals_are_skipped, n15_repeated_close_and_closed_session_survive
+  test result: FAILED. 1 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.62s
+md5 после restore: e62642f0182393833f6947e63c9a6eaa — OK
+
+## 04 error_reply_as_success
+ждём: n11: ERROR-ответ превращается в успех вместо DbusError::Remote
+md5 до: e62642f0182393833f6947e63c9a6eaa
+exit: 101 — KILLED
+упавшие тесты: n11_error_reply_maps_to_remote_error
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+md5 после restore: e62642f0182393833f6947e63c9a6eaa — OK
+
+## 05 actions_label_id_swapped
+ждём: n09: пары actions перепутаны (label вместо id)
+md5 до: 10d14433568f81cef00ee1526b2ae77d
+exit: 101 — KILLED
+упавшие тесты: n09_notify_actions_reach_mock_as_pairs
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+md5 после restore: 10d14433568f81cef00ee1526b2ae77d — OK
+
+## 06 match_rule_without_closed
+ждём: n12: нет AddMatch на NotificationClosed
+md5 до: 10d14433568f81cef00ee1526b2ae77d
+exit: 101 — KILLED
+упавшие тесты: n12_action_and_close_signals_become_events
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.35s
+md5 после restore: 10d14433568f81cef00ee1526b2ae77d — OK
+
+## 07 event_filter_accepts_garbage
+ждём: n13: чужой сигнал с телом `s` принимается за событие
+md5 до: 10d14433568f81cef00ee1526b2ae77d
+exit: 101 — KILLED
+упавшие тесты: n13_foreign_signals_are_skipped
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+md5 после restore: 10d14433568f81cef00ee1526b2ae77d — OK
+
+## 08 serial_never_advances
+ждём: серийный номер не растёт: method call с serial=0 не собирается
+md5 до: e62642f0182393833f6947e63c9a6eaa
+exit: 101 — KILLED
+упавшие тесты: n02_auth_external_and_hello_yield_unique_name, n07_capabilities_and_server_information_come_from_mock, n08_notify_returns_server_id_and_mock_sees_fields, n08b_notify_requires_app_name_and_summary, n09_notify_actions_reach_mock_as_pairs, n10_close_notification_reaches_mock, n11_error_reply_maps_to_remote_error, n12_action_and_close_signals_become_events, n13_foreign_signals_are_skipped, n15_repeated_close_and_closed_session_survive
+  test result: FAILED. 1 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+md5 после restore: e62642f0182393833f6947e63c9a6eaa — OK
+
+## 09 empty_summary_guard_removed
+ждём: n08b: пустой summary уходит на шину вместо DbusError::Protocol
+md5 до: 10d14433568f81cef00ee1526b2ae77d
+exit: 101 — KILLED
+упавшие тесты: n08b_notify_requires_app_name_and_summary
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+md5 после restore: 10d14433568f81cef00ee1526b2ae77d — OK
+
+## 10 hints_not_empty
+ждём: n08: hints перестаёт быть пустым a{sv}
+md5 до: 10d14433568f81cef00ee1526b2ae77d
+exit: 101 — KILLED
+упавшие тесты: n08_notify_returns_server_id_and_mock_sees_fields
+  test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+md5 после restore: 10d14433568f81cef00ee1526b2ae77d — OK
+
+## Итог
+мутаций: 10
+все мутации убиты, все файлы восстановлены

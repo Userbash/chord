@@ -1,0 +1,14 @@
+# после red — только rustfmt-перенос строки (семантика не менялась)
+# команда: cargo test --offline -p discord-core --test ready_fixture
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/ready_fixture.rs (target/debug/deps/ready_fixture-f5dc378fde7757cf)
+
+running 3 tests
+test ready_parse_rejects_top_level_user_with_bad_id ... ok
+test adapter_reads_ready_fixture_and_matches_oracle_counts ... ok
+test adapter_maps_capture_shape_nil_bool_ids_and_numbers ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+# EXIT=0

@@ -1,0 +1,11 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+error[E0432]: unresolved import `discord_i18n::list`
+ --> crates/discord-i18n/tests/list_contract.rs:6:19
+  |
+6 | use discord_i18n::list::{ListStyle, ListType, format_list};
+  |                   ^^^^ could not find `list` in `discord_i18n`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-i18n` (test "list_contract") due to 1 previous error
+EXIT_CODE=101

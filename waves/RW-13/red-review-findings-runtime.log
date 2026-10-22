@@ -1,0 +1,64 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running tests/state_reducer.rs (target/debug/deps/state_reducer-d852b519b8dfb27d)
+
+running 19 tests
+test r06_channel_info_upserts_and_creates_stub_guild ... ok
+test r13_effects_api_declares_all_four_kinds ... ok
+test r12_message_update_unknown_message ... ok
+test r11_malformed_dispatch_is_diagnostic ... ok
+test r10_unknown_and_unsupported_are_non_fatal ... ok
+test r15_malformed_update_does_not_upsert_author ... FAILED
+test r17_supplemental_invalid_raw_index_is_inconsistency ... FAILED
+test r19_crate_root_reexports ... ok
+test r14_stale_malformed_dispatch_does_not_rewind_sequence ... FAILED
+test r16_message_in_private_channel_is_known ... FAILED
+test r04_sessions_replace_replaces_sessions ... ok
+test r08_stale_sequence_is_ignored ... ok
+test r18_resumed_is_noop ... ok
+test r03_supplemental_merges_members_by_raw_guild_index ... ok
+test r07_message_create_and_update ... ok
+test r01_state_from_real_ready_matches_jq ... ok
+test r05_thread_list_sync_upserts ... ok
+test r09_ready_resets_sequence_and_state ... ok
+test r02_ready_is_deterministic_and_emits_sorted_effects ... ok
+
+failures:
+
+---- r15_malformed_update_does_not_upsert_author stdout ----
+
+thread 'r15_malformed_update_does_not_upsert_author' (270106) panicked at crates/discord-core/tests/state_reducer.rs:404:5:
+assertion `left == right` failed
+  left: 2
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- r17_supplemental_invalid_raw_index_is_inconsistency stdout ----
+
+thread 'r17_supplemental_invalid_raw_index_is_inconsistency' (270108) panicked at crates/discord-core/tests/state_reducer.rs:442:5:
+assertion failed: state.diagnostics.inconsistencies.iter().any(|entry|
+        entry.contains("merged_members[1]"))
+
+---- r14_stale_malformed_dispatch_does_not_rewind_sequence stdout ----
+
+thread 'r14_stale_malformed_dispatch_does_not_rewind_sequence' (270105) panicked at crates/discord-core/tests/state_reducer.rs:379:5:
+assertion `left == right` failed
+  left: Some(2)
+ right: Some(18)
+
+---- r16_message_in_private_channel_is_known stdout ----
+
+thread 'r16_message_in_private_channel_is_known' (270107) panicked at crates/discord-core/tests/state_reducer.rs:417:5:
+assertion failed: !state.diagnostics.inconsistencies.iter().any(|entry|
+            entry.contains("messages:900"))
+
+
+failures:
+    r14_stale_malformed_dispatch_does_not_rewind_sequence
+    r15_malformed_update_does_not_upsert_author
+    r16_message_in_private_channel_is_known
+    r17_supplemental_invalid_raw_index_is_inconsistency
+
+test result: FAILED. 15 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p discord-core --test state_reducer`

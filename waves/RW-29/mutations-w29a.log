@@ -1,0 +1,115 @@
+# RW-29 / W29a — мутации `timestamp_contract`
+# command: (cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w29a cargo test --offline -p discord-i18n --test timestamp_contract)
+
+## База (md5 до мутаций)
+d291d6f50d65629b6e9edfa068d8321b  rust/crates/discord-i18n/src/timestamp.rs
+c0a9393793a9ca2d85c9877ef0916cdd  rust/crates/discord-i18n/src/timestamp_data.rs
+fea14364b55b6133181f7fa002dfdea0  rust/crates/discord-i18n/src/format.rs
+dee649fed123b4a0e5aaa465c3dc1f34  rust/crates/discord-i18n/src/lib.rs
+
+## m01 — стиль t → паттерн T (style→другой)
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: 783c2d606cf56e0afc0bd2acb7eb22ea
+exit: 101
+RESULT: KILLED
+  test t04_ru_all_calendar_styles ... FAILED
+  test t02_en_short_and_long_time_and_date_time ... FAILED
+  test t07_tokens_are_replaced_left_to_right_and_text_is_preserved ... FAILED
+  test t08_invalid_tokens_are_left_as_is ... FAILED
+  test t11_oracle_matrix_matches_exactly ... FAILED
+  test result: FAILED. 9 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## m02 — ладдер единиц: WEEK 7 → 8 суток
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: 5f2b8e5bc0bcc95728daa0715f8aab9d
+exit: 101
+RESULT: KILLED
+  test t06_relative_ladder_units_and_truncation ... FAILED
+  test t14_relative_oracle_and_ladder_cases_match ... FAILED
+  test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  thread 't06_relative_ladder_units_and_truncation' (465119) panicked at crates/discord-i18n/tests/timestamp_contract.rs:187:9:
+  thread 't14_relative_oracle_and_ladder_cases_match' (465127) panicked at crates/discord-i18n/tests/timestamp_contract.rs:432:9:
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## m03 — дефолт пустого стиля: f → d
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: 1271bc8c93943c8ad0d390ea2a97ec0e
+exit: 101
+RESULT: KILLED
+  test t07_tokens_are_replaced_left_to_right_and_text_is_preserved ... FAILED
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  thread 't07_tokens_are_replaced_left_to_right_and_text_is_preserved' (465370) panicked at crates/discord-i18n/tests/timestamp_contract.rs:209:5:
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## m04 — парсер токена: потерян знак минус
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: a288fa238632b360e45293af7607dc5e
+exit: 101
+RESULT: KILLED
+  test t10_extreme_i64_values_do_not_panic ... FAILED
+  test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  thread 't10_extreme_i64_values_do_not_panic' (465601) panicked at crates/discord-i18n/tests/timestamp_contract.rs:317:5:
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## m05 — локаль-фолбэк: без проверки is_enabled
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: 6adaa7316394ea4fafbe6b492cf7f345
+exit: 101
+RESULT: KILLED
+  test t09_unknown_and_disabled_locales_fall_back_to_en_us ... FAILED
+  test t13_every_enabled_locale_renders_and_disabled_locales_fall_back ... FAILED
+  test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  thread 't09_unknown_and_disabled_locales_fall_back_to_en_us' (465828) panicked at crates/discord-i18n/tests/timestamp_contract.rs:272:13:
+  thread 't13_every_enabled_locale_renders_and_disabled_locales_fall_back' (465832) panicked at crates/discord-i18n/tests/timestamp_contract.rs:409:13:
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## m06 — нормализация NBSP/NNBSP отключена
+file: rust/crates/discord-i18n/src/format.rs
+md5 before: fea14364b55b6133181f7fa002dfdea0
+md5 mutated: 60eabdeebec13735cea1fceaa0b6d70a
+exit: 101
+RESULT: KILLED
+  test t02_en_short_and_long_time_and_date_time ... FAILED
+  test t04_ru_all_calendar_styles ... FAILED
+  test t07_tokens_are_replaced_left_to_right_and_text_is_preserved ... FAILED
+  test t08_invalid_tokens_are_left_as_is ... FAILED
+  test t10_extreme_i64_values_do_not_panic ... FAILED
+  test t13_every_enabled_locale_renders_and_disabled_locales_fall_back ... FAILED
+md5 restored: fea14364b55b6133181f7fa002dfdea0 (ok)
+
+## m07 — relative: Auto → Always (нет «now»/special forms)
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: 95cd5e4d3b061e8685a8046ad9b3f4fd
+exit: 101
+RESULT: KILLED
+  test t06_relative_ladder_units_and_truncation ... FAILED
+  test t05_relative_en_and_ru_use_auto_forms ... FAILED
+  test t14_relative_oracle_and_ladder_cases_match ... FAILED
+  test result: FAILED. 11 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  thread 't06_relative_ladder_units_and_truncation' (466282) panicked at crates/discord-i18n/tests/timestamp_contract.rs:187:9:
+  thread 't05_relative_en_and_ru_use_auto_forms' (466281) panicked at crates/discord-i18n/tests/timestamp_contract.rs:142:5:
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## m08 — ладдер единиц: MONTH 30 → 31 суток
+file: rust/crates/discord-i18n/src/timestamp.rs
+md5 before: d291d6f50d65629b6e9edfa068d8321b
+md5 mutated: 2240431a82549ace8b4e9780b9fa6325
+exit: 101
+RESULT: KILLED
+  test t06_relative_ladder_units_and_truncation ... FAILED
+  test t14_relative_oracle_and_ladder_cases_match ... FAILED
+  test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  thread 't06_relative_ladder_units_and_truncation' (466510) panicked at crates/discord-i18n/tests/timestamp_contract.rs:187:9:
+  thread 't14_relative_oracle_and_ladder_cases_match' (466518) panicked at crates/discord-i18n/tests/timestamp_contract.rs:432:9:
+md5 restored: d291d6f50d65629b6e9edfa068d8321b (ok)
+
+## Итог
+мутаций: 8, выжило: 0
+продукт восстановлен: да

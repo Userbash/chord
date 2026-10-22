@@ -1,0 +1,24 @@
+   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.93s
+     Running tests/ci_contract.rs (target/debug/deps/ci_contract-a0101caa715bedf9)
+
+running 4 tests
+test workflow_uses_the_same_ci_contract ... ok
+test ci_dry_run_prints_full_plan_without_running_tools ... ok
+test release_dry_run_is_offline_and_writes_dist_only ... ok
+test scripts_are_syntactically_valid_and_do_not_use_network_clients ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_resources.rs (target/debug/deps/rest_resources-975afccad9277313)
+
+running 5 tests
+test catalog_and_paths_are_deterministic ... ok
+test catalog_matches_d02_and_get_routes ... ok
+test errors_are_stable_and_do_not_disclose_input ... ok
+test saved_messages_404_is_not_a_success_payload ... ok
+test path_renders_only_the_application_id ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

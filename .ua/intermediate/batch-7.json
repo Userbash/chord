@@ -1,0 +1,194 @@
+{
+  "batchIndex": 7,
+  "files": [
+    {"path": "docs/rust-client/ARCHITECTURE.md", "language": "markdown", "sizeLines": 251, "fileCategory": "docs"},
+    {"path": "docs/rust-client/CONCEPT.md", "language": "markdown", "sizeLines": 141, "fileCategory": "docs"},
+    {"path": "docs/rust-client/DEVELOPMENT-PROMPT.md", "language": "markdown", "sizeLines": 714, "fileCategory": "docs"},
+    {"path": "docs/rust-client/FEATURES.md", "language": "markdown", "sizeLines": 216, "fileCategory": "docs"},
+    {"path": "docs/rust-client/PLAN.md", "language": "markdown", "sizeLines": 194, "fileCategory": "docs"},
+    {"path": "docs/rust-client/PROJECT-STRUCTURE.md", "language": "markdown", "sizeLines": 122, "fileCategory": "docs"},
+    {"path": "docs/rust-client/README.md", "language": "markdown", "sizeLines": 72, "fileCategory": "docs"},
+    {"path": "docs/rust-client/TEST-PLAN.md", "language": "markdown", "sizeLines": 260, "fileCategory": "docs"},
+    {"path": "docs/rust-client/TRACEABILITY.md", "language": "markdown", "sizeLines": 51, "fileCategory": "docs"},
+    {"path": "docs/rust-client/VERIFICATION.md", "language": "markdown", "sizeLines": 83, "fileCategory": "docs"}
+  ],
+  "nodes": [
+    {
+      "id": "document:docs/rust-client/ARCHITECTURE.md",
+      "type": "document",
+      "name": "ARCHITECTURE.md",
+      "filePath": "docs/rust-client/ARCHITECTURE.md",
+      "summary": "Проектная архитектура нативного Rust-клиента: модель процессов, разбиение на крейты, задачно-событийная модель ядра, конвейер шлюза, стек голоса, хранилище и замена Electron-IPC. Содержит восемь графов Mermaid, ADR-1 по выбору Tauri и бюджеты производительности.",
+      "complexity": "complex",
+      "tags": ["документация", "архитектура", "mermaid", "adr", "rust-client"],
+      "languageNotes": "Восемь схем Mermaid (flowchart, sequence, erDiagram) задают контракт зависимостей между крейтами."
+    },
+    {
+      "id": "document:docs/rust-client/CONCEPT.md",
+      "type": "document",
+      "name": "CONCEPT.md",
+      "filePath": "docs/rust-client/CONCEPT.md",
+      "summary": "Концепт нативного клиента Discord на Rust без Electron и Chromium: цель и рамки, перечень пользовательских функций, ключевые сценарии, технологический стек и критерии успеха. Фиксирует риски и правовую рамку проекта.",
+      "complexity": "moderate",
+      "tags": ["документация", "концепт", "продукт", "технологический-стек", "rust-client"]
+    },
+    {
+      "id": "document:docs/rust-client/DEVELOPMENT-PROMPT.md",
+      "type": "document",
+      "name": "DEVELOPMENT-PROMPT.md",
+      "filePath": "docs/rust-client/DEVELOPMENT-PROMPT.md",
+      "summary": "Рабочий промт координатора и воркеров Rust-клиента: актуальный снимок волн RW-01…RW-12, карта крейтов, обязательный цикл strict TDD, роли агентов, матрица ближайших задач P2-01 и известные расхождения документации с кодом. Содержит готовые шаблоны промтов и чек-лист приёмки.",
+      "complexity": "complex",
+      "tags": ["документация", "процесс", "tdd", "координация", "rust-client"],
+      "languageNotes": "Содержит вложенные shell- и mermaid-блоки, а также таблицы с матрицей разрешённых файлов воркеров."
+    },
+    {
+      "id": "document:docs/rust-client/FEATURES.md",
+      "type": "document",
+      "name": "FEATURES.md",
+      "filePath": "docs/rust-client/FEATURES.md",
+      "summary": "Каталог из 141 функции клиента по 14 группам (GW, ENC, AUTH, API, DATA, MSG, SRCH, PRES, VOICE, MEDIA, UI, I18N, SYS, SEC). Для каждой функции указаны назначение, механика из обратного инжиниринга, источник и фаза плана.",
+      "complexity": "moderate",
+      "tags": ["документация", "каталог-функций", "требования", "re", "rust-client"]
+    },
+    {
+      "id": "document:docs/rust-client/PLAN.md",
+      "type": "document",
+      "name": "PLAN.md",
+      "filePath": "docs/rust-client/PLAN.md",
+      "summary": "План разработки клиента волнами P0–P8: 90 карточек с Definition of Done, тестами, зависимостями и размером, общие гейты волн и карта зависимостей. Включает риск-план и сопоставление с прежними бэклогами R4/R5/R6/D.",
+      "complexity": "moderate",
+      "tags": ["документация", "планирование", "волны", "дорожная-карта", "rust-client"]
+    },
+    {
+      "id": "document:docs/rust-client/PROJECT-STRUCTURE.md",
+      "type": "document",
+      "name": "PROJECT-STRUCTURE.md",
+      "filePath": "docs/rust-client/PROJECT-STRUCTURE.md",
+      "summary": "Описывает строение объединённого проекта из трёх опор: лаборатория с сырьём RE, git-репозиторий со спекой и фикстурами и пакет плана Rust-клиента. Фиксирует дерево каталогов и правила раскладки (сырьё, фикстуры, код, секреты, журнал волн).",
+      "complexity": "moderate",
+      "tags": ["документация", "структура-проекта", "раскладка", "фикстуры", "rust-client"]
+    },
+    {
+      "id": "document:docs/rust-client/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "docs/rust-client/README.md",
+      "summary": "Точка входа в пакет документации Rust-клиента: состав из десяти документов, рекомендуемый порядок чтения, ссылки на источники RE и статус готовности. Кратко фиксирует состояние каркаса rust/ и верификации 20/20.",
+      "complexity": "moderate",
+      "tags": ["документация", "entry-point", "навигация", "обзор", "rust-client"],
+      "languageNotes": "README-навигатор: таблица состава и нумерованный маршрут чтения документов."
+    },
+    {
+      "id": "document:docs/rust-client/TEST-PLAN.md",
+      "type": "document",
+      "name": "TEST-PLAN.md",
+      "filePath": "docs/rust-client/TEST-PLAN.md",
+      "summary": "Стратегия тестирования клиента: уровни L1–L5, манифест RE-фикстур, каталог из 133 тестов по 13 группам и протокол red-first. Отдельно описывает санитизацию данных и связь с мета-тестами репозитория.",
+      "complexity": "complex",
+      "tags": ["документация", "тест-план", "tdd", "конформанс", "rust-client"],
+      "languageNotes": "Каталог тестов оформлен таблицами ID → уровень → проверка → оракул."
+    },
+    {
+      "id": "document:docs/rust-client/TRACEABILITY.md",
+      "type": "document",
+      "name": "TRACEABILITY.md",
+      "filePath": "docs/rust-client/TRACEABILITY.md",
+      "summary": "Матрица трассируемости «функция → спека → фикстура → тест» для 141 функции и 133 тестов, сгруппированных по 14 направлениям. Перечисляет сквозные проверки и известные ограничения матрицы.",
+      "complexity": "simple",
+      "tags": ["документация", "трассируемость", "матрица", "тесты", "rust-client"]
+    },
+    {
+      "id": "document:docs/rust-client/VERIFICATION.md",
+      "type": "document",
+      "name": "VERIFICATION.md",
+      "filePath": "docs/rust-client/VERIFICATION.md",
+      "summary": "Журнал верификации соответствия сырья RE, документов и фикстур: результаты 20 автоматических проверок verify-re.mjs и разбор пяти расхождений (member_count, число типов диспатчей, опросы, маршруты, утечка analytics_token). Фиксирует гарантии воспроизводимости и порядок повторного прогона.",
+      "complexity": "moderate",
+      "tags": ["документация", "верификация", "провенанс", "re", "rust-client"]
+    }
+  ],
+  "edges": [
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "file:rust/crates/discord-core/src/gateway.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "file:rust/crates/discord-codec/src/etf.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "file:rust/crates/discord-core/src/ready.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "file:rust/crates/discord-voice/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "file:rust/crates/discord-store/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "file:rust/crates/discord-ui/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "file:rust/crates/discord-core/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "file:rust/crates/discord-codec/src/etf.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "file:rust/crates/discord-app/src/main.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "document:rust/README.md", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "file:rust/crates/discord-core/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "file:rust/crates/discord-core/src/ready/snapshot.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "file:rust/crates/discord-core/src/rest/client.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "file:rust/crates/discord-core/tests/ready_core.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "config:rust/crates/discord-core/Cargo.toml", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "file:rust/crates/discord-codec/src/etf.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "file:rust/crates/discord-core/src/dispatch.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "file:rust/crates/discord-core/src/rest/routes.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "file:rust/crates/discord-core/src/gateway.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "file:rust/crates/discord-i18n/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "file:rust/crates/discord-media/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/PLAN.md", "target": "file:rust/crates/discord-core/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/PLAN.md", "target": "file:rust/crates/discord-conformance/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/PLAN.md", "target": "config:rust/Cargo.toml", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/PROJECT-STRUCTURE.md", "target": "file:docs/rust-client/verify/verify-re.mjs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/PROJECT-STRUCTURE.md", "target": "config:rust/Cargo.toml", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/PROJECT-STRUCTURE.md", "target": "document:docs/map.md", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/README.md", "target": "file:docs/rust-client/verify/verify-re.mjs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "config:rust/Cargo.toml", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "file:rust/crates/discord-core/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/TEST-PLAN.md", "target": "file:rust/crates/discord-conformance/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/TEST-PLAN.md", "target": "file:rust/crates/discord-core/tests/ready_core.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/TEST-PLAN.md", "target": "file:rust/crates/discord-codec/tests/etf_vectors.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/TEST-PLAN.md", "target": "file:docs/rust-client/verify/verify-re.mjs", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/VERIFICATION.md", "target": "file:docs/rust-client/verify/verify-re.mjs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/VERIFICATION.md", "target": "config:docs/rust-client/verify/report.json", "type": "documents", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/CONCEPT.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/FEATURES.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/ARCHITECTURE.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/TEST-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/PROJECT-STRUCTURE.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/TRACEABILITY.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/VERIFICATION.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/README.md", "target": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "document:docs/rust-client/FEATURES.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "document:docs/rust-client/ARCHITECTURE.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "document:docs/rust-client/PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/CONCEPT.md", "target": "document:docs/rust-client/TEST-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "document:docs/rust-client/PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/ARCHITECTURE.md", "target": "document:docs/rust-client/TEST-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "document:docs/rust-client/PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "document:docs/rust-client/TEST-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/FEATURES.md", "target": "document:docs/rust-client/TRACEABILITY.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/PLAN.md", "target": "document:docs/rust-client/TEST-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/PROJECT-STRUCTURE.md", "target": "document:docs/rust-client/TRACEABILITY.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/PROJECT-STRUCTURE.md", "target": "document:docs/rust-client/VERIFICATION.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/TEST-PLAN.md", "target": "document:docs/rust-client/VERIFICATION.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/TRACEABILITY.md", "target": "document:docs/rust-client/VERIFICATION.md", "type": "related", "direction": "forward", "weight": 0.5},
+
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "document:docs/rust-client/PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "document:docs/rust-client/TEST-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "document:docs/rust-client/ARCHITECTURE.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "document:PROCESS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "document:AGENTS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:docs/rust-client/DEVELOPMENT-PROMPT.md", "target": "document:TASKS.md", "type": "related", "direction": "forward", "weight": 0.5}
+  ]
+}

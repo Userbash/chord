@@ -1,0 +1,6 @@
+13d19214a4e16f8c890797e9f5468e7e  rust/crates/discord-core/src/state/member_chunk.rs
+5f9d815f87c047c81246648f26cf2fe2  rust/crates/discord-core/src/state/member_chunk_selectors.rs
+84da65278b0e1c1114722e189b308dd8  rust/crates/discord-core/src/state/types.rs
+e7e97ee4ecad970780ea26f9cc18a67b  rust/crates/discord-core/src/state/reducer.rs
+c969ff1eb7ee979cdc32847141c4a79c  rust/crates/discord-core/src/state/mod.rs
+d32d784570a46eb8611aca1fc86ef7bd  rust/crates/discord-core/src/lib.rs

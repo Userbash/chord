@@ -1,0 +1,93 @@
+=== W26a-fix / F-A1 — RED (до реализации) ===
+дата: 2026-10-22T10:59:33+05:00
+
+$ cargo test --offline -p discord-voice --test crypto_vectors
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0425]: cannot find function `sbox` in module `aes`
+   --> crates/discord-voice/tests/crypto_vectors.rs:355:18
+    |
+355 |             aes::sbox(x),
+    |                  ^^^^
+    |
+   ::: crates/discord-voice/src/crypto/aes.rs:165:1
+    |
+165 | static SBOX: [u8; 256] = build_sbox();
+    | ---------------------- similarly named static `SBOX` defined here
+    |
+help: a static with a similar name exists
+    |
+355 -             aes::sbox(x),
+355 +             aes::SBOX(x),
+    |
+
+error[E0425]: cannot find function `inv_sbox` in module `aes`
+   --> crates/discord-voice/tests/crypto_vectors.rs:360:18
+    |
+360 |             aes::inv_sbox(FIPS197_SBOX[value as usize]),
+    |                  ^^^^^^^^
+    |
+   ::: crates/discord-voice/src/crypto/aes.rs:166:1
+    |
+166 | static INV_SBOX: [u8; 256] = build_inv_sbox();
+    | -------------------------- similarly named static `INV_SBOX` defined here
+    |
+help: a static with a similar name exists
+    |
+360 -             aes::inv_sbox(FIPS197_SBOX[value as usize]),
+360 +             aes::INV_SBOX(FIPS197_SBOX[value as usize]),
+    |
+
+error[E0425]: cannot find function `inv_sbox` in module `aes`
+   --> crates/discord-voice/tests/crypto_vectors.rs:365:18
+    |
+365 |             aes::inv_sbox(x),
+    |                  ^^^^^^^^
+    |
+   ::: crates/discord-voice/src/crypto/aes.rs:166:1
+    |
+166 | static INV_SBOX: [u8; 256] = build_inv_sbox();
+    | -------------------------- similarly named static `INV_SBOX` defined here
+    |
+help: a static with a similar name exists
+    |
+365 -             aes::inv_sbox(x),
+365 +             aes::INV_SBOX(x),
+    |
+
+error[E0425]: cannot find function `inv_sbox` in module `aes`
+   --> crates/discord-voice/tests/crypto_vectors.rs:370:18
+    |
+370 |             aes::inv_sbox(aes::sbox(x)),
+    |                  ^^^^^^^^
+    |
+   ::: crates/discord-voice/src/crypto/aes.rs:166:1
+    |
+166 | static INV_SBOX: [u8; 256] = build_inv_sbox();
+    | -------------------------- similarly named static `INV_SBOX` defined here
+    |
+help: a static with a similar name exists
+    |
+370 -             aes::inv_sbox(aes::sbox(x)),
+370 +             aes::INV_SBOX(aes::sbox(x)),
+    |
+
+error[E0425]: cannot find function `sbox` in module `aes`
+   --> crates/discord-voice/tests/crypto_vectors.rs:370:32
+    |
+370 |             aes::inv_sbox(aes::sbox(x)),
+    |                                ^^^^
+    |
+   ::: crates/discord-voice/src/crypto/aes.rs:165:1
+    |
+165 | static SBOX: [u8; 256] = build_sbox();
+    | ---------------------- similarly named static `SBOX` defined here
+    |
+help: a static with a similar name exists
+    |
+370 -             aes::inv_sbox(aes::sbox(x)),
+370 +             aes::inv_sbox(aes::SBOX(x)),
+    |
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `discord-voice` (test "crypto_vectors") due to 5 previous errors
+exit code: 101

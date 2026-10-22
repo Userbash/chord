@@ -1,0 +1,17 @@
+[package]
+name = "discord-perf"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Перф-харнесс T-HARN-04: 24k участников, 100k сообщений, холодный старт"
+
+[dependencies]
+discord-core = { workspace = true }
+discord-json = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+# float_roundtrip: метрики времени — числа f64, и разбор/сериализация должны быть
+# точным round-trip (без feature serde_json теряет младший бит f64).
+serde_json = { version = "1", features = ["float_roundtrip"] }
+
+[lints.rust]
+unsafe_code = "forbid"

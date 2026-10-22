@@ -1,0 +1,17 @@
+--- waves/RW-12/reports/ready_fixture-test.red.rs	2026-10-20 13:21:19.899908772 +0500
++++ rust/crates/discord-core/tests/ready_fixture.rs	2026-10-20 13:21:36.228247928 +0500
+@@ -56,9 +56,11 @@
+ 
+     let merged = value::items_or_empty(d.get("merged_members"));
+     assert_eq!(merged.len(), 7);
+-    assert!(merged
+-        .iter()
+-        .all(|group| value::items_or_empty(Some(group)).len() == 1));
++    assert!(
++        merged
++            .iter()
++            .all(|group| value::items_or_empty(Some(group)).len() == 1)
++    );
+ }
+ 
+ #[test]

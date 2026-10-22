@@ -1,0 +1,55 @@
+# мутация M16: rust/crates/discord-voice/src/crypto/kdf.rs
+# old: '    let mut inner_pad = [0x36u8; 64];\n    let mut outer_pad = [0x5cu8; 64];'
+# new: '    let mut inner_pad = [0x36u8; 64];\n    let mut outer_pad = [0x5du8; 64];'
+# команда: cargo test --offline -p discord-voice --test crypto_vectors
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 16 tests
+test aead_rejects_overlong_message_k ... ok
+test aes256_key_debug_redacted_k ... ok
+test aes256_wrong_key_len ... ok
+test chacha20poly1305_k ... ok
+test aes256_k ... ok
+test hkdf_sha1_zero_salt_k ... FAILED
+test hkdf_sha1_k ... FAILED
+test xchacha20poly1305_k ... ok
+test aes256_decrypt_k ... ok
+test gcm_short_input_k ... ok
+test gcm_empty_plaintext_k ... ok
+test gcm_k ... ok
+test sbox_matches_fips197_k ... ok
+test gcm_aad_k ... ok
+test gcm_tamper_k ... ok
+test hkdf_sha1_limits_k ... ok
+
+failures:
+
+---- hkdf_sha1_zero_salt_k stdout ----
+
+thread 'hkdf_sha1_zero_salt_k' (119108) panicked at crates/discord-voice/tests/crypto_vectors.rs:305:5:
+assertion `left == right` failed
+  left: [196, 119, 142, 94, 18, 172, 118, 93, 85, 210, 38, 238, 13, 89, 159, 169, 190, 55, 7, 247, 99, 235, 96, 217, 251, 113, 210, 108, 20, 43, 181, 163, 211, 231, 199, 241, 22, 216, 45, 252, 252, 96]
+ right: [10, 193, 175, 112, 2, 179, 215, 97, 209, 229, 82, 152, 218, 157, 5, 6, 185, 174, 82, 5, 114, 32, 163, 6, 224, 123, 107, 135, 232, 223, 33, 208, 234, 0, 3, 61, 224, 57, 132, 211, 73, 24]
+
+---- hkdf_sha1_k stdout ----
+
+thread 'hkdf_sha1_k' (119106) panicked at crates/discord-voice/tests/crypto_vectors.rs:298:5:
+assertion `left == right` failed
+  left: [80, 83, 117, 158, 0, 0, 153, 198, 7, 230, 96, 187, 67, 110, 80, 127, 190, 134, 0, 219, 192, 211, 71, 18, 253, 243, 62, 153, 198, 171, 92, 72, 95, 89, 114, 222, 5, 125, 225, 216, 23, 139]
+ right: [214, 0, 15, 251, 91, 80, 189, 57, 112, 178, 96, 1, 119, 152, 251, 156, 141, 249, 206, 46, 44, 22, 182, 205, 112, 156, 202, 7, 220, 60, 249, 207, 38, 214, 198, 215, 80, 208, 170, 245, 172, 148]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    hkdf_sha1_k
+    hkdf_sha1_zero_salt_k
+
+test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/crypto_vectors.rs (/tmp/opencode/target-mut/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
+error: test failed, to rerun pass `-p discord-voice --test crypto_vectors`
+

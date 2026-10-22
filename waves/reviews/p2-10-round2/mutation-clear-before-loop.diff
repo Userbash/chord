@@ -1,0 +1,10 @@
+--- /tmp/opencode/p2-10-round2/reducer.orig	2026-10-21 01:35:43.431703330 +0500
++++ crates/discord-core/src/state/voice/reducer.rs	2026-10-21 01:35:49.378972100 +0500
+@@ -25,6 +25,7 @@
+ 
+ /// Применить снимок `READY_SUPPLEMENTAL`; карта не очищается целиком.
+ pub fn apply_snapshot(state: &mut State, voice_states: Vec<VoiceState>) {
++    state.voice_states.clear();
+     for voice in voice_states {
+         apply_voice_state(state, voice);
+     }

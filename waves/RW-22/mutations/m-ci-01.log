@@ -1,0 +1,33 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/ci_contract.rs (target/debug/deps/ci_contract-a0101caa715bedf9)
+
+running 4 tests
+test workflow_uses_the_same_ci_contract ... ok
+test scripts_are_syntactically_valid_and_do_not_use_network_clients ... FAILED
+test release_dry_run_is_offline_and_writes_dist_only ... ok
+test ci_dry_run_prints_full_plan_without_running_tools ... FAILED
+
+failures:
+
+---- scripts_are_syntactically_valid_and_do_not_use_network_clients stdout ----
+
+thread 'scripts_are_syntactically_valid_and_do_not_use_network_clients' (77857) panicked at crates/discord-conformance/tests/ci_contract.rs:66:9:
+scripts/ci.sh syntax: scripts/ci.sh: строка 74: синтаксическая ошибка рядом с неожиданным маркером «elif»
+scripts/ci.sh: строка 74: `elif command -v cargo-deny >/dev/null 2>&1; then'
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ci_dry_run_prints_full_plan_without_running_tools stdout ----
+
+thread 'ci_dry_run_prints_full_plan_without_running_tools' (77855) panicked at crates/discord-conformance/tests/ci_contract.rs:29:5:
+stderr=scripts/ci.sh: строка 74: синтаксическая ошибка рядом с неожиданным маркером «elif»
+
+
+
+failures:
+    ci_dry_run_prints_full_plan_without_running_tools
+    scripts_are_syntactically_valid_and_do_not_use_network_clients
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-conformance --test ci_contract`

@@ -1,0 +1,86 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running tests/rest_rate_limit.rs (target/debug/deps/rest_rate_limit-90be462df593002f)
+
+running 10 tests
+test case1_retry_after_header ... FAILED
+test case2_retry_after_body_and_global ... FAILED
+test case3_header_has_priority_over_body ... FAILED
+test case6_status_classification ... FAILED
+test case5_malformed_values_do_not_panic ... FAILED
+test case4_reset_after_fallback_and_metadata ... FAILED
+test case7_retry_delay_429_capped ... FAILED
+test case7_retry_delay_5xx_exponential ... FAILED
+test case7_retry_delay_no_retry_for_auth_and_client ... FAILED
+test case8_should_retry_by_method ... FAILED
+
+failures:
+
+---- case1_retry_after_header stdout ----
+
+thread 'case1_retry_after_header' (59465) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- case2_retry_after_body_and_global stdout ----
+
+thread 'case2_retry_after_body_and_global' (59466) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+---- case3_header_has_priority_over_body stdout ----
+
+thread 'case3_header_has_priority_over_body' (59467) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+---- case6_status_classification stdout ----
+
+thread 'case6_status_classification' (59470) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+---- case5_malformed_values_do_not_panic stdout ----
+
+thread 'case5_malformed_values_do_not_panic' (59469) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+---- case4_reset_after_fallback_and_metadata stdout ----
+
+thread 'case4_reset_after_fallback_and_metadata' (59468) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+---- case7_retry_delay_429_capped stdout ----
+
+thread 'case7_retry_delay_429_capped' (59471) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+---- case7_retry_delay_5xx_exponential stdout ----
+
+thread 'case7_retry_delay_5xx_exponential' (59472) panicked at crates/discord-core/src/rest/rate_limit.rs:86:5:
+not yet implemented: W11a: retry_delay
+
+---- case7_retry_delay_no_retry_for_auth_and_client stdout ----
+
+thread 'case7_retry_delay_no_retry_for_auth_and_client' (59473) panicked at crates/discord-core/src/rest/rate_limit.rs:86:5:
+not yet implemented: W11a: retry_delay
+
+---- case8_should_retry_by_method stdout ----
+
+thread 'case8_should_retry_by_method' (59474) panicked at crates/discord-core/src/rest/rate_limit.rs:60:5:
+not yet implemented: W11a: rate_limit_info
+
+
+failures:
+    case1_retry_after_header
+    case2_retry_after_body_and_global
+    case3_header_has_priority_over_body
+    case4_reset_after_fallback_and_metadata
+    case5_malformed_values_do_not_panic
+    case6_status_classification
+    case7_retry_delay_429_capped
+    case7_retry_delay_5xx_exponential
+    case7_retry_delay_no_retry_for_auth_and_client
+    case8_should_retry_by_method
+
+test result: FAILED. 0 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_rate_limit`
+# EXIT=101

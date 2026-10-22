@@ -1,0 +1,28 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/typing_reducer.rs (target/debug/deps/typing_reducer-28e230d19c89448d)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... ok
+test t09_message_create_removes_author_pair ... ok
+test t10_reset_clock_stale_malformed_prune ... ok
+test t06_start_creates_entry_and_upserts_member ... FAILED
+test t08_fixture_28_starts_two_pairs ... ok
+
+failures:
+
+---- t06_start_creates_entry_and_upserts_member stdout ----
+
+thread 't06_start_creates_entry_and_upserts_member' (653489) panicked at crates/discord-core/tests/typing_reducer.rs:114:5:
+assertion `left == right` failed
+  left: None
+ right: Some("typing-user")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t06_start_creates_entry_and_upserts_member
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test typing_reducer`

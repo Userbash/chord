@@ -1,0 +1,25 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 1 test
+test tests::hash_vectors_and_locale_selection ... FAILED
+
+failures:
+
+---- tests::hash_vectors_and_locale_selection stdout ----
+
+thread 'tests::hash_vectors_and_locale_selection' (93660) panicked at crates/discord-i18n/src/lib.rs:767:13:
+assertion `left == right` failed
+  left: "+irF5"
+ right: "+irF5O"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::hash_vectors_and_locale_selection
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --lib`

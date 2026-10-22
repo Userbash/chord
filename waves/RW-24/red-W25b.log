@@ -1,0 +1,284 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test markdown_contract
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+warning: struct `LocaleFormatData` is never constructed
+ --> crates/discord-i18n/src/format_data.rs:8:19
+  |
+8 | pub(crate) struct LocaleFormatData {
+  |                   ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: static `D_EN_US` is never used
+  --> crates/discord-i18n/src/format_data.rs:26:8
+   |
+26 | static D_EN_US: LocaleFormatData = LocaleFormatData {
+   |        ^^^^^^^
+
+warning: static `D_EN_GB` is never used
+  --> crates/discord-i18n/src/format_data.rs:44:8
+   |
+44 | static D_EN_GB: LocaleFormatData = LocaleFormatData {
+   |        ^^^^^^^
+
+warning: static `D_ZH_CN` is never used
+  --> crates/discord-i18n/src/format_data.rs:62:8
+   |
+62 | static D_ZH_CN: LocaleFormatData = LocaleFormatData {
+   |        ^^^^^^^
+
+warning: static `D_ZH_TW` is never used
+  --> crates/discord-i18n/src/format_data.rs:80:8
+   |
+80 | static D_ZH_TW: LocaleFormatData = LocaleFormatData {
+   |        ^^^^^^^
+
+warning: static `D_CS` is never used
+  --> crates/discord-i18n/src/format_data.rs:98:8
+   |
+98 | static D_CS: LocaleFormatData = LocaleFormatData {
+   |        ^^^^
+
+warning: static `D_DA` is never used
+   --> crates/discord-i18n/src/format_data.rs:116:8
+    |
+116 | static D_DA: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_NL` is never used
+   --> crates/discord-i18n/src/format_data.rs:134:8
+    |
+134 | static D_NL: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_FR` is never used
+   --> crates/discord-i18n/src/format_data.rs:152:8
+    |
+152 | static D_FR: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_DE` is never used
+   --> crates/discord-i18n/src/format_data.rs:170:8
+    |
+170 | static D_DE: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_EL` is never used
+   --> crates/discord-i18n/src/format_data.rs:188:8
+    |
+188 | static D_EL: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_HU` is never used
+   --> crates/discord-i18n/src/format_data.rs:206:8
+    |
+206 | static D_HU: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_IT` is never used
+   --> crates/discord-i18n/src/format_data.rs:224:8
+    |
+224 | static D_IT: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_JA` is never used
+   --> crates/discord-i18n/src/format_data.rs:242:8
+    |
+242 | static D_JA: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_KO` is never used
+   --> crates/discord-i18n/src/format_data.rs:260:8
+    |
+260 | static D_KO: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_PL` is never used
+   --> crates/discord-i18n/src/format_data.rs:278:8
+    |
+278 | static D_PL: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_PT_PT` is never used
+   --> crates/discord-i18n/src/format_data.rs:296:8
+    |
+296 | static D_PT_PT: LocaleFormatData = LocaleFormatData {
+    |        ^^^^^^^
+
+warning: static `D_PT_BR` is never used
+   --> crates/discord-i18n/src/format_data.rs:314:8
+    |
+314 | static D_PT_BR: LocaleFormatData = LocaleFormatData {
+    |        ^^^^^^^
+
+warning: static `D_RU` is never used
+   --> crates/discord-i18n/src/format_data.rs:332:8
+    |
+332 | static D_RU: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_SK` is never used
+   --> crates/discord-i18n/src/format_data.rs:350:8
+    |
+350 | static D_SK: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_ES_419` is never used
+   --> crates/discord-i18n/src/format_data.rs:368:8
+    |
+368 | static D_ES_419: LocaleFormatData = LocaleFormatData {
+    |        ^^^^^^^^
+
+warning: static `D_ES_ES` is never used
+   --> crates/discord-i18n/src/format_data.rs:386:8
+    |
+386 | static D_ES_ES: LocaleFormatData = LocaleFormatData {
+    |        ^^^^^^^
+
+warning: static `D_SV_SE` is never used
+   --> crates/discord-i18n/src/format_data.rs:404:8
+    |
+404 | static D_SV_SE: LocaleFormatData = LocaleFormatData {
+    |        ^^^^^^^
+
+warning: static `D_TR` is never used
+   --> crates/discord-i18n/src/format_data.rs:422:8
+    |
+422 | static D_TR: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_BG` is never used
+   --> crates/discord-i18n/src/format_data.rs:440:8
+    |
+440 | static D_BG: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_UK` is never used
+   --> crates/discord-i18n/src/format_data.rs:458:8
+    |
+458 | static D_UK: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_FI` is never used
+   --> crates/discord-i18n/src/format_data.rs:476:8
+    |
+476 | static D_FI: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_NO` is never used
+   --> crates/discord-i18n/src/format_data.rs:494:8
+    |
+494 | static D_NO: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_HR` is never used
+   --> crates/discord-i18n/src/format_data.rs:512:8
+    |
+512 | static D_HR: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_RO` is never used
+   --> crates/discord-i18n/src/format_data.rs:530:8
+    |
+530 | static D_RO: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_LT` is never used
+   --> crates/discord-i18n/src/format_data.rs:548:8
+    |
+548 | static D_LT: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_TH` is never used
+   --> crates/discord-i18n/src/format_data.rs:566:8
+    |
+566 | static D_TH: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_VI` is never used
+   --> crates/discord-i18n/src/format_data.rs:584:8
+    |
+584 | static D_VI: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_HI` is never used
+   --> crates/discord-i18n/src/format_data.rs:602:8
+    |
+602 | static D_HI: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_HE` is never used
+   --> crates/discord-i18n/src/format_data.rs:620:8
+    |
+620 | static D_HE: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_AR` is never used
+   --> crates/discord-i18n/src/format_data.rs:638:8
+    |
+638 | static D_AR: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: static `D_ID` is never used
+   --> crates/discord-i18n/src/format_data.rs:656:8
+    |
+656 | static D_ID: LocaleFormatData = LocaleFormatData {
+    |        ^^^^
+
+warning: function `data` is never used
+   --> crates/discord-i18n/src/format_data.rs:674:15
+    |
+674 | pub(crate) fn data(locale: &str) -> &'static LocaleFormatData {
+    |               ^^^^
+
+warning: `discord-i18n` (lib) generated 38 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/markdown_contract.rs (rust/target/debug/deps/markdown_contract-5713afa49f3299b6)
+
+running 5 tests
+test keeps_html_as_inert_text_and_preserves_unclosed_markers ... FAILED
+test parsing_and_rendering_are_bounded_for_arbitrary_boundaries ... FAILED
+test rejects_unsafe_urls_but_keeps_labels ... FAILED
+test supports_nested_styles_and_protects_code ... FAILED
+test renders_the_23_frozen_markdown_rules ... FAILED
+
+failures:
+
+---- keeps_html_as_inert_text_and_preserves_unclosed_markers stdout ----
+
+thread 'keeps_html_as_inert_text_and_preserves_unclosed_markers' (186) panicked at crates/discord-i18n/src/markdown.rs:42:5:
+not implemented: W25b: markdown parser
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- parsing_and_rendering_are_bounded_for_arbitrary_boundaries stdout ----
+
+thread 'parsing_and_rendering_are_bounded_for_arbitrary_boundaries' (187) panicked at crates/discord-i18n/src/markdown.rs:42:5:
+not implemented: W25b: markdown parser
+
+---- rejects_unsafe_urls_but_keeps_labels stdout ----
+
+thread 'rejects_unsafe_urls_but_keeps_labels' (188) panicked at crates/discord-i18n/src/markdown.rs:42:5:
+not implemented: W25b: markdown parser
+
+---- supports_nested_styles_and_protects_code stdout ----
+
+thread 'supports_nested_styles_and_protects_code' (190) panicked at crates/discord-i18n/src/markdown.rs:42:5:
+not implemented: W25b: markdown parser
+
+---- renders_the_23_frozen_markdown_rules stdout ----
+
+thread 'renders_the_23_frozen_markdown_rules' (189) panicked at crates/discord-i18n/src/markdown.rs:42:5:
+not implemented: W25b: markdown parser
+
+
+failures:
+    keeps_html_as_inert_text_and_preserves_unclosed_markers
+    parsing_and_rendering_are_bounded_for_arbitrary_boundaries
+    rejects_unsafe_urls_but_keeps_labels
+    renders_the_23_frozen_markdown_rules
+    supports_nested_styles_and_protects_code
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --test markdown_contract`
+
+# EXIT=101

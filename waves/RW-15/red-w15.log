@@ -1,0 +1,394 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0255]: the name `list` is defined multiple times
+  --> crates/discord-core/tests/member_list_reducer.rs:41:1
+   |
+12 | use support::state_fixture::{atom, frame, int, list, load, map, text};
+   |                                                ---- previous import of the value `list` here
+...
+41 | fn list<'a>(state: &'a State, guild_id: u64, id: &str) -> &'a MemberList {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `list` redefined here
+   |
+   = note: `list` must be defined only once in the value namespace of this module
+help: you can use `as` to change the binding name of the import
+   |
+12 | use support::state_fixture::{atom, frame, int, list as other_list, load, map, text};
+   |                                                     +++++++++++++
+
+error[E0432]: unresolved imports `discord_core::state::MemberListId`, `discord_core::state::MemberListRange`
+ --> crates/discord-core/tests/member_list_selectors.rs:6:19
+  |
+6 |     EventPayload, MemberListId, MemberListRange, State, apply_frame,
+  |                   ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `MemberListRange` in `state`
+  |                   |
+  |                   no `MemberListId` in `state`
+  |
+help: a similar name exists in the module
+  |
+6 -     EventPayload, MemberListId, MemberListRange, State, apply_frame,
+6 +     EventPayload, MemberListId, MemberRange, State, apply_frame,
+  |
+
+error[E0432]: unresolved imports `discord_core::state::MemberList`, `discord_core::state::MemberListEntry`, `discord_core::state::MemberListId`, `discord_core::state::MemberListRange`
+  --> crates/discord-core/tests/member_list_reducer.rs:10:19
+   |
+10 |     EventPayload, MemberList, MemberListEntry, MemberListId, MemberListRange, State, apply_frame,
+   |                   ^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `MemberListRange` in `state`
+   |                   |           |                |
+   |                   |           |                no `MemberListId` in `state`
+   |                   |           no `MemberListEntry` in `state`
+   |                   no `MemberList` in `state`
+   |
+help: a similar name exists in the module
+   |
+10 -     EventPayload, MemberList, MemberListEntry, MemberListId, MemberListRange, State, apply_frame,
+10 +     EventPayload, MemberList, MemberListEntry, MemberListId, MemberRange, State, apply_frame,
+   |
+
+error[E0432]: unresolved imports `discord_core::state::MemberListEntry`, `discord_core::state::MemberListGroup`, `discord_core::state::MemberListOp`, `discord_core::state::MemberListRange`
+  --> crates/discord-core/tests/member_list_types.rs:11:38
+   |
+11 |     Event, EventError, EventPayload, MemberListEntry, MemberListGroup, MemberListOp, MemberListRange,
+   |                                      ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `MemberListRange` in `state`
+   |                                      |                |                |
+   |                                      |                |                no `MemberListOp` in `state`
+   |                                      |                no `MemberListGroup` in `state`
+   |                                      no `MemberListEntry` in `state`
+   |
+help: a similar name exists in the module
+   |
+11 -     Event, EventError, EventPayload, MemberListEntry, MemberListGroup, MemberListOp, MemberListRange,
+11 +     Event, EventError, EventPayload, MemberListEntry, MemberListGroup, MemberListOp, MemberRange,
+   |
+
+warning: unused import: `list`
+  --> crates/discord-core/tests/member_list_reducer.rs:12:48
+   |
+12 | use support::state_fixture::{atom, frame, int, list, load, map, text};
+   |                                                ^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0432]: unresolved imports `discord_core::MemberList`, `discord_core::MemberListEntry`, `discord_core::MemberListGroup`, `discord_core::MemberListId`, `discord_core::MemberListOp`, `discord_core::MemberListRange`, `discord_core::MemberListUpdate`, `discord_core::MemberPresence`
+   --> crates/discord-core/tests/member_list_types.rs:367:9
+    |
+367 |         MemberList, MemberListEntry as RootEntry, MemberListGroup as RootGroup,
+    |         ^^^^^^^^^^  ---------------^^^^^^^^^^^^^  ---------------^^^^^^^^^^^^^
+    |         |           |                             |
+    |         |           |                             no `MemberListGroup` in the root
+    |         |           no `MemberListEntry` in the root
+    |         no `MemberList` in the root
+368 |         MemberListId as RootId, MemberListOp as RootOp, MemberListRange as RootRange,
+    |         ------------^^^^^^^^^^  ------------^^^^^^^^^^  ---------------^^^^^^^^^^^^^
+    |         |                       |                       |
+    |         |                       |                       no `MemberListRange` in the root
+    |         |                       no `MemberListOp` in the root
+    |         no `MemberListId` in the root
+369 |         MemberListUpdate as RootUpdate, MemberPresence as RootPresence,
+    |         ----------------^^^^^^^^^^^^^^  --------------^^^^^^^^^^^^^^^^
+    |         |                               |
+    |         |                               no `MemberPresence` in the root
+    |         no `MemberListUpdate` in the root
+
+error[E0425]: cannot find type `MemberListUpdate` in module `discord_core::state`
+  --> crates/discord-core/tests/member_list_types.rs:19:49
+   |
+19 | fn update(event: Event) -> discord_core::state::MemberListUpdate {
+   |                                                 ^^^^^^^^^^^^^^^^ not found in `discord_core::state`
+
+error[E0609]: no field `member_lists` on type `&'a State`
+  --> crates/discord-core/tests/member_list_reducer.rs:43:10
+   |
+43 |         .member_lists
+   |          ^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 14 others
+
+error[E0061]: this function takes 3 arguments but 1 argument was supplied
+  --> crates/discord-core/tests/member_list_reducer.rs:91:24
+   |
+91 |             ("groups", list(groups)),
+   |                        ^^^^-------- two arguments of type `u64` and `&str` are missing
+   |
+note: expected `&State`, found `Vec<EtfValue>`
+  --> crates/discord-core/tests/member_list_reducer.rs:91:29
+   |
+91 |             ("groups", list(groups)),
+   |                             ^^^^^^
+   = note: expected reference `&State`
+                 found struct `Vec<EtfValue>`
+note: function defined here
+  --> crates/discord-core/tests/member_list_reducer.rs:41:4
+   |
+41 | fn list<'a>(state: &'a State, guild_id: u64, id: &str) -> &'a MemberList {
+   |    ^^^^     ----------------  -------------  --------
+help: provide the arguments
+   |
+91 -             ("groups", list(groups)),
+91 +             ("groups", list(/* &State */, /* u64 */, /* &str */)),
+   |
+
+error[E0061]: this function takes 3 arguments but 1 argument was supplied
+  --> crates/discord-core/tests/member_list_reducer.rs:92:21
+   |
+92 |             ("ops", list(ops)),
+   |                     ^^^^----- two arguments of type `u64` and `&str` are missing
+   |
+note: expected `&State`, found `Vec<EtfValue>`
+  --> crates/discord-core/tests/member_list_reducer.rs:92:26
+   |
+92 |             ("ops", list(ops)),
+   |                          ^^^
+   = note: expected reference `&State`
+                 found struct `Vec<EtfValue>`
+note: function defined here
+  --> crates/discord-core/tests/member_list_reducer.rs:41:4
+   |
+41 | fn list<'a>(state: &'a State, guild_id: u64, id: &str) -> &'a MemberList {
+   |    ^^^^     ----------------  -------------  --------
+help: provide the arguments
+   |
+92 -             ("ops", list(ops)),
+92 +             ("ops", list(/* &State */, /* u64 */, /* &str */)),
+   |
+
+error[E0061]: this function takes 3 arguments but 1 argument was supplied
+  --> crates/discord-core/tests/member_list_reducer.rs:98:58
+   |
+98 |     let mut pairs = vec![("op", text("SYNC")), ("items", list(items))];
+   |                                                          ^^^^------- two arguments of type `u64` and `&str` are missing
+   |
+note: expected `&State`, found `Vec<EtfValue>`
+  --> crates/discord-core/tests/member_list_reducer.rs:98:63
+   |
+98 |     let mut pairs = vec![("op", text("SYNC")), ("items", list(items))];
+   |                                                               ^^^^^
+   = note: expected reference `&State`
+                 found struct `Vec<EtfValue>`
+note: function defined here
+  --> crates/discord-core/tests/member_list_reducer.rs:41:4
+   |
+41 | fn list<'a>(state: &'a State, guild_id: u64, id: &str) -> &'a MemberList {
+   |    ^^^^     ----------------  -------------  --------
+help: provide the arguments
+   |
+98 -     let mut pairs = vec![("op", text("SYNC")), ("items", list(items))];
+98 +     let mut pairs = vec![("op", text("SYNC")), ("items", list(/* &State */, /* u64 */, /* &str */))];
+   |
+
+error[E0609]: no field `member_lists` on type `State`
+   --> crates/discord-core/tests/member_list_reducer.rs:129:22
+    |
+129 |     assert_eq!(state.member_lists.len(), 1);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 14 others
+
+error[E0599]: no method named `member_list` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:34:10
+   |
+33 |       let list = state
+   |  ________________-
+34 | |         .member_list(1_014_537_851_418_980_372, &MemberListId::new("1659606647"))
+   | |         -^^^^^^^^^^^ method not found in `State`
+   | |_________|
+   |
+
+error[E0609]: no field `member_lists` on type `State`
+   --> crates/discord-core/tests/member_list_reducer.rs:147:22
+    |
+147 |     assert_eq!(state.member_lists.len(), 2);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 14 others
+
+error[E0599]: no method named `member_list_items` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:38:15
+   |
+38 |         state.member_list_items(
+   |         ------^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no variant, associated function, or constant named `GuildMemberListUpdate` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/member_list_types.rs:21:23
+   |
+21 |         EventPayload::GuildMemberListUpdate(update) => update,
+   |                       ^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0609]: no field `member_lists` on type `State`
+   --> crates/discord-core/tests/member_list_reducer.rs:336:19
+    |
+336 |     assert!(state.member_lists.contains_key(&(42, MemberListId::new("everyone"))));
+    |                   ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 14 others
+
+error[E0599]: no method named `member_list_len` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:46:15
+   |
+46 |         state.member_list_len(1_014_537_851_418_980_372, &MemberListId::new("1659606647")),
+   |               ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `member_lists` on type `State`
+   --> crates/discord-core/tests/member_list_reducer.rs:357:22
+    |
+357 |     assert_eq!(state.member_lists.len(), 1);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 14 others
+
+error[E0599]: no method named `member_list_member_at` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:56:10
+   |
+55 |       let (member, user, presence) = state
+   |  ____________________________________-
+56 | |         .member_list_member_at(1_014_537_851_418_980_372, &list_id, 1)
+   | |         -^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+   | |_________|
+   |
+
+error[E0599]: no method named `member_list_index_of` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:62:15
+   |
+62 |         state.member_list_index_of(
+   |         ------^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_group` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:76:10
+   |
+75 |       let group = state
+   |  _________________-
+76 | |         .member_list_group(1_014_537_851_418_980_372, &list_id, "1062745847512715385")
+   | |         -^^^^^^^^^^^^^^^^^ method not found in `State`
+   | |_________|
+   |
+
+error[E0599]: no method named `member_list_range` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:80:15
+   |
+80 |         state.member_list_range(1_014_537_851_418_980_372, &list_id),
+   |               ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0061, E0255, E0432, E0609.
+For more information about an error, try `rustc --explain E0061`.
+warning: `discord-core` (test "member_list_reducer") generated 1 warning
+error: could not compile `discord-core` (test "member_list_reducer") due to 10 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...
+error[E0599]: no method named `member_list_is_loaded` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:89:16
+   |
+89 |         !state.member_list_is_loaded(294_064_825_540_280_335, &everyone())
+   |                ^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_is_loaded` found for struct `State` in the current scope
+  --> crates/discord-core/tests/member_list_selectors.rs:93:15
+   |
+93 |         state.member_list_is_loaded(294_064_825_540_280_335, &everyone())
+   |               ^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:100:19
+    |
+100 |     assert!(state.member_list(1, &everyone()).is_none());
+    |                   ^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0425, E0432, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-core` (test "member_list_types") due to 4 previous errors
+error[E0599]: no method named `member_list_items` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:101:19
+    |
+101 |     assert!(state.member_list_items(1, &everyone()).is_empty());
+    |                   ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_member_at` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:102:19
+    |
+102 |     assert!(state.member_list_member_at(1, &everyone(), 0).is_none());
+    |                   ^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_index_of` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:103:19
+    |
+103 |     assert!(state.member_list_index_of(1, &everyone(), 42).is_none());
+    |                   ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_group` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:104:19
+    |
+104 |     assert!(state.member_list_group(1, &everyone(), "online").is_none());
+    |                   ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_range` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:105:22
+    |
+105 |     assert_eq!(state.member_list_range(1, &everyone()), None);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_len` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:106:22
+    |
+106 |     assert_eq!(state.member_list_len(1, &everyone()), 0);
+    |                      ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:107:22
+    |
+107 |     assert_eq!(state.member_list_count(), 0);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_items` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:117:15
+    |
+117 |         state.member_list_items(1_014_537_851_418_980_372, &a).len(),
+    |               ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_items` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:121:15
+    |
+121 |         state.member_list_items(294_064_825_540_280_335, &b).len(),
+    |               ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:124:22
+    |
+124 |     assert_eq!(state.member_list_count(), 2);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_member_at` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:133:14
+    |
+132 | /         state
+133 | |             .member_list_member_at(1_014_537_851_418_980_372, &list_id, 0)
+    | |             -^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `member_list_index_of` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:138:14
+    |
+137 | /         state
+138 | |             .member_list_index_of(1_014_537_851_418_980_372, &list_id, 1_062_745_847_512_715_385)
+    | |             -^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `member_list_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:146:22
+    |
+146 |     assert_eq!(state.member_list_count(), 0);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:148:22
+    |
+148 |     assert_eq!(state.member_list_count(), 1);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `member_list_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/member_list_selectors.rs:150:22
+    |
+150 |     assert_eq!(state.member_list_count(), 2);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "member_list_selectors") due to 26 previous errors

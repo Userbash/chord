@@ -1,0 +1,33 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `guild_id`
+  --> crates/discord-core/src/state/voice/selectors.rs:30:42
+   |
+30 |     pub fn voice_users_in_channel(&self, guild_id: u64, channel_id: u64) -> Vec<&VoiceState> {
+   |                                          ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_guild_id`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+     Running tests/voice_state_selectors.rs (target/debug/deps/voice_state_selectors-e4ffa869ecfade79)
+
+running 1 test
+test v13_channel_users_sorted_and_counts ... FAILED
+
+failures:
+
+---- v13_channel_users_sorted_and_counts stdout ----
+
+thread 'v13_channel_users_sorted_and_counts' (644057) panicked at crates/discord-core/tests/voice_state_selectors.rs:107:5:
+assertion `left == right` failed
+  left: [100, 200, 300, 50]
+ right: [100, 200, 300]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v13_channel_users_sorted_and_counts
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_selectors`

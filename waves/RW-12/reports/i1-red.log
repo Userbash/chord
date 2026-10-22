@@ -1,0 +1,103 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `request`
+   --> crates/discord-core/src/rest/client.rs:229:33
+    |
+229 |     pub async fn execute(&self, request: &HttpRequest) -> Result<HttpResponse, ApiError> {
+    |                                 ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running tests/rest_client.rs (target/debug/deps/rest_client-e2176b38eeaa98e2)
+
+running 12 tests
+test invalid_base_rejected ... ok
+test exhausted_429_returns_rate_limited ... FAILED
+test attempt_timeout_retries_idempotent_only ... FAILED
+test auth_headers_added_in_order ... FAILED
+test content_type_and_length_for_json_body ... FAILED
+test no_retry_for_401_and_404 ... FAILED
+test explicit_auth_header_is_not_duplicated ... FAILED
+test telemetry_blocked_before_network ... FAILED
+test retry_429_then_success_with_delay ... FAILED
+test retry_429_for_post ... FAILED
+test telemetry_lookalike_reaches_server ... FAILED
+test retry_5xx_only_for_idempotent ... FAILED
+
+failures:
+
+---- exhausted_429_returns_rate_limited stdout ----
+
+thread 'exhausted_429_returns_rate_limited' (91474) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- attempt_timeout_retries_idempotent_only stdout ----
+
+thread 'attempt_timeout_retries_idempotent_only' (91471) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- auth_headers_added_in_order stdout ----
+
+thread 'auth_headers_added_in_order' (91472) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- content_type_and_length_for_json_body stdout ----
+
+thread 'content_type_and_length_for_json_body' (91473) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- no_retry_for_401_and_404 stdout ----
+
+thread 'no_retry_for_401_and_404' (91477) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- explicit_auth_header_is_not_duplicated stdout ----
+
+thread 'explicit_auth_header_is_not_duplicated' (91475) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- telemetry_blocked_before_network stdout ----
+
+thread 'telemetry_blocked_before_network' (91481) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- retry_429_then_success_with_delay stdout ----
+
+thread 'retry_429_then_success_with_delay' (91479) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- retry_429_for_post stdout ----
+
+thread 'retry_429_for_post' (91478) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- telemetry_lookalike_reaches_server stdout ----
+
+thread 'telemetry_lookalike_reaches_server' (91482) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+---- retry_5xx_only_for_idempotent stdout ----
+
+thread 'retry_5xx_only_for_idempotent' (91480) panicked at crates/discord-core/src/rest/client.rs:230:9:
+not yet implemented: red: I1 REST facade
+
+
+failures:
+    attempt_timeout_retries_idempotent_only
+    auth_headers_added_in_order
+    content_type_and_length_for_json_body
+    exhausted_429_returns_rate_limited
+    explicit_auth_header_is_not_duplicated
+    no_retry_for_401_and_404
+    retry_429_for_post
+    retry_429_then_success_with_delay
+    retry_5xx_only_for_idempotent
+    telemetry_blocked_before_network
+    telemetry_lookalike_reaches_server
+
+test result: FAILED. 1 passed; 11 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_client`
+# EXIT=101

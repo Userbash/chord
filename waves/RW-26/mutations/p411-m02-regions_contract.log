@@ -1,0 +1,43 @@
+
+running 10 tests
+test latency_median_is_sorted_and_even_rounds_down ... ok
+test probe_completion_observes_timeout_and_clock_order ... ok
+test parser_rejects_shape_and_duplicates ... ok
+test probes_rotate_endpoints_and_limit_per_region ... ok
+test parser_rejects_more_than_thirty_two_endpoints_per_region ... ok
+test fixture_preserves_regions_and_endpoints ... ok
+test selection_checks_manual_against_union ... ok
+test parser_validates_endpoints_and_deduplicates ... ok
+test unmeasured_regions_follow_measured ... FAILED
+test ranking_matches_engine_log_and_ties_use_geo_then_lexical ... FAILED
+
+failures:
+
+---- unmeasured_regions_follow_measured stdout ----
+
+thread 'unmeasured_regions_follow_measured' (221016) panicked at crates/discord-voice/tests/regions_contract.rs:112:5:
+assertion `left == right` failed
+  left: ["a", "c", "b"]
+ right: ["b", "a", "c"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ranking_matches_engine_log_and_ties_use_geo_then_lexical stdout ----
+
+thread 'ranking_matches_engine_log_and_ties_use_geo_then_lexical' (221014) panicked at crates/discord-voice/tests/regions_contract.rs:102:5:
+assertion `left == right` failed
+  left: ["geo-only", "z", "a"]
+ right: ["z", "a", "geo-only"]
+
+
+failures:
+    ranking_matches_engine_log_and_ties_use_geo_then_lexical
+    unmeasured_regions_follow_measured
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+--- stderr ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/regions_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/regions_contract-cb7a8ee43c08d5a8)
+error: test failed, to rerun pass `-p discord-voice --test regions_contract`

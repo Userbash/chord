@@ -1,0 +1,11 @@
+base_md5=rtp:c33f185bd1a3779757f528041f049eab,jitter:51d4bc9e3c4f309c62c6cb7a69bd89af
+M1: exit=101 caught restored=True [m06_parse_rejects_short_bad_version_and_truncated_extension,m01_parse_captured_valid_packets,m04_encode_header_with_extension] — профиль расширения 0xBEDE подменён
+M2: exit=101 caught restored=True [m05_encode_rejects_misaligned_or_oversized_extension,m08_sender_increments_sequence_and_timestamp_with_one_marker,m04_encode_header_with_extension] — words = len/4 считается как len/8
+M3: exit=101 caught restored=True [m03_encode_header_without_extension,m08_sender_increments_sequence_and_timestamp_with_one_marker,m09_sender_silence_moves_only_timestamp_and_rearms_marker] — marker сдвинут в бит 6 вместо 7
+M4: exit=101 caught restored=True [m09_sender_silence_moves_only_timestamp_and_rearms_marker,m08_sender_increments_sequence_and_timestamp_with_one_marker] — timestamp растёт на 2 кадра вместо 1
+M5: exit=101 caught restored=True [m08_sender_increments_sequence_and_timestamp_with_one_marker] — marker не снимается после первого пакета
+M7: exit=101 caught restored=True [m10_classify_opus_payload_by_comfort_noise_threshold] — порог comfort-noise 3 Б → 2 Б
+M8: exit=101 caught restored=True [m12_jitter_counts_duplicate_late_and_missing_once] — уже отданный seq не считается дублем
+M9: exit=101 caught restored=True [m11_jitter_reorders_three_one_two] — окно не расширяется назад до первой выдачи
+M10: exit=101 caught restored=True [m11_jitter_reorders_three_one_two,m12_jitter_counts_duplicate_late_and_missing_once,m13_jitter_handles_wraparound_and_capacity_one] — выданный seq не сдвигает окно
+caught=9/9 restored_all=True base_md5=rtp:c33f185bd1a3779757f528041f049eab,jitter:51d4bc9e3c4f309c62c6cb7a69bd89af

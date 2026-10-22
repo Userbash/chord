@@ -1,0 +1,14 @@
+=== W26a-fix / F-A2 — RED (до реализации) ===
+дата: 2026-10-22T11:02:33+05:00
+
+$ cargo test --offline -p discord-voice --test srtp_contract
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0599]: no variant named `CounterRewind` found for enum `SrtpError`
+   --> crates/discord-voice/tests/srtp_contract.rs:522:20
+    |
+522 |         SrtpError::CounterRewind {
+    |                    ^^^^^^^^^^^^^ variant not found in `SrtpError`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-voice` (test "srtp_contract") due to 1 previous error
+exit code: 101

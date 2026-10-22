@@ -1,0 +1,23 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/rest_http1.rs (target/debug/deps/rest_http1-4977f16e590edf4c)
+
+running 14 tests
+test chunked_flag_rules ... ok
+test content_length_rules ... ok
+test decode_chunked_errors ... ok
+test decode_chunked_incomplete_at_every_split ... ok
+test decode_chunked_extensions_and_trailers ... ok
+test encode_request_checks_supplied_content_length ... ok
+test decode_chunked_rfc_example ... ok
+test encode_request_get_has_no_content_length ... ok
+test encode_request_post_adds_content_length ... ok
+test encode_request_rejects_injection_and_bad_target ... ok
+test header_lookup_is_case_insensitive ... ok
+test parse_head_200 ... ok
+test parse_head_versions_and_malformed ... ok
+test parse_head_incomplete_and_limit ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

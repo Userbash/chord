@@ -1,0 +1,46 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 1 test
+test generates_spdx_23_with_locked_packages_and_licenses ... FAILED
+
+failures:
+
+---- generates_spdx_23_with_locked_packages_and_licenses stdout ----
+
+thread 'generates_spdx_23_with_locked_packages_and_licenses' (23082) panicked at crates/discord-conformance/tests/sbom_contract.rs:74:5:
+SPDX validation failed: node:assert:885
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^https:\/\/discord-lab\.local\/spdx\/[0-9a-f]{64}$/. Input:
+
+'https://discord-lab.local/spdx/deadbeef'
+
+    at [eval]:1:600
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_string:71:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'https://discord-lab.local/spdx/deadbeef',
+  expected: /^https:\/\/discord-lab\.local\/spdx\/[0-9a-f]{64}$/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.21.0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    generates_spdx_23_with_locked_packages_and_licenses
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`

@@ -1,0 +1,22 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::udp::keepalive_request`, `discord_voice::udp::keepalive_response`
+ --> crates/discord-voice/tests/udp.rs:2:28
+  |
+2 |     empty_receiver_report, keepalive_request, keepalive_response, DiscoveryPacket,
+  |                            ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^ no `keepalive_response` in `udp`
+  |                            |
+  |                            no `keepalive_request` in `udp`
+  |
+help: a similar name exists in the module
+  |
+2 -     empty_receiver_report, keepalive_request, keepalive_response, DiscoveryPacket,
+2 +     empty_receiver_report, KEEPALIVE_REQUEST, keepalive_response, DiscoveryPacket,
+  |
+help: a similar name exists in the module
+  |
+2 -     empty_receiver_report, keepalive_request, keepalive_response, DiscoveryPacket,
+2 +     empty_receiver_report, keepalive_request, KEEPALIVE_RESPONSE, DiscoveryPacket,
+  |
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "udp") due to 1 previous error

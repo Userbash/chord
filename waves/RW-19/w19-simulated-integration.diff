@@ -1,0 +1,195 @@
+--- a/rust/crates/discord-core/src/state/mod.rs
++++ b/rust/crates/discord-core/src/state/mod.rs
+@@ -23,6 +23,7 @@
+ pub mod reducer;
+ pub mod selectors;
+ pub mod types;
++pub mod voice;
+ 
+ pub use member_chunk::{MemberChunk, MemberChunkAssembly, MemberChunkMember};
+ pub use member_list::{
+@@ -35,6 +36,12 @@
+ };
+ pub use read_state::MessageAck;
+ pub use reducer::{apply, apply_dispatch, apply_frame};
++pub use voice::{
++    VoiceChannelKey, VoiceChannelStartTime, VoiceChannelStatus, VoiceKey, VoiceState,
++    VoiceStateUpdate, apply_snapshot, apply_start_time, apply_status, apply_update,
++    parse_voice_channel_start_time, parse_voice_channel_status, parse_voice_state_update,
++    parse_voice_states,
++};
+ pub use types::{
+     ChannelInfo, Effect, Effects, Event, EventError, EventPayload, MemberRange, Message,
+     MessagePatch, ReadySupplemental, State, StateDiagnostics, Thread, ThreadListSync,
+--- a/rust/crates/discord-core/src/state/types.rs
++++ b/rust/crates/discord-core/src/state/types.rs
+@@ -24,6 +24,10 @@
+     parse_presence_event,
+ };
+ use super::read_state::MessageAck;
++use super::voice::{
++    VoiceChannelKey, VoiceChannelStartTime, VoiceChannelStatus, VoiceKey, VoiceState,
++    VoiceStateUpdate,
++};
+ 
+ /// Диагностика reducer и разбора событий.
+ #[derive(Debug, Clone, Default, PartialEq, Eq)]
+@@ -111,6 +115,12 @@
+     pub member_chunks: BTreeMap<(u64, Option<String>), MemberChunkAssembly>,
+     /// Presence по `(user_id, scope)`; offline-only записи удаляются.
+     pub presences: BTreeMap<PresenceKey, Presence>,
++    /// Voice-состояния по `(guild_id, user_id)`.
++    pub voice_states: BTreeMap<VoiceKey, VoiceState>,
++    /// Стартовое время голосовых каналов по `(guild_id, channel_id)`.
++    pub voice_channel_start_times: BTreeMap<VoiceChannelKey, i64>,
++    /// Статусы голосовых каналов по `(guild_id, channel_id)`.
++    pub voice_channel_statuses: BTreeMap<VoiceChannelKey, String>,
+     /// Треды по id.
+     pub threads: BTreeMap<u64, Thread>,
+     /// RTC-регионы READY.
+@@ -149,6 +159,15 @@
+             .field("member_lists", &self.member_lists.len())
+             .field("member_chunks", &self.member_chunks.len())
+             .field("presences", &self.presences.len())
++            .field("voice_states", &self.voice_states.len())
++            .field(
++                "voice_channel_start_times",
++                &self.voice_channel_start_times.len(),
++            )
++            .field(
++                "voice_channel_statuses",
++                &self.voice_channel_statuses.len(),
++            )
+             .field("threads", &self.threads.len())
+             .field(
+                 "user_settings_proto",
+@@ -222,6 +241,9 @@
+             member_lists: BTreeMap::new(),
+             member_chunks: BTreeMap::new(),
+             presences: BTreeMap::new(),
++            voice_states: BTreeMap::new(),
++            voice_channel_start_times: BTreeMap::new(),
++            voice_channel_statuses: BTreeMap::new(),
+             threads: BTreeMap::new(),
+             geo_ordered_rtc_regions: ready.geo_ordered_rtc_regions.clone(),
+             country_code: ready.country_code.clone(),
+@@ -399,6 +421,8 @@
+     pub merged_members: Vec<Vec<GuildMember>>,
+     /// `merged_presences` — друзья и группы, выровненные по `guild_ids`.
+     pub merged_presences: MergedPresences,
++    /// Голосовые состояния из `d.guilds[i].voice_states`.
++    pub voice_states: Vec<VoiceState>,
+ }
+ 
+ /// Типизированное событие состояния.
+@@ -439,6 +463,12 @@
+     MessageAck(MessageAck),
+     /// PRESENCE_UPDATE.
+     PresenceUpdate(PresenceUpdate),
++    /// VOICE_STATE_UPDATE.
++    VoiceStateUpdate(VoiceStateUpdate),
++    /// VOICE_CHANNEL_START_TIME_UPDATE.
++    VoiceChannelStartTime(VoiceChannelStartTime),
++    /// VOICE_CHANNEL_STATUS_UPDATE.
++    VoiceChannelStatus(VoiceChannelStatus),
+     /// Известный тип, не входящий в P2-02.
+     Unsupported(DispatchKind),
+     /// Неизвестный `t`.
+@@ -521,6 +551,20 @@
+                 let (update, diagnostics) = parse_presence_event(&dispatch.data)?;
+                 (EventPayload::PresenceUpdate(update), diagnostics)
+             }
++            Some(DispatchKind::VoiceStateUpdate) => {
++                let (update, diagnostics) = super::voice::parse_voice_state_update(&dispatch.data)?;
++                (EventPayload::VoiceStateUpdate(update), diagnostics)
++            }
++            Some(DispatchKind::VoiceChannelStartTimeUpdate) => {
++                let (update, diagnostics) =
++                    super::voice::parse_voice_channel_start_time(&dispatch.data)?;
++                (EventPayload::VoiceChannelStartTime(update), diagnostics)
++            }
++            Some(DispatchKind::VoiceChannelStatusUpdate) => {
++                let (update, diagnostics) =
++                    super::voice::parse_voice_channel_status(&dispatch.data)?;
++                (EventPayload::VoiceChannelStatus(update), diagnostics)
++            }
+             Some(kind) => (EventPayload::Unsupported(kind), StateDiagnostics::default()),
+             None => (
+                 EventPayload::Unknown {
+@@ -1094,6 +1138,7 @@
+     let map = event_map(data, "d")?;
+     let mut diagnostics = StateDiagnostics::default();
+     let mut guild_ids = Vec::new();
++    let mut voice_states = Vec::new();
+ 
+     if let Some(raw_guilds) = map.get("guilds")
+         && !value::is_null(raw_guilds)
+@@ -1108,6 +1153,14 @@
+             if id.is_none() {
+                 diagnostics.malformed.push(format!("guilds[{index}]"));
+             }
++            if let Some(raw_voice_states) = item.get("voice_states") {
++                voice_states.extend(super::voice::parse_voice_states(
++                    Some(raw_voice_states),
++                    id,
++                    &format!("ready_supplemental.guilds[{index}].voice_states"),
++                    &mut diagnostics,
++                ));
++            }
+             guild_ids.push(id);
+         }
+     }
+@@ -1132,6 +1185,7 @@
+             guild_ids,
+             merged_members,
+             merged_presences,
++            voice_states,
+         },
+         diagnostics,
+     ))
+--- a/rust/crates/discord-core/src/state/reducer.rs
++++ b/rust/crates/discord-core/src/state/reducer.rs
+@@ -69,6 +69,15 @@
+         EventPayload::PresenceUpdate(update) => {
+             super::presence_reducer::apply_update(&mut state, update);
+         }
++        EventPayload::VoiceStateUpdate(update) => {
++            super::voice::reducer::apply_update(&mut state, update);
++        }
++        EventPayload::VoiceChannelStartTime(update) => {
++            super::voice::reducer::apply_start_time(&mut state, update);
++        }
++        EventPayload::VoiceChannelStatus(update) => {
++            super::voice::reducer::apply_status(&mut state, update);
++        }
+         EventPayload::Unsupported(kind) => {
+             state
+                 .diagnostics
+@@ -140,6 +149,7 @@
+         guild_ids,
+         merged_members,
+         merged_presences,
++        voice_states,
+     } = supplemental;
+     for (index, members) in merged_members.into_iter().enumerate() {
+         match guild_ids.get(index).copied().flatten() {
+@@ -163,6 +173,7 @@
+         }
+     }
+     super::presence_reducer::apply_supplemental(state, &guild_ids, merged_presences);
++    super::voice::reducer::apply_snapshot(state, voice_states);
+ }
+ 
+ fn ensure_guild(state: &mut State, guild_id: u64) -> &mut Guild {
+--- a/rust/crates/discord-core/src/lib.rs
++++ b/rust/crates/discord-core/src/lib.rs
+@@ -46,7 +46,8 @@
+     Event, MemberChunk, MemberChunkAssembly, MemberChunkMember, MemberList, MemberListEntry,
+     MemberListGroup, MemberListId, MemberListOp, MemberListRange, MemberListUpdate, MemberPresence,
+     MergedPresences, MessageAck, Presence, PresenceKey, PresenceScope, PresenceStatus,
+-    PresenceUpdate, State, apply, apply_dispatch, apply_frame,
++    PresenceUpdate, State, VoiceChannelKey, VoiceChannelStartTime, VoiceChannelStatus, VoiceKey,
++    VoiceState, VoiceStateUpdate, apply, apply_dispatch, apply_frame,
+ };
+ pub use ws::{
+     GatewayPipe, RunOptions, RunOutcome, TransportError, connect_and_run, connect_and_run_resume,

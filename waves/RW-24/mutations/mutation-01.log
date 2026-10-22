@@ -1,0 +1,25 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test plural_contract every_oracle_cardinal_and_ordinal_sample_matches -- --exact
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/plural_contract.rs (target/debug/deps/plural_contract-ba1d015e13c13f5b)
+
+running 1 test
+test every_oracle_cardinal_and_ordinal_sample_matches ... FAILED
+
+failures:
+
+---- every_oracle_cardinal_and_ordinal_sample_matches stdout ----
+
+thread 'every_oracle_cardinal_and_ordinal_sample_matches' (60367) panicked at crates/discord-i18n/tests/plural_contract.rs:31:17:
+assertion `left == right` failed: ru cardinal 15
+  left: "few"
+ right: "many"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    every_oracle_cardinal_and_ordinal_sample_matches
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-i18n --test plural_contract`

@@ -1,0 +1,22 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-60f05fc60e2f6b38)
+
+running 1 test
+test m15_insert_duplicate_at_same_position_is_diagnostic ... FAILED
+
+failures:
+
+---- m15_insert_duplicate_at_same_position_is_diagnostic stdout ----
+
+thread 'm15_insert_duplicate_at_same_position_is_diagnostic' (341035) panicked at crates/discord-core/tests/member_list_reducer.rs:345:5:
+диагностика: StateDiagnostics { unknown_top_level: [], malformed: [], duplicates: [], ignored: [], unknown_events: [], unsupported_events: [], stale_sequences: [], inconsistencies: ["guilds:294064825540280335:member-list", "guilds:294064825540280335:member-list"] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    m15_insert_duplicate_at_same_position_is_diagnostic
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test member_list_reducer`

@@ -1,0 +1,36 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running tests/member_chunk_reducer.rs (target/debug/deps/member_chunk_reducer-df5171b69ffe9435)
+
+running 13 tests
+test r13_uncorrelated_multi_chunk_duplicate_index_is_diagnostic ... ok
+test r05_chunk_count_mismatch_is_diagnostic_and_first_wins ... ok
+test r12_single_chunk_without_nonce_is_new_response_without_duplicate ... ok
+test r11_two_guilds_have_independent_assemblies ... ok
+test r06_nonce_correlates_two_assemblies ... ok
+test r07_not_found_is_stored_without_removing_members ... ok
+test r01_apply_022_stores_assembly_and_merges_members ... ok
+test r10_existing_guild_member_is_updated_not_duplicated ... FAILED
+test r08_stale_sequence_is_noop ... ok
+test r02_unknown_guild_is_diagnostic_but_assembly_is_stored ... ok
+test r04_duplicate_index_last_wins_with_diagnostic ... ok
+test r03_out_of_order_chunks_are_complete_and_ordered_by_index ... ok
+test r09_invalid_index_is_malformed_and_does_not_change_state ... ok
+
+failures:
+
+---- r10_existing_guild_member_is_updated_not_duplicated stdout ----
+
+thread 'r10_existing_guild_member_is_updated_not_duplicated' (406449) panicked at crates/discord-core/tests/member_chunk_reducer.rs:349:5:
+assertion `left == right` failed
+  left: 2
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r10_existing_guild_member_is_updated_not_duplicated
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p discord-core --test member_chunk_reducer`

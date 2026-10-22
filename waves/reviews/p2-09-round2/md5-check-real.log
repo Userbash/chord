@@ -1,0 +1,16 @@
+rust/crates/discord-core/src/state/presence.rs: OK
+rust/crates/discord-core/src/state/presence_reducer.rs: OK
+rust/crates/discord-core/src/state/presence_selectors.rs: OK
+rust/crates/discord-core/src/state/types.rs: OK
+rust/crates/discord-core/src/state/reducer.rs: OK
+rust/crates/discord-core/src/state/member_list.rs: OK
+rust/crates/discord-core/src/state/member_chunk.rs: OK
+rust/crates/discord-core/src/state/mod.rs: OK
+rust/crates/discord-core/src/lib.rs: OK
+rust/crates/discord-core/tests/presence_types.rs: OK
+rust/crates/discord-core/tests/presence_reducer.rs: OK
+rust/crates/discord-core/tests/presence_selectors.rs: OK
+rust/crates/discord-core/tests/state_types.rs: OK
+rust/crates/discord-core/tests/state_reducer.rs: OK
+rust/crates/discord-core/tests/member_chunk_types.rs: OK
+EXIT=0

@@ -1,0 +1,71 @@
+=== ИТОГОВЫЙ GREEN ПРОГОН W26c-fix (все замечания FC1..FC4) ===
+Дата: 2026-10-22
+target-dir: /tmp/opencode/target-w26c
+
+--- 1. весь крейт (интеграционные + doc-тесты) ---
+$ cargo test --offline -p discord-updater
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (/tmp/opencode/target-w26c/debug/deps/discord_updater-377bc9cf830c13b5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/updater_contract.rs (/tmp/opencode/target-w26c/debug/deps/updater_contract-fd91db638e905d79)
+
+running 34 tests
+test manifest_duplicate_artifact_k ... ok
+test manifest_invalid_digest_k ... ok
+test manifest_invalid_json_k ... ok
+test manifest_invalid_version_k ... ok
+test manifest_missing_field_k ... ok
+test manifest_parse_pre_release_k ... ok
+test manifest_parse_k ... ok
+test parse_manifest_stays_plain_manifest_k ... ok
+test sha256_hex_known_k ... ok
+test digest_mismatch_k ... ok
+test plan_not_newer_k ... ok
+test signature_bad_k ... ok
+test plan_from_verified_manifest_k ... ok
+test plan_steps_k ... ok
+test plan_keeps_all_paths_inside_install_dir_k ... ok
+test rollback_rejects_corrupted_backup_k ... ok
+test rollback_missing_backup_keeps_target_k ... ok
+test swap_failure_rollback_k ... ok
+test rfc8032_test_vector_k ... ok
+test signature_missing_k ... ok
+test rollback_k ... ok
+test rollback_replaces_existing_target_k ... ok
+test version_order_k ... ok
+test version_parse_rejects_k ... ok
+test rollback_refuses_occupied_temp_name_k ... ok
+test plan_unknown_artifact_k ... ok
+test signature_ok_k ... ok
+test signature_tampered_body_k ... ok
+test verified_manifest_requires_valid_signature_k ... ok
+test signature_wrong_key_k ... ok
+test verified_manifest_from_signed_bytes_k ... ok
+test staged_swap_k ... ok
+test plan_accepts_safe_artifact_name_k ... ok
+test plan_rejects_unsafe_artifact_name_k ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests discord_updater
+
+running 1 test
+test crates/discord-updater/src/plan.rs - plan::plan_update (line 149) - compile fail ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+EXIT_CODE=0
+
+--- 2. clippy ---
+$ cargo clippy --offline -p discord-updater --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+EXIT_CODE=0
+
+--- 3. fmt (только свой крейт) ---
+$ cargo fmt -p discord-updater -- --check
+EXIT_CODE=0

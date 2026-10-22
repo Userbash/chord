@@ -1,0 +1,16 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0599]: no method named `to_json` found for struct `discord_voice::Identify` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:191:25
+    |
+191 |     let wire = identify.to_json();
+    |                         ^^^^^^^ method not found in `discord_voice::Identify`
+
+error[E0599]: no method named `to_json` found for struct `discord_voice::SelectProtocol` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:221:23
+    |
+221 |     let wire = select.to_json();
+    |                       ^^^^^^^ method not found in `discord_voice::SelectProtocol`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-voice` (test "signaling") due to 2 previous errors

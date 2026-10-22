@@ -1,0 +1,26 @@
+# команда: cd rust && cargo test --offline -p discord-core --test ready_fixture
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/ready_fixture.rs (target/debug/deps/ready_fixture-f5dc378fde7757cf)
+
+running 3 tests
+test ready_parse_rejects_top_level_user_with_bad_id ... FAILED
+test adapter_maps_capture_shape_nil_bool_ids_and_numbers ... ok
+test adapter_reads_ready_fixture_and_matches_oracle_counts ... ok
+
+failures:
+
+---- ready_parse_rejects_top_level_user_with_bad_id stdout ----
+
+thread 'ready_parse_rejects_top_level_user_with_bad_id' (155298) panicked at crates/discord-core/tests/ready_fixture.rs:113:53:
+битый user.id обязан быть фатальным: Ready { v: None, user: User { id: 0, username: None, global_name: None, display_name: None, discriminator: None, avatar: None, bot: false, public_flags: None }, session_id: "<redacted>", session_type: None, resume_gateway_url: None, guilds: [], private_channels: [], users: [], relationships: [], read_state: ReadState { entries: [], partial: false, version: 0 }, user_guild_settings: UserGuildSettings { entries: [], partial: false, version: 0 }, sessions: [], geo_ordered_rtc_regions: [], country_code: None, subdivision_code: None, friend_suggestion_count: None, api_code_version: None, explicit_content_scan_version: None, ad_personalization_toggles_disabled: false, user_settings_proto: "<redacted>", top_level_keys: 3, diagnostics: ReadyDiagnostics { unknown_top_level: [], malformed: [], duplicates: [], ignored: [] }, .. }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ready_parse_rejects_top_level_user_with_bad_id
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-core --test ready_fixture`
+# EXIT=101

@@ -1,0 +1,24 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test encode_rejects_invalid_response ... FAILED
+
+failures:
+
+---- encode_rejects_invalid_response stdout ----
+
+thread 'encode_rejects_invalid_response' (34031) panicked at crates/discord-voice/tests/udp.rs:190:9:
+assertion `left == right` failed
+  left: Ok([0, 2, 0, 70, 0, 0, 35, 248, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 75, 129])
+ right: Err(InvalidAddress)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    encode_rejects_invalid_response
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test udp`

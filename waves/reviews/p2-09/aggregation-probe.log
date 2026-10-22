@@ -1,0 +1,6 @@
+status = Offline
+is_online = false
+selected_scope = Some(20)
+guild10_present = true
+guild20_present = true
+hidden_len = 1

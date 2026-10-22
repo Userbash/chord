@@ -1,0 +1,405 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0599]: no method named `mention_channels` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:59:19
+   |
+59 |     assert!(state.mention_channels().is_empty());
+   |                   ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `total_mentions` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:60:22
+   |
+60 |     assert_eq!(state.total_mentions(), 0);
+   |                      ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_mentions` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:61:20
+   |
+61 |     assert!(!state.has_mentions(1_293_192_721_237_938_187));
+   |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:62:22
+   |
+62 |     assert_eq!(state.mention_count(1_293_192_721_237_938_187), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:63:22
+   |
+63 |     assert_eq!(state.mention_count(1), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `badge_entries` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:66:15
+   |
+66 |         state.badge_entries(),
+   |               ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `total_badges` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:69:22
+   |
+69 |     assert_eq!(state.total_badges(), 16);
+   |                      ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:81:22
+   |
+81 |     assert_eq!(state.mention_count(40), 2);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:82:22
+   |
+82 |     assert_eq!(state.mention_count(30), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:83:22
+   |
+83 |     assert_eq!(state.mention_count(20), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:84:22
+   |
+84 |     assert_eq!(state.mention_count(10), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:85:22
+   |
+85 |     assert_eq!(state.mention_count(99), 0);
+   |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_mentions` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:87:19
+   |
+87 |     assert!(state.has_mentions(40));
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_mentions` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:88:20
+   |
+88 |     assert!(!state.has_mentions(20));
+   |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_mentions` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:89:20
+   |
+89 |     assert!(!state.has_mentions(99));
+   |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_channels` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:91:22
+   |
+91 |     assert_eq!(state.mention_channels(), vec![40]);
+   |                      ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `total_mentions` found for struct `State` in the current scope
+  --> crates/discord-core/tests/read_state_selectors.rs:92:22
+   |
+92 |     assert_eq!(state.total_mentions(), 2);
+   |                      ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `guild_mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:126:22
+    |
+126 |     assert_eq!(state.guild_mention_count(guild_id), 5);
+    |                      ^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `guild_mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:127:22
+    |
+127 |     assert_eq!(state.guild_mention_count(274_093_052_673_392_641), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `guild_mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:128:22
+    |
+128 |     assert_eq!(state.guild_mention_count(999), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `private_mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:145:22
+    |
+145 |     assert_eq!(state.private_mention_count(), 4);
+    |                      ^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `private_channel_count` with a similar name
+    |
+145 -     assert_eq!(state.private_mention_count(), 4);
+145 +     assert_eq!(state.private_channel_count(), 4);
+    |
+
+error[E0599]: no method named `private_mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:146:32
+    |
+146 |     assert_eq!(minimal_state().private_mention_count(), 0);
+    |                                ^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `private_channel_count` with a similar name
+    |
+146 -     assert_eq!(minimal_state().private_mention_count(), 0);
+146 +     assert_eq!(minimal_state().private_channel_count(), 0);
+    |
+
+error[E0599]: no method named `badge_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:158:22
+    |
+158 |     assert_eq!(state.badge_count(900), 5);
+    |                      ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `badge_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:159:22
+    |
+159 |     assert_eq!(state.badge_count(100), 0);
+    |                      ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `badge_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:160:22
+    |
+160 |     assert_eq!(state.badge_count(500), 1);
+    |                      ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `badge_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:161:22
+    |
+161 |     assert_eq!(state.badge_count(400), 0);
+    |                      ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `badge_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:162:22
+    |
+162 |     assert_eq!(state.badge_count(99), 0);
+    |                      ^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `badge_entries` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:164:22
+    |
+164 |     assert_eq!(state.badge_entries(), vec![500, 900]);
+    |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `total_badges` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:165:22
+    |
+165 |     assert_eq!(state.total_badges(), 6);
+    |                      ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:174:15
+    |
+174 |         ready.acknowledged_message_id(1_293_192_721_237_938_187),
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:178:15
+    |
+178 |         ready.acknowledged_message_id(384_299_970_632_876_032),
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:182:15
+    |
+182 |         ready.acknowledged_message_id(1_014_537_851_418_980_372),
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:185:22
+    |
+185 |     assert_eq!(ready.acknowledged_message_id(999), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:219:22
+    |
+219 |     assert_eq!(state.acknowledged_message_id(10), Some(100));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:220:22
+    |
+220 |     assert_eq!(state.acknowledged_message_id(20), Some(300));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:221:22
+    |
+221 |     assert_eq!(state.acknowledged_message_id(30), Some(500));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:222:22
+    |
+222 |     assert_eq!(state.acknowledged_message_id(40), Some(600));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:223:22
+    |
+223 |     assert_eq!(state.acknowledged_message_id(50), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:224:22
+    |
+224 |     assert_eq!(state.acknowledged_message_id(99), None);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:244:19
+    |
+244 |     assert!(state.is_message_read(10, 1_000));
+    |                   ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:245:19
+    |
+245 |     assert!(state.is_message_read(10, 999));
+    |                   ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:246:20
+    |
+246 |     assert!(!state.is_message_read(10, 1_001));
+    |                    ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:247:20
+    |
+247 |     assert!(!state.is_message_read(99, 1));
+    |                    ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:249:19
+    |
+249 |     assert!(state.is_message_read(20, 500));
+    |                   ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:250:20
+    |
+250 |     assert!(!state.is_message_read(20, 501));
+    |                    ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `read_state_version` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:256:30
+    |
+256 |     assert_eq!(ready_state().read_state_version(), 128_949);
+    |                              ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `read_state_entry` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:109:5
+    |
+109 |     pub fn read_state_entry(&self, id: u64) -> Option<&ReadStateEntry> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `read_state_version` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:257:32
+    |
+257 |     assert_eq!(minimal_state().read_state_version(), 0);
+    |                                ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `read_state_entry` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:109:5
+    |
+109 |     pub fn read_state_entry(&self, id: u64) -> Option<&ReadStateEntry> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:266:22
+    |
+266 |     assert_eq!(state.mention_count(channel_id), 0);
+    |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:271:22
+    |
+271 |     assert_eq!(state.mention_count(channel_id), 0);
+    |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_mentions` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:272:20
+    |
+272 |     assert!(!state.has_mentions(channel_id));
+    |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `read_state_version` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:273:22
+    |
+273 |     assert_eq!(state.read_state_version(), 128_950);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `read_state_entry` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:109:5
+    |
+109 |     pub fn read_state_entry(&self, id: u64) -> Option<&ReadStateEntry> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `is_message_read` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:274:19
+    |
+274 |     assert!(state.is_message_read(channel_id, message_id));
+    |                   ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `acknowledged_message_id` found for struct `State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:275:22
+    |
+275 |     assert_eq!(state.acknowledged_message_id(channel_id), Some(message_id));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `mention_channels` found for reference `&State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:299:26
+    |
+299 |         assert_eq!(state.mention_channels(), vec![100, 900]);
+    |                          ^^^^^^^^^^^^^^^^ method not found in `&State`
+
+error[E0599]: no method named `total_mentions` found for reference `&State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:300:26
+    |
+300 |         assert_eq!(state.total_mentions(), 5);
+    |                          ^^^^^^^^^^^^^^ method not found in `&State`
+
+error[E0599]: no method named `badge_entries` found for reference `&State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:301:26
+    |
+301 |         assert_eq!(state.badge_entries(), vec![100, 900]);
+    |                          ^^^^^^^^^^^^^ method not found in `&State`
+
+error[E0599]: no method named `total_badges` found for reference `&State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:302:26
+    |
+302 |         assert_eq!(state.total_badges(), 6);
+    |                          ^^^^^^^^^^^^ method not found in `&State`
+
+error[E0599]: no method named `mention_count` found for reference `&State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:303:26
+    |
+303 |         assert_eq!(state.mention_count(500), 0);
+    |                          ^^^^^^^^^^^^^ method not found in `&State`
+
+error[E0599]: no method named `badge_count` found for reference `&State` in the current scope
+   --> crates/discord-core/tests/read_state_selectors.rs:304:26
+    |
+304 |         assert_eq!(state.badge_count(500), 0);
+    |                          ^^^^^^^^^^^ method not found in `&State`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "read_state_selectors") due to 59 previous errors

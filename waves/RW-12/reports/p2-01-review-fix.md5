@@ -1,0 +1,7 @@
+090bf9441acd8459d310ee93d2242dd6  rust/crates/discord-core/src/ready/value.rs
+d88df7bc6ace6c44ca3fd81dae8b3c59  rust/crates/discord-core/src/ready/snapshot.rs
+33386b7304367ff98d06e37c8d1f4e64  rust/crates/discord-core/src/ready/social.rs
+2bfbea7ae9cfee092696768339f28c88  rust/crates/discord-core/src/ready/guild.rs
+7ab589278a949a5c3e80c8cfeeb5eea4  rust/crates/discord-core/tests/ready_review.rs
+04a5aa28d971041c45a2fd85ee422d5f  rust/crates/discord-core/tests/ready_core.rs
+7ab589278a949a5c3e80c8cfeeb5eea4  waves/RW-12/reports/p2-01-review-test.red.rs

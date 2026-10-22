@@ -1,0 +1,39 @@
+# P101-M3-binary-length-off-by-one
+file=rust/crates/discord-codec/src/etf.rs
+exit=101 caught=True
+--- tail ---
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test big_int_borders_roundtrip_through_checked_path ... ok
+test checked_encoder_rejects_atom_that_does_not_fit_u16_without_truncation ... ok
+test checked_encoder_is_byte_exact_with_infallible_encoder ... ok
+test prefix_truncation_is_bounded_and_never_reports_overread ... FAILED
+test depth_limit_is_the_same_for_encoder_and_decoder ... ok
+test fuzz_50k_random_and_all_single_bytes_never_panic ... ok
+
+failures:
+
+---- prefix_truncation_is_bounded_and_never_reports_overread stdout ----
+
+thread 'prefix_truncation_is_bounded_and_never_reports_overread' (14546) panicked at crates/discord-codec/tests/etf_full.rs:172:53:
+полный буфер: UnknownTag { tag: 6, at: 33 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    prefix_truncation_is_bounded_and_never_reports_overread
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
+     Running tests/etf_full.rs (target/debug/deps/etf_full-7c2aa4b7f6f1b01e)
+error: test failed, to rerun pass `-p discord-codec --test etf_full`

@@ -1,0 +1,3 @@
+4b49b31e13049200808cc03828c0fe49  rust/crates/discord-core/tests/member_chunk_types.rs
+8a1cf7d258a16dc7e7fa2455376f5513  rust/crates/discord-core/tests/member_chunk_reducer.rs
+b063a2a01e293ce518aa99406464e736  rust/crates/discord-core/tests/member_chunk_selectors.rs

@@ -1,0 +1,27 @@
+{
+  "projectRoot": "/home/sanya/orca/project",
+  "batchFiles": [
+    {"path": "docs/rust-client/ARCHITECTURE.md", "language": "markdown", "sizeLines": 251, "fileCategory": "docs"},
+    {"path": "docs/rust-client/CONCEPT.md", "language": "markdown", "sizeLines": 141, "fileCategory": "docs"},
+    {"path": "docs/rust-client/DEVELOPMENT-PROMPT.md", "language": "markdown", "sizeLines": 714, "fileCategory": "docs"},
+    {"path": "docs/rust-client/FEATURES.md", "language": "markdown", "sizeLines": 216, "fileCategory": "docs"},
+    {"path": "docs/rust-client/PLAN.md", "language": "markdown", "sizeLines": 194, "fileCategory": "docs"},
+    {"path": "docs/rust-client/PROJECT-STRUCTURE.md", "language": "markdown", "sizeLines": 122, "fileCategory": "docs"},
+    {"path": "docs/rust-client/README.md", "language": "markdown", "sizeLines": 72, "fileCategory": "docs"},
+    {"path": "docs/rust-client/TEST-PLAN.md", "language": "markdown", "sizeLines": 260, "fileCategory": "docs"},
+    {"path": "docs/rust-client/TRACEABILITY.md", "language": "markdown", "sizeLines": 51, "fileCategory": "docs"},
+    {"path": "docs/rust-client/VERIFICATION.md", "language": "markdown", "sizeLines": 83, "fileCategory": "docs"}
+  ],
+  "batchImportData": {
+    "docs/rust-client/ARCHITECTURE.md": [],
+    "docs/rust-client/CONCEPT.md": [],
+    "docs/rust-client/DEVELOPMENT-PROMPT.md": [],
+    "docs/rust-client/FEATURES.md": [],
+    "docs/rust-client/PLAN.md": [],
+    "docs/rust-client/PROJECT-STRUCTURE.md": [],
+    "docs/rust-client/README.md": [],
+    "docs/rust-client/TEST-PLAN.md": [],
+    "docs/rust-client/TRACEABILITY.md": [],
+    "docs/rust-client/VERIFICATION.md": []
+  }
+}

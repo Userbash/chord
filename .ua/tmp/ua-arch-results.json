@@ -1,0 +1,616 @@
+{
+  "scriptCompleted": true,
+  "commonPrefix": null,
+  "directoryGroups": {
+    "rust/crates/discord-core": [
+      "file:rust/crates/discord-core/src/rest/ack.rs",
+      "file:rust/crates/discord-core/src/rest/base64.rs",
+      "file:rust/crates/discord-core/src/rest/client.rs",
+      "file:rust/crates/discord-core/src/rest/headers.rs",
+      "file:rust/crates/discord-core/src/rest/http1.rs",
+      "file:rust/crates/discord-core/src/rest/identity.rs",
+      "file:rust/crates/discord-core/src/rest/mod.rs",
+      "file:rust/crates/discord-core/src/rest/rate_limit.rs",
+      "file:rust/crates/discord-core/src/rest/retry.rs",
+      "file:rust/crates/discord-core/src/rest/routes.rs",
+      "file:rust/crates/discord-core/src/rest/super_properties.rs",
+      "file:rust/crates/discord-core/src/rest/telemetry.rs",
+      "file:rust/crates/discord-core/src/rest/transport.rs",
+      "file:rust/crates/discord-core/src/dispatch.rs",
+      "file:rust/crates/discord-core/src/gateway.rs",
+      "file:rust/crates/discord-core/src/identify.rs",
+      "file:rust/crates/discord-core/src/lib.rs",
+      "file:rust/crates/discord-core/src/ready.rs",
+      "file:rust/crates/discord-core/src/ready_data.rs",
+      "file:rust/crates/discord-core/src/resume.rs",
+      "file:rust/crates/discord-core/src/ws.rs",
+      "file:rust/crates/discord-core/tests/ready_core.rs",
+      "file:rust/crates/discord-core/tests/ready_fixture.rs",
+      "file:rust/crates/discord-core/tests/ready_read_state.rs",
+      "file:rust/crates/discord-core/tests/ready_social.rs",
+      "file:rust/crates/discord-core/tests/support/mod.rs",
+      "file:rust/crates/discord-core/tests/support/ready_fixture.rs",
+      "config:rust/crates/discord-core/Cargo.toml",
+      "file:rust/crates/discord-core/src/ready/error.rs",
+      "file:rust/crates/discord-core/src/ready/guild.rs",
+      "file:rust/crates/discord-core/src/ready/read_state.rs",
+      "file:rust/crates/discord-core/src/ready/snapshot.rs",
+      "file:rust/crates/discord-core/src/ready/social.rs",
+      "file:rust/crates/discord-core/src/ready/value.rs",
+      "file:rust/crates/discord-core/tests/dispatch_router.rs",
+      "file:rust/crates/discord-core/tests/gateway_session.rs",
+      "file:rust/crates/discord-core/tests/identify_ready.rs",
+      "file:rust/crates/discord-core/tests/ready_data.rs",
+      "file:rust/crates/discord-core/tests/rest_ack.rs",
+      "file:rust/crates/discord-core/tests/rest_base64.rs",
+      "file:rust/crates/discord-core/tests/rest_client.rs",
+      "file:rust/crates/discord-core/tests/rest_headers.rs",
+      "file:rust/crates/discord-core/tests/rest_http1.rs",
+      "file:rust/crates/discord-core/tests/rest_identity.rs",
+      "file:rust/crates/discord-core/tests/rest_rate_limit.rs",
+      "file:rust/crates/discord-core/tests/rest_retry.rs",
+      "file:rust/crates/discord-core/tests/rest_routes.rs",
+      "file:rust/crates/discord-core/tests/rest_super_properties.rs",
+      "file:rust/crates/discord-core/tests/rest_telemetry.rs",
+      "file:rust/crates/discord-core/tests/rest_transport.rs",
+      "file:rust/crates/discord-core/tests/resume_reconnect.rs",
+      "file:rust/crates/discord-core/tests/ws_transport.rs"
+    ],
+    "rust/crates/discord-codec": [
+      "file:rust/crates/discord-codec/src/etf.rs",
+      "file:rust/crates/discord-codec/src/lib.rs",
+      "file:rust/crates/discord-codec/src/zstd.rs",
+      "config:rust/crates/discord-codec/Cargo.toml",
+      "file:rust/crates/discord-codec/tests/data/synth-zstd-frame.hexl",
+      "file:rust/crates/discord-codec/tests/etf_properties.rs",
+      "file:rust/crates/discord-codec/tests/etf_vectors.rs",
+      "file:rust/crates/discord-codec/tests/zstd_stream.rs"
+    ],
+    ".github": [
+      "pipeline:.github/workflows/ci.yml",
+      "document:.github/pull_request_template.md"
+    ],
+    "root": [
+      "document:AGENTS.md",
+      "document:PROCESS.md",
+      "document:README.md",
+      "document:TASKS.md",
+      "document:TDD-PLAN.md"
+    ],
+    "docs/rust-client": [
+      "document:docs/rust-client/ARCHITECTURE.md",
+      "document:docs/rust-client/CONCEPT.md",
+      "document:docs/rust-client/DEVELOPMENT-PROMPT.md",
+      "document:docs/rust-client/FEATURES.md",
+      "document:docs/rust-client/PLAN.md",
+      "document:docs/rust-client/PROJECT-STRUCTURE.md",
+      "document:docs/rust-client/README.md",
+      "document:docs/rust-client/TEST-PLAN.md",
+      "document:docs/rust-client/TRACEABILITY.md",
+      "document:docs/rust-client/VERIFICATION.md"
+    ],
+    "docs": [
+      "document:docs/map.md"
+    ],
+    "docs/rust-client/verify": [
+      "config:docs/rust-client/verify/report.json",
+      "file:docs/rust-client/verify/verify-re.mjs"
+    ],
+    "rust": [
+      "config:rust/Cargo.toml",
+      "document:rust/README.md"
+    ],
+    "rust/crates/discord-app": [
+      "config:rust/crates/discord-app/Cargo.toml",
+      "file:rust/crates/discord-app/src/main.rs"
+    ],
+    "rust/crates/discord-conformance": [
+      "config:rust/crates/discord-conformance/Cargo.toml",
+      "file:rust/crates/discord-conformance/src/lib.rs"
+    ],
+    "rust/crates/discord-i18n": [
+      "config:rust/crates/discord-i18n/Cargo.toml",
+      "file:rust/crates/discord-i18n/src/lib.rs"
+    ],
+    "rust/crates/discord-media": [
+      "config:rust/crates/discord-media/Cargo.toml",
+      "file:rust/crates/discord-media/src/lib.rs"
+    ],
+    "rust/crates/discord-platform": [
+      "config:rust/crates/discord-platform/Cargo.toml",
+      "file:rust/crates/discord-platform/src/lib.rs"
+    ],
+    "rust/crates/discord-store": [
+      "config:rust/crates/discord-store/Cargo.toml",
+      "file:rust/crates/discord-store/src/lib.rs"
+    ],
+    "rust/crates/discord-ui": [
+      "config:rust/crates/discord-ui/Cargo.toml",
+      "file:rust/crates/discord-ui/src/lib.rs"
+    ],
+    "rust/crates/discord-voice": [
+      "config:rust/crates/discord-voice/Cargo.toml",
+      "file:rust/crates/discord-voice/src/lib.rs"
+    ]
+  },
+  "nodeTypeGroups": {
+    "file": [
+      "file:rust/crates/discord-core/src/rest/ack.rs",
+      "file:rust/crates/discord-core/src/rest/base64.rs",
+      "file:rust/crates/discord-core/src/rest/client.rs",
+      "file:rust/crates/discord-core/src/rest/headers.rs",
+      "file:rust/crates/discord-core/src/rest/http1.rs",
+      "file:rust/crates/discord-core/src/rest/identity.rs",
+      "file:rust/crates/discord-core/src/rest/mod.rs",
+      "file:rust/crates/discord-core/src/rest/rate_limit.rs",
+      "file:rust/crates/discord-core/src/rest/retry.rs",
+      "file:rust/crates/discord-core/src/rest/routes.rs",
+      "file:rust/crates/discord-core/src/rest/super_properties.rs",
+      "file:rust/crates/discord-core/src/rest/telemetry.rs",
+      "file:rust/crates/discord-core/src/rest/transport.rs",
+      "file:rust/crates/discord-core/src/dispatch.rs",
+      "file:rust/crates/discord-core/src/gateway.rs",
+      "file:rust/crates/discord-core/src/identify.rs",
+      "file:rust/crates/discord-core/src/lib.rs",
+      "file:rust/crates/discord-core/src/ready.rs",
+      "file:rust/crates/discord-core/src/ready_data.rs",
+      "file:rust/crates/discord-core/src/resume.rs",
+      "file:rust/crates/discord-core/src/ws.rs",
+      "file:rust/crates/discord-core/tests/ready_core.rs",
+      "file:rust/crates/discord-core/tests/ready_fixture.rs",
+      "file:rust/crates/discord-core/tests/ready_read_state.rs",
+      "file:rust/crates/discord-core/tests/ready_social.rs",
+      "file:rust/crates/discord-core/tests/support/mod.rs",
+      "file:rust/crates/discord-core/tests/support/ready_fixture.rs",
+      "file:rust/crates/discord-codec/src/etf.rs",
+      "file:rust/crates/discord-codec/src/lib.rs",
+      "file:rust/crates/discord-codec/src/zstd.rs",
+      "file:docs/rust-client/verify/verify-re.mjs",
+      "file:rust/crates/discord-app/src/main.rs",
+      "file:rust/crates/discord-codec/tests/data/synth-zstd-frame.hexl",
+      "file:rust/crates/discord-codec/tests/etf_properties.rs",
+      "file:rust/crates/discord-codec/tests/etf_vectors.rs",
+      "file:rust/crates/discord-codec/tests/zstd_stream.rs",
+      "file:rust/crates/discord-conformance/src/lib.rs",
+      "file:rust/crates/discord-core/src/ready/error.rs",
+      "file:rust/crates/discord-core/src/ready/guild.rs",
+      "file:rust/crates/discord-core/src/ready/read_state.rs",
+      "file:rust/crates/discord-core/src/ready/snapshot.rs",
+      "file:rust/crates/discord-core/src/ready/social.rs",
+      "file:rust/crates/discord-core/src/ready/value.rs",
+      "file:rust/crates/discord-core/tests/dispatch_router.rs",
+      "file:rust/crates/discord-core/tests/gateway_session.rs",
+      "file:rust/crates/discord-core/tests/identify_ready.rs",
+      "file:rust/crates/discord-core/tests/ready_data.rs",
+      "file:rust/crates/discord-core/tests/rest_ack.rs",
+      "file:rust/crates/discord-core/tests/rest_base64.rs",
+      "file:rust/crates/discord-core/tests/rest_client.rs",
+      "file:rust/crates/discord-core/tests/rest_headers.rs",
+      "file:rust/crates/discord-core/tests/rest_http1.rs",
+      "file:rust/crates/discord-core/tests/rest_identity.rs",
+      "file:rust/crates/discord-core/tests/rest_rate_limit.rs",
+      "file:rust/crates/discord-core/tests/rest_retry.rs",
+      "file:rust/crates/discord-core/tests/rest_routes.rs",
+      "file:rust/crates/discord-core/tests/rest_super_properties.rs",
+      "file:rust/crates/discord-core/tests/rest_telemetry.rs",
+      "file:rust/crates/discord-core/tests/rest_transport.rs",
+      "file:rust/crates/discord-core/tests/resume_reconnect.rs",
+      "file:rust/crates/discord-core/tests/ws_transport.rs",
+      "file:rust/crates/discord-i18n/src/lib.rs",
+      "file:rust/crates/discord-media/src/lib.rs",
+      "file:rust/crates/discord-platform/src/lib.rs",
+      "file:rust/crates/discord-store/src/lib.rs",
+      "file:rust/crates/discord-ui/src/lib.rs",
+      "file:rust/crates/discord-voice/src/lib.rs"
+    ],
+    "pipeline": [
+      "pipeline:.github/workflows/ci.yml"
+    ],
+    "document": [
+      "document:AGENTS.md",
+      "document:PROCESS.md",
+      "document:README.md",
+      "document:TASKS.md",
+      "document:TDD-PLAN.md",
+      "document:docs/rust-client/ARCHITECTURE.md",
+      "document:docs/rust-client/CONCEPT.md",
+      "document:docs/rust-client/DEVELOPMENT-PROMPT.md",
+      "document:docs/rust-client/FEATURES.md",
+      "document:docs/rust-client/PLAN.md",
+      "document:docs/rust-client/PROJECT-STRUCTURE.md",
+      "document:docs/rust-client/README.md",
+      "document:docs/rust-client/TEST-PLAN.md",
+      "document:docs/rust-client/TRACEABILITY.md",
+      "document:docs/rust-client/VERIFICATION.md",
+      "document:.github/pull_request_template.md",
+      "document:docs/map.md",
+      "document:rust/README.md"
+    ],
+    "config": [
+      "config:docs/rust-client/verify/report.json",
+      "config:rust/Cargo.toml",
+      "config:rust/crates/discord-app/Cargo.toml",
+      "config:rust/crates/discord-codec/Cargo.toml",
+      "config:rust/crates/discord-conformance/Cargo.toml",
+      "config:rust/crates/discord-core/Cargo.toml",
+      "config:rust/crates/discord-i18n/Cargo.toml",
+      "config:rust/crates/discord-media/Cargo.toml",
+      "config:rust/crates/discord-platform/Cargo.toml",
+      "config:rust/crates/discord-store/Cargo.toml",
+      "config:rust/crates/discord-ui/Cargo.toml",
+      "config:rust/crates/discord-voice/Cargo.toml"
+    ]
+  },
+  "crossCategoryEdges": [
+    {
+      "fromType": "file",
+      "toType": "file",
+      "edgeType": "tested_by",
+      "count": 38
+    },
+    {
+      "fromType": "document",
+      "toType": "document",
+      "edgeType": "related",
+      "count": 37
+    },
+    {
+      "fromType": "document",
+      "toType": "file",
+      "edgeType": "documents",
+      "count": 37
+    },
+    {
+      "fromType": "file",
+      "toType": "file",
+      "edgeType": "imports",
+      "count": 32
+    },
+    {
+      "fromType": "file",
+      "toType": "file",
+      "edgeType": "depends_on",
+      "count": 24
+    },
+    {
+      "fromType": "config",
+      "toType": "file",
+      "edgeType": "configures",
+      "count": 10
+    },
+    {
+      "fromType": "document",
+      "toType": "config",
+      "edgeType": "documents",
+      "count": 8
+    },
+    {
+      "fromType": "document",
+      "toType": "document",
+      "edgeType": "documents",
+      "count": 4
+    },
+    {
+      "fromType": "config",
+      "toType": "config",
+      "edgeType": "configures",
+      "count": 4
+    },
+    {
+      "fromType": "document",
+      "toType": "pipeline",
+      "edgeType": "documents",
+      "count": 2
+    },
+    {
+      "fromType": "config",
+      "toType": "config",
+      "edgeType": "depends_on",
+      "count": 2
+    },
+    {
+      "fromType": "file",
+      "toType": "config",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "file",
+      "toType": "file",
+      "edgeType": "related",
+      "count": 1
+    }
+  ],
+  "interGroupImports": [],
+  "intraGroupDensity": {
+    "rust/crates/discord-core": {
+      "internalEdges": 30,
+      "totalEdges": 30,
+      "density": 1
+    },
+    "rust/crates/discord-codec": {
+      "internalEdges": 2,
+      "totalEdges": 2,
+      "density": 1
+    },
+    ".github": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "root": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "docs/rust-client": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "docs": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "docs/rust-client/verify": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-app": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-conformance": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-i18n": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-media": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-platform": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-store": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-ui": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "rust/crates/discord-voice": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    }
+  },
+  "patternMatches": {
+    "rust/crates/discord-core": "service",
+    "rust/crates/discord-codec": "service",
+    ".github": "ci-cd",
+    "root": "unknown",
+    "docs/rust-client": "unknown",
+    "docs": "documentation",
+    "docs/rust-client/verify": "unknown",
+    "rust": "unknown",
+    "rust/crates/discord-app": "entry",
+    "rust/crates/discord-conformance": "service",
+    "rust/crates/discord-i18n": "service",
+    "rust/crates/discord-media": "service",
+    "rust/crates/discord-platform": "service",
+    "rust/crates/discord-store": "service",
+    "rust/crates/discord-ui": "ui",
+    "rust/crates/discord-voice": "service"
+  },
+  "filePatternMatches": {
+    "file:rust/crates/discord-core/src/lib.rs": "entry",
+    "file:rust/crates/discord-core/tests/ready_core.rs": "test",
+    "file:rust/crates/discord-core/tests/ready_fixture.rs": "test",
+    "file:rust/crates/discord-core/tests/ready_read_state.rs": "test",
+    "file:rust/crates/discord-core/tests/ready_social.rs": "test",
+    "file:rust/crates/discord-core/tests/support/mod.rs": "test",
+    "file:rust/crates/discord-core/tests/support/ready_fixture.rs": "test",
+    "file:rust/crates/discord-codec/src/lib.rs": "entry",
+    "pipeline:.github/workflows/ci.yml": "ci-cd",
+    "document:AGENTS.md": "documentation",
+    "document:PROCESS.md": "documentation",
+    "document:README.md": "documentation",
+    "document:TASKS.md": "documentation",
+    "document:TDD-PLAN.md": "documentation",
+    "document:docs/rust-client/ARCHITECTURE.md": "documentation",
+    "document:docs/rust-client/CONCEPT.md": "documentation",
+    "document:docs/rust-client/DEVELOPMENT-PROMPT.md": "documentation",
+    "document:docs/rust-client/FEATURES.md": "documentation",
+    "document:docs/rust-client/PLAN.md": "documentation",
+    "document:docs/rust-client/PROJECT-STRUCTURE.md": "documentation",
+    "document:docs/rust-client/README.md": "documentation",
+    "document:docs/rust-client/TEST-PLAN.md": "documentation",
+    "document:docs/rust-client/TRACEABILITY.md": "documentation",
+    "document:docs/rust-client/VERIFICATION.md": "documentation",
+    "document:.github/pull_request_template.md": "documentation",
+    "document:docs/map.md": "documentation",
+    "config:rust/Cargo.toml": "config",
+    "document:rust/README.md": "documentation",
+    "config:rust/crates/discord-app/Cargo.toml": "config",
+    "file:rust/crates/discord-app/src/main.rs": "entry",
+    "config:rust/crates/discord-codec/Cargo.toml": "config",
+    "file:rust/crates/discord-codec/tests/data/synth-zstd-frame.hexl": "test",
+    "file:rust/crates/discord-codec/tests/etf_properties.rs": "test",
+    "file:rust/crates/discord-codec/tests/etf_vectors.rs": "test",
+    "file:rust/crates/discord-codec/tests/zstd_stream.rs": "test",
+    "config:rust/crates/discord-conformance/Cargo.toml": "config",
+    "file:rust/crates/discord-conformance/src/lib.rs": "entry",
+    "config:rust/crates/discord-core/Cargo.toml": "config",
+    "file:rust/crates/discord-core/tests/dispatch_router.rs": "test",
+    "file:rust/crates/discord-core/tests/gateway_session.rs": "test",
+    "file:rust/crates/discord-core/tests/identify_ready.rs": "test",
+    "file:rust/crates/discord-core/tests/ready_data.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_ack.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_base64.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_client.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_headers.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_http1.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_identity.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_rate_limit.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_retry.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_routes.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_super_properties.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_telemetry.rs": "test",
+    "file:rust/crates/discord-core/tests/rest_transport.rs": "test",
+    "file:rust/crates/discord-core/tests/resume_reconnect.rs": "test",
+    "file:rust/crates/discord-core/tests/ws_transport.rs": "test",
+    "config:rust/crates/discord-i18n/Cargo.toml": "config",
+    "file:rust/crates/discord-i18n/src/lib.rs": "entry",
+    "config:rust/crates/discord-media/Cargo.toml": "config",
+    "file:rust/crates/discord-media/src/lib.rs": "entry",
+    "config:rust/crates/discord-platform/Cargo.toml": "config",
+    "file:rust/crates/discord-platform/src/lib.rs": "entry",
+    "config:rust/crates/discord-store/Cargo.toml": "config",
+    "file:rust/crates/discord-store/src/lib.rs": "entry",
+    "config:rust/crates/discord-ui/Cargo.toml": "config",
+    "file:rust/crates/discord-ui/src/lib.rs": "entry",
+    "config:rust/crates/discord-voice/Cargo.toml": "config",
+    "file:rust/crates/discord-voice/src/lib.rs": "entry"
+  },
+  "deploymentTopology": {
+    "hasDockerfile": false,
+    "hasCompose": false,
+    "hasK8s": false,
+    "hasTerraform": false,
+    "hasCI": true,
+    "infraFiles": [
+      ".github/workflows/ci.yml"
+    ]
+  },
+  "dataPipeline": {
+    "schemaFiles": [],
+    "migrationFiles": [],
+    "dataModelFiles": [
+      "rust/crates/discord-core/src/ready.rs",
+      "rust/crates/discord-core/src/ready_data.rs",
+      "rust/crates/discord-core/src/ready/error.rs",
+      "rust/crates/discord-core/src/ready/guild.rs",
+      "rust/crates/discord-core/src/ready/read_state.rs",
+      "rust/crates/discord-core/src/ready/snapshot.rs",
+      "rust/crates/discord-core/src/ready/social.rs",
+      "rust/crates/discord-core/src/ready/value.rs",
+      "rust/crates/discord-store/src/lib.rs"
+    ],
+    "apiHandlerFiles": [
+      "rust/crates/discord-core/src/rest/ack.rs",
+      "rust/crates/discord-core/src/rest/base64.rs",
+      "rust/crates/discord-core/src/rest/client.rs",
+      "rust/crates/discord-core/src/rest/headers.rs",
+      "rust/crates/discord-core/src/rest/http1.rs",
+      "rust/crates/discord-core/src/rest/identity.rs",
+      "rust/crates/discord-core/src/rest/mod.rs",
+      "rust/crates/discord-core/src/rest/rate_limit.rs",
+      "rust/crates/discord-core/src/rest/retry.rs",
+      "rust/crates/discord-core/src/rest/routes.rs",
+      "rust/crates/discord-core/src/rest/super_properties.rs",
+      "rust/crates/discord-core/src/rest/telemetry.rs",
+      "rust/crates/discord-core/src/rest/transport.rs"
+    ]
+  },
+  "docCoverage": {
+    "groupsWithDocs": 5,
+    "totalGroups": 16,
+    "coverageRatio": 0.31,
+    "undocumentedGroups": [
+      "rust/crates/discord-core",
+      "rust/crates/discord-codec",
+      "docs/rust-client/verify",
+      "rust/crates/discord-app",
+      "rust/crates/discord-conformance",
+      "rust/crates/discord-i18n",
+      "rust/crates/discord-media",
+      "rust/crates/discord-platform",
+      "rust/crates/discord-store",
+      "rust/crates/discord-ui",
+      "rust/crates/discord-voice"
+    ],
+    "totalDocumentNodes": 18
+  },
+  "dependencyDirection": [],
+  "fileStats": {
+    "totalFileNodes": 98,
+    "filesPerGroup": {
+      "rust/crates/discord-core": 52,
+      "rust/crates/discord-codec": 8,
+      ".github": 2,
+      "root": 5,
+      "docs/rust-client": 10,
+      "docs": 1,
+      "docs/rust-client/verify": 2,
+      "rust": 2,
+      "rust/crates/discord-app": 2,
+      "rust/crates/discord-conformance": 2,
+      "rust/crates/discord-i18n": 2,
+      "rust/crates/discord-media": 2,
+      "rust/crates/discord-platform": 2,
+      "rust/crates/discord-store": 2,
+      "rust/crates/discord-ui": 2,
+      "rust/crates/discord-voice": 2
+    },
+    "nodeTypeCounts": {
+      "file": 67,
+      "pipeline": 1,
+      "document": 18,
+      "config": 12
+    }
+  },
+  "fileFanIn": {
+    "file:rust/crates/discord-core/tests/support/mod.rs": 4,
+    "file:rust/crates/discord-core/src/dispatch.rs": 2,
+    "file:rust/crates/discord-core/src/gateway.rs": 2,
+    "file:rust/crates/discord-core/src/identify.rs": 2,
+    "file:rust/crates/discord-core/src/ready.rs": 2,
+    "file:rust/crates/discord-core/src/resume.rs": 2,
+    "file:rust/crates/discord-core/src/rest/ack.rs": 1,
+    "file:rust/crates/discord-core/src/rest/base64.rs": 1,
+    "file:rust/crates/discord-core/src/rest/client.rs": 1,
+    "file:rust/crates/discord-core/src/rest/headers.rs": 1,
+    "file:rust/crates/discord-core/src/rest/http1.rs": 1,
+    "file:rust/crates/discord-core/src/rest/identity.rs": 1,
+    "file:rust/crates/discord-core/src/rest/mod.rs": 1,
+    "file:rust/crates/discord-core/src/rest/rate_limit.rs": 1,
+    "file:rust/crates/discord-core/src/rest/retry.rs": 1
+  },
+  "fileFanOut": {
+    "file:rust/crates/discord-core/src/rest/mod.rs": 12,
+    "file:rust/crates/discord-core/src/lib.rs": 8,
+    "file:rust/crates/discord-core/src/ws.rs": 5,
+    "file:rust/crates/discord-codec/src/lib.rs": 2,
+    "file:rust/crates/discord-core/tests/ready_core.rs": 1,
+    "file:rust/crates/discord-core/tests/ready_fixture.rs": 1,
+    "file:rust/crates/discord-core/tests/ready_read_state.rs": 1,
+    "file:rust/crates/discord-core/tests/ready_social.rs": 1,
+    "file:rust/crates/discord-core/tests/support/mod.rs": 1,
+    "file:rust/crates/discord-core/src/rest/ack.rs": 0,
+    "file:rust/crates/discord-core/src/rest/base64.rs": 0,
+    "file:rust/crates/discord-core/src/rest/client.rs": 0,
+    "file:rust/crates/discord-core/src/rest/headers.rs": 0,
+    "file:rust/crates/discord-core/src/rest/http1.rs": 0,
+    "file:rust/crates/discord-core/src/rest/identity.rs": 0
+  }
+}

@@ -1,0 +1,13 @@
+▶ waves-sync: журнал волн восстановим
+  ✔ README.md, STATE.md и db.jsonl на месте (1.910492ms)
+  ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (2.596901ms)
+  ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (0.786381ms)
+✔ waves-sync: журнал волн восстановим (5.976374ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31.863685

@@ -1,0 +1,47 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `state`
+  --> crates/discord-core/src/state/typing/reducer.rs:56:27
+   |
+56 | pub fn remove_for_message(state: &mut State, channel_id: u64, author_id: u64) -> bool {
+   |                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `channel_id`
+  --> crates/discord-core/src/state/typing/reducer.rs:56:46
+   |
+56 | pub fn remove_for_message(state: &mut State, channel_id: u64, author_id: u64) -> bool {
+   |                                              ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_channel_id`
+
+warning: unused variable: `author_id`
+  --> crates/discord-core/src/state/typing/reducer.rs:56:63
+   |
+56 | pub fn remove_for_message(state: &mut State, channel_id: u64, author_id: u64) -> bool {
+   |                                                               ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_author_id`
+
+warning: `discord-core` (lib) generated 3 warnings (run `cargo fix --lib -p discord-core` to apply 3 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running tests/typing_reducer.rs (target/debug/deps/typing_reducer-28e230d19c89448d)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... ok
+test t06_start_creates_entry_and_upserts_member ... ok
+test t10_reset_clock_stale_malformed_prune ... ok
+test t09_message_create_removes_author_pair ... FAILED
+test t08_fixture_28_starts_two_pairs ... ok
+
+failures:
+
+---- t09_message_create_removes_author_pair stdout ----
+
+thread 't09_message_create_removes_author_pair' (649958) panicked at crates/discord-core/tests/typing_reducer.rs:183:5:
+assertion failed: !state.typing.contains_key(&(200, 1))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t09_message_create_removes_author_pair
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test typing_reducer`

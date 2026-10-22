@@ -1,0 +1,1084 @@
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.72s
+     Running unittests src/main.rs (target/debug/deps/discord_rs-e03fdf132612d286)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
+
+running 2 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/etf_full.rs (target/debug/deps/etf_full-7c2aa4b7f6f1b01e)
+
+running 6 tests
+test big_int_borders_roundtrip_through_checked_path ... ok
+test checked_encoder_rejects_atom_that_does_not_fit_u16_without_truncation ... ok
+test checked_encoder_is_byte_exact_with_infallible_encoder ... ok
+test prefix_truncation_is_bounded_and_never_reports_overread ... ok
+test depth_limit_is_the_same_for_encoder_and_decoder ... ok
+test fuzz_50k_random_and_all_single_bytes_never_panic ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/etf_properties.rs (target/debug/deps/etf_properties-d126ed1f27d8f3ed)
+
+running 9 tests
+test accessors_keep_types_strict ... ok
+test big_int_rejects_overflow_and_keeps_signed_borders ... ok
+test canonical_encoder_matches_fixed_bytes ... ok
+test decoder_reports_specific_errors ... ok
+test roundtrip_covers_every_variant_and_border_values ... ok
+test nesting_depth_limit_is_enforced ... ok
+test truncated_hello_prefixes_are_errors_not_panics ... ok
+test canonical_encoder_uses_expected_tags_for_atoms_and_big_containers ... ok
+test fuzz_lite_never_panics_on_garbage ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/etf_vectors.rs (target/debug/deps/etf_vectors-bc59c90ef9dfec1e)
+
+running 13 tests
+test atom_nil_is_a_string_and_not_nil_ext ... ok
+test decode_skips_only_the_leading_version_byte ... ok
+test eleven_wire_tags_decode_with_exact_consumed_len ... ok
+test hello_term_full_tree_matches_capture ... ok
+test supported_but_unseen_tags_decode_per_contract ... ok
+test message_ack_binary_keys_are_found_by_get ... ok
+test guild_member_list_update_groups_ops_and_string_id ... ok
+test presence_update_snowflakes_and_real_nil_activities ... ok
+test vector_lengths_match_capture_bytes_field ... ok
+test two_terms_back_to_back_split_by_consumed ... ok
+test list_tail_is_nil_ext_only ... ok
+test small_big_int_reads_sign_before_digits ... ok
+test heartbeat_ack_keeps_atom_nil_and_int_op ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zstd_stream.rs (target/debug/deps/zstd_stream-dbfb7a88c1079559)
+
+running 13 tests
+test fresh_stream_is_not_finished_and_not_dead ... ok
+test corrupted_frame_is_reported ... ok
+test decode_error_poisons_stream ... ok
+test missing_magic_poisons_stream ... ok
+test lab_midstream_socket_is_rejected ... ok
+test missing_magic_is_rejected ... ok
+test trailing_data_poisons_stream ... ok
+test synth_frame_decodes_whole ... ok
+test synth_frame_byte_by_byte ... ok
+test magic_split_across_pushes ... ok
+test synth_frame_split_in_three ... ok
+test trailing_bytes_after_finished_frame ... ok
+test lab_stream_1389_matches_oracle ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_conformance-8d2b42bc27c94d92)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ci_contract.rs (target/debug/deps/ci_contract-a0101caa715bedf9)
+
+running 4 tests
+test workflow_uses_the_same_ci_contract ... ok
+test ci_dry_run_prints_full_plan_without_running_tools ... ok
+test release_dry_run_is_offline_and_writes_dist_only ... ok
+test scripts_are_syntactically_valid_and_do_not_use_network_clients ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixtures.rs (target/debug/deps/fixtures-8f066d7b3b4308eb)
+
+running 6 tests
+test invalid_names_and_missing_fixtures_are_typed_errors ... ok
+test roots_honor_environment_overrides_without_mutation ... ok
+test repository_fixture_resolves ... ok
+test load_helpers_match_direct_read ... ok
+test manifest_is_readable_and_has_versioned_provenance ... ok
+test lab_only_fixture_resolves_when_lab_is_present ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 3 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test tests::gateway_constants_match_capture ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-62902764e9bc420d)
+
+running 12 tests
+test kind_from_name_exact_roundtrip ... ok
+test kind_table_covers_21_observed_types ... ok
+test route_known_keeps_seq_and_payload ... ok
+test pipe_hello_only_yields_no_events ... ok
+test route_ignores_non_dispatches ... ok
+test route_unknown_is_raw_with_name ... ok
+test route_lowercase_known_name_is_raw ... ok
+test route_seq_and_data_optional ... ok
+test pipe_take_events_drains_once ... ok
+test pipe_routes_dispatches_in_order ... ok
+test lab_all_dispatch_types_route_to_kinds ... ok
+test lab_real_stream_routes_known_kinds ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/gateway_session.rs (target/debug/deps/gateway_session-e95d63dbab05168c)
+
+running 15 tests
+test ack_measures_rtt_and_reschedules ... ok
+test beats_carry_last_sequence ... ok
+test heartbeat_term_roundtrips ... ok
+test first_beat_delay_is_seed_mod_interval ... ok
+test missed_ack_is_zombie ... ok
+test lab_timeline_facts ... ok
+test hello_term_parses_interval ... ok
+test op7_and_op9_reconnect ... ok
+test second_hello_after_first_beat_is_ignored ... ok
+test zero_interval_hello_is_malformed ... ok
+test lab_replay_no_zombie ... ok
+test first_beat_has_null_sequence ... ok
+test dead_session_is_silent_for_dispatches_and_acks ... ok
+test unknown_ops_and_garbage_do_not_panic ... ok
+test lab_hello_via_zstd_pipeline ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/history_pagination.rs (target/debug/deps/history_pagination-da5ba662d34c7027)
+
+running 5 tests
+test h07_effect_mapping_and_queries ... ok
+test h08_before_page_and_channel_mismatch ... ok
+test h09_after_and_around_windows ... ok
+test h11_empty_pages_duplicates_and_stale_tokens ... ok
+test h10_live_precedence_and_eviction ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/history_selectors.rs (target/debug/deps/history_selectors-14a632013adb30e0)
+
+running 8 tests
+test s02_bounds_tri_state ... ok
+test s03_recent_oldest_newest ... ok
+test s01_channels_do_not_leak ... ok
+test s04_range_is_inclusive ... ok
+test s07_default_empty_and_debug_hides_content ... ok
+test s05_window_around_tie_and_ascending ... ok
+test s06_read_only_and_deterministic ... ok
+test s08_real_fixtures_order ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/history_types.rs (target/debug/deps/history_types-f7a964f2a9258eca)
+
+running 7 tests
+test h01_config_and_validation ... ok
+test h07_crate_root_reexports ... ok
+test h06_debug_does_not_print_content ... ok
+test h03_live_replacement_is_last_wins ... ok
+test h05_latest_window_and_independent_channels ... ok
+test h02_real_create_fixtures ... ok
+test h04_update_upserts_full_message ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/identify_ready.rs (target/debug/deps/identify_ready-0fd9a17175107bbb)
+
+running 16 tests
+test identify_debug_redacts_token ... ok
+test identify_client_state_guild_versions ... ok
+test identify_size_is_plausible_against_943 ... ok
+test identify_qos_token_minimal_and_custom ... ok
+test ready_accepts_int_partial ... ok
+test identify_presence_option_encodes_map ... ok
+test identify_capabilities_can_enable_obfuscation ... ok
+test identify_has_evidence_fields ... ok
+test ready_accepts_string_user_id ... ok
+test identify_properties_evidence_defaults ... ok
+test ready_summary_none_for_non_ready ... ok
+test ready_summary_from_synthetic_dispatch ... ok
+test ws_no_identify_without_option ... ok
+test ws_identify_sent_once_after_hello ... ok
+test lab_ready_from_run2_stream ... ok
+test ws_identify_only_after_hello ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/member_chunk_reducer.rs (target/debug/deps/member_chunk_reducer-f6508f0d860623b3)
+
+running 13 tests
+test r11_two_guilds_have_independent_assemblies ... ok
+test r02_unknown_guild_is_diagnostic_but_assembly_is_stored ... ok
+test r09_invalid_index_is_malformed_and_does_not_change_state ... ok
+test r01_apply_022_stores_assembly_and_merges_members ... ok
+test r07_not_found_is_stored_without_removing_members ... ok
+test r03_out_of_order_chunks_are_complete_and_ordered_by_index ... ok
+test r04_duplicate_index_last_wins_with_diagnostic ... ok
+test r10_existing_guild_member_is_updated_not_duplicated ... ok
+test r08_stale_sequence_is_noop ... ok
+test r06_nonce_correlates_two_assemblies ... ok
+test r13_uncorrelated_multi_chunk_duplicate_index_is_diagnostic ... ok
+test r05_chunk_count_mismatch_is_diagnostic_and_first_wins ... ok
+test r12_single_chunk_without_nonce_is_new_response_without_duplicate ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/member_chunk_selectors.rs (target/debug/deps/member_chunk_selectors-567904d3ff3649de)
+
+running 11 tests
+test s07_presence_effect_full_range_skips_groups ... ok
+test s06_not_found_is_flattened_in_chunk_order ... ok
+test s05_member_chunk_member_lookup ... ok
+test s10_member_chunk_count ... ok
+test s01_member_chunks_are_filtered_by_guild ... ok
+test s04_members_iterator_orders_by_chunk_index ... ok
+test s11_unknown_nonce_has_empty_selectors ... ok
+test s02_member_chunk_selects_by_nonce_and_none ... ok
+test s08_presence_effect_subrange_and_only_groups ... ok
+test s03_is_complete_false_until_all_indices_arrive ... ok
+test s09_presence_effect_missing_list_or_bad_range_is_none ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/member_chunk_types.rs (target/debug/deps/member_chunk_types-2931597130ceb28e)
+
+running 19 tests
+test c05_members_null_is_empty_without_diagnostics ... ok
+test c02_legacy_009_original_is_invalid_id ... ok
+test c03_legacy_009_corrected_guild_keeps_negative_member_malformed ... ok
+test c06_members_wrong_type_is_ignored ... ok
+test c07_bad_member_is_malformed_and_others_kept ... ok
+test c10_missing_chunk_count_is_fatal ... ok
+test c09_missing_chunk_index_is_fatal ... ok
+test c11_zero_chunk_count_is_fatal ... ok
+test c08_not_found_skips_bad_ids_and_keeps_good ... ok
+test c12_chunk_index_out_of_range_is_fatal ... ok
+test c14_duplicate_member_last_wins_with_diagnostic ... ok
+test c16_root_reexports_are_available ... ok
+test c15_non_numeric_guild_id_is_invalid ... ok
+test c01_parse_022_shape_matches_jq_oracle ... ok
+test c13_presences_unconfirmed_shape_is_diagnosed ... ok
+test c17_empty_and_non_text_nonce_are_ignored ... ok
+test c19_missing_members_is_empty_without_diagnostics ... ok
+test c04_nonce_absent_is_none_and_preserved_when_present ... ok
+test c18_not_found_wrong_container_is_ignored ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-ba1f25b5fd22cf09)
+
+running 17 tests
+test m09_update_out_of_range_creates_stub ... ok
+test m10_duplicate_member_is_diagnostic ... ok
+test m11_out_of_range_ops_and_insert_into_empty ... ok
+test m13_unknown_guild_is_inconsistency ... ok
+test m15_insert_duplicate_at_same_position_is_diagnostic ... ok
+test m01_sync_008_creates_member_list ... ok
+test m04_insert_034_after_sync ... ok
+test m05_delete_075_after_sync_and_insert ... ok
+test m17_update_in_range_replaces_without_shift ... ok
+test m16_two_lists_of_same_guild_are_independent ... ok
+test m12_stale_sequence_is_ignored ... ok
+test m08_second_sync_resets_list ... ok
+test m03_sync_021_groups_and_counts ... ok
+test m07_group_insert_079 ... ok
+test m02_two_lists_across_guilds_do_not_overwrite_each_other ... ok
+test m06_delete_insert_045_after_sync ... ok
+test m14_member_list_has_no_cross_state_side_effects ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/member_list_selectors.rs (target/debug/deps/member_list_selectors-e5deb9dc22029fb8)
+
+running 9 tests
+test s05_missing_list_is_empty_and_safe ... ok
+test s02_member_at_and_index_of ... ok
+test s01_list_and_items_are_visible ... ok
+test s07_group_entry_is_not_a_member ... ok
+test s09_two_lists_of_same_guild_are_independent ... ok
+test s03_group_and_range ... ok
+test s04_is_loaded_before_and_after_sync ... ok
+test s08_member_list_count_counts_lists ... ok
+test s06_two_lists_across_guilds_are_independent ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/member_list_types.rs (target/debug/deps/member_list_types-50e502c337864bf8)
+
+running 14 tests
+test m07_malformed_header_is_fatal_but_not_panic ... ok
+test m06_negative_member_id_is_diagnostic_and_does_not_poison_list ... ok
+test m04_parse_079_group_insert ... ok
+test m09_unknown_op_is_skipped_and_other_ops_apply ... ok
+test m08_range_forms_and_invalid_range ... ok
+test m10_presence_missing_and_roles_null_are_safe ... ok
+test m11_root_reexports_are_available ... ok
+test m13_bad_groups_and_empty_client_status_are_diagnostic ... ok
+test m03_parse_034_insert_and_045_ops_in_order ... ok
+test m14_bad_insert_item_has_single_malformed_diagnostic ... ok
+test m01_parse_008_shape_and_presence ... ok
+test m02_parse_021_counts_groups_and_flat_items ... ok
+test m05_legacy_005_006_are_rejected_on_negative_guild_id ... ok
+test m12_legacy_005_006_shape_with_corrected_guild_id ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/presence_reducer.rs (target/debug/deps/presence_reducer-044f175e2014162a)
+
+running 18 tests
+test r06_offline_unknown_is_noop ... ok
+test r03_private_scope ... ok
+test r05_supplemental_missing_user_inconsistency ... ok
+test r01_live_update_applies_presence_and_user ... ok
+test r08_offline_other_guild_keeps_online_until_all_offline ... ok
+test r09_offline_with_hidden_stays_visible ... ok
+test r07_offline_removes_single_scope ... ok
+test r02_live_update_last_wins ... ok
+test r13_chunk_presences_are_applied ... ok
+test r11_member_list_offline_unknown_is_noop ... ok
+test r14_chunk_without_presences ... ok
+test r15_stale_sequence_does_not_change_presence ... ok
+test r18_member_list_empty_status_is_diagnosed ... ok
+test r16_ready_resets_presence ... ok
+test r17_member_list_delete_keeps_presence ... ok
+test r10_member_list_presence_integration ... ok
+test r12_member_list_does_not_touch_users ... ok
+test r04_supplemental_initial_snapshot ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/presence_selectors.rs (target/debug/deps/presence_selectors-f776ae319542f2f7)
+
+running 18 tests
+test s06_activity_order ... ok
+test s01_status_and_defaults ... ok
+test s02_aggregate_uses_latest_processed ... ok
+test s03_tie_breaks_by_activity_count ... ok
+test s07_multiple_playing_collapse ... ok
+test s08_activity_selectors ... ok
+test s09_client_status_and_mobile_vr ... ok
+test s04_offline_scope_is_not_selected ... ok
+test s05_scope_and_user_selectors ... ok
+test s13_empty_state_selectors ... ok
+test s10_online_selectors ... ok
+test s12_hidden_activities ... ok
+test s15_offline_hidden_does_not_downgrade_online ... ok
+test s11_activities_by_guild ... ok
+test s16_vr_and_mobile_client_guards ... ok
+test s17_displayable_tie_break ... ok
+test s18_offline_selector_status_semantics ... ok
+test s14_member_presence_activities ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/presence_types.rs (target/debug/deps/presence_types-b43eb725a71a9bcc)
+
+running 18 tests
+test a07_missing_user_is_fatal ... ok
+test a05_minimal_presence_defaults ... ok
+test a06_wrong_optional_types_are_ignored ... ok
+test a04_fixture_018_client_platforms ... ok
+test a01_fixture_010_fields_and_empty_diagnostics ... ok
+test a08_invalid_user_id_is_fatal ... ok
+test a02_fixture_043_custom_status ... ok
+test a03_fixture_012_private_scope_and_full_user ... ok
+test a09_data_not_map_is_fatal ... ok
+test a12_timestamps_and_broadcast ... ok
+test a13_unknown_status_is_preserved ... ok
+test a11_client_status_diagnostics ... ok
+test a10_activities_null_and_bad_items ... ok
+test a18_zero_guild_id_is_ignored ... ok
+test a16_merged_diagnostics_empty_state_and_root_exports ... ok
+test a14_rich_activity_fields ... ok
+test a17_party_size_list_fallback ... ok
+test a15_supplemental_merged_presences_fixture ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/read_state_reducer.rs (target/debug/deps/read_state_reducer-9b5e181fe1f4d9d4)
+
+running 17 tests
+test r02_unknown_channel_creates_entry_at_end ... ok
+test r14_ack_does_not_touch_unrelated_entry_fields ... ok
+test r04_manual_ack_without_mention_count_clears_mentions ... ok
+test r05_negative_manual_mention_count_is_clamped ... ok
+test r03_manual_ack_sets_mention_count ... ok
+test r16_version_is_assigned_without_max_guard ... ok
+test r06_non_manual_ack_ignores_mention_count ... ok
+test r01_fixture_ack_updates_channel_entry ... ok
+test r11_repeated_acks_are_idempotent_with_growing_version ... ok
+test r09_missing_optional_fields_preserve_previous_values ... ok
+test r13_broken_ack_is_malformed_and_keeps_monotonic_seq ... ok
+test r07_stale_message_id_is_rejected_with_diagnostic ... ok
+test r10_non_channel_entry_is_guarded ... ok
+test r15_forward_ack_advances_ack_point ... ok
+test r08_equal_message_id_updates_metadata_without_duplicate ... ok
+test r17_unknown_channel_version_has_no_max_guard ... ok
+test r12_stale_sequence_does_not_touch_read_state ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/read_state_selectors.rs (target/debug/deps/read_state_selectors-ba4dfb51395545da)
+
+running 11 tests
+test s02_synthetic_mentions_clamp_and_filter ... ok
+test s05_badge_count_clamps_and_entries_sort ... ok
+test s07_is_message_read_compares_against_ack_point ... ok
+test s11_channel_ack_point_does_not_use_last_acked_id ... ok
+test s10_entry_order_does_not_affect_sorting ... ok
+test s08_read_state_version ... ok
+test s01_ready_mentions_and_badges ... ok
+test s04_private_mentions_only_private_channels ... ok
+test s03_guild_mentions_include_channels_and_threads_only ... ok
+test s06_acknowledged_message_id_uses_channel_or_non_channel_point ... ok
+test s09_ack_fixture_updates_selectors ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/read_state_types.rs (target/debug/deps/read_state_types-1222c98a7652de29)
+
+running 12 tests
+test a02_minimal_ack_defaults_optional_fields ... ok
+test a03_nil_optional_fields_are_defaults_without_diagnostics ... ok
+test a04_wrong_optional_types_are_ignored ... ok
+test a01_fixture_046_fields_and_empty_diagnostics ... ok
+test a06_missing_required_fields_are_fatal ... ok
+test a09_event_from_frame_routes_message_ack ... ok
+test a05_manual_mention_and_version_parse ... ok
+test a07_invalid_required_ids_are_fatal ... ok
+test a08_non_map_data_is_fatal ... ok
+test a11_repeated_ack_with_new_version_is_not_duplicate ... ok
+test a12_negative_fields_have_typed_behavior ... ok
+test a10_broken_ack_is_malformed_without_state_change ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/ready_core.rs (target/debug/deps/ready_core-258a25d6c1ad2e3a)
+
+running 14 tests
+test a11_negative_ids_are_rejected ... ok
+test a10_empty_and_nil_guild_collections ... ok
+test a14_from_dispatch_rejects_non_ready_frames ... ok
+test a13_debug_redacts_secrets ... ok
+test a1_minimal_ready_defaults ... ok
+test a4_unavailable_guild_synthetic ... ok
+test a6_minimal_channel_and_guild_defaults ... ok
+test a5_unknown_fields_are_kept_in_raw ... ok
+test a7_broken_anchors_are_fatal ... ok
+test a8_broken_guild_and_channel_elements_are_skipped ... ok
+test a9_duplicates_last_wins_first_position ... ok
+test a2_full_fixture_counts_match_jq_oracle ... ok
+test a3_large_guild_matches_capture ... ok
+test a12_channel_role_emoji_sticker_details ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/ready_fixture.rs (target/debug/deps/ready_fixture-6a616aad8677ebe0)
+
+running 3 tests
+test ready_parse_rejects_top_level_user_with_bad_id ... ok
+test adapter_reads_ready_fixture_and_matches_oracle_counts ... ok
+test adapter_maps_capture_shape_nil_bool_ids_and_numbers ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/ready_read_state.rs (target/debug/deps/ready_read_state-9e272dd769cbbb93)
+
+running 11 tests
+test c10_broken_ids_skip_elements_with_malformed ... ok
+test c3_read_state_duplicate_id_last_wins ... ok
+test c6_user_guild_settings_duplicate_guild_id_last_wins ... ok
+test c9_missing_or_empty_read_state_is_default ... ok
+test c7_broken_types_fall_back_with_ignored ... ok
+test c8_partial_accepts_bool_forms_and_flags_unknown ... ok
+test c2_entries_without_optional_fields_are_none ... ok
+test c1_read_state_fixture_matches_oracle ... ok
+test c5_channel_override_optionals_match_oracle ... ok
+test c11_user_and_guild_snowflakes_are_accepted_as_read_state_ids ... ok
+test c4_user_guild_settings_fixture_matches_oracle ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/ready_review.rs (target/debug/deps/ready_review-28ab082f28540f94)
+
+running 7 tests
+test r2_non_map_d_is_not_ready ... ok
+test r1_atom_strings_are_text ... ok
+test r4_merged_members_keep_raw_guild_index ... ok
+test r5_explicit_empty_merged_members_is_malformed ... ok
+test r3_nested_wrong_types_are_ignored ... ok
+test r6_ignored_paths_use_d_prefix ... ok
+test r7_duplicate_guild_keeps_last_member_group ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ready_social.rs (target/debug/deps/ready_social-de242a0eefedc285)
+
+running 13 tests
+test b07_merged_members_length_mismatch_synthetic ... ok
+test b09_partial_user_synthetic ... ok
+test b12_wrong_type_collections_synthetic ... ok
+test b12_wrong_type_relationships_synthetic ... ok
+test b08_duplicates_last_wins_synthetic ... ok
+test b11_absent_or_nil_collections_synthetic ... ok
+test b10_broken_user_id_synthetic ... ok
+test b05_sessions_fixture_redacted_debug ... ok
+test b04_relationships_fixture ... ok
+test b06_merged_members_fixture ... ok
+test b02_top_level_user_fixture ... ok
+test b01_users_fixture_partial_fields ... ok
+test b03_private_channels_fixture ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/rest_ack.rs (target/debug/deps/rest_ack-1dc87e06376f600d)
+
+running 9 tests
+test case1_target_matches_oracle_path ... ok
+test case2_empty_ids ... ok
+test case2_non_numeric_ids ... ok
+test case4_body_with_token ... ok
+test case5_quote_backslash_and_newline ... ok
+test case3_body_without_token_is_oracle_exact ... ok
+test case5_utf8_passes_unchanged ... ok
+test case5_all_controls_are_lowercase_u00xx ... ok
+test case6_u64_max_has_no_loss ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_base64.rs (target/debug/deps/rest_base64-f016b03133574e7c)
+
+running 5 tests
+test errors_are_typed ... ok
+test noncanonical_trailing_bits ... ok
+test lengths_and_padding ... ok
+test live_header_roundtrip ... ok
+test rfc_vectors ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_client.rs (target/debug/deps/rest_client-ab50bd75668ea51f)
+
+running 16 tests
+test debug_redacts_authorization ... ok
+test invalid_base_rejected ... ok
+test content_type_and_length_for_json_body ... ok
+test auth_headers_added_in_order ... ok
+test explicit_auth_header_is_not_duplicated ... ok
+test telemetry_blocked_before_network ... ok
+test protocol_error_maps_to_transport_without_retry ... ok
+test telemetry_lookalike_reaches_server ... ok
+test no_retry_for_401_and_404 ... ok
+test exhausted_429_returns_rate_limited ... ok
+test retry_429_for_post ... ok
+test retry_5xx_only_for_idempotent ... ok
+test retry_429_then_success_with_delay ... ok
+test transport_read_timeout_is_retried_for_get ... ok
+test attempt_timeout_retries_idempotent_only ... ok
+test transport_read_timeout_is_not_retried_for_post ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/rest_headers.rs (target/debug/deps/rest_headers-3bc5618c01fd0640)
+
+running 5 tests
+test auth_counts_match_capture ... ok
+test auth_header_names_exact_order ... ok
+test auth_headers_pairs_values ... ok
+test base_v9_prefix ... ok
+test classify_status_observed_and_other ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_http1.rs (target/debug/deps/rest_http1-648699ea01186b57)
+
+running 16 tests
+test chunked_flag_rules ... ok
+test content_length_rules ... ok
+test decode_chunked_errors ... ok
+test decode_chunked_extensions_and_trailers ... ok
+test decode_chunked_rfc_example ... ok
+test decode_chunked_incomplete_at_every_split ... ok
+test encode_request_checks_supplied_content_length ... ok
+test encode_request_get_has_no_content_length ... ok
+test encode_request_post_adds_content_length ... ok
+test encode_request_rejects_injection_and_bad_target ... ok
+test encode_request_rejects_transfer_encoding ... ok
+test header_lookup_is_case_insensitive ... ok
+test parse_head_200 ... ok
+test parse_head_versions_and_malformed ... ok
+test decode_chunked_rejects_oversized_size_line_and_trailers ... ok
+test parse_head_incomplete_and_limit ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_identity.rs (target/debug/deps/rest_identity-3b42242db5c44cb8)
+
+running 8 tests
+test config_overrides_win ... ok
+test display_server_fallbacks ... ok
+test distro_sources ... ok
+test os_arch_mapping ... ok
+test wayland_kde_full_build ... ok
+test uuid_v4_shape ... ok
+test locale_parsing ... ok
+test integration_base64_headers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_rate_limit.rs (target/debug/deps/rest_rate_limit-b54b145227565a8a)
+
+running 10 tests
+test case1_retry_after_header ... ok
+test case3_header_has_priority_over_body ... ok
+test case2_retry_after_body_and_global ... ok
+test case6_status_classification ... ok
+test case7_retry_delay_429_capped ... ok
+test case4_reset_after_fallback_and_metadata ... ok
+test case5_malformed_values_do_not_panic ... ok
+test case7_retry_delay_5xx_exponential ... ok
+test case7_retry_delay_no_retry_for_auth_and_client ... ok
+test case8_should_retry_by_method ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_resources.rs (target/debug/deps/rest_resources-d5b2fcdc8f51d592)
+
+running 6 tests
+test catalog_matches_d02_and_get_routes ... ok
+test catalog_and_paths_are_deterministic ... ok
+test errors_are_stable_and_do_not_disclose_input ... ok
+test saved_messages_404_is_not_a_success_payload ... ok
+test path_renders_only_the_application_id ... ok
+test catalog_matches_independent_d02_json_oracle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/rest_retry.rs (target/debug/deps/rest_retry-4de9dc8cebd34503)
+
+running 11 tests
+test is_idempotent_table ... ok
+test non_idempotent_single_attempt ... ok
+test stub_get_success_first_try ... ok
+test stub_close_is_transport_then_retry ... ok
+test idempotent_exhausts_and_clamps ... ok
+test idempotent_retries_to_success ... ok
+test attempt_once_maps_timeout ... ok
+test backoff_pause_between_attempts ... ok
+test stub_timeout_post_not_retried ... ok
+test stub_timeout_then_retry_wins ... ok
+test stub_all_timeout_exhausts ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/rest_routes.rs (target/debug/deps/rest_routes-30d4a80c47ae267c)
+
+running 8 tests
+test body_keys_only_on_six_routes ... ok
+test find_roundtrip_and_rejects ... ok
+test method_names_cover_enum ... ok
+test render_path_substitutes_and_rejects ... ok
+test catalog_shape_47_unique ... ok
+test method_distribution_matches_capture ... ok
+test crossref_static_confirms_catalog ... ok
+test catalog_matches_live_capture ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_super_properties.rs (target/debug/deps/rest_super_properties-acd6bc42cd0926e5)
+
+running 8 tests
+test p1_fields_are_22_in_order ... ok
+test p2_parses_live_json_fields ... ok
+test p8_base64_layer_errors ... ok
+test p5_escaping_roundtrip ... ok
+test p3_live_json_roundtrip_bytewise ... ok
+test p7_numbers_bounds ... ok
+test p6_parser_rejects_bad_input ... ok
+test p4_live_base64_roundtrip ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_telemetry.rs (target/debug/deps/rest_telemetry-3f10bdfaa08361a0)
+
+running 4 tests
+test allows_lookalikes_and_other_paths ... ok
+test empty_target_is_allowed ... ok
+test blocks_exact_first_segments ... ok
+test guard_target_blocks_and_passes_through ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_transport.rs (target/debug/deps/rest_transport-e77d9b43d5d9dea3)
+
+running 14 tests
+test endpoint_parse_https_base ... ok
+test endpoint_parse_local_and_normalize ... ok
+test endpoint_rejects_bad_base_and_target ... ok
+test connect_refused_is_error_not_panic ... ok
+test malformed_response_is_protocol_error ... ok
+test chunked_response ... ok
+test response_shape_is_public ... ok
+test get_plain_tcp_with_auto_headers ... ok
+test post_body_and_204 ... ok
+test read_until_close ... ok
+test too_large_body_is_rejected_before_read ... ok
+test tls_untrusted_root_fails ... ok
+test tls_with_custom_root_and_ip_san ... ok
+test read_timeout_is_enforced ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/resume_reconnect.rs (target/debug/deps/resume_reconnect-f93601b5c5d233c8)
+
+running 13 tests
+test plan_reconnect_policy ... ok
+test resume_debug_redacts_token ... ok
+test pipe_invalid_session_flag ... ok
+test pipe_resume_state_after_ready ... ok
+test resume_frame_size_plausible ... ok
+test resume_frame_rejects_empty_fields ... ok
+test resume_frame_has_evidence_fields ... ok
+test ws_invalid_session_false ... ok
+test ws_resume_sent_once_after_hello ... ok
+test lab_resume_seq_continuity ... ok
+test ws_op7_then_resume_keeps_seq ... ok
+test ws_resume_suppresses_identify ... ok
+test ws_resume_not_before_hello ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/settings_proto.rs (target/debug/deps/settings_proto-cfb092fe58966e5a)
+
+running 18 tests
+test p08t11_unsupported_type_preserves_wire ... ok
+test p08t12_base64_errors ... ok
+test p08t13_wire_errors ... ok
+test p08t14_known_field_wrong_wire_type ... ok
+test p08t15_empty_wrapper_vs_absent ... ok
+test p08t01_ready_identity ... ok
+test p08t02_ready_top_level_fields ... ok
+test p08t03_versions_and_inbox ... ok
+test p08t06_text_and_images ... ok
+test p08t04_appearance ... ok
+test p08t07_notifications ... ok
+test p08t05_voice_and_video ... ok
+test p08t09_raw_preserves_unknown_fields ... ok
+test p08t08_status_and_localization ... ok
+test p08t16_debug_redacts_payload ... ok
+test p08t17_section_debug_redacts_sensitive_values ... ok
+test p08t10_update_type2_frecency ... ok
+test p08t18_max_fields_boundary ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/state_reducer.rs (target/debug/deps/state_reducer-a5b572ff9434c69b)
+
+running 19 tests
+test r06_channel_info_upserts_and_creates_stub_guild ... ok
+test r10_unknown_and_unsupported_are_non_fatal ... ok
+test r13_effects_api_declares_all_four_kinds ... ok
+test r12_message_update_unknown_message ... ok
+test r11_malformed_dispatch_is_diagnostic ... ok
+test r17_supplemental_invalid_raw_index_is_inconsistency ... ok
+test r15_malformed_update_does_not_upsert_author ... ok
+test r19_crate_root_reexports ... ok
+test r04_sessions_replace_replaces_sessions ... ok
+test r03_supplemental_merges_members_by_raw_guild_index ... ok
+test r05_thread_list_sync_upserts ... ok
+test r07_message_create_and_update ... ok
+test r16_message_in_private_channel_is_known ... ok
+test r14_stale_malformed_dispatch_does_not_rewind_sequence ... ok
+test r08_stale_sequence_is_ignored ... ok
+test r18_resumed_is_noop ... ok
+test r01_state_from_real_ready_matches_jq ... ok
+test r09_ready_resets_sequence_and_state ... ok
+test r02_ready_is_deterministic_and_emits_sorted_effects ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/state_selectors.rs (target/debug/deps/state_selectors-c501568479846742)
+
+running 8 tests
+test s06_missing_lookups ... ok
+test s08_channel_index_after_channel_info ... ok
+test s01_ready_lookups ... ok
+test s03_messages_in_channel_sorted_by_id ... ok
+test s07_counts ... ok
+test s05_threads_in_guild_sorted ... ok
+test s02_channels_in_guild_sorted ... ok
+test s04_guild_member_lookup ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/state_types.rs (target/debug/deps/state_types-a96783b0808f811c)
+
+running 15 tests
+test t03_sessions_replace_parses_array ... ok
+test t04b_thread_synthetic_fields_from_fixture ... ok
+test t05_channel_info_synthetic_channel_fields ... ok
+test t04_thread_fixture_negative_guild_id_is_invalid ... ok
+test t09_message_without_channel_is_error ... ok
+test t10_sessions_replace_wrong_type ... ok
+test t08_unknown_and_unsupported_events ... ok
+test t12_supplemental_length_mismatch_is_diagnostic ... ok
+test t07_message_update_real_fixture ... ok
+test t05b_channel_info_negative_ids_are_diagnostics ... ok
+test t13_minimal_ready_state_is_redacted ... ok
+test t06_message_create_real_fixture ... ok
+test t02_ready_supplemental_groups_match_oracle ... ok
+test t11_state_debug_redacts_secrets ... ok
+test t01_ready_event_parses_real_fixture ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/typing_reducer.rs (target/debug/deps/typing_reducer-3e31bfb7e0d08013)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... ok
+test t06_start_creates_entry_and_upserts_member ... ok
+test t09_message_create_removes_author_pair ... ok
+test t10_reset_clock_stale_malformed_prune ... ok
+test t08_fixture_28_starts_two_pairs ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_selectors.rs (target/debug/deps/typing_selectors-d039a1f6fda48b98)
+
+running 5 tests
+test t12_users_sorted_and_expired_hidden ... ok
+test t13_guild_split ... ok
+test t14_counts_and_expiry_boundary ... ok
+test t11_empty_and_self_boundary ... ok
+test t15_fixture_final_state ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_types.rs (target/debug/deps/typing_types-3b143f3379ef1fcf)
+
+running 5 tests
+test t03_minimal_dm_shape ... ok
+test t01_capture_117_fields ... ok
+test t04_required_and_optional_field_table ... ok
+test t05_member_errors_and_event_clock ... ok
+test t02_fixture_28_events_pairs_and_timestamps ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-07ea4b69cf8720e0)
+
+running 8 tests
+test v09d_snapshot_remove_branch ... ok
+test v08_move_and_leave_last_wins ... ok
+test v09c_snapshot_duplicate_last_wins ... ok
+test v07_join_inserts_voice_and_member_user ... ok
+test v10_timer_and_status_boundaries ... ok
+test v11_stale_and_malformed_events ... ok
+test v09_supplemental_snapshot_then_ready_reset ... ok
+test v09b_snapshot_merges_into_existing_store ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_selectors.rs (target/debug/deps/voice_state_selectors-e6aec4031a9505d4)
+
+running 4 tests
+test v14_connected_duration_boundaries ... ok
+test v12_self_voice_state ... ok
+test v15_channel_timer_and_status ... ok
+test v13_channel_users_sorted_and_counts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_types.rs (target/debug/deps/voice_state_types-c9d073a12b634880)
+
+running 6 tests
+test v02_live_join_111 ... ok
+test v03_live_leave_51 ... ok
+test v04_timer_and_status_values ... ok
+test v05_optional_and_broken_table ... ok
+test v06_member_mismatch_and_malformed ... ok
+test v01_snapshot_003_exact_fields ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ws_transport.rs (target/debug/deps/ws_transport-0dc14c3a10226a0d)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test pipe_hello_from_encoded_stream ... ok
+test ws_text_messages_counted ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_closed_after_stub_close ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 8 tests
+test tests::hash_vectors_and_locale_selection ... ok
+test tests::locale_math_is_consistent ... ok
+test tests::ru_plural_categories ... ok
+test tests::number_formatting_uses_locale_separators_and_keeps_fraction ... ok
+test tests::plural_exact_and_fractional_categories_are_cldr_safe ... ok
+test tests::catalog_translate_plural_and_rich_tags ... ok
+test tests::real_catalogs_match_independent_inventory ... ok
+test tests::markdown_is_safe_and_handles_unclosed_markers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_json-25f0936865b675ab)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/json_contract.rs (target/debug/deps/json_contract-c38e41847ad3ad2a)
+
+running 11 tests
+test error_display_has_offset_but_not_payload ... ok
+test depth_limit_is_enforced_without_panic ... ok
+test numbers_preserve_raw_and_parse_integers ... ok
+test parses_scalars_arrays_and_objects ... ok
+test supports_unicode_escapes_and_rejects_lone_low_surrogate ... ok
+test rejects_malformed_and_dangerous_input ... ok
+test writer_can_round_trip_a_real_voice_frame ... ok
+test writer_round_trips_unicode_escapes_and_numbers ... ok
+test truncated_inputs_never_panic ... ok
+test parses_real_voice_frames_when_lab_is_available ... ok
+test parses_real_catalogs_when_lab_is_available ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_media-d94cda25860749c7)
+
+running 1 test
+test tests::engine_codecs_match_client_log ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_platform-4cce23a8a32223ca)
+
+running 1 test
+test tests::legacy_channel_counts_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_store-2102c0de57132216)
+
+running 1 test
+test tests::core_tables_are_set ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_ui-5641009d1ecf1b3c)
+
+running 1 test
+test tests::contracts_count_matches_d03 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
+
+running 1 test
+test tests::voice_constants_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 11 tests
+test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
+test endpoint_with_existing_version_query_is_not_duplicated ... ok
+test frame_parser_preserves_raw_other_and_rejects_missing_payload ... ok
+test region_selection_orders_latency_ties_and_manual_choice ... ok
+test unknown_payload_debug_does_not_leak_secrets ... ok
+test select_protocol_codecs_match_capture_contract ... ok
+test secret_key_is_decoded_validated_and_redacted ... ok
+test voice_server_update_builds_valid_websocket_url_without_leaking_token ... ok
+test outgoing_identify_and_select_protocol_are_wire_serializable ... ok
+test capture_frames_match_signal_contract ... ok
+test every_prefix_of_frame_is_panic_free ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.09s
+
+   Doc-tests discord_codec
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_conformance
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_i18n
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_json
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_media
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_platform
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_store
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_ui
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_voice
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -5,7 +5,8 @@ description: Производственный процесс discord-lab — в�
 
 # Discord Lab Process
 
-Источник истины — `PROCESS.md` в корне проекта (прочитай его перед крупной работой).
+Источники истины — `PROCESS.md`, `AGENTS.md` и `docs/rust-client/TEAM.md` в корне проекта
+(прочитай их перед крупной работой).
 Краткая выжимка:
 
 ## Роли
@@ -20,9 +21,14 @@ description: Производственный процесс discord-lab — в�
 3. Воркер: red-тест → код → `npm run gate:worker` → отчёт (§4.2).
 4. Приёмка координатором (§4.3); live/golden/удаления — ещё и вторая модель (§4.4).
 
+В batch воркер запускает только targeted-тесты и сохраняет логи. Полный gate запускается
+один раз integration-лейном на batch; вне batch одиночный исполнитель выполняет `gate:worker`.
+В кодовой фазе одновременно не более двух воркеров; cargo-команды не запускаются параллельно.
+
 ## Гейты
 
-- `npm run gate:worker` — typecheck, meta, unit, smoke (быстрый, для воркеров).
+- `npm run gate:worker` — typecheck, meta, unit, smoke; запускается один раз integration-лейном
+  на batch или одиночным исполнителем вне batch.
 - `npm run gate:release` — + e2e (повтор при падении), coverage, golden-сверка.
 - `npm run gate:qualify` — + tarball и qualification-файл (sha256); выкладка сверяет
   `node scripts/gate.mjs --verify-qualification <file>`.

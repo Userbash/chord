@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/markdown_contract.rs (target/debug/deps/markdown_contract-5713afa49f3299b6)
+
+running 1 test
+test emoji_and_slash_command_nodes_are_reachable ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+

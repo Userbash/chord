@@ -1,0 +1,49 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 1 test
+test generates_spdx_23_with_locked_packages_and_licenses ... FAILED
+
+failures:
+
+---- generates_spdx_23_with_locked_packages_and_licenses stdout ----
+
+thread 'generates_spdx_23_with_locked_packages_and_licenses' (22642) panicked at crates/discord-conformance/tests/sbom_contract.rs:74:5:
+SPDX validation failed: node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'SPDX-2.2'
+- 'SPDX-2.3'
+          ^
+
+    at [eval]:1:115
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_string:71:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'SPDX-2.2',
+  expected: 'SPDX-2.3',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.21.0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    generates_spdx_23_with_locked_packages_and_licenses
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`

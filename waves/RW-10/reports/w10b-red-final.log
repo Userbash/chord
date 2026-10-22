@@ -1,0 +1,104 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `config`
+   --> crates/discord-core/src/rest/transport.rs:244:5
+    |
+244 |     config: &HttpClientConfig,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_config`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `base`
+   --> crates/discord-core/src/rest/transport.rs:245:5
+    |
+245 |     base: &str,
+    |     ^^^^ help: if this is intentional, prefix it with an underscore: `_base`
+
+warning: unused variable: `request`
+   --> crates/discord-core/src/rest/transport.rs:246:5
+    |
+246 |     request: &HttpRequest,
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: `discord-core` (lib) generated 3 warnings (run `cargo fix --lib -p discord-core` to apply 3 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running tests/rest_transport.rs (target/debug/deps/rest_transport-4eb024f7e3712ef8)
+
+running 13 tests
+test endpoint_parse_local_and_normalize ... ok
+test endpoint_parse_https_base ... ok
+test endpoint_rejects_bad_base_and_target ... ok
+test response_shape_is_public ... ok
+test connect_refused_is_error_not_panic ... FAILED
+test chunked_response ... FAILED
+test read_until_close ... FAILED
+test get_plain_tcp_with_auto_headers ... FAILED
+test malformed_response_is_protocol_error ... FAILED
+test post_body_and_204 ... FAILED
+test too_large_body_is_rejected_before_read ... FAILED
+test tls_with_custom_root_and_ip_san ... FAILED
+test tls_untrusted_root_fails ... FAILED
+
+failures:
+
+---- connect_refused_is_error_not_panic stdout ----
+
+thread 'connect_refused_is_error_not_panic' (85130) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- chunked_response stdout ----
+
+thread 'chunked_response' (85129) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- read_until_close stdout ----
+
+thread 'read_until_close' (85137) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- get_plain_tcp_with_auto_headers stdout ----
+
+thread 'get_plain_tcp_with_auto_headers' (85134) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- malformed_response_is_protocol_error stdout ----
+
+thread 'malformed_response_is_protocol_error' (85135) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- post_body_and_204 stdout ----
+
+thread 'post_body_and_204' (85136) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- too_large_body_is_rejected_before_read stdout ----
+
+thread 'too_large_body_is_rejected_before_read' (85141) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- tls_with_custom_root_and_ip_san stdout ----
+
+thread 'tls_with_custom_root_and_ip_san' (85140) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+---- tls_untrusted_root_fails stdout ----
+
+thread 'tls_untrusted_root_fails' (85139) panicked at crates/discord-core/src/rest/transport.rs:248:5:
+not yet implemented: mutation-red: W10b
+
+
+failures:
+    chunked_response
+    connect_refused_is_error_not_panic
+    get_plain_tcp_with_auto_headers
+    malformed_response_is_protocol_error
+    post_body_and_204
+    read_until_close
+    tls_untrusted_root_fails
+    tls_with_custom_root_and_ip_san
+    too_large_body_is_rejected_before_read
+
+test result: FAILED. 4 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_transport`
+# EXIT=101

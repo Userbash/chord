@@ -1,0 +1,40 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::state::MessageAck`
+  --> crates/discord-core/tests/read_state_types.rs:15:38
+   |
+15 |     Event, EventError, EventPayload, MessageAck, State, StateDiagnostics, apply_dispatch,
+   |                                      ^^^^^^^^^^ no `MessageAck` in `state`
+   |
+help: a similar name exists in the module
+   |
+15 -     Event, EventError, EventPayload, MessageAck, State, StateDiagnostics, apply_dispatch,
+15 +     Event, EventError, EventPayload, Message, State, StateDiagnostics, apply_dispatch,
+   |
+
+error[E0425]: cannot find type `MessageAck` in crate `discord_core`
+  --> crates/discord-core/tests/read_state_types.rs:55:33
+   |
+55 |     let _: Option<discord_core::MessageAck> = None;
+   |                                 ^^^^^^^^^^ not found in `discord_core`
+
+error[E0599]: no variant, associated function, or constant named `MessageAck` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/read_state_types.rs:26:23
+   |
+26 |         EventPayload::MessageAck(ack) => (ack, event.diagnostics),
+   |                       ^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `MessageAck` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/read_state_types.rs:42:23
+   |
+42 |     let EventPayload::MessageAck(ack) = payload else {
+   |                       ^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `MessageAck` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/read_state_types.rs:232:51
+    |
+232 |     assert!(matches!(event.payload, EventPayload::MessageAck(_)));
+    |                                                   ^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+Some errors have detailed explanations: E0425, E0432, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-core` (test "read_state_types") due to 5 previous errors

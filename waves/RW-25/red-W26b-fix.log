@@ -1,0 +1,137 @@
+# W26b-fix — red-прогоны замечаний приёмки (F1, F2, F2b, F3)
+# дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b; все команды офлайн (--offline)
+# порядок: сначала падающий тест (exit code ≠ 0), потом фикс.
+
+======================================================================
+# F1 (P1): нулевая базовая метрика ⇒ регрессия, если текущая > 0
+#   правило Team Lead: база 0.0 и текущая 0.0 ⇒ None; база 0.0 и текущая > 0 ⇒ Regressed
+======================================================================
+# W26b-fix — red-прогон F1 (нулевая база ⇒ регрессия при ненулевом текущем)
+# дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b
+
+$ cargo test --offline -p discord-perf --test perf_contract regression_
+   Compiling serde_json v1.0.154
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.90s
+     Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
+
+running 5 tests
+test regression_below_threshold_k ... ok
+test regression_detected_k ... ok
+test regression_none_k ... ok
+test regression_zero_baseline_k ... ok
+test regression_zero_baseline_to_nonzero_k ... FAILED
+
+failures:
+
+---- regression_zero_baseline_to_nonzero_k stdout ----
+
+thread 'regression_zero_baseline_to_nonzero_k' (60712) panicked at crates/discord-perf/tests/perf_contract.rs:312:18:
+ожидалась регрессия, получено None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    regression_zero_baseline_to_nonzero_k
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-perf --test perf_contract`
+EXIT_CODE=101
+
+======================================================================
+# F2 (P2): метрики в JSON — числа (не строки), round-trip побитово точный
+#   serde_json с feature float_roundtrip (Cargo.toml изменён Team Lead)
+======================================================================
+# W26b-fix — red-прогон F2 (метрики в JSON — числа, round-trip побитово точный)
+# дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b
+
+$ cargo test --offline -p discord-perf --test perf_contract json_float_roundtrip_k
+   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
+
+running 1 test
+test json_float_roundtrip_k ... FAILED
+
+failures:
+
+---- json_float_roundtrip_k stdout ----
+
+thread 'json_float_roundtrip_k' (62490) panicked at crates/discord-perf/tests/perf_contract.rs:365:5:
+метрика времени — JSON-число, получено "0.048010000000000004"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    json_float_roundtrip_k
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-perf --test perf_contract`
+EXIT_CODE=101
+
+======================================================================
+# F2b: старый эталон tests/data/baseline-reference.json (метрики-строки)
+#   несовместим с новым форматом — ошибка разбора видна явно
+======================================================================
+# W26b-fix — red-прогон F2b (старый эталон со строковыми метриками несовместим с новым форматом)
+# дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b
+
+$ cargo test --offline -p discord-perf --test perf_contract reference_report_k
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
+
+running 1 test
+test reference_report_k ... FAILED
+
+failures:
+
+---- reference_report_k stdout ----
+
+thread 'reference_report_k' (63087) panicked at crates/discord-perf/tests/perf_contract.rs:468:52:
+эталон — валидный JSON отчёта: Error("invalid type: string \"44.802397\", expected f64", line: 8, column: 30)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    reference_report_k
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.81s
+
+error: test failed, to rerun pass `-p discord-perf --test perf_contract`
+EXIT_CODE=101
+
+======================================================================
+# F3 (P1): presence у КАЖДОГО участника (был обход PRESENCE_SAMPLE = 64)
+======================================================================
+# W26b-fix — red-прогон F3 (presence у каждого участника, а не у выборки)
+# дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b
+
+$ cargo test --offline -p discord-perf --test perf_contract presence_for_every_member_k
+   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
+
+running 1 test
+test presence_for_every_member_k ... FAILED
+
+failures:
+
+---- presence_for_every_member_k stdout ----
+
+thread 'presence_for_every_member_k' (63725) panicked at crates/discord-perf/tests/perf_contract.rs:418:5:
+assertion `left == right` failed: presence-store содержит запись для каждого участника
+  left: 64
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    presence_for_every_member_k
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-perf --test perf_contract`
+EXIT_CODE=101

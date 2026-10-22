@@ -6,6 +6,25 @@
 
 use discord_codec::etf::EtfValue;
 
+// P2-01 (RW-12): типизированная модель READY по контракту A1. Модули — рабочие площадки
+// W12a/W12b/W12c; общие помощники и диагностика — координатора. `ReadySummary` (RW-05)
+// остаётся для обратной совместимости P1-04.
+pub mod error;
+pub mod guild;
+pub mod read_state;
+pub mod snapshot;
+pub mod social;
+pub mod value;
+
+pub use error::{ReadyDiagnostics, ReadyError};
+pub use guild::{Channel, Emoji, Guild, PermissionOverwrite, Role, Sticker};
+pub use read_state::{
+    ChannelOverride, MuteConfig, ReadState, ReadStateEntry, UserGuildSettings,
+    UserGuildSettingsEntry,
+};
+pub use snapshot::{Ready, TOP_LEVEL_KEYS};
+pub use social::{ClientInfo, GuildMember, PrivateChannel, Relationship, Session, User};
+
 /// Сводка READY: числа, достаточные для сверки с оракулом без хранения всего `d`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReadySummary {

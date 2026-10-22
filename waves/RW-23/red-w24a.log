@@ -1,0 +1,24 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::udp::empty_receiver_report`, `discord_voice::udp::DiscoveryPacket`, `discord_voice::udp::RotationSchedule`, `discord_voice::udp::UdpError`, `discord_voice::udp::UdpMediaSocket`, `discord_voice::udp::DISCOVERY_LEN`, `discord_voice::udp::KEEPALIVE_INTERVAL_MS`, `discord_voice::udp::KEEPALIVE_LEN`, `discord_voice::udp::KEEPALIVE_REQUEST`, `discord_voice::udp::KEEPALIVE_RESPONSE`, `discord_voice::udp::MEDIA_ROTATION_MS`
+ --> crates/discord-voice/tests/udp.rs:2:5
+  |
+2 |     empty_receiver_report, DiscoveryPacket, RotationSchedule, UdpError, UdpMediaSocket,
+  |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^  ^^^^^^^^^^^^^^ no `UdpMediaSocket` in `udp`
+  |     |                      |                |                 |
+  |     |                      |                |                 no `UdpError` in `udp`
+  |     |                      |                no `RotationSchedule` in `udp`
+  |     |                      no `DiscoveryPacket` in `udp`
+  |     no `empty_receiver_report` in `udp`
+3 |     DISCOVERY_LEN, KEEPALIVE_INTERVAL_MS, KEEPALIVE_LEN, KEEPALIVE_REQUEST,
+  |     ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `KEEPALIVE_REQUEST` in `udp`
+  |     |              |                      |
+  |     |              |                      no `KEEPALIVE_LEN` in `udp`
+  |     |              no `KEEPALIVE_INTERVAL_MS` in `udp`
+  |     no `DISCOVERY_LEN` in `udp`
+4 |     KEEPALIVE_RESPONSE, MEDIA_ROTATION_MS,
+  |     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^
+  |     |
+  |     no `KEEPALIVE_RESPONSE` in `udp`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "udp") due to 1 previous error

@@ -1,0 +1,62 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/state_reducer.rs (target/debug/deps/state_reducer-d852b519b8dfb27d)
+
+running 19 tests
+test r06_channel_info_upserts_and_creates_stub_guild ... ok
+test r11_malformed_dispatch_is_diagnostic ... ok
+test r10_unknown_and_unsupported_are_non_fatal ... ok
+test r13_effects_api_declares_all_four_kinds ... ok
+test r12_message_update_unknown_message ... ok
+test r15_malformed_update_does_not_upsert_author ... ok
+test r17_supplemental_invalid_raw_index_is_inconsistency ... ok
+test r19_crate_root_reexports ... ok
+test r01_state_from_real_ready_matches_jq ... ok
+test r16_message_in_private_channel_is_known ... ok
+test r03_supplemental_merges_members_by_raw_guild_index ... ok
+test r08_stale_sequence_is_ignored ... ok
+test r14_stale_malformed_dispatch_does_not_rewind_sequence ... ok
+test r07_message_create_and_update ... ok
+test r05_thread_list_sync_upserts ... ok
+test r18_resumed_is_noop ... ok
+test r04_sessions_replace_replaces_sessions ... ok
+test r09_ready_resets_sequence_and_state ... ok
+test r02_ready_is_deterministic_and_emits_sorted_effects ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/state_selectors.rs (target/debug/deps/state_selectors-b206855738ce0f4a)
+
+running 8 tests
+test s06_missing_lookups ... ok
+test s08_channel_index_after_channel_info ... ok
+test s03_messages_in_channel_sorted_by_id ... ok
+test s01_ready_lookups ... ok
+test s07_counts ... ok
+test s05_threads_in_guild_sorted ... ok
+test s02_channels_in_guild_sorted ... ok
+test s04_guild_member_lookup ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/state_types.rs (target/debug/deps/state_types-2bdb06ab4c25c7bf)
+
+running 15 tests
+test t03_sessions_replace_parses_array ... ok
+test t04_thread_fixture_negative_guild_id_is_invalid ... ok
+test t05_channel_info_synthetic_channel_fields ... ok
+test t04b_thread_synthetic_fields_from_fixture ... ok
+test t09_message_without_channel_is_error ... ok
+test t08_unknown_and_unsupported_events ... ok
+test t10_sessions_replace_wrong_type ... ok
+test t06_message_create_real_fixture ... ok
+test t05b_channel_info_negative_ids_are_diagnostics ... ok
+test t12_supplemental_length_mismatch_is_diagnostic ... ok
+test t07_message_update_real_fixture ... ok
+test t13_minimal_ready_state_is_redacted ... ok
+test t02_ready_supplemental_groups_match_oracle ... ok
+test t11_state_debug_redacts_secrets ... ok
+test t01_ready_event_parses_real_fixture ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

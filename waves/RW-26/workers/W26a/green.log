@@ -1,0 +1,56 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/reception_contract.rs (/home/sanya/.cache/discord-lab-target-rw26a/debug/deps/reception_contract-fd7fc5e0e62019fd)
+
+running 9 tests
+test duplicate_does_not_inflate_received_or_jitter ... ok
+test empty_stats_are_zeroed ... ok
+test gap_across_wrap_counts_one_lost_packet ... ok
+test parses_real_rtp_headers ... ok
+test rejects_non_rtp_and_short_input ... ok
+test real_capture_matches_rfc_jitter_oracle ... ok
+test reordering_is_reported_but_not_lost ... ok
+test sequence_wrap_does_not_create_loss ... ok
+test zero_clock_rate_does_not_panic ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rtcp_contract.rs (/home/sanya/.cache/discord-lab-target-rw26a/debug/deps/rtcp_contract-7dc3be166e1775b8)
+
+running 14 tests
+test compound_report_and_sdes_are_both_parsed ... ok
+test empty_input_is_an_empty_compound ... ok
+test compound_packet_limit_is_enforced ... ok
+test cumulative_loss_extremes_are_sign_extended ... ok
+test impossible_length_for_receiver_report_is_rejected ... ok
+test padding_bit_is_rejected_explicitly ... ok
+test real_receiver_report_keeps_encrypted_block_and_detects_trailer ... ok
+test real_sender_report_parses_sender_info_and_20_byte_trailer ... ok
+test sender_report_without_sender_info_is_invalid ... ok
+test synthetic_report_block_uses_24_bit_signed_cumulative_loss ... ok
+test trailer_that_starts_with_version_two_is_not_mistaken_for_rtcp ... ok
+test truncated_packet_reports_required_size ... ok
+test unknown_payload_types_are_opaque_not_errors ... ok
+test wrong_version_on_first_packet_is_an_error ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/stats_contract.rs (/home/sanya/.cache/discord-lab-target-rw26a/debug/deps/stats_contract-451fd10ac6a48c5d)
+
+running 12 tests
+test negative_rtt_is_clamped_to_zero ... ok
+test ntp_middle_uses_high_word ... ok
+test rtt_subtracts_dlsr ... ok
+test rtt_with_25_percent_dlsr ... ok
+test unknown_or_zero_lsr_returns_none ... ok
+test window_average_and_max_ignore_missing_rtt ... ok
+test rtt_without_dlsr_is_plain_round_trip ... ok
+test window_keeps_capacity_and_reports_latest ... ok
+test window_loss_delta_can_be_negative_after_stream_restart ... ok
+test window_loss_delta_uses_first_and_last_sample ... ok
+test window_with_single_sample_has_no_loss_delta_or_rtt ... ok
+test zero_capacity_window_is_treated_as_one ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT=0

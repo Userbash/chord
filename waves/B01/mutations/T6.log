@@ -1,0 +1,48 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused variable: `guild_id`
+  --> crates/discord-core/src/state/typing/selectors.rs:64:43
+   |
+64 |     pub fn typing_entries_by_guild(&self, guild_id: u64, now_ms: u64) -> Vec<&TypingEntry> {
+   |                                           ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_guild_id`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+     Running tests/typing_reducer.rs (target/debug/deps/typing_reducer-28e230d19c89448d)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... ok
+test t06_start_creates_entry_and_upserts_member ... ok
+test t09_message_create_removes_author_pair ... ok
+test t10_reset_clock_stale_malformed_prune ... ok
+test t08_fixture_28_starts_two_pairs ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_selectors.rs (target/debug/deps/typing_selectors-707910d4567a1486)
+
+running 5 tests
+test t12_users_sorted_and_expired_hidden ... ok
+test t14_counts_and_expiry_boundary ... ok
+test t11_empty_and_self_boundary ... ok
+test t13_guild_split ... FAILED
+test t15_fixture_final_state ... ok
+
+failures:
+
+---- t13_guild_split stdout ----
+
+thread 't13_guild_split' (652312) panicked at crates/discord-core/tests/typing_selectors.rs:163:5:
+assertion `left == right` failed
+  left: [(10, 1), (10, 2), (11, 1)]
+ right: [(10, 1), (10, 2)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t13_guild_split
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test typing_selectors`

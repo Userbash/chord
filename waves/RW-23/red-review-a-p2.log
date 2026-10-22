@@ -1,0 +1,161 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0599]: no method named `unwrap` found for array `[u8; 74]` in the current scope
+  --> crates/discord-voice/tests/udp.rs:66:19
+   |
+62 | /         DiscoveryPacket::Request {
+63 | |             ssrc: 9208,
+64 | |             port: 0
+65 | |         }
+66 | |         .encode().unwrap(),
+   | |__________________-^^^^^^
+   |
+help: there is a method `swap` with a similar name, but with different arguments
+  --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/slice/mod.rs:908:4
+
+error[E0599]: no method named `unwrap` found for array `[u8; 74]` in the current scope
+  --> crates/discord-voice/tests/udp.rs:89:19
+   |
+85 | /         DiscoveryPacket::Request {
+86 | |             ssrc: 9208,
+87 | |             port: 33801
+88 | |         }
+89 | |         .encode().unwrap(),
+   | |__________________-^^^^^^
+   |
+help: there is a method `swap` with a similar name, but with different arguments
+  --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/slice/mod.rs:908:4
+
+error[E0599]: no method named `unwrap` found for array `[u8; 74]` in the current scope
+   --> crates/discord-voice/tests/udp.rs:128:56
+    |
+128 |     assert_eq!(DiscoveryPacket::parse(&packet.encode().unwrap()), Ok(packet));
+    |                                                        ^^^^^^
+    |
+help: there is a method `swap` with a similar name, but with different arguments
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/slice/mod.rs:908:4
+
+error[E0599]: no method named `unwrap` found for array `[u8; 74]` in the current scope
+   --> crates/discord-voice/tests/udp.rs:134:54
+    |
+134 |     assert_eq!(DiscoveryPacket::parse(&ipv6.encode().unwrap()), Ok(ipv6));
+    |                                                      ^^^^^^
+    |
+help: there is a method `swap` with a similar name, but with different arguments
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/slice/mod.rs:908:4
+
+error[E0277]: can't compare `[u8; 74]` with `Result<_, UdpError>`
+   --> crates/discord-voice/tests/udp.rs:185:9
+    |
+185 | /         assert_eq!(
+186 | |             DiscoveryPacket::Response {
+187 | |                 ssrc: 9208,
+188 | |                 address,
+...   |
+192 | |             Err(UdpError::InvalidAddress)
+193 | |         );
+    | |_________^ no implementation for `[u8; 74] == Result<_, UdpError>`
+    |
+    = help: the trait `PartialEq<Result<_, UdpError>>` is not implemented for `[u8; 74]`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&[T]` implements `PartialEq<Vec<U, A>>`
+              `&[T]` implements `PartialEq<[U; N]>`
+              `&[u8; N]` implements `PartialEq<ByteStr>`
+              `&[u8; N]` implements `PartialEq<ByteString>`
+              `&[u8]` implements `PartialEq<ByteStr>`
+              `&[u8]` implements `PartialEq<ByteString>`
+              `&mut [T]` implements `PartialEq<Vec<U, A>>`
+              `&mut [T]` implements `PartialEq<[U; N]>`
+            and 11 others
+
+error[E0277]: can't compare `[u8; 74]` with `Result<_, UdpError>`
+   --> crates/discord-voice/tests/udp.rs:195:5
+    |
+195 | /     assert_eq!(
+196 | |         DiscoveryPacket::Response {
+197 | |             ssrc: 9208,
+198 | |             address: "127.0.0.1".into(),
+...   |
+202 | |         Err(UdpError::InvalidPort)
+203 | |     );
+    | |_____^ no implementation for `[u8; 74] == Result<_, UdpError>`
+    |
+    = help: the trait `PartialEq<Result<_, UdpError>>` is not implemented for `[u8; 74]`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&[T]` implements `PartialEq<Vec<U, A>>`
+              `&[T]` implements `PartialEq<[U; N]>`
+              `&[u8; N]` implements `PartialEq<ByteStr>`
+              `&[u8; N]` implements `PartialEq<ByteString>`
+              `&[u8]` implements `PartialEq<ByteStr>`
+              `&[u8]` implements `PartialEq<ByteString>`
+              `&mut [T]` implements `PartialEq<Vec<U, A>>`
+              `&mut [T]` implements `PartialEq<[U; N]>`
+            and 11 others
+
+error[E0599]: no method named `unwrap` found for array `[u8; 74]` in the current scope
+   --> crates/discord-voice/tests/udp.rs:229:35
+    |
+229 |     let valid = response.encode().unwrap();
+    |                                   ^^^^^^
+    |
+help: there is a method `swap` with a similar name, but with different arguments
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/slice/mod.rs:908:4
+
+error[E0599]: no variant, associated function, or constant named `UnexpectedPeer` found for enum `UdpError` in the current scope
+   --> crates/discord-voice/tests/udp.rs:231:55
+    |
+231 |     assert_eq!(client.recv_discovery(), Err(UdpError::UnexpectedPeer));
+    |                                                       ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `UdpError`
+
+error[E0599]: no method named `unwrap` found for array `[u8; 74]` in the current scope
+   --> crates/discord-voice/tests/udp.rs:239:6
+    |
+233 |       let wrong_ssrc = DiscoveryPacket::Response {
+    |  ______________________-
+234 | |         ssrc: 9209,
+235 | |         address: "127.0.0.1".into(),
+236 | |         port: 19329,
+237 | |     }
+238 | |     .encode()
+239 | |     .unwrap();
+    | |_____-^^^^^^
+    |
+help: there is a method `swap` with a similar name, but with different arguments
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/slice/mod.rs:908:4
+
+error[E0599]: no variant, associated function, or constant named `UnexpectedSsrc` found for enum `UdpError` in the current scope
+   --> crates/discord-voice/tests/udp.rs:241:55
+    |
+241 |     assert_eq!(client.recv_discovery(), Err(UdpError::UnexpectedSsrc));
+    |                                                       ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `UdpError`
+
+error[E0599]: no variant, associated function, or constant named `UnexpectedPeer` found for enum `UdpError` in the current scope
+   --> crates/discord-voice/tests/udp.rs:247:55
+    |
+247 |     assert_eq!(client.recv_keepalive(), Err(UdpError::UnexpectedPeer));
+    |                                                       ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `UdpError`
+
+error[E0599]: no method named `rotate_if_due` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/udp.rs:273:20
+    |
+273 |     assert!(client.rotate_if_due(60_079, &mut schedule).unwrap().is_none());
+    |                    ^^^^^^^^^^^^^ method not found in `UdpMediaSocket`
+
+error[E0599]: no method named `rotate_if_due` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/udp.rs:275:10
+    |
+274 |       let action = client
+    |  __________________-
+275 | |         .rotate_if_due(60_080, &mut schedule)
+    | |         -^^^^^^^^^^^^^ method not found in `UdpMediaSocket`
+    | |_________|
+    |
+
+error[E0599]: no method named `rotate_if_due` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/udp.rs:286:20
+    |
+286 |     assert!(client.rotate_if_due(60_080, &mut schedule).unwrap().is_none());
+    |                    ^^^^^^^^^^^^^ method not found in `UdpMediaSocket`
+
+Some errors have detailed explanations: E0277, E0599.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `discord-voice` (test "udp") due to 14 previous errors

@@ -1,0 +1,41 @@
+=== W26a-fix / F-A2 — GREEN ===
+дата: 2026-10-22T11:12:32+05:00
+
+изменено: src/srtp.rs — вариант SrtpError::CounterRewind { current, requested };
+set_counter: перемотка назад ⇒ Err(CounterRewind) и счётчик не меняется; > MAX_COUNTER ⇒ CounterOverflow.
+
+красный прогон: waves/RW-25/red-W26a-fix2.log (exit code 101, ошибка компиляции: нет варианта CounterRewind)
+
+$ cargo test --offline -p discord-voice --test srtp_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-w26a/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test short_packet_k ... ok
+test rtp_version_k ... ok
+test incoming_srtcp_k ... ok
+test counter_overflow_k ... ok
+test unsupported_mode_k ... ok
+test rtp_layout_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... ok
+test rtp_tamper_k ... ok
+test rtp_roundtrip_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_layout_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test rtp_counter_shared_k ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit code: 0
+
+на момент реализации F-A2 (до F-A3) прогон давал: 21 passed; 0 failed

@@ -1,0 +1,34 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved import `discord_voice::udp::empty_srtcp_receiver_report`
+ --> crates/discord-voice/tests/udp.rs:4:28
+  |
+4 |     empty_receiver_report, empty_srtcp_receiver_report, keepalive_request, keepalive_response,
+  |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `empty_srtcp_receiver_report` in `udp`
+  |
+help: a similar name exists in the module
+  |
+4 -     empty_receiver_report, empty_srtcp_receiver_report, keepalive_request, keepalive_response,
+4 +     empty_receiver_report, empty_receiver_report, keepalive_request, keepalive_response,
+  |
+
+error[E0277]: can't compare `[u8; 28]` with `[{integer}; 8]`
+   --> crates/discord-voice/tests/udp.rs:224:5
+    |
+224 |     assert_eq!(packet, [0x80, 0xc9, 0, 1, 0, 0, 0x23, 0xf8]);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `[u8; 28] == [{integer}; 8]`
+    |
+    = help: the trait `PartialEq<[{integer}; 8]>` is not implemented for `[u8; 28]`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&[T]` implements `PartialEq<Vec<U, A>>`
+              `&[T]` implements `PartialEq<[U; N]>`
+              `&[u8; N]` implements `PartialEq<ByteStr>`
+              `&[u8; N]` implements `PartialEq<ByteString>`
+              `&[u8]` implements `PartialEq<ByteStr>`
+              `&[u8]` implements `PartialEq<ByteString>`
+              `&mut [T]` implements `PartialEq<Vec<U, A>>`
+              `&mut [T]` implements `PartialEq<[U; N]>`
+            and 11 others
+
+Some errors have detailed explanations: E0277, E0432.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `discord-voice` (test "udp") due to 2 previous errors

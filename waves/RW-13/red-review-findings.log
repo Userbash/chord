@@ -1,0 +1,22 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0433]: cannot find `Event` in `discord_core`
+   --> crates/discord-core/tests/state_reducer.rs:473:31
+    |
+473 |     let event = discord_core::Event::from_frame(&frame).expect("minimal READY");
+    |                               ^^^^^ could not find `Event` in `discord_core`
+
+error[E0433]: cannot find `State` in `discord_core`
+   --> crates/discord-core/tests/state_reducer.rs:475:53
+    |
+475 |         EventPayload::Ready(ready) => discord_core::State::from_ready(ready),
+    |                                                     ^^^^^ could not find `State` in `discord_core`
+
+error[E0425]: cannot find function `apply` in crate `discord_core`
+   --> crates/discord-core/tests/state_reducer.rs:478:36
+    |
+478 |     let (state, _) = discord_core::apply(state, event);
+    |                                    ^^^^^ not found in `discord_core`
+
+Some errors have detailed explanations: E0425, E0433.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-core` (test "state_reducer") due to 3 previous errors

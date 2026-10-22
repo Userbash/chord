@@ -1,0 +1,24 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 1 test
+test tests::plural_exact_and_fractional_categories_are_cldr_safe ... FAILED
+
+failures:
+
+---- tests::plural_exact_and_fractional_categories_are_cldr_safe stdout ----
+
+thread 'tests::plural_exact_and_fractional_categories_are_cldr_safe' (93897) panicked at crates/discord-i18n/src/lib.rs:901:9:
+assertion `left == right` failed
+  left: "few"
+ right: "one"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::plural_exact_and_fractional_categories_are_cldr_safe
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --lib`

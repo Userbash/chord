@@ -1,0 +1,87 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: function `find_crlf` is never used
+  --> crates/discord-core/src/rest/http1.rs:46:4
+   |
+46 | fn find_crlf(bytes: &[u8], from: usize) -> Option<usize> {
+   |    ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running tests/rest_http1.rs (target/debug/deps/rest_http1-4977f16e590edf4c)
+
+running 14 tests
+test chunked_flag_rules ... ok
+test content_length_rules ... ok
+test decode_chunked_extensions_and_trailers ... FAILED
+test decode_chunked_errors ... FAILED
+test decode_chunked_incomplete_at_every_split ... FAILED
+test encode_request_checks_supplied_content_length ... FAILED
+test encode_request_get_has_no_content_length ... FAILED
+test decode_chunked_rfc_example ... FAILED
+test encode_request_post_adds_content_length ... FAILED
+test encode_request_rejects_injection_and_bad_target ... FAILED
+test header_lookup_is_case_insensitive ... ok
+test parse_head_200 ... ok
+test parse_head_versions_and_malformed ... ok
+test parse_head_incomplete_and_limit ... ok
+
+failures:
+
+---- decode_chunked_extensions_and_trailers stdout ----
+
+thread 'decode_chunked_extensions_and_trailers' (53800) panicked at crates/discord-core/src/rest/http1.rs:255:5:
+not yet implemented: W10a: decode_chunked
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- decode_chunked_errors stdout ----
+
+thread 'decode_chunked_errors' (53799) panicked at crates/discord-core/src/rest/http1.rs:255:5:
+not yet implemented: W10a: decode_chunked
+
+---- decode_chunked_incomplete_at_every_split stdout ----
+
+thread 'decode_chunked_incomplete_at_every_split' (53801) panicked at crates/discord-core/src/rest/http1.rs:255:5:
+not yet implemented: W10a: decode_chunked
+
+---- encode_request_checks_supplied_content_length stdout ----
+
+thread 'encode_request_checks_supplied_content_length' (53803) panicked at crates/discord-core/src/rest/http1.rs:269:5:
+not yet implemented: W10a: encode_request
+
+---- encode_request_get_has_no_content_length stdout ----
+
+thread 'encode_request_get_has_no_content_length' (53804) panicked at crates/discord-core/src/rest/http1.rs:269:5:
+not yet implemented: W10a: encode_request
+
+---- decode_chunked_rfc_example stdout ----
+
+thread 'decode_chunked_rfc_example' (53802) panicked at crates/discord-core/src/rest/http1.rs:255:5:
+not yet implemented: W10a: decode_chunked
+
+---- encode_request_post_adds_content_length stdout ----
+
+thread 'encode_request_post_adds_content_length' (53805) panicked at crates/discord-core/src/rest/http1.rs:269:5:
+not yet implemented: W10a: encode_request
+
+---- encode_request_rejects_injection_and_bad_target stdout ----
+
+thread 'encode_request_rejects_injection_and_bad_target' (53806) panicked at crates/discord-core/src/rest/http1.rs:269:5:
+not yet implemented: W10a: encode_request
+
+
+failures:
+    decode_chunked_errors
+    decode_chunked_extensions_and_trailers
+    decode_chunked_incomplete_at_every_split
+    decode_chunked_rfc_example
+    encode_request_checks_supplied_content_length
+    encode_request_get_has_no_content_length
+    encode_request_post_adds_content_length
+    encode_request_rejects_injection_and_bad_target
+
+test result: FAILED. 6 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_http1`
+# EXIT=101

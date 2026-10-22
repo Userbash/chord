@@ -1,0 +1,138 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0432]: unresolved import `discord_platform::autostart`
+  --> crates/discord-platform/tests/autostart_contract.rs:10:23
+   |
+10 | use discord_platform::autostart::{
+   |                       ^^^^^^^^^ could not find `autostart` in `discord_platform`
+
+warning: method call on a diverging inference variable
+  --> crates/discord-platform/tests/autostart_contract.rs:46:19
+   |
+46 |     assert!(!text.contains("Hidden=true"));
+   |                   ^^^^^^^^
+   |
+   = help: consider providing a type annotation
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+   = note: `#[warn(method_call_on_diverging_infer_var)]` (part of `#[warn(future_incompatible)]`) on by default
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:46:19
+   |
+46 |     assert!(!text.contains("Hidden=true"));
+   |                   ^^^^^^^^ method not found in `!`
+
+error[E0277]: can't compare `!` with `&str`
+  --> crates/discord-platform/tests/autostart_contract.rs:37:5
+   |
+37 | /     assert_eq!(
+38 | |         text,
+39 | |         "[Desktop Entry]\n\
+40 | |          Type=Application\n\
+...  |
+44 | |          Terminal=false\n"
+45 | |     );
+   | |_____^ no implementation for `! == &str`
+   |
+help: the trait `PartialEq<&str>` is not implemented for `!`
+      but trait `PartialEq<!>` is implemented for it
+  --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:2312:4
+   = help: for that trait implementation, expected `!`, found `&str`
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:47:19
+   |
+47 |     assert!(!text.contains("Terminal=true"));
+   |                   ^^^^^^^^ method not found in `!`
+
+warning: unreachable expression
+  --> crates/discord-platform/tests/autostart_contract.rs:47:28
+   |
+47 |     assert!(!text.contains("Terminal=true"));
+   |              ----          ^^^^^^^^^^^^^^^ unreachable expression
+   |              |
+   |              any code following this expression is unreachable
+   |
+   = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method call on a diverging inference variable
+  --> crates/discord-platform/tests/autostart_contract.rs:59:18
+   |
+59 |     assert!(text.contains("\nX-GNOME-Autostart-enabled=false\n"), "{text}");
+   |                  ^^^^^^^^
+   |
+   = help: consider providing a type annotation
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:59:18
+   |
+59 |     assert!(text.contains("\nX-GNOME-Autostart-enabled=false\n"), "{text}");
+   |                  ^^^^^^^^ method not found in `!`
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:60:19
+   |
+60 |     assert!(!text.contains("X-GNOME-Autostart-enabled=true"), "{text}");
+   |                   ^^^^^^^^ method not found in `!`
+
+warning: unreachable expression
+  --> crates/discord-platform/tests/autostart_contract.rs:60:28
+   |
+60 |     assert!(!text.contains("X-GNOME-Autostart-enabled=true"), "{text}");
+   |              ----          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable expression
+   |              |
+   |              any code following this expression is unreachable
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:61:19
+   |
+61 |     assert!(!text.contains("Hidden=true"), "{text}");
+   |                   ^^^^^^^^ method not found in `!`
+
+warning: unreachable expression
+  --> crates/discord-platform/tests/autostart_contract.rs:61:28
+   |
+61 |     assert!(!text.contains("Hidden=true"), "{text}");
+   |              ----          ^^^^^^^^^^^^^ unreachable expression
+   |              |
+   |              any code following this expression is unreachable
+
+warning: method call on a diverging inference variable
+  --> crates/discord-platform/tests/autostart_contract.rs:77:14
+   |
+77 |         text.contains(
+   |              ^^^^^^^^
+   |
+   = help: consider providing a type annotation
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:77:14
+   |
+77 |         text.contains(
+   |         -----^^^^^^^^ method not found in `!`
+
+warning: method call on a diverging inference variable
+  --> crates/discord-platform/tests/autostart_contract.rs:97:14
+   |
+97 |         text.contains(
+   |              ^^^^^^^^
+   |
+   = help: consider providing a type annotation
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+
+error[E0599]: no method named `contains` found for type `!` in the current scope
+  --> crates/discord-platform/tests/autostart_contract.rs:97:14
+   |
+97 |         text.contains(
+   |         -----^^^^^^^^ method not found in `!`
+
+Some errors have detailed explanations: E0277, E0432, E0599.
+For more information about an error, try `rustc --explain E0277`.
+warning: `discord-platform` (test "autostart_contract") generated 7 warnings
+error: could not compile `discord-platform` (test "autostart_contract") due to 9 previous errors; 11 warnings emitted
+EXIT=101

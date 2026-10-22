@@ -1,0 +1,63 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_core::state::Activity`, `discord_core::state::ActivityType`, `discord_core::state::MergedPresences`, `discord_core::state::Presence`, `discord_core::state::PresenceKey`, `discord_core::state::PresenceScope`, `discord_core::state::PresenceStatus`, `discord_core::state::PresenceUpdate`
+  --> crates/discord-core/tests/presence_types.rs:15:5
+   |
+15 |     Activity, ActivityType, Event, EventError, EventPayload, MergedPresences, Presence,
+   |     ^^^^^^^^  ^^^^^^^^^^^^                                   ^^^^^^^^^^^^^^^  ^^^^^^^^ no `Presence` in `state`
+   |     |         |                                              |
+   |     |         no `ActivityType` in `state`                   no `MergedPresences` in `state`
+   |     no `Activity` in `state`
+16 |     PresenceKey, PresenceScope, PresenceStatus, PresenceUpdate, State, StateDiagnostics,
+   |     ^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^ no `PresenceUpdate` in `state`
+   |     |            |              |
+   |     |            |              no `PresenceStatus` in `state`
+   |     |            no `PresenceScope` in `state`
+   |     no `PresenceKey` in `state`
+   |
+help: a similar name exists in the module
+   |
+15 -     Activity, ActivityType, Event, EventError, EventPayload, MergedPresences, Presence,
+15 +     Activity, ActivityType, Event, EventError, EventPayload, MemberPresence, Presence,
+   |
+
+error[E0599]: no variant, associated function, or constant named `PresenceUpdate` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/presence_types.rs:23:23
+   |
+23 |         EventPayload::PresenceUpdate(update) => (update, event.diagnostics),
+   |                       ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0609]: no field `merged_presences` on type `discord_core::state::ReadySupplemental`
+   --> crates/discord-core/tests/presence_types.rs:447:31
+    |
+447 |     let merged = supplemental.merged_presences;
+    |                               ^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_ids`, `merged_members`
+
+error[E0609]: no field `presences` on type `State`
+   --> crates/discord-core/tests/presence_types.rs:480:19
+    |
+480 |     assert!(state.presences.is_empty());
+    |                   ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 16 others
+
+error[E0609]: no field `merged_presences` on type `discord_core::state::ReadySupplemental`
+   --> crates/discord-core/tests/presence_types.rs:511:29
+    |
+511 |     assert_eq!(supplemental.merged_presences.friends.len(), 0);
+    |                             ^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_ids`, `merged_members`
+
+error[E0609]: no field `merged_presences` on type `discord_core::state::ReadySupplemental`
+   --> crates/discord-core/tests/presence_types.rs:512:29
+    |
+512 |     assert_eq!(supplemental.merged_presences.guilds.len(), 1);
+    |                             ^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_ids`, `merged_members`
+
+Some errors have detailed explanations: E0432, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "presence_types") due to 6 previous errors

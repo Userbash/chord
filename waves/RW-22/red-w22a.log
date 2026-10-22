@@ -1,0 +1,87 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+error[E0432]: unresolved imports `super::Catalog`, `super::I18n`, `super::Value`
+  --> crates/discord-i18n/src/lib.rs:54:21
+   |
+54 |         use super::{Catalog, I18n, Value};
+   |                     ^^^^^^^  ^^^^  ^^^^^ no `Value` in the root
+   |                     |        |
+   |                     |        no `I18n` in the root
+   |                     no `Catalog` in the root
+
+error[E0432]: unresolved imports `super::parse_markdown`, `super::render_markdown`
+  --> crates/discord-i18n/src/lib.rs:79:21
+   |
+79 |         use super::{parse_markdown, render_markdown};
+   |                     ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `render_markdown` in the root
+   |                     |
+   |                     no `parse_markdown` in the root
+
+error[E0433]: cannot find `TranslateError` in `super`
+  --> crates/discord-i18n/src/lib.rs:68:68
+   |
+68 |         assert!(matches!(i.translate("missing", &args), Err(super::TranslateError::MissingMessage { .. })));
+   |                                                                    ^^^^^^^^^^^^^^ could not find `TranslateError` in the crate root
+
+error[E0433]: cannot find `TranslateError` in `super`
+  --> crates/discord-i18n/src/lib.rs:69:77
+   |
+69 |         assert!(matches!(i.translate("hello", &BTreeMap::new()), Err(super::TranslateError::MissingArgument { .. })));
+   |                                                                             ^^^^^^^^^^^^^^ could not find `TranslateError` in the crate root
+
+error[E0433]: cannot find `Catalog` in `super`
+  --> crates/discord-i18n/src/lib.rs:96:34
+   |
+96 |             let catalog = super::Catalog::parse(&value).unwrap();
+   |                                  ^^^^^^^ could not find `Catalog` in the crate root
+
+error[E0425]: cannot find function `message_key` in module `super`
+  --> crates/discord-i18n/src/lib.rs:39:31
+   |
+39 |             assert_eq!(super::message_key(input), expected);
+   |                               ^^^^^^^^^^^ not found in `super`
+
+error[E0425]: cannot find function `xxh64` in module `super`
+  --> crates/discord-i18n/src/lib.rs:41:27
+   |
+41 |         assert_eq!(super::xxh64(b"", 0), 0xef46_db37_51d8_e999);
+   |                           ^^^^^ not found in `super`
+
+error[E0425]: cannot find function `message_key` in module `super`
+  --> crates/discord-i18n/src/lib.rs:42:27
+   |
+42 |         assert_eq!(super::message_key("abc").len(), 6);
+   |                           ^^^^^^^^^^^ not found in `super`
+
+error[E0425]: cannot find value `SUPPORTED_LOCALES` in module `super`
+  --> crates/discord-i18n/src/lib.rs:43:27
+   |
+43 |         assert_eq!(super::SUPPORTED_LOCALES.len(), 36);
+   |                           ^^^^^^^^^^^^^^^^^ not found in `super`
+
+error[E0425]: cannot find function `resolve_locale` in module `super`
+  --> crates/discord-i18n/src/lib.rs:46:27
+   |
+46 |         assert_eq!(super::resolve_locale("RU-ru", &available), "ru");
+   |                           ^^^^^^^^^^^^^^ not found in `super`
+
+error[E0425]: cannot find function `resolve_locale` in module `super`
+  --> crates/discord-i18n/src/lib.rs:47:27
+   |
+47 |         assert_eq!(super::resolve_locale("fr-FR", &available), "fr");
+   |                           ^^^^^^^^^^^^^^ not found in `super`
+
+error[E0425]: cannot find function `resolve_locale` in module `super`
+  --> crates/discord-i18n/src/lib.rs:48:27
+   |
+48 |         assert_eq!(super::resolve_locale("pt-PT", &available), "en-US");
+   |                           ^^^^^^^^^^^^^^ not found in `super`
+
+error[E0425]: cannot find function `resolve_locale` in module `super`
+  --> crates/discord-i18n/src/lib.rs:49:27
+   |
+49 |         assert_eq!(super::resolve_locale("", &available), "en-US");
+   |                           ^^^^^^^^^^^^^^ not found in `super`
+
+Some errors have detailed explanations: E0425, E0432, E0433.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-i18n` (lib test) due to 13 previous errors

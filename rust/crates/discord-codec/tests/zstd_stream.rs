@@ -1,4 +1,5 @@
-//! Инкрементальный декодер zstd-потока шлюза Discord (волна RW-02, P0-03 / T-ENC-04).
+//! Инкрементальный декодер zstd-потока шлюза Discord (волна RW-02, P0-03 / T-ENC-04;
+//! strict-контракт ошибок — P1-02/B02).
 //!
 //! **Провенанс оракулов** (независимые артефакты, не подгонка под реализацию):
 //! - синтетический кадр `tests/data/synth-zstd-frame.hexl` (67 Б) собран Node-скриптом
@@ -162,6 +163,53 @@ fn synth_frame_byte_by_byte() {
         );
     }
     assert_matches_payload(&out, "кадр по одному байту");
+}
+
+#[test]
+fn fresh_stream_is_not_finished_and_not_dead() {
+    let stream = ZstdStream::new();
+    assert!(!stream.is_finished(), "у свежего потока кадра ещё нет");
+    assert!(!stream.is_dead(), "свежий поток живой");
+    assert_eq!(stream.compressed_consumed(), 0);
+}
+
+#[test]
+fn missing_magic_poisons_stream() {
+    let mut stream = ZstdStream::new();
+    assert!(matches!(
+        stream.push(&[0, 1, 2, 3, 4]),
+        Err(ZstdError::MissingMagic)
+    ));
+    assert!(stream.is_dead(), "MissingMagic терминален");
+    assert!(matches!(stream.push(&[]), Err(ZstdError::Poisoned)));
+    assert!(matches!(
+        stream.push(&synth_frame()),
+        Err(ZstdError::Poisoned)
+    ));
+}
+
+#[test]
+fn decode_error_poisons_stream() {
+    let mut frame = synth_frame();
+    frame[12] ^= 0xff;
+    let mut stream = ZstdStream::new();
+    assert!(matches!(stream.push(&frame), Err(ZstdError::Decode { .. })));
+    assert!(stream.is_dead(), "Decode терминален");
+    assert!(matches!(stream.push(&[]), Err(ZstdError::Poisoned)));
+}
+
+#[test]
+fn trailing_data_poisons_stream() {
+    let frame = synth_frame();
+    let mut stream = ZstdStream::new();
+    stream.push(&frame).expect("кадр целиком");
+    assert!(stream.is_finished(), "полный кадр завершён");
+    assert!(matches!(
+        stream.push(&[0]),
+        Err(ZstdError::TrailingData { bytes: 1 })
+    ));
+    assert!(stream.is_dead(), "TrailingData терминален");
+    assert!(matches!(stream.push(&[]), Err(ZstdError::Poisoned)));
 }
 
 #[test]

@@ -29,3 +29,7 @@ waves/**/*.rmeta
 waves/**/*.o
 waves/**/*.bin
 waves/**/*.zst
+
+# Локальные векторные индексы Socraticode (генерируются, не исходники)
+/discord-lab-vector-db.json
+/discord-lab-knowledge-vdb.json

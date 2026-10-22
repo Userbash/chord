@@ -1,0 +1,22 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/rest_transport.rs (target/debug/deps/rest_transport-4eb024f7e3712ef8)
+
+running 13 tests
+test endpoint_parse_local_and_normalize ... ok
+test endpoint_parse_https_base ... ok
+test endpoint_rejects_bad_base_and_target ... ok
+test response_shape_is_public ... ok
+test connect_refused_is_error_not_panic ... ok
+test malformed_response_is_protocol_error ... ok
+test get_plain_tcp_with_auto_headers ... ok
+test chunked_response ... ok
+test post_body_and_204 ... ok
+test read_until_close ... ok
+test too_large_body_is_rejected_before_read ... ok
+test tls_untrusted_root_fails ... ok
+test tls_with_custom_root_and_ip_san ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

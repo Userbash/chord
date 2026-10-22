@@ -1,0 +1,102 @@
+# W26b-fix — green-прогон (F1 + F2 + F3)
+# дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b; все команды офлайн
+
+$ cargo test --offline -p discord-perf --test perf_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
+
+running 17 tests
+test budget_cold_start_k ... ok
+test json_float_roundtrip_k ... ok
+test regression_none_k ... ok
+test regression_detected_k ... ok
+test metric_names_k ... ok
+test regression_below_threshold_k ... ok
+test regression_zero_baseline_k ... ok
+test regression_zero_baseline_to_nonzero_k ... ok
+test spec_reference_k ... ok
+test threshold_constant_k ... ok
+test ingest_applied_k ... ok
+test report_shape_k ... ok
+test presence_for_every_member_k ... ok
+test json_roundtrip_k ... ok
+test determinism_k ... ok
+test different_seed_k ... ok
+test reference_report_k ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s
+
+EXIT_CODE=0
+
+$ cargo test --offline -p discord-perf
+test json_float_roundtrip_k ... ok
+test regression_detected_k ... ok
+test regression_below_threshold_k ... ok
+test regression_none_k ... ok
+test regression_zero_baseline_to_nonzero_k ... ok
+test regression_zero_baseline_k ... ok
+test spec_reference_k ... ok
+test threshold_constant_k ... ok
+test ingest_applied_k ... ok
+test report_shape_k ... ok
+test json_roundtrip_k ... ok
+test presence_for_every_member_k ... ok
+test different_seed_k ... ok
+test determinism_k ... ok
+test reference_report_k ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.87s
+
+   Doc-tests discord_perf
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0
+
+$ cargo clippy --offline -p discord-perf --all-targets -- -D warnings
+EXIT_CODE=0
+
+$ cargo fmt -p discord-perf -- --check   # не --all: чужой крейт discord-voice дописывается другим воркером
+EXIT_CODE=0
+
+$ cargo test --offline --release -p discord-perf --test perf_contract -- --nocapture --test-threads=1   # замер бюджета на release
+
+running 17 tests
+test budget_cold_start_k ... budget_cold_start_k: холодный старт, мс (прогоны [46.42873899999999, 46.57721, 52.512375999999996]), медиана 46.57721, референс ≤ 1500
+ok
+test determinism_k ... ok
+test different_seed_k ... ok
+test ingest_applied_k ... ok
+test json_float_roundtrip_k ... ok
+test json_roundtrip_k ... ok
+test metric_names_k ... ok
+test presence_for_every_member_k ... ok
+test reference_report_k ... reference_report_k: {
+  "spec": {
+    "members": 24229,
+    "messages": 100000,
+    "channels": 512,
+    "seed": 54324593195745281
+  },
+  "cold_start_ms": 53.195377,
+  "ingest_ms": 56.31032,
+  "selector_us": 14.64,
+  "members_loaded": 24229,
+  "messages_ingested": 100000,
+  "digest": 4194907760224858559
+}
+ok
+test regression_below_threshold_k ... ok
+test regression_detected_k ... ok
+test regression_none_k ... ok
+test regression_zero_baseline_k ... ok
+test regression_zero_baseline_to_nonzero_k ... ok
+test report_shape_k ... ok
+test spec_reference_k ... ok
+test threshold_constant_k ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.78s
+
+EXIT_CODE=0

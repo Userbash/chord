@@ -1,0 +1,24 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test keepalive_sequence_matches_capture_and_increments ... FAILED
+
+failures:
+
+---- keepalive_sequence_matches_capture_and_increments stdout ----
+
+thread 'keepalive_sequence_matches_capture_and_increments' (21939) panicked at crates/discord-voice/tests/udp.rs:188:5:
+assertion `left == right` failed
+  left: [19, 55, 202, 254, 0, 0, 0, 1]
+ right: [19, 55, 202, 254, 1, 0, 0, 0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    keepalive_sequence_matches_capture_and_increments
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test udp`

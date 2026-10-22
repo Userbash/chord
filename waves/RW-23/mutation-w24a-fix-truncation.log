@@ -1,0 +1,10 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test discovery_receivers_reject_oversized_datagrams ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+MUTATION INCONCLUSIVE: loopback case skipped because bind returned PermissionDenied; this is not counted as caught. Restored udp.rs with cp + touch.
+

@@ -1,0 +1,43 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::history`
+ --> crates/discord-core/tests/history_pagination.rs:8:19
+  |
+8 | use discord_core::history::{
+  |                   ^^^^^^^ could not find `history` in `discord_core`
+
+error[E0432]: unresolved import `discord_core::history`
+ --> crates/discord-core/tests/history_types.rs:8:19
+  |
+8 | use discord_core::history::{History, HistoryConfig, HistoryError, LiveOutcome};
+  |                   ^^^^^^^ could not find `history` in `discord_core`
+
+error[E0433]: cannot find `history` in `discord_core`
+   --> crates/discord-core/tests/history_pagination.rs:214:23
+    |
+214 |         discord_core::history::LiveOutcome::Replaced
+    |                       ^^^^^^^ could not find `history` in `discord_core`
+
+error[E0433]: cannot find `history` in `discord_core`
+   --> crates/discord-core/tests/history_pagination.rs:259:23
+    |
+259 |         discord_core::history::LiveOutcome::Deferred
+    |                       ^^^^^^^ could not find `history` in `discord_core`
+
+error[E0599]: no associated function or constant named `default` found for struct `State` in the current scope
+   --> crates/discord-core/tests/history_types.rs:25:28
+    |
+ 25 |     let mut state = State::default();
+    |                            ^^^^^^^ associated function or constant not found in `State`
+    |
+note: if you're trying to build a new `State`, consider using `State::from_ready` which returns `State`
+   --> crates/discord-core/src/state/types.rs:149:5
+    |
+149 |     pub fn from_ready(ready: &Ready) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some errors have detailed explanations: E0432, E0433.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "history_pagination") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0432, E0599.
+error: could not compile `discord-core` (test "history_types") due to 2 previous errors

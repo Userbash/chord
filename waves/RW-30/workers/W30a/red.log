@@ -1,0 +1,10 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+error[E0432]: unresolved import `discord_i18n::duration::format_duration`
+  --> crates/discord-i18n/tests/duration_contract.rs:10:5
+   |
+10 |     format_duration,
+   |     ^^^^^^^^^^^^^^^ no `format_duration` in `duration`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-i18n` (test "duration_contract") due to 1 previous error
+# EXIT=101

@@ -1,0 +1,22 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
+
+running 1 test
+test tests::number_formatting_uses_locale_separators_and_keeps_fraction ... FAILED
+
+failures:
+
+---- tests::number_formatting_uses_locale_separators_and_keeps_fraction stdout ----
+
+thread 'tests::number_formatting_uses_locale_separators_and_keeps_fraction' (95522) panicked at crates/discord-i18n/src/lib.rs:883:58:
+called `Result::unwrap()` on an `Err` value: MissingMessage { key: "fallback", locale: "ru" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::number_formatting_uses_locale_separators_and_keeps_fraction
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-i18n --lib`

@@ -1,0 +1,25 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
+
+running 1 test
+test discovery_matches_strace_request_and_response_oracles ... FAILED
+
+failures:
+
+---- discovery_matches_strace_request_and_response_oracles stdout ----
+
+thread 'discovery_matches_strace_request_and_response_oracles' (226) panicked at crates/discord-voice/tests/udp.rs:57:5:
+assertion `left == right` failed
+  left: Ok(Request { ssrc: 2357248 })
+ right: Ok(Request { ssrc: 9208 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    discovery_matches_strace_request_and_response_oracles
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test udp`
+MUTATION CAUGHT: SSRC byte offset; exit 101. Restored udp.rs with cp + touch.

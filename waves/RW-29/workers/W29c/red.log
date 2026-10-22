@@ -1,0 +1,11 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved import `discord_voice::reconnect`
+  --> crates/discord-voice/tests/reconnect_contract.rs:10:20
+   |
+10 | use discord_voice::reconnect::{
+   |                    ^^^^^^^^^ could not find `reconnect` in `discord_voice`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "reconnect_contract") due to 1 previous error
+# EXIT=101

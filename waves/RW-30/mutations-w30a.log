@@ -1,0 +1,17 @@
+m01: KILLED (exit=101) порядок единиц: hours ↔ minutes
+m02: KILLED (exit=101) join2 заменён на join_middle
+m03: KILLED (exit=101) join_middle заменён на join_last
+m04: KILLED (exit=101) нулевые единицы больше не опускаются
+m05: KILLED (exit=101) плюральная категория всегда other
+m06: KILLED (exit=101) фолбэк локали ведёт в ru вместо en-US
+m07: KILLED (exit=101) группировка отключена (value.to_string())
+m08: KILLED (exit=101) нормализация NBSP/NNBSP удалена
+killed 8/8; restored md5 376dbd907d673eb6d796ce41185588fe
+�а join_last | test result: FAILED. 11 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+m04 | exit=101 | KILLED | нулевые единицы больше не опускаются | test result: FAILED. 2 passed; 11 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+m05 | exit=101 | KILLED | плюральная категория всегда other | test result: FAILED. 4 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+m06 | exit=101 | KILLED | фолбэк локали ведёт в ru вместо en-US | test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+m07 | exit=101 | KILLED | группировка отключена (value.to_string()) | test result: FAILED. 9 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+m08 | exit=101 | KILLED | нормализация NBSP/NNBSP удалена | test result: FAILED. 9 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+# итог: killed 8/8
+# restore md5 duration.rs: 376dbd907d673eb6d796ce41185588fe (OK)

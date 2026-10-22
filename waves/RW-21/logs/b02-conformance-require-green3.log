@@ -1,0 +1,25 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/debug/deps/discord_conformance-8d2b42bc27c94d92)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixtures.rs (target/debug/deps/fixtures-8f066d7b3b4308eb)
+
+running 6 tests
+test invalid_names_and_missing_fixtures_are_typed_errors ... ok
+test repository_fixture_resolves ... ok
+test load_helpers_match_direct_read ... ok
+test roots_honor_environment_overrides_without_mutation ... ok
+test manifest_is_readable_and_has_versioned_provenance ... ok
+test lab_only_fixture_resolves_when_lab_is_present ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_conformance
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

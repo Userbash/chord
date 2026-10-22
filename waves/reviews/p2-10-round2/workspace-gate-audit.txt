@@ -1,0 +1,32 @@
+$ audit: waves/B01/logs/p2-10-workspace-final.log
+mtime: 2026-10-21 01:31:05.179232634 +0500
+test_result_ok_lines: 68
+passed_sum: 548
+failed_lines: 0
+voice binaries:
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+running 8 tests
+     Running tests/voice_state_selectors.rs (target/debug/deps/voice_state_selectors-e4ffa869ecfade79)
+running 4 tests
+     Running tests/voice_state_types.rs (target/debug/deps/voice_state_types-f822a2fdd61c2b43)
+running 6 tests
+
+$ audit: targeted final
+mtime: 2026-10-21 01:29:46.020235323 +0500
+running 8 tests
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 4 tests
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 6 tests
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+$ audit: gate
+p2-10-gate-worker.log mtime: 2026-10-21 01:31:37.022093002 +0500
+Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-20T20-31-37-021Z.json
+Вердикт: passed
+waves/B01/gate-worker.json mtime: 2026-10-21 00:58:33.505912131 +0500
+  "startedAt": "2026-10-20T19:58:21.221Z",
+  "verdict": "passed",
+latest .gate: .gate/worker-2026-10-20T20-31-37-021Z.json
+  "startedAt": "2026-10-20T20:31:35.547Z",
+  "verdict": "passed",

@@ -1,0 +1,63 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running tests/presence_reducer.rs (target/debug/deps/presence_reducer-7d0dd0594ee1511b)
+
+running 18 tests
+test r01_live_update_applies_presence_and_user ... ok
+test r05_supplemental_missing_user_inconsistency ... ok
+test r03_private_scope ... ok
+test r06_offline_unknown_is_noop ... ok
+test r02_live_update_last_wins ... ok
+test r07_offline_removes_single_scope ... ok
+test r09_offline_with_hidden_stays_visible ... ok
+test r08_offline_other_guild_keeps_online_until_all_offline ... ok
+test r11_member_list_offline_unknown_is_noop ... ok
+test r13_chunk_presences_are_applied ... ok
+test r15_stale_sequence_does_not_change_presence ... ok
+test r18_member_list_empty_status_is_diagnosed ... ok
+test r16_ready_resets_presence ... ok
+test r14_chunk_without_presences ... ok
+test r17_member_list_delete_keeps_presence ... ok
+test r12_member_list_does_not_touch_users ... ok
+test r04_supplemental_initial_snapshot ... ok
+test r10_member_list_presence_integration ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/presence_selectors.rs (target/debug/deps/presence_selectors-0c75f6f5813611bf)
+
+running 18 tests
+test s01_status_and_defaults ... ok
+test s04_offline_scope_is_not_selected ... ok
+test s03_tie_breaks_by_activity_count ... ok
+test s05_scope_and_user_selectors ... ok
+test s08_activity_selectors ... ok
+test s06_activity_order ... ok
+test s02_aggregate_uses_latest_processed ... ok
+test s09_client_status_and_mobile_vr ... ok
+test s11_activities_by_guild ... ok
+test s12_hidden_activities ... ok
+test s07_multiple_playing_collapse ... ok
+test s13_empty_state_selectors ... ok
+test s10_online_selectors ... ok
+test s16_vr_and_mobile_client_guards ... FAILED
+test s17_displayable_tie_break ... ok
+test s15_offline_hidden_does_not_downgrade_online ... ok
+test s18_offline_selector_status_semantics ... ok
+test s14_member_presence_activities ... ok
+
+failures:
+
+---- s16_vr_and_mobile_client_guards stdout ----
+
+thread 's16_vr_and_mobile_client_guards' (551392) panicked at crates/discord-core/tests/presence_selectors.rs:446:5:
+assertion failed: state.is_vr_online(950)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    s16_vr_and_mobile_client_guards
+
+test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test presence_selectors`

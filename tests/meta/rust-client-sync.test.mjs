@@ -42,6 +42,7 @@ const TEST_GROUPS = [
 const CRATES = [
   "discord-codec", "discord-core", "discord-store", "discord-voice", "discord-media",
   "discord-platform", "discord-i18n", "discord-ui", "discord-app", "discord-conformance",
+  "discord-perf", "discord-updater",
 ];
 
 /**

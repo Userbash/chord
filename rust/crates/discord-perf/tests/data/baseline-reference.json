@@ -1,0 +1,14 @@
+{
+  "spec": {
+    "members": 24229,
+    "messages": 100000,
+    "channels": 512,
+    "seed": 54324593195745281
+  },
+  "cold_start_ms": 55.580174,
+  "ingest_ms": 58.628688,
+  "selector_us": 14.67,
+  "members_loaded": 24229,
+  "messages_ingested": 100000,
+  "digest": 4194907760224858559
+}

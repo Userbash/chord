@@ -1,0 +1,87 @@
+# мутация M8: rust/crates/discord-voice/src/crypto/aes.rs
+# old: 'x ^ x.rotate_left(1) ^ x.rotate_left(2) ^ x.rotate_left(3) ^ x.rotate_left(4) ^ 0x63'
+# new: 'x ^ x.rotate_left(1) ^ x.rotate_left(2) ^ x.rotate_left(3) ^ x.rotate_left(4) ^ 0x62'
+# команда: cargo test --offline -p discord-voice --test crypto_vectors
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 16 tests
+test aead_rejects_overlong_message_k ... ok
+test aes256_key_debug_redacted_k ... ok
+test aes256_wrong_key_len ... ok
+test chacha20poly1305_k ... ok
+test sbox_matches_fips197_k ... FAILED
+test hkdf_sha1_k ... ok
+test aes256_decrypt_k ... FAILED
+test xchacha20poly1305_k ... ok
+test hkdf_sha1_zero_salt_k ... ok
+test aes256_k ... FAILED
+test gcm_short_input_k ... ok
+test gcm_empty_plaintext_k ... FAILED
+test gcm_k ... FAILED
+test gcm_aad_k ... FAILED
+test gcm_tamper_k ... ok
+test hkdf_sha1_limits_k ... ok
+
+failures:
+
+---- sbox_matches_fips197_k stdout ----
+
+thread 'sbox_matches_fips197_k' (118626) panicked at crates/discord-voice/tests/crypto_vectors.rs:340:9:
+assertion `left == right` failed: S-box для 0x00
+  left: 98
+ right: 99
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- aes256_decrypt_k stdout ----
+
+thread 'aes256_decrypt_k' (118613) panicked at crates/discord-voice/tests/crypto_vectors.rs:129:5:
+assertion `left == right` failed
+  left: [228, 77, 150, 88, 172, 25, 33, 150, 231, 121, 190, 15, 181, 174, 24, 28]
+ right: [107, 193, 190, 226, 46, 64, 159, 150, 233, 61, 126, 17, 115, 147, 23, 42]
+
+---- aes256_k stdout ----
+
+thread 'aes256_k' (118614) panicked at crates/discord-voice/tests/crypto_vectors.rs:119:5:
+assertion `left == right` failed
+  left: [160, 206, 95, 22, 12, 157, 217, 44, 0, 172, 179, 108, 134, 133, 13, 170]
+ right: [243, 238, 209, 189, 181, 210, 160, 60, 6, 75, 90, 126, 61, 177, 129, 248]
+
+---- gcm_empty_plaintext_k stdout ----
+
+thread 'gcm_empty_plaintext_k' (118619) panicked at crates/discord-voice/tests/crypto_vectors.rs:211:5:
+assertion `left == right` failed
+  left: [32, 53, 59, 111, 176, 171, 40, 178, 153, 14, 243, 252, 164, 103, 109, 0]
+ right: [83, 15, 138, 251, 199, 69, 54, 185, 169, 99, 180, 241, 196, 203, 115, 139]
+
+---- gcm_k stdout ----
+
+thread 'gcm_k' (118620) panicked at crates/discord-voice/tests/crypto_vectors.rs:175:5:
+assertion `left == right` failed
+  left: [98, 79, 105, 228, 94, 61, 133, 146, 47, 179, 14, 213, 20, 175, 168, 20]
+ right: [206, 167, 64, 61, 77, 96, 107, 110, 7, 78, 197, 211, 186, 243, 157, 24]
+
+---- gcm_aad_k stdout ----
+
+thread 'gcm_aad_k' (118618) panicked at crates/discord-voice/tests/crypto_vectors.rs:190:5:
+assertion `left == right` failed
+  left: [43, 182, 192, 130, 1, 172, 202, 99, 169, 193, 106, 65, 63, 93, 62, 173, 61, 40, 124, 197, 55, 126, 79, 183, 174, 102, 28, 131, 168, 187, 102, 161, 254, 71, 230, 201, 198, 214, 53, 28, 33, 110, 233, 58, 70, 17, 197, 155, 113, 196, 56, 201, 119, 83, 98, 68, 6, 42, 147, 6]
+ right: [82, 45, 193, 240, 153, 86, 125, 7, 244, 127, 55, 163, 42, 132, 66, 125, 100, 58, 140, 220, 191, 229, 192, 201, 117, 152, 162, 189, 37, 85, 209, 170, 140, 176, 142, 72, 89, 13, 187, 61, 167, 176, 139, 16, 86, 130, 136, 56, 197, 246, 30, 99, 147, 186, 122, 10, 188, 201, 246, 98]
+
+
+failures:
+    aes256_decrypt_k
+    aes256_k
+    gcm_aad_k
+    gcm_empty_plaintext_k
+    gcm_k
+    sbox_matches_fips197_k
+
+test result: FAILED. 10 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/crypto_vectors.rs (/tmp/opencode/target-mut/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
+error: test failed, to rerun pass `-p discord-voice --test crypto_vectors`
+

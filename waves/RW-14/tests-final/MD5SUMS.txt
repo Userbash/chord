@@ -1,0 +1,3 @@
+585fa38f9016ba3f5c5b305f90511fb4  rust/crates/discord-core/tests/history_types.rs
+a7a96812a1ba9b0ac043cd920e63d39e  rust/crates/discord-core/tests/history_pagination.rs
+bd497bf27cef627c23a84bd6bab57d59  rust/crates/discord-core/tests/history_selectors.rs

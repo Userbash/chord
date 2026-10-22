@@ -157,10 +157,11 @@ npm run check         # typecheck + все тесты — «одна кнопк�
   (в git не попадают, как и остальные данные сессий).
 - `docs/rust-client/` — **план создания полноценного нативного клиента Discord на Rust**
   (без Electron и Chromium): концепт (`CONCEPT.md`), каталог функций — 14 групп (`FEATURES.md`),
-  архитектура с 8 графами (`ARCHITECTURE.md`), волны P0–P8 с 60+ карточками (`PLAN.md`),
+  архитектура с 8 графами (`ARCHITECTURE.md`), волны P0–P8 с 90 карточками (`PLAN.md`),
   тест-план с ~130 контрактными тестами на фикстурах RE (`TEST-PLAN.md`); строение объединённого
   проекта (`PROJECT-STRUCTURE.md`), трассировка функция→спека→фикстура→тест (`TRACEABILITY.md`),
-  журнал сверки данных (`VERIFICATION.md`); индекс — `docs/rust-client/README.md`.
+  журнал сверки данных (`VERIFICATION.md`), рабочий промт координатора/воркеров
+  (`DEVELOPMENT-PROMPT.md`); индекс — `docs/rust-client/README.md`.
   Курированные фикстуры — `fixtures/` (12 записей, md5-манифест), каркас — `rust/` (cargo,
   10 крейтов, офлайн), оракул — `docs/rust-client/verify/verify-re.mjs`.
 - Мета-контроль: `tests/meta/backlog-sync.test.mjs` стережёт, что бэклог, анализы, карта
@@ -344,8 +345,16 @@ round-trip байт-в-байт, fuzz-lite; приёмка пройдена (н�
 Волна RW-2 — zstd-stream декодер (`discord-codec`, карточка RW-02, план P0-03) поверх `ruzstd`:
 непрерывный кадр без `end()`, магия только в кадре 0 (сокет 1389: 137 кадров, 104 066 → 824 816 Б
 по оракулу), удержание окна 64 КиБ задокументировано; приёмка пройдена (внешний тест — 390
-проверок, 4/4 мутации пойманы). Теперь `cd rust && cargo test --offline` — 43/43; карточки и
-статусы — `TASKS.md` §RW.
+проверок, 4/4 мутации пойманы). На 2026-10-21 приняты RW-01…RW-21 — **25/90 карточек**
+(P0-02, P0-03, P0-04, P0-07, P1-01, P1-02, P1-03…P1-09, P1-11, P1-12, P2-01, P2-02,
+P2-04, P2-05, P2-06, P2-07, P2-08, P2-09, P2-10, P2-11); RW-10…RW-21 прошли повторное
+ревью, P2-01…P2-09 — по несколько раундов, legacy `ready_data` удалён. B02 принят:
+settings 18, codec 43, conformance 6, 11/11 + 13/13 мутаций, P0/P1/P2=0; следующий
+batch B03/RW-22.
+`cd rust && cargo test --offline` — **580/580** (ядро 524/524).
+Карточки и статусы — `TASKS.md`
+§RW, факт — `docs/rust-client/STATUS.md`, план — `docs/rust-client/ROADMAP.md`,
+команда и batch-поток — `docs/rust-client/TEAM.md`.
 
 ## GPU-кодировщики (проба Discord, `discord-webrtc_0`)
 

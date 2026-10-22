@@ -1,0 +1,31 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 1 test
+test capture_frames_match_signal_contract ... FAILED
+
+failures:
+
+---- capture_frames_match_signal_contract stdout ----
+
+thread 'capture_frames_match_signal_contract' (96409) panicked at crates/discord-voice/tests/signaling.rs:74:5:
+assertion failed: parsed.iter().any(|frame|
+        matches!(frame.payload,
+            VoicePayload::Hello(Hello
+            { version: 8, heartbeat_interval_ms: 13_750 })))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    capture_frames_match_signal_contract
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test signaling`

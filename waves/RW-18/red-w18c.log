@@ -1,0 +1,483 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0599]: no method named `status` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:69:22
+   |
+69 |     assert_eq!(state.status(100), PresenceStatus::Online);
+   |                      ^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status_in_guild` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:70:22
+   |
+70 |     assert_eq!(state.status_in_guild(100, 10), PresenceStatus::Online);
+   |                      ^^^^^^^^^^^^^^^
+   |
+help: there is a method `channels_in_guild` with a similar name, but with different arguments
+  --> crates/discord-core/src/state/selectors.rs:39:5
+   |
+39 |     pub fn channels_in_guild(&self, guild_id: u64) -> Vec<&Channel> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `status_in_guild` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:71:22
+   |
+71 |     assert_eq!(state.status_in_guild(100, 20), PresenceStatus::Offline);
+   |                      ^^^^^^^^^^^^^^^
+   |
+help: there is a method `channels_in_guild` with a similar name, but with different arguments
+  --> crates/discord-core/src/state/selectors.rs:39:5
+   |
+39 |     pub fn channels_in_guild(&self, guild_id: u64) -> Vec<&Channel> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `status` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:72:22
+   |
+72 |     assert_eq!(state.status(999), PresenceStatus::Offline);
+   |                      ^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_online` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:73:19
+   |
+73 |     assert!(state.is_online(100));
+   |                   ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_offline` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:74:20
+   |
+74 |     assert!(!state.is_offline(100));
+   |                    ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_offline` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:75:19
+   |
+75 |     assert!(state.is_offline(999));
+   |                   ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:88:26
+   |
+88 |     let selected = state.presence(200).expect("aggregate");
+   |                          ^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:90:22
+   |
+90 |     assert_eq!(state.status(200), PresenceStatus::Idle);
+   |                      ^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status_in_guild` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:91:22
+   |
+91 |     assert_eq!(state.status_in_guild(200, 10), PresenceStatus::Online);
+   |                      ^^^^^^^^^^^^^^^
+   |
+help: there is a method `channels_in_guild` with a similar name, but with different arguments
+  --> crates/discord-core/src/state/selectors.rs:39:5
+   |
+39 |     pub fn channels_in_guild(&self, guild_id: u64) -> Vec<&Channel> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `status_in_guild` found for struct `State` in the current scope
+  --> crates/discord-core/tests/presence_selectors.rs:92:22
+   |
+92 |     assert_eq!(state.status_in_guild(200, 20), PresenceStatus::Idle);
+   |                      ^^^^^^^^^^^^^^^
+   |
+help: there is a method `channels_in_guild` with a similar name, but with different arguments
+  --> crates/discord-core/src/state/selectors.rs:39:5
+   |
+39 |     pub fn channels_in_guild(&self, guild_id: u64) -> Vec<&Channel> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:119:22
+    |
+119 |     assert_eq!(state.presence(300).expect("aggregate").guild_id, Some(20));
+    |                      ^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:132:22
+    |
+132 |     assert_eq!(state.presence(400).expect("aggregate").guild_id, Some(10));
+    |                      ^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:133:22
+    |
+133 |     assert_eq!(state.status(400), PresenceStatus::Online);
+    |                      ^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence_in_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:136:14
+    |
+135 | /         state
+136 | |             .presence_in_guild(400, 20)
+    | |             -^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `presence_scope_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:154:22
+    |
+154 |     assert_eq!(state.presence_scope_count(500), 2);
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence_user_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:155:22
+    |
+155 |     assert_eq!(state.presence_user_count(), 2);
+    |                      ^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name
+    |
+155 -     assert_eq!(state.presence_user_count(), 2);
+155 +     assert_eq!(state.user_count(), 2);
+    |
+
+error[E0599]: no method named `presence_user_ids` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:156:22
+    |
+156 |     assert_eq!(state.presence_user_ids(), vec![500, 501]);
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:157:19
+    |
+157 |     assert!(state.has_presence(500));
+    |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:158:19
+    |
+158 |     assert!(state.has_presence(501));
+    |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `has_presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:159:20
+    |
+159 |     assert!(!state.has_presence(999));
+    |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence_scopes` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:161:10
+    |
+160 |       let scopes = state
+    |  __________________-
+161 | |         .presence_scopes(500)
+    | |         -^^^^^^^^^^^^^^^ method not found in `State`
+    | |_________|
+    |
+
+error[E0599]: no method named `presence_scope` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:166:19
+    |
+166 |     assert!(state.presence_scope(500, PresenceScope::Guild(10)).is_some());
+    |                   ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:191:10
+    |
+190 |       let names = state
+    |  _________________-
+191 | |         .activities(600)
+    | |         -^^^^^^^^^^ method not found in `State`
+    | |_________|
+    |
+
+error[E0599]: no method named `activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:227:10
+    |
+226 |       let names = state
+    |  _________________-
+227 | |         .activities(700)
+    | |         -^^^^^^^^^^ method not found in `State`
+    | |_________|
+    |
+
+error[E0599]: no method named `custom_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:252:22
+    |
+252 |     assert_eq!(state.custom_status(800).expect("custom").name, "custom");
+    |                      ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `primary_activity` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:253:22
+    |
+253 |     assert_eq!(state.primary_activity(800).expect("primary").name, "listen");
+    |                      ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activity_by_type` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:256:14
+    |
+255 | /         state
+256 | |             .activity_by_type(800, ActivityType::Listening)
+    | |             -^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `activity_by_type` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:261:19
+    |
+261 |     assert!(state.activity_by_type(800, ActivityType::Competing).is_none());
+    |                   ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `client_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:269:25
+    |
+269 |     let clients = state.client_status(user).expect("client status");
+    |                         ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_mobile_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:272:19
+    |
+272 |     assert!(state.is_mobile_online(user));
+    |                   ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_vr_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:273:20
+    |
+273 |     assert!(!state.is_vr_online(user));
+    |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `client_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:274:19
+    |
+274 |     assert!(state.client_status(999).is_none());
+    |                   ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_mobile_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:275:20
+    |
+275 |     assert!(!state.is_mobile_online(999));
+    |                    ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_vr_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:276:20
+    |
+276 |     assert!(!state.is_vr_online(999));
+    |                    ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `online_user_ids` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:291:22
+    |
+291 |     assert_eq!(state.online_user_ids(), vec![900, 901, 903]);
+    |                      ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `guild_online_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:292:22
+    |
+292 |     assert_eq!(state.guild_online_count(10), 2);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `guild_online_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:293:22
+    |
+293 |     assert_eq!(state.guild_online_count(20), 1);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `guild_online_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:294:22
+    |
+294 |     assert_eq!(state.guild_online_count(30), 0);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `is_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:295:19
+    |
+295 |     assert!(state.is_online(901));
+    |                   ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_offline` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:296:19
+    |
+296 |     assert!(state.is_offline(902));
+    |                   ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:323:22
+    |
+323 |     assert_eq!(state.activities(1000)[0].name, "guild-b");
+    |                      ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activities_in_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:324:22
+    |
+324 |     assert_eq!(state.activities_in_guild(1000, 10)[0].name, "guild-a");
+    |                      ^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activities_in_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:325:19
+    |
+325 |     assert!(state.activities_in_guild(1000, 30).is_empty());
+    |                   ^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:326:19
+    |
+326 |     assert!(state.activities(999).is_empty());
+    |                   ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:347:26
+    |
+347 |     let presence = state.presence(1100).expect("visible hidden");
+    |                          ^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `hidden_activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:350:22
+    |
+350 |     assert_eq!(state.hidden_activities(1100)[0].name, "hidden");
+    |                      ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:351:22
+    |
+351 |     assert_eq!(state.status(1100), PresenceStatus::Offline);
+    |                      ^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:352:20
+    |
+352 |     assert!(!state.is_online(1100));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `presence` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:359:19
+    |
+359 |     assert!(state.presence(1).is_none());
+    |                   ^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:360:22
+    |
+360 |     assert_eq!(state.status(1), PresenceStatus::Offline);
+    |                      ^^^^^^ method not found in `State`
+
+error[E0599]: no method named `activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:361:19
+    |
+361 |     assert!(state.activities(1).is_empty());
+    |                   ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `hidden_activities` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:362:19
+    |
+362 |     assert!(state.hidden_activities(1).is_empty());
+    |                   ^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `online_user_ids` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:363:19
+    |
+363 |     assert!(state.online_user_ids().is_empty());
+    |                   ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `guild_online_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:364:22
+    |
+364 |     assert_eq!(state.guild_online_count(10), 0);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `guild_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:124:5
+    |
+124 |     pub fn guild_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `presence_user_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:365:22
+    |
+365 |     assert_eq!(state.presence_user_count(), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name
+    |
+365 -     assert_eq!(state.presence_user_count(), 0);
+365 +     assert_eq!(state.user_count(), 0);
+    |
+
+error[E0599]: no method named `presence_scope_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:366:22
+    |
+366 |     assert_eq!(state.presence_scope_count(1), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `client_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:367:19
+    |
+367 |     assert!(state.client_status(1).is_none());
+    |                   ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `primary_activity` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:368:19
+    |
+368 |     assert!(state.primary_activity(1).is_none());
+    |                   ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `custom_status` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:369:19
+    |
+369 |     assert!(state.custom_status(1).is_none());
+    |                   ^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `status_in_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:370:22
+    |
+370 |     assert_eq!(state.status_in_guild(1, 10), PresenceStatus::Offline);
+    |                      ^^^^^^^^^^^^^^^
+    |
+help: there is a method `channels_in_guild` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:39:5
+    |
+ 39 |     pub fn channels_in_guild(&self, guild_id: u64) -> Vec<&Channel> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `presence_scopes` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:371:19
+    |
+371 |     assert!(state.presence_scopes(1).next().is_none());
+    |                   ^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:372:20
+    |
+372 |     assert!(!state.is_online(1));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_offline` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:373:19
+    |
+373 |     assert!(state.is_offline(1));
+    |                   ^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_mobile_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:374:20
+    |
+374 |     assert!(!state.is_mobile_online(1));
+    |                    ^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_vr_online` found for struct `State` in the current scope
+   --> crates/discord-core/tests/presence_selectors.rs:375:20
+    |
+375 |     assert!(!state.is_vr_online(1));
+    |                    ^^^^^^^^^^^^ method not found in `State`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "presence_selectors") due to 66 previous errors

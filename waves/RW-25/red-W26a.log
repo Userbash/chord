@@ -1,0 +1,77 @@
+=== W26a / P4-03 — RED-фаза (до реализации) ===
+дата: 2026-10-22 (лейн A, волна B06/RW-25)
+target-dir: /tmp/opencode/target-w26a (свой слот)
+состояние кода: src/crypto/*.rs и src/srtp.rs — заглушки Team Lead (API отсутствует)
+
+$ cargo test --offline -p discord-voice --test crypto_vectors
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::crypto::aes::Aes256`, `discord_voice::crypto::aes::Aes256Key`
+  --> crates/discord-voice/tests/crypto_vectors.rs:13:34
+   |
+13 | use discord_voice::crypto::aes::{Aes256, Aes256Key};
+   |                                  ^^^^^^  ^^^^^^^^^ no `Aes256Key` in `crypto::aes`
+   |                                  |
+   |                                  no `Aes256` in `crypto::aes`
+
+error[E0432]: unresolved imports `discord_voice::crypto::chacha::ChaCha20Poly1305`, `discord_voice::crypto::chacha::XChaCha20Poly1305`
+  --> crates/discord-voice/tests/crypto_vectors.rs:14:37
+   |
+14 | use discord_voice::crypto::chacha::{ChaCha20Poly1305, XChaCha20Poly1305};
+   |                                     ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `XChaCha20Poly1305` in `crypto::chacha`
+   |                                     |
+   |                                     no `ChaCha20Poly1305` in `crypto::chacha`
+
+error[E0432]: unresolved import `discord_voice::crypto::gcm::Gcm`
+  --> crates/discord-voice/tests/crypto_vectors.rs:15:5
+   |
+15 | use discord_voice::crypto::gcm::Gcm;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^---
+   |                                 |
+   |                                 no `Gcm` in `crypto::gcm`
+
+error[E0432]: unresolved import `discord_voice::crypto::kdf::hkdf_sha1`
+  --> crates/discord-voice/tests/crypto_vectors.rs:16:5
+   |
+16 | use discord_voice::crypto::kdf::hkdf_sha1;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^---------
+   |                                 |
+   |                                 no `hkdf_sha1` in `crypto::kdf`
+
+error[E0432]: unresolved imports `discord_voice::crypto::AES256_KEY_SIZE`, `discord_voice::crypto::CryptoError`, `discord_voice::crypto::GCM_NONCE_SIZE`
+  --> crates/discord-voice/tests/crypto_vectors.rs:17:29
+   |
+17 | use discord_voice::crypto::{AES256_KEY_SIZE, CryptoError, GCM_NONCE_SIZE};
+   |                             ^^^^^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^^^^^^ no `GCM_NONCE_SIZE` in `crypto`
+   |                             |                |
+   |                             |                no `CryptoError` in `crypto`
+   |                             no `AES256_KEY_SIZE` in `crypto`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "crypto_vectors") due to 5 previous errors
+exit code: 101
+
+$ cargo test --offline -p discord-voice --test srtp_contract
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved import `discord_voice::crypto::CryptoError`
+  --> crates/discord-voice/tests/srtp_contract.rs:12:5
+   |
+12 | use discord_voice::crypto::CryptoError;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^-----------
+   |                            |
+   |                            no `CryptoError` in `crypto`
+
+error[E0432]: unresolved imports `discord_voice::srtp::EncryptionMode`, `discord_voice::srtp::SrtpError`, `discord_voice::srtp::SrtpContext`
+  --> crates/discord-voice/tests/srtp_contract.rs:13:27
+   |
+13 | use discord_voice::srtp::{EncryptionMode, SrtpError, SrtpContext};
+   |                           ^^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^ no `SrtpContext` in `srtp`
+   |                           |               |
+   |                           |               no `SrtpError` in `srtp`
+   |                           no `EncryptionMode` in `srtp`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "srtp_contract") due to 2 previous errors
+exit code: 101
+
+=== ИТОГ RED: оба целевых теста не собираются (API отсутствует) ⇒ exit code 101 ===

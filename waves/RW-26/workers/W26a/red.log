@@ -1,0 +1,32 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved import `discord_voice::reception`
+  --> crates/discord-voice/tests/reception_contract.rs:11:20
+   |
+11 | use discord_voice::reception::{
+   |                    ^^^^^^^^^ could not find `reception` in `discord_voice`
+
+error[E0432]: unresolved import `discord_voice::rtcp`
+ --> crates/discord-voice/tests/stats_contract.rs:7:20
+  |
+7 | use discord_voice::rtcp::ReportBlock;
+  |                    ^^^^ could not find `rtcp` in `discord_voice`
+
+error[E0432]: unresolved import `discord_voice::stats`
+ --> crates/discord-voice/tests/stats_contract.rs:8:20
+  |
+8 | use discord_voice::stats::{RttEstimator, StatsSample, StatsWindow, ntp_middle_32};
+  |                    ^^^^^ could not find `stats` in `discord_voice`
+
+error[E0432]: unresolved import `discord_voice::rtcp`
+  --> crates/discord-voice/tests/rtcp_contract.rs:13:20
+   |
+13 | use discord_voice::rtcp::{
+   |                    ^^^^ could not find `rtcp` in `discord_voice`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "stats_contract") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `discord-voice` (test "rtcp_contract") due to 1 previous error
+error: could not compile `discord-voice` (test "reception_contract") due to 1 previous error
+EXIT=101

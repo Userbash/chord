@@ -1,0 +1,45 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/member_list_reducer.rs (target/debug/deps/member_list_reducer-60f05fc60e2f6b38)
+
+running 17 tests
+test m09_update_out_of_range_creates_stub ... ok
+test m10_duplicate_member_is_diagnostic ... FAILED
+test m11_out_of_range_ops_and_insert_into_empty ... ok
+test m13_unknown_guild_is_inconsistency ... ok
+test m15_insert_duplicate_at_same_position_is_diagnostic ... FAILED
+test m05_delete_075_after_sync_and_insert ... ok
+test m04_insert_034_after_sync ... ok
+test m17_update_in_range_replaces_without_shift ... ok
+test m01_sync_008_creates_member_list ... ok
+test m16_two_lists_of_same_guild_are_independent ... ok
+test m12_stale_sequence_is_ignored ... ok
+test m07_group_insert_079 ... ok
+test m03_sync_021_groups_and_counts ... ok
+test m08_second_sync_resets_list ... ok
+test m06_delete_insert_045_after_sync ... ok
+test m02_two_lists_across_guilds_do_not_overwrite_each_other ... ok
+test m14_member_list_has_no_cross_state_side_effects ... ok
+
+failures:
+
+---- m10_duplicate_member_is_diagnostic stdout ----
+
+thread 'm10_duplicate_member_is_diagnostic' (364172) panicked at crates/discord-core/tests/member_list_reducer.rs:305:5:
+assertion failed: state.diagnostics.duplicates.iter().any(|entry|
+        entry.contains("duplicate:42"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- m15_insert_duplicate_at_same_position_is_diagnostic stdout ----
+
+thread 'm15_insert_duplicate_at_same_position_is_diagnostic' (364177) panicked at crates/discord-core/tests/member_list_reducer.rs:345:5:
+диагностика: StateDiagnostics { unknown_top_level: [], malformed: [], duplicates: [], ignored: [], unknown_events: [], unsupported_events: [], stale_sequences: [], inconsistencies: ["guilds:294064825540280335:member-list", "guilds:294064825540280335:member-list"] }
+
+
+failures:
+    m10_duplicate_member_is_diagnostic
+    m15_insert_duplicate_at_same_position_is_diagnostic
+
+test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test member_list_reducer`

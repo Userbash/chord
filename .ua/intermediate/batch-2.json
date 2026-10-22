@@ -1,0 +1,657 @@
+{
+  "batchIndex": 2,
+  "files": [
+    {"path": "rust/crates/discord-core/src/dispatch.rs", "language": "rust", "sizeLines": 158, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/gateway.rs", "language": "rust", "sizeLines": 361, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/identify.rs", "language": "rust", "sizeLines": 315, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/lib.rs", "language": "rust", "sizeLines": 72, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/ready.rs", "language": "rust", "sizeLines": 142, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/ready_data.rs", "language": "rust", "sizeLines": 650, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/resume.rs", "language": "rust", "sizeLines": 160, "fileCategory": "code"},
+    {"path": "rust/crates/discord-core/src/ws.rs", "language": "rust", "sizeLines": 597, "fileCategory": "code"}
+  ],
+  "nodes": [
+    {
+      "id": "file:rust/crates/discord-core/src/dispatch.rs",
+      "type": "file",
+      "name": "dispatch.rs",
+      "filePath": "rust/crates/discord-core/src/dispatch.rs",
+      "summary": "Роутер op0-диспатчей шлюза: перечисление 21 наблюдаемого типа событий и превращение ETF-терма в DispatchEvent без разбора payload.",
+      "complexity": "moderate",
+      "tags": ["event-handler", "gateway", "protocol", "router", "rust"],
+      "languageNotes": "Rust enum с константным массивом ALL и точным сопоставлением имён провода; payload остаётся EtfValue и передаётся вызывающему целиком."
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/gateway.rs",
+      "type": "file",
+      "name": "gateway.rs",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "summary": "Детерминированное ядро сессии шлюза: HELLO, планирование heartbeat с jitter, учёт ACK/RTT, детектор зомби и реакции на op7/op9 без реального транспорта.",
+      "complexity": "complex",
+      "tags": ["state-machine", "gateway", "heartbeat", "protocol", "rust"],
+      "languageNotes": "Виртуальные часы now_ms и saturating-арифметика делают поведение воспроизводимым; паник на входных данных нет."
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/identify.rs",
+      "type": "file",
+      "name": "identify.rs",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "summary": "Сборка кадра IDENTIFY (op2) по структуре веб-клиента: свойства клиента, capabilities, presence, client_state и qos_token с самопроверкой кодеком.",
+      "complexity": "complex",
+      "tags": ["serialization", "gateway", "protocol", "etf", "rust"],
+      "languageNotes": "Токен скрывается в Debug, QoS-токен кодируется вручную минимальным protobuf; строки и ключи map — EtfValue::Str по форме клиентского wetf."
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/lib.rs",
+      "type": "file",
+      "name": "lib.rs",
+      "filePath": "rust/crates/discord-core/src/lib.rs",
+      "summary": "Корень крейта discord-core: объявляет модули транспорта и данных, реэкспортирует публичный API и фиксирует проверенные захватом константы протокола.",
+      "complexity": "moderate",
+      "tags": ["entry-point", "barrel", "crate-root", "constants", "rust"],
+      "languageNotes": "Реэкспорт discord_codec избавляет потребителей от прямой зависимости; константы сверяются тестом с захватом."
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/ready.rs",
+      "type": "file",
+      "name": "ready.rs",
+      "filePath": "rust/crates/discord-core/src/ready.rs",
+      "summary": "Разбор op0 READY в компактную сводку ReadySummary с числами для сверки с оракулом; здесь же объявлены модули типизированной модели READY (P2-01).",
+      "complexity": "moderate",
+      "tags": ["serialization", "data-model", "gateway", "ready", "rust"]
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/ready_data.rs",
+      "type": "file",
+      "name": "ready_data.rs",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "summary": "Legacy-прототип типизированного разбора payload READY: пользователи, гильдии, каналы, роли, read_state и merged_members с якорными ошибками.",
+      "complexity": "complex",
+      "tags": ["data-model", "serialization", "legacy", "ready", "rust"],
+      "languageNotes": "Разбор устойчив к атому \"nil\" и сохраняет порядок ключей; модуль помечен legacy и заменяется контрактом A1 (ready::Ready)."
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/resume.rs",
+      "type": "file",
+      "name": "resume.rs",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "summary": "Сборка кадра RESUME (op6) и политика выбора RESUME либо IDENTIFY после обрыва соединения (порог 30 с, запрет сервера через op9 d=false).",
+      "complexity": "moderate",
+      "tags": ["gateway", "reconnect", "protocol", "session", "rust"]
+    },
+    {
+      "id": "file:rust/crates/discord-core/src/ws.rs",
+      "type": "file",
+      "name": "ws.rs",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "summary": "Транспорт шлюза: пайп zstd→ETF-термы→Session, WS-клиент с heartbeat, таймерами, IDENTIFY/RESUME и исходами Reconnect/Closed.",
+      "complexity": "complex",
+      "tags": ["transport", "websocket", "gateway", "tokio", "rust"],
+      "languageNotes": "На соединение приходится один непрерывный zstd-кадр; решение о реконнекте остаётся вызывающему, ошибки не глотаются."
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/dispatch.rs:DispatchKind",
+      "type": "class",
+      "name": "DispatchKind",
+      "filePath": "rust/crates/discord-core/src/dispatch.rs",
+      "lineRange": [15, 58],
+      "summary": "Перечисление 21 типа op0-диспатчей с точным разбором имени провода и обратным отображением в строку.",
+      "complexity": "simple",
+      "tags": ["enum", "protocol", "gateway", "dispatch"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/dispatch.rs:DispatchEvent",
+      "type": "class",
+      "name": "DispatchEvent",
+      "filePath": "rust/crates/discord-core/src/dispatch.rs",
+      "lineRange": [121, 131],
+      "summary": "Событие диспатча: распознанный вид (или None для неизвестного типа), исходное имя, последовательность s и цельный payload d.",
+      "complexity": "simple",
+      "tags": ["data-model", "event", "dispatch"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/dispatch.rs:route_dispatch",
+      "type": "function",
+      "name": "route_dispatch",
+      "filePath": "rust/crates/discord-core/src/dispatch.rs",
+      "lineRange": [138, 158],
+      "summary": "Преобразует op0 со строковым t в DispatchEvent; неизвестный тип не ошибка — событие с kind None сохраняет имя и payload.",
+      "complexity": "simple",
+      "tags": ["router", "event-handler", "dispatch"]
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/gateway.rs:Op",
+      "type": "class",
+      "name": "Op",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "lineRange": [34, 49],
+      "summary": "Оп-код шлюза: известные варианты из захвата плюс Unknown(i64) для сохранения незнакомых кодов.",
+      "complexity": "simple",
+      "tags": ["enum", "protocol", "gateway"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/gateway.rs:Effect",
+      "type": "class",
+      "name": "Effect",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "lineRange": [86, 97],
+      "summary": "Эффект, который сессия просит выполнить снаружи: отправка heartbeat с последним s либо реконнект с причиной.",
+      "complexity": "simple",
+      "tags": ["effect", "state-machine", "gateway"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/gateway.rs:GatewayError",
+      "type": "class",
+      "name": "GatewayError",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "lineRange": [101, 112],
+      "summary": "Ошибки сессии: недекодируемые байты Decode и нарушенная структура разобранного терма Malformed.",
+      "complexity": "simple",
+      "tags": ["error-handling", "gateway"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/gateway.rs:Session",
+      "type": "class",
+      "name": "Session",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "lineRange": [126, 145],
+      "summary": "Состояние одной сессии шлюза: HELLO, расписание heartbeat, ожидающий ACK удар, последний s, RTT и признак смерти.",
+      "complexity": "complex",
+      "tags": ["state-machine", "session", "heartbeat", "gateway"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/gateway.rs:on_value",
+      "type": "function",
+      "name": "on_value",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "lineRange": [183, 208],
+      "summary": "Диспетчеризует разобранный терм по оп-коду (HELLO, ACK, DISPATCH, op7/op9); значения без целого op считаются и игнорируются, мёртвая сессия молчит.",
+      "complexity": "moderate",
+      "tags": ["state-machine", "event-handler", "gateway"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/gateway.rs:on_timer",
+      "type": "function",
+      "name": "on_timer",
+      "filePath": "rust/crates/discord-core/src/gateway.rs",
+      "lineRange": [214, 236],
+      "summary": "Тик виртуальных часов: сначала проверяет дедлайн зомби, затем срок удара и возвращает соответствующие эффекты.",
+      "complexity": "moderate",
+      "tags": ["timer", "heartbeat", "state-machine", "gateway"]
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/identify.rs:IdentifyProperties",
+      "type": "class",
+      "name": "IdentifyProperties",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [23, 58],
+      "summary": "Супер-свойства клиента и поля идентификации: ОС, браузер, версии, build number, состояние окна и причина коннекта.",
+      "complexity": "moderate",
+      "tags": ["data-model", "identify", "client"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/identify.rs:IdentifyParams",
+      "type": "class",
+      "name": "IdentifyParams",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [103, 118],
+      "summary": "Параметры IDENTIFY: токен, capabilities, свойства, presence, client_state и qos_token; Debug скрывает токен.",
+      "complexity": "simple",
+      "tags": ["data-model", "identify", "security"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/identify.rs:IdentifyError",
+      "type": "class",
+      "name": "IdentifyError",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [140, 145],
+      "summary": "Ошибки сборки IDENTIFY: не-UTF8 qos_token и отказ самопроверки собранного терма кодеком.",
+      "complexity": "simple",
+      "tags": ["error-handling", "identify"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/identify.rs:for_rw_client",
+      "type": "function",
+      "name": "for_rw_client",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [62, 85],
+      "summary": "Дефолтные свойства нашего клиента (Linux, Discord Client, stable, build 641004) по ТЗ RW-05.",
+      "complexity": "moderate",
+      "tags": ["factory", "identify", "defaults"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/identify.rs:properties_value",
+      "type": "function",
+      "name": "properties_value",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [192, 239],
+      "summary": "Собирает map свойств идентификации в порядке супер-свойств и полей handleIdentify, добавляя installation_id только при наличии.",
+      "complexity": "moderate",
+      "tags": ["serialization", "etf", "identify"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/identify.rs:qos_token_client_provided",
+      "type": "function",
+      "name": "qos_token_client_provided",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [172, 174],
+      "summary": "Минимальное protobuf-кодирование QosToken{client_provided{is_active}}.",
+      "complexity": "simple",
+      "tags": ["protobuf", "qos-token", "identify"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/identify.rs:build_identify",
+      "type": "function",
+      "name": "build_identify",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [256, 258],
+      "summary": "Собирает payload IDENTIFY с ведущим 0x83 и проверяет его полную обратимость кодеком.",
+      "complexity": "simple",
+      "tags": ["api", "serialization", "identify"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/identify.rs:build_identify_frame",
+      "type": "function",
+      "name": "build_identify_frame",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [264, 270],
+      "summary": "Оборачивает payload IDENTIFY в проводной кадр {op: 2, d: ...} и выполняет самопроверку сборки.",
+      "complexity": "simple",
+      "tags": ["serialization", "frame", "identify"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/identify.rs:identify_value",
+      "type": "function",
+      "name": "identify_value",
+      "filePath": "rust/crates/discord-core/src/identify.rs",
+      "lineRange": [273, 301],
+      "summary": "Строит ETF-map payload IDENTIFY, включая client_state с guild_versions и необязательный presence.",
+      "complexity": "moderate",
+      "tags": ["serialization", "etf", "identify"]
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/ready.rs:ReadySummary",
+      "type": "class",
+      "name": "ReadySummary",
+      "filePath": "rust/crates/discord-core/src/ready.rs",
+      "lineRange": [30, 63],
+      "summary": "Компактная сводка READY: число ключей, гильдий, каналов, пользователей, связей, read_state и идентификаторы сессии.",
+      "complexity": "moderate",
+      "tags": ["data-model", "summary", "ready"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready.rs:from_dispatch",
+      "type": "function",
+      "name": "from_dispatch",
+      "filePath": "rust/crates/discord-core/src/ready.rs",
+      "lineRange": [67, 122],
+      "summary": "Разбирает op0 READY в ReadySummary, требуя map d и массив guilds; отсутствующие счётчики дают ноль.",
+      "complexity": "moderate",
+      "tags": ["serialization", "ready", "validation"]
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/ready_data.rs:ReadyData",
+      "type": "class",
+      "name": "ReadyData",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [23, 42],
+      "summary": "Типизированное подмножество READY: ключи верхнего уровня, пользователи, гильдии, приватные каналы, связи, read_state, сессии и merged_members.",
+      "complexity": "moderate",
+      "tags": ["data-model", "ready", "legacy"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/ready_data.rs:ReadyParseError",
+      "type": "class",
+      "name": "ReadyParseError",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [244, 259],
+      "summary": "Ошибки разбора READY: NotReady, Missing с путём поля и WrongType с ожидаемым типом.",
+      "complexity": "simple",
+      "tags": ["error-handling", "validation", "ready"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:from_dispatch",
+      "type": "function",
+      "name": "from_dispatch",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [277, 290],
+      "summary": "Проверяет, что терм является op0 с t=READY, и передаёт его d в from_data.",
+      "complexity": "simple",
+      "tags": ["serialization", "ready", "legacy"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:from_data",
+      "type": "function",
+      "name": "from_data",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [293, 337],
+      "summary": "Разбирает d целиком: сохраняет порядок ключей, требует guilds и опционально читает остальные коллекции.",
+      "complexity": "moderate",
+      "tags": ["serialization", "ready", "validation"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:parse_list",
+      "type": "function",
+      "name": "parse_list",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [363, 377],
+      "summary": "Разбирает ETF-последовательность с якорными путями вида path[index]; отсутствие значения даёт пустой вектор.",
+      "complexity": "simple",
+      "tags": ["parsing", "utility", "etf"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:parse_guild",
+      "type": "function",
+      "name": "parse_guild",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [394, 421],
+      "summary": "Разбирает гильдию READY вместе с каналами, ролями, эмодзи и стикерами.",
+      "complexity": "moderate",
+      "tags": ["parsing", "guild", "ready"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:parse_read_state_entry",
+      "type": "function",
+      "name": "parse_read_state_entry",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [506, 534],
+      "summary": "Разбирает запись read_state: последнее сообщение, упоминания, флаги, badge_count и last_acked_id.",
+      "complexity": "moderate",
+      "tags": ["parsing", "read-state", "ready"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:optional_string",
+      "type": "function",
+      "name": "optional_string",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [591, 604],
+      "summary": "Извлекает необязательную строку, трактуя Nil и атом nil как отсутствие, а прочие типы — как ошибку.",
+      "complexity": "simple",
+      "tags": ["parsing", "utility", "etf"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ready_data.rs:optional_id",
+      "type": "function",
+      "name": "optional_id",
+      "filePath": "rust/crates/discord-core/src/ready_data.rs",
+      "lineRange": [612, 623],
+      "summary": "Извлекает необязательный ID из int или строки, сохраняя snowflake как строку без потери int64.",
+      "complexity": "simple",
+      "tags": ["parsing", "utility", "snowflake"]
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/resume.rs:ResumeParams",
+      "type": "class",
+      "name": "ResumeParams",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "lineRange": [23, 30],
+      "summary": "Параметры RESUME: токен, session_id и последний seq; Debug заменяет токен на REDACTED.",
+      "complexity": "simple",
+      "tags": ["data-model", "resume", "security"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/resume.rs:ResumeState",
+      "type": "class",
+      "name": "ResumeState",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "lineRange": [45, 50],
+      "summary": "Состояние, пригодное для продолжения сессии: session_id из READY и последний принятый s.",
+      "complexity": "simple",
+      "tags": ["data-model", "resume", "session"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/resume.rs:ResumeError",
+      "type": "class",
+      "name": "ResumeError",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "lineRange": [54, 61],
+      "summary": "Ошибки сборки RESUME: пустой токен, пустой session_id и отказ самопроверки кодеком.",
+      "complexity": "simple",
+      "tags": ["error-handling", "resume"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/resume.rs:ReconnectAction",
+      "type": "class",
+      "name": "ReconnectAction",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "lineRange": [86, 91],
+      "summary": "Решение супервайзера: продолжить серию через RESUME или начать заново с IDENTIFY.",
+      "complexity": "simple",
+      "tags": ["enum", "reconnect", "policy"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/resume.rs:build_resume_frame",
+      "type": "function",
+      "name": "build_resume_frame",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "lineRange": [107, 126],
+      "summary": "Собирает проводной кадр RESUME {op:6,d:{token,session_id,seq}}, отвергая пустые токен и session_id.",
+      "complexity": "moderate",
+      "tags": ["serialization", "frame", "resume"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/resume.rs:plan_reconnect",
+      "type": "function",
+      "name": "plan_reconnect",
+      "filePath": "rust/crates/discord-core/src/resume.rs",
+      "lineRange": [145, 160],
+      "summary": "Выбирает IDENTIFY при отсутствии сессии, простое не меньше 30 с или запрете сервера; иначе RESUME.",
+      "complexity": "simple",
+      "tags": ["policy", "reconnect", "resume"]
+    },
+
+    {
+      "id": "class:rust/crates/discord-core/src/ws.rs:GatewayPipe",
+      "type": "class",
+      "name": "GatewayPipe",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [74, 99],
+      "summary": "Пайп соединения: инкрементальный zstd-декодер, хвост термов, сессия, счётчики, сводка READY и буфер событий.",
+      "complexity": "complex",
+      "tags": ["pipeline", "transport", "gateway"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/ws.rs:RunOptions",
+      "type": "class",
+      "name": "RunOptions",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [300, 303],
+      "summary": "Опции прогона: необязательные параметры IDENTIFY, отправляемого один раз после первого HELLO.",
+      "complexity": "simple",
+      "tags": ["options", "transport"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/ws.rs:RunOutcome",
+      "type": "class",
+      "name": "RunOutcome",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [314, 325],
+      "summary": "Исход прогона соединения: Reconnect с причиной либо Closed с кодом закрытия из кадра.",
+      "complexity": "simple",
+      "tags": ["enum", "transport", "outcome"]
+    },
+    {
+      "id": "class:rust/crates/discord-core/src/ws.rs:TransportError",
+      "type": "class",
+      "name": "TransportError",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [329, 348],
+      "summary": "Ошибки транспорта: Connect, Ws, Zstd, Frame, Identify и Resume; ни одна не является паникой.",
+      "complexity": "moderate",
+      "tags": ["error-handling", "transport"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:push_binary",
+      "type": "function",
+      "name": "push_binary",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [129, 192],
+      "summary": "Подаёт WS-сообщение в zstd-пайп, разбирает полные термы, обновляет READY/op9/события и копит разрезанный хвост.",
+      "complexity": "complex",
+      "tags": ["pipeline", "parsing", "transport"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:encode_heartbeat",
+      "type": "function",
+      "name": "encode_heartbeat",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [284, 296],
+      "summary": "Кодирует несжатый кадр heartbeat {op:1,d:<последний s либо null>} без паник при насыщении.",
+      "complexity": "simple",
+      "tags": ["serialization", "heartbeat", "etf"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:connect_and_run",
+      "type": "function",
+      "name": "connect_and_run",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [383, 388],
+      "summary": "Подключается к шлюзу без IDENTIFY и крутит цикл до исхода.",
+      "complexity": "simple",
+      "tags": ["transport", "api", "websocket"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_with",
+      "type": "function",
+      "name": "connect_and_run_with",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [391, 397],
+      "summary": "Подключается к шлюзу с опциями RunOptions и без RESUME.",
+      "complexity": "simple",
+      "tags": ["transport", "api", "websocket"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_resume",
+      "type": "function",
+      "name": "connect_and_run_resume",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [404, 487],
+      "summary": "Цикл соединения: select по WS-сообщению и таймеру, эффекты heartbeat/reconnect и однократная отправка IDENTIFY или RESUME после HELLO.",
+      "complexity": "complex",
+      "tags": ["transport", "websocket", "event-loop"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:maybe_send_handshake",
+      "type": "function",
+      "name": "maybe_send_handshake",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [493, 520],
+      "summary": "После первого HELLO один раз отправляет RESUME либо IDENTIFY, отдавая приоритет RESUME.",
+      "complexity": "moderate",
+      "tags": ["handshake", "transport", "identify"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:apply_effects",
+      "type": "function",
+      "name": "apply_effects",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [531, 552],
+      "summary": "Выполняет эффекты сессии: пишет heartbeat-кадр или прерывает цикл исходом Reconnect.",
+      "complexity": "simple",
+      "tags": ["effects", "transport"]
+    },
+    {
+      "id": "function:rust/crates/discord-core/src/ws.rs:tls_connector",
+      "type": "function",
+      "name": "tls_connector",
+      "filePath": "rust/crates/discord-core/src/ws.rs",
+      "lineRange": [578, 597],
+      "summary": "Собирает TLS-коннектор для wss:// на ring-провайдере и корнях webpki-roots.",
+      "complexity": "moderate",
+      "tags": ["tls", "security", "transport"]
+    }
+  ],
+  "edges": [
+    {"source": "file:rust/crates/discord-core/src/dispatch.rs", "target": "class:rust/crates/discord-core/src/dispatch.rs:DispatchKind", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/dispatch.rs", "target": "class:rust/crates/discord-core/src/dispatch.rs:DispatchEvent", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/dispatch.rs", "target": "function:rust/crates/discord-core/src/dispatch.rs:route_dispatch", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/gateway.rs", "target": "class:rust/crates/discord-core/src/gateway.rs:Op", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/gateway.rs", "target": "class:rust/crates/discord-core/src/gateway.rs:Effect", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/gateway.rs", "target": "class:rust/crates/discord-core/src/gateway.rs:GatewayError", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/gateway.rs", "target": "class:rust/crates/discord-core/src/gateway.rs:Session", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/gateway.rs", "target": "function:rust/crates/discord-core/src/gateway.rs:on_value", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/gateway.rs", "target": "function:rust/crates/discord-core/src/gateway.rs:on_timer", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "class:rust/crates/discord-core/src/identify.rs:IdentifyProperties", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "class:rust/crates/discord-core/src/identify.rs:IdentifyParams", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "class:rust/crates/discord-core/src/identify.rs:IdentifyError", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "function:rust/crates/discord-core/src/identify.rs:for_rw_client", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "function:rust/crates/discord-core/src/identify.rs:properties_value", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "function:rust/crates/discord-core/src/identify.rs:qos_token_client_provided", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "function:rust/crates/discord-core/src/identify.rs:build_identify", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "function:rust/crates/discord-core/src/identify.rs:build_identify_frame", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/identify.rs", "target": "function:rust/crates/discord-core/src/identify.rs:identify_value", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/ready.rs", "target": "class:rust/crates/discord-core/src/ready.rs:ReadySummary", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready.rs", "target": "function:rust/crates/discord-core/src/ready.rs:from_dispatch", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "class:rust/crates/discord-core/src/ready_data.rs:ReadyData", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "class:rust/crates/discord-core/src/ready_data.rs:ReadyParseError", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:from_dispatch", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:from_data", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:parse_list", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:parse_guild", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:parse_read_state_entry", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:optional_string", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ready_data.rs", "target": "function:rust/crates/discord-core/src/ready_data.rs:optional_id", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/resume.rs", "target": "class:rust/crates/discord-core/src/resume.rs:ResumeParams", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/resume.rs", "target": "class:rust/crates/discord-core/src/resume.rs:ResumeState", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/resume.rs", "target": "class:rust/crates/discord-core/src/resume.rs:ResumeError", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/resume.rs", "target": "class:rust/crates/discord-core/src/resume.rs:ReconnectAction", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/resume.rs", "target": "function:rust/crates/discord-core/src/resume.rs:build_resume_frame", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/resume.rs", "target": "function:rust/crates/discord-core/src/resume.rs:plan_reconnect", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "class:rust/crates/discord-core/src/ws.rs:GatewayPipe", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "class:rust/crates/discord-core/src/ws.rs:RunOptions", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "class:rust/crates/discord-core/src/ws.rs:RunOutcome", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "class:rust/crates/discord-core/src/ws.rs:TransportError", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:push_binary", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:encode_heartbeat", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:connect_and_run", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_with", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_resume", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:maybe_send_handshake", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:apply_effects", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "function:rust/crates/discord-core/src/ws.rs:tls_connector", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/dispatch.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/gateway.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/identify.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/ready.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/ready_data.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/rest/mod.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/resume.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/lib.rs", "target": "file:rust/crates/discord-core/src/ws.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "file:rust/crates/discord-core/src/dispatch.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "file:rust/crates/discord-core/src/gateway.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "file:rust/crates/discord-core/src/identify.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "file:rust/crates/discord-core/src/ready.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:rust/crates/discord-core/src/ws.rs", "target": "file:rust/crates/discord-core/src/resume.rs", "type": "imports", "direction": "forward", "weight": 0.7},
+
+    {"source": "function:rust/crates/discord-core/src/ws.rs:push_binary", "target": "function:rust/crates/discord-core/src/dispatch.rs:route_dispatch", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:push_binary", "target": "function:rust/crates/discord-core/src/ready.rs:from_dispatch", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:maybe_send_handshake", "target": "function:rust/crates/discord-core/src/identify.rs:build_identify_frame", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:maybe_send_handshake", "target": "function:rust/crates/discord-core/src/resume.rs:build_resume_frame", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_resume", "target": "function:rust/crates/discord-core/src/ws.rs:maybe_send_handshake", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_resume", "target": "function:rust/crates/discord-core/src/ws.rs:apply_effects", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_resume", "target": "function:rust/crates/discord-core/src/ws.rs:tls_connector", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:connect_and_run", "target": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_with", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_with", "target": "function:rust/crates/discord-core/src/ws.rs:connect_and_run_resume", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ws.rs:apply_effects", "target": "function:rust/crates/discord-core/src/ws.rs:encode_heartbeat", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/identify.rs:build_identify", "target": "function:rust/crates/discord-core/src/identify.rs:identify_value", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/identify.rs:build_identify_frame", "target": "function:rust/crates/discord-core/src/identify.rs:identify_value", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/identify.rs:identify_value", "target": "function:rust/crates/discord-core/src/identify.rs:properties_value", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ready_data.rs:from_dispatch", "target": "function:rust/crates/discord-core/src/ready_data.rs:from_data", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ready_data.rs:from_data", "target": "function:rust/crates/discord-core/src/ready_data.rs:parse_guild", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:rust/crates/discord-core/src/ready_data.rs:from_data", "target": "function:rust/crates/discord-core/src/ready_data.rs:parse_list", "type": "calls", "direction": "forward", "weight": 0.8}
+  ]
+}

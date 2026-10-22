@@ -1,0 +1,96 @@
+   Compiling libc v0.2.191
+   Compiling find-msvc-tools v0.1.15
+   Compiling shlex v2.0.1
+   Compiling cfg-if v1.0.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling zeroize v1.9.1
+   Compiling typenum v1.20.1
+   Compiling untrusted v0.9.0
+   Compiling cpufeatures v0.3.1
+   Compiling getrandom v0.4.3
+   Compiling rustls v0.23.46
+   Compiling bytes v1.12.1
+   Compiling pkg-config v0.3.34
+   Compiling rand_core v0.10.1
+   Compiling once_cell v1.21.4
+   Compiling subtle v2.6.1
+   Compiling thiserror v2.0.21
+   Compiling rustls-pki-types v1.15.1
+   Compiling const-oid v0.10.2
+   Compiling pin-project-lite v0.2.17
+   Compiling httparse v1.10.1
+   Compiling chacha20 v0.10.2
+   Compiling itoa v1.0.18
+   Compiling twox-hash v2.1.5
+   Compiling zstd-safe v8.2.0
+   Compiling data-encoding v2.11.1
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling log v0.4.34
+   Compiling futures-sink v0.3.34
+   Compiling futures-core v0.3.34
+   Compiling ruzstd v0.9.1
+   Compiling futures-util v0.3.34
+   Compiling webpki-roots v1.0.9
+   Compiling webpki-roots v0.26.11
+   Compiling http v1.5.0
+   Compiling syn v3.0.9
+   Compiling hybrid-array v0.4.15
+   Compiling discord-codec v0.1.0 (/tmp/opencode/w20-sim/rust/crates/discord-codec)
+   Compiling jobserver v0.1.35
+   Compiling getrandom v0.2.17
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling rand v0.10.3
+   Compiling cc v1.9.0
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling digest v0.11.3
+   Compiling sha1 v0.11.0
+   Compiling ring v0.17.14
+   Compiling zstd-sys v2.1.2+zstd.1.5.7
+   Compiling tokio-macros v2.7.2
+   Compiling thiserror-impl v2.0.21
+   Compiling tokio v1.53.3
+   Compiling rustls-webpki v0.103.15
+   Compiling zstd v0.14.3
+   Compiling tokio-rustls v0.26.6
+   Compiling tungstenite v0.30.0
+   Compiling tokio-tungstenite v0.30.0
+   Compiling discord-core v0.1.0 (/tmp/opencode/w20-sim/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.77s
+     Running tests/typing_reducer.rs (/tmp/opencode/w20-target/debug/deps/typing_reducer-28e230d19c89448d)
+
+running 5 tests
+test t07_repeat_restarts_ttl ... ok
+test t06_start_creates_entry_and_upserts_member ... ok
+test t09_message_create_removes_author_pair ... ok
+test t10_reset_clock_stale_malformed_prune ... ok
+test t08_fixture_28_starts_two_pairs ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_selectors.rs (/tmp/opencode/w20-target/debug/deps/typing_selectors-707910d4567a1486)
+
+running 5 tests
+test t12_users_sorted_and_expired_hidden ... ok
+test t14_counts_and_expiry_boundary ... ok
+test t13_guild_split ... ok
+test t11_empty_and_self_boundary ... ok
+test t15_fixture_final_state ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/typing_types.rs (/tmp/opencode/w20-target/debug/deps/typing_types-a46997663e6b90db)
+
+running 5 tests
+test t03_minimal_dm_shape ... ok
+test t01_capture_117_fields ... ok
+test t04_required_and_optional_field_table ... ok
+test t05_member_errors_and_event_clock ... ok
+test t02_fixture_28_events_pairs_and_timestamps ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

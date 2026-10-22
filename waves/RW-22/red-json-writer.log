@@ -1,0 +1,21 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+error[E0425]: cannot find function `to_json_string` in crate `discord_json`
+   --> crates/discord-json/tests/json_contract.rs:225:30
+    |
+225 |     let text = discord_json::to_json_string(&value);
+    |                              ^^^^^^^^^^^^^^ not found in `discord_json`
+
+error[E0425]: cannot find function `to_json_string` in crate `discord_json`
+   --> crates/discord-json/tests/json_contract.rs:231:23
+    |
+231 |         discord_json::to_json_string(&JsonValue::String("a/b\"c".into())),
+    |                       ^^^^^^^^^^^^^^ not found in `discord_json`
+
+error[E0425]: cannot find function `to_json_string` in crate `discord_json`
+   --> crates/discord-json/tests/json_contract.rs:251:34
+    |
+251 |     let rendered = discord_json::to_json_string(&frame);
+    |                                  ^^^^^^^^^^^^^^ not found in `discord_json`
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `discord-json` (test "json_contract") due to 3 previous errors

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "rea": {
+        "type": "local",
+        "command": ["rea", "mcp"]
+      },
+      "socraticode": {
+        "type": "local",
+        "command": ["socraticode"]
+      },
+      "github": {
+        "type": "local",
+        "command": ["/home/sanya/.local/bin/github-mcp-wrapper.sh"]
+      },
+      "basic-memory": {
+        "type": "local",
+        "command": ["basic-memory", "mcp", "--transport", "stdio"]
+      },
+      "context7": {
+        "type": "local",
+        "command": ["context7-mcp"]
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+$ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test i18n_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/i18n_contract.rs (target/debug/deps/i18n_contract-fdcb713bee7f4c93)
+
+running 6 tests
+test missing_key_falls_back_to_default_and_unknown_is_error ... ok
+test number_nodes_reject_non_numeric_arguments ... FAILED
+test exact_selector_offset_and_pound_use_plural_rules ... FAILED
+test all_enabled_catalogs_insert_and_switch ... ok
+test catalog_date_time_and_number_nodes_render_from_icu_oracle ... ok
+test real_catalogs_still_parse_and_keep_link_control_backlog ... ok
+
+failures:
+
+---- number_nodes_reject_non_numeric_arguments stdout ----
+
+thread 'number_nodes_reject_non_numeric_arguments' (58161) panicked at crates/discord-i18n/tests/i18n_contract.rs:163:5:
+assertion failed: matches!(i18n.translate("number", &args(&[("n", Value::Str("abc".into()))])),
+    Err(TranslateError::InvalidArgument { .. }))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- exact_selector_offset_and_pound_use_plural_rules stdout ----
+
+thread 'exact_selector_offset_and_pound_use_plural_rules' (58159) panicked at crates/discord-i18n/tests/i18n_contract.rs:155:5:
+assertion `left == right` failed
+  left: "one"
+ right: "exact3"
+
+
+failures:
+    exact_selector_offset_and_pound_use_plural_rules
+    number_nodes_reject_non_numeric_arguments
+
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+error: test failed, to rerun pass `-p discord-i18n --test i18n_contract`

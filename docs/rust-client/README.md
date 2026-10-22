@@ -10,23 +10,34 @@ R4/R5/R6/D).
 
 | Документ | Содержание |
 |---|---|
+| `STATUS.md` | **Фактическое состояние:** 25/90 принято, 580 тестов, крейты, блокеры, доказательства |
+| `ROADMAP.md` | **Дальнейший план:** batch-волны, вехи и решения владельца |
+| `TEAM.md` | **Отдел разработки:** seats, RACI, pipeline, WIP, playbook воркера, KPI |
+| `WAVE-PLAN.md` | **Batch-план:** 90 карточек → ~18–22 волны, ready-queue, критический путь, сроки |
 | `CONCEPT.md` | Полный концепт: что делает приложение, принципы, стек, сценарии, критерии успеха |
 | `FEATURES.md` | Каталог функций (ID, зачем, как работает по RE, источник, фаза) — 14 групп |
 | `ARCHITECTURE.md` | Процессы, крейты, шины, хранилище, замена Electron-IPC, ADR по UI, 8 графов Mermaid |
-| `PLAN.md` | Волны P0–P8: 60+ карточек с DoD, тестами, зависимостями, размерами; гейты и риск-план |
+| `PLAN.md` | Волны P0–P8: 90 карточек с DoD, тестами, зависимостями, размерами; гейты и риск-план |
 | `TEST-PLAN.md` | Уровни L1–L5, манифест RE-фикстур, каталог ~130 тестов, red-first протокол |
+| `CODE-STANDARD.md` | **Эталонный метод:** research → frozen contract → red-first → mutation/review → gate; безопасность, async/UI, Definition of Done, уроки волн |
+| `LEGAL.md` | **Правовая рамка:** ToS, телеметрия off, честный отпечаток, секреты/ассеты, живые операции только по approval |
+| `CODEX-WORKERS.md` | **Codex CLI playbook:** роли, sandbox, промты воркера/ревьюера, DAG, mutation feedback loop |
 | `PROJECT-STRUCTURE.md` | Строение объединённого проекта: лаборатория ↔ репозиторий ↔ `fixtures/` ↔ `rust/`, правила раскладки |
 | `TRACEABILITY.md` | Функции → спека → фикстуры → тесты: матрица 14 групп (141 F / 133 T) |
 | `VERIFICATION.md` | Журнал сверки сырья с документами: 20/20 проверок, разбор расхождений |
+| `DEVELOPMENT-PROMPT.md` | Рабочий промт координатора/воркеров: карта, волны, RE-источники, TDD, агенты, ближайшая матрица |
 
 ## Как читать
 
+0. **Понять, где мы сейчас** → `STATUS.md`; **что делать дальше** → `ROADMAP.md`.
 1. **Понять продукт** → `CONCEPT.md` (§2 «Что делает приложение», §3 сценарии).
 2. **Понять функции** → `FEATURES.md` (фильтр по фазе: F-* с колонкой «Фаза»).
 3. **Понять устройство** → `ARCHITECTURE.md` (графы 1–7).
 4. **Планировать работу** → `PLAN.md` (волновая карта и карточки P0-01…P8-05).
 5. **Писать тест-первым** → `TEST-PLAN.md` §3 (ID тестов к каждой карточке).
-6. **Понять, что где лежит** → `PROJECT-STRUCTURE.md`; **сверить функцию с тестом** →
+6. **Запускать волну** → `TEAM.md` (роли, pipeline, WIP) и `WAVE-PLAN.md` (batch, ready-queue);
+   `DEVELOPMENT-PROMPT.md` — исторический контекст и архитектура.
+7. **Понять, что где лежит** → `PROJECT-STRUCTURE.md`; **сверить функцию с тестом** →
    `TRACEABILITY.md`; **убедиться, что данные сходятся** → `VERIFICATION.md` +
    `node verify/verify-re.mjs`.
 
@@ -48,23 +59,28 @@ strace голоса, каталоги i18n, распакованный asar. **�
 ## Каркас и проверки
 
 - `../../rust/` — cargo-воркспейс (10 крейтов, офлайн): `cargo test --offline` внутри каталога
-  (**113/113**; `discord-codec` — 33, `discord-core` — 71). Волны: RW-1 — ETF-кодек (`discord-codec`,
-  RW-01), RW-2 — zstd-stream декодер (`discord-codec`, RW-02, `ruzstd`; удержание окна 64 КиБ —
-  семантика декодера), RW-3 — ядро сессии шлюза (`discord-core::gateway`, RW-03: HELLO/heartbeat
-  41 250/ACK/RTT/зомби на виртуальных часах), RW-4 — транспорт (`discord-core::ws`, RW-04:
-  WS-клиент ws://+wss:// (rustls/ring), пайп zstd→термы→сессия, стаб-сервер в тестах), RW-5 —
-  IDENTIFY/READY (`identify`, `ready`; RW-05), RW-6 — RESUME/реконнект (`resume`: op6,
-  политика 3 с/30 с, флаг op9 `d`, непрерывный `s`; RW-06), RW-7 — роутер диспатчей (`dispatch`:
-  21 тип op0 → типизированные события, raw со счётчиком, очередь `events`; RW-07). Статусы —
-  `TASKS.md` §RW (RW-01…RW-07 приняты 2026-10-19 после независимого ревью).
+  (**580/580**; `discord-core` — 524). Волны: RW-01 — ETF-кодек (`discord-codec`), RW-02 —
+  zstd-stream декодер (`ruzstd`, окно 64 КиБ), RW-03 — сессия шлюза (`discord-core::gateway`:
+  HELLO/heartbeat 41 250/ACK/RTT/зомби), RW-04 — WS-транспорт (`ws`: ws://+wss://, пайп
+  zstd→термы→сессия), RW-05 — IDENTIFY/READY-сводка, RW-06 — RESUME/реконнект (op6, 3 с/30 с,
+  op9 `d`), RW-07 — роутер 21 диспатча, RW-08 — REST-каталог/заголовки/ретраи, RW-09 —
+  X-Super-Properties, RW-10 — HTTP/1.1/TLS-транспорт, RW-11 — rate-limit/telemetry/ack,
+  RW-12 — I1 REST-фасад и P2-01 READY (A1); RW-13 — P2-02 state/reducer; RW-14 — P2-06
+  history; RW-15 — P2-04 member list; RW-16 — P2-05 chunks; RW-17 — P2-07 read-state
+  (все приняты 2026-10-20); RW-18 — P2-09 presence; RW-19/RW-20 — P2-10/P2-11;
+  RW-21 — P2-08/P1-01/P1-02/P0-04/P0-07 (B02 принят 2026-10-21);
+  legacy `ready_data` удалён.
+  Статусы — `STATUS.md`, `TASKS.md` §RW, `waves/STATE.md`; актуальная матрица — `TEAM.md`
+  и `WAVE-PLAN.md`.
 - `verify/verify-re.mjs` — оракул сырьё↔доки (20 проверок; коды 0/1/2), отчёт — `verify/report.json`.
 - `../../fixtures/MANIFEST.json` — провенанс фикстур (источник, md5, T-ID).
 
 ## Статус
 
 - Документы: **готовы** (2026-10-19); каркас `rust/` и фикстуры `fixtures/` собраны; верификация
-  сырья — **20/20** (`verify/report.json`). Реализация — по `PLAN.md` (в этом репо или внешнем —
-  см. `PROJECT-STRUCTURE.md` §5).
+  сырья — **20/20** (`verify/report.json`). Реализация — **25/90 принято**, B02 (P2-08, P1-01, P1-02,
+  P0-04, P0-07) принят 2026-10-21; подробно — `STATUS.md`. Следующий batch — B03;
+  гейт B02 — passed (`../../waves/RW-21/gate-worker-b02.json`).
 - Входные риски и пробелы RE перечислены в `CONCEPT.md` §7; открытые вопросы D-04…D-08 — в
   `../feature-backlog.md`.
 - Синхронность документов стережёт мета-тест `../../tests/meta/rust-client-sync.test.mjs`.

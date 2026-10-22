@@ -1,0 +1,109 @@
+# мутация M1: rust/crates/discord-voice/src/srtp.rs
+# old: 'let value = 0x8000_0000u32 | (self.counter as u32);'
+# new: 'let value = 0x0000_0000u32 | (self.counter as u32);'
+# команда: cargo test --offline -p discord-voice --test srtp_contract
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test short_packet_k ... ok
+test counter_overflow_k ... FAILED
+test unsupported_mode_k ... ok
+test incoming_counter_non_monotonic_k ... FAILED
+test rtp_counter_shared_k ... FAILED
+test incoming_srtcp_k ... ok
+test non_rtpsize_mode_k ... FAILED
+test rtp_layout_k ... FAILED
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... FAILED
+test rtp_roundtrip_k ... ok
+test srtcp_layout_k ... FAILED
+test rtp_version_k ... ok
+test decrypt_nonce_reuse_rejected_k ... FAILED
+test rtp_tamper_k ... ok
+test srtcp_tamper_k ... ok
+test srtcp_roundtrip_k ... ok
+
+failures:
+
+---- counter_overflow_k stdout ----
+
+thread 'counter_overflow_k' (116864) panicked at crates/discord-voice/tests/srtp_contract.rs:379:5:
+assertion `left == right` failed: последний представимый счётчик
+  left: 2147483647
+ right: 4294967295
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- incoming_counter_non_monotonic_k stdout ----
+
+thread 'incoming_counter_non_monotonic_k' (116868) panicked at crates/discord-voice/tests/srtp_contract.rs:442:5:
+assertion `left == right` failed
+  left: 16
+ right: 2147483664
+
+---- rtp_counter_shared_k stdout ----
+
+thread 'rtp_counter_shared_k' (116873) panicked at crates/discord-voice/tests/srtp_contract.rs:126:9:
+assertion `left == right` failed: n = 0
+  left: 0
+ right: 2147483648
+
+---- non_rtpsize_mode_k stdout ----
+
+thread 'non_rtpsize_mode_k' (116872) panicked at crates/discord-voice/tests/srtp_contract.rs:369:5:
+assertion `left == right` failed
+  left: 0
+ right: 2147483648
+
+---- rtp_layout_k stdout ----
+
+thread 'rtp_layout_k' (116875) panicked at crates/discord-voice/tests/srtp_contract.rs:107:5:
+assertion `left == right` failed: исходящий счётчик = 0x80000000 | n
+  left: 0
+ right: 2147483648
+
+---- xchacha_rtpsize_k stdout ----
+
+thread 'xchacha_rtpsize_k' (116885) panicked at crates/discord-voice/tests/srtp_contract.rs:479:5:
+assertion `left == right` failed
+  left: 0
+ right: 2147483648
+
+---- srtcp_layout_k stdout ----
+
+thread 'srtcp_layout_k' (116880) panicked at crates/discord-voice/tests/srtp_contract.rs:153:5:
+assertion `left == right` failed: первый SRTCP в этом контексте
+  left: 0
+ right: 2147483648
+
+---- decrypt_nonce_reuse_rejected_k stdout ----
+
+thread 'decrypt_nonce_reuse_rejected_k' (116867) panicked at crates/discord-voice/tests/srtp_contract.rs:551:5:
+assertion `left == right` failed
+  left: NonceReuse { trailer: 0 }
+ right: NonceReuse { trailer: 2147483648 }
+
+
+failures:
+    counter_overflow_k
+    decrypt_nonce_reuse_rejected_k
+    incoming_counter_non_monotonic_k
+    non_rtpsize_mode_k
+    rtp_counter_shared_k
+    rtp_layout_k
+    srtcp_layout_k
+    xchacha_rtpsize_k
+
+test result: FAILED. 14 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-mut/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+

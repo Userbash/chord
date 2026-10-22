@@ -1,0 +1,24 @@
+{
+  "batchIndex": 5,
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 22,
+      "fileCategory": "infra"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "pipeline:.github/workflows/ci.yml",
+      "type": "pipeline",
+      "name": "ci.yml",
+      "filePath": ".github/workflows/ci.yml",
+      "summary": "GitHub Actions workflow «ci», который срабатывает на push в main и на pull request: разворачивает Node.js 24 с кэшем npm на ubuntu-latest, ставит зависимости через npm ci и запускает обязательный гейт npm run gate:worker с таймаутом 15 минут. Права ограничены contents: read, то есть workflow только читает репозиторий.",
+      "complexity": "simple",
+      "tags": ["ci-cd", "github-actions", "quality-gate", "nodejs", "continuous-integration"],
+      "languageNotes": "Один job с последовательными шагами, actions закреплены по major-тегу (checkout@v4, setup-node@v4), а LC_ALL: C выставляет локаль для детерминированного вывода проверок."
+    }
+  ],
+  "edges": []
+}

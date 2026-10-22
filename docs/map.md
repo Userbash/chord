@@ -13,8 +13,14 @@
 графы — `docs/re/architecture.md`), сырые доказательства — `/home/sanya/re-deep/`.
 План Rust-клиента (2026-10-19): `docs/rust-client/` — концепт, функции, архитектура, план P0–P8,
 тесты (слой 8 ниже).
-Журнал волн Rust-клиента (2026-10-19): `waves/` — события (`db.jsonl`), точка восстановления
-(`STATE.md`) и логи волн `RW-01`…`RW-07` (см. `waves/README.md`).
+Журнал волн Rust-клиента (2026-10-20): `waves/` — события (`db.jsonl`), точка восстановления
+(`STATE.md`) и логи волн `RW-01`…`RW-21` (см. `waves/README.md`); **фактический статус** —
+`docs/rust-client/STATUS.md`, **batch-план** — `docs/rust-client/WAVE-PLAN.md`, **роли и WIP** —
+`docs/rust-client/TEAM.md`.
+Граф Understand-Anything: `.ua/knowledge-graph.json` — снимок **до** появления `state/`:
+97 файлов, **232 узла / 432 ребра**, 8 слоёв, 12-шаговый tour; исходные данные —
+`.ua/intermediate/scan-result.json`. Граф будет пересобран один раз после accepted batch B02;
+`autoUpdate=false`, поэтому сам он не обновляется.
 В репозитории: бэклог переноса — `docs/feature-backlog.md`; анализы референсов —
 `docs/vesktop-analysis.md` и `docs/discord-qt-analysis.md`.
 
@@ -92,7 +98,7 @@ flowchart TB
       rc1["Концепт: цель, стек, сценарии (docs/rust-client/CONCEPT.md)"]:::ok
       rc2["Функции: 14 групп, каталог F-* (FEATURES.md)"]:::ok
       rc3["Архитектура: крейты, шина, 8 графов (ARCHITECTURE.md)"]:::ok
-      rc4["План P0–P8: 60+ карточек (PLAN.md)"]:::ok
+      rc4["План P0–P8: 90 карточек (PLAN.md)"]:::ok
       rc5["Тесты: L1–L5, ~130 кейсов (TEST-PLAN.md)"]:::ok
       rc6["Фикстуры: 12 записей, 1,59 МБ (fixtures/MANIFEST.json)"]:::ok
       rc7["Каркас Rust: воркспейс, 10 крейтов (rust/)"]:::ok
@@ -144,6 +150,127 @@ flowchart TB
   b6 -.-> S8
 ```
 
+## Фактическое состояние Rust-клиента (2026-10-22)
+
+| Показатель | Значение |
+|---|---|
+| Принято карточек | **43 / 90** (…, P3-15, P4-01, P4-02, **P4-03**, **P4-04**, **P4-07**, **P4-11**, **P4-12**, **P6-03**, **P6-04**, P7-01, **P7-02**, P7-04, **P8-01**, P8-03, P8-04; хвосты P7-01b/c/e) |
+| В работе | **RW-28/RW-29 приняты 2026-10-22**; следующий — B07 (GUI/keyring/SQLite), ждёт владельца |
+| Осталось | **49** (P0 3, P1 1, P2 1, P3 15, P4 5, P4.5 3, P5 7, P6 8, P7 4, P8 2) |
+| Rust-тесты | **953 / 953** (workspace), **531 / 531** (`discord-core`), **70** (`discord-i18n`: +relative 12, +timestamp 14), media 13 + reconnect 12 (`discord-voice`), 23 (`discord-platform`) |
+| Гейт | passed — `waves/RW-29/gate-cargo.log` / `.gate/worker-2026-10-22T17-12-46-556Z.json`; мутации RW-28 8/8, W29a 8/8, W29b 9/9, W29c 6/6 |
+| Крейты | 13: 7 рабочих/частично (`codec`, `core`, `json`, `i18n`, `voice`, **`perf`**, **`updater`**), 1 тестовый (`conformance`), 5 каркасов |
+| Следующий batch | **B07** (GUI/keyring/SQLite); headless-остатки: `DurationFormat`, P6-02/P6-06 (D-Bus) — отдельными волнами |
+| Контракты | RW-28/RW-29 приняты (`RW-28`, `RW-29`); RW-26/RW-27 (`RW-26`, `RW-27`); B06 (`RW-25`); B05 (`RW-24`), B04 (`RW-23`), B03 (`RW-22`), B02 (`RW-21`), B01 (`RW-19`, `RW-20`) |
+| Блокеры | GUI-крейты, `keyring`, `rusqlite`, окно живого Discord, rate limit агентов |
+
+```mermaid
+flowchart LR
+  subgraph DONE["Сделано и принято"]
+    d1["ETF + zstd"]:::ok
+    d2["Gateway: HELLO/heartbeat/IDENTIFY/RESUME"]:::ok
+    d3["21 диспатч + WS-транспорт"]:::ok
+    d4["REST: 47 маршрутов, TLS, 429/5xx"]:::ok
+    d5["READY P2-01: модель A1 + диагностика"]:::ok
+    d6["I1 REST-фасад"]:::ok
+    d7["P2-02 state/reducer/selectors"]:::ok
+    d8["P2-06 history/pagination (память)"]:::ok
+    d9["P2-04 member list (память)"]:::ok
+    d10["P2-05 chunks/догрузка (память)"]:::ok
+    d11["P2-07 read-state/бейджи"]:::ok
+  end
+  subgraph ACTIVE["Принято 2026-10-21"]
+    a1["P2-09 presence<br/>P0/P1/P2=0, P3=8"]:::ok
+    n1["P2-10 voice states"]:::ok
+    n2["P2-11 typing TTL"]:::ok
+  end
+  subgraph B02["B02 / RW-21 — принято"]
+    n3["P2-08 settings-proto"]:::ok
+    n4["P1-01/P1-02/P0-04/P0-07"]:::ok
+  end
+  subgraph B03["B03 / RW-22 — принято"]
+    n5["P3-15 i18n runtime"]:::ok
+    n6["P4-01 voice signaling"]:::ok
+    n7["P7-04 read-only API"]:::ok
+    n8["P8-03 CI/release"]:::ok
+  end
+  subgraph B04["B04 / RW-23 — принято"]
+    n9["P4-02 UDP media"]:::ok
+    n10["P8-04 SBOM/licenses"]:::ok
+  end
+  subgraph B05["B05 / RW-24 — принято"]
+    n11["P7-01 полный i18n: 36 локалей, CLDR, даты, markdown"]:::ok
+  end
+  subgraph B06["B06 / RW-25 — принято 2026-10-22 (headless, офлайн)"]
+    n12["P4-03 SRTP-крипта: AES-GCM, XChaCha, HKDF"]:::ok
+    n13["P7-02 перф-харнесс: 24k участников, 100k сообщений"]:::ok
+    n14["P8-01 updater: манифест, Ed25519, staged-замена, откат"]:::ok
+  end
+  subgraph B10["B10 / RW-28 + RW-29 — принято 2026-10-22"]
+    q1["P7-01c RelativeTimeFormat"]:::ok
+    q2["P4-04 RTP-медиа: PT120, DTX, джиттер"]:::ok
+    q3["P4-12 reconnect/resume"]:::ok
+    q4["P7-01e Discord-таймстемпы"]:::ok
+  end
+  subgraph BLOCKED["Ждёт решения владельца"]
+    b1["P0-01/P3 UI — GUI-крейты"]:::no
+    b2["P2-03 SQLite — rusqlite"]:::no
+    b3["P1-10 keyring"]:::no
+    b4["live-smoke — окно Discord"]:::no
+  end
+  d5 --> d7
+  d7 --> d9
+  d9 --> d10
+  d7 --> d11
+  d11 --> a1
+  a1 --> n1
+  a1 --> n2
+  n1 --> n3
+  n2 --> n4
+  n4 --> n5
+  n4 --> n6
+  n4 --> n7
+  n4 --> n8
+  n8 --> n9
+  n8 --> n10
+  n5 --> n11
+  n11 --> n12
+  n11 --> n13
+  n11 --> n14
+  n12 --> q1
+  n12 --> q2
+  n12 --> q4
+  q2 --> q3
+  n12 --> b1
+  d5 --> b1
+  d7 --> b1
+  b2 -.-> d8
+  b3 -.-> b1
+```
+
+Подробно: `docs/rust-client/STATUS.md` (факт, тесты, крейты, блокеры),
+`docs/rust-client/ROADMAP.md` (batch-волны, вехи, решения владельца),
+`docs/rust-client/WAVE-PLAN.md` (очередь, критический путь, KPI).
+
+## Команда и batch-поток (2026-10-20)
+
+```mermaid
+flowchart TB
+  OWNER["Владелец"] --> TL["TL-1 Team Lead<br/>очередь, контракты, приёмка"]
+  TL --> TECHL["TL-2 Tech Lead<br/>общие файлы, интеграция"]
+  TECHL --> CORE["CORE-1..3<br/>state/protocol"]
+  TECHL --> CLIENT["CLIENT-1..2<br/>UI headless/platform"]
+  TECHL --> VOICE["VOICE-1<br/>voice/media"]
+  TL --> QUALITY["TEST-1 / QA-1 / REV-1..2 / SEC-1"]
+  TL --> OPS["OPS-1 / DOC-1 / REL-1"]
+  QUALITY -. "review после gate" .-> CORE
+  QUALITY -. "review после gate" .-> CLIENT
+  QUALITY -. "review после gate" .-> VOICE
+```
+
+Правило: batch 3–6 карточек, один общий integration-патч и один gate; review — после gate,
+параллельно по карточкам; доки — один раз после accepted. Детали — `TEAM.md`.
+
 ## Как читать
 
 - **Цель → сценарии.** A (свой мессенджер с UX Discord) — рекомендован; C (клиент к реальному
@@ -151,7 +278,8 @@ flowchart TB
 - **Слои 1–8** — направления ресёрча; внутри — конкретные находки/артефакты со статусом.
   Слой 7 добавлен волной R7 (2026-10-19): бэкенд/данные — `docs/re/` (индекс и детальные доки).
   Слой 8 — Rust-клиент: `docs/rust-client/` (концепт, функции, архитектура, план P0–P8, тесты,
-  структура, трассировка, верификация), курированные фикстуры `fixtures/` и каркас `rust/`.
+  структура, трассировка, верификация, промт разработки, TEAM, WAVE-PLAN), курированные
+  фикстуры `fixtures/` и каркас `rust/`.
 - **Источники** — откуда данные (всё с копии, живой клиент не трогали).
 - **Блокеры** — пунктирные стрелки показывают, какой слой задет.
 - **Референсы (слой 6)** — внешние проекты для сверки: Vesktop 1.6.7 (оболочка/стриминг, GPL) и

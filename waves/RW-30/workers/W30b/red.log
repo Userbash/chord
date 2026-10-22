@@ -1,0 +1,58 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+error[E0432]: unresolved import `discord_platform::dbus`
+  --> crates/discord-platform/tests/notifications_contract.rs:14:23
+   |
+14 | use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+   |                       ^^^^ could not find `dbus` in `discord_platform`
+
+error[E0432]: unresolved import `discord_platform::notifications`
+  --> crates/discord-platform/tests/notifications_contract.rs:15:23
+   |
+15 | use discord_platform::notifications::{Notification, NotificationEvent, Notifier};
+   |                       ^^^^^^^^^^^^^ could not find `notifications` in `discord_platform`
+
+error[E0433]: cannot find `dbus` in `discord_platform`
+  --> crates/discord-platform/tests/dbus_contract.rs:10:23
+   |
+10 | use discord_platform::dbus::message::{self, FIELD_REPLY_SERIAL, FIELD_SIGNATURE, MessageType};
+   |                       ^^^^ could not find `dbus` in `discord_platform`
+
+error[E0432]: unresolved import `discord_platform::dbus`
+  --> crates/discord-platform/tests/dbus_contract.rs:11:23
+   |
+11 | use discord_platform::dbus::{BusAddress, DbusError, Value, auth};
+   |                       ^^^^ could not find `dbus` in `discord_platform`
+
+error[E0432]: unresolved import `discord_platform::notifications`
+  --> crates/discord-platform/tests/dbus_contract.rs:12:5
+   |
+12 | use discord_platform::notifications;
+   |     ^^^^^^^^^^^^^^^^^^-------------
+   |                       |
+   |                       no `notifications` in the root
+
+warning: method call on a diverging inference variable
+   --> crates/discord-platform/tests/notifications_contract.rs:534:20
+    |
+534 |     match notifier.capabilities() {
+    |                    ^^^^^^^^^^^^
+    |
+    = help: consider providing a type annotation
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: for more information, see issue #156047 <https://github.com/rust-lang/rust/issues/156047>
+    = note: `#[warn(method_call_on_diverging_infer_var)]` (part of `#[warn(future_incompatible)]`) on by default
+
+error[E0599]: no method named `capabilities` found for type `!` in the current scope
+   --> crates/discord-platform/tests/notifications_contract.rs:534:20
+    |
+534 |     match notifier.capabilities() {
+    |                    ^^^^^^^^^^^^ method not found in `!`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+warning: `discord-platform` (test "notifications_contract") generated 1 warning
+error: could not compile `discord-platform` (test "notifications_contract") due to 3 previous errors; 2 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0432, E0433.
+error: could not compile `discord-platform` (test "dbus_contract") due to 3 previous errors
+# EXIT=101

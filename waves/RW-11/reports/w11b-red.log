@@ -1,0 +1,47 @@
+   Compiling tokio-rustls v0.26.6
+   Compiling tokio-tungstenite v0.30.0
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.77s
+     Running tests/rest_telemetry.rs (target/debug/deps/rest_telemetry-72c447a4024bc1ee)
+
+running 4 tests
+test allows_lookalikes_and_other_paths ... FAILED
+test blocks_exact_first_segments ... FAILED
+test empty_target_is_allowed ... FAILED
+test guard_target_blocks_and_passes_through ... FAILED
+
+failures:
+
+---- allows_lookalikes_and_other_paths stdout ----
+
+thread 'allows_lookalikes_and_other_paths' (48280) panicked at crates/discord-core/src/rest/telemetry.rs:25:5:
+not yet implemented: W11b: is_telemetry_path
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- blocks_exact_first_segments stdout ----
+
+thread 'blocks_exact_first_segments' (48281) panicked at crates/discord-core/src/rest/telemetry.rs:25:5:
+not yet implemented: W11b: is_telemetry_path
+
+---- empty_target_is_allowed stdout ----
+
+thread 'empty_target_is_allowed' (48282) panicked at crates/discord-core/src/rest/telemetry.rs:25:5:
+not yet implemented: W11b: is_telemetry_path
+
+---- guard_target_blocks_and_passes_through stdout ----
+
+thread 'guard_target_blocks_and_passes_through' (48283) panicked at crates/discord-core/src/rest/telemetry.rs:31:5:
+not yet implemented: W11b: guard_target
+
+
+failures:
+    allows_lookalikes_and_other_paths
+    blocks_exact_first_segments
+    empty_target_is_allowed
+    guard_target_blocks_and_passes_through
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_telemetry`
+
+# EXIT=101

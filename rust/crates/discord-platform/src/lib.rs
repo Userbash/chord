@@ -6,6 +6,11 @@
 //! Спека: `docs/re/backend-ipc.md` (168 корневых каналов; мост DiscordNative — 35 записей).
 //! План: P6 (UI/интеграция); тесты: T-SYS-*.
 
+pub mod autostart;
+pub mod dbus;
+pub mod deep_link;
+pub mod notifications;
+
 /// Корневых IPC-каналов наследия Electron, наблюдавшихся в волне R7.
 pub const LEGACY_ROOT_CHANNELS: usize = 168;
 

@@ -1,0 +1,78 @@
+{
+  "batchIndex": 6,
+  "files": [
+    {"path": "AGENTS.md", "language": "markdown", "sizeLines": 44, "fileCategory": "docs"},
+    {"path": "PROCESS.md", "language": "markdown", "sizeLines": 221, "fileCategory": "docs"},
+    {"path": "README.md", "language": "markdown", "sizeLines": 419, "fileCategory": "docs"},
+    {"path": "TASKS.md", "language": "markdown", "sizeLines": 798, "fileCategory": "docs"},
+    {"path": "TDD-PLAN.md", "language": "markdown", "sizeLines": 442, "fileCategory": "docs"}
+  ],
+  "nodes": [
+    {
+      "id": "document:AGENTS.md",
+      "type": "document",
+      "name": "AGENTS.md",
+      "filePath": "AGENTS.md",
+      "summary": "Краткие правила работы агентов в discord-lab: strict TDD с red-first, работа только со своими файлами из ТЗ, обязательный зелёный gate:worker, отчёт по шаблону PROCESS.md §4.2 и ведение журнала волн. Отдельно перечислены запреты (golden-каталоги только для чтения, никаких коммитов, сетевых вызовов и спавна Discord без согласования) и стиль кода на Node ≥ 24 с ESM и JSDoc.",
+      "complexity": "simple",
+      "tags": ["документация", "правила-агентов", "tdd", "гейты", "параллелизм"]
+    },
+    {
+      "id": "document:PROCESS.md",
+      "type": "document",
+      "name": "PROCESS.md",
+      "filePath": "PROCESS.md",
+      "summary": "Источник истины по производственному процессу discord-lab: принципы (владелец решает, strict TDD, неприкосновенный golden), карта соответствия этапов, роли, детальные этапы от задачи до push, шаблоны ТЗ/отчётов/чек-листов и сводка гейтов gate:worker/release/qualify. Также фиксирует совместимость форматов golden-артефактов и словарь терминов.",
+      "complexity": "moderate",
+      "tags": ["документация", "процесс-разработки", "роли", "гейты", "шаблоны"],
+      "languageNotes": "Разделы пронумерованы §0–§7; шаблоны ТЗ воркера и отчёта оформлены fenced-блоками для копирования."
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Обзор проекта Discord Function Lab: локальная лаборатория для разбора клиента Discord (символы, инвентарь, логи вызовов, Evidence REA), быстрые команды CLI discord-lab, типизация и тесты, обзор документации и результаты статического/динамического анализа. Завершают файл разделы о плане Rust-клиента, GPU-кодировщиках и правовой рамке.",
+      "complexity": "complex",
+      "tags": ["документация", "обзор-проекта", "entry-point", "cli", "reverse-engineering"],
+      "languageNotes": "20 разделов с таблицами объёмов данных и командами Bash; раздел «Результаты» фиксирует фактические числа собранных артефактов."
+    },
+    {
+      "id": "document:TASKS.md",
+      "type": "document",
+      "name": "TASKS.md",
+      "filePath": "TASKS.md",
+      "summary": "Микро-декомпозиция работ discord-lab: волны W0–W8 и фикс-волны, микрозадачи M1 по модулям ядра, карточки M2–M6, R1/R7/RC/R4–R6/D и RW с владельцами, DoD, статусами и ссылками на артефакты. Также содержит матрицу непересекающихся файлов, протокол воркера, чек-лист координатора и backlog открытых вопросов.",
+      "complexity": "complex",
+      "tags": ["документация", "декомпозиция", "волны", "статусы", "tdd"],
+      "languageNotes": "Статусы карточек кодируются `[ ]/[~]/[x]/[!]/[s]`; таблицы волн и карточек синхронизируются мета-тестами (waves-sync, plan-sync, rust-client-sync)."
+    },
+    {
+      "id": "document:TDD-PLAN.md",
+      "type": "document",
+      "name": "TDD-PLAN.md",
+      "filePath": "TDD-PLAN.md",
+      "summary": "План превращения набора скриптов в CLI-приложение discord-lab на строгом TDD: продукт и принципы, целевая структура src/core, src/adapters и src/cli, команды запуска, стратегия unit/meta/smoke/e2e и инфраструктура качества. Содержит матрицу паритета scripts → CLI, дорожную карту M0–M6 с волнами R1/R7/RC, машиночитаемую матрицу §8 «тест ↔ модуль ↔ экспорты», риски и открытые вопросы.",
+      "complexity": "complex",
+      "tags": ["документация", "план", "tdd", "тест-стратегия", "дорожная-карта"],
+      "languageNotes": "Таблица §8 машиночитаема: её разбирает tests/meta/plan-sync.test.mjs, поэтому формат строго три колонки, а модули и экспорты — в косых кавычках."
+    }
+  ],
+  "edges": [
+    {"source": "document:AGENTS.md", "target": "document:PROCESS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:AGENTS.md", "target": "document:TASKS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:AGENTS.md", "target": "document:TDD-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:PROCESS.md", "target": "document:TDD-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:PROCESS.md", "target": "document:TASKS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:README.md", "target": "document:TDD-PLAN.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:README.md", "target": "document:TASKS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:TDD-PLAN.md", "target": "document:TASKS.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:README.md", "target": "document:docs/rust-client/README.md", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:README.md", "target": "file:rust/crates/discord-core/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:README.md", "target": "file:rust/crates/discord-codec/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:TASKS.md", "target": "document:docs/rust-client/PLAN.md", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:TASKS.md", "target": "file:rust/crates/discord-core/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:TASKS.md", "target": "file:rust/crates/discord-codec/src/lib.rs", "type": "documents", "direction": "forward", "weight": 0.5},
+    {"source": "document:TDD-PLAN.md", "target": "pipeline:.github/workflows/ci.yml", "type": "documents", "direction": "forward", "weight": 0.5}
+  ]
+}

@@ -1,0 +1,22 @@
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running tests/duration_contract.rs (/tmp/opencode/target-w30a/debug/deps/duration_contract-0b171ea35742d2c7)
+
+running 13 tests
+test d01_en_long_hours_minutes_seconds ... ok
+test d02_ru_long_plural_forms ... ok
+test d03_de_long_conjunction_before_last ... ok
+test d04_en_narrow_compact_units ... ok
+test d09_unknown_and_disabled_locales_fall_back_to_en_us ... ok
+test d08_all_units_keep_the_frozen_order ... ok
+test d05_zero_units_are_skipped_and_all_zero_is_empty ... ok
+test d07_plural_categories_follow_cldr ... ok
+test d06_grouping_follows_icu_per_locale ... ok
+test d12_generated_table_invariants ... ok
+test d13_formatting_is_deterministic ... ok
+test d10_extremes_and_empty_do_not_panic ... ok
+test d11_full_oracle_matches_icu_exactly ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+# EXIT=0

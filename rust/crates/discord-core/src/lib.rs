@@ -14,10 +14,13 @@
 
 pub mod dispatch;
 pub mod gateway;
+pub mod history;
 pub mod identify;
 pub mod ready;
 pub mod rest;
 pub mod resume;
+pub mod settings;
+pub mod state;
 pub mod ws;
 
 /// Ре-экспорт кодека: потребителям и интеграционным тестам `discord-core` не нужна
@@ -25,6 +28,10 @@ pub mod ws;
 pub use discord_codec as codec;
 pub use dispatch::{DispatchEvent, DispatchKind, route_dispatch};
 pub use gateway::{Effect, GatewayError, Hello, Op, ReconnectReason, Session};
+pub use history::{
+    Cursor, History, HistoryConfig, HistoryDiagnostics, HistoryError, LiveOutcome, MessagePage,
+    PageApply, PageError, PageRequest, PageToken,
+};
 pub use identify::{
     CAPABILITIES_ACTIVE, CAPABILITIES_CHANNEL_OBFUSCATION, IdentifyError, IdentifyParams,
     IdentifyProperties, PresenceInfo, build_identify, build_identify_frame,
@@ -34,6 +41,20 @@ pub use ready::ReadySummary;
 pub use resume::{
     RESUME_MAX_DOWNTIME_MS, ReconnectAction, ResumeError, ResumeParams, ResumeState,
     build_resume_frame, plan_reconnect,
+};
+pub use settings::{
+    FrecencyUserSettings, PreloadedUserSettings, ProtoField, ProtoMessage, ProtoValue,
+    SettingsProto, SettingsProtoError, decode_frecency_user_settings,
+    decode_preloaded_user_settings, decode_settings,
+};
+pub use state::{
+    Activity, ActivityAssets, ActivityEmoji, ActivityParty, ActivityTimestamps, ActivityType,
+    Event, MemberChunk, MemberChunkAssembly, MemberChunkMember, MemberList, MemberListEntry,
+    MemberListGroup, MemberListId, MemberListOp, MemberListRange, MemberListUpdate, MemberPresence,
+    MergedPresences, MessageAck, Presence, PresenceKey, PresenceScope, PresenceStatus,
+    PresenceUpdate, State, TYPING_TTL_MS, TypingEntry, TypingKey, TypingStart, VoiceChannelKey,
+    VoiceChannelStartTime, VoiceChannelStatus, VoiceKey, VoiceState, VoiceStateUpdate, apply,
+    apply_dispatch, apply_frame, apply_frame_at,
 };
 pub use ws::{
     GatewayPipe, RunOptions, RunOutcome, TransportError, connect_and_run, connect_and_run_resume,

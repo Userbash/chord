@@ -1,0 +1,22 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running tests/read_state_reducer.rs (target/debug/deps/read_state_reducer-225e30b1d9ab34aa)
+
+running 14 tests
+test r06_non_manual_ack_ignores_mention_count ... ok
+test r01_fixture_ack_updates_channel_entry ... ok
+test r05_negative_manual_mention_count_is_clamped ... ok
+test r08_equal_message_id_updates_metadata_without_duplicate ... ok
+test r14_ack_does_not_touch_unrelated_entry_fields ... ok
+test r04_manual_ack_without_mention_count_clears_mentions ... ok
+test r03_manual_ack_sets_mention_count ... ok
+test r13_broken_ack_is_malformed_and_keeps_monotonic_seq ... ok
+test r10_non_channel_entry_is_guarded ... ok
+test r09_missing_optional_fields_preserve_previous_values ... ok
+test r11_repeated_acks_are_idempotent_with_growing_version ... ok
+test r02_unknown_channel_creates_entry_at_end ... ok
+test r07_stale_message_id_is_rejected_with_diagnostic ... ok
+test r12_stale_sequence_does_not_touch_read_state ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

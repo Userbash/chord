@@ -1,0 +1,13 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0583]: file not found for module `support`
+ --> crates/discord-core/tests/ready_fixture.rs:8:1
+  |
+8 | mod support;
+  | ^^^^^^^^^^^^
+  |
+  = help: to create the module `support`, create file "crates/discord-core/tests/support.rs" or "crates/discord-core/tests/support/mod.rs"
+  = note: if there is a `mod support` elsewhere in the crate already, import it with `use crate::...` instead
+
+For more information about this error, try `rustc --explain E0583`.
+error: could not compile `discord-core` (test "ready_fixture") due to 1 previous error
+# EXIT=101

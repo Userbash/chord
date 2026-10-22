@@ -1,0 +1,33 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/member_chunk_reducer.rs (target/debug/deps/member_chunk_reducer-df5171b69ffe9435)
+
+running 12 tests
+test r06_nonce_correlates_two_assemblies ... ok
+test r01_apply_022_stores_assembly_and_merges_members ... ok
+test r04_duplicate_index_last_wins_with_diagnostic ... ok
+test r10_existing_guild_member_is_updated_not_duplicated ... ok
+test r08_stale_sequence_is_noop ... ok
+test r03_out_of_order_chunks_are_complete_and_ordered_by_index ... ok
+test r02_unknown_guild_is_diagnostic_but_assembly_is_stored ... ok
+test r11_two_guilds_have_independent_assemblies ... ok
+test r05_chunk_count_mismatch_is_diagnostic_and_first_wins ... ok
+test r07_not_found_is_stored_without_removing_members ... ok
+test r12_single_chunk_without_nonce_is_new_response_without_duplicate ... FAILED
+test r09_invalid_index_is_malformed_and_does_not_change_state ... ok
+
+failures:
+
+---- r12_single_chunk_without_nonce_is_new_response_without_duplicate stdout ----
+
+thread 'r12_single_chunk_without_nonce_is_new_response_without_duplicate' (380096) panicked at crates/discord-core/tests/member_chunk_reducer.rs:365:5:
+повтор 0/1 без nonce — новый ответ, не duplicate: ["member_chunk:294064825540280335:none:duplicate-index:0"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r12_single_chunk_without_nonce_is_new_response_without_duplicate
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p discord-core --test member_chunk_reducer`

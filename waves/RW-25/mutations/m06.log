@@ -1,0 +1,61 @@
+# мутация M6: rust/crates/discord-voice/src/srtp.rs
+# old: '            self.counter += 1;\n            Ok(out)\n        } else {'
+# new: '            Ok(out)\n        } else {'
+# команда: cargo test --offline -p discord-voice --test srtp_contract
+# exit code: 101
+# восстановлено по md5: True
+
+
+running 22 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test rtp_version_k ... ok
+test incoming_srtcp_k ... ok
+test unsupported_mode_k ... ok
+test rtp_layout_k ... ok
+test short_packet_k ... ok
+test counter_overflow_k ... FAILED
+test rtp_roundtrip_k ... ok
+test srtcp_version_k ... ok
+test rtp_counter_shared_k ... FAILED
+test xchacha_rtpsize_k ... ok
+test rtp_tamper_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_layout_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test srtcp_tamper_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+
+failures:
+
+---- counter_overflow_k stdout ----
+
+thread 'counter_overflow_k' (118115) panicked at crates/discord-voice/tests/srtp_contract.rs:386:5:
+assertion `left == right` failed
+  left: Ok([144, 120, 68, 58, 16, 153, 33, 76, 0, 0, 35, 248, 190, 222, 0, 2, 166, 43, 240, 204, 127, 192, 184, 38, 104, 125, 103, 34, 4, 21, 109, 2, 17, 108, 88, 237, 48, 117, 210, 48, 3, 141, 122, 255, 255, 255, 255])
+ right: Err(CounterOverflow)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rtp_counter_shared_k stdout ----
+
+thread 'rtp_counter_shared_k' (118124) panicked at crates/discord-voice/tests/srtp_contract.rs:126:9:
+assertion `left == right` failed: n = 1
+  left: 2147483648
+ right: 2147483649
+
+
+failures:
+    counter_overflow_k
+    rtp_counter_shared_k
+
+test result: FAILED. 20 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/srtp_contract.rs (/tmp/opencode/target-mut/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+

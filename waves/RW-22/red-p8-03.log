@@ -1,0 +1,46 @@
+   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/ci_contract.rs (target/debug/deps/ci_contract-a0101caa715bedf9)
+
+running 4 tests
+test workflow_uses_the_same_ci_contract ... FAILED
+test scripts_are_syntactically_valid_and_do_not_use_network_clients ... FAILED
+test release_dry_run_is_offline_and_writes_dist_only ... FAILED
+test ci_dry_run_prints_full_plan_without_running_tools ... FAILED
+
+failures:
+
+---- workflow_uses_the_same_ci_contract stdout ----
+
+thread 'workflow_uses_the_same_ci_contract' (75209) panicked at crates/discord-conformance/tests/ci_contract.rs:82:5:
+assertion failed: text.contains("scripts/ci.sh")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- scripts_are_syntactically_valid_and_do_not_use_network_clients stdout ----
+
+thread 'scripts_are_syntactically_valid_and_do_not_use_network_clients' (75208) panicked at crates/discord-conformance/tests/ci_contract.rs:66:9:
+scripts/ci.sh syntax: bash: scripts/ci.sh: Нет такого файла или каталога
+
+
+---- release_dry_run_is_offline_and_writes_dist_only stdout ----
+
+thread 'release_dry_run_is_offline_and_writes_dist_only' (75207) panicked at crates/discord-conformance/tests/ci_contract.rs:48:5:
+stderr=bash: scripts/release.sh: Нет такого файла или каталога
+
+
+---- ci_dry_run_prints_full_plan_without_running_tools stdout ----
+
+thread 'ci_dry_run_prints_full_plan_without_running_tools' (75206) panicked at crates/discord-conformance/tests/ci_contract.rs:29:5:
+stderr=bash: scripts/ci.sh: Нет такого файла или каталога
+
+
+
+failures:
+    ci_dry_run_prints_full_plan_without_running_tools
+    release_dry_run_is_offline_and_writes_dist_only
+    scripts_are_syntactically_valid_and_do_not_use_network_clients
+    workflow_uses_the_same_ci_contract
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-conformance --test ci_contract`

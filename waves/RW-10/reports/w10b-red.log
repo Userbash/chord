@@ -1,0 +1,110 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `TcpStream`
+  --> crates/discord-core/tests/rest_transport.rs:22:31
+   |
+22 | use tokio::net::{TcpListener, TcpStream};
+   |                               ^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (test "rest_transport") generated 1 warning (run `cargo fix --test "rest_transport" -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running tests/rest_transport.rs (target/debug/deps/rest_transport-4eb024f7e3712ef8)
+
+running 13 tests
+test endpoint_parse_local_and_normalize ... FAILED
+test endpoint_parse_https_base ... FAILED
+test endpoint_rejects_bad_base_and_target ... FAILED
+test response_shape_is_public ... ok
+test get_plain_tcp_with_auto_headers ... FAILED
+test read_until_close ... FAILED
+test malformed_response_is_protocol_error ... FAILED
+test chunked_response ... FAILED
+test post_body_and_204 ... FAILED
+test too_large_body_is_rejected_before_read ... FAILED
+test connect_refused_is_error_not_panic ... FAILED
+test tls_untrusted_root_fails ... FAILED
+test tls_with_custom_root_and_ip_san ... FAILED
+
+failures:
+
+---- endpoint_parse_local_and_normalize stdout ----
+
+thread 'endpoint_parse_local_and_normalize' (57895) panicked at crates/discord-core/src/rest/transport.rs:124:9:
+not yet implemented: W10b: Endpoint::parse
+
+---- endpoint_parse_https_base stdout ----
+
+thread 'endpoint_parse_https_base' (57894) panicked at crates/discord-core/src/rest/transport.rs:124:9:
+not yet implemented: W10b: Endpoint::parse
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- endpoint_rejects_bad_base_and_target stdout ----
+
+thread 'endpoint_rejects_bad_base_and_target' (57896) panicked at crates/discord-core/src/rest/transport.rs:124:9:
+not yet implemented: W10b: Endpoint::parse
+
+---- get_plain_tcp_with_auto_headers stdout ----
+
+thread 'get_plain_tcp_with_auto_headers' (57897) panicked at crates/discord-core/src/rest/transport.rs:31:9:
+not yet implemented: W10b: HttpClientConfig::default (webpki-roots)
+
+---- read_until_close stdout ----
+
+thread 'read_until_close' (57900) panicked at crates/discord-core/src/rest/transport.rs:137:5:
+not yet implemented: W10b: send
+
+---- malformed_response_is_protocol_error stdout ----
+
+thread 'malformed_response_is_protocol_error' (57898) panicked at crates/discord-core/src/rest/transport.rs:137:5:
+not yet implemented: W10b: send
+
+---- chunked_response stdout ----
+
+thread 'chunked_response' (57892) panicked at crates/discord-core/src/rest/transport.rs:137:5:
+not yet implemented: W10b: send
+
+---- post_body_and_204 stdout ----
+
+thread 'post_body_and_204' (57899) panicked at crates/discord-core/src/rest/transport.rs:137:5:
+not yet implemented: W10b: send
+
+---- too_large_body_is_rejected_before_read stdout ----
+
+thread 'too_large_body_is_rejected_before_read' (57904) panicked at crates/discord-core/src/rest/transport.rs:31:9:
+not yet implemented: W10b: HttpClientConfig::default (webpki-roots)
+
+---- connect_refused_is_error_not_panic stdout ----
+
+thread 'connect_refused_is_error_not_panic' (57893) panicked at crates/discord-core/src/rest/transport.rs:137:5:
+not yet implemented: W10b: send
+
+---- tls_untrusted_root_fails stdout ----
+
+thread 'tls_untrusted_root_fails' (57902) panicked at crates/discord-core/src/rest/transport.rs:137:5:
+not yet implemented: W10b: send
+
+---- tls_with_custom_root_and_ip_san stdout ----
+
+thread 'tls_with_custom_root_and_ip_san' (57903) panicked at crates/discord-core/src/rest/transport.rs:147:5:
+not yet implemented: W10b: send_with
+
+
+failures:
+    chunked_response
+    connect_refused_is_error_not_panic
+    endpoint_parse_https_base
+    endpoint_parse_local_and_normalize
+    endpoint_rejects_bad_base_and_target
+    get_plain_tcp_with_auto_headers
+    malformed_response_is_protocol_error
+    post_body_and_204
+    read_until_close
+    tls_untrusted_root_fails
+    tls_with_custom_root_and_ip_san
+    too_large_body_is_rejected_before_read
+
+test result: FAILED. 1 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_transport`
+# EXIT=101

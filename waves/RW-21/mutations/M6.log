@@ -1,0 +1,40 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
+
+running 16 tests
+test p08t11_unsupported_type_preserves_wire ... ok
+test p08t12_base64_errors ... ok
+test p08t14_known_field_wrong_wire_type ... ok
+test p08t01_ready_identity ... ok
+test p08t13_wire_errors ... ok
+test p08t15_empty_wrapper_vs_absent ... ok
+test p08t02_ready_top_level_fields ... FAILED
+test p08t03_versions_and_inbox ... ok
+test p08t04_appearance ... ok
+test p08t06_text_and_images ... ok
+test p08t07_notifications ... ok
+test p08t05_voice_and_video ... ok
+test p08t08_status_and_localization ... ok
+test p08t09_raw_preserves_unknown_fields ... ok
+test p08t16_debug_redacts_payload ... ok
+test p08t10_update_type2_frecency ... ok
+
+failures:
+
+---- p08t02_ready_top_level_fields stdout ----
+
+thread 'p08t02_ready_top_level_fields' (702116) panicked at crates/discord-core/tests/settings_proto.rs:60:5:
+assertion `left == right` failed: singular last-wins
+  left: Some(1)
+ right: Some(2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    p08t02_ready_top_level_fields
+
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test settings_proto`
+EXIT=101

@@ -1,0 +1,31 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0618]: expected function, found `MemberListUpdate`
+   --> crates/discord-core/tests/member_list_types.rs:283:18
+    |
+ 19 | fn update(event: Event) -> discord_core::state::MemberListUpdate {
+    | ---------------------------------------------------------------- this function of the same name is available here, but it's shadowed by the local binding
+...
+269 |     let update = update(Event::from_frame(&as_bytes).expect("bytes range"));
+    |         ------ `update` has type `MemberListUpdate`
+...
+283 |     let update = update(Event::from_frame(&as_list).expect("list range"));
+    |                  ^^^^^^--------------------------------------------------
+    |                  |
+    |                  call expression requires function
+
+error[E0614]: type `Option<MemberListRange>` cannot be dereferenced
+   --> crates/discord-core/tests/member_list_types.rs:287:16
+    |
+287 |     assert_eq!(*range, Some(MemberListRange { start: 0, end: 5 }));
+    |                ^^^^^^ can't be dereferenced
+
+error[E0614]: type `Option<MemberListRange>` cannot be dereferenced
+   --> crates/discord-core/tests/member_list_types.rs:303:16
+    |
+303 |     assert_eq!(*range, None);
+    |                ^^^^^^ can't be dereferenced
+
+Some errors have detailed explanations: E0614, E0618.
+For more information about an error, try `rustc --explain E0614`.
+error: could not compile `discord-core` (test "member_list_types") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

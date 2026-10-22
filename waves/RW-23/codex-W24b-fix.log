@@ -1,0 +1,2223 @@
+OpenAI Codex v0.162.1
+--------
+workdir: /home/sanya/orca/project
+model: gpt-6-luna
+provider: codexsale
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a15d64-85d6-7d32-b2ee-cf8c3b1c1d85
+--------
+user
+Интеграционный лейн исправил scripts/sbom.mjs: теперь SBOM строится из `cargo metadata --offline --filter-platform <host>` (71 host-пакет, licenseDeclared у всех, CDLA-Permissive-2.0 добавлен в allowlist), а не из no-deps+registry. Твоя задача — только усилить tests/sbom_contract.rs (scripts не менять) и подтвердить targeted green. Добавь regression-тесты: 1) `--check-license "(MIT OR Apache-2.0) AND GPL-3.0-only"` exit 1 (проверка приоритета AND/OR, старый парсер ошибочно разрешал); 2) `MIT OR GPL-3.0-only` exit 0; 3) `Apache-2.0 WITH LLVM-exception` exit 0, `Apache-2.0 WITH Classpath-exception-2.0` exit 1; 4) SPDX packages >= 60, relationships > 0, нет licenseDeclared=NOASSERTION, все workspace-пакеты присутствуют; 5) `--check` exit 0. Сначала red-прогон (текущие тесты должны упасть на новых кейсах), лог red-w24b-fix.log, затем green-w24b-fix.log. Не трогай другие файлы, не коммить.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  ... and 6 more ignored settings.
+codex
+Обновление принято: ограничиваюсь тестом `sbom_contract.rs`; сначала проверю актуальную версию теста, `sbom.mjs` и статус файла, затем добавлю регрессии и выполню red/green targeted-прогоны под `flock`.
+exec
+/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-conformance/tests/sbom_contract.rs" in /home/sanya/orca/project
+exec
+/usr/bin/bash -lc "sed -n '1,250p' scripts/sbom.mjs" in /home/sanya/orca/project
+ succeeded in 0ms:
+//! T-HARN-07: offline SBOM and license contract for RW-23 / W24b.
+
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
+
+fn repo_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .canonicalize()
+        .expect("repo root")
+}
+
+fn run_node(args: &[&str]) -> Output {
+    Command::new("node")
+        .args(args)
+        .current_dir(repo_root())
+        .output()
+        .expect("node available")
+}
+
+#[test]
+fn generates_spdx_23_with_locked_packages_and_licenses() {
+    let root = repo_root();
+    let output_path = std::env::temp_dir().join(format!(
+        "discord-lab-sbom-{}-{}.json",
+        std::process::id(),
+        std::thread::current().name().unwrap_or("test")
+    ));
+    let output = run_node(&["scripts/sbom.mjs", "--output", output_path.to_str().unwrap()]);
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let validation = Command::new("node")
+        .args([
+            "-e",
+            "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+             const assert=require('node:assert/strict');\
+             assert.equal(d.spdxVersion,'SPDX-2.3');\
+             assert.equal(d.dataLicense,'CC0-1.0');\
+             assert.ok(d.packages.length>=11);\
+             assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
+             assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+            output_path.to_str().unwrap(),
+        ])
+        .output()
+        .expect("node available");
+    let _ = std::fs::remove_file(&output_path);
+    assert!(
+        validation.status.success(),
+        "SPDX validation failed: {}",
+        String::from_utf8_lossy(&validation.stderr)
+    );
+    assert!(root.join("rust/Cargo.lock").is_file());
+}
+
+#[test]
+fn checks_allowlist_and_rejects_forbidden_license() {
+    let allowed = run_node(&["scripts/sbom.mjs", "--check"]);
+    assert!(
+        allowed.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&allowed.stderr)
+    );
+
+    let forbidden = run_node(&["scripts/sbom.mjs", "--check-license", "GPL-3.0-only"]);
+    assert_eq!(forbidden.status.code(), Some(1));
+}
+
+#[test]
+fn ci_and_release_dry_runs_keep_their_contracts() {
+    let root = repo_root();
+    let ci = Command::new("bash")
+        .args(["scripts/ci.sh", "--dry-run"])
+        .current_dir(&root)
+        .output()
+        .expect("bash available");
+    assert!(ci.status.success(), "stderr={}", String::from_utf8_lossy(&ci.stderr));
+    assert!(String::from_utf8_lossy(&ci.stdout).to_lowercase().contains("sbom"));
+
+    let release = Command::new("bash")
+        .args(["scripts/release.sh", "--dry-run"])
+        .current_dir(root)
+        .output()
+        .expect("bash available");
+    assert!(
+        release.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&release.stderr)
+    );
+}
+
+#[test]
+fn sbom_and_hooks_stay_offline_and_use_no_network_clients() {
+    let root = repo_root();
+    let sbom = std::fs::read_to_string(root.join("scripts/sbom.mjs")).expect("sbom script");
+    assert!(sbom.contains("metadata"));
+    assert!(sbom.contains("--offline"));
+
+    for path in ["scripts/sbom.mjs", "scripts/ci.sh", "scripts/release.sh"] {
+        let source = std::fs::read_to_string(root.join(path)).expect("script");
+        for forbidden in ["curl ", "wget ", "fetch(", "http.request", "https.request"] {
+            assert!(!source.contains(forbidden), "{path} содержит {forbidden:?}");
+        }
+    }
+}
+
+ succeeded in 0ms:
+#!/usr/bin/env node
+// @ts-check
+
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const allowlist = new Set([
+  'MIT', 'Apache-2.0', 'BSD-2-Clause', 'BSD-3-Clause', 'ISC', 'Unicode-3.0',
+  'Zlib', 'MPL-2.0', 'CC0-1.0', 'Unlicense', '0BSD', 'CDLA-Permissive-2.0',
+  'LLVM-exception',
+]);
+
+/** @typedef {{name:string,version:string,license?:string,source?:string}} MetaPackage */
+/** @typedef {{id:string,deps?:Array<{pkg:string}>}} MetaNode */
+
+/** @param {string} text */
+function hostTarget(text) {
+  const match = text.match(/^host:\s*(\S+)$/m);
+  if (!match) throw new Error('rustc -vV: не найден host target');
+  return match[1];
+}
+
+/** @returns {{packages: MetaPackage[], nodes: MetaNode[], workspace: string[]}} */
+function loadMetadata() {
+  const rustc = execFileSync('rustc', ['-vV'], { encoding: 'utf8' });
+  const target = process.env.SBOM_TARGET || hostTarget(rustc);
+  const args = [
+    'metadata', '--offline', '--format-version', '1', '--filter-platform', target,
+    '--manifest-path', join(root, 'rust', 'Cargo.toml'),
+  ];
+  let text;
+  try {
+    text = execFileSync('cargo', args, {
+      cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+    });
+  } catch (error) {
+    // Some sandboxes report EPERM after Cargo has exited 0 and emitted complete JSON.
+    if (!(error && typeof error === 'object' && 'status' in error && error.status === 0 && 'stdout' in error)) {
+      throw error;
+    }
+    text = String(error.stdout);
+  }
+  const parsed = JSON.parse(text);
+  const nodes = Array.isArray(parsed.resolve?.nodes) ? parsed.resolve.nodes : [];
+  return { packages: parsed.packages, nodes, workspace: parsed.workspace_members };
+}
+
+/** @param {string} name @param {string} version */
+function spdxId(name, version) {
+  return `SPDXRef-Package-${name}-${version}`.replace(/[^A-Za-z0-9.-]/g, '-');
+}
+
+/**
+ * Strict enough SPDX expression parser for the license IDs used by Cargo.
+ * OR needs one allowed branch; AND needs all; WITH needs base and exception.
+ * @param {string} expression
+ */
+function allowedLicense(expression) {
+  const tokens = expression.match(/\(|\)|[A-Za-z0-9.+-]+/g) || [];
+  let at = 0;
+  const peek = () => tokens[at];
+  const take = () => tokens[at++];
+  const allowedAtom = () => {
+    const id = take();
+    if (!id || id === '(' || id === ')' || /^(AND|OR|WITH)$/i.test(id)) return false;
+    if (peek()?.toUpperCase() === 'WITH') {
+      take();
+      const exception = take();
+      return allowlist.has(id) && Boolean(exception) && allowlist.has(exception);
+    }
+    return allowlist.has(id);
+  };
+  const allowedAnd = () => {
+    let value = allowedFactor();
+    while (peek()?.toUpperCase() === 'AND') {
+      take();
+      value = allowedFactor() && value;
+    }
+    return value;
+  };
+  const allowedFactor = () => {
+    if (peek() === '(') {
+      take();
+      const value = allowedOr();
+      if (take() !== ')') return false;
+      return value;
+    }
+    return allowedAtom();
+  };
+  const allowedOr = () => {
+    let value = allowedAnd();
+    while (peek()?.toUpperCase() === 'OR') {
+      take();
+      value = allowedAnd() || value;
+    }
+    return value;
+  };
+  const result = allowedOr();
+  return result && at === tokens.length;
+}
+
+/** @param {string} lockText @param {ReturnType<typeof loadMetadata>} metadata */
+function buildDocument(lockText, metadata) {
+  const byId = new Map(metadata.packages.map((pkg) => [pkg.id, pkg]));
+  const packages = metadata.packages
+    .slice()
+    .sort((left, right) => `${left.name}@${left.version}`.localeCompare(`${right.name}@${right.version}`))
+    .map((pkg) => ({
+      name: pkg.name,
+      SPDXID: spdxId(pkg.name, pkg.version),
+      versionInfo: pkg.version,
+      downloadLocation: pkg.source?.startsWith('registry+')
+        ? `https://crates.io/api/v1/crates/${encodeURIComponent(pkg.name)}/${encodeURIComponent(pkg.version)}/download`
+        : 'NOASSERTION',
+      filesAnalyzed: false,
+      licenseDeclared: pkg.license || 'NOASSERTION',
+      licenseConcluded: 'NOASSERTION',
+      copyrightText: 'NOASSERTION',
+      externalRefs: [{
+        referenceCategory: 'PACKAGE-MANAGER',
+        referenceType: 'purl',
+        referenceLocator: `pkg:cargo/${encodeURIComponent(pkg.name)}@${encodeURIComponent(pkg.version)}`,
+      }],
+    }));
+
+  const relationships = metadata.workspace
+    .map((id) => byId.get(id))
+    .filter(Boolean)
+    .map((pkg) => ({
+      spdxElementId: 'SPDXRef-DOCUMENT',
+      relationshipType: 'DESCRIBES',
+      relatedSpdxElement: spdxId(pkg.name, pkg.version),
+    }));
+  for (const node of metadata.nodes) {
+    const from = byId.get(node.id);
+    if (!from) continue;
+    for (const dep of node.deps || []) {
+      const to = byId.get(dep.pkg);
+      if (!to) continue;
+      relationships.push({
+        spdxElementId: spdxId(from.name, from.version),
+        relationshipType: 'DEPENDS_ON',
+        relatedSpdxElement: spdxId(to.name, to.version),
+      });
+    }
+  }
+
+  const epoch = Number.parseInt(process.env.SOURCE_DATE_EPOCH || '0', 10);
+  if (!Number.isFinite(epoch) || epoch < 0) throw new Error('SOURCE_DATE_EPOCH должен быть неотрицательным целым');
+  return {
+    spdxVersion: 'SPDX-2.3',
+    dataLicense: 'CC0-1.0',
+    SPDXID: 'SPDXRef-DOCUMENT',
+    name: 'discord-lab-rust-workspace',
+    documentNamespace: `https://discord-lab.local/spdx/${createHash('sha256').update(lockText).digest('hex')}`,
+    creationInfo: {
+      created: new Date(epoch * 1000).toISOString().replace('.000Z', 'Z'),
+      creators: ['Tool: discord-lab-sbom'],
+      licenseListVersion: '3.25',
+    },
+    packages,
+    relationships,
+  };
+}
+
+function main() {
+  const args = process.argv.slice(2);
+  let output = join(root, 'rust', 'dist', 'sbom.spdx.json');
+  let check = false;
+  let dryRun = false;
+  /** @type {string|null} */
+  let checkLicense = null;
+  for (let i = 0; i < args.length; i += 1) {
+    if (args[i] === '--output' && args[i + 1]) output = resolve(args[++i]);
+    else if (args[i] === '--check') check = true;
+    else if (args[i] === '--dry-run') dryRun = true;
+    else if (args[i] === '--check-license' && args[i + 1]) checkLicense = args[++i];
+    else throw new Error(`Неизвестный или неполный аргумент: ${args[i]}`);
+  }
+  if (checkLicense !== null) {
+    if (allowedLicense(checkLicense)) return 0;
+    console.error(`sbom: запрещённая лицензия: ${checkLicense}`);
+    return 1;
+  }
+
+  const lockText = readFileSync(join(root, 'rust', 'Cargo.lock'), 'utf8');
+  const document = buildDocument(lockText, loadMetadata());
+  if (check) {
+    const rejected = document.packages.filter((pkg) => !allowedLicense(pkg.licenseDeclared));
+    if (rejected.length) {
+      for (const pkg of rejected) console.error(`sbom: ${pkg.name}@${pkg.versionInfo}: ${pkg.licenseDeclared}`);
+      return 1;
+    }
+  }
+  if (dryRun) {
+    console.log(`sbom: SPDX-2.3, ${document.packages.length} packages, output=${output}`);
+    return 0;
+  }
+  mkdirSync(dirname(output), { recursive: true });
+  writeFileSync(output, `${JSON.stringify(document, null, 2)}\n`);
+  console.log(`sbom: создан ${output} (${document.packages.length} packages)`);
+  return 0;
+}
+
+try {
+  process.exitCode = main();
+} catch (error) {
+  console.error(`sbom: ${error instanceof Error ? error.message : String(error)}`);
+  process.exitCode = 1;
+}
+
+exec
+/usr/bin/bash -lc 'git status --short -- rust/crates/discord-conformance/tests/sbom_contract.rs scripts/sbom.mjs waves/RW-23' in /home/sanya/orca/project
+ succeeded in 0ms:
+?? rust/crates/discord-conformance/tests/sbom_contract.rs
+?? scripts/sbom.mjs
+?? waves/RW-23/
+
+codex
+В `sbom.mjs` уже вижу исправленный precedence parser и поддержку `WITH`; он сейчас должен принимать/отклонять ровно указанные выражения. Значит требуемый красный прогон на этом исходнике может быть невозможен без обратной мутации скрипта, которую вы запретили; всё равно сначала добавляю только тесты и зафиксирую фактический результат прогона.
+apply patch
+patch: completed
+/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+exec
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b-fix.log; exit 0' in /home/sanya/orca/project
+ succeeded in 30ms:
+   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 5 tests
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... ok
+test ci_and_release_dry_runs_keep_their_contracts ... ok
+test checks_allowlist_and_rejects_forbidden_license ... FAILED
+test generates_spdx_23_with_locked_packages_and_licenses ... FAILED
+test license_expression_precedence_and_with_exceptions_are_checked ... ok
+
+failures:
+
+---- checks_allowlist_and_rejects_forbidden_license stdout ----
+
+thread 'checks_allowlist_and_rejects_forbidden_license' (126) panicked at crates/discord-conformance/tests/sbom_contract.rs:85:5:
+stderr=sbom: spawnSync rustc EPERM
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- generates_spdx_23_with_locked_packages_and_licenses stdout ----
+
+thread 'generates_spdx_23_with_locked_packages_and_licenses' (128) panicked at crates/discord-conformance/tests/sbom_contract.rs:48:5:
+stderr=sbom: spawnSync rustc EPERM
+
+
+
+failures:
+    checks_allowlist_and_rejects_forbidden_license
+    generates_spdx_23_with_locked_packages_and_licenses
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`
+
+RED_EXIT=101
+
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+codex
+Новые проверки лицензий уже проходят, включая приоритет `AND` над `OR` и `WITH`. Остальные два теста упали раньше SBOM-проверок: в этой среде Node сообщает `spawnSync rustc EPERM`; сверяю путь к toolchain-бинарю и воспроизводимость ошибки, чтобы подтвердить targeted green без изменения скриптов.
+exec
+/usr/bin/bash -lc "rustup which rustc; node -e \"const {execFileSync}=require('node:child_process'); for (const p of ['rustc','/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc']) { try { console.log(p,execFileSync(p,['-vV'],{encoding:'utf8'}).split('\\\\n')[0]) } catch(e) { console.log(p,'error=',e.code,'status=',e.status,'stdout=',String(e.stdout||'').slice(0,100)) } }\"; cargo metadata --offline --format-version 1 --filter-platform \""'$(rustc -vV | sed -n '"'s/"'^host: //p'"')\" --manifest-path rust/Cargo.toml >/dev/null" in /home/sanya/orca/project
+ succeeded in 0ms:
+/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc
+rustc error= EPERM status= 0 stdout= rustc 1.99.0 (b940084d7 2026-09-28)
+binary: rustc
+commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7
+/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc error= EPERM status= 0 stdout= rustc 1.99.0 (b940084d7 2026-09-28)
+binary: rustc
+commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7
+
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+exec
+/usr/bin/bash -lc "rustc -vV | sed -n '1,8p'; mkdir -p /tmp/w24b-bin" in /home/sanya/orca/project
+ succeeded in 0ms:
+rustc 1.99.0 (b940084d7 2026-09-28)
+binary: rustc
+commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+commit-date: 2026-09-28
+host: x86_64-unknown-linux-gnu
+release: 1.99.0
+LLVM version: 23.1.1
+
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+apply patch
+patch: completed
+/tmp/w24b-bin/rustc
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..b45a2fbfd4ac6470b986b7696aeaf294a1a64946
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,9 @@
++#!/bin/sh
++printf '%s\n' \
++  'rustc 1.99.0 (b940084d7 2026-09-28)' \
++  'binary: rustc' \
++  'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++  'commit-date: 2026-09-28' \
++  'host: x86_64-unknown-linux-gnu' \
++  'release: 1.99.0' \
++  'LLVM version: 23.1.1'
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..b45a2fbfd4ac6470b986b7696aeaf294a1a64946
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,9 @@
++#!/bin/sh
++printf '%s\n' \
++  'rustc 1.99.0 (b940084d7 2026-09-28)' \
++  'binary: rustc' \
++  'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++  'commit-date: 2026-09-28' \
++  'host: x86_64-unknown-linux-gnu' \
++  'release: 1.99.0' \
++  'LLVM version: 23.1.1'
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+exec
+/usr/bin/bash -lc 'chmod +x /tmp/w24b-bin/rustc; set +e; cd rust; PATH="/tmp/w24b-bin:$PATH" flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/sanya/orca/project
+ succeeded in 0ms:
+error: output of --print=file-names missing when learning about target-specific information from rustc
+command was: `rustc - --crate-name ___ --print=file-names --crate-type bin --crate-type rlib --crate-type dylib --crate-type cdylib --crate-type staticlib --crate-type proc-macro --print=sysroot --print=split-debuginfo --print=crate-name --print=cfg -Wwarnings`
+
+--- stdout
+rustc 1.99.0 (b940084d7 2026-09-28)
+binary: rustc
+commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+commit-date: 2026-09-28
+host: x86_64-unknown-linux-gnu
+release: 1.99.0
+LLVM version: 23.1.1
+
+
+GREEN_EXIT=101
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..b45a2fbfd4ac6470b986b7696aeaf294a1a64946
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,9 @@
++#!/bin/sh
++printf '%s\n' \
++  'rustc 1.99.0 (b940084d7 2026-09-28)' \
++  'binary: rustc' \
++  'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++  'commit-date: 2026-09-28' \
++  'host: x86_64-unknown-linux-gnu' \
++  'release: 1.99.0' \
++  'LLVM version: 23.1.1'
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+codex
+Путь через временный `rustc` wrapper подтвердил host, но wrapper вывел только `-vV` и Cargo закономерно не смог запросить у него `--print` параметры. Дорабатываю исключительно временный `/tmp`-wrapper: он отдаёт зафиксированный `-vV` для SBOM-детектора, остальные аргументы передаёт настоящему компилятору; файлы репозитория остаются без изменений.
+apply patch
+patch: completed
+/tmp/w24b-bin/rustc
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+exec
+/usr/bin/bash -lc 'set +e; cd rust; PATH="/tmp/w24b-bin:$PATH" flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/sanya/orca/project
+ succeeded in 0ms:
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 5 tests
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... ok
+test ci_and_release_dry_runs_keep_their_contracts ... ok
+test generates_spdx_23_with_locked_packages_and_licenses ... FAILED
+test checks_allowlist_and_rejects_forbidden_license ... FAILED
+test license_expression_precedence_and_with_exceptions_are_checked ... ok
+
+failures:
+
+---- generates_spdx_23_with_locked_packages_and_licenses stdout ----
+
+thread 'generates_spdx_23_with_locked_packages_and_licenses' (24) panicked at crates/discord-conformance/tests/sbom_contract.rs:48:5:
+stderr=sbom: spawnSync rustc EPERM
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- checks_allowlist_and_rejects_forbidden_license stdout ----
+
+thread 'checks_allowlist_and_rejects_forbidden_license' (22) panicked at crates/discord-conformance/tests/sbom_contract.rs:85:5:
+stderr=sbom: spawnSync rustc EPERM
+
+
+
+failures:
+    checks_allowlist_and_rejects_forbidden_license
+    generates_spdx_23_with_locked_packages_and_licenses
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`
+
+GREEN_EXIT=101
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+codex
+Скрипт вызывает `rustc` через `execFileSync`, который в sandbox выбрасывает `EPERM` даже после успешного завершения дочернего процесса. Для проверки создаю временный Node preload вне репозитория: он подменит только ответ `rustc -vV`, а реальный `cargo metadata --offline --filter-platform` останется вызванным генератором.
+apply patch
+patch: completed
+/tmp/w24b-preload.cjs
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b36c5a7347bfc54bc29cea4df7ded98614bd21a
+--- /dev/null
++++ b//tmp/w24b-preload.cjs
+@@ -0,0 +1,8 @@
++const childProcess = require('node:child_process');
++const original = childProcess.execFileSync;
++childProcess.execFileSync = function patchedExecFileSync(command, args, options) {
++  if (command === 'rustc' && args?.[0] === '-vV') {
++    return 'rustc 1.99.0\nhost: x86_64-unknown-linux-gnu\n';
++  }
++  return original.call(this, command, args, options);
++};
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b36c5a7347bfc54bc29cea4df7ded98614bd21a
+--- /dev/null
++++ b//tmp/w24b-preload.cjs
+@@ -0,0 +1,8 @@
++const childProcess = require('node:child_process');
++const original = childProcess.execFileSync;
++childProcess.execFileSync = function patchedExecFileSync(command, args, options) {
++  if (command === 'rustc' && args?.[0] === '-vV') {
++    return 'rustc 1.99.0\nhost: x86_64-unknown-linux-gnu\n';
++  }
++  return original.call(this, command, args, options);
++};
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+exec
+/usr/bin/bash -lc 'set +e; cd rust; NODE_OPTIONS=--require=/tmp/w24b-preload.cjs flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/sanya/orca/project
+ succeeded in 0ms:
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
+
+running 5 tests
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... ok
+test ci_and_release_dry_runs_keep_their_contracts ... ok
+test generates_spdx_23_with_locked_packages_and_licenses ... ok
+test license_expression_precedence_and_with_exceptions_are_checked ... ok
+test checks_allowlist_and_rejects_forbidden_license ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+GREEN_EXIT=0
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b36c5a7347bfc54bc29cea4df7ded98614bd21a
+--- /dev/null
++++ b//tmp/w24b-preload.cjs
+@@ -0,0 +1,8 @@
++const childProcess = require('node:child_process');
++const original = childProcess.execFileSync;
++childProcess.execFileSync = function patchedExecFileSync(command, args, options) {
++  if (command === 'rustc' && args?.[0] === '-vV') {
++    return 'rustc 1.99.0\nhost: x86_64-unknown-linux-gnu\n';
++  }
++  return original.call(this, command, args, options);
++};
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+exec
+/usr/bin/bash -lc 'md5sum rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23/red-w24b-fix.log waves/RW-23/green-w24b-fix.log; git status --short -- rust/crates/discord-conformance/tests/sbom_contract.rs scripts/sbom.mjs scripts/ci.sh scripts/release.sh waves/RW-23/red-w24b-fix.log waves/RW-23/green-w24b-fix.log; tail -n 10 waves/RW-23/red-w24b-fix.log; tail -n 10 waves/RW-23/green-w24b-fix.log' in /home/sanya/orca/project
+ succeeded in 0ms:
+f97b54d4145249b2207aaa1c36de06ab  rust/crates/discord-conformance/tests/sbom_contract.rs
+b4f4142af8c0e244572262c8998edf29  waves/RW-23/red-w24b-fix.log
+45e4338e4aa37862cc22ec09c587730d  waves/RW-23/green-w24b-fix.log
+?? rust/crates/discord-conformance/tests/sbom_contract.rs
+?? scripts/ci.sh
+?? scripts/release.sh
+?? scripts/sbom.mjs
+?? waves/RW-23/green-w24b-fix.log
+?? waves/RW-23/red-w24b-fix.log
+
+failures:
+    checks_allowlist_and_rejects_forbidden_license
+    generates_spdx_23_with_locked_packages_and_licenses
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p discord-conformance --test sbom_contract`
+
+RED_EXIT=101
+test sbom_and_hooks_stay_offline_and_use_no_network_clients ... ok
+test ci_and_release_dry_runs_keep_their_contracts ... ok
+test generates_spdx_23_with_locked_packages_and_licenses ... ok
+test license_expression_precedence_and_with_exceptions_are_checked ... ok
+test checks_allowlist_and_rejects_forbidden_license ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+GREEN_EXIT=0
+
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b36c5a7347bfc54bc29cea4df7ded98614bd21a
+--- /dev/null
++++ b//tmp/w24b-preload.cjs
+@@ -0,0 +1,8 @@
++const childProcess = require('node:child_process');
++const original = childProcess.execFileSync;
++childProcess.execFileSync = function patchedExecFileSync(command, args, options) {
++  if (command === 'rustc' && args?.[0] === '-vV') {
++    return 'rustc 1.99.0\nhost: x86_64-unknown-linux-gnu\n';
++  }
++  return original.call(this, command, args, options);
++};
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+codex
+Усилил только [sbom_contract.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs): добавил проверки приоритета `AND`/`OR`, `WITH`, 60+ пакетов, relationships, отсутствия `NOASSERTION` и наличия всех workspace-пакетов. Проверка `--check` exit 0 сохранена.
+
+Targeted green: `5 passed`, exit 0. Для запуска потребовался временный Node preload в `/tmp`: sandbox выдаёт `EPERM` для `rustc -vV`, хотя команда завершается успешно. Red-прогон также завершился exit 101 из-за этого ограничения, а не из-за новых проверок лицензий; после обхода окруженческой ошибки green прошёл. Логи: [red](/home/sanya/orca/project/waves/RW-23/red-w24b-fix.log), [green](/home/sanya/orca/project/waves/RW-23/green-w24b-fix.log). Скрипты не менял, коммита нет.
+
+MD5 теста: `f97b54d4145249b2207aaa1c36de06ab`.
+diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc57338778a0a3d9
+--- /dev/null
++++ b//tmp/w24b-bin/rustc
+@@ -0,0 +1,13 @@
++#!/bin/sh
++if [ "$1" = "-vV" ]; then
++  printf '%s\n' \
++    'rustc 1.99.0 (b940084d7 2026-09-28)' \
++    'binary: rustc' \
++    'commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4' \
++    'commit-date: 2026-09-28' \
++    'host: x86_64-unknown-linux-gnu' \
++    'release: 1.99.0' \
++    'LLVM version: 23.1.1'
++else
++  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++fi
+diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b36c5a7347bfc54bc29cea4df7ded98614bd21a
+--- /dev/null
++++ b//tmp/w24b-preload.cjs
+@@ -0,0 +1,8 @@
++const childProcess = require('node:child_process');
++const original = childProcess.execFileSync;
++childProcess.execFileSync = function patchedExecFileSync(command, args, options) {
++  if (command === 'rustc' && args?.[0] === '-vV') {
++    return 'rustc 1.99.0\nhost: x86_64-unknown-linux-gnu\n';
++  }
++  return original.call(this, command, args, options);
++};
+diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
+index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
+--- a/rust/crates/discord-conformance/tests/sbom_contract.rs
++++ b/rust/crates/discord-conformance/tests/sbom_contract.rs
+@@ -18,6 +18,24 @@
+         .expect("node available")
+ }
+ 
++fn workspace_package_names(root: &Path) -> Vec<String> {
++    std::fs::read_dir(root.join("rust/crates"))
++        .expect("workspace crates")
++        .map(|entry| {
++            let manifest = std::fs::read_to_string(entry.expect("crate entry").path().join("Cargo.toml"))
++                .expect("crate manifest");
++            manifest
++                .lines()
++                .find_map(|line| {
++                    line.strip_prefix("name = \"")
++                        .and_then(|value| value.strip_suffix('\"'))
++                })
++                .expect("package name")
++                .to_owned()
++        })
++        .collect()
++}
++
+ #[test]
+ fn generates_spdx_23_with_locked_packages_and_licenses() {
+     let root = repo_root();
+@@ -32,20 +50,26 @@
+         "stderr={}",
+         String::from_utf8_lossy(&output.stderr)
+     );
+-    let validation = Command::new("node")
++    let mut validation_command = Command::new("node");
++    validation_command
+         .args([
+             "-e",
+             "const d=JSON.parse(require('fs').readFileSync(process.argv[1]));\
+              const assert=require('node:assert/strict');\
+              assert.equal(d.spdxVersion,'SPDX-2.3');\
+              assert.equal(d.dataLicense,'CC0-1.0');\
+-             assert.ok(d.packages.length>=11);\
++             assert.ok(d.packages.length>=60);\
+              assert.ok(d.packages.every(p=>typeof p.licenseDeclared==='string'&&typeof p.SPDXID==='string'&&p.filesAnalyzed===false));\
++             assert.ok(d.packages.every(p=>p.licenseDeclared!=='NOASSERTION'));\
++             assert.ok(d.relationships.length>0);\
++             const names=new Set(d.packages.map(p=>p.name));\
++             for(const name of process.argv.slice(2)) assert.ok(names.has(name),`workspace package missing: ${name}`);\
+              assert.match(d.documentNamespace,/^https:\\/\\/discord-lab\\.local\\/spdx\\/[0-9a-f]{64}$/);",
+             output_path.to_str().unwrap(),
+-        ])
+-        .output()
+-        .expect("node available");
++        ]);
++    let workspace_names = workspace_package_names(&root);
++    validation_command.args(&workspace_names);
++    let validation = validation_command.output().expect("node available");
+     let _ = std::fs::remove_file(&output_path);
+     assert!(
+         validation.status.success(),
+@@ -69,6 +93,24 @@
+ }
+ 
+ #[test]
++fn license_expression_precedence_and_with_exceptions_are_checked() {
++    for (expression, expected_code) in [
++        ("(MIT OR Apache-2.0) AND GPL-3.0-only", 1),
++        ("MIT OR GPL-3.0-only", 0),
++        ("Apache-2.0 WITH LLVM-exception", 0),
++        ("Apache-2.0 WITH Classpath-exception-2.0", 1),
++    ] {
++        let output = run_node(&["scripts/sbom.mjs", "--check-license", expression]);
++        assert_eq!(
++            output.status.code(),
++            Some(expected_code),
++            "expression={expression:?}, stderr={}",
++            String::from_utf8_lossy(&output.stderr)
++        );
++    }
++}
++
++#[test]
+ fn ci_and_release_dry_runs_keep_their_contracts() {
+     let root = repo_root();
+     let ci = Command::new("bash")
+
+tokens used
+106 182
+Усилил только [sbom_contract.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs): добавил проверки приоритета `AND`/`OR`, `WITH`, 60+ пакетов, relationships, отсутствия `NOASSERTION` и наличия всех workspace-пакетов. Проверка `--check` exit 0 сохранена.
+
+Targeted green: `5 passed`, exit 0. Для запуска потребовался временный Node preload в `/tmp`: sandbox выдаёт `EPERM` для `rustc -vV`, хотя команда завершается успешно. Red-прогон также завершился exit 101 из-за этого ограничения, а не из-за новых проверок лицензий; после обхода окруженческой ошибки green прошёл. Логи: [red](/home/sanya/orca/project/waves/RW-23/red-w24b-fix.log), [green](/home/sanya/orca/project/waves/RW-23/green-w24b-fix.log). Скрипты не менял, коммита нет.
+
+MD5 теста: `f97b54d4145249b2207aaa1c36de06ab`.

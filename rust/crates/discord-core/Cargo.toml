@@ -10,12 +10,16 @@ discord-codec = { workspace = true }
 tokio = { workspace = true }
 tokio-tungstenite = { workspace = true }
 rustls = { workspace = true }
+tokio-rustls = { workspace = true }
+httparse = { workspace = true }
 webpki-roots = { workspace = true }
 futures-util = { workspace = true }
 
 [dev-dependencies]
 # Энкодер zstd: стаб-сервер в тестах строит непрерывный поток (продукт пишет несжатый ETF).
 zstd = { workspace = true }
+# Независимый разбор docs/re/rest-d02.json в тестах P7-04 (без serde).
+discord-json = { workspace = true }
 
 [lints.rust]
 unsafe_code = "forbid"

@@ -1,0 +1,33 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/deep_link_contract.rs (/tmp/opencode/target-w27b/debug/deps/deep_link_contract-efdc5ede3d8f3d72)
+
+running 13 tests
+test d01_app_settings_route ... ok
+test d02_empty_host_library_route ... ok
+test d03_login_one_time_token_is_redacted_in_debug ... ok
+test d04_oauth2_authorize_route ... ok
+test d05_channels_routes ... ok
+test d07_extract_deep_link_matches_re ... ok
+test d08_query_and_fragment_are_split_before_path ... ok
+test d09_scheme_and_host_case_insensitive_path_case_sensitive ... ok
+test d06_rejects_empty_scheme_length_and_controls ... ok
+test d11_authority_only_and_trailing_slash_paths ... ok
+test d10_unconfirmed_routes_are_unknown ... ok
+test d12_token_extraction_edges ... ok
+test d13_deep_link_debug_redacts_query_and_fragment ... FAILED
+
+failures:
+
+---- d13_deep_link_debug_redacts_query_and_fragment stdout ----
+
+thread 'd13_deep_link_debug_redacts_query_and_fragment' (373185) panicked at crates/discord-platform/tests/deep_link_contract.rs:344:5:
+Debug утёк секрет: DeepLink { raw: "discord://login/one-time?token=secret-token#frag-secret", host: "login", path: "/one-time", query: Some("token=secret-token"), fragment: Some("frag-secret") }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    d13_deep_link_debug_redacts_query_and_fragment
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-platform --test deep_link_contract`

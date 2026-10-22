@@ -1,0 +1,11 @@
+{
+  "projectRoot": "/home/sanya/orca/project",
+  "batchFiles": [
+    {"path": "rust/crates/discord-voice/Cargo.toml", "language": "toml", "sizeLines": 9, "fileCategory": "config"},
+    {"path": "rust/crates/discord-voice/src/lib.rs", "language": "rust", "sizeLines": 48, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "rust/crates/discord-voice/Cargo.toml": [],
+    "rust/crates/discord-voice/src/lib.rs": []
+  }
+}

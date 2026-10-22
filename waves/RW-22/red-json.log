@@ -1,0 +1,13 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+error[E0432]: unresolved imports `discord_json::JsonErrorKind`, `discord_json::JsonValue`, `discord_json::MAX_DEPTH`, `discord_json::parse`
+  --> crates/discord-json/tests/json_contract.rs:10:20
+   |
+10 | use discord_json::{JsonErrorKind, JsonValue, MAX_DEPTH, parse};
+   |                    ^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^  ^^^^^ no `parse` in the root
+   |                    |              |          |
+   |                    |              |          no `MAX_DEPTH` in the root
+   |                    |              no `JsonValue` in the root
+   |                    no `JsonErrorKind` in the root
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-json` (test "json_contract") due to 1 previous error

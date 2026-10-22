@@ -1,0 +1,58 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/member_chunk_reducer.rs (target/debug/deps/member_chunk_reducer-df5171b69ffe9435)
+
+running 11 tests
+test r07_not_found_is_stored_without_removing_members ... ok
+test r06_nonce_correlates_two_assemblies ... ok
+test r11_two_guilds_have_independent_assemblies ... ok
+test r08_stale_sequence_is_noop ... ok
+test r04_duplicate_index_last_wins_with_diagnostic ... ok
+test r01_apply_022_stores_assembly_and_merges_members ... ok
+test r05_chunk_count_mismatch_is_diagnostic_and_first_wins ... ok
+test r10_existing_guild_member_is_updated_not_duplicated ... ok
+test r02_unknown_guild_is_diagnostic_but_assembly_is_stored ... ok
+test r03_out_of_order_chunks_are_complete_and_ordered_by_index ... ok
+test r09_invalid_index_is_malformed_and_does_not_change_state ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/member_chunk_selectors.rs (target/debug/deps/member_chunk_selectors-b30210037970b740)
+
+running 11 tests
+test s08_presence_effect_subrange_and_only_groups ... ok
+test s10_member_chunk_count ... ok
+test s03_is_complete_false_until_all_indices_arrive ... ok
+test s01_member_chunks_are_filtered_by_guild ... ok
+test s04_members_iterator_orders_by_chunk_index ... ok
+test s11_unknown_nonce_has_empty_selectors ... ok
+test s02_member_chunk_selects_by_nonce_and_none ... ok
+test s06_not_found_is_flattened_in_chunk_order ... ok
+test s05_member_chunk_member_lookup ... ok
+test s07_presence_effect_full_range_skips_groups ... ok
+test s09_presence_effect_missing_list_or_bad_range_is_none ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/member_chunk_types.rs (target/debug/deps/member_chunk_types-a60a42a06d68394c)
+
+running 16 tests
+test c05_members_null_is_empty_without_diagnostics ... ok
+test c02_legacy_009_original_is_invalid_id ... ok
+test c03_legacy_009_corrected_guild_keeps_negative_member_malformed ... ok
+test c06_members_wrong_type_is_ignored ... ok
+test c07_bad_member_is_malformed_and_others_kept ... ok
+test c11_zero_chunk_count_is_fatal ... ok
+test c10_missing_chunk_count_is_fatal ... ok
+test c12_chunk_index_out_of_range_is_fatal ... ok
+test c09_missing_chunk_index_is_fatal ... ok
+test c13_presences_present_is_ignored_not_invented ... ok
+test c08_not_found_skips_bad_ids_and_keeps_good ... ok
+test c01_parse_022_shape_matches_jq_oracle ... ok
+test c04_nonce_absent_is_none_and_preserved_when_present ... ok
+test c15_non_numeric_guild_id_is_invalid ... ok
+test c16_root_reexports_are_available ... ok
+test c14_duplicate_member_last_wins_with_diagnostic ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

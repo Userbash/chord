@@ -1,0 +1,41 @@
+COMMAND: cd rust && CARGO_TARGET_DIR=/tmp/discord-lab-target-rw26b cargo test --offline -p discord-voice --test regions_contract
+EXIT=0
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: variant `UnavailableRegion` is never constructed
+  --> crates/discord-voice/tests/../src/regions.rs:26:5
+   |
+16 | pub enum RegionError {
+   |          ----------- variant in this enum
+...
+26 |     UnavailableRegion(String),
+   |     ^^^^^^^^^^^^^^^^^
+   |
+   = note: `RegionError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `measured` is never used
+   --> crates/discord-voice/tests/../src/regions.rs:128:12
+    |
+110 | impl RegionLatency {
+    | ------------------ method in this implementation
+...
+128 |     pub fn measured(&self) -> Vec<(String, u32)> {
+    |            ^^^^^^^^
+
+warning: `discord-voice` (test "regions_contract") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/regions_contract.rs (/tmp/discord-lab-target-rw26b/debug/deps/regions_contract-cb7a8ee43c08d5a8)
+
+running 9 tests
+test latency_median_is_sorted_and_even_rounds_down ... ok
+test probes_rotate_endpoints_and_limit_per_region ... ok
+test probe_completion_observes_timeout_and_clock_order ... ok
+test parser_rejects_shape_and_duplicates ... ok
+test fixture_preserves_regions_and_endpoints ... ok
+test parser_validates_endpoints_and_deduplicates ... ok
+test selection_checks_manual_against_union ... ok
+test unmeasured_regions_follow_measured ... ok
+test ranking_matches_engine_log_and_ties_use_geo_then_lexical ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

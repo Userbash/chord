@@ -48,6 +48,8 @@ pub enum ZstdError {
         /// Сколько байт осталось в накопителе.
         bytes: usize,
     },
+    /// Поток уже завершился ошибкой; продолжать нельзя — нужен новый [`ZstdStream`].
+    Poisoned,
 }
 
 impl fmt::Display for ZstdError {
@@ -61,6 +63,7 @@ impl fmt::Display for ZstdError {
                 f,
                 "после завершения zstd-кадра осталось {bytes} Б неразобранных данных"
             ),
+            Self::Poisoned => write!(f, "zstd-поток уже завершился ошибкой"),
         }
     }
 }
@@ -78,6 +81,10 @@ pub struct ZstdStream {
     pending: Vec<u8>,
     /// Проверена ли магия потока (первая четвёрка байт; только кадр 0).
     magic_checked: bool,
+    /// Декодер уже начинал разбор кадра (у свежего `FrameDecoder` `is_finished() == true`).
+    initialized: bool,
+    /// Поток терминально завершён ошибкой; дальнейшие `push` запрещены.
+    dead: bool,
     /// Переиспользуемый буфер выдачи.
     target: Vec<u8>,
 }
@@ -89,6 +96,8 @@ impl ZstdStream {
             decoder: FrameDecoder::new(),
             pending: Vec::new(),
             magic_checked: false,
+            initialized: false,
+            dead: false,
             target: vec![0u8; TARGET_CAPACITY],
         }
     }
@@ -96,22 +105,25 @@ impl ZstdStream {
     /// Добавляет кусок провода (одно WS-сообщение) и возвращает **новые** распакованные байты.
     ///
     /// Алгоритм:
-    /// 1. кусок добавляется в накопитель `pending`;
-    /// 2. пока не проверена магия: при `pending.len() >= 4` сверка с [`crate::ZSTD_FRAME_MAGIC`]
+    /// 1. если поток уже ошибался — [`ZstdError::Poisoned`] (декодер не трогается);
+    /// 2. кусок добавляется в накопитель `pending`;
+    /// 3. пока не проверена магия: при `pending.len() >= 4` сверка с [`crate::ZSTD_FRAME_MAGIC`]
     ///    (нет — [`ZstdError::MissingMagic`]); при `pending.len() < 4` — `Ok` с пустым выходом;
-    /// 3. цикл декодирования: `ruzstd` получает весь накопитель и переиспользуемый буфер выдачи.
+    /// 4. цикл декодирования: `ruzstd` получает весь накопитель и переиспользуемый буфер выдачи.
     ///    Продвижение считается **дельтой `bytes_read_from_source()`**, а не возвращённым кортежем
     ///    (у `ruzstd` есть ветка с некорректным возвратом при добирании контрольной суммы);
     ///    разобранные сжатые байты снимаются с накопителя;
-    /// 4. цикл крутится, пока есть прогресс (прочитаны сжатые байты или выданы распакованные):
+    /// 5. цикл крутится, пока есть прогресс (прочитаны сжатые байты или выданы распакованные):
     ///    за один вызов ruzstd отдаёт не более ёмкости буфера выдачи, а payload больше неё
     ///    (синтетика: 139 264 Б при буфере 64 КиБ);
-    /// 5. ошибка `ruzstd` → [`ZstdError::Decode`]; если кадр уже начат и завершён, а накопитель
-    ///    не пуст → [`ZstdError::TrailingData`] (у неинициализированного декодера `is_finished`
-    ///    тоже `true`, поэтому проверяется ещё и факт инициализации).
+    /// 6. ошибка `ruzstd` → [`ZstdError::Decode`]; если кадр уже начат и завершён, а накопитель
+    ///    не пуст → [`ZstdError::TrailingData`]. Любая из этих ошибок переводит поток в `dead`.
     ///
     /// Паник нет: накопитель растёт ровно на поданные байты и снимается по счётчику декодера.
     pub fn push(&mut self, frame: &[u8]) -> Result<Vec<u8>, ZstdError> {
+        if self.dead {
+            return Err(ZstdError::Poisoned);
+        }
         self.pending.extend_from_slice(frame);
 
         if !self.magic_checked {
@@ -120,6 +132,7 @@ impl ZstdStream {
                 return Ok(Vec::new());
             }
             if self.pending[..crate::ZSTD_FRAME_MAGIC.len()] != crate::ZSTD_FRAME_MAGIC {
+                self.dead = true;
                 return Err(ZstdError::MissingMagic);
             }
             self.magic_checked = true;
@@ -136,11 +149,13 @@ impl ZstdStream {
             let written = match result {
                 Ok((_reported, written)) => written,
                 Err(error) => {
+                    self.dead = true;
                     return Err(ZstdError::Decode {
                         msg: error.to_string(),
                     });
                 }
             };
+            self.initialized = true;
             // Счётчик декодера монотонен, но берём saturating_sub: паника хуже, чем ноль.
             // Источник у декодера один — `pending`, поэтому дельта не превышает его длину;
             // `min` — страховка от паники `drain` на будущих версиях ruzstd.
@@ -162,8 +177,8 @@ impl ZstdStream {
 
         // NB: свежий `FrameDecoder` без состояния тоже отвечает `is_finished() == true`
         // (кадра ещё нет), поэтому хвост проверяем только после инициализации декодера.
-        let initialized = self.decoder.bytes_read_from_source() > 0;
-        if initialized && self.decoder.is_finished() && !self.pending.is_empty() {
+        if self.initialized && self.decoder.is_finished() && !self.pending.is_empty() {
+            self.dead = true;
             return Err(ZstdError::TrailingData {
                 bytes: self.pending.len(),
             });
@@ -176,13 +191,17 @@ impl ZstdStream {
         self.decoder.bytes_read_from_source()
     }
 
-    /// Завершён ли текущий кадр — `FrameDecoder::is_finished()`.
+    /// Терминально ли поток завершён ошибкой; после `true` `push` возвращает [`ZstdError::Poisoned`].
+    pub fn is_dead(&self) -> bool {
+        self.dead
+    }
+
+    /// Завершён ли текущий кадр.
     ///
-    /// NB: у свежего потока `ruzstd` без состояния отвечает `true` (кадра ещё нет), значение
-    /// осмысленно после первого [`ZstdStream::push`]; у непрерывного потока шлюза
-    /// (`end()` не вызывался) остаётся `false`.
+    /// У свежего потока — `false` (кадра ещё нет), после полного кадра — `true`, у непрерывного
+    /// потока шлюза (`end()` не вызывался) — `false`.
     pub fn is_finished(&self) -> bool {
-        self.decoder.is_finished()
+        self.initialized && self.decoder.is_finished()
     }
 }
 

@@ -1,0 +1,60 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/read_state_reducer.rs (target/debug/deps/read_state_reducer-225e30b1d9ab34aa)
+
+running 17 tests
+test r01_fixture_ack_updates_channel_entry ... ok
+test r06_non_manual_ack_ignores_mention_count ... ok
+test r16_version_is_assigned_without_max_guard ... ok
+test r11_repeated_acks_are_idempotent_with_growing_version ... ok
+test r09_missing_optional_fields_preserve_previous_values ... ok
+test r03_manual_ack_sets_mention_count ... ok
+test r10_non_channel_entry_is_guarded ... ok
+test r07_stale_message_id_is_rejected_with_diagnostic ... ok
+test r05_negative_manual_mention_count_is_clamped ... ok
+test r15_forward_ack_advances_ack_point ... ok
+test r13_broken_ack_is_malformed_and_keeps_monotonic_seq ... ok
+test r04_manual_ack_without_mention_count_clears_mentions ... ok
+test r02_unknown_channel_creates_entry_at_end ... ok
+test r14_ack_does_not_touch_unrelated_entry_fields ... ok
+test r08_equal_message_id_updates_metadata_without_duplicate ... ok
+test r17_unknown_channel_version_has_no_max_guard ... ok
+test r12_stale_sequence_does_not_touch_read_state ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/read_state_selectors.rs (target/debug/deps/read_state_selectors-8f95bd74defd5f50)
+
+running 11 tests
+test s02_synthetic_mentions_clamp_and_filter ... ok
+test s05_badge_count_clamps_and_entries_sort ... ok
+test s07_is_message_read_compares_against_ack_point ... ok
+test s11_channel_ack_point_does_not_use_last_acked_id ... ok
+test s10_entry_order_does_not_affect_sorting ... ok
+test s08_read_state_version ... ok
+test s03_guild_mentions_include_channels_and_threads_only ... ok
+test s09_ack_fixture_updates_selectors ... ok
+test s01_ready_mentions_and_badges ... ok
+test s04_private_mentions_only_private_channels ... ok
+test s06_acknowledged_message_id_uses_channel_or_non_channel_point ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/read_state_types.rs (target/debug/deps/read_state_types-8f41770f545249d2)
+
+running 12 tests
+test a02_minimal_ack_defaults_optional_fields ... ok
+test a01_fixture_046_fields_and_empty_diagnostics ... ok
+test a03_nil_optional_fields_are_defaults_without_diagnostics ... ok
+test a04_wrong_optional_types_are_ignored ... ok
+test a05_manual_mention_and_version_parse ... ok
+test a07_invalid_required_ids_are_fatal ... ok
+test a06_missing_required_fields_are_fatal ... ok
+test a08_non_map_data_is_fatal ... ok
+test a09_event_from_frame_routes_message_ack ... ok
+test a11_repeated_ack_with_new_version_is_not_duplicate ... ok
+test a12_negative_fields_have_typed_behavior ... ok
+test a10_broken_ack_is_malformed_without_state_change ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

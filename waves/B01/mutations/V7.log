@@ -1,0 +1,47 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unused import: `std::collections::BTreeSet`
+ --> crates/discord-core/src/state/voice/selectors.rs:8:5
+  |
+8 | use std::collections::BTreeSet;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 5 tests
+test v10_timer_and_status_boundaries ... ok
+test v11_stale_and_malformed_events ... ok
+test v08_move_and_leave_last_wins ... ok
+test v07_join_inserts_voice_and_member_user ... ok
+test v09_supplemental_snapshot_then_ready_reset ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_selectors.rs (target/debug/deps/voice_state_selectors-e4ffa869ecfade79)
+
+running 4 tests
+test v14_connected_duration_boundaries ... ok
+test v15_channel_timer_and_status ... ok
+test v12_self_voice_state ... ok
+test v13_channel_users_sorted_and_counts ... FAILED
+
+failures:
+
+---- v13_channel_users_sorted_and_counts stdout ----
+
+thread 'v13_channel_users_sorted_and_counts' (648198) panicked at crates/discord-core/tests/voice_state_selectors.rs:112:5:
+assertion `left == right` failed
+  left: 4
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v13_channel_users_sorted_and_counts
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_selectors`

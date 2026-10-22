@@ -1,0 +1,69 @@
+=== RED ПРОГОН W26c-fix, фаза FC1 (path traversal через имя артефакта) ===
+Дата: 2026-10-22
+target-dir: /tmp/opencode/target-w26c
+
+Примечание: проверка имени и проверка путей временно отключены (if false &&),
+чтобы зафиксировать честное падение тестов FC1 до реализации защиты.
+
+$ cargo test --offline -p discord-updater --test updater_contract
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+warning: function `manifest` is never used
+   --> crates/discord-updater/tests/updater_contract.rs:120:4
+    |
+120 | fn manifest(version: &str, sha256: &str) -> Manifest {
+    |    ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-updater` (test "updater_contract") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running tests/updater_contract.rs (/tmp/opencode/target-w26c/debug/deps/updater_contract-fd91db638e905d79)
+
+running 30 tests
+test manifest_invalid_digest_k ... ok
+test manifest_missing_field_k ... ok
+test manifest_invalid_json_k ... ok
+test manifest_duplicate_artifact_k ... ok
+test manifest_invalid_version_k ... ok
+test manifest_parse_k ... ok
+test manifest_parse_pre_release_k ... ok
+test parse_manifest_stays_plain_manifest_k ... ok
+test sha256_hex_known_k ... ok
+test signature_missing_k ... ok
+test digest_mismatch_k ... ok
+test signature_bad_k ... ok
+test plan_not_newer_k ... ok
+test plan_from_verified_manifest_k ... ok
+test plan_rejects_unsafe_artifact_name_k ... FAILED
+test plan_keeps_all_paths_inside_install_dir_k ... ok
+test plan_steps_k ... ok
+test rollback_k ... ok
+test signature_ok_k ... ok
+test signature_wrong_key_k ... ok
+test version_order_k ... ok
+test plan_unknown_artifact_k ... ok
+test version_parse_rejects_k ... ok
+test swap_failure_rollback_k ... ok
+test rfc8032_test_vector_k ... ok
+test signature_tampered_body_k ... ok
+test verified_manifest_requires_valid_signature_k ... ok
+test verified_manifest_from_signed_bytes_k ... ok
+test staged_swap_k ... ok
+test plan_accepts_safe_artifact_name_k ... ok
+
+failures:
+
+---- plan_rejects_unsafe_artifact_name_k stdout ----
+
+thread 'plan_rejects_unsafe_artifact_name_k' (96730) panicked at crates/discord-updater/tests/updater_contract.rs:716:14:
+небезопасное имя артефакта должно отвергаться: UpdatePlan { from_version: Version { major: 1, minor: 0, patch: 0, pre: None }, to_version: Version { major: 1, minor: 2, patch: 3, pre: None }, artifact: "../../outside", steps: [Download { url: "https://example.invalid/../../outside-bin", to: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/stage/../../outside.download" }, VerifyDigest { artifact: "../../outside", expected: "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", actual: "" }, Stage { artifact: "../../outside", from: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/stage/../../outside.download", to: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/stage/../../outside.new" }, Swap { from: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/stage/../../outside.new", to: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/../../outside", backup: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/../../outside.bak" }, RemoveBackup { backup: "/tmp/discord-updater-unsafe-name-96716-1792651771833761307-4/../../outside.bak" }] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    plan_rejects_unsafe_artifact_name_k
+
+test result: FAILED. 29 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-updater --test updater_contract`
+EXIT_CODE=101

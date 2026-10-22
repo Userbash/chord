@@ -1,0 +1,14 @@
+# B02 mutation summary
+product_restored=True
+P101-M1-depth-off: CAUGHT (exit 101)
+P101-M2-atom-check-removed: CAUGHT (exit 101)
+P101-M3-binary-length-off-by-one: CAUGHT (exit 101)
+P101-M4-decoder-depth-off: CAUGHT (exit 101)
+P101-M5-tuple-threshold-off: CAUGHT (exit 101)
+P101-M6-bigint-sign-flipped: CAUGHT (exit 101)
+P102-M1-missing-magic-not-dead: CAUGHT (exit 101)
+P102-M2-poison-check-removed: CAUGHT (exit 101)
+P102-M3-fresh-is-finished: CAUGHT (exit 101)
+P102-M4-decode-not-dead: CAUGHT (exit 101)
+P102-M5-trailing-not-dead: CAUGHT (exit 101)
+caught=11/11

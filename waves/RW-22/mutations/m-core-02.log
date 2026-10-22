@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
+     Running tests/rest_resources.rs (target/debug/deps/rest_resources-d5b2fcdc8f51d592)
+
+running 1 test
+test saved_messages_404_is_not_a_success_payload ... FAILED
+
+failures:
+
+---- saved_messages_404_is_not_a_success_payload stdout ----
+
+thread 'saved_messages_404_is_not_a_success_payload' (97234) panicked at crates/discord-core/tests/rest_resources.rs:101:5:
+assertion `left == right` failed
+  left: [200]
+ right: [404]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    saved_messages_404_is_not_a_success_payload
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_resources`

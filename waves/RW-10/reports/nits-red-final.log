@@ -1,0 +1,89 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/rest_http1.rs (target/debug/deps/rest_http1-4977f16e590edf4c)
+
+running 16 tests
+test content_length_rules ... ok
+test chunked_flag_rules ... FAILED
+test decode_chunked_errors ... ok
+test decode_chunked_incomplete_at_every_split ... ok
+test decode_chunked_rfc_example ... ok
+test decode_chunked_extensions_and_trailers ... ok
+test encode_request_checks_supplied_content_length ... ok
+test encode_request_get_has_no_content_length ... ok
+test encode_request_post_adds_content_length ... ok
+test encode_request_rejects_injection_and_bad_target ... ok
+test header_lookup_is_case_insensitive ... ok
+test encode_request_rejects_transfer_encoding ... FAILED
+test parse_head_200 ... ok
+test parse_head_versions_and_malformed ... ok
+test decode_chunked_rejects_oversized_size_line_and_trailers ... FAILED
+test parse_head_incomplete_and_limit ... ok
+
+failures:
+
+---- chunked_flag_rules stdout ----
+
+thread 'chunked_flag_rules' (153735) panicked at crates/discord-core/tests/rest_http1.rs:219:5:
+assertion `left == right` failed
+  left: Ok(true)
+ right: Err(UnsupportedTransferEncoding("gzip,chunked"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- encode_request_rejects_transfer_encoding stdout ----
+
+thread 'encode_request_rejects_transfer_encoding' (153746) panicked at crates/discord-core/tests/rest_http1.rs:89:6:
+клиент не кодирует chunked-запрос: [80, 79, 83, 84, 32, 47, 99, 104, 97, 110, 110, 101, 108, 115, 47, 49, 47, 109, 101, 115, 115, 97, 103, 101, 115, 32, 72, 84, 84, 80, 47, 49, 46, 49, 13, 10, 84, 114, 97, 110, 115, 102, 101, 114, 45, 69, 110, 99, 111, 100, 105, 110, 103, 58, 32, 99, 104, 117, 110, 107, 101, 100, 13, 10, 67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32, 53, 13, 10, 13, 10, 104, 101, 108, 108, 111]
+
+---- decode_chunked_rejects_oversized_size_line_and_trailers stdout ----
+
+thread 'decode_chunked_rejects_oversized_size_line_and_trailers' (153740) panicked at crates/discord-core/tests/rest_http1.rs:344:5:
+assertion failed: matches!(decode_chunked(&oversized_trailers, 1024),
+    Err(Http1Error::MalformedChunk(_)))
+
+
+failures:
+    chunked_flag_rules
+    decode_chunked_rejects_oversized_size_line_and_trailers
+    encode_request_rejects_transfer_encoding
+
+test result: FAILED. 13 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test rest_http1`
+     Running tests/rest_transport.rs (target/debug/deps/rest_transport-4eb024f7e3712ef8)
+
+running 14 tests
+test endpoint_rejects_bad_base_and_target ... ok
+test endpoint_parse_local_and_normalize ... ok
+test endpoint_parse_https_base ... ok
+test connect_refused_is_error_not_panic ... ok
+test response_shape_is_public ... ok
+test chunked_response ... ok
+test malformed_response_is_protocol_error ... ok
+test post_body_and_204 ... ok
+test get_plain_tcp_with_auto_headers ... ok
+test read_until_close ... ok
+test too_large_body_is_rejected_before_read ... ok
+test tls_untrusted_root_fails ... ok
+test tls_with_custom_root_and_ip_san ... ok
+test read_timeout_is_enforced ... FAILED
+
+failures:
+
+---- read_timeout_is_enforced stdout ----
+
+thread 'read_timeout_is_enforced' (153760) panicked at crates/discord-core/tests/rest_transport.rs:295:5:
+ожидался Timeout чтения, получено Ok(HttpResponse { status: 200, headers: [("Content-Length", "0")], body: [] })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    read_timeout_is_enforced
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p discord-core --test rest_transport`
+error: 2 targets failed:
+    `-p discord-core --test rest_http1`
+    `-p discord-core --test rest_transport`
+# EXIT=101

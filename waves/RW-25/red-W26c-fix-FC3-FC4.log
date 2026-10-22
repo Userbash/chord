@@ -1,0 +1,15 @@
+=== RED ПРОГОН W26c-fix, фазы FC3+FC4 (откат поверх существующего файла; целостность backup) ===
+Дата: 2026-10-22
+target-dir: /tmp/opencode/target-w26c
+
+$ cargo test --offline -p discord-updater --test updater_contract
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+error[E0599]: no variant named `BackupCorrupted` found for enum `PlanError`
+   --> crates/discord-updater/tests/updater_contract.rs:877:34
+    |
+877 |         matches!(err, PlanError::BackupCorrupted { .. }),
+    |                                  ^^^^^^^^^^^^^^^ variant not found in `PlanError`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-updater` (test "updater_contract") due to 1 previous error
+EXIT_CODE=101

@@ -1,0 +1,141 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running tests/read_state_reducer.rs (target/debug/deps/read_state_reducer-225e30b1d9ab34aa)
+
+running 14 tests
+test r07_stale_message_id_is_rejected_with_diagnostic ... FAILED
+test r14_ack_does_not_touch_unrelated_entry_fields ... FAILED
+test r09_missing_optional_fields_preserve_previous_values ... FAILED
+test r01_fixture_ack_updates_channel_entry ... FAILED
+test r12_stale_sequence_does_not_touch_read_state ... FAILED
+test r04_manual_ack_without_mention_count_clears_mentions ... FAILED
+test r08_equal_message_id_updates_metadata_without_duplicate ... FAILED
+test r03_manual_ack_sets_mention_count ... FAILED
+test r06_non_manual_ack_ignores_mention_count ... FAILED
+test r02_unknown_channel_creates_entry_at_end ... FAILED
+test r13_broken_ack_is_malformed_and_keeps_monotonic_seq ... FAILED
+test r11_repeated_acks_are_idempotent_with_growing_version ... FAILED
+test r05_negative_manual_mention_count_is_clamped ... FAILED
+test r10_non_channel_entry_is_guarded ... FAILED
+
+failures:
+
+---- r07_stale_message_id_is_rejected_with_diagnostic stdout ----
+
+thread 'r07_stale_message_id_is_rejected_with_diagnostic' (421802) panicked at crates/discord-core/tests/read_state_reducer.rs:239:5:
+assertion `left == right` failed
+  left: []
+ right: ["read_state.ack:1293192721237938187:stale:1"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- r14_ack_does_not_touch_unrelated_entry_fields stdout ----
+
+thread 'r14_ack_does_not_touch_unrelated_entry_fields' (421809) panicked at crates/discord-core/tests/read_state_reducer.rs:434:5:
+assertion `left == right` failed
+  left: Some(4309)
+ right: Some(4310)
+
+---- r09_missing_optional_fields_preserve_previous_values stdout ----
+
+thread 'r09_missing_optional_fields_preserve_previous_values' (421804) panicked at crates/discord-core/tests/read_state_reducer.rs:291:5:
+assertion `left == right` failed
+  left: 128949
+ right: 128955
+
+---- r01_fixture_ack_updates_channel_entry stdout ----
+
+thread 'r01_fixture_ack_updates_channel_entry' (421796) panicked at crates/discord-core/tests/read_state_reducer.rs:85:5:
+assertion `left == right` failed
+  left: 128949
+ right: 128950
+
+---- r12_stale_sequence_does_not_touch_read_state stdout ----
+
+thread 'r12_stale_sequence_does_not_touch_read_state' (421807) panicked at crates/discord-core/tests/read_state_reducer.rs:381:5:
+assertion `left == right` failed
+  left: 128949
+ right: 128950
+
+---- r04_manual_ack_without_mention_count_clears_mentions stdout ----
+
+thread 'r04_manual_ack_without_mention_count_clears_mentions' (421799) panicked at crates/discord-core/tests/read_state_reducer.rs:177:5:
+assertion `left == right` failed
+  left: Some(7)
+ right: Some(0)
+
+---- r08_equal_message_id_updates_metadata_without_duplicate stdout ----
+
+thread 'r08_equal_message_id_updates_metadata_without_duplicate' (421803) panicked at crates/discord-core/tests/read_state_reducer.rs:269:5:
+assertion `left == right` failed
+  left: Some(0)
+ right: Some(1)
+
+---- r03_manual_ack_sets_mention_count stdout ----
+
+thread 'r03_manual_ack_sets_mention_count' (421798) panicked at crates/discord-core/tests/read_state_reducer.rs:159:5:
+assertion `left == right` failed
+  left: Some(7)
+ right: Some(5)
+
+---- r06_non_manual_ack_ignores_mention_count stdout ----
+
+thread 'r06_non_manual_ack_ignores_mention_count' (421801) panicked at crates/discord-core/tests/read_state_reducer.rs:211:5:
+assertion `left == right` failed
+  left: Some(7)
+ right: Some(0)
+
+---- r02_unknown_channel_creates_entry_at_end stdout ----
+
+thread 'r02_unknown_channel_creates_entry_at_end' (421797) panicked at crates/discord-core/tests/read_state_reducer.rs:123:5:
+assertion `left == right` failed
+  left: 157
+ right: 158
+
+---- r13_broken_ack_is_malformed_and_keeps_monotonic_seq stdout ----
+
+thread 'r13_broken_ack_is_malformed_and_keeps_monotonic_seq' (421808) panicked at crates/discord-core/tests/read_state_reducer.rs:421:5:
+assertion `left == right` failed
+  left: 128949
+ right: 128950
+
+---- r11_repeated_acks_are_idempotent_with_growing_version stdout ----
+
+thread 'r11_repeated_acks_are_idempotent_with_growing_version' (421806) panicked at crates/discord-core/tests/read_state_reducer.rs:355:5:
+assertion `left == right` failed
+  left: 128949
+ right: 128951
+
+---- r05_negative_manual_mention_count_is_clamped stdout ----
+
+thread 'r05_negative_manual_mention_count_is_clamped' (421800) panicked at crates/discord-core/tests/read_state_reducer.rs:194:5:
+assertion `left == right` failed
+  left: Some(7)
+ right: Some(0)
+
+---- r10_non_channel_entry_is_guarded stdout ----
+
+thread 'r10_non_channel_entry_is_guarded' (421805) panicked at crates/discord-core/tests/read_state_reducer.rs:336:5:
+assertion `left == right` failed
+  left: []
+ right: ["read_state.ack:384299970632876032:non-channel:2"]
+
+
+failures:
+    r01_fixture_ack_updates_channel_entry
+    r02_unknown_channel_creates_entry_at_end
+    r03_manual_ack_sets_mention_count
+    r04_manual_ack_without_mention_count_clears_mentions
+    r05_negative_manual_mention_count_is_clamped
+    r06_non_manual_ack_ignores_mention_count
+    r07_stale_message_id_is_rejected_with_diagnostic
+    r08_equal_message_id_updates_metadata_without_duplicate
+    r09_missing_optional_fields_preserve_previous_values
+    r10_non_channel_entry_is_guarded
+    r11_repeated_acks_are_idempotent_with_growing_version
+    r12_stale_sequence_does_not_touch_read_state
+    r13_broken_ack_is_malformed_and_keeps_monotonic_seq
+    r14_ack_does_not_touch_unrelated_entry_fields
+
+test result: FAILED. 0 passed; 14 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p discord-core --test read_state_reducer`

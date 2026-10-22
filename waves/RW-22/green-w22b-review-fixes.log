@@ -1,0 +1,32 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
+
+running 1 test
+test tests::voice_constants_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
+
+running 11 tests
+test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
+test endpoint_with_existing_version_query_is_not_duplicated ... ok
+test region_selection_orders_latency_ties_and_manual_choice ... ok
+test frame_parser_preserves_raw_other_and_rejects_missing_payload ... ok
+test select_protocol_codecs_match_capture_contract ... ok
+test unknown_payload_debug_does_not_leak_secrets ... ok
+test secret_key_is_decoded_validated_and_redacted ... ok
+test voice_server_update_builds_valid_websocket_url_without_leaking_token ... ok
+test outgoing_identify_and_select_protocol_are_wire_serializable ... ok
+test capture_frames_match_signal_contract ... ok
+test every_prefix_of_frame_is_panic_free ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.08s
+
+   Doc-tests discord_voice
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

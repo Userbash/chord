@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running tests/voice_state_reducer.rs (target/debug/deps/voice_state_reducer-bbc9133eb25160f5)
+
+running 1 test
+test v10_timer_and_status_boundaries ... FAILED
+
+failures:
+
+---- v10_timer_and_status_boundaries stdout ----
+
+thread 'v10_timer_and_status_boundaries' (643698) panicked at crates/discord-core/tests/voice_state_reducer.rs:220:5:
+assertion `left == right` failed
+  left: None
+ right: Some(0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v10_timer_and_status_boundaries
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --test voice_state_reducer`

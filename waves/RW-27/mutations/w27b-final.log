@@ -1,0 +1,15 @@
+D1: exit=101 caught [`d09_scheme_and_host_case_insensitive_path_case_sensitive`] restored=True
+D2: exit=101 caught [`d09_scheme_and_host_case_insensitive_path_case_sensitive`] restored=True
+D3: exit=101 caught [`d06_rejects_empty_scheme_length_and_controls`] restored=True
+D4: exit=101 caught [`d06_rejects_empty_scheme_length_and_controls`] restored=True
+D5: exit=101 caught [`d07_extract_deep_link_matches_re`] restored=True
+D6: exit=101 caught [`d07_extract_deep_link_matches_re`] restored=True
+D7: exit=101 caught [`d03_login_one_time_token_is_redacted_in_debug`] restored=True
+D8: exit=101 caught [`d05_channels_routes`] restored=True
+A1: exit=101 caught [`a02_hidden_disables_autostart_via_gnome_key`] restored=True
+A2: exit=101 caught [`a03_exec_escapes_spaces_quotes_and_field_codes`] restored=True
+A3: exit=101 caught [`a03_exec_escapes_spaces_quotes_and_field_codes`] restored=True
+A4: exit=101 caught [`a04_exec_escapes_shell_reserved_and_empty_args`] restored=True
+A5: exit=101 caught [`a05_rejects_empty_and_control_fields`] restored=True
+A6: exit=101 caught [`a06_autostart_path_is_xdg_autostart_file`] restored=True
+total: 14 caught, 0 missed, 0 inconclusive

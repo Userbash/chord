@@ -1,0 +1,18 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/ready_data.rs (target/debug/deps/ready_data-761b3da4affbb4de)
+
+running 9 tests
+test from_dispatch_rejects_non_ready ... ok
+test minimal_ready_has_defaults_and_only_guilds_required ... ok
+test atom_nil_is_absent_and_int_bool_is_accepted ... ok
+test missing_guilds_is_error ... ok
+test missing_guild_id_reports_element_path ... ok
+test unknown_fields_are_ignored_but_counted ... ok
+test wrong_guilds_type_is_error ... ok
+test wrong_user_type_reports_path ... ok
+test full_ready_parses_40_keys_and_nested ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0

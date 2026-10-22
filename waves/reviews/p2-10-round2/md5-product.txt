@@ -1,0 +1,20 @@
+$ md5sum product/shared/test files (2026-10-21, review p2-10-round2)
+e4a0f720e269799fe19f03c41d77b084  rust/crates/discord-core/src/state/voice/mod.rs
+cb4e8744ddf3da2c77896a2e57e4a7f5  rust/crates/discord-core/src/state/voice/parser.rs
+8e3ff3ad7d2016463847101e1336973b  rust/crates/discord-core/src/state/voice/reducer.rs
+7ebc28eb2989bc63d58e3bde120840c7  rust/crates/discord-core/src/state/voice/selectors.rs
+5992af731202361ba19158114367f4d9  rust/crates/discord-core/src/state/voice/types.rs
+9d019883be4cef4cd651f97bfe1febe1  rust/crates/discord-core/tests/voice_state_reducer.rs
+9fc7f6633f878a6efb64dfd4f636bb82  rust/crates/discord-core/tests/voice_state_types.rs
+f639cf6b027e828fb9d4397d8db7002e  rust/crates/discord-core/tests/voice_state_selectors.rs
+6ef1430b25d27fc9978510687b4e5b66  rust/crates/discord-core/src/state/mod.rs
+9fede799374d8f8973fe9c3cbbb6f533  rust/crates/discord-core/src/state/types.rs
+3d62a69917829c4c6d5c497bfb06c226  rust/crates/discord-core/src/state/reducer.rs
+cc1258f8e7fff616661246018b7836df  rust/crates/discord-core/src/lib.rs
+a40fdb0750ab6717792afa35f7694876  rust/crates/discord-core/tests/state_reducer.rs
+a173f073cdf0e36fb84e877ccd34a604  rust/crates/discord-core/tests/state_types.rs
+55983830547abaf8d1b122798fdcf568  fixtures/gateway/by-type/003-READY_SUPPLEMENTAL.json
+
+$ product backup compare
+8e3ff3ad7d2016463847101e1336973b  /tmp/opencode/p2-10-reducer-backup.rs
+8e3ff3ad7d2016463847101e1336973b  rust/crates/discord-core/src/state/voice/reducer.rs

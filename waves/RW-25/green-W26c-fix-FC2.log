@@ -1,0 +1,49 @@
+=== GREEN ПРОГОН W26c-fix, фаза FC2 (типовый контракт VerifiedManifest) ===
+Дата: 2026-10-22
+target-dir: /tmp/opencode/target-w26c
+
+$ cargo test --offline -p discord-updater --test updater_contract
+warning: function `manifest` is never used
+   --> crates/discord-updater/tests/updater_contract.rs:120:4
+    |
+120 | fn manifest(version: &str, sha256: &str) -> Manifest {
+    |    ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-updater` (test "updater_contract") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/updater_contract.rs (/tmp/opencode/target-w26c/debug/deps/updater_contract-fd91db638e905d79)
+
+running 27 tests
+test manifest_invalid_json_k ... ok
+test manifest_invalid_digest_k ... ok
+test manifest_duplicate_artifact_k ... ok
+test manifest_missing_field_k ... ok
+test manifest_invalid_version_k ... ok
+test manifest_parse_k ... ok
+test manifest_parse_pre_release_k ... ok
+test parse_manifest_stays_plain_manifest_k ... ok
+test sha256_hex_known_k ... ok
+test swap_failure_rollback_k ... ok
+test signature_missing_k ... ok
+test signature_bad_k ... ok
+test plan_not_newer_k ... ok
+test digest_mismatch_k ... ok
+test verified_manifest_requires_valid_signature_k ... ok
+test version_order_k ... ok
+test version_parse_rejects_k ... ok
+test plan_unknown_artifact_k ... ok
+test plan_steps_k ... ok
+test signature_wrong_key_k ... ok
+test signature_tampered_body_k ... ok
+test rollback_k ... ok
+test rfc8032_test_vector_k ... ok
+test plan_from_verified_manifest_k ... ok
+test staged_swap_k ... ok
+test signature_ok_k ... ok
+test verified_manifest_from_signed_bytes_k ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "tool": "discord-lab gate",
+  "scope": "worker",
+  "startedAt": "2026-10-20T14:53:09.924Z",
+  "finishedAt": "2026-10-20T14:53:11.438Z",
+  "git": {
+    "commit": "0163945eeb5ab48223a498cd101712d1ed2c9b1a",
+    "branch": "main",
+    "dirty": true
+  },
+  "gitCommit": "0163945eeb5ab48223a498cd101712d1ed2c9b1a",
+  "package": {
+    "name": "discord-function-lab",
+    "version": "0.1.0"
+  },
+  "verdict": "passed",
+  "warnings": [],
+  "phases": [
+    {
+      "name": "typecheck",
+      "ok": true,
+      "ms": 149,
+      "counts": null,
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "meta",
+      "ok": true,
+      "ms": 64,
+      "counts": {
+        "tests": 25,
+        "pass": 25,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "unit",
+      "ok": true,
+      "ms": 136,
+      "counts": {
+        "tests": 169,
+        "pass": 169,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "smoke",
+      "ok": true,
+      "ms": 1164,
+      "counts": {
+        "tests": 20,
+        "pass": 20,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    }
+  ]
+}

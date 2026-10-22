@@ -1,0 +1,50 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+warning: unreachable pattern
+   --> crates/discord-core/src/state/member_list.rs:528:13
+    |
+527 |             Some(status) => Some(status.to_string()),
+    |             ------------ matches all the relevant values
+528 |             Some(_) | None => {
+    |             ^^^^^^^ no value can reach this
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running tests/presence_reducer.rs (target/debug/deps/presence_reducer-7d0dd0594ee1511b)
+
+running 18 tests
+test r06_offline_unknown_is_noop ... ok
+test r05_supplemental_missing_user_inconsistency ... ok
+test r01_live_update_applies_presence_and_user ... ok
+test r03_private_scope ... ok
+test r08_offline_other_guild_keeps_online_until_all_offline ... ok
+test r09_offline_with_hidden_stays_visible ... ok
+test r07_offline_removes_single_scope ... ok
+test r02_live_update_last_wins ... ok
+test r15_stale_sequence_does_not_change_presence ... ok
+test r13_chunk_presences_are_applied ... ok
+test r16_ready_resets_presence ... ok
+test r11_member_list_offline_unknown_is_noop ... ok
+test r18_member_list_empty_status_is_diagnosed ... FAILED
+test r14_chunk_without_presences ... ok
+test r17_member_list_delete_keeps_presence ... ok
+test r10_member_list_presence_integration ... ok
+test r04_supplemental_initial_snapshot ... ok
+test r12_member_list_does_not_touch_users ... ok
+
+failures:
+
+---- r18_member_list_empty_status_is_diagnosed stdout ----
+
+thread 'r18_member_list_empty_status_is_diagnosed' (554380) panicked at crates/discord-core/tests/presence_reducer.rs:476:5:
+нет диагностики пустого status: ["d.ops[0].items[0].member.presence.client_status.desktop.empty"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r18_member_list_empty_status_is_diagnosed
+
+test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p discord-core --test presence_reducer`

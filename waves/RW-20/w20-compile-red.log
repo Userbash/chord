@@ -1,0 +1,570 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_selectors.rs:12:26
+   |
+12 | use discord_core::state::typing::parser::parse_typing_start;
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_selectors.rs:13:26
+   |
+13 | use discord_core::state::typing::reducer::apply_start;
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_selectors.rs:14:26
+   |
+14 | use discord_core::state::typing::types::TypingStart;
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_types.rs:17:26
+   |
+17 | use discord_core::state::typing::parser::parse_typing_start;
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_types.rs:18:26
+   |
+18 | use discord_core::state::typing::types::{TYPING_TTL_MS, TypingStart};
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_reducer.rs:15:26
+   |
+15 | use discord_core::state::typing::reducer::{
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0433]: cannot find `typing` in `state`
+  --> crates/discord-core/tests/typing_reducer.rs:18:26
+   |
+18 | use discord_core::state::typing::types::{TYPING_TTL_MS, TypingStart};
+   |                          ^^^^^^ could not find `typing` in `state`
+
+error[E0432]: unresolved import `discord_core::state::reducer::apply_frame_at`
+  --> crates/discord-core/tests/typing_reducer.rs:14:5
+   |
+14 | use discord_core::state::reducer::apply_frame_at;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--------------
+   |                                   |
+   |                                   no `apply_frame_at` in `state::reducer`
+   |
+help: a similar name exists in the module
+   |
+14 - use discord_core::state::reducer::apply_frame_at;
+14 + use discord_core::state::reducer::apply_frame;
+   |
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:134:23
+    |
+134 |     let entry = state.typing.get(&(200, 300)).expect("запись typing");
+    |                       ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:135:22
+    |
+135 |     assert_eq!(state.typing.len(), 1);
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:164:22
+    |
+164 |     assert_eq!(state.typing.len(), 2);
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:165:19
+    |
+165 |     assert!(state.typing.contains_key(&(CHANNEL_A, USER_A)));
+    |                   ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:166:19
+    |
+166 |     assert!(state.typing.contains_key(&(CHANNEL_B, USER_B)));
+    |                   ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no associated function or constant named `from_frame_at` found for struct `Event` in the current scope
+   --> crates/discord-core/tests/typing_types.rs:72:24
+    |
+ 72 |     let event = Event::from_frame_at(&frame, 1_792_392_992_000).expect("from_frame_at");
+    |                        ^^^^^^^^^^^^^ associated function or constant not found in `Event`
+    |
+note: if you're trying to build a new `Event` consider using one of the following associated functions:
+      Event::from_routed
+      Event::from_frame
+   --> crates/discord-core/src/state/types.rs:453:5
+    |
+453 |     pub fn from_routed(dispatch: &DispatchEvent) -> Result<Self, EventError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+540 |     pub fn from_frame(frame: &EtfValue) -> Result<Self, EventError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is an associated function `from_frame` with a similar name
+   --> crates/discord-core/src/state/types.rs:540:5
+    |
+540 |     pub fn from_frame(frame: &EtfValue) -> Result<Self, EventError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `TypingStart` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/typing_types.rs:74:23
+   |
+74 |     let EventPayload::TypingStart(start) = event.payload else {
+   |                       ^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no method named `typing_entry` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:74:19
+   |
+74 |     assert!(state.typing_entry(500, 100, 1_000_000).is_none());
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:75:20
+   |
+75 |     assert!(!state.is_typing(500, 100, 1_000_000));
+   |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_user_ids` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:76:19
+    |
+ 76 |     assert!(state.typing_user_ids(500, 1_000_000).is_empty());
+    |                   ^^^^^^^^^^^^^^^
+    |
+help: there is a method `online_user_ids` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/presence_selectors.rs:209:5
+    |
+209 |     pub fn online_user_ids(&self) -> Vec<u64> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_entry_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_reducer.rs:170:22
+    |
+170 |     assert_eq!(state.typing_entry_count(final_now), 1);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:142:5
+    |
+142 |     pub fn user_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `TypingStart` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/typing_types.rs:305:23
+    |
+305 |     let EventPayload::TypingStart(start) = event.payload else {
+    |                       ^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no method named `typing_entries` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:77:19
+   |
+77 |     assert!(state.typing_entries(500, 1_000_000).is_empty());
+   |                   ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no associated function or constant named `from_frame_at` found for struct `Event` in the current scope
+   --> crates/discord-core/tests/typing_types.rs:310:24
+    |
+310 |     let event = Event::from_frame_at(&frame, 1_000_000).expect("from_frame_at");
+    |                        ^^^^^^^^^^^^^ associated function or constant not found in `Event`
+    |
+note: if you're trying to build a new `Event` consider using one of the following associated functions:
+      Event::from_routed
+      Event::from_frame
+   --> crates/discord-core/src/state/types.rs:453:5
+    |
+453 |     pub fn from_routed(dispatch: &DispatchEvent) -> Result<Self, EventError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+540 |     pub fn from_frame(frame: &EtfValue) -> Result<Self, EventError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is an associated function `from_frame` with a similar name
+   --> crates/discord-core/src/state/types.rs:540:5
+    |
+540 |     pub fn from_frame(frame: &EtfValue) -> Result<Self, EventError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_reducer.rs:171:19
+    |
+171 |     assert!(state.is_typing(CHANNEL_B, USER_B, final_now));
+    |                   ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no variant, associated function, or constant named `TypingStart` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/typing_types.rs:311:23
+    |
+311 |     let EventPayload::TypingStart(start) = event.payload else {
+    |                       ^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_reducer.rs:172:20
+    |
+172 |     assert!(!state.is_typing(CHANNEL_A, USER_A, final_now));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entry_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:78:22
+    |
+ 78 |     assert_eq!(state.typing_entry_count(1_000_000), 0);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:142:5
+    |
+142 |     pub fn user_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:209:22
+    |
+209 |     assert!(reloaded.typing.is_empty());
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_reducer.rs:215:22
+    |
+215 |     assert!(no_clock.typing.is_empty());
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `typing_channel_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:79:22
+    |
+ 79 |     assert_eq!(state.typing_channel_count(1_000_000), 0);
+    |                      ^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_remaining_ms` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:80:22
+   |
+80 |     assert_eq!(state.typing_remaining_ms(500, 100, 1_000_000), None);
+   |                      ^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entry` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:88:19
+   |
+88 |     assert!(state.typing_entry(500, 100, 1_009_999).is_some());
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0433, E0599.
+For more information about an error, try `rustc --explain E0433`.
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:89:19
+   |
+89 |     assert!(state.is_typing(500, 100, 1_009_999));
+   |                   ^^^^^^^^^ method not found in `State`
+
+error: could not compile `discord-core` (test "typing_types") due to 7 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0599]: no method named `typing_remaining_ms` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:90:22
+   |
+90 |     assert_eq!(state.typing_remaining_ms(500, 100, 1_009_999), Some(1));
+   |                      ^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0432, E0433, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "typing_reducer") due to 13 previous errors
+error[E0599]: no method named `typing_entry` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:93:14
+   |
+92 | /         state
+93 | |             .typing_entry(500, 100, 1_009_999)
+   | |             -^^^^^^^^^^^^ method not found in `State`
+   | |_____________|
+   |
+
+error[E0599]: no method named `typing_entry` found for struct `State` in the current scope
+  --> crates/discord-core/tests/typing_selectors.rs:99:19
+   |
+99 |     assert!(state.typing_entry(500, 100, 1_010_000).is_none());
+   |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:100:20
+    |
+100 |     assert!(!state.is_typing(500, 100, 1_010_000));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_remaining_ms` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:101:22
+    |
+101 |     assert_eq!(state.typing_remaining_ms(500, 100, 1_010_000), None);
+    |                      ^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_selectors.rs:104:14
+    |
+104 |             .typing
+    |              ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `typing_user_ids` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:129:22
+    |
+129 |     assert_eq!(state.typing_user_ids(10, now), vec![200, 300]);
+    |                      ^^^^^^^^^^^^^^^
+    |
+help: there is a method `online_user_ids` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/presence_selectors.rs:209:5
+    |
+209 |     pub fn online_user_ids(&self) -> Vec<u64> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_users` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:130:23
+    |
+130 |     let users = state.typing_users(10, now);
+    |                       ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entries` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:144:14
+    |
+143 | /         state
+144 | |             .typing_entries(10, now)
+    | |             -^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `typing_entry_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:150:22
+    |
+150 |     assert_eq!(state.typing_entry_count(now), 2);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:142:5
+    |
+142 |     pub fn user_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_entries_by_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:165:14
+    |
+164 | /         state
+165 | |             .typing_entries_by_guild(100, now)
+    | |             -^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `typing_entries_by_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:173:14
+    |
+172 | /         state
+173 | |             .typing_entries_by_guild(200, now)
+    | |             -^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `typing_entries_by_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:179:19
+    |
+179 |     assert!(state.typing_entries_by_guild(300, now).is_empty());
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entries_by_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:182:14
+    |
+181 | /         state
+182 | |             .typing_entries_by_guild(100, now)
+    | |             -^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+    | |_____________|
+    |
+
+error[E0599]: no method named `typing_entry_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:198:22
+    |
+198 |     assert_eq!(state.typing_entry_count(now), 3);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:142:5
+    |
+142 |     pub fn user_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_channel_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:199:22
+    |
+199 |     assert_eq!(state.typing_channel_count(now), 2);
+    |                      ^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_entries` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:200:22
+    |
+200 |     assert_eq!(state.typing_entries(10, now).len(), 2);
+    |                      ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entries` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:201:22
+    |
+201 |     assert_eq!(state.typing_entries(11, now).len(), 1);
+    |                      ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:204:20
+    |
+204 |     assert!(!state.is_typing(10, 1, 1_010_000));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:205:20
+    |
+205 |     assert!(!state.is_typing(10, 2, 1_010_000));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:206:19
+    |
+206 |     assert!(state.is_typing(11, 3, 1_010_000));
+    |                   ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entry_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:207:22
+    |
+207 |     assert_eq!(state.typing_entry_count(1_010_000), 1);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:142:5
+    |
+142 |     pub fn user_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_channel_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:208:22
+    |
+208 |     assert_eq!(state.typing_channel_count(1_010_000), 1);
+    |                      ^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_entries` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:209:22
+    |
+209 |     assert_eq!(state.typing_entries(10, 1_010_000).len(), 0);
+    |                      ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_selectors.rs:211:22
+    |
+211 |     assert_eq!(state.typing.len(), 4);
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_selectors.rs:238:22
+    |
+238 |     assert_eq!(state.typing.len(), 2);
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_selectors.rs:241:14
+    |
+241 |             .typing
+    |              ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0609]: no field `typing` on type `State`
+   --> crates/discord-core/tests/typing_selectors.rs:250:14
+    |
+250 |             .typing
+    |              ^^^^^^ unknown field
+    |
+    = note: available fields are: `user`, `session_id`, `session_type`, `resume_gateway_url`, `guilds` ... and 17 others
+
+error[E0599]: no method named `typing_entries` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:256:22
+    |
+256 |     assert_eq!(state.typing_entries(CHANNEL_B, last_now).len(), 1);
+    |                      ^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_entry_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:257:22
+    |
+257 |     assert_eq!(state.typing_entry_count(last_now), 1);
+    |                      ^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `user_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:142:5
+    |
+142 |     pub fn user_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_channel_count` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:258:22
+    |
+258 |     assert_eq!(state.typing_channel_count(last_now), 1);
+    |                      ^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `channel_count` with a similar name, but with different arguments
+   --> crates/discord-core/src/state/selectors.rs:130:5
+    |
+130 |     pub fn channel_count(&self) -> usize {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `typing_entries_by_guild` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:260:15
+    |
+260 |         state.typing_entries_by_guild(GUILD, last_now).len(),
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:264:19
+    |
+264 |     assert!(state.is_typing(CHANNEL_B, USER_B, last_now));
+    |                   ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `is_typing` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:265:20
+    |
+265 |     assert!(!state.is_typing(CHANNEL_A, USER_A, last_now));
+    |                    ^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_users` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:268:19
+    |
+268 |     assert!(state.typing_users(CHANNEL_B, last_now).is_empty());
+    |                   ^^^^^^^^^^^^ method not found in `State`
+
+error[E0599]: no method named `typing_users` found for struct `State` in the current scope
+   --> crates/discord-core/tests/typing_selectors.rs:269:19
+    |
+269 |     assert!(state.typing_users(CHANNEL_A, 1_792_392_992_000).is_empty());
+    |                   ^^^^^^^^^^^^ method not found in `State`
+
+Some errors have detailed explanations: E0433, E0599, E0609.
+error: could not compile `discord-core` (test "typing_selectors") due to 48 previous errors
+EXIT=101

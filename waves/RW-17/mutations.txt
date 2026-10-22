@@ -1,0 +1,85 @@
+SUPERSEDED: исторический прогон 4/4 до независимого ревью. Актуальное доказательство — MUTATIONS.md и mutation-logs/ (7/7).
+
+=== M1 manual ignored ===
+status: 101
+test r12_stale_sequence_does_not_touch_read_state ... ok
+
+failures:
+
+---- r03_manual_ack_sets_mention_count stdout ----
+
+thread 'r03_manual_ack_sets_mention_count' (437525) panicked at crates/discord-core/tests/read_state_reducer.rs:159:5:
+assertion `left == right` failed
+  left: Some(0)
+ right: Some(5)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r03_manual_ack_sets_mention_count
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+=== M2 stale guard inverted ===
+status: 101
+test r12_stale_sequence_does_not_touch_read_state ... ok
+
+failures:
+
+---- r07_stale_message_id_is_rejected_with_diagnostic stdout ----
+
+thread 'r07_stale_message_id_is_rejected_with_diagnostic' (437895) panicked at crates/discord-core/tests/read_state_reducer.rs:232:5:
+assertion `left == right` failed
+  left: ReadStateEntry { id: 1293192721237938187, flags: Some(1), last_message_id: Some(1561348877573947515), last_pin_timestamp: Some("2026-04-09T09:21:10+00:00"), mention_count: Some(5), last_viewed: Some(9999), badge_count: None, last_acked_id: None, read_state_type: None }
+ right: ReadStateEntry { id: 1293192721237938187, flags: Some(0), last_message_id: Some(1561348877573947515), last_pin_timestamp: Some("2026-04-09T09:21:10+00:00"), mention_count: Some(0), last_viewed: Some(4309), badge_count: None, last_acked_id: None, read_state_type: None }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r07_stale_message_id_is_rejected_with_diagnostic
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+=== M3 flags/last_viewed not updated ===
+status: 101
+
+---- r01_fixture_ack_updates_channel_entry stdout ----
+
+thread 'r01_fixture_ack_updates_channel_entry' (438255) panicked at crates/discord-core/tests/read_state_reducer.rs:90:5:
+assertion `left == right` failed
+  left: Some(4309)
+ right: Some(4310)
+
+
+failures:
+    r01_fixture_ack_updates_channel_entry
+    r02_unknown_channel_creates_entry_at_end
+    r08_equal_message_id_updates_metadata_without_duplicate
+    r09_missing_optional_fields_preserve_previous_values
+    r14_ack_does_not_touch_unrelated_entry_fields
+
+test result: FAILED. 9 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+=== M4 guild ignores threads ===
+status: 101
+test s08_read_state_version ... ok
+
+failures:
+
+---- s03_guild_mentions_include_channels_and_threads_only stdout ----
+
+thread 's03_guild_mentions_include_channels_and_threads_only' (438632) panicked at crates/discord-core/tests/read_state_selectors.rs:136:5:
+assertion `left == right` failed
+  left: 2
+ right: 5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    s03_guild_mentions_include_channels_and_threads_only
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

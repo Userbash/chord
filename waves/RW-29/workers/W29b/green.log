@@ -1,0 +1,22 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/media_contract.rs (/tmp/opencode/target-w29b/debug/deps/media_contract-752b5da35a0dbccf)
+
+running 13 tests
+test m03_encode_header_without_extension ... ok
+test m05_encode_rejects_misaligned_or_oversized_extension ... ok
+test m06_parse_rejects_short_bad_version_and_truncated_extension ... ok
+test m08_sender_increments_sequence_and_timestamp_with_one_marker ... ok
+test m07_parse_strips_padding_and_rejects_out_of_range ... ok
+test m09_sender_silence_moves_only_timestamp_and_rearms_marker ... ok
+test m10_classify_opus_payload_by_comfort_noise_threshold ... ok
+test m11_jitter_reorders_three_one_two ... ok
+test m12_jitter_counts_duplicate_late_and_missing_once ... ok
+test m13_jitter_handles_wraparound_and_capacity_one ... ok
+test m02_parse_captured_anomalies_without_standard_extension ... ok
+test m01_parse_captured_valid_packets ... ok
+test m04_encode_header_with_extension ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# EXIT=0
