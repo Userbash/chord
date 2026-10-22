@@ -120,21 +120,21 @@ capabilities).
 ## 6. Файлы и md5
 
 ```
-608918a56769fbd19d582c944cf0c848  rust/crates/discord-platform/src/dbus/mod.rs
+530bdc2ede02a3e0a549c2d3c7b62c3c  rust/crates/discord-platform/src/dbus/mod.rs
 ca96abc04abeac0c0b723d72b44389e9  rust/crates/discord-platform/src/dbus/auth.rs
-c13dd0b3d8392e59fa52b6b08d61cdf9  rust/crates/discord-platform/src/dbus/message.rs
-10d14433568f81cef00ee1526b2ae77d  rust/crates/discord-platform/src/notifications.rs
+268747b9eaf390b6ae00b3ee5f0e13eb  rust/crates/discord-platform/src/dbus/message.rs
+d673bf2bbf821f09944ce79e92c87f43  rust/crates/discord-platform/src/notifications.rs
 d66be18537144106751a900a681d2c0f  rust/crates/discord-platform/src/lib.rs   (только +2 строки модулей)
-73a94d383f6b0a34fd9be7b89b6c56a9  rust/crates/discord-platform/tests/dbus_contract.rs
-2fde3c5a7b29752198a4ff1fd4c2c8dd  rust/crates/discord-platform/tests/notifications_contract.rs
+ce17ced4e86859ea58ce017f86a35355  rust/crates/discord-platform/tests/dbus_contract.rs
+5d989fa58fbbdcf1a67c780529f34187  rust/crates/discord-platform/tests/notifications_contract.rs
 cf818d22ba71c168d243cd6c3b82fb73  waves/RW-30/dbus/mock_service.py
 31dd93d6f04d78eea3b187d80abfb875  waves/RW-30/dbus/gen-golden.py
 61e3324ad66823306caa422392f9d461  fixtures/dbus/wire.json
-b3edcfd0c54af9dfcc202fbcf2fddf40  fixtures/dbus/notifications.json
-0e00848e3236a374b7bfa0cb90691c05  waves/RW-30/run-mutations-w30b.py
-651946d739d02bc1c270c05b306d4854  waves/RW-30/workers/W30b/red.log
-bceb724a42bca0d691ad8ddba7562661  waves/RW-30/workers/W30b/green.log
-f72d166dbad0b1870bd556333e9760e1  waves/RW-30/mutations-w30b.log
+822a879ed08cbd24de8aa687fe28905d  fixtures/dbus/notifications.json
+06bd70aadc4285828fc51625c6edd4cb  waves/RW-30/run-mutations-w30b.py
+300ab8b04918dae7102fdf4a78a4444b  waves/RW-30/workers/W30b/red.log
+7694ed5380297311547ca75fcfe06a84  waves/RW-30/workers/W30b/green.log
+2acc21e5b81b2c735f8fa7f3d258082d  waves/RW-30/mutations-w30b.log
 ```
 
 `src/lib.rs` не переформатировался: добавлены только `pub mod dbus;` и
@@ -197,3 +197,19 @@ f72d166dbad0b1870bd556333e9760e1  waves/RW-30/mutations-w30b.log
    (вызов → ответ/сигнал), как и требует карточка.
 4. Очередь сигналов растёт неограниченно, если потребитель не вызывает `next_signal`; для
    UI-потребителя (P6-01) стоит добавить предел/дренаж — вне scope этой карточки.
+
+## 8. После ревью codex (2026-10-22)
+
+Вердикт codex: «доработка» — P1 (устаревшие md5 в отчёте после `cargo fmt`/clippy-фиксов) и
+P2 (сигнатура `GetServerInformation` в фикстуре; мутации не воспроизвелись из-за SKIP).
+Закрыто:
+
+- **P1** — таблица §6 пересчитана по фактическим файлам после интегрированных правок
+  (`is_multiple_of`/`starts_with`, fmt).
+- **P2 (фикстура)** — `fixtures/dbus/notifications.json`: `GetServerInformation.reply_signature`
+  исправлена с `"(ssss)"` на `"ssss"` (libdbus-мок объявляет `out_signature="ssss"`, клиент
+  получает 4 последовательных значения); тест `n07b` приведён к этому же ожиданию.
+- **P2 (мутации)** — runner теперь требует зелёный baseline без `SKIP`, а `KILLED` засчитывает
+  только при `test result: FAILED` и `SKIP=0`; прогон переснят: **10/10 KILLED, SKIP=0**,
+  все restore по md5 совпали. Red/green перегенерены на финальных байтах (`E0599` на
+  отсутствующем `server_information`, `# EXIT=101` / `# EXIT=0`, 7+11 passed).

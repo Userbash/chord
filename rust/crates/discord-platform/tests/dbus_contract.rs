@@ -660,7 +660,7 @@ fn n07b_notifications_signatures_match_libdbus_golden() {
         method("GetServerInformation")
             .get("reply_signature")
             .and_then(Json::as_str),
-        Some("(ssss)")
+        Some("ssss")
     );
     assert_eq!(
         method("CloseNotification")

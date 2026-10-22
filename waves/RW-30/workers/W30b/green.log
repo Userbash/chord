@@ -17,16 +17,16 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 11 tests
 test n16_live_service_is_flag_gated_and_read_only ... ok
-test n13_foreign_signals_are_skipped ... ok
-test n10_close_notification_reaches_mock ... ok
-test n08_notify_returns_server_id_and_mock_sees_fields ... ok
 test n02_auth_external_and_hello_yield_unique_name ... ok
-test n09_notify_actions_reach_mock_as_pairs ... ok
+test n08_notify_returns_server_id_and_mock_sees_fields ... ok
+test n15_repeated_close_and_closed_session_survive ... ok
 test n11_error_reply_maps_to_remote_error ... ok
+test n09_notify_actions_reach_mock_as_pairs ... ok
+test n07_capabilities_and_server_information_come_from_mock ... ok
+test n10_close_notification_reaches_mock ... ok
+test n13_foreign_signals_are_skipped ... ok
 test n08b_notify_requires_app_name_and_summary ... ok
 test n12_action_and_close_signals_become_events ... ok
-test n07_capabilities_and_server_information_come_from_mock ... ok
-test n15_repeated_close_and_closed_session_survive ... ok
 
 test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
 

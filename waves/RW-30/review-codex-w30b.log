@@ -8862,3 +8862,595 @@ MUTATIONS = [
 78:мутаций: 10
 79:проблемы: 03 reply_serial_off_by_one: мутация выжила; 04 error_reply_as_success: мутация выжила; 05 actions_label_id_swapped: мутация выжила; 06 match_rule_without_closed: мутация выжила; 07 event_filter_accepts_garbage: мутация выжила; 08 serial_never_advances: мутация выжила; 09 empty_summary_guard_removed: мутация выжила; 10 hints_not_empty: мутация выжила
 
+codex
+Изолированный mutation runner дал критически важное расхождение: при тех же 10 мутациях и восстановлении по md5 он завершился с `2 killed / 8 survived`, тогда как `REPORT-W30b.md` заявляет `10/10`. Проверяю, не является ли это кэшем Cargo; повторю с полностью новым target-каталогом, чтобы отделить дефект runner-а от ложного результата сборки.
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w30b-fresh python3 waves/RW-30/run-mutations-w30b.py' in /tmp/opencode/rw30b-codex
+ exited 1 in 2285ms:
+md5 до: d673bf2bbf821f09944ce79e92c87f43
+exit: 0 — SURVIVED
+вывод: 
+md5 после restore: d673bf2bbf821f09944ce79e92c87f43 — OK
+
+## Итог
+мутаций: 10
+проблемы: 03 reply_serial_off_by_one: мутация выжила; 04 error_reply_as_success: мутация выжила; 05 actions_label_id_swapped: мутация выжила; 06 match_rule_without_closed: мутация выжила; 07 event_filter_accepts_garbage: мутация выжила; 08 serial_never_advances: мутация выжила; 09 empty_summary_guard_removed: мутация выжила; 10 hints_not_empty: мутация выжила
+
+лог: /tmp/opencode/rw30b-codex/waves/RW-30/mutations-w30b.log
+
+apply patch
+patch: completed
+/tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+diff --git a//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs b//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+index cfd38756ee1d3c1bdc65dc9eacfd24bee2b06f9e..29405b0932e4ff6b66a3330b0fcd40990df10a4e
+--- a//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
++++ b//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+@@ -265,7 +265,7 @@
+                 MessageType::Signal => self.pending.push_back(signal_from(message)),
+                 MessageType::MethodCall => continue,
+                 MessageType::MethodReturn => {
+-                    if message.reply_serial() == Some(serial) {
++                    if message.reply_serial() == Some(serial.wrapping_add(1)) {
+                         return Ok(message.body);
+                     }
+                 }
+
+exec
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w30b-manual cargo test --offline -p discord-platform --test notifications_contract n02_auth_external_and_hello_yield_unique_name -- --nocapture' in /tmp/opencode/rw30b-codex/rust
+ succeeded in 261ms:
+   Compiling discord-platform v0.1.0 (/tmp/opencode/rw30b-codex/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/notifications_contract.rs (/tmp/opencode/target-codex-w30b-manual/debug/deps/notifications_contract-46ee250d2c4bcc41)
+
+running 1 test
+SKIP: dbus-daemon завершился: dbus-daemon[255]: Failed to start message bus: Failed to bind socket "/tmp/dbus-6JZnVpx2Wp": Operation not permitted
+test n02_auth_external_and_hello_yield_unique_name ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.05s
+
+
+diff --git a//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs b//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+index cfd38756ee1d3c1bdc65dc9eacfd24bee2b06f9e..29405b0932e4ff6b66a3330b0fcd40990df10a4e
+--- a//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
++++ b//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+@@ -265,7 +265,7 @@
+                 MessageType::Signal => self.pending.push_back(signal_from(message)),
+                 MessageType::MethodCall => continue,
+                 MessageType::MethodReturn => {
+-                    if message.reply_serial() == Some(serial) {
++                    if message.reply_serial() == Some(serial.wrapping_add(1)) {
+                         return Ok(message.body);
+                     }
+                 }
+
+exec
+/usr/bin/bash -lc "ps -ef | rg 'dbus-daemon|mock_service' | rg -v rg; find /tmp -maxdepth 1 -name 'dbus-*' -type s -ls 2>/dev/null | head; git diff --no-index -- /home/sanya/orca/project/rust/crates/discord-platform/src/dbus/mod.rs /tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs || true" in /home/sanya/orca/project
+ succeeded in 0ms:
+diff --git a/home/sanya/orca/project/rust/crates/discord-platform/src/dbus/mod.rs b/tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+index cfd3875..29405b0 100644
+--- a/home/sanya/orca/project/rust/crates/discord-platform/src/dbus/mod.rs
++++ b/tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+@@ -265,7 +265,7 @@ impl Connection {
+                 MessageType::Signal => self.pending.push_back(signal_from(message)),
+                 MessageType::MethodCall => continue,
+                 MessageType::MethodReturn => {
+-                    if message.reply_serial() == Some(serial) {
++                    if message.reply_serial() == Some(serial.wrapping_add(1)) {
+                         return Ok(message.body);
+                     }
+                 }
+
+diff --git a//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs b//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+index cfd38756ee1d3c1bdc65dc9eacfd24bee2b06f9e..29405b0932e4ff6b66a3330b0fcd40990df10a4e
+--- a//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
++++ b//tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+@@ -265,7 +265,7 @@
+                 MessageType::Signal => self.pending.push_back(signal_from(message)),
+                 MessageType::MethodCall => continue,
+                 MessageType::MethodReturn => {
+-                    if message.reply_serial() == Some(serial) {
++                    if message.reply_serial() == Some(serial.wrapping_add(1)) {
+                         return Ok(message.body);
+                     }
+                 }
+
+apply patch
+patch: completed
+/tmp/opencode/rw30b-codex/rust/crates/discord-platform/src/dbus/mod.rs
+codex
+Повтор mutation-runner с новым target подтвердил, что после приватной шины тесты могут перейти в `SKIP`; runner считает только ненулевой exit и не учитывает, что мутация проверялась без живого сервиса. Поэтому его результат в текущей среде нельзя трактовать как 10/10 coverage. Сверяю итоговые строки отчёта и формирую классификацию только по воспроизводимым фактам.
+exec
+/usr/bin/bash -lc "nl -ba waves/RW-30/REPORT-W30b.md | sed -n '101,140p'; nl -ba fixtures/dbus/notifications.json | sed -n '1,80p'; nl -ba waves/RW-30/run-mutations-w30b.py | sed -n '150,245p'; nl -ba rust/crates/discord-platform/src/dbus/auth.rs | sed -n '1,120p'; nl -ba rust/crates/discord-platform/src/notifications.rs | sed -n '100,220p'" in /home/sanya/orca/project
+ succeeded in 0ms:
+   101	## 5. Мутации (10/10 убиты)
+   102	
+   103	Команда: `CARGO_TARGET_DIR=/tmp/opencode/target-w30b python3 waves/RW-30/run-mutations-w30b.py`
+   104	(каждая мутация — один точечный дефект, затем прогон обоих тестов и restore по md5).
+   105	Лог: `waves/RW-30/mutations-w30b.log` (итог: «все мутации убиты, все файлы восстановлены»).
+   106	
+   107	| # | мутация | убита тестами |
+   108	|---|---|---|
+   109	| 01 | auth: hex числа вместо hex десятичной записи uid | n02b |
+   110	| 02 | выравнивание struct/dict-entry 8 → 4 | n03, n04, n05 |
+   111	| 03 | ответ не сопоставляется по `reply_serial` | n02, n07, n08, n08b, n09, n10, n11, n12, n13, n15 |
+   112	| 04 | ERROR-ответ как успех | n11 |
+   113	| 05 | `actions`: label/id перепутаны | n09 |
+   114	| 06 | нет `AddMatch` на `NotificationClosed` | n12 |
+   115	| 07 | событие принимает чужое тело | n13 |
+   116	| 08 | serial не растёт (0) | все вызовы (10 тестов) |
+   117	| 09 | снят guard пустого `summary` | n08b |
+   118	| 10 | `hints` не пустой | n08 |
+   119	
+   120	## 6. Файлы и md5
+   121	
+   122	```
+   123	608918a56769fbd19d582c944cf0c848  rust/crates/discord-platform/src/dbus/mod.rs
+   124	ca96abc04abeac0c0b723d72b44389e9  rust/crates/discord-platform/src/dbus/auth.rs
+   125	c13dd0b3d8392e59fa52b6b08d61cdf9  rust/crates/discord-platform/src/dbus/message.rs
+   126	10d14433568f81cef00ee1526b2ae77d  rust/crates/discord-platform/src/notifications.rs
+   127	d66be18537144106751a900a681d2c0f  rust/crates/discord-platform/src/lib.rs   (только +2 строки модулей)
+   128	73a94d383f6b0a34fd9be7b89b6c56a9  rust/crates/discord-platform/tests/dbus_contract.rs
+   129	2fde3c5a7b29752198a4ff1fd4c2c8dd  rust/crates/discord-platform/tests/notifications_contract.rs
+   130	cf818d22ba71c168d243cd6c3b82fb73  waves/RW-30/dbus/mock_service.py
+   131	31dd93d6f04d78eea3b187d80abfb875  waves/RW-30/dbus/gen-golden.py
+   132	61e3324ad66823306caa422392f9d461  fixtures/dbus/wire.json
+   133	b3edcfd0c54af9dfcc202fbcf2fddf40  fixtures/dbus/notifications.json
+   134	0e00848e3236a374b7bfa0cb90691c05  waves/RW-30/run-mutations-w30b.py
+   135	651946d739d02bc1c270c05b306d4854  waves/RW-30/workers/W30b/red.log
+   136	bceb724a42bca0d691ad8ddba7562661  waves/RW-30/workers/W30b/green.log
+   137	f72d166dbad0b1870bd556333e9760e1  waves/RW-30/mutations-w30b.log
+   138	```
+   139	
+   140	`src/lib.rs` не переформатировался: добавлены только `pub mod dbus;` и
+     1	{
+     2	  "oracle": "mock_service.py (python3-dbus/libdbus) на приватном dbus-daemon",
+     3	  "destination": "org.freedesktop.Notifications",
+     4	  "path": "/org/freedesktop/Notifications",
+     5	  "methods": [
+     6	    {
+     7	      "member": "GetCapabilities",
+     8	      "signature": "",
+     9	      "reply_signature": "as",
+    10	      "reply": [
+    11	        "body",
+    12	        "actions",
+    13	        "persistence",
+    14	        "icon-static"
+    15	      ]
+    16	    },
+    17	    {
+    18	      "member": "GetServerInformation",
+    19	      "signature": "",
+    20	      "reply_signature": "(ssss)",
+    21	      "reply": [
+    22	        "MockNotify",
+    23	        "discord-lab",
+    24	        "1.0",
+    25	        "1.2"
+    26	      ]
+    27	    },
+    28	    {
+    29	      "member": "Notify",
+    30	      "signature": "susssasa{sv}i",
+    31	      "reply_signature": "u",
+    32	      "reply": 100,
+    33	      "note": "actions на проводе — `as` парами id/label (спека freedesktop)"
+    34	    },
+    35	    {
+    36	      "member": "CloseNotification",
+    37	      "signature": "u",
+    38	      "reply_signature": "",
+    39	      "reply": null
+    40	    }
+    41	  ],
+    42	  "signals": [
+    43	    {
+    44	      "member": "ActionInvoked",
+    45	      "signature": "(us)",
+    46	      "body": [
+    47	        100,
+    48	        "open"
+    49	      ]
+    50	    },
+    51	    {
+    52	      "member": "NotificationClosed",
+    53	      "signature": "(uu)",
+    54	      "body": [
+    55	        100,
+    56	        2
+    57	      ]
+    58	    }
+    59	  ],
+    60	  "journal": [
+    61	    [
+    62	      "READY"
+    63	    ],
+    64	    [
+    65	      "GetCapabilities"
+    66	    ],
+    67	    [
+    68	      "GetServerInformation"
+    69	    ],
+    70	    [
+    71	      "Notify",
+    72	      "Discord Lab",
+    73	      "0",
+    74	      "",
+    75	      "Alice",
+    76	      "hello",
+    77	      "0",
+    78	      "open:Open|reply:Reply",
+    79	      "-1"
+    80	    ],
+   150	        "hints_not_empty",
+   151	        NOTIFICATIONS,
+   152	        "            Value::Dict(Vec::new()), // hints: пустой a{sv}",
+   153	        """            Value::Dict(vec![(
+   154	                Value::String("urgency".to_owned()),
+   155	                Value::Variant(Box::new(Value::Byte(1))),
+   156	            )]),""",
+   157	        "n08: hints перестаёт быть пустым a{sv}",
+   158	    ),
+   159	]
+   160	
+   161	TEST_LINE = re.compile(r"^test (\S+) \.\.\. FAILED$", re.MULTILINE)
+   162	SUMMARY = re.compile(r"^test result: FAILED\..*$", re.MULTILINE)
+   163	
+   164	
+   165	def md5(path):
+   166	    with open(path, "rb") as handle:
+   167	        return hashlib.md5(handle.read()).hexdigest()
+   168	
+   169	
+   170	def run_tests():
+   171	    env = dict(os.environ)
+   172	    env.setdefault("CARGO_TARGET_DIR", "/tmp/opencode/target-w30b")
+   173	    command = ["cargo", "test", "--offline", "-p", "discord-platform"] + TESTS
+   174	    completed = subprocess.run(
+   175	        command,
+   176	        cwd=WORKDIR,
+   177	        env=env,
+   178	        capture_output=True,
+   179	        text=True,
+   180	        check=False,
+   181	    )
+   182	    return completed.returncode, completed.stdout + completed.stderr
+   183	
+   184	
+   185	def main():
+   186	    lines = ["# W30b — мутации D-Bus/уведомлений", ""]
+   187	    failures = []
+   188	
+   189	    baseline_code, baseline_output = run_tests()
+   190	    lines.append("baseline: exit=%d" % baseline_code)
+   191	    if baseline_code != 0:
+   192	        lines.append("ОСТАНОВ: базовый прогон не зелёный")
+   193	        lines.append(baseline_output[-4000:])
+   194	        write_log(lines)
+   195	        return 1
+   196	    lines.append("")
+   197	
+   198	    for mutation_id, name, path, original, mutated, expectation in MUTATIONS:
+   199	        before_md5 = md5(path)
+   200	        with open(path, encoding="utf-8") as handle:
+   201	            source = handle.read()
+   202	        if original not in source:
+   203	            failures.append("%s: фрагмент не найден" % mutation_id)
+   204	            lines.append("## %s %s — ОШИБКА: фрагмент не найден" % (mutation_id, name))
+   205	            continue
+   206	
+   207	        lines.append("## %s %s" % (mutation_id, name))
+   208	        lines.append("ждём: %s" % expectation)
+   209	        lines.append("md5 до: %s" % before_md5)
+   210	
+   211	        try:
+   212	            with open(path, "w", encoding="utf-8") as handle:
+   213	                handle.write(source.replace(original, mutated, 1))
+   214	            code, output = run_tests()
+   215	            failing = sorted(set(TEST_LINE.findall(output)))
+   216	            killed = code != 0
+   217	            lines.append("exit: %d — %s" % (code, "KILLED" if killed else "SURVIVED"))
+   218	            if failing:
+   219	                lines.append("упавшие тесты: %s" % ", ".join(failing))
+   220	            for match in SUMMARY.findall(output):
+   221	                lines.append("  %s" % match)
+   222	            if not failing:
+   223	                tail = [line for line in output.splitlines() if line.startswith("error")]
+   224	                lines.append("вывод: %s" % " | ".join(tail[:3]))
+   225	            if not killed:
+   226	                failures.append("%s %s: мутация выжила" % (mutation_id, name))
+   227	        finally:
+   228	            with open(path, "w", encoding="utf-8") as handle:
+   229	                handle.write(source)
+   230	            after_md5 = md5(path)
+   231	            lines.append("md5 после restore: %s — %s" % (after_md5, "OK" if after_md5 == before_md5 else "РАСХОЖДЕНИЕ"))
+   232	            if after_md5 != before_md5:
+   233	                failures.append("%s: md5 после восстановления не совпал" % mutation_id)
+   234	        lines.append("")
+   235	
+   236	    lines.append("## Итог")
+   237	    lines.append("мутаций: %d" % len(MUTATIONS))
+   238	    if failures:
+   239	        lines.append("проблемы: %s" % "; ".join(failures))
+   240	        write_log(lines)
+   241	        return 1
+   242	    lines.append("все мутации убиты, все файлы восстановлены")
+   243	    write_log(lines)
+   244	    return 0
+   245	
+     1	//! Аутентификация D-Bus: `AUTH EXTERNAL <hex>` по unix-сокету.
+     2	//!
+     3	//! UID берётся без `unsafe` и без внешних крейтов — из `/proc/self/status` (`Uid:`).
+     4	//! Оракул — спецификация D-Bus и reference-реализация (libdbus): клиент отправляет `\0`,
+     5	//! затем `AUTH EXTERNAL <hex>\r\n`, ожидает `OK <guid>`, отправляет `BEGIN\r\n`.
+     6	//! Идентичность EXTERNAL — **десятичная запись uid, закодированная в hex**: для uid 1000
+     7	//! аргумент — `31303030` («1000» в ASCII-hex), а не `3e8`.
+     8	
+     9	use std::io::{Read, Write};
+    10	use std::os::unix::net::UnixStream;
+    11	use std::time::Duration;
+    12	
+    13	use super::DbusError;
+    14	
+    15	/// Таймаут рукопожатия аутентификации.
+    16	pub const AUTH_TIMEOUT: Duration = Duration::from_secs(5);
+    17	/// Предел длины строки ответа шины (защита от мусора в сокете).
+    18	const MAX_LINE: usize = 1024;
+    19	
+    20	/// Строка `AUTH EXTERNAL` для uid: десятичная запись uid, закодированная в hex.
+    21	///
+    22	/// Пример: uid 1000 → `AUTH EXTERNAL 31303030` (hex от ASCII-строки «1000»).
+    23	pub fn external_auth_line(uid: u32) -> String {
+    24	    let decimal = uid.to_string();
+    25	    let mut hex = String::with_capacity(decimal.len() * 2);
+    26	    for byte in decimal.as_bytes() {
+    27	        hex.push_str(&format!("{byte:02x}"));
+    28	    }
+    29	    format!("AUTH EXTERNAL {hex}")
+    30	}
+    31	
+    32	/// Текущий effective uid процесса.
+    33	pub fn current_uid() -> Result<u32, DbusError> {
+    34	    let status = std::fs::read_to_string("/proc/self/status").map_err(DbusError::Io)?;
+    35	    parse_uid(&status).ok_or(DbusError::Auth("no Uid line in /proc/self/status"))
+    36	}
+    37	
+    38	/// Разбирает первую строку `Uid:` из `/proc/self/status` (effective uid — второй столбец).
+    39	pub fn parse_uid(status: &str) -> Option<u32> {
+    40	    let line = status.lines().find(|line| line.starts_with("Uid:"))?;
+    41	    let mut fields = line["Uid:".len()..].split_whitespace();
+    42	    let real = fields.next()?.parse().ok()?;
+    43	    let effective = fields.next().and_then(|value| value.parse().ok());
+    44	    Some(effective.unwrap_or(real))
+    45	}
+    46	
+    47	/// Проходит рукопожатие на уже подключённом сокете.
+    48	///
+    49	/// Сокет должен быть в блокирующем режиме (таймаут выставляет вызывающая сторона).
+    50	pub fn authenticate(stream: &UnixStream) -> Result<(), DbusError> {
+    51	    let uid = current_uid()?;
+    52	    let mut request = Vec::with_capacity(32);
+    53	    request.push(0u8); // credentials byte: без него шина не читает команды
+    54	    request.extend_from_slice(external_auth_line(uid).as_bytes());
+    55	    request.extend_from_slice(b"\r\n");
+    56	
+    57	    let mut writer = stream;
+    58	    writer.write_all(&request).map_err(DbusError::Io)?;
+    59	
+    60	    let reply = read_line(stream)?;
+    61	    if reply.starts_with("OK ") {
+    62	        writer.write_all(b"BEGIN\r\n").map_err(DbusError::Io)?;
+    63	        return Ok(());
+    64	    }
+    65	    if reply.starts_with("REJECTED") {
+    66	        return Err(DbusError::Auth("EXTERNAL auth rejected"));
+    67	    }
+    68	    if reply.starts_with("ERROR") {
+    69	        return Err(DbusError::Auth("auth error"));
+    70	    }
+    71	    Err(DbusError::Protocol("unexpected auth reply"))
+    72	}
+    73	
+    74	fn read_line(stream: &UnixStream) -> Result<String, DbusError> {
+    75	    let mut reader = stream;
+    76	    let mut bytes = Vec::with_capacity(64);
+    77	    let mut byte = [0u8; 1];
+    78	    loop {
+    79	        match reader.read(&mut byte) {
+    80	            Ok(0) => return Err(DbusError::Protocol("auth connection closed")),
+    81	            Ok(_) => {
+    82	                if byte[0] == b'\n' {
+    83	                    break;
+    84	                }
+    85	                if bytes.len() >= MAX_LINE {
+    86	                    return Err(DbusError::Protocol("auth reply too long"));
+    87	                }
+    88	                bytes.push(byte[0]);
+    89	            }
+    90	            Err(error)
+    91	                if error.kind() == std::io::ErrorKind::WouldBlock
+    92	                    || error.kind() == std::io::ErrorKind::TimedOut =>
+    93	            {
+    94	                return Err(DbusError::Timeout);
+    95	            }
+    96	            Err(error) => return Err(DbusError::Io(error)),
+    97	        }
+    98	    }
+    99	    if bytes.last() == Some(&b'\r') {
+   100	        bytes.pop();
+   101	    }
+   102	    String::from_utf8(bytes).map_err(|_| DbusError::Protocol("auth reply is not utf-8"))
+   103	}
+   100	                        "GetServerInformation field is not a string",
+   101	                    ));
+   102	                }
+   103	            }
+   104	        }
+   105	        let [name, vendor, version, specification] = values;
+   106	        Ok((name, vendor, version, specification))
+   107	    }
+   108	
+   109	    /// `Notify(...) -> u`: серверный id уведомления.
+   110	    ///
+   111	    /// `app_name` и `summary` обязаны быть непустыми (иначе `DbusError::Protocol`):
+   112	    /// пустой заголовок серверы обычно отбрасывают, и пользователь не увидит уведомление.
+   113	    pub fn notify(&mut self, notification: &Notification) -> Result<u32, DbusError> {
+   114	        if notification.app_name.is_empty() {
+   115	            return Err(DbusError::Protocol("empty app_name"));
+   116	        }
+   117	        if notification.summary.is_empty() {
+   118	            return Err(DbusError::Protocol("empty summary"));
+   119	        }
+   120	
+   121	        let mut actions = Vec::with_capacity(notification.actions.len() * 2);
+   122	        for (action_id, label) in &notification.actions {
+   123	            if action_id.is_empty() {
+   124	                return Err(DbusError::Protocol("empty action id"));
+   125	            }
+   126	            actions.push(Value::String(action_id.clone()));
+   127	            actions.push(Value::String(label.clone()));
+   128	        }
+   129	
+   130	        let body = vec![
+   131	            Value::String(notification.app_name.clone()),
+   132	            Value::U32(notification.replaces_id),
+   133	            Value::String(String::new()), // app_icon: иконки в этой карточке не рисуются
+   134	            Value::String(notification.summary.clone()),
+   135	            Value::String(notification.body.clone()),
+   136	            Value::Array(actions),
+   137	            Value::Dict(Vec::new()), // hints: пустой a{sv}
+   138	            Value::I32(notification.timeout_ms),
+   139	        ];
+   140	
+   141	        let reply = self.call("Notify", NOTIFY_SIGNATURE, &body)?;
+   142	        match reply.into_iter().next() {
+   143	            Some(Value::U32(id)) => Ok(id),
+   144	            _ => Err(DbusError::Protocol("Notify reply is not a u32 id")),
+   145	        }
+   146	    }
+   147	
+   148	    /// `CloseNotification(u)`.
+   149	    pub fn close(&mut self, id: u32) -> Result<(), DbusError> {
+   150	        self.call("CloseNotification", "u", &[Value::U32(id)])?;
+   151	        Ok(())
+   152	    }
+   153	
+   154	    /// Подписка на `ActionInvoked` и `NotificationClosed`.
+   155	    pub fn listen_actions(&mut self) -> Result<(), DbusError> {
+   156	        for member in ["ActionInvoked", "NotificationClosed"] {
+   157	            let rule = format!("type='signal',interface='{INTERFACE}',member='{member}'");
+   158	            self.connection.add_match(&rule)?;
+   159	        }
+   160	        Ok(())
+   161	    }
+   162	
+   163	    /// Следующее событие уведомления; чужие сигналы и сигналы с неожиданным телом
+   164	    /// пропускаются (не ошибка).
+   165	    pub fn next_event(&mut self) -> Result<NotificationEvent, DbusError> {
+   166	        loop {
+   167	            let signal = self.connection.next_signal(EVENT_TIMEOUT)?;
+   168	            if signal.interface != INTERFACE {
+   169	                continue;
+   170	            }
+   171	            let event = match signal.member.as_str() {
+   172	                "ActionInvoked" => action_event(&signal.body),
+   173	                "NotificationClosed" => closed_event(&signal.body),
+   174	                _ => None,
+   175	            };
+   176	            if let Some(event) = event {
+   177	                return Ok(event);
+   178	            }
+   179	        }
+   180	    }
+   181	
+   182	    fn call(
+   183	        &mut self,
+   184	        member: &str,
+   185	        signature: &str,
+   186	        body: &[Value],
+   187	    ) -> Result<Vec<Value>, DbusError> {
+   188	        self.connection
+   189	            .call_typed(DESTINATION, PATH, INTERFACE, member, signature, body)
+   190	    }
+   191	}
+   192	
+   193	fn action_event(body: &[Value]) -> Option<NotificationEvent> {
+   194	    // Сигнатура `us`: тело — два значения подряд (без struct-обёртки).
+   195	    match body {
+   196	        [Value::U32(id), Value::String(action)] => Some(NotificationEvent::Action {
+   197	            id: *id,
+   198	            action: action.clone(),
+   199	        }),
+   200	        _ => None,
+   201	    }
+   202	}
+   203	
+   204	fn closed_event(body: &[Value]) -> Option<NotificationEvent> {
+   205	    // Сигнатура `uu`.
+   206	    match body {
+   207	        [Value::U32(id), Value::U32(reason)] => Some(NotificationEvent::Closed {
+   208	            id: *id,
+   209	            reason: *reason,
+   210	        }),
+   211	        _ => None,
+   212	    }
+   213	}
+
+codex
+**Вердикт: доработка, не принимать.**
+
+**P1**
+
+- [REPORT-W30b.md:123](/home/sanya/orca/project/waves/RW-30/REPORT-W30b.md:123) и [REPORT-W30b.md:126](/home/sanya/orca/project/waves/RW-30/waves/RW-30/REPORT-W30b.md:126) содержат устаревшие MD5. Фактически:
+  - `dbus/mod.rs`: `530bdc...`, заявлен `608918...`;
+  - `dbus/message.rs`: `268747...`, заявлен `c13dd...`;
+  - `notifications.rs`: `d673bf...`, заявлен `10d144...`;
+  - оба contract-теста также не совпадают с отчетом.
+  
+  Доказательная база отчета не соответствует проверяемому состоянию файлов.
+
+**P2**
+
+- [fixtures/dbus/notifications.json:20](/home/sanya/orca/project/fixtures/dbus/notifications.json:20) неверно описывает `GetServerInformation` как `"(ssss)"`. Реальный libdbus-мок объявляет `out_signature="ssss"`, и Rust-клиент получает четыре последовательных значения. Это противоречие в oracle-фикстуре может привести к неправильным проверкам.
+- Заявленные мутации `10/10` независимо не воспроизвелись. В изолированной копии runner завершился с `2 killed / 8 survived`; причины были `SKIP` из-за невозможности повторно поднять приватный `dbus-daemon`. Runner [run-mutations-w30b.py:214-226](/home/sanya/orca/project/waves/RW-30/run-mutations-w30b.py:214) проверяет только exit code и не подтверждает, что тесты реально выполнялись против живой шины. Результат 10/10 требует нового прогона с доказательством отсутствия skip.
+
+Проверено:
+
+- targeted-тесты: `dbus_contract` 7/7, `notifications_contract` 11/11;
+- те же тесты в `/tmp/opencode/rw30b-codex`;
+- приватная шина + libdbus-мок: успешные AUTH/Hello, Notify, Close, ERROR, сигналы и фильтрация;
+- libdbus `demarshal/marshal` для всех 5 wire-golden: побайтовое совпадение;
+- product Rust-код не содержит `unsafe`, `panic!`, `unwrap()` или `expect()`;
+- restore мутаций в `/tmp` подтвержден MD5.
+
+P0 и P3 по реализации не обнаружены.
+tokens used
+387 697
+**Вердикт: доработка, не принимать.**
+
+**P1**
+
+- [REPORT-W30b.md:123](/home/sanya/orca/project/waves/RW-30/REPORT-W30b.md:123) и [REPORT-W30b.md:126](/home/sanya/orca/project/waves/RW-30/waves/RW-30/REPORT-W30b.md:126) содержат устаревшие MD5. Фактически:
+  - `dbus/mod.rs`: `530bdc...`, заявлен `608918...`;
+  - `dbus/message.rs`: `268747...`, заявлен `c13dd...`;
+  - `notifications.rs`: `d673bf...`, заявлен `10d144...`;
+  - оба contract-теста также не совпадают с отчетом.
+  
+  Доказательная база отчета не соответствует проверяемому состоянию файлов.
+
+**P2**
+
+- [fixtures/dbus/notifications.json:20](/home/sanya/orca/project/fixtures/dbus/notifications.json:20) неверно описывает `GetServerInformation` как `"(ssss)"`. Реальный libdbus-мок объявляет `out_signature="ssss"`, и Rust-клиент получает четыре последовательных значения. Это противоречие в oracle-фикстуре может привести к неправильным проверкам.
+- Заявленные мутации `10/10` независимо не воспроизвелись. В изолированной копии runner завершился с `2 killed / 8 survived`; причины были `SKIP` из-за невозможности повторно поднять приватный `dbus-daemon`. Runner [run-mutations-w30b.py:214-226](/home/sanya/orca/project/waves/RW-30/run-mutations-w30b.py:214) проверяет только exit code и не подтверждает, что тесты реально выполнялись против живой шины. Результат 10/10 требует нового прогона с доказательством отсутствия skip.
+
+Проверено:
+
+- targeted-тесты: `dbus_contract` 7/7, `notifications_contract` 11/11;
+- те же тесты в `/tmp/opencode/rw30b-codex`;
+- приватная шина + libdbus-мок: успешные AUTH/Hello, Notify, Close, ERROR, сигналы и фильтрация;
+- libdbus `demarshal/marshal` для всех 5 wire-golden: побайтовое совпадение;
+- product Rust-код не содержит `unsafe`, `panic!`, `unwrap()` или `expect()`;
+- restore мутаций в `/tmp` подтвержден MD5.
+
+P0 и P3 по реализации не обнаружены.
+CODEX_EXIT=0

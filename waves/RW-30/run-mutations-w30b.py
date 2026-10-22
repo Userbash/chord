@@ -187,9 +187,10 @@ def main():
     failures = []
 
     baseline_code, baseline_output = run_tests()
-    lines.append("baseline: exit=%d" % baseline_code)
-    if baseline_code != 0:
-        lines.append("ОСТАНОВ: базовый прогон не зелёный")
+    baseline_skips = baseline_output.count("SKIP:")
+    lines.append("baseline: exit=%d, SKIP=%d" % (baseline_code, baseline_skips))
+    if baseline_code != 0 or "test result: ok" not in baseline_output or baseline_skips:
+        lines.append("ОСТАНОВ: базовый прогон не зелёный или содержит SKIP")
         lines.append(baseline_output[-4000:])
         write_log(lines)
         return 1
@@ -213,8 +214,14 @@ def main():
                 handle.write(source.replace(original, mutated, 1))
             code, output = run_tests()
             failing = sorted(set(TEST_LINE.findall(output)))
-            killed = code != 0
-            lines.append("exit: %d — %s" % (code, "KILLED" if killed else "SURVIVED"))
+            skips = output.count("SKIP:")
+            killed = code != 0 and "FAILED" in output and skips == 0
+            verdict = (
+                "KILLED"
+                if killed
+                else ("INCONCLUSIVE (SKIP)" if skips else "SURVIVED")
+            )
+            lines.append("exit: %d, SKIP=%d — %s" % (code, skips, verdict))
             if failing:
                 lines.append("упавшие тесты: %s" % ", ".join(failing))
             for match in SUMMARY.findall(output):
@@ -223,7 +230,7 @@ def main():
                 tail = [line for line in output.splitlines() if line.startswith("error")]
                 lines.append("вывод: %s" % " | ".join(tail[:3]))
             if not killed:
-                failures.append("%s %s: мутация выжила" % (mutation_id, name))
+                failures.append("%s %s: %s" % (mutation_id, name, verdict))
         finally:
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write(source)

@@ -1,5 +1,8 @@
 # STATE — где мы и что дальше
 
+- Обновлено: **2026-10-22**. **RW-30** (P7-01d DurationFormat, P6-02 D-Bus-уведомления) **принят** —
+  headless, без новых зависимостей; ревью codex (P1/P2 закрыты red-first), мутации 8/8 и 10/10
+  (`SKIP=0`), workspace **984**; fmt/clippy 0; gate passed.
 - Обновлено: **2026-10-22**. **RW-28** (P7-01c RelativeTimeFormat) и **RW-29** (P4-04 RTP-медиа,
   P4-12 reconnect, P7-01e `<t:…>`) **приняты** — headless, без новых зависимостей. Ревью:
   RW-28 — два прохода (P0 Auto ±2 → TL-решение ICU-паритет; P1 точность >2^53 → точные
@@ -38,9 +41,10 @@
 
 | Проверка | Результат |
 |---|---|
-| Rust-воркспейс | **953 passed / 0 failed** (`cargo test --offline --workspace`) |
+| Rust-воркспейс | **984 passed / 0 failed** (`cargo test --offline --workspace`) |
 | `discord-core` | **531 passed / 0 failed** |
-| `discord-i18n` RW-28 | **70 passed / 0 failed** (8 lib + 3+6+10+2+13+2 + relative 12 + timestamp 14) |
+| `discord-i18n` RW-28/30 | **83 passed / 0 failed** (+ duration 13; 8 lib + контракты + relative 12 + timestamp 14) |
+| `discord-platform` RW-30 | **41 passed / 0 failed** (1 lib + 9 + 7 dbus + 13 + 11 notifications) |
 | `discord-voice` RW-29 | media **13**, reconnect **10 + 2 unit**; крейт целиком — 0 failed |
 | `discord-voice` RW-26 | **114 passed / 0 failed** (P4-07 16+10+12, P4-11 10) |
 | `discord-platform` RW-27 | **23 passed / 0 failed** (1 lib + deep links 13 + autostart 9) |
@@ -56,8 +60,8 @@
 | Мутации B06 | **18 caught, 0 missed**, продукт восстановлен по md5 |
 | Мутации RW-26 | **19 caught, 0 missed** (P4-07 11 + P4-11 8) |
 | Мутации RW-27 | **6/6 неэквивалентных + 2 эквивалентных** (list), **14/14** (platform) |
-| Мутации RW-28/RW-29 | RW-28 **8/8**, W29a **8/8**, W29b **9/9**, W29c **6/6** (все restored по md5) |
-| Гейт RW-28/RW-29 | **passed**, `.gate/worker-2026-10-22T17-12-46-556Z.json`, `waves/RW-29/gate-cargo.log` |
+| Мутации RW-28…RW-30 | RW-28 **8/8**, W29a **8/8**, W29b **9/9**, W29c **6/6**, W30a **8/8**, W30b **10/10** (SKIP=0) |
+| Гейт RW-30 | **passed**, `.gate/worker-2026-10-22T17-54-26-464Z.json`, `waves/RW-30/gate-cargo.log` |
 | Гейт RW-27 | **passed**, `.gate/worker-2026-10-22T13-58-02-813Z.json`, `waves/RW-27/gate-cargo-final.log` |
 | Гейт RW-26 | **passed**, `.gate/worker-2026-10-22T11-40-00-985Z.json`, `waves/RW-26/gate-worker-b09.log` |
 | Мутации B05 | **20 caught, 0 missed, 0 inconclusive**, продукт восстановлен по md5 |
@@ -69,14 +73,15 @@
 
 ## 2. Прогресс плана (`docs/rust-client/PLAN.md`)
 
-- Принято: **43 / 90** — RW-29: `P4-04`, `P4-12` (+ хвост `P7-01e`); RW-28: хвост `P7-01c`;
+- Принято: **42 / 90** — RW-30: `P6-02` (+ хвост `P7-01d`); RW-29: `P4-04`, `P4-12`
+  (+ хвост `P7-01e`); RW-28: хвост `P7-01c`;
   RW-27: `P7-01b`, `P6-03`, `P6-04`; RW-26: `P4-07`, `P4-11`;
   B06: `P4-03`, `P7-02`, `P8-01`; B05: `P7-01`; B04: `P4-02`,
   `P8-04`; B03: `P3-15`, `P4-01`, `P7-04`, `P8-03`; B02: `P2-08`, `P1-01`, `P1-02`,
   `P0-04`, `P0-07`; `P0-02`, `P0-03`, `P1-03`…`P1-09`, `P1-11`, `P1-12`, `P2-01`,
   `P2-02`, `P2-04`…`P2-11`.
-- Осталось: **49** — P0: 3, P1: 1 (`P1-10`), P2: 1 (`P2-03`), P3: 15, P4: 5, P4.5: 3,
-  P5: 7, P6: 8, P7: 4, P8: 2.
+- Осталось: **48** — P0: 3, P1: 1 (`P1-10`), P2: 1 (`P2-03`), P3: 15, P4: 5, P4.5: 3,
+  P5: 7, P6: 7, P7: 4, P8: 2. (Хвосты `P7-01b/c/d/e` в 90 карточек не входят.)
 - B06 закрыл headless-контур: крипто-слой SRTP (без зависимостей), перф-гейт регрессии
   и контур обновления. Следующий batch — **B07** (GUI/keyring/SQLite) — после решения
   владельца; headless-остатки — отдельно.
@@ -376,9 +381,9 @@ GUI-окна и пользовательского приложения пока
 1. RW-28/RW-29 приняты: `review`, `gate`, `accepted` — в `waves/db.jsonl`; доки
    синхронизированы один раз (этот проход).
 2. Следующий batch — **B07** (GUI/keyring/SQLite) — заблокирован до решения владельца
-   по зависимостям/окну. Оставшиеся headless-задачи: `DurationFormat` (i18n), P6-02/P6-06
-   (D-Bus/системный сервис — можно сделать офлайн-маршалинг, но нужен системный тест),
-   P4-05/P4-06/P4-08/P4-09 (устройства/PTT/mute/NS/soundboard — требуют GUI или зависимости).
+   по зависимостям/окну. Headless-остатки: P6-06 (power/idle на общем D-Bus-клиенте —
+   контракт `waves/RW-31/TZ-W31a.md`), P2-03 (SQLite через FFI, решение —
+   `waves/RW-31/SQLITE-DECISION.md`), P4-05/P4-06/P4-08/P4-09 (GUI/зависимости).
 3. RW-28 закрыл RelativeTimeFormat, RW-29 — RTP-медиа, reconnect и `<t:…>`; контракты —
    `waves/RW-28/`, `waves/RW-29/` (уточнения RTP/джиттера — `TZ-W29b.md` §6).
 4. Red-first → targeted → mutation → один batch gate → независимое ревью → accepted.
@@ -408,6 +413,11 @@ GUI-окна и пользовательского приложения пока
 
 ## 7. Бэклог P3 (не блокирует)
 
+- RW-30/P6-02: `hints` всегда пустой `a{sv}`; abstract/tcp адреса, big-endian, передача fd
+  (`h`) и percent-кодирование `DBUS_SESSION_BUS_ADDRESS` не поддержаны; live-уведомления не
+  отправлялись; wire-совместимость с Electron-модулем не заявляется.
+- RW-30/P7-01d: ICU-паритет привязан к Node 24.21/ICU 78; capacity в `join_chunks` не учитывает
+  `join_last`; all-zero кейс оракула хранится как пустой объект (спец-обработка в пересчёте).
 - RW-28: `format_number_with` печатает ASCII `-` вместо U+2212 для `sv-SE/fi/no/hr/lt`
   (5 из 186 проверок ревью; relative-путь не затронут). Мутации `run-mutations.py` пишут
   в продукт in-place и имеют фиксированный target-dir — при SIGKILL восстановление не

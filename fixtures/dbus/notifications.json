@@ -17,7 +17,7 @@
     {
       "member": "GetServerInformation",
       "signature": "",
-      "reply_signature": "(ssss)",
+      "reply_signature": "ssss",
       "reply": [
         "MockNotify",
         "discord-lab",

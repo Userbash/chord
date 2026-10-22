@@ -1,20 +1,21 @@
 # discord-lab: session checkpoint (сжатый контекст)
 
 Точка входа для нового диалога. Читать первым; детали — точечно по ссылкам.
-Обновлён 2026-10-22 после RW-28/RW-29.
+Обновлён 2026-10-22 после RW-30.
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `b3c0c0f`; принятые волны RW-10…RW-29 (+RW-30 в ревью) закоммичены и
-  запушены в `origin/main`; коммиты — координатор.
-- **Принято 43 / 90** карточек. Последние волны 2026-10-22:
+- `/home/sanya/orca/project`, `main`, HEAD `ebf5efd`; принятые волны RW-10…RW-29 закоммичены и запушены; RW-30 — коммит
+  следующим шагом; коммиты/пуш — координатор.
+- **Принято 42 / 90** карточек (хвосты P7-01b/c/d/e в 90 не входят). Последние волны 2026-10-22:
+  - **RW-30**: P7-01d DurationFormat, P6-02 D-Bus-уведомления (headless, без новых крейтов);
   - **RW-28**: P7-01c RelativeTimeFormat — ICU-паритет ±2, точные i64 > 2^53 (headless);
   - **RW-29**: P4-04 RTP-медиа (PT120/0xBEDE, DTX, джиттер по pcap-оракулу), P4-12
     reconnect/resume, P7-01e `<t:…>`-таймстемпы (headless).
-- Факт: workspace **953 passed**, core 531, i18n 70 (relative 12 + timestamp 14), media 13,
-  reconnect 12, platform 23; fmt/clippy чисто; npm `gate:worker` passed; мутации
-  RW-28 8/8, W29a 8/8, W29b 9/9, W29c 6/6 (все restored по md5).
-- Гейт: `.gate/worker-2026-10-22T17-12-46-556Z.json`, `waves/RW-29/gate-cargo.log`.
+- Факт: workspace **984 passed**, core 531, i18n 83 (relative 12 + timestamp 14 + duration 13),
+  media 13, reconnect 12, platform 41 (dbus 7 + notifications 11); fmt/clippy чисто;
+  npm `gate:worker` passed; мутации 8/8, 8/8, 9/9, 6/6, 8/8, 10/10 (все restored по md5).
+- Гейт: `.gate/worker-2026-10-22T17-54-26-464Z.json`, `waves/RW-30/gate-cargo.log`.
 - Ревью: RW-28 — два прохода (P0 Auto ±2 → решение TL `waves/RW-28/DECISIONS.md`; P1 точность
   → точные `plural_category_integer`/`format_integer_unsigned`); RW-29 voice — принято,
   P0/P1/P2=0, 8 P3 в бэклог (`waves/STATE.md` §7).
@@ -24,9 +25,10 @@
 1. **B07 = P0-01 / P1-10 / P2-03** (GUI spike, keyring, SQLite) — **заблокирован** до
    решения владельца: нет `tauri`/`iced`/`egui`/`winit`/`wry` в lock/кэше; `keyring` +
    Secret Service; `rusqlite` + системный SQLite; живой Discord — только по окну.
-2. Разрешённые headless-остатки: i18n `DurationFormat`, P6-02/P6-06 (D-Bus — офлайн-маршалинг
-   возможен, но нужен системный тест), P4-05/P4-06/P4-08/P4-09 (GUI/зависимости). Перед
-   стартом — пересобрать ready-queue.
+2. Headless-остатки: **P6-06** power/idle (контракт `waves/RW-31/TZ-W31a.md`, на общем
+   D-Bus-клиенте), **P2-03** SQLite через FFI к системному `libsqlite3` (решение —
+   `waves/RW-31/SQLITE-DECISION.md`, нужен «ок» владельца на `unsafe` в модуле `ffi`);
+   P4-05/P4-06/P4-08/P4-09 требуют GUI/зависимостей.
 3. Процесс: batch 3–6 карточек → red-first → targeted → mutation → один batch gate →
    независимое ревью → accepted → доки один раз. Роли — `docs/rust-client/TEAM.md`.
 

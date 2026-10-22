@@ -14,12 +14,12 @@
 | P4 — медиа и вложения | 7 / 12 | 5 |
 | P4.5 — голос | 0 / 3 | 3 |
 | P5 — платформа | 0 / 7 | 7 |
-| P6 — настройки/безопасность | 2 / 10 | 8 |
+| P6 — настройки/безопасность | 3 / 10 | 7 |
 | P7 — производительность | 3 / 7 | 4 |
 | P8 — выпуск | 3 / 5 | 2 |
-| **Итого** | **43 / 90** | **49** |
+| **Итого** | **42 / 90** | **48** |
 
-Принятые карточки: `P0-02`, `P0-03`, `P0-04`, `P0-07`, `P1-01`, `P1-02`, `P1-03`…`P1-09`, `P1-11`, `P1-12`, `P2-01`, `P2-02`, `P2-04`, `P2-05`, `P2-06`, `P2-07`, `P2-08`, `P2-09`, `P2-10`, `P2-11`, `P3-15`, `P4-01`, `P4-02`, `P4-03`, `P4-04`, `P4-07`, `P4-11`, `P4-12`, `P6-03`, `P6-04`, `P7-01`, `P7-02`, `P7-04`, `P8-01`, `P8-03`, `P8-04`; хвосты P7-01b (ListFormat), P7-01c (RelativeTimeFormat), P7-01e (`<t:…>`).
+Принятые карточки: `P0-02`, `P0-03`, `P0-04`, `P0-07`, `P1-01`, `P1-02`, `P1-03`…`P1-09`, `P1-11`, `P1-12`, `P2-01`, `P2-02`, `P2-04`, `P2-05`, `P2-06`, `P2-07`, `P2-08`, `P2-09`, `P2-10`, `P2-11`, `P3-15`, `P4-01`, `P4-02`, `P4-03`, `P4-04`, `P4-07`, `P4-11`, `P4-12`, `P6-02`, `P6-03`, `P6-04`, `P7-01`, `P7-02`, `P7-04`, `P8-01`, `P8-03`, `P8-04`; хвосты P7-01b (ListFormat), P7-01c (RelativeTimeFormat), P7-01d (DurationFormat), P7-01e (`<t:…>`).
 
 ## 2. Что уже работает
 
@@ -132,13 +132,15 @@
 
 | Проверка | Результат |
 |---|---|
-| `cargo test --offline --workspace` | **953 passed, 0 failed** |
+| `cargo test --offline --workspace` | **984 passed, 0 failed** |
 | `cargo test --offline -p discord-core` | **531 passed, 0 failed** |
+| RW-30 `discord-platform` | **41 passed, 0 failed** (1 lib + 9 + dbus 7 + 13 + notifications 11) |
+| RW-30 `discord-i18n` | duration **13**, 0 failed (P7-01d) |
 | RW-29 `discord-voice` | media **13**, reconnect **10 + 2 unit**, 0 failed (P4-04/P4-12) |
 | RW-28/29 `discord-i18n` | **70 passed, 0 failed** (relative 12 + timestamp 14 + прежние 44) |
 | RW-28 мутации | **8/8 caught**, продукт восстановлен по md5 |
-| RW-29 мутации | W29a **8/8**, W29b **9/9**, W29c **6/6**, все restored по md5 |
-| RW-29 гейт | passed, `waves/RW-29/gate-cargo.log` / `.gate/worker-2026-10-22T17-12-46-556Z.json` |
+| RW-29/RW-30 мутации | W29a 8/8, W29b 9/9, W29c 6/6, W30a 8/8, W30b 10/10 (SKIP=0) |
+| RW-30 гейт | passed, `waves/RW-30/gate-cargo.log` / `.gate/worker-2026-10-22T17-54-26-464Z.json` |
 | RW-26 `discord-voice` | **114 passed, 0 failed** (P4-07 статистика 38 + P4-11 регионы 10 + прежние) |
 | RW-27 `discord-platform` | **23 passed, 0 failed** (1 lib + deep links 13 + autostart 9) |
 | RW-27 `discord-i18n` | **10 passed, 0 failed** (`list_contract`, 1674 кейса) |
@@ -178,7 +180,7 @@
 | `discord-codec` | рабочий: ETF + zstd |
 | `discord-core` | рабочий, частично: gateway/rest/ready/state/history/dispatch/resume/resources |
 | `discord-json` | рабочий foundation: строгий parser/writer |
-| `discord-i18n` | рабочий: P3-15 runtime + P7-01 locale/CLDR/числа/даты/markdown + ListFormat/RelativeTimeFormat/`<t:…>` (36 локалей, 31 включена) |
+| `discord-i18n` | рабочий: P3-15 runtime + P7-01 locale/CLDR/числа/даты/markdown + ListFormat/RelativeTimeFormat/DurationFormat/`<t:…>` (36 локалей, 31 включена) |
 | `discord-voice` | рабочий, частично: signaling + UDP discovery/keepalive/RR + SRTP-крипта P4-03 + RTP PT120/DTX/джиттер P4-04 + reconnect P4-12; DAVE/MLS — P4.5 |
 | `discord-conformance` | рабочий тестовый помощник |
 | `discord-perf` | рабочий: перф-харнесс T-HARN-04 (P7-02) |
@@ -187,7 +189,7 @@
 | `discord-ui` | каркас (контракты, окна нет) |
 | `discord-store` | каркас (SQLite нет) |
 | `discord-media` | каркас (кодеки/пайплайн не реализованы) |
-| `discord-platform` | каркас (keyring/трей/PTT нет) |
+| `discord-platform` | частично: deep links, autostart/badge, D-Bus-уведомления (keyring/трей/PTT нет) |
 
 Итого: **7 рабочих/частично рабочих крейтов + 1 тестовый + 5 каркасов**. Это не
 «приложение готово», а работающее ядро протокола, данных, сигнализации, крипто-контура,

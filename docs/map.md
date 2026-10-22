@@ -154,14 +154,14 @@ flowchart TB
 
 | Показатель | Значение |
 |---|---|
-| Принято карточек | **43 / 90** (…, P3-15, P4-01, P4-02, **P4-03**, **P4-04**, **P4-07**, **P4-11**, **P4-12**, **P6-03**, **P6-04**, P7-01, **P7-02**, P7-04, **P8-01**, P8-03, P8-04; хвосты P7-01b/c/e) |
-| В работе | **RW-28/RW-29 приняты 2026-10-22**; следующий — B07 (GUI/keyring/SQLite), ждёт владельца |
-| Осталось | **49** (P0 3, P1 1, P2 1, P3 15, P4 5, P4.5 3, P5 7, P6 8, P7 4, P8 2) |
-| Rust-тесты | **953 / 953** (workspace), **531 / 531** (`discord-core`), **70** (`discord-i18n`: +relative 12, +timestamp 14), media 13 + reconnect 12 (`discord-voice`), 23 (`discord-platform`) |
-| Гейт | passed — `waves/RW-29/gate-cargo.log` / `.gate/worker-2026-10-22T17-12-46-556Z.json`; мутации RW-28 8/8, W29a 8/8, W29b 9/9, W29c 6/6 |
+| Принято карточек | **42 / 90** (…, P3-15, P4-01, P4-02, **P4-03**, **P4-04**, **P4-07**, **P4-11**, **P4-12**, **P6-02**, **P6-03**, **P6-04**, P7-01, **P7-02**, P7-04, **P8-01**, P8-03, P8-04; хвосты P7-01b/c/d/e) |
+| В работе | **RW-30 принят 2026-10-22**; следующий — B07 (GUI/keyring/SQLite), ждёт владельца |
+| Осталось | **48** (P0 3, P1 1, P2 1, P3 15, P4 5, P4.5 3, P5 7, P6 7, P7 4, P8 2) |
+| Rust-тесты | **984 / 984** (workspace), **531 / 531** (`discord-core`), **83** (`discord-i18n`: +relative 12, +timestamp 14, +duration 13), media 13 + reconnect 12 (`discord-voice`), 41 (`discord-platform`: +dbus/notifications 18) |
+| Гейт | passed — `waves/RW-30/gate-cargo.log` / `.gate/worker-2026-10-22T17-54-26-464Z.json`; мутации 8/8, 8/8, 9/9, 6/6, 8/8, 10/10 |
 | Крейты | 13: 7 рабочих/частично (`codec`, `core`, `json`, `i18n`, `voice`, **`perf`**, **`updater`**), 1 тестовый (`conformance`), 5 каркасов |
-| Следующий batch | **B07** (GUI/keyring/SQLite); headless-остатки: `DurationFormat`, P6-02/P6-06 (D-Bus) — отдельными волнами |
-| Контракты | RW-28/RW-29 приняты (`RW-28`, `RW-29`); RW-26/RW-27 (`RW-26`, `RW-27`); B06 (`RW-25`); B05 (`RW-24`), B04 (`RW-23`), B03 (`RW-22`), B02 (`RW-21`), B01 (`RW-19`, `RW-20`) |
+| Следующий batch | **B07** (GUI/keyring/SQLite); headless-остатки: P6-06 (power/idle), P2-03 (SQLite через FFI) — отдельными волнами |
+| Контракты | RW-30 принят (`RW-30`); RW-28/RW-29 (`RW-28`, `RW-29`); (`RW-28`, `RW-29`); RW-26/RW-27 (`RW-26`, `RW-27`); B06 (`RW-25`); B05 (`RW-24`), B04 (`RW-23`), B03 (`RW-22`), B02 (`RW-21`), B01 (`RW-19`, `RW-20`) |
 | Блокеры | GUI-крейты, `keyring`, `rusqlite`, окно живого Discord, rate limit агентов |
 
 ```mermaid
@@ -206,6 +206,10 @@ flowchart LR
     n13["P7-02 перф-харнесс: 24k участников, 100k сообщений"]:::ok
     n14["P8-01 updater: манифест, Ed25519, staged-замена, откат"]:::ok
   end
+  subgraph B11["B11 / RW-30 — принято 2026-10-22"]
+    q5["P7-01d DurationFormat"]:::ok
+    q6["P6-02 D-Bus-уведомления"]:::ok
+  end
   subgraph B10["B10 / RW-28 + RW-29 — принято 2026-10-22"]
     q1["P7-01c RelativeTimeFormat"]:::ok
     q2["P4-04 RTP-медиа: PT120, DTX, джиттер"]:::ok
@@ -240,6 +244,8 @@ flowchart LR
   n12 --> q1
   n12 --> q2
   n12 --> q4
+  q4 --> q5
+  n12 --> q6
   q2 --> q3
   n12 --> b1
   d5 --> b1
