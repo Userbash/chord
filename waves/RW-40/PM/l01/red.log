@@ -1,0 +1,163 @@
+▶ L-01 (RW-40): видимый reconnect/offline state
+  ✖ ready скрыт; connecting/reconnecting — «Переподключение…», retry только в offline (22.794661ms)
+  ✖ offline/error: «Нет соединения» + «Повторить»; retry — ровно один net_connect, без авто-цикла (7.779038ms)
+  ✖ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (9.273016ms)
+  ✖ dispose останавливает поллинг net_status, refresh после dispose — no-op (4.861302ms)
+  ✖ без auth ready нет поллинга net_status (гейт не пройден) (4.634298ms)
+  ✖ скрытое окно не опрашивает статус, после возврата поллинг продолжается (4.102203ms)
+  ✖ фокус не крадётся появлением баннера и возвращается в чат при ready (5.526333ms)
+  ✖ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.227393ms)
+✖ L-01 (RW-40): видимый reconnect/offline state (60.301593ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 0
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.534895
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:3201:3
+✖ ready скрыт; connecting/reconnecting — «Переподключение…», retry только в offline (22.794661ms)
+  AssertionError [ERR_ASSERTION]: нет #net-status
+      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3203:22
+      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3202:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3243:3
+✖ offline/error: «Нет соединения» + «Повторить»; retry — ровно один net_connect, без авто-цикла (7.779038ms)
+  AssertionError [ERR_ASSERTION]: нет #net-status
+      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3245:22
+      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3244:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3287:3
+✖ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (9.273016ms)
+  AssertionError [ERR_ASSERTION]: нет #net-status
+      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at withNetApp.status (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3290:24)
+      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3288:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3320:3
+✖ dispose останавливает поллинг net_status, refresh после dispose — no-op (4.861302ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3322:14
+      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3321:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3338:3
+✖ без auth ready нет поллинга net_status (гейт не пройден) (4.634298ms)
+  AssertionError [ERR_ASSERTION]: нет #net-status
+      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3344:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:78:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3339:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3348:3
+✖ скрытое окно не опрашивает статус, после возврата поллинг продолжается (4.102203ms)
+  AssertionError [ERR_ASSERTION]: поллинг не возобновился
+  
+  false !== true
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3361:14
+      at async withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3349:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3365:3
+✖ фокус не крадётся появлением баннера и возвращается в чат при ready (5.526333ms)
+  AssertionError [ERR_ASSERTION]: нет #net-retry
+      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3374:21
+      at async withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3366:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:3388:3
+✖ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.227393ms)
+  AssertionError [ERR_ASSERTION]: net-status.css не подключён в index.html
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3390:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '<!doctype html>\n<html lang="ru" data-density="cozy">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <meta name="color-scheme" content="dark" />\n    <title>DL — discord-lab (P3-01)</title>\n    <!-- W39c2: токены вендорятся в ui/tokens.css (D-05), а не в components/. -->\n    <link rel="stylesheet" href="tokens.css" />\n    <link rel="stylesheet" href="components/primitives.css" />\n    <link rel="stylesheet" href="style.css" />\n    <link rel="stylesheet" href="components/rail.css" />\n    <link rel="stylesheet" href="components/tree.css" />\n    <link rel="stylesheet" href="components/chat.css" />\n    <link rel="stylesheet" href="components/emoji.css" />\n    <link rel="stylesheet" href="components/members.css" />\n    <link rel="stylesheet" href="components/settings.css" />\n    <link rel="stylesheet" href="components/server-menu.css" />\n  </head>\n  <body data-active-screen="chat">\n    <!-- 1. Строка заголовка: 32px, на всю ширину (RE topbar_h=32). -->\n    <header class="topbar" role="banner">\n      <div class="screen-title" role="heading" aria-level="2" aria-live="polite">Чат · 100 000 сообщений</div>\n      <div class="metrics" aria-live="polite">\n        <span>FPS <b id="m-fps">—</b></span>\n        <span>p95 кадра <b id="m-p95">—</b></span>\n        <span>RAM <b id="m-rss">—</b></span>\n        <span>потоки <b id="m-threads">—</b></span>\n        <button id="bench" class="bench" type="button">Замер 5 с</button>\n      </div>\n    </header>\n\n    <div class="shell">\n      <!-- 2. Рейл 64px: бренд DL, гильдии, разделитель, 4 кнопки экранов. -->\n      <aside id="guild-rail" class="rail" role="navigation" aria-label="Серверы и экраны">\n        <div class="brand" title="discord-lab" aria-hidden="true">DL</div>\n        <button class="guild-item is-selected" type="button" data-guild="1" aria-label="Сервер ITSKIDON PC BOOST" aria-current="true">IS</button>\n        <button class="guild-item" type="button" data-guild="2" aria-label="Сервер 2">S2</button>\n        <button class="guild-item" type="button" data-guild="3" aria-label="Сервер 3">S3</button>\n        <div class="rail-sep" role="separator" aria-hidden="true"></div>\n        <button class="rail-btn active" type="button" data-screen="chat" title="Чат 100k" aria-label="Чат" aria-current="page">💬</button>\n        <button class="rail-btn" type="button" data-screen="emoji" title="Эмодзи-пикер" aria-label="Эмодзи">😀</button>\n        <button class="rail-btn" type="button" data-screen="members" title="Участники 24k" aria-label="Участники">👥</button>\n        <button class="rail-btn" type="button" data-screen="settings" title="Настройки" aria-label="Настройки">⚙️</button>\n      </aside>\n\n      <div class="workspace">\n        <!-- 3. Дерево каналов 240px. -->\n        <aside id="channel-tree" class="tree" role="navigation" aria-label="Каналы сервера">\n          <header class="tree-header">\n            <h2 class="tree-guild">ITSKIDON PC BOOST</h2>\n            <button class="icon-btn" type="button" data-action="guild-menu" aria-label="Меню сервера" aria-haspopup="menu" aria-expanded="false">…</button>\n          </header>\n          <nav class="tree-scroll" aria-label="Список каналов">\n            <section class="channel-group">\n              <h3 class="channel-group-title">\n                <button class="group-toggle" type="button" aria-expanded="true">НОВОСТИ</button>\n              </h3>\n              <ul class="channel-list" role="list">\n                <li><button class="channel-item" type="button" aria-current="page"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">новости</span></button></li>\n                <li><button class="channel-item is-unread" type="button"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">объявления</span></button></li>\n              </ul>\n            </section>\n            <section class="channel-group">\n              <h3 class="channel-group-title">\n                <button class="group-toggle" type="button" aria-expanded="true">ГОЛОСОВЫЕ КАНАЛЫ</button>\n              </h3>\n              <ul class="channel-list" role="list">\n                <li><button class="channel-item" type="button"><span class="channel-icon" aria-hidden="true">🔊</span><span class="channel-name">Пекарня</span></button></li>\n              </ul>\n            </section>\n          </nav>\n          <!-- 4. Строка пользователя 56px. -->\n          <footer id="user-bar" class="user-bar">\n            <button class="user-profile" type="button" data-action="profile" aria-label="Профиль: ShadowByte, невидимый">\n              <span class="avatar avatar--sm" aria-hidden="true">SB</span>\n              <span class="user-meta"><span class="user-name">ShadowByte</span><span class="user-status">Невидимый</span></span>\n            </button>\n            <div class="user-actions">\n              <button class="icon-btn" type="button" data-action="mute" aria-label="Выключить микрофон" aria-pressed="false">🎙</button>\n              <button class="icon-btn" type="button" data-action="deafen" aria-label="Выключить звук" aria-pressed="false">🎧</button>\n              <button class="icon-btn" type="button" data-action="settings" aria-label="Настройки пользователя">⚙</button>\n            </div>\n          </footer>\n        </aside>\n\n        <main class="content">\n          <!-- 5. Шапка чата 49px (только экран chat). -->\n          <header id="chat-header" class="chat-header">\n            <button class="icon-btn" type="button" data-action="toggle-tree" aria-label="Свернуть каналы" aria-expanded="true">☰</button>\n            <h1 class="chat-title"><span class="hash" aria-hidden="true">#</span><span class="chat-title-text">новости</span></h1>\n            <div class="chat-actions">\n              <button class="icon-btn" type="button" data-action="threads" aria-label="Ветки">🧵</button>\n              <button class="icon-btn" type="button" data-action="inbox" aria-label="Уведомления" aria-disabled="true" title="Уведомления (Phase 3)">🔔</button>\n              <button class="icon-btn" type="button" data-action="pins" aria-label="Закреплённые сообщения">📌</button>\n              <button class="icon-btn" type="button" data-action="members" aria-label="Участники">👥</button>\n              <search class="search-field" role="search">\n                <input id="chat-search" class="search-input" type="search" placeholder="Поиск" aria-label="Поиск сообщений" autocomplete="off" />\n              </search>\n            </div>\n          </header>\n\n          <!-- 6. Экран chat: чат + панель участников. -->\n          <section id="screen-chat" class="screen active" role="region" aria-label="Чат" aria-hidden="false">\n            <div class="chat-main">\n              <div id="chat-list" class="list chat-list" tabindex="0" role="list" aria-label="Сообщения" aria-busy="false" data-row-height="44"></div>\n              <p class="chat-notice" role="note">Отправка недоступна в спайке (без сети)</p>\n              <div id="composer" class="composer" role="group" aria-label="Поле ввода сообщения">\n                <button class="icon-btn composer-attach" type="button" data-action="attach" aria-label="Прикрепить файл">＋</button>\n                <textarea id="composer-input" class="composer-input" rows="1" placeholder="Написать сообщение…" aria-label="Сообщение" aria-describedby="composer-hint"></textarea>\n                <button class="icon-btn" type="button" data-action="emoji" aria-label="Эмодзи" aria-haspopup="dialog" aria-expanded="false">😀</button>\n                <button class="icon-btn" type="button" data-action="gift" aria-label="Подарок" aria-disabled="true" title="Подарок (Phase 3): недоступно в спайке">🎁</button>\n              </div>\n              <p id="composer-hint" class="visually-hidden">Отправка сообщений в спайке отключена</p>\n            </div>\n            <aside id="member-panel" class="member-panel" role="complementary" aria-label="Участники сервера">\n              <h2 class="member-panel-title">Участники — <span id="member-online">735</span></h2>\n              <div id="member-panel-list" class="member-panel-list" role="list" aria-label="Участники в сети"></div>\n              <button class="member-panel-all" type="button" data-action="all-members">Показать всех</button>\n            </aside>\n          </section>\n\n          <!-- 7. Экран emoji: карточка 498×440. -->\n          <section id="screen-emoji" class="screen" role="region" aria-label="Эмодзи" aria-hidden="true">\n            <div class="emoji-wrap">\n              <div class="emoji-card" role="dialog" aria-modal="false" aria-label="Выбор эмодзи">\n                <div class="emoji-head">\n                  <search class="search-field" role="search">\n                    <input id="emoji-search" class="search-input" type="search" placeholder="Найдите идеальный эмодзи" aria-label="Поиск эмодзи" autocomplete="off" />\n                  </search>\n                  <button class="icon-btn" type="button" data-action="emoji-close" aria-label="Закрыть">✕</button>\n                </div>\n                <div class="emoji-body">\n                  <div id="emoji-tabs" class="emoji-tabs" role="tablist" aria-orientation="vertical" aria-label="Категории эмодзи"><!-- gen --></div>\n                  <!-- role=listbox + ячейки role=option — инвариант RW-38 (P1-2), frozen test.\n                       aria-colcount/aria-rowcount — атрибуты grid (D-05), вернуть вместе с role=grid. -->\n                  <div id="emoji-grid" class="emoji-grid" role="listbox" aria-label="Эмодзи"><!-- gen --></div>\n                </div>\n                <div class="emoji-preview" aria-live="polite"><span class="emoji-preview-glyph" aria-hidden="true">🙂</span><span class="emoji-preview-name">Выберите эмодзи</span></div>\n              </div>\n            </div>\n          </section>\n\n          <!-- 8. Экран members: тулбар + виртуализованный список. -->\n          <section id="screen-members" c'... 3512 more characters,
+    expected: /components\/net-status\.css/,
+    operator: 'match',
+    diff: 'simple'
+  }

@@ -1,0 +1,36 @@
+exit=0
+ok   | широкий shell (>=1600px) | --layout-tree-w-wide/--layout-member-panel-w-wide = 311px/256px
+ok   | titlebar | --layout-titlebar-h = 32px
+ok   | rail | --layout-rail-w = 64px
+ok   | tree | --layout-tree-w = 240px
+ok   | chat header | --layout-header-h = 49px
+ok   | composer | --layout-composer-h = 56px
+ok   | member panel | --layout-member-panel-w = 240px
+ok   | user bar | --layout-userbar-h = 56px
+ok   | tree header | --space-11 = 48px
+ok   | chat row track | --row-message-track = 44px
+ok   | chat line-height | --line-height-message = 22px
+ok   | chat group start (RE) | --row-message-start = 48px
+ok   | chat cozy (RE, справочно) | --row-message-cozy = 26px
+ok   | member row track | --row-member-track = 40px
+ok   | member row (panel) | --row-member = 42px
+ok   | channel row | --row-channel = 28px
+ok   | notice | --layout-group-title-h = 24px
+ok   | emoji card w | --emoji-picker-w = 498px
+ok   | emoji card h | --emoji-picker-h = 440px
+ok   | emoji rail | --emoji-rail-w = 48px
+ok   | emoji cell | --emoji-cell = 44px
+ok   | emoji gap | --emoji-gap = 4px
+ok   | emoji cols | --emoji-cols = 9
+ok   | avatar sm | --avatar-sm = 20px
+ok   | avatar md | --avatar-md = 32px
+ok   | avatar lg | --avatar-lg = 40px
+ok   | switch w | --switch-w = 40px
+ok   | switch h | --switch-h = 24px
+ok   | switch thumb | --switch-thumb = 18px
+ok   | settings nav | --settings-nav-w = 232px
+ok   | settings nav item | --settings-nav-item-h = 34px
+ok   | content max w | --layout-content-max-w = 720px
+
+все 31 геометрических значений в допуске
+geometry_exit=0

@@ -1,32 +1,34 @@
    Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
      Running tests/dbus_contract.rs (/tmp/opencode/target-w35a/debug/deps/dbus_contract-99c18c692882c751)
 
-running 21 tests
+running 23 tests
 INFO: ожидаемая ошибка connect: Connection refused (os error 111)
 test a01_parse_path_yields_path_and_no_abstract_name ... ok
 test a02_parse_abstract_keeps_raw_bytes_up_to_kernel_limit ... ok
-test a06_connect_missing_abstract_returns_error_without_panic ... ok
 test a03_parse_skips_unsupported_and_invalid_entries ... ok
+test a06_connect_missing_abstract_returns_error_without_panic ... ok
 test f01_unix_fd_value_round_trips_through_per_message_index ... ok
 test n01_bus_address_parse_accepts_path_and_rejects_unsupported ... ok
+test f13_build_rejects_more_than_max_unix_fds ... ok
 test f05_out_of_range_index_is_protocol_and_fds_are_closed ... ok
+test f11_duplicate_unix_fd_index_is_protocol_and_closes_fds ... ok
 test f06_control_truncation_is_protocol_and_closes_received_fds ... ok
 test n07b_notifications_signatures_match_libdbus_golden ... ok
 test n14_parse_rejects_truncated_and_corrupt_messages_without_panic ... ok
-test n04_header_body_boundary_is_aligned_and_padded_with_zeroes ... ok
 test n02b_external_auth_line_uses_hex_uid_from_proc_status ... ok
-test n05_parse_recovers_header_fields_and_body ... ok
+test n04_header_body_boundary_is_aligned_and_padded_with_zeroes ... ok
 test n03_marshal_round_trip_matches_libgio_bytes ... ok
+test n05_parse_recovers_header_fields_and_body ... ok
 test q08_hints_dict_matches_libgio_bytes_and_round_trips ... ok
 test a07_path_branch_still_connects_to_path_bus ... ok
+test a04_connect_abstract_bus_yields_unique_name ... ok
+test f07_plain_call_closes_fds_from_reply_and_reports_protocol ... ok
+test a05_call_over_abstract_bus_returns_mock_reply ... ok
 test f09_call_with_fds_sends_two_pipe_fds_to_service ... ok
 test f04_two_fds_in_one_reply_are_received_in_order_and_closed ... ok
-test f07_plain_call_closes_fds_from_reply_and_reports_protocol ... ok
-test a04_connect_abstract_bus_yields_unique_name ... ok
-test a05_call_over_abstract_bus_returns_mock_reply ... ok
 
-test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
      Running tests/power_contract.rs (/tmp/opencode/target-w35a/debug/deps/power_contract-62ad0570b6e8338f)
 
@@ -37,19 +39,19 @@ test p11_live_service_is_flag_gated_and_read_only ... ok
 INFO: live logind Inhibit: fd=3
 test f10_live_logind_inhibit_is_flag_gated_and_skip_aware ... ok
 test p12_missing_environment_is_skip_with_reason ... ok
-test f02_inhibit_sleep_returns_fd_and_journals_arguments ... ok
-test p10_closed_connection_returns_error_without_panic ... ok
-test f08_empty_why_is_protocol_and_never_reaches_bus ... ok
 test p09_inhibit_requires_app_name_and_reason ... ok
-test p06_prepare_for_sleep_maps_to_events ... ok
 test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
-test p07_foreign_signals_are_skipped ... ok
-test p04_is_active_reflects_mock_state ... ok
+test f02_inhibit_sleep_returns_fd_and_journals_arguments ... ok
+test f08_empty_why_is_protocol_and_never_reaches_bus ... ok
 test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
-test f03_drop_closes_inhibitor_fd_exactly_once ... ok
+test p04_is_active_reflects_mock_state ... ok
+test p10_closed_connection_returns_error_without_panic ... ok
+test p06_prepare_for_sleep_maps_to_events ... ok
+test p07_foreign_signals_are_skipped ... ok
 test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+test f03_drop_closes_inhibitor_fd_exactly_once ... ok
 test p08_next_event_timeout_is_none ... ok
 
-test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
 
 # EXIT=0

@@ -1,0 +1,602 @@
+{
+  "meta": {
+    "wave": "RW-39",
+    "role": "NET-A (RE: auth/network)",
+    "date": "2026-10-23",
+    "target": "Discord Desktop 1.0.162 (Linux, Electron 42.11.12, stable, build 641004)",
+    "mode": "read-only: no network, no Discord launch, no cargo, no writes outside waves/RW-39/NET",
+    "provenance": {
+      "D": "прямая цитата кода/артефакта (byte-offset в минифицированном файле или строка в доке)",
+      "M": "подтверждено живым CDP-захватом (docs/re/rest-d02.md, fixtures/gw-proto/facts-frozen.json)",
+      "T": "вывод/интерпретация, прямого доказательства нет"
+    },
+    "sources": [
+      {
+        "file": "/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0",
+        "what": "web.4d4b2f75fdea5470.js (12 410 287 Б) — web-бандл Discord 1.0.162, декодирован из HTTP-кэша",
+        "md5": "934b1289b7ebf17bc0fd09569b23b438"
+      },
+      {
+        "file": "/home/sanya/re-deep/decoded/8fed1c84bcaee32d_0",
+        "what": "assets/…js chunk 290966 — MFA UI (слайды totp/sms/webauthn/backup/password)",
+        "md5": "e0c020f12d8fe0fc6b90925736414f85"
+      },
+      {
+        "file": "/home/sanya/re-deep/decoded/43644898c0897078_0",
+        "what": "HTML страницы /login с window.GLOBAL_ENV",
+        "md5": "4fbb7d4afc37f27d16f65a66ba146d27"
+      },
+      {
+        "file": "/home/sanya/re-deep/decoded/dbd05750a1cb3484_0",
+        "what": "assets/ae9016b5ac149349.js — login-страница (формы, MFA-обёртка, handoff)",
+        "md5": "b581000d340631f5ffdada7d6c61797a"
+      },
+      {
+        "file": "/home/sanya/re-deep/asar-extract/core/bundle.js",
+        "what": "discord_desktop_core main process: safeStorage IPC, чтение токена из Local Storage",
+        "md5": "08edd888cca8426f0cbc6c3bb2edbf17"
+      },
+      {
+        "file": "/home/sanya/re-deep/out/bundles/discord.com_assets_fast-connect.7c1098d4887bc4b0.js",
+        "what": "assets/fast-connect.js — ранний IDENTIFY (is_fast_connect:true)",
+        "md5": "0fdec99340144310f131c7a9f68a7a4c"
+      },
+      {
+        "file": "/home/sanya/orca/project/docs/re/rest-d02.md",
+        "what": "живой REST/WS-захват (6654 req), auth-поток",
+        "md5": "c7e61929677efab6bdac86a05a778fce"
+      },
+      {
+        "file": "/home/sanya/orca/project/docs/re/gateway-protocol.md",
+        "what": "ETL/zstd/опкоды/READY по живому захвату",
+        "md5": "a766e52a585faf5eba2bf2dd2cde8abf"
+      },
+      {
+        "file": "/home/sanya/orca/project/fixtures/rest/rest-static.json",
+        "what": "статическая карта REST (904 записи) + секция auth",
+        "md5": "8e0ead46addbb2f54f143343d0de2108"
+      },
+      {
+        "file": "/home/sanya/orca/project/fixtures/gw-proto/facts-frozen.json",
+        "what": "снимок шлюзового трафика (HELLO, sent-кадры, op-счётчики)",
+        "md5": "6bf6aab01e04f27ea3ac2065465ed517"
+      }
+    ]
+  },
+
+  "base": {
+    "rest": "https://discord.com/api/v9",
+    "rest_derivation": "\"https:\" + window.GLOBAL_ENV.API_ENDPOINT + (e ? \"/v\" + API_VERSION : \"\")",
+    "global_env_live": {
+      "API_VERSION": 9,
+      "API_ENDPOINT": "//discord.com/api",
+      "GATEWAY_ENDPOINT": "wss://gateway.discord.gg",
+      "REMOTE_AUTH_ENDPOINT": "wss://remote-auth-gateway.discord.gg",
+      "CDN_HOST": "cdn.discordapp.com",
+      "MEDIA_PROXY_ENDPOINT": "//media.discordapp.net",
+      "BUILD_NUMBER": "641004",
+      "RELEASE_CHANNEL": "stable",
+      "NODE_ENV": "production"
+    },
+    "gateway_ws": "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream",
+    "auth_header_form": "сырой токен пользователя, без \"Bearer\"",
+    "captcha_services": ["hcaptcha", "recaptcha", "recaptcha_enterprise", "turnstile"]
+  },
+
+  "endpoints": [
+    {
+      "id": "AUTH-01",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "login": "string (email/phone/username)",
+        "password": "string",
+        "undelete": "boolean|undefined",
+        "login_source": "string|undefined (напр. \"account_revert\")",
+        "gift_code_sku_id": "string|undefined",
+        "headers": "при isMultiAccount: {authorization: \"\"} (пустой заголовок)"
+      },
+      "response_keys": ["mfa", "sms", "webauthn", "ticket", "token", "backup", "user_id", "required_actions", "totp", "login_instance_id"],
+      "opts": {"retries": 2, "oldFormErrors": true, "rejectWithError": true},
+      "prov": "D",
+      "source": "web.js @551777"
+    },
+    {
+      "id": "AUTH-02",
+      "method": "POST",
+      "path": "/auth/mfa/{mfaType}",
+      "request": {"code": "string", "ticket": "string", "login_source": "string|undefined", "gift_code_sku_id": "string|undefined", "login_instance_id": "string|undefined"},
+      "response_keys": ["token"],
+      "mfa_types": ["totp", "sms", "backup", "webauthn", "password"],
+      "opts": {"retries": 2},
+      "prov": "D",
+      "source": "web.js @553107; mfa chunk @6170,@7040"
+    },
+    {
+      "id": "AUTH-03",
+      "method": "POST",
+      "path": "/auth/mfa/sms/send",
+      "request": {"ticket": "string"},
+      "response_keys": ["phone"],
+      "note": "вызывается при открытии слайда SMS; повтор — кнопкой «отправить ещё раз»",
+      "prov": "D",
+      "source": "mfa chunk @4758"
+    },
+    {
+      "id": "AUTH-04",
+      "method": "POST",
+      "path": "/auth/passwordless/start",
+      "request": "{} (тело не задано)",
+      "response_keys": ["challenge", "ticket"],
+      "prov": "D",
+      "source": "web.js @553824 (f.YS)"
+    },
+    {
+      "id": "AUTH-05",
+      "method": "POST",
+      "path": "/auth/conditional/start",
+      "request": "{}",
+      "response_keys": ["challenge", "ticket"],
+      "note": "WebAuthn conditional UI (autofill passkey)",
+      "prov": "D",
+      "source": "web.js @276103; вызов через (0,f.YS)()"
+    },
+    {
+      "id": "AUTH-06",
+      "method": "POST",
+      "path": "/auth/conditional/finish",
+      "request": {"credential": "object (WebAuthn assertion)", "ticket": "string", "source": "string|undefined", "giftCodeSKUId": "string|undefined"},
+      "response_keys": ["token", "user_id", "required_actions"],
+      "opts": {"retries": 1},
+      "prov": "D",
+      "source": "web.js @553900 (loginWebAuthn)"
+    },
+    {
+      "id": "AUTH-07",
+      "method": "POST",
+      "path": "/auth/one-time-login",
+      "request": {"ticket": "string"},
+      "response_keys": ["token"],
+      "prov": "D",
+      "source": "web.js @555416 (oneTimeLogin)"
+    },
+    {
+      "id": "AUTH-08",
+      "method": "POST",
+      "path": "/auth/verify",
+      "request": {"token": "string (из письма)"},
+      "response_keys": ["token", "user_id"],
+      "prov": "D",
+      "source": "web.js @557023 (verify)"
+    },
+    {
+      "id": "AUTH-09",
+      "method": "POST",
+      "path": "/auth/verify/resend",
+      "request": "{} (тела нет)",
+      "prov": "D",
+      "source": "web.js @557532 (verifyResend)"
+    },
+    {
+      "id": "AUTH-10",
+      "method": "POST",
+      "path": "/auth/authorize-ip",
+      "request": {"token": "string"},
+      "prov": "D",
+      "source": "web.js @557413 (authorizeIPAddress)"
+    },
+    {
+      "id": "AUTH-11",
+      "method": "POST",
+      "path": "/auth/forgot",
+      "request": {"login": "string"},
+      "response_keys": ["method"],
+      "prov": "D",
+      "source": "web.js @558834 (forgotPassword)"
+    },
+    {
+      "id": "AUTH-12",
+      "method": "POST",
+      "path": "/auth/reset",
+      "request": {"token": "string", "password": "string", "source": "string|undefined", "code?": "string", "ticket?": "string", "method?": "string", "push_provider?": "string", "push_token?": "string", "push_voip_provider?": "string", "push_voip_token?": "string"},
+      "response_keys": ["mfa", "sms", "webauthn", "ticket", "token", "backup", "totp"],
+      "prov": "D",
+      "source": "web.js @558042-558505 (resetPassword / resetPasswordMFAv2)"
+    },
+    {
+      "id": "AUTH-13",
+      "method": "POST",
+      "path": "/auth/logout",
+      "request": {"provider": "string (push-провайдер)", "token": "PUSH-токен из localStorage (НЕ auth-токен)", "voip_provider": "string", "voip_token": "PUSH voip-токен"},
+      "headers_optional": {"authorization": "токен другого аккаунта при logout(userId)"},
+      "note": "поле token в теле — push-токен устройства; auth-токен уходит только в заголовке",
+      "prov": "D",
+      "source": "web.js @556041"
+    },
+    {
+      "id": "AUTH-14",
+      "method": "GET",
+      "path": "/users/@me",
+      "note": "используется как проба валидности токена: 401 → logout; также verifySSOToken",
+      "prov": "D+M",
+      "source": "web.js @556900; rest-d02.md §2 (3 вызова, 200)"
+    },
+    {
+      "id": "AUTH-15",
+      "method": "GET",
+      "path": "/auth/location-metadata",
+      "response_keys": ["consent_required", "country_code", "promotional_email_opt_in"],
+      "note": "если ответа нет за 5 с → консент считается обязательным",
+      "prov": "D",
+      "source": "web.js @559576 (getLocationMetadata)"
+    },
+    {
+      "id": "AUTH-16",
+      "method": "GET",
+      "path": "/auth/sessions",
+      "prov": "D",
+      "note": "объявлен в таблице эндпоинтов; вызова в захваченном коде нет",
+      "source": "web.js @303358"
+    },
+    {
+      "id": "AUTH-17",
+      "method": "POST",
+      "path": "/auth/sessions/logout",
+      "prov": "D",
+      "note": "объявлен; тело по статике fixtures/rest/rest-static.json: {session_id_hashes}",
+      "source": "web.js @303475; rest-static.json auth.session.logoutOthers"
+    },
+    {
+      "id": "AUTH-18",
+      "method": "POST",
+      "path": "/users/@me/remote-auth",
+      "note": "QR/remote-auth initiator (объявлен); поток в дампе не найден",
+      "prov": "D",
+      "source": "web.js @275654"
+    },
+    {
+      "id": "AUTH-19",
+      "method": "POST",
+      "path": "/users/@me/remote-auth/login",
+      "prov": "D",
+      "source": "web.js @275753"
+    },
+    {
+      "id": "AUTH-20",
+      "method": "POST",
+      "path": "/users/@me/remote-auth/finish",
+      "prov": "D",
+      "source": "web.js @275802"
+    },
+    {
+      "id": "AUTH-21",
+      "method": "POST",
+      "path": "/users/@me/remote-auth/cancel",
+      "prov": "D",
+      "source": "web.js @275702"
+    },
+    {
+      "id": "AUTH-22",
+      "method": "WS",
+      "path": "wss://remote-auth-gateway.discord.gg",
+      "prov": "D",
+      "note": "только URL из GLOBAL_ENV; протокол (v, fingerprint, handshake) в дампе отсутствует",
+      "source": "login HTML @2328"
+    },
+    {
+      "id": "AUTH-23",
+      "method": "GET",
+      "path": "/oauth2/authorize",
+      "request_query": {"client_id": "string", "response_type": "token", "scope": "identify ..."},
+      "note": "RPC-путь (локальные приложения), не пользовательский вход",
+      "prov": "D",
+      "source": "web.js @605580"
+    },
+    {
+      "id": "AUTH-24",
+      "method": "GET",
+      "path": "/users/@me/mfa/webauthn/credentials",
+      "note": "список ключей WebAuthn (настройки безопасности), не вход",
+      "prov": "D+M",
+      "source": "web.js @275980; rest-d02.md §2 #23 (200×3)"
+    },
+    {
+      "id": "AUTH-25",
+      "method": "POST",
+      "path": "/auth/register",
+      "note": "в desktop-клиенте есть форма регистрации; поля — по статике (rest-static.json): fingerprint,email,username,global_name,password,invite,consent,phone_token,date_of_birth,gift_code_sku_id,guild_template_code,promotional_email_opt_in",
+      "prov": "D",
+      "source": "web.js @275875"
+    },
+    {
+      "id": "AUTH-26",
+      "method": "GET",
+      "path": "/experiments?with_guild_experiments=true",
+      "note": "источник X-Fingerprint и installation: ответ {fingerprint, assignments, guild_experiments, installation}",
+      "prov": "D",
+      "source": "web.js @8974914 (AuthenticationStore.ee)"
+    }
+  ],
+
+  "headers": [
+    {
+      "id": "HDR-01",
+      "name": "Authorization",
+      "value": "<сырой токен>",
+      "when": "все запросы с относительным url, если заголовок ещё не задан (проверка и на \"Authorization\", и на \"authorization\")",
+      "prov": "D",
+      "live": "221 запрос с Authorization/authorization (rest-d02 §6.1)",
+      "source": "web.js @1002375"
+    },
+    {
+      "id": "HDR-02",
+      "name": "X-Super-Properties",
+      "value": "base64(JSON.stringify(superProperties))",
+      "prov": "D+M",
+      "live": "221/221, 22 ключа (rest-d02 §6.2)",
+      "source": "web.js @1002375, @9991807"
+    },
+    {
+      "id": "HDR-03",
+      "name": "X-Fingerprint",
+      "value": "значение из localStorage \"fingerprint\" (приходит из GET /experiments)",
+      "when": "только если непустое; в живом захвате отсутствовал",
+      "prov": "D+M",
+      "source": "web.js @1002447; rest-d02 §6.2/U-08"
+    },
+    {
+      "id": "HDR-04",
+      "name": "X-Installation-ID",
+      "value": "localStorage \"installation_id_v3\" (fallback \"analytics_installation\")",
+      "prov": "D",
+      "source": "web.js @1002529, @8974100"
+    },
+    {
+      "id": "HDR-05",
+      "name": "X-Discord-Locale",
+      "value": "текущая локаль клиента",
+      "prov": "D+M",
+      "source": "web.js @1002751"
+    },
+    {
+      "id": "HDR-06",
+      "name": "X-Discord-Timezone",
+      "value": "IANA-таймзона",
+      "prov": "D+M",
+      "source": "web.js @1002790 (q.A)"
+    },
+    {
+      "id": "HDR-07",
+      "name": "X-Debug-Options / X-Routing-Key",
+      "value": "опционально (debug/routing)",
+      "prov": "D",
+      "source": "web.js @1002895"
+    },
+    {
+      "id": "HDR-08",
+      "name": "x-client-trace-id",
+      "value": "трейс-id (только при включённом tracing)",
+      "prov": "D",
+      "source": "web.js @1003073"
+    },
+    {
+      "id": "HDR-09",
+      "name": "Accept-Language",
+      "value": "navigator.languages → \"ru;q=0.9,en;q=0.8…\"",
+      "when": "только isPlatformEmbedded (desktop)",
+      "prov": "D+M",
+      "source": "web.js @1002830"
+    },
+    {
+      "id": "HDR-10",
+      "name": "X-Context-Properties",
+      "value": "base64(JSON контекста вызова)",
+      "prov": "D+M",
+      "live": "8 запросов на 3 маршрутах",
+      "source": "web.js @10693826; rest-d02 §6.2"
+    },
+    {
+      "id": "HDR-11",
+      "name": "X-Failed-Requests",
+      "value": "число ретраев",
+      "prov": "D",
+      "source": "web.js @10693890"
+    },
+    {
+      "id": "HDR-12",
+      "name": "X-Audit-Log-Reason",
+      "value": "encodeURIComponent(reason)",
+      "prov": "D",
+      "source": "web.js @10693523"
+    },
+    {
+      "id": "HDR-13",
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36",
+      "note": "приложение не задаёт UA — его подставляет Electron; значение видно в super-properties.browser_user_agent",
+      "prov": "D+M",
+      "source": "rest-d02 §6.2; grep setUserAgent = 0"
+    },
+    {
+      "id": "HDR-14",
+      "name": "Cookie",
+      "value": "приложение не ставит Cookie вручную; cookies сессии/CF живут в сетевом слое Electron",
+      "prov": "M+T",
+      "note": "CDP не отдаёт Cookie-заголовки; строк __dcfduid/__sdcfduid/__cfruid в бандле нет",
+      "source": "rest-d02 §6.1/U-05"
+    },
+    {
+      "id": "HDR-15",
+      "name": "Content-Type",
+      "value": "application/json",
+      "when": "только у запросов с телом (13 из 133 в захвате)",
+      "prov": "D+M",
+      "source": "rest-d02 §6.1"
+    }
+  ],
+
+  "superProperties": {
+    "id": "SP-01",
+    "meaning": "X-Super-Properties = base64(JSON), не URL-encoding",
+    "fields_static": {
+      "os": "Linux",
+      "browser": "Discord Client",
+      "release_channel": "stable",
+      "client_version": "app.getVersion() → 1.0.162",
+      "os_version": "kernel release",
+      "os_arch": "x64",
+      "app_arch": "x64",
+      "system_locale": "локаль ОС",
+      "has_client_mods": "детект модов клиента",
+      "client_launch_id": "UUID запуска",
+      "browser_user_agent": "navigator.userAgent",
+      "browser_version": "версия Electron",
+      "window_manager": "из crashReporter.getMetadata() (linux)",
+      "distro": "из crashReporter.getMetadata() (linux)",
+      "runtime_environment": "native|…",
+      "display_server": "wayland|x11",
+      "client_build_number": 641004,
+      "native_build_number": "app.getBuildNumber() (=94186 в живом снимке)",
+      "client_event_source": "null | OVERLAY",
+      "install_source": "опционально",
+      "launch_signature": "UUID, задаётся при старте",
+      "client_heartbeat_session_id": "UUID, обновляется перед каждым запросом",
+      "client_app_state": "focused|unfocused|…"
+    },
+    "deviceProperties_cache": "localStorage \"deviceProperties\" + \"devicePropertiesVersion\"=1 (os/browser/device/device_model_name/system_locale/has_client_mods)",
+    "referral_properties_cache": "localStorage \"referralProperties\" (referrer, referring_domain, utm_*, search_engine, mp_keyword)",
+    "prov": "D+M",
+    "source": "web.js @9996374-10000825; rest-d02 §6.2 (22 ключа живьём)"
+  },
+
+  "identify": {
+    "op": 2,
+    "payload": {
+      "token": "сырой пользовательский токен",
+      "capabilities": "1734653 (0x1a77fd) | 1767421 (0x1af7fd) при включённой обфускации приватных каналов (бит 15 = 0x8000)",
+      "properties": "superProperties + client_app_state + is_fast_connect:false + gateway_connect_reasons + installation_id?",
+      "presence": "{status, since, activities, afk}",
+      "compress": "false (usesLegacyCompression() == false для zstd-stream/zlib-stream/none)",
+      "client_state": "{guild_versions, highest_last_message_id?, read_state_version?, user_guild_settings_version?, user_settings_version?, private_channels_version?, api_code_version?, initial_guild_id?}",
+      "qos_token": "protobuf QosToken (client-provided + derived)"
+    },
+    "absent_fields": ["intents", "shard"],
+    "fast_connect_payload": {
+      "token": "из localStorage \"token\" (расшифрован)",
+      "capabilities": "те же константы",
+      "properties": "superProperties + is_fast_connect:true + installation_id",
+      "client_state": "{guild_versions:{}}",
+      "absent": ["presence", "compress", "qos_token"]
+    },
+    "prov": "D",
+    "source": "web.js @5018924, @4907605; fast-connect.js @30209"
+  },
+
+  "gateway": {
+    "url_source": "window.GLOBAL_ENV.GATEWAY_ENDPOINT",
+    "url_params": ["encoding=etf", "v=9", "compress=zstd-stream|zlib-stream"],
+    "encoding": "erlang ETF (erlpack); fallback json при отсутствии модуля",
+    "compression_selection": "discord_zstd → zstd-stream; DCDCompressionManager → zstd-stream|zlib-stream; иначе none",
+    "hello_heartbeat_interval_ms": 41250,
+    "heartbeat_send": {"op": 40, "d": "{seq, qos}", "note": "op1 клиент НЕ отправляет; op1 от сервера — триггер немедленного heartbeat"},
+    "resume": {"op": 6, "d": "{token, session_id, seq}", "condition": "sessionId != null && (lastHeartbeatAck == null || now - lastHeartbeatAck <= 3 min)"},
+    "resume_url": "READY.resume_gateway_url (после READY заменяет GATEWAY_ENDPOINT, обрезается хвостовой '/')",
+    "close_codes": {"4004": "auth failure → CLOSED без ретрая и logout", "op7": "RECONNECT → close(4000) + reconnect", "op9": "INVALID_SESSION: d=true → resume, иначе identify"},
+    "rate_limit_close": "4499/4008 в коде клиента не обрабатываются отдельно (backoff общий)",
+    "backoff": "gatewayBackoff: fail → 1 s..60 s, успех сбрасывает",
+    "prov": "D+M",
+    "source": "web.js @5007598-5020600; fast-connect.js; facts-frozen.json"
+  },
+
+  "token": {
+    "storage": {
+      "localStorage_keys": ["token", "tokens", "__analytics__"],
+      "multi_account": "tokens = {userId: encryptedToken}",
+      "encrypted_prefix": "dQw4w9WgXcQ:",
+      "encryption": "window.DiscordNative.safeStorage.encryptString/decryptString (IPC → Electron safeStorage → keyring ОС)",
+      "plaintext_fallback": "если isEncryptionAvailable() == false или значения без префикса — токен лежит в localStorage как есть",
+      "rewrite_to_encrypted": "только encryptAndStoreTokens() на CONNECTION_OPEN и только isWindows()||isMac()"
+    },
+    "format": {
+      "regex_core": "[\\w-]{24,}\\.[\\w-]{6,}\\.[\\w-]{27,}",
+      "structure": "3 сегмента через '.', base64url-подобные",
+      "provider_regex": "\"(dQw4w9WgXcQ:[A-Za-z0-9+/=]+)\" в leveldb",
+      "prov": "D",
+      "source": "core/bundle.js @186263, @185907"
+    },
+    "read_path": "Local Storage/leveldb → safeStorage.decryptString(base64) → plain token",
+    "lifetime": "не задаётся клиентом; refresh-эндпоинта и refresh_token в бандле нет → токен долгоживущий, отзывается сервером",
+    "revoke": ["POST /auth/logout", "смена пароля", "gateway close 4004", "ручной отзыв в настройках"],
+    "hide_from_devtools": "hideToken()/showToken() при открытии/закрытии DevTools (убирает значение из storage)",
+    "prov": "D+T",
+    "source": "web.js @11843989; core/bundle.js @95372,@185388"
+  },
+
+  "errors": {
+    "retry_statuses": [502, 504, 507, 598, 599, 522, 523, 524],
+    "rate_limit_statuses": [429, 503],
+    "rate_limit_algo": "per-URL очередь: retry-after (сек) или 5 с по умолчанию; exp backoff 1 s..60 s; повтор после истечения",
+    "form_errors": "50035 INVALID_FORM_BODY + oldFormErrors → плоский список полей",
+    "captcha_flow": "400 + body.captcha_key → показ капчи (hcaptcha/recaptcha/recaptcha_enterprise/turnstile) → повтор с X-Captcha-Key / X-Captcha-Rqtoken / X-Captcha-Session-Id",
+    "mfa_step_up": "401 + code 60003 MFA_REQUIRED + body.mfa → MFA-модалка",
+    "auth_codes": {
+      "40001": "UNAUTHORIZED",
+      "40002": "EMAIL_VERIFICATION_REQUIRED",
+      "50014": "INVALID_TOKEN",
+      "50018": "INVALID_PASSWORD",
+      "50022": "INVALID_PHONE_NUMBER",
+      "50035": "INVALID_FORM_BODY",
+      "60003": "MFA_REQUIRED",
+      "60006": "MFA_INVALID_TICKET",
+      "60008": "MFA_INVALID_CODE",
+      "60009": "MFA_INVALID_SESSION",
+      "70007": "PHONE_VERIFICATION_REQUIRED",
+      "20011": "ACCOUNT_SCHEDULED_FOR_DELETION",
+      "20013": "ACCOUNT_DISABLED",
+      "10012": "UNKNOWN_TOKEN",
+      "10020": "UNKNOWN_SESSION"
+    },
+    "login_retries": 2,
+    "prov": "D+M",
+    "source": "web.js @10692340-10696500, @1004547, @315000-330000; rest-d02.md"
+  },
+
+  "live_observations": {
+    "auth_endpoints_in_capture": 0,
+    "authorization_requests": 221,
+    "full_auth_header_set": 133,
+    "x_fingerprint_present": false,
+    "cookie_header_present": false,
+    "login_flow_captured": false,
+    "gateway_identify_frame_bytes": 943,
+    "gateway_resume_frame_bytes": [173, 176],
+    "gateway_heartbeat_frame_bytes": 90,
+    "hello_interval_ms": 41250,
+    "source": "docs/re/rest-d02.md; fixtures/gw-proto/facts-frozen.json"
+  },
+
+  "gaps": [
+    "Живой вызов /auth/login (запрос+ответ) не захвачен: ни одного /api/v9/auth/* в 6654 запросах (rest-d02 U-02).",
+    "QR/remote-auth: есть только endpoint-имена, GLOBAL_ENV.REMOTE_AUTH_ENDPOINT и route /ra/:fingerprint; протокол WS (v, handshake, fingerprint) в дампе отсутствует.",
+    "TOTP/SMS/backup-коды: UI-слайды есть, серверные TTL тикета/кода неизвестны.",
+    "Срок жизни пользовательского токена и правила отзыва — только серверные; в клиенте нет ни refresh, ни expiry-логики.",
+    "Реальное значение X-Fingerprint и момент его выдачи (ответ /experiments) живьём не пойманы.",
+    "Cookie __dcfduid/__sdcfduid/__cfruid: CDP не отдаёт Cookie; в бандле строк нет.",
+    "Тела ответов REST (включая /users/@me, /auth/login) в захвате отсутствуют (rest-d02 U-01).",
+    "Кто создаёт window._ws для fast-connect — в извлечённом JS не найдено (предположительно native/preload).",
+    "Точные серверные лимиты на /auth/login (попытки/IP/аккаунт) неизвестны; клиент делает retries:2.",
+    "Использование /auth/sessions и /auth/sessions/logout в UI-коде не найдено (только объявления эндпоинтов).",
+    "OAuth2-выдача токена приложению (bot/implicit) в desktop-клиенте не реализована — только /oauth2/authorize для RPC."
+  ],
+
+  "risks": [
+    "ToS: Discord запрещает сторонние клиенты для пользовательских аккаунтов — риск блокировки аккаунта; допустим только импорт собственного токена владельца с явным согласием и/или bot/OAuth2.",
+    "Токен = полный доступ к аккаунту: хранить только в keyring, не логировать, не передавать в UI/телеметрию.",
+    "Автоматизация входа паролем/капчи/MFA-кодов недопустима (и технически упирается в капчу) — вне scope.",
+    "Подделка X-Fingerprint/UA/супер-свойств под официальный клиент — запрещена уставом (NET §2.1); X-Fingerprint выдаётся сервером, форджить его бессмысленно и рискованно.",
+    "Игнорирование 429/503 и параллельные логины ведут к IP/аккаунт-блокировкам; нужен backoff и очередь per-URL.",
+    "Хранение тикета MFA дольше шага входа повышает риск перехвата; тикет одноразовый и короткоживущий.",
+    "Мультиаккаунт-автоматизация (переключение токенов) — повышенный риск блокировки.",
+    "Прокси-ротация, обход капчи, «анти-детект» — запрещены; обнаружение таких практик ведёт к бану и отзыву токенов."
+  ]
+}

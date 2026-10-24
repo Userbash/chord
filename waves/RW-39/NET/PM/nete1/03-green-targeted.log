@@ -1,0 +1,45 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/gateway_supervisor.rs (target/debug/deps/gateway_supervisor-161111e33d133230)
+
+running 10 tests
+test backoff_doubles_caps_and_resets ... ok
+test close_codes_match_adr_policy ... ok
+test supervisor_stops_on_close_4004 ... ok
+test supervisor_stops_on_close_4013_and_4014 ... ok
+test supervisor_identify_matches_re_capture ... ok
+test supervisor_reconnect_limit_stops ... ok
+test supervisor_op9_false_identifies ... ok
+test supervisor_op7_resumes_and_uses_resume_url ... ok
+test supervisor_op9_true_resumes ... ok
+test supervisor_cancels ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+EXIT=0
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/ws_transport.rs (target/debug/deps/ws_transport-57c060d4c435fbce)
+
+running 19 tests
+test gateway_url_builds_canonical_endpoint ... ok
+test gateway_url_rejects_bad_input ... ok
+test gateway_url_normalizes_resume_url ... ok
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test pipe_hello_from_encoded_stream ... ok
+test qos_heartbeat_encode_shape ... ok
+test ws_closed_after_stub_close ... ok
+test ws_text_messages_counted ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_legacy_heartbeat_op1_fallback ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_server_op1_triggers_immediate_qos_heartbeat ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+EXIT=0

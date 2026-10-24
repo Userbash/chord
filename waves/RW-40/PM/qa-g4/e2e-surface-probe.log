@@ -1,0 +1,15 @@
+--- cdp clicktext
+Неизвестная команда cdp: clicktext
+EXIT=1
+--- cdp eval
+Неизвестная команда cdp: eval
+EXIT=1
+--- cdp list
+Неизвестная команда cdp: list
+EXIT=1
+--- walk fixture
+Команда walk появится в M3.
+EXIT=2
+--- domains
+Команда domains появится в M4.
+EXIT=2

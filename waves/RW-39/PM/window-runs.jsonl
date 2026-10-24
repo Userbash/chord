@@ -1,0 +1,23 @@
+{"ts":"2026-10-23T17:45:55.124Z","key":"fac90f0dfe60f8ff2db920cbad747c41e3c66e930bd365b186a806483d323924","reason":"acceptance E9 merge gate (gate:release + one live probe)"}
+{"ts":"2026-10-23T17:51:22.695Z","key":"f0ef664967064f392d1542254d5b56a36822e099662fbdcac077307b0ece400f","reason":"retry gate:release after W39h4 (typecheck/probe fix)"}
+{"ts":"2026-10-23T17:53:36.272Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: probe depth 14->24 (AT-SPI toggles behind wrappers)"}
+{"ts":"2026-10-23T17:54:12.917Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: AT-SPI roles on settings screen"}
+{"ts":"2026-10-23T17:54:33.799Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: click settings by glyph, dump roles"}
+{"ts":"2026-10-23T17:54:52.273Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: role-aware rail + wait for settings pane"}
+{"ts":"2026-10-23T17:55:24.203Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: probe alone with full output"}
+{"ts":"2026-10-23T17:55:41.090Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: settings click + tree dump"}
+{"ts":"2026-10-23T17:56:44.671Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: expand sounds + toggle roles"}
+{"ts":"2026-10-23T17:56:55.151Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"diagnostic: toggle state re-check by role"}
+{"ts":"2026-10-23T17:57:04.348Z","key":"cfd649596695ecef8033f34ab69f0df74d33a680eb0a883ad38b6c6432b8bd81","reason":"gate retry after probe fix (38 toggles / expand sounds)"}
+{"ts":"2026-10-23T19:58:46.214Z","key":"449d3013f03c337559eb0543a770c089c92dbd0898b13d547203a520f52a39b7","reason":"auth UI integration gate (A4)"}
+{"ts":"2026-10-23T19:59:10.956Z","key":"449d3013f03c337559eb0543a770c089c92dbd0898b13d547203a520f52a39b7","reason":"diagnostic: auth gate in live probe"}
+{"ts":"2026-10-23T19:59:40.807Z","key":"3654f82b23c80e33f60e5aaa358cf2a2e0bdb2434337d04b6ec11d6a1c013d35","reason":"auth-disabled hook for live frame smoke"}
+{"ts":"2026-10-23T20:00:21.741Z","key":"3654f82b23c80e33f60e5aaa358cf2a2e0bdb2434337d04b6ec11d6a1c013d35","reason":"typecheck fix + auth-disabled live frame"}
+{"ts":"2026-10-23T20:10:27.473Z","key":"095918c63417ef92ee0ea8896bf7b39e26fa33bd71c9ad8428370deb2e5d9cf3","reason":"post-security gate (auth/net)"}
+{"ts":"2026-10-23T20:22:38.063Z","key":"df87ffa6c643f6bdcf256b8b1f5fd345252eacd28743079fd020bc9364e04245","reason":"B1b composer send + auth gate smoke"}
+{"ts":"2026-10-23T20:23:15.906Z","key":"df87ffa6c643f6bdcf256b8b1f5fd345252eacd28743079fd020bc9364e04245","reason":"typecheck fix for composer tests"}
+{"ts":"2026-10-24T04:57:14.207Z","key":"0e5aa0dd4ff759f12f0df4cb44de87bb1da18ff8f0255dbab4d052078e379cd1","reason":"B3b UI reactions green"}
+{"ts":"2026-10-24T04:57:54.835Z","key":"0e5aa0dd4ff759f12f0df4cb44de87bb1da18ff8f0255dbab4d052078e379cd1","reason":"typecheck fix B3b test"}
+{"ts":"2026-10-24T05:06:59.867Z","key":"9f5e0fead6a78650475295567f03bc8a22a334336cc246cd9f1dd1a9a8bd015d","reason":"B4b UI message menu green"}
+{"ts":"2026-10-24T05:13:36.024Z","key":"16f72a847d39aed205ab19947b8a3017e5e259de59d134938a0b8c602c78670c","reason":"B6 QuickSwitcher green"}
+{"ts":"2026-10-24T05:45:42.085Z","key":"4ad05f34a1c96693eb06361df3dc2f5a0907a3b894954f7ad7281c3ba99098e1","reason":"B7b + UI-FIX-1 green"}

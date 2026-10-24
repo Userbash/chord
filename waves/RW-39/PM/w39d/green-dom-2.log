@@ -1,0 +1,49 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (24.977601ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (4.506938ms)
+  ✔ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (5.957568ms)
+  ✔ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (4.337468ms)
+  ✔ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (4.120999ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (5.250028ms)
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.132079ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.595588ms)
+  ✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (4.217109ms)
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (4.631618ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (3.863969ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, все включены (4.268788ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.618279ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (2.399169ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (5.914818ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (4.093209ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (7.886537ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (3.464579ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.581348ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (3.533569ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (4.622558ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (112.566579ms)
+ℹ tests 21
+ℹ suites 1
+ℹ pass 20
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 149.937395
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:395:3
+✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (4.217109ms)
+  AssertionError [ERR_ASSERTION]: сетка не перерисовалась на другую категорию
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:418:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:396:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '😀',
+    expected: '😀',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

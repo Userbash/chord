@@ -1,0 +1,7 @@
+ef633a2e43a213927e7cd3a5f9db54f4  scripts/gui-window-probe.py
+7321007b3b414648997a646409167fd4  tests/smoke/gui-spike.smoke.test.mjs
+3c41c820626e2260ef7ea69df3fb9018  tests/smoke/gui-window.smoke.test.mjs
+9cad6d87bfcfa4936367d24b91c36c94  rust/gui-spike/tests/launch.rs
+295b63b2fa5add22d4c6b787bfad1f28  rust/gui-spike/ui/index.html
+c056c93af87d65b7534ad373f51e5b63  rust/gui-spike/ui/app.js
+9a12bb77880f7f70f0781c9f31874e5f  tests/unit/gui-spike-dom.test.mjs

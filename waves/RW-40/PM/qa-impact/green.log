@@ -1,0 +1,30 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.382227ms)
+✔ test-impact: docs → docs-sync (0.874224ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.099671ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.528324ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (0.744915ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.240999ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.090832ms)
+✔ test-impact: rust/crates/discord-core (0.436632ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ даёт полный frontend-контракт и геометрию (0.163066ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.261227ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.158127ms)
+✔ test-impact: src/cli (0.22549ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный файл уходит в meta plan-sync (0.108751ms)
+  ✔ --full даёт tier T2 и offline release-набор (16.380837ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (16.57501ms)
+✔ test-impact: fallback и tier (33.180917ms)
+ℹ tests 10
+ℹ suites 6
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67.310753

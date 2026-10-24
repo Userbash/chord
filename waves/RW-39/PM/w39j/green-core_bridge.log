@@ -1,0 +1,14 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.36s
+     Running tests/core_bridge.rs (rust/gui-spike/target/debug/deps/core_bridge-9ecb31d8adc00984)
+
+running 6 tests
+test non_numeric_id_is_parse_error_not_panic ... ok
+test row_conversion_maps_contract_fields ... ok
+test sanitized_negative_ids_are_rejected_as_parse ... ok
+test first_page_ids_and_order_match_bff ... ok
+test empty_channel_page_is_valid ... ok
+test pagination_is_stable_forward_and_on_repeat ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+

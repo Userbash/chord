@@ -1,0 +1,129 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (12.482175ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (4.686975ms)
+  ✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.031135ms)
+  ✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (4.034625ms)
+  ✖ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (4.777974ms)
+  ✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (5.204374ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (5.168663ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (4.025555ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (3.537606ms)
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (3.808186ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (3.275316ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, все включены (3.747016ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.799536ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (3.178887ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (3.951525ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (2.625257ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (6.246162ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (7.027741ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.188216ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (3.114327ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (4.201875ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (96.495023ms)
+ℹ tests 21
+ℹ suites 1
+ℹ pass 16
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 132.19084
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:244:3
+✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.031135ms)
+  AssertionError [ERR_ASSERTION]: sizer чата не равен сумме высот 26/48/+22
+  + actual - expected
+  
+  + 4400000
+  - 3375060
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:247:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:245:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4400000,
+    expected: 3375060,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:268:3
+✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (4.034625ms)
+  AssertionError [ERR_ASSERTION]: строка 0: высота не 48px (D-04)
+  
+  '44px' !== '48px'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:284:16
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:269:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '44px',
+    expected: '48px',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:308:3
+✖ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (4.777974ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 969160
+  - 1017618
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:313:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:309:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 969160,
+    expected: 1017618,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:328:3
+✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (5.204374ms)
+  AssertionError [ERR_ASSERTION]: окно не содержит 300
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:343:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:329:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:360:3
+✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (5.168663ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(Math.min(...indices) <= 60_000 && Math.max(...indices) >= 60_000)
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:371:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:361:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

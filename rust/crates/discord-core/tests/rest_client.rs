@@ -8,8 +8,11 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiError, ApiRetryPolicy};
+use discord_core::rest::client::{
+    ApiAuth, ApiAuthError, ApiClient, ApiConfig, ApiError, ApiRetryPolicy, AuthScheme,
+};
 use discord_core::rest::routes::HttpMethod;
+use discord_core::rest::super_properties::SuperProperties;
 use discord_core::rest::transport::{HttpClientConfig, HttpError, HttpRequest};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
@@ -632,5 +635,309 @@ fn debug_redacts_authorization() {
     assert!(
         !text.contains("Bot test-token"),
         "токен утёк в Debug ApiClient: {text}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// NET-C1 (RW-39): ApiAuth из токена, redaction запроса
+// ---------------------------------------------------------------------------
+
+/// Супер-свойства с непустым base64 (значения не важны — важна связка с заголовком).
+fn super_properties() -> SuperProperties {
+    SuperProperties {
+        os: "Linux".to_string(),
+        browser: "Discord Client".to_string(),
+        release_channel: "stable".to_string(),
+        client_version: "0.1.0".to_string(),
+        ..SuperProperties::default()
+    }
+}
+
+const USER_TOKEN: &str = "super-secret-user-token";
+
+#[test]
+fn from_token_builds_six_non_empty_headers() {
+    let sp = super_properties();
+    let auth = ApiAuth::from_token(USER_TOKEN, &sp, "ru", "Asia/Yekaterinburg")
+        .expect("валидные входные данные");
+
+    let pairs = auth.pairs();
+    assert_eq!(
+        pairs.map(|(name, _)| name),
+        [
+            "Authorization",
+            "X-Super-Properties",
+            "X-Discord-Locale",
+            "X-Discord-Timezone",
+            "X-Debug-Options",
+            "Accept-Language",
+        ],
+        "порядок заголовков — контракт живого захвата"
+    );
+    for (name, value) in pairs {
+        assert!(!value.is_empty(), "заголовок {name} пуст");
+    }
+    assert_eq!(auth.authorization, USER_TOKEN);
+    assert_eq!(auth.super_properties, sp.to_base64());
+    assert_eq!(auth.locale, "ru");
+    assert_eq!(auth.timezone, "Asia/Yekaterinburg");
+    assert_eq!(
+        auth.debug_options, "bugReporterEnabled",
+        "значение из живого захвата D-02"
+    );
+}
+
+#[test]
+fn from_token_trims_token_and_rejects_empty_inputs() {
+    let sp = super_properties();
+    let auth = ApiAuth::from_token("  token-with-spaces  ", &sp, "en-US", "UTC")
+        .expect("пробелы по краям обрезаются");
+    assert_eq!(auth.authorization, "token-with-spaces");
+
+    assert_eq!(
+        ApiAuth::from_token("", &sp, "ru", "UTC").expect_err("пустой токен"),
+        ApiAuthError::EmptyToken
+    );
+    assert_eq!(
+        ApiAuth::from_token("   ", &sp, "ru", "UTC").expect_err("пробельный токен"),
+        ApiAuthError::EmptyToken
+    );
+    assert_eq!(
+        ApiAuth::from_token(USER_TOKEN, &sp, "", "UTC").expect_err("пустая локаль"),
+        ApiAuthError::EmptyLocale
+    );
+    assert_eq!(
+        ApiAuth::from_token(USER_TOKEN, &sp, "ru", "").expect_err("пустая таймзона"),
+        ApiAuthError::EmptyTimezone
+    );
+}
+
+#[test]
+fn from_token_scheme_is_parameterized() {
+    let sp = super_properties();
+
+    let bot = ApiAuth::from_token_with_scheme("abc", AuthScheme::Bot, &sp, "en-US", "UTC")
+        .expect("bot-схема");
+    assert_eq!(bot.authorization, "Bot abc");
+
+    let bearer = ApiAuth::from_token_with_scheme("abc", AuthScheme::Bearer, &sp, "en-US", "UTC")
+        .expect("bearer-схема");
+    assert_eq!(bearer.authorization, "Bearer abc");
+
+    // TODO(NET-A): схема user-токена в захвате санитизирована (U-06), по умолчанию — сырой
+    // токен (статическая карта клиента). После подтверждения схема фиксируется здесь.
+    assert_eq!(AuthScheme::default(), AuthScheme::User);
+}
+
+#[test]
+fn from_token_debug_hides_token() {
+    let auth = ApiAuth::from_token(USER_TOKEN, &super_properties(), "ru", "UTC")
+        .expect("валидные входные данные");
+    let text = format!("{auth:?}");
+    assert!(!text.contains(USER_TOKEN), "токен утёк в Debug: {text}");
+    assert!(text.contains("<redacted>"), "ожидалась маскировка: {text}");
+}
+
+#[test]
+fn http_request_debug_redacts_authorization_and_cookie() {
+    let request = HttpRequest::new(HttpMethod::Get, "/users/@me")
+        .header("Authorization", USER_TOKEN)
+        .header("Cookie", "session=secret-cookie")
+        .header("X-Super-Properties", "sp-base64");
+
+    let text = format!("{request:?}");
+    assert!(!text.contains(USER_TOKEN), "Authorization утёк: {text}");
+    assert!(!text.contains("secret-cookie"), "Cookie утёк: {text}");
+    assert_eq!(
+        text.matches("<redacted>").count(),
+        2,
+        "оба секретных заголовка маскируются: {text}"
+    );
+    assert!(
+        text.contains("X-Super-Properties") && text.contains("sp-base64"),
+        "несекретные заголовки остаются видимыми: {text}"
+    );
+}
+
+#[tokio::test]
+async fn from_token_headers_reach_network() {
+    let (port, server) = spawn_sequence(vec![response("200 OK", "{}")]).await;
+    let auth = ApiAuth::from_token(USER_TOKEN, &super_properties(), "ru", "Asia/Yekaterinburg")
+        .expect("валидные входные данные");
+    let client = client_for(port, auth, policy());
+
+    timeout(CASE_TIMEOUT, client.get("/users/@me"))
+        .await
+        .expect("timeout")
+        .expect("ответ");
+
+    let raw = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    let text = String::from_utf8_lossy(&raw[0]);
+    assert!(text.contains("Authorization: super-secret-user-token"));
+    let head = text.split("\r\n\r\n").next().expect("голова запроса");
+    for name in [
+        "Authorization",
+        "X-Super-Properties",
+        "X-Discord-Locale",
+        "X-Discord-Timezone",
+        "X-Debug-Options",
+        "Accept-Language",
+    ] {
+        let line = head
+            .lines()
+            .find(|line| {
+                line.split_once(':')
+                    .is_some_and(|(field, _)| field.eq_ignore_ascii_case(name))
+            })
+            .unwrap_or_else(|| panic!("нет заголовка {name}: {text}"));
+        let (_, value) = line.split_once(':').expect("пара имя:значение");
+        assert!(!value.trim().is_empty(), "заголовок {name} пуст: {text}");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// RW-39 / NET-F1 (NF-01): POST с JSON-телом и одноразовый POST для /auth/*
+// ---------------------------------------------------------------------------
+
+#[tokio::test]
+async fn post_sends_json_body_with_auth_headers_and_no_duplicate() {
+    let (port, server) = spawn_sequence(vec![response("200 OK", r#"{"token":"t"}"#)]).await;
+    let client = client_for(port, auth(), policy());
+
+    let body = br#"{"login":"user@example.test","password":"secret"}"#;
+    let result = timeout(CASE_TIMEOUT, client.post("/auth/login", body))
+        .await
+        .expect("timeout")
+        .expect("ответ POST");
+    assert_eq!(result.status, 200);
+    assert_eq!(result.body, br#"{"token":"t"}"#.to_vec());
+
+    let raw = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    assert_eq!(raw.len(), 1, "POST делает одну попытку при 200");
+    let text = String::from_utf8_lossy(&raw[0]);
+    assert!(
+        text.starts_with("POST /auth/login HTTP/1.1"),
+        "метод/путь: {text}"
+    );
+    assert!(
+        text.contains("Content-Type: application/json\r\n"),
+        "JSON-тело объявляет content-type: {text}"
+    );
+    assert!(
+        text.contains(&format!("Content-Length: {}\r\n", body.len())),
+        "длина тела: {text}"
+    );
+    assert!(
+        text.ends_with(std::str::from_utf8(body).expect("utf8")),
+        "тело доехало целиком: {text}"
+    );
+    assert!(
+        text.contains("Authorization: Bot test-token"),
+        "auth-заголовки те же, что у GET: {text}"
+    );
+    assert_eq!(
+        text.matches("Authorization:").count(),
+        1,
+        "auth-заголовок не дублируется"
+    );
+}
+
+#[tokio::test]
+async fn post_classifies_client_error_like_execute() {
+    let (port, server) = spawn_sequence(vec![response("401 Unauthorized", "{}")]).await;
+    let client = client_for(port, auth(), policy());
+
+    let error = timeout(CASE_TIMEOUT, client.post("/auth/login", b"{}"))
+        .await
+        .expect("timeout")
+        .expect_err("401 — ошибка");
+    assert_eq!(error, ApiError::Unauthorized);
+    assert_eq!(
+        timeout(CASE_TIMEOUT, server)
+            .await
+            .expect("server timeout")
+            .expect("server")
+            .len(),
+        1
+    );
+}
+
+#[tokio::test]
+async fn post_once_returns_4xx_body_with_extra_headers_and_never_retries() {
+    // 400 + тело captcha: для /auth/login это не «ошибка транспорта», а контракт.
+    let captcha =
+        r#"{"captcha_key":"site-key","captcha_service":"hcaptcha","captcha_rqtoken":"rq"}"#;
+    let (port, server) = spawn_sequence(vec![response("400 Bad Request", captcha)]).await;
+    let client = client_for(port, auth(), policy());
+
+    let result = timeout(
+        CASE_TIMEOUT,
+        client.post_once(
+            "/auth/login",
+            br#"{"login":"u","password":"p"}"#,
+            &[
+                ("authorization", ""),
+                ("X-Captcha-Key", "captcha-answer"),
+                ("X-Captcha-Rqtoken", "rq"),
+            ],
+        ),
+    )
+    .await
+    .expect("timeout")
+    .expect("post_once отдаёт 400 с телом");
+    assert_eq!(result.status, 400);
+    assert_eq!(result.body, captcha.as_bytes().to_vec());
+
+    let raw = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    assert_eq!(raw.len(), 1, "post_once не повторяет запрос");
+    let text = String::from_utf8_lossy(&raw[0]);
+    assert!(text.starts_with("POST /auth/login HTTP/1.1"), "{text}");
+    assert!(text.contains("X-Captcha-Key: captcha-answer\r\n"), "{text}");
+    assert!(text.contains("X-Captcha-Rqtoken: rq\r\n"), "{text}");
+    // Явный пустой authorization (A-03) не заменяется auth-шапкой клиента.
+    assert_eq!(
+        text.matches("authorization:").count(),
+        1,
+        "ровно один authorization: {text}"
+    );
+    assert!(
+        !text
+            .to_ascii_lowercase()
+            .contains("authorization: bot test-token"),
+        "пустой authorization перекрывает токен: {text}"
+    );
+}
+
+#[tokio::test]
+async fn post_once_returns_5xx_instead_of_retrying() {
+    let (port, server) = spawn_sequence(vec![response(
+        "500 Internal Server Error",
+        r#"{"message":"boom"}"#,
+    )])
+    .await;
+    let client = client_for(port, auth(), policy());
+
+    let result = timeout(CASE_TIMEOUT, client.post_once("/auth/login", b"{}", &[]))
+        .await
+        .expect("timeout")
+        .expect("5xx как данные, без повторов");
+    assert_eq!(result.status, 500);
+    assert_eq!(
+        timeout(CASE_TIMEOUT, server)
+            .await
+            .expect("server timeout")
+            .expect("server")
+            .len(),
+        1,
+        "post_once не повторяет 5xx"
     );
 }

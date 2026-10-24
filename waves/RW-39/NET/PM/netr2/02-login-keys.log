@@ -1,0 +1,182 @@
+# i18n keys resolved from ru-catalog.json / en-catalog.json
+#### FILE dbd05750a1cb3484_0 225
+3044	IfBQ56	RU=Выбор нового пароля	EN=Choose a New Password
+3508	ezv91b	RU=Восстановить мою учётную запись	EN=Recover my account
+3592	R98xD5	RU=Требуется пароль.	EN=Password is required.
+3962	aTVNes	RU=Ого! Возникла какая-то очень редкая ошибка. Похоже, это мы недоглядели, так что попробуйте ещё раз чуть позже или загляните на $link.	EN=Oops! You've caught an ultra rare error. This is probably our fault, so please try again or check $link.
+4319	bChnKs	RU=Не удалось найти учётную запись, которую вы пытаетесь восстановить.	EN=The account you are trying to recover could not be found.
+4587	rzxnQ8	RU=Вернуться	EN=Go back
+5131	O37hMl	RU=Если электронная почта вашей учётной записи Discord была изменена злоумышленником или по ошибке, вы обратились по адресу! Этот процесс поможет вам:	EN=If the email on your Discord account has been changed either maliciously or in error, you've come to the right place! With this process, you can:
+5318	Gj1Zry	RU=Изменить адрес электронной почты вашей учётной записи на предыдущий	EN=Change your account back to the previous email address
+5459	mToZMA	RU=Удалить все привязанные к учётной записи номера телефонов	EN=Remove any phone number on the account
+5528	TPEvkc	RU=Удалить все способы двухфакторной аутентификации с вашей учётной записи	EN=Remove any Multi-Factor Authentication methods on the account
+5597	H8Y1Ln	RU=Аннулировать все созданные после этого ссылки для изменения адреса электронной почты вашей учётной записи	EN=Invalidate existing recovery URLs for email changes to your account made after this one
+5726	GgCRqR	RU=Начать процесс восстановления	EN=Start recovery process
+6055	ailkVG	RU=Восстановление учётной записи прошло успешно!	EN=Account recovery successful!
+9407	Z33eiP	RU=Вы отключили уведомления о важных событиях этого сервера	EN=You’ve turned off Highlights for this server
+9460	NRWtfC	RU=Уведомления сервера $b о важных событиях отключены. Включить их снова можно в параметрах уведомлений сервера.	EN=Highlights are now off for $b. You can turn them back on via server notification settings.
+9568	fIv16B	RU=Перейти в Discord	EN=Continue to Discord
+9967	ox9hIS	RU=Упс. Не сработало.	EN=Whoops. That didn't work.
+12614	eL5z0i	RU=Представьте себе…	EN=Imagine a place
+12682	poAv63	RU=Более 100 миллионов человек уже используют Discord, чтобы общаться и отдыхать со своими друзьями и сообществами.	EN=Join over 100 million people who use Discord to talk and hang out with communities and friends.
+14946	Lu4h18	RU=<none>	EN=<none>
+15002	OsdY8B	RU=Вас приглашает в групповой чат пользователь	EN=You've been invited to join a group DM by
+15070	x2L32Q	RU=Вы были приглашены на стрим username в	EN=You've been invited to username's stream in
+15194	spU2mI	RU=$b приглашает вас присоединиться к	EN=$b has invited you to join
+16330	Quj7HX	RU=Приняв это приглашение, вы добавите $b в качестве друга в Discord.	EN=Accepting this invite will add $b as your friend on Discord.
+16973	OqHiIt	RU=Присоединиться к серверу	EN=Join Server
+17084	JMWqry	RU=Присоединиться к беседе	EN=Join the Conversation
+17125	ohMvm1	RU=Принять приглашение	EN=Accept Invite
+17735	riu2R5	RU=Присоединиться к серверу	EN=Join Server
+18035	Eabu1z	RU=От сервера:	EN=Presented By
+24168	qMDAP0	RU=Подтверждаю ознакомление и согласие с $link и $link Discord.	EN=I have read and agree to Discord's $link and $link.
+24738	LSoXK5	RU=(Необязательно) Получать электронные письма с новостями Discord, советами и специальными предложениями. Мы отслеживаем открытия и переходы по ссылкам, чтобы понять, насколько полезна рассылка.	EN=(Optional) Send me emails with Discord updates, tips, and special offers. We track opens and clicks to learn what’s useful.
+26188	dI4d4S	RU=E-mail	EN=Email
+26682	AY4IVA	RU=Чтобы продолжить, необходимо согласиться с Условиями использования.	EN=You need to agree to our terms of service to continue
+27034	renMUD	RU=Уже есть учётная запись? Откройте приложение	EN=Already have an account? Open the app
+29415	z7c4bP	RU=Используйте только цифры, буквы, нижнее подчёркивание и точки.	EN=Please only use numbers, letters, underscores _ , or periods.
+29546	nDGqqq	RU=Предлагаемое имя: $link	EN=Here is a suggestion: $link
+30384	TWzdWj	RU=Имя пользователя	EN=Username
+30704	rhBeKe	RU=Ваш день рождения	EN=Your birthday
+30878	PDTjLN	RU=Далее	EN=Next
+33113	dzGILG	RU=Завершите регистрацию	EN=Finish signing up
+37718	RtCSr1	RU=Недействительная ссылка для входа	EN=Login link is not valid
+37880	j3cG2p	RU=Вернуться ко входу	EN=Back to Login
+38396	Wgm7Om	RU=Нажмите кнопку, чтобы открыть приложение и войти. Если вы не запрашивали ссылку для входа или не хотите входить в Discord прямо сейчас, ничего делать не нужно.	EN=Tap the button to open the app and log in. If you didn't request this link or don't want to log in now, there's nothing you need to do.
+38462	NydsTd	RU=Войти в Discord	EN=Log In to Discord
+39771	Z2hIUf	RU=За последнее время мы отправили на этот адрес электронной почты слишком много кодов. Повторите попытку позже.	EN=We've sent too many codes to this email recently. Please try again later.
+40398	H3Q7U8	RU=Письмо отправлено!	EN=Email sent!
+40805	ZLRYGU	RU=Введите адрес электронной почты	EN=Enter email
+40909	jt3z8f	RU=Чтобы информировать вас о статусе жалобы, нам необходим подтверждённый адрес электронной почты. Мы не раскрываем вашу личность лицам, на которых вы жалуетесь.	EN=We require a verified email to send you updates on the status of your report. Your identity will not be shared with the person(s) you are reporting.
+41034	fuqnBC	RU=Пожаловаться на сообщение	EN=Report a Message
+41058	F4jrRW	RU=Пожаловаться на профиль пользователя	EN=Report a User Profile
+41083	gH3aMs	RU=Пожаловаться на сервер	EN=Report a Server
+41722	jMSjZL	RU=Жалоба на интимное изображение, распространяемое без согласия представленного на нём лица	EN=Report Non-Consensual Intimate Imagery
+41754	qEaUPS	RU=Включает жалобы в соответствии с Take It Down Асt	EN=Includes requests under the Take It Down Act
+41774	R2Q57u	RU=Если вы переживаете за свою безопасность или безопасность знакомых, обратитесь в местные правоохранительные органы или службы защиты. Чтобы получить профессиональную консультацию, свяжитесь с $link. Больше информации по теме можно найти в $link и в $link.	EN=If you have concerns about your personal safety, or the safety of someone you know, please contact local law enforcement or social services. For expert advice, connect with a $link. More resources are available in our $link and $link.
+41871	J0tNny	RU=Включает запросы в соответствии с Online Safety Act	EN=Includes requests under the Online Safety Act
+42006	nYb8xq	RU=Включает запросы в соответствии с Указом о защите женщин в интернете № 12,976/2026	EN=Includes requests under the Online Protection of Women Decree (Decree No. 12,976/2026)
+42026	rtm4DR	RU=Если вы переживаете за свою безопасность или безопасность знакомых, обратитесь в Центр помощи женщинам по номеру 180 или посетите страницу со списком $link. Больше информации по теме можно найти в $link и в $link.	EN=If you have concerns about your personal safety, or the safety of someone you know, contact the Women’s Assistance Center at Call 180 or visit $link. More resources are available in our $link and $link.
+42529	bd1h5T	RU=Выберите тип жалобы, который вы хотите отправить.	EN=Please select which type of report you would like to submit.
+43489	CfBo0z	RU=На что можно пожаловаться:	EN=What you can report:
+43653	ofQnNQ	RU=Контент, на котором вы или лицо, которое вы представляете, изображены без одежды или в сцене сексуального характера.	EN=Content that shows you (or someone you're authorized to represent) nude or engaged in sexually explicit conduct
+43777	dFaQGn	RU=Контент, опубликованный без вашего согласия или созданный в обстановке, предполагающей приватность.	EN=Content that was shared without your consent, or was captured when you had a reasonable expectation of privacy
+43901	RVNwXh	RU=Реальный, сгенерированный ИИ или подвергнутый цифровой обработке контент с вашим изображением.	EN=Content that is either authentic, AI-generated, or digitally manipulated depicting you.
+44006	o5azXJ	RU=К ним относятся изображения или видеоролики, на создание которых вы могли дать согласие, но не давали согласия на их распространение. Сроков давности нет. Вы можете пожаловаться на контент, созданный или опубликованный в любое время.	EN=This includes images or videos you may have originally consented to create but did not consent to have shared. There's no time limit—you can report content regardless of when it was created or posted.
+44103	YETtaY	RU=Discord занимает жёсткую позицию в отношении интимных изображений, распространяемых без согласия представленных на них лиц. Правила нашей $link действуют по всему миру. Также вы можете обладать юридическими правами в соответствии с законодательством страны, в которой вы проживаете.	EN=Discord takes a firm stance against non-consensual intimate imagery. Our $link applies globally, and you may also have legal rights under the laws where you live.
+44306	FJh2zi	RU=Нужна срочная помощь?	EN=Need immediate help?
+45926	Z11w18	RU=Пожаловаться на нелегальный контент	EN=Report illegal content
+46196	YignUm	RU=Жалобы на интимные изображения	EN=Report intimate images
+46237	D5Czbu	RU=Перейти к жалобе	EN=Continue to Report
+49823	qllnGm	RU=Найдено приложение Discord	EN=Discord App Detected
+49876	SXCxye	RU=Хотите открыть эту ссылку в приложении Discord?	EN=Do you want to open this link in your Discord app?
+49965	UQvCf7	RU=Открыть приложение	EN=Open App
+50403	csrAMJ	RU=Приложение Discord активировано	EN=Discord App Launched
+50456	ghBJz9	RU=Эта ссылка была открыта в приложении Discord. Можете закрыть эту вкладку браузера.	EN=We've opened the link in your Discord app. You can close this browser tab now.
+51273	YDAohB	RU=Вы отписались от: «category». Чтобы изменить настройки получения уведомлений, откройте настройки пользователя.	EN=You have unsubscribed from: category. To change your email notification settings, visit user settings.
+51385	f6rdLg	RU=Вы отписались	EN=You’re unsubscribed
+51625	YYTirT	RU=Управляйте своими настройками пользователя.	EN=Manage your user settings.
+53243	lTGZAl	RU=Вам подарили	EN=You've been gifted
+53322	ZTNur7	RU=Загрузка	EN=Loading
+53766	TjWdPc	RU=username дарит вам	EN=username gifted you
+53918	CTpcCZ	RU=skuName на intervalCount	EN=skuName for intervalCount
+54319	mDFGFj	RU=Ууупс...	EN=Whoops...
+54837	ZFWofo	RU=Учётная запись в очереди на удаление	EN=Account Scheduled for Deletion
+55176	JhDw5o	RU=Вернуться к авторизации	EN=Return to Login
+55283	js2rr5	RU=Передумали? $link	EN=Change your mind? $link
+57209	uJ1JsY	RU=Уже вошли в приложение Discord?	EN=Already logged into the Discord app?
+57254	GHVWAs	RU=Выполните вход в одно касание.	EN=Sign in with a single tap.
+57293	EPt55r	RU=Невозможно получить данные авторизации.	EN=Unable to retrieve login information.
+57329	g87kTp	RU=Срок действия сеанса авторизации истёк. Проверьте интернет-соединение и повторите попытку.	EN=Your login session has expired. Check your internet connection and try again.
+57665	NcC759	RU=Открыть приложение	EN=Open App
+58526	bVbB63	RU=Выбрать учётную запись	EN=Choose an account
+59262	tUjnxr	RU=Адрес электронной почты или номер телефона	EN=Email or Phone Number
+59671	dKhVQN	RU=Вход	EN=Log In
+59761	wWIufs	RU=Забыли пароль?	EN=Forgot your password?
+59892	tmE73r	RU=Нужна учётная запись?	EN=Need an account?
+61333	euS7r4	RU=Мы так рады видеть вас снова!	EN=We're so excited to see you again!
+62843	pV8xeR	RU=Зарегистрироваться	EN=Register
+67643	BddRzS	RU=OK	EN=Okay
+67832	iAcrqV	RU=Нажмите на ссылку в вашем письме, чтобы войти без пароля.	EN=Tap the link in your email to sign in instantly — no password needed.
+67880	f5Pi7A	RU=Инструкции отправлены	EN=Instructions Sent
+69917	S6RMNA	RU=Обнаружение учётной записи	EN=Detecting Account
+69970	YZiJbh	RU=Пытаемся обнаружить учётную запись Discord в вашем браузере по умолчанию. Дайте нам немного времени...	EN=Trying to detect a Discord account from your default browser. Gimme just one second...
+70476	w55Oco	RU=Введите код подтверждения, чтобы подтвердить свою личность	EN=Enter your confirmation code to verify it's you
+70511	CfRZBj	RU=Мы не узнаём это место. Мы отправили код подтверждения на номер телефона, привязанный к этой учетной записи. Не получили код? $link	EN=We don’t recognize this location. We sent a confirmation code to the phone number connected to this account. Didn't get a code? $link
+70765	ef4uZ7	RU=Мы отправили сообщение на номер телефона, привязанный к этой учетной записи. Не получили код? $link	EN=An SMS was sent to the phone number connected to this account. Didn't get a code? $link
+71886	nCB6Ga	RU=Не удалось зарегистрировать	EN=Unable to register
+71955	KQgoxG	RU=underageMessage Прочтите эту статью, чтобы узнать больше.	EN=underageMessage View our help article to learn more.
+71997	WqEH4D	RU=Вам должно быть не менее 13 лет, чтобы использовать Discord.	EN=You must be at least 13 years old to use Discord.
+72057	hvVgAZ	RU=Узнать больше	EN=Learn More
+74222	EkokLy	RU=Обязательно	EN=Required
+84404	wC4TlR	RU=Создать учётную запись	EN=Create an account
+86476	wa9h7F	RU=Вы не можете принять этот подарок. Вы должны подарить его кому-нибудь другому.	EN=You can't accept this gift. You need to give this gift to someone else.
+86579	mdLtb5	RU=Подарок не удалось забрать, потому что он у вас уже есть.	EN=You couldn't claim this gift because you already have it.
+86654	PIdmg3	RU=У вас уже есть эта игра. Поищите её в $link.	EN=You already have this game. Find it in $link
+86777	ilcBeX	RU=Этот подарок уже получен.	EN=This gift has already been claimed.
+86852	ypuSd8	RU=К сожалению, что-то пошло не так. Вы не можете использовать этот код.	EN=Sorry, seems like something's gone wrong and you can't use that code.
+87810	KPowgn	RU=Некорректный подарочный код	EN=Gift Code Invalid
+87863	j8734b	RU=Время действия подарочного кода закончилось, или вы ввели неверный код.	EN=This gift code may be expired or you might have the wrong code.
+88854	CMa9Rv	RU=Отправлено!	EN=Sent!
+88880	lm1UKt	RU=Отправить письмо с подтверждением ещё раз	EN=Resend Verification Email
+89034	Po9eBQ	RU=Говорите, вы уже подтвердили свой адрес? Щёлкните здесь, чтобы проверить...	EN=Already verified you say? Click here to check again...
+89390	n6I6k4	RU=Ого! Принять подарок	EN=Woo! Accept Gift
+89568	NYM08s	RU=Вы принимаете этот подарок от лица $b. $link	EN=You are accepting this gift as $b. $link
+89995	bhJseN	RU=Принимаем подарок	EN=Accepting
+90088	b3lf1c	RU=Достаём ваш подарок из киберпространства	EN=Retrieving your gift from cyberspace
+90193	bYb2nS	RU=Проверяем ваш ID	EN=Checking your ID
+92029	C7ZRNw	RU=Недопустимый шаблон сервера	EN=Invalid server template
+92082	A6MwXE	RU=Попросите владельца сделать другой	EN=You can ask the owner to make a new one though
+92751	fOc4gn	RU=Приложение Discord не может быть открыто.	EN=The Discord app could not be opened.
+93888	UNFvtM	RU=Настройте свой сервер	EN=Set up your Server
+93980	xr59t7	RU=Создайте сервер	EN=Create a Server
+95036	HAvYn0	RU=Нажмите, чтобы узнать больше	EN=Tap to learn more
+98009	DHLE0q	RU=Общайтесь со всем сообществом	EN=Chat with the whole community
+98032	putVLl	RU=Узнайте о пользовательских реакциях, вложениях и ботах.	EN=Using custom reactions, embeds, and bots.
+98302	CmLD50	RU=Стримьте так, будто вы в одной комнате	EN=Stream like you’re in the room
+98325	fAU31r	RU=Для игр, тусовок или домашней работы.	EN=For gaming, hanging out, or idk, homework.
+98594	Z70vcv	RU=Используйте голосовые и текстовые каналы	EN=Drop in and out of voice or text channels
+99535	cpT0Cq	RU=Закрыть	EN=Close
+99863	YCIfhC	RU=Discord — это бесплатное приложение для общения, стримов и совместного отдыха	EN=Discord is a free app to chat, stream, and chill
+100950	lgHr73	RU=Общайтесь, стримьте и веселитесь	EN=Chat, stream, and chill
+108917	jCQlbu	RU=Скачать приложение Discord	EN=Download Discord App
+109023	BjfDQq	RU=Установить Discord	EN=Get Discord
+111727	kux01N	RU=Приглашение недействительно	EN=Invite Invalid
+112126	urIwn4	RU=Почему моё приглашение недействительно?	EN=Why is my invite invalid?
+120555	i3ehMr	RU=Пожалуйста, авторизуйтесь, чтобы отправить ссылку повторно.	EN=Please log in to resend the link.
+120716	iG0SlK	RU=IP-адрес авторизован	EN=IP Address Authorized
+121358	GHRpue	RU=Срок действия ссылки для подтверждения оплаты истёк.	EN=Payment authorization link has expired.
+121598	ihHX53	RU=Платёж авторизован	EN=Payment Authorized
+121771	T3vC7n	RU=Авторизация	EN=Authorizing
+122375	tQpeA3	RU=Пожалуйста, авторизуйтесь и отправьте ссылку повторно.	EN=Please log in and resend the link.
+122692	ULTCBE	RU=Это может занять некоторое время.	EN=This may take a moment.
+123383	WWzQta	RU=Телефон подтверждён	EN=Phone Verified
+123542	o4JNrO	RU=Введите код подтверждения	EN=Enter your confirmation code
+123610	y0tVbq	RU=Введите 6-значный код, который мы вам отправили, и повторно введите номер вашего телефона.	EN=Please enter the 6 digit code sent to you and reenter your phone number.
+123887	OdzNbm	RU=Код подтверждения	EN=Confirmation Code
+124077	i4jeWR	RU=Готово	EN=Done
+126663	bzXDfc	RU=Жалоба не найдена.	EN=Report not found.
+126735	rV00wq	RU=Запрос о пересмотре уже отправлен.	EN=Report Review already requested.
+127206	e6mZMt	RU=Мы получили ваш запрос.	EN=We have received your request.
+129610	RvUUOy	RU=Приложение Discord открыто	EN=Discord App Opened
+129887	qq4tjT	RU=Вход в Discord	EN=Log in to Discord
+129922	CVxYRo	RU=Нам не удалось найти приложение Discord на вашем устройстве, но вы можете войти, используя веб-версию.	EN=We couldn't find the Discord app on your device, but you can log in using the web version
+#### FILE 8fed1c84bcaee32d_0 22
+186	gTH4Dp	RU=Использовать ключ доступа или ключ безопасности	EN=Use a passkey or security key
+231	nXKmyf	RU=Используйте приложение для аутентификации	EN=Use your authenticator app
+275	ZbVwZW	RU=Использовать код с телефона	EN=Use a code sent to your phone
+374	vhSRKf	RU=Использовать резервный код	EN=Use a backup code
+1176	Tot4EC	RU=Верифицировать иным способом	EN=Verify with something else
+1653	saHocI	RU=Двухфакторная аутентификация	EN=Multi-Factor Authentication
+2040	c5J7O0	RU=Подождите! Вы уверены?	EN=Slow down! Are you sure?
+2141	Nixbli	RU=$p$p	EN=$p$p
+2225	tsWkAE	RU=Если вам недоступны другие способы, кнопка внизу будет активирована через $b сек.	EN=If you do not have access to any other methods, the button below will activate in $b seconds.
+2370	oyjspn	RU=Да, использовать резервный код	EN=I'm sure, use a backup code
+2692	fZSi1D	RU=8-значный резервный код	EN=8-digit backup code
+4996	LQdCQE	RU=Отправка...	EN=Sending...
+5350	HZPBOd	RU=Введите код аутентификации Discord	EN=Enter Discord Auth Code
+5410	tARzgo	RU=6-значный код подтверждения	EN=6-digit authentication code
+5558	ZF29L6	RU=Отправить SMS ещё раз?	EN=Resend SMS?
+7179	xSCvBf	RU=Возникла ошибка. Попробуйте еще раз.	EN=An error occurred. Please try again.
+7565	Xr3Eks	RU=Аутентификация с помощью ключа доступа или ключа безопасности	EN=Authenticate with a passkey or security key
+9095	N2yb9a	RU=Двухфакторная аутентификация отменена	EN=Multi-factor authentication cancelled

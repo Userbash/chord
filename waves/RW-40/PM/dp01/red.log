@@ -1,0 +1,81 @@
+▶ DP-01: breakpoints SPEC §5.1
+  ✖ токены по ширинам: 311/256 → 240/240 → 240 → 200 (2.098511ms)
+  ✔ дефолт 1200–1599 — базовые токены, без media-переопределения (0.131066ms)
+  ✖ style.css: member panel скрыт на 960–1199, tree — на <720 (0.449619ms)
+  ✖ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.153632ms)
+  ✔ chat ≥ 520 на 960–1199 и отсутствие горизонтального скролла shell (0.27504ms)
+  ✔ aria/screen-switch: скрытие только CSS, aria-hidden — только на .screen (0.438711ms)
+✖ DP-01: breakpoints SPEC §5.1 (4.327679ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 3
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.357376
+
+✖ failing tests:
+
+test at tests/meta/design-breakpoints.test.mjs:233:3
+✖ токены по ширинам: 311/256 → 240/240 → 240 → 200 (2.098511ms)
+  AssertionError [ERR_ASSERTION]: tree при 959px
+  
+  '240px' !== '200px'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/design-breakpoints.test.mjs:251:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '240px',
+    expected: '200px',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/meta/design-breakpoints.test.mjs:265:3
+✖ style.css: member panel скрыт на 960–1199, tree — на <720 (0.449619ms)
+  AssertionError [ERR_ASSERTION]: member-panel не скрыт при 1199px (SPEC 960–1199/720–959/<720)
+  
+  'flex' !== 'none'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/design-breakpoints.test.mjs:271:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'flex',
+    expected: 'none',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/meta/design-breakpoints.test.mjs:285:3
+✖ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.153632ms)
+  AssertionError [ERR_ASSERTION]: нет media-query, покрывающего 960px
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/design-breakpoints.test.mjs:288:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

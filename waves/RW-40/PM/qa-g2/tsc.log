@@ -1,0 +1,3 @@
+# command: npx tsc -p rust/gui-spike/ui/tsconfig.json
+# date: 2026-10-24T12:05:23+05:00
+# exit=0

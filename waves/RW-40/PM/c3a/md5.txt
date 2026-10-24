@@ -1,0 +1,10 @@
+2d4cf3d8758de702d1b8620884a80d3a  waves/RW-40/THEME-SPEC.md
+4bce1692512bd288667a032de1bd2f5c  waves/RW-40/theme-spec.json
+4b129376a1b29a68f8509e00bb6f9b5e  waves/RW-40/PM/c3a/contrast.py
+331a1847b96ad1ab9ccdf0e07f6bff25  waves/RW-40/PM/c3a/selftest.py
+acbf688d1b6a09cb55a1a926ea1096f7  waves/RW-40/PM/c3a/validate.py
+c9c45fa65f914bd611463575912b97c5  waves/RW-40/PM/c3a/contrast.log
+b2e7423dc2467cb6fe47d4773bcf81f6  waves/RW-40/PM/c3a/scan-tokens.log
+148b8d65f93597ef19d988cd6ab80058  waves/RW-40/PM/c3a/selftest.log
+b1d20dfb3f405f8754cdac0b9f03f5c2  waves/RW-40/PM/c3a/validate.log
+0311df7d31ed1ebc4921b33a5a9876ca  waves/RW-40/PM/c3a/REPORT.md

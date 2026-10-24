@@ -1,0 +1,16 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::typing`
+  --> tests/typing_contract.rs:15:24
+   |
+15 | use discord_gui_spike::typing::{
+   |                        ^^^^^^ could not find `typing` in `discord_gui_spike`
+
+error[E0425]: cannot find value `TYPING_PATH` in module `routes`
+   --> tests/typing_contract.rs:383:24
+    |
+383 |     assert_eq!(routes::TYPING_PATH, ORACLE_PATH, "один источник пути");
+    |                        ^^^^^^^^^^^ not found in `routes`
+
+Some errors have detailed explanations: E0425, E0432.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "typing_contract") due to 2 previous errors

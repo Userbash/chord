@@ -1,0 +1,6 @@
+
+> discord-function-lab@0.1.0 typecheck
+> tsc -p tsconfig.json && tsc -p tsconfig.agent.json
+
+rust/gui-spike/ui/features/join-server.js(385,5): error TS2322: Type 'Timeout' is not assignable to type 'number'.
+exit=1

@@ -1,0 +1,374 @@
+/* =============================================================================
+ * server-menu.css — поповер сервера (G-05) и confirm выхода (G-04).
+ * Контракт: waves/RW-40/DESIGN/SERVER-MENU.md §4.2, §4.4, §4.6, §4.7.
+ *
+ * Ширина 288 — измерение [M] (bbox 361 px / 1.25); токена нет (пробел G-05),
+ * поэтому литерал с комментарием, остальное — токены tokens.css.
+ * Слои: меню --z-popover (100) < модалка --z-modal (200).
+ * Внешних ссылок, шрифтов и растровых ассетов нет.
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * 1. Поповер сервера
+ * ------------------------------------------------------------------------ */
+.server-menu {
+  position: fixed;
+  z-index: var(--z-popover);
+  display: flex;
+  flex-direction: column;
+  width: 288px; /* [M] G-05: 288.8 CSS в дампе; токена нет */
+  max-height: 480px;
+  overflow-y: auto;
+  padding: var(--menu-pad);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--menu-radius);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-popover);
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.server-menu[hidden] {
+  display: none;
+}
+
+/* Пункт: 32px (--row-menu-item), но двухстрочный пункт 4 растёт по контенту. */
+.menu-item {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--row-menu-item);
+  padding: 0 var(--menu-pad);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-strong);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-align: start;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: var(--state-hover);
+}
+
+.menu-item:active {
+  background: var(--state-active);
+}
+
+.menu-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: calc(var(--focus-ring-offset) * -1);
+}
+
+.menu-item[aria-disabled="true"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: default;
+}
+
+.menu-item[aria-disabled="true"]:hover,
+.menu-item[aria-disabled="true"]:active {
+  background: transparent;
+}
+
+.menu-item-subtitle {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.menu-item[data-variant="danger"] {
+  color: var(--danger-text);
+}
+
+.menu-sep {
+  flex: 0 0 auto;
+  height: 1px;
+  margin: var(--space-3) calc(var(--menu-pad) * -1);
+  background: var(--divider);
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Confirm выхода: backdrop + карточка alertdialog
+ * ------------------------------------------------------------------------ */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  background: rgb(0 0 0 / 72%);
+}
+
+.dialog-backdrop[hidden] {
+  display: none;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: min(var(--modal-w-sm), calc(100vw - 48px));
+  padding: var(--modal-pad-y) var(--modal-pad-x);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+}
+
+.dialog-title {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title, 24px);
+}
+
+.dialog-text {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.dialog-error {
+  margin: 0;
+  min-height: var(--line-height-ui);
+  color: var(--danger-text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.dialog-error[hidden] {
+  display: none;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+/* Кнопки диалога: высота 38 (--btn-height-lg), radius 8. */
+.dialog-actions .btn {
+  height: var(--btn-height-lg);
+  padding: 0 var(--btn-pad-x);
+  border: 0;
+  border-radius: var(--btn-radius);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dialog-actions .btn:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.dialog-actions .btn:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: default;
+}
+
+.btn-secondary {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-accent);
+}
+
+.btn-danger {
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-fill-hover);
+}
+
+/* Узкое окно: кнопки колонкой, primary сверху (SERVER-MENU.md §4.3). */
+@media (max-width: 480px) {
+  .dialog-actions {
+    flex-direction: column-reverse;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Join по инвайту (G-03): форма, preview, ошибка, «×».
+ * Контракт: waves/RW-40/DESIGN/SERVER-MENU.md §4.3, §6. Геометрия — unmeasured:
+ * только токены `tokens.css` (единственное исключение — 16px имени preview, токена нет).
+ * ------------------------------------------------------------------------ */
+.join-server-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dialog-input {
+  height: var(--input-height);
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.dialog-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: calc(var(--focus-ring-offset) * -1);
+}
+
+.dialog-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.dialog-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* Карточка preview: только данные ответа; до 2xx контейнер hidden. */
+.join-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-5);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+}
+
+.join-preview[hidden] {
+  display: none;
+}
+
+.join-preview-avatar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+}
+
+.join-preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.join-preview-name {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: 16px; /* [A] SERVER-MENU §4.3: токена 16/22 в tokens.css нет */
+  font-weight: var(--font-weight-semibold);
+  line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.join-preview-meta {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* G-03a: «Открыть сервер» (lurker) — отдельное действие на preview-карточке.
+ * Не в `.dialog-actions`, поэтому размеры/фокус заданы здесь на тех же токенах. */
+.join-preview-open {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-left: auto;
+  height: var(--btn-height-lg);
+  padding: 0 var(--btn-pad-x);
+  border-radius: var(--btn-radius);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.join-preview-open:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.join-preview-open:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: default;
+}
+
+/* «×» — верхний правый угол карточки (32px, §4.3). */
+.dialog-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 32px;
+  height: 32px;
+}
+
+#join-server-dialog .dialog {
+  position: relative;
+}
+
+/* Primary-кнопка join: accent-токены (§4.3). */
+.dialog-actions .btn-primary {
+  border: 0;
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.dialog-actions .btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+/* «+» в рейле (SERVER-MENU §4.1): 40×40, --surface-1; rail.css вне матрицы
+ * задачи, поэтому аддитивный блок живёт здесь рядом с join-модалкой. */
+.guild-add {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--layout-guild-item);
+  height: var(--layout-guild-item);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  color: var(--text-subtle);
+  font: inherit;
+  font-size: var(--icon-size);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.guild-add:hover {
+  border-radius: var(--radius-md);
+  background: var(--surface-4);
+  color: var(--text-strong);
+}
+
+.guild-add:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

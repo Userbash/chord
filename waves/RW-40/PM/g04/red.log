@@ -1,0 +1,30 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::guilds::leave_guild`, `discord_gui_spike::guilds::GuildLeaving`, `discord_gui_spike::guilds::LeaveGuildError`
+  --> tests/guilds_contract.rs:18:30
+   |
+18 |     enter_guild, join_guild, leave_guild, DiscordGuilds, EnterGuildError, GuildLeaving,
+   |                              ^^^^^^^^^^^ no `leave_guild` in `guilds`     ^^^^^^^^^^^^ no `GuildLeaving` in `guilds`
+19 |     GuildMembership, GuildTransport, LeaveGuildError,
+   |                                      ^^^^^^^^^^^^^^^ no `LeaveGuildError` in `guilds`
+   |
+help: a similar name exists in the module
+   |
+19 -     GuildMembership, GuildTransport, LeaveGuildError,
+19 +     GuildMembership, GuildTransport, EnterGuildError,
+   |
+
+error[E0407]: method `delete` is not a member of trait `GuildTransport`
+   --> tests/guilds_contract.rs:100:5
+    |
+100 | /     fn delete<'a>(
+101 | |         &'a self,
+102 | |         target: &'a str,
+103 | |         body: &'a [u8],
+...   |
+117 | |         Box::pin(async move { answer })
+118 | |     }
+    | |_____^ not a member of trait `GuildTransport`
+
+Some errors have detailed explanations: E0407, E0432.
+For more information about an error, try `rustc --explain E0407`.
+error: could not compile `discord-gui-spike` (test "guilds_contract") due to 2 previous errors

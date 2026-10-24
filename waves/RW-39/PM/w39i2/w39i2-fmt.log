@@ -1,0 +1,2 @@
+$ cargo fmt --manifest-path rust/gui-spike/Cargo.toml -- --check
+exit=0

@@ -1,0 +1,18 @@
+▶ M-07-UI: read-state/ack в реальном канале
+  ✔ триггер ack зафиксирован как [A] и окно троттлинга — именованная константа (0.652945ms)
+  ✔ открытие канала → ровно один ack_message с lastViewed из READY (число, не snowflake) (65.944569ms)
+  ✔ null/badge-запись read_state не даёт ack и не превращается в 0 (17.548232ms)
+  ✔ троттлинг: фокус/скролл в низ не дублируют ack, новый курсор — только после окна (20.88453ms)
+  ✔ unread/mention-полоса: цитата из READY и сброс после успешного ack (15.188121ms)
+  ✔ 401 Unauthorized: ошибка ack видима, без цикла и без дублей (15.006311ms)
+  ✔ 429 RateLimited: ошибка ack видима и не повторяется (21.394232ms)
+  ✔ синтетический бенч (CHAT_ROWS) не ack'ает: ни read_state, ни ack_message (10.832108ms)
+✔ M-07-UI: read-state/ack в реальном канале (168.880269ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 234.512345

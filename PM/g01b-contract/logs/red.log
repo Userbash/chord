@@ -1,0 +1,93 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0609]: no field `last_guild_id` on type `UiSettings`
+   --> tests/settings_contract.rs:518:18
+    |
+518 |         defaults.last_guild_id, None,
+    |                  ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0560]: struct `UiSettings` has no field named `last_guild_id`
+   --> tests/settings_contract.rs:540:9
+    |
+540 |         last_guild_id: Some(GUILD_ID.to_string()),
+    |         ^^^^^^^^^^^^^ `UiSettings` does not have this field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0609]: no field `last_guild_id` on type `UiSettings`
+   --> tests/settings_contract.rs:582:23
+    |
+582 |     assert_eq!(loaded.last_guild_id, None, "миграция не выдумывает гильдию");
+    |                       ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0609]: no field `last_guild_id` on type `UiSettings`
+   --> tests/settings_contract.rs:620:20
+    |
+620 |             loaded.last_guild_id, None,
+    |                    ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0609]: no field `last_guild_id` on type `UiSettings`
+   --> tests/settings_contract.rs:631:23
+    |
+631 |     assert_eq!(loaded.last_guild_id, None);
+    |                       ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0560]: struct `UiSettings` has no field named `last_guild_id`
+   --> tests/settings_contract.rs:643:13
+    |
+643 |             last_guild_id: Some(bad.to_string()),
+    |             ^^^^^^^^^^^^^ `UiSettings` does not have this field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0609]: no field `last_guild_id` on type `UiSettings`
+   --> tests/settings_contract.rs:656:50
+    |
+656 |         assert_eq!(store.load().expect("чтение").last_guild_id, None);
+    |                                                  ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0560]: struct `UiSettings` has no field named `last_guild_id`
+   --> tests/settings_contract.rs:662:9
+    |
+662 |         last_guild_id: Some(max.clone()),
+    |         ^^^^^^^^^^^^^ `UiSettings` does not have this field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0609]: no field `last_guild_id` on type `UiSettings`
+   --> tests/settings_contract.rs:666:46
+    |
+666 |     assert_eq!(store.load().expect("чтение").last_guild_id, Some(max));
+    |                                              ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0560]: struct `UiSettings` has no field named `last_guild_id`
+   --> tests/settings_contract.rs:673:13
+    |
+673 |             last_guild_id: Some(bad.to_string()),
+    |             ^^^^^^^^^^^^^ `UiSettings` does not have this field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+error[E0560]: struct `UiSettings` has no field named `last_guild_id`
+   --> tests/settings_contract.rs:681:9
+    |
+681 |         last_guild_id: Some(GUILD_ID.to_string()),
+    |         ^^^^^^^^^^^^^ `UiSettings` does not have this field
+    |
+    = note: available fields are: `version`, `toggles`, `density`, `theme`, `locale`
+
+Some errors have detailed explanations: E0560, E0609.
+For more information about an error, try `rustc --explain E0560`.
+error: could not compile `discord-gui-spike` (test "settings_contract") due to 11 previous errors
+warning: build failed, waiting for other jobs to finish...

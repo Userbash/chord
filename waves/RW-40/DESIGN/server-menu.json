@@ -1,0 +1,1290 @@
+{
+  "schema": "rw40/server-menu-v1",
+  "card": "N1-D",
+  "title": "Серверы: список, вход по инвайту, выход, приглашения",
+  "date": "2026-10-24",
+  "owner": "G3 Design",
+  "status": "design-contract (docs only; код не менялся); PM-review corrections applied",
+  "doc": "waves/RW-40/DESIGN/SERVER-MENU.md",
+  "sources": {
+    "tokens": "waves/RW-39/DESIGN/tokens.css",
+    "vendored_tokens": "rust/gui-spike/ui/tokens.css",
+    "dump_tokens": "/home/sanya/re-deep/ui/tokens.json",
+    "guild_menu_png": "/home/sanya/re-deep/ui2/D1-guild-menu.png",
+    "guild_menu_items": "/home/sanya/re-deep/ui2/D1-guild-menu-items.json",
+    "dom_fingerprint": "/home/sanya/re-deep/ui2/00-start.fingerprint.json",
+    "ru_catalog": "/home/sanya/re-deep/ru-catalog.json",
+    "network_contracts": "waves/RW-40/NETWORK-CONTRACTS.md",
+    "rest_d02": "docs/re/rest-d02.md",
+    "rest_static": "fixtures/rest/rest-static.json",
+    "network_captures": [
+      "/home/sanya/re-deep/capture-boot.jsonl",
+      "/home/sanya/re-deep/capture-cold.jsonl",
+      "/home/sanya/re-deep/capture-ready.jsonl",
+      "/home/sanya/re-deep/capture-run2.jsonl"
+    ],
+    "design_msg": "waves/RW-40/DESIGN/DESIGN-MSG.md",
+    "theme_spec": "waves/RW-40/THEME-SPEC.md",
+    "spec": "waves/RW-39/DESIGN/SPEC.md",
+    "dom_contract": "waves/RW-39/DESIGN/DOM-CONTRACT.md",
+    "login_spec": "waves/RW-39/NET/LOGIN-SPEC.md",
+    "roadmap": "waves/RW-40/NETWORK-ROADMAP.md"
+  },
+  "legend": {
+    "T": "project token value from waves/RW-39/DESIGN/tokens.css (vendored into ui/tokens.css)",
+    "L": "evidence from live capture (docs/re/rest-d02.md, d02 snapshot requestIds)",
+    "S": "evidence from client code (NETWORK-CONTRACTS.md section 1, bundle call-site)",
+    "M": "pixel measurement on /home/sanya/re-deep/ui2/D1-guild-menu.png (2560x1383 @ dpr 1.25 = 2048x1106 CSS)",
+    "D": "RE dump fact (DOM, JSON, i18n strings), not network evidence",
+    "A": "authored decision, estimate or unresolved gap"
+  },
+  "confirmed_field_note": "rest-static.json sets the confirmed field to false on all 904 entries, including live-verified endpoints (NETWORK-CONTRACTS.md 0.3). The field is never used as evidence or as a success condition in this design.",
+  "dump_inventory": {
+    "screens_total": 37,
+    "join_dialog_screenshot": false,
+    "leave_confirm_screenshot": false,
+    "guild_menu_screenshot": "/home/sanya/re-deep/ui2/D1-guild-menu.png",
+    "guild_menu_items_count": 10,
+    "ru_catalog_keys": 23836,
+    "join_component_js_in_dump": false,
+    "captures_checked": 4,
+    "network_requests_invites": 0,
+    "network_requests_delete": 0,
+    "live_requests_enter_lurker": 2,
+    "invite_accept_live_observed": false
+  },
+  "endpoints": {
+    "invite_resolve": {
+      "method": "GET",
+      "path": "/invites/{code}",
+      "query": [
+        "inputValue",
+        "with_counts",
+        "with_expiration",
+        "guild_scheduled_event_id",
+        "target_channel_id",
+        "target_message_id",
+        "with_permissions",
+        "with_games",
+        "with_guild_experiments"
+      ],
+      "response": "invite object (code, guild, channel, approximate_member_count, approximate_presence_count, expires_at)",
+      "evidence": "S",
+      "live_observed": false,
+      "http_codes": "A"
+    },
+    "invite_accept": {
+      "method": "POST",
+      "path": "/invites/{code}",
+      "body": [
+        "session_id",
+        "invite_instance_id",
+        "received_installation_id"
+      ],
+      "body_notes": "received_installation_id may be null (S); context is analytics, not payload",
+      "response": "invite object with guild_id, target_channel_id, target_message_id",
+      "evidence": "S",
+      "live_observed": false,
+      "http_codes": "A",
+      "ttl_and_error_body": "A"
+    },
+    "enter_guild_lurker": {
+      "method": "PUT",
+      "path": "/guilds/{id}/members/@me?lurker=true",
+      "body": {},
+      "response_status": 204,
+      "response_body": "none",
+      "evidence": "L",
+      "live_observed": true,
+      "live_refs": [
+        "D02:101",
+        "D02:138",
+        "ready|57992.6989",
+        "run2|95974.7409"
+      ]
+    },
+    "join_guild_normal": {
+      "method": "PUT",
+      "path": "/guilds/{id}/members/@me",
+      "body": {},
+      "response": "{id, join_request?, show_verification_form?, welcome_screen?, approximate_presence_count?}",
+      "evidence": "S",
+      "client_codes": [
+        "30001 TOO_MANY_USER_GUILDS",
+        "30019 GUILD_AT_CAPACITY",
+        "7e5 USER_GUILD_JOIN_LARGE_GUILD_UNDERAGE_DISALLOWED"
+      ]
+    },
+    "leave_guild": {
+      "method": "DELETE",
+      "path": "/users/@me/guilds/{id}",
+      "body": "{lurking: boolean}",
+      "body_notes": "computed by client as isLurking(guild) || isCurrentUserGuest(guild)",
+      "response": "not read by client (only .then())",
+      "evidence": "S",
+      "live_observed": false,
+      "http_codes": "A",
+      "lurker_guest_semantics": "A"
+    },
+    "delete_guild": {
+      "method": "POST",
+      "path": "/guilds/{id}/delete",
+      "body": null,
+      "response": "not read",
+      "evidence": "S",
+      "http_codes": "A"
+    },
+    "invite_create": {
+      "method": "POST",
+      "path": "/channels/{id}/invites",
+      "body": [
+        "max_age",
+        "max_uses",
+        "temporary",
+        "unique",
+        "target_type",
+        "target_user_id",
+        "target_application_id"
+      ],
+      "response": "{code, type, channel{id,name,type}, guild{id,name,icon}, expires_at, max_age, max_uses, uses, temporary}",
+      "evidence": "S",
+      "live_observed": false,
+      "http_codes": "A"
+    },
+    "invite_list": {
+      "method": "GET",
+      "path": "/guilds/{id}/invites",
+      "response": "array of invites",
+      "evidence": "S",
+      "live_observed": false,
+      "http_codes": "A"
+    },
+    "guild_list": {
+      "source": "READY.guilds[] + READY_SUPPLEMENTAL",
+      "rest_endpoint": false,
+      "rest_note": "GET /users/@me/guilds is absent in the client bundle",
+      "evidence": [
+        "S",
+        "L"
+      ],
+      "guild_create_observed_live": false
+    },
+    "guild_get": {
+      "method": "GET",
+      "path": "/guilds/{id}",
+      "evidence": "D",
+      "usage": "fallback refresh of one guild after accept"
+    }
+  },
+  "success_rule": {
+    "text": "success only on 2xx (accept; enter 204; leave any 2xx)",
+    "extra_field_used": false,
+    "timeout_state": "unknown result, no rail mutation",
+    "body_read": {
+      "invite_accept": true,
+      "enter_guild": false,
+      "leave": false
+    }
+  },
+  "geometry": {
+    "rail": {
+      "width": {
+        "value": 64,
+        "unit": "px",
+        "mark": "T",
+        "token": "--layout-rail-w"
+      },
+      "guild_item": {
+        "value": 40,
+        "unit": "px",
+        "mark": "T",
+        "token": "--layout-guild-item"
+      },
+      "gap": {
+        "value": 4,
+        "unit": "px",
+        "mark": "T",
+        "token": "--space-2"
+      },
+      "padding_block": {
+        "value": 6,
+        "unit": "px",
+        "mark": "T",
+        "token": "--space-3"
+      },
+      "radius": {
+        "value": 14,
+        "unit": "px",
+        "mark": "T",
+        "token": "--radius-selected"
+      },
+      "radius_hover": {
+        "value": 12,
+        "unit": "px",
+        "mark": "T",
+        "token": "--radius-md"
+      },
+      "icon": {
+        "value": 20,
+        "unit": "px",
+        "mark": "T",
+        "token": "--icon-size"
+      },
+      "add_button": {
+        "width": 40,
+        "height": 40,
+        "mark": "A"
+      },
+      "selected_indicator": {
+        "width": 4,
+        "height": 32,
+        "mark": "A"
+      }
+    },
+    "server_menu": {
+      "measurement": "measured",
+      "width": {
+        "value": 288,
+        "unit": "px",
+        "tolerance": 1,
+        "mark": "M",
+        "note": "bbox 361 px image / 1.25 = 288.8"
+      },
+      "padding": {
+        "value": 8,
+        "unit": "px",
+        "mark": "T",
+        "token": "--menu-pad"
+      },
+      "radius": {
+        "value": 8,
+        "unit": "px",
+        "mark": "M"
+      },
+      "background": {
+        "value": "#28282d",
+        "mark": "M",
+        "token": "--surface-3"
+      },
+      "shadow": {
+        "value": "var(--shadow-popover)",
+        "mark": "T"
+      },
+      "border": {
+        "value": "1px solid var(--border-subtle)",
+        "mark": "A"
+      },
+      "item_height": {
+        "value": 32,
+        "unit": "px",
+        "mark": "A",
+        "token": "--row-menu-item"
+      },
+      "group_block": {
+        "value": 48,
+        "unit": "px",
+        "mark": "M",
+        "note": "8 + 32 + 8; 60 px image / 1.25"
+      },
+      "item_padding_x": {
+        "value": 8,
+        "unit": "px",
+        "mark": "A"
+      },
+      "item_radius": {
+        "value": 4,
+        "unit": "px",
+        "mark": "A",
+        "token": "--radius-xs"
+      },
+      "item_font": {
+        "size": 14,
+        "line_height": 18,
+        "mark": "T",
+        "token": "--font-size-ui"
+      },
+      "item_color": {
+        "value": "#fbfbfb",
+        "mark": "M",
+        "token": "--text-strong"
+      },
+      "subtitle_font": {
+        "size": 12,
+        "line_height": 16,
+        "mark": "T",
+        "token": "--font-size-small"
+      },
+      "separator": {
+        "value": "1px var(--divider)",
+        "mark": "M"
+      },
+      "danger_text": {
+        "value": "var(--danger-text)",
+        "mark": "T"
+      },
+      "max_height": {
+        "value": 480,
+        "unit": "px",
+        "mark": "A"
+      },
+      "z_index": {
+        "value": 100,
+        "mark": "T",
+        "token": "--z-popover"
+      }
+    },
+    "dialog": {
+      "measurement": "unmeasured",
+      "measurement_note": "no join/leave screenshots in the dump; values are project tokens and authored composition, not an original measurement",
+      "scrim": {
+        "value": "rgb(0 0 0 / 72%)",
+        "mark": "A"
+      },
+      "width": {
+        "value": 442,
+        "unit": "px",
+        "mark": "T",
+        "token": "--modal-w-sm",
+        "max": "calc(100vw - 48px)"
+      },
+      "padding_y": {
+        "value": 16,
+        "unit": "px",
+        "mark": "T",
+        "token": "--modal-pad-y"
+      },
+      "padding_x": {
+        "value": 24,
+        "unit": "px",
+        "mark": "T",
+        "token": "--modal-pad-x"
+      },
+      "radius": {
+        "value": 12,
+        "unit": "px",
+        "mark": "A",
+        "token": "--radius-md"
+      },
+      "background": {
+        "value": "var(--surface-2)",
+        "mark": "T"
+      },
+      "shadow": {
+        "value": "var(--shadow-popover)",
+        "mark": "T"
+      },
+      "gap": {
+        "value": 16,
+        "unit": "px",
+        "mark": "T",
+        "token": "--space-6"
+      },
+      "title_font": {
+        "size": 20,
+        "line_height": 24,
+        "weight": 600,
+        "mark": "T",
+        "token": "--font-size-title"
+      },
+      "text_font": {
+        "size": 14,
+        "line_height": 18,
+        "mark": "T",
+        "token": "--font-size-ui"
+      },
+      "hint_font": {
+        "size": 12,
+        "line_height": 16,
+        "mark": "T",
+        "token": "--font-size-small"
+      },
+      "input_height": {
+        "value": 40,
+        "unit": "px",
+        "mark": "T",
+        "token": "--input-height"
+      },
+      "input_padding_x": {
+        "value": 12,
+        "unit": "px",
+        "mark": "T",
+        "token": "--space-5"
+      },
+      "input_radius": {
+        "value": 8,
+        "unit": "px",
+        "mark": "T",
+        "token": "--radius-sm"
+      },
+      "button_height": {
+        "value": 38,
+        "unit": "px",
+        "mark": "T",
+        "token": "--btn-height-lg"
+      },
+      "button_padding_x": {
+        "value": 16,
+        "unit": "px",
+        "mark": "T",
+        "token": "--btn-pad-x"
+      },
+      "actions_gap": {
+        "value": 8,
+        "unit": "px",
+        "mark": "T",
+        "token": "--space-4"
+      },
+      "z_index": {
+        "value": 200,
+        "mark": "T",
+        "token": "--z-modal"
+      },
+      "timeout_ms": {
+        "value": 15000,
+        "mark": "A"
+      }
+    },
+    "join_preview": {
+      "measurement": "unmeasured",
+      "container": {
+        "background": "var(--surface-3)",
+        "radius": 8,
+        "padding": 12,
+        "gap": 12,
+        "mark": "A"
+      },
+      "avatar": {
+        "value": 40,
+        "unit": "px",
+        "mark": "T",
+        "token": "--avatar-lg"
+      },
+      "name_font": {
+        "size": 16,
+        "line_height": 22,
+        "weight": 600,
+        "mark": "T",
+        "token": "--font-size-body"
+      },
+      "meta_font": {
+        "size": 12,
+        "line_height": 16,
+        "mark": "T",
+        "token": "--font-size-small"
+      },
+      "loading_height": {
+        "value": 56,
+        "unit": "px",
+        "mark": "A"
+      },
+      "data_source": "GET /invites/{code} (S); no client-side invention"
+    },
+    "focus": {
+      "ring": {
+        "value": "2px solid var(--focus-ring)",
+        "mark": "T",
+        "token": "--focus-ring-width"
+      },
+      "offset": {
+        "value": 2,
+        "unit": "px",
+        "mark": "T",
+        "token": "--focus-ring-offset"
+      }
+    }
+  },
+  "menu_items": [
+    {
+      "n": 1,
+      "text": "Пометить как прочитанное",
+      "role": "menuitem",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true
+    },
+    {
+      "n": 2,
+      "text": "Пригласить на сервер",
+      "role": "menuitem",
+      "action": "guild-invite",
+      "n1d": true,
+      "aria_disabled": false,
+      "haspopup": "dialog"
+    },
+    {
+      "n": 3,
+      "text": "Заглушить сервер",
+      "role": "menuitem",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true,
+      "haspopup": "menu"
+    },
+    {
+      "n": 4,
+      "text": "Параметры уведомлений",
+      "subtitle": "Только @упоминания",
+      "role": "menuitem",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true,
+      "haspopup": "menu"
+    },
+    {
+      "n": 5,
+      "text": "Скрыть заглушённые каналы",
+      "role": "menuitemcheckbox",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true,
+      "aria_checked": false
+    },
+    {
+      "n": 6,
+      "text": "Настройки конфиденциальности",
+      "role": "menuitem",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true
+    },
+    {
+      "n": 7,
+      "text": "Редактировать личный профиль сервера",
+      "role": "menuitem",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true
+    },
+    {
+      "n": 8,
+      "text": "Переместить...",
+      "role": "menuitem",
+      "action": null,
+      "n1d": false,
+      "aria_disabled": true,
+      "haspopup": "menu"
+    },
+    {
+      "n": 9,
+      "text": "Покинуть сервер",
+      "role": "menuitem",
+      "action": "guild-leave",
+      "n1d": true,
+      "aria_disabled": false,
+      "variant": "danger"
+    },
+    {
+      "n": 10,
+      "text": "Копировать ID сервера",
+      "role": "menuitem",
+      "action": "guild-copy-id",
+      "n1d": true,
+      "aria_disabled": false
+    }
+  ],
+  "selectors": {
+    "rail": "#guild-rail",
+    "add_server": "[data-action=\"add-server\"]",
+    "guild_menu_button": "[data-action=\"guild-menu\"]",
+    "server_menu": "#server-menu",
+    "join_dialog": "#join-server-dialog",
+    "join_form": "#join-server-form",
+    "join_input": "#join-invite-input",
+    "join_submit": "#join-submit",
+    "join_error": "#join-error",
+    "join_status": "#join-status",
+    "join_preview": "#join-preview",
+    "enter_guild": "[data-action=\"enter-guild\"]",
+    "leave_dialog": "#leave-server-dialog",
+    "leave_confirm": "#leave-confirm",
+    "leave_error": "#leave-error",
+    "invite_dialog": "#invite-dialog",
+    "invite_link": "#invite-link",
+    "invite_copy": "#invite-copy",
+    "server_status": "#server-status",
+    "auth_gate": "#auth-gate"
+  },
+  "data_actions": [
+    {
+      "name": "add-server",
+      "element": "rail +",
+      "opens": "#join-server-dialog"
+    },
+    {
+      "name": "guild-invite",
+      "element": "menu item 2",
+      "opens": "#invite-dialog",
+      "capability": "canInvite"
+    },
+    {
+      "name": "guild-leave",
+      "element": "menu item 9",
+      "opens": "#leave-server-dialog"
+    },
+    {
+      "name": "guild-copy-id",
+      "element": "menu item 10"
+    },
+    {
+      "name": "guild-list-retry",
+      "element": "rail error tile"
+    },
+    {
+      "name": "join-submit",
+      "element": "join primary button"
+    },
+    {
+      "name": "join-cancel",
+      "element": "join secondary button"
+    },
+    {
+      "name": "enter-guild",
+      "element": "preview button",
+      "request": "PUT /guilds/{id}/members/@me?lurker=true"
+    },
+    {
+      "name": "leave-confirm",
+      "element": "leave destructive button"
+    },
+    {
+      "name": "leave-cancel",
+      "element": "leave secondary button"
+    },
+    {
+      "name": "dialog-close",
+      "element": "dialog close icon"
+    }
+  ],
+  "states": {
+    "guild_list": [
+      "loading",
+      "ready",
+      "empty",
+      "error",
+      "offline"
+    ],
+    "join": [
+      "idle",
+      "invalid",
+      "resolving",
+      "preview_ready",
+      "accepting",
+      "accepted",
+      "entering",
+      "entered",
+      "error",
+      "already_member",
+      "screening"
+    ],
+    "leave": [
+      "idle",
+      "pending",
+      "left",
+      "error",
+      "owner_blocked"
+    ],
+    "invite": [
+      "loading",
+      "ready",
+      "empty",
+      "error"
+    ],
+    "success_rule": "success only on 2xx (accept; enter 204; leave any 2xx); timeout => unknown result and no rail mutation"
+  },
+  "errors": [
+    {
+      "step": "input",
+      "case": "empty",
+      "source": "client",
+      "title": "Введите ссылку-приглашение или код",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "input",
+      "case": "format",
+      "source": "client",
+      "title": "Ссылка-приглашение выглядит неверно",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "both",
+      "case": "401",
+      "source": "http",
+      "title": "Сессия истекла. Войдите снова.",
+      "mark": "A",
+      "retry": false,
+      "action": "open #auth-gate"
+    },
+    {
+      "step": "both",
+      "case": "403_generic",
+      "source": "http",
+      "title": "Недостаточно прав, чтобы присоединиться к этому серверу.",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "both",
+      "case": "banned",
+      "source": "client code USER_BANNED",
+      "title": "Ой-ой. Похоже, вас забанили. Теперь вы не сможете присоединиться к этому серверу и взаимодействовать с ним.",
+      "key": "5AkWAd",
+      "mark": "S",
+      "retry": false
+    },
+    {
+      "step": "both",
+      "case": "invites_paused",
+      "source": "A",
+      "title": "Приглашения на этот сервер приостановлены.",
+      "key": "2LLbj9",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "accept",
+      "case": "screening",
+      "source": "A",
+      "title": "Чтобы присоединиться к серверу, нужно подать заявку на вступление и дождаться её одобрения",
+      "key": "kJj2oG",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "accept",
+      "case": "age_gated",
+      "source": "A",
+      "title": "Подтвердите возраст, чтобы присоединиться к этому серверу.",
+      "key": "8Ow7Xi",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "accept",
+      "case": "client_outdated",
+      "source": "A",
+      "title": "Обновите приложение, чтобы присоединиться к серверу.",
+      "key": "kkjNHU",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "accept",
+      "case": "guild_limit",
+      "source": "A (codes 30001/30019 from GUILD_JOIN S)",
+      "title": "Чтобы присоединиться к новому серверу, покиньте один из имеющихся серверов.",
+      "key": "iLyuDO",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "preview",
+      "case": "invalid_invite",
+      "source": "A",
+      "title": "Приглашение недействительно",
+      "body": "Приглашение содержит ошибку, или истёк срок его действия.",
+      "key": "kux01N",
+      "body_key": "GEYI+Z",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "preview",
+      "case": "invite_expired",
+      "source": "A",
+      "title": "Приглашение устарело",
+      "key": "isTJ7A",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "accept",
+      "case": "already_member",
+      "source": "A",
+      "title": "Вы уже участник",
+      "key": "FDsl+J",
+      "mark": "A",
+      "retry": false,
+      "action": "navigate to guild"
+    },
+    {
+      "step": "both",
+      "case": "rate_limited",
+      "source": "A",
+      "title": "Слишком много попыток. Повторите через {n} с.",
+      "mark": "A",
+      "retry": true,
+      "retry_after": true
+    },
+    {
+      "step": "both",
+      "case": "applications_rate_limit",
+      "source": "A",
+      "title": "Вы рассылали слишком много заявок на вступление в гильдию.",
+      "key": "yjpDQ3",
+      "mark": "A",
+      "retry": true,
+      "retry_after": true
+    },
+    {
+      "step": "both",
+      "case": "server_error",
+      "source": "5xx",
+      "title": "Сервер не ответил. Попробуйте ещё раз.",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "both",
+      "case": "network",
+      "source": "network",
+      "title": "Сетевое подключение ограничено или недоступно.",
+      "key": "1BRkQ1",
+      "mark": "D",
+      "retry": true
+    },
+    {
+      "step": "both",
+      "case": "timeout_unknown",
+      "source": "no 2xx",
+      "title": "Результат неизвестен. Сервер не ответил; проверьте список серверов и повторите.",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "both",
+      "case": "unknown",
+      "source": "unknown",
+      "title": "Невозможно присоединиться к серверу",
+      "body": "Неизвестная ошибка",
+      "key": "2yTd7D",
+      "body_key": "xex86n",
+      "mark": "D",
+      "retry": true
+    },
+    {
+      "step": "leave",
+      "case": "leave_403_generic",
+      "source": "http",
+      "title": "Недостаточно прав, чтобы покинуть сервер.",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "leave",
+      "case": "leave_owner",
+      "source": "isOwner",
+      "title": "Владелец сервера",
+      "body": "Сначала передайте права владельца или удалите сервер.",
+      "key": "NWhYJg",
+      "mark": "D",
+      "retry": false
+    },
+    {
+      "step": "leave",
+      "case": "leave_404",
+      "source": "A",
+      "title": "Сервер не найден. Возможно, вы уже вышли.",
+      "mark": "A",
+      "retry": false
+    },
+    {
+      "step": "leave",
+      "case": "leave_network",
+      "source": "network",
+      "title": "Не удалось выйти с сервера. Попробуйте ещё раз.",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "leave",
+      "case": "leave_timeout_unknown",
+      "source": "no 2xx",
+      "title": "Результат неизвестен. Проверьте список серверов.",
+      "mark": "A",
+      "retry": true
+    },
+    {
+      "step": "list",
+      "case": "list_error",
+      "source": "5xx/network",
+      "title": "Не удалось загрузить серверы",
+      "mark": "A",
+      "retry": true
+    }
+  ],
+  "copy": {
+    "join_title": {
+      "text": "Присоединиться к серверу",
+      "key": "Ts/9Ac",
+      "mark": "D"
+    },
+    "join_hint": {
+      "text": "Введите приглашение, чтобы присоединиться к существующему серверу.",
+      "key": "lVvN3A",
+      "mark": "D"
+    },
+    "join_placeholder": {
+      "text": "Введите ссылку-приглашение или код, чтобы присоединиться к серверу",
+      "key": "cs48bs",
+      "mark": "D"
+    },
+    "join_submit": {
+      "text": "Присоединиться",
+      "key": "sqe0hj",
+      "mark": "D"
+    },
+    "cancel": {
+      "text": "Отмена",
+      "key": "4gTnU0",
+      "mark": "D"
+    },
+    "pending": {
+      "text": "Приглашение обрабатывается",
+      "key": "B44+cH",
+      "mark": "D"
+    },
+    "joined": {
+      "text": "Вы присоединились к серверу «{name}»!",
+      "key": "33M5bg",
+      "mark": "D"
+    },
+    "enter_open": {
+      "text": "Сервер открыт для просмотра",
+      "mark": "A"
+    },
+    "leave_menu": {
+      "text": "Покинуть сервер",
+      "key": "XZeKIc",
+      "mark": "D"
+    },
+    "leave_title": {
+      "text": "Вы уверены, что хотите покинуть этот сервер?",
+      "key": "AVazqJ",
+      "mark": "D"
+    },
+    "leave_title_named": {
+      "text": "Вы уверены, что хотите покинуть «{name}»? Вы не сможете вернуться на этот сервер, пока вас снова не пригласят.",
+      "key": "ZEXC0r",
+      "mark": "D"
+    },
+    "leave_button": {
+      "text": "Покинуть сервер",
+      "key": "cU96ip",
+      "mark": "D"
+    },
+    "left": {
+      "text": "Вы покинули сервер",
+      "key": "7iPyVW",
+      "mark": "D"
+    },
+    "owner": {
+      "text": "Владелец сервера",
+      "key": "NWhYJg",
+      "mark": "D"
+    },
+    "delete_server": {
+      "text": "Удалить сервер",
+      "key": "XW1okC",
+      "mark": "D"
+    },
+    "invite_menu": {
+      "text": "Пригласить на сервер",
+      "key": "Sd8Ixw",
+      "mark": "D"
+    },
+    "invite_body": {
+      "text": "Поделитесь этой ссылкой с другими, чтобы предоставить им доступ к этому серверу",
+      "key": "ueBhA9",
+      "mark": "D"
+    },
+    "invite_copy": {
+      "text": "Скопировать ссылку-приглашение",
+      "key": "3XVNyt",
+      "mark": "D"
+    },
+    "invite_copied": {
+      "text": "Приглашение скопировано!",
+      "key": "OhctG7",
+      "mark": "D"
+    },
+    "invite_create": {
+      "text": "Создать ссылку-приглашение",
+      "key": "KmK3q4",
+      "mark": "D"
+    },
+    "invite_error": {
+      "text": "Не удалось создать ссылку-приглашение.",
+      "key": "WB1ip6",
+      "mark": "D"
+    },
+    "empty_rail": {
+      "text": "Нет серверов",
+      "key": "52UOf9",
+      "mark": "D"
+    },
+    "empty_center": {
+      "text": "Похоже, вы пока что не присоединились ни к одному серверу.",
+      "key": "FHm4bZ",
+      "mark": "D"
+    },
+    "preview_error": {
+      "text": "Не удалось загрузить профиль для этого сервера.",
+      "key": "DwKFKd",
+      "mark": "D"
+    },
+    "preview_retry": {
+      "text": "Повторить загрузку профиля сервера",
+      "key": "s1fAEw",
+      "mark": "D"
+    },
+    "copy_id": {
+      "text": "Копировать ID сервера",
+      "key": "94lLD7",
+      "mark": "D"
+    },
+    "retry": {
+      "text": "Повторить",
+      "key": "w3ND8L",
+      "mark": "D"
+    },
+    "close": {
+      "text": "Закрыть",
+      "key": "QkQ1WT",
+      "mark": "D"
+    },
+    "network": {
+      "text": "Сетевое подключение ограничено или недоступно.",
+      "key": "1BRkQ1",
+      "mark": "D"
+    }
+  },
+  "authored_strings": [
+    "Например: abc123",
+    "Недостаточно прав, чтобы присоединиться к этому серверу.",
+    "Недостаточно прав, чтобы покинуть сервер.",
+    "Слишком много попыток. Повторите через {n} с.",
+    "Результат неизвестен. Сервер не ответил; проверьте список серверов и повторите.",
+    "Результат неизвестен. Проверьте список серверов.",
+    "Сессия истекла. Войдите снова.",
+    "Не удалось загрузить серверы",
+    "Не удалось скопировать ссылку",
+    "Сервер не ответил. Попробуйте ещё раз.",
+    "Сервер не найден. Возможно, вы уже вышли.",
+    "Сначала передайте права владельца или удалите сервер.",
+    "Ссылка-приглашение выглядит неверно",
+    "Вы покинете сервер «{name}».",
+    "Вы покинете сервер и вернётесь к личным сообщениям.",
+    "Сервер открыт для просмотра"
+  ],
+  "a11y": {
+    "rail": {
+      "role": "navigation",
+      "label": "Серверы и экраны",
+      "mark": "D"
+    },
+    "menu": {
+      "role": "menu",
+      "label": "Меню сервера",
+      "first_item_focus": true,
+      "mark": "A"
+    },
+    "join_dialog": {
+      "role": "dialog",
+      "aria_modal": true,
+      "labelledby": "join-server-title",
+      "describedby": "join-server-hint",
+      "mark": "A"
+    },
+    "leave_dialog": {
+      "role": "alertdialog",
+      "aria_modal": true,
+      "initial_focus": "leave-cancel",
+      "mark": "A"
+    },
+    "error": {
+      "role": "alert",
+      "aria_live": "assertive",
+      "mark": "A"
+    },
+    "status": {
+      "role": "status",
+      "aria_live": "polite",
+      "mark": "A"
+    },
+    "focus_trap": [
+      "join_dialog",
+      "leave_dialog",
+      "invite_dialog"
+    ],
+    "keyboard": [
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+      "Enter",
+      "Space",
+      "Escape",
+      "Tab"
+    ]
+  },
+  "test_ids": [
+    "SM-01",
+    "SM-02",
+    "SM-03",
+    "SM-04",
+    "SM-05",
+    "SM-06",
+    "SM-10",
+    "SM-11",
+    "SM-12",
+    "SM-13",
+    "SM-14",
+    "SM-15",
+    "SM-16",
+    "SM-20",
+    "SM-21",
+    "SM-22",
+    "SM-23",
+    "SM-24",
+    "SM-25",
+    "SM-26",
+    "SM-27",
+    "SM-28",
+    "SM-29",
+    "SM-30",
+    "SM-31",
+    "SM-32",
+    "SM-33",
+    "SM-34",
+    "SM-35",
+    "SM-36",
+    "SM-37",
+    "SM-38",
+    "SM-39",
+    "SM-40",
+    "SM-41",
+    "SM-42",
+    "SM-43",
+    "SM-44",
+    "SM-45",
+    "SM-46",
+    "SM-47",
+    "SM-48",
+    "SM-49",
+    "SM-50",
+    "SM-51",
+    "SM-52",
+    "SM-53",
+    "SM-54",
+    "SM-55",
+    "SM-60",
+    "SM-61",
+    "SM-62",
+    "SM-63",
+    "SM-64",
+    "SM-65",
+    "SM-66",
+    "SM-67",
+    "SM-68",
+    "SM-69"
+  ],
+  "gaps": [
+    {
+      "id": "G-01",
+      "text": "Нет скриншотов join/leave; геометрия модалок unmeasured (токены + A-сборка)",
+      "mark": "D/A"
+    },
+    {
+      "id": "G-02",
+      "text": "POST /invites/{code}: body S, HTTP codes/TTL/error body A; live not observed",
+      "mark": "S/A"
+    },
+    {
+      "id": "G-03",
+      "text": "GET /invites/{code}: contract S, live not observed, codes A",
+      "mark": "S/A"
+    },
+    {
+      "id": "G-04",
+      "text": "Invite list/create: contract S, live/codes A",
+      "mark": "S/A"
+    },
+    {
+      "id": "G-05",
+      "text": "Ширина поповера 288 без токена",
+      "mark": "M"
+    },
+    {
+      "id": "G-06",
+      "text": "Фон меню в дампе surface-3, в SPEC §7.14 surface-2",
+      "mark": "M/T"
+    },
+    {
+      "id": "G-07",
+      "text": "Двухстрочный пункт уведомлений выше 32",
+      "mark": "M"
+    },
+    {
+      "id": "G-08",
+      "text": "Deep links/вставка ссылки отложены",
+      "mark": "A"
+    },
+    {
+      "id": "G-09",
+      "text": "Owner-flow: delete guild S, UI disabled",
+      "mark": "S/A"
+    },
+    {
+      "id": "G-10",
+      "text": "Screening/возрастная верификация вне N1-02",
+      "mark": "A"
+    },
+    {
+      "id": "G-11",
+      "text": "Иконки гильдий: URL не подтверждён",
+      "mark": "A"
+    },
+    {
+      "id": "G-12",
+      "text": "Таймаут 15 с и retry_after — наши числа",
+      "mark": "A"
+    },
+    {
+      "id": "G-13",
+      "text": "row-menu-item 32 — A в tokens, подтверждён замером блока 48",
+      "mark": "M/A"
+    },
+    {
+      "id": "G-14",
+      "text": "Экран «Создать сервер»/«У вас уже есть приглашение?» вне N1-02",
+      "mark": "D/A"
+    },
+    {
+      "id": "G-15",
+      "text": "Семантика lurking/guest в leave и коды 403/404 — A; фикстуры 204/403",
+      "mark": "S/A"
+    },
+    {
+      "id": "G-16",
+      "text": "GUILD_CREATE не наблюдался; список из READY; fallback GET /guilds/{id} D",
+      "mark": "S/A"
+    },
+    {
+      "id": "G-17",
+      "text": "received_installation_id может быть null; TTL очистки неизвестен",
+      "mark": "S/A"
+    }
+  ],
+  "contrast": {
+    "danger_text_on_surface_3": 7.24,
+    "text_strong_on_surface_3": 14.18,
+    "text_muted_on_surface_2": 5.31,
+    "text_subtle_on_surface_2": 6.82,
+    "white_on_danger_fill": 4.85,
+    "white_on_accent": 4.61,
+    "text_accent_on_surface_2": 7.54
+  }
+}

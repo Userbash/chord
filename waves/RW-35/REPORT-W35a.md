@@ -12,13 +12,13 @@ Seat: W35a. Крейт: `discord-platform`. Статус: **готово к пр
 | `rust/crates/discord-platform/src/dbus/message.rs` | `8909d75aa31af2b2179662a9d0f73e5f` |
 | `rust/crates/discord-platform/src/power.rs` | `3678530bb5fec80b1014062f8078ecad` |
 | `rust/crates/discord-platform/Cargo.toml` | `ce6dde28a38327dce50362823399e472` |
-| `rust/crates/discord-platform/tests/dbus_contract.rs` | `b596f717228e7153eb07ff0825006208` |
+| `rust/crates/discord-platform/tests/dbus_contract.rs` | `2ab1e938270d4c857ab2cf01df975e77` |
 | `rust/crates/discord-platform/tests/power_contract.rs` | `ba556c44a91ca3e18054f0d87c84ca5a` |
 | `waves/RW-35/power/mock_logind.py` (новый) | `aae1b8be6db9620fda0c6d1ba2cb47b6` |
 | `waves/RW-35/workers/W35a/red.log` | `2b13e539e74e1b2c045762b7b7d62b5b` |
-| `waves/RW-35/workers/W35a/green.log` | `20440a60943990ba78831797b8bbfcf5` |
-| `waves/RW-35/run-mutations-w35a.py` | `2f48c3b47a540d1b58f4e49e2da781d6` |
-| `waves/RW-35/mutations-w35a.log` | `848001c16e094ce75ef72a7b7a7a72a1` |
+| `waves/RW-35/workers/W35a/green.log` | `f5d331de4cd494af4f3e3626136e34e2` |
+| `waves/RW-35/run-mutations-w35a.py` | `28dd2921bc59a88236e6bd9151b69f9c` |
+| `waves/RW-35/mutations-w35a.log` | `85d55cf79cdca844dffda40d3d363a74` |
 
 `rust/Cargo.lock` изменён только резолвом `libc 0.2.191` для `discord-platform`
 (разрешено `BATCH-TZ.md` §1); `rust/dist/sbom.spdx.json` (`e3d4f2f9051f7271eaa79e562bac1cb6`)
@@ -166,3 +166,13 @@ Baseline: оба бинарника `test result: ok`, harness-SKIP нет (live
   Clone у UnixFd, магическая 16, дубликат UNIX_FDS, два live-флага, дедлайн чтения) — бэклог
   `STATE.md` §7.
 - red/green/мутации пересняты: `E0432`, 21+16 passed, **6/6**, restore по md5; md5 обновлены.
+
+## Мутационное усиление тестов (2026-10-23)
+
+По данным ревью (пережившие мутации `x2`/`x7`) добавлены регрессионные тесты и мутанты:
+
+- **f11** — дубликат индекса fd → `Protocol`, оба fd закрыты;
+- **f13** — сборка с `MAX_FDS_PER_MESSAGE + 1` → `Protocol`;
+- в `run-mutations-w35a.py` добавлены `m7` (снят запрет дубликата) и `m8` (снят лимит
+  отправки): прогон **8/8 KILLED**, baseline `SKIP=0`, restore по md5;
+- red/green пересняты: `E0432`, 23 + 16 passed.

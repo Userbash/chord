@@ -1,0 +1,298 @@
+/* =============================================================================
+ * voice.css — V-08 (RW-40): голосовая панель в колонке дерева.
+ *
+ * Геометрия — VOICE.md §4: панель в потоке (D-01: ширина колонки 240, а не 363
+ * Discord), строка участника 32 [D], ring 2px [A], кнопки 28/32 [T].
+ * Только токены tokens.css: придуманных значений и внешних ассетов нет.
+ * Стили состояний — единственный источник `#voice-panel[data-state]`.
+ * ========================================================================== */
+
+.voice-panel {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-1);
+  box-shadow: inset 0 1px 0 var(--border-subtle);
+}
+
+/* Панель без голосовой сессии: affordance видим, но действия честно слабые. */
+.voice-panel[data-state="disabled"] .voice-status,
+.voice-panel[data-state="disabled"] .voice-actions {
+  opacity: var(--state-disabled-opacity);
+}
+
+/* ---------- Блок связи: 32 (--btn-height) ---------- */
+
+.voice-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--btn-height);
+}
+
+.voice-ping {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height);
+  height: var(--btn-height);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--positive);
+  cursor: pointer;
+}
+
+.voice-ping[data-quality="average"] {
+  color: var(--warning);
+}
+
+.voice-ping[data-quality="bad"] {
+  color: var(--danger);
+}
+
+.voice-ping[aria-disabled="true"] {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.voice-status-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.voice-status-label {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-channel {
+  overflow: hidden;
+  color: var(--text-subtle);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-channel:hover {
+  text-decoration: underline;
+}
+
+.voice-status-hint {
+  color: var(--text-subtle);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.voice-status-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.voice-status-actions button,
+.voice-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.voice-status-actions button:hover,
+.voice-action:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.voice-status-actions button:active,
+.voice-action:active {
+  background: var(--state-active);
+}
+
+.voice-status-actions button[aria-disabled="true"],
+.voice-action[aria-disabled="true"],
+.voice-toggle[aria-disabled="true"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: default;
+}
+
+.voice-panel button:focus-visible,
+.voice-channel:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Skeleton загрузки — наша сборка [A]: две плашки вместо текста. */
+.voice-skeleton {
+  display: block;
+  width: 100%;
+  height: var(--space-2);
+  margin: var(--space-1) 0;
+  border-radius: var(--radius-xs);
+  background: var(--surface-4);
+  opacity: var(--state-disabled-opacity);
+}
+
+/* ---------- Участники: строка 32 [D] ---------- */
+
+.voice-participants {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 192px; /* 6 строк × 32 ([D] + PARTICIPANT_LIMIT) */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.voice-user {
+  /* Строка участника 32 [D] (в Discord 268×32 при панели 363; у нас ширина
+     колонки — D-01: 240, поэтому width: 100%). */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.voice-user:hover {
+  background: var(--state-hover);
+}
+
+.voice-user-avatar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
+  border-radius: var(--radius-round);
+  background: var(--surface-4);
+  color: var(--text-strong);
+  font-size: var(--font-size-caption);
+  transition: box-shadow var(--motion-fast) ease-out;
+}
+
+/* Speaking: кольцо 2px --positive, без пульсации (VOICE.md §2.3, [A]). */
+.voice-user[data-speaking="true"] .voice-user-avatar {
+  box-shadow: 0 0 0 2px var(--positive);
+}
+
+.voice-user-name {
+  overflow: hidden;
+  flex: 1;
+  color: var(--text-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-user-state {
+  overflow: hidden;
+  flex: 0 1 auto;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-user[data-mute="server"] .voice-user-avatar {
+  color: var(--danger);
+}
+
+.voice-overflow,
+.voice-empty {
+  color: var(--text-subtle);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  padding: 0 var(--space-2);
+}
+
+.voice-error {
+  color: var(--danger);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+/* ---------- Ряд действий и своя строка ---------- */
+
+.voice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.voice-user-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--btn-height);
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--divider);
+}
+
+.voice-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height);
+  height: var(--btn-height);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.voice-toggle:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.voice-toggle[aria-checked="true"] {
+  color: var(--danger);
+}
+
+/* PTT held: индикатор не только цветом — текст в #voice-a11y (VOICE.md §3.3). */
+.voice-panel[data-ptt="held"] .voice-toggle {
+  color: var(--positive);
+}
+
+.voice-panel[data-ptt="blocked"] .voice-toggle {
+  color: var(--warning);
+}
+
+/* ---------- Движение ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-user-avatar {
+    transition: none;
+  }
+}

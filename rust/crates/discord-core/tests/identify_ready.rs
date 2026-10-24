@@ -903,6 +903,7 @@ async fn ws_identify_sent_once_after_hello() {
             &mut pipe,
             RunOptions {
                 identify: Some(test_params()),
+                on_dispatch: None,
             },
         ),
     )
@@ -1090,6 +1091,7 @@ async fn ws_identify_only_after_hello() {
             &mut pipe,
             RunOptions {
                 identify: Some(test_params()),
+                on_dispatch: None,
             },
         ),
     )

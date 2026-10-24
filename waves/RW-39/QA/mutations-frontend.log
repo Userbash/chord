@@ -1,0 +1,175 @@
+# RW-39 QA-1: мутации frontend-инвариантов
+# дата: 2026-10-23T16:54:41.777Z
+# команда на мутанта: GUI_DOM_APP=<копия>/app.js node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs
+#
+baseline md5 642e1d8f9a35ca0bc6e0dced394ebd77  model.js
+baseline md5 19593612f1c70827ba9e5d8b28a4bcde  features/emoji.js
+baseline md5 d2d6433e6e47dd19c28aad8f073c2c17  features/chat.js
+baseline md5 b5cad5847b8ca4b99d70a8df9ababfc5  features/screens.js
+baseline md5 1499ed3b396ae1a57b6ec73b31178af9  features/settings.js
+
+## M1: высота продолжения 26→44
+файл: model.js
+md5 до:      642e1d8f9a35ca0bc6e0dced394ebd77
+md5 мутанта: c30cecde201ce5489e88217197c3a17d
+exit: 1 (CAUGHT)
+упавших проверок: 7
+  ✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.476661ms)
+  ✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.338751ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (5.199071ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (105.860599ms)
+  ✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.476661ms)
+  ✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.338751ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (5.199071ms)
+md5 после restore: 642e1d8f9a35ca0bc6e0dced394ebd77 == до
+
+## M2: начало группы 48→44
+файл: model.js
+md5 до:      642e1d8f9a35ca0bc6e0dced394ebd77
+md5 мутанта: d4c44d4d4b76e82e1f6d1fcc62017ec5
+exit: 1 (CAUGHT)
+упавших проверок: 7
+  ✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.678021ms)
+  ✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.182141ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.835681ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (105.688079ms)
+  ✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.678021ms)
+  ✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.182141ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.835681ms)
+md5 после restore: 642e1d8f9a35ca0bc6e0dced394ebd77 == до
+
+## M3: высота участника 42→40
+файл: model.js
+md5 до:      642e1d8f9a35ca0bc6e0dced394ebd77
+md5 мутанта: 8d56039b610e15a6ff24be1548f078ed
+exit: 1 (CAUGHT)
+упавших проверок: 8
+  ✖ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (3.485481ms)
+  ✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (4.309571ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (103.290278ms)
+  ✖ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (4.476741ms)
+  ✖ gui-spike features: интеракции W39d (59.883061ms)
+  ✖ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (3.485481ms)
+  ✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (4.309571ms)
+  ✖ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (4.476741ms)
+md5 после restore: 642e1d8f9a35ca0bc6e0dced394ebd77 == до
+
+## M4: #emoji-grid listbox→grid (в рантайме)
+файл: features/emoji.js
+md5 до:      19593612f1c70827ba9e5d8b28a4bcde
+md5 мутанта: 52e0179597f563aeab38287dec064038
+exit: 1 (CAUGHT)
+упавших проверок: 3
+  ✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.078801ms)
+  ✖ gui-spike features: интеракции W39d (62.964312ms)
+  ✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.078801ms)
+md5 после restore: 19593612f1c70827ba9e5d8b28a4bcde == до
+
+## M5a: ячейка option→gridcell
+файл: features/emoji.js
+md5 до:      19593612f1c70827ba9e5d8b28a4bcde
+md5 мутанта: a94268555d8f7bcb5e0e14c08a18d40a
+exit: 1 (CAUGHT)
+упавших проверок: 6
+  ✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (3.38524ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (114.954891ms)
+  ✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (5.035671ms)
+  ✖ gui-spike features: интеракции W39d (68.335612ms)
+  ✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (3.38524ms)
+  ✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (5.035671ms)
+md5 после restore: 19593612f1c70827ba9e5d8b28a4bcde == до
+
+## M5b: у ячейки убран aria-label
+файл: features/emoji.js
+md5 до:      19593612f1c70827ba9e5d8b28a4bcde
+md5 мутанта: f5299d0b8650c05b052bf450947fdbe9
+exit: 1 (CAUGHT)
+упавших проверок: 6
+  ✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (4.293691ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (106.04188ms)
+  ✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.399271ms)
+  ✖ gui-spike features: интеракции W39d (63.477402ms)
+  ✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (4.293691ms)
+  ✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.399271ms)
+md5 после restore: 19593612f1c70827ba9e5d8b28a4bcde == до
+
+## M6a: лимит окна: maxPages 5→6 (бюджет 500→600)
+файл: features/chat.js
+md5 до:      d2d6433e6e47dd19c28aad8f073c2c17
+md5 мутанта: 923edabc9a1ed4ba8a48739e98c3b498
+exit: 0 (MISSED)
+упавших проверок: 0
+md5 после restore: d2d6433e6e47dd19c28aad8f073c2c17 == до
+
+## M6b: лимит окна: pageSize 100→101 (бюджет 500→505)
+файл: features/chat.js
+md5 до:      d2d6433e6e47dd19c28aad8f073c2c17
+md5 мутанта: 375a9a38314c1584e51bfe7bb9c4f9ff
+exit: 1 (CAUGHT)
+упавших проверок: 3
+  ✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.86656ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (104.58826ms)
+  ✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.86656ms)
+md5 после restore: d2d6433e6e47dd19c28aad8f073c2c17 == до
+
+## M7: убран body[data-active-screen]
+файл: features/screens.js
+md5 до:      b5cad5847b8ca4b99d70a8df9ababfc5
+md5 мутанта: a6b4979144488bb4608d50cec829a6af
+exit: 1 (CAUGHT)
+упавших проверок: 9
+  ✖ body[data-active-screen] + aria-current на 4 экранах (18.337094ms)
+  ✖ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (4.379841ms)
+  ✖ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (3.34546ms)
+  ✖ штатная работа без console.error/warn (весь сценарий) (6.136491ms)
+  ✖ gui-spike features: интеракции W39d (62.762422ms)
+  ✖ body[data-active-screen] + aria-current на 4 экранах (18.337094ms)
+  ✖ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (4.379841ms)
+  ✖ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (3.34546ms)
+  ✖ штатная работа без console.error/warn (весь сценарий) (6.136491ms)
+md5 после restore: b5cad5847b8ca4b99d70a8df9ababfc5 == до
+
+## M8: поиск эмодзи no-op (фильтр игнорируется)
+файл: features/emoji.js
+md5 до:      19593612f1c70827ba9e5d8b28a4bcde
+md5 мутанта: dc38a5b364a288b4eaa426ba2c0d917f
+exit: 1 (CAUGHT)
+упавших проверок: 6
+  ✖ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (4.635961ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (111.98232ms)
+  ✖ эмодзи-поиск: вкладка фильтруется по запросу, сброс возвращает все ячейки (6.270231ms)
+  ✖ gui-spike features: интеракции W39d (61.020071ms)
+  ✖ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (4.635961ms)
+  ✖ эмодзи-поиск: вкладка фильтруется по запросу, сброс возвращает все ячейки (6.270231ms)
+md5 после restore: 19593612f1c70827ba9e5d8b28a4bcde == до
+
+## M9: число тумблеров 38→37 (убран «Превью»)
+файл: features/settings.js
+md5 до:      1499ed3b396ae1a57b6ec73b31178af9
+md5 мутанта: 7217fc3f742ea6ff586c7f8f5723dc20
+exit: 1 (CAUGHT)
+упавших проверок: 10
+  ✖ настройки: 38 чекбоксов в 3 группах, все включены (4.518671ms)
+  ✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (3.402481ms)
+  ✖ UI_SNAPSHOT: все поля контракта и actions=true (2.5511ms)
+  ✖ GUI spike: настоящий app.js в DOM-шиме (112.134361ms)
+  ✖ настройки: 38 канонических тумблеров (switch/aria-checked) + #settings-nav (3.21173ms)
+  ✖ gui-spike features: интеракции W39d (67.539582ms)
+  ✖ настройки: 38 чекбоксов в 3 группах, все включены (4.518671ms)
+  ✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (3.402481ms)
+  ✖ UI_SNAPSHOT: все поля контракта и actions=true (2.5511ms)
+  ✖ настройки: 38 канонических тумблеров (switch/aria-checked) + #settings-nav (3.21173ms)
+md5 после restore: 1499ed3b396ae1a57b6ec73b31178af9 == до
+
+## Итог: caught 10/11, missed 1
+- M1 CAUGHT (exit 1) — высота продолжения 26→44
+- M2 CAUGHT (exit 1) — начало группы 48→44
+- M3 CAUGHT (exit 1) — высота участника 42→40
+- M4 CAUGHT (exit 1) — #emoji-grid listbox→grid (в рантайме)
+- M5a CAUGHT (exit 1) — ячейка option→gridcell
+- M5b CAUGHT (exit 1) — у ячейки убран aria-label
+- M6a MISSED (exit 0) — лимит окна: maxPages 5→6 (бюджет 500→600)
+- M6b CAUGHT (exit 1) — лимит окна: pageSize 100→101 (бюджет 500→505)
+- M7 CAUGHT (exit 1) — убран body[data-active-screen]
+- M8 CAUGHT (exit 1) — поиск эмодзи no-op (фильтр игнорируется)
+- M9 CAUGHT (exit 1) — число тумблеров 38→37 (убран «Превью»)

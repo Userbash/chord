@@ -1,0 +1,12 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike`
+ --> tests/ipc_contract.rs:9:5
+  |
+9 | use discord_gui_spike::{
+  |     ^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `discord_gui_spike`
+  |
+  = help: if you wanted to use a crate named `discord_gui_spike`, use `cargo add discord_gui_spike` to add it to your `Cargo.toml`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "ipc_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

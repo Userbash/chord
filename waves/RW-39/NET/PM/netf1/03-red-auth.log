@@ -1,0 +1,20 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::auth::CAPTCHA_KEY_HEADER`, `discord_gui_spike::auth::CAPTCHA_RQTOKEN_HEADER`, `discord_gui_spike::auth::LOGIN_PATH`, `discord_gui_spike::auth::LoginOutcome`, `discord_gui_spike::auth::LoginTransport`, `discord_gui_spike::auth::LoginView`, `discord_gui_spike::auth::MFA_SMS_SEND_PATH`, `discord_gui_spike::auth::SmsChallenge`
+  --> tests/auth_contract.rs:23:58
+   |
+23 |     self, AuthBackend, AuthError, AuthState, AuthStatus, CAPTCHA_KEY_HEADER, CAPTCHA_RQTOKEN_HEADER,
+   |                                                          ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^ no `CAPTCHA_RQTOKEN_HEADER` in `auth`
+   |                                                          |
+   |                                                          no `CAPTCHA_KEY_HEADER` in `auth`
+24 |     IdentityContext, LOGIN_PATH, LoginOutcome, LoginTransport, LoginView, MFA_SMS_SEND_PATH,
+   |                      ^^^^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `MFA_SMS_SEND_PATH` in `auth`
+   |                      |           |             |               |
+   |                      |           |             |               no `LoginView` in `auth`
+   |                      |           |             no `LoginTransport` in `auth`
+   |                      |           no `LoginOutcome` in `auth`
+   |                      no `LOGIN_PATH` in `auth`
+25 |     SmsChallenge, ThreadedStore, TokenStore, TokenValidator, ValidationRequest,
+   |     ^^^^^^^^^^^^ no `SmsChallenge` in `auth`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "auth_contract") due to 1 previous error

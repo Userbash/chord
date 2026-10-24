@@ -1,0 +1,11 @@
+▶ GUI window probe (AT-SPI + X11)
+  ﹣ находит окно, элементы и снимает PNG (2.709694ms) # среда недоступна: gui-window-probe: SKIP: подмена среды для red-проверки P2-1
+✔ GUI window probe (AT-SPI + X11) (3.196694ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 30.533834

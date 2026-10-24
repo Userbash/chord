@@ -1,0 +1,25 @@
+    |
+721 |     fn new(released: Arc<(Mutex<bool>, Condvar)>) -> Self {
+    |                                        ^^^^^^^ not found in this scope
+    |
+help: consider importing this struct
+    |
+ 15 + use std::sync::Condvar;
+    |
+
+error[E0599]: no method named `with_timeout` found for struct `ThreadedStore` in the current scope
+   --> tests/auth_contract.rs:762:6
+    |
+759 |       let mut store = ThreadedStore::spawn(move || {
+    |  _____________________-
+760 | |         Ok(Box::new(BlockingStore::new(factory_released)) as Box<dyn TokenStore>)
+761 | |     })
+762 | |     .with_timeout(Duration::from_millis(50));
+    | |     -^^^^^^^^^^^^ method not found in `ThreadedStore`
+    | |_____|
+    |
+
+Some errors have detailed explanations: E0425, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "auth_contract") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

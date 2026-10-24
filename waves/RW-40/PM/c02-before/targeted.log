@@ -1,0 +1,20 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running tests/history_before_contract.rs (rust/gui-spike/target/debug/deps/history_before_contract-9944a40f440a8694)
+
+running 12 tests
+test older_page_dedups_by_id_and_applies_update_without_duplicate_rows ... ok
+test mutually_exclusive_anchors_are_invalid_arg ... ok
+test older_page_limit_bounds_and_window_invariant ... ok
+test older_page_serializes_documented_fields_only ... ok
+test latest_position_on_silent_channel_has_no_cursors ... ok
+test before_anchor_returns_immediately_older_rows_ascending ... ok
+test latest_position_on_channel_larger_than_limit_is_a_single_tail_page ... ok
+test before_paging_walks_back_to_start_without_overlap ... ok
+test latest_position_starts_at_newest_rows_and_pages_backwards ... ok
+test unknown_position_and_anchor_are_typed_errors ... ok
+test forward_paging_is_unchanged_and_gains_older_metadata ... ok
+test before_page_rows_match_forward_rows_exactly ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+

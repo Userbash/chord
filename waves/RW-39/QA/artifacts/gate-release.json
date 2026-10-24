@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "tool": "discord-lab gate",
+  "scope": "release",
+  "startedAt": "2026-10-23T17:57:04.411Z",
+  "finishedAt": "2026-10-23T17:57:26.526Z",
+  "git": {
+    "commit": "0239543297decf0eb6762160c837754e0e11548b",
+    "branch": "main",
+    "dirty": true
+  },
+  "gitCommit": "0239543297decf0eb6762160c837754e0e11548b",
+  "package": {
+    "name": "discord-function-lab",
+    "version": "0.1.0"
+  },
+  "verdict": "passed_with_skips",
+  "warnings": [
+    "e2e: пропущено 4 тестов — пропуск прохождением не считается"
+  ],
+  "phases": [
+    {
+      "name": "typecheck",
+      "ok": true,
+      "ms": 157,
+      "counts": null,
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "ui-tsc",
+      "ok": true,
+      "ms": 192,
+      "counts": null,
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "meta",
+      "ok": true,
+      "ms": 62,
+      "counts": {
+        "tests": 29,
+        "pass": 29,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "unit",
+      "ok": true,
+      "ms": 1365,
+      "counts": {
+        "tests": 298,
+        "pass": 298,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "spike-rust",
+      "ok": true,
+      "ms": 1231,
+      "counts": null,
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "smoke",
+      "ok": true,
+      "ms": 17265,
+      "counts": {
+        "tests": 22,
+        "pass": 22,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "e2e",
+      "ok": true,
+      "ms": 56,
+      "counts": {
+        "tests": 4,
+        "pass": 0,
+        "fail": 0,
+        "skipped": 4
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "coverage",
+      "ok": true,
+      "ms": 1537,
+      "counts": {
+        "tests": 298,
+        "pass": 298,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null
+    },
+    {
+      "name": "golden",
+      "ok": true,
+      "ms": 246,
+      "counts": null,
+      "note": null,
+      "extra": null
+    }
+  ]
+}

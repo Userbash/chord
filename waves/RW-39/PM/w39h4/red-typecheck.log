@@ -1,0 +1,82 @@
+# red: `npm run typecheck` ДО правок W39h4 (первый прогон воркера)
+# 74 ошибки TS: 12 embeds.js + 5 errors.js + 1 harness + 56 features test.
+# Ниже — полный список из первичного прогона (снят grep -E "error TS").
+
+rust/gui-spike/ui/features/embeds.js(16,14): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/embeds.js(19,19): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/embeds.js(50,14): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/embeds.js(53,16): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/embeds.js(57,14): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/embeds.js(60,18): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/embeds.js(81,14): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/embeds.js(84,16): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/embeds.js(86,17): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/embeds.js(100,14): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/embeds.js(112,14): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/embeds.js(116,16): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/errors.js(65,12): error TS2304: Cannot find name 'HTMLElement'.
+rust/gui-spike/ui/features/errors.js(72,17): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/errors.js(77,17): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/errors.js(80,16): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+rust/gui-spike/ui/features/errors.js(88,12): error TS2304: Cannot find name 'HTMLElement'.
+tests/support/gui-dom-harness.mjs(787,20): error TS2339: Property 'guild' does not exist on type 'Dataset'.
+tests/unit/gui-spike-features.test.mjs(130,5): error TS2353: Object literal may only specify known properties, and 'key' does not exist in type 'Partial<ShimEvent>'.
+tests/unit/gui-spike-features.test.mjs(219,39): error TS2353: Object literal may only specify known properties, and 'key' does not exist in type 'Partial<ShimEvent>'.
+tests/unit/gui-spike-features.test.mjs(227,39): error TS2353: Object literal may only specify known properties, and 'key' does not exist in type 'Partial<ShimEvent>'.
+tests/unit/gui-spike-features.test.mjs(585,58): error TS2353: Object literal may only specify known properties, and 'key' does not exist in type 'Partial<ShimEvent>'.
+tests/unit/gui-spike-features.test.mjs(779,20): error TS18048: 'band' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(780,20): error TS18048: 'band' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(781,20): error TS18048: 'band' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(782,20): error TS18048: 'band' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(798,20): error TS18048: 'bar' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(799,20): error TS18048: 'bar' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(805,20): error TS18048: 'bar' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(806,20): error TS18048: 'bar' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(808,23): error TS18048: 'bar' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(830,7): error TS18048: 'like' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(831,77): error TS18048: 'like' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1060,57): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ "role-admin": string; "role-mod": string; "role-guest": string; }'.
+tests/unit/gui-spike-features.test.mjs(1063,15): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ "status-online": string[]; "status-idle": string[]; "status-offline": string[]; }'.
+tests/unit/gui-spike-features.test.mjs(1084,38): error TS2353: Object literal may only specify known properties, and 'key' does not exist in type 'Partial<ShimEvent>'.
+tests/unit/gui-spike-features.test.mjs(1147,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1149,24): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1155,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1156,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1157,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1158,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1160,23): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1166,21): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1171,22): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1177,23): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1193,22): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1194,28): error TS18047: 'status' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1195,64): error TS18047: 'status' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1196,20): error TS18047: 'status' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1199,9): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1201,23): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1202,7): error TS18047: 'trigger' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1204,9): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1206,23): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1210,9): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1234,23): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1235,7): error TS18047: 'trigger' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1237,9): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1239,20): error TS18047: 'trigger' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1256,43): error TS7006: Parameter 'index' implicitly has an 'any' type.
+tests/unit/gui-spike-features.test.mjs(1257,37): error TS7006: Parameter 'index' implicitly has an 'any' type.
+tests/unit/gui-spike-features.test.mjs(1268,22): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1272,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1285,25): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1289,22): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1290,20): error TS18047: 'status' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1291,20): error TS18047: 'status' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1292,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1296,20): error TS18047: 'status' is possibly 'null'.
+tests/unit/gui-spike-features.test.mjs(1307,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1310,20): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1311,21): error TS18048: 'panel' is possibly 'undefined'.
+tests/unit/gui-spike-features.test.mjs(1314,20): error TS18048: 'panel' is possibly 'undefined'.
+
+# Итого 74: embeds 12, errors 5, harness 1, features 56.
+# `npx tsc -p rust/gui-spike/ui/tsconfig.json` был зелёным и до правок (в его
+# конфиге уже есть lib DOM, include — app.js), т.е. падал только общий tsconfig.

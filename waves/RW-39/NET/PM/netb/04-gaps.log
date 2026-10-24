@@ -1,0 +1,119 @@
+# NET-B absence evidence 2026-10-23T22:56:40+05:00
+
+## routes: auth/gateway endpoints present?
+74:    route(HttpMethod::Get, "/content-inventory/users/@me", &[]),
+80:    route(HttpMethod::Get, "/users/@me", &[]),
+
+## no gateway URL builder / constant
+(none)
+
+## no auth/session commands in Tauri
+(none)
+
+## no composition of ApiAuth from token
+rust/crates/discord-core/src/rest/telemetry.rs:7://! `Authorization`), `POST /beaker` (1), `POST /track` не наблюдался; в API-таблицу они
+rust/crates/discord-core/src/rest/headers.rs:14:/// `Authorization`, `X-Super-Properties`, `X-Discord-Locale`, `X-Discord-Timezone`,
+rust/crates/discord-core/src/rest/headers.rs:17:    "Authorization",
+rust/crates/discord-core/src/rest/headers.rs:29:    /// Значение заголовка `Authorization`.
+
+## no supervisor / reconnect loop
+rust/crates/discord-core/src/resume.rs:11://! [`plan_reconnect`]: разрыв меньше [`RESUME_MAX_DOWNTIME_MS`] и сессия известна и сервер не
+rust/crates/discord-core/src/resume.rs:145:pub fn plan_reconnect(
+rust/crates/discord-core/src/ws.rs:298:/// Опции прогона [`connect_and_run_with`] (RW-05).
+rust/crates/discord-core/src/ws.rs:377:/// Без IDENTIFY: эквивалент [`connect_and_run_with`] с [`RunOptions::none`].
+rust/crates/discord-core/src/ws.rs:387:    connect_and_run_with(url, pipe, RunOptions::none()).await
+rust/crates/discord-core/src/ws.rs:391:pub async fn connect_and_run_with(
+rust/crates/discord-core/src/ws.rs:396:    connect_and_run_resume(url, pipe, opts, None).await
+rust/crates/discord-core/src/ws.rs:404:pub async fn connect_and_run_resume(
+rust/crates/discord-core/src/lib.rs:11://! IDENTIFY op2 по структуре веб-клиента, сводка READY, `connect_and_run_with`/`last_ready`,
+rust/crates/discord-core/src/lib.rs:43:    build_resume_frame, plan_reconnect,
+rust/crates/discord-core/src/lib.rs:60:    GatewayPipe, RunOptions, RunOutcome, TransportError, connect_and_run, connect_and_run_resume,
+rust/crates/discord-core/src/lib.rs:61:    connect_and_run_with, encode_heartbeat,
+
+## keyring usages outside platform crate
+rust/crates/discord-platform/tests/keyring_contract.rs:12://!   подключаются к сервису (другого способа получить [`Keyring`] в замороженном API нет) и
+rust/crates/discord-platform/tests/keyring_contract.rs:24:use discord_platform::keyring::{Keyring, KeyringError};
+rust/crates/discord-platform/tests/keyring_contract.rs:61:fn keyring(require_live: bool) -> Option<(Keyring, MutexGuard<'static, ()>)> {
+rust/crates/discord-platform/tests/keyring_contract.rs:67:    match Keyring::connect() {
+rust/crates/discord-platform/tests/keyring_contract.rs:71:                panic!("{LIVE_ENV}=1, но Keyring::connect: {error}");
+rust/crates/discord-platform/tests/keyring_contract.rs:81:    keyring: Keyring,
+rust/crates/discord-platform/tests/keyring_contract.rs:86:    fn new(keyring: Keyring, tag: &str) -> Self {
+rust/crates/discord-platform/tests/keyring_contract.rs:311:        Err(KeyringError::InvalidKey)
+rust/crates/discord-platform/tests/keyring_contract.rs:313:    assert_eq!(keyring.lookup(""), Err(KeyringError::InvalidKey));
+rust/crates/discord-platform/tests/keyring_contract.rs:323:        Err(KeyringError::InvalidKey)
+rust/crates/discord-platform/tests/keyring_contract.rs:325:    assert_eq!(keyring.lookup("bad\0key"), Err(KeyringError::InvalidKey));
+rust/crates/discord-platform/tests/keyring_contract.rs:328:        Err(KeyringError::InvalidSecret)
+rust/crates/discord-platform/tests/keyring_contract.rs:358:        debug.contains("Keyring"),
+rust/crates/discord-platform/tests/keyring_contract.rs:380:    assert_eq!(error, KeyringError::InvalidSecret);
+rust/crates/discord-platform/tests/spellcheck_contract.rs:11:use discord_platform::spellcheck::{SpellChecker, SpellError, tokenize};
+rust/crates/discord-platform/tests/power_contract.rs:15:use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+rust/crates/discord-platform/tests/power_contract.rs:16:use discord_platform::power::{
+rust/crates/discord-platform/tests/dbus_contract.rs:10:use discord_platform::dbus::message::{self, FIELD_REPLY_SERIAL, FIELD_SIGNATURE, MessageType};
+rust/crates/discord-platform/tests/dbus_contract.rs:11:use discord_platform::dbus::{
+rust/crates/discord-platform/tests/dbus_contract.rs:14:use discord_platform::notifications;
+rust/crates/discord-platform/tests/dbus_contract.rs:15:use discord_platform::notifications::{Hints, Urgency};
+rust/crates/discord-platform/tests/notifications_contract.rs:14:use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+rust/crates/discord-platform/tests/notifications_contract.rs:15:use discord_platform::notifications::{Hints, Notification, NotificationEvent, Notifier, Urgency};
+rust/crates/discord-platform/tests/notifications_contract.rs:955:use discord_platform::dbus::message::{self, MessageType};
+rust/crates/discord-platform/tests/notifications_contract.rs:956:use discord_platform::notifications;
+rust/crates/discord-platform/tests/autostart_contract.rs:10:use discord_platform::autostart::{
+rust/crates/discord-platform/tests/deep_link_contract.rs:11:use discord_platform::deep_link::{
+rust/crates/discord-platform/src/keyring.rs:4://! [`Keyring::connect`] поднимает default-сервис сессионной шины, `store`/`lookup`/`clear`
+rust/crates/discord-platform/src/keyring.rs:10://! - пустой ключ и NUL в ключе → [`KeyringError::InvalidKey`]; NUL в секрете →
+rust/crates/discord-platform/src/keyring.rs:11://!   [`KeyringError::InvalidSecret`]; невалидный UTF-8 из сервиса → [`KeyringError::Encoding`];
+rust/crates/discord-platform/src/keyring.rs:12://!   ошибка glib/libsecret → [`KeyringError::Secret`] с кодом и сообщением (без секрета).
+rust/crates/discord-platform/src/keyring.rs:15://! - [`Keyring`] — `!Send + !Sync` (libsecret/GDBus-сервис не переносится между потоками);
+rust/crates/discord-platform/src/keyring.rs:16://!   `Service`/`Schema` освобождаются ровно один раз при разрушении `Keyring`.
+rust/crates/discord-platform/src/keyring.rs:42:pub enum KeyringError {
+rust/crates/discord-platform/src/keyring.rs:53:impl fmt::Display for KeyringError {
+rust/crates/discord-platform/src/keyring.rs:66:impl std::error::Error for KeyringError {}
+rust/crates/discord-platform/src/keyring.rs:68:impl From<FfiError> for KeyringError {
+rust/crates/discord-platform/src/keyring.rs:78:pub struct Keyring {
+rust/crates/discord-platform/src/keyring.rs:85:impl fmt::Debug for Keyring {
+rust/crates/discord-platform/src/keyring.rs:88:            .debug_struct("Keyring")
+rust/crates/discord-platform/src/keyring.rs:95:impl Keyring {
+rust/crates/discord-platform/src/keyring.rs:97:    pub fn connect() -> Result<Self, KeyringError> {
+rust/crates/discord-platform/src/keyring.rs:108:    pub fn store(&mut self, key: &str, secret: &str) -> Result<(), KeyringError> {
+rust/crates/discord-platform/src/keyring.rs:111:            return Err(KeyringError::InvalidSecret);
+rust/crates/discord-platform/src/keyring.rs:115:            .map_err(KeyringError::from)
+rust/crates/discord-platform/src/keyring.rs:119:    pub fn lookup(&mut self, key: &str) -> Result<Option<String>, KeyringError> {
+rust/crates/discord-platform/src/keyring.rs:124:            .map_err(KeyringError::from)?
+rust/crates/discord-platform/src/keyring.rs:130:            .map_err(|_| KeyringError::Encoding)
+rust/crates/discord-platform/src/keyring.rs:134:    pub fn clear(&mut self, key: &str) -> Result<bool, KeyringError> {
+rust/crates/discord-platform/src/keyring.rs:138:            .map_err(KeyringError::from)
+rust/crates/discord-platform/src/keyring.rs:143:fn validate_key(key: &str) -> Result<(), KeyringError> {
+rust/crates/discord-platform/src/keyring.rs:145:        return Err(KeyringError::InvalidKey);
+
+## json decoding in discord-core prod deps
+rust/crates/discord-core/Cargo.toml:21:# Независимый разбор docs/re/rest-d02.json в тестах P7-04 (без serde).
+rust/crates/discord-core/Cargo.toml:22:discord-json = { workspace = true }
+
+## HttpRequest Debug exposes headers
+/// Запрос: метод, target (путь с query), поля и тело.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HttpRequest {
+    /// HTTP-метод.
+    pub method: HttpMethod,
+    /// Путь относительно базы (`/users/@me`) или с query.
+    pub target: String,
+    /// Поля в порядке отправки.
+    pub headers: Vec<(String, String)>,
+    /// Тело запроса (пусто — тела нет).
+    pub body: Vec<u8>,
+}
+
+
+## ApiAuth default = empty strings
+/// Шесть auth-заголовков в owned-виде (значения живут в клиенте).
+#[derive(Clone, Default, PartialEq, Eq)]
+pub struct ApiAuth {
+impl Default for ApiConfig {
+    fn default() -> Self {
+        Self {
+            base: API_V9_BASE.to_string(),
+            auth: ApiAuth::default(),
+            http: HttpClientConfig::default(),
+            retry: ApiRetryPolicy::default(),
+        }
+    }
+}

@@ -1,0 +1,58 @@
+Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:273:
+         };
+ 
+         // query обрезается в слое данных: команда не должна добавлять свою логику.
+[31m-        let expected = data::search_page(
+(B[m[31m-            &root,
+(B[m[31m-            "call of duty",
+(B[m[31m-            &SearchFilters::default(),
+(B[m[31m-            None,
+(B[m[31m-            None,
+(B[m[31m-        )
+(B[m[31m-        .expect("поиск по фикстурам");
+(B[m[32m+        let expected =
+(B[m[32m+            data::search_page(&root, "call of duty", &SearchFilters::default(), None, None)
+(B[m[32m+                .expect("поиск по фикстурам");
+(B[m         let actual = search_page("  call of duty  ".to_string(), None, None, None)
+             .expect("команда search_page");
+         assert_eq!(actual, expected);
+Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:302:
+             Some(5),
+         )
+         .expect("фильтрованная выборка");
+[31m-        let actual_filtered = search_page(String::new(), Some(filters), None, Some(5))
+(B[m[31m-            .expect("команда с фильтром");
+(B[m[32m+        let actual_filtered =
+(B[m[32m+            search_page(String::new(), Some(filters), None, Some(5)).expect("команда с фильтром");
+(B[m         assert_eq!(actual_filtered, expected_filtered);
+ 
+         // Курсор следующей страницы — id последнего результата, без пересечений.
+Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:313:
+             .expect("при limit 5 и total 13 есть следующая страница");
+         let second = search_page(String::new(), None, Some(cursor.clone()), Some(5))
+             .expect("вторая страница");
+[31m-        let expected_second = data::search_page(
+(B[m[31m-            &root,
+(B[m[31m-            "",
+(B[m[31m-            &SearchFilters::default(),
+(B[m[31m-            Some(&cursor),
+(B[m[31m-            Some(5),
+(B[m[31m-        )
+(B[m[31m-        .expect("вторая страница слоя данных");
+(B[m[32m+        let expected_second =
+(B[m[32m+            data::search_page(&root, "", &SearchFilters::default(), Some(&cursor), Some(5))
+(B[m[32m+                .expect("вторая страница слоя данных");
+(B[m         assert_eq!(second, expected_second);
+         assert!(
+[31m-            second
+(B[m[32m+            second.items.iter().all(|hit| !actual_filtered
+(B[m                 .items
+                 .iter()
+[31m-                .all(|hit| !actual_filtered
+(B[m[31m-                    .items
+(B[m[31m-                    .iter()
+(B[m[31m-                    .any(|prev| prev.message.id == hit.message.id)),
+(B[m[32m+                .any(|prev| prev.message.id == hit.message.id)),
+(B[m             "страницы не должны пересекаться"
+         );
+     }

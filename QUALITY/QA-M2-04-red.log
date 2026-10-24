@@ -1,0 +1,122 @@
+▶ QA-M2-04: CI browser-job (pinned Chromium, без live)
+  ✖ qa-browser job существует, ubuntu, ограничен по времени (3.187502ms)
+  ✖ Chromium закреплён по точной версии и проброшен в CHROME_BIN (0.477811ms)
+  ✖ preflight: отсутствие браузера — fail, а не skip (0.195157ms)
+  ✖ fixture-набор без live: live-* исключён, прогон последовательный (0.122259ms)
+  ✔ live/CDP не запускаются в qa-browser (0.184209ms)
+  ✖ artifacts `.gate` выгружаются всегда, даже при падении (0.151575ms)
+  ✖ live job вынесен отдельно и выключен по умолчанию (0.127049ms)
+  ✖ Node-версия job согласована с package.json engines (2.069037ms)
+  ✔ Rust-джобы не изменены по контракту (0.217084ms)
+  ✔ workflow остаётся read-only и не получает прав на запись (0.178351ms)
+✖ QA-M2-04: CI browser-job (pinned Chromium, без live) (7.826994ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 3
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.634577
+
+✖ failing tests:
+
+test at tests/meta/ci-browser.test.mjs:65:3
+✖ qa-browser job существует, ubuntu, ограничен по времени (3.187502ms)
+  AssertionError [ERR_ASSERTION]: ci.yml: нет job `qa-browser`
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:67:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/meta/ci-browser.test.mjs:84:3
+✖ Chromium закреплён по точной версии и проброшен в CHROME_BIN (0.477811ms)
+  AssertionError [ERR_ASSERTION]: qa-browser: chrome-version должен быть точным (например 131.0.6778.85), не stable/latest
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:88:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/meta/ci-browser.test.mjs:114:3
+✖ preflight: отсутствие браузера — fail, а не skip (0.195157ms)
+  AssertionError [ERR_ASSERTION]: qa-browser: нет preflight `test -x "$CHROME_BIN"`
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:117:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /test -x "\$CHROME_BIN"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/meta/ci-browser.test.mjs:127:3
+✖ fixture-набор без live: live-* исключён, прогон последовательный (0.122259ms)
+  AssertionError [ERR_ASSERTION]: qa-browser: нет `--test-concurrency=1` — браузерные тесты нельзя параллелить
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:130:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /--test-concurrency=1/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/meta/ci-browser.test.mjs:160:3
+✖ artifacts `.gate` выгружаются всегда, даже при падении (0.151575ms)
+  AssertionError [ERR_ASSERTION]: qa-browser: нет upload-artifact
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:163:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /uses:\s*actions\/upload-artifact@v\d+/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/meta/ci-browser.test.mjs:174:3
+✖ live job вынесен отдельно и выключен по умолчанию (0.127049ms)
+  AssertionError [ERR_ASSERTION]: ci.yml: нет отдельного live-job `qa-live`
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:176:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/meta/ci-browser.test.mjs:187:3
+✖ Node-версия job согласована с package.json engines (2.069037ms)
+  AssertionError [ERR_ASSERTION]: qa-browser: нет actions/setup-node с node-version
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/ci-browser.test.mjs:195:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

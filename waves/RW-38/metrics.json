@@ -1,0 +1,1 @@
+{"pid":197270,"samples":16,"rss_kb":{"min":188284,"max":188308,"avg":188298,"p95":188308},"hwm_kb":188548,"threads_max":32,"duration_ms":3000,"bench":{"chat":{"avgMs":16.67,"fps":60,"frames":300,"p95Ms":18},"frontend_ready_ms":27,"members":{"avgMs":16.67,"fps":60,"frames":300,"p95Ms":18}}}

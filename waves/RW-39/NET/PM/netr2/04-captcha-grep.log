@@ -1,0 +1,33 @@
+# CAPTCHA extraction from web.js (4d2a64cb5df5fc4e_0)
+
+## offset map
+captcha_key [1004575, 1004797, 2272017, 8445257, 10698180, 10698248, 10698271]
+captcha_rqtoken [1004811, 3240523]
+captcha_session_id [1004829, 3240461]
+captcha_service [3240400]
+captcha_sitekey [3240426]
+captcha_rqdata [3240498]
+X-Captcha-Key [1004857]
+X-Captcha-Rqtoken [1004888]
+X-Captcha-Session-Id [1004924]
+hcaptcha [10697595]
+recaptcha_enterprise [10697653]
+turnstile [10697688]
+6LeYqFcq [3241399]
+6LdtfVMq [3241442]
+6Lef5iQT [11782128]
+/users/@me/captcha/verify [274119]
+/captcha/decider [274160]
+REQUIRE_CAPTCHA [512334, 512351, 2103868, 2105207, 8440776, 8441279]
+
+## interceptor 400+captcha_key (@1004507..@1005150)
+(n)})},interceptResponse(e,t,i){var r,a;return 400===e.statusCode&&e.body?.captcha_key?(Promise.all([n.e("536037").then(n.bind(n,165508)),Promise.resolve().then(n.bind(n,888548))]).then(t=>{let[{default:n},{extractCaptchaPropsFromResponse:i}]=t;return n.showCaptchaAsync(i(e.body))}).then(e=>{let{captcha_key:n,captcha_rqtoken:i,captcha_session_id:r}=e,a={"X-Captcha-Key":n};null!=i&&(a["X-Captcha-Rqtoken"]=i),null!=r&&(a["X-Captcha-Session-Id"]=r),t(a)}).catch(i),!0):401===e.statusCode&&e.body?.code===j.t02.MFA_REQUIRED&&e.body?.mfa?(Promise.all([n.e("324732"),n.e("638781"),n.e("715528"),n.e("188941"),n.e("264236"),n.e("132191"),n.e("808979"),n
+
+## extractCaptchaPropsFromResponse / services enum (@3239800..@3240750)
+t}px ${a}, inset 0 0 0 ${n}px ${a}, inset 0 0 0 ${r}px var(--background-base-lower)`}return f&&(e.transition="box-shadow 50ms ease-out"),e},[t,f,A,h,i,d,c,u,_])}},320028(e,t,n){"use strict";n.d(t,{f:()=>i});let i="Captcha"},888548(e,t,n){"use strict";n.r(t),n.d(t,{extractCaptchaPropsFromResponse:()=>c,CaptchaCancelError:()=>_,CaptchaError:()=>d,emitCaptchaDistributionMetric:()=>u});var i,r=n(196765),a=n(731738),s=n(121894),l=n(807393);let o=(0,r.v)(e=>({captchaServeVolume:{}}));n(320028);var d=((i={}).CANCEL="cancel",i.ERROR="error",i.EXPIRED="expired",i);function c(e){return{captchaService:e.captcha_service,sitekey:e.captcha_sitekey,captchaSessionId:e.captcha_session_id,options:{rqdata:e.captcha_rqdata,rqtoken:e.captcha_rqtoken,serveInvisible:e.should_serve_invisible??!1,userflow:e.user_flow}}}function u(e){0===Object.keys(o.getState().captchaServeVolume).length&&setTimeout(()=>(function(){for(let[e,t]of Object.entries(o.getState().cap
+
+## reCAPTCHA Enterprise loader/sitekeys (@3241300..@3242700)
+74459);class d{static getSiteKey(e){return null!=e?e:"production"===window.GLOBAL_ENV.PROJECT_ENV?"6LeYqFcqAAAAAD6iZesmNgVulsO4PkpBdr6NVG6M":"6LdtfVMqAAAAAMurhtf2pDhK0oqD4eLqeQPh025y"}static loadRecaptchaScript(e,t,n){if(null!=document.getElementById(`recaptcha-script-${this.getSiteKey(e)}`)){null!=t&&(n?.("recaptcha-element-exists-callback"),t());return}let i=document.createElement("script");i.src=`https://www.google.com/recaptcha/enterprise.js?render=${this.getSiteKey(e)}`,i.id=`recaptcha-script-${this.getSiteKey(e)}`,i.async=!0,i.defer=!0,document.body.appendChild(i),null!=t&&(i.onload=()=>{n?.("recaptcha-script-onload-callback"),t()})}}var c=n(652215);function u(e){let{sitekey:t,action:n,onVerify:a}=e,[s,u]=r.useState("uninitialized"),_=r.useCallback(e=>{o.default.track(c.HAw.RECAPTCHA_MODAL_EVENT,{recaptcha_event_name:e})},[]),E=r.useCallback(e=>{_("handle-verify"),a(e)},[a,_]),A=r.useCallback(()=>{window?.grecaptcha?.enterprise?.ready(async()=>{_("recaptcha-ready"),E(await (window?.grecaptcha).enterprise.execute(t,null!=n?{action:n}:void 0)),u("loaded")})},[t,n,E,_]),h=r.useCallback(()=>{u("running"),_("recaptcha-loading"),d.loadRecaptchaScript(t,A,_)},[t,A,_]);return r.useEffect(()=>{"uninitialized"===s&&h()},[h,s]),r.useEffect(()=>()=>{_("recaptcha-unloading"),document.querySelectorAll('script[src*="recaptcha/enterprise.js"],.grecaptcha-badge').forEach(e=>e.parentNode?.
+
+## full-screen captcha for REQUIRE_CAPTCHA (@8416000..)
+665095(e,t,n){"use strict";n.d(t,{A:()=>G});var i=n(477900),r=n(582128),a=n(562708),s=n(17928),l=n(636537),o=n(192308),d=n(830215),c=n(398590),u=n(631670),_=n(475743),E=n(775121),A=n(139286),h=n(80556),f=n(557722),I=n(363195),p=n(870570),T=n(446868),m=n(503698),g=n.n(m),S=n(607399),N=n(821609),C=n(331322),O=n(297264),R=n(834730),L=n(700525),y=n(975571),D=n(652215),v=n(105292),b=n(690807);let M=y.A.getArticleURL(D.MVz.VERIFICATION_FAQ);class P extends r.PureComponent{static defaultProps={types:[D.Fz7.CAPTCHA],onCaptchaVerify:D.tEg,onLogout:D.tEg};renderFields(){let{types:e,captchaKey:t,theme:n,onCaptchaVerify:r}=this.props;return(0,i.jsx)(i.Fragment,{children:e.map(e=>e===D.Fz7.CAPTCHA?(0,i.jsx)(L.A,{onVerify:r,theme:n},t):(0,i.jsx)(N.$,{onClick:()=>this.handleClick(e),text:T.A.getButtonTitle(e)},e))})}render(){return(0,i.jsxs)(C.B,{gap:16,className:b.Ot,align:"center",direction:"vertical",justify:"center",children:[(0,i.jsxs)(C.B,{gap:16,fullWidth:!1,className:g()(b.kL,{[b.Fr]:S.Fr}),align:"center",direction:"vertical",justify:"center",children:[(0,i.jsxs)(C.B,{align:"center",direction:"vertical",justify:"center",gap:16,children:[(0,i.jsx)("div",{className:b.Sl}),(0,i.jsxs)(C.B,{className:b.FS,gap:4,align:"center",direction:"vertical",justify:"center",children:[(0,i.jsx)(O.D,{variant:"heading-xl/normal",children:v.intl.string(v.t.Iz0kDg)}),(0,i.jsx)(R.E,{variant:"text-md/normal",children:v.intl.format(v.t["0rqMV5"],{helpCenterURL:M})})]})]}),(0,i.jsx)(C.B,{gap:16,direction:"vertical",justify:"center",align:"center",children:this.renderFields()})]}),(0,i.jsxs)(C.B,{gap:8,align:"center",direction:"vertical",justify:"center",children:[(0,i.jsx)(R.E,{variant:"text-sm/normal",className:b.qr,children:v.intl.string(v.t.qqYun3)}),(0,i.jsxs)(C.B,{gap:8,align:"center",direction:"horizontal",justify:"center",children:[(0,i.jsx)(R.E,{variant:"text-sm/semibold",className:b.qr,children:v.intl.format(v.t.WL51ZR,{supportURL:y.A.getSubmitRequestURL()})}),(0,i.jsx)("div",{className:g()(b.qr,b.mf),children:"\u2022"}),(0,i.jsx)(R.E,{variant:"text-sm/semibold",className:b.qr,children:v.intl.format(v.t.Hv7ztc,{logoutOnClick:this.props.onLogout})})]})]})]})}handleClick=e=>{let{onClick:t}=this.props;t?.(e)}}var U=n(87404),w=n(53516);function G(){let{action:e,theme:t}=(0,s.cf)([p.A,I.A],()=>({action:p.A.getAction(),theme:I.A.theme})),m=T.A.getVerificationTypes(e),[g,S]=r.useState(0),N=(0,_.Ay)(m);function C(){(0,u.Cw)(),(0,o.openModalLazy)(async()=>{let{default:e}=await Promise.all([n.e("647999"),n.e("689913"),n.e("25467")]).then(n.bind(n,415478));return t=>(0,i.jsx)(e,{...t})},

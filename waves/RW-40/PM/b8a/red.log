@@ -1,0 +1,10 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::settings_store`
+  --> tests/settings_contract.rs:21:24
+   |
+21 | use discord_gui_spike::settings_store::{
+   |                        ^^^^^^^^^^^^^^ could not find `settings_store` in `discord_gui_spike`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "settings_contract") due to 1 previous error
+exit=101

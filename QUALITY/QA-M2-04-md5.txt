@@ -1,0 +1,11 @@
+608e26837c10996aae11d2c29fc6d320  .github/workflows/ci.yml
+fb5ad676b5184d0f2b374e520f590e98  scripts/ci.sh
+06ab44eee0c919777cbaec91756adaff  tests/meta/ci-browser.test.mjs
+cacd5ca43d63cc6538ea172801aa8471  QUALITY/QA-M2-04-red.log
+639d32c2249b0ec14963388436f0cdfb  QUALITY/QA-M2-04-green.log
+79b33e3d694d2592a983fc6b87bca4b6  QUALITY/QA-M2-04-meta.log
+616f95ede817600e14ec367e049f8b35  QUALITY/QA-M2-04-verify-meta.log
+39e1a13a00ac2615ed5a63ed95c211fc  QUALITY/QA-M2-04-verify-suite.log
+bcd82d4fee3a7c789d6aa95d3d96c039  QUALITY/QA-M2-04-verify-nobrowser.log
+88623d8cf540c4382ed15c4c952ad751  QUALITY/QA-M2-04-verify-legacy-skip.log
+1eff7dae03a409e256013902f0175e07  QUALITY/QA-M2-04-verify-npmci.log

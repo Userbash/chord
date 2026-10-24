@@ -1,0 +1,18 @@
+▶ QA-M2-03: search_remote на реальном index.html (data-guild-id)
+  ✔ после ready шлёт ровно один search_remote с guildId из data-guild-id (33.263233ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: не найдено (404)
+  ✔ unauthorized/forbidden/notFound — видимая ошибка без локального fallback (27.079012ms)
+✔ QA-M2-03: search_remote на реальном index.html (data-guild-id) (61.039466ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94.535472

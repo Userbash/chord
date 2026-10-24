@@ -1,0 +1,51 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✖ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (9.770208ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (9.085047ms)
+  ✔ чат: 100 000 строк, sizer = total*44, в DOM десятки строк, а не сотни тысяч (4.314474ms)
+  ✔ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (3.888403ms)
+  ✔ участники: 24 229 строк, sizer = total*40, окно ≥10 и << total (3.970113ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (7.122885ms)
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (3.827473ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (3.611143ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (3.877273ms)
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (4.216923ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (3.845393ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, все включены (4.144683ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.737393ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (2.762151ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (3.112242ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (3.990093ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (4.665884ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (4.623023ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.087893ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (2.885052ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (4.460443ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (95.473493ms)
+ℹ tests 21
+ℹ suites 1
+ℹ pass 20
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 130.30324
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:152:3
+✖ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (9.770208ms)
+  AssertionError [ERR_ASSERTION]: шим-DOM не повторяет #guild-rail из index.html
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:158:16
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:153:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

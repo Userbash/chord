@@ -1,0 +1,34 @@
+▶ чат-вью P3-02: сообщения и extras строки
+  ✖ hover-панель: 15 пунктов R-16, без мёртвых кнопок, реакция и reply работают (30.017587ms)
+✖ чат-вью P3-02: сообщения и extras строки (31.004218ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63.151107
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:486:3
+✖ hover-панель: 15 пунктов R-16, без мёртвых кнопок, реакция и reply работают (30.017587ms)
+  AssertionError [ERR_ASSERTION]: в панели 14 пунктов, R-16 требует 15
+  
+  14 !== 15
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:503:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:487:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 3)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 14,
+    expected: 15,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

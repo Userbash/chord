@@ -1,0 +1,13 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::messages::ack_message`, `discord_gui_spike::messages::AckTransport`, `discord_gui_spike::messages::DiscordReadState`, `discord_gui_spike::messages::ReadStateAck`
+  --> tests/rest_ack.rs:12:5
+   |
+12 |     ack_message, AckTransport, DiscordReadState, MessageError, ReadStateAck,
+   |     ^^^^^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^                ^^^^^^^^^^^^ no `ReadStateAck` in `messages`
+   |     |            |             |
+   |     |            |             no `DiscordReadState` in `messages`
+   |     |            no `AckTransport` in `messages`
+   |     no `ack_message` in `messages`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "rest_ack") due to 1 previous error

@@ -1,0 +1,19 @@
+
+> discord-function-lab@0.1.0 gate:release
+> node scripts/gate.mjs --scope release
+
+
+✔ typecheck — 0.2 с
+✔ ui-tsc — 0.2 с
+✔ meta — 0.1 с (тесты 40: pass 40, fail 0, skip 0)
+✔ unit — 1.4 с (тесты 448: pass 448, fail 0, skip 0)
+✔ spike-rust — 1.4 с
+✔ workspace-rust — 9.6 с (тесты 1112: pass 1112, fail 0, skip 0)
+✔ smoke — 17.4 с (тесты 22: pass 22, fail 0, skip 0)
+✔ e2e — 0.1 с (тесты 4: pass 0, fail 0, skip 4)
+✔ coverage — 1.6 с (тесты 448: pass 448, fail 0, skip 0)
+✔ golden — 0.2 с
+
+Отчёт гейта: /home/sanya/orca/project/.gate/release-2026-10-24T08-08-32-643Z.json
+⚠ e2e: пропущено 4 тестов — пропуск прохождением не считается
+Вердикт: passed_with_skips

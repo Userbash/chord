@@ -1,0 +1,25 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/launch.rs (rust/gui-spike/target/debug/deps/launch-1f1da192f5fe0c50)
+
+running 1 test
+
+thread 'launches_real_window_and_reports_ui_snapshot' (221390) panicked at tests/launch.rs:138:5:
+окно прожило 1.051289421s < 8s (SPIKE_EXIT_AFTER_MS=9000): преждевременный exit 0
+stdout:
+discord-gui-spike: window-ready
+UI_SNAPSHOT {"screenCount":4,"chatRows":100000,"memberRows":24229,"emojiCategories":10,"settingsToggles":38,"chatRenderedRows":30,"memberRenderedRows":24,"chatLoadedRows":400,"memberLoadedRows":100,"actions":{"screenClicks":4,"categoryClicks":true,"toggleClick":true,"listScroll":true}}
+
+stderr:
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test launches_real_window_and_reports_ui_snapshot ... FAILED
+
+failures:
+
+failures:
+    launches_real_window_and_reports_ui_snapshot
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+error: test failed, to rerun pass `--test launch`

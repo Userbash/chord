@@ -1,0 +1,105 @@
+$ npx tsc -p rust/gui-spike/ui/tsconfig.json
+exit=0
+
+$ npx tsc -p tsconfig.json
+exit=0
+
+$ node --check rust/gui-spike/ui/app.js && node --check rust/gui-spike/ui/model.js
+exit=0
+
+$ cd rust/gui-spike && cargo build --offline && cargo test --offline
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-e599c905875cad96)
+
+running 16 tests
+test tests::field_matches_only_line_start ... ok
+test tests::missing_field_is_none ... ok
+test tests::parse_process_metrics_maps_each_field ... ok
+test tests::parse_process_metrics_rejects_missing_field ... ok
+test tests::non_numeric_value_is_none ... ok
+test tests::rejects_incomplete_ui_snapshot ... ok
+test tests::rejects_degenerate_values ... ok
+test tests::parses_rss_from_proc_status ... ok
+test tests::rejects_invalid_json ... ok
+test tests::rejects_bench_payload_without_chat_or_members ... ok
+test tests::rejects_negative_values ... ok
+test tests::rejects_rendered_rows_below_floor ... ok
+test tests::rejects_wrong_types ... ok
+test tests::validates_bench_payload_objects ... ok
+test tests::validates_ui_snapshot_contract ... ok
+test tests::rejects_missing_each_required_field ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+$ GUI_SPIKE_E2E=1 node --test tests/smoke/gui-spike.smoke.test.mjs
+▶ Tauri GUI live smoke
+  ✔ открывает окно и публикует проверяемый DOM-снимок (10180.073909ms)
+✔ Tauri GUI live smoke (10180.82777ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10209.405658
+metrics-tree.json: {"pid":131949,"samples":16,"rss_kb":{"min":477344,"max":477588,"avg":477459,"p95":477588},"hwm_kb":228872,"threads_max":65,"duration_ms":3000,"processes":3,"skipped":0}
+pss.json: {"pid": 131949, "processes": [{"pid": 131949, "comm": "discord-gui-spi", "rss_kb": 196956, "pss_kb": 86830}, {"pid": 131964, "comm": "WebKitWebProces", "rss_kb": 215012, "pss_kb": 165338}, {"pid": 131961, "comm": "WebKitNetworkPr", "rss_kb": 65628, "pss_kb": 32118}], "total_rss_kb": 477596, "total_pss_kb": 284286, "total_pss_mb": 277.6}
+app.log:
+discord-gui-spike: window-ready
+UI_SNAPSHOT {"actions":{"categoryClicks":true,"listScroll":true,"screenClicks":4,"toggleClick":true},"chatLoadedRows":400,"chatRenderedRows":30,"chatRows":100000,"emojiCategories":10,"memberLoadedRows":100,"memberRenderedRows":24,"memberRows":24229,"screenCount":4,"settingsToggles":38}
+BENCH {"chat":{"avgMs":16.67,"fps":60,"frames":300,"p95Ms":18},"frontend_ready_ms":27,"members":{"avgMs":16.67,"fps":60,"frames":299,"p95Ms":18}}
+
+$ node --test --test-name-pattern="m07" tests/unit/gui-spike-model.test.mjs   # baseline, model.js md5 8f0e4d19d7654a97b478acff9a95b909
+ℹ tests 1 / pass 1 / fail 0  exit=0
+
+$ # мутант m07: evict игнорирует pinned → red-m07.log
+ℹ tests 1 / pass 0 / fail 1  exit=1 (actual: undefined, expected: {id:0})
+
+$ # restore: evict снова проверяет pinned → md5 8f0e4d19d7654a97b478acff9a95b909
+
+$ node --test tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-dom.test.mjs
+ℹ tests 64 / pass 64 / fail 0  exit=0 (green.log)
+
+$ npx tsc -p rust/gui-spike/ui/tsconfig.json
+exit=0
+
+$ npx tsc -p tsconfig.json
+exit=0
+
+=== P2 rework (REV-1) ===
+$ node --test --test-name-pattern="capacity>0" tests/unit/gui-spike-model.test.mjs   # red P2-2, до фикса
+ℹ tests 1 / pass 0 / fail 1  exit=1 (обещание разрешилось, RangeError не было)
+
+$ node --test tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-dom.test.mjs
+ℹ tests 65 / pass 65 / fail 0  exit=0 (green.log)
+
+$ npx tsc -p rust/gui-spike/ui/tsconfig.json
+exit=0
+
+$ npx tsc -p tsconfig.json
+exit=0
+
+$ cd rust/gui-spike && cargo build --offline
+Finished dev profile  exit=0
+
+$ GUI_SPIKE_E2E=1 node --test tests/smoke/gui-spike.smoke.test.mjs
+ℹ tests 1 / pass 1 / fail 0  exit=0
+
+=== m09 (QA-1) ===
+$ node --test --test-name-pattern="перегрузка страницы" tests/unit/gui-spike-model.test.mjs   # baseline, model.js md5 ccdbb0a4c7e407aaa16f824ee4eeffe9
+ℹ tests 1 / pass 1 / fail 0  exit=0
+
+$ # мутант m09: rows.length !== capacity → rows.length < capacity
+ℹ tests 1 / pass 0 / fail 1  exit=1 (Missing expected rejection) — red-m09.log
+
+$ # restore → md5 ccdbb0a4c7e407aaa16f824ee4eeffe9
+
+$ node --test tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-dom.test.mjs
+ℹ tests 66 / pass 66 / fail 0  exit=0 (green.log)
+
+$ npx tsc -p rust/gui-spike/ui/tsconfig.json
+exit=0

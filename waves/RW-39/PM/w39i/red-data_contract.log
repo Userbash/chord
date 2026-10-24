@@ -1,0 +1,451 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::data::SearchFilters`
+  --> tests/data_contract.rs:20:22
+   |
+20 |     self, DataError, SearchFilters, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT, UI_WINDOW_ROWS,
+   |                      ^^^^^^^^^^^^^ no `SearchFilters` in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+   --> tests/data_contract.rs:986:21
+    |
+986 |     let all = data::search_page(&root, "", &SearchFilters::default(), None, Some(MAX_PAGE_LIMIT))
+    |                     ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+   --> tests/data_contract.rs:995:15
+    |
+995 |         data::search_page(&root, "call of duty", &SearchFilters::default(), None, None)
+    |               ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1005:27
+     |
+1005 |     let by_author = data::search_page(
+     |                           ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1022:28
+     |
+1022 |     let by_channel = data::search_page(
+     |                            ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1043:29
+     |
+1043 |     let by_contains = data::search_page(
+     |                             ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1056:28
+     |
+1056 |     let by_mention = data::search_page(
+     |                            ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1074:24
+     |
+1074 |     let by_day = data::search_page(
+     |                        ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1087:25
+     |
+1087 |     let by_type = data::search_page(
+     |                         ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1100:24
+     |
+1100 |     let pinned = data::search_page(
+     |                        ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1120:26
+     |
+1120 |         let page = data::search_page(&root, "", &SearchFilters::default(), cursor.as_deref(), Some(5))
+     |                          ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1141:22
+     |
+1141 |     let none = data::search_page(
+     |                      ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1153:27
+     |
+1153 |     let none_type = data::search_page(
+     |                           ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1166:26
+     |
+1166 |     let unpinned = data::search_page(
+     |                          ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1191:25
+     |
+1191 |         let err = data::search_page(&root, "", &SearchFilters::default(), None, Some(limit))
+     |                         ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1196:21
+     |
+1196 |     let err = data::search_page(&root, &long, &SearchFilters::default(), None, None)
+     |                     ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1225:25
+     |
+1225 |         let err = data::search_page(&root, "", &filter, None, None).expect_err("длинный фильтр");
+     |                         ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1233:21
+     |
+1233 |     let err = data::search_page(
+     |                     ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1246:21
+     |
+1246 |     let err = data::search_page(&root, "", &SearchFilters::default(), Some(&long), None)
+     |                     ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1249:21
+     |
+1249 |     let err = data::search_page(&root, "", &SearchFilters::default(), Some("чужой-id"), None)
+     |                     ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1255:15
+     |
+1255 |         data::search_page(&root, "", &SearchFilters::default(), None, Some(MAX_PAGE_LIMIT))
+     |               ^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `search_page` in module `data`
+    --> tests/data_contract.rs:1260:25
+     |
+1260 |     let allowed = data::search_page(
+     |                         ^^^^^^^^^^^ not found in `data`
+
+error[E0609]: no field `day` on type `&MessageRow`
+   --> tests/data_contract.rs:752:17
+    |
+752 |             row.day.as_deref(),
+    |                 ^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `message_type` on type `&MessageRow`
+   --> tests/data_contract.rs:757:24
+    |
+757 |         assert_eq!(row.message_type, 0, "type из кадра: {}", row.id);
+    |                        ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `pinned` on type `&MessageRow`
+   --> tests/data_contract.rs:758:22
+    |
+758 |         assert!(!row.pinned, "pinned=false в фикстуре: {}", row.id);
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `mentions` on type `&MessageRow`
+   --> tests/data_contract.rs:759:21
+    |
+759 |         assert!(row.mentions.is_empty(), "mentions=null: {}", row.id);
+    |                     ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `group` on type `&MessageRow`
+   --> tests/data_contract.rs:763:61
+    |
+763 |     let groups: Vec<&str> = page.items.iter().map(|row| row.group.as_str()).collect();
+    |                                                             ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `embeds` on type `&MessageRow`
+   --> tests/data_contract.rs:769:24
+    |
+769 |         assert_eq!(row.embeds.len(), 1, "embed из UPDATE: {}", row.id);
+    |                        ^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `embeds` on type `&MessageRow`
+   --> tests/data_contract.rs:770:26
+    |
+770 |         let embed = &row.embeds[0];
+    |                          ^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `attachments` on type `&MessageRow`
+   --> tests/data_contract.rs:790:21
+    |
+790 |         assert!(row.attachments.is_empty(), "attachments=null: {}", row.id);
+    |                     ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `reactions` on type `&MessageRow`
+   --> tests/data_contract.rs:791:21
+    |
+791 |         assert!(row.reactions.is_empty(), "reactions отсутствует: {}", row.id);
+    |                     ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `reply_to` on type `&MessageRow`
+   --> tests/data_contract.rs:792:21
+    |
+792 |         assert!(row.reply_to.is_none(), "reply отсутствует: {}", row.id);
+    |                     ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `edited_at` on type `&MessageRow`
+   --> tests/data_contract.rs:793:21
+    |
+793 |         assert!(row.edited_at.is_none(), "edited_timestamp=nil: {}", row.id);
+    |                     ^^^^^^^^^ unknown field
+    |
+help: a field with a similar name exists
+    |
+793 -         assert!(row.edited_at.is_none(), "edited_timestamp=nil: {}", row.id);
+793 +         assert!(row.edited.is_none(), "edited_timestamp=nil: {}", row.id);
+    |
+
+error[E0609]: no field `attachments` on type `&MessageRow`
+   --> tests/data_contract.rs:847:29
+    |
+847 |                 assert!(row.attachments.is_empty(), "{}", row.id);
+    |                             ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `reactions` on type `&MessageRow`
+   --> tests/data_contract.rs:848:29
+    |
+848 |                 assert!(row.reactions.is_empty(), "{}", row.id);
+    |                             ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `reply_to` on type `&MessageRow`
+   --> tests/data_contract.rs:849:29
+    |
+849 |                 assert!(row.reply_to.is_none(), "{}", row.id);
+    |                             ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `channel_id`, `guild_id`, `author`, `content` ... and 5 others
+
+error[E0609]: no field `edited_at` on type `&MessageRow`
+   --> tests/data_contract.rs:850:29
+    |
+850 |                 assert!(row.edited_at.is_none(), "{}", row.id);
+    |                             ^^^^^^^^^ unknown field
+    |
+help: a field with a similar name exists
+    |
+850 -                 assert!(row.edited_at.is_none(), "{}", row.id);
+850 +                 assert!(row.edited.is_none(), "{}", row.id);
+    |
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:875:31
+    |
+875 |     let ids: Vec<&str> = page.groups.iter().map(|group| group.id.as_str()).collect();
+    |                               ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:886:21
+    |
+886 |     assert_eq!(page.groups[0].kind, "role");
+    |                     ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:887:21
+    |
+887 |     assert_eq!(page.groups[0].title.as_deref(), Some("Гуру вуду ПК"));
+    |                     ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:888:21
+    |
+888 |     assert_eq!(page.groups[1].title.as_deref(), Some("СВОИ"));
+    |                     ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:889:21
+    |
+889 |     assert_eq!(page.groups[2].kind, "status");
+    |                     ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:893:10
+    |
+893 |         .groups
+    |          ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:922:41
+    |
+922 |     let group_ids: HashSet<&str> = page.groups.iter().map(|group| group.id.as_str()).collect();
+    |                                         ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `group` on type `&MemberRow`
+   --> tests/data_contract.rs:924:22
+    |
+924 |         assert!(!row.group.is_empty(), "group у {}", row.id);
+    |                      ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0609]: no field `group` on type `&MemberRow`
+   --> tests/data_contract.rs:925:40
+    |
+925 |         assert!(group_ids.contains(row.group.as_str()), "{}", row.group);
+    |                                        ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0609]: no field `group` on type `&MemberRow`
+   --> tests/data_contract.rs:925:67
+    |
+925 |         assert!(group_ids.contains(row.group.as_str()), "{}", row.group);
+    |                                                                   ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0277]: `&usize` is not an iterator
+   --> tests/data_contract.rs:926:21
+    |
+926 |         for role in &row.roles {
+    |                     ^^^^^^^^^^ `&usize` is not an iterator
+    |
+    = help: the trait `Iterator` is not implemented for `&usize`
+    = note: required for `&usize` to implement `IntoIterator`
+
+error[E0609]: no field `group` on type `&&MemberRow`
+   --> tests/data_contract.rs:937:25
+    |
+937 |         .find(|row| row.group == "779231704552177664")
+    |                         ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0277]: can't compare `usize` with `[&str; 2]`
+   --> tests/data_contract.rs:939:5
+    |
+939 | /     assert_eq!(
+940 | |         top.roles,
+941 | |         ["779231704552177664", "358921494128099328"],
+942 | |         "роли по position desc"
+943 | |     );
+    | |_____^ no implementation for `usize == [&str; 2]`
+    |
+    = help: the trait `PartialEq<[&str; 2]>` is not implemented for `usize`
+help: `usize` implements trait `PartialEq<Rhs>`
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:2103:12
+    |
+    = note: `PartialEq`
+   ::: /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:2115:5
+    |
+    = note: in this macro invocation
+    |
+   ::: /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/partial_eq.rs:76:13
+    |
+ 76 |               impl PartialEq<Value> for $ty {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `PartialEq<Value>`
+...
+ 97 | / partialeq_numeric! {
+ 98 | |     eq_i64[i8 i16 i32 i64 isize]
+ 99 | |     eq_u64[u8 u16 u32 u64 usize]
+100 | |     eq_f32[f32]
+101 | |     eq_f64[f64]
+102 | |     eq_bool[bool]
+103 | | }
+    | |_- in this macro invocation
+    = note: this error originates in the macro `assert_eq` which comes from the expansion of the macro `partialeq_numeric` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0609]: no field `role_name` on type `&MemberRow`
+   --> tests/data_contract.rs:944:20
+    |
+944 |     assert_eq!(top.role_name.as_deref(), Some("Гуру вуду ПК"));
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:950:10
+    |
+950 |         .groups
+    |          ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `group` on type `&MemberRow`
+   --> tests/data_contract.rs:957:34
+    |
+957 |         let position = index[row.group.as_str()];
+    |                                  ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0609]: no field `group` on type `MemberRow`
+   --> tests/data_contract.rs:962:20
+    |
+962 |         if pair[0].group == pair[1].group {
+    |                    ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0609]: no field `group` on type `MemberRow`
+   --> tests/data_contract.rs:962:37
+    |
+962 |         if pair[0].group == pair[1].group {
+    |                                     ^^^^^ unknown field
+    |
+    = note: available fields are: `id`, `username`, `display_name`, `avatar`, `status` ... and 2 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:975:25
+    |
+975 |     assert_eq!(repeated.groups, page.groups);
+    |                         ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+error[E0609]: no field `groups` on type `MembersPage`
+   --> tests/data_contract.rs:975:38
+    |
+975 |     assert_eq!(repeated.groups, page.groups);
+    |                                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `guild_id`, `guild_name`, `member_count`, `items`, `next_cursor` ... and 4 others
+
+Some errors have detailed explanations: E0277, E0425, E0432, E0609.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `discord-gui-spike` (test "data_contract") due to 57 previous errors

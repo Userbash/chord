@@ -1,0 +1,9 @@
+$ node waves/RW-39/PM/w39a/verify-layout.mjs
+FAIL: 6 ошибок
+ - $.discrepancies[0] (d-members-toolbar): нет source
+ - $.discrepancies[1] (d-chat-notice): нет source
+ - $.discrepancies[2] (d-emoji-cell): нет source
+ - $.discrepancies[3] (d-settings-nav): нет source
+ - $.discrepancies[4] (d-settings-content): нет source
+ - $.discrepancies[5] (d-tree-width): нет source
+exit=1

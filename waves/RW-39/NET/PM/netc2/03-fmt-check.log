@@ -1,0 +1,73 @@
+Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:20:
+ //! `spawn_blocking` (`main.rs`).
+ 
+ use std::fmt;
+[31m-use std::sync::{Arc, Mutex, MutexGuard, mpsc};
+(B[m[32m+use std::sync::{mpsc, Arc, Mutex, MutexGuard};
+(B[m use std::thread::{self, JoinHandle};
+ 
+ use discord_core::rest::client::{
+Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:29:
+ use discord_core::rest::identity::{self, IdentityConfig, SystemSources};
+ use discord_core::rest::super_properties::SuperProperties;
+ use discord_core::rest::transport::HttpClientConfig;
+[31m-use discord_core::{API_V9_BASE, Me, MeError, parse_me};
+(B[m[32m+use discord_core::{parse_me, Me, MeError, API_V9_BASE};
+(B[m use discord_platform::keyring::{Keyring, KeyringError};
+ use serde::ser::SerializeStruct;
+ use serde::{Serialize, Serializer};
+Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:443:
+             http: HttpClientConfig::default(),
+             retry: ApiRetryPolicy::default(),
+         };
+[31m-        let client = ApiClient::new(config).map_err(|error| map_api_error(&error, &request.token))?;
+(B[m[32m+        let client =
+(B[m[32m+            ApiClient::new(config).map_err(|error| map_api_error(&error, &request.token))?;
+(B[m 
+         let runtime = tokio::runtime::Builder::new_current_thread()
+             .enable_all()
+Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:670:
+ impl AuthBackend {
+     /// Боевой backend: keyring в потоке-владельце, сеть — `discord-core`.
+     pub fn keyring() -> Self {
+[31m-        Self::new(Box::new(ThreadedStore::keyring()), Arc::new(DiscordValidator::new()))
+(B[m[32m+        Self::new(
+(B[m[32m+            Box::new(ThreadedStore::keyring()),
+(B[m[32m+            Arc::new(DiscordValidator::new()),
+(B[m[32m+        )
+(B[m     }
+ 
+     /// Backend с identity из среды.
+Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:133:
+ 
+ /// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+ #[tauri::command]
+[31m-async fn auth_status(
+(B[m[31m-    backend: tauri::State<'_, Arc<AuthBackend>>,
+(B[m[31m-) -> Result<AuthState, AuthError> {
+(B[m[32m+async fn auth_status(backend: tauri::State<'_, Arc<AuthBackend>>) -> Result<AuthState, AuthError> {
+(B[m     let backend = Arc::clone(backend.inner());
+     blocking(move || backend.status())
+         .await
+Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:157:
+ 
+ /// Явное восстановление из keyring — единственный путь к сети при старте.
+ #[tauri::command]
+[31m-async fn auth_restore(
+(B[m[31m-    backend: tauri::State<'_, Arc<AuthBackend>>,
+(B[m[31m-) -> Result<AuthState, AuthError> {
+(B[m[32m+async fn auth_restore(backend: tauri::State<'_, Arc<AuthBackend>>) -> Result<AuthState, AuthError> {
+(B[m     let backend = Arc::clone(backend.inner());
+     blocking(move || backend.restore())
+         .await
+Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:168:
+ 
+ /// Выход: keyring.clear + сброс сессии; повторный вызов идемпотентен.
+ #[tauri::command]
+[31m-async fn auth_logout(
+(B[m[31m-    backend: tauri::State<'_, Arc<AuthBackend>>,
+(B[m[31m-) -> Result<AuthState, AuthError> {
+(B[m[32m+async fn auth_logout(backend: tauri::State<'_, Arc<AuthBackend>>) -> Result<AuthState, AuthError> {
+(B[m     let backend = Arc::clone(backend.inner());
+     blocking(move || backend.logout())
+         .await

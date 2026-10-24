@@ -1,0 +1,65 @@
+▶ V-08 voice: контракт разметки и сборки
+  ✔ 12 состояний и их порядок совпадают со спекой; тексты — из copy (0.763164ms)
+  ✔ index.html содержит host панели (id/класс/disabled) и подключает voice.css (0.162619ms)
+  ✔ в сборке без voice-сервиса панель disabled, а не «подключено» (23.426741ms)
+  ✔ клик join без backend не даёт фейкового успеха и пишет причину в live-регион (8.232254ms)
+  ✔ user-bar mute/deafen сохраняют прежний aria-pressed, панель их не подменяет (10.763541ms)
+✔ V-08 voice: контракт разметки и сборки (44.108734ms)
+▶ V-08 voice: 12 состояний на fake store
+  ✔ idle: data-state, статус, aria-busy/alert (0.387973ms)
+  ✔ loading: data-state, статус, aria-busy/alert (0.122317ms)
+  ✔ connecting: data-state, статус, aria-busy/alert (0.121457ms)
+  ✔ connected: data-state, статус, aria-busy/alert (0.269335ms)
+  ✔ reconnecting: data-state, статус, aria-busy/alert (0.17053ms)
+  ✔ empty: data-state, статус, aria-busy/alert (0.126167ms)
+  ✔ error: data-state, статус, aria-busy/alert (0.165289ms)
+  ✔ no-permission: data-state, статус, aria-busy/alert (0.083905ms)
+  ✔ ptt-required: data-state, статус, aria-busy/alert (0.077484ms)
+  ✔ device-missing: data-state, статус, aria-busy/alert (0.083525ms)
+  ✔ server-mute: data-state, статус, aria-busy/alert (0.068604ms)
+  ✔ disabled: data-state, статус, aria-busy/alert (0.078065ms)
+  ✔ состояние вне контракта не применяется (0.099985ms)
+  ✔ idle: блок связи скрыт, строка пользователя видна, join активен (0.097326ms)
+  ✔ connected: канал, ping 93 ms, участники, leave (0.216312ms)
+  ✔ ping: quality по порогам спеки, без значения — aria-disabled (0.134848ms)
+  ✔ empty: строка wM2WTM с role=status, participants пуст (0.109607ms)
+  ✔ error: ровно один join на клик, фокус уходит на «Переподключиться» (1.945632ms)
+  ✔ повтор после ошибки: второй клик в pending не шлёт второй join (0.270916ms)
+  ✔ leave: 1 вызов, состояние меняется только по событию store (0.330289ms)
+  ✔ no-permission: 0 вызовов сервиса, reconnect отсутствует (0.268546ms)
+  ✔ ptt-required: NYklhr + «Перейти на режим рации» (0.268756ms)
+  ✔ device-missing: bgn75v + MA+OZh, разговор не рвётся (0.144588ms)
+  ✔ server-mute: mute aria-disabled, клик не меняет aria-checked и не зовёт сервис (0.307758ms)
+✔ V-08 voice: 12 состояний на fake store (6.514935ms)
+▶ V-08 voice: участники и speaking
+  ✔ своя строка первая, data-self/data-mute и tjtv3P в aria-label (0.206882ms)
+  ✔ speaking: bool и число > 0, только у своего пользователя (0.17762ms)
+  ✔ без op5 ни у кого нет data-speaking=true (0.132668ms)
+  ✔ 7 участников → 6 строк + «Ещё 1» (0.205012ms)
+  ✔ чужой mute: data-mute=server и текст в aria-label (0.135737ms)
+  ✔ mute/deafen: сервис вызывается, aria-checked только из store (0.800156ms)
+✔ V-08 voice: участники и speaking (1.841707ms)
+▶ V-08 voice: индикация PTT
+  ✔ data-ptt idle|held|blocked и текстовый индикатор (не только цветом) (0.241684ms)
+✔ V-08 voice: индикация PTT (0.284947ms)
+▶ V-08 voice: доступность
+  ✔ у каждой иконочной кнопки русский aria-label, svg aria-hidden (0.220813ms)
+  ✔ один live-регион статуса + отдельный на действия; ошибка assertive (0.149969ms)
+  ✔ ping доступен с клавиатуры, значение — через aria-describedby (0.133488ms)
+  ✔ Tab-порядок панели: ping → leave → mute → deafen (0.134878ms)
+✔ V-08 voice: доступность (0.723912ms)
+▶ V-08 voice: CSS-контракт и приватность
+  ✔ строка участника 32px, speaking-кольцо 2px --positive (оракул — спека) (0.17163ms)
+  ✔ токены voice.css существуют в tokens.css; нет внешних ассетов (0.50955ms)
+  ✔ в коде панели нет media/record/screen API и новых каналов (0.140538ms)
+  ✔ панель не логирует имена участников/устройств (0.068654ms)
+✔ V-08 voice: CSS-контракт и приватность (0.971536ms)
+ℹ tests 44
+ℹ suites 6
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.039092
+exit=0

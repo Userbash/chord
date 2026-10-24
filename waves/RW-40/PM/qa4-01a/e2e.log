@@ -1,0 +1,11 @@
+▶ cdp против headless-браузера
+  ﹣ targets/eval/clicktext/list/shot на fixture-странице (2.012614ms) # нет браузера: задайте CHROME_BIN (например, /usr/bin/chromium)
+✔ cdp против headless-браузера (2.55503ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 31.361143

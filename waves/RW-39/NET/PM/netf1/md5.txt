@@ -1,0 +1,5 @@
+0b11f70442335d9582fafe0b69a7dec7  rust/crates/discord-core/src/rest/client.rs
+ac777396ea49c89d495db38d5ca031a0  rust/crates/discord-core/tests/rest_client.rs
+56c81b7e9964880353333f3a776992ba  rust/gui-spike/src/auth.rs
+9e1cc3e9bef0b44d51f560bdd4961627  rust/gui-spike/src/main.rs
+e4910a004f61aeaa8e5839057a0c6912  rust/gui-spike/tests/auth_contract.rs

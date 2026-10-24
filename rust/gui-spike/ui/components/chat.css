@@ -1,0 +1,742 @@
+/* =============================================================================
+ * chat.css — список сообщений (виртуализация 44px), шаблон строки и состояния.
+ * Высота строки задаётся inline из JS (DOM-CONTRACT §7.1); CSS не переопределяет
+ * height/top/position, только внутреннюю раскладку.
+ *
+ * header.css и composer.css — части того же chat-стека и подключены через
+ * @import, чтобы не менять замороженный список <link> в DOM-CONTRACT §3.
+ * ========================================================================== */
+
+@import "header.css";
+@import "composer.css";
+
+.chat-list {
+  padding: var(--space-4) 0 0;
+  scrollbar-gutter: stable;
+}
+
+/* Строка 44 (--row-message-track, inline style) */
+.row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-xs);
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.row:hover {
+  background: var(--row-hover-bg);
+}
+
+.row.is-selected {
+  background: var(--row-selected-bg);
+}
+
+/* Продолжение группы: .author остаётся в DOM (инвариант «ровно 2 ребёнка»),
+ * но скрыт, а текст выровнен по «жёлобу» сообщения. */
+.row[data-group="continuation"] {
+  padding-left: var(--message-gutter);
+}
+
+.row[data-group="continuation"] .author {
+  display: none;
+}
+
+/* Автор: аватар 40 + имя + бейдж + время */
+.author {
+  display: flex;
+  flex: 0 1 auto;
+  gap: var(--space-3);
+  align-items: center;
+  height: var(--avatar-lg);
+  min-width: 0;
+}
+
+.author-name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timestamp {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-height-caption);
+}
+
+/* Текст сообщения: одна строка в 44px-треке, вертикально по центру аватара. */
+.text {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  height: var(--avatar-lg);
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-message);
+}
+
+.text-body {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+ * C-02/M-06: строка реального канала живёт в потоке (не виртуализация), поэтому
+ * её `.text` не имеет замороженной высоты 40: контент (переносы, цитата,
+ * реакции) задаёт высоту сам, а не обрезается `overflow: hidden`.
+ * ========================================================================== */
+.channel-message .text {
+  height: auto;
+  min-height: var(--avatar-lg);
+  overflow: visible;
+}
+
+/* Реакции реального сообщения: пилюли под текстом, перенос разрешён. */
+.channel-message .reactions-row {
+  padding-top: var(--space-2);
+}
+
+/* =============================================================================
+ * P3-02 (W39h): extras строки сообщения — все блоки внутри `.text`, чтобы у
+ * `.row` осталось ровно два ребёнка (§7.1). Высота строки — модель D-04
+ * (26/48/+22), поэтому extras отрисованы на строках, где запас высоты есть:
+ * индексные правила живут в `features/rows.js`.
+ * ========================================================================== */
+
+/* Стек extras: колонка по центру строки (body + разделители/цитата/реакции). */
+.text[data-stack="true"] {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  overflow: visible;
+  gap: 0;
+}
+
+.edited {
+  margin-left: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+/* Day divider (DIV-05…07): 24, линия --divider слева/справа от подписи. */
+.day-divider {
+  display: flex;
+  flex: 0 0 var(--layout-group-title-h);
+  gap: var(--space-4);
+  align-items: center;
+  height: var(--layout-group-title-h);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+}
+
+.day-divider::before,
+.day-divider::after {
+  flex: 1;
+  height: 1px;
+  background: var(--divider);
+  content: "";
+}
+
+/* Reply-quote (MSG-19…22): полоса 2px --accent, один ряд 22. */
+.reply-quote {
+  display: flex;
+  flex: 0 0 var(--line-height-message);
+  gap: var(--space-2);
+  align-items: center;
+  height: var(--line-height-message);
+  overflow: hidden;
+  padding-left: var(--space-2);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.reply-quote-author {
+  flex: 0 0 auto;
+  color: var(--text-subtle);
+  font-weight: var(--font-weight-semibold);
+}
+
+.reply-quote-text {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Reactions-row (MSG-23…26): пилюля 24, переносится, не скроллится. */
+.reactions-row {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+}
+
+.reaction {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  height: var(--layout-group-title-h); /* 24 */
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--state-hover);
+  color: var(--text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.reaction:hover {
+  border-color: var(--border);
+}
+
+.reaction[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.reaction-emoji {
+  font-size: var(--icon-size-sm);
+  line-height: 1;
+}
+
+.reaction-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Embeds (EMB-01…12): карточка на --surface-2, сетка 2 колонки. */
+.embeds {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.embed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 520px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.embed--link {
+  border-left: 4px solid var(--accent);
+}
+
+.embed-provider {
+  color: var(--text-subtle);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.embed-title {
+  overflow: hidden;
+  color: var(--text-link);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.embed-description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.embed-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  height: 144px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text-muted);
+  font-size: var(--space-11); /* иконка-заглушка 48 */
+  line-height: 1;
+}
+
+.embed-caption {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* Подсветка перехода из поиска (SRCH-16). */
+.row.is-highlight {
+  background: var(--accent-soft);
+}
+
+/* =============================================================================
+ * Полоса непрочитанного (DIV-01…04, D-13: 34 border-box = --unread-banner-h).
+ * Живёт sibling'ом списка: у `#chat-list` только sizer (§6.1).
+ * ========================================================================== */
+.chat-unread-divider {
+  display: flex;
+  flex: 0 0 var(--unread-banner-h);
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: center;
+  order: -1;
+  box-sizing: border-box;
+  height: var(--unread-banner-h);
+  padding: 0 var(--space-6);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+}
+
+.chat-unread-jump {
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-on-accent);
+  font: inherit;
+  text-decoration: underline;
+}
+
+/* M-07: полоса реального канала — счётчик упоминаний из `read_state()`.
+ * `[hidden]` перекрывает `display: flex` авторского правила (иначе полоса
+ * остаётся видимой в браузере, хотя атрибут выставлен). */
+.chat-unread-divider[hidden] {
+  display: none;
+}
+
+.chat-unread-divider[data-source="read-state"] {
+  background: var(--warning);
+  color: var(--text-on-warning);
+}
+
+/* M-07: видимая ошибка ack — рядом с полосой, без оверлея и retry-цикла. */
+.chat-ack-note {
+  margin: 0;
+  padding: var(--space-2) var(--space-6);
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.chat-ack-note[hidden] {
+  display: none;
+}
+
+/* =============================================================================
+ * Hover-панель сообщения (MSG-27…30, R-16). Одна на чат: переезжает по top,
+ * чтобы виртуализация не получала 15 кнопок на каждую строку.
+ * ========================================================================== */
+.msg-toolbar {
+  display: none;
+  gap: var(--space-1);
+  align-items: center;
+  padding: var(--menu-pad);
+  border-radius: var(--menu-radius);
+  background: var(--surface-4, var(--surface-2));
+  box-shadow: var(--shadow-popover);
+  z-index: var(--z-popover);
+}
+
+.msg-toolbar[data-open="true"] {
+  display: flex;
+}
+
+.msg-toolbar-btn {
+  width: var(--row-menu-item);
+  height: var(--row-menu-item);
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-ui);
+}
+
+.msg-toolbar-btn[aria-disabled="true"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.row[data-state="deleted"] {
+  pointer-events: none;
+}
+
+[data-action="edit-input"] {
+  min-width: 0;
+  flex: 1 1 auto;
+  min-height: var(--input-height);
+  resize: vertical;
+}
+
+[data-action="edit-save"],
+[data-action="edit-cancel"] {
+  flex: 0 0 auto;
+  min-height: var(--btn-height);
+  padding: 0 var(--space-3);
+}
+
+/* =============================================================================
+ * Search overlay (SRCH-01…18, R-10/R-11/R-18): панель справа от списка.
+ * Не модалка: чат остаётся доступен (SRCH-02).
+ * ========================================================================== */
+#screen-chat {
+  position: relative;
+}
+
+.search-overlay {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(418px, 40vw);
+  padding: var(--space-4);
+  overflow-y: auto;
+  border-left: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-popover);
+  z-index: var(--z-popover);
+}
+
+.search-overlay[data-open="true"] {
+  display: flex;
+}
+
+.search-overlay-head {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+  align-items: center;
+  height: var(--space-11);
+}
+
+.search-overlay-input {
+  flex: 1 1 auto;
+  height: var(--search-height);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text);
+  font: inherit;
+}
+
+.search-sections {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.search-section-title {
+  margin: 0;
+  overflow: hidden;
+  height: var(--line-height-small);
+  color: var(--text-faint);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  line-height: var(--line-height-small);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.search-control {
+  height: var(--search-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text);
+  font: inherit;
+}
+
+.search-control[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.search-switch[aria-checked="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.search-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.search-option {
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+}
+
+.search-option:hover {
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+
+.search-sort {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
+.search-sort-trigger {
+  height: var(--row-menu-item);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-subtle);
+  font-size: var(--font-size-ui);
+}
+
+.search-sort-trigger[aria-expanded="true"] {
+  background: var(--state-selected-strong);
+  color: var(--text-strong);
+}
+
+.search-sort-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  min-width: var(--menu-min-w);
+  padding: var(--menu-pad);
+  border-radius: var(--menu-radius);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-popover);
+}
+
+.search-sort-menu[data-open="true"] {
+  display: flex;
+}
+
+.search-sort-item {
+  height: var(--row-menu-item);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  text-align: left;
+}
+
+.search-sort-item:hover {
+  background: var(--state-hover);
+}
+
+.search-sort-item[aria-checked="true"] {
+  background: var(--state-selected-strong);
+}
+
+.search-status {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.search-status[data-state="error"] {
+  color: var(--danger-text);
+}
+
+.search-results {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.search-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-align: left;
+}
+
+.search-result:hover {
+  background: var(--state-hover);
+}
+
+.search-result-head {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-more {
+  height: var(--btn-height-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+}
+
+.search-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+}
+
+/* =============================================================================
+ * C-02 (RW-40): дерево каналов по типам (заголовок/плитки).
+ *
+ * Дерево приходит из `channels(guildId)` (реальные id/типы): строка канала —
+ * `--row-channel` (28), причина отказа у 2/4/15 видна текстом, а не только
+ * `title`. Стили `tree.css`/`header.css` заморожены, поэтому дополнения C-02
+ * живут здесь — только часть дерева/шапки чата.
+ * ========================================================================== */
+.channel-note {
+  margin: 0 var(--space-2) var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.channel-item[data-openable="false"] {
+  color: var(--text-faint);
+  cursor: default;
+  opacity: var(--state-disabled-opacity);
+}
+
+.channel-reason {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  white-space: nowrap;
+}
+
+.channel-tree-state,
+.channel-tree-error {
+  margin: var(--space-4) var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.channel-tree-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.channel-tree-error-title {
+  margin: 0;
+  color: var(--text-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+.channel-tree-error-hint {
+  margin: 0;
+}
+
+.channel-tree-retry {
+  align-self: flex-start;
+  min-height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-strong);
+  font: inherit;
+}
+
+/* =============================================================================
+ * C-02-PAGE: подвал истории канала — состояние подгрузки/конца/ошибки.
+ * Живёт последним ребёнком `#chat-list` (не строка): модель высот D-04
+ * (26/48/+22) и `aria-setsize` строк его не учитывают, бенч-порог не задет.
+ * ========================================================================== */
+.chat-history-more {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-8);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.chat-history-more-text {
+  margin: 0;
+}
+
+.chat-history-more[data-page-state="error"] {
+  flex-wrap: wrap;
+  color: var(--danger-text);
+}
+
+.chat-history-more[data-page-state="limit"] {
+  color: var(--text-muted);
+}
+
+.chat-history-more-retry {
+  min-height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-strong);
+  font: inherit;
+}

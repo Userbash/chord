@@ -90,6 +90,29 @@ MUTATIONS = [
         ["f08_empty_why_is_protocol_and_never_reaches_bus"],
     ),
     (
+        "m7-duplicate-index-allowed",
+        "crates/discord-platform/src/dbus/message.rs",
+        (
+            """                if *used {
+                    return Err(DbusError::Protocol("duplicate unix fd index"));
+                }
+                *used = true;""",
+            """                *used = true; // MUTATION m7: дубликат индекса разрешён""",
+        ),
+        ["f11_duplicate_unix_fd_index_is_protocol_and_closes_fds"],
+    ),
+    (
+        "m8-build-fd-limit-removed",
+        "crates/discord-platform/src/dbus/message.rs",
+        (
+            """                if self.fds.len() >= fd::MAX_FDS_PER_MESSAGE {
+                    return Err(DbusError::Protocol("too many unix fds in message"));
+                }""",
+            "                // MUTATION m8: лимит fd на отправку снят",
+        ),
+        ["f13_build_rejects_more_than_max_unix_fds"],
+    ),
+    (
         "m6-unix-fds-header",
         "crates/discord-platform/src/dbus/message.rs",
         (

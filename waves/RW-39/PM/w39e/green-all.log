@@ -1,0 +1,75 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-4ffd5dbc1f9fbc53)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-364dec06e7e055a1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/data_contract.rs (rust/gui-spike/target/debug/deps/data_contract-15b20e071933fe19)
+
+running 17 tests
+test errors_serialize_to_typed_json ... ok
+test empty_catalog_is_not_a_crash ... ok
+test broken_by_type_json_is_parse_error ... ok
+test broken_ready_json_is_parse_error ... ok
+test missing_ready_file_is_not_found ... ok
+test resolve_root_prefers_configured_path_and_defaults_to_repo_fixtures ... ok
+test unreadable_catalog_is_io_error ... ok
+test ready_matches_ready_stats_oracle ... ok
+test settings_exposes_sections_built_from_ready ... ok
+test messages_page_unknown_channel_is_not_found ... ok
+test members_page_unknown_guild_is_not_found ... ok
+test settings_section_filter_and_not_found ... ok
+test messages_page_rejects_bad_limit_and_foreign_cursor ... ok
+test members_page_empty_for_guild_without_member_capture ... ok
+test messages_page_empty_for_known_channel_without_messages ... ok
+test members_page_paginates_with_stable_cursor ... ok
+test messages_page_is_stable_deduped_and_cursor_driven ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/ipc_contract.rs (rust/gui-spike/target/debug/deps/ipc_contract-c81d031c4acc7cbc)
+
+running 20 tests
+test accepts_values_exactly_at_the_floors ... ok
+test accepts_bench_payload_with_chat_and_members_objects ... ok
+test metrics_serialize_with_snake_case_fields ... ok
+test accepts_full_snapshot_and_preserves_extra_fields ... ok
+test non_numeric_status_value_is_none ... ok
+test missing_status_field_is_none ... ok
+test parse_metrics_rejects_non_numeric_field ... ok
+test parses_all_metrics_and_maps_rss_to_vmrss_not_hwm ... ok
+test parse_metrics_rejects_missing_each_field ... ok
+test reads_numeric_fields_from_proc_status ... ok
+test rejects_bench_payload_with_invalid_json ... ok
+test rejects_degenerate_zero_values ... ok
+test rejects_bench_payload_with_non_object_chat_or_members ... ok
+test rejects_invalid_json_with_parser_message ... ok
+test rejects_negative_values ... ok
+test snapshot_floors_are_the_documented_ones ... ok
+test rejects_rendered_rows_below_floor ... ok
+test status_field_matches_only_line_start ... ok
+test rejects_missing_each_required_field ... ok
+test rejects_wrong_types ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/launch.rs (rust/gui-spike/target/debug/deps/launch-1f1da192f5fe0c50)
+
+running 1 test
+test launches_real_window_and_reports_ui_snapshot ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_gui_spike
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

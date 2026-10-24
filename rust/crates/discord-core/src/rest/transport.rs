@@ -7,6 +7,7 @@
 //! `Content-Length`); TLS-стаб — самоподписанный сертификат
 //! `tests/data/rest-test-cert.der` (SAN `DNS:localhost, IP:127.0.0.1`).
 
+use std::fmt;
 use std::net::IpAddr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -52,7 +53,7 @@ impl Default for HttpClientConfig {
 }
 
 /// Запрос: метод, target (путь с query), поля и тело.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct HttpRequest {
     /// HTTP-метод.
     pub method: HttpMethod,
@@ -62,6 +63,42 @@ pub struct HttpRequest {
     pub headers: Vec<(String, String)>,
     /// Тело запроса (пусто — тела нет).
     pub body: Vec<u8>,
+}
+
+/// Заголовки, значение которых в `Debug` заменяется на `<redacted>`.
+const SECRET_HEADERS: [&str; 3] = ["authorization", "proxy-authorization", "cookie"];
+
+/// Секретное ли поле (сравнение без учёта регистра).
+fn is_secret_header(name: &str) -> bool {
+    SECRET_HEADERS
+        .iter()
+        .any(|secret| name.eq_ignore_ascii_case(secret))
+}
+
+impl fmt::Debug for HttpRequest {
+    /// `Authorization`/`Cookie` не печатаются: правило «не логировать секреты» действует
+    /// даже при `{:?}` (аудит NET-B P1-2). Тело показывается только длиной — в нём тоже
+    /// бывают токены (`/science`).
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let headers: Vec<(&str, &str)> = self
+            .headers
+            .iter()
+            .map(|(name, value)| {
+                if is_secret_header(name) {
+                    (name.as_str(), "<redacted>")
+                } else {
+                    (name.as_str(), value.as_str())
+                }
+            })
+            .collect();
+        formatter
+            .debug_struct("HttpRequest")
+            .field("method", &self.method)
+            .field("target", &self.target)
+            .field("headers", &headers)
+            .field("body_len", &self.body.len())
+            .finish()
+    }
 }
 
 impl HttpRequest {

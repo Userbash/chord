@@ -1,0 +1,11 @@
+3b3b5554fb2690486a0bac1358881e85  src/cli/run.mjs
+7e79f811328b8520291ec2b491fec1fb  src/core/ui/walk-log.mjs
+c8173e05512a7672d6fcb5b2ea399520  src/core/cdp/client.mjs
+3266d8e2e957d7db8672f6ed996b3491  src/core/paths.mjs
+85a2e4ea7dc81ce9a0b69341daac9b7f  src/core/ui/profile.mjs
+409475cc151bdfbaf93cd7c5bbc313da  src/core/ui/blacklist.mjs
+272254f95517a50e857874d7c1008a46  tests/unit/cli-run.test.mjs
+89d8921497e91637eb144f330865bfe5  tests/helpers/fake-cdp.mjs
+faeb5264c6e5600f3e1ca3f696bc3b61  tests/e2e/walk-fixture.e2e.test.mjs
+bf6b4e2a3dc262b224ee432075d28e27  TDD-PLAN.md
+b2bb127ba86e3f5744483425f3d5ba5b  README.md

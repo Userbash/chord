@@ -1,0 +1,222 @@
+/* =============================================================================
+ * tree.css — дерево каналов ~240px, строка канала 28, user bar 56.
+ * Значения — tokens.css: --layout-tree-w, --row-channel, --layout-userbar-h,
+ * --layout-tree-pad-x, --avatar-sm.
+ * ========================================================================== */
+
+.tree {
+  display: flex;
+  flex: 0 0 var(--layout-tree-w);
+  flex-direction: column;
+  width: var(--layout-tree-w);
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-app);
+  box-shadow: var(--shadow-elevation-stroke);
+}
+
+/* Шапка дерева 48 (--space-11) */
+.tree-header {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+  align-items: center;
+  height: var(--space-11);
+  padding: 0 var(--layout-tree-pad-x) 0 var(--layout-panel-pad);
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.tree-guild {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Скролл каналов */
+.tree-scroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 0;
+  padding: var(--space-4) var(--layout-tree-pad-x);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.channel-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.channel-group-title {
+  margin: var(--space-4) 0 0;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+}
+
+.group-toggle {
+  width: 100%;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  line-height: var(--layout-group-title-h);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.group-toggle:hover {
+  color: var(--text-subtle);
+}
+
+.channel-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Строка канала 28 (--row-channel) */
+.channel-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  height: var(--row-channel);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-align: left;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.channel-item:hover {
+  background: var(--state-hover);
+  color: var(--text);
+}
+
+.channel-item[aria-current="page"],
+.channel-item.is-selected {
+  background: var(--state-selected);
+  color: var(--text-strong);
+}
+
+.channel-item.is-unread {
+  color: var(--text-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Точка непрочитанного — справа, размером с шаг сетки. */
+.channel-item.is-unread::after {
+  flex: 0 0 auto;
+  width: var(--space-2);
+  height: var(--space-2);
+  margin-left: auto;
+  border-radius: var(--radius-round);
+  background: var(--text-strong);
+  content: "";
+}
+
+.channel-item.is-muted {
+  opacity: var(--state-disabled-opacity);
+}
+
+.channel-icon {
+  flex: 0 0 var(--icon-size);
+  color: var(--text-faint);
+  font-size: var(--font-size-ui);
+  text-align: center;
+}
+
+.channel-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Строка пользователя 56 (--layout-userbar-h)
+ * ------------------------------------------------------------------------ */
+.user-bar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-1);
+  align-items: center;
+  height: var(--layout-userbar-h);
+  padding: var(--space-1) var(--space-4);
+  background: var(--surface-1);
+}
+
+.user-profile {
+  display: flex;
+  flex: 1;
+  gap: var(--space-4);
+  align-items: center;
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.user-profile:hover {
+  background: var(--state-hover);
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-status {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0;
+  align-items: center;
+}
+
+.user-bar .icon-btn {
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  font-size: var(--icon-size-sm);
+}

@@ -1,0 +1,24 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+     Running tests/gateway_supervisor.rs (target/debug/deps/gateway_supervisor-161111e33d133230)
+
+running 1 test
+test dispatch_handler_gets_op0_parsed_before_frame_error_in_same_fragment ... FAILED
+
+failures:
+
+---- dispatch_handler_gets_op0_parsed_before_frame_error_in_same_fragment stdout ----
+
+thread 'dispatch_handler_gets_op0_parsed_before_frame_error_in_same_fragment' (821648) panicked at crates/discord-core/tests/gateway_supervisor.rs:997:5:
+assertion `left == right` failed: op0, разобранный до ошибки фрагмента, доставлен хуку, а не потерян
+  left: []
+ right: ["READY"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dispatch_handler_gets_op0_parsed_before_frame_error_in_same_fragment
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test gateway_supervisor`

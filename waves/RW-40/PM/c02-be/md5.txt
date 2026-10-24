@@ -1,0 +1,5 @@
+5d9119baca7b655d0aa5a4351cf25aff  rust/gui-spike/src/data.rs
+cbb5409a279a84c90b2486343eb7c7c3  rust/gui-spike/src/main.rs
+f4c9c451968726fe37945bed9b630d9c  rust/gui-spike/src/lib.rs
+58d375894162069e34aa3c1680d33e65  rust/gui-spike/tests/channels_contract.rs
+ffa9e6cb2a0d9bf82f4f868cd2bee78f  rust/gui-spike/tests/data_contract.rs

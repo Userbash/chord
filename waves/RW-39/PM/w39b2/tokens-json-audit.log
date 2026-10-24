@@ -1,0 +1,24 @@
+card: RW-39 / Phase 1a — RE-артефакты (W39a)
+generated: 2026-10-23 | tokens: 202 | aliases: 13 | decls: 208
+verification: {"method":"node waves/RW-39/PM/w39a/verify-tokens.mjs — имена и значения сверяются с tokens.css программно","dump_refs_checked":57,"dump_refs_mismatch":0,"dump_refs_missing":0}
+--danger                 #da3e44                    T | refs: --status-danger:match
+--warning                #fdb833                    T | refs: --status-warning:match,--yellow-300:match
+--positive               #3d9e60                    T+M | refs: --status-positive:match,--green-360:match
+--text-inverse           #2f3035                    T | refs: --text-invert:match
+--accent-hover           #4654c0                    T | refs: --brand-560:match
+--accent-soft            rgb(88 101 242 / 16%)      T | refs: --message-highlight-background-default:match
+--border                 rgb(151 151 159 / 20%)     T | refs: --border-normal:match
+--border-subtle          rgb(151 151 159 / 12%)     T | refs: --border-subtle:match
+--border-strong          rgb(151 151 159 / 44%)     T | refs: --border-strong:match
+--badge-secondary-bg     rgb(151 151 159 / 16%)     T | refs: --badge-secondary-background:match
+--radius-round           2147483647px               T | refs: --radius-round:match
+--status-streaming       #593695                    A | refs: 
+--row-channel-pitch      30px                       M | refs: 
+--row-h-continuation     26px                       L | refs: 
+--row-h-group-start      48px                       L | refs: 
+--row-line-extra         22px                       L | refs: 
+--row-h-member           42px                       L | refs: 
+--row-message-track      44px                       F | refs: 
+--row-member-track       40px                       F | refs: 
+--row-message-cozy       26px                       L | refs: 
+--row-member             42px                       L | refs: 

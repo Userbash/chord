@@ -1,0 +1,192 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0560]: struct `ReadStateEntry` has no field named `badge_count`
+   --> tests/read_state_contract.rs:111:13
+    |
+111 |             badge_count: None,
+    |             ^^^^^^^^^^^ `ReadStateEntry` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `ReadStateEntry` has no field named `last_acked_id`
+   --> tests/read_state_contract.rs:112:13
+    |
+112 |             last_acked_id: None,
+    |             ^^^^^^^^^^^^^ `ReadStateEntry` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `ReadStateEntry` has no field named `read_state_type`
+   --> tests/read_state_contract.rs:113:13
+    |
+113 |             read_state_type: None,
+    |             ^^^^^^^^^^^^^^^ `ReadStateEntry` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0609]: no field `badge_count` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:132:20
+    |
+132 |         entries[0].badge_count, None,
+    |                    ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `read_state_type` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:136:20
+    |
+136 |         entries[0].read_state_type, None,
+    |                    ^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `last_acked_id` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:140:20
+    |
+140 |         entries[0].last_acked_id, None,
+    |                    ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `badge_count` on type `&&ReadStateEntry`
+   --> tests/data_contract.rs:266:31
+    |
+266 |         .filter(|entry| entry.badge_count.is_some())
+    |                               ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `badge_count` on type `&&ReadStateEntry`
+   --> tests/data_contract.rs:270:41
+    |
+270 |         badges.iter().map(|entry| entry.badge_count).collect::<Vec<_>>(),
+    |                                         ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0560]: struct `ReadStateEntry` has no field named `badge_count`
+   --> tests/read_state_contract.rs:341:13
+    |
+341 |             badge_count: Some(16),
+    |             ^^^^^^^^^^^ `ReadStateEntry` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `ReadStateEntry` has no field named `last_acked_id`
+   --> tests/read_state_contract.rs:342:13
+    |
+342 |             last_acked_id: Some("1294268550826950656".to_string()),
+    |             ^^^^^^^^^^^^^ `ReadStateEntry` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `ReadStateEntry` has no field named `read_state_type`
+   --> tests/read_state_contract.rs:343:13
+    |
+343 |             read_state_type: Some(2),
+    |             ^^^^^^^^^^^^^^^ `ReadStateEntry` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0609]: no field `badge_count` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:387:20
+    |
+387 |         entries[0].badge_count,
+    |                    ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `read_state_type` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:391:27
+    |
+391 |     assert_eq!(entries[0].read_state_type, Some(4));
+    |                           ^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `last_acked_id` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:393:20
+    |
+393 |         entries[0].last_acked_id.as_deref(),
+    |                    ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `read_state_type` on type `&&ReadStateEntry`
+   --> tests/data_contract.rs:277:32
+    |
+277 |             .map(|entry| entry.read_state_type)
+    |                                ^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `badge_count` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:458:27
+    |
+458 |     assert_eq!(entries[0].badge_count, None);
+    |                           ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `last_acked_id` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:459:27
+    |
+459 |     assert_eq!(entries[0].last_acked_id, None);
+    |                           ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `read_state_type` on type `ReadStateEntry`
+   --> tests/read_state_contract.rs:460:27
+    |
+460 |     assert_eq!(entries[0].read_state_type, None);
+    |                           ^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `last_acked_id` on type `&&ReadStateEntry`
+   --> tests/data_contract.rs:285:32
+    |
+285 |             .map(|entry| entry.last_acked_id.as_deref())
+    |                                ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `badge_count` on type `&ReadStateEntry`
+   --> tests/data_contract.rs:291:42
+    |
+291 |         entries.iter().all(|entry| entry.badge_count.is_some()
+    |                                          ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `badge_count` on type `&ReadStateEntry`
+   --> tests/data_contract.rs:292:23
+    |
+292 |             || (entry.badge_count.is_none()
+    |                       ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `last_acked_id` on type `&ReadStateEntry`
+   --> tests/data_contract.rs:293:26
+    |
+293 |                 && entry.last_acked_id.is_none()
+    |                          ^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+error[E0609]: no field `read_state_type` on type `&ReadStateEntry`
+   --> tests/data_contract.rs:294:26
+    |
+294 |                 && entry.read_state_type.is_none())),
+    |                          ^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `flags`, `last_message_id`, `last_pin_timestamp`, `last_viewed`, `mention_count`
+
+Some errors have detailed explanations: E0560, E0609.
+For more information about an error, try `rustc --explain E0560`.
+error: could not compile `discord-gui-spike` (test "read_state_contract") due to 15 previous errors
+warning: build failed, waiting for other jobs to finish...
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `discord-gui-spike` (test "data_contract") due to 8 previous errors
+EXIT:101

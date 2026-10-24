@@ -1,0 +1,195 @@
+# NET-B symbol map 2026-10-23T22:56:29+05:00
+
+=== rest/client
+22:pub struct ApiAuth 
+54:    pub fn from_values(values: &AuthHeaderValues<'_>) -> Self 
+67:    pub fn pairs(&self) -> [(&'static str, &str); 6] 
+81:pub struct ApiRetryPolicy 
+105:pub struct ApiConfig 
+129:pub enum ApiError 
+219:pub struct ApiClient 
+229:    pub fn new(config: ApiConfig) -> Result<Self, ApiError> 
+242:    pub async fn execute(&self, request: &HttpRequest) -> Result<HttpResponse, ApiError> 
+329:    pub async fn get(&self, target: &str) -> Result<HttpResponse, ApiError> 
+=== rest/headers
+16:pub const AUTH_HEADER_NAMES: [&str; 6] = [
+28:pub struct AuthHeaderValues<'a> 
+48:pub fn auth_headers<'a>(values: &AuthHeaderValues<'a>) -> [(&'static str, &'a str); 6] 
+61:pub enum ResponseClass 
+79:pub fn classify_status(status: u16) -> ResponseClass 
+=== rest/identity
+26:pub struct SystemSources;
+31:    pub fn new() -> Self 
+63:pub struct IdentityConfig 
+227:pub fn uuid_v4(sources: &dyn IdentitySources) -> String 
+249:pub fn build(sources: &dyn IdentitySources, config: &IdentityConfig) -> SuperProperties 
+=== rest/super_properties
+18:pub const FIELD_COUNT: usize = 22;
+22:pub struct SuperProperties 
+71:pub enum SuperPropertiesError 
+81:    pub fn to_json(&self) -> String 
+113:    pub fn from_json(text: &str) -> Result<Self, SuperPropertiesError> 
+119:    pub fn to_base64(&self) -> String 
+125:    pub fn from_base64(text: &str) -> Result<Self, SuperPropertiesError> 
+140:pub fn field_names() -> [&'static str; FIELD_COUNT] 
+=== rest/rate_limit
+17:pub struct RateLimitInfo 
+32:pub enum RestFailure 
+146:pub fn rate_limit_info(
+183:pub fn classify_failure(
+210:pub fn retry_delay(
+230:pub fn should_retry(method: HttpMethod, failure: &RestFailure) -> bool 
+=== rest/retry
+19:pub struct RetryLimits 
+30:pub enum AttemptError 
+39:pub enum RetryError 
+56:pub struct Retried<T> 
+65:pub fn is_idempotent(method: HttpMethod) -> bool 
+76:pub async fn attempt_once<T, F, Fut>(attempt_timeout: Duration, f: F) -> Result<T, AttemptError>
+93:pub async fn execute_with_retries<T, F, Fut>(
+=== rest/routes
+12:pub enum HttpMethod 
+23:    pub fn as_str(self) -> &'static str 
+36:pub struct RouteSpec 
+62:pub const ROUTES: [RouteSpec; 47] = [
+151:pub fn find(method: HttpMethod, path: &str) -> Option<&'static RouteSpec> 
+159:pub enum PathRenderError 
+175:pub fn render_path(spec: &RouteSpec, parts: &[&str]) -> Result<String, PathRenderError> 
+=== rest/transport
+27:pub struct HttpClientConfig 
+56:pub struct HttpRequest 
+70:    pub fn new(method: HttpMethod, target: impl Into<String>) -> Self 
+81:    pub fn header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self 
+88:    pub fn body(mut self, body: impl Into<Vec<u8>>) -> Self 
+96:pub struct HttpResponse 
+107:pub enum HttpError 
+130:pub struct Endpoint 
+143:    pub fn parse(base: &str) -> Result<Self, HttpError> 
+180:    pub fn target(&self, path: &str) -> Result<String, HttpError> 
+246:pub async fn send(base: &str, request: &HttpRequest) -> Result<HttpResponse, HttpError> 
+251:pub async fn send_with(
+=== rest/http1
+11:pub const MAX_HEAD_BYTES: usize = 64 * 1024;
+14:pub const MAX_CHUNK_LINE_BYTES: usize = 1024;
+17:pub const MAX_TRAILER_BYTES: usize = 8 * 1024;
+21:pub enum Http1Error 
+46:pub enum HeadParse 
+62:pub enum ChunkedParse 
+76:pub fn header<'a>(headers: &'a [(String, String)], name: &str) -> Option<&'a str> 
+84:pub fn content_length(headers: &[(String, String)]) -> Result<Option<usize>, Http1Error> 
+117:pub fn is_chunked(headers: &[(String, String)]) -> Result<bool, Http1Error> 
+142:pub fn parse_response_head(bytes: &[u8]) -> Result<HeadParse, Http1Error> 
+224:pub fn decode_chunked(bytes: &[u8], max_body: usize) -> Result<ChunkedParse, Http1Error> 
+349:pub fn encode_request(
+=== rest/telemetry
+11:pub const TELEMETRY_SEGMENTS: [&str; 3] = ["science", "beaker", "track"];
+15:pub enum TelemetryError 
+41:pub fn is_telemetry_path(target: &str) -> bool 
+48:pub fn guard_target(target: &str) -> Result<&str, TelemetryError> 
+=== rest/resources
+9:pub enum ResourceKind 
+22:pub struct ReadOnlyResource 
+29:pub const RESOURCES: [ReadOnlyResource; 8] = [
+74:pub enum ResourceError 
+99:pub fn resource(kind: ResourceKind) -> &'static ReadOnlyResource 
+113:pub fn path(kind: ResourceKind, application_id: Option<&str>) -> Result<String, ResourceError> 
+=== rest/ack
+13:pub const ACK_PATH_TEMPLATE: &str = "/channels/{id}/messages/{id}/ack";
+17:pub enum AckError 
+33:pub fn build_ack_target(channel_id: &str, message_id: &str) -> Result<String, AckError> 
+43:pub fn build_ack_body(token: Option<&str>, last_viewed: u64) -> String 
+=== rest/base64
+17:pub enum Base64Error 
+45:pub fn encode(data: &[u8]) -> String 
+92:pub fn decode(text: &str) -> Result<Vec<u8>, Base64Error> 
+=== ws
+74:pub struct GatewayPipe 
+107:    pub fn new(session: Session) -> Self 
+129:    pub fn push_binary(&mut self, msg: &[u8], now_ms: u64) -> Result<Vec<Effect>, TransportError> 
+195:    pub fn session(&self) -> &Session 
+200:    pub fn frames_received(&self) -> u64 
+205:    pub fn bytes_received(&self) -> u64 
+210:    pub fn terms_parsed(&self) -> u64 
+215:    pub fn pending_bytes(&self) -> usize 
+220:    pub fn ignored_messages(&self) -> u64 
+225:    pub fn last_ready(&self) -> Option<&ReadySummary> 
+230:    pub fn resume_state(&self) -> Option<ResumeState> 
+240:    pub fn last_invalid_session_resumable(&self) -> Option<bool> 
+247:    pub fn events(&self) -> &[DispatchEvent] 
+252:    pub fn take_events(&mut self) -> Vec<DispatchEvent> 
+259:    pub fn unknown_dispatches(&self) -> u64 
+264:    pub fn note_ignored_message(&mut self) 
+284:pub fn encode_heartbeat(d: Option<u64>) -> Vec<u8> 
+300:pub struct RunOptions 
+307:    pub fn none() -> Self 
+314:pub enum RunOutcome 
+329:pub enum TransportError 
+383:pub async fn connect_and_run(
+391:pub async fn connect_and_run_with(
+404:pub async fn connect_and_run_resume(
+=== gateway
+34:pub enum Op 
+53:    pub fn from_code(code: i64) -> Self 
+68:pub struct Hello 
+75:pub enum ReconnectReason 
+86:pub enum Effect 
+101:pub enum GatewayError 
+126:pub struct Session 
+149:    pub fn new(jitter_seed: u64) -> Self 
+167:    pub fn on_term(&mut self, term: &[u8], now_ms: u64) -> Result<Vec<Effect>, GatewayError> 
+183:    pub fn on_value(&mut self, value: &EtfValue, now_ms: u64) -> Result<Vec<Effect>, GatewayError> 
+214:    pub fn on_timer(&mut self, now_ms: u64) -> Vec<Effect> 
+239:    pub fn next_deadline_ms(&self) -> Option<u64> 
+250:    pub fn hello(&self) -> Option<&Hello> 
+255:    pub fn last_seq(&self) -> Option<u64> 
+260:    pub fn rtt_ms(&self) -> Option<u64> 
+265:    pub fn beats_emitted(&self) -> u64 
+270:    pub fn is_dead(&self) -> bool 
+275:    pub fn ignored_values(&self) -> u64 
+=== identify
+16:pub const CAPABILITIES_ACTIVE: u64 = 1_734_653;
+19:pub const CAPABILITIES_CHANNEL_OBFUSCATION: u64 = 1_767_421;
+23:pub struct IdentifyProperties 
+62:    pub fn for_rw_client() -> Self 
+90:pub struct PresenceInfo 
+103:pub struct IdentifyParams 
+140:pub enum IdentifyError 
+172:pub fn qos_token_client_provided(is_active: bool) -> Vec<u8> 
+256:pub fn build_identify(p: &IdentifyParams) -> Result<Vec<u8>, IdentifyError> 
+264:pub fn build_identify_frame(p: &IdentifyParams) -> Result<Vec<u8>, IdentifyError> 
+=== resume
+19:pub const RESUME_MAX_DOWNTIME_MS: u64 = 30_000;
+23:pub struct ResumeParams 
+45:pub struct ResumeState 
+54:pub enum ResumeError 
+86:pub enum ReconnectAction 
+107:pub fn build_resume_frame(params: &ResumeParams) -> Result<Vec<u8>, ResumeError> 
+145:pub fn plan_reconnect(
+=== dispatch
+15:pub enum DispatchKind 
+87:    pub fn from_name(name: &str) -> Option<Self> 
+92:    pub fn as_str(self) -> &'static str 
+121:pub struct DispatchEvent 
+138:pub fn route_dispatch(value: &EtfValue) -> Option<DispatchEvent> 
+=== ready
+30:pub struct ReadySummary 
+67:    pub fn from_dispatch(value: &EtfValue) -> Option<ReadySummary> 
+=== store
+201:    pub fn open(path: impl AsRef<Path>) -> Result<Self, StoreError> 
+221:    pub fn open_in_memory() -> Result<Self, StoreError> 
+229:    pub fn migrate(&mut self) -> Result<(), StoreError> 
+265:    pub fn schema_version(&self) -> Result<u32, StoreError> 
+278:    pub fn put_channel(&mut self, row: &ChannelRow) -> Result<(), StoreError> 
+289:    pub fn channel(&self, id: &str) -> Result<Option<ChannelRow>, StoreError> 
+307:    pub fn put_message(&mut self, row: &MessageRow) -> Result<(), StoreError> 
+330:    pub fn messages(
+388:    pub fn delete_message(&mut self, id: &str) -> Result<bool, StoreError> 
+398:    pub fn kv_set(&mut self, key: &str, value: &str) -> Result<(), StoreError> 
+406:    pub fn kv_get(&self, key: &str) -> Result<Option<String>, StoreError> 
+=== keyring
+34:pub const SCHEMA_NAME: &str = "com.discordlab.Token";
+78:pub struct Keyring 
+97:    pub fn connect() -> Result<Self, KeyringError> 
+108:    pub fn store(&mut self, key: &str, secret: &str) -> Result<(), KeyringError> 
+119:    pub fn lookup(&mut self, key: &str) -> Result<Option<String>, KeyringError> 
+134:    pub fn clear(&mut self, key: &str) -> Result<bool, KeyringError> 

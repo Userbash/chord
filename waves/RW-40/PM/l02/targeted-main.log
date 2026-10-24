@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/main.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 9 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+

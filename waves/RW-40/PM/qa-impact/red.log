@@ -1,0 +1,127 @@
+▶ test-impact: docs → docs-sync
+  ✖ docs-файл и каталог docs включают meta docs-sync (0.692486ms)
+✖ test-impact: docs → docs-sync (1.28734ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.10996ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.596644ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (0.85736ms)
+▶ test-impact: rust/crates/discord-core
+  ✖ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.606674ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.11066ms)
+✖ test-impact: rust/crates/discord-core (0.849611ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ даёт полный frontend-контракт и геометрию (0.207071ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.31811ms)
+▶ test-impact: src/cli
+  ✖ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.154206ms)
+✖ test-impact: src/cli (0.230918ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный файл уходит в meta plan-sync (0.11684ms)
+  ✔ --full даёт tier T2 и offline release-набор (19.546566ms)
+  ✖ флаги после --changed не считаются изменёнными файлами (17.403296ms)
+✖ test-impact: fallback и tier (37.242886ms)
+ℹ tests 10
+ℹ suites 6
+ℹ pass 6
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 78.727346
+
+✖ failing tests:
+
+test at tests/unit/test-impact.test.mjs:57:3
+✖ docs-файл и каталог docs включают meta docs-sync (0.692486ms)
+  AssertionError [ERR_ASSERTION]: docs: нет docs-sync
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:61:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:86:3
+✖ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.606674ms)
+  AssertionError [ERR_ASSERTION]: rust/crates/discord-core: cargo-команда должна быть targeted и offline
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/Cargo.toml --workspace'
+  -   'cargo test --offline --manifest-path rust/Cargo.toml -p discord-core'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:90:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/Cargo.toml --workspace' ],
+    expected: [ 'cargo test --offline --manifest-path rust/Cargo.toml -p discord-core' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:129:3
+✖ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.154206ms)
+  AssertionError [ERR_ASSERTION]: src/cli: нет cli-run
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:132:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:157:3
+✖ флаги после --changed не считаются изменёнными файлами (17.403296ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'rust/gui-spike/ui/features/join-server.js',
+  +   '--json'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:159:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'rust/gui-spike/ui/features/join-server.js', '--json' ],
+    expected: [ 'rust/gui-spike/ui/features/join-server.js' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

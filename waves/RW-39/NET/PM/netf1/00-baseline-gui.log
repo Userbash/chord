@@ -1,0 +1,25 @@
+test rejects_bench_payload_with_non_object_chat_or_members ... ok
+test rejects_degenerate_zero_values ... ok
+test rejects_invalid_json_with_parser_message ... ok
+test rejects_rendered_rows_below_floor ... ok
+test rejects_negative_values ... ok
+test snapshot_floors_are_the_documented_ones ... ok
+test status_field_matches_only_line_start ... ok
+test rejects_wrong_types ... ok
+test rejects_missing_each_required_field ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/launch.rs (rust/gui-spike/target/debug/deps/launch-d5c82783dd60201d)
+
+running 1 test
+test launches_real_window_and_reports_ui_snapshot ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_gui_spike
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

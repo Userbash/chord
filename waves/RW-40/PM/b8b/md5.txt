@@ -1,0 +1,6 @@
+add59870a122918cc55435781b7e283f  rust/gui-spike/ui/app.js
+bcf21377457da20abf55cf9f8a17f6d4  rust/gui-spike/ui/features/settings.js
+e3972343fbe01138130f600c9930a9cd  rust/gui-spike/ui/components/settings.css
+2fa3da372bd9397e2729fc05abe33cf1  rust/gui-spike/ui/index.html
+12c6a1993fd5fe3c7ed1d4a36faaa854  tests/unit/gui-spike-features.test.mjs
+12ea7059e2c4de7c64a0daa40711094a  tests/support/gui-dom-harness.mjs

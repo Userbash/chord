@@ -1,0 +1,112 @@
+Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:181:
+         if token.trim().is_empty() {
+             return Err(TypingError::Unauthorized);
+         }
+[31m-        let identity = discord_core::rest::identity::build(&SystemSources, &IdentityConfig::default());
+(B[m[32m+        let identity =
+(B[m[32m+            discord_core::rest::identity::build(&SystemSources, &IdentityConfig::default());
+(B[m         let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
+             .map_err(|_| TypingError::InvalidArg)?;
+         let client = ApiClient::new(ApiConfig {
+Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:208:
+ 
+     async fn execute(&self, channel_id: &str) -> Result<Option<TypingCooldowns>, TypingError> {
+         validate_channel_id(channel_id)?;
+[31m-        let route = routes::find(HttpMethod::Post, routes::TYPING_PATH)
+(B[m[31m-            .ok_or(TypingError::Network)?;
+(B[m[32m+        let route =
+(B[m[32m+            routes::find(HttpMethod::Post, routes::TYPING_PATH).ok_or(TypingError::Network)?;
+(B[m         let path =
+             routes::render_path(route, &[channel_id]).map_err(|_| TypingError::InvalidArg)?;
+         // Тело отсутствует по контракту §1.6: пустой срез, а не `{}`.
+Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:257:
+     match response.status {
+         200 => parse_body(&response.body),
+         status if (200..300).contains(&status) => Err(TypingError::InvalidResponse),
+[31m-        status => Err(RestFailure::from_status(status).map_or(TypingError::Network, TypingError::from)),
+(B[m[32m+        status => {
+(B[m[32m+            Err(RestFailure::from_status(status).map_or(TypingError::Network, TypingError::from))
+(B[m[32m+        }
+(B[m     }
+ }
+ 
+Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:310:
+             (500, TypingError::Server { status: 500 }),
+             (503, TypingError::Server { status: 503 }),
+         ] {
+[31m-            assert_eq!(decode(response(status, b"")), Err(expected), "HTTP {status}");
+(B[m[32m+            assert_eq!(
+(B[m[32m+                decode(response(status, b"")),
+(B[m[32m+                Err(expected),
+(B[m[32m+                "HTTP {status}"
+(B[m[32m+            );
+(B[m         }
+     }
+ 
+Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:318:
+     fn api_error_is_classified_by_the_shared_module() {
+         use discord_core::rest::client::ApiError;
+         let error: TypingError =
+[31m-            TypingError::from(RestFailure::from_api_error(&ApiError::Client { status: 403 }));
+(B[m[32m+            TypingError::from(RestFailure::from_api_error(&ApiError::Client {
+(B[m[32m+                status: 403,
+(B[m[32m+            }));
+(B[m         assert_eq!(error, TypingError::Forbidden);
+[31m-        let error: TypingError = TypingError::from(RestFailure::from_api_error(&ApiError::Server {
+(B[m[31m-            status: 502,
+(B[m[31m-            attempts: 1,
+(B[m[31m-        }));
+(B[m[32m+        let error: TypingError =
+(B[m[32m+            TypingError::from(RestFailure::from_api_error(&ApiError::Server {
+(B[m[32m+                status: 502,
+(B[m[32m+                attempts: 1,
+(B[m[32m+            }));
+(B[m         assert_eq!(error, TypingError::Server { status: 502 });
+     }
+ }
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:25:
+ const ORACLE_PATH: &str = "/channels/{id}/typing";
+ 
+ /// Дословные ключи тела ответа из §1.6 (wire — snake_case, не имена Rust-полей).
+[31m-const ORACLE_RESPONSE_KEYS: [&str; 2] = [
+(B[m[31m-    "message_send_cooldown_ms",
+(B[m[31m-    "thread_create_cooldown_ms",
+(B[m[31m-];
+(B[m[32m+const ORACLE_RESPONSE_KEYS: [&str; 2] = ["message_send_cooldown_ms", "thread_create_cooldown_ms"];
+(B[m 
+ /// Выдержка frozen D-02: 47 live-маршрутов. `/typing` в ней отсутствует — это
+ /// доказывает, что контракт не подогнан под захват.
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:176:
+     }));
+     assert_eq!(
+         run(send_typing(&failing, CHANNEL_ID)),
+[31m-        Err(TypingError::RateLimited { retry_after_ms: 250 })
+(B[m[32m+        Err(TypingError::RateLimited {
+(B[m[32m+            retry_after_ms: 250
+(B[m[32m+        })
+(B[m     );
+ }
+ 
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:398:
+         "D-02 не подтверждает typing — оракул отдельный [S]"
+     );
+     assert!(
+[31m-        !routes::ROUTES
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|route| route.path == ORACLE_PATH),
+(B[m[32m+        !routes::ROUTES.iter().any(|route| route.path == ORACLE_PATH),
+(B[m         "frozen каталог D-02 не расширяется"
+     );
+ 
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:445:
+     let source = include_str!("../src/main.rs");
+     let commands = registered_commands(source);
+     assert_eq!(
+[31m-        commands.iter().filter(|name| **name == "send_typing").count(),
+(B[m[32m+        commands
+(B[m[32m+            .iter()
+(B[m[32m+            .filter(|name| **name == "send_typing")
+(B[m[32m+            .count(),
+(B[m         1,
+         "send_typing регистрируется ровно один раз"
+     );

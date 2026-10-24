@@ -1,0 +1,19 @@
+scripts/gate.mjs(398,5): error TS2741: Property 'unmet' is missing in type '{ name: string; ok: true; ms: number; counts: null; tail: string; note: string; }' but required in type 'PhaseResult'.
+scripts/gate.mjs(404,3): error TS2741: Property 'unmet' is missing in type '{ name: string; ok: boolean; ms: number; counts: null; tail: string; note: null; }' but required in type 'PhaseResult'.
+scripts/gate.mjs(684,40): error TS2345: Argument of type 'string' is not assignable to parameter of type '"qualify" | "release" | "worker"'.
+tests/unit/dispatch_ui.test.mjs(108,22): error TS7006: Parameter 'initial' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(108,31): error TS7006: Parameter 'ops' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(145,24): error TS7006: Parameter 'action' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(147,23): error TS2339: Property 'channelId' does not exist on type '{}'.
+tests/unit/dispatch_ui.test.mjs(148,23): error TS2339: Property 'messageId' does not exist on type '{}'.
+tests/unit/dispatch_ui.test.mjs(149,20): error TS2339: Property 'userId' does not exist on type '{}'.
+tests/unit/dispatch_ui.test.mjs(150,24): error TS2339: Property 'emojiId' does not exist on type '{}'.
+tests/unit/dispatch_ui.test.mjs(150,54): error TS2339: Property 'emoji' does not exist on type '{}'.
+tests/unit/dispatch_ui.test.mjs(233,49): error TS7006: Parameter 'guild' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(471,8): error TS7006: Parameter 'event' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(471,15): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(528,25): error TS2345: Argument of type 'any[]' is not assignable to parameter of type 'never'.
+tests/unit/dispatch_ui.test.mjs(550,54): error TS7006: Parameter 'source' implicitly has an 'any' type.
+tests/unit/dispatch_ui.test.mjs(550,82): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+tests/unit/dispatch_ui.test.mjs(596,30): error TS7006: Parameter 'reactions' implicitly has an 'any[]' type.
+tests/unit/dispatch_ui.test.mjs(743,18): error TS7006: Parameter 'doc' implicitly has an 'any' type.

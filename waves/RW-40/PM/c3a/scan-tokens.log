@@ -1,0 +1,27 @@
+C3a scan of /home/sanya/re-deep/ui/tokens.json (read-only)
+total tokens: 4795
+names containing 'light': 41
+by prefix: {'premium': 4, 'bg': 4, 'text': 1, 'lol': 2, 'role': 6, 'custom': 1, 'chip': 16, 'overlay': 1, 'background': 1, 'message': 2, 'keyword': 1, 'icon': 1, 'font': 1}
+theme-level light tokens (palette roles): 0 []
+other 'light' names are component variants (chip/role/premium/lol),
+gradients/scrims (bg-gradient-*), overlay colors (text-/icon-overlay-light)
+and a weight (font-weight-light) - not a light theme.
+
+dark spot check:
+  --background-base-lowest = color-mix(in oklab,hsl(240 calc(1*5.263%) 7.451%/1) 100%,#000 0%)
+  --background-base-low = color-mix(in oklab,hsl(240 calc(1*5.882%) 13.333%/1) 100%,#000 0%)
+  --background-base-lower = color-mix(in oklab,hsl(240 calc(1*7.143%) 10.98%/1) 100%,#000 0%)
+  --text-default = color-mix(in oklab,hsl(240 calc(1*6.667%) 94.118%/1) 100%,#000 0%)
+  --text-strong = color-mix(in oklab,hsl(0 calc(1*0%) 98.431%/1) 100%,#000 0%)
+  --text-muted = color-mix(in oklab,hsl(232.5 calc(1*3.96%) 60.392%/1) 100%,#000 0%)
+  --brand-500 = hsl(234.935 calc(1*85.556%) 64.706%/1)
+
+00-app.png (Pillow, read-only):
+ size (2560, 1383) mean luminance 37.7/255
+  rail (18, 18, 20)
+  tree (18, 18, 20)
+  chat (26, 26, 30)
+  composer (34, 35, 39)
+  header-accent (88, 101, 242)
+
+ui/*.png screenshots: 10 | light-mode screenshots: 0

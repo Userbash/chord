@@ -344,7 +344,9 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/profile.test.mjs` | `src/core/ui/profile.mjs` | `topFunctions` |
 | `tests/unit/blacklist.test.mjs` | `src/core/ui/blacklist.mjs` | `isBlacklisted` |
 | `tests/unit/walk-log.test.mjs` | `src/core/ui/walk-log.mjs` | `parseVisited`, `buildWalkRecord`, `consoleIssues`, `shouldBail`, `pickNextItem` |
-| `tests/unit/cdp.test.mjs` | `src/core/cdp/client.mjs` | `resolveEndpoint`, `resolveTargetHint`, `listTargets`, `pickTarget`, `createCdpClient`, `evaluate` |
+| `tests/unit/walk.test.mjs` | `src/core/ui/engine.mjs`, `src/core/ui/adapters.mjs` | `runWalk`, `resolveAdapter`, `clickNavItemExpression` |
+| `tests/unit/cdp.test.mjs` | `src/core/cdp/client.mjs` | `resolveEndpoint`, `resolveTargetHint`, `listTargets`, `pickTarget`, `createCdpClient`, `evaluate`, `captureScreenshot`, `clickText`, `clickTextExpression`, `listElements`, `listElementsExpression`, `openPage` |
+| `tests/unit/cli-run.test.mjs` | `src/cli/run.mjs` | `run`, `cdp targets`, `pids`, `inventory`, `hook`, `summarize`, `domains`, `static` |
 | `tests/unit/calls.test.mjs` | `src/core/calls.mjs` | `isCallPayload`, `callLine`, `parseCallLog`, `summarizeCallLines` |
 | `tests/unit/nm.test.mjs` | `src/core/report/nm.mjs` | `parseNmPosix`, `staticFunctionsCsv` |
 | `tests/unit/domains.test.mjs` | `src/core/report/domains.mjs` | `classifyName`, `domainCsv`, `formatDomainSummary` |
@@ -362,10 +364,32 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/e2e/live-discord.e2e.test.mjs` | — | `targets`, `eval` (только чтение, opt-in) |
 | `tests/unit/hook-io.test.mjs` | `src/core/hook-io.mjs` | `openCallLog`, `waitForStop` |
 | `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
+| `tests/unit/gui-spike-bench.test.mjs` | `scripts/gui-spike-bench.mjs` | `summarize`, `percentile95`, `parseStatus`, `parseCliArgs` |
+| `tests/unit/test-impact.test.mjs` | `scripts/test-impact.mjs` | `planFor`, `docs-sync`, `--full` |
+| `tests/unit/gui-spike-model.test.mjs` | `rust/gui-spike/ui/model.js` | `PageStore`, `getRow`, `ensureRange`, `stats` |
+| `tests/unit/channel-paging.test.mjs` | `rust/gui-spike/src/data.rs` | `messages_page`, `nextCursor`, `hasMore`, `loaded_rows_limit` |
+| `tests/unit/gui-spike-dom.test.mjs` | `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/app.js` | DOM-контракт: 4 экрана, обязательные id, константы |
+| `tests/unit/gui-spike-features.test.mjs` | `rust/gui-spike/ui/app.js`, `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/ui/features/emoji.js`, `rust/gui-spike/ui/features/search-overlay.js` | `loadApp`, `data-action`, `settings`, `emoji`, `search` |
+| `tests/meta/test-policy.test.mjs` | — | `TEST-POLICY`, `--no-verify`, `gate.mjs` |
+| `tests/meta/design-breakpoints.test.mjs` | — | мета: адаптив shell 1600/1200/960/720 (`--layout-tree-w`, `--layout-tree-min-w`, `#member-panel`, `channel-tree`) |
+| `tests/unit/gui-spike-regressions.test.mjs` | — | `quick-switcher`, `quick-switcher-empty`, `msg-toolbar`, `delete_message` |
+| `tests/unit/channel-switch.test.mjs` | — | `channels`, `messages_page`, `channel-item`, `chat-title-text`, `G6-D-01` |
+| `tests/unit/guild-rail.test.mjs` | — | `ready`, `guild-rail`, `data-guild-id` |
+| `tests/unit/voice-ui.test.mjs` | — | `voice-panel`, `voice-spec`, `data-state` |
+| `tests/unit/join-server.test.mjs` | — | `join-server`, `resolve_invite`, `accept_invite` |
+| `tests/unit/read-state-ui.test.mjs` | — | `read_state`, `ack_message`, `chat-unread-divider` |
+| `tests/unit/chat-reactions.test.mjs` | — | `toggle_reaction`, `messageId`, `reaction` |
+| `tests/unit/typing-ui.test.mjs` | — | `typing-indicator`, `send_typing`, `TYPING_RESEND_MS` |
+| `tests/unit/gui-spike-auth.test.mjs` | `rust/gui-spike/ui/features/auth.js`, `rust/gui-spike/ui/app.js` | `auth-gate`, `auth_login_token`, `auth_status` |
+| `tests/smoke/gui-spike.smoke.test.mjs` | — | live smoke: `window-ready`, `UI_SNAPSHOT` (`GUI_SPIKE_E2E=1`) |
+| `tests/smoke/gui-window.smoke.test.mjs` | `scripts/gui-window-probe.py` | AT-SPI/X11: окно, элементы, PNG, GBM |
 | `tests/meta/docs-sync.test.mjs` | — | мета: `HELP` ↔ `README.md` (команды CLI задокументированы) |
 | `tests/meta/backlog-sync.test.mjs` | — | мета: карточки `docs/feature-backlog.md` ↔ README/TASKS/карта |
 | `tests/meta/rust-client-sync.test.mjs` | — | мета: план Rust-клиента (docs/rust-client) ↔ README/TASKS/карта |
 | `tests/meta/waves-sync.test.mjs` | — | мета: `waves/db.jsonl` (схема v1) ↔ `STATE.md` и `evidence` |
+| `tests/meta/keyring-live.test.mjs` | — | мета: live keyring `#[ignore]` ↔ `--ignored` ↔ `failOnSkips` |
+| `tests/meta/ipc-path.test.mjs` | — | мета: IPC не принимает путь — `scan` сигнатур `#[tauri::command]` (`PathBuf`, `File`, `path`/`root`/`dir`), `tauri-plugin-fs`/`tauri-plugin-dialog`, 0 violations |
+| `tests/meta/ci-browser.test.mjs` | — | мета: CI `qa-browser` — pinned Chromium, `CHROME_BIN`, preflight, `--test-concurrency=1`, `.gate` |
 
 Цикл для новой функциональности (рецепт):
 

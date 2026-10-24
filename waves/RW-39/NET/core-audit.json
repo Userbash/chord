@@ -1,0 +1,1109 @@
+{
+  "schema": 1,
+  "wave": "RW-39",
+  "role": "NET-B",
+  "kind": "core-audit",
+  "date": "2026-10-23",
+  "head": "0239543",
+  "mode": "read-only (no cargo, no network, no window, no commit)",
+  "charter": "waves/RW-39/NET/CHARTER.md",
+  "sources": [
+    "rust/crates/discord-core/src/rest/*.rs",
+    "rust/crates/discord-core/src/{ws,gateway,identify,resume,dispatch,ready,lib}.rs",
+    "rust/crates/discord-core/src/ready/*.rs",
+    "rust/crates/discord-core/tests/*.rs",
+    "rust/crates/discord-store/src/lib.rs",
+    "rust/crates/discord-platform/src/keyring.rs",
+    "rust/crates/discord-platform/src/ffi_secret.rs",
+    "rust/gui-spike/src/{main,data,core_bridge}.rs",
+    "rust/crates/discord-app/src/main.rs",
+    "docs/re/gateway-protocol.md",
+    "docs/re/rest-d02.md",
+    "docs/rust-client/ADR-1.md",
+    "waves/RW-33/REPORT.md"
+  ],
+  "readiness": {
+    "rest_transport_headers_sp_limits_tls": 85,
+    "login_logout_session": 10,
+    "gateway_connect_identify_resume_heartbeat_ready": 80,
+    "storage_keyring_store": 55,
+    "app_integration_ui_tauri_core": 5
+  },
+  "readiness_note": "Проценты — оценка NET-B по объёму реализованного и покрытого контрактом; не метрика покрытия.",
+  "verdict": "Критерий устава §5 не достигается: нет сквозного auth-слоя, URL шлюза, супервайзера и разбора JSON-ответов; REST/WS-механика при этом покрыта 531 тестом discord-core.",
+  "counts": {
+    "items": 72,
+    "gaps": 16,
+    "core_tests": {
+      "total": 531,
+      "integration": 528,
+      "inline": 3
+    },
+    "audited_relevant_core_tests": 255,
+    "keyring_tests": 12,
+    "store_tests": 14,
+    "note": "числа по объявлениям #[test]/#[tokio::test]; прогоны не выполнялись"
+  },
+  "items": [
+    {
+      "module": "rest::transport",
+      "fn": "Endpoint::parse/target/host_header",
+      "file": "rust/crates/discord-core/src/rest/transport.rs",
+      "does": "Разбор базы, склейка target, Host (порт/IPv6)",
+      "tests": "rest_transport.rs (3 кейса)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::transport",
+      "fn": "send / send_with",
+      "file": "rust/crates/discord-core/src/rest/transport.rs",
+      "does": "DNS→TCP→TLS→один HTTP/1.1 запрос, Connection: close",
+      "tests": "rest_transport.rs (10; TLS-кейсы отдельно)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::transport",
+      "fn": "HttpClientConfig",
+      "file": "rust/crates/discord-core/src/rest/transport.rs",
+      "does": "webpki-roots, таймауты connect/read/write, лимит тела 8 МиБ",
+      "tests": "rest_transport.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::transport",
+      "fn": "HttpRequest / HttpResponse",
+      "file": "rust/crates/discord-core/src/rest/transport.rs",
+      "does": "Запрос/ответ + builder header/body",
+      "tests": "rest_transport.rs::response_shape_is_public",
+      "status": "partial",
+      "gap": "Debug печатает заголовки: Authorization утекает при {:?}",
+      "priority": "P1"
+    },
+    {
+      "module": "rest::transport",
+      "fn": "HttpError",
+      "file": "rust/crates/discord-core/src/rest/transport.rs",
+      "does": "10 типов ошибок транспорта",
+      "tests": "rest_transport.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::http1",
+      "fn": "encode_request / parse_response_head / decode_chunked / content_length / is_chunked",
+      "file": "rust/crates/discord-core/src/rest/http1.rs",
+      "does": "Чистый HTTP/1.1: инъекции, framing, chunked, лимиты",
+      "tests": "rest_http1.rs (16)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::transport",
+      "fn": "TLS (rustls+ring+webpki)",
+      "file": "rust/crates/discord-core/src/rest/transport.rs",
+      "does": "Проверка сертификата и SAN, https/wss",
+      "tests": "rest_transport.rs (TLS-стаб, 2)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::headers",
+      "fn": "AUTH_HEADER_NAMES",
+      "file": "rust/crates/discord-core/src/rest/headers.rs",
+      "does": "6 имён в порядке живого захвата",
+      "tests": "rest_headers.rs (5)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::headers",
+      "fn": "auth_headers(&AuthHeaderValues)",
+      "file": "rust/crates/discord-core/src/rest/headers.rs",
+      "does": "Пары имя→значение, пустые не подменяет",
+      "tests": "rest_headers.rs",
+      "status": "ready",
+      "gap": "В проде не используется: ApiAuth собирается вызывающим",
+      "priority": "P2"
+    },
+    {
+      "module": "rest::headers",
+      "fn": "classify_status",
+      "file": "rust/crates/discord-core/src/rest/headers.rs",
+      "does": "200/204/304/404/429 + Other(u16)",
+      "tests": "rest_headers.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiAuth",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "6 owned-заголовков, Debug скрывает Authorization",
+      "tests": "rest_client.rs::debug_redacts_authorization",
+      "status": "ready",
+      "gap": "Нет конструктора из токена; Default = 6 пустых строк",
+      "priority": "P0"
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiAuth::from_values / pairs",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "Копирование из ссылок / пары для отправки",
+      "tests": "rest_client.rs (client_for)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::identity",
+      "fn": "IdentitySources / SystemSources",
+      "file": "rust/crates/discord-core/src/rest/identity.rs",
+      "does": "Честные источники: env, /proc, /etc/os-release, /dev/urandom",
+      "tests": "rest_identity.rs (8)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::identity",
+      "fn": "IdentityConfig",
+      "file": "rust/crates/discord-core/src/rest/identity.rs",
+      "does": "22 override-поля",
+      "tests": "rest_identity.rs::config_overrides_win",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::identity",
+      "fn": "build",
+      "file": "rust/crates/discord-core/src/rest/identity.rs",
+      "does": "SuperProperties: 22 поля, 3 UUID v4 в каноническом порядке",
+      "tests": "rest_identity.rs + live header",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::identity",
+      "fn": "uuid_v4",
+      "file": "rust/crates/discord-core/src/rest/identity.rs",
+      "does": "RFC 4122 v4 из random_bytes",
+      "tests": "rest_identity.rs::uuid_v4_shape",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::super_properties",
+      "fn": "SuperProperties",
+      "file": "rust/crates/discord-core/src/rest/super_properties.rs",
+      "does": "22 поля, канонический порядок",
+      "tests": "rest_super_properties.rs (8, live b64)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::super_properties",
+      "fn": "to_json / from_json / to_base64 / from_base64",
+      "file": "rust/crates/discord-core/src/rest/super_properties.rs",
+      "does": "Сериализация и строгий парсер с позициями ошибок",
+      "tests": "rest_super_properties.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::base64",
+      "fn": "encode / decode",
+      "file": "rust/crates/discord-core/src/rest/base64.rs",
+      "does": "base64 без внешних крейтов",
+      "tests": "rest_base64.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiClient::new",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "Валидация базы, хранение auth/http/retry",
+      "tests": "rest_client.rs::invalid_base_rejected",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiClient::execute",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "guard телеметрии → 6 заголовков → таймаут → 429/5xx повторы",
+      "tests": "rest_client.rs (14)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiClient::get",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "GET без тела",
+      "tests": "rest_client.rs (/users/@me на стабе)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiClient::sleep_backoff",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "Экспонента 5xx с потолком",
+      "tests": "rest_client.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiConfig / ApiRetryPolicy (default)",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "База v9, 3 попытки, backoff 250 мс, таймаут 30 с",
+      "tests": "rest_client.rs",
+      "status": "partial",
+      "gap": "ApiAuth::default() = пустые заголовки: запрос без валидного Authorization",
+      "priority": "P0"
+    },
+    {
+      "module": "rest::client",
+      "fn": "ApiError + Display",
+      "file": "rust/crates/discord-core/src/rest/client.rs",
+      "does": "Unauthorized/RateLimited/Server/Client/Timeout/Transport",
+      "tests": "косвенно (matches в тестах)",
+      "status": "partial",
+      "gap": "Нет прикладной политики на 401 (инвалидация токена)",
+      "priority": "P0"
+    },
+    {
+      "module": "rest::rate_limit",
+      "fn": "rate_limit_info",
+      "file": "rust/crates/discord-core/src/rest/rate_limit.rs",
+      "does": "429: retry-after → тело → x-ratelimit-reset-after, global, bucket",
+      "tests": "rest_rate_limit.rs (10)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::rate_limit",
+      "fn": "classify_failure",
+      "file": "rust/crates/discord-core/src/rest/rate_limit.rs",
+      "does": "429/401/5xx/4xx → RestFailure",
+      "tests": "rest_rate_limit.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::rate_limit",
+      "fn": "should_retry / retry_delay",
+      "file": "rust/crates/discord-core/src/rest/rate_limit.rs",
+      "does": "429 для всех методов, 5xx только идемпотентные",
+      "tests": "rest_rate_limit.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::rate_limit",
+      "fn": "bucket state / global lock",
+      "file": "-",
+      "does": "Проактивный учёт x-ratelimit-remaining/reset-after",
+      "tests": "-",
+      "status": "missing",
+      "gap": "Только реакция на 429, состояние bucket между запросами не хранится",
+      "priority": "P1"
+    },
+    {
+      "module": "rest::retry",
+      "fn": "is_idempotent / attempt_once / execute_with_retries",
+      "file": "rust/crates/discord-core/src/rest/retry.rs",
+      "does": "Политика ретраев над замыканием",
+      "tests": "rest_retry.rs (11)",
+      "status": "ready",
+      "gap": "Дублирует политику ApiClient (два источника истины)",
+      "priority": "P1"
+    },
+    {
+      "module": "rest::telemetry",
+      "fn": "guard_target / is_telemetry_path",
+      "file": "rust/crates/discord-core/src/rest/telemetry.rs",
+      "does": "Блокирует /science,/beaker,/track до сети",
+      "tests": "rest_telemetry.rs (4)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::routes",
+      "fn": "ROUTES (47)",
+      "file": "rust/crates/discord-core/src/rest/routes.rs",
+      "does": "Каталог живого захвата D-02",
+      "tests": "rest_routes.rs (8)",
+      "status": "ready",
+      "gap": "Нет /auth/* и /gateway: парольный логин и получение URL шлюза не поддержаны",
+      "priority": "P0"
+    },
+    {
+      "module": "rest::routes",
+      "fn": "find / render_path",
+      "file": "rust/crates/discord-core/src/rest/routes.rs",
+      "does": "Поиск пары (метод, шаблон), подстановка {id}/{num}",
+      "tests": "rest_routes.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::resources",
+      "fn": "path / resource",
+      "file": "rust/crates/discord-core/src/rest/resources.rs",
+      "does": "8 read-only GET-ресурсов",
+      "tests": "rest_resources.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "rest::ack",
+      "fn": "build_ack_body (ack)",
+      "file": "rust/crates/discord-core/src/rest/ack.rs",
+      "does": "Тело MESSAGE_ACK",
+      "tests": "rest_ack.rs (9)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "gateway",
+      "fn": "Session::new/on_term/on_value/on_timer",
+      "file": "rust/crates/discord-core/src/gateway.rs",
+      "does": "HELLO, heartbeat 41250 мс, ACK/RTT, zombie, s, op7/op9",
+      "tests": "gateway_session.rs (15, реплей)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "gateway",
+      "fn": "Effect",
+      "file": "rust/crates/discord-core/src/gateway.rs",
+      "does": "SendHeartbeat{d} / Reconnect{reason}",
+      "tests": "gateway_session.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "gateway",
+      "fn": "Op / Hello / ReconnectReason / GatewayError",
+      "file": "rust/crates/discord-core/src/gateway.rs",
+      "does": "Опкоды и ошибки декодирования",
+      "tests": "gateway_session.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "GatewayPipe::push_binary",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "zstd-поток → ETF-термы → сессия; десинк = ошибка",
+      "tests": "ws_transport.rs (13)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "GatewayPipe::last_ready / resume_state / last_invalid_session_resumable",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "READY-сводка, session_id+last_seq, op9 d",
+      "tests": "identify_ready.rs, resume_reconnect.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "GatewayPipe::events / take_events / unknown_dispatches",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "Буфер диспатчей (дренаж обязателен)",
+      "tests": "dispatch_router.rs (12)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "encode_heartbeat",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "{op:1,d} с 0x83",
+      "tests": "ws_transport.rs::heartbeat_encode_roundtrip",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "connect_and_run / _with / _resume",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "Одно соединение: HELLO → IDENTIFY/RESUME ровно раз → цикл таймеров",
+      "tests": "ws_transport.rs, identify_ready.rs, resume_reconnect.rs",
+      "status": "partial",
+      "gap": "Single-shot: нет супервайзера, backoff и переподключения",
+      "priority": "P0"
+    },
+    {
+      "module": "ws",
+      "fn": "RunOutcome",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "Reconnect{reason} / Closed{code}",
+      "tests": "там же",
+      "status": "partial",
+      "gap": "Close-код не классифицируется (4004/4013/4014/4008/1000)",
+      "priority": "P0"
+    },
+    {
+      "module": "ws",
+      "fn": "RunOptions",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "identify: Option<IdentifyParams>",
+      "tests": "identify_ready.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "tls_connector",
+      "file": "rust/crates/discord-core/src/ws.rs",
+      "does": "ring + webpki-roots для wss://",
+      "tests": "только сборка ветки (live запрещён)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ws",
+      "fn": "gateway_url / GATEWAY_URL",
+      "file": "-",
+      "does": "URL шлюза с ?encoding=etf&v=9&compress=zstd-stream; нормализация resume_gateway_url",
+      "tests": "-",
+      "status": "missing",
+      "gap": "В коде нет ни константы, ни билдера: соединение возможно только с URL от вызывающего",
+      "priority": "P0"
+    },
+    {
+      "module": "identify",
+      "fn": "build_identify / build_identify_frame",
+      "file": "rust/crates/discord-core/src/identify.rs",
+      "does": "op2: token, capabilities, properties, presence, compress, client_state, qos_token",
+      "tests": "identify_ready.rs (16; frame косвенно через WS-стаб)",
+      "status": "partial",
+      "gap": "Пустой token не отвергается (симметрично ResumeError::EmptyToken)",
+      "priority": "P1"
+    },
+    {
+      "module": "identify",
+      "fn": "IdentifyProperties::for_rw_client",
+      "file": "rust/crates/discord-core/src/identify.rs",
+      "does": "Дефолты клиента (Discord Client, stable, 641004)",
+      "tests": "identify_ready.rs",
+      "status": "partial",
+      "gap": "Не связан с SuperProperties: разные launch_id/UA/версия",
+      "priority": "P1"
+    },
+    {
+      "module": "identify",
+      "fn": "qos_token_client_provided",
+      "file": "rust/crates/discord-core/src/identify.rs",
+      "does": "protobuf QosToken (4 Б)",
+      "tests": "identify_ready.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "resume",
+      "fn": "build_resume_frame / plan_reconnect",
+      "file": "rust/crates/discord-core/src/resume.rs",
+      "does": "op6 {token,session_id,seq}; политика 30 с и op9",
+      "tests": "resume_reconnect.rs (13)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "resume",
+      "fn": "ResumeState / ResumeParams",
+      "file": "rust/crates/discord-core/src/resume.rs",
+      "does": "Состояние и параметры; token скрыт в Debug",
+      "tests": "resume_reconnect.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ready",
+      "fn": "ReadySummary::from_dispatch",
+      "file": "rust/crates/discord-core/src/ready.rs",
+      "does": "Счётчики READY + user_id + session_id + resume_gateway_url",
+      "tests": "identify_ready.rs, live .1389",
+      "status": "ready",
+      "gap": "Нет имени/аватара пользователя",
+      "priority": "P1"
+    },
+    {
+      "module": "ready",
+      "fn": "Ready::from_dispatch",
+      "file": "rust/crates/discord-core/src/ready/snapshot.rs",
+      "does": "Типизированная модель READY из ETF",
+      "tests": "ready_core.rs (14)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "ready",
+      "fn": "guild / social / read_state",
+      "file": "rust/crates/discord-core/src/ready/*.rs",
+      "does": "Гильдии, каналы, роли, участники, read-state",
+      "tests": "ready_* (37)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "dispatch",
+      "fn": "DispatchKind / route_dispatch",
+      "file": "rust/crates/discord-core/src/dispatch.rs",
+      "does": "21 тип op0, raw со счётчиком",
+      "tests": "dispatch_router.rs (12)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "state",
+      "fn": "apply_dispatch / apply_frame",
+      "file": "rust/crates/discord-core/src/state/reducer.rs",
+      "does": "Чистое состояние из диспатчей",
+      "tests": "state_*",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "history",
+      "fn": "History",
+      "file": "rust/crates/discord-core/src/history/*",
+      "does": "Окно истории канала, пагинация",
+      "tests": "history_* (3 файла)",
+      "status": "ready",
+      "gap": "Без REST-JSON: страницы принимаются уже типизированными",
+      "priority": "P1"
+    },
+    {
+      "module": "keyring",
+      "fn": "Keyring::connect/store/lookup/clear",
+      "file": "rust/crates/discord-platform/src/keyring.rs",
+      "does": "Secret Service через libsecret, схема com.discordlab.Token",
+      "tests": "keyring_contract.rs (12; live по флагу)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "keyring",
+      "fn": "KeyringError + Debug",
+      "file": "rust/crates/discord-platform/src/keyring.rs",
+      "does": "4 ошибки без секрета; Debug без значения",
+      "tests": "keyring_contract.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "keyring",
+      "fn": "Keyring !Send + !Sync",
+      "file": "rust/crates/discord-platform/src/keyring.rs",
+      "does": "libsecret/GDBus не переносится между потоками",
+      "tests": "keyring_contract.rs",
+      "status": "ready",
+      "gap": "Нельзя в async-задаче: нужен sync-вызов или поток-владелец",
+      "priority": "P0"
+    },
+    {
+      "module": "keyring",
+      "fn": "интеграция в приложение",
+      "file": "-",
+      "does": "Хранение/чтение токена при login/startup/logout",
+      "tests": "-",
+      "status": "missing",
+      "gap": "Вне discord-platform keyring не используется никем",
+      "priority": "P0"
+    },
+    {
+      "module": "store",
+      "fn": "Store::open / migrate",
+      "file": "rust/crates/discord-store/src/lib.rs",
+      "does": "SQLite, WAL, схема v1, user_version",
+      "tests": "store_contract.rs (14)",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "store",
+      "fn": "put_channel/channel/put_message/messages/delete_message",
+      "file": "rust/crates/discord-store/src/lib.rs",
+      "does": "Каналы/сообщения, keyset-пагинация, soft delete",
+      "tests": "store_contract.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "store",
+      "fn": "kv_set / kv_get",
+      "file": "rust/crates/discord-store/src/lib.rs",
+      "does": "Key-value: единственный кандидат под сессию",
+      "tests": "store_contract.rs",
+      "status": "ready",
+      "gap": "Сессия/пользователь не сохраняются",
+      "priority": "P0"
+    },
+    {
+      "module": "store",
+      "fn": "схема users/guilds/roles/emoji",
+      "file": "rust/crates/discord-store/src/lib.rs",
+      "does": "Заявлены в CORE_TABLES, в v1 не созданы",
+      "tests": "-",
+      "status": "missing",
+      "gap": "CORE_TABLES (5) ≠ схема v1 (3)",
+      "priority": "P1"
+    },
+    {
+      "module": "discord-app",
+      "fn": "main",
+      "file": "rust/crates/discord-app/src/main.rs",
+      "does": "Печатает 2 константы",
+      "tests": "-",
+      "status": "missing",
+      "gap": "Каркас: нет рантайма/процесса",
+      "priority": "P1"
+    },
+    {
+      "module": "gui-spike",
+      "fn": "ready/messages_page/members_page/settings/search_page",
+      "file": "rust/gui-spike/src/main.rs,data.rs",
+      "does": "BFF из локальных фикстур, без сети",
+      "tests": "102 (dom/model/bench/features)",
+      "status": "ready",
+      "gap": "Только фикстуры: сетевых данных нет",
+      "priority": "P0"
+    },
+    {
+      "module": "gui-spike",
+      "fn": "core_bridge (W39j)",
+      "file": "rust/gui-spike/src/core_bridge.rs",
+      "does": "Фикстуры → state::Message → History",
+      "tests": "ipc_contract/data_contract",
+      "status": "partial",
+      "gap": "Только сообщения; settings/voice не подключены",
+      "priority": "P1"
+    },
+    {
+      "module": "gui-spike",
+      "fn": "process_metrics / report_* / spike_config",
+      "file": "rust/gui-spike/src/main.rs",
+      "does": "Замер и маркеры",
+      "tests": "launch.rs",
+      "status": "ready",
+      "gap": null,
+      "priority": null
+    },
+    {
+      "module": "gui-spike",
+      "fn": "auth_status / login_token / logout",
+      "file": "-",
+      "does": "Вход, статус, выход",
+      "tests": "-",
+      "status": "missing",
+      "gap": "Ни одной команды; событий состояния нет",
+      "priority": "P0"
+    },
+    {
+      "module": "gui-spike",
+      "fn": "dependency discord-platform",
+      "file": "rust/gui-spike/Cargo.toml",
+      "does": "Доступ к keyring",
+      "tests": "-",
+      "status": "missing",
+      "gap": "Сейчас только discord-core; добавление зависимости требует разрешения",
+      "priority": "P0"
+    }
+  ],
+  "gaps": [
+    {
+      "id": "P0-1",
+      "priority": "P0",
+      "area": "auth/headers",
+      "title": "Нет сборки auth-заголовков из токена",
+      "detail": "ApiConfig::default() → ApiAuth::default() = 6 пустых строк; ApiClient::execute отправляет их как есть. Конструктора ApiAuth из (token, SuperProperties, locale, timezone) нет — ApiAuth:: встречается только в rest/client.rs.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/client.rs:20-22",
+        "rust/crates/discord-core/src/rest/client.rs:116-125",
+        "rust/crates/discord-core/src/rest/client.rs:249-253",
+        "waves/RW-39/NET/PM/netb/04-gaps.log"
+      ],
+      "fix": "ApiAuth::for_user_token(...) + тест «6 заголовков непустые и в порядке»"
+    },
+    {
+      "id": "P0-2",
+      "priority": "P0",
+      "area": "app/auth",
+      "title": "Нет BFF-команд входа/выхода/статуса; keyring не подключён",
+      "detail": "gui-spike и discord-app не ссылаются на discord-platform/keyring. Tauri-команд auth_status/login_token/logout нет; событий состояния нет. Keyring !Send — нужен sync-вызов или поток-владелец.",
+      "evidence": [
+        "rg по rust/gui-spike и rust/crates/discord-app: (none)",
+        "rust/crates/discord-platform/src/keyring.rs:15-16",
+        "rust/crates/discord-platform/src/keyring.rs:78-83"
+      ],
+      "fix": "Три команды + поток-владелец keyring + типы AuthState/AuthError"
+    },
+    {
+      "id": "P0-3",
+      "priority": "P0",
+      "area": "gateway/runtime",
+      "title": "Нет URL шлюза и супервайзера соединения",
+      "detail": "В коде нет gateway.discord.gg и compress=zstd-stream; connect_and_run — одно соединение, решение о реконнекте и backoff не реализованы (plan_reconnect есть, цикла нет).",
+      "evidence": [
+        "waves/RW-39/NET/PM/netb/04-gaps.log (gateway.discord.gg: none)",
+        "rust/crates/discord-core/src/ws.rs:383-410",
+        "rust/crates/discord-core/src/resume.rs:145-160"
+      ],
+      "fix": "GATEWAY_URL + gateway_url(resume_url) + supervisor с plan_reconnect/backoff/лимитом"
+    },
+    {
+      "id": "P0-4",
+      "priority": "P0",
+      "area": "rest/json",
+      "title": "Нет разбора JSON-ответов REST",
+      "detail": "discord-core без production-JSON-парсера: discord-json — dev-dependency, типы READY принимают только EtfValue. GET /users/@me возвращает HttpResponse<Vec<u8>>, превратить в пользователя нечем.",
+      "evidence": [
+        "rust/crates/discord-core/Cargo.toml:21-22",
+        "rust/crates/discord-core/src/ready/social.rs (EtfValue)",
+        "waves/RW-39/NET/PM/netb/04-gaps.log"
+      ],
+      "fix": "Промоут discord-json в prod-dep (внутренний path-крейт) + тип Me + тест на сэмпле"
+    },
+    {
+      "id": "P0-5",
+      "priority": "P0",
+      "area": "session/lifecycle",
+      "title": "Нет logout и восстановления сессии",
+      "detail": "Сессия не сохраняется (store.kv не используется), logout-флоу нет, инвалидации токена по 401 нет; в Store отсутствует delete_kv (только kv_set) — очистку gw.*/me.* нечем выразить явно.",
+      "evidence": [
+        "rust/crates/discord-store/src/lib.rs:112-116",
+        "waves/RW-39/NET/CORE-AUDIT.md §4.3",
+        "rust/crates/discord-store/src/lib.rs:397-413"
+      ],
+      "fix": "logout: keyring.clear + stop + reset; startup: lookup → /users/@me → gateway; kv-ключи gw.*/me.*"
+    },
+    {
+      "id": "P0-6",
+      "priority": "P0",
+      "area": "errors/ux",
+      "title": "Ошибки не отображаются в пригодном виде",
+      "detail": "ApiError и Closed{code} существуют, но маппинга 401/429/сеть/4004/4014 в состояния UI нет.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/client.rs:128-190",
+        "rust/crates/discord-core/src/ws.rs:312-325"
+      ],
+      "fix": "AuthError/ConnectionError → строки UI без утечек; 4004 — не ретраить"
+    },
+    {
+      "id": "P1-1",
+      "priority": "P1",
+      "area": "identity",
+      "title": "IdentifyProperties и SuperProperties расходятся",
+      "detail": "Разные launch_id/UA/версия: build() даёт UUID и discord-lab/<v>, for_rw_client — нулевой UUID и discord-lab-rs/<v>.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/identity.rs:249-293",
+        "rust/crates/discord-core/src/identify.rs:62-85"
+      ],
+      "fix": "From<SuperProperties> для IdentifyProperties"
+    },
+    {
+      "id": "P1-2",
+      "priority": "P1",
+      "area": "security/logs",
+      "title": "HttpRequest::Debug печатает Authorization",
+      "detail": "derive(Debug) на структуре с headers; любой {:?} в логе приложения раскрывает токен.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/transport.rs:54-66"
+      ],
+      "fix": "ручной Debug с <redacted> + тест + правило не логировать запросы"
+    },
+    {
+      "id": "P1-3",
+      "priority": "P1",
+      "area": "rest/limits",
+      "title": "Нет проактивных bucket'ов и глобального лока",
+      "detail": "Учёт 429 только реактивный; x-ratelimit-remaining/reset-after не хранятся между запросами.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/rate_limit.rs:141-179"
+      ],
+      "fix": "bucket-таблица по маршруту + ожидание до запроса"
+    },
+    {
+      "id": "P1-4",
+      "priority": "P1",
+      "area": "identify",
+      "title": "build_identify принимает пустой токен",
+      "detail": "В отличие от build_resume_frame проверки нет.",
+      "evidence": [
+        "rust/crates/discord-core/src/identify.rs:256-301",
+        "rust/crates/discord-core/src/resume.rs:107-113"
+      ],
+      "fix": "IdentifyError::EmptyToken"
+    },
+    {
+      "id": "P1-5",
+      "priority": "P1",
+      "area": "rest/perf",
+      "title": "Нет keep-alive",
+      "detail": "Connection: close, один запрос на TCP+TLS.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/transport.rs:263-265"
+      ],
+      "fix": "пул после замера (осознанно отложено в RW-10)"
+    },
+    {
+      "id": "P1-6",
+      "priority": "P1",
+      "area": "store",
+      "title": "CORE_TABLES ≠ схема v1",
+      "detail": "5 таблиц заявлено, созданы channels/messages/kv.",
+      "evidence": [
+        "rust/crates/discord-store/src/lib.rs:29",
+        "rust/crates/discord-store/src/lib.rs:39-63"
+      ],
+      "fix": "миграция v2 или честный комментарий"
+    },
+    {
+      "id": "P1-7",
+      "priority": "P1",
+      "area": "rest/retry",
+      "title": "Две политики ретраев",
+      "detail": "ApiClient и rest/retry.rs реализуют одну политику независимо.",
+      "evidence": [
+        "rust/crates/discord-core/src/rest/client.rs:260-325",
+        "rust/crates/discord-core/src/rest/retry.rs:93-128"
+      ],
+      "fix": "оставить один источник"
+    },
+    {
+      "id": "P1-8",
+      "priority": "P1",
+      "area": "keyring/ux",
+      "title": "Keyring-ошибки не отображены",
+      "detail": "Заблокированная коллекция ждёт prompt; sync-вызов в Tauri заморозит окно.",
+      "evidence": [
+        "rust/crates/discord-platform/src/keyring.rs:20-26"
+      ],
+      "fix": "статус «разблокируйте связку ключей» + таймаут/поток"
+    },
+    {
+      "id": "P1-9",
+      "priority": "P1",
+      "area": "security/logs",
+      "title": "Нет теста «в логах нет токена» на границе приложения",
+      "detail": "Есть только Debug-тесты на ApiAuth/IdentifyParams/ResumeParams.",
+      "evidence": [
+        "rust/crates/discord-core/tests/rest_client.rs:615",
+        "rust/crates/discord-core/tests/identify_ready.rs:486",
+        "rust/crates/discord-core/tests/resume_reconnect.rs:280"
+      ],
+      "fix": "лог-скан мета-тест"
+    },
+    {
+      "id": "P1-10",
+      "priority": "P1",
+      "area": "app",
+      "title": "discord-app — пустой каркас",
+      "detail": "main печатает две константы; процесса/рантайма нет.",
+      "evidence": [
+        "rust/crates/discord-app/src/main.rs"
+      ],
+      "fix": "решить: GUI-spike единственная точка входа или собрать процесс"
+    }
+  ],
+  "top3_gaps": [
+    {
+      "rank": 1,
+      "theme": "auth-слой: заголовки + команды + keyring",
+      "ids": [
+        "P0-1",
+        "P0-2"
+      ],
+      "why": "без него вход из UI невозможен: ApiAuth по умолчанию пустой, команд login/status/logout нет, keyring не подключён"
+    },
+    {
+      "rank": 2,
+      "theme": "шлюз: URL + супервайзер",
+      "ids": [
+        "P0-3"
+      ],
+      "why": "нет ни URL с ?encoding=etf&v=9&compress=zstd-stream, ни цикла переподключения — READY достижим только вручную из теста"
+    },
+    {
+      "rank": 3,
+      "theme": "REST JSON: /users/@me → Me",
+      "ids": [
+        "P0-4"
+      ],
+      "why": "ответ нельзя разобрать: в core нет production-JSON-парсера, значит нет проверки токена и экрана сессии"
+    }
+  ],
+  "call_order": [
+    {
+      "step": "ui",
+      "action": "Ввод токена владельца",
+      "call": "invoke('login_token', { token })",
+      "implemented": false
+    },
+    {
+      "step": "tauri",
+      "action": "Записать токен в keyring",
+      "call": "Keyring::connect() → store('token', token)",
+      "implemented": false
+    },
+    {
+      "step": "core",
+      "action": "Собрать супер-свойства",
+      "call": "identity::build(&SystemSources::new(), &IdentityConfig::default())",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "Base64 заголовка",
+      "call": "SuperProperties::to_base64()",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "Собрать 6 auth-заголовков",
+      "call": "ApiAuth::for_user_token(...)",
+      "implemented": false
+    },
+    {
+      "step": "core",
+      "action": "Создать REST-клиент",
+      "call": "ApiClient::new(ApiConfig { base: API_V9_BASE, auth, .. })",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "Проверить токен",
+      "call": "client.get('/users/@me') → 200/401/429/сеть",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "Разобрать пользователя",
+      "call": "parse JSON → Me { id, username }",
+      "implemented": false
+    },
+    {
+      "step": "tauri",
+      "action": "Опубликовать состояние",
+      "call": "emit('auth_state', { state: 'authenticated', user })",
+      "implemented": false
+    },
+    {
+      "step": "core",
+      "action": "Новая сессия и пайп",
+      "call": "Session::new(seed); GatewayPipe::new(session)",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "Свойства IDENTIFY",
+      "call": "IdentifyProperties::from_super_properties(&sp)",
+      "implemented": false
+    },
+    {
+      "step": "core",
+      "action": "Параметры IDENTIFY",
+      "call": "IdentifyParams { token, CAPABILITIES_ACTIVE, properties, presence, compress:false, qos_token: qos_token_client_provided(false) }",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "URL шлюза",
+      "call": "gateway_url(None) = 'wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream'",
+      "implemented": false
+    },
+    {
+      "step": "core",
+      "action": "Подключиться и получить READY",
+      "call": "connect_and_run_with(url, &mut pipe, RunOptions { identify: Some(p) }) → pipe.last_ready()",
+      "implemented": true
+    },
+    {
+      "step": "core",
+      "action": "Применять события",
+      "call": "pipe.take_events() → state::apply_dispatch(state, &event)",
+      "implemented": true
+    },
+    {
+      "step": "tauri",
+      "action": "Отдать в UI",
+      "call": "emit('discord_event', ..); emit('connection_state', 'ready')",
+      "implemented": false
+    },
+    {
+      "step": "core",
+      "action": "Реконнект",
+      "call": "pipe.resume_state() + plan_reconnect(..) → connect_and_run_resume / connect_and_run_with",
+      "implemented": "partial"
+    },
+    {
+      "step": "tauri",
+      "action": "Logout",
+      "call": "stop task; Keyring::clear('token'); reset state; clear kv gw.*/me.*; emit('auth_state','unauthenticated')",
+      "implemented": false
+    }
+  ],
+  "logs": [
+    "waves/RW-39/NET/PM/netb/01-inventory.log",
+    "waves/RW-39/NET/PM/netb/02-symbols.log",
+    "waves/RW-39/NET/PM/netb/03-tests.log",
+    "waves/RW-39/NET/PM/netb/04-gaps.log",
+    "waves/RW-39/NET/PM/netb/run.log"
+  ]
+}

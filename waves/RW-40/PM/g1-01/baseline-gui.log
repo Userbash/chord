@@ -1,0 +1,28 @@
+     Running unittests src/lib.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/main.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+     Running tests/auth_contract.rs (rust/gui-spike/target/debug/deps/auth_contract-9035f729b2f276ef)
+test result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/core_bridge.rs (rust/gui-spike/target/debug/deps/core_bridge-01eb467e72c09dad)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+     Running tests/data_contract.rs (rust/gui-spike/target/debug/deps/data_contract-ea26fbceeb876d8c)
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+     Running tests/guilds_contract.rs (rust/gui-spike/target/debug/deps/guilds_contract-6030d78369b88a4a)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/ipc_contract.rs (rust/gui-spike/target/debug/deps/ipc_contract-cc1813f5f79ffeb7)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/launch.rs (rust/gui-spike/target/debug/deps/launch-d5c82783dd60201d)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/messages_contract.rs (rust/gui-spike/target/debug/deps/messages_contract-398d4b80b44a2c30)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/net_contract.rs (rust/gui-spike/target/debug/deps/net_contract-a61c1bda61eccf56)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/reactions_contract.rs (rust/gui-spike/target/debug/deps/reactions_contract-cd2740010ee58342)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/search_contract.rs (rust/gui-spike/target/debug/deps/search_contract-ded35b0d1278dfc5)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/settings_contract.rs (rust/gui-spike/target/debug/deps/settings_contract-ca21e140544a2161)
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+   Doc-tests discord_gui_spike
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

@@ -1,0 +1,8 @@
+объектов с id: 71 | без source: 6
+$.discrepancies[0].d-members-toolbar
+$.discrepancies[1].d-chat-notice
+$.discrepancies[2].d-emoji-cell
+$.discrepancies[3].d-settings-nav
+$.discrepancies[4].d-settings-content
+$.discrepancies[5].d-tree-width
+discrepancies — массив аудита W39a/W39c (не блоки layout), source у них не предусмотрен

@@ -1,0 +1,18 @@
+▶ L-01 (RW-40): видимый reconnect/offline state
+  ✔ ready скрыт; connecting/reconnecting — «Переподключение…», retry только в offline (23.123925ms)
+  ✔ offline/error: «Нет соединения» + «Повторить»; retry — ровно один net_connect, без авто-цикла (7.263902ms)
+  ✔ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (9.313075ms)
+  ✔ dispose останавливает поллинг net_status, refresh после dispose — no-op (4.938866ms)
+  ✔ без auth ready нет поллинга net_status (гейт не пройден) (4.556954ms)
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (4.047377ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (5.61157ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.218915ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (60.129869ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 99.435651

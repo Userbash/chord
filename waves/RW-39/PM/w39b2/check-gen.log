@@ -1,0 +1,3 @@
+$ node waves/RW-39/PM/w39a/gen-tokens.mjs --check
+ok: tokens.json актуален (202 токенов, md5 css 9856538ad20eeefa90bce255cc29283c)
+exit=0

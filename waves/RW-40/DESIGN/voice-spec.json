@@ -1,0 +1,1974 @@
+{
+  "schema": "rw40/voice-spec-v1",
+  "card": "N2-D",
+  "title": "Голос: панель, участники, устройства, PTT",
+  "date": "2026-10-24",
+  "owner": "G3 Design",
+  "status": "design-contract (docs only; код не менялся)",
+  "doc": "waves/RW-40/DESIGN/VOICE.md",
+  "sources": {
+    "tokens": "rust/gui-spike/ui/tokens.css",
+    "panel_html": "/home/sanya/re-deep/voice/ui/01-voice-panel.html",
+    "panel_png": "/home/sanya/re-deep/voice/ui/01-joined.png",
+    "panel_text": "/home/sanya/re-deep/voice/ui/01-panel-text.json",
+    "panel_candidates": "/home/sanya/re-deep/voice/ui/01-candidates.json",
+    "after_leave": "/home/sanya/re-deep/voice/ui/05-after-leave.json",
+    "disconnect_candidates": "/home/sanya/re-deep/voice/ui/04-disconnect-candidates.json",
+    "panel_text_s2": "/home/sanya/re-deep/voice/ui-s2/01-panel-text.json",
+    "voice_module_api": "/home/sanya/re-deep/voice/ui-s2/03-voice-module-api.json",
+    "settings_voice_json": "/home/sanya/re-deep/ui8/23-settings-voice.json",
+    "settings_voice_html": "/home/sanya/re-deep/ui8/23-settings-voice.html",
+    "ru_catalog": "/home/sanya/re-deep/ru-catalog.json",
+    "voice_deep": "docs/re/voice-deep.md",
+    "frontend_d03": "docs/re/frontend-d03.md",
+    "network_contracts": "waves/RW-40/NETWORK-CONTRACTS.md",
+    "spec": "waves/RW-39/DESIGN/SPEC.md",
+    "theme_spec": "waves/RW-40/THEME-SPEC.md",
+    "server_menu": "waves/RW-40/DESIGN/SERVER-MENU.md",
+    "function_inventory": "waves/RW-40/PARITY/FUNCTION-INVENTORY.md",
+    "stub_map": "waves/RW-40/STUB-MAP.md"
+  },
+  "legend": {
+    "T": "project token from rust/gui-spike/ui/tokens.css",
+    "L": "live capture (docs/re/voice-deep.md, NETWORK-CONTRACTS §2)",
+    "S": "client code / protocol (NETWORK-CONTRACTS §1-2)",
+    "M": "pixel measurement of voice/ui/01-joined.png at dpr 1.25 (image px / 1.25 = CSS px)",
+    "D": "RE dump fact (DOM, JSON, i18n string, native API name)",
+    "A": "authored decision or unresolved gap; not parity",
+    "F": "frozen by tests (ui/model.js, tests/unit/gui-*)"
+  },
+  "dump_checks": [
+    {
+      "what": "панель связи в дампе",
+      "fact": "section.panels__5e434, aria-label='Статус и настройки пользователя', 363x150 CSS",
+      "label": [
+        "D",
+        "M"
+      ]
+    },
+    {
+      "what": "HTML панели",
+      "fact": "01-voice-panel.html, 61090 bytes, 10 aria-label, roles button/switch",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "текст панели",
+      "fact": "01-panel-text.json: '93 ms ... Голосовая связь подключена ...'",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "после выхода",
+      "fact": "05-after-leave.json: только user row, блока связи нет",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "строки участников",
+      "fact": "voiceUser__07f91 userSmall__07f91, 268x32",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "большой вид канала",
+      "fact": "voiceChannelEffectsContainer__2f4f7, 833x469",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "ping видимый",
+      "fact": "числа нет; '93 ms' в span.hiddenVisually + aria-describedby",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "голосовой модуль",
+      "fact": "110 ключей, включая getInputDevices/setInputDevice/getOutputDevices/setOutputDevice/setDeviceChangeCallback",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "экран 'Голос и видео'",
+      "fact": "switchCount=38, sliders=4, role=radiogroup (3 опции), 6 кнопок",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "PTT в настройках",
+      "fact": "тумблер 'Режим рации' unchecked; строк с 'клавиш' в срезе 0",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "what": "speaking",
+      "fact": "ни одного кадра op5 за 3 сессии",
+      "label": [
+        "D",
+        "L"
+      ]
+    },
+    {
+      "what": "RTC signaling",
+      "fact": "op8/0/1/2/4/3/6, wss://c-<region>-<hash>.discord.media:<2053|2096>/",
+      "label": [
+        "L"
+      ]
+    }
+  ],
+  "missing_in_dump": [
+    "попап выбора устройства (нет HTML/скриншота)",
+    "скриншоты состояний loading/error/no-permission/reconnecting",
+    "индикатор speaking",
+    "keybind PTT и редактор",
+    "payload setDeviceChangeCallback",
+    "источник значения ping",
+    "история reconnect (попытки/backoff)"
+  ],
+  "panel": {
+    "measurement": "measured",
+    "measurement_ref": "voice/ui/01-joined.png (2560x1383 @ dpr 1.25 = 2048x1106 CSS)",
+    "blocks": [
+      {
+        "id": "panel",
+        "dump_class": "panels__5e434",
+        "w": 363,
+        "h": 150,
+        "bg": "--surface-1",
+        "radius": 8,
+        "label": [
+          "M",
+          "D"
+        ]
+      },
+      {
+        "id": "status",
+        "dump_class": "connection_e131a9",
+        "w": 342,
+        "h": 32,
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "id": "ping",
+        "dump_class": "clickablePing__06d62 largeClickablePing__06d62",
+        "w": 40,
+        "h": 32,
+        "role": "button",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "id": "status_label",
+        "dump_class": "rtcConnectionStatusConnected__06d62",
+        "w": 224,
+        "h": 20,
+        "font": "14/18",
+        "label": [
+          "D",
+          "M"
+        ]
+      },
+      {
+        "id": "channel_link",
+        "dump_class": "subtext__339d0 channel_e131a9",
+        "font": "12/16",
+        "color": "--text-subtle",
+        "label": [
+          "D",
+          "M"
+        ]
+      },
+      {
+        "id": "status_buttons",
+        "dump_class": "voiceButtonsContainer_e131a9",
+        "w": 68,
+        "h": 32,
+        "gap": 4,
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "id": "actions_row",
+        "dump_class": "actionButtons_e131a9",
+        "h": 32,
+        "bg_measured": "#2e2e33",
+        "gap": 8,
+        "wide_button_w": 79,
+        "buttons": 4,
+        "label": [
+          "M"
+        ]
+      },
+      {
+        "id": "user_row",
+        "dump_class": "container__37e49 containerRtcOpened__37e49",
+        "w": 362,
+        "h": 56,
+        "token": "--layout-userbar-h",
+        "label": [
+          "D",
+          "T"
+        ]
+      },
+      {
+        "id": "avatar",
+        "w": 32,
+        "token": "--avatar-md",
+        "label": [
+          "T",
+          "M"
+        ]
+      },
+      {
+        "id": "participant_row",
+        "dump_class": "voiceUser__07f91 userSmall__07f91",
+        "w": 268,
+        "h": 32,
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "id": "channel_view",
+        "dump_class": "voiceChannelEffectsContainer__2f4f7",
+        "w": 833,
+        "h": 469,
+        "label": [
+          "D"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "state": "idle",
+        "status_text_key": null,
+        "status_block": "hidden",
+        "evidence": "D",
+        "note": "05-after-leave.json: панель без блока связи"
+      },
+      {
+        "state": "loading",
+        "status_text_key": null,
+        "aria_busy": true,
+        "evidence": "A",
+        "note": "skeleton 32 + 2 плашки; 'Отключиться' остаётся активной"
+      },
+      {
+        "state": "connecting",
+        "status_text_key": "1zFMqU",
+        "text": "Подключение...",
+        "evidence": "D"
+      },
+      {
+        "state": "connected",
+        "status_text_key": "daXg45",
+        "text": "Голосовая связь подключена",
+        "evidence": "D"
+      },
+      {
+        "state": "reconnecting",
+        "status_text_key": "PygWIS",
+        "text": "Переподключение",
+        "evidence": "D"
+      },
+      {
+        "state": "empty",
+        "status_text_key": "wM2WTM",
+        "text": "Сейчас в голосовом чате никого нет",
+        "evidence": "D"
+      },
+      {
+        "state": "error",
+        "status_text_key": "S69lJR",
+        "text": "Не удаётся подключить вас к этому каналу. Повторите попытку позже.",
+        "evidence": "D"
+      },
+      {
+        "state": "no-permission",
+        "status_text_key": "7/2/3M",
+        "text": "У вас нет права присоединиться к этому голосовому каналу.",
+        "evidence": "D"
+      },
+      {
+        "state": "ptt-required",
+        "status_text_key": "NYklhr",
+        "text": "Требуется режим рации",
+        "evidence": "D"
+      },
+      {
+        "state": "device-missing",
+        "status_text_key": "bgn75v",
+        "text": "Discord не может обнаружить звук с вашего микрофона.",
+        "evidence": "D"
+      },
+      {
+        "state": "server-mute",
+        "status_text_key": "+JQCa/",
+        "text": "У вас откл. микрофон на сервере",
+        "evidence": "D"
+      },
+      {
+        "state": "disabled",
+        "status_text_key": null,
+        "evidence": "A",
+        "note": "голос недоступен в сборке: панель aria-disabled"
+      }
+    ],
+    "participants": {
+      "row_h": 32,
+      "row_w": 268,
+      "self_mute_text_key": "tjtv3P",
+      "empty_text_key": "wM2WTM",
+      "max_rows": 6,
+      "overflow_key": "R0h4pE",
+      "speaking": {
+        "source": "RTC op5 {user_id, ssrc, speaking}",
+        "evidence": "S",
+        "visual": "ring 2px --positive, no pulse",
+        "label": [
+          "A"
+        ]
+      }
+    },
+    "ping": {
+      "visible": "icon only",
+      "value_element": "span.visually-hidden",
+      "format": "{ping} ms",
+      "unit_note": "в панели 'ms' латиницей (D); в статистике 'мс' (X58/lN, 6iv2TF)",
+      "measured_values": [
+        93,
+        127,
+        65,
+        65,
+        64,
+        65,
+        92,
+        67,
+        63,
+        63,
+        63,
+        63,
+        65
+      ],
+      "min": 63,
+      "max": 127,
+      "source": "unknown",
+      "thresholds": {
+        "fine_max": 120,
+        "average_max": 250,
+        "label": [
+          "A"
+        ]
+      },
+      "source_label": [
+        "A"
+      ]
+    },
+    "mute_deafen": {
+      "mute": {
+        "role": "switch",
+        "aria_label_key": "sWmtI6",
+        "hint_key": "YqAjXy",
+        "checked_in_dump": true,
+        "bg_measured": "#362127",
+        "icon_measured": "#da3e44",
+        "label": [
+          "D",
+          "M"
+        ]
+      },
+      "deafen": {
+        "role": "switch",
+        "aria_label_key": "hK51Yg",
+        "checked_in_dump": false,
+        "label": [
+          "D"
+        ]
+      },
+      "server_mute_keys": [
+        "+JQCa/",
+        "uLddbQ",
+        "e9e9Ua",
+        "wG9K2n",
+        "Hd1oVG",
+        "9hDjai"
+      ]
+    },
+    "reconnect": {
+      "resume_op": {
+        "out": 7,
+        "in": 9,
+        "evidence": "S"
+      },
+      "clean_close": {
+        "code": 1000,
+        "reason": "Force Close",
+        "evidence": "L"
+      },
+      "attempts": 3,
+      "backoff_seconds": [
+        0,
+        2,
+        5
+      ],
+      "label": [
+        "A"
+      ]
+    },
+    "join_leave": {
+      "join": "gateway op4 VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE{token, guild_id, endpoint}",
+      "join_label": [
+        "S"
+      ],
+      "leave": "VOICE_STATE_UPDATE channel_id=null / RTC close",
+      "leave_label": [
+        "S",
+        "L"
+      ],
+      "optimistic": false,
+      "timeout_seconds": 15,
+      "timeout_label": [
+        "A"
+      ],
+      "confirm_keys": [
+        "zfx+M5",
+        "2fDWXK",
+        "vA+uEs"
+      ]
+    }
+  },
+  "devices": {
+    "inputs": {
+      "api": [
+        "getInputDevices",
+        "setInputDevice"
+      ],
+      "label": [
+        "D"
+      ],
+      "response_schema": [
+        "A"
+      ]
+    },
+    "outputs": {
+      "api": [
+        "getOutputDevices",
+        "setOutputDevice"
+      ],
+      "label": [
+        "D"
+      ],
+      "response_schema": [
+        "A"
+      ]
+    },
+    "video": {
+      "api": [
+        "getVideoInputDevices",
+        "setVideoInputDevice"
+      ],
+      "label": [
+        "D"
+      ],
+      "in_scope": false
+    },
+    "volume": {
+      "api": [
+        "setInputVolume",
+        "setOutputVolume",
+        "setVolumeChangeCallback"
+      ],
+      "label": [
+        "D"
+      ]
+    },
+    "hotplug": {
+      "api": [
+        "setDeviceChangeCallback",
+        "setSystemMicrophoneModeChangeCallback",
+        "getSystemMicrophoneMode"
+      ],
+      "label": [
+        "D"
+      ],
+      "payload": "unknown",
+      "autoswitch": false,
+      "setting_key": "gF8HJo",
+      "setting_checked_in_dump": true,
+      "warning_key": "jrWHD3"
+    },
+    "ptt": {
+      "setting_key": "tG4Np5",
+      "checked_in_dump": false,
+      "keybind_key": "o+BJQR",
+      "keybind_value": null,
+      "default_key": null,
+      "default_key_text_key": "nWRdnl",
+      "mode": "hold",
+      "limited_key": "JMyQin",
+      "delay_key": "GCNMM8",
+      "required_keys": [
+        "NYklhr",
+        "dpiBNy",
+        "EJ26Oh",
+        "mcwtcJ"
+      ],
+      "blocked_keys": [
+        "vxfv7v",
+        "5rPt+j",
+        "fAYU2G"
+      ],
+      "label": [
+        "A"
+      ]
+    },
+    "sensitivity": {
+      "section_key": "GByLar",
+      "auto_key": "lY6j47",
+      "auto_checked_in_dump": true,
+      "desc_key": "JsbzjA",
+      "slider": {
+        "min": 0,
+        "max": 100,
+        "value_in_dump": 26.109350171958468,
+        "aria_label_missing": true,
+        "label": [
+          "D"
+        ]
+      },
+      "vad_api": [
+        "setNoInputThreshold",
+        "setEmitVADLevel",
+        "setEmitVADLevel2",
+        "setNoInputCallback"
+      ],
+      "no_audio_keys": [
+        "bgn75v",
+        "MA+OZh",
+        "4rsOPQ"
+      ]
+    },
+    "settings_dump": {
+      "switch_count": 38,
+      "breakdown": {
+        "voice_video": 12,
+        "sounds": 22,
+        "other": 4
+      },
+      "sum_ok": true,
+      "note": "38 в дампе != 38 в нашем экране настроек (SPEC §9.4, A-07, [F]); паритет не заявляется",
+      "label": [
+        "D"
+      ]
+    },
+    "voice_switches": [
+      {
+        "key": "lY6j47",
+        "text": "Автоматически определять чувствительность ввода",
+        "checked": true
+      },
+      {
+        "key": "iWTwu6",
+        "text": "Эхоподавление",
+        "checked": true
+      },
+      {
+        "key": "tG4Np5",
+        "text": "Режим рации",
+        "checked": false
+      },
+      {
+        "key": "cUMdH0",
+        "text": "Автоматическая регулировка усиления",
+        "checked": true
+      },
+      {
+        "key": "BbESsg",
+        "text": "Расширенная активация по голосу",
+        "checked": true
+      },
+      {
+        "key": "gF8HJo",
+        "text": "Предложение аудиоустройств",
+        "checked": true
+      },
+      {
+        "key": "4rsOPQ",
+        "text": "Предупреждение об отсутствии звука",
+        "checked": true
+      },
+      {
+        "key": "jrWHD3",
+        "text": "Предупреждение о переключении голосового канала",
+        "checked": true
+      },
+      {
+        "key": "uancuJ",
+        "text": "Качество обслуживания",
+        "checked": false
+      },
+      {
+        "key": "3Ppr1h",
+        "text": "Предпросмотр видео (всегда)",
+        "checked": true
+      },
+      {
+        "key": "e3Zz3F",
+        "text": "Показывать предпросмотр стрима",
+        "checked": true
+      },
+      {
+        "key": "/jwMtn",
+        "text": "Приглушение стрима",
+        "checked": true
+      }
+    ],
+    "sliders": [
+      {
+        "key": "OX2Bnr",
+        "text": "Громкость микрофона",
+        "min": 0,
+        "max": 100,
+        "value": 100
+      },
+      {
+        "key": "aUJ062",
+        "text": "Громкость динамика",
+        "min": 0,
+        "max": 200,
+        "value": 100
+      },
+      {
+        "key": "fhEzfj",
+        "text": "Сила приглушения стрима",
+        "min": 1,
+        "max": 100,
+        "value": 50
+      },
+      {
+        "key": null,
+        "text": null,
+        "min": 0,
+        "max": 100,
+        "value": 26.109,
+        "label_missing": true
+      }
+    ],
+    "radio_group": {
+      "key": "LM3U3k",
+      "name": "Профиль ввода",
+      "role": "radiogroup",
+      "orientation": "vertical",
+      "options": [
+        {
+          "value": "VOICE_ISOLATION",
+          "text": "Изоляция голоса",
+          "checked": false
+        },
+        {
+          "value": "STUDIO",
+          "text": "Студия",
+          "key": "VZPR0R",
+          "checked": false
+        },
+        {
+          "value": "CUSTOM",
+          "text": "Пользовательский",
+          "checked": true
+        }
+      ],
+      "label": [
+        "D"
+      ]
+    },
+    "noise_suppression": {
+      "select_key": "5iqgHe",
+      "value_in_dump": "Krisp",
+      "value_key": "hmfkCi",
+      "provided_by_key": "1q5aTp",
+      "panel_button_key": "vFiCSx",
+      "fallback_key": "mXZgC9",
+      "error_key": "f+8Dqt",
+      "mvp": "aria-disabled",
+      "label": [
+        "D",
+        "A"
+      ]
+    }
+  },
+  "geometry": {
+    "measured_source": "voice/ui/01-joined.png / 1.25",
+    "viewport_css": {
+      "w": 2048,
+      "h": 1106
+    },
+    "panel": {
+      "w": 363,
+      "w_measured": 362.4,
+      "h": 150,
+      "h_measured": 150.4,
+      "x": 6.4,
+      "y": 950.4,
+      "right": 368.8,
+      "bottom_gap": 6.4,
+      "radius": 8,
+      "label": [
+        "M",
+        "D"
+      ]
+    },
+    "measured": [
+      {
+        "what": "фон панели",
+        "value": "#202024",
+        "token": "--surface-1",
+        "label": [
+          "M",
+          "T"
+        ]
+      },
+      {
+        "what": "кромка панели",
+        "value": "#252529",
+        "token": "--border-subtle",
+        "label": [
+          "M"
+        ]
+      },
+      {
+        "what": "фон кнопки ряда",
+        "value": "#2e2e33",
+        "token": "--surface-4 (#2c2d32)",
+        "label": [
+          "M"
+        ]
+      },
+      {
+        "what": "широкая кнопка ряда",
+        "value": 79,
+        "label": [
+          "M"
+        ]
+      },
+      {
+        "what": "зазор кнопок ряда",
+        "value": 8,
+        "token": "--space-4",
+        "label": [
+          "M",
+          "T"
+        ]
+      },
+      {
+        "what": "имя в строке пользователя",
+        "value": "#fbfbfb",
+        "token": "--text-strong",
+        "label": [
+          "M",
+          "T"
+        ]
+      },
+      {
+        "what": "подпись/иконки",
+        "value": "#abacb2",
+        "token": "--text-subtle",
+        "label": [
+          "M",
+          "T"
+        ]
+      },
+      {
+        "what": "статус связи",
+        "value": "#c0a548",
+        "token": null,
+        "label": [
+          "M"
+        ],
+        "note": "клиент с твиками; не переносим (D-05)"
+      },
+      {
+        "what": "иконка ping",
+        "value": "#5eb479",
+        "token": "--positive",
+        "label": [
+          "M",
+          "T"
+        ],
+        "note": "пик с антиалиасингом"
+      },
+      {
+        "what": "фон mute",
+        "value": "#362127",
+        "token": null,
+        "label": [
+          "M"
+        ]
+      },
+      {
+        "what": "иконка mute",
+        "value": "#da3e44",
+        "token": "--danger",
+        "label": [
+          "M",
+          "T"
+        ]
+      }
+    ],
+    "tokens_used": [
+      "--surface-1",
+      "--surface-3",
+      "--surface-4",
+      "--surface-input",
+      "--text-strong",
+      "--text-muted",
+      "--text-subtle",
+      "--text-on-accent",
+      "--positive",
+      "--positive-text",
+      "--warning",
+      "--danger",
+      "--danger-fill",
+      "--border-subtle",
+      "--divider",
+      "--state-hover",
+      "--state-active",
+      "--state-disabled-opacity",
+      "--focus-ring",
+      "--focus-ring-width",
+      "--focus-ring-offset",
+      "--radius-xs",
+      "--radius-sm",
+      "--radius-round",
+      "--space-2",
+      "--space-4",
+      "--space-6",
+      "--btn-height",
+      "--btn-height-sm",
+      "--icon-size",
+      "--icon-size-sm",
+      "--icon-size-lg",
+      "--avatar-md",
+      "--switch-w",
+      "--switch-h",
+      "--switch-thumb",
+      "--slider-track-h",
+      "--slider-thumb",
+      "--input-height",
+      "--menu-pad",
+      "--menu-min-w",
+      "--menu-radius",
+      "--row-menu-item",
+      "--layout-tree-w",
+      "--layout-userbar-h",
+      "--row-channel",
+      "--font-size-ui",
+      "--font-size-small",
+      "--font-size-body",
+      "--line-height-ui",
+      "--line-height-small",
+      "--line-height-body",
+      "--shadow-popover",
+      "--z-popover",
+      "--z-tooltip",
+      "--motion-fast",
+      "--accent"
+    ],
+    "unmeasured": [
+      "попап выбора устройства",
+      "loading-skeleton",
+      "пустое состояние как оверлей (не используем, D-04)",
+      "анимация speaking"
+    ]
+  },
+  "consent": {
+    "invariants": [
+      "только свой микрофон; чужой не слушается ни одним API",
+      "нет скрытого захвата: перечисление устройств и поток — по явному действию",
+      "нет автозаписи (startRecordingRawSamples/startLocalAudioRecording/setAecDump/setLoopback не вызываются)",
+      "нет захвата экрана по умолчанию (getScreenPreviews/getWindowPreviews только в S-02)",
+      "видимый индикатор состояния микрофона (не только цветом)",
+      "имена устройств — PII, не логируются",
+      "права проверяет backend: no-permission = 0 запросов на медиа",
+      "панель рендерит только поля события (user_id, display_name, mute, deaf, speaking)"
+    ],
+    "forbidden_apis_in_ui": [
+      "navigator.mediaDevices.getUserMedia",
+      "navigator.mediaDevices.getDisplayMedia",
+      "startRecordingRawSamples",
+      "startLocalAudioRecording",
+      "setAecDump",
+      "setLoopback",
+      "getScreenPreviews",
+      "getWindowPreviews",
+      "addDirectVideoOutputSink"
+    ],
+    "dump_capture_surface": [
+      {
+        "api": "startLocalAudioRecording",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "startRecordingRawSamples",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "setAecDump",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "setLoopback",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "getScreenPreviews",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "getWindowPreviews",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "presentNativeScreenSharePicker",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "writeAudioDebugState",
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "api": "setDebugLogging",
+        "label": [
+          "D"
+        ]
+      }
+    ],
+    "dump_toggles": [
+      {
+        "key": "r6K+TL",
+        "text": "Запись звука для диагностики",
+        "checked": false,
+        "label": [
+          "D"
+        ]
+      },
+      {
+        "key": "726JHL",
+        "text": "Ведение журнала отладки",
+        "checked": true,
+        "desc_key": "Lm72RU",
+        "label": [
+          "D"
+        ]
+      }
+    ]
+  },
+  "copy": [
+    {
+      "key": "daXg45",
+      "text": "Голосовая связь подключена",
+      "where": "panel.status.connected"
+    },
+    {
+      "key": "WsOisp",
+      "text": "О голосовом звонке",
+      "where": "panel.status.hover"
+    },
+    {
+      "key": "juL9/L",
+      "text": "Голосовая связь отключена",
+      "where": "panel.status.disconnected"
+    },
+    {
+      "key": "1zFMqU",
+      "text": "Подключение...",
+      "where": "panel.status.connecting"
+    },
+    {
+      "key": "EuwcxO",
+      "text": "Ожидание подключения...",
+      "where": "panel.status.waiting"
+    },
+    {
+      "key": "PygWIS",
+      "text": "Переподключение",
+      "where": "panel.status.reconnecting"
+    },
+    {
+      "key": "vD60Pv",
+      "text": "Переподключиться",
+      "where": "panel.button.reconnect"
+    },
+    {
+      "key": "BnSq1I",
+      "text": "Не подключён",
+      "where": "panel.status.idle"
+    },
+    {
+      "key": "LW2Ghr",
+      "text": "Голосовой канал недоступен",
+      "where": "panel.state.no_channel"
+    },
+    {
+      "key": "S69lJR",
+      "text": "Не удаётся подключить вас к этому каналу. Повторите попытку позже.",
+      "where": "panel.error.connect"
+    },
+    {
+      "key": "7/2/3M",
+      "text": "У вас нет права присоединиться к этому голосовому каналу.",
+      "where": "panel.state.no_permission"
+    },
+    {
+      "key": "sWmtI6",
+      "text": "Заглушить",
+      "where": "panel.mute.label"
+    },
+    {
+      "key": "YqAjXy",
+      "text": "Вкл. микрофон",
+      "where": "panel.mute.hint"
+    },
+    {
+      "key": "hK51Yg",
+      "text": "Откл. звук",
+      "where": "panel.deafen.label"
+    },
+    {
+      "key": "fRzCbB",
+      "text": "Настройки ввода",
+      "where": "panel.input_menu"
+    },
+    {
+      "key": "aA4Vce",
+      "text": "Настройки вывода",
+      "where": "panel.output_menu"
+    },
+    {
+      "key": "6vrfgt",
+      "text": "Отключиться",
+      "where": "panel.leave"
+    },
+    {
+      "key": "vFiCSx",
+      "text": "Шумоподавление с помощью Krisp",
+      "where": "panel.noise_button"
+    },
+    {
+      "key": "yPH4xm",
+      "text": "Открыть звуковую панель",
+      "where": "panel.soundboard"
+    },
+    {
+      "key": "8jSzSe",
+      "text": "Камера недоступна",
+      "where": "panel.action.camera"
+    },
+    {
+      "key": "fjBNo1",
+      "text": "Продемонстрируйте свой экран",
+      "where": "panel.action.screen"
+    },
+    {
+      "key": "qJvTKQ",
+      "text": "Начать активность",
+      "where": "panel.action.activity"
+    },
+    {
+      "key": "5fWB8U",
+      "text": "Управление профилем и статусом",
+      "where": "panel.account"
+    },
+    {
+      "key": "vTl6Lk",
+      "text": "Статус и настройки пользователя",
+      "where": "panel.aria_label"
+    },
+    {
+      "key": "tjtv3P",
+      "text": "Этот микрофон отключён",
+      "where": "participants.self_mute"
+    },
+    {
+      "key": "wM2WTM",
+      "text": "Сейчас в голосовом чате никого нет",
+      "where": "participants.empty"
+    },
+    {
+      "key": "vloEU7",
+      "text": "ncardinal в голосовом чате",
+      "where": "participants.count"
+    },
+    {
+      "key": "R0h4pE",
+      "text": "Ещё ncardinal в голосовом чате",
+      "where": "participants.overflow"
+    },
+    {
+      "key": "+JQCa/",
+      "text": "У вас откл. микрофон на сервере",
+      "where": "participants.server_mute_self"
+    },
+    {
+      "key": "Hd1oVG",
+      "text": "Пользователю username отключен микрофон",
+      "where": "participants.server_mute_other",
+      "match": "template"
+    },
+    {
+      "key": "9hDjai",
+      "text": "Пользователю username отключен звук и микрофон",
+      "where": "participants.server_deafen_other",
+      "match": "template"
+    },
+    {
+      "key": "EE+P0H",
+      "text": "Пригласить в голосовой чат",
+      "where": "participants.invite"
+    },
+    {
+      "key": "qnFavR",
+      "text": "Выбрать активность",
+      "where": "channel_view.activity"
+    },
+    {
+      "key": "F/ID+9",
+      "text": "Заглушить username",
+      "where": "participants.mute_action",
+      "match": "template"
+    },
+    {
+      "key": "19zjGJ",
+      "text": "Включить микрофон участнику",
+      "where": "participants.unmute_action"
+    },
+    {
+      "key": "hHMYbb",
+      "text": "Устройство ввода",
+      "where": "devices.input_title"
+    },
+    {
+      "key": "dl18zb",
+      "text": "Устройство вывода",
+      "where": "devices.output_title"
+    },
+    {
+      "key": "nuFtHH",
+      "text": "Микрофон",
+      "where": "devices.mic"
+    },
+    {
+      "key": "snEhlu",
+      "text": "Динамик",
+      "where": "devices.speaker"
+    },
+    {
+      "key": "DGq/PR",
+      "text": "Наушники",
+      "where": "devices.headphones"
+    },
+    {
+      "key": "gyljWE",
+      "text": "Проверка микрофона",
+      "where": "devices.mic_test"
+    },
+    {
+      "key": "Vd/rEX",
+      "text": "Проверка микрофона. Начните, когда будете готовы.",
+      "where": "devices.mic_test_hint"
+    },
+    {
+      "key": "bgn75v",
+      "text": "Discord не может обнаружить звук с вашего микрофона.",
+      "where": "devices.no_audio"
+    },
+    {
+      "key": "MA+OZh",
+      "text": "Убедитесь, что вы выбрали правильное устройство ввода.",
+      "where": "devices.wrong_device"
+    },
+    {
+      "key": "gF8HJo",
+      "text": "Предложение аудиоустройств",
+      "where": "devices.hotplug_setting"
+    },
+    {
+      "key": "tG4Np5",
+      "text": "Режим рации",
+      "where": "ptt.title"
+    },
+    {
+      "key": "o+BJQR",
+      "text": "Горячая клавиша для режима рации",
+      "where": "ptt.keybind"
+    },
+    {
+      "key": "yept4k",
+      "text": "Активирует микрофон, только когда вы удерживаете назначенную клавишу.",
+      "where": "ptt.desc",
+      "match": "prefix"
+    },
+    {
+      "key": "JMyQin",
+      "text": "Режим рации (ограниченный)",
+      "where": "ptt.limited"
+    },
+    {
+      "key": "GCNMM8",
+      "text": "Задержка отключения в режиме рации",
+      "where": "ptt.delay"
+    },
+    {
+      "key": "NYklhr",
+      "text": "Требуется режим рации",
+      "where": "ptt.required"
+    },
+    {
+      "key": "E3Y7NH",
+      "text": "Перейти на режим рации",
+      "where": "ptt.switch"
+    },
+    {
+      "key": "nWRdnl",
+      "text": "Горячие клавиши не назначены",
+      "where": "ptt.no_key"
+    },
+    {
+      "key": "vxfv7v",
+      "text": "Горячая клавиша режима рации не работает во время игры из-за системных настроек доступа.",
+      "where": "ptt.blocked"
+    },
+    {
+      "key": "GByLar",
+      "text": "Настройки чувствительности ввода",
+      "where": "sensitivity.section"
+    },
+    {
+      "key": "lY6j47",
+      "text": "Автоматически определять чувствительность ввода",
+      "where": "sensitivity.auto"
+    },
+    {
+      "key": "iWTwu6",
+      "text": "Эхоподавление",
+      "where": "settings.echo"
+    },
+    {
+      "key": "LM3U3k",
+      "text": "Профиль ввода",
+      "where": "settings.input_profile"
+    },
+    {
+      "key": "VZPR0R",
+      "text": "Студия",
+      "where": "settings.profile.studio"
+    },
+    {
+      "key": "5iqgHe",
+      "text": "Шумоподавление",
+      "where": "settings.noise"
+    },
+    {
+      "key": "mXZgC9",
+      "text": "Вместо Krisp работает системное шумоподавление.",
+      "where": "settings.noise_fallback"
+    },
+    {
+      "key": "OX2Bnr",
+      "text": "Громкость микрофона",
+      "where": "settings.input_volume"
+    },
+    {
+      "key": "aUJ062",
+      "text": "Громкость динамика",
+      "where": "settings.output_volume"
+    },
+    {
+      "key": "zfx+M5",
+      "text": "Вы хотите присоединиться к этому голосовому каналу?",
+      "where": "join.confirm"
+    },
+    {
+      "key": "2fDWXK",
+      "text": "В этом канале могут быть спойлеры. Вы хотите присоединиться к этому голосовому каналу?",
+      "where": "join.confirm_spoiler"
+    },
+    {
+      "key": "vA+uEs",
+      "text": "Кажется, вы находитесь в другом голосовом канале.",
+      "where": "join.confirm_move",
+      "match": "prefix"
+    },
+    {
+      "key": "r6K+TL",
+      "text": "Запись звука для диагностики",
+      "where": "settings.diag_record"
+    },
+    {
+      "key": "726JHL",
+      "text": "Ведение журнала отладки",
+      "where": "settings.debug_log"
+    },
+    {
+      "key": "Lm72RU",
+      "text": "Записывает все RTP-данные, полученные во время следующего голосового или видеоподключения, с целью отладки.",
+      "where": "settings.debug_log_desc"
+    }
+  ],
+  "authored_copy": [
+    "Подключение к голосовому каналу…",
+    "Голосовой канал недоступен в этой сборке",
+    "Микрофон не выбран",
+    "Настройки…"
+  ],
+  "dom": {
+    "ids": [
+      "voice-panel",
+      "voice-status",
+      "voice-status-label",
+      "voice-ping",
+      "voice-ping-value",
+      "voice-channel-link",
+      "voice-noise",
+      "voice-leave",
+      "voice-participants",
+      "voice-empty",
+      "voice-error",
+      "voice-mute",
+      "voice-input-menu",
+      "voice-deafen",
+      "voice-output-menu",
+      "voice-settings",
+      "voice-user-row",
+      "voice-input-popup",
+      "voice-a11y"
+    ],
+    "states": [
+      "idle",
+      "loading",
+      "connecting",
+      "connected",
+      "reconnecting",
+      "empty",
+      "error",
+      "no-permission",
+      "ptt-required",
+      "device-missing",
+      "server-mute",
+      "disabled"
+    ],
+    "data_attrs": {
+      "data-state": [
+        "idle",
+        "loading",
+        "connecting",
+        "connected",
+        "reconnecting",
+        "empty",
+        "error",
+        "no-permission",
+        "ptt-required",
+        "device-missing",
+        "server-mute",
+        "disabled"
+      ],
+      "data-self-mute": [
+        "true",
+        "false"
+      ],
+      "data-self-deaf": [
+        "true",
+        "false"
+      ],
+      "data-ptt": [
+        "idle",
+        "held",
+        "blocked"
+      ],
+      "data-speaking": [
+        "true",
+        "false"
+      ],
+      "data-mute": [
+        "self",
+        "server",
+        "none"
+      ],
+      "data-quality": [
+        "fine",
+        "average",
+        "bad"
+      ],
+      "data-actions": [
+        "voice-leave",
+        "voice-reconnect",
+        "voice-mute",
+        "voice-deafen",
+        "voice-input-menu",
+        "voice-output-menu",
+        "voice-enable-ptt",
+        "voice-camera",
+        "voice-screen",
+        "voice-activity",
+        "voice-soundboard"
+      ]
+    },
+    "selectors": {
+      "panel": "#voice-panel",
+      "state": "#voice-panel[data-state=\"connected\"]",
+      "status": "#voice-status-label",
+      "ping": "#voice-ping",
+      "ping_value": "#voice-ping-value",
+      "participants": "#voice-participants .voice-user",
+      "mute": "#voice-mute",
+      "deafen": "#voice-deafen",
+      "leave": "#voice-leave",
+      "popup": "#voice-input-popup:not([hidden]) [role=\"menuitemradio\"]"
+    }
+  },
+  "tests": {
+    "harness": "tests/support/gui-dom-harness.mjs (RW-38) + fake voice service; no fetch/WebSocket/mediaDevices/AudioContext",
+    "groups": {
+      "vp": [
+        {
+          "id": "VP-01",
+          "check": "idle: #voice-status hidden, user row visible"
+        },
+        {
+          "id": "VP-02",
+          "check": "connected: data-state + текст daXg45"
+        },
+        {
+          "id": "VP-03",
+          "check": "канал: текст + title + href=#/channels/{g}/{c}"
+        },
+        {
+          "id": "VP-04",
+          "check": "loading: aria-busy, #voice-leave активна"
+        },
+        {
+          "id": "VP-05",
+          "check": "connecting: 1zFMqU, ping без значения"
+        },
+        {
+          "id": "VP-06",
+          "check": "reconnecting: PygWIS, ping aria-disabled"
+        },
+        {
+          "id": "VP-07",
+          "check": "error: S69lJR, role=alert, voice-reconnect"
+        },
+        {
+          "id": "VP-08",
+          "check": "повтор: ровно 1 join на клик"
+        },
+        {
+          "id": "VP-09",
+          "check": "no-permission: 7/2/3M, join не вызван"
+        },
+        {
+          "id": "VP-10",
+          "check": "leave: 1 вызов, состояние не меняется до события"
+        },
+        {
+          "id": "VP-11",
+          "check": "leave подтверждён: idle + пустой список"
+        },
+        {
+          "id": "VP-12",
+          "check": "ptt-required: NYklhr + voice-enable-ptt"
+        },
+        {
+          "id": "VP-13",
+          "check": "server-mute: mute aria-disabled, клик не меняет aria-checked"
+        },
+        {
+          "id": "VP-14",
+          "check": "disabled: aria-disabled, ни один action не зовёт сервис"
+        }
+      ],
+      "vs": [
+        {
+          "id": "VS-01",
+          "check": "своя строка data-self + aria-label tjtv3P"
+        },
+        {
+          "id": "VS-02",
+          "check": "data-mute self|server"
+        },
+        {
+          "id": "VS-03",
+          "check": "speaking только у одного пользователя"
+        },
+        {
+          "id": "VS-04",
+          "check": "speaking числом: 0.4 -> true, 0 -> false"
+        },
+        {
+          "id": "VS-05",
+          "check": "без op5 нет speaking"
+        },
+        {
+          "id": "VS-06",
+          "check": "пусто: #voice-empty + role=status"
+        },
+        {
+          "id": "VS-07",
+          "check": "порядок: своя строка первая"
+        },
+        {
+          "id": "VS-08",
+          "check": "7 участников -> 6 строк + счётчик R0h4pE"
+        },
+        {
+          "id": "VS-09",
+          "check": "чужой mute -> data-mute=server + aria-label"
+        }
+      ],
+      "vd": [
+        {
+          "id": "VD-01",
+          "check": "попап закрыт, devices.list не вызван при монтировании"
+        },
+        {
+          "id": "VD-02",
+          "check": "открытие: 1 вызов devices.list(input), aria-expanded"
+        },
+        {
+          "id": "VD-03",
+          "check": "пункты = устройства фейка, выбранный aria-checked"
+        },
+        {
+          "id": "VD-04",
+          "check": "выбор: 1 select, попап закрыт, фокус на шевроне"
+        },
+        {
+          "id": "VD-05",
+          "check": "пустой список: 'Микрофон не выбран', select не вызван"
+        },
+        {
+          "id": "VD-06",
+          "check": "ошибка списка: role=alert, aria-busy=false"
+        },
+        {
+          "id": "VD-07",
+          "check": "hot-plug обновляет список и не вызывает select"
+        },
+        {
+          "id": "VD-08",
+          "check": "hot-plug при закрытом попапе не меняет data-state"
+        },
+        {
+          "id": "VD-09",
+          "check": "исчезнувшее устройство: device-missing + MA+OZh, leave не вызван"
+        },
+        {
+          "id": "VD-10",
+          "check": "длинное имя: title + без обрезки в DOM"
+        },
+        {
+          "id": "VD-11",
+          "check": "нет нативного select в попапе"
+        },
+        {
+          "id": "VD-12",
+          "check": "XSS имени устройства экранирован"
+        }
+      ],
+      "pt": [
+        {
+          "id": "PT-01",
+          "check": "PTT по умолчанию выключен"
+        },
+        {
+          "id": "PT-02",
+          "check": "без клавиши: nWRdnl, blocked, сервис не вызван"
+        },
+        {
+          "id": "PT-03",
+          "check": "hold: keydown -> unmute, keyup -> mute, по 1 вызову"
+        },
+        {
+          "id": "PT-04",
+          "check": "автоповтор keydown не даёт второго вызова"
+        },
+        {
+          "id": "PT-05",
+          "check": "blur во время held -> blocked + mute"
+        },
+        {
+          "id": "PT-06",
+          "check": "индикатор не только цветом (aria-label/voice-a11y)"
+        },
+        {
+          "id": "PT-07",
+          "check": "ползунок role=slider, 0..100, целое, disabled при авто"
+        }
+      ],
+      "vk": [
+        {
+          "id": "VK-01",
+          "check": "русские aria-label у всех иконочных кнопок; svg aria-hidden"
+        },
+        {
+          "id": "VK-02",
+          "check": "ping доступен с клавиатуры, значение через aria-describedby"
+        },
+        {
+          "id": "VK-03",
+          "check": "role=switch + aria-checked синхронны с data-self-*"
+        },
+        {
+          "id": "VK-04",
+          "check": "один live-регион на статус/действия; ошибка assertive"
+        },
+        {
+          "id": "VK-05",
+          "check": "Tab-порядок панели"
+        },
+        {
+          "id": "VK-06",
+          "check": "Esc закрывает попап, возврат фокуса"
+        },
+        {
+          "id": "VK-07",
+          "check": "aria-expanded/aria-checked не рассинхронены"
+        },
+        {
+          "id": "VK-08",
+          "check": "нет внешних CSS/шрифтов/растров; inline-SVG"
+        }
+      ],
+      "vc": [
+        {
+          "id": "VC-01",
+          "check": "монтирование не вызывает devices.list/media APIs/запись"
+        },
+        {
+          "id": "VC-02",
+          "check": "в коде панели нет navigator.mediaDevices"
+        },
+        {
+          "id": "VC-03",
+          "check": "devices.list только из шевронов"
+        },
+        {
+          "id": "VC-04",
+          "check": "hot-plug никогда не вызывает select"
+        },
+        {
+          "id": "VC-05",
+          "check": "нет startRecordingRawSamples/setAecDump/setLoopback"
+        },
+        {
+          "id": "VC-06",
+          "check": "нет getScreenPreviews/getWindowPreviews из панели"
+        },
+        {
+          "id": "VC-07",
+          "check": "строка участника только из полей события, без сети"
+        },
+        {
+          "id": "VC-08",
+          "check": "имена устройств не в логах/метриках"
+        },
+        {
+          "id": "VC-09",
+          "check": "no-permission: 0 вызовов сервиса"
+        },
+        {
+          "id": "VC-10",
+          "check": "без op5 нет data-speaking=true (security)"
+        }
+      ]
+    }
+  },
+  "live": {
+    "blockers": [
+      {
+        "id": "endpoint",
+        "what": "VOICE_SERVER_UPDATE{token,guild_id,endpoint} после gateway op4",
+        "why": "без него нет wss://c-<region>-…discord.media",
+        "label": [
+          "S"
+        ]
+      },
+      {
+        "id": "rtc-op4",
+        "what": "Session Description secret_key 32 Б",
+        "why": "вырезан в дампах; SRTP не проверить (VOICE-CRYPTO.md утерян)",
+        "label": [
+          "L",
+          "A"
+        ]
+      },
+      {
+        "id": "udp",
+        "what": "медиа-сервер IP:port из op2 + discovery",
+        "why": "локальный UDP-мок не докажет совместимость",
+        "label": [
+          "L"
+        ]
+      },
+      {
+        "id": "speaking",
+        "what": "op5",
+        "why": "нужен второй участник с согласия",
+        "label": [
+          "S",
+          "A"
+        ]
+      },
+      {
+        "id": "rtcp-stats",
+        "what": "SR/RR тела зашифрованы",
+        "why": "потери/джиттер и источник ping не читаются",
+        "label": [
+          "L",
+          "A"
+        ]
+      },
+      {
+        "id": "hotplug",
+        "what": "payload setDeviceChangeCallback",
+        "why": "нужен живой модуль и физическое устройство",
+        "label": [
+          "D",
+          "A"
+        ]
+      },
+      {
+        "id": "ptt-keybind",
+        "what": "значение клавиши",
+        "why": "нет в срезе экрана",
+        "label": [
+          "A"
+        ]
+      },
+      {
+        "id": "reconnect",
+        "what": "обрывы/смена региона",
+        "why": "живых обрывов не было",
+        "label": [
+          "A"
+        ]
+      }
+    ],
+    "fake_scope": [
+      "все 12 состояний панели",
+      "участники, speaking, mute/deafen, server-mute",
+      "ping и data-quality",
+      "попап устройств, выбор, hot-plug, device-missing",
+      "PTT hold/blocked/no-key",
+      "join/leave/reconnect-таймауты на фейковых часах",
+      "a11y-инварианты и приватность",
+      "голосовые строки настроек как подмножество"
+    ],
+    "cannot_claim_before_live": [
+      "совпадение ping с Discord",
+      "анимация speaking как в Discord",
+      "попап устройств и PTT как в Discord",
+      "«38 = паритет»",
+      "работоспособность шифрования"
+    ]
+  },
+  "deviations": [
+    {
+      "id": "D-01",
+      "what": "панель 240 (--layout-tree-w) вместо 363",
+      "why": "у нас рейл полной высоты; в Discord панель под рейлом+деревом",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "D-02",
+      "what": "камера/экран/активности — disabled-заглушки",
+      "why": "S-01/S-02/S-04 вне голосового MVP",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "D-03",
+      "what": "строка-приглашение не рендерится",
+      "why": "продуктовый баннер, не паритет",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "D-04",
+      "what": "пустой список — строка 32, не оверлей",
+      "why": "панель 150 не вмещает .empty-state",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "D-05",
+      "what": "цвет статуса #c0a548 не переносим",
+      "why": "клиент с твиками; берём токены",
+      "label": [
+        "M",
+        "A"
+      ]
+    },
+    {
+      "id": "D-06",
+      "what": "22 звуковых тумблера не реализуются",
+      "why": "отдельная карточка",
+      "label": [
+        "A"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "VG-01",
+      "gap": "speaking не наблюдался",
+      "label": [
+        "D",
+        "A"
+      ]
+    },
+    {
+      "id": "VG-02",
+      "gap": "keybind PTT не снят",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-03",
+      "gap": "попап устройства unmeasured",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-04",
+      "gap": "payload setDeviceChangeCallback неизвестен",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-05",
+      "gap": "источник ping не установлен",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-06",
+      "gap": "пороги fine/average/bad — наши (120/250 мс)",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-07",
+      "gap": "reconnect: 3 попытки 0/2/5 с — наши",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-08",
+      "gap": "подпись 4-го ползунка вне среза",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "id": "VG-09",
+      "gap": "switchCount=38 != 38 голосовых",
+      "label": [
+        "D"
+      ]
+    },
+    {
+      "id": "VG-10",
+      "gap": "ширина панели 363 неприменима к нашему shell",
+      "label": [
+        "M",
+        "A"
+      ]
+    },
+    {
+      "id": "VG-11",
+      "gap": "цвет статуса из твикнутого клиента",
+      "label": [
+        "M",
+        "A"
+      ]
+    },
+    {
+      "id": "VG-12",
+      "gap": "нет скриншотов error/no-permission/loading",
+      "label": [
+        "A"
+      ]
+    },
+    {
+      "id": "VG-13",
+      "gap": "RTC token/secret_key/media_session_id вырезаны",
+      "label": [
+        "L"
+      ]
+    },
+    {
+      "id": "VG-14",
+      "gap": "Krisp на Linux не подтверждён",
+      "label": [
+        "L",
+        "A"
+      ]
+    },
+    {
+      "id": "VG-15",
+      "gap": "два клиента не снимались",
+      "label": [
+        "A"
+      ]
+    }
+  ],
+  "checks": {
+    "json_valid": true,
+    "every_px_labelled": true,
+    "tokens_exist": true,
+    "copy_matches_ru_catalog": true,
+    "switch_breakdown_sums": true,
+    "no_external_assets": true,
+    "code_untouched": true
+  }
+}

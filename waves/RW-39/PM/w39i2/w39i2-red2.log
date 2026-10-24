@@ -1,0 +1,89 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0425]: cannot find type `SearchFiltersArg` in this scope
+   --> src/main.rs:192:22
+    |
+192 |         let filters: SearchFiltersArg = serde_json::from_value(serde_json::json!({
+    |                      ^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `SearchFilters` in this scope
+   --> src/main.rs:204:13
+    |
+204 |             SearchFilters {
+    |             ^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find type `SearchFiltersArg` in this scope
+   --> src/main.rs:215:20
+    |
+215 |         let empty: SearchFiltersArg = serde_json::from_value(serde_json::json!({}))
+    |                    ^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find type `SearchFiltersArg` in this scope
+   --> src/main.rs:241:22
+    |
+241 |         let filters: SearchFiltersArg = serde_json::from_value(serde_json::json!({
+    |                      ^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `SearchFilters` in this scope
+   --> src/main.rs:248:14
+    |
+248 |             &SearchFilters {
+    |              ^^^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `SearchFilters` in this scope
+   --> src/main.rs:203:13
+    |
+203 |             SearchFilters::from(filters),
+    |             ^^^^^^^^^^^^^ use of undeclared type `SearchFilters`
+
+error[E0433]: cannot find type `SearchFilters` in this scope
+   --> src/main.rs:217:20
+    |
+217 |         assert_eq!(SearchFilters::from(empty), SearchFilters::default());
+    |                    ^^^^^^^^^^^^^ use of undeclared type `SearchFilters`
+
+error[E0433]: cannot find type `SearchFilters` in this scope
+   --> src/main.rs:217:48
+    |
+217 |         assert_eq!(SearchFilters::from(empty), SearchFilters::default());
+    |                                                ^^^^^^^^^^^^^ use of undeclared type `SearchFilters`
+
+error[E0433]: cannot find type `SearchFilters` in this scope
+   --> src/main.rs:230:14
+    |
+230 |             &SearchFilters::default(),
+    |              ^^^^^^^^^^^^^ use of undeclared type `SearchFilters`
+
+error[E0425]: cannot find function `search_page` in this scope
+   --> src/main.rs:235:22
+    |
+235 |         let actual = search_page("  call of duty  ".to_string(), None, None, None)
+    |                      ^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `SearchFilters` in this scope
+   --> src/main.rs:250:19
+    |
+250 |                 ..SearchFilters::default()
+    |                   ^^^^^^^^^^^^^ use of undeclared type `SearchFilters`
+
+error[E0425]: cannot find function `search_page` in this scope
+   --> src/main.rs:256:31
+    |
+256 |         let actual_filtered = search_page(String::new(), Some(filters), None, Some(5))
+    |                               ^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find function `search_page` in this scope
+   --> src/main.rs:265:22
+    |
+265 |         let second = search_page(String::new(), None, Some(cursor.clone()), Some(5))
+    |                      ^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `SearchFilters` in this scope
+   --> src/main.rs:270:14
+    |
+270 |             &SearchFilters::default(),
+    |              ^^^^^^^^^^^^^ use of undeclared type `SearchFilters`
+
+Some errors have detailed explanations: E0422, E0425, E0433.
+For more information about an error, try `rustc --explain E0422`.
+error: could not compile `discord-gui-spike` (bin "discord-gui-spike" test) due to 14 previous errors
+warning: build failed, waiting for other jobs to finish...

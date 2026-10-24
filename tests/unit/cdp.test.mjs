@@ -4,17 +4,68 @@
 import { afterEach, beforeEach, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  captureScreenshot,
+  clickText,
+  clickTextExpression,
   createCdpClient,
   evaluate,
+  listElements,
+  listElementsExpression,
   listTargets,
+  openPage,
   pickTarget,
   resolveEndpoint,
   resolveTargetHint,
 } from "../../src/core/cdp/client.mjs";
+import { run } from "../../src/cli/run.mjs";
 import { FakeWebSocket } from "../helpers/fake-websocket.mjs";
 
 /** @typedef {import("../../src/core/types.js").CdpClient} CdpClient */
 /** @typedef {import("../../src/core/types.js").FetchLike} FetchLike */
+
+/**
+ * Клиент CDP, который записывает вызовы и отвечает заранее заданным result.
+ * @param {(method: string, params: Record<string, unknown>) => any} handler
+ * @returns {{ cdp: CdpClient, calls: Array<{ method: string, params: Record<string, unknown> }> }}
+ */
+function recordingCdp(handler) {
+  /** @type {Array<{ method: string, params: Record<string, unknown> }>} */
+  const calls = [];
+  /** @type {CdpClient} */
+  const cdp = {
+    send: async (method, params = {}) => {
+      calls.push({ method, params });
+      return handler(method, params);
+    },
+    close: () => {},
+  };
+  return { cdp, calls };
+}
+
+/**
+ * Перехватывает console.log/console.error на время вызова CLI.
+ * @param {() => Promise<number>} fn
+ * @returns {Promise<{ code: number, stdout: string, stderr: string }>}
+ */
+async function captureCli(fn) {
+  const log = console.log;
+  const error = console.error;
+  let stdout = "";
+  let stderr = "";
+  console.log = (/** @type {unknown[]} */ ...args) => {
+    stdout += `${args.map(String).join(" ")}\n`;
+  };
+  console.error = (/** @type {unknown[]} */ ...args) => {
+    stderr += `${args.map(String).join(" ")}\n`;
+  };
+  try {
+    const code = await fn();
+    return { code, stdout, stderr };
+  } finally {
+    console.log = log;
+    console.error = error;
+  }
+}
 
 describe("resolveEndpoint / resolveTargetHint", () => {
   it("значения по умолчанию", () => {
@@ -246,5 +297,145 @@ describe("evaluate", () => {
       close: () => {},
     };
     await assert.rejects(() => evaluate(cdp, "x"), /Uncaught/);
+  });
+});
+
+describe("openPage", () => {
+  beforeEach(() => {
+    FakeWebSocket.instances.length = 0;
+    FakeWebSocket.autoOpen = true;
+  });
+
+  afterEach(() => {
+    FakeWebSocket.instances.length = 0;
+  });
+
+  it("выбирает страницу по hint и подключается к её webSocketDebuggerUrl", async () => {
+    /** @type {FetchLike} */
+    const fetchImpl = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => [
+        { type: "page", url: "about:blank", webSocketDebuggerUrl: "ws://blank" },
+        { type: "page", url: "file:///app/index.html", webSocketDebuggerUrl: "ws://fixture" },
+      ],
+    });
+    const opened = await openPage({
+      endpoint: "http://127.0.0.1:9222",
+      hint: "index.html",
+      fetchImpl,
+      WebSocket: FakeWebSocket,
+    });
+    assert.equal(opened.target.webSocketDebuggerUrl, "ws://fixture");
+    assert.equal(FakeWebSocket.latest().url, "ws://fixture");
+    opened.cdp.close();
+  });
+
+  it("нет подходящей страницы → понятная ошибка без соединения", async () => {
+    /** @type {FetchLike} */
+    const fetchImpl = async () => ({ ok: true, status: 200, json: async () => [] });
+    await assert.rejects(
+      () => openPage({ endpoint: "http://127.0.0.1:9222", hint: "x", fetchImpl, WebSocket: FakeWebSocket }),
+      /нет подходящей страницы/,
+    );
+    assert.equal(FakeWebSocket.instances.length, 0);
+  });
+});
+
+describe("clickText", () => {
+  it("экранирует текст и ищет кнопки/ссылки/role", () => {
+    const expression = clickTextExpression('Мой "аккаунт" \\ тест');
+    assert.ok(expression.includes(JSON.stringify('мой "аккаунт" \\ тест')));
+    assert.ok(expression.includes("button"));
+    assert.ok(expression.includes('[role="button"]'));
+    assert.ok(expression.includes("scrollIntoView"));
+    assert.doesNotThrow(() => new Function(expression), "выражение должно быть синтаксически валидным");
+  });
+
+  it("клик по тексту → Runtime.evaluate и {clicked:true}", async () => {
+    const { cdp, calls } = recordingCdp(() => ({
+      result: { value: { clicked: true, tag: "BUTTON", text: "Мой аккаунт" } },
+    }));
+    const outcome = await clickText(cdp, "Мой аккаунт");
+    assert.equal(outcome.clicked, true);
+    assert.equal(calls[0]?.method, "Runtime.evaluate");
+    assert.ok(String(calls[0]?.params.expression).includes("мой аккаунт"));
+  });
+
+  it("элемент не найден → ошибка с текстом", async () => {
+    const { cdp } = recordingCdp(() => ({ result: { value: { clicked: false } } }));
+    await assert.rejects(() => clickText(cdp, "Нет такой кнопки"), /элемент не найден: «Нет такой кнопки»/);
+  });
+
+  it("null от страницы трактуется как «не найдено»", async () => {
+    const { cdp } = recordingCdp(() => ({ result: { value: null } }));
+    await assert.rejects(() => clickText(cdp, "Нет"), /элемент не найден/);
+  });
+});
+
+describe("listElements", () => {
+  it("возвращает массив элементов и экранирует селектор", async () => {
+    const selector = 'button[data-nav="1"]';
+    const { cdp, calls } = recordingCdp(() => ({
+      result: { value: [{ tag: "BUTTON", role: null, aria: null, text: "Мой аккаунт", visible: true, rect: [0, 0, 10, 10] }] },
+    }));
+    const items = await listElements(cdp, selector);
+    assert.equal(items.length, 1);
+    assert.equal(items[0]?.tag, "BUTTON");
+    assert.equal(calls[0]?.method, "Runtime.evaluate");
+    assert.ok(String(calls[0]?.params.expression).includes(JSON.stringify(selector)));
+    assert.ok(String(listElementsExpression(selector)).includes("querySelectorAll"));
+  });
+
+  it("ответ страницы не массив → ошибка", async () => {
+    const { cdp } = recordingCdp(() => ({ result: { value: null } }));
+    await assert.rejects(() => listElements(cdp, "button"), /list: страница вернула не массив/);
+  });
+});
+
+describe("captureScreenshot", () => {
+  it("Page.captureScreenshot png → Buffer с байтами PNG", async () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]);
+    const { cdp, calls } = recordingCdp(() => ({ data: png.toString("base64") }));
+    const bytes = await captureScreenshot(cdp);
+    assert.deepEqual([...bytes], [...png]);
+    assert.equal(calls[0]?.method, "Page.captureScreenshot");
+    assert.equal(calls[0]?.params.format, "png");
+  });
+
+  it("пустой ответ CDP → ошибка", async () => {
+    const { cdp } = recordingCdp(() => ({ data: "" }));
+    await assert.rejects(() => captureScreenshot(cdp), /shot: CDP не вернул данные PNG/);
+  });
+});
+
+describe("CLI cdp: аргументы и справка", () => {
+  it("подкоманды cdp перечислены в --help", async () => {
+    const result = await captureCli(() => run(["--help"]));
+    assert.equal(result.code, 0);
+    for (const entry of ["cdp targets", "cdp eval", "cdp list", "cdp clicktext", "cdp shot"]) {
+      assert.ok(result.stdout.includes(entry), `в справке нет "${entry}"`);
+    }
+  });
+
+  it("без обязательного аргумента → код 1 и подсказка", async () => {
+    /** @type {[string[], RegExp][]} */
+    const cases = [
+      [["cdp", "eval"], /cdp eval: укажите JS-выражение/],
+      [["cdp", "list"], /cdp list: укажите CSS-селектор/],
+      [["cdp", "clicktext"], /cdp clicktext: укажите текст/],
+      [["cdp", "shot"], /cdp shot: укажите путь/],
+    ];
+    for (const [args, pattern] of cases) {
+      const result = await captureCli(() => run(args));
+      assert.equal(result.code, 1, `аргументы: ${args.join(" ")}`);
+      assert.match(result.stderr, pattern);
+    }
+  });
+
+  it("неизвестная подкоманда cdp → код 1", async () => {
+    const result = await captureCli(() => run(["cdp", "nope"]));
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /Неизвестная команда cdp: nope/);
   });
 });

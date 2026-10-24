@@ -1,0 +1,40 @@
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'empty',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:244:3
+✖ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (5.416192ms)
+  AssertionError [ERR_ASSERTION]: рейл не в состоянии error
+  
+  null !== 'error'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:254:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'error',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:276:3
+✖ loading skeleton до ответа ready(), затем плитки (4.622973ms)
+  AssertionError [ERR_ASSERTION]: нет loading-состояния
+  
+  null !== 'loading'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:283:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'loading',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

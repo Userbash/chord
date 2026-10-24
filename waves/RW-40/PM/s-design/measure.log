@@ -1,0 +1,7 @@
+input: /home/sanya/re-deep/voice/ui/01-joined.png size=2560x1383 dpr=1.25
+buttons_with_fill=3 widths_css=[79.2, 80.0, 80.0]
+gap_css=[7.2, 7.2] step_css=[86.4, 87.2]
+fill_height_css=26.4 (кнопка 32 = --btn-height, радиус 8 съедает заливку)
+first_fill_x_css=104.0 last_fill_x_css=356.8
+checks=6 failures=0
+RESULT: OK

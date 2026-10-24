@@ -1,0 +1,70 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (14.53498ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (4.77758ms)
+  ✔ чат: 100 000 строк, sizer = total*44, в DOM десятки строк, а не сотни тысяч (4.46881ms)
+  ✔ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (3.64628ms)
+  ✔ участники: 24 229 строк, sizer = total*40, окно ≥10 и << total (6.221041ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (4.5935ms)
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.17849ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (3.28214ms)
+  ✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (6.20471ms)
+  ✖ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (3.86541ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, все включены (4.49625ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.99155ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (3.11089ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (3.56205ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (4.235211ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (5.08973ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (5.01083ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.41437ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (3.1642ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (4.16068ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (96.321622ms)
+ℹ tests 20
+ℹ suites 1
+ℹ pass 18
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 127.118473
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:335:3
+✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (6.20471ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(cellsBefore.length > 0 && cellsBefore.length <= 120)
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:348:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:336:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:363:3
+✖ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (3.86541ms)
+  AssertionError [ERR_ASSERTION]: фильтр не применился
+  
+  280 !== 0
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:373:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:364:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 280,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

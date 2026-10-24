@@ -1,0 +1,2 @@
+gui-window-probe: SKIP: спайк завершился на шаге «AT-SPI» (exit=-9) — окно умерло
+probe-exit=2

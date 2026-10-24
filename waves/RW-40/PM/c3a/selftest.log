@@ -1,0 +1,9 @@
+ok   baseline: exit=0 needle=False
+ok   wrong-token-value: exit=1 needle=True
+ok   unknown-name: exit=1 needle=True
+ok   aa-failure: exit=1 needle=True
+ok   layout-mismatch: exit=1 needle=True
+ok   doc-external-ref: exit=1 needle=True
+ok   json-font-face: exit=1 needle=True
+
+OK: валидатор ловит все 6 мутаций

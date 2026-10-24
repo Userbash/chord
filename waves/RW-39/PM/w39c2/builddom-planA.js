@@ -1,0 +1,325 @@
+function buildDom(doc) {
+  /** @param {string} tag @param {string} className @returns {ShimElement} */
+  const make = (tag, className) => {
+    const node = doc.createElement(tag);
+    node.className = className;
+    return node;
+  };
+  /** @param {string} tag @param {string} className @param {string} value @returns {ShimElement} */
+  const text = (tag, className, value) => {
+    const node = make(tag, className);
+    node.textContent = value;
+    return node;
+  };
+  /** @param {string} tag @param {string} className @param {string} label @returns {ShimElement} */
+  const iconBtn = (tag, className, label) => {
+    const node = make(tag, className);
+    node.setAttribute("aria-label", label);
+    return node;
+  };
+
+  /* 1. Строка заголовка: .topbar (вне shell). */
+  const topbar = make("header", "topbar");
+  topbar.setAttribute("role", "banner");
+  const title = text("div", "screen-title", "Чат · 100 000 сообщений");
+  const metrics = make("div", "metrics");
+  metrics.setAttribute("aria-live", "polite");
+  /** @param {string} label @param {string} id */
+  const metric = (label, id) => {
+    const span = doc.createElement("span");
+    span.textContent = label;
+    const value = doc.createElement("b");
+    value.id = id;
+    value.textContent = "—";
+    span.append(value);
+    return span;
+  };
+  metrics.append(
+    metric("FPS ", "m-fps"),
+    metric("p95 кадра ", "m-p95"),
+    metric("RAM ", "m-rss"),
+    metric("потоки ", "m-threads"),
+  );
+  const bench = doc.createElement("button");
+  bench.id = "bench";
+  bench.className = "bench";
+  bench.textContent = "Замер 5 с";
+  metrics.append(bench);
+  topbar.append(title, metrics);
+
+  /* 2. Рейл: бренд DL, гильдии, разделитель, 4 кнопки экранов. */
+  const rail = doc.createElement("aside");
+  rail.id = "guild-rail";
+  rail.className = "rail";
+  rail.setAttribute("role", "navigation");
+  rail.setAttribute("aria-label", "Серверы и экраны");
+  const brand = text("div", "brand", "DL");
+  brand.title = "discord-lab";
+  brand.setAttribute("aria-hidden", "true");
+  rail.append(brand);
+  /** @type {Array<[string, string, string]>} */
+  const guilds = [
+    ["1", "Сервер ITSKIDON PC BOOST", "IS"],
+    ["2", "Сервер 2", "S2"],
+    ["3", "Сервер 3", "S3"],
+  ];
+  for (const [guild, label, mark] of guilds) {
+    const button = doc.createElement("button");
+    button.className = `guild-item${guild === "1" ? " is-selected" : ""}`;
+    button.dataset.guild = guild;
+    button.setAttribute("aria-label", label);
+    button.setAttribute("aria-current", guild === "1" ? "true" : "false");
+    button.textContent = mark;
+    rail.append(button);
+  }
+  rail.append(make("div", "rail-sep"));
+
+  /** @type {Array<[string, string, string]>} */
+  const railButtons = [
+    ["chat", "💬", "Чат 100k"],
+    ["emoji", "😀", "Эмодзи-пикер"],
+    ["members", "👥", "Участники 24k"],
+    ["settings", "⚙️", "Настройки"],
+  ];
+  for (const [screen, glyph, title] of railButtons) {
+    const button = doc.createElement("button");
+    button.className = `rail-btn${screen === "chat" ? " active" : ""}`;
+    button.dataset.screen = screen;
+    button.title = title;
+    button.textContent = glyph;
+    if (screen === "chat") button.setAttribute("aria-current", "page");
+    rail.append(button);
+  }
+
+  /* 3. Дерево каналов + строка пользователя. */
+  const tree = doc.createElement("aside");
+  tree.id = "channel-tree";
+  tree.className = "tree";
+  tree.setAttribute("role", "navigation");
+  tree.setAttribute("aria-label", "Каналы сервера");
+  const treeHeader = make("header", "tree-header");
+  treeHeader.append(text("h2", "tree-guild", "ITSKIDON PC BOOST"), iconBtn("button", "icon-btn", "Меню сервера"));
+  const treeScroll = doc.createElement("nav");
+  treeScroll.className = "tree-scroll";
+  /**
+   * @param {string} groupTitle
+   * @param {Array<[string, string, boolean]>} channels
+   * @returns {ShimElement}
+   */
+  const channelGroup = (groupTitle, channels) => {
+    const section = make("section", "channel-group");
+    const heading = make("h3", "channel-group-title");
+    heading.append(text("button", "group-toggle", groupTitle));
+    const list = doc.createElement("ul");
+    list.className = "channel-list";
+    list.setAttribute("role", "list");
+    for (const [icon, name, unread] of channels) {
+      const item = doc.createElement("li");
+      const button = doc.createElement("button");
+      button.className = `channel-item${unread ? " is-unread" : ""}`;
+      const iconNode = text("span", "channel-icon", icon);
+      iconNode.setAttribute("aria-hidden", "true");
+      button.append(iconNode, text("span", "channel-name", name));
+      item.append(button);
+      list.append(item);
+    }
+    section.append(heading, list);
+    return section;
+  };
+  treeScroll.append(
+    channelGroup("НОВОСТИ", [
+      ["#", "новости", false],
+      ["#", "объявления", true],
+    ]),
+    channelGroup("ГОЛОСОВЫЕ КАНАЛЫ", [["🔊", "Пекарня", false]]),
+  );
+  const userBar = doc.createElement("footer");
+  userBar.id = "user-bar";
+  userBar.className = "user-bar";
+  const profile = make("button", "user-profile");
+  profile.setAttribute("aria-label", "Профиль: ShadowByte, невидимый");
+  const avatarSm = text("span", "avatar avatar--sm", "SB");
+  avatarSm.setAttribute("aria-hidden", "true");
+  const userMeta = make("span", "user-meta");
+  userMeta.append(text("span", "user-name", "ShadowByte"), text("span", "user-status", "Невидимый"));
+  profile.append(avatarSm, userMeta);
+  const userActions = make("div", "user-actions");
+  userActions.append(
+    iconBtn("button", "icon-btn", "Выключить микрофон"),
+    iconBtn("button", "icon-btn", "Выключить звук"),
+    iconBtn("button", "icon-btn", "Настройки пользователя"),
+  );
+  userBar.append(profile, userActions);
+  tree.append(treeHeader, treeScroll, userBar);
+
+  /* 4. Контент: шапка чата — sibling экранов, не внутри #screen-chat. */
+  const content = doc.createElement("main");
+  content.className = "content";
+  const chatHeader = doc.createElement("header");
+  chatHeader.id = "chat-header";
+  chatHeader.className = "chat-header";
+  const chatTitle = make("h1", "chat-title");
+  const hash = text("span", "hash", "#");
+  hash.setAttribute("aria-hidden", "true");
+  chatTitle.append(hash, text("span", "chat-title-text", "новости"));
+  const chatActions = make("div", "chat-actions");
+  chatActions.append(
+    iconBtn("button", "icon-btn", "Ветки"),
+    iconBtn("button", "icon-btn", "Закреплённые сообщения"),
+    iconBtn("button", "icon-btn", "Участники"),
+  );
+  const chatSearchField = doc.createElement("search");
+  chatSearchField.className = "search-field";
+  chatSearchField.setAttribute("role", "search");
+  const chatSearch = doc.createElement("input");
+  chatSearch.id = "chat-search";
+  chatSearch.className = "search-input";
+  chatSearch.type = "search";
+  chatSearchField.append(chatSearch);
+  chatActions.append(chatSearchField);
+  chatHeader.append(iconBtn("button", "icon-btn", "Свернуть каналы"), chatTitle, chatActions);
+
+  /* 5. Экран chat. */
+  const chatScreen = make("section", "screen active");
+  chatScreen.id = "screen-chat";
+  chatScreen.setAttribute("role", "region");
+  chatScreen.setAttribute("aria-label", "Чат");
+  chatScreen.setAttribute("aria-hidden", "false");
+  const chatMain = make("div", "chat-main");
+  const chatList = make("div", "list chat-list");
+  chatList.id = "chat-list";
+  chatList.setAttribute("tabindex", "0");
+  chatList.setAttribute("role", "list");
+  chatList.setAttribute("aria-label", "Сообщения");
+  chatList.boxHeight = 800;
+  const chatNotice = text("p", "chat-notice", "Отправка недоступна в спайке (без сети)");
+  chatNotice.setAttribute("role", "note");
+  const composer = make("div", "composer");
+  composer.id = "composer";
+  composer.setAttribute("role", "group");
+  composer.setAttribute("aria-label", "Поле ввода сообщения");
+  const composerInput = doc.createElement("textarea");
+  composerInput.id = "composer-input";
+  composerInput.className = "composer-input";
+  composer.append(
+    text("button", "icon-btn composer-attach", "＋"),
+    composerInput,
+    iconBtn("button", "icon-btn", "Эмодзи"),
+    iconBtn("button", "icon-btn", "Подарок"),
+  );
+  const hint = text("p", "visually-hidden", "Отправка сообщений в спайке отключена");
+  hint.id = "composer-hint";
+  chatMain.append(chatList, chatNotice, composer, hint);
+
+  const memberPanel = doc.createElement("aside");
+  memberPanel.id = "member-panel";
+  memberPanel.className = "member-panel";
+  memberPanel.setAttribute("role", "complementary");
+  memberPanel.setAttribute("aria-label", "Участники сервера");
+  const panelTitle = make("h2", "member-panel-title");
+  panelTitle.textContent = "Участники — ";
+  const online = doc.createElement("span");
+  online.id = "member-online";
+  online.textContent = "735";
+  panelTitle.append(online);
+  const panelList = make("div", "member-panel-list");
+  panelList.id = "member-panel-list";
+  panelList.setAttribute("role", "list");
+  const allMembers = text("button", "member-panel-all", "Показать всех");
+  memberPanel.append(panelTitle, panelList, allMembers);
+  chatScreen.append(chatMain, memberPanel);
+
+  /* 6. Экран emoji: карточка 498×440. */
+  const emojiScreen = make("section", "screen");
+  emojiScreen.id = "screen-emoji";
+  const emojiWrap = make("div", "emoji-wrap");
+  const emojiCard = make("div", "emoji-card");
+  emojiCard.setAttribute("role", "dialog");
+  const emojiHead = make("div", "emoji-head");
+  const emojiSearchField = doc.createElement("search");
+  emojiSearchField.className = "search-field";
+  emojiSearchField.setAttribute("role", "search");
+  const emojiSearch = doc.createElement("input");
+  emojiSearch.id = "emoji-search";
+  emojiSearch.className = "search-input";
+  emojiSearch.type = "search";
+  emojiSearchField.append(emojiSearch);
+  emojiHead.append(emojiSearchField, iconBtn("button", "icon-btn", "Закрыть"));
+  const emojiBody = make("div", "emoji-body");
+  const emojiTabs = make("div", "emoji-tabs");
+  emojiTabs.id = "emoji-tabs";
+  emojiTabs.setAttribute("role", "tablist");
+  const emojiGrid = make("div", "emoji-grid");
+  emojiGrid.id = "emoji-grid";
+  emojiGrid.setAttribute("role", "listbox");
+  emojiGrid.setAttribute("aria-label", "Эмодзи");
+  emojiGrid.boxHeight = 600;
+  emojiBody.append(emojiTabs, emojiGrid);
+  const emojiPreview = make("div", "emoji-preview");
+  const previewGlyph = text("span", "emoji-preview-glyph", "🙂");
+  previewGlyph.setAttribute("aria-hidden", "true");
+  emojiPreview.append(previewGlyph, text("span", "emoji-preview-name", "Выберите эмодзи"));
+  emojiCard.append(emojiHead, emojiBody, emojiPreview);
+  emojiWrap.append(emojiCard);
+  emojiScreen.append(emojiWrap);
+
+  /* 7. Экран members: тулбар + виртуализованный список. */
+  const membersScreen = make("section", "screen");
+  membersScreen.id = "screen-members";
+  const toolbar = make("div", "members-toolbar");
+  const memberSearchField = doc.createElement("search");
+  memberSearchField.className = "search-field";
+  memberSearchField.setAttribute("role", "search");
+  const memberSearch = doc.createElement("input");
+  memberSearch.id = "member-search";
+  memberSearch.className = "search-input";
+  memberSearch.type = "search";
+  memberSearchField.append(memberSearch);
+  const memberCount = text("span", "members-count", "24 229");
+  memberCount.id = "member-count";
+  toolbar.append(memberSearchField, memberCount);
+  const memberList = make("div", "list member-list");
+  memberList.id = "member-list";
+  memberList.setAttribute("tabindex", "0");
+  memberList.setAttribute("role", "list");
+  memberList.setAttribute("aria-label", "Участники");
+  memberList.boxHeight = 800;
+  membersScreen.append(toolbar, memberList);
+
+  /* 8. Экран settings: оверлей с навигацией и контентом. */
+  const settingsScreen = make("section", "screen");
+  settingsScreen.id = "screen-settings";
+  const settingsShell = make("div", "settings-shell");
+  settingsShell.setAttribute("role", "dialog");
+  settingsShell.setAttribute("aria-modal", "true");
+  const settingsHead = make("header", "settings-head");
+  const avatarMd = text("span", "avatar avatar--md", "SB");
+  avatarMd.setAttribute("aria-hidden", "true");
+  const settingsUser = make("span", "settings-user");
+  settingsUser.append(
+    text("span", "settings-user-name", "ShadowByte"),
+    text("span", "settings-user-hint", "Редактировать профиль"),
+  );
+  settingsHead.append(avatarMd, settingsUser, iconBtn("button", "icon-btn", "Закрыть настройки"));
+  const settingsBody = make("div", "settings-body");
+  const settingsNav = doc.createElement("nav");
+  settingsNav.id = "settings-nav";
+  settingsNav.className = "settings-nav";
+  const settings = make("div", "settings");
+  settings.id = "settings";
+  settings.setAttribute("role", "group");
+  settings.setAttribute("aria-label", "Настройки");
+  settings.boxHeight = 800;
+  settingsBody.append(settingsNav, settings);
+  settingsShell.append(settingsHead, settingsBody);
+  settingsScreen.append(settingsShell);
+
+  content.append(chatHeader, chatScreen, emojiScreen, membersScreen, settingsScreen);
+
+  const workspace = make("div", "workspace");
+  workspace.append(tree, content);
+  const shell = make("div", "shell");
+  shell.append(rail, workspace);
+  doc.body.append(topbar, shell);
+  return doc.body;
+}

@@ -1,0 +1,27 @@
+▶ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча
+  ✔ в файле нет skip()-хелпера и его вызовов (0.543833ms)
+  ✔ ровно 12 #[test] и 12 #[ignore] с причиной live-keyring (1.034314ms)
+  ✔ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.314338ms)
+  ✔ в телах live-кейсов нет раннего return под видом skip (0.546033ms)
+  ✔ имена и число кейсов не изменились (0.288107ms)
+  ✔ пороги security-кейсов не ослаблены (0.282176ms)
+  ✔ live_guard различает not-enabled, tool-missing и service-unavailable (0.098903ms)
+✔ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча (3.882563ms)
+▶ PLAT-02 T2: live-фаза гейта видима и не пропускается
+  ✔ фаза keyring-live объявлена и запускает ignored-набор cargo (0.223165ms)
+  ✔ live-флаг включается только фазой release/qualify (0.194195ms)
+  ✔ failOnSkips превращает skip в failed, а не в warning (0.204835ms)
+  ✔ cargoTestCounts по-прежнему считает ignored как skipped (0.324207ms)
+✔ PLAT-02 T2: live-фаза гейта видима и не пропускается (1.149607ms)
+▶ PLAT-02 T3: cargo подтверждает ignored-набор
+  ✔ в дефолтном прогоне 0 passed и 12 ignored (19.569899ms)
+  ✔ --list --ignored перечисляет ровно 12 кейсов k01…k12 (16.634259ms)
+✔ PLAT-02 T3: cargo подтверждает ignored-набор (36.300921ms)
+ℹ tests 13
+ℹ suites 3
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 77.57677

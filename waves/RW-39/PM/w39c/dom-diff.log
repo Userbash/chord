@@ -1,0 +1,10 @@
+контракт: id=29, классов=76
+index.html: id=15, классов=16
+
+нет id (14): guild-rail, channel-tree, user-bar, chat-header, chat-search, composer, composer-input, composer-hint, member-panel, member-online, member-panel-list, member-search, member-count, settings-nav
+
+нет классов (61): avatar, avatar--md, avatar--sm, channel-group, channel-group-title, channel-icon, channel-item, channel-list, channel-name, chat-actions, chat-header, chat-main, chat-notice, chat-title, chat-title-text, composer, composer-attach, composer-input, content, emoji-body, emoji-card, emoji-preview, emoji-preview-glyph, emoji-preview-name, emoji-tabs, emoji-wrap, group-toggle, guild-item, hash, icon-btn, is-selected, is-unread, member-panel, member-panel-all, member-panel-list, member-panel-title, members-count, members-toolbar, rail-sep, search-field, search-input, settings-body, settings-head, settings-nav, settings-shell, settings-user, settings-user-hint, settings-user-name, shell, tree, tree-guild, tree-header, tree-scroll, user-actions, user-bar, user-meta, user-name, user-profile, user-status, visually-hidden, workspace
+
+лишние id (0): —
+
+лишние классы (1): tabs

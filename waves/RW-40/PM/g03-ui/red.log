@@ -1,0 +1,32 @@
+node:fs:483
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open '/home/sanya/orca/project/rust/gui-spike/ui/features/join-server.js'
+    at readFileSync (node:fs:483:20)
+    at file:///home/sanya/orca/project/tests/unit/join-server.test.mjs:32:16
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/home/sanya/orca/project/rust/gui-spike/ui/features/join-server.js'
+}
+
+Node.js v24.21.0
+✖ tests/unit/join-server.test.mjs (20.882469ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25.023091
+
+✖ failing tests:
+
+test at tests/unit/join-server.test.mjs:1:1
+✖ tests/unit/join-server.test.mjs (20.882469ms)
+  'test failed'

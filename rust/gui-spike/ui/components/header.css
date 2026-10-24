@@ -1,0 +1,54 @@
+/* =============================================================================
+ * header.css — шапка чата 49px (--layout-header-h).
+ * Видимость (display) задаёт style.css по body[data-active-screen];
+ * здесь только раскладка, чтобы не спорить за display.
+ * ========================================================================== */
+
+.chat-header {
+  flex: 0 0 auto;
+  gap: var(--space-4);
+  align-items: center;
+  height: var(--layout-header-h);
+  padding: 0 var(--space-4);
+  background: var(--bg-chat);
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.chat-title {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+}
+
+.hash {
+  flex: 0 0 auto;
+  color: var(--text-faint);
+  font-size: var(--font-size-title);
+  line-height: 1;
+}
+
+.chat-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Поиск в шапке — пилюля 32px высотой, шириной с панель участников. */
+.chat-actions .search-field {
+  flex: 0 1 var(--layout-member-panel-w);
+  width: var(--layout-member-panel-w);
+  min-width: 0;
+}

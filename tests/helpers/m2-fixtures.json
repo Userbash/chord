@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "provenance": {
+    "gateway": "fixtures/gateway/by-type/002-READY.json, 023/024/025-MESSAGE_CREATE.json",
+    "contract": "PM/l02/PLAN.md, waves/RW-40/REPO/scenarios (SearchError kind), features/{auth,join-server,settings,voice,search-overlay}.js",
+    "secrets": "нет: login.token — заведомо фейковая строка с пометкой DO-NOT-LEAK, в сеть не уходит"
+  },
+  "ids": {
+    "guildWithMessages": "1014537851418980372",
+    "channelWithMessages": "1163408591315812392",
+    "invitedGuild": "777000000000000001"
+  },
+  "user": {
+    "id": "42",
+    "username": "tester",
+    "discriminator": "0",
+    "global_name": "Тестер",
+    "avatar": null,
+    "bot": false
+  },
+  "auth": {
+    "noSession": { "status": "idle", "stored": false, "user": null, "error": null },
+    "ready": {
+      "status": "ready",
+      "stored": true,
+      "user": {
+        "id": "42",
+        "username": "tester",
+        "discriminator": "0",
+        "global_name": "Тестер",
+        "avatar": null,
+        "bot": false
+      },
+      "error": null
+    }
+  },
+  "login": {
+    "token": "MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK",
+    "outcome": {
+      "status": "ready",
+      "stored": true,
+      "user": {
+        "id": "42",
+        "username": "tester",
+        "discriminator": "0",
+        "global_name": "Тестер",
+        "avatar": null,
+        "bot": false
+      },
+      "error": null
+    }
+  },
+  "search": {
+    "query": "привет",
+    "errors": [
+      { "name": "401", "error": { "kind": "unauthorized" }, "pattern": "сессия истекла \\(401\\)" },
+      { "name": "403", "error": { "kind": "forbidden" }, "pattern": "нет доступа \\(403\\)" },
+      { "name": "404", "error": { "kind": "notFound" }, "pattern": "не найдено \\(404\\)" },
+      { "name": "400", "error": { "kind": "client", "status": 400 }, "pattern": "ошибка запроса \\(400\\)" },
+      { "name": "422", "error": { "kind": "client", "status": 422 }, "pattern": "ошибка запроса \\(422\\)" },
+      { "name": "503", "error": { "kind": "server", "status": 503 }, "pattern": "ошибка сервера \\(503\\)" },
+      { "name": "429", "error": { "kind": "rateLimited", "retryAfterMs": 1500 }, "pattern": "слишком много запросов \\(429\\)" },
+      { "name": "network", "error": { "kind": "network" }, "pattern": "сеть недоступна" },
+      { "name": "storage", "error": { "kind": "storage" }, "pattern": "хранилище токена недоступно" }
+    ]
+  },
+  "invite": {
+    "code": "m2-invite",
+    "preview": {
+      "code": "m2-invite",
+      "guildId": "777000000000000001",
+      "guildName": "M2 Invite",
+      "memberCount": 1234,
+      "presenceCount": 56,
+      "expiresAt": "2026-11-01T00:00:00Z",
+      "channelId": ""
+    },
+    "accepted": { "guildId": "777000000000000001" },
+    "resolveRateLimited": { "kind": "rateLimited", "retry_after_ms": 1000 },
+    "rateLimitedText": "Слишком много попыток. Повторите через 1 с."
+  },
+  "settings": {
+    "defaults": { "version": 1, "toggles": {}, "density": "cozy", "theme": "dark", "locale": "ru" },
+    "compact": "compact",
+    "light": "light",
+    "allowedKeys": ["version", "toggles", "density", "theme", "locale"]
+  },
+  "net": {
+    "unauthorized": { "kind": "unauthorized", "code": 401 },
+    "sessionExpiredText": "Сессия истекла. Войдите снова.",
+    "reconnectingText": "Переподключение…",
+    "offlineText": "Нет соединения"
+  },
+  "voice": {
+    "disabledText": "Голосовой канал недоступен в этой сборке"
+  }
+}

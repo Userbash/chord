@@ -1,0 +1,46 @@
+# G6 / RW-40 — SHA-256 источников (снято 2026-10-24, read-only)
+
+## Установленный эталон 1.0.166 (Linux, stable)
+0b29757f8b8194092e9ea57eb45182694a8c92fb5011e0cbc1eff0a8a690cdf1  /home/sanya/.config/discord/app-1.0.166/resources/app.asar
+e24a5b8393384dc885f5e1dabb48d8b6833731f01c40460c99815a9169a12770  /home/sanya/.config/discord/app-1.0.166/modules/discord_desktop_core-1/discord_desktop_core/core.asar
+37d7e3540277d878985c8f973e2313ada9601adb5bd8116e29f5bb4201ca2809  /home/sanya/.config/discord/app-1.0.166/Discord
+53c520544f34fcb6561c74a8dbf8a2fe1c2c799a028ae9f7a6c664701b53a82c  /home/sanya/.config/discord/app-1.0.166/resources/build_info.json
+1a3fa65e21242ca84a27b6b654ba342c7ebf6c964fa3c1e1ee41682b9717fa24  /home/sanya/.config/discord/app-1.0.166/modules/discord_voice-1/discord_voice/discord_voice.node
+dc535bb4c798fa16a5b2eab870cf8e186a5a9e48590c049bd8ad25915fedabb3  /home/sanya/.config/discord/app-1.0.166/modules/discord_krisp-1/discord_krisp/discord_krisp.node
+
+build_info.json: {releaseChannel: stable, version: 1.0.166, sentryDist: stable-linux-x64}
+
+## Дамп 1.0.162 (read-only)
+d20d9041a50ad1239b196ef393d95d0fa44af185a455f86011d094641a4bc5f7  /home/sanya/re-deep/rest-static.md
+412858a61165462e9476a60451426186925a6f259067219d096bb5dbe2a5a251  /home/sanya/re-deep/rest-static.json
+4002f80bcc3df6c372b37138d0230b0f10ab324c63188565abda922d7d2a5278  /home/sanya/re-deep/ui2/D1-guild-menu-items.json
+e9e8e086301d40b828c5c98a77b8552a75d2e89bcac64f44ce78698666e6f592  /home/sanya/re-deep/ui6/01-guild-channels.json
+9238e94481e3baecc02a647aa15aeb71db64541910911cd22b3b493985441b6c  /home/sanya/re-deep/voice/ui/01-panel-text.json
+3ebb38b76eb5f2f8cebe64532fa7aed488906f1cc52d84efb7c63e53348997bf  /home/sanya/re-deep/voice/ui/01-voice-panel.html
+f588c943cd4fd939cac30b2e143f5295c40a4b4f608a75f30b141ad8881799c8  /home/sanya/re-deep/ru-catalog.json
+98c4d3615ff1558dd81c24b6e4f821a959be834d460bf27b884a82477c72db15  /home/sanya/re-deep/en-catalog.json
+655cc4b9477486776873cacaba64ee83d7a8a0111cf3731182281db35962d4d0  /home/sanya/re-deep/frontend-d03.json
+667a771c61ff709e2f0400d395a324f0a5b1b5aa89e11e263289144a12d084ae  /home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js (B162)
+
+## Нормативные RE-отчёты репозитория (1.0.162)
+e38c423cb10c3be6fb46a44f6b2fa1af6cea56b3acbb230de0cd2bdaa6a94dc5  docs/re/rest-d02.md
+f43e90e2674da78773d95ecc5793f4c62ea480e43d8ae26005f35ef7f6345440  docs/re/voice-deep.md
+514a34cfa8dd74f5f32f3fa2593d7d7909f75d075ac238f943fb2272f123f6e8  docs/re/gateway-protocol.md
+817015fc5f83665cef645edf724a78c103fb6ecf2d5a35264f2f38ecd36baa24  docs/re/gateway-schema.md
+97c118869add531caf69eb22b95b891bbafde877eae0b2569e53e0d9ac8d632d  docs/re/frontend-d03.md
+4bd909ebc9c2082f4cea3252790c51fd6fba58bcf61997490720e5e5f04a528d  docs/re/i18n-deep.md
+e7d7a5477aae17de3a0c3819b3acbc5cc5cb25c9938679e0e9b6684aae1aa26a  docs/re/main-arch.md
+35cf9d0ec2a2485699c881e035ea7908f2af6c1d6ee70522e5a41bd8b2a46fcb  waves/RW-40/NETWORK-CONTRACTS.md
+
+## REA
+app.asar analyzed by REA: evidence ev_18693603b46870b9d3a9f78abfb5d626f5f9ebbd90632e57ef930d147c88396c
+root_artifact_sha256 = 0b29757f8b8194092e9ea57eb45182694a8c92fb5011e0cbc1eff0a8a690cdf1
+statistics: relevant_files=5, parsed_javascript_files=2, modules=977, ast_nodes=506874, findings=3214
+coverage: partial (semantic unknown ceiling reached; graph partial)
+
+Полный экспорт REA (57 МБ) вынесен из репозитория в /tmp/opencode/rea-evidence-rw40.json
+sha256: 1a7583cc362c348e0031440853c174c922c5009d8a3c18130452013bd4439f22
+Причина: каталог EVIDENCE хранит выдержки/хеши, а не полный граф на 20 502 unknown.
+
+## Наше приложение (HEAD 0239543)
+Ключевые файлы проверялись только чтением; хеши — на момент сессии.

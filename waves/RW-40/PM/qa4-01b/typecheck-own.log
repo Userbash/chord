@@ -1,0 +1,5 @@
+rust/gui-spike/ui/features/join-server.js(385,5): error TS2322: Type 'Timeout' is not assignable to type 'number'.
+rust/gui-spike/ui/features/join-server.js(413,36): error TS8024: JSDoc '@param' tag has name 'node', but there is no parameter with that name.
+rust/gui-spike/ui/features/join-server.js(414,23): error TS7006: Parameter 'node_' implicitly has an 'any' type.
+rust/gui-spike/ui/features/join-server.js(493,36): error TS7006: Parameter 'event' implicitly has an 'any' type.
+exit=1

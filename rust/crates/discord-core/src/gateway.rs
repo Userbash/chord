@@ -29,12 +29,53 @@
 
 use discord_codec::etf::{self, EtfValue};
 
+pub mod supervisor;
+
+/// Оп-код QoS-heartbeat (`QOS_HEARTBEAT`) из таблицы клиента 1.0.162 (AUTH-RE G-12).
+///
+/// В [`Op`] кода 40 нет намеренно: сервер его не присылает, а `Op::from_code` — контракт
+/// RW-03 (`Op::from_code(40) == Op::Unknown(40)`). Клиентская сторона различает heartbeat по
+/// [`HeartbeatMode`].
+pub const QOS_HEARTBEAT_OP: i64 = 40;
+
+/// Какой кадр клиент шлёт на удар: боевой op40 или legacy op1 (rw-03/04).
+///
+/// `Session::new` оставляет [`HeartbeatMode::LegacyOp1`] — обратная совместимость ядра RW-03;
+/// боевой путь (супервайзер, транспорт RW-39) включает [`HeartbeatMode::Qos`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum HeartbeatMode {
+    /// Legacy op1 `{op:1, d:seq}` — старый контракт RW-03/04.
+    #[default]
+    LegacyOp1,
+    /// Боевой op40 `{op:40, d:{seq, qos}}` (AUTH-RE G-12).
+    Qos,
+}
+
+/// QoS-полезная нагрузка op40: `{active, reasons}` (из `heartbeatQOSState` клиента).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct QosPayload {
+    /// Пользователь активен (клиент шлёт activity-состояние).
+    pub active: bool,
+    /// Причины активности (в клиенте — отсортированный уникальный список).
+    pub reasons: Vec<String>,
+}
+
+impl QosPayload {
+    /// Неактивное состояние с пустым списком причин.
+    pub fn inactive() -> Self {
+        Self {
+            active: false,
+            reasons: Vec::new(),
+        }
+    }
+}
+
 /// Оп-код шлюза: известные из захвата плюс «всё прочее» числом.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Op {
     /// op0 — DISPATCH (несёт `s`-последовательность).
     Dispatch,
-    /// op1 — HEARTBEAT (запрос сервера; в этой волне без реакции).
+    /// op1 — HEARTBEAT (запрос сервера; в `Qos`-режиме — немедленный удар, G-12).
     Heartbeat,
     /// op7 — RECONNECT.
     Reconnect,
@@ -142,6 +183,10 @@ pub struct Session {
     ignored_values: u64,
     /// Мёртва ли сессия (зомби либо оп7/оп9).
     dead: bool,
+    /// Форма heartbeat: op40 (боевая) либо op1 (legacy).
+    heartbeat_mode: HeartbeatMode,
+    /// Текущая QoS-полезная нагрузка для op40 (`None` до первого active-состояния).
+    qos: Option<QosPayload>,
 }
 
 impl Session {
@@ -157,7 +202,36 @@ impl Session {
             beats_emitted: 0,
             ignored_values: 0,
             dead: false,
+            heartbeat_mode: HeartbeatMode::LegacyOp1,
+            qos: None,
         }
+    }
+
+    /// Новая сессия с явной формой heartbeat (боевая — [`HeartbeatMode::Qos`]).
+    pub fn with_heartbeat_mode(jitter_seed: u64, heartbeat_mode: HeartbeatMode) -> Self {
+        let mut session = Self::new(jitter_seed);
+        session.heartbeat_mode = heartbeat_mode;
+        session
+    }
+
+    /// Форма heartbeat этой сессии.
+    pub fn heartbeat_mode(&self) -> HeartbeatMode {
+        self.heartbeat_mode
+    }
+
+    /// Переключает форму heartbeat (например, fallback на op1 без пересоздания сессии).
+    pub fn set_heartbeat_mode(&mut self, heartbeat_mode: HeartbeatMode) {
+        self.heartbeat_mode = heartbeat_mode;
+    }
+
+    /// Текущая QoS-нагрузка op40 (`None` — `qos:null`, как у клиента до active-состояния).
+    pub fn qos(&self) -> Option<&QosPayload> {
+        self.qos.as_ref()
+    }
+
+    /// Заменяет QoS-нагрузку для следующих ударов.
+    pub fn set_qos(&mut self, qos: Option<QosPayload>) {
+        self.qos = qos;
     }
 
     /// Байты провода (с ведущим `0x83`) → эффекты.
@@ -199,8 +273,17 @@ impl Session {
             Op::Dispatch => self.on_dispatch(value),
             Op::Reconnect => Ok(vec![self.kill(ReconnectReason::ServerRequest)]),
             Op::InvalidSession => Ok(vec![self.kill(ReconnectReason::InvalidSession)]),
-            Op::Heartbeat | Op::Unknown(_) => {
-                // op1 сервер шлюза не присылает, неизвестные коды не обрабатываются.
+            Op::Heartbeat => match self.heartbeat_mode {
+                // G-12: op1 от сервера — триггер немедленного heartbeat (боевой режим).
+                HeartbeatMode::Qos => Ok(self.on_server_heartbeat(now_ms)),
+                // Legacy RW-03: op1 сервер не присылает — значение игнорируется как раньше.
+                HeartbeatMode::LegacyOp1 => {
+                    self.ignored_values += 1;
+                    Ok(Vec::new())
+                }
+            },
+            Op::Unknown(_) => {
+                // Сервер op40 не присылает; неизвестные коды не обрабатываются (RW-03).
                 self.ignored_values += 1;
                 Ok(Vec::new())
             }
@@ -323,6 +406,20 @@ impl Session {
         self.rtt_ms = Some(now_ms.saturating_sub(sent));
         // Следующий удар — через интервал от ACK (а не от расписания прошлого удара).
         self.next_beat_ms = Some(now_ms.saturating_add(interval));
+    }
+
+    /// op1 от сервера в боевом режиме: немедленный удар и перезапуск интервала (G-12/G-13).
+    ///
+    /// Клиент (`_handleHeartbeatReceive`) шлёт heartbeat сразу и пересоздаёт `setInterval`,
+    /// поэтому следующий плановый удар — `now + interval`. Отправленный удар становится
+    /// ожидающим ACK (дедлайн зомби — `now + interval`).
+    fn on_server_heartbeat(&mut self, now_ms: u64) -> Vec<Effect> {
+        self.beats_emitted = self.beats_emitted.saturating_add(1);
+        if let Some(interval) = self.interval_ms() {
+            self.pending_beat_ms = Some(now_ms);
+            self.next_beat_ms = Some(now_ms.saturating_add(interval));
+        }
+        vec![Effect::SendHeartbeat { d: self.last_seq }]
     }
 
     /// op0 DISPATCH: обновить `s`-последовательность (идёт в `d` следующего удара).

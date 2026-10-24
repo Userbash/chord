@@ -1,0 +1,80 @@
+# RW-37 mutations — PageStore (model.js) + интеграция app.js
+# HEAD: 0239543
+# baseline md5: rust/gui-spike/ui/model.js=ccdbb0a4c7e407aaa16f824ee4eeffe9, rust/gui-spike/ui/app.js=32ed027bc8cf5c72f5a0ca4705706eab
+# оракул model: node --test tests/unit/gui-spike-model.test.mjs
+# оракул app:   node --test tests/unit/gui-spike-dom.test.mjs + импорт-проба node
+
+BASELINE model: OK (pass 26 / fail 0)
+BASELINE targeted (model+bench+dom): pass 66 / fail 0
+BASELINE app: dom pass 3 / fail 0, импорт-проба: survived (импорт разрешён, исполнение дошло до DOM/rAF (requestAnimationFrame is not defined))
+
+m01-getrow-upper-bound-gt          SURVIVED      rust/gui-spike/ui/model.js:75 | pass 26 / fail 0 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: getRow: index >= totalRows -> >
+m02-getrow-no-integer-check        CAUGHT        rust/gui-spike/ui/model.js:75 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: getRow: убран Number.isInteger
+  ожидаемо ловят: модель: getRow вне [0,totalRows) (строковые/дробные индексы)
+  упали: getRow вне [0,totalRows) → undefined без исключения
+m03-getrow-no-lru-touch            CAUGHT        rust/gui-spike/ui/model.js:79 | pass 24 / fail 2 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: getRow: LRU touched не обновляется
+  ожидаемо ловят: модель: getRow обновляет LRU, модель: вытесняет самую старую
+  упали: вытесняет страницу, к которой дольше не обращались, getRow обновляет LRU: прочитанная страница выживает
+m04-ensurerange-no-lower-clamp     CAUGHT        rust/gui-spike/ui/model.js:97 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: ensureRange: Math.max(0, first) -> first
+  ожидаемо ловят: модель: кламплит границы
+  упали: кламплит границы и ничего не грузит вне данных
+m05-ensurerange-maxpages-gte       CAUGHT        rust/gui-spike/ui/model.js:104 | pass 22 / fail 4 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: ensureRange: needed > maxPages -> >=
+  ожидаемо ловят: модель: текущий диапазон ровно на бюджете
+  упали: допускает одну строку в единственной странице, getRow вне [0,totalRows) → undefined без исключения, текущий диапазон не эвиктит сам себя (ровно на бюджете), конкурентный ensureRange не эвиктит запиненную страницу (m07)
+m06-ensurerange-no-inflight-cache  CAUGHT        rust/gui-spike/ui/model.js:124 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: ensureRange: inFlight-кэш не используется (двойные загрузки)
+  ожидаемо ловят: модель: конкурентные вызовы — одна загрузка на страницу
+  упали: конкурентные вызовы: одна загрузка на страницу
+m07-evict-ignores-pinned           CAUGHT        rust/gui-spike/ui/model.js:181 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: evict: pinned игнорируется
+  ожидаемо ловят: модель: текущий диапазон не эвиктит сам себя / LRU
+  упали: конкурентный ensureRange не эвиктит запиненную страницу (m07)
+m08-loadpage-no-short-page-check   CAUGHT        rust/gui-spike/ui/model.js:156 | pass 23 / fail 3 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: loadPage: проверка точной вместимости страницы удалена
+  ожидаемо ловят: модель: короткая не-последняя страница -> RangeError
+  упали: короткая не-последняя страница → RangeError (иначе дыра в окне навсегда), последняя страница вернула 0 строк при capacity>0 → RangeError (симметрично R1), перегрузка страницы (capacity+1) → RangeError для любой страницы (m09)
+m09-loadpage-capacity-lt           CAUGHT        rust/gui-spike/ui/model.js:156 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: loadPage: rows.length !== capacity -> < capacity (перегрузка разрешена)
+  ожидаемо ловят: модель: перегрузка страницы -> RangeError, модель: последняя (неполная) страница допустима
+  упали: перегрузка страницы (capacity+1) → RangeError для любой страницы (m09)
+m10-evict-touched-gt               SURVIVED      rust/gui-spike/ui/model.js:181 | pass 26 / fail 0 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: evict: page.touched >= oldest -> >
+m11-evict-first-page-not-lru       CAUGHT        rust/gui-spike/ui/model.js:180 | pass 24 / fail 2 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: evict: первый попавшийся вместо LRU
+  ожидаемо ловят: модель: вытесняет страницу, к которой дольше не обращались
+  упали: вытесняет страницу, к которой дольше не обращались, getRow обновляет LRU: прочитанная страница выживает
+m12-stats-partial-loadedrows       CAUGHT        rust/gui-spike/ui/model.js:202 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: stats: loadedRows суммирует не все страницы
+  ожидаемо ловят: модель: stats после загрузки двух страниц
+  упали: stats после загрузки двух страниц
+m13-stats-pages-eq-loaded          CAUGHT        rust/gui-spike/ui/model.js:205 | pass 22 / fail 4 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: stats: pages = loadedPages вместо pageCount
+  ожидаемо ловят: модель: pages = ceil(totalRows/pageSize)
+  упали: сохраняет параметры и считает общее число страниц (пустой стор), допускает одну строку в единственной странице, loadedRows ≤ pageSize*maxPages при обходе всего стора, stats после загрузки двух страниц
+m14-ctor-no-maxpages-validation    CAUGHT        rust/gui-spike/ui/model.js:54 | pass 25 / fail 1 | node --test tests/unit/gui-spike-model.test.mjs | md5 ccdbb0a4c7e407aaa16f824ee4eeffe9 -> ccdbb0a4c7e407aaa16f824ee4eeffe9
+  мутация: конструктор: requirePositiveInt для maxPages убран
+  ожидаемо ловят: модель: отвергает невалидные pageSize и maxPages
+  упали: отвергает невалидные pageSize и maxPages
+a01-app-broken-model-import        COMPILE-ERROR rust/gui-spike/ui/app.js:7 | dom: survived (pass 3 / fail 0); импорт-проба: compile-error | node --test tests/unit/gui-spike-dom.test.mjs + импорт-проба | md5 32ed027bc8cf5c72f5a0ca4705706eab -> 32ed027bc8cf5c72f5a0ca4705706eab
+  мутация: app.js: сломан спецификатор импорта model.js
+a02-app-initrowlists-not-called    SURVIVED      rust/gui-spike/ui/app.js:419 | dom: survived (pass 3 / fail 0); импорт-проба: survived | node --test tests/unit/gui-spike-dom.test.mjs + импорт-проба | md5 32ed027bc8cf5c72f5a0ca4705706eab -> 32ed027bc8cf5c72f5a0ca4705706eab
+  мутация: app.js: инициализация списков не вызывается
+
+ИТОГО: caught 12, survived 3, inconclusive 0, compile-error 1 (всего 16)
+SURVIVORS:
+  - m01-getrow-upper-bound-gt (rust/gui-spike/ui/model.js:75) — getRow: index >= totalRows -> >
+    разбор: эквивалентный мутант, не пробел покрытия: при index === totalRows pageIndex = floor(totalRows/pageSize) — это либо pageCount (такая страница никогда не грузится: ensureRange кламплит `to` до totalRows-1), либо страница, где offset === rows.length, т.е. чтение всё равно даёт undefined. Наблюдаемого различия нет ни в одном достижимом состоянии; тест не нужен.
+  - m10-evict-touched-gt (rust/gui-spike/ui/model.js:181) — evict: page.touched >= oldest -> >
+    разбор: эквивалентный мутант: `touched` — строго возрастающий `++this.clock`, равных значений не бывает, поэтому `>=` и `>` дают одного и того же victim'а. Тест не нужен; сравнение можно оставить как есть (защита от будущей неуникальности часов).
+  - a02-app-initrowlists-not-called (rust/gui-spike/ui/app.js:419) — app.js: инициализация списков не вызывается
+    разбор: ПРОБЕЛ интеграции: ни один unit-тест не исполняет app.js (dom-тест читает его как текст регулярками, импорт-проба упирается в браузерные API). Ловится только live smoke по `chatRenderedRows >= 10` / `actions.screenClicks === 4`, но бинарь Tauri встраивает `frontendDist` на этапе сборки: прогон smoke на текущем target/debug не видит правок ui/*.js (проверено: правка `chatRows` в app.js не изменила UI_SNAPSHOT). После пересборки PM — прогнать smoke с этой мутацией; для гейта нужен unit-тест инициализации (заглушка DOM) или явный rebuild в smoke.
+COMPILE-ERROR (не killed по методике):
+  - a01-app-broken-model-import (rust/gui-spike/ui/app.js:7) — app.js: сломан спецификатор импорта model.js
+  разбор: мутация ломает граф модулей, а не поведение; в зачёт покрытия не идёт, но показывает, что разрешение импорта app.js ничем, кроме сборки/смоука, не проверяется.
+RESTORE: rust/gui-spike/ui/model.js=ccdbb0a4c7e407aaa16f824ee4eeffe9 (ok), rust/gui-spike/ui/app.js=32ed027bc8cf5c72f5a0ca4705706eab (ok)
+ВЕРДИКТ: model.js — caught 12/14 (2 эквивалентных мутанта + 1 пробел LRU-пина); app.js — 1 пробел инициализации + 1 compile-error; продукт восстановлен, md5 совпадает с baseline.

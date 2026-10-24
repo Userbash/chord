@@ -1,0 +1,195 @@
+QA-1 mutation log — RW-36 / B07 (GUI-спайк)
+targets: scripts/gui-spike-bench.mjs, rust/gui-spike/src/main.rs
+baseline: node tests 13/13 pass; cargo --bin 4/4 pass
+runner: node --test tests/unit/gui-spike-bench.test.mjs | cargo test --manifest-path rust/gui-spike/Cargo.toml --bin discord-gui-spike
+note: mtime bumps after each restore (cargo mtime fingerprint)
+
+MUTATION N1 scripts/gui-spike-bench.mjs:56 p95 nearest-rank: ceil(0.95*n) -> floor(0.95*n)
+  result: caught
+  test: обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N2 scripts/gui-spike-bench.mjs:57 p95 index off-by-one: sorted[rank-1] -> sorted[rank]
+  result: caught
+  test: обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N3 scripts/gui-spike-bench.mjs:99 avg: Math.round -> Math.floor
+  result: caught
+  test: p95 на 100 значениях 1..100 → 95
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N4 scripts/gui-spike-bench.mjs:99 rss min/max swapped in summary object
+  result: caught
+  test: обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N5 scripts/gui-spike-bench.mjs:90 hwm max -> min comparator (hwm stays 0)
+  result: caught
+  test: обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N6 scripts/gui-spike-bench.mjs:91 threads_max max -> min comparator (threads_max stays 0)
+  result: caught
+  test: обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N7 scripts/gui-spike-bench.mjs:102 duration_ms sign flipped: last-first -> first-last
+  result: caught
+  test: обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N8 scripts/gui-spike-bench.mjs:121 parseStatus tolerates missing fields (|| -> &&), no throw on partial status
+  result: survived
+  test: all targeted tests passed
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N9 scripts/gui-spike-bench.mjs:68 empty-input guard disabled (length === 0 -> length < 0)
+  result: caught
+  test: пустой вход не бросает и отдаёт нули
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION N10 scripts/gui-spike-bench.mjs:185 positiveInt lower bound 1 -> 0 (--duration-ms 0 accepted)
+  result: caught
+  test: нулевой --duration-ms → exit 1
+  md5_before: 3e6bccfe98fcae02ef0d599d36a42fc4
+  md5_after_restore: 3e6bccfe98fcae02ef0d599d36a42fc4
+  restore_ok: yes
+
+MUTATION R1 rust/gui-spike/src/main.rs:21 read_status_field: starts_with -> contains (matches mid-line keys)
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R2 rust/gui-spike/src/main.rs:55 validate_ui_snapshot: as_u64 -> as_i64 (negative ints accepted)
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R3 rust/gui-spike/src/main.rs:54 required key list: settingsToggles check removed
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R4 rust/gui-spike/src/main.rs:55 validate_ui_snapshot: is_none -> is_some (inverted accept/reject)
+  result: caught
+  test: tests::rejects_incomplete_ui_snapshot, tests::validates_ui_snapshot_contract
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R5 rust/gui-spike/src/main.rs:55 validate_ui_snapshot: numeric type check dropped (existence only)
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R6 rust/gui-spike/src/main.rs:52 parse errors swallowed: from_str(...)? -> unwrap_or_else(json!({}))
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R7 rust/gui-spike/src/main.rs:23 read_status_field: unparseable value -> Some(0) instead of None
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R8 rust/gui-spike/src/main.rs:23 read_status_field: parse().ok() -> parse() (Result vs Option) — build check
+  result: compile-error
+  test: cargo build
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R9 rust/gui-spike/src/main.rs:32 process_metrics: rss_kib read from VmHWM instead of VmRSS
+  result: survived
+  test: all targeted tests passed
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+MUTATION R10 rust/gui-spike/src/main.rs:54 required key list typo: memberRows -> memberRow (valid snapshot rejected)
+  result: caught
+  test: tests::validates_ui_snapshot_contract
+  md5_before: 18c3c9e09deef9e14f4b1e09963291b6
+  md5_after_restore: 18c3c9e09deef9e14f4b1e09963291b6
+  restore_ok: yes
+
+=== СВОДКА ===
+Всего мутаций: 20 (Node 10, Rust 10)
+  caught:        11  (Node 9, Rust 2)
+  survived:       8  (Node 1, Rust 7)
+  compile-error:  1  (Rust 1: R8)
+  inconclusive:   0
+
+По целям:
+  scripts/gui-spike-bench.mjs: caught 9 / survived 1  (mutation score 90%) — summarize покрыт хорошо,
+      p95-nearest-rank ловится и на ceil/floor, и на off-by-one, и на n=5/20/100.
+  rust/gui-spike/src/main.rs:  caught 2 / survived 7 / compile-error 1  (mutation score 22% без учёта
+      compile-error) — тесты покрывают только 2 из 4 контрактных свойств validate_ui_snapshot и ни одного
+      краевого случая read_status_field/process_metrics.
+
+Вердикт: ЦЕЛЬ 1 — ПРИНЯТО (тесты чувствительны к регрессиям summarize и CLI-границам).
+         ЦЕЛЬ 2 — НЕ ПРИНЯТО по критерию мутационной устойчивости: 7 выживших мутаций, и все 7 —
+         реальные дыры в контракте (эквивалентных мутантов в наборе нет). Требуются тесты (red-first),
+         затем повторный прогон этого лога.
+
+Дыры, подтверждённые выжившими мутантами (рекомендации для воркера B07, тесты НЕ правились QA-1):
+  N8  parseStatus(partial) — нет теста на частично отсутствующий /proc status: модуль должен бросать
+      с перечислением имён отсутствующих полей (контракт TZ §3), сейчас принимает частичный снимок
+      и отдаёт null в rss_kb/hwm_kb/threads. Нужен тест: parseStatus("Name:\tx\nVmRSS:\t1 kB\n") → throw
+      c текстом про VmHWM и Threads. (parseStatus не экспортируется тестом вообще — покрыт только косвенно.)
+  R1  read_status_field: starts_with → contains не ловится — нет кейса, где ключ встречается внутри
+      другой строки/значения. Нужен тест: "Foo: VmRSS: 1 kB\n" → None для "VmRSS:".
+  R2  as_u64 → as_i64 не ловится — нет кейса с отрицательным числом. Нужен тест: snapshot с
+      "screenCount":-1 → Err (as_i64 принимает отрицательные).
+  R3  удаление "settingsToggles" из обязательного списка не ловится — rejects_incomplete_ui_snapshot
+      проверяет только chatRows. Нужен table-driven тест: для каждого из 5 ключей отдельный снимок
+      без него → Err с именем этого ключа.
+  R5  снятие проверки типа (existence-only) не ловится — нет кейса со строковым/дробным значением.
+      Нужен тест: {"screenCount":"4",...} и {"screenCount":4.5,...} → Err.
+  R6  проглатывание синтаксической ошибки JSON не ловится — нет кейса с битым JSON. Нужен тест:
+      validate_ui_snapshot("{не json") → Err, начинающийся с "некорректный UI-снимок".
+  R7  parse-ошибка значения → Some(0) не ловится — нет кейса "VmRSS:\tabc kB". Нужен тест → None.
+  R9  process_metrics читает VmHWM вместо VmRSS — process_metrics не покрыт unit-тестом вовсе;
+      нужен тест на разборе фикстуры status (вынести чтение файла в параметр) либо smoke-проверка,
+      что rss_kib != hwm_kib при известном статусе.
+
+Ограничения методики:
+  - Мутации применялись точечной заменой одной строки; эквивалентные мутанты (например, trim-варианты)
+    в набор не включались.
+  - R8 — намеренная проверка категории compile-error (Result vs Option), а не оценка тестов.
+  - Node: 13/13 и Rust: 4/4 зелёные до и после прогона; md5 обоих продуктов совпадает с исходным
+    (3e6bccfe98fcae02ef0d599d36a42fc4 / 18c3c9e09deef9e14f4b1e09963291b6).
+  - После каждого restore mtime файла обновляется: cargo фингерпринтит по mtime и иначе может
+    переиспользовать артефакт мутированной сборки (наблюдалось однократно при проверке, сборка
+    перезапущена принудительно).

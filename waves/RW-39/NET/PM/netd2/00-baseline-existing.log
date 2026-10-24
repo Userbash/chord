@@ -1,0 +1,10 @@
+  ✔ stats после загрузки двух страниц (0.08815ms)
+✔ PageStore: LRU-эвикция и бюджет (72.011217ms)
+ℹ tests 130
+ℹ suites 20
+ℹ pass 130
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1336.80197

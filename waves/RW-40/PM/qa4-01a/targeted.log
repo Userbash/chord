@@ -1,0 +1,76 @@
+▶ docs-sync: README ↔ команды CLI
+  ✔ каждая команда из HELP упомянута в README.md (2.441316ms)
+✔ docs-sync: README ↔ команды CLI (3.04628ms)
+▶ discord-lab CLI
+  ✔ --help: код 0 и список команд (20.740399ms)
+  ✔ без аргументов печатает справку и выходит с 0 (18.770179ms)
+  ✔ --version печатает версию из package.json (20.351451ms)
+  ✔ неизвестная команда → код 1 и сообщение в stderr (17.368319ms)
+  ✔ cdp при недоступном endpoint → код 2 и понятная ошибка (33.134684ms)
+  ✔ числовые и regex аргументы отклоняются до обращения к Frida (75.420792ms)
+  ✔ битый package.json для --version возвращает код 2 без стека (25.232369ms)
+✔ discord-lab CLI (212.007276ms)
+▶ resolveEndpoint / resolveTargetHint
+  ✔ значения по умолчанию (0.368305ms)
+  ✔ переменные окружения переопределяют значения (0.077179ms)
+  ✔ без аргумента читает process.env (0.065588ms)
+✔ resolveEndpoint / resolveTargetHint (1.048988ms)
+▶ listTargets
+  ✔ запрашивает <endpoint>/json/list и возвращает список (1.205807ms)
+  ✔ ошибка HTTP → CDP list failed: <status> (0.338321ms)
+  ✔ нет ответа → таймаут (25.208042ms)
+  ✔ ответ не массив (0.187163ms)
+✔ listTargets (27.196443ms)
+▶ pickTarget
+  ✔ ищет страницу по hint (0.145678ms)
+  ✔ без совпадения по hint — первая страница с 'discord' в url (0.07934ms)
+  ✔ страницы без webSocketDebuggerUrl пропускаются; fallback — первая страница (0.089741ms)
+  ✔ подходящих страниц нет → undefined (0.069388ms)
+✔ pickTarget (0.529264ms)
+▶ createCdpClient
+  ✔ отправляет {id, method, params} и resolve-ит result (0.57454ms)
+  ✔ ответ с ошибкой → reject с методом в сообщении (0.253801ms)
+  ✔ события без id копятся в events; чужие id игнорируются (0.142108ms)
+  ✔ mark/eventsSince/drainEvents работают с окном событий (0.176781ms)
+  ✔ битый JSON не роняет клиента (0.222117ms)
+  ✔ таймаут ответа → reject '<method>: таймаут <ms> мс' (30.196037ms)
+  ✔ close() закрывает сокет и отклоняет незавершённые запросы (0.284845ms)
+  ✔ ошибка соединения до open → createCdpClient reject-ит (0.155109ms)
+  ✔ синхронный throw send отклоняет запрос и закрытый клиент отвергает повторный send (0.258421ms)
+✔ createCdpClient (32.507328ms)
+▶ evaluate
+  ✔ передаёт Runtime.evaluate с returnByValue/awaitPromise и возвращает value (0.150458ms)
+  ✔ исключение в странице → Error с description (0.102963ms)
+  ✔ если description нет — используется text (0.088781ms)
+✔ evaluate (0.425562ms)
+▶ openPage
+  ✔ выбирает страницу по hint и подключается к её webSocketDebuggerUrl (0.252841ms)
+  ✔ нет подходящей страницы → понятная ошибка без соединения (0.124735ms)
+✔ openPage (0.432883ms)
+▶ clickText
+  ✔ экранирует текст и ищет кнопки/ссылки/role (0.172411ms)
+  ✔ клик по тексту → Runtime.evaluate и {clicked:true} (0.115554ms)
+  ✔ элемент не найден → ошибка с текстом (0.091071ms)
+  ✔ null от страницы трактуется как «не найдено» (0.07979ms)
+✔ clickText (0.542086ms)
+▶ listElements
+  ✔ возвращает массив элементов и экранирует селектор (0.111303ms)
+  ✔ ответ страницы не массив → ошибка (0.071839ms)
+✔ listElements (0.230218ms)
+▶ captureScreenshot
+  ✔ Page.captureScreenshot png → Buffer с байтами PNG (0.124515ms)
+  ✔ пустой ответ CDP → ошибка (0.076709ms)
+✔ captureScreenshot (0.255021ms)
+▶ CLI cdp: аргументы и справка
+  ✔ подкоманды cdp перечислены в --help (0.477128ms)
+  ✔ без обязательного аргумента → код 1 и подсказка (0.194904ms)
+  ✔ неизвестная подкоманда cdp → код 1 (0.075059ms)
+✔ CLI cdp: аргументы и справка (0.82928ms)
+ℹ tests 44
+ℹ suites 12
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 240.888701

@@ -1,0 +1,134 @@
+▶ summarize
+  ✔ обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms (0.769959ms)
+  ✔ пустой вход не бросает и отдаёт нули (0.08923ms)
+  ✔ один элемент: все статистики равны ему, duration 0 (0.08884ms)
+  ✔ p95 по nearest-rank: 20 значений → 19-е, не максимум (0.1115ms)
+  ✔ p95 на 100 значениях 1..100 → 95 (0.10722ms)
+  ✔ порядок входа не влияет на статистики и вход не мутируется (0.12825ms)
+  ✔ avg округляется до целого kB, hwm и threads берутся максимумом (0.08342ms)
+✔ summarize (2.039208ms)
+▶ CLI: коды выхода
+  ✔ без --pid → exit 1 и русское сообщение (16.02157ms)
+  ✔ нечисловой --pid → exit 1 (14.12088ms)
+  ✔ нулевой --duration-ms → exit 1 (14.434931ms)
+  ✔ неизвестный аргумент → exit 1 (15.01441ms)
+  ✔ несуществующий PID → exit 2 без записи в процесс (16.145309ms)
+✔ CLI: коды выхода (76.03881ms)
+▶ CLI: живой замер своего процесса
+  ✔ пишет JSON в stdout и в --json, поля контракта на месте (180.39858ms)
+  ✔ без --tree поля processes/skipped отсутствуют (обратная совместимость) (121.2375ms)
+✔ CLI: живой замер своего процесса (301.79449ms)
+▶ CLI: --tree (P1-3, сумма RSS по дереву)
+  ✖ --tree на своём процессе: processes >= 1, rss_kb.avg > 0, есть skipped (19.354727ms)
+  ✖ --tree --pid <дочерний node>: дерево из одного процесса считается (17.234079ms)
+  ✖ --tree рекурсивен: родитель + его потомок → processes >= 2 (41.497182ms)
+  ✖ --tree с несуществующим PID → exit 2 (процесс, а не аргументы) (14.336761ms)
+✖ CLI: --tree (P1-3, сумма RSS по дереву) (92.881899ms)
+▶ percentile95 (P2-6, прямой контракт nearest-rank)
+  ✔ n=20 → 19-й элемент (190), не максимум (0.1263ms)
+  ✔ n=100, значения 1..100 → 95 (0.06603ms)
+  ✔ n=1 → единственный элемент (0.04375ms)
+  ✔ пустой массив → 0 (без исключения) (0.04269ms)
+✔ percentile95 (P2-6, прямой контракт nearest-rank) (0.386819ms)
+▶ parseStatus (P2-9, парсер /proc/<pid>/status)
+  ✔ валидный статус → rss_kb/hwm_kb/threads (0.26316ms)
+  ✔ значения без суффикса kB и с разными пробелами тоже принимаются (0.14502ms)
+  ✔ нет VmRSS → throws и называет только VmRSS (0.12619ms)
+  ✔ нет Threads → throws и называет поле Threads (0.10669ms)
+  ✔ отрицательные значения не матчатся \d+ → throws с именем поля (0.08475ms)
+  ✔ нечисловые значения → throws с именем поля (0.07252ms)
+  ✔ пустой текст → throws и перечисляет все три поля (0.090869ms)
+✔ parseStatus (P2-9, парсер /proc/<pid>/status) (1.069969ms)
+ℹ tests 29
+ℹ suites 6
+ℹ pass 25
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 510.580292
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-bench.test.mjs:229:3
+✖ --tree на своём процессе: processes >= 1, rss_kb.avg > 0, есть skipped (19.354727ms)
+  AssertionError [ERR_ASSERTION]: gui-spike-bench: неизвестный аргумент: --tree
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-bench.test.mjs:236:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-bench.test.mjs:244:3
+✖ --tree --pid <дочерний node>: дерево из одного процесса считается (17.234079ms)
+  AssertionError [ERR_ASSERTION]: gui-spike-bench: неизвестный аргумент: --tree
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-bench.test.mjs:254:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-bench.test.mjs:265:3
+✖ --tree рекурсивен: родитель + его потомок → processes >= 2 (41.497182ms)
+  AssertionError [ERR_ASSERTION]: gui-spike-bench: неизвестный аргумент: --tree
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-bench.test.mjs:285:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-bench.test.mjs:294:3
+✖ --tree с несуществующим PID → exit 2 (процесс, а не аргументы) (14.336761ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-bench.test.mjs:301:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

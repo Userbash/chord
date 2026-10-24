@@ -43,6 +43,10 @@ node bin/discord-lab.mjs hook --pid <PID> --pattern 'ExecutePending|PollMetrics'
   --limit 32 --duration-ms 60000 --arg-count 2 # запись вызовов → logs/calls-<PID>.jsonl
 node bin/discord-lab.mjs summarize logs/calls-<PID>.jsonl   # сводка → <лог>.by-function.csv
 node bin/discord-lab.mjs cdp targets           # CDP-цели (env CDP_ENDPOINT, по умолчанию :9222)
+node bin/discord-lab.mjs cdp eval "document.title"   # JS в выбранной странице (env CDP_TARGET)
+node bin/discord-lab.mjs cdp list "button"     # элементы по CSS-селектору (JSON)
+node bin/discord-lab.mjs cdp clicktext "Мой аккаунт" # клик по кнопке/ссылке с текстом
+node bin/discord-lab.mjs cdp shot /tmp/page.png      # скриншот страницы в PNG
 
 # статика, типы, тесты
 bash   scripts/extract-static-functions.sh   # статические таблицы функций из ELF-файлов
@@ -70,7 +74,8 @@ node scripts/logger.mjs hook --pid <PID> --kind exports --module discord_utils.n
 
 Точка входа — `bin/discord-lab.mjs` (bin-имя `discord-lab`; после `npm link` доступна как команда).
 Коды выхода: `0` — успех; `1` — неизвестная команда/ошибка аргументов; `2` — недоступная среда
-(Frida/CDP) или ещё не реализованная команда.
+(Frida/CDP), ошибка выполнения в странице (JS-исключение, таймаут, элемент не найден) или ещё не
+реализованная команда.
 
 | Команда | Назначение | Опции | Результат |
 | --- | --- | --- | --- |
@@ -79,11 +84,16 @@ node scripts/logger.mjs hook --pid <PID> --kind exports --module discord_utils.n
 | `hook` | запись вызовов функций через Frida | `--pid N` (или `--spawn`), повторяемый `--module M`, `--kind symbols\|exports`, `--pattern REGEX`, `--limit N` (по умолчанию 64), `--arg-count 0..6` (2), `--duration-ms N` (0 = до Ctrl-C), `--backtrace`, `--out FILE` | `logs/calls-<PID>.jsonl` (строка = вызов) |
 | `summarize [лог]` | сводка вызовов из JSONL | без аргумента — первый `calls-*.jsonl` в cwd | `<лог>.by-function.csv` + счётчики в stdout |
 | `cdp targets` | список целей CDP | env `CDP_ENDPOINT` (по умолчанию `http://127.0.0.1:9222`) | JSON в stdout |
-| `walk <app>` | обход интерфейса | — | в разработке: M3 (сейчас код 2) |
+| `cdp eval <expr>` | выполнить JS в выбранной странице | env `CDP_ENDPOINT`, `CDP_TARGET` (подстрока URL) | JSON-значение выражения в stdout; исключение JS/таймаут — код 2 |
+| `cdp list <selector>` | элементы по CSS-селектору | env `CDP_ENDPOINT`, `CDP_TARGET` | JSON-массив `{tag, role, aria, text, visible, rect}` (≤ 200) |
+| `cdp clicktext <text>` | клик по кнопке/ссылке/`role` с текстом (contains, без регистра) | env `CDP_ENDPOINT`, `CDP_TARGET` | JSON `{clicked:true,...}`; элемент не найден — код 2 |
+| `cdp shot <path>` | скриншот выбранной страницы | env `CDP_ENDPOINT`, `CDP_TARGET` | PNG по пути + `{saved, bytes}` в stdout |
+| `walk <app>` | UI-прогон: клики по навигации, пропуск запрещённых, JSONL + PNG + профиль | `--url <подстрока>` (это подсказка выбора страницы, не навигация), `--out FILE`, `--screens DIR`, `--settle-ms N` (250), `--max-steps N` (200), `--fresh`, `--no-profile` | `logs/ui-walk-<app>.jsonl` + `evidence/screens/*.png`; сейчас поддержан `fixture`; коды 0/1/2 |
 | `domains`, `static` | отчёты по доменам функций и статическим символам | — | в разработке: M4 (сейчас код 2) |
 
 Примеры: `discord-lab inventory --pid 28170`; `discord-lab hook --pid 28170 --pattern 'SendRtp|OnIncomingRtp'
---arg-count 3 --duration-ms 30000`; `discord-lab summarize logs/calls-28170.jsonl`.
+--arg-count 3 --duration-ms 30000`; `discord-lab summarize logs/calls-28170.jsonl`;
+`discord-lab walk fixture --url index.html --out /tmp/ui-walk.jsonl --screens /tmp/screens`.
 
 ## Типизация (JSDoc + tsc)
 

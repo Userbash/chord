@@ -1,0 +1,20 @@
+▶ QA-M2-04: CI browser-job (pinned Chromium, без live)
+  ✔ qa-browser job существует, ubuntu, ограничен по времени (3.198187ms)
+  ✔ Chromium закреплён по точной версии и проброшен в CHROME_BIN (0.272826ms)
+  ✔ preflight: отсутствие браузера — fail, а не skip (0.142527ms)
+  ✔ fixture-набор без live: live-* исключён, прогон последовательный (0.138408ms)
+  ✔ live/CDP не запускаются в qa-browser (0.225764ms)
+  ✔ artifacts `.gate` выгружаются всегда, даже при падении (0.591026ms)
+  ✔ live job вынесен отдельно и выключен по умолчанию (0.19059ms)
+  ✔ Node-версия job согласована с package.json engines (0.847574ms)
+  ✔ Rust-джобы не изменены по контракту (0.190229ms)
+  ✔ workflow остаётся read-only и не получает прав на запись (0.167454ms)
+✔ QA-M2-04: CI browser-job (pinned Chromium, без live) (6.851181ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.649259

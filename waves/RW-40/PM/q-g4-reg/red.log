@@ -1,0 +1,60 @@
+▶ G2-03: пустое состояние QuickSwitcher соответствует выдаче
+  ✖ empty скрыт при опциях и виден только при нуле совпадений (26.517426ms)
+✖ G2-03: пустое состояние QuickSwitcher соответствует выдаче (27.492266ms)
+▶ G2-11: подтверждение удаления не липнет к следующей строке
+  ✖ смена строки и завершение onDelete снимают confirm (17.432607ms)
+✖ G2-11: подтверждение удаления не липнет к следующей строке (17.783443ms)
+ℹ tests 2
+ℹ suites 2
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 78.871737
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:101:3
+✖ empty скрыт при опциях и виден только при нуле совпадений (26.517426ms)
+  AssertionError [ERR_ASSERTION]: «Ничего не найдено» видно при 8 опциях
+  
+  false !== true
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:112:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:25:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:102:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:131:3
+✖ смена строки и завершение onDelete снимают confirm (17.432607ms)
+  AssertionError [ERR_ASSERTION]: confirm строки A уехал на строку B
+  + actual - expected
+  
+  + 'Подтвердить удаление'
+  - 'Удалить сообщение'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:157:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:25:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:132:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Подтвердить удаление',
+    expected: 'Удалить сообщение',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

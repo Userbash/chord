@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "milestone": "M2",
+  "levels": {
+    "fixture": "headless Chromium, реальный rust/gui-spike/ui/index.html, fake __TAURI__ (без сети)",
+    "live": "отдельное T3-окно, вне этого набора"
+  },
+  "scenarios": [
+    {
+      "id": "M2-01",
+      "file": "tests/e2e/m2-login-ready-rail.e2e.test.mjs",
+      "title": "Login → READY → rail",
+      "oracle": "fixtures/gateway/by-type/002-READY.json (7 гильдий, порядок и properties.name)",
+      "ipc": ["auth_status", "auth_login_token", "ready", "channels"]
+    },
+    {
+      "id": "M2-02",
+      "file": "tests/e2e/m2-channel-send.e2e.test.mjs",
+      "title": "Канал → send/reply/edit/delete",
+      "oracle": "002-READY.json (каналы гильдии) + 023/024/025-MESSAGE_CREATE.json (сообщения канала)",
+      "ipc": ["ready", "channels", "messages_page", "send_message", "reply_message", "edit_message", "delete_message"]
+    },
+    {
+      "id": "M2-03",
+      "file": "tests/e2e/m2-search-error.e2e.test.mjs",
+      "title": "Search remote error → no fallback",
+      "oracle": "таблица SearchError kind → текст (search-overlay.js), guildId из выбранной плитки",
+      "ipc": ["search_remote"]
+    },
+    {
+      "id": "M2-04",
+      "file": "tests/e2e/m2-invite.e2e.test.mjs",
+      "title": "Join invite → preview → accept → rail",
+      "oracle": "контракт resolve_invite/accept_invite (InvitePreview/AcceptedInvite) + JOIN_TEXT",
+      "ipc": ["resolve_invite", "accept_invite", "channels"]
+    },
+    {
+      "id": "M2-05",
+      "file": "tests/e2e/m2-settings-reload.e2e.test.mjs",
+      "title": "Settings density/theme → reload",
+      "oracle": "settings_load/settings_save payload {version,toggles,density,theme,locale} (UiSettings)",
+      "ipc": ["settings_load", "settings_save"]
+    },
+    {
+      "id": "M2-06",
+      "file": "tests/e2e/m2-reconnect.e2e.test.mjs",
+      "title": "Reconnect/offline → retry",
+      "oracle": "NET_STATUSES + NET_TEXT (app.js) + ровно один net_connect на клик",
+      "ipc": ["net_status", "net_connect"]
+    },
+    {
+      "id": "M2-07",
+      "file": "tests/e2e/m2-voice-idle.e2e.test.mjs",
+      "title": "Voice panel disabled/idle",
+      "oracle": "voice.js: service===null ⇒ data-state=disabled, VOICE_TEXT.disabled, ноль IPC/audio",
+      "ipc": []
+    }
+  ]
+}

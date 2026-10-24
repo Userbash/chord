@@ -1,0 +1,217 @@
+{
+  "schema": "rw37/re-layout-v1",
+  "generated": "2026-10-23",
+  "card": "RW-37 / P3-01 RE-contract",
+  "session": {
+    "client": "Discord 1.0.162 (Chromium 148 / Electron 42)",
+    "theme": "dark",
+    "locale": "ru",
+    "captures": ["ui/", "ui2/", "ui3/", "ui5/", "ui6/", "ui8/"],
+    "note": "golden /home/sanya/re-deep — read-only; сеть не использовалась"
+  },
+
+  "viewport": { "w": 2048, "h": 1106, "dpr": 1.25, "screenshot_px": { "w": 2560, "h": 1383 } },
+
+  "rail_w": 64,
+  "channel_tree_w": 311,
+  "channel_tree_w_default": 203,
+  "sidebar_total_w": 375,
+  "chat_w": 1417,
+  "member_list_w": 256,
+  "member_list_h": 1025,
+
+  "topbar_h": 32,
+  "header_h": 49,
+  "composer_h": 56,
+  "composer_w": 1401,
+  "member_avatar": 32,
+  "message_avatar": 40,
+  "message_indent_cozy": 64,
+  "message_indent_compact": 80,
+  "line_height": 22,
+
+  "row_heights": {
+    "message_cozy": 26,
+    "message_compact": 26,
+    "member": 42,
+    "channel": 28
+  },
+  "row_heights_detail": {
+    "message_cozy_group_start": 48,
+    "message_extra_line": 22,
+    "member_group_header_min": 42,
+    "channel_row_w": 296,
+    "note": "высота сообщения не константа: 26 (продолжение группы) / 48 (начало) + 22 за строку переноса"
+  },
+
+  "message_limits": {
+    "max": 100,
+    "initial_page": 12,
+    "load_more": 24,
+    "load_more_formula": "min(30, 2 * config(\"scrollManager.loadMore\"))",
+    "load_more_cap": 30,
+    "jump_around": 30,
+    "pins_page": 25,
+    "messages_in_memory_per_channel": 120,
+    "trim_to": 60
+  },
+
+  "member_window": {
+    "rows": 100,
+    "sync_range": [0, 99],
+    "sync_range_hex": "0x0063",
+    "member_count": 24227,
+    "member_count_alt": 24229,
+    "online_count": 663,
+    "chunk_max_members_assumed": 100,
+    "chunk_observed_members": 1
+  },
+
+  "ready_counts": {
+    "guilds": 7,
+    "channels": 272,
+    "roles": 132,
+    "users": 146,
+    "private_channels": 17,
+    "merged_members": 7,
+    "read_state_entries": 157,
+    "user_guild_settings": 58,
+    "channel_overrides": 1328,
+    "relationships": 60,
+    "sessions": 1,
+    "presences_in_ready": 0,
+    "members_in_ready": 0,
+    "lazy": true,
+    "data_mode": "full",
+    "ready_payload_bytes_json": 584149,
+    "ready_payload_bytes_raw": 577124,
+    "note": "полный список участников в READY не приходит; окно 100 строк — через GUILD_MEMBER_LIST_UPDATE"
+  },
+
+  "pagination_contract": {
+    "cursor_one_of": ["before", "after", "around"],
+    "page_sizes_observed": [12, 24, 30],
+    "server_max_assumption": 100,
+    "truncate_on_load_more": true,
+    "search_pagination": "offset (page size server-side — assumption)",
+    "endpoints": {
+      "history": "GET /api/v9/channels/{id}/messages?limit=&before=|after=|around=",
+      "pins": "GET /api/v9/channels/{id}/messages/pins?limit=25",
+      "search": "GET /api/v9/guilds/{id}/messages/search?...&offset="
+    }
+  },
+
+  "window_model_recommendation": {
+    "pageSize": 100,
+    "maxPages": 2,
+    "loadedRowsMax": 200,
+    "rationale": "покрывает потолок истории канала (120) и окно участников (100) двумя страницами; см. RESEARCH.md §7"
+  },
+
+  "provenance": {
+    "viewport": {
+      "source": "ui/log.json → {name:'start', size:{w:2048,h:1106}, dpr:1.25}",
+      "method": "Runtime.evaluate innerWidth/innerHeight + devicePixelRatio (ui-trace.mjs:111); PNG IHDR 2560×1383",
+      "status": "measured"
+    },
+    "rail_w": {
+      "source": "ui/tokens.json: --custom-guild-list-width=calc(40px+12px*2), --custom-guild-list-padding=12px, --guildbar-avatar-size=40px; ui2/log.json guild-rect w=40 центр x=32",
+      "method": "формула токена + rect иконки гильдии",
+      "status": "measured"
+    },
+    "channel_tree_w": {
+      "source": "ui/00-app.png, ui6/02-channel.png — граница панелей x=375.2 CSS; rail 64",
+      "method": "скан 6 строк PNG: первый x с ≥60 px цвета (26,26,30) после ≥35 px цвета (18,18,20); minus rail_w",
+      "status": "measured",
+      "cross_check": "CSS .sidebarList__5e434 width:calc(var(--custom-guild-sidebar-width) - var(--custom-guild-list-width) - 1px) = 375-64-1 = 310 (+1px border = 311)"
+    },
+    "channel_tree_w_default": {
+      "source": "decoded/3eefa7dae1e2c234_0: :root{--custom-guild-sidebar-width:268px}; ui/tokens.json live = 268px",
+      "method": "268 - 64 - 1",
+      "status": "css-derived"
+    },
+    "sidebar_total_w": {
+      "source": "ui/00-app.png + ui6/02-channel.png",
+      "method": "измеренная граница панелей; подтверждается JS-фолбэком `parseInt(e || '375')` в decoded/3eefa7dae1e2c234_0",
+      "status": "measured",
+      "assumption": "причина 375 вместо дефолтных 268 (persisted user setting vs новый дефолт) не аттестована"
+    },
+    "chat_w": {
+      "source": "ui8/22-members.json rect.x0=1792 минус chat_left 375.2",
+      "method": "вычитание",
+      "status": "measured"
+    },
+    "member_list_w": {
+      "source": "ui8/22-members.json rect {x0:1792,y0:82,w:256,h:1025}; кроп ui8/22-members.jpg 320×1281 px при dpr 1.25; ui/tokens.json --custom-member-list-width=256px",
+      "method": "getBoundingClientRect() (ui-members6.mjs) + размер кропа + токен",
+      "status": "measured"
+    },
+    "row_heights.message_cozy": {
+      "source": "decoded/3eefa7dae1e2c234_0: .cozy_c19a55.wrapper_c19a55{padding-top/bottom:0.125rem; padding-inline-start:calc(40+12+12)}; .wrapper_c19a55{min-height:1.375rem}; ui/tokens.json --chat-markup-line-height=1.375rem",
+      "method": "22 + 2 + 2",
+      "status": "css-derived",
+      "cross_check": "ui/log.json msg-rect h=66 = 3 × 22 (контент в 3 строки); PNG: текст начинается на chat_left+64"
+    },
+    "row_heights.message_compact": {
+      "source": "decoded/3eefa7dae1e2c234_0: .compact_c19a55.wrapper_c19a55{padding:2px 0; padding-inline-start:5rem}",
+      "method": "22 + 2 + 2",
+      "status": "css-derived"
+    },
+    "row_heights.member": {
+      "source": "decoded/…: .memberInner__5d473{padding:4px 0}, .avatar__91a9d{32×32;margin-inline-end:12px}, .container__91a9d{padding:1px 0}; ui8/22-members.jpg",
+      "method": "32+4+4+1+1=42; медиана шага аватаров по кропу ≈ 42.2",
+      "status": "measured"
+    },
+    "row_heights.channel": {
+      "source": "ui6/log.json text-channel h=28 w=296; decoded/…: .link__2ea32{padding:4px 0} + .name__2ea32{line-height:20px}",
+      "method": "getBoundingClientRect + сверка с CSS 20+4+4",
+      "status": "measured"
+    },
+    "header_h": {
+      "source": "ui/tokens.json --custom-channel-header-height=49px; ui/00-app.png столбец x=1200: полосы 0…32 и 32…81; ui8/22-members.json y0=82",
+      "method": "смена цвета по столбцу + rect панели",
+      "status": "measured"
+    },
+    "composer_h": {
+      "source": "ui/tokens.json --custom-channel-textarea-text-area-height=56px; ui/00-app.png бокс (34,35,39) y 1044…1100, x 381.6…1784.8",
+      "method": "цветовой скан PNG + токен",
+      "status": "measured"
+    },
+    "message_limits.max": {
+      "source": "decoded/3eefa7dae1e2c234_0: fetchMessages({channelId:r,limit:100}) (preload ветки); клиентский клэмп чанка EMb=30 — политика, не серверный лимит",
+      "method": "чтение кода; прямой пробы limit>100 в дампе нет",
+      "status": "source+assumption"
+    },
+    "message_limits.initial_page": {
+      "source": "capture-ready/run2/cold.jsonl: GET …/messages?limit=12 (10 запросов, 8 каналов по rest-d02.md)",
+      "method": "regex по URL CDP Network",
+      "status": "measured",
+      "note": "значение приходит из remote-config MessageManager.initialFetch"
+    },
+    "message_limits.load_more": {
+      "source": "capture-*.jsonl: ?before=<id>&limit=24 (3 запроса); decoded/…: limit:Math.min(eh.EMb, 2*config('scrollManager.loadMore')) с EMb=30",
+      "method": "regex по URL + чтение кода; 2×12=24",
+      "status": "measured+source"
+    },
+    "message_limits.jump_around": {
+      "source": "capture-*.jsonl: ?limit=30&around=<id>; decoded/…: d7Q=30 (модуль 652215, export d7Q:()=>nB)",
+      "method": "regex по URL + export map",
+      "status": "measured+source"
+    },
+    "message_limits.messages_in_memory_per_channel": {
+      "source": "decoded/3eefa7dae1e2c234_0: MessageStore.truncate → length<=E.UNo(120) … truncateBottom(E.rLJ(60))",
+      "method": "чтение кода + export map модуля 652215",
+      "status": "source"
+    },
+    "member_window.rows": {
+      "source": "gateway-schema.json: GUILD_MEMBER_LIST_UPDATE.ops[0]={op:'SYNC',range:'0x0063'} (2 байта [0,99]); gateway-schema.md §4.1: 100 элементов items",
+      "method": "разбор поля range и количества items",
+      "status": "measured"
+    },
+    "ready_counts": {
+      "source": "gateway-schema.md §3 (таблицы вложенных структур READY, счётчики массивов); gateway-schema.json events[t=READY] (размеры); gateway-protocol.md §6 (второй снимок)",
+      "method": "разбор markdown-таблиц + поля JSON; extract.py §10",
+      "status": "measured"
+    }
+  }
+}

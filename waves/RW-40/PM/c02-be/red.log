@@ -1,0 +1,111 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:104:22
+    |
+104 |     let rows = data::channels(&root, None).expect("каналы READY");
+    |                      ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find type `ChannelRow` in module `data`
+   --> tests/channels_contract.rs:132:37
+    |
+132 |     let by_id: HashMap<&str, &data::ChannelRow> =
+    |                                     ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:200:22
+    |
+200 |     let rows = data::channels(&root, None).expect("каналы READY");
+    |                      ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find type `ChannelRow` in module `data`
+   --> tests/channels_contract.rs:204:28
+    |
+204 |     let key = |row: &data::ChannelRow| {
+    |                            ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:234:26
+    |
+234 |     let repeated = data::channels(&root, None).expect("повтор чтения");
+    |                          ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:247:22
+    |
+247 |     let rows = data::channels(&root, Some(guild_id)).expect("фильтр по гильдии");
+    |                      ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:258:15
+    |
+258 |         data::channels(&root, Some(&padded)).expect("id с пробелами"),
+    |               ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:262:21
+    |
+262 |     let err = data::channels(&root, Some("нет-такой-гильдии")).expect_err("неизвестная гильдия");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:265:21
+    |
+265 |     let err = data::channels(&root, Some("   ")).expect_err("пустой guildId");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:269:21
+    |
+269 |     let err = data::channels(&root, Some(&long)).expect_err("длинный guildId");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:279:21
+    |
+279 |     let err = data::channels(&root, Some(&allowed)).expect_err("такой гильдии нет");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:290:21
+    |
+290 |     let err = data::channels(&root, None).expect_err("READY отсутствует");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:296:21
+    |
+296 |     let err = data::channels(&root, None).expect_err("битый READY");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:303:21
+    |
+303 |     let err = data::channels(&root, None).expect_err("READY без d");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:309:21
+    |
+309 |     let err = data::channels(&root, None).expect_err("guilds не массив");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:318:21
+    |
+318 |     let err = data::channels(&root, None).expect_err("private_channels не массив");
+    |                     ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:347:31
+    |
+347 |         let err = match data::channels(&root, None) {
+    |                               ^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `channels` in module `data`
+   --> tests/channels_contract.rs:377:22
+    |
+377 |     let rows = data::channels(&root, None).expect("минимальный READY");
+    |                      ^^^^^^^^ not found in `data`
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "channels_contract") due to 18 previous errors

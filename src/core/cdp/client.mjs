@@ -180,6 +180,85 @@ export async function createCdpClient(options) {
 }
 
 /**
+ * Открывает CDP-сессию выбранной страницы: `listTargets` → `pickTarget` →
+ * `createCdpClient`. Нет подходящей страницы → `Error("нет подходящей страницы ...")`.
+ * @param {{ endpoint?: string, hint?: string, fetchImpl?: FetchLike, WebSocket?: WebSocketLikeConstructor, timeoutMs?: number }} [options]
+ * @returns {Promise<{ target: PageTarget, cdp: CdpEventClient }>}
+ */
+export async function openPage(options = {}) {
+  const endpoint = options.endpoint ?? resolveEndpoint();
+  const hint = options.hint ?? resolveTargetHint();
+  const targets = await listTargets(endpoint, options.fetchImpl, options.timeoutMs === undefined ? {} : { timeoutMs: options.timeoutMs });
+  const target = pickTarget(targets, hint);
+  if (!target) throw new Error(`нет подходящей страницы (проверьте CDP_ENDPOINT/CDP_TARGET; hint: ${hint})`);
+  const cdp = await createCdpClient({
+    wsUrl: target.webSocketDebuggerUrl,
+    WebSocket: options.WebSocket,
+    timeoutMs: options.timeoutMs,
+  });
+  return { target, cdp };
+}
+
+/**
+ * Выражение для `evaluate`: элементы по CSS-селектору с `tag`, `role`,
+ * `aria`, `text`, `visible` и `rect` (не более 200).
+ * @param {string} selector
+ * @returns {string}
+ */
+export function listElementsExpression(selector) {
+  const literal = JSON.stringify(selector);
+  return `(() => {
+    const els = [...document.querySelectorAll(${literal})];
+    return els.slice(0, 200).map((el) => {
+      const r = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      return {
+        tag: el.tagName,
+        role: el.getAttribute('role'),
+        aria: el.getAttribute('aria-label'),
+        text: (el.innerText || '').replace(/\\s+/g, ' ').trim().slice(0, 100),
+        visible: r.width > 0 && r.height > 0 && style.visibility !== 'hidden',
+        rect: [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)],
+      };
+    });
+  })()`;
+}
+
+/**
+ * Выражение для `evaluate`: клик по видимому элементу, у которого
+ * `aria-label`/`title`/текст содержит искомую подстроку (без регистра).
+ * Возвращает `{ clicked: true, tag, role, aria, text }` либо `{ clicked: false }`.
+ * @param {string} text
+ * @returns {string}
+ */
+export function clickTextExpression(text) {
+  const needle = JSON.stringify(text.trim().toLowerCase());
+  return `(() => {
+    const needle = ${needle};
+    if (!needle) return { clicked: false };
+    const candidates = [...document.querySelectorAll('button, [role="button"], [role="tab"], [role="menuitem"], [role="menuitemradio"], a, div[tabindex]')];
+    for (const el of candidates) {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      const hay = ((el.getAttribute('aria-label') || '') + ' ' + (el.getAttribute('title') || '') + ' ' + (el.innerText || ''))
+        .replace(/\\s+/g, ' ').trim().toLowerCase();
+      if (hay.includes(needle)) {
+        el.scrollIntoView({ block: 'center' });
+        el.click();
+        return {
+          clicked: true,
+          tag: el.tagName,
+          role: el.getAttribute('role'),
+          aria: el.getAttribute('aria-label'),
+          text: (el.innerText || '').replace(/\\s+/g, ' ').trim().slice(0, 80),
+        };
+      }
+    }
+    return { clicked: false };
+  })()`;
+}
+
+/**
  * `Runtime.evaluate` c `returnByValue: true` и `awaitPromise: true`;
  * при `exceptionDetails` кидает `Error(exception?.description ?? text)`.
  * @param {CdpClient} cdp
@@ -197,4 +276,43 @@ export async function evaluate(cdp, expression) {
     throw new Error(details.exception?.description ?? details.text);
   }
   return response?.result?.value;
+}
+
+/**
+ * Элементы по CSS-селектору. Ответ не массив → `Error("list: ...")`.
+ * @param {CdpClient} cdp
+ * @param {string} selector
+ * @returns {Promise<Array<{ tag: string, role: string | null, aria: string | null, text: string, visible: boolean, rect: number[] }>>}
+ */
+export async function listElements(cdp, selector) {
+  const items = await evaluate(cdp, listElementsExpression(selector));
+  if (!Array.isArray(items)) throw new Error("list: страница вернула не массив");
+  return items;
+}
+
+/**
+ * Клик по тексту/aria-label/title (contains, без регистра).
+ * Элемент не найден → `Error("clicktext: элемент не найден: «<text>»")`.
+ * @param {CdpClient} cdp
+ * @param {string} text
+ * @returns {Promise<import("../types.js").ClickOutcome>}
+ */
+export async function clickText(cdp, text) {
+  /** @type {import("../types.js").ClickOutcome | null | undefined} */
+  const outcome = await evaluate(cdp, clickTextExpression(text));
+  if (!outcome?.clicked) throw new Error(`clicktext: элемент не найден: «${text.trim()}»`);
+  return outcome;
+}
+
+/**
+ * `Page.captureScreenshot` (png) → Buffer с байтами изображения.
+ * Пустой ответ → `Error("shot: CDP не вернул данные PNG")`.
+ * @param {CdpClient} cdp
+ * @returns {Promise<Buffer>}
+ */
+export async function captureScreenshot(cdp) {
+  const shot = await cdp.send("Page.captureScreenshot", { format: "png" });
+  const data = typeof shot?.data === "string" ? shot.data : "";
+  if (!data) throw new Error("shot: CDP не вернул данные PNG");
+  return Buffer.from(data, "base64");
 }

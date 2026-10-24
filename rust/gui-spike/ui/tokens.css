@@ -1,0 +1,392 @@
+/* =============================================================================
+ * Вендоринг дизайн-токенов для ui/. Копия файла DESIGN, 1:1 по именам и значениям.
+ *
+ * source: waves/RW-39/DESIGN/tokens.css, md5 62fffb9cb8bdd3429cd45160a77a2525
+ *
+ * Отличия от источника ровно три:
+ *   1) в первой строке шапки DESIGN имя CSS-функции для внешних ссылок заменено
+ *      словами «внешних ссылок», чтобы текстовый гейт «в файле нет ассетов» не
+ *      срабатывал на самом комментарии;
+ *   2) в конце добавлен media-блок адаптива `max-width:959px`: токен
+ *      `--layout-tree-w` переопределён ссылкой на `--layout-tree-min-w`
+ *      (SPEC.md §5.1, DP-01);
+ *   3) DP-02: комментарии раздела 10 и шапки помечают треки RW-38 (44/40) как
+ *      legacy «модель не использует» и называют D-04 источником геометрии.
+ *      Значения и имена не менялись — правка только текстовая.
+ * Ни одно базовое имя и ни одно базовое значение custom property не изменено:
+ * пары property/value базового `:root` побайтово равны источнику. DP-01 — это
+ * условное переопределение уже существующим токеном, а не новое значение;
+ * G3 переносит тот же блок в DESIGN/tokens.css при следующей сверке.
+ *
+ * Правила:
+ *   - базовые значения здесь НЕ меняются; новое значение = правка
+ *     DESIGN/tokens.css + SPEC.md §6. Адаптивные переопределения (DP-01) — только
+ *     уже существующими токенами и по SPEC §5.1;
+ *   - только custom properties: без внешних ассетов, шрифтовых подключений,
+ *     картинок и спрайтов (SPEC.md §12);
+ *   - подключается первым: <link rel="stylesheet" href="tokens.css">;
+ *   - шрифты — системные, emoji — системные (SPEC.md §12).
+ * Ниже — дословное содержимое источника (включая его собственные комментарии).
+ * ========================================================================== *//* =============================================================================
+ * RW-39 / W39b — DL design tokens (dark theme)
+ * -----------------------------------------------------------------------------
+ * Назначение: единственный источник значений для `ui/style.css` и
+ * `ui/components/*.css` (W39c). Файл содержит ТОЛЬКО custom properties —
+ * никаких правил разметки, картинок, шрифтов и внешних ссылок.
+ *
+ * Провенанс значений (подробно — SPEC.md §3–§6):
+ *   [M]  измерено на /home/sanya/re-deep/ui/00-app.png (+ ui8/*)          2026-10-23
+ *   [T]  взято из /home/sanya/re-deep/ui/tokens.json (4795 переменных, dark)
+ *   [L]  waves/RW-37/RE/layout.json (RE-контракт раскладки, schema rw37/re-layout-v1)
+ *   [A]  assumption — значение выбрано нами, обоснование в SPEC.md
+ *
+ * Юридически: это числа (цвета/размеры), а не ассеты. Шрифты — только системные,
+ * emoji — системные, иконки — собственные inline-SVG (SPEC.md §12).
+ * Шрифты Discord ("gg sans", "ABC Ginto", "Noto Sans" как веб-ассет) НЕ используются.
+ *
+ * Контракт имён: W39c копирует этот файл в `ui/components/tokens.css`
+ * (или `@import` с относительным путём) и НЕ переопределяет значения.
+ * Изменение значения = изменение этого файла + запись в SPEC.md §6.
+ * ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------------------------------------------------------------------------
+   * 1. Поверхности (elevation ladder)
+   * Значения совпадают с измеренными заливками референса: рейл и дерево #121214,
+   * чат #1a1a1e, панель участников #1a1a1e, строка пользователя #202024,
+   * поле ввода #222327, hover/карточка #242429.
+   * ------------------------------------------------------------------------ */
+  --bg-app: #121214;            /* [M] rail + channel tree; [T] --primary-800 / --background-base-lowest */
+  --bg-chat: #1a1a1e;           /* [M] чат + панель участников; [T] --primary-730 */
+  --surface-1: #202024;         /* [M] user bar; [T] --neutral-82 */
+  --surface-2: #242429;         /* [M] hover сообщения, модалка; [T] --modal-background / --background-surface-high */
+  --surface-3: #28282d;         /* [T] --background-surface-higher */
+  --surface-4: #2c2d32;         /* [T] --background-surface-highest */
+  --surface-sunken: #222327;    /* [M] composer; [T] --chat-background-default */
+  --surface-input: #1e1f22;     /* [A] input на --surface-2: чёрный 12% (--input-background-default) */
+
+  /* Алиасы из ТЗ (§2): короткие имена для верстки и ревью.
+   * Совместимость со старым ui/style.css (--bg/--bg-2/--bg-3/--muted/--border). */
+  --bg: var(--bg-app);
+  --bg-2: var(--surface-1);
+  --bg-3: var(--surface-3);
+  --surface: var(--surface-2);
+
+  /* ---------------------------------------------------------------------------
+   * 2. Текст
+   * Контраст — SPEC.md §3.4 (все пары ≥ WCAG AA 4.5:1 на своих поверхностях).
+   * ------------------------------------------------------------------------ */
+  --text-strong: #fbfbfb;       /* [M] имя автора, заголовок канала; [T] --text-strong (13.3–18.1) */
+  --text: #efeff1;              /* [M] тело сообщений; [T] --text-default (11.9–16.3) */
+  --text-muted: #96979e;        /* [M] placeholder, время, подписи; [T] --text-muted (4.7–6.4) */
+  --muted: var(--text-muted);   /* алиас для верстки/старого style.css */
+  --text-subtle: #abacb2;       /* [T] --text-subtle (6.1–8.3) */
+  --text-faint: #81828a;        /* [M] категории каналов; [T] --chat-text-muted — только на --bg-app/--bg-chat */
+  --text-link: #4d96ee;         /* [M] ссылки; [T] --text-link (4.5–6.2) */
+  --text-accent: #a5b0ff;       /* [A] акцентный текст на тёмном (6.71–9.14 на поверхностях ДС); сам --accent как текст не проходит AA */
+  --text-on-accent: #ffffff;    /* [A] 4.61 на --accent */
+  --text-on-danger: #ffffff;    /* [A] 4.85 на --danger-fill */
+  --text-on-warning: #121214;   /* [A] 10.76 на --warning (#fdb833) */
+  --text-inverse: #2f3035;      /* [T] --text-invert (D-02: было #1a1a1e, Δ23); на --warning 7.57, белый на нём 13.17 */
+
+  /* ---------------------------------------------------------------------------
+   * 3. Акцент, статусы, опасность
+   * ------------------------------------------------------------------------ */
+  --accent: #5865f2;            /* [M] баннер/кнопки; [T] --brand-500 hsl(234.935 85.556% 64.706%) */
+  --accent-hover: #4654c0;      /* [T] --brand-560 (резолв hsl(233.115 49.194% 51.373%)) */
+  --accent-active: #3c45a5;     /* [A] шаг -1 по светлоте от --accent-hover */
+  --accent-soft: rgb(88 101 242 / 16%);  /* [T] --message-highlight-background-default (16%) */
+  --danger: #da3e44;            /* [T] --status-danger: иконка/точка (non-text ≥3); текст — --danger-text */
+  --danger-text: #ff9a9e;       /* [A] danger как текст на --surface-2 и выше (≥ 4.5) */
+  --danger-fill: #cf3a3f;       /* [A] заливка destructive-кнопки: белый текст 4.85 (дамп --danger #da3e44 с белым = 4.42 < AA) */
+  --danger-fill-hover: #b92d33; /* [A] белый текст 6.02 */
+  --warning: #fdb833;           /* [T] --status-warning / --yellow-300 (резолв hsl(39.505 98.058% 59.608%)) */
+  --positive: #3d9e60;          /* [T] --status-positive / --green-360 (5.17 на --bg-chat; [M] точка панели #45a366 = 5.52, на --surface-4 4.37 → только non-text) */
+  --positive-text: #57d98a;     /* [A] positive как текст на hover-поверхностях (7.65–8.60) */
+  --info: #4d96ee;              /* [T] --text-link */
+  --status-online: #3d9e60;     /* [T] --status-online */
+  --status-idle: #fdb833;       /* [T] --status-warning */
+  --status-dnd: #da3e44;        /* [T] --status-danger */
+  --status-offline: #80848e;    /* [A] нейтральный серый статус-дот */
+  --status-streaming: #593695;  /* [A] в дампе 1.0.162 нет --status-streaming; классический streaming-purple */
+
+  /* ---------------------------------------------------------------------------
+   * 4. Границы и состояния
+   * Референс: selected-строка канала #2c2c30 на #121214 ≈ 11% белого.
+   * ------------------------------------------------------------------------ */
+  --border-subtle: rgb(151 151 159 / 12%);   /* [T] --border-subtle (#97979f) */
+  --border: rgb(151 151 159 / 20%);          /* [T] --border-normal (#97979f) */
+  --border-strong: rgb(151 151 159 / 44%);   /* [T] --border-strong (#97979f) */
+  --divider: rgb(255 255 255 / 6%);          /* [A] разделитель строк/секций */
+
+  --state-hover: rgb(255 255 255 / 6%);      /* [A] hover строки/кнопки */
+  --state-active: rgb(255 255 255 / 9%);     /* [A] pressed */
+  --state-selected: rgb(255 255 255 / 11%);  /* [M] выбранный канал #2c2c30 */
+  --state-selected-strong: rgb(255 255 255 / 14%); /* [A] выбранная вкладка/пункт меню */
+  --state-disabled-opacity: 0.45;            /* [A] disabled: opacity контрола */
+  --row-hover-bg: var(--surface-1);          /* [M] hover сообщения #202024 */
+  --row-selected-bg: var(--surface-2);       /* [A] выбранное сообщение/пункт */
+
+  --focus-ring: #a5b0ff;        /* [A] 6.71–9.14 на всех поверхностях (AA non-text ≥3) */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  --scrollbar-thumb: #5f606a;   /* [T] --scrollbar-thin-thumb */
+  --scrollbar-track: transparent;
+  --scrollbar-size: 8px;
+
+  /* ---------------------------------------------------------------------------
+   * 5. Типографика — только системные шрифты
+   * ------------------------------------------------------------------------ */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", "Liberation Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", "DejaVu Sans Mono", monospace;
+
+  --font-size-caption: 11px;    /* [A] бейджи, счётчики */
+  --font-size-small: 12px;      /* [M] категории каналов/групп участников */
+  --font-size-ui: 14px;         /* [M] подписи, таймстемпы, кнопки */
+  --font-size-body: 16px;       /* [M] текст сообщений, имена каналов */
+  --font-size-title: 20px;      /* [A] заголовки секций настроек */
+  --font-size-display: 24px;    /* [A] заголовок окна настроек */
+
+  --line-height-caption: 14px;
+  --line-height-small: 16px;
+  --line-height-ui: 18px;
+  --line-height-body: 22px;     /* [M] --chat-markup-line-height: 1.375rem = 22px */
+  --line-height-title: 24px;
+  --line-height-display: 30px;
+
+  --font-weight-normal: 400;    /* [T] --font-weight-normal */
+  --font-weight-medium: 500;    /* [T] --font-weight-medium */
+  --font-weight-semibold: 600;  /* [A] между medium и bold (Discord использует 600 в заголовках) */
+  --font-weight-bold: 700;      /* [T] --font-weight-bold */
+
+  --letter-spacing-caps: 0.02em; /* [A] категории каналов/групп — uppercase */
+  --letter-spacing-normal: 0;
+
+  /* ---------------------------------------------------------------------------
+   * 6. Спейсинг (шаг 4, как в референсе: 4/8/12/16/24)
+   * ------------------------------------------------------------------------ */
+  --space-0: 0;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-7: 20px;
+  --space-8: 24px;
+  --space-9: 32px;
+  --space-10: 40px;
+  --space-11: 48px;
+  --space-12: 56px;
+  --space-13: 64px;
+
+  /* ---------------------------------------------------------------------------
+   * 7. Радиусы
+   * ------------------------------------------------------------------------ */
+  --radius-xs: 4px;             /* [T] --radius-xs */
+  --radius-sm: 8px;             /* [T] --radius-sm */
+  --radius-md: 12px;            /* [T] --radius-md */
+  --radius-lg: 16px;            /* [T] --radius-lg */
+  --radius-xl: 24px;            /* [T] --radius-xl */
+  --radius-round: 2147483647px; /* [T] --radius-round (точное значение дампа) */
+  --radius-selected: 14px;      /* [A] «морф» выбранной иконки рейла */
+
+  /* ---------------------------------------------------------------------------
+   * 8. Тени / поднятие
+   * ------------------------------------------------------------------------ */
+  --shadow-elevation-low: 0 1px 0 rgb(0 0 0 / 20%), 0 1.5px 0 rgb(0 0 0 / 4%),
+    0 2px 0 rgb(0 0 0 / 4%);
+  --shadow-elevation-stroke: 0 0 0 1px rgb(0 0 0 / 16%);
+  --shadow-elevation-medium: 0 4px 4px rgb(0 0 0 / 16%);
+  --shadow-elevation-high: 0 8px 16px rgb(0 0 0 / 24%);
+  --shadow-border: 0 0 0 1px rgb(255 255 255 / 8%);
+  --shadow-popover: var(--shadow-elevation-high), var(--shadow-elevation-stroke);
+
+  /* ---------------------------------------------------------------------------
+   * 9. Раскладка shell (SPEC.md §5)
+   * ------------------------------------------------------------------------ */
+  --layout-rail-w: 64px;             /* [L] rail_w=64; [T] --custom-guild-list-width=calc(40+12*2) */
+  --layout-tree-w: 240px;            /* [A] требование ТЗ/RUNBOOK «tree ~240» */
+  --layout-tree-w-wide: 311px;       /* [L] channel_tree_w=311 (измерено на 2048px окне) */
+  --layout-tree-min-w: 200px;        /* [A] ниже — дерево скрывается */
+  --layout-member-panel-w: 240px;    /* [A] требование ТЗ «members ~240» */
+  --layout-member-panel-w-wide: 256px; /* [L] member_list_w=256 (измерено) */
+  --layout-titlebar-h: 32px;         /* [L] topbar_h=32 */
+  --layout-header-h: 49px;           /* [L] header_h=49; [T] --custom-channel-header-height */
+  --layout-composer-h: 56px;         /* [L] composer_h=56; [T] --custom-channel-textarea-text-area-height */
+  --layout-userbar-h: 56px;          /* [M] user bar 1044…1100 CSS */
+  --layout-guild-item: 40px;         /* [T] --guildbar-avatar-size=40 */
+  --layout-rail-item: 40px;          /* [A] кнопки экранов в рейле = размер иконки гильдии */
+  --layout-group-title-h: 24px;      /* [A] заголовок категории каналов */
+  --layout-tree-pad-x: 8px;          /* [M] отступ строк каналов от края дерева */
+  --layout-member-pad-x: 8px;
+  --layout-panel-pad: 16px;          /* [A] горизонтальные отступы контента */
+  --layout-content-max-w: 720px;     /* [A] максимальная ширина колонки настроек */
+
+  /* ---------------------------------------------------------------------------
+   * 10. Строки списков (высоты)
+   * D-04: высота строки сообщения — переменная, не константа (SPEC §5.1/A-01).
+   * Оракул — waves/RW-37/RE/layout.json: начало группы 48, продолжение 26,
+   * каждый перенос +22, участник 42. Прежние треки RW-38 (44/40) оставлены
+   * только как legacy для geometry-check.mjs (вне скоупа DP-02) — геометрия
+   * списков считается по `model.js`: ROW_HEIGHTS / HeightIndex.
+   * ------------------------------------------------------------------------ */
+  /* D-04: модель высот строк. Это единственные значения, по которым считается
+   * геометрия (`model.js`: ROW_HEIGHTS/HeightIndex); рендер читает их, а не
+   * замороженные треки RW-38 ниже. */
+  --row-h-continuation: 26px;        /* [L] message_cozy_continuation (D-04) */
+  --row-h-group-start: 48px;         /* [L] message_cozy_group_start (D-04) */
+  --row-line-extra: 22px;            /* [L] перенесённая строка: +22 к высоте (D-04) */
+  --row-h-member: 42px;              /* [L] member_row: панель и виртуализация (D-04) */
+
+  /* legacy RW-38: треки 44/40 — приближение, не паритет. Модель/рендер их не
+   * читают (тест gui-spike-features «отсутствие старых треков в коде»). Значения
+   * оставлены только потому, что их проверяет waves/RW-39/PM/w39c/geometry-check.mjs
+   * (31/31, вне скоупа DP-02); снимать вместе с правкой этого скрипта. */
+  --row-message-track: 44px;         /* [F] legacy RW-38 (44), модель не использует */
+  --row-member-track: 40px;          /* [F] legacy RW-38 (40), модель не использует */
+  --row-message-cozy: 26px;          /* [L] legacy-имя = --row-h-continuation (ссылка из layout.json) */
+  --row-message-start: 48px;         /* [L] legacy-имя = --row-h-group-start (ссылка из layout.json) */
+  --line-height-message: 22px;       /* [L]/[T] 22px (= --row-line-extra) */
+  --row-channel: 28px;               /* [L] row_heights.channel — высота строки */
+  --row-channel-pitch: 30px;         /* [M] шаг строк канала: 28 высота + 2px зазор (D-02; выделение #2c2c30 y 460…487.2) */
+  --row-member: 42px;                /* [L] legacy-имя = --row-h-member (ссылка из layout.json) */
+  --row-member-pitch: 43px;          /* [M] шаг в панели: медиана 43.2 CSS (n=16, JPEG ±1) */
+  --row-menu-item: 32px;             /* [A] пункт меню */
+  --row-group-title: 24px;           /* [A] текстовая строка заголовка */
+  --row-member-group: 42px;          /* [M] блок заголовка группы в панели (16px pad-top + строка), D-13 */
+  --unread-banner-h: 34px;           /* [M] синяя полоса «20+ новых» 82…115 = 34 border-box (контент 32), D-13 */
+
+  /* ---------------------------------------------------------------------------
+   * 11. Компоненты (размеры, SPEC.md §7)
+   * ------------------------------------------------------------------------ */
+  --avatar-xs: 16px;
+  --avatar-sm: 20px;
+  --avatar-md: 32px;                 /* [L] member_avatar=32 */
+  --avatar-lg: 40px;                 /* [L] message_avatar=40; [T] --chat-avatar-size */
+  --avatar-hue: 212;                 /* [A] базовый hue; строка задаёт свой (--avatar-hue: 0…359) */
+  --avatar-s: 45%;                   /* [A] насыщенность фона-заглушки */
+  --avatar-l: 32%;                   /* [A] светлота: белые инициалы ≥ 4.5 при любом hue */
+  --avatar-fg: #ffffff;              /* [A] инициалы на фоне hsl(h 45% 32%) */
+  --badge-secondary-bg: rgb(151 151 159 / 16%); /* [T] --badge-secondary-background (#97979f@16%) */
+  --message-gutter: 64px;            /* [L] message_indent_cozy=64 (16 + 40 + 8) */
+  --message-gutter-compact: 80px;    /* [L] message_indent_compact=80 */
+  --chat-pad-x: 16px;                /* [A] */
+
+  --icon-size-sm: 16px;
+  --icon-size: 20px;
+  --icon-size-lg: 24px;
+  --icon-stroke: 2px;
+
+  --btn-height-sm: 28px;
+  --btn-height: 32px;
+  --btn-height-lg: 38px;
+  --btn-pad-x: 16px;
+  --btn-radius: var(--radius-sm);
+
+  --search-height: 32px;             /* [A] поле поиска в header */
+  --search-radius: var(--radius-round);
+  --input-height: 40px;
+  --switch-w: 40px;                  /* [A] 40×24 */
+  --switch-h: 24px;
+  --switch-thumb: 18px;
+  --slider-track-h: 8px;
+  --slider-thumb: 16px;
+  --badge-h: 16px;
+  --badge-pad-x: 4px;
+  --badge-radius: var(--radius-sm);
+
+  --composer-input-w: 100%;          /* [M] composer_w=1401 при chat 1417 (16px поля) */
+  --composer-radius: var(--radius-sm);
+
+  --emoji-picker-w: 498px;           /* [T] --custom-emoji-picker-constants-min-emoji-picker-width */
+  --emoji-picker-h: 440px;           /* [T] --custom-emoji-picker-constants-emoji-picker-height */
+  --emoji-rail-w: 48px;              /* [T] --custom-emoji-picker-constants-unicode-category-shortcut-height */
+  --emoji-cell: 44px;                /* [M] сетка 9×44 + gap 4 при ширине 498 */
+  --emoji-cols: 9;                   /* [M] 498 − 24 (padding) − 48 (rail) = 426 ≈ 9*44 + 8*4 */
+  --emoji-gap: 4px;                  /* [M] */
+  --emoji-section-h: 32px;           /* [T] expression-picker-list-section-heading-height */
+
+  --menu-min-w: 188px;               /* [A] */
+  --menu-pad: 8px;                   /* [T] --menu-scroller-block-padding */
+  --menu-border: 1px;                /* [T] --menu-border-width */
+  --menu-radius: var(--radius-sm);
+
+  --modal-w-sm: 442px;               /* [T] --modal-width-small */
+  --modal-w-md: 602px;               /* [T] --modal-width-medium */
+  --modal-w-lg: 800px;               /* [T] --modal-width-large */
+  --modal-pad-x: 24px;               /* [T] --modal-horizontal-padding */
+  --modal-pad-y: 16px;               /* [T] --modal-vertical-padding */
+  --settings-nav-w: 232px;           /* [T] --custom-layout-sidebar-width */
+  --settings-nav-item-h: 34px;       /* [A] */
+
+  --tooltip-radius: var(--radius-sm);
+  --tooltip-pad-x: 8px;
+  --tooltip-pad-y: 6px;
+
+  /* ---------------------------------------------------------------------------
+   * 12. Слои и движение
+   * ------------------------------------------------------------------------ */
+  --z-base: 0;
+  --z-header: 10;
+  --z-popover: 100;
+  --z-modal: 200;
+  --z-tooltip: 300;
+  --z-toast: 400;
+
+  --motion-fast: 120ms;              /* [A] hover/press */
+  --motion-base: 180ms;              /* [A] панели, вкладки */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);  /* [A] */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* [A] */
+}
+
+/* Reduced motion: длительности обнуляются, геометрия остаётся. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+  }
+}
+
+/* Плотность «compact» (сообщения): только визуальные отступы, высота строки —
+ * модель D-04 (`--row-h-continuation`/`--row-h-group-start` + `--row-line-extra`),
+ * фиксированного трека RW-38 в раскладке нет, см. DOM-CONTRACT §7.
+ * Атрибут ставится на <html> (documentElement), не на body. */
+:root[data-density="compact"] {
+  --message-gutter: 80px;
+  --line-height-message: 22px;
+}
+
+/* Широкий shell (окно ≥1600px): значения, измеренные на референсе. */
+@media (min-width: 1600px) {
+  :root {
+    --layout-tree-w: var(--layout-tree-w-wide);
+    --layout-member-panel-w: var(--layout-member-panel-w-wide);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Адаптив shell (SPEC.md §5.1, DP-01). Новых значений нет: используются уже
+ * объявленные токены, меняется только их действующее значение по ширине окна.
+ *
+ *   ≥1600px    tree 311, member 256   (--layout-tree-w-wide/-member-panel-w-wide)
+ *   1200–1599  tree 240, member 240   (базовый :root выше)
+ *   960–1199   tree 240, member panel скрыт (display — style.css)
+ *   720–959    tree 200 (--layout-tree-min-w), member panel скрыт
+ *   <720       tree скрыт (style.css), навигация только рейлом
+ *
+ * Блоки max-width идут после min-width:1600px: при равной специфичности
+ * побеждает более позднее правило, поэтому на узких окнах широкий shell
+ * не «протекает» вниз.
+ * ------------------------------------------------------------------------ */
+@media (max-width: 959px) {
+  :root {
+    --layout-tree-w: var(--layout-tree-min-w);
+  }
+}

@@ -3,7 +3,7 @@
 // клики по обычным пунктам, пропуск запрещённых, журнал JSONL + скриншоты.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCli } from "../helpers/cli.mjs";
@@ -60,5 +60,23 @@ describe("walk fixture", () => {
 
     const profile = records.find((record) => record.label === "Профиль");
     assert.equal(profile?.consoleErrors, 0);
+
+    // Аддитивные усиления QA4-01b (существующие assert выше не ослаблены):
+    // нумерация шагов, число PNG, page-side журнал кликов и текст ошибки консоли.
+    assert.deepEqual(records.map((record) => record.step), [1, 2, 3, 4]);
+    assert.equal((await readdir(screens)).filter((name) => name.endsWith(".png")).length, 4);
+    assert.match((notifications?.consoleErrorTexts ?? []).join(" "), /уведомлен/iu);
+
+    const clickLog = await runCli(
+      ["cdp", "eval", "window.__clickLog.map((item) => item.text)"],
+      { env: { CDP_ENDPOINT: browser.endpoint, CDP_TARGET: "index.html" } },
+    );
+    assert.equal(clickLog.code, 0, clickLog.stderr);
+    assert.deepEqual(JSON.parse(clickLog.stdout), [
+      "Мой аккаунт",
+      "Профиль",
+      "Уведомления",
+      "Голос и видео",
+    ]);
   });
 });

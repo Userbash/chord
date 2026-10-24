@@ -1,0 +1,14 @@
+
+> discord-function-lab@0.1.0 gate:worker
+> node scripts/gate.mjs --scope worker
+
+
+✔ typecheck — 0.1 с
+✔ ui-tsc — 0.2 с
+✔ meta — 0.1 с (тесты 29: pass 29, fail 0, skip 0)
+✔ unit — 1.4 с (тесты 261: pass 261, fail 0, skip 0)
+✔ spike-rust — 0.2 с
+✔ smoke — 17.2 с (тесты 22: pass 22, fail 0, skip 0)
+
+Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-23T16-11-53-407Z.json
+Вердикт: passed

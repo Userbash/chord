@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Базовые разрешения спайка: только core, без файловой системы и сети",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

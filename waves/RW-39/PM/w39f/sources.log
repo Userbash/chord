@@ -1,0 +1,65 @@
+W39f — протокол источников (read-only /home/sanya/re-deep)
+================================================================
+Метод: обычное чтение файлов дампа (JSON/HTML/CSS/JS/i18n-каталоги) + PIL-кроп lossless PNG
+в /tmp/opencode/w39f/ (в репозиторий картинки не копировались). REA/бинарь не потребовался:
+все контракты (тексты, классы, лимиты, бинды) есть в распакованном веб-бандле и DOM-срезах.
+
+Источники по разделам
+---------------------
+Composer:
+  ui/00-app.png                                  — disabled-композер, notice нет (кроп /tmp)
+  ui8/20a-searchbar.json                         — aria «Написать #канал», поиск 244x28
+  decoded/f0a78ad5dbc04c2f_0                     — submit/Enter/Shift+Enter/code block/ArrowUp
+  decoded/3eefa7dae1e2c234_0                     — constants 2000/4000, counter 263582, buttons 846558,
+                                                   submit-configs, attachments max(10), category enum 732139
+  decoded/4d2a64cb5df5fc4e_0                     — constants uvi/CS1/XgB (модуль constants)
+  decoded/2e60d16dae6e5d86_0, 792f0283e57e7880_0 — CSS/класс-карта channelTextArea__74017
+  ui/tokens.json                                 — textarea height/max-height, emoji picker, space/message
+  ru-catalog.json / en-catalog.json              — тексты (ключи в отчёте)
+
+Members:
+  ui8/22-members.json, 22-members.jpg            — группы/счётчики/классы/35 строк
+  decoded/f2772fb4bff12a25_0                     — group order, header JSX «label — count», roleIcon
+  decoded/4d2a64cb5df5fc4e_0                     — section=hoistRoleId/online/offline, sort by name
+  decoded/3eefa7dae1e2c234_0                     — hoistRoleId (Y())
+  decoded/79e79bb7b4b2a133_0, 1377da32500f7fbe_0 — CSS member__5d473 / membersGroup_c8ffbb
+  decoded/c6debfeca50bb9fd_0                     — карта классов c8ffbb
+  ru-catalog.json                                — «В сети» / «Не в сети»
+
+Emoji:
+  ui8/21-emoji-picker.json, 21b-emoji-full.json, 21c, 21d, 21-emoji-search.json
+  decoded/e903362d141767ee_0                     — компонент пикера, поиск Y(), глифы категорий
+  decoded/3eefa7dae1e2c234_0                     — searchWithoutFetchingLatest, rowSize=9, enum 732139
+  ui/tokens.json                                 — 498x440, rail 48/32/24/4, separator
+
+Settings:
+  ui8/23-settings-categories.json                — 63 строки, 18 разделов + Выйти, searchPh «Поиск»
+  ui8/23-settings-voice.json                     — headings, 38 switches, 4 selects, 4 sliders, 6 buttons
+  ru-catalog.json                                — подписи «Внешний вид» (Отображение сообщений/Компактное/Уютное)
+
+Keyboard:
+  decoded/2ac5158769dd2c7f_0                     — реестр биндов (модуль 696760), модуль 82038 (any-character/Tab)
+  decoded/eacbdfad9946a1ad_0, 0ad109a24de5d314_0 — Esc (modal close / call decline / layers)
+  decoded/b9e153f9dfaafc9f_0                     — Esc в карусели
+  ru-catalog.json                                — локализованные описания и группы диалога
+
+Chat view:
+  ui/00-app.png                                  — шапка (иконка+имя, 4 кнопки, поиск)
+  ui8/20a-searchbar.json                         — search pill 244x28 + aria
+  ui8/20-search-results.html                     — cozy DOM-шаблон, aria, timestamp, accessories
+  decoded CSS __908e2, __0f481, e2d7b8, c19a55, 5126c
+  ui/tokens.json                                 — avatar 40, margin-left-content-cozy, compact indent
+  ru-catalog.json                                — «Новые сообщения», «Перейти к последним сообщениям»
+
+Команды проверки
+----------------
+node waves/RW-39/PM/w39f/verify-extra.mjs
+  -> ok: 100 фактов, 9 пробелов, 6 разделов; ids уникальны и есть в MD
+
+node -e "JSON.parse(require('fs').readFileSync('waves/RW-39/DESIGN/re-extra.json'))"  -> 0
+
+Ограничения
+-----------
+1. Ассеты (PNG/шрифты/иконки/спрайты) в репозиторий не копировались; PNG читался кропом в /tmp.
+2. Только чтение /home/sanya/re-deep: записи/переименований нет.
+3. Сеть, спавн Discord, gate/cargo не запускались.

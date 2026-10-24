@@ -1,0 +1,7 @@
+05af33f2d41cdb0b98e90b39714d2e41  rust/gui-spike/ui/index.html
+f90dc8334c883e00d463cac8a4140200  rust/gui-spike/ui/features/auth.js
+8e6ef5c52dfaeab96f16fb934c10a8b2  rust/gui-spike/ui/app.js
+9a786825489ad6e1b84730b7945ef18c  rust/gui-spike/ui/style.css
+8f10de67d5e01c7646e12037a2b715bb  rust/gui-spike/ui/components/auth.css
+5ded1c36e8f94899c48224b6dcc2728d  tests/unit/gui-spike-auth.test.mjs
+182a754d0d5e9bfbdc393c971decb1a1  tests/unit/gui-spike-dom.test.mjs

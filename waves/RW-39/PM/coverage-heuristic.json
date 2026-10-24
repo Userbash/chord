@@ -1,0 +1,2682 @@
+{
+ "discord-app": {
+  "pub_fns": 0,
+  "referenced": 0,
+  "uncovered": 0,
+  "items": {}
+ },
+ "discord-codec": {
+  "pub_fns": 18,
+  "referenced": 18,
+  "uncovered": 0,
+  "items": {
+   "get": {
+    "file": "src/etf.rs",
+    "refs": 55
+   },
+   "as_int": {
+    "file": "src/etf.rs",
+    "refs": 25
+   },
+   "as_float": {
+    "file": "src/etf.rs",
+    "refs": 3
+   },
+   "as_atom": {
+    "file": "src/etf.rs",
+    "refs": 7
+   },
+   "as_str": {
+    "file": "src/etf.rs",
+    "refs": 7
+   },
+   "as_list": {
+    "file": "src/etf.rs",
+    "refs": 6
+   },
+   "as_map": {
+    "file": "src/etf.rs",
+    "refs": 3
+   },
+   "decode": {
+    "file": "src/etf.rs",
+    "refs": 23
+   },
+   "decode_term": {
+    "file": "src/etf.rs",
+    "refs": 33
+   },
+   "encode": {
+    "file": "src/etf.rs",
+    "refs": 9
+   },
+   "encode_checked": {
+    "file": "src/etf.rs",
+    "refs": 5
+   },
+   "encode_term": {
+    "file": "src/etf.rs",
+    "refs": 14
+   },
+   "encode_term_checked": {
+    "file": "src/etf.rs",
+    "refs": 3
+   },
+   "new": {
+    "file": "src/zstd.rs",
+    "refs": 21
+   },
+   "push": {
+    "file": "src/zstd.rs",
+    "refs": 28
+   },
+   "compressed_consumed": {
+    "file": "src/zstd.rs",
+    "refs": 3
+   },
+   "is_dead": {
+    "file": "src/zstd.rs",
+    "refs": 4
+   },
+   "is_finished": {
+    "file": "src/zstd.rs",
+    "refs": 4
+   }
+  }
+ },
+ "discord-conformance": {
+  "pub_fns": 9,
+  "referenced": 8,
+  "uncovered": 1,
+  "items": {
+   "read_bytes": {
+    "file": "src/lib.rs",
+    "refs": 3
+   },
+   "read_text": {
+    "file": "src/lib.rs",
+    "refs": 0
+   },
+   "fixtures_root": {
+    "file": "src/lib.rs",
+    "refs": 7
+   },
+   "lab_root": {
+    "file": "src/lib.rs",
+    "refs": 6
+   },
+   "manifest_path": {
+    "file": "src/lib.rs",
+    "refs": 2
+   },
+   "manifest_text": {
+    "file": "src/lib.rs",
+    "refs": 2
+   },
+   "resolve": {
+    "file": "src/lib.rs",
+    "refs": 6
+   },
+   "load_bytes": {
+    "file": "src/lib.rs",
+    "refs": 3
+   },
+   "load_text": {
+    "file": "src/lib.rs",
+    "refs": 3
+   }
+  }
+ },
+ "discord-core": {
+  "pub_fns": 265,
+  "referenced": 237,
+  "uncovered": 28,
+  "items": {
+   "from_code": {
+    "file": "src/gateway.rs",
+    "refs": 11
+   },
+   "new": {
+    "file": "src/gateway.rs",
+    "refs": 351
+   },
+   "on_term": {
+    "file": "src/gateway.rs",
+    "refs": 21
+   },
+   "on_value": {
+    "file": "src/gateway.rs",
+    "refs": 22
+   },
+   "on_timer": {
+    "file": "src/gateway.rs",
+    "refs": 10
+   },
+   "next_deadline_ms": {
+    "file": "src/gateway.rs",
+    "refs": 13
+   },
+   "hello": {
+    "file": "src/gateway.rs",
+    "refs": 40
+   },
+   "last_seq": {
+    "file": "src/gateway.rs",
+    "refs": 66
+   },
+   "rtt_ms": {
+    "file": "src/gateway.rs",
+    "refs": 11
+   },
+   "beats_emitted": {
+    "file": "src/gateway.rs",
+    "refs": 9
+   },
+   "is_dead": {
+    "file": "src/gateway.rs",
+    "refs": 10
+   },
+   "ignored_values": {
+    "file": "src/gateway.rs",
+    "refs": 3
+   },
+   "push_binary": {
+    "file": "src/ws.rs",
+    "refs": 17
+   },
+   "session": {
+    "file": "src/ws.rs",
+    "refs": 149
+   },
+   "frames_received": {
+    "file": "src/ws.rs",
+    "refs": 5
+   },
+   "bytes_received": {
+    "file": "src/ws.rs",
+    "refs": 5
+   },
+   "terms_parsed": {
+    "file": "src/ws.rs",
+    "refs": 14
+   },
+   "pending_bytes": {
+    "file": "src/ws.rs",
+    "refs": 3
+   },
+   "ignored_messages": {
+    "file": "src/ws.rs",
+    "refs": 3
+   },
+   "last_ready": {
+    "file": "src/ws.rs",
+    "refs": 4
+   },
+   "resume_state": {
+    "file": "src/ws.rs",
+    "refs": 6
+   },
+   "last_invalid_session_resumable": {
+    "file": "src/ws.rs",
+    "refs": 4
+   },
+   "events": {
+    "file": "src/ws.rs",
+    "refs": 22
+   },
+   "take_events": {
+    "file": "src/ws.rs",
+    "refs": 2
+   },
+   "unknown_dispatches": {
+    "file": "src/ws.rs",
+    "refs": 3
+   },
+   "note_ignored_message": {
+    "file": "src/ws.rs",
+    "refs": 0
+   },
+   "encode_heartbeat": {
+    "file": "src/ws.rs",
+    "refs": 4
+   },
+   "none": {
+    "file": "src/ws.rs",
+    "refs": 7
+   },
+   "for_rw_client": {
+    "file": "src/identify.rs",
+    "refs": 2
+   },
+   "qos_token_client_provided": {
+    "file": "src/identify.rs",
+    "refs": 4
+   },
+   "build_identify": {
+    "file": "src/identify.rs",
+    "refs": 11
+   },
+   "build_identify_frame": {
+    "file": "src/identify.rs",
+    "refs": 0
+   },
+   "from_dispatch": {
+    "file": "src/ready.rs",
+    "refs": 22
+   },
+   "build_resume_frame": {
+    "file": "src/resume.rs",
+    "refs": 5
+   },
+   "plan_reconnect": {
+    "file": "src/resume.rs",
+    "refs": 10
+   },
+   "from_name": {
+    "file": "src/dispatch.rs",
+    "refs": 6
+   },
+   "as_str": {
+    "file": "src/dispatch.rs",
+    "refs": 63
+   },
+   "route_dispatch": {
+    "file": "src/dispatch.rs",
+    "refs": 19
+   },
+   "find": {
+    "file": "src/rest/routes.rs",
+    "refs": 47
+   },
+   "render_path": {
+    "file": "src/rest/routes.rs",
+    "refs": 10
+   },
+   "auth_headers": {
+    "file": "src/rest/headers.rs",
+    "refs": 5
+   },
+   "classify_status": {
+    "file": "src/rest/headers.rs",
+    "refs": 8
+   },
+   "is_idempotent": {
+    "file": "src/rest/retry.rs",
+    "refs": 6
+   },
+   "uuid_v4": {
+    "file": "src/rest/identity.rs",
+    "refs": 5
+   },
+   "build": {
+    "file": "src/rest/identity.rs",
+    "refs": 21
+   },
+   "to_json": {
+    "file": "src/rest/super_properties.rs",
+    "refs": 9
+   },
+   "from_json": {
+    "file": "src/rest/super_properties.rs",
+    "refs": 16
+   },
+   "to_base64": {
+    "file": "src/rest/super_properties.rs",
+    "refs": 10
+   },
+   "from_base64": {
+    "file": "src/rest/super_properties.rs",
+    "refs": 15
+   },
+   "field_names": {
+    "file": "src/rest/super_properties.rs",
+    "refs": 5
+   },
+   "encode": {
+    "file": "src/rest/base64.rs",
+    "refs": 29
+   },
+   "decode": {
+    "file": "src/rest/base64.rs",
+    "refs": 46
+   },
+   "header": {
+    "file": "src/rest/http1.rs",
+    "refs": 18
+   },
+   "content_length": {
+    "file": "src/rest/http1.rs",
+    "refs": 10
+   },
+   "is_chunked": {
+    "file": "src/rest/http1.rs",
+    "refs": 7
+   },
+   "parse_response_head": {
+    "file": "src/rest/http1.rs",
+    "refs": 7
+   },
+   "decode_chunked": {
+    "file": "src/rest/http1.rs",
+    "refs": 11
+   },
+   "encode_request": {
+    "file": "src/rest/http1.rs",
+    "refs": 8
+   },
+   "body": {
+    "file": "src/rest/transport.rs",
+    "refs": 38
+   },
+   "parse": {
+    "file": "src/rest/transport.rs",
+    "refs": 99
+   },
+   "target": {
+    "file": "src/rest/transport.rs",
+    "refs": 37
+   },
+   "rate_limit_info": {
+    "file": "src/rest/rate_limit.rs",
+    "refs": 9
+   },
+   "classify_failure": {
+    "file": "src/rest/rate_limit.rs",
+    "refs": 9
+   },
+   "retry_delay": {
+    "file": "src/rest/rate_limit.rs",
+    "refs": 10
+   },
+   "should_retry": {
+    "file": "src/rest/rate_limit.rs",
+    "refs": 6
+   },
+   "is_telemetry_path": {
+    "file": "src/rest/telemetry.rs",
+    "refs": 4
+   },
+   "guard_target": {
+    "file": "src/rest/telemetry.rs",
+    "refs": 10
+   },
+   "build_ack_target": {
+    "file": "src/rest/ack.rs",
+    "refs": 9
+   },
+   "build_ack_body": {
+    "file": "src/rest/ack.rs",
+    "refs": 11
+   },
+   "from_values": {
+    "file": "src/rest/client.rs",
+    "refs": 0
+   },
+   "pairs": {
+    "file": "src/rest/client.rs",
+    "refs": 95
+   },
+   "resource": {
+    "file": "src/rest/resources.rs",
+    "refs": 6
+   },
+   "path": {
+    "file": "src/rest/resources.rs",
+    "refs": 242
+   },
+   "kind": {
+    "file": "src/ready/value.rs",
+    "refs": 45
+   },
+   "get": {
+    "file": "src/ready/value.rs",
+    "refs": 145
+   },
+   "is_null": {
+    "file": "src/ready/value.rs",
+    "refs": 3
+   },
+   "text": {
+    "file": "src/ready/value.rs",
+    "refs": 508
+   },
+   "opt_text": {
+    "file": "src/ready/value.rs",
+    "refs": 0
+   },
+   "integer": {
+    "file": "src/ready/value.rs",
+    "refs": 4
+   },
+   "unsigned": {
+    "file": "src/ready/value.rs",
+    "refs": 6
+   },
+   "boolean": {
+    "file": "src/ready/value.rs",
+    "refs": 5
+   },
+   "items": {
+    "file": "src/ready/value.rs",
+    "refs": 81
+   },
+   "items_or_empty": {
+    "file": "src/ready/value.rs",
+    "refs": 14
+   },
+   "object": {
+    "file": "src/ready/value.rs",
+    "refs": 6
+   },
+   "text_list": {
+    "file": "src/ready/value.rs",
+    "refs": 0
+   },
+   "dedup_last_by": {
+    "file": "src/ready/value.rs",
+    "refs": 0
+   },
+   "raw": {
+    "file": "src/ready/snapshot.rs",
+    "refs": 94
+   },
+   "from_ready": {
+    "file": "src/state/types.rs",
+    "refs": 25
+   },
+   "merge": {
+    "file": "src/state/types.rs",
+    "refs": 1
+   },
+   "from_routed": {
+    "file": "src/state/types.rs",
+    "refs": 0
+   },
+   "from_frame": {
+    "file": "src/state/types.rs",
+    "refs": 72
+   },
+   "from_frame_at": {
+    "file": "src/state/types.rs",
+    "refs": 5
+   },
+   "push": {
+    "file": "src/state/types.rs",
+    "refs": 80
+   },
+   "as_slice": {
+    "file": "src/state/types.rs",
+    "refs": 19
+   },
+   "len": {
+    "file": "src/state/types.rs",
+    "refs": 439
+   },
+   "is_empty": {
+    "file": "src/state/types.rs",
+    "refs": 261
+   },
+   "into_vec": {
+    "file": "src/state/types.rs",
+    "refs": 0
+   },
+   "apply": {
+    "file": "src/state/reducer.rs",
+    "refs": 47
+   },
+   "apply_dispatch": {
+    "file": "src/state/reducer.rs",
+    "refs": 5
+   },
+   "apply_frame": {
+    "file": "src/state/reducer.rs",
+    "refs": 107
+   },
+   "apply_frame_at": {
+    "file": "src/state/reducer.rs",
+    "refs": 11
+   },
+   "guild": {
+    "file": "src/state/selectors.rs",
+    "refs": 131
+   },
+   "channel": {
+    "file": "src/state/selectors.rs",
+    "refs": 89
+   },
+   "channel_guild_id": {
+    "file": "src/state/selectors.rs",
+    "refs": 3
+   },
+   "channels_in_guild": {
+    "file": "src/state/selectors.rs",
+    "refs": 3
+   },
+   "private_channel": {
+    "file": "src/state/selectors.rs",
+    "refs": 2
+   },
+   "user": {
+    "file": "src/state/selectors.rs",
+    "refs": 276
+   },
+   "relationship": {
+    "file": "src/state/selectors.rs",
+    "refs": 5
+   },
+   "message": {
+    "file": "src/state/selectors.rs",
+    "refs": 76
+   },
+   "messages_in_channel": {
+    "file": "src/state/selectors.rs",
+    "refs": 3
+   },
+   "thread": {
+    "file": "src/state/selectors.rs",
+    "refs": 26
+   },
+   "threads_in_guild": {
+    "file": "src/state/selectors.rs",
+    "refs": 4
+   },
+   "guild_member": {
+    "file": "src/state/selectors.rs",
+    "refs": 2
+   },
+   "read_state_entry": {
+    "file": "src/state/selectors.rs",
+    "refs": 3
+   },
+   "user_guild_settings_entry": {
+    "file": "src/state/selectors.rs",
+    "refs": 2
+   },
+   "guild_count": {
+    "file": "src/state/selectors.rs",
+    "refs": 1
+   },
+   "channel_count": {
+    "file": "src/state/selectors.rs",
+    "refs": 9
+   },
+   "private_channel_count": {
+    "file": "src/state/selectors.rs",
+    "refs": 1
+   },
+   "user_count": {
+    "file": "src/state/selectors.rs",
+    "refs": 1
+   },
+   "message_count": {
+    "file": "src/state/selectors.rs",
+    "refs": 3
+   },
+   "thread_count": {
+    "file": "src/state/selectors.rs",
+    "refs": 1
+   },
+   "member_list": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 3
+   },
+   "member_list_items": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 6
+   },
+   "member_list_member_at": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 3
+   },
+   "member_list_index_of": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 3
+   },
+   "member_list_group": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 2
+   },
+   "member_list_range": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 2
+   },
+   "member_list_len": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 2
+   },
+   "member_list_is_loaded": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 2
+   },
+   "member_list_count": {
+    "file": "src/state/member_list_selectors.rs",
+    "refs": 6
+   },
+   "is_complete": {
+    "file": "src/state/member_chunk.rs",
+    "refs": 5
+   },
+   "members": {
+    "file": "src/state/member_chunk.rs",
+    "refs": 61
+   },
+   "member_chunks": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 12
+   },
+   "member_chunk": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 4
+   },
+   "member_chunk_is_complete": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 3
+   },
+   "member_chunk_len": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 2
+   },
+   "member_chunk_member_count": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 2
+   },
+   "member_chunk_members": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 2
+   },
+   "member_chunk_member": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 2
+   },
+   "member_chunk_not_found": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 2
+   },
+   "member_chunk_count": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 2
+   },
+   "member_list_presence_effect": {
+    "file": "src/state/member_chunk_selectors.rs",
+    "refs": 6
+   },
+   "mention_count": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 48
+   },
+   "has_mentions": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 5
+   },
+   "mention_channels": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 5
+   },
+   "total_mentions": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 3
+   },
+   "guild_mention_count": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 3
+   },
+   "private_mention_count": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 3
+   },
+   "badge_count": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 25
+   },
+   "badge_entries": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 7
+   },
+   "total_badges": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 3
+   },
+   "acknowledged_message_id": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 12
+   },
+   "is_message_read": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 9
+   },
+   "read_state_version": {
+    "file": "src/state/read_state_selectors.rs",
+    "refs": 5
+   },
+   "from_wire": {
+    "file": "src/state/presence.rs",
+    "refs": 2
+   },
+   "is_online": {
+    "file": "src/state/presence.rs",
+    "refs": 10
+   },
+   "is_offline": {
+    "file": "src/state/presence.rs",
+    "refs": 9
+   },
+   "from_i64": {
+    "file": "src/state/presence.rs",
+    "refs": 1
+   },
+   "as_i64": {
+    "file": "src/state/presence.rs",
+    "refs": 1
+   },
+   "priority": {
+    "file": "src/state/presence.rs",
+    "refs": 1
+   },
+   "is_custom": {
+    "file": "src/state/presence.rs",
+    "refs": 1
+   },
+   "is_playing": {
+    "file": "src/state/presence.rs",
+    "refs": 0
+   },
+   "scope": {
+    "file": "src/state/presence.rs",
+    "refs": 26
+   },
+   "is_visible": {
+    "file": "src/state/presence.rs",
+    "refs": 2
+   },
+   "presence": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 181
+   },
+   "presence_in_guild": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "presence_scope": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "presence_scopes": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "presence_scope_count": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "presence_user_count": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "presence_user_ids": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 1
+   },
+   "has_presence": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 3
+   },
+   "status": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 152
+   },
+   "status_in_guild": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 5
+   },
+   "client_status": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 31
+   },
+   "client_status_in_guild": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 3
+   },
+   "activities": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 72
+   },
+   "activities_in_guild": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "hidden_activities": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 15
+   },
+   "primary_activity": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 3
+   },
+   "custom_status": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "activity_by_type": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 2
+   },
+   "is_mobile_online": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 6
+   },
+   "is_vr_online": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 5
+   },
+   "online_user_ids": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 3
+   },
+   "guild_online_count": {
+    "file": "src/state/presence_selectors.rs",
+    "refs": 6
+   },
+   "config": {
+    "file": "src/history/types.rs",
+    "refs": 30
+   },
+   "diagnostics": {
+    "file": "src/history/types.rs",
+    "refs": 308
+   },
+   "apply_live": {
+    "file": "src/history/types.rs",
+    "refs": 12
+   },
+   "from_effect": {
+    "file": "src/history/pagination.rs",
+    "refs": 5
+   },
+   "validate": {
+    "file": "src/history/pagination.rs",
+    "refs": 0
+   },
+   "query": {
+    "file": "src/history/pagination.rs",
+    "refs": 8
+   },
+   "channel_id": {
+    "file": "src/history/pagination.rs",
+    "refs": 176
+   },
+   "cursor": {
+    "file": "src/history/pagination.rs",
+    "refs": 2
+   },
+   "limit": {
+    "file": "src/history/pagination.rs",
+    "refs": 23
+   },
+   "begin_page": {
+    "file": "src/history/pagination.rs",
+    "refs": 16
+   },
+   "apply_page": {
+    "file": "src/history/pagination.rs",
+    "refs": 20
+   },
+   "total_len": {
+    "file": "src/history/selectors.rs",
+    "refs": 5
+   },
+   "messages": {
+    "file": "src/history/selectors.rs",
+    "refs": 90
+   },
+   "recent": {
+    "file": "src/history/selectors.rs",
+    "refs": 11
+   },
+   "oldest": {
+    "file": "src/history/selectors.rs",
+    "refs": 7
+   },
+   "newest": {
+    "file": "src/history/selectors.rs",
+    "refs": 7
+   },
+   "has_older": {
+    "file": "src/history/selectors.rs",
+    "refs": 15
+   },
+   "has_newer": {
+    "file": "src/history/selectors.rs",
+    "refs": 15
+   },
+   "range": {
+    "file": "src/history/selectors.rs",
+    "refs": 57
+   },
+   "window_around": {
+    "file": "src/history/selectors.rs",
+    "refs": 11
+   },
+   "wire_type": {
+    "file": "src/settings/wire.rs",
+    "refs": 1
+   },
+   "as_varint": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "as_bytes": {
+    "file": "src/settings/wire.rs",
+    "refs": 14
+   },
+   "field": {
+    "file": "src/settings/wire.rs",
+    "refs": 22
+   },
+   "fields_of": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "length_delimited": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "string": {
+    "file": "src/settings/wire.rs",
+    "refs": 8
+   },
+   "bool_wrapper": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "int32_wrapper": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "int64_wrapper": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "uint64_wrapper": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "scalar_u64": {
+    "file": "src/settings/wire.rs",
+    "refs": 2
+   },
+   "scalar_i64": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "scalar_i32": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "scalar_bool": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "scalar_fixed64": {
+    "file": "src/settings/wire.rs",
+    "refs": 0
+   },
+   "proto_type": {
+    "file": "src/settings/mod.rs",
+    "refs": 5
+   },
+   "decode_settings": {
+    "file": "src/settings/mod.rs",
+    "refs": 4
+   },
+   "decode_preloaded_user_settings": {
+    "file": "src/settings/mod.rs",
+    "refs": 0
+   },
+   "decode_frecency_user_settings": {
+    "file": "src/settings/mod.rs",
+    "refs": 0
+   },
+   "is_connected": {
+    "file": "src/state/voice/types.rs",
+    "refs": 2
+   },
+   "connected_at_ms": {
+    "file": "src/state/voice/types.rs",
+    "refs": 5
+   },
+   "parse_voice_state_update": {
+    "file": "src/state/voice/parser.rs",
+    "refs": 0
+   },
+   "parse_voice_states": {
+    "file": "src/state/voice/parser.rs",
+    "refs": 0
+   },
+   "parse_voice_channel_start_time": {
+    "file": "src/state/voice/parser.rs",
+    "refs": 0
+   },
+   "parse_voice_channel_status": {
+    "file": "src/state/voice/parser.rs",
+    "refs": 0
+   },
+   "voice_state": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 12
+   },
+   "voice_channel_of": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 4
+   },
+   "voice_users_in_channel": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 1
+   },
+   "voice_channel_user_count": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 3
+   },
+   "voice_state_count": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 8
+   },
+   "voice_guild_count": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 1
+   },
+   "is_user_in_voice": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 0
+   },
+   "self_voice_state": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 2
+   },
+   "is_self_in_voice": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 2
+   },
+   "voice_connected_for_ms": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 8
+   },
+   "voice_channel_start_time": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 10
+   },
+   "voice_channel_elapsed_ms": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 5
+   },
+   "voice_channel_status": {
+    "file": "src/state/voice/selectors.rs",
+    "refs": 9
+   },
+   "apply_update": {
+    "file": "src/state/voice/reducer.rs",
+    "refs": 2
+   },
+   "apply_snapshot": {
+    "file": "src/state/voice/reducer.rs",
+    "refs": 4
+   },
+   "apply_start_time": {
+    "file": "src/state/voice/reducer.rs",
+    "refs": 11
+   },
+   "apply_status": {
+    "file": "src/state/voice/reducer.rs",
+    "refs": 10
+   },
+   "parse_typing_start": {
+    "file": "src/state/typing/parser.rs",
+    "refs": 5
+   },
+   "is_active": {
+    "file": "src/state/typing/types.rs",
+    "refs": 5
+   },
+   "remaining_ms": {
+    "file": "src/state/typing/types.rs",
+    "refs": 2
+   },
+   "typing_entry": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 4
+   },
+   "is_typing": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 10
+   },
+   "typing_entries": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 6
+   },
+   "typing_user_ids": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 2
+   },
+   "typing_users": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 3
+   },
+   "typing_entries_by_guild": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 5
+   },
+   "typing_entry_count": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 6
+   },
+   "typing_channel_count": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 4
+   },
+   "typing_remaining_ms": {
+    "file": "src/state/typing/selectors.rs",
+    "refs": 3
+   },
+   "apply_start": {
+    "file": "src/state/typing/reducer.rs",
+    "refs": 23
+   },
+   "remove_for_message": {
+    "file": "src/state/typing/reducer.rs",
+    "refs": 4
+   },
+   "remove_entry": {
+    "file": "src/state/typing/reducer.rs",
+    "refs": 3
+   },
+   "prune_expired": {
+    "file": "src/state/typing/reducer.rs",
+    "refs": 3
+   }
+  }
+ },
+ "discord-i18n": {
+  "pub_fns": 41,
+  "referenced": 38,
+  "uncovered": 3,
+  "items": {
+   "is_supported": {
+    "file": "src/locale.rs",
+    "refs": 3
+   },
+   "is_enabled": {
+    "file": "src/locale.rs",
+    "refs": 4
+   },
+   "canonical_locale": {
+    "file": "src/locale.rs",
+    "refs": 2
+   },
+   "locale_language": {
+    "file": "src/locale.rs",
+    "refs": 3
+   },
+   "resolve_locale": {
+    "file": "src/locale.rs",
+    "refs": 12
+   },
+   "fallback_chain": {
+    "file": "src/locale.rs",
+    "refs": 3
+   },
+   "parse_markdown": {
+    "file": "src/markdown.rs",
+    "refs": 35
+   },
+   "render_markdown": {
+    "file": "src/markdown.rs",
+    "refs": 31
+   },
+   "parse": {
+    "file": "src/format.rs",
+    "refs": 32
+   },
+   "format_number": {
+    "file": "src/format.rs",
+    "refs": 7
+   },
+   "format_number_with": {
+    "file": "src/format.rs",
+    "refs": 2
+   },
+   "format_integer_unsigned": {
+    "file": "src/format.rs",
+    "refs": 1
+   },
+   "format_integer": {
+    "file": "src/format.rs",
+    "refs": 2
+   },
+   "format_percent": {
+    "file": "src/format.rs",
+    "refs": 2
+   },
+   "format_currency": {
+    "file": "src/format.rs",
+    "refs": 8
+   },
+   "format_date": {
+    "file": "src/format.rs",
+    "refs": 7
+   },
+   "format_time": {
+    "file": "src/format.rs",
+    "refs": 4
+   },
+   "format_date_skeleton": {
+    "file": "src/format.rs",
+    "refs": 4
+   },
+   "format_time_skeleton": {
+    "file": "src/format.rs",
+    "refs": 3
+   },
+   "format_date_time_pattern": {
+    "file": "src/format.rs",
+    "refs": 0
+   },
+   "format_number_named": {
+    "file": "src/format.rs",
+    "refs": 2
+   },
+   "format_list": {
+    "file": "src/list.rs",
+    "refs": 24
+   },
+   "timestamp_style": {
+    "file": "src/timestamp.rs",
+    "refs": 5
+   },
+   "render_timestamp": {
+    "file": "src/timestamp.rs",
+    "refs": 29
+   },
+   "render_timestamp_tokens": {
+    "file": "src/timestamp.rs",
+    "refs": 12
+   },
+   "as_str": {
+    "file": "src/plural.rs",
+    "refs": 28
+   },
+   "plural_category": {
+    "file": "src/plural.rs",
+    "refs": 0
+   },
+   "plural_category_integer": {
+    "file": "src/plural.rs",
+    "refs": 0
+   },
+   "cardinal": {
+    "file": "src/plural.rs",
+    "refs": 18
+   },
+   "ordinal": {
+    "file": "src/plural.rs",
+    "refs": 6
+   },
+   "xxh64": {
+    "file": "src/lib.rs",
+    "refs": 1
+   },
+   "message_key": {
+    "file": "src/lib.rs",
+    "refs": 2
+   },
+   "get": {
+    "file": "src/lib.rs",
+    "refs": 51
+   },
+   "len": {
+    "file": "src/lib.rs",
+    "refs": 36
+   },
+   "is_empty": {
+    "file": "src/lib.rs",
+    "refs": 7
+   },
+   "new": {
+    "file": "src/lib.rs",
+    "refs": 27
+   },
+   "insert_catalog": {
+    "file": "src/lib.rs",
+    "refs": 14
+   },
+   "set_locale": {
+    "file": "src/lib.rs",
+    "refs": 5
+   },
+   "translate": {
+    "file": "src/lib.rs",
+    "refs": 38
+   },
+   "format_relative": {
+    "file": "src/relative.rs",
+    "refs": 40
+   },
+   "format_duration": {
+    "file": "src/duration.rs",
+    "refs": 37
+   }
+  }
+ },
+ "discord-json": {
+  "pub_fns": 14,
+  "referenced": 10,
+  "uncovered": 4,
+  "items": {
+   "as_number": {
+    "file": "src/lib.rs",
+    "refs": 1
+   },
+   "as_str": {
+    "file": "src/lib.rs",
+    "refs": 8
+   },
+   "as_bool": {
+    "file": "src/lib.rs",
+    "refs": 0
+   },
+   "as_array": {
+    "file": "src/lib.rs",
+    "refs": 3
+   },
+   "as_object": {
+    "file": "src/lib.rs",
+    "refs": 3
+   },
+   "get": {
+    "file": "src/lib.rs",
+    "refs": 12
+   },
+   "as_i64": {
+    "file": "src/lib.rs",
+    "refs": 3
+   },
+   "as_u64": {
+    "file": "src/lib.rs",
+    "refs": 4
+   },
+   "as_f64": {
+    "file": "src/lib.rs",
+    "refs": 2
+   },
+   "is_null": {
+    "file": "src/lib.rs",
+    "refs": 0
+   },
+   "from_u64": {
+    "file": "src/lib.rs",
+    "refs": 0
+   },
+   "from_i64": {
+    "file": "src/lib.rs",
+    "refs": 0
+   },
+   "to_json_string": {
+    "file": "src/lib.rs",
+    "refs": 3
+   },
+   "parse": {
+    "file": "src/lib.rs",
+    "refs": 27
+   }
+  }
+ },
+ "discord-media": {
+  "pub_fns": 0,
+  "referenced": 0,
+  "uncovered": 0,
+  "items": {}
+ },
+ "discord-perf": {
+  "pub_fns": 8,
+  "referenced": 8,
+  "uncovered": 0,
+  "items": {
+   "reference": {
+    "file": "src/workload.rs",
+    "refs": 8
+   },
+   "as_str": {
+    "file": "src/workload.rs",
+    "refs": 3
+   },
+   "build_workload": {
+    "file": "src/workload.rs",
+    "refs": 11
+   },
+   "base_state": {
+    "file": "src/workload.rs",
+    "refs": 3
+   },
+   "compare": {
+    "file": "src/workload.rs",
+    "refs": 7
+   },
+   "measure": {
+    "file": "src/workload.rs",
+    "refs": 9
+   },
+   "report_to_json": {
+    "file": "src/workload.rs",
+    "refs": 5
+   },
+   "report_from_json": {
+    "file": "src/workload.rs",
+    "refs": 5
+   }
+  }
+ },
+ "discord-platform": {
+  "pub_fns": 62,
+  "referenced": 56,
+  "uncovered": 6,
+  "items": {
+   "parse_deep_link": {
+    "file": "src/deep_link.rs",
+    "refs": 13
+   },
+   "extract_deep_link": {
+    "file": "src/deep_link.rs",
+    "refs": 10
+   },
+   "route": {
+    "file": "src/deep_link.rs",
+    "refs": 15
+   },
+   "desktop_entry": {
+    "file": "src/autostart.rs",
+    "refs": 22
+   },
+   "autostart_path": {
+    "file": "src/autostart.rs",
+    "refs": 3
+   },
+   "badge_pairs": {
+    "file": "src/autostart.rs",
+    "refs": 4
+   },
+   "app_uri": {
+    "file": "src/autostart.rs",
+    "refs": 3
+   },
+   "connect": {
+    "file": "src/power.rs",
+    "refs": 100
+   },
+   "inhibit": {
+    "file": "src/power.rs",
+    "refs": 17
+   },
+   "uninhibit": {
+    "file": "src/power.rs",
+    "refs": 4
+   },
+   "is_active": {
+    "file": "src/power.rs",
+    "refs": 4
+   },
+   "idle_seconds": {
+    "file": "src/power.rs",
+    "refs": 5
+   },
+   "fd": {
+    "file": "src/power.rs",
+    "refs": 94
+   },
+   "inhibit_sleep": {
+    "file": "src/power.rs",
+    "refs": 6
+   },
+   "subscribe": {
+    "file": "src/power.rs",
+    "refs": 4
+   },
+   "next_event": {
+    "file": "src/power.rs",
+    "refs": 10
+   },
+   "status": {
+    "file": "src/power.rs",
+    "refs": 73
+   },
+   "new": {
+    "file": "src/spellcheck.rs",
+    "refs": 135
+   },
+   "check": {
+    "file": "src/spellcheck.rs",
+    "refs": 9
+   },
+   "suggest": {
+    "file": "src/spellcheck.rs",
+    "refs": 2
+   },
+   "add": {
+    "file": "src/spellcheck.rs",
+    "refs": 1
+   },
+   "remove": {
+    "file": "src/spellcheck.rs",
+    "refs": 1
+   },
+   "tokenize": {
+    "file": "src/spellcheck.rs",
+    "refs": 10
+   },
+   "code": {
+    "file": "src/notifications.rs",
+    "refs": 8
+   },
+   "to_dbus": {
+    "file": "src/notifications.rs",
+    "refs": 6
+   },
+   "capabilities": {
+    "file": "src/notifications.rs",
+    "refs": 8
+   },
+   "server_information": {
+    "file": "src/notifications.rs",
+    "refs": 1
+   },
+   "notify": {
+    "file": "src/notifications.rs",
+    "refs": 36
+   },
+   "notify_with_hints": {
+    "file": "src/notifications.rs",
+    "refs": 15
+   },
+   "close": {
+    "file": "src/notifications.rs",
+    "refs": 7
+   },
+   "listen_actions": {
+    "file": "src/notifications.rs",
+    "refs": 2
+   },
+   "store": {
+    "file": "src/keyring.rs",
+    "refs": 21
+   },
+   "lookup": {
+    "file": "src/keyring.rs",
+    "refs": 24
+   },
+   "clear": {
+    "file": "src/keyring.rs",
+    "refs": 19
+   },
+   "parse": {
+    "file": "src/dbus/mod.rs",
+    "refs": 87
+   },
+   "from_env": {
+    "file": "src/dbus/mod.rs",
+    "refs": 7
+   },
+   "path": {
+    "file": "src/dbus/mod.rs",
+    "refs": 101
+   },
+   "abstract_name": {
+    "file": "src/dbus/mod.rs",
+    "refs": 11
+   },
+   "close_fds": {
+    "file": "src/dbus/mod.rs",
+    "refs": 0
+   },
+   "unique_name": {
+    "file": "src/dbus/mod.rs",
+    "refs": 4
+   },
+   "call": {
+    "file": "src/dbus/mod.rs",
+    "refs": 36
+   },
+   "call_with_fds": {
+    "file": "src/dbus/mod.rs",
+    "refs": 2
+   },
+   "add_match": {
+    "file": "src/dbus/mod.rs",
+    "refs": 0
+   },
+   "next_signal": {
+    "file": "src/dbus/mod.rs",
+    "refs": 0
+   },
+   "external_auth_line": {
+    "file": "src/dbus/auth.rs",
+    "refs": 2
+   },
+   "current_uid": {
+    "file": "src/dbus/auth.rs",
+    "refs": 1
+   },
+   "parse_uid": {
+    "file": "src/dbus/auth.rs",
+    "refs": 3
+   },
+   "authenticate": {
+    "file": "src/dbus/auth.rs",
+    "refs": 0
+   },
+   "from_code": {
+    "file": "src/dbus/message.rs",
+    "refs": 0
+   },
+   "field": {
+    "file": "src/dbus/message.rs",
+    "refs": 4
+   },
+   "interface": {
+    "file": "src/dbus/message.rs",
+    "refs": 5
+   },
+   "member": {
+    "file": "src/dbus/message.rs",
+    "refs": 37
+   },
+   "destination": {
+    "file": "src/dbus/message.rs",
+    "refs": 5
+   },
+   "error_name": {
+    "file": "src/dbus/message.rs",
+    "refs": 2
+   },
+   "reply_serial": {
+    "file": "src/dbus/message.rs",
+    "refs": 4
+   },
+   "build": {
+    "file": "src/dbus/message.rs",
+    "refs": 4
+   },
+   "build_with_fds": {
+    "file": "src/dbus/message.rs",
+    "refs": 4
+   },
+   "parse_with_fds": {
+    "file": "src/dbus/message.rs",
+    "refs": 3
+   },
+   "close_fd": {
+    "file": "src/dbus/fd.rs",
+    "refs": 3
+   },
+   "close_all": {
+    "file": "src/dbus/fd.rs",
+    "refs": 0
+   },
+   "send_with_fds": {
+    "file": "src/dbus/fd.rs",
+    "refs": 1
+   },
+   "recv_exact_with_fds": {
+    "file": "src/dbus/fd.rs",
+    "refs": 1
+   }
+  }
+ },
+ "discord-store": {
+  "pub_fns": 11,
+  "referenced": 11,
+  "uncovered": 0,
+  "items": {
+   "open": {
+    "file": "src/lib.rs",
+    "refs": 6
+   },
+   "open_in_memory": {
+    "file": "src/lib.rs",
+    "refs": 12
+   },
+   "migrate": {
+    "file": "src/lib.rs",
+    "refs": 23
+   },
+   "schema_version": {
+    "file": "src/lib.rs",
+    "refs": 14
+   },
+   "put_channel": {
+    "file": "src/lib.rs",
+    "refs": 13
+   },
+   "channel": {
+    "file": "src/lib.rs",
+    "refs": 21
+   },
+   "put_message": {
+    "file": "src/lib.rs",
+    "refs": 33
+   },
+   "messages": {
+    "file": "src/lib.rs",
+    "refs": 42
+   },
+   "delete_message": {
+    "file": "src/lib.rs",
+    "refs": 4
+   },
+   "kv_set": {
+    "file": "src/lib.rs",
+    "refs": 10
+   },
+   "kv_get": {
+    "file": "src/lib.rs",
+    "refs": 12
+   }
+  }
+ },
+ "discord-ui": {
+  "pub_fns": 112,
+  "referenced": 92,
+  "uncovered": 20,
+  "items": {
+   "validate_cldr_locale": {
+    "file": "src/dialog_window.rs",
+    "refs": 7
+   },
+   "new": {
+    "file": "src/dialog_window.rs",
+    "refs": 65
+   },
+   "as_u64": {
+    "file": "src/dialog_window.rs",
+    "refs": 1
+   },
+   "open_window": {
+    "file": "src/dialog_window.rs",
+    "refs": 18
+   },
+   "send_message": {
+    "file": "src/dialog_window.rs",
+    "refs": 3
+   },
+   "close_window": {
+    "file": "src/dialog_window.rs",
+    "refs": 8
+   },
+   "update_geometry": {
+    "file": "src/window_manager.rs",
+    "refs": 4
+   },
+   "is_window_open": {
+    "file": "src/window_manager.rs",
+    "refs": 6
+   },
+   "get_geometry": {
+    "file": "src/window_manager.rs",
+    "refs": 0
+   },
+   "get_open_window_ids": {
+    "file": "src/window_manager.rs",
+    "refs": 0
+   },
+   "get_all_window_ids": {
+    "file": "src/window_manager.rs",
+    "refs": 0
+   },
+   "restore_from_history": {
+    "file": "src/window_manager.rs",
+    "refs": 2
+   },
+   "active_window_count": {
+    "file": "src/window_manager.rs",
+    "refs": 4
+   },
+   "total_window_count": {
+    "file": "src/window_manager.rs",
+    "refs": 3
+   },
+   "setup_tray": {
+    "file": "src/tray_manager.rs",
+    "refs": 11
+   },
+   "toggle_window": {
+    "file": "src/tray_manager.rs",
+    "refs": 1
+   },
+   "set_state": {
+    "file": "src/tray_manager.rs",
+    "refs": 1
+   },
+   "get_state": {
+    "file": "src/tray_manager.rs",
+    "refs": 5
+   },
+   "get_config": {
+    "file": "src/tray_manager.rs",
+    "refs": 0
+   },
+   "associate_window": {
+    "file": "src/tray_manager.rs",
+    "refs": 1
+   },
+   "disassociate_window": {
+    "file": "src/tray_manager.rs",
+    "refs": 1
+   },
+   "get_open_tray_ids": {
+    "file": "src/tray_manager.rs",
+    "refs": 0
+   },
+   "active_tray_count": {
+    "file": "src/tray_manager.rs",
+    "refs": 2
+   },
+   "total_tray_count": {
+    "file": "src/tray_manager.rs",
+    "refs": 3
+   },
+   "handle_action": {
+    "file": "src/tray_manager.rs",
+    "refs": 3
+   },
+   "set_focused_user": {
+    "file": "src/user_profile.rs",
+    "refs": 0
+   },
+   "focused_user": {
+    "file": "src/user_profile.rs",
+    "refs": 0
+   },
+   "add_user_to_cache": {
+    "file": "src/user_profile.rs",
+    "refs": 0
+   },
+   "get_user": {
+    "file": "src/user_profile.rs",
+    "refs": 0
+   },
+   "has_user": {
+    "file": "src/user_profile.rs",
+    "refs": 0
+   },
+   "focused_user_id": {
+    "file": "src/user_profile.rs",
+    "refs": 0
+   },
+   "add_message": {
+    "file": "src/chat_view.rs",
+    "refs": 3
+   },
+   "get_message": {
+    "file": "src/chat_view.rs",
+    "refs": 0
+   },
+   "state": {
+    "file": "src/chat_view.rs",
+    "refs": 14
+   },
+   "history_len": {
+    "file": "src/chat_view.rs",
+    "refs": 4
+   },
+   "set_selection_mode": {
+    "file": "src/chat_view.rs",
+    "refs": 1
+   },
+   "is_selection_mode": {
+    "file": "src/chat_view.rs",
+    "refs": 2
+   },
+   "set_scroll_position": {
+    "file": "src/chat_view.rs",
+    "refs": 0
+   },
+   "scroll_position": {
+    "file": "src/chat_view.rs",
+    "refs": 2
+   },
+   "set_unread_count": {
+    "file": "src/chat_view.rs",
+    "refs": 0
+   },
+   "unread_count": {
+    "file": "src/chat_view.rs",
+    "refs": 2
+   },
+   "select_message": {
+    "file": "src/chat_view.rs",
+    "refs": 1
+   },
+   "deselect_message": {
+    "file": "src/chat_view.rs",
+    "refs": 1
+   },
+   "navigate": {
+    "file": "src/navigation.rs",
+    "refs": 6
+   },
+   "current_view": {
+    "file": "src/navigation.rs",
+    "refs": 3
+   },
+   "is_enabled": {
+    "file": "src/navigation.rs",
+    "refs": 1
+   },
+   "set_enabled": {
+    "file": "src/navigation.rs",
+    "refs": 1
+   },
+   "history": {
+    "file": "src/navigation.rs",
+    "refs": 5
+   },
+   "rank": {
+    "file": "src/member_list.rs",
+    "refs": 6
+   },
+   "is_online_group": {
+    "file": "src/member_list.rs",
+    "refs": 5
+   },
+   "key": {
+    "file": "src/member_list.rs",
+    "refs": 7
+   },
+   "name": {
+    "file": "src/member_list.rs",
+    "refs": 7
+   },
+   "matches": {
+    "file": "src/member_list.rs",
+    "refs": 0
+   },
+   "title": {
+    "file": "src/member_list.rs",
+    "refs": 12
+   },
+   "visible_range": {
+    "file": "src/member_list.rs",
+    "refs": 3
+   },
+   "total_height": {
+    "file": "src/member_list.rs",
+    "refs": 1
+   },
+   "max_scroll": {
+    "file": "src/member_list.rs",
+    "refs": 1
+   },
+   "scroll_by": {
+    "file": "src/member_list.rs",
+    "refs": 2
+   },
+   "from_members": {
+    "file": "src/member_list.rs",
+    "refs": 5
+   },
+   "groups": {
+    "file": "src/member_list.rs",
+    "refs": 10
+   },
+   "set_filter": {
+    "file": "src/member_list.rs",
+    "refs": 4
+   },
+   "filter": {
+    "file": "src/member_list.rs",
+    "refs": 0
+   },
+   "is_collapsed": {
+    "file": "src/member_list.rs",
+    "refs": 1
+   },
+   "toggle_collapsed": {
+    "file": "src/member_list.rs",
+    "refs": 2
+   },
+   "visible_rows": {
+    "file": "src/member_list.rs",
+    "refs": 2
+   },
+   "visible_group_headers": {
+    "file": "src/member_list.rs",
+    "refs": 2
+   },
+   "visible_count": {
+    "file": "src/member_list.rs",
+    "refs": 6
+   },
+   "window": {
+    "file": "src/member_list.rs",
+    "refs": 48
+   },
+   "set_window": {
+    "file": "src/member_list.rs",
+    "refs": 0
+   },
+   "find_member": {
+    "file": "src/member_list.rs",
+    "refs": 2
+   },
+   "as_has_value": {
+    "file": "src/search_overlay.rs",
+    "refs": 3
+   },
+   "all": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "as_param": {
+    "file": "src/search_overlay.rs",
+    "refs": 3
+   },
+   "params": {
+    "file": "src/search_overlay.rs",
+    "refs": 16
+   },
+   "is_empty": {
+    "file": "src/search_overlay.rs",
+    "refs": 6
+   },
+   "clear": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "toggle_contains": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "to_params": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "is_executable": {
+    "file": "src/search_overlay.rs",
+    "refs": 4
+   },
+   "open": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "close": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "is_open": {
+    "file": "src/search_overlay.rs",
+    "refs": 14
+   },
+   "query": {
+    "file": "src/search_overlay.rs",
+    "refs": 18
+   },
+   "query_mut": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "set_text": {
+    "file": "src/search_overlay.rs",
+    "refs": 0
+   },
+   "set_sort": {
+    "file": "src/search_overlay.rs",
+    "refs": 0
+   },
+   "begin_loading": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "apply_results": {
+    "file": "src/search_overlay.rs",
+    "refs": 3
+   },
+   "apply_error": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "group_results": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "total_results": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "is_loading": {
+    "file": "src/search_overlay.rs",
+    "refs": 3
+   },
+   "error": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "loaded_count": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "result_heading": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "select": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "selected_index": {
+    "file": "src/search_overlay.rs",
+    "refs": 4
+   },
+   "move_selection": {
+    "file": "src/search_overlay.rs",
+    "refs": 3
+   },
+   "selected_result": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "next_page": {
+    "file": "src/search_overlay.rs",
+    "refs": 2
+   },
+   "reset_page": {
+    "file": "src/search_overlay.rs",
+    "refs": 1
+   },
+   "label": {
+    "file": "src/reply_thread.rs",
+    "refs": 2
+   },
+   "preview": {
+    "file": "src/reply_thread.rs",
+    "refs": 4
+   },
+   "current": {
+    "file": "src/reply_thread.rs",
+    "refs": 4
+   },
+   "switch": {
+    "file": "src/reply_thread.rs",
+    "refs": 2
+   },
+   "apply_sync": {
+    "file": "src/reply_thread.rs",
+    "refs": 3
+   },
+   "upsert": {
+    "file": "src/reply_thread.rs",
+    "refs": 7
+   },
+   "get": {
+    "file": "src/reply_thread.rs",
+    "refs": 13
+   },
+   "by_parent": {
+    "file": "src/reply_thread.rs",
+    "refs": 3
+   },
+   "len": {
+    "file": "src/reply_thread.rs",
+    "refs": 16
+   },
+   "panel": {
+    "file": "src/reply_thread.rs",
+    "refs": 12
+   },
+   "panel_mut": {
+    "file": "src/reply_thread.rs",
+    "refs": 0
+   }
+  }
+ },
+ "discord-updater": {
+  "pub_fns": 13,
+  "referenced": 13,
+  "uncovered": 0,
+  "items": {
+   "parse": {
+    "file": "src/manifest.rs",
+    "refs": 20
+   },
+   "is_newer_than": {
+    "file": "src/manifest.rs",
+    "refs": 8
+   },
+   "version": {
+    "file": "src/manifest.rs",
+    "refs": 19
+   },
+   "released_at": {
+    "file": "src/manifest.rs",
+    "refs": 2
+   },
+   "artifacts": {
+    "file": "src/manifest.rs",
+    "refs": 13
+   },
+   "artifact": {
+    "file": "src/manifest.rs",
+    "refs": 11
+   },
+   "parse_manifest": {
+    "file": "src/manifest.rs",
+    "refs": 10
+   },
+   "verify_manifest": {
+    "file": "src/manifest.rs",
+    "refs": 12
+   },
+   "sign_manifest": {
+    "file": "src/manifest.rs",
+    "refs": 10
+   },
+   "sha256_hex": {
+    "file": "src/manifest.rs",
+    "refs": 5
+   },
+   "plan_update": {
+    "file": "src/plan.rs",
+    "refs": 17
+   },
+   "apply_local_steps": {
+    "file": "src/plan.rs",
+    "refs": 9
+   },
+   "rollback": {
+    "file": "src/plan.rs",
+    "refs": 12
+   }
+  }
+ },
+ "discord-voice": {
+  "pub_fns": 84,
+  "referenced": 81,
+  "uncovered": 3,
+  "items": {
+   "from_u8": {
+    "file": "src/lib.rs",
+    "refs": 2
+   },
+   "as_u8": {
+    "file": "src/lib.rs",
+    "refs": 7
+   },
+   "to_json": {
+    "file": "src/lib.rs",
+    "refs": 2
+   },
+   "parse_frame": {
+    "file": "src/lib.rs",
+    "refs": 14
+   },
+   "parse": {
+    "file": "src/lib.rs",
+    "refs": 30
+   },
+   "websocket_url": {
+    "file": "src/lib.rs",
+    "refs": 4
+   },
+   "select_region": {
+    "file": "src/lib.rs",
+    "refs": 8
+   },
+   "keepalive_request": {
+    "file": "src/udp.rs",
+    "refs": 4
+   },
+   "keepalive_response": {
+    "file": "src/udp.rs",
+    "refs": 3
+   },
+   "encode": {
+    "file": "src/udp.rs",
+    "refs": 24
+   },
+   "due": {
+    "file": "src/udp.rs",
+    "refs": 5
+   },
+   "action": {
+    "file": "src/udp.rs",
+    "refs": 13
+   },
+   "bind": {
+    "file": "src/udp.rs",
+    "refs": 4
+   },
+   "local_addr": {
+    "file": "src/udp.rs",
+    "refs": 11
+   },
+   "send_to": {
+    "file": "src/udp.rs",
+    "refs": 9
+   },
+   "recv_from": {
+    "file": "src/udp.rs",
+    "refs": 4
+   },
+   "send_discovery": {
+    "file": "src/udp.rs",
+    "refs": 5
+   },
+   "recv_discovery": {
+    "file": "src/udp.rs",
+    "refs": 5
+   },
+   "send_keepalive": {
+    "file": "src/udp.rs",
+    "refs": 2
+   },
+   "recv_keepalive": {
+    "file": "src/udp.rs",
+    "refs": 6
+   },
+   "send_empty_rr": {
+    "file": "src/udp.rs",
+    "refs": 0
+   },
+   "send_srtcp_empty_rr": {
+    "file": "src/udp.rs",
+    "refs": 0
+   },
+   "set_read_timeout": {
+    "file": "src/udp.rs",
+    "refs": 3
+   },
+   "rotate": {
+    "file": "src/udp.rs",
+    "refs": 1
+   },
+   "rotate_srtcp": {
+    "file": "src/udp.rs",
+    "refs": 1
+   },
+   "rotate_if_due": {
+    "file": "src/udp.rs",
+    "refs": 3
+   },
+   "empty_receiver_report": {
+    "file": "src/udp.rs",
+    "refs": 4
+   },
+   "empty_srtcp_receiver_report": {
+    "file": "src/udp.rs",
+    "refs": 3
+   },
+   "from_engine_name": {
+    "file": "src/srtp.rs",
+    "refs": 6
+   },
+   "as_engine_name": {
+    "file": "src/srtp.rs",
+    "refs": 4
+   },
+   "covers_header": {
+    "file": "src/srtp.rs",
+    "refs": 3
+   },
+   "tag_size": {
+    "file": "src/srtp.rs",
+    "refs": 2
+   },
+   "new": {
+    "file": "src/srtp.rs",
+    "refs": 65
+   },
+   "counter": {
+    "file": "src/srtp.rs",
+    "refs": 11
+   },
+   "set_counter": {
+    "file": "src/srtp.rs",
+    "refs": 8
+   },
+   "encrypt_rtp": {
+    "file": "src/srtp.rs",
+    "refs": 17
+   },
+   "decrypt_rtp": {
+    "file": "src/srtp.rs",
+    "refs": 13
+   },
+   "encrypt_srtcp": {
+    "file": "src/srtp.rs",
+    "refs": 9
+   },
+   "decrypt_srtcp": {
+    "file": "src/srtp.rs",
+    "refs": 7
+   },
+   "parse_compound": {
+    "file": "src/rtcp.rs",
+    "refs": 18
+   },
+   "observe": {
+    "file": "src/reception.rs",
+    "refs": 11
+   },
+   "snapshot": {
+    "file": "src/reception.rs",
+    "refs": 40
+   },
+   "parse_rtp_header": {
+    "file": "src/reception.rs",
+    "refs": 5
+   },
+   "ntp_middle_32": {
+    "file": "src/stats.rs",
+    "refs": 4
+   },
+   "note_sender_report": {
+    "file": "src/stats.rs",
+    "refs": 5
+   },
+   "on_report_block": {
+    "file": "src/stats.rs",
+    "refs": 6
+   },
+   "push": {
+    "file": "src/stats.rs",
+    "refs": 30
+   },
+   "latest": {
+    "file": "src/stats.rs",
+    "refs": 3
+   },
+   "len": {
+    "file": "src/stats.rs",
+    "refs": 89
+   },
+   "is_empty": {
+    "file": "src/stats.rs",
+    "refs": 9
+   },
+   "average_rtt_ms": {
+    "file": "src/stats.rs",
+    "refs": 3
+   },
+   "max_jitter_ms": {
+    "file": "src/stats.rs",
+    "refs": 2
+   },
+   "loss_delta": {
+    "file": "src/stats.rs",
+    "refs": 4
+   },
+   "parse_rtc_regions": {
+    "file": "src/regions.rs",
+    "refs": 11
+   },
+   "record": {
+    "file": "src/regions.rs",
+    "refs": 7
+   },
+   "median_ms": {
+    "file": "src/regions.rs",
+    "refs": 2
+   },
+   "samples": {
+    "file": "src/regions.rs",
+    "refs": 5
+   },
+   "measured": {
+    "file": "src/regions.rs",
+    "refs": 4
+   },
+   "ranked_region_names": {
+    "file": "src/regions.rs",
+    "refs": 4
+   },
+   "select_measured_region": {
+    "file": "src/regions.rs",
+    "refs": 7
+   },
+   "plan_probes": {
+    "file": "src/regions.rs",
+    "refs": 5
+   },
+   "complete_probe": {
+    "file": "src/regions.rs",
+    "refs": 4
+   },
+   "attempts": {
+    "file": "src/reconnect.rs",
+    "refs": 14
+   },
+   "on_disconnect": {
+    "file": "src/reconnect.rs",
+    "refs": 21
+   },
+   "on_invalid_session": {
+    "file": "src/reconnect.rs",
+    "refs": 5
+   },
+   "on_established": {
+    "file": "src/reconnect.rs",
+    "refs": 2
+   },
+   "from_bytes": {
+    "file": "src/crypto/aes.rs",
+    "refs": 11
+   },
+   "as_bytes": {
+    "file": "src/crypto/aes.rs",
+    "refs": 2
+   },
+   "encrypt_block": {
+    "file": "src/crypto/aes.rs",
+    "refs": 1
+   },
+   "decrypt_block": {
+    "file": "src/crypto/aes.rs",
+    "refs": 1
+   },
+   "check_message_len": {
+    "file": "src/crypto/gcm.rs",
+    "refs": 10
+   },
+   "encrypt": {
+    "file": "src/crypto/gcm.rs",
+    "refs": 7
+   },
+   "decrypt": {
+    "file": "src/crypto/gcm.rs",
+    "refs": 9
+   },
+   "hkdf_sha1": {
+    "file": "src/crypto/kdf.rs",
+    "refs": 6
+   },
+   "srtp_key_derive": {
+    "file": "src/crypto/kdf.rs",
+    "refs": 0
+   },
+   "as_str": {
+    "file": "src/media/rtp.rs",
+    "refs": 17
+   },
+   "parse_rtp": {
+    "file": "src/media/rtp.rs",
+    "refs": 18
+   },
+   "next_packet": {
+    "file": "src/media/rtp.rs",
+    "refs": 5
+   },
+   "silence": {
+    "file": "src/media/rtp.rs",
+    "refs": 2
+   },
+   "classify_opus_payload": {
+    "file": "src/media/rtp.rs",
+    "refs": 7
+   },
+   "capacity": {
+    "file": "src/media/jitter.rs",
+    "refs": 3
+   },
+   "buffered": {
+    "file": "src/media/jitter.rs",
+    "refs": 2
+   },
+   "stats": {
+    "file": "src/media/jitter.rs",
+    "refs": 51
+   },
+   "pop": {
+    "file": "src/media/jitter.rs",
+    "refs": 13
+   }
+  }
+ },
+ "gui-spike-backend": {
+  "pub_fns": 12,
+  "referenced": 12,
+  "uncovered": 0,
+  "items": {
+   "resolve_root": {
+    "refs": 2
+   },
+   "fixtures_root": {
+    "refs": 3
+   },
+   "kind": {
+    "refs": 41
+   },
+   "io": {
+    "refs": 3
+   },
+   "parse": {
+    "refs": 1
+   },
+   "not_found": {
+    "refs": 1
+   },
+   "invalid_arg": {
+    "refs": 1
+   },
+   "ready": {
+    "refs": 27
+   },
+   "messages_page": {
+    "refs": 23
+   },
+   "members_page": {
+    "refs": 12
+   },
+   "search_page": {
+    "refs": 32
+   },
+   "settings": {
+    "refs": 10
+   }
+  }
+ }
+}

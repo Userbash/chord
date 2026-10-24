@@ -1,0 +1,25 @@
+BASELINE frontend: pass=170 fail=0
+MISSED | M1 quick-switcher: empty-state всегда виден (G2-03) | fail=0
+CAUGHT | M2 composer: reply сбрасывается любой клавишей (G2-01) | fail=1
+           ✖ G2-01: набор текста не отменяет reply, отменяют Escape и крестик
+           ✖ G2
+MISSED | M3 chat: text inset -2 -> -8 (геометрия DP-02) | fail=0
+MISSED | M4 search: stale-ответ применяется (нет seq-guard) | fail=0
+MISSED | M5 actions: aria-expanded всегда true (G2-06) | fail=0
+MISSED | M6 toolbar: deletePending не очищается (G2-11) | fail=0
+CAUGHT | M7 model: ROW_HEIGHTS.lineExtra 22 -> 18 | fail=3
+           ✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч
+           ✖ чат: top строки = префикс оракульных высот
+           ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт
+CAUGHT | M8 cdp: убран guard закрытого клиента | fail=1
+           ✖ синхронный throw send отклоняет запрос и закрытый клиент отвергает повторный send
+           ✖ createCdpClient
+CAUGHT | M9 cdp: pickTarget без фильтра type=page | fail=1
+           ✖ подходящих страниц нет → undefined
+           ✖ pickTarget
+CAUGHT | M10 walk-log: shouldBail на любой ошибке | fail=1
+           ✖ обычная ошибка шага прогон не прерывает
+           ✖ shouldBail
+CAUGHT | M11 walk-log: consoleAPICalled без type=error | fail=1
+           ✖ считает exceptionThrown и consoleAPICalled type=error; текстов не больше 3
+           ✖ consoleIssues

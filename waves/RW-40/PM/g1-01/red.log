@@ -1,0 +1,160 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `crate::rest_failure`
+   --> src/messages.rs:316:16
+    |
+316 |     use crate::rest_failure::RestFailure;
+    |                ^^^^^^^^^^^^ could not find `rest_failure` in the crate root
+
+error[E0432]: unresolved import `crate::rest_failure`
+   --> src/reactions.rs:167:16
+    |
+167 |     use crate::rest_failure::RestFailure;
+    |                ^^^^^^^^^^^^ could not find `rest_failure` in the crate root
+
+error[E0433]: cannot find `rest_failure` in the crate root
+   --> src/messages.rs:303:31
+    |
+303 |     MessageError::from(crate::rest_failure::RestFailure::from_api_error(&error))
+    |                               ^^^^^^^^^^^^ could not find `rest_failure` in the crate root
+
+error[E0433]: cannot find `rest_failure` in the crate root
+   --> src/messages.rs:307:35
+    |
+307 |     if let Some(failure) = crate::rest_failure::RestFailure::from_status(response.status) {
+    |                                   ^^^^^^^^^^^^ could not find `rest_failure` in the crate root
+
+error[E0433]: cannot find `rest_failure` in the crate root
+   --> src/reactions.rs:156:32
+    |
+156 |     ReactionError::from(crate::rest_failure::RestFailure::from_api_error(&error))
+    |                                ^^^^^^^^^^^^ could not find `rest_failure` in the crate root
+
+error[E0433]: cannot find `rest_failure` in the crate root
+   --> src/reactions.rs:160:12
+    |
+160 |     crate::rest_failure::RestFailure::from_status(response.status)
+    |            ^^^^^^^^^^^^ could not find `rest_failure` in the crate root
+
+error[E0599]: no variant, associated function, or constant named `Forbidden` found for enum `messages::MessageError` in the current scope
+   --> src/messages.rs:333:33
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant, associated function, or constant `Forbidden` not found for this enum
+...
+333 |             (403, MessageError::Forbidden),
+    |                                 ^^^^^^^^^ variant, associated function, or constant not found in `messages::MessageError`
+
+error[E0599]: no variant, associated function, or constant named `NotFound` found for enum `messages::MessageError` in the current scope
+   --> src/messages.rs:334:33
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant, associated function, or constant `NotFound` not found for this enum
+...
+334 |             (404, MessageError::NotFound),
+    |                                 ^^^^^^^^ variant, associated function, or constant not found in `messages::MessageError`
+
+error[E0599]: no variant named `Client` found for enum `messages::MessageError`
+   --> src/messages.rs:341:33
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant `Client` not found here
+...
+341 |             (400, MessageError::Client { status: 400 }),
+    |                                 ^^^^^^ variant not found in `messages::MessageError`
+
+error[E0599]: no variant named `Server` found for enum `messages::MessageError`
+   --> src/messages.rs:342:33
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant `Server` not found here
+...
+342 |             (500, MessageError::Server { status: 500 }),
+    |                                 ^^^^^^ variant not found in `messages::MessageError`
+
+error[E0599]: no variant named `Server` found for enum `messages::MessageError`
+   --> src/messages.rs:343:33
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant `Server` not found here
+...
+343 |             (503, MessageError::Server { status: 503 }),
+    |                                 ^^^^^^ variant not found in `messages::MessageError`
+
+error[E0599]: no variant, associated function, or constant named `Forbidden` found for enum `messages::MessageError` in the current scope
+   --> src/messages.rs:358:27
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant, associated function, or constant `Forbidden` not found for this enum
+...
+358 |             MessageError::Forbidden
+    |                           ^^^^^^^^^ variant, associated function, or constant not found in `messages::MessageError`
+
+error[E0599]: no variant named `Server` found for enum `messages::MessageError`
+   --> src/messages.rs:365:27
+    |
+ 18 | pub enum MessageError {
+    | --------------------- variant `Server` not found here
+...
+365 |             MessageError::Server { status: 503 }
+    |                           ^^^^^^ variant not found in `messages::MessageError`
+
+error[E0599]: no variant, associated function, or constant named `Forbidden` found for enum `reactions::ReactionError` in the current scope
+   --> src/reactions.rs:184:34
+    |
+ 18 | pub enum ReactionError {
+    | ---------------------- variant, associated function, or constant `Forbidden` not found for this enum
+...
+184 |             (403, ReactionError::Forbidden),
+    |                                  ^^^^^^^^^ variant, associated function, or constant not found in `reactions::ReactionError`
+
+error[E0599]: no variant, associated function, or constant named `NotFound` found for enum `reactions::ReactionError` in the current scope
+   --> src/reactions.rs:185:34
+    |
+ 18 | pub enum ReactionError {
+    | ---------------------- variant, associated function, or constant `NotFound` not found for this enum
+...
+185 |             (404, ReactionError::NotFound),
+    |                                  ^^^^^^^^ variant, associated function, or constant not found in `reactions::ReactionError`
+
+error[E0599]: no variant named `Client` found for enum `reactions::ReactionError`
+   --> src/reactions.rs:192:34
+    |
+ 18 | pub enum ReactionError {
+    | ---------------------- variant `Client` not found here
+...
+192 |             (400, ReactionError::Client { status: 400 }),
+    |                                  ^^^^^^ variant not found in `reactions::ReactionError`
+
+error[E0599]: no variant named `Server` found for enum `reactions::ReactionError`
+   --> src/reactions.rs:193:34
+    |
+ 18 | pub enum ReactionError {
+    | ---------------------- variant `Server` not found here
+...
+193 |             (500, ReactionError::Server { status: 500 }),
+    |                                  ^^^^^^ variant not found in `reactions::ReactionError`
+
+error[E0599]: no variant named `Server` found for enum `reactions::ReactionError`
+   --> src/reactions.rs:194:34
+    |
+ 18 | pub enum ReactionError {
+    | ---------------------- variant `Server` not found here
+...
+194 |             (503, ReactionError::Server { status: 503 }),
+    |                                  ^^^^^^ variant not found in `reactions::ReactionError`
+
+error[E0599]: no variant, associated function, or constant named `NotFound` found for enum `reactions::ReactionError` in the current scope
+   --> src/reactions.rs:208:28
+    |
+ 18 | pub enum ReactionError {
+    | ---------------------- variant, associated function, or constant `NotFound` not found for this enum
+...
+208 |             ReactionError::NotFound
+    |                            ^^^^^^^^ variant, associated function, or constant not found in `reactions::ReactionError`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `discord-gui-spike` (lib) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0432, E0433, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (lib test) due to 19 previous errors

@@ -1,0 +1,91 @@
+# grep-auth: перечень auth-путей и ключевых строк (только чтение)
+# источник: decoded/4d2a64cb5df5fc4e_0 (web.4d4b2f75fdea5470.js)
+
+## /auth/*, /users/@me/remote-auth*, /oauth2/authorize (уникальные)
+      3 "/oauth2/authorize"
+      2 "/oauth2/allowlist/accept"
+      1 "/users/@me/remote-auth/login"
+      1 "/users/@me/remote-auth/finish"
+      1 "/users/@me/remote-auth/cancel"
+      1 "/users/@me/remote-auth"
+      1 "/oauth2/tokens"
+      1 "/oauth2/samsung/authorize/callback"
+      1 "/oauth2/samsung/authorize"
+      1 "/oauth2/error"
+      1 "/oauth2/device/verify"
+      1 "/oauth2/device/finish"
+      1 "/oauth2/authorize/webhook-channels"
+      1 "/oauth2/authorized"
+      1 "/oauth2/account-linking-achievement"
+      1 "/auth/verify/view-backup-codes-challenge"
+      1 "/auth/verify/resend"
+      1 "/auth/verify"
+      1 "/auth/sessions/logout"
+      1 "/auth/sessions/debug/notifications"
+      1 "/auth/sessions"
+      1 "/auth/revert"
+      1 "/auth/reset"
+      1 "/auth/register/phone"
+      1 "/auth/register"
+      1 "/auth/password/validate"
+      1 "/auth/passwordless/start"
+      1 "/auth/one-time-login"
+      1 "/auth/mfa/sms/send"
+      1 "/auth/logout"
+      1 "/auth/login"
+      1 "/auth/location-metadata"
+      1 "/auth/handoff/exchange"
+      1 "/auth/handoff"
+      1 "/auth/forgot"
+      1 "/auth/conditional/start"
+      1 "/auth/conditional/finish"
+      1 "/auth/authorize-ip"
+
+## заголовки identity (число вхождений)
+Authorization          70
+X-Super-Properties     3
+X-Fingerprint          5
+X-Installation-ID      3
+X-Discord-Locale       1
+X-Discord-Timezone     1
+X-Debug-Options        1
+X-Routing-Key          1
+x-client-trace-id      1
+X-Context-Properties   1
+X-Failed-Requests      1
+X-Audit-Log-Reason     1
+Accept-Language        1
+Cookie                 10
+
+## проверки отсутствия
+intents (поле IDENTIFY): 1
+shard: 0
+Authorization: Bot: 0
+__dcfduid: 0
+setUserAgent: 0
+refresh_token: 2
+e2.HEARTBEAT (отправка op1): 2
+
+## GLOBAL_ENV из живой /login-страницы
+"BUILD_NUMBER":"641004"
+"RELEASE_CHANNEL":"stable"
+"API_VERSION":9
+"API_ENDPOINT":"//discord.com/api"
+"GATEWAY_ENDPOINT":"wss://gateway.discord.gg"
+"REMOTE_AUTH_ENDPOINT":"wss://remote-auth-gateway.discord.gg"
+
+## mfaType в UI-чанке
+      1 mfaType:"backup"
+      1 mfaType:"password"
+      1 mfaType:"sms"
+      1 mfaType:"totp"
+      1 mfaType:"webauthn"
+
+## пояснения к счётчикам (проверено вручную)
+- `"intents"` (1) — это флаг нативного модуля: `IntentsBindings` -> `features.supports("intents")`,
+  к полю IDENTIFY отношения не имеет. Поля `intents` в gateway-пейлоаде нет.
+- `Cookie` (10) — только `flushCookies()`, `fromCookie` (эксперименты), `sourceMapCookieTTLSeconds`;
+  ручной установки заголовка Cookie нет.
+- `e2.HEARTBEAT` (2) — enum + `case e2.HEARTBEAT: this._handleHeartbeatReceive()` (приём op1 от сервера).
+  Отправка heartbeat идёт через `this.send(e2.QOS_HEARTBEAT, {seq, qos})` (op40), см. probe.txt.
+- `refresh_token` (2) — content-inventory (`?refresh_token=`), не auth.

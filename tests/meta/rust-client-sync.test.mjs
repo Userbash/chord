@@ -18,7 +18,8 @@ const DIR = "docs/rust-client";
 /** Состав пакета: индекс + восемь документов. */
 const DOCS = [
   "README.md", "CONCEPT.md", "FEATURES.md", "ARCHITECTURE.md", "PLAN.md", "TEST-PLAN.md",
-  "PROJECT-STRUCTURE.md", "TRACEABILITY.md", "VERIFICATION.md",
+  "PROJECT-STRUCTURE.md", "TRACEABILITY.md", "VERIFICATION.md", "CODE-STANDARD.md",
+  "MUTATION-LEDGER.md", "SECURITY.md",
 ];
 
 /** Минимумы — защита от «уполовинивания» плана. */
@@ -133,6 +134,44 @@ describe("rust-client-sync: план Rust-клиента цел и синхро�
     }
     assert.ok(text.includes("/home/sanya/re-deep"), "TEST-PLAN без манифеста фикстур лаборатории");
     assert.ok(text.includes("L1") && text.includes("L5"), "TEST-PLAN без уровней L1/L5");
+  });
+
+  it("тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур", async () => {
+    const text = await read(`${DIR}/TEST-PLAN.md`);
+    for (const level of ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7"]) {
+      assert.ok(text.includes(level), `TEST-PLAN без уровня ${level}`);
+    }
+    assert.ok(text.includes("Приёмочн"), "TEST-PLAN без приёмочного уровня");
+    assert.ok(text.includes("Нефункциональн"), "TEST-PLAN без нефункционального уровня");
+    assert.ok(text.includes("Mutation"), "TEST-PLAN без mutation-контура");
+    assert.ok(text.includes("Матрица выбора"), "TEST-PLAN без матрицы выбора уровней");
+    assert.ok(text.includes("оракул"), "TEST-PLAN без требований к оракулу");
+  });
+
+  it("mutation-ledger: сводка по волнам, классы мутантов и разбор survivors", async () => {
+    const text = await read(`${DIR}/MUTATION-LEDGER.md`);
+    assert.ok(text.includes("## 1. Сводка"), "MUTATION-LEDGER без сводки");
+    assert.ok(text.includes("RW-35"), "MUTATION-LEDGER без последней волны");
+    assert.ok(text.includes("эквивалент"), "MUTATION-LEDGER без эквивалентных мутантов");
+    assert.ok(text.includes("survivor"), "MUTATION-LEDGER без разбора survivors");
+    assert.ok(text.includes("INCONCLUSIVE"), "MUTATION-LEDGER без INCONCLUSIVE");
+    assert.ok(text.includes("restore"), "MUTATION-LEDGER без проверки restore");
+  });
+
+  it("security: модель угроз, границы доверия и чек-листы", async () => {
+    const text = await read(`${DIR}/SECURITY.md`);
+    assert.ok(text.includes("Модель угроз"), "SECURITY без модели угроз");
+    assert.ok(text.includes("Границы доверия"), "SECURITY без границ доверия");
+    assert.ok(text.includes("FFI"), "SECURITY без FFI-чек-листа");
+    assert.ok(text.includes("Секреты"), "SECURITY без политики секретов");
+    assert.ok(text.includes("Supply chain"), "SECURITY без supply-chain политики");
+  });
+
+  it("план: сквозной контур качества Q-01…Q-14", async () => {
+    const text = await read(`${DIR}/PLAN.md`);
+    const ids = tableIds(text, /^\|\s*(Q-\d{2})\s*\|/gm);
+    assertUniqueEnough(ids, 14, "PLAN/Q");
+    assert.ok(text.includes("Сквозной контур качества"), "PLAN без раздела качества");
   });
 
   it("план: волны P0–P8, ≥60 карточек, уникальные ID", async () => {

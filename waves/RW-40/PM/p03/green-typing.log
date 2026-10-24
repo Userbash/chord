@@ -1,0 +1,21 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.70s
+     Running tests/typing_contract.rs (rust/gui-spike/target/debug/deps/typing_contract-29a3f43b4a1aa0d3)
+
+running 13 tests
+test empty_or_blank_token_is_unauthorized ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test free_function_validates_and_delegates ... ok
+test empty_two_hundred_body_means_no_cooldowns ... ok
+test client_debug_does_not_reveal_token ... ok
+test typing_route_is_s_catalog_extension_not_d02 ... ok
+test transport_failure_is_typed_network_error ... ok
+test posts_empty_body_to_channel_typing_target ... ok
+test http_statuses_map_to_typed_errors ... ok
+test malformed_two_hundred_body_is_invalid_response ... ok
+test tauri_send_typing_reads_bearer_through_token_or_without_logging ... ok
+test two_hundred_json_cooldowns_are_mapped_and_camel_cased_for_ipc ... ok
+test invalid_channel_id_is_rejected_before_transport ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

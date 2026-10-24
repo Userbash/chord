@@ -1,0 +1,20 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.59s
+     Running tests/gateway_supervisor.rs (target/debug/deps/gateway_supervisor-161111e33d133230)
+
+running 12 tests
+test backoff_doubles_caps_and_resets ... ok
+test close_codes_match_adr_policy ... ok
+test supervisor_stops_on_close_4004 ... ok
+test supervisor_stops_on_close_4013_and_4014 ... ok
+test supervisor_identify_matches_re_capture ... ok
+test supervisor_emits_ready_and_stopped_events ... ok
+test supervisor_forwards_real_op0_frames_to_dispatch_handler ... ok
+test supervisor_reconnect_limit_stops ... ok
+test supervisor_op9_false_identifies ... ok
+test supervisor_op9_true_resumes ... ok
+test supervisor_op7_resumes_and_uses_resume_url ... ok
+test supervisor_cancels ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+

@@ -1,0 +1,14 @@
+▶ Tauri GUI live smoke
+  ✔ открывает окно и публикует проверяемый DOM-снимок (10156.995032ms)
+✔ Tauri GUI live smoke (10157.660352ms)
+▶ GUI window probe (AT-SPI + X11)
+  ✔ находит окно, элементы и снимает PNG (4214.00528ms)
+✔ GUI window probe (AT-SPI + X11) (4214.51452ms)
+ℹ tests 2
+ℹ suites 2
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14423.823458

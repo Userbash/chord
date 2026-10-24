@@ -1,0 +1,25 @@
+PASS json: valid
+PASS schema == rw40/stream-spec-v1
+PASS card == S-D
+PASS doc указывает на STREAM.md
+PASS md: каждое число с px помечено: 0
+PASS tokens: все имена существуют в tokens.css: 35 имён
+PASS copy: строки совпали с ru-catalog.json: 54 строк
+PASS md: все id из DOM-контракта упомянуты: 24 id
+PASS md: все тест-кейсы описаны: 58 кейсов
+PASS md: все пробелы описаны: 17 пробелов
+PASS md: все отклонения описаны: 7 отклонений
+PASS md: все состояния описаны: 15 состояний
+PASS md: все коды ошибок описаны: 14 кодов
+PASS md: все риски описаны: 14 рисков
+PASS linux: screen_previews помечен win32-only
+PASS linux: window_previews помечен win32-only
+PASS linux: PipeWire/X11/v4l2 описаны
+PASS assets: внешних ссылок/вставок нет: 0
+PASS md: «паритет» только с оговоркой: 0
+PASS json: parity_claim == false
+PASS md: unmeasured использован: 9 раз
+PASS consent: 8 инвариантов: 8
+PASS consent: запрещённые API перечислены
+checks=23 failures=0 skips=0
+RESULT: OK

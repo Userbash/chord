@@ -1,0 +1,118 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (10.624161ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (4.35852ms)
+  ✖ чат: 100 000 строк, sizer = total*44, в DOM десятки строк, а не сотни тысяч (3.81391ms)
+  ✖ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (5.60648ms)
+  ✔ участники: 24 229 строк, sizer = total*40, окно ≥10 и << total (3.48717ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (6.90231ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (3.170071ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (3.85965ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (3.76363ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (4.02589ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, все включены (3.04191ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (3.79373ms)
+  ✖ UI_SNAPSHOT: все поля контракта и actions=true (2.75195ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (2.72604ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (3.20563ms)
+  ✖ нет дублей: строка чата всегда ровно с одним .author и одним .text (4.73862ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (3.64577ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.70288ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (4.095831ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (3.11056ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (85.883533ms)
+ℹ tests 20
+ℹ suites 1
+ℹ pass 15
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 116.204243
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:203:3
+✖ чат: 100 000 строк, sizer = total*44, в DOM десятки строк, а не сотни тысяч (3.81391ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  22000 !== 4400000
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:206:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:204:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 22000,
+    expected: 4400000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:226:3
+✖ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (5.60648ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(rows.length >= 10)
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:231:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:227:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:300:3
+✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (3.170071ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  491 !== 99999
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:306:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:301:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 491,
+    expected: 99999,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:426:3
+✖ UI_SNAPSHOT: все поля контракта и actions=true (2.75195ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  500 !== 100000
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:434:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:427:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 500,
+    expected: 100000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:481:3
+✖ нет дублей: строка чата всегда ровно с одним .author и одним .text (4.73862ms)
+  TypeError: Cannot read properties of undefined (reading 'querySelector')
+      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:118:20)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:507:24
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:482:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

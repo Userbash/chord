@@ -1,0 +1,11 @@
+ok   | body[data-active-screen] + aria-current на 4 экранах
+ok   | эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов
+ok   | эмодзи: стрелки двигают aria-selected и roving tabindex
+ok   | настройки: 38 канонических тумблеров (switch/aria-checked) + #settings-nav
+ok   | панель участников: ≤50 строк из model.js, высота 42, data-window=preview
+ok   | клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя
+ok   | data-action: mute/deafen, emoji/emoji-close, settings/settings-close
+ok   | счётчики live (polite), FPS/p95 — не live
+ok   | штатная работа без console.error/warn
+
+features: все проверки пройдены

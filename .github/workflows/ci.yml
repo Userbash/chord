@@ -23,6 +23,84 @@ jobs:
       - name: Local CI contract
         run: bash scripts/ci.sh --online --skip-release
 
+  # QA-M2-04: browser fixture-e2e на pinned Chromium. Live/CDP здесь запрещён:
+  # набор собирается с `! -name 'live-*'`, live-переменная снимается через `env -u`.
+  qa-browser:
+    name: qa-browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Установка зависимостей
+        run: npm ci
+      - name: Pinned Chromium
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: "131.0.6778.85"
+          install-dependencies: "true"
+      - name: CHROME_BIN
+        run: echo "CHROME_BIN=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+      - name: "Preflight: браузер обязателен"
+        run: |
+          set -euo pipefail
+          : "${CHROME_BIN:?CHROME_BIN не задан — browser-job не может уйти в skip}"
+          test -x "$CHROME_BIN" || { echo "::error::CHROME_BIN=$CHROME_BIN не исполняется"; exit 1; }
+          "$CHROME_BIN" --version
+          node --version
+          mkdir -p .gate
+      - name: "Meta: контракт qa-browser"
+        run: node --test --test-concurrency=1 tests/meta/ci-browser.test.mjs
+      - name: Fixture browser e2e (live исключён)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find tests/e2e -maxdepth 1 -type f -name '*.e2e.test.mjs' ! -name 'live-*' | sort)
+          if [[ "${#files[@]}" -eq 0 ]]; then
+            echo "::error::fixture-файлы tests/e2e/*.e2e.test.mjs не найдены"
+            exit 1
+          fi
+          printf 'fixture-набор: %s\n' "${files[*]}"
+          env -u DISCORD_LAB_LIVE_CDP -u CHROME_PATH \
+            node --test --test-concurrency=1 \
+              --test-reporter=spec --test-reporter-destination=stdout \
+              --test-reporter=junit --test-reporter-destination=.gate/qa-browser-junit.xml \
+              "${files[@]}" 2>&1 | tee .gate/qa-browser-e2e.log
+      - name: Upload .gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-browser-gate
+          path: .gate
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # T3 live: отдельная джоба, выключена в обычном CI. Включается только в согласованное
+  # окно с защищённым DISCORD_LAB_LIVE_CDP; fixture-браузеру live не нужен.
+  qa-live:
+    name: qa-live (disabled, T3)
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Live Discord (T3)
+        env:
+          DISCORD_LAB_LIVE_CDP: ${{ secrets.DISCORD_LAB_LIVE_CDP }}
+        run: |
+          set -euo pipefail
+          : "${DISCORD_LAB_LIVE_CDP:?live endpoint не задан}"
+          npm run gate:qualify
+
   package:
     name: release-artifact
     needs: test

@@ -1776,3 +1776,72 @@ fn f09_call_with_fds_sends_two_pipe_fds_to_service() {
         "мок прочитал содержимое обоих отправленных fd"
     );
 }
+
+// --- f11: дубликат индекса fd (мутационный пробел x2) ------------------------------
+
+#[test]
+fn f11_duplicate_unix_fd_index_is_protocol_and_closes_fds() {
+    let prefix = format!("w35a-f11-{}-{}", std::process::id(), unique_suffix());
+    let mut raw = Vec::new();
+    for index in 0..2 {
+        let path = std::env::temp_dir().join(format!("{prefix}-{index}"));
+        let file = fs::File::create(&path).expect("temp file");
+        let _ = fs::remove_file(&path);
+        raw.push(file.as_raw_fd());
+        std::mem::forget(file);
+    }
+    let (mut bytes, declared) = message::build_with_fds(
+        MessageType::MethodReturn,
+        2,
+        &[
+            (FIELD_SIGNATURE, Value::String("hh".to_owned())),
+            (FIELD_REPLY_SERIAL, Value::U32(0)),
+        ],
+        "hh",
+        &[Value::UnixFd(raw[0]), Value::UnixFd(raw[1])],
+    )
+    .expect("сборка MethodReturn hh");
+    assert_eq!(declared.len(), 2);
+    let offset = body_offset(&bytes);
+    // Второй индекс подменяем на 0 — повторное использование fd.
+    bytes[offset + 4..offset + 8].copy_from_slice(&0u32.to_le_bytes());
+
+    let result = message::parse_with_fds(&bytes, declared);
+    assert!(
+        matches!(result, Err(DbusError::Protocol(_))),
+        "дубликат индекса → Protocol, получено {result:?}"
+    );
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "оба fd обязаны быть закрыты при ошибке разбора"
+    );
+}
+
+// --- f13: лимит fd на отправку (мутационный пробел x7) ----------------------------
+
+#[test]
+fn f13_build_rejects_more_than_max_unix_fds() {
+    let files: Vec<fs::File> = (0..=fd::MAX_FDS_PER_MESSAGE)
+        .map(|_| fs::File::open("/dev/null").expect("/dev/null"))
+        .collect();
+    let signature = "h".repeat(files.len());
+    let body: Vec<Value> = files
+        .iter()
+        .map(|file| Value::UnixFd(file.as_raw_fd()))
+        .collect();
+    let result = message::build_with_fds(
+        MessageType::MethodReturn,
+        2,
+        &[
+            (FIELD_SIGNATURE, Value::String(signature.clone())),
+            (FIELD_REPLY_SERIAL, Value::U32(0)),
+        ],
+        &signature,
+        &body,
+    );
+    assert!(
+        matches!(result, Err(DbusError::Protocol(_))),
+        "больше MAX_FDS_PER_MESSAGE → Protocol, получено {result:?}"
+    );
+}

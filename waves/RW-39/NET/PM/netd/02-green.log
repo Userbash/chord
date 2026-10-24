@@ -1,0 +1,36 @@
+▶ auth-гейт: разметка и носитель (ADR-2 §A)
+  ✔ index.html: #auth-gate вне .screen, dialog-семантика, auth.css подключён style.css (0.93241ms)
+  ✔ idle + stored: гейт виден, restore доступен, фокус в поле, auth_status один раз (23.168868ms)
+  ✔ idle без ключа в keyring: restore скрыт (не мёртвая кнопка), submit работает (6.296202ms)
+  ✔ ready на старте: гейт скрыт, чат доступен, имя в user-bar, logout виден (7.871482ms)
+✔ auth-гейт: разметка и носитель (ADR-2 §A) (38.971152ms)
+▶ auth-гейт: вход токеном (idle → validating → ready)
+  ✔ submit: validating с блокировкой, токен очищен, invoke(auth_login_token, {token}), ready (5.295271ms)
+  ✔ пустой ввод: сообщение «введите токен», IPC не вызывается, фокус остаётся в поле (4.688862ms)
+✔ auth-гейт: вход токеном (idle → validating → ready) (10.143234ms)
+▶ auth-гейт: ошибки 401/429/сеть без утечки токена
+  ✔ 401 (InvalidToken): понятная строка, гейт открыт, поле очищено, submit снова активен (4.159621ms)
+  ✔ 429 (RateLimited): «слишком часто, подождите», retry_after не теряется (5.008342ms)
+  ✔ сеть (Network kind): «нет связи», состояние error, гейт открыт (4.352561ms)
+  ✔ сорванный IPC (invoke rejects строкой/Error): тоже «нет связи», без console.error (5.300772ms)
+  ✔ ошибка в теле AuthState (status=error): Keyring → сообщение о хранилище (3.449601ms)
+✔ auth-гейт: ошибки 401/429/сеть без утечки токена (22.566047ms)
+▶ auth-гейт: restore, logout, show/hide и отсутствие мёртвых кнопок
+  ✔ restore: invoke(auth_restore) без аргументов, validating → ready, гейт скрыт (5.761282ms)
+  ✔ restore с отозванным токеном: 401 в гейте, сессия не открыта (2.930571ms)
+  ✔ logout: invoke(auth_logout), гейт снова открыт, имя сброшено, фокус в поле (2.814201ms)
+  ✔ показать/скрыть токен: type password↔text и aria-pressed (3.260761ms)
+  ✔ нет мёртвых кнопок: в гейте только reveal/submit/restore, disabled — с подсказкой (3.907301ms)
+✔ auth-гейт: restore, logout, show/hide и отсутствие мёртвых кнопок (18.886156ms)
+▶ auth-гейт: среда без IPC
+  ✔ auth_status падает: гейт с «нет связи», приложение живо, без console.error (7.034282ms)
+  ✔ токен не появляется ни в гейте, ни в user-bar, ни в снапшоте UI (10.138704ms)
+✔ auth-гейт: среда без IPC (17.296416ms)
+ℹ tests 18
+ℹ suites 5
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143.305006

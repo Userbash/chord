@@ -1,0 +1,22 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::invites`
+  --> tests/invites_contract.rs:25:24
+   |
+25 | use discord_gui_spike::invites::{
+   |                        ^^^^^^^ could not find `invites` in `discord_gui_spike`
+
+error[E0425]: cannot find value `INVITE_PATH` in module `routes`
+   --> tests/invites_contract.rs:687:24
+    |
+687 |     assert_eq!(routes::INVITE_PATH, ORACLE_PATH, "один источник пути");
+    |                        ^^^^^^^^^^^ not found in `routes`
+
+error[E0425]: cannot find value `INVITE_ACCEPT_BODY_KEYS` in module `routes`
+   --> tests/invites_contract.rs:694:24
+    |
+694 |     assert_eq!(routes::INVITE_ACCEPT_BODY_KEYS, ORACLE_ACCEPT_KEYS);
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^ not found in `routes`
+
+Some errors have detailed explanations: E0425, E0432.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "invites_contract") due to 3 previous errors

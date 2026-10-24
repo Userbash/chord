@@ -1,0 +1,80 @@
+{
+  "schema": "rw40/design-msg-v1",
+  "status": "design-contract",
+  "date": "2026-10-24",
+  "sources": [
+    "waves/RW-39/DESIGN/SPEC-P3-02.md",
+    "waves/RW-39/DESIGN/tokens.css",
+    "waves/RW-39/DESIGN/DOM-CONTRACT.md",
+    "/home/sanya/re-deep/ui/01-msg-menu-items.json",
+    "/home/sanya/re-deep/ui/00-app.png",
+    "/home/sanya/re-deep/ui8/*",
+    "waves/RW-39/NET/LOGIN-SPEC.md"
+  ],
+  "legend": {
+    "M": "pixel measurement from ui/00-app.png or ui8/*",
+    "T": "token from waves/RW-39/DESIGN/tokens.css",
+    "D": "fact from RE DOM/CSS/JSON dump",
+    "A": "assumption or unresolved gap"
+  },
+  "reactions": {
+    "picker": {
+      "width": {"value": 498, "mark": "T", "source": "tokens.css --emoji-picker-w"},
+      "height": {"value": 440, "mark": "T", "source": "tokens.css --emoji-picker-h"},
+      "railWidth": {"value": 48, "mark": "T", "source": "tokens.css --emoji-rail-w"},
+      "cell": {"value": 44, "mark": "M", "source": "tokens.css --emoji-cell; ui8/21-emoji*.json"},
+      "columns": {"value": 9, "mark": "M", "source": "tokens.css --emoji-cols; ui8/21-emoji*.json"},
+      "gap": {"value": 4, "mark": "M", "source": "tokens.css --emoji-gap; ui8/21-emoji*.json"}
+    },
+    "states": ["idle", "hover", "selected", "pending", "failed", "offline"],
+    "events": ["reaction:add", "reaction:remove"],
+    "gaps": ["reaction-toolbar-geometry", "reaction-pill-geometry", "reaction-error-copy"]
+  },
+  "attachments": {
+    "button": {"height": {"token": "--btn-height", "value": 32, "mark": "T"}, "icon": {"token": "--icon-size", "value": 20, "mark": "T"}},
+    "maxFilesPerMessage": {"value": 10, "mark": "D", "source": "SPEC-P3-02 K-12; RE C-11"},
+    "states": ["queued", "uploading", "preview", "cancel", "complete", "failed"],
+    "unknownLimits": ["fileBytes", "totalBytes", "mimeTypes", "retryBudget"]
+  },
+  "messageMenu": {
+    "count": 15,
+    "countMark": "D",
+    "source": "/home/sanya/re-deep/ui/01-msg-menu-items.json",
+    "items": [
+      {"order": 1, "text": ":thumbsup: :+1: :thumbup: :thumbs_up:", "disabled": false},
+      {"order": 2, "text": ":fire: :flame:", "disabled": false},
+      {"order": 3, "text": ":regional_indicator_f:", "disabled": false},
+      {"order": 4, "text": ":Linux:", "disabled": false},
+      {"order": 5, "text": "Добавить реакцию", "disabled": "capability"},
+      {"order": 6, "text": "Переслать", "disabled": "capability"},
+      {"order": 7, "text": "Скопировать текст", "disabled": false},
+      {"order": 8, "text": "Добавить в закладки", "disabled": "capability"},
+      {"order": 9, "text": "Создать напоминание", "disabled": "capability"},
+      {"order": 10, "text": "Приложения", "disabled": "capability"},
+      {"order": 11, "text": "Отметить как непрочитанное", "disabled": false},
+      {"order": 12, "text": "Скопировать ссылку на сообщение", "disabled": false},
+      {"order": 13, "text": "Зачитать сообщение", "disabled": "capability"},
+      {"order": 14, "text": "Пожаловаться на сообщение", "disabled": "capability", "confirm": true},
+      {"order": 15, "text": "Копировать ID сообщения", "disabled": "capability"}
+    ],
+    "confirm": ["delete", "report", "reminder", "forward"],
+    "inlineEdit": {"enter": "save", "escape": "cancel", "source": "DESIGN-MSG.md §3"}
+  },
+  "threads": {
+    "panelToken": "--layout-member-panel-w",
+    "widePanelToken": "--layout-member-panel-w-wide",
+    "panelWidth": {"value": 240, "mark": "A", "source": "reuse token; thread RE geometry absent"},
+    "widePanelWidth": {"value": 256, "mark": "T", "source": "tokens.css --layout-member-panel-w-wide; RW-37 layout.json via SPEC-P3-02"},
+    "states": ["closed", "loading", "ready", "empty", "error", "offline"],
+    "gaps": ["thread-pagination", "thread-geometry"]
+  },
+  "pins": {
+    "states": ["loading", "ready", "empty", "error", "offline"],
+    "gaps": ["pin-pagination", "pin-quota", "pins-panel-geometry"]
+  },
+  "validation": {
+    "noAssets": true,
+    "noUrlsOrFonts": true,
+    "tokenFile": "waves/RW-39/DESIGN/tokens.css"
+  }
+}

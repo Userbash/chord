@@ -1,0 +1,34 @@
+[package]
+name = "discord-gui-spike"
+version = "0.1.0"
+edition = "2021"
+description = "P0-01: спайк UI-оболочки Tauri (чат 100k, эмодзи-пикер, настройки, участники 24k)"
+publish = false
+
+# Спайк живёт отдельно от основного workspace: тяжёлые GUI-крейты не попадают
+# в Cargo.lock продукта, пока ADR-1 не зафиксирует метрики и решение.
+[workspace]
+
+# Чистая логика (parse/validate без Tauri-рантайма) — отдельным lib-таргетом,
+# чтобы интеграционные тесты проверяли IPC-контракт без запуска окна.
+[lib]
+name = "discord_gui_spike"
+path = "src/lib.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# W39j: пилот «BFF через ядро». Только path-зависимость из этого же репозитория:
+# внешних крейтов не добавляем, но `discord-core` тянет свой штатный набор
+# (tokio/rustls/… ) — он уже в Cargo.lock и кэше registry, сеть не нужна.
+discord-core = { path = "../crates/discord-core" }
+# RW-39/NET-C2: keyring (`org.freedesktop.secrets` через libsecret) — только path-dep.
+# `Keyring` там `!Send`, поэтому backend держит его в потоке-владельце.
+discord-platform = { path = "../crates/discord-platform" }
+# Проверка токена — `ApiClient::get` из ядра; tokio уже в графе (tauri/discord-core),
+# поэтому офлайн-сборке новая версия не нужна.
+tokio = { version = "1", features = ["rt", "time", "net"] }

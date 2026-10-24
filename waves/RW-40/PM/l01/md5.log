@@ -1,0 +1,6 @@
+9a8d676f106760f71223d6f471f1a693  rust/gui-spike/ui/app.js
+a8405e1b4a5bed0d332de26d78bfa0b0  rust/gui-spike/ui/index.html
+8476e12a2de921f280e37f92d29343b8  rust/gui-spike/ui/components/net-status.css
+ef6d54fdecd67b904b963977c19835d0  rust/gui-spike/ui/features/actions.js
+c2babf59d3295e5c839bf9d2785f16bb  tests/unit/gui-spike-features.test.mjs
+5ddf181223a2ddb9b5c497a8bffac897  tests/support/gui-dom-harness.mjs

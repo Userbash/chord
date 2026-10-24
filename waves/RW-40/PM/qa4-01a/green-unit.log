@@ -1,0 +1,64 @@
+▶ resolveEndpoint / resolveTargetHint
+  ✔ значения по умолчанию (0.373399ms)
+  ✔ переменные окружения переопределяют значения (0.174937ms)
+  ✔ без аргумента читает process.env (0.071345ms)
+✔ resolveEndpoint / resolveTargetHint (1.157907ms)
+▶ listTargets
+  ✔ запрашивает <endpoint>/json/list и возвращает список (0.55841ms)
+  ✔ ошибка HTTP → CDP list failed: <status> (0.289442ms)
+  ✔ нет ответа → таймаут (25.319751ms)
+  ✔ ответ не массив (0.187ms)
+✔ listTargets (26.613358ms)
+▶ pickTarget
+  ✔ ищет страницу по hint (0.147781ms)
+  ✔ без совпадения по hint — первая страница с 'discord' в url (0.081087ms)
+  ✔ страницы без webSocketDebuggerUrl пропускаются; fallback — первая страница (0.085658ms)
+  ✔ подходящих страниц нет → undefined (0.062264ms)
+✔ pickTarget (0.51591ms)
+▶ createCdpClient
+  ✔ отправляет {id, method, params} и resolve-ит result (0.568501ms)
+  ✔ ответ с ошибкой → reject с методом в сообщении (0.240681ms)
+  ✔ события без id копятся в events; чужие id игнорируются (0.14065ms)
+  ✔ mark/eventsSince/drainEvents работают с окном событий (0.194671ms)
+  ✔ битый JSON не роняет клиента (0.219077ms)
+  ✔ таймаут ответа → reject '<method>: таймаут <ms> мс' (30.22944ms)
+  ✔ close() закрывает сокет и отклоняет незавершённые запросы (0.311116ms)
+  ✔ ошибка соединения до open → createCdpClient reject-ит (0.169166ms)
+  ✔ синхронный throw send отклоняет запрос и закрытый клиент отвергает повторный send (0.208155ms)
+✔ createCdpClient (32.52263ms)
+▶ evaluate
+  ✔ передаёт Runtime.evaluate с returnByValue/awaitPromise и возвращает value (0.117105ms)
+  ✔ исключение в странице → Error с description (0.083538ms)
+  ✔ если description нет — используется text (0.073556ms)
+✔ evaluate (0.341663ms)
+▶ openPage
+  ✔ выбирает страницу по hint и подключается к её webSocketDebuggerUrl (0.206054ms)
+  ✔ нет подходящей страницы → понятная ошибка без соединения (0.125477ms)
+✔ openPage (0.383772ms)
+▶ clickText
+  ✔ экранирует текст и ищет кнопки/ссылки/role (0.174658ms)
+  ✔ клик по тексту → Runtime.evaluate и {clicked:true} (0.116115ms)
+  ✔ элемент не найден → ошибка с текстом (0.094291ms)
+  ✔ null от страницы трактуется как «не найдено» (0.076626ms)
+✔ clickText (0.545486ms)
+▶ listElements
+  ✔ возвращает массив элементов и экранирует селектор (0.111113ms)
+  ✔ ответ страницы не массив → ошибка (0.073566ms)
+✔ listElements (0.230969ms)
+▶ captureScreenshot
+  ✔ Page.captureScreenshot png → Buffer с байтами PNG (0.129448ms)
+  ✔ пустой ответ CDP → ошибка (0.074146ms)
+✔ captureScreenshot (0.257885ms)
+▶ CLI cdp: аргументы и справка
+  ✔ подкоманды cdp перечислены в --help (0.463869ms)
+  ✔ без обязательного аргумента → код 1 и подсказка (0.198502ms)
+  ✔ неизвестная подкоманда cdp → код 1 (0.078036ms)
+✔ CLI cdp: аргументы и справка (0.820546ms)
+ℹ tests 36
+ℹ suites 10
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.551894

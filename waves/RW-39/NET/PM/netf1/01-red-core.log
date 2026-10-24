@@ -1,0 +1,25 @@
+   --> crates/discord-core/tests/rest_client.rs:811:47
+    |
+811 |     let result = timeout(CASE_TIMEOUT, client.post("/auth/login", body))
+    |                                               ^^^^ method not found in `ApiClient`
+
+error[E0599]: no method named `post` found for struct `ApiClient` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:856:46
+    |
+856 |     let error = timeout(CASE_TIMEOUT, client.post("/auth/login", b"{}"))
+    |                                              ^^^^ method not found in `ApiClient`
+
+error[E0599]: no method named `post_once` found for struct `ApiClient` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:880:16
+    |
+880 |         client.post_once(
+    |         -------^^^^^^^^^ method not found in `ApiClient`
+
+error[E0599]: no method named `post_once` found for struct `ApiClient` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:926:47
+    |
+926 |     let result = timeout(CASE_TIMEOUT, client.post_once("/auth/login", b"{}", &[]))
+    |                                               ^^^^^^^^^ method not found in `ApiClient`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "rest_client") due to 4 previous errors

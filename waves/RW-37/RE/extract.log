@@ -1,0 +1,81 @@
+
+OK: 26 записей, JSON-копия в /tmp/opencode/rw37-re.json
+viewport                         = {'w': 2048, 'h': 1106, 'dpr': 1.25}
+                                   src: ui/log.json → запись name=start
+                                   how: CDP evalJS innerWidth/innerHeight + devicePixelRatio (ui-trace.mjs:111)
+screenshot_px                    = {'w': 2560, 'h': 1383}
+                                   src: ui/00-app.png (IHDR), ui6/02-channel.png, ui8/*.jpg
+                                   how: PNG IHDR (PIL) — совпадает с viewport×dpr (2560/1.25=2048, 1383/1.25=1106.4)
+css_tokens_live                  = {'--custom-guild-list-width': 'calc(40px + 12px*2)', '--custom-guild-list-padding': '12px', '--guildbar-avatar-size': '40px', '--custom-guild-sidebar-width': '268px', '--custom-app-sidebar-target-width': 'calc(268px + calc(40px + 12px*2))', '--custom-app-top-bar-height': '32px', '--custom-channel-header-height': '49px', '--custom-member-list-width': '256px', '--chat-avatar-size': '40px', '--chat-markup-line-height': '1.375rem', '--custom-message-margin-horizontal': '12px', '--custom-message-margin-left-content-cozy': 'calc(40px + 12px + 12px)', '--custom-message-margin-compact-indent': '5rem', '--custom-message-spacing-vertical-container-cozy': '0.125rem', '--custom-message-padding-vertical-container-compact': '0.125rem', '--custom-channel-textarea-text-area-height': '56px', '--space-xxs': '4px', '--space-xs': '6px', '--channels-name-line-height': '20px', '--custom-member-list-item-avatar-decoration-padding': '2px'}
+                                   src: ui/tokens.json (4795 переменных, getComputedStyle(document.documentElement), тема dark)
+                                   how: прямое чтение значений
+rail_w                           = 64
+                                   src: ui/tokens.json: --custom-guild-list-width = calc(40px + 12px*2); ui2/log.json (guild-rect: w=40, центр x=32 ⇒ left=12)
+                                   how: формула токена + проверка по getBoundingClientRect иконки гильдии
+chat_left_css                    = 375.2
+                                   src: ui/00-app.png + ui6/02-channel.png (2560×1383, dpr 1.25)
+                                   how: скан строк: первый x, где подряд 60 px цвета (26,26,30) после ≥35 px цвета (18,18,20); медиана по 6 строкам
+chat_left_css_second_capture     = 375.2
+                                   src: ui6/02-channel.png
+                                   how: тот же алгоритм
+sidebar_total_w                  = 375.2
+                                   src: ui/00-app.png
+                                   how: граница панели == ширина (rail + channel tree), т.к. chat начинается сразу за tree
+channel_tree_w                   = 311.2
+                                   src: ui/00-app.png; CSS: .sidebarList__5e434{width:calc(var(--custom-guild-sidebar-width) - var(--custom-guild-list-width) - 1px)}
+                                   how: sidebar_total - rail_w; проверка формулой: 375 - 64 - 1 = 310 (+1px border = 311)
+member_list                      = {'x': 1792, 'y': 82, 'w': 256, 'h': 1025}
+                                   src: ui8/22-members.json → rect (aside[class*=membersWrap])
+                                   how: getBoundingClientRect() (x0/y0/абсолютные, ui-members6.mjs)
+chat_w                           = 1416.8
+                                   src: ui/00-app.png + ui8/22-members.json
+                                   how: member_list.x0 - chat_left
+channel_row                      = {'w': 296, 'h': 28}
+                                   src: ui6/log.json → text-channel (a.link__2ea32)
+                                   how: getBoundingClientRect(); h=28 совпадает с CSS: line-height 20px + padding 4+4
+member_row_h                     = 42
+                                   src: ui8/22-members.jpg (кроп панели 320×1281 px при dpr 1.25) + CSS
+                                   how: медиана расстояний между верхами аватаров без групп-заголовков ≈ 42.2; CSS: .memberInner padding 4+4 + аватар 32 + .container padding 1+1 = 42
+message_content_h                = {'h': 66, 'lines': 3}
+                                   src: ui/log.json → msg-rect ([id^=message-content-])
+                                   how: getBoundingClientRect: 66 px = 3 × 22 px (line-height), т.е. контент в 3 строки
+row_heights                      = {'message_cozy': 26, 'message_compact': 26, 'message_cozy_group_start': 48, 'member': 42, 'channel': 28}
+                                   src: CSS из decoded/3eefa7dae1e2c234_0: .cozy_c19a55.wrapper_c19a55{padding:2px 0 2px; padding-inline-start:64px}, .compact_c19a55.wrapper_c19a55{padding:2px 0; padding-inline-start:5rem}, .wrapper_c19a55{min-height:1.375rem}, .header_c19a55{min-height:1.375rem;line-height:1.375rem}
+                                   how: cozy/compact: 22+2+2=26 (продолжение группы); cozy group-start: header 22 + content 22 + 4 = 48
+client_consts                    = {'qlD(nx)': 100, 'cZu(nk)': 200, 'EMb(nF)': 30, 'd7Q(nB)': 30, 'Ue3(nV)': 25, 'UNo(nH)': 120, 'rLJ(nj)': 60}
+                                   src: decoded/3eefa7dae1e2c234_0, модуль 652215 (export map: EMb→nF, d7Q→nB, UNo→nH, rLJ→nj)
+                                   how: regex по объявлению let-цепочки; имена экспортов — из n.d(t,{...}) того же модуля
+message_store_cap                = {'max': 120, 'trim_to': 60}
+                                   src: decoded/3eefa7dae1e2c234_0: MessageStore.truncate → this.length<=E.UNo … truncateBottom(E.rLJ)
+                                   how: код: коллекция канала обрезается при >120 до 60
+                                   found truncate(…UNo…rLJ): True
+rest_messages_pages              = {'initial_limit': ['12'], 'initial_urls': 10, 'before_limit': ['24'], 'before_urls': 3, 'around_limit': ['30'], 'around_urls': 1, 'pins_limit_25_occurrences': 2}
+                                   src: capture-ready.jsonl / capture-run2.jsonl / capture-cold.jsonl (CDP Network, request+response ⇒ каждый URL ×2) — счётчики ниже: число РАЗЛИЧНЫХ URL, а не запросов
+                                   how: regex по всем URL /channels/<id>/messages?…
+load_more_formula                = 'limit = min(30, 2 × config("scrollManager.loadMore"))'
+                                   src: decoded/3eefa7dae1e2c234_0: ScrollManager.loadMore → fetchMessages({before, after, limit:Math.min(eh.EMb, 2*(0,lZ.h)("scrollManager.loadMore")), truncate:true})
+                                   how: чтение кода; 2×12=24 объясняет наблюдаемый ?before=…&limit=24
+message_limits_max               = 100
+                                   src: decoded/3eefa7dae1e2c234_0: fetchMessages({channelId:r,limit:100}) (preload веток); клэмп 30 — это клиентская политика чанка, не серверный максимум
+                                   how: код клиента + отсутствие 4xx-проб с limit>100 в дампе (см. render-docs: max=100 — assumption)
+ready_payload                    = {'json_bytes': 584149, 'raw_bytes': 577124, 'top_level_fields': 39, 'session_messages': 124, 'session_event_types': 12}
+                                   src: gateway-schema.json → events[t=READY] + stats
+                                   how: sizeBytes/rawBytesPerEvent + len(fields) (в _trace отдельно, потому 39, а не 40)
+member_list_window               = {'member_count': 24227, 'online_count': 663, 'sync_range_hex': '0x0063', 'sync_items': 100, 'sync_events': 1, 'list_update_events': 79}
+                                   src: gateway-schema.json → GUILD_MEMBER_LIST_UPDATE (ops[0].range='0x0063'); gateway-schema.md §4.1 (100 элементов items в SYNC)
+                                   how: range = 2 байта [0,99]; window = 100 строк участников
+guild_members_chunk              = {'events': 1, 'chunk_index': 0, 'chunk_count': 1, 'members_in_chunk': 1, 'bytes': 666}
+                                   src: gateway-schema.json → GUILD_MEMBERS_CHUNK
+                                   how: поля chunk_index/chunk_count/members
+ready_counts                     = {'guilds': 7, 'channels': 272, 'roles': 132, 'read_state_entries': 157, 'user_guild_settings': 58, 'channel_overrides': 1328, 'private_channels': 17, 'merged_members': 7, 'merged_members_arrays': 7, 'users': 146, 'relationships': 60, 'read_state_table': 157}
+                                   src: gateway-schema.md §3 (таблицы вложенных структур READY) — счётчики массивов, которых нет в усечённом JSON
+                                   how: regex по заголовкам/строкам таблиц
+ready_guild_it                   = {'member_count': ('24 229',), 'channels_total': ('83',), 'text': ('47',), 'voice': ('20',), 'category': ('12',), 'forum': ('4',), 'roles': ('34',), 'emojis': ('46',), 'stickers': ('6',), 'ready_guild_size': ('65 489',), 'mlu_events': ('1048',), 'chunks': ('11', '32')}
+                                   src: gateway-protocol.md §6 (снимок READY гильдии ITSKIDON 1014537851418980372)
+                                   how: regex по тексту разбора
+composer                         = {'h': 56, 'w': 1400.8, 'y': 1044.0}
+                                   src: ui/tokens.json: --custom-channel-textarea-text-area-height=56px; ui/00-app.png: бокс (34,35,39) x 381.6…1784.8, y 1044…1100
+                                   how: измерение цвета по строкам PNG + токен
+header                           = {'topbar_h': 32, 'channel_header_h': 49, 'members_y0': 82}
+                                   src: ui/tokens.json: --custom-app-top-bar-height=32px, --custom-channel-header-height=49px; ui/00-app.png: полосы y 0…32 (titlebar), 32…81 (header); ui8/22-members.json y0=82
+                                   how: смена цвета по столбцу x=1200 + rect панели участников

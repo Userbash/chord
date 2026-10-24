@@ -1,0 +1,6 @@
+6fafee88639db3c9d2da5709f083c7ce  rust/gui-spike/src/main.rs
+bcd0bc7baa0c5a973a3d81808db13219  rust/gui-spike/src/data.rs
+3de13bca66001aae70b0a924bcd16fea  rust/gui-spike/src/lib.rs
+ffa9e6cb2a0d9bf82f4f868cd2bee78f  rust/gui-spike/tests/data_contract.rs
+6e2fe83e366aa7ec3bfafd114f381085  rust/gui-spike/tests/ipc_contract.rs
+9cad6d87bfcfa4936367d24b91c36c94  rust/gui-spike/tests/launch.rs

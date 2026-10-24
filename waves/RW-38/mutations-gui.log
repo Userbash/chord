@@ -1,0 +1,4 @@
+# GUI mutations, app.js md5=579570f937e09452015e5f5da4fca72c
+G1 caught: MEMBER_ROWS 24229 -> 100 | build_rc=0 | gui-window-probe: FAIL: UI_SNAPSHOT отсутствует в app.log
+G2 caught: убрана настройка «Превью» (38 -> 37) | build_rc=0 | gui-window-probe: FAIL: AT-SPI: тумблеров 37, ожидалось 38
+# restore: 579570f937e09452015e5f5da4fca72c OK

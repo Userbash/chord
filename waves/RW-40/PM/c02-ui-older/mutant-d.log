@@ -1,0 +1,95 @@
+▶ C-02-PAGE: первая страница
+  ✔ открытие канала — position=latest, limit=100, без cursor/before/token (35.829719ms)
+✔ C-02-PAGE: первая страница (36.492728ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (22.879755ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (10.060317ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (10.27033ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (43.481534ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (11.247079ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (9.941831ms)
+✔ C-02-PAGE: ошибки подгрузки видны (21.423031ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (6.441443ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (15.200291ms)
+✔ C-02-PAGE: границы окна (21.837628ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✔ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (10.791804ms)
+✔ C-02-UI-OLDER: открытие на последнем сообщении (10.90369ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (8.38965ms)
+  ✔ направления не смешиваются: nextCursor older-страницы не подменяет forward (12.828818ms)
+✖ C-02-UI-OLDER: скролл вверх (before/olderCursor) (21.402903ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✖ ошибка 404: alert сверху, строки целы, retry догружает (13.418619ms)
+  ✖ ошибка 401: alert сверху, строки целы, retry догружает (7.693273ms)
+✖ C-02-UI-OLDER: ошибки подгрузки вверх (21.313845ms)
+▶ C-02-UI-OLDER: границы окна
+  ✔ окно истории не растёт сверх 500 строк при подгрузке вверх (17.554756ms)
+✔ C-02-UI-OLDER: границы окна (17.653293ms)
+ℹ tests 14
+ℹ suites 8
+ℹ pass 11
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244.225705
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:669:3
+✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (8.38965ms)
+  AssertionError [ERR_ASSERTION]: hasOlder=false не остановил подгрузку вверх
+  
+  'idle' !== 'end'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:704:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'idle',
+    expected: 'end',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:790:5
+✖ ошибка 404: alert сверху, строки целы, retry догружает (13.418619ms)
+  AssertionError [ERR_ASSERTION]: после успешного повтора hasOlder=false не виден
+  
+  'idle' !== 'end'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:824:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'idle',
+    expected: 'end',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:790:5
+✖ ошибка 401: alert сверху, строки целы, retry догружает (7.693273ms)
+  AssertionError [ERR_ASSERTION]: после успешного повтора hasOlder=false не виден
+  
+  'idle' !== 'end'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:824:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'idle',
+    expected: 'end',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

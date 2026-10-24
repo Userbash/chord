@@ -1,0 +1,28 @@
+# N1-D md5 — 2026-10-24 (после PM-ревью)
+
+## Outputs
+
+49e5186e3ce759a6b6bfc063492f6dfa  waves/RW-40/DESIGN/SERVER-MENU.md
+a165fe3bfdc4867a14aa6e6419775901  waves/RW-40/DESIGN/server-menu.json
+80017a88b615255aff0c47384e7f4041  waves/RW-40/PM/n1d/validate.py
+d3c4f4e9990a5be058725220e6b9f84d  waves/RW-40/PM/n1d/validate.log
+
+## Inputs (read-only)
+
+79ed101289ac9630fbf5687b2238915b  waves/RW-40/NETWORK-CONTRACTS.md
+c7e61929677efab6bdac86a05a778fce  docs/re/rest-d02.md
+8e0ead46addbb2f54f143343d0de2108  fixtures/rest/rest-static.json
+8c24a205e5a17f02c0d48a68c47e1dc7  /home/sanya/re-deep/ui2/D1-guild-menu.png
+e801194f00372eae6ca596ee64bc9aeb  /home/sanya/re-deep/ui2/D1-guild-menu-items.json
+be94a21ec6ad0ef0a7b1c4c04979bc57  /home/sanya/re-deep/ui2/00-start.fingerprint.json
+09272320cecfa79d479a2b03df7adce1  /home/sanya/re-deep/ru-catalog.json
+630d448ac34a78835b2d9b3c201e597c  /home/sanya/re-deep/ui/tokens.json
+61dbfe70f8bf9ab88a7dabd5ef0e0e9f  rust/gui-spike/ui/tokens.css
+5d583d15aaef56d892e7a97a4d5fb6af  waves/RW-40/DESIGN/DESIGN-MSG.md
+2d4cf3d8758de702d1b8620884a80d3a  waves/RW-40/THEME-SPEC.md
+7030bafa672a590ccacbe47a676deb0f  waves/RW-39/DESIGN/SPEC.md
+
+## Not modified
+
+- `rust/gui-spike/ui/**`, `src/**`, `tests/**`, `package.json` — не трогались.
+- `logs/**`, `functions/**`, `evidence/**`, `/home/sanya/re-deep/**` — только чтение.

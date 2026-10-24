@@ -1,0 +1,23 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.60s
+     Running tests/invites_contract.rs (rust/gui-spike/target/debug/deps/invites_contract-9e6587723a59e904)
+
+running 14 tests
+test empty_or_blank_token_is_missing_token ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test accept_maps_response_to_typed_receipt ... ok
+test transport_failure_is_typed_network_error ... ok
+test client_debug_does_not_reveal_token ... ok
+test invite_routes_are_s_catalog_extension_not_d02 ... ok
+test accept_posts_exactly_three_nullable_fields_without_context ... ok
+test resolve_gets_invite_target_with_counts_and_expiration ... ok
+test free_functions_normalize_and_delegate ... ok
+test resolve_maps_wire_object_to_camel_case_preview ... ok
+test tauri_invite_commands_read_bearer_through_token_or_without_logging ... ok
+test http_statuses_map_to_typed_errors ... ok
+test success_without_parsable_invite_object_is_invalid_response ... ok
+test codes_are_normalized_and_invalid_ones_never_reach_transport ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

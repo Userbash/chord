@@ -1,0 +1,50 @@
+▶ QA-M2-03: search_remote на реальном index.html (data-guild-id)
+  ✖ после ready шлёт ровно один search_remote с guildId из data-guild-id (33.654343ms)
+  ✖ unauthorized/forbidden/notFound — видимая ошибка без локального fallback (13.231489ms)
+✖ QA-M2-03: search_remote на реальном index.html (data-guild-id) (47.600713ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 81.491049
+
+✖ failing tests:
+
+test at tests/unit/search-remote-real-index.test.mjs:129:3
+✖ после ready шлёт ровно один search_remote с guildId из data-guild-id (33.654343ms)
+  AssertionError [ERR_ASSERTION]: search_remote вызван 0 раз(а), нужен ровно один
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:160:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:171:3
+✖ unauthorized/forbidden/notFound — видимая ошибка без локального fallback (13.231489ms)
+  AssertionError [ERR_ASSERTION]: unauthorized: search_remote вызван 0 раз(а)
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:184:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

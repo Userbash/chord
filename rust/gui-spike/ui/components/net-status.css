@@ -1,0 +1,76 @@
+/* =============================================================================
+ * net-status.css — видимый reconnect/offline state (RW-40 / L-01).
+ *
+ * Баннер живёт в `.topbar` (32px) в обычном потоке: он не `fixed` и не
+ * перекрывает чат. Ширину ограничиваем, чтобы метрики справа оставались
+ * читаемыми; на узком окне текст усекается, а не ломает строку заголовка.
+ *
+ * Состояния приходят из `app.js` (`data-state` = GatewayStatus):
+ *   ready                         — hidden;
+ *   connecting / reconnecting     — «Переподключение…», без retry;
+ *   offline / error               — «Нет соединения» + «Повторить».
+ * ========================================================================== */
+
+.net-status {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  max-width: 40%;
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  white-space: nowrap;
+}
+
+.net-status[hidden] {
+  display: none;
+}
+
+.net-status[data-state="offline"],
+.net-status[data-state="error"] {
+  border-color: var(--danger);
+  background: var(--surface-4);
+}
+
+.net-status-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.net-status[data-state="connecting"] .net-status-text,
+.net-status[data-state="reconnecting"] .net-status-text {
+  color: var(--text-muted);
+}
+
+.net-status-retry {
+  flex: 0 0 auto;
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  color: var(--text-strong);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.net-status-retry:hover {
+  background: var(--surface-1);
+}
+
+.net-status-retry[hidden] {
+  display: none;
+}
+
+.net-status-retry[disabled] {
+  cursor: progress;
+  opacity: 0.72;
+}

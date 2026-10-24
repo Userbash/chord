@@ -1,0 +1,11 @@
+$ rg -n "url\(|@font-face" waves/RW-39/NET/LOGIN-SPEC.md
+(empty)
+
+$ node -e <token-check из брифа>
+tokens ok 58
+
+$ node -e <json parse + tokens по полям token>
+json ok; states 7 elements 54 errors 13 tokens 55 missing 0
+
+$ node -e <JSON.parse>
+valid json

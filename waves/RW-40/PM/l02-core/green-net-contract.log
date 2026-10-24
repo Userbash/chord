@@ -1,0 +1,29 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/net_contract.rs (rust/gui-spike/target/debug/deps/net_contract-a61c1bda61eccf56)
+
+running 22 tests
+test close_policies_are_forwarded ... ok
+test broken_payload_is_counted_instead_of_panicking ... ok
+test core_supervisor_config_wires_lifecycle_and_dispatch ... ok
+test connect_reads_token_and_reaches_ready ... ok
+test disconnect_is_idempotent_and_reconnect_is_visible ... ok
+test dispatch_stats_report_core_source_available ... ok
+test dispatch_reaches_ui_channel_in_order_without_changing_status ... ok
+test etf_to_json_keeps_atoms_as_strings_and_handles_nil_and_numbers ... ok
+test missing_token_is_a_typed_error ... ok
+test filtered_and_unknown_kinds_do_not_panic_and_are_not_forwarded ... ok
+test duplicate_sequences_are_dropped_and_reconnect_does_not_replay ... ok
+test non_forwarded_kind_is_counted_as_filtered ... ok
+test production_driver_disconnect_is_idempotent_without_connecting ... ok
+test reaction_kinds_use_wire_name_and_forward_data_as_is ... ok
+test status_never_contains_token ... ok
+test members_chunk_is_forwarded_verbatim ... ok
+test supervisor_events_map_to_gateway_contract ... ok
+test presence_dispatch_is_forwarded_verbatim_in_kind_data_envelope ... ok
+test blocked_ui_channel_never_blocks_the_gateway_source ... ok
+test emit_error_is_counted_and_not_swallowed ... ok
+test members_list_update_keeps_counts_and_drops_nested_presence_session_ids ... ok
+test ready_payload_drops_session_secrets_and_keeps_data ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

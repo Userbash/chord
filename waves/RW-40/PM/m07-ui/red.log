@@ -1,0 +1,152 @@
+▶ M-07-UI: read-state/ack в реальном канале
+  ✖ триггер ack зафиксирован как [A] и окно троттлинга — именованная константа (0.983833ms)
+  ✖ открытие канала → ровно один ack_message с lastViewed из READY (число, не snowflake) (29.86427ms)
+  ✖ null/badge-запись read_state не даёт ack и не превращается в 0 (10.650663ms)
+  ✖ троттлинг: фокус/скролл в низ не дублируют ack, новый курсор — только после окна (8.525958ms)
+  ✖ unread/mention-полоса: цитата из READY и сброс после успешного ack (8.893113ms)
+  ✖ 401 Unauthorized: ошибка ack видима, без цикла и без дублей (8.20457ms)
+  ✖ 429 RateLimited: ошибка ack видима и не повторяется (6.238494ms)
+  ✔ синтетический бенч (CHAT_ROWS) не ack'ает: ни read_state, ни ack_message (7.166081ms)
+✖ M-07-UI: read-state/ack в реальном канале (81.501784ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 1
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 125.676107
+
+✖ failing tests:
+
+test at tests/unit/read-state-ui.test.mjs:319:3
+✖ триггер ack зафиксирован как [A] и окно троттлинга — именованная константа (0.983833ms)
+  AssertionError [ERR_ASSERTION]: ACK_THROTTLE_MS — политика [A] (CONTRACTS/read-state.md), а не литерал в вызове
+  + actual - expected
+  
+  + undefined
+  - 3000
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:320:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 3000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:327:3
+✖ открытие канала → ровно один ack_message с lastViewed из READY (число, не snowflake) (29.86427ms)
+  AssertionError [ERR_ASSERTION]: ack_message вызван 0 раз вместо одного
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:333:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:375:3
+✖ null/badge-запись read_state не даёт ack и не превращается в 0 (10.650663ms)
+  AssertionError [ERR_ASSERTION]: полоса не переведена в режим read-state
+  + actual - expected
+  
+  + null
+  - 'read-state'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:389:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'read-state',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:398:3
+✖ троттлинг: фокус/скролл в низ не дублируют ack, новый курсор — только после окна (8.525958ms)
+  AssertionError [ERR_ASSERTION]: open не дал ровно один ack
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:402:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:436:3
+✖ unread/mention-полоса: цитата из READY и сброс после успешного ack (8.893113ms)
+  AssertionError [ERR_ASSERTION]: полоса не из read_state
+  + actual - expected
+  
+  + null
+  - 'read-state'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:454:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'read-state',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:473:3
+✖ 401 Unauthorized: ошибка ack видима, без цикла и без дублей (8.20457ms)
+  AssertionError [ERR_ASSERTION]: ack не отправлен
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:482:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:500:3
+✖ 429 RateLimited: ошибка ack видима и не повторяется (6.238494ms)
+  AssertionError [ERR_ASSERTION]: ack не отправлен
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:509:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

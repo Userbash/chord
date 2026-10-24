@@ -1,0 +1,36 @@
+▶ PageStore: LRU-эвикция и бюджет
+  ✖ конкурентный ensureRange не эвиктит запиненную страницу (m07) (71.898417ms)
+✖ PageStore: LRU-эвикция и бюджет (73.130748ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.799835
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-model.test.mjs:308:3
+✖ конкурентный ensureRange не эвиктит запиненную страницу (m07) (71.898417ms)
+  AssertionError [ERR_ASSERTION]: page 0 запинена диапазоном A и не вытеснена
+  + actual - expected
+  
+  + undefined
+  - {
+  -   id: 0
+  - }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:327:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 2)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { id: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

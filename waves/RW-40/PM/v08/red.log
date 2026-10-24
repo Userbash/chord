@@ -1,0 +1,18 @@
+# V-08 red-прогон (first run)
+
+```
+$ node --test tests/unit/voice-ui.test.mjs
+
+✖ tests/unit/voice-ui.test.mjs
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module
+  '/home/sanya/orca/project/rust/gui-spike/ui/features/voice.js'
+  imported from tests/unit/voice-ui.test.mjs
+ℹ tests 1
+ℹ pass 0
+ℹ fail 1
+```
+
+Причина: тест написан до реализации — модуль `ui/features/voice.js`
+(и `ui/components/voice.css`, читаемый тестом как оракул геометрии) ещё
+не существовал. Продуктовый код после этого не менялся «под тест»:
+сначала появились тесты, затем минимальная реализация.

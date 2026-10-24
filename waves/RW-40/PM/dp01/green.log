@@ -1,0 +1,358 @@
+▶ auth-гейт: разметка и носитель (AUTH-CONTRACT §4)
+  ✔ index.html: #auth-gate вне .screen, dialog-семантика, auth.css подключён style.css (0.943027ms)
+  ✔ контракт id: форма, логин/пароль/токен, captcha, MFA, alert, logout (0.157218ms)
+  ✔ no-session + stored: гейт виден, restore доступен, фокус в логине, auth_status один раз (25.458186ms)
+  ✔ no-session без ключа в keyring: restore скрыт (не мёртвая кнопка), submit работает (8.069291ms)
+  ✔ ready на старте: гейт скрыт, чат доступен, имя в user-bar, logout виден (9.963754ms)
+✔ auth-гейт: разметка и носитель (AUTH-CONTRACT §4) (45.389833ms)
+▶ auth-гейт: раскладка окна входа (LOGIN-SPEC §1, §4, §11)
+  ✔ CSS: карточка 480/784 = 32+416+64+240, QR 240, скрытие QR ≤830 (0.297228ms)
+  ✔ QR-панель: inline-SVG 160 без внешних ассетов, role=img, честный disabled (5.446641ms)
+  ✔ состояния: checking на старте, затем no-session; QR скрыт вне no-session (6.886358ms)
+✔ auth-гейт: раскладка окна входа (LOGIN-SPEC §1, §4, §11) (12.851016ms)
+▶ auth-гейт: вход по логину и паролю (AUTH-CONTRACT §2)
+  ✔ submit: validating, пароль очищен до ответа, invoke(auth_login_password), ready (8.280041ms)
+  ✔ пустые поля: подсказка у поля, IPC не вызывается, фокус в проблемном поле (5.53035ms)
+  ✔ показать/скрыть пароль: type password↔text, aria-pressed и aria-label (3.999585ms)
+✔ auth-гейт: вход по логину и паролю (AUTH-CONTRACT §2) (18.021776ms)
+▶ auth-гейт: captcha только интерактивная (LOGIN-SPEC §5)
+  ✔ kind=captcha: зона показана, поля disabled, adapter монтируется, «Продолжить» ждёт токен (7.558003ms)
+  ✔ kind=captcha: session/rqdata сохраняются в adapter context и retry (3.868234ms)
+  ✔ без adapter: placeholder и честный disabled, никаких обходов и вызовов (6.199195ms)
+✔ auth-гейт: captcha только интерактивная (LOGIN-SPEC §5) (17.791598ms)
+▶ auth-гейт: MFA (LOGIN-SPEC §6)
+  ✔ kind=mfa: список методов в серверном порядке, QR и форма скрыты (3.672231ms)
+  ✔ один метод: слайд открывается сразу, без списка (3.33432ms)
+  ✔ totp: submit активен при 6 цифрах, auth_mfa, код очищен до ответа, ready (5.985215ms)
+  ✔ после submit код очищен, кнопка disabled, второй клик не шлёт пустой auth_mfa (6.604928ms)
+  ✔ sms: auth_sms при открытии слайда, маскированный номер, повтор по кнопке (3.409019ms)
+  ✔ backup: предупреждение и счётчик 10 с, затем слайд резервного кода (3.498386ms)
+  ✔ backup submit: дефисы вырезаются, метод backup (6.329727ms)
+  ✔ password-метод: поле type=password, пустой submit disabled (8.609934ms)
+  ✔ webauthn: disabled-affordance с подсказкой (нативной подписи нет) (6.492404ms)
+  ✔ неверный код: «Неверный код.» в alert, MFA остаётся, код очищен (10.0632ms)
+  ✔ истёкший ticket (60006): возврат в no-session с понятным текстом (3.881802ms)
+  ✔ «Отмена»: возврат к форме, QR и restore снова доступны (4.655742ms)
+✔ auth-гейт: MFA (LOGIN-SPEC §6) (67.01452ms)
+▶ auth-гейт: ошибки 401/429/captcha/сеть без секретов (LOGIN-SPEC §7)
+  ✔ 401 InvalidCredentials: alert, пароль помечен aria-invalid, гейт открыт (5.589791ms)
+  ✔ 429 RateLimited: retry_after в тексте, submit заблокирован, автоповтора нет (4.31699ms)
+  ✔ сеть (Network kind): «нет связи», состояние error, гейт открыт (3.356766ms)
+  ✔ сорванный IPC (invoke rejects строкой): тоже «нет связи», без console.error (4.555216ms)
+  ✔ Keyring в теле AuthState: сообщение о хранилище (4.187159ms)
+  ✔ LoginRejected 70007: подтверждение в официальном клиенте, retry скрыт (4.74886ms)
+  ✔ «Повторить»: сбрасывает ошибку и возвращает форму ввода (3.920856ms)
+✔ auth-гейт: ошибки 401/429/captcha/сеть без секретов (LOGIN-SPEC §7) (31.017432ms)
+▶ auth-гейт: вход токеном, restore, logout, отсутствие мёртвых кнопок
+  ✔ токен: validating, поле очищено, invoke(auth_login_token), ready (9.581147ms)
+  ✔ токен: пустой ввод — «введите токен», IPC не вызывается (5.127976ms)
+  ✔ restore: invoke(auth_restore) без аргументов, validating → ready (3.813522ms)
+  ✔ токен: повторный клик до ответа не шлёт второй IPC, кнопка disabled до ответа (3.816441ms)
+  ✔ restore: повторный клик до ответа не шлёт второй auth_restore (3.684551ms)
+  ✔ restore с отозванным токеном: ошибка в гейте, сессия не открыта (3.638836ms)
+  ✔ logout: invoke(auth_logout), гейт снова открыт, имя сброшено, фокус в логине (5.087652ms)
+  ✔ logout отклонён: поля и captcha/MFA-контекст сброшены, гейт открыт, без console.error (10.094276ms)
+  ✔ показать/скрыть токен: type password↔text и aria-pressed (4.042329ms)
+  ✔ нет мёртвых кнопок: подпись/имя у каждой, disabled — с подсказкой (2.871005ms)
+✔ auth-гейт: вход токеном, restore, logout, отсутствие мёртвых кнопок (52.163546ms)
+▶ auth-гейт: среда без IPC и отсутствие секретов
+  ✔ auth_status падает: гейт с «нет связи», приложение живо, без console.error (3.029202ms)
+  ✔ секреты не попадают в DOM/логи/чужие IPC: пароль и MFA-код (3.512774ms)
+  ✔ токен не появляется ни в гейте, ни в user-bar, ни в снапшоте UI (3.082535ms)
+✔ auth-гейт: среда без IPC и отсутствие секретов (9.748334ms)
+▶ summarize
+  ✔ обычный набор: min/max/avg/p95, hwm, threads_max, duration_ms (0.770202ms)
+  ✔ пустой вход не бросает и отдаёт нули (0.092467ms)
+  ✔ один элемент: все статистики равны ему, duration 0 (0.084698ms)
+  ✔ p95 по nearest-rank: 20 значений → 19-е, не максимум (0.493341ms)
+  ✔ p95 на 100 значениях 1..100 → 95 (0.123943ms)
+  ✔ порядок входа не влияет на статистики и вход не мутируется (0.150779ms)
+  ✔ avg округляется до целого kB, hwm и threads берутся максимумом (0.089877ms)
+✔ summarize (2.492508ms)
+▶ CLI: коды выхода
+  ✔ без --pid → exit 1 и русское сообщение (17.84877ms)
+  ✔ нечисловой --pid → exit 1 (20.456843ms)
+  ✔ нулевой --duration-ms → exit 1 (19.487249ms)
+  ✔ неизвестный аргумент → exit 1 (18.900712ms)
+  ✔ несуществующий PID → exit 2 без записи в процесс (17.207871ms)
+✔ CLI: коды выхода (94.274293ms)
+▶ CLI: живой замер своего процесса
+  ✔ пишет JSON в stdout и в --json, поля контракта на месте (178.86695ms)
+  ✔ без --tree поля processes/skipped отсутствуют (обратная совместимость) (121.582708ms)
+✔ CLI: живой замер своего процесса (300.589829ms)
+▶ CLI: --tree (P1-3, сумма RSS по дереву)
+  ✔ --tree на своём процессе: processes >= 1, rss_kb.avg > 0, есть skipped (181.645979ms)
+  ✔ --tree --pid <дочерний node>: дерево из одного процесса считается (180.171158ms)
+  ✔ --tree рекурсивен: родитель + его потомок → processes >= 2 (204.93978ms)
+  ✔ --tree с несуществующим PID → exit 2 (процесс, а не аргументы) (18.023405ms)
+✔ CLI: --tree (P1-3, сумма RSS по дереву) (585.077789ms)
+▶ aggregateTree (P1-3: сумма RSS, максимум HWM, сумма потоков)
+  ✔ rss и threads суммируются, hwm берётся максимумом (не суммой) (0.136561ms)
+  ✔ пустой список → нули (0.07346ms)
+✔ aggregateTree (P1-3: сумма RSS, максимум HWM, сумма потоков) (0.293159ms)
+▶ percentile95 (P2-6, прямой контракт nearest-rank)
+  ✔ n=20 → 19-й элемент (190), не максимум (0.099456ms)
+  ✔ n=100, значения 1..100 → 95 (0.063161ms)
+  ✔ n=1 → единственный элемент (0.045003ms)
+  ✔ пустой массив → 0 (без исключения) (0.042944ms)
+✔ percentile95 (P2-6, прямой контракт nearest-rank) (0.348971ms)
+▶ parseStatus (P2-9, парсер /proc/<pid>/status)
+  ✔ валидный статус → rss_kb/hwm_kb/threads (0.223689ms)
+  ✔ значения без суффикса kB и с разными пробелами тоже принимаются (0.117864ms)
+  ✔ нет VmRSS → throws и называет только VmRSS (0.119633ms)
+  ✔ нет Threads → throws и называет поле Threads (0.074119ms)
+  ✔ отрицательные значения не матчатся \d+ → throws с именем поля (0.063961ms)
+  ✔ нечисловые значения → throws с именем поля (0.059312ms)
+  ✔ пустой текст → throws и перечисляет все три поля (0.074299ms)
+✔ parseStatus (P2-9, парсер /proc/<pid>/status) (0.872088ms)
+▶ parseCliArgs (контракт флагов)
+  ✔ значения по умолчанию: --pid обязателен, --tree выключен (0.184184ms)
+  ✔ --tree включает режим дерева, --json разрешает путь (0.07163ms)
+  ✔ без --pid → throws с именем флага (0.198272ms)
+  ✔ границы --pid: 0 и 2^22+1 отвергаются (0.075959ms)
+  ✔ --duration-ms вне диапазона → throws (0.07474ms)
+  ✔ --json с пустым путём → throws (0.054402ms)
+✔ parseCliArgs (контракт флагов) (0.795678ms)
+▶ parseBenchLog / --bench-log (FPS из app.log)
+  ✔ берёт последнюю строку BENCH и возвращает объект (0.173156ms)
+  ✔ нет строки BENCH → null (autobench не запускался) (0.042434ms)
+  ✔ битый JSON в BENCH → throws с BENCH в сообщении (0.06842ms)
+  ✔ BENCH не объект (массив/число) → throws (0.070281ms)
+  ✔ --bench-log разрешает путь (0.056662ms)
+  ✔ --bench-log с пустым путём → throws (0.069241ms)
+  ✔ CLI: --bench-log добавляет bench (FPS/p95) в итоговый JSON (178.121213ms)
+  ✔ CLI: --bench-log без BENCH → exit 1 (FPS запрошены, но не найдены) (139.386592ms)
+✔ parseBenchLog / --bench-log (FPS из app.log) (318.210037ms)
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ лимит композера 2000, IPC payload не содержит токен/пароль (27.9176ms)
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (18.893393ms)
+  ✔ #auth-gate: новый id из index.html есть в шиме и не считается экраном (10.564728ms)
+  ✔ шапка чата: колокол между ветками и закреплёнными (VW-01, D-17) (5.281415ms)
+  ✔ подарок в композере: disabled-affordance в index.html и в шиме (P1 REVIEW-W39h) (5.406047ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (5.150893ms)
+  ✔ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (13.203836ms)
+  ✔ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.410195ms)
+  ✔ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (5.864283ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (8.35705ms)
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.52909ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (3.004916ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (4.117689ms)
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (6.882029ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (3.998426ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, состояния из дампа (SET-06/07/08) (4.092842ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (6.946609ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (4.090052ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (2.97547ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (3.190849ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (14.109378ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (11.606681ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (4.385191ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (4.508444ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (3.962351ms)
+✔ GUI spike: настоящий app.js в DOM-шиме (191.189362ms)
+▶ чат-вью P3-02: новые блоки не ломают инварианты списка
+  ✔ QuickSwitcher host и ресурсы доступны отдельно от четырёх frozen экранов (3.708146ms)
+  ✔ extras живут внутри .text, у строки по-прежнему ровно 2 ребёнка (5.545647ms)
+  ✔ D-13: unread-полоса 34 и блок группы участников 42 — из токенов, не литералов (5.204866ms)
+  ✔ окно данных не растёт от новых панелей: loadedRows ≤ 500, inFlight пуст (4.913936ms)
+✔ чат-вью P3-02: новые блоки не ломают инварианты списка (19.572267ms)
+▶ gui-spike features: интеракции W39d
+  ✔ QuickSwitcher открывается по Ctrl/Cmd+K, фильтрует, перемещает выбор и переключает канал/экран (38.546219ms)
+  ✔ QuickSwitcher показывает пустое состояние и ловит Tab внутри диалога (9.439068ms)
+  ✔ композер отправляет Enter, сохраняет Shift+Enter и не отправляет пустое (9.649068ms)
+  ✔ optimistic строка получает error и ручной retry переводит её в sent (5.600749ms)
+  ✔ ошибка отправки не затирает набранный поверх черновик, пустое поле — возвращает текст (6.131305ms)
+  ✔ 401/429 показывают классовое сообщение и не делают автоповтор (4.629776ms)
+  ✔ body[data-active-screen] + aria-current на 4 экранах (6.51633ms)
+  ✔ шапка чата: 4 icon-btn — ветки, колокол, закреплённые, участники (VW-01, D-17) (5.402628ms)
+  ✔ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (5.937231ms)
+  ✔ эмодзи: стрелки двигают aria-selected и roving tabindex (3.868314ms)
+  ✔ эмодзи-поиск: глобальный по всем категориям, вкладка только листает (EMO-16) (9.097916ms)
+  ✔ настройки: 18 разделов навигации, 3 доступных, остальные disabled (SET-01, D-17) (4.098391ms)
+  ✔ настройки: «Голос и видео» — 38 тумблеров (12+22+4), 10 блоков, состояния из дампа (5.014152ms)
+  ✔ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (6.626085ms)
+  ✔ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (4.805882ms)
+  ✔ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (5.167681ms)
+  ✔ клавиши §11: Ctrl+F/Ctrl+Shift+F, Ctrl+U, PageUp/PageDown, Shift+Esc (15.548265ms)
+  ✔ счётчики live (polite), FPS/p95 — не live (8.112174ms)
+  ✔ штатная работа без console.error/warn (весь сценарий) (14.823127ms)
+✔ gui-spike features: интеракции W39d (170.734999ms)
+▶ чат-вью P3-02: сообщения и extras строки
+  ✔ group start/continuation, day divider, reply-quote, reactions, embeds, edited (4.705246ms)
+  ✔ embeds: link-карточка и image-заглушка (без сети) (3.955842ms)
+  ✔ link-embed: в href только http(s), javascript: не становится ссылкой (P0) (4.254569ms)
+  ✔ unread-полоса 34 (D-13) — вне #chat-list, с честным счётчиком (6.149092ms)
+[ACTION_FAILED] сеть недоступна
+  ✔ hover-панель: 15 пунктов R-16, без мёртвых кнопок, реакция и reply работают (4.67572ms)
+[ACTION_FAILED] сессия истекла
+  ✔ hover-панель: быстрая реакция уходит в IPC один раз и откатывается при 401 (5.423724ms)
+[ACTION_FAILED] Не удалось изменить сообщение
+  ✔ B4b: edit сохраняет через IPC, оптимистично меняет текст и откатывает ошибку (8.017558ms)
+  ✔ B4b: повторный submit edit не отправляет второй edit_message до ответа (6.242979ms)
+[ACTION_FAILED] gui-dom-harness: неизвестная IPC-команда «delete_message»
+[ACTION_FAILED] Не удалось удалить сообщение
+  ✔ B4b: delete требует подтверждение и возвращает строку при ошибке (5.397627ms)
+  ✔ B4b: удалённая строка не возвращается из PageStore после выгрузки и не оставляет пустого места (11.846818ms)
+[ACTION_FAILED] gui-dom-harness: неизвестная IPC-команда «reply_message»
+  ✔ B4b: reply отправляет reply_message с replyTo и отменяется Escape (4.11326ms)
+✔ чат-вью P3-02: сообщения и extras строки (65.24639ms)
+[ACTION_FAILED] сеть недоступна
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+▶ B3b: UI реакций
+  ✔ отправляет toggle_reaction и оптимистично меняет счётчик/aria-pressed (5.210055ms)
+[ACTION_FAILED] сессия истекла
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при 401 (4.998634ms)
+[ACTION_FAILED] ограничение частоты; повтор через 250 мс
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при 429 (4.356545ms)
+[ACTION_FAILED] сеть недоступна
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при сеть (4.544599ms)
+  ✔ двойной клик до ответа делает один запрос и не оставляет pending (9.861608ms)
+  ✔ неизвестная или пустая реакция не вызывает IPC и показывает подсказку (3.497956ms)
+✔ B3b: UI реакций (32.7239ms)
+▶ чат-вью P3-02: композер
+  ✔ empty → typing → empty, счётчик с 1800, лимит 2000 (3.322811ms)
+  ✔ вставка эмодзи в позицию курсора; лимит 2000 и disabled не ломаются (3.060308ms)
+  ✔ disabled: aria-disabled, поле в DOM, attach — affordance с подсказкой (2.993257ms)
+  ✔ gift: явная заглушка Phase 3 — disabled-affordance, клик без ACTION_FAILED (P1) (4.10948ms)
+  ✔ Ctrl+E открывает пикер, Escape возвращает чат и не ломает черновик (3.461332ms)
+✔ чат-вью P3-02: композер (17.128822ms)
+▶ чат-вью P3-02: участники — 6 групп (D-13)
+  ✔ панель чата: 6 групп, заголовок 42, счётчики = строкам группы (3.319201ms)
+  ✔ экран участников: чипы 6 групп, roving tabindex, клик выбирает строку группы (8.527626ms)
+  ✔ поиск участников по загруженному окну: честный счётчик (3.129708ms)
+✔ чат-вью P3-02: участники — 6 групп (D-13) (15.116516ms)
+▶ чат-вью P3-02: search overlay
+  ✔ 7 секций, 5 input, сортировка из 3 пунктов, честный статус (4.501905ms)
+  ✔ фильтр по запросу и сортировка меняют выдачу; счётчик остаётся оконным (3.346007ms)
+  ✔ «Самое актуальное» — закреплённые выше, затем свежие; порядок ≠ «По новизне» (P2) (3.759279ms)
+  ✔ переход к сообщению: оверлей закрыт, список прокручен, строка подсвечена (2.959473ms)
+[ACTION_FAILED] дата «2026-99-99» не в формате ГГГГ-ММ-ДД
+[ACTION_FAILED] дата «2026-99-99» не в формате ГГГГ-ММ-ДД
+  ✔ ошибка фильтра — UIError в статусе, без падения оверлея (3.018504ms)
+  ✔ Esc и крестик закрывают оверлей; состояние не теряется (8.635261ms)
+✔ чат-вью P3-02: search overlay (26.453996ms)
+▶ B7b: сетевой поиск (search_remote)
+  ✔ зовёт search_remote с guildId и подтверждёнными params; рисует total_results (3.537691ms)
+  ✔ offset-пагинация: вторая страница без дублей, offset растёт (3.017314ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+  ✔ 401 — видимая ошибка, локального fallback нет (2.996837ms)
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: сеть недоступна
+[ACTION_FAILED] поиск: сеть недоступна
+  ✔ 429 и сеть — разные видимые сообщения, без fallback (5.538109ms)
+  ✔ loading: до ответа сервера видно состояние загрузки, потом результаты (3.500326ms)
+  ✔ пустой ответ сервера — empty-состояние при total_results=0 (3.034922ms)
+  ✔ 7 фильтров: content/channel/sort — сервер, остальные честно «локально» (7.110297ms)
+  ✔ локальные фильтры применяются к серверной выдаче и не уходят в params (3.037401ms)
+  ✔ IPC-команды нет (демо) — локальный fallback с видимой пометкой (3.132058ms)
+✔ B7b: сетевой поиск (search_remote) (35.695251ms)
+▶ настройки: гидратация и сохранение (B8b)
+  ✔ settings_load на старте: тумблеры по id, density/theme/locale и lang (2.984589ms)
+  ✔ change: один settings_save после debounce, только белый список и без секретов (3.32644ms)
+  ✔ битые/чужие значения → дефолты cozy/dark/ru, без падения и без save (2.803804ms)
+  ✔ settings_load упал → дефолты и отсутствие молчаливого падения (2.818852ms)
+  ✔ debounce: несколько изменений (тумблер+density+theme) → один save с финальными значениями (7.412674ms)
+  ✔ ошибка settings_save видна, состояние не откатывается (3.586934ms)
+  ✔ id тумблеров стабильные ASCII; старый формат по индексу мигрируется без падения (2.936565ms)
+✔ настройки: гидратация и сохранение (B8b) (26.118563ms)
+▶ PageStore: конструктор
+  ✔ сохраняет параметры и считает общее число страниц (пустой стор) (0.740076ms)
+  ✔ отвергает невалидный totalRows (только целое > 0) (0.27889ms)
+  ✔ отвергает невалидные pageSize и maxPages (0.204611ms)
+  ✔ требует объект опций и функцию fetchPage (0.116994ms)
+  ✔ допускает одну строку в единственной странице (0.358939ms)
+✔ PageStore: конструктор (2.328801ms)
+▶ PageStore: пустой стор и getRow
+  ✔ до загрузки getRow → undefined, fetchPage не вызывался (0.131872ms)
+  ✔ getRow вне [0,totalRows) → undefined без исключения (3.775287ms)
+  ✔ первая страница: строки 0 и 99 доступны, 100 — ещё нет (0.550253ms)
+  ✔ последняя страница неполная: 250 строк → 50 в третьей странице (0.162187ms)
+✔ PageStore: пустой стор и getRow (4.806101ms)
+▶ PageStore: ensureRange
+  ✔ кламплит границы и ничего не грузит вне данных (0.270532ms)
+  ✔ идемпотентен: повторные вызовы не перезагружают страницы (0.119053ms)
+  ✔ конкурентные вызовы: одна загрузка на страницу (10.035903ms)
+  ✔ ошибка fetchPage пробрасывается и не кэшируется навсегда (0.28019ms)
+  ✔ не-массив из fetchPage → TypeError (0.13937ms)
+  ✔ диапазон шире maxPages → RangeError, ничего не грузит (0.232837ms)
+  ✔ короткая не-последняя страница → RangeError (иначе дыра в окне навсегда) (0.294778ms)
+  ✔ последняя страница вернула 0 строк при capacity>0 → RangeError (симметрично R1) (0.145819ms)
+  ✔ последняя (неполная) страница остаётся допустимой (0.110594ms)
+  ✔ перегрузка страницы (capacity+1) → RangeError для любой страницы (m09) (0.233367ms)
+  ✔ невалидные аргументы → TypeError, пустой диапазон — no-op (0.111064ms)
+✔ PageStore: ensureRange (12.344987ms)
+▶ PageStore: LRU-эвикция и бюджет
+  ✔ вытесняет страницу, к которой дольше не обращались (0.134281ms)
+  ✔ текущий диапазон не эвиктит сам себя (ровно на бюджете) (0.082359ms)
+  ✔ конкурентный ensureRange не эвиктит запиненную страницу (m07) (70.586186ms)
+  ✔ getRow обновляет LRU: прочитанная страница выживает (0.248264ms)
+  ✔ loadedRows ≤ pageSize*maxPages при обходе всего стора (0.193622ms)
+  ✔ stats после загрузки двух страниц (0.086517ms)
+✔ PageStore: LRU-эвикция и бюджет (71.525104ms)
+ℹ tests 212
+ℹ suites 31
+ℹ pass 212
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1344.463886
+▶ DP-01: breakpoints SPEC §5.1
+  ✔ токены по ширинам: 311/256 → 240/240 → 240 → 200 (1.289768ms)
+  ✔ дефолт 1200–1599 — базовые токены, без media-переопределения (0.090748ms)
+  ✔ style.css: member panel скрыт на 960–1199, tree — на <720 (0.774981ms)
+  ✔ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.229448ms)
+  ✔ chat ≥ 520 на 960–1199 и отсутствие горизонтального скролла shell (0.300988ms)
+  ✔ aria/screen-switch: скрытие только CSS, aria-hidden — только на .screen (0.310017ms)
+✔ DP-01: breakpoints SPEC §5.1 (3.682062ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 35.075336
+ok   | широкий shell (>=1600px) | --layout-tree-w-wide/--layout-member-panel-w-wide = 311px/256px
+ok   | titlebar | --layout-titlebar-h = 32px
+ok   | rail | --layout-rail-w = 64px
+ok   | tree | --layout-tree-w = 240px
+ok   | chat header | --layout-header-h = 49px
+ok   | composer | --layout-composer-h = 56px
+ok   | member panel | --layout-member-panel-w = 240px
+ok   | user bar | --layout-userbar-h = 56px
+ok   | tree header | --space-11 = 48px
+ok   | chat row track | --row-message-track = 44px
+ok   | chat line-height | --line-height-message = 22px
+ok   | chat group start (RE) | --row-message-start = 48px
+ok   | chat cozy (RE, справочно) | --row-message-cozy = 26px
+ok   | member row track | --row-member-track = 40px
+ok   | member row (panel) | --row-member = 42px
+ok   | channel row | --row-channel = 28px
+ok   | notice | --layout-group-title-h = 24px
+ok   | emoji card w | --emoji-picker-w = 498px
+ok   | emoji card h | --emoji-picker-h = 440px
+ok   | emoji rail | --emoji-rail-w = 48px
+ok   | emoji cell | --emoji-cell = 44px
+ok   | emoji gap | --emoji-gap = 4px
+ok   | emoji cols | --emoji-cols = 9
+ok   | avatar sm | --avatar-sm = 20px
+ok   | avatar md | --avatar-md = 32px
+ok   | avatar lg | --avatar-lg = 40px
+ok   | switch w | --switch-w = 40px
+ok   | switch h | --switch-h = 24px
+ok   | switch thumb | --switch-thumb = 18px
+ok   | settings nav | --settings-nav-w = 232px
+ok   | settings nav item | --settings-nav-item-h = 34px
+ok   | content max w | --layout-content-max-w = 720px
+
+все 31 геометрических значений в допуске

@@ -1,0 +1,98 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/keyring_contract.rs (target/debug/deps/keyring_contract-08983f2bacdcafa3)
+
+running 12 tests
+test k01_connect_to_default_collection ... FAILED
+test k02_store_then_lookup_roundtrip_without_leak ... FAILED
+test k03_lookup_missing_returns_none ... FAILED
+test k05_overwrite_replaces_value ... FAILED
+test k04_clear_existing_then_lookup_none ... FAILED
+test k06_unicode_secret_roundtrip ... FAILED
+test k07_secret_tool_reads_our_store ... FAILED
+test k08_our_lookup_reads_secret_tool_store ... FAILED
+test k10_nul_in_key_or_secret_is_error_without_panic ... FAILED
+test k09_empty_key_is_invalid ... FAILED
+test k11_repeated_clear_returns_false ... FAILED
+test k12_debug_does_not_print_secret_or_pointers ... FAILED
+
+failures:
+
+---- k01_connect_to_default_collection stdout ----
+
+thread 'k01_connect_to_default_collection' (439217) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- k02_store_then_lookup_roundtrip_without_leak stdout ----
+
+thread 'k02_store_then_lookup_roundtrip_without_leak' (439218) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k03_lookup_missing_returns_none stdout ----
+
+thread 'k03_lookup_missing_returns_none' (439219) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k05_overwrite_replaces_value stdout ----
+
+thread 'k05_overwrite_replaces_value' (439221) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k04_clear_existing_then_lookup_none stdout ----
+
+thread 'k04_clear_existing_then_lookup_none' (439220) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k06_unicode_secret_roundtrip stdout ----
+
+thread 'k06_unicode_secret_roundtrip' (439222) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k07_secret_tool_reads_our_store stdout ----
+
+thread 'k07_secret_tool_reads_our_store' (439223) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k08_our_lookup_reads_secret_tool_store stdout ----
+
+thread 'k08_our_lookup_reads_secret_tool_store' (439224) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k10_nul_in_key_or_secret_is_error_without_panic stdout ----
+
+thread 'k10_nul_in_key_or_secret_is_error_without_panic' (439226) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k09_empty_key_is_invalid stdout ----
+
+thread 'k09_empty_key_is_invalid' (439225) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k11_repeated_clear_returns_false stdout ----
+
+thread 'k11_repeated_clear_returns_false' (439227) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+---- k12_debug_does_not_print_secret_or_pointers stdout ----
+
+thread 'k12_debug_does_not_print_secret_or_pointers' (439228) panicked at crates/discord-platform/tests/keyring_contract.rs:65:9:
+KEYRING-LIVE: not-enabled: DISCORD_LAB_KEYRING_LIVE != 1 (ожидалось 1)
+
+
+failures:
+    k01_connect_to_default_collection
+    k02_store_then_lookup_roundtrip_without_leak
+    k03_lookup_missing_returns_none
+    k04_clear_existing_then_lookup_none
+    k05_overwrite_replaces_value
+    k06_unicode_secret_roundtrip
+    k07_secret_tool_reads_our_store
+    k08_our_lookup_reads_secret_tool_store
+    k09_empty_key_is_invalid
+    k10_nul_in_key_or_secret_is_error_without_panic
+    k11_repeated_clear_returns_false
+    k12_debug_does_not_print_secret_or_pointers
+
+test result: FAILED. 0 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-platform --test keyring_contract`

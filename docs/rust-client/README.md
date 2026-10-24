@@ -16,9 +16,12 @@ R4/R5/R6/D).
 | `WAVE-PLAN.md` | **Batch-план:** 90 карточек → ~18–22 волны, ready-queue, критический путь, сроки |
 | `CONCEPT.md` | Полный концепт: что делает приложение, принципы, стек, сценарии, критерии успеха |
 | `FEATURES.md` | Каталог функций (ID, зачем, как работает по RE, источник, фаза) — 14 групп |
-| `ARCHITECTURE.md` | Процессы, крейты, шины, хранилище, замена Electron-IPC, ADR по UI, 8 графов Mermaid |
+| `ARCHITECTURE.md` | Целевая архитектура, фактический Cargo-граф, хранилище, Electron-IPC и ADR по UI |
 | `PLAN.md` | Волны P0–P8: 90 карточек с DoD, тестами, зависимостями, размерами; гейты и риск-план |
-| `TEST-PLAN.md` | Уровни L1–L5, манифест RE-фикстур, каталог ~130 тестов, red-first протокол |
+| `TEST-PLAN.md` | Уровни L0–L7, манифест RE-фикстур, каталог ~130 тестов, red-first протокол |
+| `MUTATION-LEDGER.md` | Журнал мутационного тестирования: сводка по волнам, классы мутантов, разбор survivors |
+| `SECURITY.md` | Модель угроз, границы доверия, секреты, FFI, supply chain, security-тесты |
+| `ADR-1.md` | Решение по GUI-тулкиту: спайк Tauri, метрики FPS/RAM/сборки/старта, условия |
 | `CODE-STANDARD.md` | **Эталонный метод:** research → frozen contract → red-first → mutation/review → gate; безопасность, async/UI, Definition of Done, уроки волн |
 | `LEGAL.md` | **Правовая рамка:** ToS, телеметрия off, честный отпечаток, секреты/ассеты, живые операции только по approval |
 | `CODEX-WORKERS.md` | **Codex CLI playbook:** роли, sandbox, промты воркера/ревьюера, DAG, mutation feedback loop |
@@ -58,7 +61,7 @@ strace голоса, каталоги i18n, распакованный asar. **�
 
 ## Каркас и проверки
 
-- `../../rust/` — cargo-воркспейс (10 крейтов, офлайн): `cargo test --offline` внутри каталога
+- `../../rust/` — Cargo workspace (13 крейтов, офлайн): `cargo test --offline --workspace`
   (**580/580**; `discord-core` — 524). Волны: RW-01 — ETF-кодек (`discord-codec`), RW-02 —
   zstd-stream декодер (`ruzstd`, окно 64 КиБ), RW-03 — сессия шлюза (`discord-core::gateway`:
   HELLO/heartbeat 41 250/ACK/RTT/зомби), RW-04 — WS-транспорт (`ws`: ws://+wss://, пайп

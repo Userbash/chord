@@ -1,0 +1,32 @@
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (1.09772ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.2627ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.192383ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.125516ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.116985ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.503637ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (2.152841ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (2.030795ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (0.919077ms)
+RED-PROOF baseline: commands=35 violations=0
+MUTANT path: String: violations=1 [{"command":"attachment_upload","arg":"path","type":"String","rule":"name"}]
+MUTANT source: PathBuf: violations=1 [{"command":"capture_open","arg":"source","type":"std::path::PathBuf","rule":"type"}]
+MUTANT root: String: violations=1 [{"command":"scan_tree","arg":"root","type":"String","rule":"name"}]
+MUTANT file_name: String (не path): violations=1 [{"command":"preview","arg":"file_name","type":"String","rule":"name"}]
+RED-PROOF OK: все мутанты пойманы, дерево не изменялось
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (15.815267ms)
+✔ ipc-path: текущий код спайка (21.181269ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.639896ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (1.126478ms)
+  ✔ capability окна ограничена core:default (0.160664ms)
+✔ ipc-path: файловые плагины не подключены (2.141071ms)
+ℹ tests 12
+ℹ suites 3
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31.853745

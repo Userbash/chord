@@ -1,0 +1,195 @@
+▶ C-02-UI: дерево каналов из channels(guildId)
+  ✖ выбор гильдии → channels(guildId), дерево по типам, 0/5 кликабельны, 2/4/15 — нет (25.914792ms)
+  ✖ переключение гильдии перезагружает дерево по channels() новой гильдии (8.677299ms)
+✖ C-02-UI: дерево каналов из channels(guildId) (35.284792ms)
+▶ C-02-UI: переключение канала, окно и позиция
+  ✖ каждый канал помнит своё окно и позицию; возврат не перезапрашивает историю (8.035298ms)
+✖ C-02-UI: переключение канала, окно и позиция (8.237942ms)
+▶ C-02-UI: G6-D-01 — реальные id в send/edit/delete/reply
+  ✖ send/edit/delete/reply несут реальный channelId и messageId, а не news/index (11.615745ms)
+✖ C-02-UI: G6-D-01 — реальные id в send/edit/delete/reply (11.779387ms)
+▶ C-02-UI: состояния реального канала
+  ✖ loading → строки; >100 символов истории не превращаются в синтетику (6.520124ms)
+  ✖ пустой канал → empty, а не пустой список без объяснения (7.005522ms)
+  ✖ ошибка 404 видна как alert, а не пустой список (5.896095ms)
+  ✖ ошибка 401 видна как alert, а не пустой список (7.571001ms)
+  ✖ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (4.864567ms)
+✖ C-02-UI: состояния реального канала (32.207363ms)
+▶ C-02-UI: ошибка channels()
+  ✖ channels() падает → видимая ошибка дерева с retry, до победы (7.48609ms)
+✖ C-02-UI: ошибка channels() (7.630861ms)
+ℹ tests 10
+ℹ suites 5
+ℹ pass 0
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.700333
+
+✖ failing tests:
+
+test at tests/unit/channel-switch.test.mjs:304:3
+✖ выбор гильдии → channels(guildId), дерево по типам, 0/5 кликабельны, 2/4/15 — нет (25.914792ms)
+  AssertionError [ERR_ASSERTION]: при выборе гильдии channels() не вызван ровно один раз
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:312:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:425:3
+✖ переключение гильдии перезагружает дерево по channels() новой гильдии (8.677299ms)
+  AssertionError [ERR_ASSERTION]: смена гильдии не вызвала channels() второй раз
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:433:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:448:3
+✖ каждый канал помнит своё окно и позицию; возврат не перезапрашивает историю (8.035298ms)
+  AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+      at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:264:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:460:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:508:3
+✖ send/edit/delete/reply несут реальный channelId и messageId, а не news/index (11.615745ms)
+  AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+      at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:264:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:512:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:611:3
+✖ loading → строки; >100 символов истории не превращаются в синтетику (6.520124ms)
+  AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+      at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:264:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:620:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:649:3
+✖ пустой канал → empty, а не пустой список без объяснения (7.005522ms)
+  AssertionError [ERR_ASSERTION]: в дереве нет канала 1241842061401915496
+      at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:264:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:657:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:672:5
+✖ ошибка 404 видна как alert, а не пустой список (5.896095ms)
+  AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+      at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:264:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:681:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:672:5
+✖ ошибка 401 видна как alert, а не пустой список (7.571001ms)
+  AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+      at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:264:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:681:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:700:3
+✖ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (4.864567ms)
+  AssertionError [ERR_ASSERTION]: в гильдии меньше двух открываемых каналов
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:705:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-switch.test.mjs:728:3
+✖ channels() падает → видимая ошибка дерева с retry, до победы (7.48609ms)
+  AssertionError [ERR_ASSERTION]: ошибка channels() не видна в дереве
+  
+  null !== 'error'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:739:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'error',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,31 @@
+▶ чат-вью P3-02: сообщения и extras строки
+  ✖ group start/continuation, day divider, reply-quote, reactions, embeds, edited (29.856357ms)
+✖ чат-вью P3-02: сообщения и extras строки (30.916187ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.925157
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:406:3
+✖ group start/continuation, day divider, reply-quote, reactions, embeds, edited (29.856357ms)
+  AssertionError [ERR_ASSERTION]: у строки 12 нет .reply-quote
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:425:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:407:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

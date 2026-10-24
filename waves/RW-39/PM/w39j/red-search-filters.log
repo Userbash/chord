@@ -1,0 +1,116 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de::DeserializeOwned` is not satisfied
+    --> src/main.rs:242:38
+     |
+ 242 |           let filters: SearchFilters = serde_json::from_value(serde_json::json!({
+     |  ______________________________________^
+ 243 | |             "authorId": "100",
+ 244 | |             "channelId": "200",
+ 245 | |             "content": "call of duty",
+...    |
+ 249 | |             "pinned": false
+ 250 | |         }))
+     | |___________^ the trait `for<'de> Deserialize<'de>` is not implemented for `discord_gui_spike::data::SearchFilters`
+     |
+     = help: the following other types implement trait `Deserialize<'de>`:
+               `&'a RawValue` implements `Deserialize<'de>`
+               `&'a [u8]` implements `Deserialize<'de>`
+               `&'a std::path::Path` implements `Deserialize<'de>`
+               `&'a str` implements `Deserialize<'de>`
+               `&'p jsonptr::pointer::Pointer` implements `Deserialize<'de>`
+               `()` implements `Deserialize<'de>`
+               `(T,)` implements `Deserialize<'de>`
+               `(T0, T1)` implements `Deserialize<'de>`
+             and 476 others
+     = note: required for `discord_gui_spike::data::SearchFilters` to implement `DeserializeOwned`
+note: required by a bound in `from_value`
+    --> /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
+     |
+1037 | pub fn from_value<T>(value: Value) -> Result<T, Error>
+     |        ---------- required by a bound in this function
+1038 | where
+1039 |     T: DeserializeOwned,
+     |        ^^^^^^^^^^^^^^^^ required by this bound in `from_value`
+     = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
+     = note: consider using `--verbose` to print the full type name to the console
+
+error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de::DeserializeOwned` is not satisfied
+    --> src/main.rs:265:36
+     |
+ 265 |         let empty: SearchFilters = serde_json::from_value(serde_json::json!({}))
+     |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `for<'de> Deserialize<'de>` is not implemented for `discord_gui_spike::data::SearchFilters`
+     |
+     = help: the following other types implement trait `Deserialize<'de>`:
+               `&'a RawValue` implements `Deserialize<'de>`
+               `&'a [u8]` implements `Deserialize<'de>`
+               `&'a std::path::Path` implements `Deserialize<'de>`
+               `&'a str` implements `Deserialize<'de>`
+               `&'p jsonptr::pointer::Pointer` implements `Deserialize<'de>`
+               `()` implements `Deserialize<'de>`
+               `(T,)` implements `Deserialize<'de>`
+               `(T0, T1)` implements `Deserialize<'de>`
+             and 476 others
+     = note: required for `discord_gui_spike::data::SearchFilters` to implement `DeserializeOwned`
+note: required by a bound in `from_value`
+    --> /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
+     |
+1037 | pub fn from_value<T>(value: Value) -> Result<T, Error>
+     |        ---------- required by a bound in this function
+1038 | where
+1039 |     T: DeserializeOwned,
+     |        ^^^^^^^^^^^^^^^^ required by this bound in `from_value`
+     = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
+     = note: consider using `--verbose` to print the full type name to the console
+
+error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de::DeserializeOwned` is not satisfied
+    --> src/main.rs:286:38
+     |
+ 286 |           let filters: SearchFilters = serde_json::from_value(serde_json::json!({
+     |  ______________________________________^
+ 287 | |             "pinned": false
+ 288 | |         }))
+     | |___________^ the trait `for<'de> Deserialize<'de>` is not implemented for `discord_gui_spike::data::SearchFilters`
+     |
+     = help: the following other types implement trait `Deserialize<'de>`:
+               `&'a RawValue` implements `Deserialize<'de>`
+               `&'a [u8]` implements `Deserialize<'de>`
+               `&'a std::path::Path` implements `Deserialize<'de>`
+               `&'a str` implements `Deserialize<'de>`
+               `&'p jsonptr::pointer::Pointer` implements `Deserialize<'de>`
+               `()` implements `Deserialize<'de>`
+               `(T,)` implements `Deserialize<'de>`
+               `(T0, T1)` implements `Deserialize<'de>`
+             and 476 others
+     = note: required for `discord_gui_spike::data::SearchFilters` to implement `DeserializeOwned`
+note: required by a bound in `from_value`
+    --> /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
+     |
+1037 | pub fn from_value<T>(value: Value) -> Result<T, Error>
+     |        ---------- required by a bound in this function
+1038 | where
+1039 |     T: DeserializeOwned,
+     |        ^^^^^^^^^^^^^^^^ required by this bound in `from_value`
+     = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
+     = note: consider using `--verbose` to print the full type name to the console
+
+error[E0308]: mismatched types
+   --> src/main.rs:302:45
+    |
+302 |             search_page(String::new(), Some(filters), None, Some(5)).expect("команда с фильтром");
+    |                                        ---- ^^^^^^^ expected `SearchFiltersArg`, found `SearchFilters`
+    |                                        |
+    |                                        arguments to this enum variant are incorrect
+    |
+help: the type constructed contains `discord_gui_spike::data::SearchFilters` due to the type of the argument passed
+   --> src/main.rs:302:40
+    |
+302 |             search_page(String::new(), Some(filters), None, Some(5)).expect("команда с фильтром");
+    |                                        ^^^^^-------^
+    |                                             |
+    |                                             this argument influences the type of `Some`
+note: tuple variant defined here
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/option.rs:606:4
+
+Some errors have detailed explanations: E0277, E0308.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `discord-gui-spike` (bin "discord-gui-spike" test) due to 4 previous errors

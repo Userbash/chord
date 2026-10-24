@@ -1,0 +1,34 @@
+▶ gui-spike features: интеракции W39d
+  ✖ эмодзи-поиск: глобальный по всем категориям, вкладка только листает (EMO-16) (21.840662ms)
+✖ gui-spike features: интеракции W39d (23.039804ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58.471964
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:235:3
+✖ эмодзи-поиск: глобальный по всем категориям, вкладка только листает (EMO-16) (21.840662ms)
+  AssertionError [ERR_ASSERTION]: глобальный поиск вернул 12 ячеек вместо 1
+  
+  12 !== 1
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:251:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:71:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:238:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 4)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 12,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

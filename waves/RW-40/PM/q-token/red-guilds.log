@@ -1,0 +1,41 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running tests/guilds_contract.rs (rust/gui-spike/target/debug/deps/guilds_contract-6030d78369b88a4a)
+
+running 13 tests
+test empty_or_blank_token_is_missing_token ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test enter_guild_accepts_204_without_body ... ok
+test enter_guild_puts_lurker_query_with_empty_json_object ... ok
+test free_functions_preserve_typed_error ... ok
+test client_debug_does_not_reveal_token ... ok
+test free_functions_validate_before_delegating ... ok
+test transport_failure_is_typed_network_error ... ok
+test tauri_commands_take_no_token_and_read_backend ... FAILED
+test tauri_registers_exactly_one_guild_command ... FAILED
+test http_statuses_map_to_typed_errors ... ok
+test invalid_guild_id_is_rejected_before_transport ... ok
+test module_enter_and_join_are_equivalent ... ok
+
+failures:
+
+---- tauri_commands_take_no_token_and_read_backend stdout ----
+
+thread 'tauri_commands_take_no_token_and_read_backend' (199583) panicked at tests/guilds_contract.rs:328:5:
+все команды должны читать токен через общий helper token_or
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tauri_registers_exactly_one_guild_command stdout ----
+
+thread 'tauri_registers_exactly_one_guild_command' (199584) panicked at tests/guilds_contract.rs:314:5:
+алиас enter_guild не должен попадать в invoke_handler!
+
+
+failures:
+    tauri_commands_take_no_token_and_read_backend
+    tauri_registers_exactly_one_guild_command
+
+test result: FAILED. 11 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test guilds_contract`
+EXIT=101

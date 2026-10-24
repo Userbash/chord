@@ -1,0 +1,9 @@
+
+> discord-function-lab@0.1.0 typecheck
+> tsc -p tsconfig.json && tsc -p tsconfig.agent.json
+
+tests/unit/read-state-ui.test.mjs(120,7): error TS7034: Variable 'previousAuthor' implicitly has type 'any' in some locations where its type cannot be determined.
+tests/unit/read-state-ui.test.mjs(121,7): error TS7034: Variable 'previousDay' implicitly has type 'any' in some locations where its type cannot be determined.
+tests/unit/read-state-ui.test.mjs(126,21): error TS7005: Variable 'previousAuthor' implicitly has an 'any' type.
+tests/unit/read-state-ui.test.mjs(126,54): error TS7005: Variable 'previousDay' implicitly has an 'any' type.
+tests/unit/read-state-ui.test.mjs(240,29): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.

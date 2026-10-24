@@ -1,0 +1,187 @@
+{
+  "generatedAt": "2026-10-23T16:54:56.567Z",
+  "tests": [
+    "tests/unit/gui-spike-dom.test.mjs",
+    "tests/unit/gui-spike-model.test.mjs",
+    "tests/unit/gui-spike-bench.test.mjs",
+    "tests/unit/gui-spike-features.test.mjs"
+  ],
+  "caught": 10,
+  "total": 11,
+  "results": [
+    {
+      "id": "M1",
+      "title": "высота продолжения 26→44",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "c30cecde201ce5489e88217197c3a17d",
+      "restoredMd5": "642e1d8f9a35ca0bc6e0dced394ebd77",
+      "failed": [
+        "✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.476661ms)",
+        "✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.338751ms)",
+        "✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (5.199071ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (105.860599ms)",
+        "✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.476661ms)",
+        "✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.338751ms)",
+        "✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (5.199071ms)"
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "начало группы 48→44",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "d4c44d4d4b76e82e1f6d1fcc62017ec5",
+      "restoredMd5": "642e1d8f9a35ca0bc6e0dced394ebd77",
+      "failed": [
+        "✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.678021ms)",
+        "✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.182141ms)",
+        "✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.835681ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (105.688079ms)",
+        "✖ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (4.678021ms)",
+        "✖ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (6.182141ms)",
+        "✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (4.835681ms)"
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "высота участника 42→40",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "8d56039b610e15a6ff24be1548f078ed",
+      "restoredMd5": "642e1d8f9a35ca0bc6e0dced394ebd77",
+      "failed": [
+        "✖ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (3.485481ms)",
+        "✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (4.309571ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (103.290278ms)",
+        "✖ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (4.476741ms)",
+        "✖ gui-spike features: интеракции W39d (59.883061ms)",
+        "✖ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (3.485481ms)",
+        "✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (4.309571ms)",
+        "✖ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (4.476741ms)"
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "#emoji-grid listbox→grid (в рантайме)",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "52e0179597f563aeab38287dec064038",
+      "restoredMd5": "19593612f1c70827ba9e5d8b28a4bcde",
+      "failed": [
+        "✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.078801ms)",
+        "✖ gui-spike features: интеракции W39d (62.964312ms)",
+        "✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.078801ms)"
+      ]
+    },
+    {
+      "id": "M5a",
+      "title": "ячейка option→gridcell",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "a94268555d8f7bcb5e0e14c08a18d40a",
+      "restoredMd5": "19593612f1c70827ba9e5d8b28a4bcde",
+      "failed": [
+        "✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (3.38524ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (114.954891ms)",
+        "✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (5.035671ms)",
+        "✖ gui-spike features: интеракции W39d (68.335612ms)",
+        "✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (3.38524ms)",
+        "✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (5.035671ms)"
+      ]
+    },
+    {
+      "id": "M5b",
+      "title": "у ячейки убран aria-label",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "f5299d0b8650c05b052bf450947fdbe9",
+      "restoredMd5": "19593612f1c70827ba9e5d8b28a4bcde",
+      "failed": [
+        "✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (4.293691ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (106.04188ms)",
+        "✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.399271ms)",
+        "✖ gui-spike features: интеракции W39d (63.477402ms)",
+        "✖ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (4.293691ms)",
+        "✖ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (4.399271ms)"
+      ]
+    },
+    {
+      "id": "M6a",
+      "title": "лимит окна: maxPages 5→6 (бюджет 500→600)",
+      "caught": false,
+      "exit": 0,
+      "mutantsMd5": "923edabc9a1ed4ba8a48739e98c3b498",
+      "restoredMd5": "d2d6433e6e47dd19c28aad8f073c2c17",
+      "failed": []
+    },
+    {
+      "id": "M6b",
+      "title": "лимит окна: pageSize 100→101 (бюджет 500→505)",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "375a9a38314c1584e51bfe7bb9c4f9ff",
+      "restoredMd5": "d2d6433e6e47dd19c28aad8f073c2c17",
+      "failed": [
+        "✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.86656ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (104.58826ms)",
+        "✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.86656ms)"
+      ]
+    },
+    {
+      "id": "M7",
+      "title": "убран body[data-active-screen]",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "a6b4979144488bb4608d50cec829a6af",
+      "restoredMd5": "b5cad5847b8ca4b99d70a8df9ababfc5",
+      "failed": [
+        "✖ body[data-active-screen] + aria-current на 4 экранах (18.337094ms)",
+        "✖ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (4.379841ms)",
+        "✖ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (3.34546ms)",
+        "✖ штатная работа без console.error/warn (весь сценарий) (6.136491ms)",
+        "✖ gui-spike features: интеракции W39d (62.762422ms)",
+        "✖ body[data-active-screen] + aria-current на 4 экранах (18.337094ms)",
+        "✖ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (4.379841ms)",
+        "✖ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (3.34546ms)",
+        "✖ штатная работа без console.error/warn (весь сценарий) (6.136491ms)"
+      ]
+    },
+    {
+      "id": "M8",
+      "title": "поиск эмодзи no-op (фильтр игнорируется)",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "dc38a5b364a288b4eaa426ba2c0d917f",
+      "restoredMd5": "19593612f1c70827ba9e5d8b28a4bcde",
+      "failed": [
+        "✖ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (4.635961ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (111.98232ms)",
+        "✖ эмодзи-поиск: вкладка фильтруется по запросу, сброс возвращает все ячейки (6.270231ms)",
+        "✖ gui-spike features: интеракции W39d (61.020071ms)",
+        "✖ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (4.635961ms)",
+        "✖ эмодзи-поиск: вкладка фильтруется по запросу, сброс возвращает все ячейки (6.270231ms)"
+      ]
+    },
+    {
+      "id": "M9",
+      "title": "число тумблеров 38→37 (убран «Превью»)",
+      "caught": true,
+      "exit": 1,
+      "mutantsMd5": "7217fc3f742ea6ff586c7f8f5723dc20",
+      "restoredMd5": "1499ed3b396ae1a57b6ec73b31178af9",
+      "failed": [
+        "✖ настройки: 38 чекбоксов в 3 группах, все включены (4.518671ms)",
+        "✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (3.402481ms)",
+        "✖ UI_SNAPSHOT: все поля контракта и actions=true (2.5511ms)",
+        "✖ GUI spike: настоящий app.js в DOM-шиме (112.134361ms)",
+        "✖ настройки: 38 канонических тумблеров (switch/aria-checked) + #settings-nav (3.21173ms)",
+        "✖ gui-spike features: интеракции W39d (67.539582ms)",
+        "✖ настройки: 38 чекбоксов в 3 группах, все включены (4.518671ms)",
+        "✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (3.402481ms)",
+        "✖ UI_SNAPSHOT: все поля контракта и actions=true (2.5511ms)",
+        "✖ настройки: 38 канонических тумблеров (switch/aria-checked) + #settings-nav (3.21173ms)"
+      ]
+    }
+  ]
+}

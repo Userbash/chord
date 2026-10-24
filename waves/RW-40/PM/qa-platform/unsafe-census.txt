@@ -1,0 +1,70 @@
+## rust/crates/discord-store/src/ffi.rs
+148	open	SAFETY_above=2
+177	errmsg	SAFETY_above=2
+188	extended_errcode	SAFETY_above=1
+206	exec	SAFETY_above=2
+219	exec	SAFETY_above=1
+223	exec	SAFETY_above=1
+238	busy_timeout	SAFETY_above=1
+253	prepare	SAFETY_above=2
+266	prepare	SAFETY_above=1
+276	changes	SAFETY_above=1
+286	drop	SAFETY_above=3
+321	bind_text	SAFETY_above=2
+336	bind_i64	SAFETY_above=1
+343	bind_null	SAFETY_above=1
+350	step	SAFETY_above=1
+362	reset	SAFETY_above=1
+370	clear_bindings	SAFETY_above=1
+378	column_count	SAFETY_above=1
+385	column_is_null	SAFETY_above=1
+395	column_text	SAFETY_above=3
+401	column_text	SAFETY_above=2
+422	column_text	SAFETY_above=2
+432	column_i64	SAFETY_above=1
+440	drop	SAFETY_above=2
+count 24
+## rust/crates/discord-platform/src/ffi_secret.rs
+175	take_error	SAFETY_above=2
+187	take_error	SAFETY_above=1
+196	duplicate	SAFETY_above=2
+209	new	SAFETY_above=2
+239	put_string	SAFETY_above=2
+245	put_string	SAFETY_above=2
+259	put_name	SAFETY_above=2
+278	drop	SAFETY_above=2
+294	connect	SAFETY_above=3
+324	store	SAFETY_above=2
+338	store	SAFETY_above=3
+352	store	SAFETY_above=2
+374	lookup	SAFETY_above=2
+392	lookup	SAFETY_above=2
+395	lookup	SAFETY_above=1
+401	lookup	SAFETY_above=3
+403	lookup	SAFETY_above=1
+419	clear	SAFETY_above=2
+439	drop	SAFETY_above=2
+459	new	SAFETY_above=2
+473	drop	SAFETY_above=2
+count 21
+## rust/crates/discord-platform/src/ffi_hunspell.rs
+87	create	SAFETY_above=2
+101	check	SAFETY_above=2
+115	suggest	SAFETY_above=2
+123	suggest	SAFETY_above=2
+130	suggest	SAFETY_above=2
+137	suggest	SAFETY_above=2
+148	add	SAFETY_above=2
+158	remove	SAFETY_above=2
+166	drop	SAFETY_above=2
+count 9
+## rust/crates/discord-platform/src/dbus/fd.rs
+62	close_fd	SAFETY_above=2
+99	send_with_fds	SAFETY_above=1
+110	send_with_fds	SAFETY_above=2
+131	send_with_fds	SAFETY_above=2
+150	send_with_fds	SAFETY_above=2
+175	recv_exact_with_fds	SAFETY_above=1
+184	recv_exact_with_fds	SAFETY_above=2
+202	recv_exact_with_fds	SAFETY_above=2
+count 8

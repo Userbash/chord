@@ -1,0 +1,6 @@
+image            2560x1383 (dpr 1.25) → CSS 2048x1106
+panel            {'w': 362.4, 'h': 150.4, 'x': 6.4, 'y': 950.4, 'bottom_gap': 6.4} css, DOM rect {'w': 363, 'h': 150}
+action buttons   widths css [30.4, 30.4, 80.0, 32.0, 34.4]
+colors           {"panel_bg": "#202024", "panel_edge": "#252529", "action_button_bg": "#2e2e33", "self_name": "#fbfbfb", "channel_line": "#abacb2", "status_label": "#c0a548", "ping_icon": "#5eb479", "mute_bg": "#362127", "mute_icon": "#da3e44"}
+switches         38 = 12 + 22 + 4
+evidence         /home/sanya/orca/project/waves/RW-40/PM/n2d/evidence.json

@@ -1,0 +1,29 @@
+# W39a checks — 2026-10-23T16:10:23Z
+
+## JSON parse
+ok: оба JSON парсятся
+
+## rg layout
+7:    "M": "измерено — /home/sanya/re-deep/ui/00-app.png, ui8/22-members.jpg, ui8/*.json (DOM rect)",
+15:    "jpg": "/home/sanya/re-deep/ui8/22-members.jpg (JPEG-кроп 320×1281 = 256×1025 CSS, допуск ±1)",
+16:    "dom": "/home/sanya/re-deep/ui8/{22-members,23-settings-categories,23-settings-voice,20a-searchbar}.json (getBoundingClientRect)",
+43:      "rail": {
+44:        "id": "shell-rail",
+51:          "--layout-rail-w",
+59:          "ref": "RW-37 layout.json:rail_w=64; tokens.json:--custom-guild-list-width=calc(40px+12px*2)",
+63:      "tree": {
+
+## tokens check
+ok: tokens.json актуален (196 токенов, md5 css 579a878aef43f8fa50a924eb4277acd9)
+
+## verify tokens
+ok: 196 токенов 1:1 с tokens.css (md5 579a878aef43f8fa50a924eb4277acd9); dump_refs: 41 match, 16 mismatch, 1 missing (расхождения — в REPORT.md, CSS не правится)
+
+## verify layout
+ok: layout.json — 54 блоков с source, 22 ссылок на токены, экранов 4; rail 64, tree 240/311, header 49, composer 56, members 240/256, rows 26/48 + member 42; колонки 2047.8 ≈ 2048
+
+## measure
+
+written /home/sanya/orca/project/waves/RW-39/PM/w39a/measure.json
+{'titlebar': {'px': 40, 'css': 32.0, 'source': 'столбец x=1500: полоса #121214 до первой смены цвета'}}
+header 48.0 composer 56.0 tree 311.2 member_pitch 43.2

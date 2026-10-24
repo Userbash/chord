@@ -1,0 +1,3 @@
+discord-gui-spike: window-ready
+UI_SNAPSHOT {"actions":{"categoryClicks":true,"listScroll":true,"screenClicks":4,"toggleClick":true},"chatRenderedRows":30,"chatRows":100000,"emojiCategories":10,"memberRenderedRows":24,"memberRows":24229,"screenCount":4,"settingsToggles":38}
+BENCH {"chat":{"avgMs":16.67,"fps":60,"frames":300,"p95Ms":18},"frontend_ready_ms":21,"members":{"avgMs":16.67,"fps":60,"frames":299,"p95Ms":18}}

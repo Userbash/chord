@@ -1,0 +1,25 @@
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 718.46741
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:2031:3
+✖ SEC-02: storage — видимая ошибка хранилища, не сеть и без fallback (3.938444ms)
+  AssertionError [ERR_ASSERTION]: storage не показан ошибкой
+  
+  'ok' !== 'error'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2040:16
+      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1784:7)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2032:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'ok',
+    expected: 'error',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

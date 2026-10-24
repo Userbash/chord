@@ -77,9 +77,9 @@ fn normalize_path(path: &str) -> String {
 }
 
 #[test]
-fn catalog_shape_47_unique() {
-    // Кейс U1: 47 маршрутов; пары (метод, путь) уникальны; пути относительные и без мусора.
-    assert_eq!(ROUTES.len(), 47, "число маршрутов каталога");
+fn catalog_shape_48_unique() {
+    // Кейс U1: D-02 плюс отдельный POST-контракт отправки сообщения.
+    assert_eq!(ROUTES.len(), 49, "число маршрутов каталога");
     let mut seen = HashSet::new();
     for spec in &ROUTES {
         assert!(!spec.path.is_empty(), "пустой путь: {spec:?}");
@@ -99,6 +99,13 @@ fn catalog_shape_47_unique() {
             "дубль пары (метод, путь): {spec:?}"
         );
     }
+}
+
+#[test]
+fn guild_search_route_is_catalogued() {
+    let spec = find(HttpMethod::Get, "/guilds/{id}/messages/search")
+        .expect("маршрут серверного поиска гильдии");
+    assert!(spec.body_keys.is_empty());
 }
 
 #[test]
@@ -125,12 +132,15 @@ fn catalog_matches_live_capture() {
             "дубль строки {method:?} {path}"
         );
     }
-    assert_eq!(
-        captured.len(),
-        ROUTES.len(),
-        "число уникальных строк и маршрутов"
-    );
+    assert_eq!(captured.len(), 47, "число строк захвата D-02");
     for spec in &ROUTES {
+        if spec.method == HttpMethod::Get && spec.path == "/guilds/{id}/messages/search" {
+            continue;
+        }
+        if spec.method == HttpMethod::Post && spec.path == "/channels/{id}/messages" {
+            assert_eq!(spec.body_keys, &["content", "nonce", "tts"]);
+            continue;
+        }
         assert!(
             rows.iter()
                 .any(|row| row[0] == spec.method.as_str() && strip_base(&row[1]) == spec.path),
@@ -157,7 +167,12 @@ fn method_distribution_matches_capture() {
         assert_eq!(capture, count, "выдержка: метод {name}");
         let catalog = ROUTES
             .iter()
-            .filter(|spec| spec.method.as_str() == name)
+            .filter(|spec| {
+                spec.method.as_str() == name
+                    && !(spec.method == HttpMethod::Post && spec.path == "/channels/{id}/messages")
+                    && !(spec.method == HttpMethod::Get
+                        && spec.path == "/guilds/{id}/messages/search")
+            })
             .count();
         assert_eq!(catalog, count, "каталог: метод {name}");
         total += count;
@@ -171,7 +186,10 @@ fn body_keys_only_on_six_routes() {
     // Кейс U4: тело — ровно у 6 маршрутов; ключи и сентинелы дословно из захвата (§3.1 ТЗ).
     let with_body: Vec<&RouteSpec> = ROUTES
         .iter()
-        .filter(|spec| !spec.body_keys.is_empty())
+        .filter(|spec| {
+            !spec.body_keys.is_empty()
+                && !(spec.method == HttpMethod::Post && spec.path == "/channels/{id}/messages")
+        })
         .collect();
     assert_eq!(with_body.len(), 6, "маршруты с телом: {with_body:?}");
     let expected: [(HttpMethod, &str, &[&str]); 6] = [
@@ -233,9 +251,9 @@ fn find_roundtrip_and_rejects() {
         "путь с базой не ищется"
     );
     assert_eq!(
-        find(HttpMethod::Post, "/channels/{id}/messages"),
-        None,
-        "метод значим"
+        find(HttpMethod::Post, "/channels/{id}/messages").map(|spec| spec.body_keys),
+        Some(["content", "nonce", "tts"].as_slice()),
+        "POST отправляет сообщение"
     );
     assert_eq!(
         find(HttpMethod::Get, "/channels/{id}/messagesX"),

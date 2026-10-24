@@ -1,0 +1,40 @@
+ok   | 4 .screen в порядке chat/emoji/members/settings | chat,emoji,members,settings
+ok   | 4 .rail-btn в порядке chat/emoji/members/settings | chat,emoji,members,settings
+ok   | data-screen только на .rail-btn | вхождений 4
+ok   | у всех .rail-btn есть type=button
+ok   | body использует data-active-screen, не data-screen
+ok   | .screen-title: aria-level=2, aria-live=polite, текст чата
+ok   | #chat-list пустой, data-/ARIA на месте
+ok   | #member-list пустой, data-/ARIA на месте
+ok   | #emoji-tabs пустой, data-/ARIA на месте
+ok   | #settings-nav пустой, data-/ARIA на месте
+ok   | #emoji-grid role=listbox | P1-2
+ok   | #emoji-grid aria-label | P1-2
+ok   | #emoji-tabs role=tablist | §4.4
+ok   | #emoji-tabs aria-orientation | §4.4
+ok   | #settings role=group | §4.4
+ok   | #emoji-search — сам input | §4.4
+ok   | #member-search — сам input | §4.4
+ok   | #bench существует | §2.9
+ok   | #chat-header вне #screen-chat | §3
+ok   | #member-panel внутри #screen-chat | §6.4
+ok   | #member-list только в #screen-members | §6.4
+ok   | id совпадают со списком §9.2 (29) | нет: [] лишние: []
+ok   | классы совпадают со списком §9.2 (76) | нет: [] лишние: []
+ok   | в index.html нет url()/@font-face
+ok   | бренд — текст DL
+ok   | «discord» только в <title> и title бренда (имя проекта) | вхождений 2
+ok   | 9 <link rel=stylesheet> | 9
+ok   | <link> tokens.css существует и не пуст
+ok   | <link> components/primitives.css существует и не пуст
+ok   | <link> style.css существует и не пуст
+ok   | <link> components/rail.css существует и не пуст
+ok   | <link> components/tree.css существует и не пуст
+ok   | <link> components/chat.css существует и не пуст
+ok   | <link> components/emoji.css существует и не пуст
+ok   | <link> components/members.css существует и не пуст
+ok   | <link> components/settings.css существует и не пуст
+ok   | канонический скелет §3 найден в контракте
+ok   | index.html = §3 (кроме D-05 и frozen role)
+
+разметка: все проверки пройдены

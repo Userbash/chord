@@ -1,0 +1,333 @@
+/* =============================================================================
+ * primitives.css — сброс, типографика, утилиты и атомарные контролы.
+ * Источник значений — только tokens.css (var(--...)); «магических» чисел нет.
+ * Ни внешних ассетов, ни шрифтовых подключений, ни картинок.
+ * ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--bg-app);
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * Прокрутка: тонкие полосы на цветах из tokens.css.
+ * ------------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-round);
+  background: var(--scrollbar-thumb);
+}
+
+/* ---------------------------------------------------------------------------
+ * Утилиты
+ * ------------------------------------------------------------------------ */
+.visually-hidden {
+  position: absolute;
+  width: var(--space-1);
+  height: var(--space-1);
+  margin: calc(-1 * var(--space-1));
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Виртуализованный список: скролл только у контейнера, строки — в .sizer.
+ * ------------------------------------------------------------------------ */
+.list {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  contain: strict;
+  outline: none;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.list:focus-visible {
+  box-shadow: inset 0 0 0 var(--focus-ring-width) var(--focus-ring);
+}
+
+.sizer {
+  position: relative;
+}
+
+/* Скелетон строки на время загрузки страницы (ADR-1). */
+.row[data-state="placeholder"],
+.member[data-state="placeholder"],
+.placeholder {
+  border-radius: var(--radius-xs);
+  background: var(--surface-1);
+  opacity: var(--state-disabled-opacity);
+}
+
+/* Пустое и ошибочное состояния — оверлей в родителе списка, не ребёнок. */
+.empty-state,
+.error-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: var(--bg-chat);
+  font-size: var(--font-size-ui);
+  text-align: center;
+}
+
+.empty-state {
+  color: var(--text-muted);
+}
+
+.error-state {
+  color: var(--danger-text);
+}
+
+/* ---------------------------------------------------------------------------
+ * Иконочная кнопка (шапки, тулбары, композер).
+ * ------------------------------------------------------------------------ */
+.icon-btn {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: var(--btn-height);
+  height: var(--btn-height);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-subtle);
+  font-size: var(--icon-size);
+  line-height: 1;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.icon-btn:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.icon-btn:active {
+  background: var(--state-active);
+}
+
+.icon-btn[aria-pressed="true"] {
+  background: var(--state-selected);
+  color: var(--text-strong);
+}
+
+.icon-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: var(--state-disabled-opacity);
+}
+
+.icon-btn[aria-expanded="true"] {
+  color: var(--text-strong);
+}
+
+/* ---------------------------------------------------------------------------
+ * Бейджи ролей/статусов
+ * ------------------------------------------------------------------------ */
+.badge {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  height: var(--badge-h);
+  padding: 0 var(--badge-pad-x);
+  border-radius: var(--badge-radius);
+  background: var(--badge-secondary-bg);
+  color: var(--text-subtle);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.badge--bot {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.badge--role {
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* ---------------------------------------------------------------------------
+ * Аватар: цвет задаётся строкой через --avatar-hue, буквы — инициалы.
+ * ------------------------------------------------------------------------ */
+.avatar {
+  position: relative;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
+  border-radius: var(--radius-round);
+  background: hsl(var(--avatar-hue), var(--avatar-s), var(--avatar-l));
+  color: var(--avatar-fg);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.avatar--xs {
+  width: var(--avatar-xs);
+  height: var(--avatar-xs);
+}
+
+.avatar--sm {
+  width: var(--avatar-sm);
+  height: var(--avatar-sm);
+}
+
+.avatar--md {
+  width: var(--avatar-md);
+  height: var(--avatar-md);
+}
+
+.avatar--lg {
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
+  font-size: var(--font-size-ui);
+}
+
+.status-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--space-5);
+  height: var(--space-5);
+  border: var(--menu-border) solid var(--bg-chat);
+  border-radius: var(--radius-round);
+  background: var(--status-offline);
+}
+
+.status-dot[data-status="online"] {
+  background: var(--status-online);
+}
+
+.status-dot[data-status="idle"] {
+  background: var(--status-idle);
+}
+
+.status-dot[data-status="dnd"] {
+  background: var(--status-dnd);
+}
+
+.status-dot[data-status="offline"] {
+  background: var(--status-offline);
+}
+
+.status-dot[data-status="streaming"] {
+  background: var(--status-streaming);
+}
+
+/* ---------------------------------------------------------------------------
+ * Поиск: <search class="search-field"><input class="search-input">
+ * ------------------------------------------------------------------------ */
+.search-field {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.search-input {
+  width: 100%;
+  height: var(--search-height);
+  min-width: 0;
+  padding: 0 var(--space-5);
+  border: var(--menu-border) solid transparent;
+  border-radius: var(--search-radius);
+  background: var(--surface-input);
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-input:focus-visible {
+  border-color: var(--focus-ring);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+.search-input::-webkit-search-cancel-button {
+  appearance: none;
+}

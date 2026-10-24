@@ -1,0 +1,61 @@
+Diff in /home/sanya/orca/project/rust/gui-spike/src/core_bridge.rs:183:
+ 
+     // Селектор ядра: возрастание числового id; окно равно числу сообщений
+     // канала, поэтому вытеснения нет.
+[31m-    let all: Vec<Message> = history
+(B[m[31m-        .messages(channel)
+(B[m[31m-        .into_iter()
+(B[m[31m-        .cloned()
+(B[m[31m-        .collect();
+(B[m[32m+    let all: Vec<Message> = history.messages(channel).into_iter().cloned().collect();
+(B[m     let ids: Vec<String> = all.iter().map(|message| message.id.to_string()).collect();
+     let start = data::cursor_start(&ids, cursor, "сообщений")?;
+     let end = (start + limit).min(all.len());
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:101:
+     for _ in 0..=MAX_PAGE_LIMIT {
+         let bff = data::messages_page(&root, NEWS_CHANNEL, bff_cursor.as_deref(), Some(1))
+             .expect("шаг BFF");
+[31m-        let core = core_bridge::core_messages_page(&root, NEWS_CHANNEL, core_cursor.as_deref(), Some(1))
+(B[m[31m-            .expect("шаг ядра");
+(B[m[32m+        let core =
+(B[m[32m+            core_bridge::core_messages_page(&root, NEWS_CHANNEL, core_cursor.as_deref(), Some(1))
+(B[m[32m+                .expect("шаг ядра");
+(B[m 
+         assert_eq!(
+[31m-            core.items.iter().map(|m| m.id.to_string()).collect::<Vec<_>>(),
+(B[m[32m+            core.items
+(B[m[32m+                .iter()
+(B[m[32m+                .map(|m| m.id.to_string())
+(B[m[32m+                .collect::<Vec<_>>(),
+(B[m             ids_of(&bff.items),
+             "страница ядра = страница BFF на каждом шаге"
+         );
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:114:
+         assert_eq!(core.total, bff.total);
+ 
+         // Повтор с тем же курсором — тот же результат (состояния нет).
+[31m-        let core_repeat = core_bridge::core_messages_page(
+(B[m[31m-            &root,
+(B[m[31m-            NEWS_CHANNEL,
+(B[m[31m-            core_cursor.as_deref(),
+(B[m[31m-            Some(1),
+(B[m[31m-        )
+(B[m[31m-        .expect("повтор шага ядра");
+(B[m[32m+        let core_repeat =
+(B[m[32m+            core_bridge::core_messages_page(&root, NEWS_CHANNEL, core_cursor.as_deref(), Some(1))
+(B[m[32m+                .expect("повтор шага ядра");
+(B[m         assert_eq!(core_repeat.items, core.items, "повтор стабилен");
+ 
+         bff_ids.extend(ids_of(&bff.items));
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:138:
+     }
+ 
+     assert_eq!(core_ids, bff_ids);
+[31m-    assert_eq!(core_ids, ids_of(&data::messages_page(&root, NEWS_CHANNEL, None, None).expect("все").items));
+(B[m[32m+    assert_eq!(
+(B[m[32m+        core_ids,
+(B[m[32m+        ids_of(
+(B[m[32m+            &data::messages_page(&root, NEWS_CHANNEL, None, None)
+(B[m[32m+                .expect("все")
+(B[m[32m+                .items
+(B[m[32m+        )

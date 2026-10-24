@@ -1,0 +1,25 @@
+PASS json: valid
+PASS schema == rw40/voice-spec-v1
+PASS card == N2-D
+PASS md: каждое число с px помечено [T]/[M]/[D]/[A]
+PASS tokens: 57/57 существуют в tokens.css
+PASS tokens: ссылки в geometry.measured проверены
+PASS copy: 69/69 ключей совпали с ru-catalog.json
+PASS settings: 12+22+4 = 38 (switch_count)
+PASS settings: voice_switches == 12
+PASS settings: PTT выключен в дампе (tG4Np5)
+PASS md: паритет по 38 явно не заявлен
+PASS assets: внешних URL нет (кроме хоста RTC из дампа)
+PASS assets: нет внешних css/шрифтов/растров в документе
+PASS assets: нет внешних css/шрифтов/растров в документе
+PASS endpoint: live-блокер op4 описан
+PASS md: все 12 состояний описаны
+PASS md: все 19 id из DOM-контракта упомянуты
+PASS md: все 60 тест-кейсов описаны
+PASS md: все 15 пробелов описаны
+PASS md: все 6 отклонений описаны
+PASS json: у всех замеров/блоков есть метка
+PASS consent: 8 инвариантов
+PASS consent: запрещённые API перечислены
+checks=23 failures=0 skips=0
+RESULT: OK

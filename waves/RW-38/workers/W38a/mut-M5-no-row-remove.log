@@ -1,0 +1,171 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (14.32944ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (4.88429ms)
+  ✖ чат: 100 000 строк, sizer = total*44, в DOM десятки строк, а не сотни тысяч (5.872841ms)
+  ✖ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (3.87379ms)
+  ✔ участники: 24 229 строк, sizer = total*40, окно ≥10 и << total (6.63213ms)
+  ✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (3.72346ms)
+  ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (3.99595ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (3.31604ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (4.35554ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (4.64148ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, все включены (2.97106ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.93493ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (3.13104ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (4.12357ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (2.89025ms)
+  ✖ нет дублей: строка чата всегда ровно с одним .author и одним .text (6.52745ms)
+  ✖ граничный скролл не бросает: верх, низ, за концом, отрицательный (3.58596ms)
+  ✖ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.36654ms)
+  ✖ скрытый экран рисует только overscan, показ экрана перерисовывает окно (3.98977ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (3.42729ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (94.006372ms)
+ℹ tests 20
+ℹ suites 1
+ℹ pass 12
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.859663
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:203:3
+✖ чат: 100 000 строк, sizer = total*44, в DOM десятки строк, а не сотни тысяч (5.872841ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(bottomRows.length > 0 && bottomRows.length < MAX_DOM_ROWS)
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:211:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:204:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:226:3
+✖ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (3.87379ms)
+  AssertionError [ERR_ASSERTION]: у строки чата нет .text
+      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:235:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:227:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:268:3
+✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (3.72346ms)
+  AssertionError [ERR_ASSERTION]: верхние строки остались в окне после скролла
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:284:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:269:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:300:3
+✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (3.99595ms)
+  AssertionError [ERR_ASSERTION]: у строки чата нет .text
+      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at Array.map (<anonymous>)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:310:28
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:301:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:481:3
+✖ нет дублей: строка чата всегда ровно с одним .author и одним .text (6.52745ms)
+  AssertionError [ERR_ASSERTION]: у строки чата нет .text
+      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:507:24
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:482:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:517:3
+✖ граничный скролл не бросает: верх, низ, за концом, отрицательный (3.58596ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(all(app, "#chat-list .row").length <= MAX_DOM_ROWS)
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:526:16
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:518:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:546:3
+✖ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.36654ms)
+  AssertionError [ERR_ASSERTION]: у строки чата нет .text
+      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:560:20
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:547:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:572:3
+✖ скрытый экран рисует только overscan, показ экрана перерисовывает окно (3.98977ms)
+  AssertionError [ERR_ASSERTION]: скрытый экран нарисовал 28 строк
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:579:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:573:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,38 @@
+# N2-D md5 — 2026-10-24
+
+## Outputs
+
+157a5cbdaa6feebb885f56715c91b194  waves/RW-40/DESIGN/VOICE.md
+5e762d2585904eba3affe16e6f0451a1  waves/RW-40/DESIGN/voice-spec.json
+af8d37c71d38724136ac3e81ff649297  waves/RW-40/PM/n2d/validate.py
+0513b78cf98005f0204c952cd3ccb0ed  waves/RW-40/PM/n2d/measure.py
+41a58f2dd14ea7506481f2aeb4934323  waves/RW-40/PM/n2d/validate.log
+cf782beaec52cd48e02e4fcb9a9775a1  waves/RW-40/PM/n2d/measure.log
+65d49fe67b3c50d08ed8bf49e8060901  waves/RW-40/PM/n2d/evidence.json
+
+## Inputs (read-only)
+
+f324a3766150f93c2b8d99f3c00a4a78  docs/re/voice-deep.md
+b0903582f12e4d06930865e5fa40ab2b  docs/re/frontend-d03.md
+79ed101289ac9630fbf5687b2238915b  waves/RW-40/NETWORK-CONTRACTS.md
+7030bafa672a590ccacbe47a676deb0f  waves/RW-39/DESIGN/SPEC.md
+2d4cf3d8758de702d1b8620884a80d3a  waves/RW-40/THEME-SPEC.md
+49e5186e3ce759a6b6bfc063492f6dfa  waves/RW-40/DESIGN/SERVER-MENU.md
+b3c9d0782502c6815ac9e02ddccb2766  rust/gui-spike/ui/tokens.css
+
+## Lab evidence (read-only, /home/sanya/re-deep)
+
+ef5a88b552e9cc90e322f8da598a46dd  voice/ui/01-voice-panel.html
+f7b1c241854fcc4c86d63e6084af2471  voice/ui/01-joined.png
+a57572867c13bbbe90228279f390470e  voice/ui/01-candidates.json
+ef1ea67408721a035449ff4c9e64057c  voice/ui/01-panel-text.json
+ccfaeff2d6610b1017e2957b484246f2  voice/ui/05-after-leave.json
+cba4e34e462d8de68b5793b340b35f62  voice/ui-s2/03-voice-module-api.json
+0ee803c3df9386b81820959a1440ebe6  ui8/23-settings-voice.json
+09272320cecfa79d479a2b03df7adce1  ru-catalog.json
+
+## Not modified
+
+- `rust/**`, `src/**`, `tests/**`, `package.json` — не трогались.
+- `logs/**`, `functions/**`, `evidence/**`, `/home/sanya/re-deep/**` — только чтение.
+- `tokens.css`, `index.html`, `actions.js`, CSS — не трогались (зона G2/интеграции).

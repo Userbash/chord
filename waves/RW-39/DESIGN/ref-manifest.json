@@ -1,0 +1,199 @@
+{
+ "schema": "rw39/ref-manifest-v1",
+ "generated": "2026-10-23T16:57:56.278Z",
+ "root": "/home/sanya/re-deep",
+ "legal": "read-only reference; assets are not copied into the repository",
+ "items": [
+  {
+   "id": "R-01",
+   "path": "/home/sanya/re-deep/ui/00-app.png",
+   "what": "главный экран: shell+чат+участники",
+   "bytes": 605034,
+   "md5": "001d83a42b3d8abf59b3f2fd2521a5d9",
+   "kind": "png"
+  },
+  {
+   "id": "R-06",
+   "path": "/home/sanya/re-deep/ui/06-profile-popout.png",
+   "what": "профиль-popout 268.8x408",
+   "bytes": 333861,
+   "md5": "d7d9eae718b88b108af972f46115ca54",
+   "kind": "png"
+  },
+  {
+   "id": "R-07",
+   "path": "/home/sanya/re-deep/ui/07-guild-menu.png",
+   "what": "меню гильдии (захват неудачный)",
+   "bytes": 320334,
+   "md5": "59d53a46f0178729da51629c905eb597",
+   "kind": "png"
+  },
+  {
+   "id": "R-08",
+   "path": "/home/sanya/re-deep/ui8/22-members.jpg",
+   "what": "панель участников, 6 групп",
+   "bytes": 48811,
+   "md5": "ce28eb4153f6bc4a68302ff9c14b46cb",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-09",
+   "path": "/home/sanya/re-deep/ui8/20a-search-open.jpg",
+   "what": "поиск канала 244x28",
+   "bytes": 100659,
+   "md5": "534a45b1a2ce62df6cb539b7e682e150",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-10",
+   "path": "/home/sanya/re-deep/ui8/20b-search-filters.jpg",
+   "what": "7 секций фильтров",
+   "bytes": 129878,
+   "md5": "3c91f346a3fbab475c296971811e5628",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-11",
+   "path": "/home/sanya/re-deep/ui8/20c-search-sort.jpg",
+   "what": "сортировка, 3 пункта",
+   "bytes": 4958,
+   "md5": "add28c531e38f04ca1212401bd81874a",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-12",
+   "path": "/home/sanya/re-deep/ui8/21b-emoji-full.jpg",
+   "what": "эмодзи-пикер 42 ячейки",
+   "bytes": 105785,
+   "md5": "4a5cb836d618c32a150024f1c432436f",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-13",
+   "path": "/home/sanya/re-deep/ui8/21d-emoji-categories.jpg",
+   "what": "10 категорий",
+   "bytes": 123574,
+   "md5": "ac8dee4f2f547c5483f66740f0af36b1",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-14",
+   "path": "/home/sanya/re-deep/ui8/23-settings-voice.jpg",
+   "what": "голос, 38 switch",
+   "bytes": 80130,
+   "md5": "8da585ee2d38faf3208b3ee346e94845",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-15",
+   "path": "/home/sanya/re-deep/ui8/23-settings-open.jpg",
+   "what": "модалка настроек",
+   "bytes": 126634,
+   "md5": "9ff99a8cbf2c76c1e67727da4b03d720",
+   "kind": "jpg"
+  },
+  {
+   "id": "R-16",
+   "path": "/home/sanya/re-deep/ui/01-msg-menu.png",
+   "what": "меню сообщения, 15 пунктов",
+   "bytes": 645888,
+   "md5": "5bb122df0137cd39e49466d4b6f757ec",
+   "kind": "png"
+  },
+  {
+   "id": "R-17",
+   "path": "/home/sanya/re-deep/ui/03-quickswitcher.png",
+   "what": "quick switcher, 8 результатов",
+   "bytes": 501598,
+   "md5": "54802bc0a7cb508bd8b811c8f2a67207",
+   "kind": "png"
+  },
+  {
+   "id": "R-18",
+   "path": "/home/sanya/re-deep/ui/04-search-open.png",
+   "what": "панель поиска",
+   "bytes": 502024,
+   "md5": "78ddc84a68fb655c7af8c38d450bf867",
+   "kind": "png"
+  },
+  {
+   "id": "R-18b",
+   "path": "/home/sanya/re-deep/ui/04b-search-results.png",
+   "what": "результаты поиска",
+   "bytes": 342746,
+   "md5": "7eb0cc18a17f5fb47926b15d318f62b3",
+   "kind": "png"
+  },
+  {
+   "id": "D-01",
+   "path": "/home/sanya/re-deep/ui/log.json",
+   "what": "окно 2048x1106, dpr 1.25",
+   "bytes": 1596,
+   "md5": "b018e27d281bc88d58b5af8a5f4f9b4f",
+   "kind": "json"
+  },
+  {
+   "id": "D-02",
+   "path": "/home/sanya/re-deep/ui8/22-members.json",
+   "what": "rect панели/строк",
+   "bytes": 5033,
+   "md5": "43e5f0da098d14e3f6f5a99d65157cbc",
+   "kind": "json"
+  },
+  {
+   "id": "D-03",
+   "path": "/home/sanya/re-deep/ui8/23-settings-voice.json",
+   "what": "rect настроек, 38 switch",
+   "bytes": 26636,
+   "md5": "0ee803c3df9386b81820959a1440ebe6",
+   "kind": "json"
+  },
+  {
+   "id": "D-04",
+   "path": "/home/sanya/re-deep/ui8/23-settings-categories.json",
+   "what": "модалка, 63 строки",
+   "bytes": 7576,
+   "md5": "71f0ed06b97a241a067c760b8c402bee",
+   "kind": "json"
+  },
+  {
+   "id": "D-05",
+   "path": "/home/sanya/re-deep/ui8/20a-searchbar.json",
+   "what": "rect поиска",
+   "bytes": 1018,
+   "md5": "df81304117b1e3e567a9f609b9f973d2",
+   "kind": "json"
+  },
+  {
+   "id": "T-01",
+   "path": "/home/sanya/re-deep/ui/tokens.json",
+   "what": "4795 CSS-переменных",
+   "bytes": 303145,
+   "md5": "630d448ac34a78835b2d9b3c201e597c",
+   "kind": "json"
+  },
+  {
+   "id": "X-01",
+   "path": "/home/sanya/re-deep/ui/01-msg-menu-items.json",
+   "what": "состав меню сообщения",
+   "bytes": 1103,
+   "md5": "43cd0e3d9faaae29a31442abcfeff82d",
+   "kind": "json"
+  },
+  {
+   "id": "X-02",
+   "path": "/home/sanya/re-deep/ui/03-quickswitcher-results.json",
+   "what": "состав результатов",
+   "bytes": 476,
+   "md5": "2e5b49bc53d2531c62f3c385525e02c2",
+   "kind": "json"
+  }
+ ],
+ "gaps": [
+  "07-guild-menu: захват неудачный (0 items)",
+  "05-dm-list: список ЛС пуст",
+  "04b-search-results.json: пуст",
+  "геометрия меню сообщения/QuickSwitcher не снята",
+  "light/cozy темы не сняты"
+ ]
+}

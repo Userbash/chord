@@ -1,0 +1,11 @@
+# RW-36 Rust mutation run, md5_before=4f8611db118266731be7651076dce14c
+R1 caught: read_status_field: starts_with → contains (test=field_matches_only_line_start)
+R2 caught: validate_ui_snapshot: as_u64 → as_i64 (отрицательные проходят) (test=rejects_negative_values)
+R3 caught: validate_ui_snapshot: убрано обязательное поле settingsToggles (test=rejects_missing_each_required_field)
+R5 caught: validate_ui_snapshot: снята проверка типа (Some(1) для любого значения) (test=validates_ui_snapshot_contract)
+R6 caught: validate_ui_snapshot: ошибка парсинга JSON проглатывается (test=rejects_invalid_json)
+R7 caught: read_status_field: ошибка parse → Some(0) вместо None (test=non_numeric_value_is_none)
+R9 caught: parse_process_metrics: RSS/HWM перепутаны (test=parse_process_metrics_maps_each_field)
+R10 caught: SNAPSHOT_FLOORS: убран порог memberRenderedRows (test=rejects_rendered_rows_below_floor)
+R11 caught: validate_bench_payload: снята проверка chat/members (test=rejects_bench_payload_without_chat_or_members)
+# summary: caught=9 survived=0 invalid=0 md5_after=4f8611db118266731be7651076dce14c restored=True

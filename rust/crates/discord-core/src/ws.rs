@@ -12,7 +12,8 @@
 //!   [`ZstdStream`] один раз на соединение и подаёт в него сообщения по мере прихода.
 //! - После распаковки идёт поток термов вида `0x83` + ETF-терм; терм может быть разрезан между
 //!   сообщениями — хвост копится в пайпе до следующего фрагмента.
-//! - client→server: **несжатые** ETF-термы; heartbeat — `{op: 1, d}` ([`encode_heartbeat`]).
+//! - client→server: **несжатые** ETF-термы; боевой heartbeat — op40 `{seq, qos}`
+//!   ([`encode_qos_heartbeat`], AUTH-RE G-12), fallback — legacy op1 ([`encode_heartbeat`]).
 //!
 //! ## Пайп ([`GatewayPipe`])
 //!
@@ -56,7 +57,9 @@
 //! удержанный хвост может только завершение кадра (P1-02) — это вне файлов RW-04.
 
 use crate::dispatch::{DispatchEvent, route_dispatch};
-use crate::gateway::{Effect, GatewayError, ReconnectReason, Session};
+use crate::gateway::{
+    Effect, GatewayError, HeartbeatMode, QOS_HEARTBEAT_OP, QosPayload, ReconnectReason, Session,
+};
 use crate::identify::{IdentifyError, IdentifyParams, build_identify_frame};
 use crate::ready::ReadySummary;
 use crate::resume::{ResumeError, ResumeParams, ResumeState, build_resume_frame};
@@ -69,6 +72,132 @@ use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::time::Instant;
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, Message};
 use tokio_tungstenite::{Connector, WebSocketStream, connect_async_tls_with_config};
+
+/// База шлюза Discord (`GLOBAL_ENV.GATEWAY_ENDPOINT`, AUTH-RE G-01).
+pub const GATEWAY_ENDPOINT: &str = "wss://gateway.discord.gg";
+
+/// Параметры шлюза клиента 1.0.162: `encoding=etf&v=9&compress=zstd-stream` (G-01…G-03).
+pub const GATEWAY_QUERY: &str = "encoding=etf&v=9&compress=zstd-stream";
+
+/// Ошибки сборки/нормализации адреса шлюза: значения, не паники.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum GatewayUrlError {
+    /// Пустая строка (или только пробелы).
+    Empty,
+    /// Неподдерживаемая схема (`ftp://…`); допустимы wss/ws/https/http.
+    UnsupportedScheme(String),
+    /// После схемы нет хоста (`wss://`, `wss:///path`).
+    MissingHost,
+    /// Пробельные/управляющие символы в адресе.
+    Whitespace,
+    /// Фрагмент (`#…`) не является частью адреса шлюза.
+    Fragment,
+}
+
+impl std::fmt::Display for GatewayUrlError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Empty => write!(f, "пустой URL шлюза"),
+            Self::UnsupportedScheme(scheme) => {
+                write!(f, "неподдерживаемая схема URL шлюза: {scheme}")
+            }
+            Self::MissingHost => write!(f, "в URL шлюза нет хоста"),
+            Self::Whitespace => write!(f, "пробельные символы в URL шлюза"),
+            Self::Fragment => write!(f, "фрагмент (#…) недопустим в URL шлюза"),
+        }
+    }
+}
+
+impl std::error::Error for GatewayUrlError {}
+
+/// Нормализованный адрес шлюза с каноническим набором query-параметров.
+///
+/// `wss://gateway.discord.gg` и `resume_gateway_url` из READY приводятся к одной форме:
+/// схема WS-транспорта (`https` → `wss`, `http` → `ws`, без схемы → `wss`), хвостовой `/`
+/// обрезается, старый query отбрасывается, затем добавляется [`GATEWAY_QUERY`] (G-01, G-16).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GatewayUrl {
+    /// Полный URL провода (с каноническим query).
+    url: String,
+}
+
+impl GatewayUrl {
+    /// Боевой адрес Discord по умолчанию.
+    #[must_use]
+    pub fn remote() -> Self {
+        Self {
+            url: format!("{GATEWAY_ENDPOINT}/?{GATEWAY_QUERY}"),
+        }
+    }
+
+    /// Строит адрес из базы (`wss://…`, `ws://…`, `https://…` или хост без схемы).
+    pub fn from_base(base: &str) -> Result<Self, GatewayUrlError> {
+        normalize_gateway_url(base)
+    }
+
+    /// Нормализует `resume_gateway_url` из READY (G-16): тот же контракт, что [`Self::from_base`].
+    pub fn resume(resume_gateway_url: &str) -> Result<Self, GatewayUrlError> {
+        normalize_gateway_url(resume_gateway_url)
+    }
+
+    /// Полный URL для WS-соединения.
+    pub fn as_str(&self) -> &str {
+        &self.url
+    }
+}
+
+impl Default for GatewayUrl {
+    fn default() -> Self {
+        Self::remote()
+    }
+}
+
+impl std::fmt::Display for GatewayUrl {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.url)
+    }
+}
+
+/// Общая нормализация базы и resume-URL.
+fn normalize_gateway_url(raw: &str) -> Result<GatewayUrl, GatewayUrlError> {
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return Err(GatewayUrlError::Empty);
+    }
+    if trimmed.contains('#') {
+        return Err(GatewayUrlError::Fragment);
+    }
+    if trimmed.chars().any(char::is_whitespace) {
+        return Err(GatewayUrlError::Whitespace);
+    }
+    let (scheme, rest) = match trimmed.find("://") {
+        Some(index) => {
+            let scheme = trimmed[..index].to_ascii_lowercase();
+            let rest = &trimmed[index + 3..];
+            let mapped = match scheme.as_str() {
+                "wss" => "wss",
+                "https" => "wss",
+                "ws" => "ws",
+                "http" => "ws",
+                other => return Err(GatewayUrlError::UnsupportedScheme(other.to_string())),
+            };
+            (mapped, rest)
+        }
+        // Хост без схемы — боевой wss (GATEWAY_ENDPOINT в HTML без схемы не встречается,
+        // но нормализация не должна молча давать нерабочий адрес).
+        None => ("wss", trimmed),
+    };
+    // query из READY/базы отбрасываем: канонический набор один (без дублей).
+    let rest = rest.split('?').next().unwrap_or_default();
+    let rest = rest.trim_end_matches('/');
+    let host = rest.split('/').next().unwrap_or_default();
+    if host.is_empty() {
+        return Err(GatewayUrlError::MissingHost);
+    }
+    Ok(GatewayUrl {
+        url: format!("{scheme}://{rest}/?{GATEWAY_QUERY}"),
+    })
+}
 
 /// Пайп шлюза: непрерывный zstd-поток → ETF-термы → эффекты сессии.
 pub struct GatewayPipe {
@@ -295,17 +424,86 @@ pub fn encode_heartbeat(d: Option<u64>) -> Vec<u8> {
     etf::encode(&value)
 }
 
+/// Кадр QoS-heartbeat (op40) к серверу: `{op:40, d:{seq, qos}}` с ведущим `0x83`.
+///
+/// Форма — из клиента 1.0.162 (AUTH-RE G-12): `_sendHeartbeat = {seq: this.seq, qos}`,
+/// `seq` — число (`0` до первого диспатча), `qos` — `null` либо `{active, reasons}`.
+/// Ключи — ETF-строки, как у клиентского wetf-энкодера (`key:"binary"`).
+pub fn encode_qos_heartbeat(seq: u64, qos: Option<&QosPayload>) -> Vec<u8> {
+    let qos_value = match qos {
+        Some(payload) => EtfValue::Map(vec![
+            (
+                EtfValue::Str("active".to_string()),
+                EtfValue::Atom(if payload.active { "true" } else { "false" }.to_string()),
+            ),
+            (
+                EtfValue::Str("reasons".to_string()),
+                EtfValue::List(
+                    payload
+                        .reasons
+                        .iter()
+                        .map(|reason| EtfValue::Str(reason.clone()))
+                        .collect(),
+                ),
+            ),
+        ]),
+        None => EtfValue::Nil,
+    };
+    let value = EtfValue::Map(vec![
+        (
+            EtfValue::Atom("op".to_string()),
+            EtfValue::Int(QOS_HEARTBEAT_OP),
+        ),
+        (
+            EtfValue::Atom("d".to_string()),
+            EtfValue::Map(vec![
+                (
+                    EtfValue::Str("seq".to_string()),
+                    EtfValue::Int(i64::try_from(seq).unwrap_or(i64::MAX)),
+                ),
+                (EtfValue::Str("qos".to_string()), qos_value),
+            ]),
+        ),
+    ]);
+    etf::encode(&value)
+}
+
+/// Обработчик dispatch-кадра: вызывается на каждый op0 сразу после разбора (L-02).
+///
+/// Контракт: обработчик **не блокирует** цикл транспорта (доставка — `try_send`/канал).
+/// Получает те же события, что видел пайп ([`GatewayPipe::take_events`]), включая raw.
+pub type DispatchHandler = Arc<dyn Fn(&DispatchEvent) + Send + Sync>;
+
 /// Опции прогона [`connect_and_run_with`] (RW-05).
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct RunOptions {
     /// IDENTIFY (op2): отправляется **один раз** после первого HELLO; `None` — не отправлять.
     pub identify: Option<IdentifyParams>,
+    /// Необязательный обработчик op0 (L-02): при `Some` буфер пайпа дренируется на каждом
+    /// кадре; при `None` поведение прежнее (события копятся, забирает вызывающий).
+    pub on_dispatch: Option<DispatchHandler>,
 }
 
 impl RunOptions {
-    /// Без IDENTIFY — поведение [`connect_and_run`].
+    /// Без IDENTIFY и без обработчика — поведение [`connect_and_run`].
     pub fn none() -> Self {
-        Self { identify: None }
+        Self {
+            identify: None,
+            on_dispatch: None,
+        }
+    }
+}
+
+impl std::fmt::Debug for RunOptions {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("RunOptions")
+            .field("identify", &self.identify)
+            .field(
+                "on_dispatch",
+                &self.on_dispatch.as_ref().map(|_| "<handler>"),
+            )
+            .finish()
     }
 }
 
@@ -421,7 +619,7 @@ pub async fn connect_and_run_resume(
     loop {
         // Тик таймеров на текущий момент: срок удара либо дедлайн зомби (RW-03).
         let effects = pipe.session.on_timer(elapsed_ms(start));
-        if let Some(outcome) = apply_effects(effects, &mut ws).await? {
+        if let Some(outcome) = apply_effects(effects, &mut ws, pipe.session()).await? {
             return Ok(outcome);
         }
         // Сон до ближайшего дедлайна сессии; дедлайнов нет (до HELLO) — ждём только данные.
@@ -448,8 +646,14 @@ pub async fn connect_and_run_resume(
             }
             Step::Message(Some(Ok(message))) => match message {
                 Message::Binary(data) => {
-                    let effects = pipe.push_binary(&data, elapsed_ms(start))?;
-                    if let Some(outcome) = apply_effects(effects, &mut ws).await? {
+                    // L-02: хук получает уже разобранные op0 даже если этот же фрагмент
+                    // затем упал на Zstd/Frame: дренаж обязателен **до** распространения
+                    // ошибки, иначе события теряются вместе с закрытием попытки. Кадр,
+                    // закрывающий соединение, тоже не теряет свои диспатчи (до эффектов).
+                    let parsed = pipe.push_binary(&data, elapsed_ms(start));
+                    flush_dispatches(pipe, &opts);
+                    let effects = parsed?;
+                    if let Some(outcome) = apply_effects(effects, &mut ws, pipe.session()).await? {
                         return Ok(outcome);
                     }
                     // HELLO разобран этим кадром (или ранее) — IDENTIFY ровно один раз.
@@ -483,6 +687,23 @@ pub async fn connect_and_run_resume(
                 }
             },
         }
+    }
+}
+
+/// Отдаёт обработчику накопленные op0 и очищает буфер пайпа (L-02).
+///
+/// Вызывается после каждого binary-фрагмента **независимо от исхода разбора**:
+/// события, разобранные до ошибки `Zstd`/`Frame` в том же фрагменте, доставляются,
+/// а не теряются вместе с закрытием попытки.
+///
+/// Без обработчика буфер не трогается: поведение [`RunOptions::none`] не меняется,
+/// события остаются вызывающему ([`GatewayPipe::take_events`]).
+fn flush_dispatches(pipe: &mut GatewayPipe, opts: &RunOptions) {
+    let Some(handler) = opts.on_dispatch.as_ref() else {
+        return;
+    };
+    for event in pipe.take_events() {
+        handler(&event);
     }
 }
 
@@ -528,9 +749,12 @@ enum Step {
 }
 
 /// Выполняет эффекты сессии; `Reconnect` прерывает цикл (исход), `SendHeartbeat` пишет кадр.
+///
+/// Форма удара — по режиму сессии: боевой op40 `{seq,qos}` либо legacy op1 (fallback).
 async fn apply_effects<S>(
     effects: Vec<Effect>,
     ws: &mut WebSocketStream<S>,
+    session: &Session,
 ) -> Result<Option<RunOutcome>, TransportError>
 where
     S: AsyncRead + AsyncWrite + Unpin,
@@ -538,7 +762,10 @@ where
     for effect in effects {
         match effect {
             Effect::SendHeartbeat { d } => {
-                let frame = encode_heartbeat(d);
+                let frame = match session.heartbeat_mode() {
+                    HeartbeatMode::Qos => encode_qos_heartbeat(d.unwrap_or(0), session.qos()),
+                    HeartbeatMode::LegacyOp1 => encode_heartbeat(d),
+                };
                 ws.send(Message::binary(frame))
                     .await
                     .map_err(|error| TransportError::Ws {

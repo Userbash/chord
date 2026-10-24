@@ -1,0 +1,194 @@
+{
+  "schema": "rw40/theme-spec-v1",
+  "card": "C3a",
+  "title": "Темы light/dark и плотности cozy/compact для DL UI",
+  "generated": "2026-10-24",
+  "owner": "G3 Design",
+  "status": "design-contract (docs only; код не менялся)",
+  "sources": {
+    "dump_tokens": "/home/sanya/re-deep/ui/tokens.json",
+    "dump_tokens_count": 4795,
+    "dump_theme": "dark",
+    "dump_screenshot": "/home/sanya/re-deep/ui/00-app.png",
+    "dump_log": "/home/sanya/re-deep/ui/log.json",
+    "design_tokens": "waves/RW-39/DESIGN/tokens.css",
+    "design_spec": "waves/RW-39/DESIGN/SPEC.md",
+    "layout": "waves/RW-37/RE/layout.json",
+    "messages_design": "waves/RW-40/DESIGN/DESIGN-MSG.md",
+    "vendored_tokens": "rust/gui-spike/ui/tokens.css",
+    "settings_writer": "rust/gui-spike/ui/features/settings.js"
+  },
+  "dump_light_theme": {
+    "present": false,
+    "evidence": [
+      "tokens.json — плоская карта 4795 вычисленных custom properties одного (тёмного) состояния; нет theme-контейнера и нет пар dark/light",
+      "41 имя содержит light, все компонентные: chip-* (16), role-* (6), premium-* (4), lol-text-* (2), text-overlay-light, icon-overlay-light, font-weight-light, custom-*-shadow-light, bg-gradient-*; ни одного surface/text/border/status набора",
+      "ключевые токены тёмные: --background-base-low hsl(240 5.882% 13.333%), --background-base-lowest 7.451%, --text-default 94.118%, --text-strong 98.431%",
+      "00-app.png — тёмный экран: средняя яркость 37.7/255, rail/tree (18,18,20), chat (26,26,30), composer (34,35,39)",
+      "log.json не содержит поля theme; снимок сделан один раз в тёмной теме"
+    ],
+    "light_named_tokens": 41,
+    "light_theme_surface_tokens": 0,
+    "consequence": "light-палитра не измерена и не выведена из дампа; значения получены инверсией ролей на существующей нейтральной рампе дампа ([T]) либо решены нами ([A])"
+  },
+  "light": {
+    "attribute": { "element": "html", "name": "data-theme", "value": "light" },
+    "color_scheme": "light",
+    "base_selector": ":root[data-theme=\"light\"]",
+    "tokens": {
+      "--bg-app": { "value": "#f7f7f8", "tag": "T", "ref": "neutral-3", "use": "rail, дерево, titlebar" },
+      "--bg-chat": { "value": "#ffffff", "tag": "T", "ref": "neutral-1", "use": "чат, шапка, панель участников" },
+      "--surface-1": { "value": "#efeff1", "tag": "T", "ref": "neutral-5", "use": "hover строк, nav настроек" },
+      "--surface-2": { "value": "#f3f3f4", "tag": "T", "ref": "neutral-4", "use": "карточка, модалка, пикер, tooltip" },
+      "--surface-3": { "value": "#ebeced", "tag": "T", "ref": "neutral-6", "use": "вложенная поверхность, embed-image, toggle track" },
+      "--surface-4": { "value": "#e8e8ea", "tag": "T", "ref": "neutral-7", "use": "pressed, hover rail-кнопок, фон msg-toolbar" },
+      "--surface-sunken": { "value": "#f3f3f4", "tag": "T", "ref": "neutral-4", "use": "composer" },
+      "--surface-input": { "value": "#ffffff", "tag": "T", "ref": "neutral-1", "use": "поле ввода" },
+      "--row-hover-bg": { "value": "#efeff1", "tag": "T", "ref": "neutral-5", "alias_of": "--surface-1", "use": "hover строки сообщения/канала" },
+      "--row-selected-bg": { "value": "#ebeced", "tag": "T", "ref": "neutral-6", "alias_of": "--surface-3", "use": "выбранная строка" },
+
+      "--text-strong": { "value": "#323339", "tag": "T", "ref": "neutral-69", "use": "имя автора, заголовок", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--text": { "value": "#3f4048", "tag": "T", "ref": "neutral-60", "use": "тело сообщений", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--text-subtle": { "value": "#5f606a", "tag": "T", "ref": "neutral-45", "use": "вторичные подписи (сильнее muted)", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--text-muted": { "value": "#696a73", "tag": "T", "ref": "neutral-42", "use": "время, placeholder, счётчики", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-sunken", "--surface-input"] }, "note": "на --surface-4 (4.44) не применяется; там --text-subtle/--text" },
+      "--text-faint": { "value": "#70717a", "tag": "T", "ref": "neutral-40", "use": "категории/группы", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat"] }, "note": "только --bg-app (4.53) и --bg-chat (4.85); на --surface-1 4.37 — запрещено" },
+      "--text-link": { "value": "#0363c1", "tag": "T", "ref": "blue-460", "use": "ссылки, info-иконки", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--text-accent": { "value": "#4654c0", "tag": "T", "ref": "brand-560", "use": "акцентный текст (--accent как текст не проходит AA)", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--text-on-accent": { "value": "#ffffff", "tag": "T", "ref": "neutral-1", "use": "текст на --accent", "aa": { "type": "pair", "min": 4.5, "against": ["--accent"] } },
+      "--text-on-danger": { "value": "#ffffff", "tag": "T", "ref": "neutral-1", "use": "текст на --danger-fill", "aa": { "type": "pair", "min": 4.5, "against": ["--danger-fill"] } },
+      "--text-on-warning": { "value": "#323339", "tag": "T", "ref": "neutral-69", "use": "текст на --warning", "aa": { "type": "pair", "min": 4.5, "against": ["--warning"] } },
+      "--text-inverse": { "value": "#ffffff", "tag": "T", "ref": "neutral-1", "use": "текст на тёмных/цветных заливках", "aa": { "type": "pair", "min": 4.5, "against": ["--accent"] } },
+
+      "--accent": { "value": "#5865f2", "tag": "T", "ref": "brand-500", "use": "primary, активный пункт", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3"] } },
+      "--accent-hover": { "value": "#4654c0", "tag": "T", "ref": "brand-560", "use": "hover primary", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3"] } },
+      "--accent-active": { "value": "#3a48a3", "tag": "T", "ref": "brand-600", "use": "pressed primary", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3"] } },
+      "--accent-soft": { "value": "rgb(88 101 242 / 12%)", "tag": "A", "ref": "производная brand-500; дампное message-highlight 16% рассчитано на тёмный фон", "use": "выбранная реакция, mention, dropzone" },
+
+      "--danger": { "value": "#da3e44", "tag": "T", "ref": "red-400", "use": "иконка/точка (non-text)", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--danger-text": { "value": "#bd2934", "tag": "T", "ref": "red-460", "use": "текст ошибки", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--danger-fill": { "value": "#cf3a3f", "tag": "A", "ref": "белый текст 4.85; дампный --danger #da3e44 с белым = 4.42 < AA", "use": "destructive-кнопка" },
+      "--danger-fill-hover": { "value": "#b92d33", "tag": "A", "ref": "белый текст 6.02", "use": "hover destructive" },
+      "--warning": { "value": "#fdb833", "tag": "T", "ref": "yellow-300", "use": "только заливка с --text-on-warning; как текст/иконка запрещён" },
+      "--warning-text": { "value": "#945300", "tag": "T", "ref": "yellow-460", "use": "текст предупреждения на светлом (новое имя)", "is_new": true, "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--positive": { "value": "#269153", "tag": "T", "ref": "green-400", "use": "success/online (non-text)", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--positive-text": { "value": "#01713a", "tag": "T", "ref": "green-460", "use": "positive-текст", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--info": { "value": "#0363c1", "tag": "T", "ref": "blue-460", "use": "info-плашка/текст", "aa": { "type": "text", "min": 4.5, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4", "--surface-sunken", "--surface-input"] } },
+      "--status-online": { "value": "#269153", "tag": "T", "ref": "green-400", "use": "точка статуса", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--status-idle": { "value": "#bb7300", "tag": "T", "ref": "yellow-400", "use": "точка статуса", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--status-dnd": { "value": "#da3e44", "tag": "T", "ref": "red-400", "use": "точка статуса", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--status-offline": { "value": "#80848e", "tag": "A", "ref": "нейтральный серый; в дампе статус-токена нет", "use": "точка статуса", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--status-streaming": { "value": "#593695", "tag": "A", "ref": "в дампе 1.0.162 токена нет (как и для dark)", "use": "точка статуса", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+
+      "--border-subtle": { "value": "rgb(0 0 0 / 8%)", "tag": "A", "ref": "инверсия светлого бордера 12%: на светлом фоне работает затемнение", "use": "границы панелей" },
+      "--border": { "value": "rgb(0 0 0 / 14%)", "tag": "A", "ref": "20% дампа на светлом фоне слишком слабый; 14% даёт #dbdbdb", "use": "границы контролов" },
+      "--border-strong": { "value": "rgb(0 0 0 / 48%)", "tag": "A", "ref": "#8f8f8f на белом = 3.03 (non-text AA); 44% дампа = 2.9", "use": "границы input, разделители", "aa": { "type": "nontext", "min": 3, "against": ["--bg-chat", "--bg-app", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--divider": { "value": "rgb(0 0 0 / 6%)", "tag": "A", "ref": "инверсия 6% белого", "use": "разделители строк" },
+      "--state-hover": { "value": "rgb(0 0 0 / 5%)", "tag": "A", "ref": "на светлом фон затемняем, а не осветляем", "use": "hover" },
+      "--state-active": { "value": "rgb(0 0 0 / 8%)", "tag": "A", "ref": "то же", "use": "pressed" },
+      "--state-selected": { "value": "rgb(0 0 0 / 10%)", "tag": "A", "ref": "выбранный канал в дереве", "use": "selected" },
+      "--state-selected-strong": { "value": "rgb(0 0 0 / 13%)", "tag": "A", "ref": "вкладка/пункт меню", "use": "selected strong" },
+      "--state-disabled-opacity": { "value": "0.45", "tag": "A", "ref": "общая константа, от темы не зависит", "use": "disabled" },
+      "--badge-secondary-bg": { "value": "rgb(0 0 0 / 8%)", "tag": "A", "ref": "зеркало 16% белого на тёмном", "use": "badge" },
+      "--focus-ring": { "value": "#4654c0", "tag": "T", "ref": "brand-560", "use": "focus-visible", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+      "--scrollbar-thumb": { "value": "#81828a", "tag": "T", "ref": "neutral-35", "use": "скроллбар", "aa": { "type": "nontext", "min": 3, "against": ["--bg-app", "--bg-chat", "--surface-1", "--surface-2", "--surface-3", "--surface-4"] } },
+
+      "--shadow-elevation-low": { "value": "0 1px 0 rgb(0 0 0 / 6%), 0 1.5px 0 rgb(0 0 0 / 4%), 0 2px 0 rgb(0 0 0 / 3%)", "tag": "A", "ref": "светлая тень вместо светлой заливки", "use": "elevation low" },
+      "--shadow-elevation-stroke": { "value": "0 0 0 1px rgb(0 0 0 / 8%)", "tag": "A", "ref": "тонкая граница-тень", "use": "панели" },
+      "--shadow-elevation-medium": { "value": "0 4px 4px rgb(0 0 0 / 8%)", "tag": "A", "ref": "смягчённая тень", "use": "dropdown" },
+      "--shadow-elevation-high": { "value": "0 8px 16px rgb(0 0 0 / 12%)", "tag": "A", "ref": "смягчённая тень", "use": "модалка/пикер" },
+      "--shadow-border": { "value": "0 0 0 1px rgb(0 0 0 / 8%)", "tag": "A", "ref": "зеркало 8% белого", "use": "граница" },
+      "--shadow-popover": { "value": "var(--shadow-elevation-high), var(--shadow-elevation-stroke)", "tag": "A", "ref": "композиция двух теней", "use": "popover" }
+    },
+    "unchanged_tokens": [
+      "--avatar-fg", "--avatar-hue", "--avatar-s", "--avatar-l", "--avatar-xs", "--avatar-sm", "--avatar-md", "--avatar-lg",
+      "--font-sans", "--font-mono", "--font-size-caption", "--font-size-small", "--font-size-ui", "--font-size-body", "--font-size-title", "--font-size-display",
+      "--line-height-caption", "--line-height-small", "--line-height-ui", "--line-height-body", "--line-height-title", "--line-height-display",
+      "--font-weight-normal", "--font-weight-medium", "--font-weight-semibold", "--font-weight-bold",
+      "--space-0", "--space-1", "--space-2", "--space-3", "--space-4", "--space-5", "--space-6", "--space-7", "--space-8", "--space-9", "--space-10", "--space-11", "--space-12", "--space-13",
+      "--radius-xs", "--radius-sm", "--radius-md", "--radius-lg", "--radius-xl", "--radius-round", "--radius-selected",
+      "--layout-rail-w", "--layout-tree-w", "--layout-tree-w-wide", "--layout-tree-min-w", "--layout-member-panel-w", "--layout-member-panel-w-wide",
+      "--layout-titlebar-h", "--layout-header-h", "--layout-composer-h", "--layout-userbar-h", "--layout-guild-item", "--layout-rail-item",
+      "--layout-group-title-h", "--layout-tree-pad-x", "--layout-member-pad-x", "--layout-panel-pad", "--layout-content-max-w",
+      "--z-base", "--z-header", "--z-popover", "--z-modal", "--z-tooltip", "--z-toast",
+      "--motion-fast", "--motion-base", "--ease-out", "--ease-in-out",
+      "--btn-height-sm", "--btn-height", "--btn-height-lg", "--btn-pad-x", "--btn-radius", "--icon-size-sm", "--icon-size", "--icon-size-lg", "--icon-stroke",
+      "--search-height", "--search-radius", "--input-height", "--switch-w", "--switch-h", "--switch-thumb",
+      "--slider-track-h", "--slider-thumb", "--badge-h", "--badge-pad-x", "--badge-radius",
+      "--emoji-picker-w", "--emoji-picker-h", "--emoji-rail-w", "--emoji-cell", "--emoji-cols", "--emoji-gap", "--emoji-section-h",
+      "--menu-min-w", "--menu-pad", "--menu-border", "--menu-radius",
+      "--modal-w-sm", "--modal-w-md", "--modal-w-lg", "--modal-pad-x", "--modal-pad-y", "--settings-nav-w", "--settings-nav-item-h",
+      "--tooltip-radius", "--tooltip-pad-x", "--tooltip-pad-y",
+      "--scrollbar-track", "--scrollbar-size", "--focus-ring-width", "--focus-ring-offset"
+    ]
+  },
+  "dark": {
+    "status": "baseline; источник — waves/RW-39/DESIGN/tokens.css (vendored в rust/gui-spike/ui/tokens.css)",
+    "attribute": { "element": "html", "name": "data-theme", "value": "dark" },
+    "color_scheme": "dark",
+    "changes": "нет; light-блок только добавляет переопределения, dark остаётся :root"
+  },
+  "density": {
+    "attribute": { "element": "html", "name": "data-density", "default": "cozy", "values": ["cozy", "compact"] },
+    "scope": "только список сообщений; дерево/участники/шапка/composer не меняются",
+    "cozy": {
+      "--message-gutter": { "value": "64px", "tag": "L", "ref": "message_indent_cozy", "calc": "16 pad + 40 avatar + 8 gap" },
+      "--row-h-group-start": { "value": "48px", "tag": "L", "ref": "row_heights_detail.message_cozy_group_start", "calc": "2 + 22 (имя) + 22 (тело) + 2" },
+      "--row-h-continuation": { "value": "26px", "tag": "L", "ref": "row_heights.message_cozy", "calc": "22 + 2 + 2" },
+      "--row-line-extra": { "value": "22px", "tag": "L", "ref": "line_height", "calc": "+22 за каждый перенос" },
+      "--line-height-message": { "value": "22px", "tag": "L", "ref": "line_height" }
+    },
+    "compact": {
+      "--message-gutter": { "value": "80px", "tag": "L", "ref": "message_indent_compact", "calc": "5rem, аватар скрыт" },
+      "--row-h-group-start": { "value": "26px", "tag": "A", "ref": "отдельного group_start в оракуле нет; row_heights.message_compact = 26 (22 + 2 + 2)", "calc": "имя и текст в одной строке, аватара нет" },
+      "--row-h-continuation": { "value": "26px", "tag": "L", "ref": "row_heights.message_compact", "calc": "22 + 2 + 2" },
+      "--row-line-extra": { "value": "22px", "tag": "L", "ref": "line_height", "calc": "+22 за перенос" },
+      "--line-height-message": { "value": "22px", "tag": "L", "ref": "line_height" }
+    },
+    "component_rules": [
+      "compact: аватар в строке скрыт (display: none), имя, бейдж и время стоят в одну строку с текстом [A]",
+      "compact: все строки одной высоты 26, группового отступа 48 нет [A]",
+      "cozy: аватар 40, имя отдельной строкой, group start 48 [L]",
+      "оба режима: перенос строки даёт +22 к высоте строки [L]",
+      "виртуализационный трек --row-message-track остаётся 44px в обоих режимах до D-04/W39d [F]"
+    ],
+    "invariants": {
+      "--row-channel": "28px",
+      "--row-member": "42px",
+      "--layout-header-h": "49px",
+      "--layout-composer-h": "56px",
+      "--avatar-lg": "40px (только cozy)"
+    },
+    "source_status": "layout.json: cozy измерен (22+2+2); compact row_heights = 26 css-derived, group_start для compact не измерен"
+  },
+  "application": {
+    "html_markup": "<html lang=\"ru\" data-theme=\"dark\" data-density=\"cozy\">",
+    "defaults": { "theme": "dark", "density": "cozy" },
+    "existing_writer": "ui/features/settings.js: applySettings() пишет data-theme/data-density на documentElement; SETTINGS_THEMES=['dark','light'], SETTINGS_DENSITIES=['cozy','compact']",
+    "css_contract": [
+      ":root { color-scheme: dark; } — текущая база остаётся",
+      ":root[data-theme=\"light\"] { color-scheme: light; <57 переопределений из light.tokens> }",
+      ":root[data-density=\"cozy\"] { --message-gutter: 64px; --row-h-group-start: 48px; --row-h-continuation: 26px; --row-line-extra: 22px; --line-height-message: 22px; }",
+      ":root[data-density=\"compact\"] { --message-gutter: 80px; --row-h-group-start: 26px; --row-h-continuation: 26px; --row-line-extra: 22px; --line-height-message: 22px; }"
+    ],
+    "specificity": ":root[data-theme=light] (0,2,0) выигрывает у html (0,0,1) и у :root (0,1,0); порядок блоков в tokens.css: :root → light → density",
+    "prerequisites": [
+      "primitives.css: удалить/заменить `html { color-scheme: dark }` (сейчас перекрывается специфичностью, но дубль должен уйти)",
+      "index.html: <meta name=\"color-scheme\" content=\"dark\"> → content=\"dark light\"",
+      "компоненты используют только var(--token): цветовых литералов нет, кроме theme-agnostic scrim rgb(0 0 0 / 62%|72%) в quick-switcher.css и auth.css и hsl(var(--avatar-*)) в primitives.css",
+      "никаких внешних ссылок, шрифтовых подключений, картинок и копирования ассетов: только числовые значения"
+    ],
+    "fouc_risk": "[A] настройки применяются после settings_load (async), поэтому до применения возможна вспышка dark; inline pre-paint script или серверный атрибут — вне C3a",
+    "system_theme": "не поддерживается: SETTINGS_THEMES содержит только dark/light, значения system нет"
+  },
+  "gaps": [
+    "light-темы и light-скриншотов в дампе нет: 4795 токенов — тёмное состояние; 41 имя с light компонентные, 0 theme-level",
+    "light-значения не [M]: пиксельного light-референса не существует; [M] в этой карточке только для факта тёмного экрана",
+    "compact group start 26 — [A] (в layout.json есть только message_compact=26 и indent=80)",
+    "D-04 (переменная высота 26/48/+22) ещё не реализована в виртуализаторе: текущий трек 44 [F], правка — W39d",
+    "нет значения theme=system (prefers-color-scheme) в белом списке настроек",
+    "FOUC при загрузке настроек — вне C3a",
+    "--warning-text — новое имя (в tokens.css и дампе отсутствует)",
+    "--text-faint на --bg-app даёт 4.53, то есть проходит AA с запасом 0.03; на --surface-1 (4.37) запрещён",
+    "--text-muted не применяется на --surface-4 (4.44)"
+  ]
+}

@@ -1,0 +1,15 @@
+  ✔ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (10.610601ms)
+  ✔ клавиатура ↑/↓/Home/End двигает выбор и фокус (6.287968ms)
+  ✔ 0 гильдий → empty-state, а не пустой рейл (6.033561ms)
+  ✔ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (5.621627ms)
+  ✔ loading skeleton до ответа ready(), затем плитки (6.458636ms)
+  ✔ до auth ready ready() не вызывается (источник — только вход) (4.661639ms)
+✔ G-01: рейл серверов из ready() (75.887759ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 110.830332

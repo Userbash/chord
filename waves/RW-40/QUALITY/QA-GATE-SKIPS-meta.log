@@ -1,0 +1,139 @@
+▶ backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS
+  ✔ документы существуют: бэклог, два анализа, карта (6.244123ms)
+  ✔ волны R4/R5/R6/D присутствуют и карточек не меньше минимума (0.821953ms)
+  ✔ у каждой карточки уникальный ID и заполненные поля (≥ 6 колонок) (0.863144ms)
+  ✔ README.md и TASKS.md ссылаются на бэклог и анализы (0.59485ms)
+  ✔ docs/map.md содержит Mermaid-граф с референсами и бэклогом (0.353096ms)
+✔ backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS (9.954534ms)
+▶ DP-01: breakpoints SPEC §5.1
+  ✔ токены по ширинам: 311/256 → 240/240 → 240 → 200 (1.384583ms)
+  ✔ дефолт 1200–1599 — базовые токены, без media-переопределения (0.105612ms)
+  ✔ style.css: member panel скрыт на 960–1199, tree — на <720 (0.791873ms)
+  ✔ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.230754ms)
+  ✔ chat ≥ 520 на 960–1199 и отсутствие горизонтального скролла shell (0.302995ms)
+  ✔ aria/screen-switch: скрытие только CSS, aria-hidden — только на .screen (0.398217ms)
+✔ DP-01: breakpoints SPEC §5.1 (3.885114ms)
+▶ docs-sync: README ↔ команды CLI
+  ✔ каждая команда из HELP упомянута в README.md (2.653943ms)
+✔ docs-sync: README ↔ команды CLI (3.264393ms)
+▶ fixtures-tracked: tests/fixtures целиком попадает в git
+  ✔ каждый файл tests/fixtures отслеживается git (не скрыт .gitignore) (5.343688ms)
+✔ fixtures-tracked: tests/fixtures целиком попадает в git (6.027619ms)
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (1.010627ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.225084ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.176983ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.125042ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.115762ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.280078ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (2.849757ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (2.916108ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (1.582117ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (9.851013ms)
+✔ ipc-path: текущий код спайка (17.478969ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.704822ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (1.059467ms)
+  ✔ capability окна ограничена core:default (0.214983ms)
+✔ ipc-path: файловые плагины не подключены (2.121265ms)
+▶ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча
+  ✔ в файле нет skip()-хелпера и его вызовов (0.488128ms)
+  ✔ ровно 12 #[test] и 12 #[ignore] с причиной live-keyring (1.036197ms)
+  ✔ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.304015ms)
+  ✔ в телах live-кейсов нет раннего return под видом skip (0.482108ms)
+  ✔ имена и число кейсов не изменились (0.287365ms)
+  ✔ пороги security-кейсов не ослаблены (0.262825ms)
+  ✔ live_guard различает not-enabled, tool-missing и service-unavailable (0.087912ms)
+✔ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча (3.639401ms)
+▶ PLAT-02 T2: live-фаза гейта видима и не пропускается
+  ✔ фаза keyring-live объявлена и запускает ignored-набор cargo (0.198773ms)
+  ✔ live-флаг включается только фазой release/qualify (0.185493ms)
+  ✔ failOnSkips превращает skip в failed, а не в warning (0.194033ms)
+  ✔ cargoTestCounts по-прежнему считает ignored как skipped (0.294875ms)
+✔ PLAT-02 T2: live-фаза гейта видима и не пропускается (1.048358ms)
+▶ PLAT-02 T3: cargo подтверждает ignored-набор
+  ✔ в дефолтном прогоне 0 passed и 12 ignored (32.800762ms)
+  ✔ --list --ignored перечисляет ровно 12 кейсов k01…k12 (17.710543ms)
+✔ PLAT-02 T3: cargo подтверждает ignored-набор (50.651017ms)
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (2.706835ms)
+  ✔ каждая строка §8 указывает на существующий тест; токены встречаются в нём (3.847154ms)
+  ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (1.83629ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (1.114169ms)
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.906942ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (12.223102ms)
+▶ rust-client-sync: план Rust-клиента цел и синхронен
+  ✔ пакет docs/rust-client на месте и непуст (3.315704ms)
+  ✔ индекс ссылается на все документы пакета (0.649851ms)
+  ✔ графы Mermaid есть; карта проекта получила слой 8 (0.491498ms)
+  ✔ каталог функций: ≥100 уникальных F-ID и все 14 групп (0.714251ms)
+  ✔ тест-план: ≥110 уникальных T-ID, все группы, манифест фикстур (3.59719ms)
+  ✔ тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур (0.293704ms)
+  ✔ mutation-ledger: сводка по волнам, классы мутантов и разбор survivors (0.319585ms)
+  ✔ security: модель угроз, границы доверия и чек-листы (0.327036ms)
+  ✔ план: сквозной контур качества Q-01…Q-14 (0.365806ms)
+  ✔ план: волны P0–P8, ≥60 карточек, уникальные ID (0.423647ms)
+  ✔ репозиторные доки ссылаются на план (живые ссылки) (0.925845ms)
+  ✔ RC-07: фикстуры и каркас на месте и согласованы (0.846944ms)
+  ✔ RC-08: отчёт верификации сырья — полный (0.334416ms)
+  ✔ трассировка и строение описывают все группы (0.370516ms)
+✔ rust-client-sync: план Rust-клиента цел и синхронен (14.078393ms)
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.441477ms)
+  ✔ в тестах нет .only, todo и пустых assert (6.113481ms)
+  ✔ скрипты не обходят хуки и проверки (0.547469ms)
+  ✔ гейт содержит обязательные фазы (0.321155ms)
+  ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.430097ms)
+✔ TEST-POLICY: запрет ослабления тестов (8.51989ms)
+▶ QA-M2-01: e2e-skip не является прохождением
+  ✔ failOnSkips превращает skip в провал фазы (пример, а не декларация) (0.314325ms)
+  ✔ без failOnSkips тот же skip не валит фазу (unit/smoke skip-aware) (0.138933ms)
+  ✔ нулевой pass — e2e_unmet даже без skip (0.117372ms)
+  ✔ выполненный набор без skip и fail проходит (0.123632ms)
+  ✔ вердикт при упавшей e2e-фазе — failed, а не passed_with_skips (0.175483ms)
+  ✔ live-фаза без среды — passed_with_unmet, не passed и не skip (0.122662ms)
+  ✔ Rust ignored не смешивается с e2e-skip (0.109542ms)
+  ✔ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.122192ms)
+  ✔ приёмка запрещена без fixture-доказательства и без live в qualify (0.127022ms)
+  ✔ fixture-набор e2e исключает live и объявлен с failOnSkips (0.124252ms)
+  ✔ live-фаза отдельная и только в qualify (0.132902ms)
+  ✔ оба результата повтора сохраняются в attempts[] (0.146622ms)
+✔ QA-M2-01: e2e-skip не является прохождением (2.081194ms)
+▶ waves-sync: журнал волн восстановим
+  ✔ README.md, STATE.md и db.jsonl на месте (2.140675ms)
+  ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (3.835433ms)
+  ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (1.308871ms)
+✔ waves-sync: журнал волн восстановим (7.959191ms)
+ℹ tests 77
+ℹ suites 15
+ℹ pass 76
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 402.699481
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:140:3
+✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (1.83629ms)
+  AssertionError [ERR_ASSERTION]: тестовые файлы без строки в §8
+  + actual - expected
+  
+  + [
+  +   'tests/unit/dispatch_ui.test.mjs',
+  +   'tests/unit/search-remote-real-index.test.mjs'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/unit/dispatch_ui.test.mjs', 'tests/unit/search-remote-real-index.test.mjs' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

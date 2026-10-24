@@ -1,0 +1,25 @@
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test qos_heartbeat_encode_shape ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test pipe_hello_from_encoded_stream ... ok
+test ws_closed_after_stub_close ... ok
+test ws_text_messages_counted ... ok
+test ws_legacy_heartbeat_op1_fallback ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_server_op1_triggers_immediate_qos_heartbeat ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+   Doc-tests discord_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,12 +1,12 @@
 # Архитектура Rust-клиента: процессы, крейты, потоки данных
 
-Документ описывает проектную архитектуру нативного клиента: модель процессов, разбиение на
-крейты, задачно-событийную модель, восемь графов (Mermaid), хранилище, замену Electron-IPC
+Документ описывает целевую архитектуру нативного клиента: модель процессов, разбиение на
+крейты, задачно-событийную модель, диаграммы Mermaid, хранилище, замену Electron-IPC
 нативными модулями, ADR по UI-тулкиту и бюджеты производительности. Источники фактов — `../re/`.
 
-## 1. Общая модель
+## 1. Целевая модель приложения
 
-- **Один основной процесс** (UI + ядро). Опционально — **медиа-процесс** для изоляции сбоев
+- Целевая схема — **один основной процесс** (UI + ядро). Опционально — **медиа-процесс** для изоляции сбоев
   кодеков/энкодеров (по образцу того, что Discord держит `discord_voice.node` в рендерере, но с
   чистым разделением).
 - Вместо 168 IPC-каналов Electron (`../re/backend-ipc.md`) — **внутренняя шина**
@@ -42,11 +42,16 @@ flowchart LR
     VOICE <-->|"WS + UDP"| RTC
 ```
 
-## 2. Крейты (workspace)
+## 2. Крейты: состояние workspace и целевая архитектура
+
+Первый граф показывает прямые **обычные Cargo-зависимости**, сверенные с `cargo metadata
+--no-deps` и манифестами workspace. Dev-зависимости и транзитивные внешние крейты не
+показываются. Второй граф ниже — целевые связи модулей из концепта; он не описывает текущий
+Cargo-граф.
 
 ```mermaid
 flowchart TD
-    APP["discord-app (бинарь)<br/>сборка зависимостей, настройки запуска"]
+    APP["discord-app (бинарь)<br/>зависит от core"]
     UI["discord-ui<br/>экраны, виджеты, токены"]
     CORE["discord-core<br/>шлюз, REST, редьюсер, действия"]
     ENC["discord-codec<br/>ETF, zstd-stream, типы REST"]
@@ -56,22 +61,40 @@ flowchart TD
     PLAT["discord-platform<br/>трей, уведомления, deep links, idle"]
     I18N["discord-i18n<br/>рантайм, ключи, плюрализация"]
     CONF["discord-conformance (dev)<br/>реплей RE-фикстур"]
-    APP --> UI
     APP --> CORE
-    APP --> VOICE
-    APP --> MEDIA
-    APP --> PLAT
-    UI --> I18N
-    UI --> CORE
     CORE --> ENC
-    CORE --> STORE
-    VOICE --> CONF
-    CORE --> CONF
+    VOICE --> JSON["discord-json"]
+    I18N --> JSON
+    UPDATER["discord-updater"] --> JSON
+    PERF["discord-perf"] --> CORE
+    PERF --> JSON
 ```
 
-Правила зависимостей: `discord-codec` — без I/O; `discord-core` не знает про UI; `discord-voice`
-не зависит от состояния — получает параметры сессии из `discord-core`; UI общается только через
-типизированные команды/события.
+В фактическом графе 13 members. `discord-json` и `discord-codec` не зависят от workspace-крейтов;
+у `discord-store`, `discord-platform`, `discord-media`, `discord-ui` и `discord-conformance`
+сейчас нет обычных зависимостей на другие workspace-крейты. Это означает, что часть заявленной
+интеграции ещё не связана на уровне Cargo. Зависимости, указанные только в `[dev-dependencies]`,
+в графе опущены.
+
+Целевая композиция приложения:
+
+```mermaid
+flowchart LR
+    APP["discord-app"] --> UI["discord-ui"]
+    APP --> CORE["discord-core"]
+    APP --> VOICE["discord-voice"]
+    APP --> MEDIA["discord-media"]
+    APP --> PLAT["discord-platform"]
+    UI --> CORE
+    UI --> I18N["discord-i18n"]
+    CORE --> CODEC["discord-codec"]
+    CORE --> STORE["discord-store"]
+    VOICE -. "параметры сессии / API интеграции требуют контракта" .-> CORE
+```
+
+Целевые правила: `discord-codec` — без I/O; `discord-core` не знает про UI; `discord-voice`
+получает параметры сессии через явный контракт; UI общается с ядром через типизированные
+команды/события. Перед подключением целевых рёбер закрепить публичные контракты и тесты.
 
 ## 3. Задачно-событийная модель ядра
 

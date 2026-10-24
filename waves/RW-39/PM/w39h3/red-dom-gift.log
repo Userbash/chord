@@ -1,0 +1,31 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✖ подарок в композере: disabled-affordance в index.html и в шиме (P1 REVIEW-W39h) (20.344431ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (21.547402ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58.727823
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:250:3
+✖ подарок в композере: disabled-affordance в index.html и в шиме (P1 REVIEW-W39h) (20.344431ms)
+  AssertionError [ERR_ASSERTION]: подарок не disabled-affordance (Phase 3)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:255:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:251:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 2)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '<button class="icon-btn" type="button" data-action="gift" aria-label="Подарок">',
+    expected: /aria-disabled="true"/,
+    operator: 'match',
+    diff: 'simple'
+  }

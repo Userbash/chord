@@ -1,0 +1,207 @@
+▶ C-02-PAGE: первая страница
+  ✖ открытие канала — position=latest, limit=100, без cursor/before/token (32.567258ms)
+✖ C-02-PAGE: первая страница (33.510155ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (22.739233ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (10.610918ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (14.904464ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (48.615811ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (13.702118ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (10.83748ms)
+✔ C-02-PAGE: ошибки подгрузки видны (24.793358ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (5.975745ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (15.936276ms)
+✔ C-02-PAGE: границы окна (22.108535ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✖ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (10.117787ms)
+✖ C-02-UI-OLDER: открытие на последнем сообщении (10.327768ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (6.749367ms)
+  ✖ направления не смешиваются: nextCursor older-страницы не подменяет forward (6.743657ms)
+✖ C-02-UI-OLDER: скролл вверх (before/olderCursor) (13.687907ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✖ ошибка 404: alert сверху, строки целы, retry догружает (14.165ms)
+  ✖ ошибка 401: alert сверху, строки целы, retry догружает (12.037967ms)
+✖ C-02-UI-OLDER: ошибки подгрузки вверх (26.39298ms)
+▶ C-02-UI-OLDER: границы окна
+  ✖ окно истории не растёт сверх 500 строк при подгрузке вверх (7.718933ms)
+✖ C-02-UI-OLDER: границы окна (7.847138ms)
+▶ C-02-UI: дерево каналов из channels(guildId)
+  ✔ выбор гильдии → channels(guildId), дерево по типам, 0/5 кликабельны, 2/4/15 — нет (34.266137ms)
+  ✔ переключение гильдии перезагружает дерево по channels() новой гильдии (10.709665ms)
+✔ C-02-UI: дерево каналов из channels(guildId) (45.658277ms)
+▶ C-02-UI: переключение канала, окно и позиция
+  ✔ каждый канал помнит своё окно и позицию; возврат не перезапрашивает историю (11.923391ms)
+✔ C-02-UI: переключение канала, окно и позиция (12.060146ms)
+▶ C-02-UI: G6-D-01 — реальные id в send/edit/delete/reply
+  ✔ send/edit/delete/reply несут реальный channelId и messageId, а не news/index (16.10549ms)
+✔ C-02-UI: G6-D-01 — реальные id в send/edit/delete/reply (16.253376ms)
+▶ C-02-UI: состояния реального канала
+  ✔ loading (aria-busy, role=status) → реальные строки, без синтетики (12.202371ms)
+  ✔ пустой канал → empty, а не пустой список без объяснения (9.330025ms)
+  ✔ ошибка 404 видна как alert, а не пустой список (10.054149ms)
+  ✔ ошибка 401 видна как alert, а не пустой список (8.987857ms)
+  ✔ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (6.979069ms)
+✔ C-02-UI: состояния реального канала (47.933806ms)
+▶ C-02-UI: ошибка channels()
+  ✔ channels() падает → видимая ошибка дерева с retry, до победы (8.419097ms)
+✔ C-02-UI: ошибка channels() (8.532803ms)
+ℹ tests 24
+ℹ suites 13
+ℹ pass 17
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 237.822024
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:388:3
+✖ открытие канала — position=latest, limit=100, без cursor/before/token (32.567258ms)
+  AssertionError [ERR_ASSERTION]: первая страница ушла не как хвост канала (position=latest, limit=100)
+  + actual - expected
+  
+    {
+      channelId: '1163408591315812392',
+      limit: 100,
+  -   position: 'latest'
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:395:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { channelId: '1163408591315812392', limit: 100 },
+    expected: { channelId: '1163408591315812392', position: 'latest', limit: 100 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:630:3
+✖ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (10.117787ms)
+  AssertionError [ERR_ASSERTION]: открытие канала ушло не за хвостом (position=latest)
+  + actual - expected
+  
+    {
+      channelId: '1163408591315812392',
+      limit: 100,
+  -   position: 'latest'
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:641:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { channelId: '1163408591315812392', limit: 100 },
+    expected: { channelId: '1163408591315812392', position: 'latest', limit: 100 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:669:3
+✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (6.749367ms)
+  AssertionError [ERR_ASSERTION]: хвост не открылся
+  + actual - expected
+  
+  + []
+  - [
+  -   '1561627527833849898',
+  -   '1561627528685166655'
+  - ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:684:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ '1561627527833849898', '1561627528685166655' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:720:3
+✖ направления не смешиваются: nextCursor older-страницы не подменяет forward (6.743657ms)
+  AssertionError [ERR_ASSERTION]: хвост открылся не с последних строк
+  + actual - expected
+  
+  + []
+  - [
+  -   '1561627527833849898',
+  -   '1561627528685166655'
+  - ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:751:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ '1561627527833849898', '1561627528685166655' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:790:5
+✖ ошибка 404: alert сверху, строки целы, retry догружает (14.165ms)
+  AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-older
+      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:305:10)
+      at olderBar (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:384:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:808:21)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:790:5
+✖ ошибка 401: alert сверху, строки целы, retry догружает (12.037967ms)
+  AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-older
+      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:305:10)
+      at olderBar (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:384:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:808:21)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:837:3
+✖ окно истории не растёт сверх 500 строк при подгрузке вверх (7.718933ms)
+  AssertionError [ERR_ASSERTION]: окно истории превысило 500 строк
+  
+  0 !== 100
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:910:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 100,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

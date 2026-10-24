@@ -1,0 +1,19 @@
+Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/routes.rs:166:
+     ROUTES
+         .iter()
+         .find(|spec| spec.method == method && spec.path == path)
+[31m-        .or_else(|| (method == TYPING_ROUTE.method && path == TYPING_ROUTE.path).then_some(&TYPING_ROUTE))
+(B[m[32m+        .or_else(|| {
+(B[m[32m+            (method == TYPING_ROUTE.method && path == TYPING_ROUTE.path).then_some(&TYPING_ROUTE)
+(B[m[32m+        })
+(B[m }
+ 
+ /// `POST /channels/{id}/typing` — `[S]`-расширение каталога (D-108).
+Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/routes.rs:179:
+ 
+ /// Состояние расширения: статическая ссылка нужна сигнатуре [`find`] (`&'static`).
+ static TYPING_ROUTE: RouteSpec = route(HttpMethod::Post, TYPING_PATH, &[]);
+[31m-
+(B[m 
+ /// Ошибки рендера пути.
+ #[derive(Debug, Clone, PartialEq, Eq)]

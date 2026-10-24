@@ -1,0 +1,55 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::gateway::supervisor`
+  --> crates/discord-core/tests/gateway_supervisor.rs:15:28
+   |
+15 | use discord_core::gateway::supervisor::{
+   |                            ^^^^^^^^^^ could not find `supervisor` in `gateway`
+
+error[E0432]: unresolved import `discord_core::ws::GatewayUrl`
+  --> crates/discord-core/tests/gateway_supervisor.rs:20:5
+   |
+20 | use discord_core::ws::GatewayUrl;
+   |     ^^^^^^^^^^^^^^^^^^----------
+   |                       |
+   |                       no `GatewayUrl` in `ws`
+
+error[E0432]: unresolved imports `discord_core::gateway::HeartbeatMode`, `discord_core::gateway::QosPayload`
+  --> crates/discord-core/tests/ws_transport.rs:23:43
+   |
+23 | use discord_core::gateway::{GatewayError, HeartbeatMode, QosPayload, ReconnectReason, Session};
+   |                                           ^^^^^^^^^^^^^  ^^^^^^^^^^ no `QosPayload` in `gateway`
+   |                                           |
+   |                                           no `HeartbeatMode` in `gateway`
+
+error[E0432]: unresolved imports `discord_core::ws::GatewayUrl`, `discord_core::ws::encode_qos_heartbeat`
+  --> crates/discord-core/tests/ws_transport.rs:25:18
+   |
+25 |     GatewayPipe, GatewayUrl, RunOutcome, TransportError, connect_and_run, encode_heartbeat,
+   |                  ^^^^^^^^^^ no `GatewayUrl` in `ws`
+26 |     encode_qos_heartbeat,
+   |     ^^^^^^^^^^^^^^^^^^^^ no `encode_qos_heartbeat` in `ws`
+   |
+help: a similar name exists in the module
+   |
+26 -     encode_qos_heartbeat,
+26 +     encode_heartbeat,
+   |
+
+error[E0599]: no associated function or constant named `with_heartbeat_mode` found for struct `discord_core::Session` in the current scope
+   --> crates/discord-core/tests/ws_transport.rs:123:14
+    |
+123 |     Session::with_heartbeat_mode(seed, HeartbeatMode::Qos)
+    |              ^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `discord_core::Session`
+    |
+note: if you're trying to build a new `discord_core::Session`, consider using `discord_core::Session::new` which returns `discord_core::Session`
+   --> crates/discord-core/src/gateway.rs:149:5
+    |
+149 |     pub fn new(jitter_seed: u64) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "gateway_supervisor") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "ws_transport") due to 3 previous errors

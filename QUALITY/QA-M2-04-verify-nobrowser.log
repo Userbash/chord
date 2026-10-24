@@ -1,0 +1,31 @@
+▶ M2-07: voice panel disabled/idle (реальный index.html)
+  ✖ disabled без сервиса: причина видима, join не создаёт IPC/audio (7.808172ms)
+✖ M2-07: voice panel disabled/idle (реальный index.html) (8.36165ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.164778
+
+✖ failing tests:
+
+test at tests/e2e/m2-voice-idle.e2e.test.mjs:32:3
+✖ disabled без сервиса: причина видима, join не создаёт IPC/audio (7.808172ms)
+  Error [InfraError]: INFRA: браузер не найден (CHROME_BIN/CHROME_PATH или chromium/chrome/brave в PATH). M2 fixture-сценарий не выполнен — это infra fail, а не pass; поставьте Chromium или задайте CHROME_BIN.
+      at requireBrowser (file:///home/sanya/orca/project/tests/helpers/ui-fixture.mjs:365:9)
+      at openUiFixture (file:///home/sanya/orca/project/tests/helpers/ui-fixture.mjs:860:15)
+      at openApp (file:///home/sanya/orca/project/tests/helpers/ui-fixture.mjs:907:25)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/e2e/m2-voice-idle.e2e.test.mjs:33:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>) {
+    code: 'INFRA_NO_BROWSER',
+    infra: true
+  }
+EXIT=1

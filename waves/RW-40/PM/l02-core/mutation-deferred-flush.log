@@ -1,0 +1,30 @@
+# MUTANT: flush_dispatches перенесён из Binary-ветки в Close-ветку (доставка пачкой при закрытии)
+# oracle: tests/gateway_supervisor.rs::dispatch_handler_receives_frames_while_connection_is_open
+# oracle-2 (слабый, проходит на мутанте): supervisor_forwards_real_op0_frames_to_dispatch_handler
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running tests/gateway_supervisor.rs (target/debug/deps/gateway_supervisor-161111e33d133230)
+
+running 2 tests
+test supervisor_forwards_real_op0_frames_to_dispatch_handler ... ok
+test dispatch_handler_receives_frames_while_connection_is_open ... FAILED
+
+failures:
+
+---- dispatch_handler_receives_frames_while_connection_is_open stdout ----
+
+thread 'dispatch_handler_receives_frames_while_connection_is_open' (784961) panicked at crates/discord-core/tests/gateway_supervisor.rs:227:10:
+сценарий стаба вернул ошибку: "хук не отдал 1 диспатчей за 3 с незакрытого соединения"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dispatch_handler_receives_frames_while_connection_is_open
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 3.33s
+
+error: test failed, to rerun pass `-p discord-core --test gateway_supervisor`
+mutant test exit=101
+--- restore ---
+176791cc4e9a85173e8642cab02baa9b  /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs
+MUTANT markers left: 0

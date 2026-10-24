@@ -1,0 +1,180 @@
+▶ auth-гейт: разметка и носитель (ADR-2 §A)
+  ✔ index.html: #auth-gate вне .screen, dialog-семантика, auth.css подключён style.css (0.95294ms)
+  ✔ idle + stored: гейт виден, restore доступен, фокус в поле, auth_status один раз (19.843657ms)
+  ✔ idle без ключа в keyring: restore скрыт (не мёртвая кнопка), submit работает (6.479422ms)
+  ✔ ready на старте: гейт скрыт, чат доступен, имя в user-bar, logout виден (8.085173ms)
+✔ auth-гейт: разметка и носитель (ADR-2 §A) (36.064242ms)
+▶ auth-гейт: вход токеном (idle → validating → ready)
+  ✖ submit: validating с блокировкой, токен очищен, invoke(auth_login_token, {token}), ready (4.954712ms)
+  ✔ пустой ввод: сообщение «введите токен», IPC не вызывается, фокус остаётся в поле (4.697551ms)
+✖ auth-гейт: вход токеном (idle → validating → ready) (9.826783ms)
+▶ auth-гейт: ошибки 401/429/сеть без утечки токена
+  ✖ 401 (InvalidToken): понятная строка, гейт открыт, поле очищено, submit снова активен (3.604772ms)
+  ✖ 429 (RateLimited): «слишком часто, подождите», retry_after не теряется (3.957621ms)
+  ✖ сеть (Network kind): «нет связи», состояние error, гейт открыт (5.438582ms)
+  ✖ сорванный IPC (invoke rejects строкой/Error): тоже «нет связи», без console.error (4.812072ms)
+  ✖ ошибка в теле AuthState (status=error): Keyring → сообщение о хранилище (5.066841ms)
+✖ auth-гейт: ошибки 401/429/сеть без утечки токена (23.218428ms)
+▶ auth-гейт: restore, logout, show/hide и отсутствие мёртвых кнопок
+  ✔ restore: invoke(auth_restore) без аргументов, validating → ready, гейт скрыт (3.234042ms)
+  ✔ restore с отозванным токеном: 401 в гейте, сессия не открыта (4.532831ms)
+  ✔ logout: invoke(auth_logout), гейт снова открыт, имя сброшено, фокус в поле (2.790301ms)
+  ✔ показать/скрыть токен: type password↔text и aria-pressed (2.615911ms)
+  ✔ нет мёртвых кнопок: в гейте только reveal/submit/restore, disabled — с подсказкой (3.248771ms)
+✔ auth-гейт: restore, logout, show/hide и отсутствие мёртвых кнопок (16.642996ms)
+▶ auth-гейт: среда без IPC
+  ✔ auth_status падает: гейт с «нет связи», приложение живо, без console.error (4.646452ms)
+  ✖ токен не появляется ни в гейте, ни в user-bar, ни в снапшоте UI (7.669132ms)
+✖ auth-гейт: среда без IPC (12.507534ms)
+ℹ tests 18
+ℹ suites 5
+ℹ pass 11
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 138.946458
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-auth.test.mjs:293:3
+✖ submit: validating с блокировкой, токен очищен, invoke(auth_login_token, {token}), ready (4.954712ms)
+  AssertionError [ERR_ASSERTION]: нет промежуточного состояния validating
+  + actual - expected
+  
+  + 'error'
+  - 'validating'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:300:14
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:295:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'error',
+    expected: 'validating',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-auth.test.mjs:346:3
+✖ 401 (InvalidToken): понятная строка, гейт открыт, поле очищено, submit снова активен (3.604772ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /токен недействителен/i. Input:
+  
+  'Нет связи с сервером — проверьте сеть'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:355:16
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:347:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Нет связи с сервером — проверьте сеть',
+    expected: /токен недействителен/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-auth.test.mjs:364:3
+✖ 429 (RateLimited): «слишком часто, подождите», retry_after не теряется (3.957621ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /слишком часто/i. Input:
+  
+  'Нет связи с сервером — проверьте сеть'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:372:16
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:365:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Нет связи с сервером — проверьте сеть',
+    expected: /слишком часто/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-auth.test.mjs:381:3
+✖ сеть (Network kind): «нет связи», состояние error, гейт открыт (5.438582ms)
+  AssertionError [ERR_ASSERTION]: токен ушёл в чужую IPC-команду
+  
+  true !== false
+  
+      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:392:9
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:382:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-auth.test.mjs:397:3
+✖ сорванный IPC (invoke rejects строкой/Error): тоже «нет связи», без console.error (4.812072ms)
+  AssertionError [ERR_ASSERTION]: токен ушёл в чужую IPC-команду
+  
+  true !== false
+  
+      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:407:9
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:398:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-auth.test.mjs:412:3
+✖ ошибка в теле AuthState (status=error): Keyring → сообщение о хранилище (5.066841ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /хранилищ/i. Input:
+  
+  'Нет связи с сервером — проверьте сеть'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:420:16
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:413:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Нет связи с сервером — проверьте сеть',
+    expected: /хранилищ/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-auth.test.mjs:548:3
+✖ токен не появляется ни в гейте, ни в user-bar, ни в снапшоте UI (7.669132ms)
+  AssertionError [ERR_ASSERTION]: токен ушёл в чужую IPC-команду
+  
+  true !== false
+  
+      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:567:7
+      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:549:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

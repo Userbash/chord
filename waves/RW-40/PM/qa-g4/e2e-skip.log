@@ -1,0 +1,18 @@
+▶ cdp против headless-браузера
+  ﹣ targets/eval/clicktext/list/shot на fixture-странице (1.813382ms) # нет браузера: задайте CHROME_BIN (например, /usr/bin/chromium)
+✔ cdp против headless-браузера (2.291446ms)
+▶ live Discord (только чтение)
+  ﹣ targets показывает страницы Discord (0.320166ms) # задайте DISCORD_LAB_LIVE_CDP=http://127.0.0.1:9223 (Discord с --remote-debugging-port)
+  ﹣ eval 1+1 выполняется на живой странице (0.168018ms) # задайте DISCORD_LAB_LIVE_CDP=http://127.0.0.1:9223 (Discord с --remote-debugging-port)
+✔ live Discord (только чтение) (1.151229ms)
+▶ walk fixture
+  ﹣ обходит обычные пункты, пропускает запрещённые, пишет журнал и скриншоты (1.863121ms) # нет браузера: задайте CHROME_BIN (например, /usr/bin/chromium)
+✔ walk fixture (2.359135ms)
+ℹ tests 4
+ℹ suites 3
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 4
+ℹ todo 0
+ℹ duration_ms 35.191098

@@ -1,0 +1,126 @@
+▶ C-02-PAGE: первая страница
+  ✖ открытие канала — без cursor, limit=100, без token (32.543464ms)
+✖ C-02-PAGE: первая страница (33.392963ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✖ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (21.93004ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (9.108939ms)
+  ✖ cursor без новых строк и тот же nextCursor не крутит запросы (9.549094ms)
+✖ C-02-PAGE: nextCursor / hasMore / дедуп (40.964404ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✖ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (10.461916ms)
+  ✖ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (9.46904ms)
+✖ C-02-PAGE: ошибки подгрузки видны (20.16872ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (6.035424ms)
+  ✖ окно истории не растёт сверх 500 строк (loaded_rows_limit) (12.524324ms)
+✖ C-02-PAGE: границы окна (18.821212ms)
+ℹ tests 8
+ℹ suites 4
+ℹ pass 2
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157.277392
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:325:3
+✖ открытие канала — без cursor, limit=100, без token (32.543464ms)
+  AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
+      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:337:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:349:3
+✖ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (21.93004ms)
+  AssertionError [ERR_ASSERTION]: подгрузка не сделала второй запрос истории
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:359:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:412:3
+✖ cursor без новых строк и тот же nextCursor не крутит запросы (9.549094ms)
+  AssertionError [ERR_ASSERTION]: подгрузка без новых строк не остановилась
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:425:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:441:5
+✖ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (10.461916ms)
+  AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
+      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:456:24)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:441:5
+✖ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (9.46904ms)
+  AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
+      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:456:24)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:492:3
+✖ окно истории не растёт сверх 500 строк (loaded_rows_limit) (12.524324ms)
+  AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
+      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:549:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

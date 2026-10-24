@@ -1,0 +1,9 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::auth`
+  --> tests/auth_contract.rs:19:24
+   |
+19 | use discord_gui_spike::auth::{
+   |                        ^^^^ could not find `auth` in `discord_gui_spike`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "auth_contract") due to 1 previous error

@@ -1,0 +1,9 @@
+dcd7cec03794962592e67e100a7fe390  src/core/ui/engine.mjs
+f5f52aef35eb98ad9e14ff17e3c6095b  src/core/ui/adapters.mjs
+f622b4608bca2d31edabeb7c928383b4  src/cli/run.mjs
+03e15f6bd9c595d1a90aee4736742932  tests/unit/walk.test.mjs
+43290e0706a3ba9e46223daff9b7701d  tests/unit/cli-run.test.mjs
+80e3f18bdd73fde4b01ff974d86c7254  tests/helpers/fake-cdp.mjs
+75e4524eaad0494fd4492c0e6f6ab1d5  tests/e2e/walk-fixture.e2e.test.mjs
+66daec5bd9c66b732e42a828a3e2e160  TDD-PLAN.md
+e098377735a43a6f495b8640ab997312  README.md

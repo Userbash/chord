@@ -1,0 +1,35 @@
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.48602ms)
+  ✔ в тестах нет .only, todo и пустых assert (4.050637ms)
+  ✔ скрипты не обходят хуки и проверки (0.623934ms)
+  ✔ гейт содержит обязательные фазы (0.137624ms)
+  ✖ гейт запускает Rust workspace целиком, а не только gui-spike (0.478979ms)
+✖ TEST-POLICY: запрет ослабления тестов (6.808771ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.19529
+
+✖ failing tests:
+
+test at tests/meta/test-policy.test.mjs:75:3
+✖ гейт запускает Rust workspace целиком, а не только gui-spike (0.478979ms)
+  AssertionError [ERR_ASSERTION]: в gate.mjs нет фазы workspace-rust
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:82:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

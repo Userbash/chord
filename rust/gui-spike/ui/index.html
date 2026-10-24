@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru" data-density="cozy">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>DL — discord-lab (P3-01)</title>
+    <!-- W39c2: токены вендорятся в ui/tokens.css (D-05), а не в components/. -->
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="components/primitives.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="components/rail.css" />
+    <link rel="stylesheet" href="components/tree.css" />
+    <link rel="stylesheet" href="components/chat.css" />
+    <link rel="stylesheet" href="components/emoji.css" />
+    <link rel="stylesheet" href="components/members.css" />
+    <link rel="stylesheet" href="components/settings.css" />
+    <link rel="stylesheet" href="components/server-menu.css" />
+    <link rel="stylesheet" href="components/net-status.css" />
+    <link rel="stylesheet" href="components/voice.css" />
+  </head>
+  <body data-active-screen="chat">
+    <!-- 1. Строка заголовка: 32px, на всю ширину (RE topbar_h=32). -->
+    <header class="topbar" role="banner">
+      <div class="screen-title" role="heading" aria-level="2" aria-live="polite">Чат · 100 000 сообщений</div>
+      <div class="metrics" aria-live="polite">
+        <span>FPS <b id="m-fps">—</b></span>
+        <span>p95 кадра <b id="m-p95">—</b></span>
+        <span>RAM <b id="m-rss">—</b></span>
+        <span>потоки <b id="m-threads">—</b></span>
+        <button id="bench" class="bench" type="button">Замер 5 с</button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <!-- 2. Рейл 64px: бренд DL, гильдии, разделитель, 4 кнопки экранов. -->
+      <aside id="guild-rail" class="rail" role="navigation" aria-label="Серверы и экраны">
+        <div class="brand" title="discord-lab" aria-hidden="true">DL</div>
+        <!-- G-01 (RW-40): плитки серверов собирает app.js из `ready()` (READY fixture,
+             7 гильдий). Статичных заглушек data-guild="1|2|3" больше нет: имена и
+             id берутся только из payload, иконка-хеш CDN в URL не склеивается. -->
+        <div class="rail-sep" role="separator" aria-hidden="true"></div>
+        <button class="rail-btn active" type="button" data-screen="chat" title="Чат 100k" aria-label="Чат" aria-current="page">💬</button>
+        <button class="rail-btn" type="button" data-screen="emoji" title="Эмодзи-пикер" aria-label="Эмодзи">😀</button>
+        <button class="rail-btn" type="button" data-screen="members" title="Участники 24k" aria-label="Участники">👥</button>
+        <button class="rail-btn" type="button" data-screen="settings" title="Настройки" aria-label="Настройки">⚙️</button>
+      </aside>
+
+      <div class="workspace">
+        <!-- 3. Дерево каналов 240px. C-02 (RW-40): разметка ниже — стартовый
+             плейсхолдер до `channels({guildId})`; после выбора гильдии дерево
+             пересобирает app.js: группы по типам (0/5 открывают чат, 2/4/15 —
+             с видимой причиной), `data-channel-id` — реальный snowflake. -->
+        <aside id="channel-tree" class="tree" role="navigation" aria-label="Каналы сервера" data-state="idle" aria-busy="false">
+          <header class="tree-header">
+            <h2 class="tree-guild">ITSKIDON PC BOOST</h2>
+            <button class="icon-btn" type="button" data-action="guild-menu" aria-label="Меню сервера" aria-haspopup="menu" aria-expanded="false">…</button>
+          </header>
+          <nav class="tree-scroll" aria-label="Список каналов">
+            <section class="channel-group">
+              <h3 class="channel-group-title">
+                <button class="group-toggle" type="button" aria-expanded="true">НОВОСТИ</button>
+              </h3>
+              <ul class="channel-list" role="list">
+                <li><button class="channel-item" type="button" aria-current="page"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">новости</span></button></li>
+                <li><button class="channel-item is-unread" type="button"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">объявления</span></button></li>
+              </ul>
+            </section>
+            <section class="channel-group">
+              <h3 class="channel-group-title">
+                <button class="group-toggle" type="button" aria-expanded="true">ГОЛОСОВЫЕ КАНАЛЫ</button>
+              </h3>
+              <ul class="channel-list" role="list">
+                <li><button class="channel-item" type="button"><span class="channel-icon" aria-hidden="true">🔊</span><span class="channel-name">Пекарня</span></button></li>
+              </ul>
+            </section>
+          </nav>
+          <!-- V-08: голосовая панель. Содержимое (12 состояний, участники,
+               ping, mute/deafen) собирает features/voice.js — один код-путь с
+               DOM-шимом тестов. В сборке нет voice-сервиса, поэтому панель
+               disabled и вход заблокирован (G6-REPORT §3.7); состояния
+               «подключено» без сессии не имитируются. -->
+          <section id="voice-panel" class="voice-panel" aria-label="Голосовая связь"
+                   data-state="disabled" aria-disabled="true"
+                   data-self-mute="false" data-self-deaf="false" data-ptt="idle"></section>
+          <!-- 4. Строка пользователя 56px. -->
+          <footer id="user-bar" class="user-bar">
+            <button class="user-profile" type="button" data-action="profile" aria-label="Профиль: ShadowByte, невидимый">
+              <span class="avatar avatar--sm" aria-hidden="true">SB</span>
+              <span class="user-meta"><span class="user-name">ShadowByte</span><span class="user-status">Невидимый</span></span>
+            </button>
+            <div class="user-actions">
+              <button class="icon-btn" type="button" data-action="mute" aria-label="Выключить микрофон" aria-pressed="false">🎙</button>
+              <button class="icon-btn" type="button" data-action="deafen" aria-label="Выключить звук" aria-pressed="false">🎧</button>
+              <button class="icon-btn" type="button" data-action="settings" aria-label="Настройки пользователя">⚙</button>
+            </div>
+          </footer>
+        </aside>
+
+        <main class="content">
+          <!-- 5. Шапка чата 49px (только экран chat). -->
+          <header id="chat-header" class="chat-header">
+            <button class="icon-btn" type="button" data-action="toggle-tree" aria-label="Свернуть каналы" aria-expanded="true">☰</button>
+            <h1 class="chat-title"><span class="hash" aria-hidden="true">#</span><span class="chat-title-text">новости</span></h1>
+            <div class="chat-actions">
+              <button class="icon-btn" type="button" data-action="threads" aria-label="Ветки">🧵</button>
+              <button class="icon-btn" type="button" data-action="inbox" aria-label="Уведомления" aria-disabled="true" title="Уведомления (Phase 3)">🔔</button>
+              <button class="icon-btn" type="button" data-action="pins" aria-label="Закреплённые сообщения">📌</button>
+              <button class="icon-btn" type="button" data-action="members" aria-label="Участники">👥</button>
+              <search class="search-field" role="search">
+                <input id="chat-search" class="search-input" type="search" placeholder="Поиск" aria-label="Поиск сообщений" autocomplete="off" />
+              </search>
+            </div>
+          </header>
+
+          <!-- 6. Экран chat: чат + панель участников. -->
+          <section id="screen-chat" class="screen active" role="region" aria-label="Чат" aria-hidden="false">
+            <div class="chat-main">
+              <div id="chat-list" class="list chat-list" tabindex="0" role="list" aria-label="Сообщения" aria-busy="false" data-row-height="44"></div>
+              <p class="chat-notice" role="note">Отправка недоступна в спайке (без сети)</p>
+              <div id="composer" class="composer" role="group" aria-label="Поле ввода сообщения">
+                <button class="icon-btn composer-attach" type="button" data-action="attach" aria-label="Прикрепить файл">＋</button>
+                <textarea id="composer-input" class="composer-input" rows="1" placeholder="Написать сообщение…" aria-label="Сообщение" aria-describedby="composer-hint"></textarea>
+                <button class="icon-btn" type="button" data-action="emoji" aria-label="Эмодзи" aria-haspopup="dialog" aria-expanded="false">😀</button>
+                <button class="icon-btn" type="button" data-action="gift" aria-label="Подарок" aria-disabled="true" title="Подарок (Phase 3): недоступно в спайке">🎁</button>
+              </div>
+              <p id="composer-hint" class="visually-hidden">Отправка сообщений в спайке отключена</p>
+            </div>
+            <aside id="member-panel" class="member-panel" role="complementary" aria-label="Участники сервера">
+              <h2 class="member-panel-title">Участники — <span id="member-online">735</span></h2>
+              <div id="member-panel-list" class="member-panel-list" role="list" aria-label="Участники в сети"></div>
+              <button class="member-panel-all" type="button" data-action="all-members">Показать всех</button>
+            </aside>
+          </section>
+
+          <!-- 7. Экран emoji: карточка 498×440. -->
+          <section id="screen-emoji" class="screen" role="region" aria-label="Эмодзи" aria-hidden="true">
+            <div class="emoji-wrap">
+              <div class="emoji-card" role="dialog" aria-modal="false" aria-label="Выбор эмодзи">
+                <div class="emoji-head">
+                  <search class="search-field" role="search">
+                    <input id="emoji-search" class="search-input" type="search" placeholder="Найдите идеальный эмодзи" aria-label="Поиск эмодзи" autocomplete="off" />
+                  </search>
+                  <button class="icon-btn" type="button" data-action="emoji-close" aria-label="Закрыть">✕</button>
+                </div>
+                <div class="emoji-body">
+                  <div id="emoji-tabs" class="emoji-tabs" role="tablist" aria-orientation="vertical" aria-label="Категории эмодзи"><!-- gen --></div>
+                  <!-- role=listbox + ячейки role=option — инвариант RW-38 (P1-2), frozen test.
+                       aria-colcount/aria-rowcount — атрибуты grid (D-05), вернуть вместе с role=grid. -->
+                  <div id="emoji-grid" class="emoji-grid" role="listbox" aria-label="Эмодзи"><!-- gen --></div>
+                </div>
+                <div class="emoji-preview" aria-live="polite"><span class="emoji-preview-glyph" aria-hidden="true">🙂</span><span class="emoji-preview-name">Выберите эмодзи</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 8. Экран members: тулбар + виртуализованный список. -->
+          <section id="screen-members" class="screen" role="region" aria-label="Участники" aria-hidden="true">
+            <div class="members-toolbar">
+              <search class="search-field" role="search">
+                <input id="member-search" class="search-input" type="search" placeholder="Поиск участников" aria-label="Поиск участников" autocomplete="off" />
+              </search>
+              <span id="member-count" class="members-count" aria-live="polite">24 229</span>
+            </div>
+            <div id="member-list" class="list member-list" tabindex="0" role="list" aria-label="Участники" aria-busy="false" data-row-height="40"></div>
+          </section>
+
+          <!-- 9. Экран settings: оверлей с навигацией и контентом (контент генерит W39d). -->
+          <section id="screen-settings" class="screen" role="region" aria-label="Настройки" aria-hidden="true">
+            <div class="settings-shell" role="dialog" aria-modal="true" aria-label="Настройки пользователя">
+              <header class="settings-head">
+                <button class="icon-btn" type="button" data-action="settings-close" aria-label="Закрыть настройки">✕</button>
+              </header>
+              <div class="settings-body">
+                <nav id="settings-nav" class="settings-nav" aria-label="Разделы настроек"><!-- gen --></nav>
+                <div id="settings" class="settings" role="group" aria-label="Настройки"><!-- gen --></div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- 10. Оверлей входа (RW-39/NET, ADR-2 §A): не .screen — экранов остаётся 4.
+         Форму, ошибку и кнопки собирает features/auth.js: DOM-шим тестов не
+         разбирает html, поэтому один код-путь даёт одинаковый DOM в обеих средах. -->
+    <div id="auth-gate" class="auth-gate" role="dialog" aria-modal="true" aria-label="Вход в аккаунт" aria-hidden="true" hidden></div>
+
+    <!-- QuickSwitcher строит доступные результаты в отдельном host. -->
+    <div id="quick-switcher" class="quick-switcher" role="dialog" aria-modal="true" aria-label="Быстрый переход" hidden>
+      <div class="quick-switcher-panel">
+        <label class="visually-hidden" for="quick-switcher-input">Куда отправимся?</label>
+        <input id="quick-switcher-input" class="quick-switcher-input" type="text" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="quick-switcher-results" aria-label="Быстрый переход" placeholder="Куда отправимся?" autocomplete="off" />
+        <div id="quick-switcher-results" class="quick-switcher-results" role="listbox" aria-label="Результаты"></div>
+        <p class="quick-switcher-empty" hidden>Ничего не найдено</p>
+        <p class="quick-switcher-hint">↑ ↓ выбрать · Enter перейти · Esc закрыть</p>
+      </div>
+    </div>
+
+    <!-- G-05/G-04: пустые контейнеры поповера и confirm. Содержимое собирает
+         features/actions.js (один код-путь с DOM-шимом, как #auth-gate). -->
+    <div id="server-menu" class="menu server-menu" role="menu" aria-label="Меню сервера" hidden></div>
+    <!-- G-03: host модалки join-by-invite. Содержимое (форма, preview, ошибки)
+         собирает features/join-server.js — один код-путь с DOM-шимом, как
+         #auth-gate. Данные preview не хардкодятся в разметке. -->
+    <div id="join-server-dialog" class="dialog-backdrop" hidden></div>
+    <div id="leave-server-dialog" class="dialog-backdrop" hidden></div>
+    <p id="server-status" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

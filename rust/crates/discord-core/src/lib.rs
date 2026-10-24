@@ -27,7 +27,14 @@ pub mod ws;
 /// отдельная зависимость на `discord-codec`.
 pub use discord_codec as codec;
 pub use dispatch::{DispatchEvent, DispatchKind, route_dispatch};
-pub use gateway::{Effect, GatewayError, Hello, Op, ReconnectReason, Session};
+pub use gateway::supervisor::{
+    Backoff, CloseAction, StopReason, Supervisor, SupervisorConfig, SupervisorEvent,
+    SupervisorOutcome, classify_close,
+};
+pub use gateway::{
+    Effect, GatewayError, HeartbeatMode, Hello, Op, QOS_HEARTBEAT_OP, QosPayload, ReconnectReason,
+    Session,
+};
 pub use history::{
     Cursor, History, HistoryConfig, HistoryDiagnostics, HistoryError, LiveOutcome, MessagePage,
     PageApply, PageError, PageRequest, PageToken,
@@ -38,6 +45,8 @@ pub use identify::{
     qos_token_client_provided,
 };
 pub use ready::ReadySummary;
+pub use rest::client::{ApiAuth, ApiAuthError, AuthScheme};
+pub use rest::user::{Me, MeError, parse_me};
 pub use resume::{
     RESUME_MAX_DOWNTIME_MS, ReconnectAction, ResumeError, ResumeParams, ResumeState,
     build_resume_frame, plan_reconnect,
@@ -57,8 +66,9 @@ pub use state::{
     apply_dispatch, apply_frame, apply_frame_at,
 };
 pub use ws::{
-    GatewayPipe, RunOptions, RunOutcome, TransportError, connect_and_run, connect_and_run_resume,
-    connect_and_run_with, encode_heartbeat,
+    GATEWAY_ENDPOINT, GATEWAY_QUERY, GatewayPipe, GatewayUrl, GatewayUrlError, RunOptions,
+    RunOutcome, TransportError, connect_and_run, connect_and_run_resume, connect_and_run_with,
+    encode_heartbeat, encode_qos_heartbeat,
 };
 
 /// База REST API v9 (47 подтверждённых маршрутов, 133 запроса в захвате D-02).

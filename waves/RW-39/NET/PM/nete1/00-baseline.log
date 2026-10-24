@@ -1,0 +1,40 @@
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/voice_state_types.rs (target/debug/deps/voice_state_types-074624fdcd903426)
+
+running 6 tests
+test v02_live_join_111 ... ok
+test v03_live_leave_51 ... ok
+test v06_member_mismatch_and_malformed ... ok
+test v04_timer_and_status_values ... ok
+test v05_optional_and_broken_table ... ok
+test v01_snapshot_003_exact_fields ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ws_transport.rs (target/debug/deps/ws_transport-57c060d4c435fbce)
+
+running 13 tests
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_hello_from_encoded_stream ... ok
+test pipe_buffers_partial_term ... ok
+test ws_text_messages_counted ... ok
+test ws_closed_after_stub_close ... ok
+test ws_server_reconnect_op7 ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+   Doc-tests discord_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

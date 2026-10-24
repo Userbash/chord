@@ -1,0 +1,1 @@
+{"pid": 111937, "processes": [{"pid": 111937, "comm": "discord-gui-spi", "rss_kb": 188636, "pss_kb": 82780}, {"pid": 111958, "comm": "WebKitWebProces", "rss_kb": 338020, "pss_kb": 288391}, {"pid": 111950, "comm": "WebKitNetworkPr", "rss_kb": 65720, "pss_kb": 32157}], "total_rss_kb": 592376, "total_pss_kb": 403328, "total_pss_mb": 393.9}

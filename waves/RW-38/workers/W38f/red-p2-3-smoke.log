@@ -1,0 +1,30 @@
+▶ Tauri GUI live smoke
+  ✖ открывает окно и публикует проверяемый DOM-снимок (1004.799711ms)
+✖ Tauri GUI live smoke (1005.900113ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1034.10008
+
+✖ failing tests:
+
+test at tests/smoke/gui-spike.smoke.test.mjs:21:3
+✖ открывает окно и публикует проверяемый DOM-снимок (1004.799711ms)
+  AssertionError [ERR_ASSERTION]: окно прожило 1004 мс < 9000 мс (SPIKE_EXIT_AFTER_MS=10000): преждевременный exit 0; stderr: 
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-spike.smoke.test.mjs:68:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

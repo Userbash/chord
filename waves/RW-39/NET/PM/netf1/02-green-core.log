@@ -1,0 +1,12 @@
+test no_retry_for_401_and_404 ... ok
+test telemetry_lookalike_reaches_server ... ok
+test retry_429_for_post ... ok
+test exhausted_429_returns_rate_limited ... ok
+test retry_5xx_only_for_idempotent ... ok
+test retry_429_then_success_with_delay ... ok
+test transport_read_timeout_is_retried_for_get ... ok
+test attempt_timeout_retries_idempotent_only ... ok
+test transport_read_timeout_is_not_retried_for_post ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+

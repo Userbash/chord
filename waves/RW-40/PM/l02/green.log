@@ -1,0 +1,390 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.72s
+     Running unittests src/lib.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 6 tests
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 9 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/auth_contract.rs (rust/gui-spike/target/debug/deps/auth_contract-9035f729b2f276ef)
+
+running 44 tests
+test core_errors_map_to_typed_auth_errors ... ok
+test auth_state_events_are_redacted_and_cover_phases ... ok
+test empty_credentials_never_reach_transport ... ok
+test identity_context_is_complete_for_auth_headers ... ok
+test login_keyring_failure_is_reported_and_not_ready ... ok
+test login_invalid_token_401_keeps_nothing_in_keyring ... ok
+test login_network_failure_is_network_and_not_retried ... ok
+test blocked_validation_does_not_block_status_or_token ... ok
+test login_network_failure_is_reported_as_network ... ok
+test invoke_handler_registers_auth_commands ... ok
+test login_outcome_debug_redacts_token_ticket_and_captcha_rqtoken ... ok
+test login_password_429_reports_retry_after_without_retry_loop ... ok
+test login_broken_json_maps_to_parse_without_token ... ok
+test invoke_handler_registers_password_login_commands ... ok
+test login_password_captcha_returns_widget_context ... ok
+test login_password_401_is_invalid_credentials_without_secrets ... ok
+test login_password_mfa_returns_ticket_and_methods ... ok
+test login_password_with_captcha_answer_sends_captcha_headers ... ok
+test login_password_success_stores_token_and_hides_it_from_view ... ok
+test logout_disconnects_before_clearing_keyring ... ok
+test login_rate_limited_429_reports_retry_after ... ok
+test concurrent_logins_commit_only_the_newest_generation ... ok
+test login_rejects_empty_token_without_network_or_keyring ... ok
+test logout_survives_keyring_failure_and_still_wipes_session ... ok
+test request_sms_429_is_rate_limited_without_retry ... ok
+test request_sms_sends_ticket_and_returns_masked_phone ... ok
+test logout_during_blocked_validation_wins_and_token_is_not_persisted ... ok
+test restore_reads_keyring_and_validates_stored_token ... ok
+test restore_with_revoked_token_reports_invalid_token ... ok
+test login_trims_pasted_token_before_use ... ok
+test restore_without_stored_token_stays_idle ... ok
+test login_validates_token_and_persists_it ... ok
+test logout_clears_keyring_and_is_idempotent ... ok
+test status_reports_keyring_failure_as_error ... ok
+test status_reports_stored_token_but_does_not_probe_network ... ok
+test status_without_stored_token_is_idle_and_never_validates ... ok
+test submit_mfa_rejects_unknown_method_before_network ... ok
+test status_read_does_not_resurrect_state_after_logout ... ok
+test submit_mfa_wrong_code_is_rejected_without_echoing_code ... ok
+test submit_mfa_success_stores_token_and_sends_code_once ... ok
+test threaded_store_propagates_open_failure ... ok
+test threaded_store_owns_store_in_dedicated_thread ... ok
+test token_reads_keyring_without_validation_and_redacts_errors ... ok
+test threaded_store_times_out_instead_of_waiting_forever ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/channels_contract.rs (rust/gui-spike/target/debug/deps/channels_contract-160c3ae2f53ba741)
+
+running 6 tests
+test channels_keep_absent_fields_as_null_and_order_private_last ... ok
+test channels_reject_records_without_id_or_type ... ok
+test channels_without_ready_or_broken_ready_are_typed_errors ... ok
+test channels_projection_matches_ready_oracle ... ok
+test channels_are_sorted_by_guild_position_and_id ... ok
+test channels_filter_by_guild_returns_only_that_guild ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/core_bridge.rs (rust/gui-spike/target/debug/deps/core_bridge-01eb467e72c09dad)
+
+running 6 tests
+test non_numeric_id_is_parse_error_not_panic ... ok
+test row_conversion_maps_contract_fields ... ok
+test sanitized_negative_ids_are_rejected_as_parse ... ok
+test first_page_ids_and_order_match_bff ... ok
+test empty_channel_page_is_valid ... ok
+test pagination_is_stable_forward_and_on_repeat ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/data_contract.rs (rust/gui-spike/target/debug/deps/data_contract-ea26fbceeb876d8c)
+
+running 30 tests
+test errors_serialize_to_typed_json ... ok
+test broken_ready_json_is_parse_error ... ok
+test broken_by_type_json_is_parse_error ... ok
+test empty_catalog_is_not_a_crash ... ok
+test missing_ready_file_is_not_found ... ok
+test frame_without_type_or_data_is_parse_error ... ok
+test member_item_without_user_id_is_parse_error ... ok
+test public_limits_match_specification ... ok
+test resolve_root_prefers_configured_path_and_defaults_to_repo_fixtures ... ok
+test oversized_fixture_is_rejected_before_reading ... ok
+test ready_matches_ready_stats_oracle ... ok
+test message_rows_expose_embeds_day_and_group_from_fixtures ... ok
+test read_state_matches_ready_oracle ... ok
+test members_page_unknown_guild_is_not_found ... ok
+test unreadable_catalog_is_io_error ... ok
+test messages_page_unknown_channel_is_not_found ... ok
+test settings_rejects_oversized_section ... ok
+test settings_exposes_sections_built_from_ready ... ok
+test messages_page_rejects_bad_limit_and_foreign_cursor ... ok
+test messages_page_empty_for_known_channel_without_messages ... ok
+test oversized_ids_and_cursor_are_invalid_arg_with_truncated_message ... ok
+test members_page_roles_and_groups_from_fixtures ... ok
+test settings_section_filter_and_not_found ... ok
+test members_page_empty_for_guild_without_member_capture ... ok
+test search_page_empty_result_and_filters_are_valid ... ok
+test messages_page_is_stable_deduped_and_cursor_driven ... ok
+test members_page_paginates_with_stable_cursor ... ok
+test search_page_rejects_bad_limit_cursor_and_oversized_filters ... ok
+test fixture_messages_have_no_attachments_reactions_replies_or_edit_timestamps ... ok
+test search_page_matches_fixture_fields_and_paginates ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+
+     Running tests/guilds_contract.rs (rust/gui-spike/target/debug/deps/guilds_contract-6030d78369b88a4a)
+
+running 24 tests
+test empty_or_blank_token_is_missing_token ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test enter_guild_accepts_204_without_body ... ok
+test enter_guild_puts_lurker_query_with_empty_json_object ... ok
+test free_functions_preserve_typed_error ... ok
+test leave_errors_serialize_with_camel_case_kind_only ... ok
+test free_functions_validate_before_delegating ... ok
+test leave_guild_free_function_preserves_typed_error ... ok
+test client_debug_does_not_reveal_token ... ok
+test leave_guild_free_function_validates_before_delegating ... ok
+test leave_guild_deletes_users_me_guilds_route_with_lurking_true ... ok
+test leave_guild_without_token_is_missing_token ... ok
+test leave_guild_sends_explicit_false_lurking ... ok
+test leave_guild_transport_failure_is_typed_network_error ... ok
+test leave_guild_accepts_2xx_without_reading_body ... ok
+test invalid_guild_id_is_rejected_before_transport ... ok
+test http_statuses_map_to_typed_errors ... ok
+test tauri_commands_take_no_token_and_read_backend ... ok
+test leave_guild_invalid_guild_id_is_rejected_before_transport ... ok
+test transport_failure_is_typed_network_error ... ok
+test leave_guild_maps_http_statuses_to_typed_errors ... ok
+test tauri_registers_exactly_one_guild_command ... ok
+test tauri_registers_leave_guild_once_and_reads_token_via_helper ... ok
+test module_enter_and_join_are_equivalent ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/invites_contract.rs (rust/gui-spike/target/debug/deps/invites_contract-9e6587723a59e904)
+
+running 14 tests
+test empty_or_blank_token_is_missing_token ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test invite_routes_are_s_catalog_extension_not_d02 ... ok
+test client_debug_does_not_reveal_token ... ok
+test accept_maps_response_to_typed_receipt ... ok
+test free_functions_normalize_and_delegate ... ok
+test resolve_gets_invite_target_with_counts_and_expiration ... ok
+test accept_posts_exactly_three_nullable_fields_without_context ... ok
+test transport_failure_is_typed_network_error ... ok
+test resolve_maps_wire_object_to_camel_case_preview ... ok
+test http_statuses_map_to_typed_errors ... ok
+test tauri_invite_commands_read_bearer_through_token_or_without_logging ... ok
+test codes_are_normalized_and_invalid_ones_never_reach_transport ... ok
+test success_without_parsable_invite_object_is_invalid_response ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_contract.rs (rust/gui-spike/target/debug/deps/ipc_contract-cc1813f5f79ffeb7)
+
+running 20 tests
+test accepts_bench_payload_with_chat_and_members_objects ... ok
+test metrics_serialize_with_snake_case_fields ... ok
+test accepts_full_snapshot_and_preserves_extra_fields ... ok
+test accepts_values_exactly_at_the_floors ... ok
+test missing_status_field_is_none ... ok
+test non_numeric_status_value_is_none ... ok
+test parse_metrics_rejects_missing_each_field ... ok
+test parse_metrics_rejects_non_numeric_field ... ok
+test parses_all_metrics_and_maps_rss_to_vmrss_not_hwm ... ok
+test reads_numeric_fields_from_proc_status ... ok
+test rejects_bench_payload_with_invalid_json ... ok
+test rejects_bench_payload_with_non_object_chat_or_members ... ok
+test rejects_degenerate_zero_values ... ok
+test rejects_invalid_json_with_parser_message ... ok
+test snapshot_floors_are_the_documented_ones ... ok
+test rejects_negative_values ... ok
+test rejects_rendered_rows_below_floor ... ok
+test status_field_matches_only_line_start ... ok
+test rejects_missing_each_required_field ... ok
+test rejects_wrong_types ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/launch.rs (rust/gui-spike/target/debug/deps/launch-d5c82783dd60201d)
+
+running 1 test
+test launches_real_window_and_reports_ui_snapshot ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/messages_contract.rs (rust/gui-spike/target/debug/deps/messages_contract-398d4b80b44a2c30)
+
+running 12 tests
+test ack_message_delegates_counter_and_nullable_token_verbatim ... ok
+test message_actions_delegate_to_expected_paths_and_payloads ... ok
+test ack_message_preserves_typed_errors ... ok
+test tauri_registers_send_message_command ... ok
+test send_message_preserves_typed_http_errors ... ok
+test send_message_rejects_empty_or_whitespace_content_before_sender ... ok
+test send_message_delegates_and_returns_receipt ... ok
+test send_message_rejects_content_over_2000_before_sender ... ok
+test sender_debug_does_not_reveal_token ... ok
+test message_actions_reject_invalid_ids_and_content_before_io ... ok
+test tauri_registers_message_action_commands ... ok
+test actions_preserve_http_errors_and_debug_hides_token ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/net_contract.rs (rust/gui-spike/target/debug/deps/net_contract-a61c1bda61eccf56)
+
+running 21 tests
+test connect_reads_token_and_reaches_ready ... ok
+test close_policies_are_forwarded ... ok
+test disconnect_is_idempotent_and_reconnect_is_visible ... ok
+test broken_payload_is_counted_instead_of_panicking ... ok
+test dispatch_reaches_ui_channel_in_order_without_changing_status ... ok
+test dispatch_stats_report_core_source_gap ... ok
+test filtered_and_unknown_kinds_do_not_panic_and_are_not_forwarded ... ok
+test etf_to_json_keeps_atoms_as_strings_and_handles_nil_and_numbers ... ok
+test missing_token_is_a_typed_error ... ok
+test production_driver_disconnect_is_idempotent_without_connecting ... ok
+test non_forwarded_kind_is_counted_as_filtered ... ok
+test duplicate_sequences_are_dropped_and_reconnect_does_not_replay ... ok
+test status_never_contains_token ... ok
+test presence_dispatch_is_forwarded_verbatim_in_kind_data_envelope ... ok
+test members_chunk_is_forwarded_verbatim ... ok
+test supervisor_events_map_to_gateway_contract ... ok
+test reaction_kinds_use_wire_name_and_forward_data_as_is ... ok
+test emit_error_is_counted_and_not_swallowed ... ok
+test blocked_ui_channel_never_blocks_the_gateway_source ... ok
+test members_list_update_keeps_counts_and_drops_nested_presence_session_ids ... ok
+test ready_payload_drops_session_secrets_and_keeps_data ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/reactions_contract.rs (rust/gui-spike/target/debug/deps/reactions_contract-cd2740010ee58342)
+
+running 6 tests
+test emoji_path_uses_percent_encoding_without_plain_unicode ... ok
+test active_selects_put_and_inactive_selects_delete ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test typed_failures_are_preserved ... ok
+test invalid_ids_and_emoji_are_rejected_before_api ... ok
+test sender_debug_and_empty_token_do_not_expose_or_accept_token ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/read_state_contract.rs (rust/gui-spike/target/debug/deps/read_state_contract-e438387c15c855d0)
+
+running 12 tests
+test broken_ready_json_is_parse ... ok
+test empty_entries_is_a_valid_empty_projection ... ok
+test entries_of_wrong_type_is_parse ... ok
+test missing_ready_file_is_not_found ... ok
+test badge_only_entry_maps_missing_fields_to_null ... ok
+test entry_without_flags_is_null_not_invented_zero ... ok
+test entry_without_channel_id_is_parse ... ok
+test malformed_last_viewed_is_parse_not_silent_null ... ok
+test tauri_read_state_command_is_local_registered_and_silent ... ok
+test ready_without_read_state_is_parse ... ok
+test projects_three_entries_with_last_viewed_4310_and_nulls ... ok
+test serializes_exactly_six_camel_case_fields_and_numbers_as_u64 ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_ack.rs (rust/gui-spike/target/debug/deps/rest_ack-f24c3c2b2ef7b886)
+
+running 9 tests
+test invalid_ids_are_rejected_before_transport ... ok
+test ack_is_available_through_a_trait_object ... ok
+test last_viewed_is_a_number_and_zero_is_not_null ... ok
+test ack_posts_oracle_body_to_catalog_route ... ok
+test transport_failures_are_typed_and_not_masked ... ok
+test nullable_body_token_is_sent_as_null_and_never_substituted ... ok
+test tauri_ack_command_separates_bearer_from_nullable_body_token ... ok
+test read_state_debug_and_empty_bearer_do_not_expose_token ... ok
+test ack_maps_http_statuses_to_typed_errors ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rest_failure_contract.rs (rust/gui-spike/target/debug/deps/rest_failure_contract-9ea29b05213f45d0)
+
+running 6 tests
+test absurd_retry_after_saturates_instead_of_panicking ... ok
+test api_error_keeps_status_and_retry_after ... ok
+test legacy_kinds_are_unchanged ... ok
+test every_domain_preserves_the_classified_kind ... ok
+test http_statuses_are_classified_exactly ... ok
+test new_kinds_serialize_with_camel_case_and_have_display ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/search_contract.rs (rust/gui-spike/target/debug/deps/search_contract-ded35b0d1278dfc5)
+
+running 12 tests
+test no_token_is_typed_before_network ... ok
+test maps_network_error_without_exposing_details ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test maps_malformed_json_to_typed_error ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test storage_failure_is_typed_for_ui ... ok
+test decodes_hits_and_deep_index_flag ... ok
+test rejects_negative_offset_before_transport ... ok
+test debug_and_errors_do_not_expose_token ... ok
+test rejects_empty_guild_id_before_transport ... ok
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/settings_contract.rs (rust/gui-spike/target/debug/deps/settings_contract-ca21e140544a2161)
+
+running 17 tests
+test defaults_follow_shipped_ui_contract ... ok
+test missing_file_yields_defaults_without_creating_anything ... ok
+test incompatible_version_is_typed_invalid ... ok
+test errors_are_typed_and_serialize_with_kind ... ok
+test corrupt_json_is_typed_parse_error ... ok
+test atomic_save_leaves_no_temp_files ... ok
+test save_creates_missing_parent_directories ... ok
+test invalid_density_theme_and_locale_are_typed_invalid ... ok
+test settings_path_prefers_env_and_defaults_to_repo_local ... ok
+test oversize_file_is_rejected_before_parsing ... ok
+test serialized_defaults_are_canonical_and_hold_no_secrets ... ok
+test save_then_load_roundtrip_is_lossless ... ok
+test unknown_fields_are_rejected_and_values_not_echoed ... ok
+test store_from_env_uses_dl_settings_path ... ok
+test tauri_commands_are_registered_and_carry_no_tokens ... ok
+test save_rejects_bad_toggles_and_incompatible_version ... ok
+test save_rejects_more_than_size_limit_without_touching_disk ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/typing_contract.rs (rust/gui-spike/target/debug/deps/typing_contract-29a3f43b4a1aa0d3)
+
+running 13 tests
+test empty_or_blank_token_is_unauthorized ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test posts_empty_body_to_channel_typing_target ... ok
+test client_debug_does_not_reveal_token ... ok
+test transport_failure_is_typed_network_error ... ok
+test typing_route_is_s_catalog_extension_not_d02 ... ok
+test malformed_two_hundred_body_is_invalid_response ... ok
+test free_function_validates_and_delegates ... ok
+test empty_two_hundred_body_means_no_cooldowns ... ok
+test http_statuses_map_to_typed_errors ... ok
+test tauri_send_typing_reads_bearer_through_token_or_without_logging ... ok
+test two_hundred_json_cooldowns_are_mapped_and_camel_cased_for_ipc ... ok
+test invalid_channel_id_is_rejected_before_transport ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_gui_spike
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

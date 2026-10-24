@@ -1,0 +1,139 @@
+
+> discord-function-lab@0.1.0 gate:release
+> node scripts/gate.mjs --scope release
+
+
+✔ typecheck — 0.2 с
+✔ ui-tsc — 0.2 с
+✖ meta — 0.1 с (тесты 40: pass 39, fail 1, skip 0)
+   ▶ rust-client-sync: план Rust-клиента цел и синхронен
+     ✔ пакет docs/rust-client на месте и непуст (3.602624ms)
+     ✔ индекс ссылается на все документы пакета (0.824831ms)
+     ✔ графы Mermaid есть; карта проекта получила слой 8 (0.627562ms)
+     ✔ каталог функций: ≥100 уникальных F-ID и все 14 групп (0.801989ms)
+     ✔ тест-план: ≥110 уникальных T-ID, все группы, манифест фикстур (0.542923ms)
+     ✔ тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур (0.295249ms)
+     ✔ mutation-ledger: сводка по волнам, классы мутантов и разбор survivors (0.293358ms)
+     ✔ security: модель угроз, границы доверия и чек-листы (0.281047ms)
+     ✔ план: сквозной контур качества Q-01…Q-14 (0.363436ms)
+     ✔ план: волны P0–P8, ≥60 карточек, уникальные ID (0.543234ms)
+     ✔ репозиторные доки ссылаются на план (живые ссылки) (1.044823ms)
+     ✔ RC-07: фикстуры и каркас на месте и согласованы (1.359283ms)
+     ✔ RC-08: отчёт верификации сырья — полный (0.445044ms)
+     ✔ трассировка и строение описывают все группы (0.40134ms)
+   ✔ rust-client-sync: план Rust-клиента цел и синхронен (12.609092ms)
+   ▶ TEST-POLICY: запрет ослабления тестов
+     ✔ политика существует и содержит обязательные разделы (0.721811ms)
+     ✔ в тестах нет .only, todo и пустых assert (4.118025ms)
+     ✔ скрипты не обходят хуки и проверки (0.598419ms)
+     ✔ гейт содержит обязательные фазы (0.220742ms)
+     ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.412691ms)
+   ✔ TEST-POLICY: запрет ослабления тестов (7.492078ms)
+   ▶ waves-sync: журнал волн восстановим
+     ✔ README.md, STATE.md и db.jsonl на месте (2.342131ms)
+     ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (4.833056ms)
+     ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (1.42728ms)
+   ✔ waves-sync: журнал волн восстановим (9.359852ms)
+   ℹ tests 40
+   ℹ suites 8
+   ℹ pass 39
+   ℹ fail 1
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 50.203814
+   
+   ✖ failing tests:
+   
+   test at tests/meta/plan-sync.test.mjs:179:3
+   ✖ строки с одним src-модулем: токены покрывают все экспортируемые функции (2.529529ms)
+     AssertionError [ERR_ASSERTION]: расхождение токенов §8 и экспортов модулей
+     + actual - expected
+     
+     + [
+     +   'tests/unit/cdp.test.mjs ↔ src/core/cdp/client.mjs: лишние [], не покрыты [captureScreenshot, clickText, clickTextExpression, listElements, listElementsExpression, openPage]'
+     + ]
+     - []
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:202:12)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: [ 'tests/unit/cdp.test.mjs ↔ src/core/cdp/client.mjs: лишние [], не покрыты [captureScreenshot, clickText, clickTextExpression, listElements, listElementsExpression, openPage]' ],
+       expected: [],
+       operator: 'deepStrictEqual',
+       diff: 'simple'
+     }
+   
+✔ unit — 1.4 с (тесты 400: pass 400, fail 0, skip 0)
+✔ spike-rust — 1.3 с
+✔ workspace-rust — 9.7 с (тесты 1112: pass 1112, fail 0, skip 0)
+✔ smoke — 17.2 с (тесты 22: pass 22, fail 0, skip 0)
+✔ e2e — 0.1 с (тесты 4: pass 0, fail 0, skip 4)
+✖ coverage — 1.6 с (тесты 400: pass 400, fail 0, skip 0)
+     ✔ сохраняет кириллическую подпись из реального журнала (0.205579ms)
+   ✔ buildWalkRecord (0.496997ms)
+   ▶ consoleIssues
+     ✔ считает exceptionThrown и consoleAPICalled type=error; текстов не больше 3 (0.335322ms)
+     ✔ обрезает текст до 220 символов (0.221291ms)
+     ✔ без ошибок → пусто (0.095979ms)
+     ✔ считает события с реальным именем и URL и обрезает JSON до 220 (3.543225ms)
+   ✔ consoleIssues (4.426798ms)
+   ▶ shouldBail
+     ✔ прерывает прогон на таймауте и закрытом соединении (0.161995ms)
+     ✔ обычная ошибка шага прогон не прерывает (0.063986ms)
+     ✔ подтверждает отсутствие ошибок в журналах и проверяет все найденные (1.57997ms)
+   ✔ shouldBail (2.023411ms)
+   ▶ pickNextItem
+     ✔ пропускает посещённые и запрещённые (чёрный список по умолчанию) (0.390237ms)
+     ✔ сохраняет порядок; когда всё пройдено → undefined (0.081358ms)
+     ✔ можно передать свой чёрный список (0.080778ms)
+     ✔ выбирает следующий непосещённый пункт из реального журнала (1.654656ms)
+   ✔ pickNextItem (2.451612ms)
+   ℹ tests 400
+   ℹ suites 84
+   ℹ pass 400
+   ℹ fail 0
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 1468.310331
+   ℹ Error: 79.96% line coverage does not meet threshold of 90%.
+   ℹ Error: 87.93% branch coverage does not meet threshold of 90%.
+   ℹ start of coverage report
+   ℹ ------------------------------------------------------------------------------------------------------------------------------------------------------
+   ℹ file             | line % | branch % | funcs % | uncovered lines
+   ℹ ------------------------------------------------------------------------------------------------------------------------------------------------------
+   ℹ src              |        |          |         | 
+   ℹ  adapters        |        |          |         | 
+   ℹ   frida.mjs      |  96.00 |   100.00 |   83.33 | 19-21
+   ℹ  cli             |        |          |         | 
+   ℹ   run.mjs        |  24.94 |    60.61 |   15.38 | 39-42 51-54 57-59 80-86 88-90 94-119 124-131 143-173 176-196 198-271 273-382 384 386 388 390 395-397
+   ℹ  core            |        |          |         | 
+   ℹ   args.mjs       | 100.00 |    94.59 |  100.00 | 
+   ℹ   calls.mjs      | 100.00 |    96.43 |  100.00 | 
+   ℹ   cdp            |        |          |         | 
+   ℹ    client.mjs    |  99.37 |    84.52 |  100.00 | 47-48
+   ℹ   csv.mjs        | 100.00 |   100.00 |  100.00 | 
+   ℹ   hook-io.mjs    |  99.05 |    92.86 |   94.12 | 66
+   ℹ   inventory.mjs  | 100.00 |   100.00 |  100.00 | 
+   ℹ   paths.mjs      | 100.00 |    91.67 |  100.00 | 
+   ℹ   processes.mjs  | 100.00 |   100.00 |  100.00 | 
+   ℹ   report         |        |          |         | 
+   ℹ    domains.mjs   | 100.00 |   100.00 |  100.00 | 
+   ℹ    nm.mjs        | 100.00 |    84.21 |  100.00 | 
+   ℹ   ui             |        |          |         | 
+   ℹ    blacklist.mjs | 100.00 |   100.00 |  100.00 | 
+   ℹ    profile.mjs   | 100.00 |    71.43 |  100.00 | 
+   ℹ    walk-log.mjs  | 100.00 |   100.00 |  100.00 | 
+   ℹ ------------------------------------------------------------------------------------------------------------------------------------------------------
+   ℹ all files        |  79.96 |    87.93 |   88.33 | 
+   ℹ ------------------------------------------------------------------------------------------------------------------------------------------------------
+   ℹ end of coverage report
+   
+✔ golden — 0.2 с
+
+Отчёт гейта: /home/sanya/orca/project/.gate/release-2026-10-24T07-33-03-206Z.json
+⚠ e2e: пропущено 4 тестов — пропуск прохождением не считается
+Вердикт: failed

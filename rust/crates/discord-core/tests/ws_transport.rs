@@ -20,9 +20,10 @@
 
 use discord_core::codec::ZstdError;
 use discord_core::codec::etf::{self, EtfValue};
-use discord_core::gateway::{GatewayError, ReconnectReason, Session};
+use discord_core::gateway::{GatewayError, HeartbeatMode, QosPayload, ReconnectReason, Session};
 use discord_core::ws::{
-    GatewayPipe, RunOutcome, TransportError, connect_and_run, encode_heartbeat,
+    GatewayPipe, GatewayUrl, RunOutcome, TransportError, connect_and_run, encode_heartbeat,
+    encode_qos_heartbeat,
 };
 use futures_util::{SinkExt, StreamExt};
 use std::fs;
@@ -110,6 +111,31 @@ fn ack_bytes() -> Vec<u8> {
 /// op7 RECONNECT — форма провода.
 fn op7_bytes() -> Vec<u8> {
     wire(&op_value(7))
+}
+
+/// op1 HEARTBEAT от сервера — форма провода (триггер немедленного удара, G-12).
+fn op1_bytes() -> Vec<u8> {
+    wire(&op_value(1))
+}
+
+/// Сессия в боевом режиме heartbeat: op40 `{seq,qos}` (G-12).
+fn qos_session(seed: u64) -> Session {
+    Session::with_heartbeat_mode(seed, HeartbeatMode::Qos)
+}
+
+/// Разбирает кадр клиента и возвращает `op` (без проверки хвоста — кадры клиента цельные).
+fn client_op(data: &[u8]) -> Result<i64, String> {
+    let (value, consumed) = etf::decode(data).map_err(|error| format!("кадр клиента: {error}"))?;
+    if consumed != data.len() {
+        return Err(format!(
+            "кадр клиента {} Б: разобран терм на {consumed} Б (хвост)",
+            data.len()
+        ));
+    }
+    value
+        .get("op")
+        .and_then(EtfValue::as_int)
+        .ok_or_else(|| format!("кадр клиента без op: {value:?}"))
 }
 
 /// Филлер: валидный терм-строка (`0x83` + ETF `Str` 1536 Б) — держит окно ruzstd прокрученным.
@@ -454,6 +480,128 @@ fn pipe_desync_tail_is_error() {
 }
 
 #[test]
+fn gateway_url_builds_canonical_endpoint() {
+    // G-01/G-02/G-03: база GATEWAY_ENDPOINT + `encoding=etf&v=9&compress=zstd-stream`.
+    let default = GatewayUrl::default();
+    assert_eq!(
+        default.as_str(),
+        "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream",
+        "канонический URL шлюза"
+    );
+    // База без схемы нормализуется в wss (как GLOBAL_ENV.GATEWAY_ENDPOINT).
+    let bare = GatewayUrl::from_base("gateway.discord.gg").expect("база без схемы");
+    assert_eq!(bare, default, "схема по умолчанию — wss");
+}
+
+#[test]
+fn gateway_url_normalizes_resume_url() {
+    // G-16: хвостовой `/` обрезается, параметры приводит клиент (`new URL(l)` + append).
+    let with_slash = GatewayUrl::resume("wss://gateway-us-east1-d.discord.gg/")
+        .expect("resume-URL с хвостовым слэшем");
+    assert_eq!(
+        with_slash.as_str(),
+        "wss://gateway-us-east1-d.discord.gg/?encoding=etf&v=9&compress=zstd-stream",
+        "хвостовой слэш не удваивается"
+    );
+
+    // Параметры из READY не доверяем: канонический набор один, без дублей.
+    let with_query = GatewayUrl::resume(
+        "wss://gateway-us-east1-d.discord.gg?encoding=json&v=6&compress=zlib-stream&x=1",
+    )
+    .expect("resume-URL с query");
+    assert_eq!(
+        with_query.as_str(),
+        "wss://gateway-us-east1-d.discord.gg/?encoding=etf&v=9&compress=zstd-stream",
+        "query заменяется каноническим"
+    );
+
+    // `https://` в READY — схема WS-транспорта: wss.
+    let https = GatewayUrl::resume("https://gateway.discord.gg/").expect("https → wss");
+    assert_eq!(
+        https.as_str(),
+        "wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream",
+        "https маппится в wss"
+    );
+
+    // Локальный стаб: ws сохраняется (тесты без TLS), порт/путь не теряются.
+    let local = GatewayUrl::from_base("ws://127.0.0.1:8080/").expect("ws стаба");
+    assert_eq!(
+        local.as_str(),
+        "ws://127.0.0.1:8080/?encoding=etf&v=9&compress=zstd-stream",
+        "ws и порт сохранены"
+    );
+}
+
+#[test]
+fn gateway_url_rejects_bad_input() {
+    // Ошибки — значения, не паники: пустой URL, чужая схема, пустой хост, пробелы, фрагмент.
+    for raw in [
+        "",
+        "   ",
+        "ftp://gateway.discord.gg",
+        "wss://",
+        "wss:///",
+        "wss://a b",
+    ] {
+        assert!(
+            GatewayUrl::from_base(raw).is_err(),
+            "URL {raw:?} обязан быть отвергнут"
+        );
+    }
+    assert!(
+        GatewayUrl::resume("wss://gateway.discord.gg/#frag").is_err(),
+        "фрагмент — не часть адреса шлюза"
+    );
+}
+
+#[test]
+fn qos_heartbeat_encode_shape() {
+    // G-12: op40, d = {seq, qos}; qos = null до первого active-состояния.
+    let bytes = encode_qos_heartbeat(0, None);
+    assert_eq!(bytes[0], 0x83, "ведущий маркер провода");
+    let (value, consumed) = etf::decode(&bytes).expect("op40 разбирается кодеком");
+    assert_eq!(consumed, bytes.len(), "терм занимает весь буфер");
+    assert_eq!(
+        value.get("op").and_then(EtfValue::as_int),
+        Some(40),
+        "op = QOS_HEARTBEAT"
+    );
+    let d = value.get("d").expect("payload под d");
+    assert_eq!(
+        d.get("seq").and_then(EtfValue::as_int),
+        Some(0),
+        "seq = 0 до первого диспатча (как this.seq у клиента)"
+    );
+    assert_eq!(d.get("qos"), Some(&EtfValue::Nil), "qos = null");
+
+    // Активное состояние: {active: true, reasons: [...]}.
+    let qos = QosPayload {
+        active: true,
+        reasons: vec!["COLD_START".to_string(), "USER".to_string()],
+    };
+    let bytes = encode_qos_heartbeat(7, Some(&qos));
+    let (value, _) = etf::decode(&bytes).expect("op40 с qos");
+    let d = value.get("d").expect("payload под d");
+    assert_eq!(d.get("seq").and_then(EtfValue::as_int), Some(7), "seq = 7");
+    let payload = d.get("qos").expect("qos");
+    assert_eq!(
+        payload.get("active").and_then(EtfValue::as_atom),
+        Some("true"),
+        "active — ETF-атом true"
+    );
+    let reasons = payload
+        .get("reasons")
+        .and_then(EtfValue::as_list)
+        .expect("reasons — список");
+    assert_eq!(reasons.len(), 2, "обе причины сохранены");
+    assert!(
+        bytes.len() <= 128,
+        "кадр op40 ≤ 128 Б, получено {}",
+        bytes.len()
+    );
+}
+
+#[test]
 fn heartbeat_encode_roundtrip() {
     // Кадр удара — `{op: 1, d}` с ведущим `0x83`, компактный, разбирается кодеком.
     let with_seq = encode_heartbeat(Some(7));
@@ -501,7 +649,7 @@ fn heartbeat_encode_roundtrip() {
 #[tokio::test]
 async fn ws_hello_and_heartbeats_acked() {
     // Стаб: HELLO (интервал 60 мс) → отвечает ACK на удары; после трёх ударов закрывает
-    // соединение. Клиент: ≥2 удара, RTT измерен по ACK, исход — Closed.
+    // соединение. Клиент: ≥2 удара op40, RTT измерен по ACK, исход — Closed.
     let (url, stub) = spawn_stub(|mut ws| async move {
         let mut stream = StubStream::new();
         send_binary(&mut ws, stream.write_frame(&hello_bytes(STUB_INTERVAL_MS))).await?;
@@ -509,10 +657,8 @@ async fn ws_hello_and_heartbeats_acked() {
         while let Some(message) = ws.next().await {
             match message.map_err(io_err)? {
                 Message::Binary(data) => {
-                    let (value, _) =
-                        etf::decode(&data).map_err(|error| format!("heartbeat: {error}"))?;
-                    if value.get("op").and_then(EtfValue::as_int) != Some(1) {
-                        return Err(format!("от клиента ждали op1, пришло {value:?}"));
+                    if client_op(&data)? != 40 {
+                        return Err(format!("от клиента ждали op40, пришло {:?}", data));
                     }
                     beats += 1;
                     send_binary(&mut ws, stream.write_frame(&ack_bytes())).await?;
@@ -528,7 +674,7 @@ async fn ws_hello_and_heartbeats_acked() {
         Ok(beats)
     })
     .await;
-    let mut pipe = GatewayPipe::new(Session::new(0));
+    let mut pipe = GatewayPipe::new(qos_session(0));
     let outcome = timeout(CASE_TIMEOUT, connect_and_run(&url, &mut pipe))
         .await
         .expect("цикл транспорта не уложился в 5 с");
@@ -660,7 +806,7 @@ async fn ws_zombie_without_ack() {
         Ok(beats)
     })
     .await;
-    let mut pipe = GatewayPipe::new(Session::new(0));
+    let mut pipe = GatewayPipe::new(qos_session(0));
     let started = Instant::now();
     let outcome = timeout(CASE_TIMEOUT, connect_and_run(&url, &mut pipe))
         .await
@@ -680,6 +826,85 @@ async fn ws_zombie_without_ack() {
     );
     assert!(pipe.session().is_dead(), "сессия мертва");
     assert_eq!(beats, 1, "второго удара сервер не получил");
+}
+
+#[tokio::test]
+async fn ws_legacy_heartbeat_op1_fallback() {
+    // Fallback (feature/флаг): legacy-сессия шлёт op1 — старый контракт RW-03/04 сохранён.
+    let (url, stub) = spawn_stub(|mut ws| async move {
+        let mut stream = StubStream::new();
+        send_binary(&mut ws, stream.write_frame(&hello_bytes(STUB_INTERVAL_MS))).await?;
+        while let Some(message) = ws.next().await {
+            match message.map_err(io_err)? {
+                Message::Binary(data) => {
+                    if client_op(&data)? != 1 {
+                        return Err(format!("legacy: ждали op1, пришло {:?}", data));
+                    }
+                    ws.close(None).await.map_err(io_err)?;
+                    return Ok(());
+                }
+                Message::Close(_) => break,
+                _ => {}
+            }
+        }
+        Err("legacy: клиент не прислал op1".to_string())
+    })
+    .await;
+    let mut pipe = GatewayPipe::new(Session::new(0));
+    let outcome = timeout(CASE_TIMEOUT, connect_and_run(&url, &mut pipe))
+        .await
+        .expect("legacy-heartbeat не уложился в 5 с");
+    stub_result(stub).await;
+    assert_eq!(outcome, Ok(RunOutcome::Closed { code: None }));
+    assert_eq!(pipe.session().beats_emitted(), 1, "один op1-удар");
+}
+
+#[tokio::test]
+async fn ws_server_op1_triggers_immediate_qos_heartbeat() {
+    // G-12: op1 от сервера — триггер немедленного op40, не дожидаясь интервала.
+    // Первый плановый удар отодвинут сидом (59 000 < 60 000), поэтому кадр не спутать.
+    const LONG_INTERVAL_MS: i64 = 60_000;
+    let (url, stub) = spawn_stub(|mut ws| async move {
+        let mut stream = StubStream::new();
+        send_binary(&mut ws, stream.write_frame(&hello_bytes(LONG_INTERVAL_MS))).await?;
+        // Даём клиенту время получить HELLO и убедиться, что планового удара нет.
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        send_binary(&mut ws, stream.write_frame(&op1_bytes())).await?;
+        let deadline = tokio::time::Instant::now() + Duration::from_millis(700);
+        loop {
+            match tokio::time::timeout_at(deadline, ws.next()).await {
+                Ok(Some(Ok(Message::Binary(data)))) => {
+                    if client_op(&data)? == 40 {
+                        ws.close(None).await.map_err(io_err)?;
+                        return Ok(());
+                    }
+                }
+                Ok(Some(Ok(_))) => {}
+                Ok(Some(Err(error))) => return Err(io_err(error)),
+                Ok(None) => return Err("соединение закрыто без op40".to_string()),
+                Err(_) => return Err("op40 после op1 не пришёл за 700 мс".to_string()),
+            }
+        }
+    })
+    .await;
+    let mut pipe = GatewayPipe::new(qos_session(59_000));
+    let outcome = timeout(CASE_TIMEOUT, connect_and_run(&url, &mut pipe))
+        .await
+        .expect("op1-триггер не уложился в 5 с");
+    stub_result(stub).await;
+    assert_eq!(outcome, Ok(RunOutcome::Closed { code: None }));
+    assert_eq!(
+        pipe.session().beats_emitted(),
+        1,
+        "ровно один немедленный удар"
+    );
+    assert_eq!(
+        pipe.session()
+            .hello()
+            .map(|hello| hello.heartbeat_interval_ms),
+        Some(LONG_INTERVAL_MS as u64),
+        "интервал из HELLO"
+    );
 }
 
 #[tokio::test]
@@ -725,22 +950,24 @@ async fn ws_dispatch_updates_heartbeat_seq() {
         for seq in 1..=3i64 {
             send_binary(&mut ws, stream.write_frame(&dispatch_bytes(seq))).await?;
         }
-        let mut seen: Vec<Option<u64>> = Vec::new();
+        let mut seen: Vec<u64> = Vec::new();
         'beats: while let Some(message) = ws.next().await {
             match message.map_err(io_err)? {
                 Message::Binary(data) => {
                     let (value, _) =
                         etf::decode(&data).map_err(|error| format!("heartbeat: {error}"))?;
-                    if value.get("op").and_then(EtfValue::as_int) != Some(1) {
-                        return Err(format!("от клиента ждали op1, пришло {value:?}"));
+                    if value.get("op").and_then(EtfValue::as_int) != Some(40) {
+                        return Err(format!("от клиента ждали op40, пришло {value:?}"));
                     }
                     let d = value
                         .get("d")
+                        .and_then(|d| d.get("seq"))
                         .and_then(EtfValue::as_int)
-                        .and_then(|raw| u64::try_from(raw).ok());
+                        .and_then(|raw| u64::try_from(raw).ok())
+                        .ok_or_else(|| format!("op40 без d.seq: {value:?}"))?;
                     seen.push(d);
                     send_binary(&mut ws, stream.write_frame(&ack_bytes())).await?;
-                    if d == Some(3) {
+                    if d == 3 {
                         break 'beats;
                     }
                 }
@@ -752,14 +979,14 @@ async fn ws_dispatch_updates_heartbeat_seq() {
         Ok(seen)
     })
     .await;
-    let mut pipe = GatewayPipe::new(Session::new(0));
+    let mut pipe = GatewayPipe::new(qos_session(0));
     let outcome = timeout(CASE_TIMEOUT, connect_and_run(&url, &mut pipe))
         .await
         .expect("цикл транспорта не уложился в 5 с");
     let seen = stub_result(stub).await;
     assert!(
-        seen.contains(&Some(3)),
-        "стаб не увидел heartbeat с d = 3: {seen:?}"
+        seen.contains(&3),
+        "стаб не увидел op40 с d.seq = 3: {seen:?}"
     );
     assert_eq!(pipe.session().last_seq(), Some(3), "диспатчи s=1..3");
     assert_eq!(

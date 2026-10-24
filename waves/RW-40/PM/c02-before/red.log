@@ -1,0 +1,206 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::data::MessagesPageRequest`, `discord_gui_spike::data::MessagesPosition`
+  --> tests/history_before_contract.rs:27:36
+   |
+27 |     self, DataError, MessagesPage, MessagesPageRequest, MessagesPosition, MAX_PAGE_LIMIT,
+   |                                    ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^ no `MessagesPosition` in `data`
+   |                                    |
+   |                                    no `MessagesPageRequest` in `data`
+   |
+help: a similar name exists in the module
+   |
+27 -     self, DataError, MessagesPage, MessagesPageRequest, MessagesPosition, MAX_PAGE_LIMIT,
+27 +     self, DataError, MessagesPage, MessagesPageRequest, MessageReaction, MAX_PAGE_LIMIT,
+   |
+
+error[E0425]: cannot find function `messages_page_request` in module `data`
+   --> tests/history_before_contract.rs:148:11
+    |
+148 |     data::messages_page_request(root, CHANNEL, req).expect("страница канала")
+    |           ^^^^^^^^^^^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `messages_page_request` in module `data`
+   --> tests/history_before_contract.rs:359:21
+    |
+359 |     let err = data::messages_page_request(
+    |                     ^^^^^^^^^^^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `messages_page_request` in module `data`
+   --> tests/history_before_contract.rs:377:25
+    |
+377 |         let err = data::messages_page_request(&root, CHANNEL, req)
+    |                         ^^^^^^^^^^^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `messages_page_request` in module `data`
+   --> tests/history_before_contract.rs:400:21
+    |
+400 |     let err = data::messages_page_request(
+    |                     ^^^^^^^^^^^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `messages_page_request` in module `data`
+   --> tests/history_before_contract.rs:410:21
+    |
+410 |     let err = data::messages_page_request(
+    |                     ^^^^^^^^^^^^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `messages_page_request` in module `data`
+   --> tests/history_before_contract.rs:432:25
+    |
+432 |         let err = data::messages_page_request(
+    |                         ^^^^^^^^^^^^^^^^^^^^^ not found in `data`
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:178:19
+    |
+178 |     assert!(older.has_older, "до страницы есть ещё строки");
+    |                   ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:180:15
+    |
+180 |         older.older_cursor.as_deref(),
+    |               ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:217:26
+    |
+217 |         before = current.has_older.then(|| current.older_cursor.clone()).flatten();
+    |                          ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:217:52
+    |
+217 |         before = current.has_older.then(|| current.older_cursor.clone()).flatten();
+    |                                                    ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:219:30
+    |
+219 |             assert!(!current.has_older);
+    |                              ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:220:32
+    |
+220 |             assert_eq!(current.older_cursor, None);
+    |                                ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:234:20
+    |
+234 |     assert!(!start.has_older, "старше первой строки данных нет");
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:235:22
+    |
+235 |     assert_eq!(start.older_cursor, None, "нечего листать дальше");
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:284:20
+    |
+284 |     assert!(latest.has_older, "до хвоста есть строки");
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:285:23
+    |
+285 |     assert_eq!(latest.older_cursor.as_deref(), Some(ids[5].as_str()));
+    |                       ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:292:20
+    |
+292 |     assert!(middle.has_older);
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:299:20
+    |
+299 |     assert!(!start.has_older);
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:300:22
+    |
+300 |     assert_eq!(start.older_cursor, None);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:313:21
+    |
+313 |     assert!(!latest.has_older, "больше нечего листать вверх");
+    |                     ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:314:23
+    |
+314 |     assert_eq!(latest.older_cursor, None);
+    |                       ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:332:20
+    |
+332 |     assert!(!first.has_older, "перед началом истории строк нет");
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:333:22
+    |
+333 |     assert_eq!(first.older_cursor, None);
+    |                      ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `has_older` on type `MessagesPage`
+   --> tests/history_before_contract.rs:342:20
+    |
+342 |     assert!(second.has_older);
+    |                    ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+error[E0609]: no field `older_cursor` on type `MessagesPage`
+   --> tests/history_before_contract.rs:343:23
+    |
+343 |     assert_eq!(second.older_cursor.as_deref(), Some(ids[3].as_str()));
+    |                       ^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `channel_id`, `items`, `next_cursor`, `has_more`, `total` ... and 2 others
+
+Some errors have detailed explanations: E0425, E0432, E0609.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "history_before_contract") due to 26 previous errors

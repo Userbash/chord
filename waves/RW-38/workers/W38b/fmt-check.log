@@ -1,0 +1,23 @@
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/ipc_contract.rs:133:
+         ),
+     ] {
+         let error = validate_ui_snapshot(payload).expect_err(field);
+[31m-        assert!(error.contains(field), "{field}: неожиданная ошибка: {error}");
+(B[m[32m+        assert!(
+(B[m[32m+            error.contains(field),
+(B[m[32m+            "{field}: неожиданная ошибка: {error}"
+(B[m[32m+        );
+(B[m     }
+ }
+ 
+Diff in /home/sanya/orca/project/rust/gui-spike/tests/launch.rs:124:
+     let line = stdout
+         .lines()
+         .find(|line| line.starts_with("UI_SNAPSHOT "))
+[31m-        .unwrap_or_else(|| {
+(B[m[31m-            panic!("UI_SNAPSHOT отсутствует\nstdout:\n{stdout}\nstderr:\n{stderr}")
+(B[m[31m-        });
+(B[m[32m+        .unwrap_or_else(|| panic!("UI_SNAPSHOT отсутствует\nstdout:\n{stdout}\nstderr:\n{stderr}"));
+(B[m     let snapshot: serde_json::Value =
+         serde_json::from_str(line.trim_start_matches("UI_SNAPSHOT ")).expect("UI_SNAPSHOT — JSON");
+     for (field, expected) in SNAPSHOT_EXPECTATIONS {

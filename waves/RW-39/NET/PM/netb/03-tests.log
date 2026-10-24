@@ -1,0 +1,31 @@
+# NET-B test map 2026-10-23T22:56:33+05:00
+
+rest_client              16
+rest_headers             5
+rest_identity            8
+rest_rate_limit          10
+rest_retry               11
+rest_routes              8
+rest_super_properties    8
+rest_transport           14
+rest_http1               16
+rest_telemetry           4
+rest_ack                 9
+ws_transport             13
+gateway_session          15
+identify_ready           16
+resume_reconnect         13
+dispatch_router          12
+ready_core               14
+ready_social             13
+ready_read_state         11
+settings_proto           18
+
+# platform/store
+keyring_contract         12
+store_contract           14
+
+# inline cfg(test) in core src
+rust/crates/discord-core/src/state/presence.rs:1
+rust/crates/discord-core/src/lib.rs:1
+rust/crates/discord-core/src/gateway.rs:1

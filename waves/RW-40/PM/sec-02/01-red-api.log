@@ -1,0 +1,79 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `ReactionError` in the current scope
+   --> tests/reactions_contract.rs:105:24
+    |
+105 |         ReactionError::Storage,
+    |                        ^^^^^^^ variant, associated function, or constant not found in `ReactionError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `MessageError` in the current scope
+   --> tests/messages_contract.rs:232:23
+    |
+232 |         MessageError::Storage,
+    |                       ^^^^^^^ variant, associated function, or constant not found in `MessageError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `SearchError` in the current scope
+   --> tests/search_contract.rs:203:22
+    |
+203 |         SearchError::Storage,
+    |                      ^^^^^^^ variant, associated function, or constant not found in `SearchError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `MessageError` in the current scope
+   --> tests/messages_contract.rs:238:52
+    |
+238 |     let value = serde_json::to_value(MessageError::Storage).expect("storage");
+    |                                                    ^^^^^^^ variant, associated function, or constant not found in `MessageError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `EnterGuildError` in the current scope
+   --> tests/guilds_contract.rs:261:27
+    |
+261 |         (EnterGuildError::Storage, "storage"),
+    |                           ^^^^^^^ variant, associated function, or constant not found in `EnterGuildError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `ReactionError` in the current scope
+   --> tests/reactions_contract.rs:112:53
+    |
+112 |     let value = serde_json::to_value(ReactionError::Storage).expect("storage");
+    |                                                     ^^^^^^^ variant, associated function, or constant not found in `ReactionError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `MessageError` in the current scope
+   --> tests/messages_contract.rs:240:28
+    |
+240 |     assert!(!MessageError::Storage.to_string().is_empty());
+    |                            ^^^^^^^ variant, associated function, or constant not found in `MessageError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `ReactionError` in the current scope
+   --> tests/reactions_contract.rs:114:29
+    |
+114 |     assert!(!ReactionError::Storage.to_string().is_empty());
+    |                             ^^^^^^^ variant, associated function, or constant not found in `ReactionError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `SearchError` in the current scope
+   --> tests/search_contract.rs:218:51
+    |
+218 |     let value = serde_json::to_value(SearchError::Storage).expect("storage");
+    |                                                   ^^^^^^^ variant, associated function, or constant not found in `SearchError`
+
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `SearchError` in the current scope
+   --> tests/search_contract.rs:220:52
+    |
+220 |     let rendered = format!("{}/{:?}", SearchError::Storage, SearchError::Storage);
+    |                                                    ^^^^^^^ variant, associated function, or constant not found in `SearchError`
+
+For more information about this error, try `rustc --explain E0599`.
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `SearchError` in the current scope
+   --> tests/search_contract.rs:220:74
+    |
+220 |     let rendered = format!("{}/{:?}", SearchError::Storage, SearchError::Storage);
+    |                                                                          ^^^^^^^ variant, associated function, or constant not found in `SearchError`
+
+error: could not compile `discord-gui-spike` (test "messages_contract") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `discord-gui-spike` (test "reactions_contract") due to 3 previous errors
+error[E0599]: no variant, associated function, or constant named `Storage` found for enum `LeaveGuildError` in the current scope
+   --> tests/guilds_contract.rs:600:27
+    |
+600 |         (LeaveGuildError::Storage, "storage"),
+    |                           ^^^^^^^ variant, associated function, or constant not found in `LeaveGuildError`
+
+error: could not compile `discord-gui-spike` (test "search_contract") due to 4 previous errors
+error: could not compile `discord-gui-spike` (test "guilds_contract") due to 2 previous errors

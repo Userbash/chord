@@ -1,11 +1,20 @@
 //! Каталог REST-маршрутов v9 (T-REST-01, волна RW-08 / P1-07).
 //!
 //! Публичные типы и сигнатуры — замороженный контракт (`waves/RW-08/TZ.md` §4.1). Модуль
-//! хранит 47 маршрутов живого захвата D-02, ищет их по точной паре «метод, шаблон» и
+//! хранит 47 маршрутов живого захвата D-02 и POST отправки сообщения, ищет их по точной паре
+//! «метод, шаблон» и
 //! подставляет части в плейсхолдеры `{id}`/`{num}`.
 //!
 //! Оракул: `docs/re/rest-d02.json` (md5 `87d7a05d8cd11f3b8ae37aa5c9811c9e`) — 47 живых
 //! маршрутов; выдержка для тестов — `tests/data/rest-routes-47.tsv` (47 строк).
+//!
+//! D-108: маршруты, подтверждённые не захватом D-02, а отдельным `[S]`-оракулом, не
+//! размывают frozen [`ROUTES`]: они регистрируются явными расширениями, которые резолвит
+//! [`find`]:
+//! - [`TYPING_PATH`] — `POST /channels/{id}/typing` (`NETWORK-CONTRACTS.md` §1.6 /
+//!   `G6-REPORT-RW40-02.md` §3.6);
+//! - [`INVITE_PATH`] — `GET`/`POST /invites/{code}` (`NETWORK-CONTRACTS.md` §1.2/§1.4 /
+//!   `G6-REPORT-RW40-02.md` §3.3). В D-02 invite-ручек нет вообще.
 
 /// HTTP-метод запроса (набор RFC 9110; в захвате D-02 наблюдались GET/POST/PUT/PATCH).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -55,11 +64,16 @@ const fn route(
     }
 }
 
-/// 47 маршрутов из захвата D-02 (`docs/re/rest-d02.json`).
+/// Маршруты захвата D-02 плюс POST отправки сообщения.
 ///
 /// Порядок совпадает с порядком выдержки `tests/data/rest-routes-47.tsv` (порядок захвата);
 /// пути относительные (без `/api/v9`); `body_keys` — дословно из оракула, пусто = тела нет.
-pub const ROUTES: [RouteSpec; 47] = [
+pub const ROUTES: [RouteSpec; 49] = [
+    route(
+        HttpMethod::Post,
+        "/channels/{id}/messages",
+        &["content", "nonce", "tts"],
+    ),
     route(HttpMethod::Get, "/channels/{id}/messages", &[]),
     route(HttpMethod::Get, "/applications/public", &[]),
     route(HttpMethod::Get, "/games/autocomplete", &[]),
@@ -111,6 +125,7 @@ pub const ROUTES: [RouteSpec; 47] = [
         "/guilds/{id}/application-command-index",
         &[],
     ),
+    route(HttpMethod::Get, "/guilds/{id}/messages/search", &[]),
     route(
         HttpMethod::Put,
         "/guilds/{id}/members/@me",
@@ -148,11 +163,54 @@ pub const ROUTES: [RouteSpec; 47] = [
 /// Поиск маршрута по методу и точному шаблону пути (`find(Get, "/channels/{id}/messages")`).
 ///
 /// Совпадение точное: путь с базой `/api/v9`, префикс или другой метод не подходят.
+/// Кроме frozen [`ROUTES`], резолвит `[S]`-расширения, подтверждённые не захватом D-02
+/// (сейчас — [`TYPING_PATH`] и [`INVITE_PATH`]).
 pub fn find(method: HttpMethod, path: &str) -> Option<&'static RouteSpec> {
     ROUTES
         .iter()
         .find(|spec| spec.method == method && spec.path == path)
+        .or_else(|| {
+            EXTENSIONS
+                .iter()
+                .find(|spec| spec.method == method && spec.path == path)
+        })
 }
+
+/// `POST /channels/{id}/typing` — `[S]`-расширение каталога (D-108).
+///
+/// Контракт: `NETWORK-CONTRACTS.md` §1.6 и `G6-REPORT-RW40-02.md` §3.6 — тело запроса
+/// отсутствует (`body_keys` пусто), успех `200`, ответ
+/// `{message_send_cooldown_ms?, thread_create_cooldown_ms?}`. В захвате D-02 маршрута нет,
+/// поэтому он не входит в [`ROUTES`] и не размывает оракул 47 live-строк.
+pub const TYPING_PATH: &str = "/channels/{id}/typing";
+
+/// `GET`/`POST /invites/{code}` — `[S]`-расширение каталога (G-03, D-108).
+///
+/// Контракт: `NETWORK-CONTRACTS.md` §1.2/§1.4 и `G6-REPORT-RW40-02.md` §3.3. У `GET`
+/// (resolve) тела нет, ответ — invite-объект; `POST` (accept) принимает ровно три
+/// nullable-поля [`INVITE_ACCEPT_BODY_KEYS`], ответ — тот же invite-объект. В захвате
+/// D-02 invite-ручек нет вообще (47 путей, 0 invite), поэтому маршруты не входят в
+/// [`ROUTES`] и оракул live-строк не размывается.
+pub const INVITE_PATH: &str = "/invites/{code}";
+
+/// Ключи тела `POST /invites/{code}` — дословно из call-site (§1.2).
+///
+/// Все три nullable: `session_id` = `getSessionId()` (`null` в бандле),
+/// `invite_instance_id` может отсутствовать для вставленного кода,
+/// `received_installation_id` клиент чистит после успеха. `context` — analytics-объект
+/// запроса, **не** поле тела.
+pub const INVITE_ACCEPT_BODY_KEYS: [&str; 3] = [
+    "session_id",
+    "invite_instance_id",
+    "received_installation_id",
+];
+
+/// Статический список `[S]`-расширений: `find` возвращает `&'static RouteSpec`.
+static EXTENSIONS: [RouteSpec; 3] = [
+    route(HttpMethod::Post, TYPING_PATH, &[]),
+    route(HttpMethod::Get, INVITE_PATH, &[]),
+    route(HttpMethod::Post, INVITE_PATH, &INVITE_ACCEPT_BODY_KEYS),
+];
 
 /// Ошибки рендера пути.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -202,10 +260,11 @@ pub fn render_path(spec: &RouteSpec, parts: &[&str]) -> Result<String, PathRende
     Ok(rendered)
 }
 
-/// Плейсхолдеры шаблонов пути (набор зафиксирован оракулом D-02).
-const PLACEHOLDERS: [&str; 2] = ["{id}", "{num}"];
+/// Плейсхолдеры шаблонов пути: `{id}`/`{num}` зафиксированы оракулом D-02,
+/// `{code}` — `[S]`-расширение invite (G-03); других нет.
+const PLACEHOLDERS: [&str; 3] = ["{id}", "{num}", "{code}"];
 
-/// Число плейсхолдеров `{id}`/`{num}` в шаблоне.
+/// Число плейсхолдеров `{id}`/`{num}`/`{code}` в шаблоне.
 fn placeholder_count(template: &str) -> usize {
     PLACEHOLDERS
         .iter()

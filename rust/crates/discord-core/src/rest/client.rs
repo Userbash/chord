@@ -11,6 +11,7 @@ use super::headers::AuthHeaderValues;
 use super::http1::Http1Error;
 use super::rate_limit::{classify_failure, retry_delay, should_retry};
 use super::routes::HttpMethod;
+use super::super_properties::SuperProperties;
 use super::telemetry::{TelemetryError, guard_target};
 use super::transport::{
     Endpoint, HttpClientConfig, HttpError, HttpRequest, HttpResponse, send_with,
@@ -48,7 +49,124 @@ impl fmt::Debug for ApiAuth {
     }
 }
 
+/// Значение `X-Debug-Options` из живого захвата D-02 (присутствовал в 221/221 запроса).
+pub const DEBUG_OPTIONS_LIVE: &str = "bugReporterEnabled";
+
+/// Схема значения `Authorization`: префикс перед токеном.
+///
+/// В захвате D-02 значения санитизированы (`Authorization: REDACTED`, U-06), поэтому схема
+/// user-токена — параметр, а не догадка. По умолчанию — сырой токен: так его описывает
+/// статическая карта клиента (`rest-static` §4); подтверждение/смена — за NET-A.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AuthScheme {
+    /// Сырой токен без префикса (user-token) — текущий дефолт до подтверждения NET-A.
+    #[default]
+    User,
+    /// `Bot <token>` — bot-token.
+    Bot,
+    /// `Bearer <token>` — OAuth2-токен.
+    Bearer,
+}
+
+impl AuthScheme {
+    /// Префикс значения `Authorization` (пустой — сырой токен).
+    const fn prefix(self) -> &'static str {
+        match self {
+            Self::User => "",
+            Self::Bot => "Bot ",
+            Self::Bearer => "Bearer ",
+        }
+    }
+}
+
+/// Ошибка сборки auth-заголовков из токена: пустые входные значения не уходят в сеть.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ApiAuthError {
+    /// Токен пуст или состоит из пробелов.
+    EmptyToken,
+    /// Локаль пуста (заголовок `X-Discord-Locale` обязателен).
+    EmptyLocale,
+    /// Таймзона пуста (заголовок `X-Discord-Timezone` обязателен).
+    EmptyTimezone,
+}
+
+impl fmt::Display for ApiAuthError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::EmptyToken => write!(formatter, "пустой токен"),
+            Self::EmptyLocale => write!(formatter, "пустая локаль"),
+            Self::EmptyTimezone => write!(formatter, "пустая таймзона"),
+        }
+    }
+}
+
+impl std::error::Error for ApiAuthError {}
+
 impl ApiAuth {
+    /// Собрать все 6 auth-заголовков из user-токена и [`SuperProperties`].
+    ///
+    /// `Authorization` — сырой токен ([`AuthScheme::User`]); `X-Super-Properties` —
+    /// канонический base64; `X-Discord-Locale`/`X-Discord-Timezone` — переданные значения;
+    /// `X-Debug-Options` — [`DEBUG_OPTIONS_LIVE`]; `Accept-Language` — локаль.
+    ///
+    /// TODO(NET-A): живой `Accept-Language` — q-список `navigator.languages`
+    /// (`ru,ru-RU;q=0.9,ru-RU;q=0.8`); региональный профиль в захвате не подтверждён,
+    /// поэтому до RE передаётся локаль как есть. Схема `Authorization` — [`AuthScheme`].
+    ///
+    /// # Errors
+    ///
+    /// [`ApiAuthError`] для пустого токена/локали/таймзоны: запрос без валидной «шапки»
+    /// (дефолт [`ApiAuth::default`] — шесть пустых строк) в сеть не уходит.
+    pub fn from_token(
+        token: &str,
+        super_properties: &SuperProperties,
+        locale: &str,
+        timezone: &str,
+    ) -> Result<Self, ApiAuthError> {
+        Self::from_token_with_scheme(
+            token,
+            AuthScheme::default(),
+            super_properties,
+            locale,
+            timezone,
+        )
+    }
+
+    /// То же, что [`ApiAuth::from_token`], но схема `Authorization` задана явно
+    /// (`Bot <token>`/`Bearer <token>`/сырой токен).
+    ///
+    /// # Errors
+    ///
+    /// [`ApiAuthError`] для пустого токена/локали/таймзоны.
+    pub fn from_token_with_scheme(
+        token: &str,
+        scheme: AuthScheme,
+        super_properties: &SuperProperties,
+        locale: &str,
+        timezone: &str,
+    ) -> Result<Self, ApiAuthError> {
+        let token = token.trim();
+        let locale = locale.trim();
+        let timezone = timezone.trim();
+        if token.is_empty() {
+            return Err(ApiAuthError::EmptyToken);
+        }
+        if locale.is_empty() {
+            return Err(ApiAuthError::EmptyLocale);
+        }
+        if timezone.is_empty() {
+            return Err(ApiAuthError::EmptyTimezone);
+        }
+        Ok(Self {
+            authorization: format!("{}{token}", scheme.prefix()),
+            super_properties: super_properties.to_base64(),
+            locale: locale.to_string(),
+            timezone: timezone.to_string(),
+            debug_options: DEBUG_OPTIONS_LIVE.to_string(),
+            accept_language: locale.to_string(),
+        })
+    }
+
     /// Скопировать значения из заимствованного набора [`AuthHeaderValues`].
     #[must_use]
     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
@@ -114,6 +232,9 @@ pub struct ApiConfig {
 }
 
 impl Default for ApiConfig {
+    /// База v9 и **пустая** auth-«шапка» ([`ApiAuth::default`]): годится для локальных стабов,
+    /// но не для реальных запросов — там `auth` обязан прийти из [`ApiAuth::from_token`]
+    /// (аудит NET-B P0-1: дефолт уходил в сеть с `Authorization: `).
     fn default() -> Self {
         Self {
             base: API_V9_BASE.to_string(),
@@ -240,22 +361,7 @@ impl ApiClient {
 
     /// Выполнить запрос с auth-заголовками, защитой телеметрии и повторами.
     pub async fn execute(&self, request: &HttpRequest) -> Result<HttpResponse, ApiError> {
-        // Политика телеметрии смотрит на сырой target: fragment/query отбрасываются внутри
-        // guard_target, поэтому `/track#f` блокируется до проверки target транспортом.
-        guard_target(&request.target)?;
-        self.endpoint.target(&request.target)?;
-
-        let mut prepared = request.clone();
-        for (name, value) in self.auth.pairs() {
-            if !has_header(&prepared.headers, name) {
-                prepared.headers.push((name.to_string(), value.to_string()));
-            }
-        }
-        if !prepared.body.is_empty() && !has_header(&prepared.headers, "content-type") {
-            prepared
-                .headers
-                .push(("Content-Type".to_string(), "application/json".to_string()));
-        }
+        let prepared = self.prepare(request)?;
 
         let max_attempts = self.retry.max_attempts.max(1);
         let idempotent = matches!(
@@ -329,6 +435,87 @@ impl ApiClient {
     pub async fn get(&self, target: &str) -> Result<HttpResponse, ApiError> {
         self.execute(&HttpRequest::new(HttpMethod::Get, target))
             .await
+    }
+
+    /// POST-запрос с JSON-телом: те же auth-заголовки, телеметрия и политика повторов,
+    /// что у [`ApiClient::execute`].
+    ///
+    /// Тело передаётся как есть (вызывающий уже сериализовал JSON); `Content-Type:
+    /// application/json` ставится в [`ApiClient::prepare`], если тело непустое.
+    pub async fn post(&self, target: &str, body: &[u8]) -> Result<HttpResponse, ApiError> {
+        self.execute(&HttpRequest::new(HttpMethod::Post, target).body(body.to_vec()))
+            .await
+    }
+
+    /// PATCH-запрос с JSON-телом: auth, телеметрия и политика повторов общие с [`execute`].
+    pub async fn patch(&self, target: &str, body: &[u8]) -> Result<HttpResponse, ApiError> {
+        self.execute(&HttpRequest::new(HttpMethod::Patch, target).body(body.to_vec()))
+            .await
+    }
+
+    /// PUT-запрос с JSON-телом: auth, телеметрия и политика повторов общие с [`execute`].
+    pub async fn put(&self, target: &str, body: &[u8]) -> Result<HttpResponse, ApiError> {
+        self.execute(&HttpRequest::new(HttpMethod::Put, target).body(body.to_vec()))
+            .await
+    }
+
+    /// DELETE-запрос без тела: auth, телеметрия и политика повторов общие с [`execute`].
+    pub async fn delete(&self, target: &str) -> Result<HttpResponse, ApiError> {
+        self.execute(&HttpRequest::new(HttpMethod::Delete, target))
+            .await
+    }
+
+    /// Одноразовый POST: отдаёт **любой** HTTP-ответ (включая 4xx/5xx) с телом, без
+    /// классификации статуса и без повторов.
+    ///
+    /// Нужен для `/auth/*`, где 4xx — часть контракта (`400 + captcha_key`, коды MFA), а
+    /// ADR-3 запрещает автоматические повторы логина. Транспортная ошибка/таймаут —
+    /// ошибка; статус ответа — данные для вызывающего. Заголовки `headers` кладутся после
+    /// auth-шапки, поэтому явный пустой `authorization` (A-03) перекрывает токен клиента.
+    pub async fn post_once(
+        &self,
+        target: &str,
+        body: &[u8],
+        headers: &[(&str, &str)],
+    ) -> Result<HttpResponse, ApiError> {
+        let mut request = HttpRequest::new(HttpMethod::Post, target).body(body.to_vec());
+        for (name, value) in headers {
+            request
+                .headers
+                .push(((*name).to_string(), (*value).to_string()));
+        }
+        let prepared = self.prepare(&request)?;
+        match tokio::time::timeout(
+            self.retry.attempt_timeout,
+            send_with(&self.http, &self.base, &prepared),
+        )
+        .await
+        {
+            Err(_elapsed) => Err(ApiError::Timeout { attempts: 1 }),
+            Ok(Err(error)) => Err(ApiError::from(error)),
+            Ok(Ok(response)) => Ok(response),
+        }
+    }
+
+    /// Проверить target и добавить auth/content-type заголовки (общая часть execute/post_once).
+    fn prepare(&self, request: &HttpRequest) -> Result<HttpRequest, ApiError> {
+        // Политика телеметрии смотрит на сырой target: fragment/query отбрасываются внутри
+        // guard_target, поэтому `/track#f` блокируется до проверки target транспортом.
+        guard_target(&request.target)?;
+        self.endpoint.target(&request.target)?;
+
+        let mut prepared = request.clone();
+        for (name, value) in self.auth.pairs() {
+            if !has_header(&prepared.headers, name) {
+                prepared.headers.push((name.to_string(), value.to_string()));
+            }
+        }
+        if !prepared.body.is_empty() && !has_header(&prepared.headers, "content-type") {
+            prepared
+                .headers
+                .push(("Content-Type".to_string(), "application/json".to_string()));
+        }
+        Ok(prepared)
     }
 
     /// Пауза 5xx: `backoff * 2^(attempt-1)`, не больше `max_retry_after`.

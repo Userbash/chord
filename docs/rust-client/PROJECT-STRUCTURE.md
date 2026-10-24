@@ -20,7 +20,7 @@ flowchart LR
         spec["docs/re/ — нормативная спека R7 (шлюз, REST, голос, UI, i18n, бэкенд)"]
         rc["docs/rust-client/ — концепт, функции, архитектура, план, тесты, структура, трассировка, верификация"]
         fx["fixtures/ — курированный срез (12 записей, 1,59 МБ, MANIFEST.json)"]
-        rs["rust/ — cargo-воркспейс каркаса (10 крейтов, офлайн-сборка)"]
+        rs["rust/ — Cargo workspace (13 крейтов: реализованные модули и каркасы)"]
         cli["src/ bin/ tests/ scripts/ — CLI анализа, мета-тесты, гейты"]
     end
     raw -->|"извлечение фактов (методики R7)"| spec
@@ -57,11 +57,11 @@ discord-lab/                         (git-репозиторий)
 │  ├─ rest/rest-static.json
 │  ├─ i18n/i18n-stats.json
 │  └─ voice/{rtc*-frames, rtc*-summary, session3.timing}
-├─ rust/                             каркас нативного клиента (P0)
+├─ rust/                             нативный клиент: workspace из 13 crate-ов
 │  ├─ Cargo.toml                     workspace: crates/*
-│  └─ crates/{discord-codec, -core, -store, -voice, -media,
-│             -platform, -i18n, -ui, -app, -conformance}
-├─ waves/                            журнал волн: db.jsonl + STATE.md + логи RW-01…RW-07
+│  └─ crates/{discord-app, -codec, -core, -json, -store, -voice, -media,
+│             -platform, -i18n, -ui, -conformance, -perf, -updater}
+├─ waves/                            журнал волн: db.jsonl + STATE.md + логи RW-01…RW-35
 ├─ src/ bin/ scripts/ tests/         CLI discord-lab + мета-тесты + гейты
 └─ logs/ functions/ evidence/        golden: только чтение
 
@@ -104,7 +104,7 @@ discord-lab/                         (git-репозиторий)
 ```sh
 node docs/rust-client/verify/verify-re.mjs --write   # 20 сверок сырьё↔доки (код 0/1/2)
 node fixtures/tools/make-fixtures.mjs                # пересборка фикстур (копирование + санитизация)
-cd rust && cargo test --offline                      # каркас: 10 крейтов, офлайн
+cd rust && cargo test --offline --workspace         # workspace из 13 крейтов, офлайн
 npm run check                                        # Node-тесты + мета-контроль
 npm run gate:worker                                  # гейт воркера (перед отчётом)
 ```
@@ -117,6 +117,6 @@ npm run gate:worker                                  # гейт воркера (
 
 ## 5. Дальше
 
-- P0-02: зависимости воркспейса (tokio/winit/zstd/keyring…) — с проверкой сети/лицензий.
-- P0-05: перенос трассировочной матрицы в Rust-репозиторий (F→T на уровне функций).
+- Следующие этапы сверять по `STATUS.md`, `TASKS.md` и `WAVE-PLAN.md`; keyring и SQLite уже реализованы.
+- GUI-стек и оставшиеся headless-карточки описаны в `ROADMAP.md` и `WAVE-PLAN.md`.
 - RC-07/RC-08 закрыты этим пакетом; новые артефакты RE добавлять по правилам §3.

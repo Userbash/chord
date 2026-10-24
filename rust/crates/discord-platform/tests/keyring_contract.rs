@@ -4,17 +4,20 @@
 //! CLI `secret-tool` (store/lookup/clear), а не наша же реализация. Секреты — синтетические
 //! (`test-secret-…`), ключ уникален и содержит pid; после каждого кейса запись очищается.
 //!
-//! Гейтинг (TZ W33a §2/§3):
+//! Гейтинг (TZ W33a §2/§3, PLAT-02):
 //!
-//! - k01–k08 и live-часть k12 требуют `DISCORD_LAB_KEYRING_LIVE=1` и доступного сервиса;
-//!   иначе печатают `SKIP: причина` и завершаются успешно (окружение, а не падение).
-//! - k09–k12 (валидация, double clear, Debug-redaction) запускаются без live-флага; они
-//!   подключаются к сервису (другого способа получить [`Keyring`] в замороженном API нет) и
-//!   печатают `SKIP`, только если сервиса в окружении действительно нет.
+//! - Все 12 кейсов (k01–k12) — live: им нужен реальный сервис и `DISCORD_LAB_KEYRING_LIVE=1`
+//!   (API заморожен, [`Keyring`] без `Service` не собрать). Поэтому каждый помечен
+//!   `#[ignore = "live-keyring: …"]`: дефолтный прогон печатает `0 passed; 0 failed;
+//!   12 ignored`, и гейт видит `skip 12` вместо «passed без skip».
+//! - В live-фазе (`cargo test … -- --ignored`) рантайм-пропуска нет: [`live_guard`] отдаёт
+//!   экземпляр или паникует с типизированной причиной
+//!   `KEYRING-LIVE: {not-enabled|service-unavailable|tool-missing}: …` — фаза `failed`.
 //!
 //! Мутационная проверка опирается на k02 (утечка копии значения не должна расти по RSS),
 //! k03 (NULL → `Ok(None)`), k07/k08 (атрибут схемы и CLI-оракул), k11 (double clear) и k12
-//! (ручной `Debug` без секрета и без внутренних указателей).
+//! (ручной `Debug` без секрета и без внутренних указателей). Офлайн-часть инвариантов —
+//! в `tests/keyring_offline_contract.rs`.
 
 use std::io::Write;
 use std::process::{Command, Stdio};
@@ -33,10 +36,6 @@ const LEAK_SECRET_BYTES: usize = 4096;
 static SEQ: AtomicU64 = AtomicU64::new(0);
 /// Live-кейсы трогают общий сервис и коллекцию: сериализуем их внутри тестового бинарника.
 static LIVE_LOCK: Mutex<()> = Mutex::new(());
-
-fn skip(reason: &str) {
-    println!("SKIP: {reason}");
-}
 
 fn live_enabled() -> bool {
     matches!(std::env::var(LIVE_ENV), Ok(value) if value == "1")
@@ -57,22 +56,26 @@ fn live_lock() -> MutexGuard<'static, ()> {
         .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
-/// Подключение к реальному сервису. `require_live` — гейт по `DISCORD_LAB_KEYRING_LIVE`.
-fn keyring(require_live: bool) -> Option<(Keyring, MutexGuard<'static, ()>)> {
-    if require_live && !live_enabled() {
-        skip(&format!("{LIVE_ENV} != 1 (live-кейс не запускается)"));
-        return None;
+/// Live-гейт: либо экземпляр, либо паника с одной из трёх различимых причин.
+///
+/// Рантайм-пропуска здесь принципиально нет (PLAT-02): «нет среды» — это `#[ignore]` на кейсе,
+/// а «среда есть, но не готова» — падение live-фазы с префиксом `KEYRING-LIVE:`.
+fn live_guard(needs_secret_tool: bool) -> MutexGuard<'static, ()> {
+    if !live_enabled() {
+        panic!("KEYRING-LIVE: not-enabled: {LIVE_ENV} != 1 (ожидалось 1)");
     }
-    let guard = live_lock();
+    if needs_secret_tool && !has_secret_tool() {
+        panic!("KEYRING-LIVE: tool-missing: secret-tool не найден в PATH");
+    }
+    live_lock()
+}
+
+/// Подключение к реальному сервису в live-фазе.
+fn live_keyring(needs_secret_tool: bool) -> (Keyring, MutexGuard<'static, ()>) {
+    let guard = live_guard(needs_secret_tool);
     match Keyring::connect() {
-        Ok(keyring) => Some((keyring, guard)),
-        Err(error) => {
-            if require_live && live_enabled() {
-                panic!("{LIVE_ENV}=1, но Keyring::connect: {error}");
-            }
-            skip(&format!("нет org.freedesktop.secrets: {error}"));
-            None
-        }
+        Ok(keyring) => (keyring, guard),
+        Err(error) => panic!("KEYRING-LIVE: service-unavailable: Keyring::connect: {error}"),
     }
 }
 
@@ -182,18 +185,16 @@ fn rss_kilobytes() -> Option<u64> {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k01_connect_to_default_collection() {
-    let Some((keyring, _guard)) = keyring(true) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     assert!(format!("{keyring:?}").contains(SCHEMA_NAME));
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k02_store_then_lookup_roundtrip_without_leak() {
-    let Some((keyring, _guard)) = keyring(true) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     let mut entry = Entry::new(keyring, "roundtrip");
     entry.store("test-secret-roundtrip");
     assert_eq!(entry.lookup().as_deref(), Some("test-secret-roundtrip"));
@@ -220,19 +221,17 @@ fn k02_store_then_lookup_roundtrip_without_leak() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k03_lookup_missing_returns_none() {
-    let Some((mut keyring, _guard)) = keyring(true) else {
-        return;
-    };
+    let (mut keyring, _guard) = live_keyring(false);
     let key = unique_key("missing");
     assert_eq!(keyring.lookup(&key).expect("lookup отсутствующего"), None);
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k04_clear_existing_then_lookup_none() {
-    let Some((keyring, _guard)) = keyring(true) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     let mut entry = Entry::new(keyring, "clear");
     entry.store("test-secret-clear");
     assert!(
@@ -243,10 +242,9 @@ fn k04_clear_existing_then_lookup_none() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k05_overwrite_replaces_value() {
-    let Some((keyring, _guard)) = keyring(true) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     let mut entry = Entry::new(keyring, "overwrite");
     entry.store("test-secret-first");
     entry.store("test-secret-second");
@@ -254,10 +252,9 @@ fn k05_overwrite_replaces_value() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k06_unicode_secret_roundtrip() {
-    let Some((keyring, _guard)) = keyring(true) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     let mut entry = Entry::new(keyring, "unicode");
     let secret = "test-secret-кириллица-ünïcode-🔐-Ω";
     entry.store(secret);
@@ -265,14 +262,9 @@ fn k06_unicode_secret_roundtrip() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool"]
 fn k07_secret_tool_reads_our_store() {
-    let Some((keyring, _guard)) = keyring(true) else {
-        return;
-    };
-    if !has_secret_tool() {
-        skip("нет CLI secret-tool");
-        return;
-    }
+    let (keyring, _guard) = live_keyring(true);
     let mut entry = Entry::new(keyring, "cli-read");
     let secret = "test-secret-cli-read";
     entry.store(secret);
@@ -280,19 +272,15 @@ fn k07_secret_tool_reads_our_store() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool"]
 fn k08_our_lookup_reads_secret_tool_store() {
-    let Some((mut keyring, _guard)) = keyring(true) else {
-        return;
-    };
-    if !has_secret_tool() {
-        skip("нет CLI secret-tool");
-        return;
-    }
+    let (mut keyring, _guard) = live_keyring(true);
     let key = unique_key("cli-write");
     let secret = "test-secret-cli-write";
     if !secret_tool_store(&key, secret) {
-        skip("secret-tool store не удался (сервис/коллекция недоступны)");
-        return;
+        panic!(
+            "KEYRING-LIVE: service-unavailable: secret-tool store не удался (сервис/коллекция недоступны)"
+        );
     }
     let found = keyring.lookup(&key).expect("lookup записи secret-tool");
     // best-effort уборка чужими руками: запись создана CLI, а не нашим store.
@@ -302,10 +290,9 @@ fn k08_our_lookup_reads_secret_tool_store() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k09_empty_key_is_invalid() {
-    let Some((mut keyring, _guard)) = keyring(false) else {
-        return;
-    };
+    let (mut keyring, _guard) = live_keyring(false);
     assert_eq!(
         keyring.store("", "test-secret-empty-key"),
         Err(KeyringError::InvalidKey)
@@ -314,10 +301,9 @@ fn k09_empty_key_is_invalid() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k10_nul_in_key_or_secret_is_error_without_panic() {
-    let Some((mut keyring, _guard)) = keyring(false) else {
-        return;
-    };
+    let (mut keyring, _guard) = live_keyring(false);
     assert_eq!(
         keyring.store("bad\0key", "test-secret"),
         Err(KeyringError::InvalidKey)
@@ -330,10 +316,9 @@ fn k10_nul_in_key_or_secret_is_error_without_panic() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k11_repeated_clear_returns_false() {
-    let Some((keyring, _guard)) = keyring(false) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     let mut entry = Entry::new(keyring, "double-clear");
     entry.store("test-secret-double-clear");
     assert!(entry.clear(), "первый clear — true");
@@ -345,10 +330,9 @@ fn k11_repeated_clear_returns_false() {
 }
 
 #[test]
+#[ignore = "live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets"]
 fn k12_debug_does_not_print_secret_or_pointers() {
-    let Some((keyring, _guard)) = keyring(false) else {
-        return;
-    };
+    let (keyring, _guard) = live_keyring(false);
     let mut entry = Entry::new(keyring, "debug");
     let secret = "test-secret-debug-do-not-leak";
     entry.store(secret);

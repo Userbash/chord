@@ -1,0 +1,1336 @@
+{
+  "schema": "rw39/layout-v1",
+  "generated": "2026-10-23",
+  "card": "RW-39 / Phase 1a — геометрия shell и 4 экранов: контракт SPEC (W39b) + RE-замеры дампа (W39a)",
+  "units": "CSS px (референс снят при dpr 1.25: PNG 2560×1383 ↔ окно 2048×1106.4)",
+  "status_codes": {
+    "M": "измерено — /home/sanya/re-deep/ui/00-app.png, ui8/22-members.jpg, ui8/*.json (DOM rect)",
+    "T": "токен — /home/sanya/re-deep/ui/tokens.json (дарк, 1.0.162); значение обязано совпадать с waves/RW-39/DESIGN/tokens.css",
+    "L": "RE-контракт — waves/RW-37/RE/layout.json (schema rw37/re-layout-v1)",
+    "A": "assumption — выбрано нами (обоснование в SPEC.md), не измерение",
+    "F": "frozen — заморожено тестами RW-38 (tests/unit/gui-spike-dom.test.mjs)"
+  },
+  "sources": {
+    "png": "/home/sanya/re-deep/ui/00-app.png (lossless, 2560×1383, dpr 1.25)",
+    "jpg": "/home/sanya/re-deep/ui8/22-members.jpg (JPEG-кроп 320×1281 = 256×1025 CSS, допуск ±1)",
+    "dom": "/home/sanya/re-deep/ui8/{22-members,23-settings-categories,23-settings-voice,20a-searchbar}.json (getBoundingClientRect)",
+    "re": "waves/RW-37/RE/layout.json",
+    "tokens": "waves/RW-39/DESIGN/tokens.css (md5 579a878aef43f8fa50a924eb4277acd9)",
+    "spec": "waves/RW-39/DESIGN/SPEC.md §5, §7.1–7.8, §9"
+  },
+  "reproduce": "python3 waves/RW-39/PM/w39a/measure.py --json  → measure.json; node waves/RW-39/PM/w39a/verify-layout.mjs",
+  "reference_viewport": {
+    "id": "ref-00-app",
+    "window_css": {
+      "w": 2048,
+      "h": 1106.4
+    },
+    "dpr": 1.25,
+    "png_px": {
+      "w": 2560,
+      "h": 1383
+    },
+    "source": {
+      "codes": [
+        "M"
+      ],
+      "ref": "ui/log.json[0] + PNG IHDR",
+      "method": "Runtime.evaluate size/dpr, сверено с IHDR"
+    }
+  },
+  "shell": {
+    "columns": {
+      "rail": {
+        "id": "shell-rail",
+        "w": 64,
+        "range": [
+          64,
+          72
+        ],
+        "tokens": [
+          "--layout-rail-w",
+          "--layout-guild-item"
+        ],
+        "source": {
+          "codes": [
+            "L",
+            "T"
+          ],
+          "ref": "RW-37 layout.json:rail_w=64; tokens.json:--custom-guild-list-width=calc(40px+12px*2)",
+          "method": "[M] граница рейла невидима (тот же #121214, что дерево) — ширина подтверждается rect иконки гильдии (ui/log.json guild-rect w=64) и формулой токена"
+        }
+      },
+      "tree": {
+        "id": "shell-tree",
+        "w": 240,
+        "range": [
+          230,
+          250
+        ],
+        "wide_w": 311,
+        "wide_at_min_width": 1600,
+        "narrow_w": 200,
+        "hidden_below": 720,
+        "tokens": [
+          "--layout-tree-w",
+          "--layout-tree-w-wide",
+          "--layout-tree-min-w"
+        ],
+        "source": {
+          "codes": [
+            "L",
+            "M",
+            "A"
+          ],
+          "ref": "RW-37 layout.json:channel_tree_w=311 (окно 2048); SPEC §5.1: base 240 по требованию ТЗ «~240»",
+          "method": "[M] строка y=900 PNG: граница панелей x=375.2 CSS → дерево 375.2−64=311.2; base 240 — [A] по RUNBOOK, wide 311 — [L]"
+        }
+      },
+      "chat": {
+        "id": "shell-chat",
+        "w": "1fr",
+        "flex": "1 1 auto",
+        "min_w": 0,
+        "min_w_narrow": 520,
+        "ref_w": 1416.8,
+        "source": {
+          "codes": [
+            "M"
+          ],
+          "ref": "ui8/22-members.json rect.x0=1792 − 375.2",
+          "method": "вычитание левой границы чата из x0 панели участников"
+        }
+      },
+      "members": {
+        "id": "shell-members",
+        "w": 240,
+        "range": [
+          230,
+          250
+        ],
+        "wide_w": 256,
+        "wide_at_min_width": 1600,
+        "hidden_below": 1200,
+        "tokens": [
+          "--layout-member-panel-w",
+          "--layout-member-panel-w-wide"
+        ],
+        "source": {
+          "codes": [
+            "L",
+            "M",
+            "A"
+          ],
+          "ref": "RW-37 layout.json:member_list_w=256 + tokens.json:--custom-member-list-width=256px",
+          "method": "[M] ui8/22-members.json rect {x0:1792,y0:82,w:256,h:1025}; base 240 — [A] по требованию ТЗ «~240», wide 256 — [L]"
+        }
+      }
+    },
+    "rows": {
+      "titlebar": {
+        "id": "shell-titlebar",
+        "h": 32,
+        "tokens": [
+          "--layout-titlebar-h"
+        ],
+        "source": {
+          "codes": [
+            "L",
+            "M"
+          ],
+          "ref": "RW-37 layout.json:topbar_h=32",
+          "method": "[M] столбец x=1500: полоса #121214 0…40 px PNG = 32 CSS, затем 1px граница"
+        }
+      },
+      "header": {
+        "id": "shell-header",
+        "h": 49,
+        "range": [
+          48,
+          50
+        ],
+        "tokens": [
+          "--layout-header-h"
+        ],
+        "source": {
+          "codes": [
+            "L",
+            "T",
+            "M"
+          ],
+          "ref": "RW-37 layout.json:header_h=49; tokens.json:--custom-channel-header-height=49px",
+          "method": "[M] PNG: #121214 0…32 CSS, фон чата #1a1a1e 32.8…80.8 CSS (полоса 48) + 1px граница = 49"
+        }
+      },
+      "chat_body": {
+        "id": "shell-chat-body",
+        "h": "1fr",
+        "source": {
+          "codes": [
+            "A"
+          ],
+          "ref": "SPEC §5.1 формула высот; проверка: 32+49+56+24+945.4=1106.4",
+          "method": "остаток после фиксированных полос; скроллятся только списки"
+        }
+      },
+      "chat_notice": {
+        "id": "shell-chat-notice",
+        "h": 24,
+        "source": {
+          "codes": [
+            "A"
+          ],
+          "ref": "SPEC §7.7 .chat-notice 24px",
+          "method": "задано спецификацией (не измерено: в референсе нет такого элемента)"
+        }
+      },
+      "composer": {
+        "id": "shell-composer",
+        "h": 56,
+        "range": [
+          55,
+          57
+        ],
+        "tokens": [
+          "--layout-composer-h"
+        ],
+        "source": {
+          "codes": [
+            "L",
+            "T",
+            "M"
+          ],
+          "ref": "RW-37 layout.json:composer_h=56; tokens.json:--custom-channel-textarea-text-area-height=56px",
+          "method": "[M] PNG: бокс #222327 (34,35,39) y 1044…1100 CSS = 56; ширина 382.4…1784 = 1401.6"
+        }
+      },
+      "userbar": {
+        "id": "shell-userbar",
+        "h": 56,
+        "tokens": [
+          "--layout-userbar-h"
+        ],
+        "source": {
+          "codes": [
+            "M",
+            "L"
+          ],
+          "ref": "SPEC §5.1 user bar y 1044…1100; RW-37 не фиксирует отдельно",
+          "method": "[M] столбец x=400 (дерево): полоса #202024 (32,32,36) y 1044…1100 CSS = 56"
+        }
+      }
+    },
+    "breakpoints": [
+      {
+        "id": "bp-wide",
+        "min_width": 1600,
+        "tree": 311,
+        "members": 256,
+        "source": {
+          "codes": [
+            "L"
+          ],
+          "ref": "RW-37: channel_tree_w=311, member_list_w=256 (измерены на 2048)",
+          "method": "медиазапрос --layout-*-wide"
+        }
+      },
+      {
+        "id": "bp-base",
+        "min_width": 1200,
+        "max_width": 1599,
+        "tree": 240,
+        "members": 240,
+        "source": {
+          "codes": [
+            "A"
+          ],
+          "ref": "SPEC §5.1 адаптив",
+          "method": "базовые токены"
+        }
+      },
+      {
+        "id": "bp-mid",
+        "min_width": 960,
+        "max_width": 1199,
+        "tree": 240,
+        "members": null,
+        "members_display": "none",
+        "source": {
+          "codes": [
+            "A"
+          ],
+          "ref": "SPEC §5.1 адаптив",
+          "method": "панель участников скрывается"
+        }
+      },
+      {
+        "id": "bp-narrow",
+        "min_width": 720,
+        "max_width": 959,
+        "tree": 200,
+        "members": null,
+        "chat_min_w": 520,
+        "source": {
+          "codes": [
+            "A"
+          ],
+          "ref": "SPEC §5.1 адаптив",
+          "method": "дерево 200, панель скрыта"
+        }
+      },
+      {
+        "id": "bp-unsupported",
+        "max_width": 719,
+        "tree": null,
+        "source": {
+          "codes": [
+            "A"
+          ],
+          "ref": "SPEC §5.1: экран не поддерживается",
+          "method": "дерево скрыто, навигация рейлом"
+        }
+      }
+    ],
+    "check": {
+      "id": "shell-check-columns",
+      "ref_columns_sum": 2047.8,
+      "formula": "rail 64 + tree 311 + chat 1416.8 + members 256",
+      "source": {
+        "codes": [
+          "M"
+        ],
+        "ref": "сумма измеренных ширин референса",
+        "method": "сходится с окном 2048 (±0.2 px на округление границы)"
+      }
+    }
+  },
+  "rows": {
+    "message_track": {
+      "id": "row-message-track",
+      "h": 44,
+      "tokens": [
+        "--row-message-track"
+      ],
+      "source": {
+        "codes": [
+          "F"
+        ],
+        "ref": "RW-38 CHAT_ROW_HEIGHT=44 (tests/unit/gui-spike-dom.test.mjs)",
+        "method": "шаг виртуализации; sizer 100000×44"
+      }
+    },
+    "message_line": {
+      "id": "row-message-line",
+      "h": 22,
+      "range": [
+        22,
+        26
+      ],
+      "tokens": [
+        "--line-height-message",
+        "--line-height-body"
+      ],
+      "source": {
+        "codes": [
+          "L",
+          "T"
+        ],
+        "ref": "RW-37 layout.json:line_height=22; tokens.json:--chat-markup-line-height=1.375rem",
+        "method": "строк в треке — 2×22"
+      }
+    },
+    "message_continuation": {
+      "id": "row-message-continuation",
+      "h": 26,
+      "range": [
+        22,
+        26
+      ],
+      "tokens": [
+        "--row-message-cozy"
+      ],
+      "source": {
+        "codes": [
+          "L"
+        ],
+        "ref": "RW-37 row_heights.message_cozy=26 (22 + 2 + 2)",
+        "method": "css-derived + сверка с высотой msg-rect"
+      }
+    },
+    "message_group_start": {
+      "id": "row-message-group-start",
+      "h": 48,
+      "tokens": [
+        "--row-message-start"
+      ],
+      "source": {
+        "codes": [
+          "L"
+        ],
+        "ref": "RW-37 row_heights_detail.message_cozy_group_start=48",
+        "method": "22×2 строки + padding 2/2"
+      }
+    },
+    "channel_row": {
+      "id": "row-channel",
+      "h": 28,
+      "pitch": 30,
+      "tokens": [
+        "--row-channel"
+      ],
+      "source": {
+        "codes": [
+          "L",
+          "M"
+        ],
+        "ref": "RW-37 row_heights.channel=28 (ui6/log.json h=28)",
+        "method": "[M] PNG: выделенная строка канала #2c2c30 y 460…487.2 CSS = 28; шаг строк 30 CSS (медиана 19 замеров) → 2px зазор"
+      }
+    },
+    "channel_group_title": {
+      "id": "row-channel-group-title",
+      "h": 24,
+      "tokens": [
+        "--layout-group-title-h"
+      ],
+      "source": {
+        "codes": [
+          "A"
+        ],
+        "ref": "SPEC §7.3: категория-заголовок 12/16, высота 24",
+        "method": "assumption по спецификации"
+      }
+    },
+    "member_row_panel": {
+      "id": "row-member-panel",
+      "h": 42,
+      "pitch": 43,
+      "tokens": [
+        "--row-member"
+      ],
+      "source": {
+        "codes": [
+          "L",
+          "M"
+        ],
+        "ref": "RW-37 row_heights.member=42 (32 аватар + 4+4 + 1+1)",
+        "method": "[M] JPEG-кроп панели: медиана шага верхушек аватаров 43.2 CSS (n=16, допуск ±1 из-за JPEG)"
+      }
+    },
+    "member_track": {
+      "id": "row-member-track",
+      "h": 40,
+      "tokens": [
+        "--row-member-track"
+      ],
+      "source": {
+        "codes": [
+          "F"
+        ],
+        "ref": "RW-38 MEMBER_ROW_HEIGHT=40 (sizer 24229×40)",
+        "method": "шаг виртуализации экрана «Участники»"
+      }
+    },
+    "member_group_title": {
+      "id": "row-member-group-title",
+      "h": 24,
+      "source": {
+        "codes": [
+          "A"
+        ],
+        "ref": "SPEC §7.6 заголовок группы 12/16, высота 24",
+        "method": "assumption; в виртуализованном списке отсутствует [F]"
+      }
+    },
+    "settings_row": {
+      "id": "row-settings",
+      "h": 48,
+      "source": {
+        "codes": [
+          "A"
+        ],
+        "ref": "SPEC §9.4 «строка 48: название + подсказка + switch»",
+        "method": "assumption"
+      }
+    },
+    "settings_nav_item": {
+      "id": "row-settings-nav",
+      "h": 34,
+      "tokens": [
+        "--settings-nav-item-h"
+      ],
+      "source": {
+        "codes": [
+          "A"
+        ],
+        "ref": "SPEC §9.4 навигация 34",
+        "method": "assumption"
+      }
+    },
+    "emoji_cell": {
+      "id": "row-emoji-cell",
+      "h": 44,
+      "w": 44,
+      "tokens": [
+        "--emoji-cell"
+      ],
+      "source": {
+        "codes": [
+          "M",
+          "T"
+        ],
+        "ref": "tokens.json:--custom-emoji-picker-constants-emoji-picker-height=440, ширина 498; SPEC §7.8",
+        "method": "[M] арифметика по пикеру 498: 498−24 padding−48 rail = 426 ≈ 9×44 + 8×4; сетка 9×44 [M]"
+      }
+    }
+  },
+  "screens": {
+    "chat": {
+      "id": "screen-chat",
+      "source": {
+        "codes": [
+          "F",
+          "L",
+          "M"
+        ],
+        "ref": "DOM-CONTRACT §9 / SPEC §9.1; RW-37 shell",
+        "method": "shell chat: header 49 + list 1fr + notice 24 + composer 56 + members 240"
+      },
+      "blocks": [
+        {
+          "id": "chat-header",
+          "h": 49,
+          "pad_x": 16,
+          "source": {
+            "codes": [
+              "L",
+              "T"
+            ],
+            "ref": "SPEC §7.4; RW-37 header_h=49",
+            "method": "полоса между titlebar и списком"
+          }
+        },
+        {
+          "id": "chat-header-search",
+          "h": 32,
+          "w_min": 144,
+          "w_max": 244,
+          "radius": "round",
+          "source": {
+            "codes": [
+              "A",
+              "M"
+            ],
+            "ref": "SPEC §7.4 clamp(144px,20vw,244px); ui8/20a-searchbar.json — поле 244×28 в шапке референса",
+            "method": "[M] DOM rect (бар 244×28 — это поле поиска канала, у нас 32 по токену --search-height [A])"
+          }
+        },
+        {
+          "id": "chat-list",
+          "h": "1fr",
+          "row_track": 44,
+          "gutter": 64,
+          "avatar": 40,
+          "source": {
+            "codes": [
+              "F",
+              "L"
+            ],
+            "ref": "RW-38: sizer = 100000×44; RW-37 message_indent_cozy=64, message_avatar=40",
+            "method": "трек 44 [F]; эталонные высоты строк 26/48 [L] — в rows{}"
+          }
+        },
+        {
+          "id": "chat-unread-divider",
+          "h": 32,
+          "source": {
+            "codes": [
+              "M"
+            ],
+            "ref": "00-app.png y 81.6…114.4 CSS, #5865f2",
+            "method": "замер полосы «20+ новых сообщений» (в спайке не обязательна, но задаёт ритм)"
+          }
+        },
+        {
+          "id": "chat-composer",
+          "h": 56,
+          "inner_h": 44,
+          "pad": "0 16px 8px",
+          "radius": 8,
+          "source": {
+            "codes": [
+              "L",
+              "M",
+              "T"
+            ],
+            "ref": "RW-37 composer_h=56, composer_w=1401; tokens.json --custom-channel-textarea-text-area-height=56px",
+            "method": "[M] PNG: 56 высота, ширина 1401.6, x 382.4…1784"
+          }
+        },
+        {
+          "id": "chat-member-panel",
+          "w": 240,
+          "wide_w": 256,
+          "row_h": 42,
+          "avatar": 32,
+          "pad": "4px 8px",
+          "source": {
+            "codes": [
+              "L",
+              "A",
+              "M"
+            ],
+            "ref": "RW-37 member_list_w=256, row_heights.member=42, member_avatar=32",
+            "method": "панель только на экране чата (SPEC §9); base 240 [A]"
+          }
+        },
+        {
+          "id": "chat-member-panel-header",
+          "h": 49,
+          "source": {
+            "codes": [
+              "M"
+            ],
+            "ref": "ui8/22-members.json rect.y0=82 (82 = titlebar 32 + header 49 + 1)",
+            "method": "верх панели выровнен с шапкой чата"
+          }
+        }
+      ],
+      "measured": {
+        "id": "screen-chat-measured",
+        "viewport": {
+          "x": 375.2,
+          "y": 32,
+          "w": 1672.8,
+          "h": 1074
+        },
+        "header_h": 49,
+        "notice_h": 34,
+        "message_row": 26,
+        "message_group_start": 48,
+        "line_h": 22,
+        "avatar": 40,
+        "gutter": 64,
+        "composer_h": 57,
+        "composer_inset": {
+          "x": 6,
+          "bottom": 5
+        },
+        "status": "measured",
+        "source": {
+          "codes": [
+            "M",
+            "L"
+          ],
+          "ref": "ui/00-app.png",
+          "method": "полосы по колонке x=1000 (32/81/82..115/1044..1101) + CSS-правила"
+        }
+      }
+    },
+    "emoji": {
+      "id": "screen-emoji",
+      "source": {
+        "codes": [
+          "T",
+          "M",
+          "F"
+        ],
+        "ref": "SPEC §9.2 + tokens.json --emoji-*",
+        "method": "карточка 498×440, rail 48, сетка 9×44 gap 4"
+      },
+      "blocks": [
+        {
+          "id": "emoji-card",
+          "w": 498,
+          "h": 440,
+          "max_w": "calc(100vw - 48px)",
+          "radius": 8,
+          "source": {
+            "codes": [
+              "T"
+            ],
+            "ref": "tokens.json:--custom-emoji-picker-constants-min-emoji-picker-width=498px, ...-emoji-picker-height=440px",
+            "method": "токен + SPEC §9.2; центрирование [A]"
+          }
+        },
+        {
+          "id": "emoji-header",
+          "h": 48,
+          "search_h": 32,
+          "close": 20,
+          "source": {
+            "codes": [
+              "A",
+              "T"
+            ],
+            "ref": "SPEC §7.8 шапка 48 (--emoji-section-h 32 — это заголовок секции)",
+            "method": "assumption по спецификации"
+          }
+        },
+        {
+          "id": "emoji-rail",
+          "w": 48,
+          "tab": 40,
+          "tabs": 10,
+          "source": {
+            "codes": [
+              "T",
+              "F"
+            ],
+            "ref": "tokens.json:--custom-emoji-picker-constants-unicode-category-shortcut-height=48px; ui8/21d-emoji-categories.json count=10; RW-38 EMOJI_CATEGORIES=10",
+            "method": "[M] в дампе 10 категорий (21d); 48 — токен высоты рейла категорий"
+          }
+        },
+        {
+          "id": "emoji-grid",
+          "cols": 9,
+          "cell": 44,
+          "gap": 4,
+          "pad": 12,
+          "max_cells": 120,
+          "source": {
+            "codes": [
+              "M",
+              "F"
+            ],
+            "ref": "tokens.json:--emoji-cols=9, --emoji-cell=44, --emoji-gap=4; RW-38: cells ≤ 120",
+            "method": "[M] 498−24−48=426 ≈ 9×44+8×4; ui8/21b-emoji-full.json gridCount=42 (в пикере референса 42 ячейки)"
+          }
+        },
+        {
+          "id": "emoji-section-heading",
+          "h": 32,
+          "source": {
+            "codes": [
+              "T"
+            ],
+            "ref": "tokens.json:expression-picker-list-section-heading-height=32px",
+            "method": "заголовок секции сетки"
+          }
+        },
+        {
+          "id": "emoji-footer",
+          "h": 48,
+          "emoji": 24,
+          "source": {
+            "codes": [
+              "A"
+            ],
+            "ref": "SPEC §9.2 футер-предпросмотр 48",
+            "method": "assumption"
+          }
+        }
+      ],
+      "measured": {
+        "id": "screen-emoji-measured",
+        "layer": {
+          "x": 86,
+          "y": 549,
+          "w": 1699,
+          "h": 486
+        },
+        "panel": {
+          "x": 1263,
+          "y": 549,
+          "w": 498,
+          "h": 486
+        },
+        "anchor": {
+          "right_offset": 24,
+          "bottom": "над composer (низ слоя 1035)"
+        },
+        "tabs_row_h": 58,
+        "tab_h": 30,
+        "tab_font": "14/600",
+        "rail_w": 48,
+        "grid": {
+          "x": 1319,
+          "w": 440,
+          "cols": 9,
+          "cell": 48,
+          "icon": 40,
+          "gap": 0
+        },
+        "section_h": 32,
+        "footer_h_estimate": 44,
+        "source": {
+          "codes": [
+            "M",
+            "T"
+          ],
+          "ref": "ui8/log-emoji9.json + ui8/21-emoji-picker.jpg",
+          "method": "log rect слоя 1699x486; кроп 2124x608 px: панель 1263..1761, граница header y=608 (16+30+12); CSS grid-template-columns 48px auto"
+        }
+      }
+    },
+    "members": {
+      "id": "screen-members",
+      "source": {
+        "codes": [
+          "F",
+          "L"
+        ],
+        "ref": "SPEC §9.3; RW-38 MEMBER_ROW_HEIGHT=40",
+        "method": "тулбар 48 + виртуализованный список 1fr (трек 40)"
+      },
+      "blocks": [
+        {
+          "id": "members-toolbar",
+          "h": 48,
+          "search_h": 32,
+          "source": {
+            "codes": [
+              "A"
+            ],
+            "ref": "SPEC §9.3 тулбар 48 + поиск 32",
+            "method": "assumption по спецификации"
+          }
+        },
+        {
+          "id": "members-list",
+          "h": "1fr",
+          "row_track": 40,
+          "avatar": 32,
+          "status_dot": 10,
+          "name": "14/18",
+          "role": "12/16",
+          "source": {
+            "codes": [
+              "F",
+              "L"
+            ],
+            "ref": "RW-38: sizer 24229×40, 3 ребёнка; RW-37 member_avatar=32; SPEC §7.6",
+            "method": "высота строки 40 [F] (виртуализация), панельная 42 [L]"
+          }
+        },
+        {
+          "id": "members-count",
+          "text_sample": "Участники · 24 229",
+          "source": {
+            "codes": [
+              "L"
+            ],
+            "ref": "RW-37 member_window.member_count_alt=24229",
+            "method": "число строк берётся из RE-контракта (не хардкод в вёрстке)"
+          }
+        }
+      ],
+      "measured": {
+        "id": "screen-members-measured",
+        "panel": {
+          "x": 1792,
+          "y": 82,
+          "w": 256,
+          "h": 1024
+        },
+        "group_h": 42,
+        "row_h": 42,
+        "avatar": 32,
+        "visible_rows": 35,
+        "groups": 2,
+        "toolbar": null,
+        "note": "в референсе внутри панели нет тулбара/поиска: список начинается с заголовка группы (SPEC §9.3 предполагает тулбар 48 + поиск 32 — расхождение d-members-toolbar)",
+        "source": {
+          "codes": [
+            "M"
+          ],
+          "ref": "ui8/22-members.json + ui8/22-members.jpg",
+          "method": "rect 256x1025 + кроп: заголовок группы y≈82..118, строки 42"
+        }
+      }
+    },
+    "settings": {
+      "id": "screen-settings",
+      "source": {
+        "codes": [
+          "A",
+          "M"
+        ],
+        "ref": "SPEC §9.4 + ui8/23-settings-*.json rect",
+        "method": "оверлей min 960×600, nav 232, контент max 720"
+      },
+      "blocks": [
+        {
+          "id": "settings-overlay",
+          "min_w": 960,
+          "min_h": 600,
+          "ref_rect": {
+            "x": 325,
+            "y": 73,
+            "w": 1398,
+            "h": 961
+          },
+          "radius": 8,
+          "source": {
+            "codes": [
+              "M",
+              "A"
+            ],
+            "ref": "ui8/23-settings-categories.json rect {325,73,1398×961} (окно 2048×1106.4)",
+            "method": "[M] DOM rect модалки референса — занимает почти всё окно; у нас min 960×600 и центрирование [A]"
+          }
+        },
+        {
+          "id": "settings-header",
+          "h": 56,
+          "avatar": 32,
+          "close": 20,
+          "source": {
+            "codes": [
+              "A"
+            ],
+            "ref": "SPEC §9.4 шапка 56 + avatar 32",
+            "method": "assumption по спецификации"
+          }
+        },
+        {
+          "id": "settings-nav",
+          "w": 232,
+          "item_h": 34,
+          "search_h": 32,
+          "source": {
+            "codes": [
+              "T",
+              "A"
+            ],
+            "ref": "tokens.json:--custom-layout-sidebar-width=232px; ui8/23-settings-categories.json 63 строки навигации",
+            "method": "[M] в дампе 63 строки (вложенные уровни), высота пункта 34 [A]"
+          }
+        },
+        {
+          "id": "settings-content",
+          "max_w": 720,
+          "pad": "24px 16px",
+          "row_h": 48,
+          "ref_rect": {
+            "x": 633,
+            "y": 121,
+            "w": 1020,
+            "h": 865
+          },
+          "source": {
+            "codes": [
+              "M",
+              "T",
+              "A"
+            ],
+            "ref": "ui8/23-settings-voice.json rect {633,121,1020×865}, switchCount=38; tokens.json:--modal-horizontal-padding=24, --modal-vertical-padding=16",
+            "method": "[M] контентная колонка референса 1020 (у нас max 720 [A] для читаемости), 38 переключателей [F]"
+          }
+        },
+        {
+          "id": "settings-switch",
+          "w": 40,
+          "h": 24,
+          "thumb": 18,
+          "source": {
+            "codes": [
+              "A"
+            ],
+            "ref": "SPEC §7.9: трек 40×24, thumb 18",
+            "method": "assumption по спецификации"
+          }
+        }
+      ],
+      "measured": {
+        "id": "screen-settings-measured",
+        "modal": {
+          "x": 325,
+          "y": 72.5,
+          "w": 1398,
+          "h": 961
+        },
+        "scrim": "rgba(0,0,0,.72)",
+        "sidebar": {
+          "x": 325,
+          "w": 264,
+          "pad_block": 60,
+          "pad_left": 20,
+          "pad_right": 6,
+          "bg": "#1a1a1e"
+        },
+        "profile": {
+          "avatar": 48
+        },
+        "nav_search": {
+          "w": 240,
+          "h": 30,
+          "radius": 8
+        },
+        "nav_item_h": 36,
+        "nav_sub_item_h": 34,
+        "sub_track_w": 2,
+        "content": {
+          "x": 589,
+          "w": 1134,
+          "pad": "60px 40px 80px",
+          "max_w": 740
+        },
+        "controls": {
+          "switch": {
+            "w": 48,
+            "h": 24
+          },
+          "select_h": 40,
+          "button_h": 32
+        },
+        "source": {
+          "codes": [
+            "M",
+            "T"
+          ],
+          "ref": "ui8/log-settings10.json + ui8/23-settings-open.jpg",
+          "method": "container_abd9a8 1398x961; кроп контента 1418 px/1.25 = 1134; nav-item 36 по JPG; --custom-standard-sidebar-view-sidebar-total-width=264"
+        }
+      }
+    }
+  },
+  "measurements": {
+    "file": "waves/RW-39/PM/w39a/measure.json",
+    "keys": {
+      "shell.titlebar": "measure:titlebar",
+      "shell.header": "measure:header",
+      "shell.tree vs chat": "measure:tree_right_edge_css, measure:tree_w",
+      "shell.members": "measure:member_panel",
+      "shell.chat": "measure:chat_w",
+      "shell.composer": "measure:composer, measure:composer_width",
+      "shell.userbar": "measure:userbar",
+      "rows.channel": "measure:channel_row_selected, measure:channel_row_pitch",
+      "rows.member": "measure:member_row_pitch",
+      "colors": "measure:colors",
+      "screens.settings": "measure:settings_modal, measure:settings_voice",
+      "screens.chat.search": "measure:search_field"
+    }
+  },
+  "re_owner": "W39a (REA)",
+  "measurements_note": "блоки `measured` — замеры по дампу; значения SPEC/контракта не перезаписываются, расхождения — в `discrepancies` (решает PM)",
+  "header_spans_full_width": {
+    "id": "shell-header-span",
+    "value": true,
+    "note": "header 32..81 — общая полоса над chat и members: на y=50 в x=1900 цвет #1a1a1e, линия y=81 идёт до x=2048, вертикальная граница x=1792 начинается только с y=82; поиск 244×28 прижат к правому краю окна (x=1788..2032)",
+    "source": {
+      "codes": [
+        "M"
+      ],
+      "ref": "ui/00-app.png",
+      "method": "цветовой скан строки y=50 и 63 + границы панелей"
+    }
+  },
+  "regions": {
+    "rail": {
+      "id": "region-rail",
+      "rect": {
+        "x": 0,
+        "y": 32,
+        "w": 64,
+        "h": 1074
+      },
+      "bg": "#121214",
+      "pad": {
+        "top": 8,
+        "x": 12
+      },
+      "guild_item": {
+        "w": 40,
+        "h": 40,
+        "radius": 16,
+        "pitch": 46,
+        "pitch_tolerance": 2,
+        "group_gap": 12
+      },
+      "unread_indicator": {
+        "w": 4,
+        "h": 8
+      },
+      "source": {
+        "codes": [
+          "M",
+          "T"
+        ],
+        "ref": "ui/00-app.png + tokens.json",
+        "method": "полосы иконок по колонке x=12..52: 131..171, 177..214, 223..263, 268..308, 315..355 → шаг 45..47; --custom-guild-list-width=64"
+      }
+    },
+    "tree": {
+      "id": "region-tree",
+      "rect": {
+        "x": 64,
+        "y": 32,
+        "w": 311,
+        "h": 1074
+      },
+      "bg": "#121214",
+      "guild_header": {
+        "h": 49,
+        "pad_x": 16,
+        "title": "16/22 semibold",
+        "chevron": 16,
+        "invite": 24
+      },
+      "channel_row": {
+        "h": 28,
+        "radius": 8,
+        "pad": "4px 6px",
+        "icon": 20,
+        "gap_icon": 6,
+        "font": "16/20",
+        "name_line_height": 20
+      },
+      "category_row": {
+        "h": 28,
+        "pad_x": 8,
+        "font": "12/16 bold uppercase",
+        "letter_spacing": "0.02em",
+        "color": "#81828a"
+      },
+      "source": {
+        "codes": [
+          "M",
+          "T"
+        ],
+        "ref": "ui/00-app.png + decoded/* (CSS-чанки 1.0.162)",
+        "method": "PNG: заголовок 32..81, строки 28 (выделенная #2c2c30 y 460..487); CSS .link__2ea32 padding 4/6, radius 8, line-height 20"
+      }
+    },
+    "chat": {
+      "id": "region-chat",
+      "rect": {
+        "x": 375.2,
+        "y": 32,
+        "w": 1672.8,
+        "h": 1074
+      },
+      "header": {
+        "h": 49,
+        "pad_x": 16,
+        "icon": 24,
+        "gap": 8,
+        "title": "16/22 semibold",
+        "bg": "#1a1a1e",
+        "search": {
+          "w": 244,
+          "h": 28,
+          "radius": 8,
+          "right_margin": 16,
+          "font": "14/18"
+        }
+      },
+      "notice": {
+        "y": 82,
+        "h": 34,
+        "bg": "#5865f2",
+        "color": "#ffffff",
+        "font": "14/18",
+        "pad_x": 16
+      },
+      "message_list": {
+        "y": 116,
+        "h": 928
+      },
+      "message": {
+        "row_h": 26,
+        "group_start": 48,
+        "line_h": 22,
+        "avatar": 40,
+        "gutter": 64,
+        "compact_gutter": 80,
+        "content_x": "chat_left + 64"
+      },
+      "composer": {
+        "x": 381,
+        "y": 1044,
+        "w": 1405,
+        "h": 57,
+        "inner_h": 56,
+        "radius": 8,
+        "border": "1px rgba(151,151,159,.04)",
+        "bg": "#222327",
+        "gap_x": 6,
+        "gap_bottom": 5,
+        "font": "16/22"
+      },
+      "source": {
+        "codes": [
+          "M",
+          "T"
+        ],
+        "ref": "ui/00-app.png + ui8/20a-searchbar.json",
+        "method": "PNG: composer-бокс 381..1786 × 1044..1101 (RGB 34,35,39; рамка 39,40,43); поиск 244x28 из DOM-замера"
+      }
+    },
+    "members": {
+      "id": "region-members",
+      "rect": {
+        "x": 1792,
+        "y": 82,
+        "w": 256,
+        "h": 1024
+      },
+      "bg": "#1a1a1e",
+      "border_left": "1px rgba(151,151,159,.12)",
+      "group_header": {
+        "h": 42,
+        "pad": "16px 4px 4px 12px",
+        "font": "12/16 medium",
+        "color": "#96979e"
+      },
+      "row": {
+        "h": 42,
+        "pad_y": 4,
+        "pad_x": 8,
+        "avatar": 32,
+        "gap": 12,
+        "name": "16/20 medium",
+        "sub": "12/16"
+      },
+      "role_chip": {
+        "h": 16,
+        "pad_x": 4,
+        "radius": 4,
+        "font": "12/16"
+      },
+      "source": {
+        "codes": [
+          "M",
+          "T"
+        ],
+        "ref": "ui8/22-members.json + ui8/22-members.jpg",
+        "method": "rect w=256/h=1025; кроп 320x1281: аватар 32 (x 1802..1834), шаг строк 42..43; CSS .memberInner__5d473 padding 4/0"
+      }
+    },
+    "userbar": {
+      "id": "region-userbar",
+      "rect": {
+        "x": 8,
+        "y": 1044,
+        "w": 360,
+        "h": 56
+      },
+      "radius": 8,
+      "bg": "#202024",
+      "avatar": 32,
+      "status_dot": 10,
+      "buttons": {
+        "mute": 32,
+        "chevron": 16,
+        "gear": 32
+      },
+      "source": {
+        "codes": [
+          "M"
+        ],
+        "ref": "ui/00-app.png + ui8/log-settings9.json",
+        "method": "карточка 8..368 × 1044..1100 (RGB 32,32,36); кнопки 228..358 по логу"
+      }
+    }
+  },
+  "discrepancies": [
+    {
+      "severity": "P3",
+      "spec": "тулбар 48 + поиск 32 над списком (SPEC §9.3)",
+      "measured": "панель начинается с заголовка группы; тулбара нет",
+      "evidence": "ui8/22-members.jpg y=82..118 — заголовок «Server Booster — 2»",
+      "owner": "W39b",
+      "action": "D-13: в панели чата тулбара нет; тулбар 48 — только на экране members",
+      "id": "d-members-toolbar"
+    },
+    {
+      "severity": "P3",
+      "spec": "24px (SPEC §7.7)",
+      "measured": "34px (82..115)",
+      "evidence": "ui/00-app.png: полоса #5865f2",
+      "owner": "W39b",
+      "action": "D-13: unread-полоса 34 border-box (контент 32); .chat-notice-подсказка 24 — разные элементы",
+      "id": "d-chat-notice"
+    },
+    {
+      "severity": "P2",
+      "spec": "9×44 + gap 4",
+      "measured": "9×48, gap 0 (40 + 4+4)",
+      "evidence": "decoded/* (CSS-чанки 1.0.162) .emojiItemMedium_fc7141",
+      "owner": "W39b",
+      "action": "то же, что tokens.json discrepancies[d-emoji-cell]",
+      "id": "d-emoji-cell"
+    },
+    {
+      "severity": "P2",
+      "spec": "nav 232 (SPEC/tokens)",
+      "measured": "264, nav-item 36",
+      "evidence": "ui8/log-settings10.json + ui8/23-settings-open.jpg",
+      "owner": "W39b",
+      "action": "синхронизировать",
+      "id": "d-settings-nav"
+    },
+    {
+      "severity": "P3",
+      "spec": "max 720 (SPEC §9.4)",
+      "measured": "max 740 (.contentColumn__23e6b max-width:740px)",
+      "evidence": "decoded/* (CSS-чанки 1.0.162)",
+      "owner": "W39b",
+      "action": "уточнить",
+      "id": "d-settings-content"
+    },
+    {
+      "severity": "P3",
+      "spec": "base 240 / wide 311",
+      "measured": "live 311 при persisted 375; дефолт конфига 268 → 203",
+      "evidence": "ui/tokens.json --custom-guild-sidebar-width=268; PNG граница 375.2",
+      "owner": "PM/W39b",
+      "action": "оставить 240 как адаптив, 311 как wide (уже так)",
+      "id": "d-tree-width"
+    },
+    {
+      "severity": "P3",
+      "spec": "заголовок группы 24 (SPEC §7.6)",
+      "measured": "42: 16px pad-top + строка 24 + 2px",
+      "evidence": "layout.json regions.members.group_header.h=42",
+      "owner": "W39g/PM",
+      "action": "D-13: принято 42 блоком (--row-member-group), текстовая строка 24",
+      "id": "d-members-group-h"
+    }
+  ],
+  "assumptions": [
+    "высота футера пикера эмодзи — 44 px",
+    "ширина скроллбара — 8 px",
+    "индикатор непрочитанного в рейле — 4×8 px",
+    "адаптив при ширине < 1600 px (240/240) — по SPEC, не измерялся",
+    "x панели результатов поиска = 1792 − 419 (origin кропа не логировался)",
+    "шаг строки канала 30 px в контракте (28 + 2 зазор) — на PNG шаг 28..30"
+  ],
+  "cross_check_rw37": {
+    "id": "cross-check-rw37",
+    "file": "waves/RW-37/RE/layout.json",
+    "matched": [
+      "viewport 2048x1106/dpr 1.25",
+      "rail_w 64",
+      "channel_tree_w 311",
+      "member_list_w 256",
+      "topbar_h 32",
+      "header_h 49",
+      "composer_h 56",
+      "message_cozy 26",
+      "message_group_start 48",
+      "member 42",
+      "channel 28",
+      "line_height 22",
+      "message_avatar 40",
+      "member_avatar 32"
+    ],
+    "new": [
+      "пикер эмодзи: слой 1699×486, панель 498×486 (right 24)",
+      "настройки: модалка 1398×961, колонки 264/1134, паддинги 60/40/80",
+      "composer: зазор 6 px + рамка border-muted, высота 57 с рамкой",
+      "user bar 360×56 поверх рейла и дерева",
+      "header — общая полоса над chat+members",
+      "поиск в header 244×28 (right margin 16)"
+    ],
+    "source": {
+      "codes": [
+        "L",
+        "M"
+      ],
+      "ref": "waves/RW-37/RE/layout.json + ui/00-app.png",
+      "method": "построчная сверка чисел RW-37 с замерами RW-39"
+    }
+  }
+}

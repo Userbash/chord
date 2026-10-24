@@ -1,0 +1,64 @@
+# probe.txt — NET-DESIGN, журнал чтения дампа (только чтение)
+
+Дата: 2026-10-23. Каталог дампа: /home/sanya/re-deep (golden, read-only).
+Ни один файл дампа не изменялся; ничего не копировалось в репозиторий.
+
+## 1. Что искал и чем
+
+```
+ls /home/sanya/re-deep
+ls /home/sanya/re-deep/ui
+file /home/sanya/re-deep/decoded/43644898c0897078_0        # 74817 Б, /login HTML
+head -c 3000 .../43644898c0897078_0                        # GLOBAL_ENV, BUILD_NUMBER 641004
+grep -o "authBox[a-zA-Z_]*" decoded/dbd05750a1cb3484_0      # 15 вхождений authBoxClassName
+grep -l "authBox__921c5{" decoded/* out/bundles/*.css.bin   # CSS-модуль authBox
+tr '}' '}\n' < decoded/a92f46d41f311d85_0 | grep auth        # authBox 480 / expanded 784 / padding / radius / shadow
+grep -l "loginForm\|authForm\|mainLoginContainer" out/bundles/*.css.bin
+tr '}' '}\n' < 351200.ec1294199b2e7a31.css.bin              # mainLoginContainer, header, needAccount, goBackButton
+tr '}' '}\n' < 461123.de02227c725f5838.css.bin              # qrLogin 240, qrCodeContainer 176, overlay 50, authCaptcha 480
+tr '}' '}\n' < 715528.a04399038393a931.css.bin              # MFA modal 24/12, item 50+8
+tr '}' '}\n' < 964940.62a0e9d626b739d9.css.bin              # новый input: radius 8, border, focus, error
+tr '}' '}\n' < 419070.5a76dee70a3767eb.css.bin              # custom-auth-box padding 32, appMount bg
+node -e "...s.indexOf('authBoxClassName')..." dbd05750a1cb3484_0   # структура lf()/lC()
+node -e "...s.indexOf('52423(')..." f0cac74b6ccdca5e_0      # модуль QR 52423 целиком
+cat decoded/8fed1c84bcaee32d_0                              # модуль MFA 572469 целиком
+node -e "require('./ui/tokens.json') ..."                   # значения заявленных переменных
+node -e "require('./en-catalog.json') ..."                  # тексты по i18n-ключам
+```
+
+## 2. Ключевые находки (смещения/файлы)
+
+- `authBox` — `width:480px; padding:custom-auth-box-auth-box-padding(32px); border-radius:radius-sm(8px);
+  box-shadow:legacy-elevation-high; color:text-muted; font-size:18px` — `348181...css`.
+- `authBoxExpanded` — `width:784px`; QR-колонка `qrLogin{width:240px}` — `348181`, `461123`.
+- Flex формы: `direction=horizontal, gap=64, align=center` — chunk 786142 (`dbd05750a1cb3484_0`),
+  вызов `<AuthBox expanded>` + `<QR horizontal>`.
+- QR: `qrCodeContainer{176x176; margin-bottom:32}`, `size:160`, overlay `50x50`,
+  `@media (max-width:830px){.qrLogin:not(.qrLoginHorizontal){display:none}}`.
+- QR-состояния: INITIALIZING/PENDING_REMOTE_INIT/PENDING_TICKET/PENDING_LOGIN/FINISH; backoff 1500–30000 мс;
+  «Проверьте телефон», аватар 120, «Вход как {username}», «Это не я — начать заново» — модуль 52423.
+- Captcha: `authCaptcha{width:480; padding:24px 16px; background:primary-630; border-radius:5px 5px 0 0}` — `461123`.
+- MFA: модалка `size:"sm"` (442), `header{padding:24px 24px 0}`, `content{padding:24px}`,
+  `footer{padding-inline:24px; padding-bottom:24px}`, item `height 50` (стрелка) + `margin-bottom:8` — `715528`.
+  Слайды: select → webauthn/totp/sms/backup/backup_ack/password; лимиты 6 / 6(max 10) / 8(min, max 11);
+  backup_ack countdown 10 с; SMS `POST /auth/mfa/sms/send` при открытии слайда.
+- Input: `control-input-height-md:40px`; wrapper `border-radius:radius-sm; border:1px solid input-border-default;
+  background:input-background-default; focus outline 2px input-border-active (=brand-500); data-error → красный` — `964940`.
+- Тексты (en-catalog): `7fNJgA` Welcome back!, `tUjnxr` Email or Phone Number, `CIGa+7` Password,
+  `wWIufs` Forgot your password?, `dKhVQN` Log In, `tmE73r` Need an account?, `pV8xeR` Register,
+  `UPiHaL` Log in with QR Code, `Qq+A6i` Scan this …, `JfHzXG`, `apGCUT` Check your phone!,
+  `ayvCBh` Your login or password is incorrect., `zBB9xD` You are being rate limited,
+  `3I8ubP` Verify by hCaptcha, `HQdHg6` The captcha failed…, `saHocI` Multi-Factor Authentication,
+  `nXKmyf/ZbVwZW/vhSRKf/8F6hKS/gTH4Dp` методы MFA.
+
+## 3. Чего в дампе нет
+
+- `waves/RW-39/NET/LOGIN-UI-RE.md` — не создан; работа напрямую по CSS/JS.
+- Нет скриншота окна входа: `ui/00-app.png` — экран `ready`.
+- Логотип и иконка в центре QR — ассеты (не копировались).
+- Hover/active/focus окна входа в статике не снимались.
+- Отдельного фона login-страницы нет: используется фон `appMount` (background-base-lowest #121214).
+
+## 4. Границы
+
+Окно не запускалось, Discord не спавнился, сеть не использовалась, cargo/commit не выполнялись.

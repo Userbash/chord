@@ -1,0 +1,91 @@
+▶ P-03-UI: константы и политика [A]
+  ✔ TTL индикатора равен core TYPING_TTL_MS (10 с), а не локальному литералу (0.344356ms)
+  ✔ интервал повтора — именованная конфигурация в диапазоне 8–10 с (0.101809ms)
+  ✔ guard ≤ 5 каналов и бенч CHAT_ROWS=100_000 не ослаблены (0.069699ms)
+✔ P-03-UI: константы и политика [A] (1.096239ms)
+▶ P-03-UI: индикатор «Печатает…»
+  ✔ один пользователь — «Печатает…», несколько — «Несколько человек печатают…» (28.316149ms)
+  ✔ повтор пользователя не дублирует индикатор; двое дают множественную форму (11.665896ms)
+  ✔ себя не показывает: self-флаг и selfUserId игнорируются (5.503132ms)
+  ✔ TTL 10 с: на 9 999 мс видим, на 10 000 мс — уже нет (граница core) (4.445733ms)
+  ✔ событие другого канала не показывается в текущем (6.961485ms)
+✔ P-03-UI: индикатор «Печатает…» (57.265701ms)
+▶ P-03-UI: исходящий send_typing
+  ✔ первый ввод — один POST {channelId} без токена; повтор — только после интервала (5.68116ms)
+  ✔ синтетический bench (news) и не-снежинки не отправляют typing (6.297573ms)
+  ✔ guard: не более 5 каналов в состоянии typing (4.325624ms)
+  ✔ 401: видимое сообщение и никакого автоматического цикла (6.280823ms)
+  ✔ 429: видимое сообщение с retry_after и пауза без цикла (4.108496ms)
+  ✔ slowmode-кулдаун из 200 — видимое сообщение и пауза до истечения (4.082886ms)
+  ✔ токен/тело ответа не утекают в видимое сообщение и консоль (4.760099ms)
+✔ P-03-UI: исходящий send_typing (35.853769ms)
+▶ P-03-UI: интеграция с композером
+  ✖ реальный ввод в канале — один send_typing с реальным channelId и без токена (11.838225ms)
+  ✔ синтетический bench typing не отправляет (CHAT_ROWS не ослаблен) (6.758718ms)
+  ✔ индикатор один, aria-live polite, себя не показывает, чужого — показывает (10.766135ms)
+  ✖ slowmode из ответа send_typing виден над композером (12.427558ms)
+  ✖ 401 от send_typing: видимое сообщение, новых запросов нет (6.488051ms)
+✖ P-03-UI: интеграция с композером (48.672343ms)
+ℹ tests 20
+ℹ suites 4
+ℹ pass 17
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.095829
+
+✖ failing tests:
+
+test at tests/unit/typing-ui.test.mjs:647:3
+✖ реальный ввод в канале — один send_typing с реальным channelId и без токена (11.838225ms)
+  AssertionError [ERR_ASSERTION]: send_typing вызван 0 раз вместо одного
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/typing-ui.test.mjs:654:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/typing-ui.test.mjs:714:3
+✖ slowmode из ответа send_typing виден над композером (12.427558ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/typing-ui.test.mjs:721:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/typing-ui.test.mjs:733:3
+✖ 401 от send_typing: видимое сообщение, новых запросов нет (6.488051ms)
+  AssertionError [ERR_ASSERTION]: 401 не дал ровно один запрос
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/typing-ui.test.mjs:744:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

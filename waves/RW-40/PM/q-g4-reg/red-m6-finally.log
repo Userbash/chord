@@ -1,0 +1,40 @@
+▶ G2-03: пустое состояние QuickSwitcher соответствует выдаче
+  ✔ empty скрыт при опциях и виден только при нуле совпадений (28.285222ms)
+✔ G2-03: пустое состояние QuickSwitcher соответствует выдаче (28.881355ms)
+[ACTION_FAILED] Не удалось удалить сообщение
+▶ G2-11: подтверждение удаления не липнет к следующей строке
+  ✖ смена строки и завершение onDelete снимают confirm (17.586712ms)
+✖ G2-11: подтверждение удаления не липнет к следующей строке (18.015268ms)
+ℹ tests 2
+ℹ suites 2
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 79.804251
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:131:3
+✖ смена строки и завершение onDelete снимают confirm (17.586712ms)
+  AssertionError [ERR_ASSERTION]: после ошибки delete confirm не сброшен
+  + actual - expected
+  
+  + 'Подтвердить удаление'
+  - 'Удалить сообщение'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:174:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:25:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:132:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Подтвердить удаление',
+    expected: 'Удалить сообщение',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -19,3 +19,4 @@ pub mod routes;
 pub mod super_properties;
 pub mod telemetry;
 pub mod transport;
+pub mod user;

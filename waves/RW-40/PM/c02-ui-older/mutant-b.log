@@ -1,0 +1,63 @@
+▶ C-02-PAGE: первая страница
+  ✔ открытие канала — position=latest, limit=100, без cursor/before/token (36.439076ms)
+✔ C-02-PAGE: первая страница (37.226861ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (22.793526ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (10.354366ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (10.758573ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (44.193776ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (10.835961ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (10.004518ms)
+✔ C-02-PAGE: ошибки подгрузки видны (21.050632ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (6.644597ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (15.823731ms)
+✔ C-02-PAGE: границы окна (22.6706ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✔ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (9.943929ms)
+✔ C-02-UI-OLDER: открытие на последнем сообщении (10.057346ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✔ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (8.205066ms)
+  ✖ направления не смешиваются: nextCursor older-страницы не подменяет forward (13.243014ms)
+✖ C-02-UI-OLDER: скролл вверх (before/olderCursor) (21.915335ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✔ ошибка 404: alert сверху, строки целы, retry догружает (12.300724ms)
+  ✔ ошибка 401: alert сверху, строки целы, retry догружает (6.83408ms)
+✔ C-02-UI-OLDER: ошибки подгрузки вверх (19.26519ms)
+▶ C-02-UI-OLDER: границы окна
+  ✔ окно истории не растёт сверх 500 строк при подгрузке вверх (17.179397ms)
+✔ C-02-UI-OLDER: границы окна (17.307983ms)
+ℹ tests 14
+ℹ suites 8
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244.890634
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:720:3
+✖ направления не смешиваются: nextCursor older-страницы не подменяет forward (13.243014ms)
+  AssertionError [ERR_ASSERTION]: forward-курсор подменён nextCursor older-страницы
+  + actual - expected
+  
+    {
+      channelId: '1163408591315812392',
+  +   cursor: '1561627527833849898',
+  -   cursor: '1561627528685166655',
+      limit: 100
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:768:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { channelId: '1163408591315812392', cursor: '1561627527833849898', limit: 100 },
+    expected: { channelId: '1163408591315812392', cursor: '1561627528685166655', limit: 100 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

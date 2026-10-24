@@ -7,11 +7,13 @@ import { basename, dirname, join, resolve } from "node:path";
 import { parseArgs, parseNumericArg, parseRegexArg } from "../core/args.mjs";
 import { callLine, parseCallLog, summarizeCallLines } from "../core/calls.mjs";
 import { openCallLog, waitForStop } from "../core/hook-io.mjs";
-import { listTargets, resolveEndpoint } from "../core/cdp/client.mjs";
+import { captureScreenshot, clickText, evaluate, listElements, listTargets, openPage, resolveEndpoint, resolveTargetHint } from "../core/cdp/client.mjs";
 import { csv, safeName } from "../core/csv.mjs";
+import { resolveAdapter } from "../core/ui/adapters.mjs";
+import { runWalk } from "../core/ui/engine.mjs";
 import { inventoryCounts, inventoryCsvRows, inventoryJson } from "../core/inventory.mjs";
 import { filterDiscordProcesses } from "../core/processes.mjs";
-import { functionsDir, logsDir } from "../core/paths.mjs";
+import { functionsDir, logsDir, screensDir } from "../core/paths.mjs";
 
 const HELP = `discord-lab — инструменты анализа Discord
 
@@ -22,6 +24,10 @@ const HELP = `discord-lab — инструменты анализа Discord
   inventory                инвентарь модулей и символов
   hook                     запись вызовов функций
   cdp targets              список CDP-целей
+  cdp eval <expr>          выполнить JS в странице (JSON)
+  cdp list <selector>      элементы по CSS-селектору (JSON)
+  cdp clicktext <text>     клик по кнопке/ссылке с текстом
+  cdp shot <path>          скриншот страницы в PNG
   walk <app>               обход интерфейса
   summarize [лог]          сводка вызовов из JSONL
   domains                  отчёт по доменам функций
@@ -115,14 +121,57 @@ export async function run(argv) {
     }
     case "cdp": {
       const subcommand = positionals[0];
-      if (subcommand !== "targets") return usageError(`Неизвестная команда cdp: ${subcommand ?? "(не указана)"}`);
       const endpoint = resolveEndpoint();
+      if (subcommand === "targets") {
+        try {
+          const targets = await listTargets(endpoint);
+          console.log(JSON.stringify(targets, null, 2));
+          return 0;
+        } catch (error) {
+          return environmentError(`Ошибка CDP endpoint ${endpoint}: ${errorMessage(error)}`);
+        }
+      }
+      if (subcommand !== "eval" && subcommand !== "list" && subcommand !== "clicktext" && subcommand !== "shot") {
+        return usageError(`Неизвестная команда cdp: ${subcommand ?? "(не указана)"}`);
+      }
+
+      const argument = positionals.slice(1).join(" ").trim();
+      if (!argument) {
+        if (subcommand === "eval") return usageError("cdp eval: укажите JS-выражение");
+        if (subcommand === "list") return usageError("cdp list: укажите CSS-селектор");
+        if (subcommand === "clicktext") return usageError("cdp clicktext: укажите текст");
+        return usageError("cdp shot: укажите путь к PNG");
+      }
+
+      /** @type {{ target: import("../core/types.js").PageTarget, cdp: import("../core/types.js").CdpEventClient }} */
+      let page;
       try {
-        const targets = await listTargets(endpoint);
-        console.log(JSON.stringify(targets, null, 2));
+        page = await openPage({ endpoint, hint: resolveTargetHint() });
+      } catch (error) {
+        return environmentError(`Ошибка CDP endpoint ${endpoint}: ${errorMessage(error)}`);
+      }
+      try {
+        if (subcommand === "eval") {
+          console.log(JSON.stringify(await evaluate(page.cdp, argument), null, 2));
+        } else if (subcommand === "list") {
+          console.log(JSON.stringify(await listElements(page.cdp, argument), null, 1));
+        } else if (subcommand === "clicktext") {
+          console.log(JSON.stringify(await clickText(page.cdp, argument)));
+        } else {
+          const bytes = await captureScreenshot(page.cdp);
+          try {
+            await mkdir(dirname(argument), { recursive: true });
+            await writeFile(argument, bytes);
+          } catch (error) {
+            return environmentError(`Не удалось записать скриншот ${argument}: ${errorMessage(error)}`);
+          }
+          console.log(JSON.stringify({ saved: argument, bytes: bytes.length }));
+        }
         return 0;
       } catch (error) {
         return environmentError(`Ошибка CDP endpoint ${endpoint}: ${errorMessage(error)}`);
+      } finally {
+        page.cdp.close();
       }
     }
     case "pids": {
@@ -333,8 +382,71 @@ export async function run(argv) {
         note(`[hook] завершено: записано вызовов: ${calls}, ошибок записи: ${writeErrors}`);
       }
     }
-    case "walk":
-      return environmentError("Команда walk появится в M3.");
+    case "walk": {
+      const app = positionals[0];
+      if (!app) return usageError("walk: укажите приложение (доступно: fixture)");
+      /** @type {import("../core/ui/adapters.mjs").WalkAdapter} */
+      let adapter;
+      try {
+        adapter = resolveAdapter(app);
+      } catch (error) {
+        return usageError(`walk: ${errorMessage(error)}`);
+      }
+
+      if (parsed.url !== undefined && (typeof parsed.url !== "string" || parsed.url.trim() === "")) {
+        return usageError("walk: --url не может быть пустым");
+      }
+      if (parsed.out !== undefined && typeof parsed.out !== "string") {
+        return usageError("walk: --out требует путь к файлу журнала");
+      }
+      if (parsed.screens !== undefined && typeof parsed.screens !== "string") {
+        return usageError("walk: --screens требует путь к каталогу");
+      }
+
+      /** @type {number} */
+      let settleMs;
+      /** @type {number} */
+      let maxSteps;
+      try {
+        settleMs = parsed["settle-ms"] === undefined
+          ? 250
+          : parseNumericArg("--settle-ms", parsed["settle-ms"], { min: 0, max: 10_000 });
+        maxSteps = parsed["max-steps"] === undefined
+          ? 200
+          : parseNumericArg("--max-steps", parsed["max-steps"], { min: 1, max: 1000 });
+      } catch (error) {
+        return usageError(errorMessage(error));
+      }
+
+      const endpoint = resolveEndpoint();
+      const out = resolve(typeof parsed.out === "string" ? parsed.out : join(logsDir(), `ui-walk-${app}.jsonl`));
+      const screens = resolve(typeof parsed.screens === "string" ? parsed.screens : screensDir());
+      /** @type {{ target: import("../core/types.js").PageTarget, cdp: import("../core/types.js").CdpEventClient }} */
+      let page;
+      try {
+        page = await openPage({ endpoint, hint: typeof parsed.url === "string" ? parsed.url : resolveTargetHint() });
+      } catch (error) {
+        return environmentError(`Ошибка CDP endpoint ${endpoint}: ${errorMessage(error)}`);
+      }
+      try {
+        const result = await runWalk({
+          cdp: page.cdp,
+          adapter,
+          outPath: out,
+          screensDir: screens,
+          settleMs,
+          maxSteps,
+          profile: parsed["no-profile"] !== true,
+          fresh: parsed.fresh === true,
+          log: (line) => console.log(line),
+          warn: note,
+        });
+        if (result.code === 0) console.log(`Готово: ${result.steps} шагов -> ${out}`);
+        return result.code;
+      } finally {
+        page.cdp.close();
+      }
+    }
     case "domains":
       return environmentError("Команда domains появится в M4.");
     case "static":

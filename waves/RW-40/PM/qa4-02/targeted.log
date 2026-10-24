@@ -1,0 +1,45 @@
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (2.590487ms)
+  ✔ каждая строка §8 указывает на существующий тест; токены встречаются в нём (3.440661ms)
+  ✔ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (1.71793ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (0.776247ms)
+  ✖ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.698509ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (11.262149ms)
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.455595ms)
+  ✔ в тестах нет .only, todo и пустых assert (3.899917ms)
+  ✔ скрипты не обходят хуки и проверки (0.451175ms)
+  ✔ гейт содержит обязательные фазы (0.137614ms)
+  ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.346024ms)
+✔ TEST-POLICY: запрет ослабления тестов (6.263462ms)
+ℹ tests 10
+ℹ suites 2
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.26328
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:179:3
+✖ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.698509ms)
+  AssertionError [ERR_ASSERTION]: расхождение токенов §8 и экспортов модулей
+  + actual - expected
+  
+  + [
+  +   'tests/unit/cdp.test.mjs ↔ src/core/cdp/client.mjs: лишние [], не покрыты [captureScreenshot, clickText, clickTextExpression, listElements, listElementsExpression, openPage]'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:202:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/unit/cdp.test.mjs ↔ src/core/cdp/client.mjs: лишние [], не покрыты [captureScreenshot, clickText, clickTextExpression, listElements, listElementsExpression, openPage]' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

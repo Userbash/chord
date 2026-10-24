@@ -1,0 +1,5 @@
+2e783fedf7d71db5756048105c46ccfd  rust/gui-spike/ui/features/actions.js
+b535a176b88680372c5008dd3148426a  rust/gui-spike/ui/app.js
+6dff5c0a6d355a938bd6f4dd48c0ac25  rust/gui-spike/ui/index.html
+7b0a6595c0a2e2572e898b1dd5e73e60  rust/gui-spike/ui/components/server-menu.css
+e7201e22e7b26fcc1b4e5c94bd6b7825  tests/unit/gui-spike-features.test.mjs

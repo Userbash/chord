@@ -1,0 +1,218 @@
+/* =============================================================================
+ * members.css — панель участников 240 (--layout-member-panel-w), превью 42
+ * (--row-member), список участников 40 (--row-member-track, inline из JS),
+ * тулбар 48 (--space-11).
+ * Видимость #member-panel переключает style.css (body[data-active-screen]).
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * Панель в чате
+ * ------------------------------------------------------------------------ */
+.member-panel {
+  flex: 0 0 var(--layout-member-panel-w);
+  flex-direction: column;
+  width: var(--layout-member-panel-w);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--layout-panel-pad) var(--layout-member-pad-x);
+  overflow: hidden;
+  background: var(--bg-chat);
+  box-shadow: var(--shadow-elevation-stroke);
+}
+
+.member-panel-title {
+  flex: 0 0 auto;
+  margin: 0 0 var(--space-4);
+  padding: 0 var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  line-height: var(--line-height-small);
+  text-transform: uppercase;
+}
+
+#member-online {
+  font-variant-numeric: tabular-nums;
+}
+
+.member-panel-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.member-panel-all {
+  flex: 0 0 auto;
+  height: var(--btn-height);
+  margin-top: var(--space-2);
+  border: 0;
+  border-radius: var(--btn-radius);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-align: left;
+}
+
+.member-panel-all:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+/* ---------------------------------------------------------------------------
+ * Экран участников
+ * ------------------------------------------------------------------------ */
+.members-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-5);
+  align-items: center;
+  height: var(--space-11);
+  padding: 0 var(--space-6);
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.members-toolbar .search-field {
+  flex: 0 1 var(--layout-member-panel-w);
+  width: var(--layout-member-panel-w);
+}
+
+.members-count {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-height-small);
+}
+
+.member-list {
+  padding: var(--space-4) 0;
+  scrollbar-gutter: stable;
+}
+
+/* Строка участника: 40 на экране / 42 в панели — height приходит inline. */
+.member {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-xs);
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.member:hover {
+  background: var(--state-hover);
+}
+
+.member.is-selected {
+  background: var(--state-selected);
+}
+
+.member-name {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+}
+
+.member-label {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-role {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+ * P3-02 (W39h): 6 групп участников (MEM-02/04) и чипы экрана.
+ * Блок заголовка группы — 42 (D-13, `--row-member-group`): 16 pad-top + строка 24.
+ * ========================================================================== */
+.member-group {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.member-group-title {
+  display: flex;
+  flex: 0 0 var(--row-member-group);
+  align-items: flex-end;
+  box-sizing: border-box;
+  height: var(--row-member-group);
+  margin: 0;
+  padding: var(--space-4) var(--space-2) 0;
+  color: var(--text-faint);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  line-height: var(--row-menu-item); /* строка 24 внутри блока 42 */
+  text-transform: uppercase;
+}
+
+/* Чипы 6 групп на экране участников: тулбар 48 + поиск 32 (MEM-13). */
+.member-groups {
+  display: flex;
+  flex: 0 1 auto;
+  gap: var(--space-2);
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.member-group-chip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+  align-items: center;
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-round);
+  background: var(--surface-input);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.member-group-chip:hover {
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+
+.member-group-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+.member-group-chip-count {
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.member-group-chip[aria-pressed="true"] .member-group-chip-count {
+  color: var(--text-subtle);
+}
+
+.member[aria-current="true"] {
+  background: var(--state-selected);
+}

@@ -1,0 +1,26 @@
+dd897e184246d42762c1771474f051db  waves/RW-40/DESIGN/STREAM.md
+1452d0c49112893d23ee42d80955b593  waves/RW-40/DESIGN/stream-spec.json
+c6234a84efee381bc797f332e9610f95  waves/RW-40/PM/s-design/validate.py
+ff7f8cb6d124aff9b9ef4b9af78d87af  waves/RW-40/PM/s-design/measure.py
+e094597f2a363411190e879df7122ed9  waves/RW-40/PM/s-design/validate.log
+9d7f44d8b13380a20b66135c3dbcfe75  waves/RW-40/PM/s-design/measure.log
+f791b9d3541747e781e28b0160d83602  waves/RW-40/PM/s-design/REPORT.md
+--- inputs ---
+f324a3766150f93c2b8d99f3c00a4a78  docs/re/voice-deep.md
+182d4d48cc3376f8e9a0537706dad3e5  docs/re/native-re.md
+79ed101289ac9630fbf5687b2238915b  waves/RW-40/NETWORK-CONTRACTS.md
+157a5cbdaa6feebb885f56715c91b194  waves/RW-40/DESIGN/VOICE.md
+49e5186e3ce759a6b6bfc063492f6dfa  waves/RW-40/DESIGN/SERVER-MENU.md
+7030bafa672a590ccacbe47a676deb0f  waves/RW-39/DESIGN/SPEC.md
+62fffb9cb8bdd3429cd45160a77a2525  waves/RW-39/DESIGN/tokens.css
+ef5a88b552e9cc90e322f8da598a46dd  /home/sanya/re-deep/voice/ui/01-voice-panel.html
+5a778c2b522f3c6316556d794ffb440b  /home/sanya/re-deep/voice/ui-s2/01-voice-panel.html
+ef1ea67408721a035449ff4c9e64057c  /home/sanya/re-deep/voice/ui/01-panel-text.json
+a57572867c13bbbe90228279f390470e  /home/sanya/re-deep/voice/ui/01-candidates.json
+f7b1c241854fcc4c86d63e6084af2471  /home/sanya/re-deep/voice/ui/01-joined.png
+0ee803c3df9386b81820959a1440ebe6  /home/sanya/re-deep/ui8/23-settings-voice.json
+76eb089decec83559fe372d324613bac  /home/sanya/re-deep/native-re/voice-features.txt
+09272320cecfa79d479a2b03df7adce1  /home/sanya/re-deep/ru-catalog.json
+7f913c8fe659f3e20bee2cb1d5269fd8  /home/sanya/re-deep/voice/rtc1-frames.jsonl
+e8003f12f2eef3136bc31a5bba16ed5b  /home/sanya/re-deep/voice/rtc2-frames.jsonl
+ad4c8cb9c182b6d22aa8f431f7776372  /home/sanya/re-deep/discord-run3.log

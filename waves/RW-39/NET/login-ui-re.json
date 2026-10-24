@@ -1,0 +1,1181 @@
+{
+  "meta": {
+    "wave": "RW-39",
+    "role": "NET-R2",
+    "topic": "login UI RE (layout, captcha, 2FA)",
+    "date": "2026-10-23",
+    "target": "Discord desktop 1.0.162 (client_build_number 641004)",
+    "mode": "read-only, no network, no window, no asset copy",
+    "report": "waves/RW-39/NET/LOGIN-UI-RE.md",
+    "facts_count": 109
+  },
+  "tags": {
+    "D": "direct code/artifact",
+    "M": "measured/computed value from live client tokens",
+    "A": "analysis/inference, no direct proof"
+  },
+  "sources": {
+    "LOGIN_CHUNK": {
+      "file": "/home/sanya/re-deep/decoded/dbd05750a1cb3484_0",
+      "url": "https://discord.com/assets/ae9016b5ac149349.js",
+      "bytes": 149094,
+      "md5": "b581000d340631f5ffdada7d6c61797a"
+    },
+    "MFA_CHUNK": {
+      "file": "/home/sanya/re-deep/decoded/8fed1c84bcaee32d_0",
+      "url": "https://discord.com/assets/9efedacca22a4bc6.js",
+      "bytes": 9759,
+      "md5": "e0c020f12d8fe0fc6b90925736414f85"
+    },
+    "WEB": {
+      "file": "/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0",
+      "url": "https://discord.com/assets/web.4d4b2f75fdea5470.js",
+      "bytes": 12410287,
+      "md5": "934b1289b7ebf17bc0fd09569b23b438"
+    },
+    "QR_CHUNK": {
+      "file": "/home/sanya/re-deep/decoded/f0cac74b6ccdca5e_0",
+      "url": "https://discord.com/assets/0c2bfaf5557c575e.js",
+      "bytes": 22033,
+      "md5": "8b11ff1a7f8451fe85b489b6e1310e8c"
+    },
+    "LOGIN_HTML": {
+      "file": "/home/sanya/re-deep/decoded/43644898c0897078_0",
+      "url": "https://discord.com/login",
+      "bytes": 74817,
+      "md5": "4fbb7d4afc37f27d16f65a66ba146d27"
+    },
+    "CSS_AUTH": {
+      "file": "/home/sanya/re-deep/decoded/a92f46d41f311d85_0",
+      "url": "https://discord.com/assets/348181.a3b3bc62ee2f1223.css",
+      "bytes": 50278,
+      "md5": "4f589a8a0ca3305d31aba91564ed3fcf"
+    },
+    "CSS_LOGINPAGE": {
+      "file": "/home/sanya/re-deep/decoded/68156f1de4207c34_0",
+      "url": "https://discord.com/assets/351200.ec1294199b2e7a31.css",
+      "bytes": 1784,
+      "md5": "e21b964cebe355ac15b3a7d52a7185d5"
+    },
+    "CSS_INPUT": {
+      "file": "/home/sanya/re-deep/decoded/9844453f9a221800_0",
+      "url": "https://discord.com/assets/964940.62a0e9d626b739d9.css",
+      "bytes": 45662,
+      "md5": "b3eac679ddf507720e99749d3ceefe3e"
+    },
+    "CSS_QR": {
+      "file": "/home/sanya/re-deep/decoded/7d04e08304d9e681_0",
+      "url": "https://discord.com/assets/461123.de02227c725f5838.css",
+      "bytes": 2802,
+      "md5": "a5f56df860a295b412a728349971a39f"
+    },
+    "CSS_MFA": {
+      "file": "/home/sanya/re-deep/decoded/33af86ca2e7626d9_0",
+      "url": "https://discord.com/assets/715528.a04399038393a931.css",
+      "bytes": 1371,
+      "md5": "4fe504d86a1852328606138f5019a1cb"
+    },
+    "CSS_MODAL": {
+      "file": "/home/sanya/re-deep/decoded/0efa31d45bd04ece_0",
+      "url": "https://discord.com/assets/555628.eb33ac71a27a7069.css",
+      "bytes": 8902,
+      "md5": "b8c6782a0edc227b7648eb5c24889b61"
+    },
+    "CSS_AUTH2": {
+      "file": "/home/sanya/re-deep/decoded/024ca22b022f0c24_0",
+      "url": "https://discord.com/assets/9c4f0bfdbdf4f0e8.css",
+      "bytes": 4959,
+      "md5": "e6c6f6109aa2cf8ac829b28102fb0418"
+    },
+    "CSS_TYPO": {
+      "file": "/home/sanya/re-deep/decoded/058616e449204655_0",
+      "url": "https://discord.com/assets/…058616e449204655.css",
+      "bytes": null,
+      "md5": null
+    },
+    "TOKENS": {
+      "file": "/home/sanya/re-deep/ui/tokens.json",
+      "url": null,
+      "bytes": null,
+      "md5": null
+    },
+    "MAIN_ARCH": {
+      "file": "/home/sanya/orca/project/docs/re/main-arch.md",
+      "url": null,
+      "bytes": null,
+      "md5": null
+    },
+    "I18N_RU": {
+      "file": "/home/sanya/re-deep/ru-catalog.json",
+      "url": null,
+      "bytes": null,
+      "md5": null
+    },
+    "I18N_EN": {
+      "file": "/home/sanya/re-deep/en-catalog.json",
+      "url": null,
+      "bytes": null,
+      "md5": null
+    },
+    "CAPTCHA_CHUNK": {
+      "file": "/home/sanya/re-deep/decoded/cd0cb5bf249f258f_0",
+      "url": "https://discord.com/assets/ee08a8c7800d06ae.js",
+      "bytes": 1487,
+      "md5": "6f456f33fe2d0afa0fbc8c37ef244cb0"
+    }
+  },
+  "facts": [
+    {
+      "id": "WIN-01",
+      "area": "window",
+      "fact": "Отдельного login-окна нет: /login — маршрут в главном окне Electron 1280x720, min 940x500, frame:false",
+      "tag": "D",
+      "source": "MAIN_ARCH:218-230; core/bundle.js@141300..142450",
+      "method": "static"
+    },
+    {
+      "id": "WIN-02",
+      "area": "window",
+      "fact": "Фон приложения под логином: .appMount position:absolute 100%, background var(--background-base-lowest) = hsl(240 5.263% 7.451%) ~ #121214",
+      "tag": "D+M",
+      "source": "CSS_TYPO(c8010f8e039835e3_0); TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "WIN-03",
+      "area": "window",
+      "fact": "/login рендерится lC через s7=iT(lC); маршрут D.BVt.LOGIN в таблице rE",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@129389..130389,@136631",
+      "method": "static"
+    },
+    {
+      "id": "WIN-04",
+      "area": "window",
+      "fact": "iT — анимационная обёртка (scale/translateY); её CSS-модуль 706192 отсутствует в декодированном наборе (внешний центр-контейнер неизвестен)",
+      "tag": "D+A",
+      "source": "LOGIN_CHUNK@47816",
+      "method": "static"
+    },
+    {
+      "id": "WIN-05",
+      "area": "window",
+      "fact": "Коробка входа: базово 480px; у логина expanded -> authBoxExpanded__921c5 authBox__921c5, ширина 784px",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@63565; CSS_AUTH@27248; 2790bad9686ed34c_0(PR)",
+      "method": "static"
+    },
+    {
+      "id": "WIN-06",
+      "area": "window",
+      "fact": "Внутри коробки: discordLogo 130x36 (margin-bottom 16) + centeringWrapper (text-align center, width 100%, min-height 540)",
+      "tag": "D",
+      "source": "WEB@854378; CSS_AUTH@26763,@26908,@27514",
+      "method": "static"
+    },
+    {
+      "id": "WIN-07",
+      "area": "window",
+      "fact": "Десктопный логин: Stack horizontal gap=64 = форма (flex-grow 1) + QR 240px; расчётная ширина формы 416px",
+      "tag": "D+A",
+      "source": "LOGIN_CHUNK@63565; CSS_LOGINPAGE@289; CSS_QR@0",
+      "method": "static"
+    },
+    {
+      "id": "WIN-08",
+      "area": "window",
+      "fact": "@media max-width 830: expanded max-width 480; QR-блок (qrLogin:not(.qrLoginHorizontal)) скрыт",
+      "tag": "D",
+      "source": "CSS_AUTH@27975,@28376; CSS_QR@1038",
+      "method": "static"
+    },
+    {
+      "id": "WIN-09",
+      "area": "window",
+      "fact": "@media max-width 485: полноэкранный мобильный режим, gradient #3d4046 -> #1e1e23, padding 20px 16px",
+      "tag": "D",
+      "source": "CSS_AUTH@27489",
+      "method": "static"
+    },
+    {
+      "id": "WIN-10",
+      "area": "window",
+      "fact": "Тема логина всегда dark: AuthBox default theme=DARK + disableAdaptiveTheme=true",
+      "tag": "D",
+      "source": "WEB@854378",
+      "method": "static"
+    },
+    {
+      "id": "WIN-11",
+      "area": "window",
+      "fact": "Встраиваемый вариант (invite sidebar, min-width 900): direction vertical gap 24, QR horizontal (row gap 24), authBox__3689c width 100%, прозрачный фон",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@106768; CSS_AUTH2@3770; CSS_QR@246",
+      "method": "static"
+    },
+    {
+      "id": "LU-01",
+      "area": "login",
+      "fact": "Порядок блоков: заголовок -> e-mail/phone -> password -> Забыли пароль? -> Вход -> Нужна учётная запись?/Зарегистрироваться",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@61504..62950",
+      "method": "static"
+    },
+    {
+      "id": "LU-02",
+      "area": "login",
+      "fact": "Заголовок 'С возвращением!' (7fNJgA), heading-xl/semibold 24/600 text-strong, mb 8; подзаголовок 'Мы так рады видеть вас снова!' (euS7r4), text-md/normal 16/400 text-default",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@61504; WEB@854378; I18N",
+      "method": "static+computed"
+    },
+    {
+      "id": "LU-03",
+      "area": "login",
+      "fact": "При passwordReset подзаголовок заменяется на 'Your password has been reset. Log in with your new password.' (N9U/9X; RU-ключа нет)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@61332; I18N",
+      "method": "static"
+    },
+    {
+      "id": "LU-04",
+      "area": "login",
+      "fact": "На Android-web подзаголовок не выводится (if false===isAndroidWeb())",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@61420..61540",
+      "method": "static"
+    },
+    {
+      "id": "LU-05",
+      "area": "login",
+      "fact": "Поле 1: label 'Адрес электронной почты или номер телефона' (tUjnxr), required, autoComplete username webauthn, autocapitalize none, autocorrect off, spellcheck false; значение из query email/login",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@61902..62100; I18N",
+      "method": "static"
+    },
+    {
+      "id": "LU-06",
+      "area": "login",
+      "fact": "Ошибки поля 1: errors.login ?? errors.email (первый элемент); при ошибке password фокус на пароль, иначе на login/email",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@58970..59300",
+      "method": "static"
+    },
+    {
+      "id": "LU-07",
+      "area": "login",
+      "fact": "Поле 2: label 'Пароль' (CIGa+7), type=password, name=password, autoComplete current-password, required, spellcheck false, error из errors.password",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@62110..62240; I18N",
+      "method": "static"
+    },
+    {
+      "id": "LU-08",
+      "area": "login",
+      "fact": "'Забыли пароль?' (wWIufs) — кнопка-текст 14px, mt4/mb20; клик фокусирует логин и вызывает forgotPassword(login)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@59764,@62350; CSS_LOGINPAGE@118",
+      "method": "static"
+    },
+    {
+      "id": "LU-09",
+      "area": "login",
+      "fact": "Кнопка 'Вход' (dKhVQN): type=submit, fullWidth, primary md (min-height 38 + border = 40), loading при LOGGING_IN, обёртка mb8",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@62560..62600; CSS_AUTH@3105",
+      "method": "static"
+    },
+    {
+      "id": "LU-10",
+      "area": "login",
+      "fact": "'Нужна учётная запись?' (tmE73r) 14/16 + 'Зарегистрироваться' (pV8xeR) 14px, margin-inline-start 4, inline-block; блок mt4",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@62754..62900; CSS_LOGINPAGE@118,@170",
+      "method": "static"
+    },
+    {
+      "id": "LU-11",
+      "area": "login",
+      "fact": "Переход в регистрацию: mode=register, e-mail сохраняется в query; для invite/gift/template свой путь, иначе /register (+redirect_to)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@62900..63100",
+      "method": "static"
+    },
+    {
+      "id": "LU-12",
+      "area": "login",
+      "fact": "Мультиаккаунт: экран 'Выбрать учётную запись' (bVbB63), текст 0M5fN7, 'Вход' DSN+hw, 'Добавить учётную запись' 9g2mqT, 'Назад' 1MrpWO",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@57800..58800; I18N",
+      "method": "static"
+    },
+    {
+      "id": "LU-13",
+      "area": "login",
+      "fact": "При мультиаккаунтном логине ставится пустой заголовок authorization:''",
+      "tag": "D",
+      "source": "WEB@551990; AUTH-RE A-03",
+      "method": "static"
+    },
+    {
+      "id": "LU-14",
+      "area": "login",
+      "fact": "Passkey: поле логина объявлено username webauthn (conditional UI), в QR-блок передаётся conditionalMediationAbortController; ссылка 'Или войти с помощью ключа доступа' (/kpMDt)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@61902,@63695; QR_CHUNK@52423",
+      "method": "static"
+    },
+    {
+      "id": "LU-15",
+      "area": "login",
+      "fact": "Состояние detecting account: спиннер + 'Обнаружение учётной записи' (S6RMNA) + 'Пытаемся обнаружить...' (YZiJbh)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@69400..69600",
+      "method": "static"
+    },
+    {
+      "id": "LU-16",
+      "area": "login",
+      "fact": "One-time login (/login/one-time): 'Вход в Discord' (qq4tjT)/'Приложение Discord не может быть открыто' + 'Нам не удалось найти приложение...' (CVxYRo); 'Недействительная ссылка для входа' (RtCSr1) + 'Вернуться ко входу' (j3cG2p)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@129887..130389",
+      "method": "static"
+    },
+    {
+      "id": "LU-17",
+      "area": "login",
+      "fact": "Mobile-web handoff (?handoff_token=): uJ1JsY + GHVWAs, ошибки EPt55r/g87kTp, кнопка 'Открыть приложение' NcC759; POST HANDOFF_EXCHANGE {key,handoff_token}",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@56900..57800,@3044..3962",
+      "method": "static"
+    },
+    {
+      "id": "LU-18",
+      "area": "login",
+      "fact": "70007: экран 'Введите код подтверждения...' (w55Oco) + CfRZBj + resend ссылка",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@69700..69900; I18N",
+      "method": "static"
+    },
+    {
+      "id": "LU-19",
+      "area": "login",
+      "fact": "Сброс пароля по SMS: '+xqy3d' + 'ef4uZ7'",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@69900..70100; I18N",
+      "method": "static"
+    },
+    {
+      "id": "LU-20",
+      "area": "login",
+      "fact": "Экраны 20011/20013: 'Аккаунт запланирован к удалению' (ZFWofo)/'отключён', 'Вернуться к авторизации' (JhDw5o), 'Передумали? ...' (js2rr5)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@54200..55200; I18N",
+      "method": "static"
+    },
+    {
+      "id": "ST-01",
+      "area": "style",
+      "fact": "Коробка: background var(--modal-background)=hsl(240 6.494% 15.098%)~#242429; radius 8; legacy-elevation-high 0 2px 10px black20; padding 32; font-size 18; color text-muted ~#96979e",
+      "tag": "D+M",
+      "source": "CSS_AUTH@26908; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-02",
+      "area": "style",
+      "fact": "Шрифт --font-primary: 'gg sans','Noto Sans','Helvetica Neue',Helvetica,Arial,sans-serif; semibold 600",
+      "tag": "M",
+      "source": "TOKENS",
+      "method": "computed"
+    },
+    {
+      "id": "ST-03",
+      "area": "style",
+      "fact": "heading-xl/semibold: 24px/600/1.25, text-strong ~#fbfbfb",
+      "tag": "D+M",
+      "source": "CSS_TYPO; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-04",
+      "area": "style",
+      "fact": "text-md/normal: 16px/400/1.25, text-default ~#efeff1",
+      "tag": "D+M",
+      "source": "CSS_TYPO; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-05",
+      "area": "style",
+      "fact": "Ссылки в коробке: color text-link ~#4d96ee, hover underline",
+      "tag": "D+M",
+      "source": "CSS_AUTH@27000; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-06",
+      "area": "style",
+      "fact": "FormField label: text-md/medium 16px/500 text-strong; '*' text-md/normal critical; label margin-bottom 8, gap 4",
+      "tag": "D",
+      "source": "WEB@452027; CSS_INPUT@1602,@1784",
+      "method": "static"
+    },
+    {
+      "id": "ST-07",
+      "area": "style",
+      "fact": "Input: height 40; border 1px var(--input-border-default) (белый .2); radius 8; bg чёрный 12%; text ~#efeff1; placeholder ~#8f9096",
+      "tag": "D+M",
+      "source": "CSS_INPUT@5055; CSS_AUTH@11015,@11796; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-08",
+      "area": "style",
+      "fact": "Focus: border var(--input-border-active)=#5865f2 + outline 2px offset -2; hover меняет border",
+      "tag": "D+M",
+      "source": "CSS_INPUT@5993; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-09",
+      "area": "style",
+      "fact": "Error поля: border --input-border-error-default ~#f87e7a, bg красный 4%, text error; hover outline 2px error",
+      "tag": "D+M",
+      "source": "CSS_INPUT@6212,@6571; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-10",
+      "area": "style",
+      "fact": "Текст ошибки: иконка + text-xs/normal 12/400 critical ~#f87e7a; grid gap 4; в MFA margin-top 8",
+      "tag": "D+M",
+      "source": "WEB@281595; CSS_INPUT@3929; CSS_MFA@517; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-11",
+      "area": "style",
+      "fact": "Button: radius 8, border 1 transparent; md min-height 38 (+border=40), padding 7/15; primary #5865f2, text white, hover #4452bb; secondary белый 12%",
+      "tag": "D+M",
+      "source": "CSS_AUTH@60,@3105,@3650,@4158; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "ST-12",
+      "area": "style",
+      "fact": "Ссылки 'Забыли пароль?'/'Зарегистрироваться' 14px (text-sm/normal); ссылка регистрации margin-inline-start 4",
+      "tag": "D",
+      "source": "CSS_LOGINPAGE@118,@170",
+      "method": "static"
+    },
+    {
+      "id": "ST-13",
+      "area": "style",
+      "fact": "QR: блок 240; контейнер 176x176 mb32; QR-компонент size=160, level M, bg #fff, fg #000; overlay 50x50; horizontal row gap 24",
+      "tag": "D",
+      "source": "CSS_QR@0,@378,@849; QR_CHUNK@906118,@414121",
+      "method": "static"
+    },
+    {
+      "id": "ST-14",
+      "area": "style",
+      "fact": "Login layout: header flex column center 100%; mainLoginContainer flex column align-start flex-grow 1; needAccount 14/16; smallRegisterLink inline-block + margin-inline-start 4",
+      "tag": "D",
+      "source": "CSS_LOGINPAGE@0..613",
+      "method": "static"
+    },
+    {
+      "id": "ST-15",
+      "area": "style",
+      "fact": "QR spinner: wanderingCubes, aria-busy, aria-label BUGkVF; при готовности announce j2p125",
+      "tag": "D",
+      "source": "QR_CHUNK; I18N",
+      "method": "static"
+    },
+    {
+      "id": "ER-01",
+      "area": "error",
+      "fact": "50035 + oldFormErrors -> плоские field errors; раскладка по login/email/password, под полем; data-error на wrapper",
+      "tag": "D",
+      "source": "WEB@10694717; LOGIN_CHUNK@58970; CSS_INPUT@6212",
+      "method": "static"
+    },
+    {
+      "id": "ER-02",
+      "area": "error",
+      "fact": "Фокус после ошибок: password -> пароль, иначе login/email",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@58970..59150",
+      "method": "static"
+    },
+    {
+      "id": "ER-03",
+      "area": "error",
+      "fact": "Клиентской проверки обязательности в логине нет (только HTML required); R98xD5 относится к reset-странице",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@62110..62600,@163050",
+      "method": "static"
+    },
+    {
+      "id": "ER-04",
+      "area": "error",
+      "fact": "Коды: 50018 INVALID_PASSWORD, 50022, 40002, 70007, 20011, 20013; suspended_user_token -> ACCOUNT_STANDING",
+      "tag": "D",
+      "source": "WEB@551777; AUTH-RE E-07/E-10",
+      "method": "static"
+    },
+    {
+      "id": "ER-05",
+      "area": "error",
+      "fact": "401 + 60003 MFA_REQUIRED + body.mfa -> step-up MFA-модалка; 401 без этого обрабатывается локально",
+      "tag": "D",
+      "source": "WEB@1004970,@1002375",
+      "method": "static"
+    },
+    {
+      "id": "ER-06",
+      "area": "error",
+      "fact": "400 + body.captcha_key -> модалка captcha и повтор с X-Captcha-*",
+      "tag": "D",
+      "source": "WEB@1004547",
+      "method": "static"
+    },
+    {
+      "id": "ER-07",
+      "area": "error",
+      "fact": "429/503 pause per-URL retry-after/5s, backoff 1..60; 502/504/507/598/599/522/523/524 ретраи; login/MFA retries:2",
+      "tag": "D",
+      "source": "WEB@10692340; AUTH-RE E-01/E-02/E-09",
+      "method": "static"
+    },
+    {
+      "id": "ER-08",
+      "area": "error",
+      "fact": "Прочие ошибки логина -> field-errors; глобального баннера в форме нет",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@59150..59700; WEB@8979206",
+      "method": "static"
+    },
+    {
+      "id": "REG-01",
+      "area": "register",
+      "fact": "/register -> ri=iT(lQ); заголовок 'Создать учётную запись' (wC4TlR); обычная коробка 480px",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@84407,@84967,@131000",
+      "method": "static"
+    },
+    {
+      "id": "REG-02",
+      "area": "register",
+      "fact": "Два шага: 0 — Username + Your birthday + 'Далее' (PDTjLN); 1 — E-mail + Пароль + promo + consent + 'Создать учётную запись'",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@33186,@33314",
+      "method": "static"
+    },
+    {
+      "id": "REG-03",
+      "area": "register",
+      "fact": "Шаг 0: username toLowerCase, подсказка/валидация 14px (z7c4bP/nDGqqq), Next disabled пока username пуст или DOB не разобран",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@30200..30900,@28900..30100",
+      "method": "static"
+    },
+    {
+      "id": "REG-04",
+      "area": "register",
+      "fact": "Шаг 1: email type=email autocomplete username; password type=password autocomplete new-password; promo checkbox (эксперимент); consent; кнопка disabled без email/password/consent",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@25400..27600",
+      "method": "static"
+    },
+    {
+      "id": "REG-05",
+      "area": "register",
+      "fact": "Consent: qMDAP0 ($link и $link Discord); если не обязателен — пассивная строка KI+BSb",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@24168; I18N",
+      "method": "static"
+    },
+    {
+      "id": "REG-06",
+      "area": "register",
+      "fact": "Ошибки: email, phone, password, username, global_name, date_of_birth, promotional_email_opt_in, fingerprint, invite, gift_code_sku_id, guild_template_code, consent + generic",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@22800..23400",
+      "method": "static"
+    },
+    {
+      "id": "REG-07",
+      "area": "register",
+      "fact": "Invite/gift/template меняют шапку и добавляют поля invite/gift_code_sku_id/guild_template_code (тело /auth/register — AUTH-RE A-21)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@27600..28600; AUTH-RE A-21",
+      "method": "static"
+    },
+    {
+      "id": "REG-08",
+      "area": "register",
+      "fact": "'Уже есть учётная запись? Откройте приложение' (renMUD) — 14px кнопка внизу",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@27034,@32700; I18N",
+      "method": "static"
+    },
+    {
+      "id": "REG-09",
+      "area": "register",
+      "fact": "Возрастной gate (<13): WqEH4D + 'Узнать больше' (hvVgAZ), отправка блокируется",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@71886..72100",
+      "method": "static"
+    },
+    {
+      "id": "QR-01",
+      "area": "qr",
+      "fact": "Отдельной вкладки нет: QR справа от формы в одной коробке (horizontal stack gap 64), 240px; <830px скрыт",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@63695; CSS_QR@1038",
+      "method": "static"
+    },
+    {
+      "id": "QR-02",
+      "area": "qr",
+      "fact": "Заголовок 'Войти с помощью QR-кода' (UPiHaL) heading-xl/semibold mb8; описание Qq+A6i с ссылкой 'мобильного приложения Discord'",
+      "tag": "D",
+      "source": "QR_CHUNK@3203; I18N",
+      "method": "static"
+    },
+    {
+      "id": "QR-03",
+      "area": "qr",
+      "fact": "Ссылка 'Или войти с помощью ключа доступа' (/kpMDt) text-sm/normal, disabled при активном passwordless",
+      "tag": "D",
+      "source": "QR_CHUNK@3203; I18N",
+      "method": "static"
+    },
+    {
+      "id": "QR-04",
+      "area": "qr",
+      "fact": "Loading: wanderingCubes + aria-label BUGkVF; ready announce j2p125; QR aria-label SzYj9v, tabIndex 0",
+      "tag": "D",
+      "source": "QR_CHUNK@2393; I18N",
+      "method": "static"
+    },
+    {
+      "id": "QR-05",
+      "area": "qr",
+      "fact": "Значение QR https://discord.com/ra/{fingerprint}, fingerprint=base64url(SHA-256(SPKI)); overlay PNG 50x50",
+      "tag": "D",
+      "source": "QR_CHUNK@6333,@6891,@414121",
+      "method": "static"
+    },
+    {
+      "id": "QR-06",
+      "area": "qr",
+      "fact": "pending_ticket: avatar 120, 'Проверьте телефон!' (apGCUT), 'Вход: username' (Cbl5JK), 'Это не я, начинаем заново' (nOOhwo)",
+      "tag": "D",
+      "source": "QR_CHUNK@3203; CSS_QR@975; I18N",
+      "method": "static"
+    },
+    {
+      "id": "QR-07",
+      "area": "qr",
+      "fact": "Транспорт wss://remote-auth-gateway.discord.gg/?v=2 (GLOBAL_ENV.REMOTE_AUTH_ENDPOINT), JSON {op:...}",
+      "tag": "D",
+      "source": "QR_CHUNK@6333; LOGIN_HTML@2329",
+      "method": "static"
+    },
+    {
+      "id": "QR-08",
+      "area": "qr",
+      "fact": "Handshake: RSA-OAEP-2048 SHA-256; init {encoded_public_key} base64 SPKI; hello {heartbeat_interval,timeout_ms}; heartbeat/heartbeat_ack; nonce_proof -> decrypt encrypted_nonce",
+      "tag": "D",
+      "source": "QR_CHUNK@1012..6900",
+      "method": "static"
+    },
+    {
+      "id": "QR-09",
+      "area": "qr",
+      "fact": "pending_remote_init {fingerprint} (сверка), pending_ticket {encrypted_user_payload} = id:discriminator:avatar:username, avatar '0'->null",
+      "tag": "D",
+      "source": "QR_CHUNK@6891,@7628,@1949",
+      "method": "static"
+    },
+    {
+      "id": "QR-10",
+      "area": "qr",
+      "fact": "pending_login {ticket}: POST /users/@me/remote-auth/login {ticket} -> {encrypted_token} -> decrypt -> auth token -> loginToken(token,false); onAuthenticateSuccess(fingerprint)",
+      "tag": "D",
+      "source": "QR_CHUNK@7182; AUTH-RE A-18",
+      "method": "static"
+    },
+    {
+      "id": "QR-11",
+      "area": "qr",
+      "fact": "cancel -> новый handshake; ошибка WS -> backoff 1.5..30 c (new w.A(1500,3e4))",
+      "tag": "D",
+      "source": "QR_CHUNK@6900..7100,@8700",
+      "method": "static"
+    },
+    {
+      "id": "QR-12",
+      "area": "qr",
+      "fact": "QR-флоу — чужой (передача учётных данных между устройствами); по уставу NET не реализуем",
+      "tag": "A",
+      "source": "AUTH-RE §8.8",
+      "method": "static"
+    },
+    {
+      "id": "CAP-01",
+      "area": "captcha",
+      "fact": "Триггер: HTTP 400 с body.captcha_key (в т.ч. /auth/login) в глобальном interceptResponse",
+      "tag": "D",
+      "source": "WEB@1004547",
+      "method": "static"
+    },
+    {
+      "id": "CAP-02",
+      "area": "captcha",
+      "fact": "Действие: lazy chunk '536037' (module 165508) + module 888548; showCaptchaAsync(extractCaptchaPropsFromResponse(body)), ожидание интерактивного ввода",
+      "tag": "D",
+      "source": "WEB@1004560..1004700; CAPTCHA_CHUNK",
+      "method": "static"
+    },
+    {
+      "id": "CAP-03",
+      "area": "captcha",
+      "fact": "Поля ответа: captcha_service, captcha_sitekey, captcha_session_id, captcha_rqdata, captcha_rqtoken, should_serve_invisible, user_flow -> {captchaService,sitekey,captchaSessionId,options{rqdata,rqtoken,serveInvisible,userflow}}",
+      "tag": "D",
+      "source": "WEB@3240400..3240600",
+      "method": "static"
+    },
+    {
+      "id": "CAP-04",
+      "area": "captcha",
+      "fact": "Повтор запроса с X-Captcha-Key (обязателен), X-Captcha-Rqtoken?, X-Captcha-Session-Id?",
+      "tag": "D",
+      "source": "WEB@1004797..1004930",
+      "method": "static"
+    },
+    {
+      "id": "CAP-05",
+      "area": "captcha",
+      "fact": "Сервисы: hcaptcha, recaptcha, recaptcha_enterprise, turnstile",
+      "tag": "D",
+      "source": "WEB@10697585 (module 319400)",
+      "method": "static"
+    },
+    {
+      "id": "CAP-06",
+      "area": "captcha",
+      "fact": "Рендерер в бандле — reCAPTCHA Enterprise: sitekey = provided ?? (production ? 6LeYqFcqAAAAAD6iZesmNgVulsO4PkpBdr6NVG6M : 6LdtfVMqAAAAAMurhtf2pDhK0oqD4eLqeQPh025y); script enterprise.js?render=<sitekey>; grecaptcha.enterprise.ready/execute; cleanup script+badge",
+      "tag": "D",
+      "source": "WEB@3241322..3241900",
+      "method": "static"
+    },
+    {
+      "id": "CAP-07",
+      "area": "captcha",
+      "fact": "hCaptcha: только значение сервиса + i18n 'Verify by hCaptcha' (3I8ubP)/'Captcha' (wjVOPz); рендерера hCaptcha в декодированном наборе нет (lazy-чанк отсутствует)",
+      "tag": "D+A",
+      "source": "WEB@10697585; I18N; GAP-02",
+      "method": "static"
+    },
+    {
+      "id": "CAP-08",
+      "area": "captcha",
+      "fact": "Модалка: openModalLazy -> props {onCaptchaVerify(captcha_key,captcha_rqtoken), captchaService, sitekey, onReject, options}; Layer; modalKey 'Captcha'; showCaptchaAsync -> {captcha_key,captcha_rqtoken,captcha_session_id}; отмена -> CaptchaCancelError",
+      "tag": "D",
+      "source": "CAPTCHA_CHUNK@165508",
+      "method": "static"
+    },
+    {
+      "id": "CAP-09",
+      "area": "captcha",
+      "fact": "Ошибки: CaptchaError {cancel,error,expired}; CaptchaCancelError('Captcha cancelled'); при 400+captcha_key message 'Invalid captcha response. Please try again.' (3s/vDN), code=-1, captchaFields=body",
+      "tag": "D",
+      "source": "WEB@3240103..3240300,@10697814..10698300; I18N",
+      "method": "static"
+    },
+    {
+      "id": "CAP-10",
+      "area": "captcha",
+      "fact": "Login: captcha рендерится модальным окном поверх приложения, не внутри auth-box. CSS .authCaptcha (480px, primary-630, radius 5 5 0 0, padding 24 16) есть, но в JS не referenced (вероятно, им пользуется отсутствующий чанк)",
+      "tag": "D+A",
+      "source": "CSS_QR@1038; grep authCaptcha = только CSS",
+      "method": "static"
+    },
+    {
+      "id": "CAP-11",
+      "area": "captcha",
+      "fact": "Числового кода у капчи нет: только HTTP 400 + captcha_key; captcha_key может быть массивом (берётся [0])",
+      "tag": "D",
+      "source": "WEB@319400,@10697814",
+      "method": "static"
+    },
+    {
+      "id": "CAP-12",
+      "area": "captcha",
+      "fact": "Пост-логин REQUIRE_CAPTCHA: полноэкранная 'Verification Required' (Iz0kDg)+0rqMV5, reCAPTCHA-виджет с фиксированным sitekey 6Lef5iQTAAAAAKeIvIY-DeexoO3gj7ryl9rLMEnn, POST /users/@me/captcha/verify {captcha_key}, при ошибке remount; футер qqYun3/support/logout",
+      "tag": "D",
+      "source": "WEB@11782128,@665095; I18N",
+      "method": "static"
+    },
+    {
+      "id": "CAP-13",
+      "area": "captcha",
+      "fact": "Endpoint'ы: /users/@me/captcha/verify, /captcha/decider (тестовый decider)",
+      "tag": "D",
+      "source": "WEB@274110,@274146",
+      "method": "static"
+    },
+    {
+      "id": "CAP-14",
+      "area": "captcha",
+      "fact": "Аналитика: CAPTCHA_SERVED, CAPTCHA_EVENT, CAPTCHA_FAILED, RECAPTCHA_MODAL_EVENT; metric captcha_serve_volume_distribution tag user_flow (30s)",
+      "tag": "D",
+      "source": "WEB@320028,@3240065,@3242091",
+      "method": "static"
+    },
+    {
+      "id": "CAP-15",
+      "area": "captcha",
+      "fact": "Только интерактив: в бандле нет решателя/обхода/стороннего сервиса капчи (grep hcaptcha/2captcha/anticaptcha/capsolver=0). Рекомендации по обходу запрещены",
+      "tag": "D+A",
+      "source": "grep; AUTH-RE §8.3",
+      "method": "static"
+    },
+    {
+      "id": "MFA-01",
+      "area": "mfa",
+      "fact": "Ответ /auth/login с mfa -> LOGIN_MFA_STEP; UI в том же AuthBox (transparent, padding 0) компонентом X из MFA-чанка",
+      "tag": "D",
+      "source": "WEB@551777,@8979206; LOGIN_CHUNK@63828..64000",
+      "method": "static"
+    },
+    {
+      "id": "MFA-02",
+      "area": "mfa",
+      "fact": "Слайды: select, webauthn, totp, sms, backup, backup_ack, password; стартовый = methods[0]?.type, иначе select",
+      "tag": "D",
+      "source": "MFA_CHUNK@7616",
+      "method": "static"
+    },
+    {
+      "id": "MFA-03",
+      "area": "mfa",
+      "fact": "Список методов фиксирован: webauthn (если challenge) -> totp -> backup -> sms; password в список логина не попадает (слайд недостижим)",
+      "tag": "D+A",
+      "source": "WEB@8975978",
+      "method": "static"
+    },
+    {
+      "id": "MFA-04",
+      "area": "mfa",
+      "fact": "Header: 'Двухфакторная аутентификация' (saHocI) heading-xl/semibold; subtitle heading-lg/semibold; close top/right 12; padding 24 24 0",
+      "tag": "D",
+      "source": "MFA_CHUNK@1653,@1384; CSS_MFA@0",
+      "method": "static"
+    },
+    {
+      "id": "MFA-05",
+      "area": "mfa",
+      "fact": "Select: subtitle 'Эта дополнительная мера...' (XQaT+8); строки webauthn/totp/sms/backup/password (gTH4Dp/nXKmyf/ZbVwZW/vhSRKf/8F6hKS); bg base-low, border subtle, radius 8, ~50px, hover interactive-background-hover",
+      "tag": "D",
+      "source": "MFA_CHUNK@4007,@186..380; CSS_MFA@601,@1219",
+      "method": "static"
+    },
+    {
+      "id": "MFA-06",
+      "area": "mfa",
+      "fact": "TOTP: label HZPBOd, placeholder tARzgo, autocomplete one-time-code, maxLength=minLength=6; Confirm (cY+Oob) disabled пока !=6",
+      "tag": "D",
+      "source": "MFA_CHUNK@5887; constants XZ=6",
+      "method": "static"
+    },
+    {
+      "id": "MFA-07",
+      "area": "mfa",
+      "fact": "SMS: при открытии слайда POST /auth/mfa/sms/send {ticket} (oldFormErrors, rejectWithError false) -> {phone}; 'Отправка...' (LQdCQE) до ответа, затем 8r6h7+ с {phone}; клиент не маскирует",
+      "tag": "D",
+      "source": "MFA_CHUNK@4492,@4743; AUTH-RE A-07",
+      "method": "static"
+    },
+    {
+      "id": "MFA-08",
+      "area": "mfa",
+      "fact": "SMS-поле: label HZPBOd, placeholder tARzgo, maxLength=10, autocomplete one-time-code; Confirm disabled пока !=6 ($A=6); 'Отправить SMS ещё раз?' (ZF29L6) с loading и повторной отправкой",
+      "tag": "D",
+      "source": "MFA_CHUNK@4492; constants $A=6",
+      "method": "static"
+    },
+    {
+      "id": "MFA-09",
+      "area": "mfa",
+      "fact": "Backup warning: 'Подождите! Вы уверены?' (c5J7O0), Nixbli ($p$p), countdown 10s (tsWkAE, после 0 — GK/Qfd), кнопка oyjspn disabled 10s",
+      "tag": "D",
+      "source": "MFA_CHUNK@1809",
+      "method": "static"
+    },
+    {
+      "id": "MFA-10",
+      "area": "mfa",
+      "fact": "Backup поле: label C/ZAw/, placeholder fZSi1D, minLength 8, maxLength 11, дефисы удаляются перед отправкой, Confirm disabled <8",
+      "tag": "D",
+      "source": "MFA_CHUNK@2481; constants Zp=8,pu=11",
+      "method": "static"
+    },
+    {
+      "id": "MFA-11",
+      "area": "mfa",
+      "fact": "WebAuthn: challenge из methods.find(type=webauthn).challenge; кнопка Xr3Eks; embedded+support -> native webAuthnAuthenticate, иначе browser; data с mfaType webauthn",
+      "tag": "D",
+      "source": "MFA_CHUNK@6708,@7040; AUTH-RE A-08",
+      "method": "static"
+    },
+    {
+      "id": "MFA-12",
+      "area": "mfa",
+      "fact": "WebAuthn ошибки: 4xx -> signalUnknownCredential(credential) + xSCvBf; прочие -> message; analytics extra.error_type=webauthn_api_error",
+      "tag": "D",
+      "source": "MFA_CHUNK@6708",
+      "method": "static"
+    },
+    {
+      "id": "MFA-13",
+      "area": "mfa",
+      "fact": "Password-метод: label CIGa+7, type=password, autocomplete password, spellcheck false; Confirm disabled при пустом",
+      "tag": "D",
+      "source": "MFA_CHUNK@3269",
+      "method": "static"
+    },
+    {
+      "id": "MFA-14",
+      "area": "mfa",
+      "fact": "Footer: 'Подтвердить' (cY+Oob) primary при showConfirm; при methods>1 — 'Верифицировать иным способом' (Tot4EC) -> select; embedded: close скрыт, ссылка 'Вернуться' (1MrpWO) снизу",
+      "tag": "D",
+      "source": "MFA_CHUNK@898,@1384; CSS_MFA@163,@546",
+      "method": "static"
+    },
+    {
+      "id": "MFA-15",
+      "area": "mfa",
+      "fact": "Отправка: POST /auth/mfa/{mfaType} {code,ticket,login_source,gift_code_sku_id,login_instance_id}, retries:2, oldFormErrors:true; login_instance_id из ответа логина или getLoginInstanceId()",
+      "tag": "D",
+      "source": "WEB@553107; AUTH-RE A-05",
+      "method": "static"
+    },
+    {
+      "id": "MFA-16",
+      "area": "mfa",
+      "fact": "Ошибки MFA: 60008 MFA_INVALID_CODE -> body.message; suspended_user_token -> ACCOUNT_STANDING; прочие body.message??message; webauthn generic xSCvBf",
+      "tag": "D",
+      "source": "WEB@553107; MFA_CHUNK@749",
+      "method": "static"
+    },
+    {
+      "id": "MFA-17",
+      "area": "mfa",
+      "fact": "Отмена: onEarlyClose -> LOGIN_RESET (возврат к форме); при модальном открытии onCloseCallback -> 'Двухфакторная аутентификация отменена' (N2yb9a)",
+      "tag": "D",
+      "source": "LOGIN_CHUNK@63828; MFA_CHUNK@8944",
+      "method": "static"
+    },
+    {
+      "id": "MFA-18",
+      "area": "mfa",
+      "fact": "Контейнер step-up: Modal size=sm -> max-width 400, bg surface-high, border subtle, radius 12, shadow-high; aria-label saHocI; padding-size-sm (top 8/bottom 16)",
+      "tag": "D+M",
+      "source": "MFA_CHUNK@8817; CSS_MODAL@1420,@366,@723; TOKENS",
+      "method": "static+computed"
+    },
+    {
+      "id": "MFA-19",
+      "area": "mfa",
+      "fact": "Step-up helper: POST /mfa/finish {ticket,mfa_type,data} -> {token}; далее запрос с X-Discord-MFA-Authorization; коды 60008/60003 = неверный код (не логин)",
+      "tag": "D",
+      "source": "MFA_CHUNK@9363,@9589 (module 533925)",
+      "method": "static"
+    }
+  ],
+  "captcha_summary": {
+    "trigger": "HTTP 400 + body.captcha_key",
+    "services": [
+      "hcaptcha",
+      "recaptcha",
+      "recaptcha_enterprise",
+      "turnstile"
+    ],
+    "server_fields": [
+      "captcha_key",
+      "captcha_service",
+      "captcha_sitekey",
+      "captcha_session_id",
+      "captcha_rqdata",
+      "captcha_rqtoken",
+      "should_serve_invisible",
+      "user_flow"
+    ],
+    "request_headers_on_retry": [
+      "X-Captcha-Key",
+      "X-Captcha-Rqtoken",
+      "X-Captcha-Session-Id"
+    ],
+    "renderer_in_bundle": "reCAPTCHA Enterprise (enterprise.js?render=<sitekey>, grecaptcha.enterprise.execute)",
+    "sitekeys": {
+      "login_production": "6LeYqFcqAAAAAD6iZesmNgVulsO4PkpBdr6NVG6M",
+      "login_nonproduction": "6LdtfVMqAAAAAMurhtf2pDhK0oqD4eLqeQPh025y",
+      "required_action_fixed": "6Lef5iQTAAAAAKeIvIY-DeexoO3gj7ryl9rLMEnn"
+    },
+    "render_location": "modal over app (openModalLazy, modalKey 'Captcha'); legacy CSS class .authCaptcha exists but unreferenced",
+    "error_types": [
+      "cancel",
+      "error",
+      "expired"
+    ],
+    "numeric_error_code": "none (only HTTP 400 + captcha_key); error code -1 with captchaFields",
+    "interactive_only": true,
+    "bypass_in_bundle": "none (grep solver services = 0)"
+  },
+  "mfa_summary": {
+    "entry": "/auth/login response contains mfa -> LOGIN_MFA_STEP",
+    "methods_order": [
+      "webauthn",
+      "totp",
+      "backup",
+      "sms"
+    ],
+    "slides": [
+      "select",
+      "webauthn",
+      "totp",
+      "sms",
+      "backup",
+      "backup_ack",
+      "password"
+    ],
+    "password_method_reachable_on_login": false,
+    "finish_endpoint": "POST /auth/mfa/{mfaType}",
+    "finish_body": [
+      "code",
+      "ticket",
+      "login_source",
+      "gift_code_sku_id",
+      "login_instance_id"
+    ],
+    "sms_send_endpoint": "POST /auth/mfa/sms/send",
+    "sms_send_body": [
+      "ticket"
+    ],
+    "sms_send_response": [
+      "phone"
+    ],
+    "constraints": {
+      "totp_length": 6,
+      "sms_length": 6,
+      "sms_input_maxLength": 10,
+      "backup_min": 8,
+      "backup_max": 11,
+      "backup_warning_seconds": 10
+    },
+    "webauthn": "challenge from methods[].challenge; native webAuthnAuthenticate if embedded+supported else browser; 4xx -> signalUnknownCredential",
+    "errors": {
+      "60008": "MFA_INVALID_CODE -> body.message",
+      "suspended_user_token": "ACCOUNT_STANDING",
+      "generic": "body.message ?? message"
+    },
+    "step_up_helper": {
+      "endpoint": "/mfa/finish",
+      "header": "X-Discord-MFA-Authorization",
+      "codes": [
+        60008,
+        60003
+      ]
+    }
+  },
+  "qr_summary": {
+    "ui": "right column of expanded login box, width 240; hidden <830px",
+    "qr_size_px": 160,
+    "container_px": 176,
+    "overlay_px": 50,
+    "value": "https://discord.com/ra/{fingerprint}",
+    "transport": "wss://remote-auth-gateway.discord.gg/?v=2",
+    "crypto": "RSA-OAEP-2048 SHA-256; fingerprint = base64url(SHA-256(SPKI))",
+    "ops": [
+      "init",
+      "hello",
+      "heartbeat",
+      "heartbeat_ack",
+      "nonce_proof",
+      "pending_remote_init",
+      "pending_ticket",
+      "pending_login",
+      "cancel"
+    ],
+    "token_exchange": "POST /users/@me/remote-auth/login {ticket} -> {encrypted_token} -> decrypt -> token",
+    "implement_in_our_client": false
+  },
+  "gaps": [
+    {
+      "id": "GAP-01",
+      "gap": "Нет DOM-снимка/скриншота окна входа",
+      "why": "capture-*.jsonl снят авторизованным (0 совпадений authBox/Welcome back); ui/*.png — экраны приложения",
+      "how": "CDP-прогон на чистом профиле (DOM.getDocument + Page.captureScreenshot) в согласованном окне"
+    },
+    {
+      "id": "GAP-02",
+      "gap": "Чанк модалки captcha (536037 -> 645320 и зависимости 202976/531279/458790/323895/454048/327774/203213)",
+      "why": "lazy-чанки отсутствуют в HTTP-кэше/decoded-index.json",
+      "how": "отдельный захват при искусственном 400+captcha_key"
+    },
+    {
+      "id": "GAP-03",
+      "gap": "Рендерер hCaptcha и turnstile",
+      "why": "в бандле только enum-значения",
+      "how": "GAP-02"
+    },
+    {
+      "id": "GAP-04",
+      "gap": "Точные размеры/тексты модалки captcha",
+      "why": "GAP-02; i18n-ключи есть, место использования не подтверждено",
+      "how": "GAP-02"
+    },
+    {
+      "id": "GAP-05",
+      "gap": "Внешний центр-контейнер логина (CSS-модуль 706192)",
+      "why": "модуль не декодирован",
+      "how": "догрузить чанк/измерить на живом экране"
+    },
+    {
+      "id": "GAP-06",
+      "gap": "Точные px типографики именно для login-страницы",
+      "why": "значения взяты из общего typography-CSS",
+      "how": "сверка computed styles на живом окне"
+    },
+    {
+      "id": "GAP-07",
+      "gap": "RU-текст N9U/9X (password reset notice)",
+      "why": "ключа нет в ru-catalog.json",
+      "how": "локализация на нашей стороне"
+    },
+    {
+      "id": "GAP-08",
+      "gap": "Серверные сроки MFA-тикета/кода и маскирование телефона",
+      "why": "всё серверное, клиент показывает body.phone как есть",
+      "how": "наблюдение на тестовом аккаунте без пробива лимитов"
+    },
+    {
+      "id": "GAP-09",
+      "gap": "Точный текст ошибки неверного пароля (50018)",
+      "why": "нет живого ответа /auth/login (AUTH-RE N-01)",
+      "how": "живой прогон логина (N6) или наш собственный текст"
+    }
+  ],
+  "risks": [
+    "Всё описанное — оригинал; ассеты не копировались (только пути/размеры).",
+    "Captcha — только интерактив; в бандле нет решателей/обходов, и мы их не добавляем.",
+    "2FA-коды не автоматизируются и не подбираются; SMS-send только по действию пользователя.",
+    "QR/remote-auth — чужой флоу, не реализуем (AUTH-RE §8.8).",
+    "Клиент Discord показывает токен на Linux в localStorage открытым текстом — это не пример для копирования (AUTH-RE T-04/T-05, §8.2)."
+  ]
+}

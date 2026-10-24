@@ -1,0 +1,106 @@
+# probe: byte offsets анкоров в web.4d4b2f75fdea5470.js
+# файл: /home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0 (12 410 287 Б)
+# метод: fs.readFileSync(utf8) -> indexOf; для ASCII-файла char==byte, проверено Buffer.byteLength
+
+base_url	10697277	"\"https:\"+window.GLOBAL_ENV.API_ENDPOINT"
+endpoints_table	275368	"LOGIN:\"/auth/login\""
+login_call	551777	"body:{login:t,password:n,undelete:i,login_source:r,gift_code_sku_id:s}"
+login_multi_hdr	551990	"{headers:{authorization:\"\"}}"
+login_resp_keys	552070	"mfa:t,sms:n,webauthn:i,ticket:r,token:a,backup:s,user_id:l"
+mfa_call	553107	"loginMFAv2(e)"
+mfa_ticket	553328	"o??I.default.getLoginInstanceId()"
+one_time_login	555416	"ONE_TIME_LOGIN,body:{ticket:e}"
+passwordless	553824	"async authenticatePasswordless(e){"
+webauthn_login	554399	"loginWebAuthn(e)"
+verify	557023	"url:S.Rsh.VERIFY,body:{token:e}"
+verify_resend	557532	"verifyResend:()=>m.A.post"
+authorize_ip	557413	"url:S.Rsh.AUTHORIZE_IP"
+forgot	558834	"url:S.Rsh.FORGOT_PASSWORD"
+reset	558042	"url:S.Rsh.RESET_PASSWORD,body:i"
+reset_mfa	558505	"url:S.Rsh.RESET_PASSWORD,body:{code:n"
+logout	555870	"logout(e){let t=arguments.length"
+logout_push_token	556073	"o.w.get(S.Xlh)"
+me_probe	556871	"url:S.Rsh.ME,oldFormErrors:!0"
+location_metadata	559576	"url:S.Rsh.AUTH_LOCATION_METADATA"
+switch_account	556381	"switchAccountToken(e)"
+sessions_endpoints	303358	"AUTH_SESSIONS:\"/auth/sessions\""
+remote_auth_endpoints	275654	"REMOTE_AUTH_INITIALIZE:"
+qr_route	11800708	"REMOTE_AUTH=\"/ra/:remoteAuthFingerprint\""
+login_sources	377364	"QR_CODE=\"QR Code Login\""
+prepare_request	1002375	"X-Super-Properties"
+x_fingerprint	1002404	"t.getFingerprint()"
+x_install	1002529	"X-Installation-ID"
+x_locale	1002751	"X-Discord-Locale"
+x_tz	1002811	"X-Discord-Timezone"
+accept_language	1002717	"e.set(\"Accept-Language\",i)"
+ctx_properties	10693826	"X-Context-Properties"
+failed_requests	10693890	"X-Failed-Requests"
+audit_reason	10693523	"X-Audit-Log-Reason"
+token_store_module	11843989	"247775(e,t,n){\"use strict\""
+token_keys	11797496	"eG=\"token\",ex=\"tokens\""
+token_prefix	11844262	"let l=\"dQw4w9WgXcQ:\""
+token_decrypt_branch	11844835	"c?.isEncryptionAvailable()&&!e.startsWith(l)"
+encrypt_store	2222146	"er.encryptAndStoreTokens()"
+hide_token	1016680	"er.hideToken()"
+superprops_builder	10000791	"function eT(e){s=I(a={...a,...e})"
+superprops_b64	9991807	"function I(e){try{return f.from(JSON.stringify(e))"
+superprops_emit	9996765	"browser:\"Discord Client\""
+auth_store_module	8973728	"280450(e,t,n){\"use strict\""
+auth_store_logout	8976284	"function eo(e){Z(\"handleLogout called.\")"
+fingerprint_reset	8975704	"function et(){w=U,U=null"
+login_success	8978963	"LOGIN_SUCCESS:function(e){let{token:t}"
+identify_build	5018924	"let u={token:l,capabilities:function(e)"
+identify_send	5019319	"this.send(e2.IDENTIFY,u,!1)"
+capabilities	5019002	"t?1767421:1734653"
+handle_identify	4907354	"B.handleIdentify=()=>{let e=A.default.getToken()"
+identify_props	4907605	"properties:{...L.default.getSuperProperties(),client_app_state:t,is_fast_connect:!1"
+client_state	5018320	"guild_versions:n,highest_last_message_id"
+presence_init	9332362	"getLocalPresence(){return{status:N"
+presence_online	9330823	"N=g.clD.ONLINE"
+gateway_connect	5008623	"d.searchParams.append(\"encoding\",s)"
+gateway_url	5013568	"_getGatewayUrl(){return null!=this.resumeUrl?this.resumeUrl:tm}"
+hello	5011558	"_handleHello(e){let t=this.heartbeatInterval"
+heartbeat_send	5020412	"this.send(e2.QOS_HEARTBEAT,{seq:this.seq,qos:e}"
+heartbeat_sched	5016156	"_startHeartbeater(){"
+heartbeat_due	5015814	"_sendHeartbeatIfDue(){"
+heartbeat_timeout	5014104	"_handleHeartbeatTimeout(){"
+resume_send	5017590	"this.send(e2.RESUME,{token:this.token,session_id:this.sessionId,seq:this.seq}"
+resume_cond	5019794	"null!==this.sessionId&&(null==this.lastHeartbeatAckTime"
+reconnect	5012301	"_handleReconnect(){"
+invalid_session	5012464	"_handleInvalidSession(e){"
+close_4004	5014409	"4004===t)return this.connectionState=v.A.CLOSED"
+ready_handler	5012588	"_handleDispatch(e,t,n){"
+fast_connect_adopt	5009125	"[FAST CONNECT] refusing to adopt socket"
+zstd_handler	4957336	"getAlgorithm(){return\"zstd-stream\"}"
+zstd_fallback	4960220	"\"zstd-stream\":\"zlib-stream\""
+retry_statuses	10692340	"E=new Set([502,504,507,598,599,522,523,524])"
+ratelimit_statuses	10692385	"A=new Set([429,503])"
+ratelimit_queue	10695593	"function m(e,t){var n;let i=p.get(e.url)"
+form_errors	10694717	"t.oldFormErrors&&a?.body?.code===50035"
+captcha_intercept	1004547	"400===e.statusCode&&e.body?.captcha_key?"
+captcha_enum	10697578	"(r={}).HCAPTCHA="
+mfa_required	1004970	"401===e.statusCode&&e.body?.code===j.t02.MFA_REQUIRED"
+error_enum_tail	320671	"ACCOUNT_DISABLED=20013"
+
+# дополнительные файлы
+## decoded/8fed1c84bcaee32d_0
+mfaType:"sms"	5131
+mfaType:"totp"	6170
+mfaType:"password"	3544
+mfaType:"backup"	2856
+mfaType:"webauthn"	7040
+body:{ticket:t.ticket}	4758
+id:"select"	8054
+## decoded/43644898c0897078_0
+"BUILD_NUMBER":"641004"	1333
+"GATEWAY_ENDPOINT":"wss://gateway.discord.gg"	1794
+"REMOTE_AUTH_ENDPOINT"	2328
+"API_VERSION":9	1719
+## asar-extract/core/bundle.js
+SAFE_STORAGE_ENCRYPT_STRING	95372
+function _getTokenFromDisk	185388
+dQw4w9WgXcQ:[A-Za-z0-9+/=]	185907
+[\\w-]{24,}\\.[\\w-]{6,}\\.[\\w-]{27,}	-1
+## out/bundles/discord.com_assets_fast-connect.7c1098d4887bc4b0.js
+dQw4w9WgXcQ:	14428
+is_fast_connect:!0	30209

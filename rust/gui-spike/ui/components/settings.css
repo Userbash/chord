@@ -1,0 +1,523 @@
+/* =============================================================================
+ * settings.css — оверлей настроек: шапка 56 (--space-12), навигация 232
+ * (--settings-nav-w), пункт 34 (--settings-nav-item-h), строка тумблера 48
+ * (--space-11), переключатель 40×24 (--switch-w/h).
+ * Заголовки h3 генерирует W39d; в навигации h3 нет (инвариант §7.4).
+ * ========================================================================== */
+
+.settings-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-chat);
+}
+
+.settings-head {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-5);
+  align-items: center;
+  justify-content: flex-end;
+  height: var(--space-12);
+  padding: 0 var(--modal-pad-x);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.settings-user {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-user-name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-user-hint {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Навигация: кнопки (не h3 — иначе счётчик групп из 3 штук ломается). */
+.settings-nav {
+  display: flex;
+  flex: 0 0 var(--settings-nav-w);
+  flex-direction: column;
+  gap: var(--space-1);
+  width: var(--settings-nav-w);
+  min-height: 0;
+  padding: var(--space-6) var(--space-2);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--bg-app);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.settings-nav button {
+  flex: 0 0 auto;
+  height: var(--settings-nav-item-h);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-align: left;
+}
+
+.settings-nav button:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.settings-nav button.active,
+.settings-nav button[aria-current="page"],
+.settings-nav button[aria-selected="true"] {
+  background: var(--state-selected);
+  color: var(--text-strong);
+}
+
+/* Контент настроек: колонка ограниченной ширины, скролл только здесь. */
+.settings {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-6) var(--modal-pad-x) var(--space-9);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.settings h3 {
+  margin: var(--space-6) 0 var(--space-2);
+  max-width: var(--layout-content-max-w);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  line-height: var(--line-height-small);
+  text-transform: uppercase;
+}
+
+.settings h3:first-child {
+  margin-top: 0;
+}
+
+/* Строка тумблера 48 (--space-11) */
+.toggle {
+  position: relative;
+  display: flex;
+  gap: var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--space-11);
+  max-width: var(--layout-content-max-w);
+  padding: var(--space-2) 0;
+  border-bottom: var(--menu-border) solid var(--divider);
+  cursor: pointer;
+}
+
+.toggle-label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.toggle-hint {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* Нативный checkbox остаётся в DOM и фокусируется, но не рисуется. */
+.toggle-input {
+  position: absolute;
+  width: var(--menu-border);
+  height: var(--menu-border);
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-track {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--switch-w);
+  height: var(--switch-h);
+  border-radius: var(--radius-round);
+  background: var(--surface-3);
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: calc((var(--switch-h) - var(--switch-thumb)) / 2);
+  left: calc((var(--switch-h) - var(--switch-thumb)) / 2);
+  width: var(--switch-thumb);
+  height: var(--switch-thumb);
+  border-radius: var(--radius-round);
+  background: var(--text-muted);
+  transition:
+    transform var(--motion-base) var(--ease-in-out),
+    background var(--motion-fast) var(--ease-out);
+}
+
+.toggle-input:checked + .toggle-track {
+  background: var(--accent);
+}
+
+.toggle-input:checked + .toggle-track .toggle-thumb {
+  background: var(--text-on-accent);
+  transform: translateX(
+    calc(var(--switch-w) - var(--switch-thumb) - (var(--switch-h) - var(--switch-thumb)))
+  );
+}
+
+.toggle-input:focus-visible + .toggle-track {
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring);
+}
+
+.toggle:hover .toggle-track {
+  background: var(--surface-4);
+}
+
+.toggle:hover .toggle-input:checked + .toggle-track {
+  background: var(--accent-hover);
+}
+
+/* ---------------------------------------------------------------------------
+ * Совместимость с текущим app.js (RW-38): настройки рисуются как
+ * <label class="toggle"><span>…</span><input type=checkbox></label> — без
+ * .toggle-label/.toggle-track из §7.4 (их даст W39d). Пока класс .toggle-input
+ * не появился, голый чекбокс изображается переключателем на токенах.
+ * Когда разметка станет канонической, :not(.toggle-input) перестанет совпадать
+ * и блок можно удалить без следа.
+ * ------------------------------------------------------------------------ */
+.toggle > input[type="checkbox"]:not(.toggle-input) {
+  flex: 0 0 auto;
+  width: var(--switch-w);
+  height: var(--switch-h);
+  margin: 0;
+  border: 0;
+  border-radius: var(--radius-round);
+  appearance: none;
+  background:
+    radial-gradient(
+        circle at var(--space-5) 50%,
+        var(--text-muted) 0 calc(var(--switch-thumb) / 2),
+        transparent calc(var(--switch-thumb) / 2)
+      )
+      no-repeat,
+    var(--surface-3);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.toggle > input[type="checkbox"]:not(.toggle-input):checked {
+  background:
+    radial-gradient(
+        circle at calc(100% - var(--space-5)) 50%,
+        var(--text-on-accent) 0 calc(var(--switch-thumb) / 2),
+        transparent calc(var(--switch-thumb) / 2)
+      )
+      no-repeat,
+    var(--accent);
+}
+
+/* =============================================================================
+ * W39h2 / D-17: 18 разделов (SET-01), панели контента, поля «Голоса» (SET-09…13)
+ * и честные заглушки. Только дополнения: существующие правила не меняются.
+ * ========================================================================== */
+
+/* Панель контента: неактивные скрыты атрибутом hidden (без каскада :has). */
+.settings-pane[hidden] {
+  display: none;
+}
+
+/* SET-04: блок внутри панели — h4, чтобы h3 остались 3 группами ([F] RW-38). */
+.settings h4.settings-block-title {
+  margin: var(--space-6) 0 var(--space-2);
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+}
+
+/* SET-09/10: поле «подпись — контрол — значение». */
+.settings-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+  gap: var(--space-5);
+  align-items: center;
+  min-height: var(--input-height);
+  max-width: var(--layout-content-max-w);
+}
+
+.settings-field-label {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-select,
+.settings-slider {
+  width: 100%;
+  height: var(--input-height);
+  min-width: 0;
+  padding: 0 var(--space-5);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.settings-slider {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  accent-color: var(--accent);
+}
+
+.settings-slider-value {
+  min-width: 4ch;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-align: right;
+}
+
+/* SET-11: радиогруппа «Профиль ввода». */
+.settings-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.settings-radio {
+  min-height: var(--btn-height);
+  padding: 0 var(--space-5);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+}
+
+.settings-radio[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+/* SET-12/13: кнопки вкладки и связанные переходы. */
+.settings-action,
+.settings-related-link,
+.settings-sounds-more,
+.settings-density-option,
+.settings-theme-option {
+  min-height: var(--btn-height);
+  padding: 0 var(--space-5);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.settings-action[aria-disabled="true"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.settings-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.settings-related-link {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+/* SET-14: плотность сообщений. */
+.settings-density {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.settings-density-option[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+/* B8b: тема оформления — те же две кнопки, что у плотности. */
+.settings-theme {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.settings-theme-option[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+/* B8b: ошибка чтения/сохранения настроек — видимая строка, не console. */
+.settings-save-status {
+  max-width: var(--layout-content-max-w);
+  margin: var(--space-3) 0 0;
+  color: var(--danger-text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.settings-save-status[hidden] {
+  display: none;
+}
+
+/* SET-15 / S-14: честная подпись заглушки. */
+.settings-stub-note {
+  max-width: var(--layout-content-max-w);
+  margin: var(--space-4) 0 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* SET-07: 18 звуков скрыты до «Показать ещё». */
+.settings-sounds-extra[hidden] {
+  display: none;
+}
+
+.settings-sounds-more {
+  margin-top: var(--space-3);
+}
+
+/* SET-01: «Выйти» — отдельная кнопка внизу навигации. */
+.settings-nav .settings-nav-logout {
+  margin-top: auto;
+  color: var(--danger-text);
+}
+
+.settings-nav .settings-nav-logout[disabled] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------------
+ * ST-01 (RW-40): профиль и подпункты из оракула ui8/23-settings-categories.json.
+ * Профиль: аватар-монограмма + имя + «Редактировать профили» (в спайке disabled).
+ * Подпункты: единственные 4 развёрнутых в дампе, под «Учётной записью».
+ * ------------------------------------------------------------------------- */
+.settings-profile {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-2) var(--space-5) var(--space-5);
+}
+
+.settings-profile-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-profile-name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Кнопка внутри блока профиля: не 34px-строка навигации, а подпись-действие. */
+.settings-nav .settings-profile-edit {
+  height: auto;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.settings-nav .settings-profile-edit:hover {
+  background: transparent;
+  color: var(--text-strong);
+  text-decoration: underline;
+}
+
+.settings-nav .settings-profile-edit[disabled] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.settings-subnav {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Подпункт: та же 34px-строка, но с отступом под родительский раздел. */
+.settings-nav .settings-subnav-item {
+  padding-left: var(--space-9);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.settings-nav .settings-subnav-item[disabled] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* Скрытые тексты причин для aria-describedby (видимая причина — title). */
+.settings-nav-reason[hidden] {
+  display: none;
+}

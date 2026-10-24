@@ -1,0 +1,201 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::rest::user`
+  --> crates/discord-core/tests/rest_user.rs:10:25
+   |
+10 | use discord_core::rest::user::{Me, MeError, parse_me};
+   |                         ^^^^ could not find `user` in `rest`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "rest_user") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0432]: unresolved imports `discord_core::rest::client::ApiAuthError`, `discord_core::rest::client::AuthScheme`
+  --> crates/discord-core/tests/rest_client.rs:12:14
+   |
+12 |     ApiAuth, ApiAuthError, ApiClient, ApiConfig, ApiError, ApiRetryPolicy, AuthScheme,
+   |              ^^^^^^^^^^^^ no `ApiAuthError` in `rest::client`              ^^^^^^^^^^ no `AuthScheme` in `rest::client`
+   |
+help: a similar name exists in the module
+   |
+12 -     ApiAuth, ApiAuthError, ApiClient, ApiConfig, ApiError, ApiRetryPolicy, AuthScheme,
+12 +     ApiAuth, ApiError, ApiClient, ApiConfig, ApiError, ApiRetryPolicy, AuthScheme,
+   |
+
+error[E0599]: no associated function or constant named `from_super_properties` found for struct `IdentifyProperties` in the current scope
+  --> crates/discord-core/tests/identify.rs:46:41
+   |
+46 |         properties: IdentifyProperties::from_super_properties(&super_properties()),
+   |                                         ^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `IdentifyProperties`
+   |
+note: if you're trying to build a new `IdentifyProperties`, consider using `IdentifyProperties::for_rw_client` which returns `IdentifyProperties`
+  --> crates/discord-core/src/identify.rs:62:5
+   |
+62 |     pub fn for_rw_client() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_super_properties` found for struct `IdentifyProperties` in the current scope
+  --> crates/discord-core/tests/identify.rs:57:42
+   |
+57 |     let properties = IdentifyProperties::from_super_properties(&sp);
+   |                                          ^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `IdentifyProperties`
+   |
+note: if you're trying to build a new `IdentifyProperties`, consider using `IdentifyProperties::for_rw_client` which returns `IdentifyProperties`
+  --> crates/discord-core/src/identify.rs:62:5
+   |
+62 |     pub fn for_rw_client() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_super_properties` found for struct `IdentifyProperties` in the current scope
+  --> crates/discord-core/tests/identify.rs:93:42
+   |
+93 |     let properties = IdentifyProperties::from_super_properties(&sp);
+   |                                          ^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `IdentifyProperties`
+   |
+note: if you're trying to build a new `IdentifyProperties`, consider using `IdentifyProperties::for_rw_client` which returns `IdentifyProperties`
+  --> crates/discord-core/src/identify.rs:62:5
+   |
+62 |     pub fn for_rw_client() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `EmptyToken` found for enum `IdentifyError` in the current scope
+   --> crates/discord-core/tests/identify.rs:107:24
+    |
+107 |         IdentifyError::EmptyToken
+    |                        ^^^^^^^^^^ variant, associated function, or constant not found in `IdentifyError`
+
+error[E0599]: no variant, associated function, or constant named `EmptyToken` found for enum `IdentifyError` in the current scope
+   --> crates/discord-core/tests/identify.rs:111:24
+    |
+111 |         IdentifyError::EmptyToken
+    |                        ^^^^^^^^^^ variant, associated function, or constant not found in `IdentifyError`
+
+error[E0599]: no variant, associated function, or constant named `EmptyToken` found for enum `IdentifyError` in the current scope
+   --> crates/discord-core/tests/identify.rs:119:24
+    |
+119 |         IdentifyError::EmptyToken
+    |                        ^^^^^^^^^^ variant, associated function, or constant not found in `IdentifyError`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "identify") due to 6 previous errors
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:661:25
+    |
+661 |     let auth = ApiAuth::from_token(USER_TOKEN, &sp, "ru", "Asia/Yekaterinburg")
+    |                         ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:693:25
+    |
+693 |     let auth = ApiAuth::from_token("  token-with-spaces  ", &sp, "en-US", "UTC")
+    |                         ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:698:18
+    |
+698 |         ApiAuth::from_token("", &sp, "ru", "UTC").expect_err("пустой токен"),
+    |                  ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:702:18
+    |
+702 |         ApiAuth::from_token("   ", &sp, "ru", "UTC").expect_err("пробельный токен"),
+    |                  ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:706:18
+    |
+706 |         ApiAuth::from_token(USER_TOKEN, &sp, "", "UTC").expect_err("пустая локаль"),
+    |                  ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:710:18
+    |
+710 |         ApiAuth::from_token(USER_TOKEN, &sp, "ru", "").expect_err("пустая таймзона"),
+    |                  ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token_with_scheme` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:719:24
+    |
+719 |     let bot = ApiAuth::from_token_with_scheme("abc", AuthScheme::Bot, &sp, "en-US", "UTC")
+    |                        ^^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token_with_scheme` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:723:27
+    |
+723 |     let bearer = ApiAuth::from_token_with_scheme("abc", AuthScheme::Bearer, &sp, "en-US", "UTC")
+    |                           ^^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:734:25
+    |
+734 |     let auth = ApiAuth::from_token(USER_TOKEN, &super_properties(), "ru", "UTC")
+    |                         ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_token` found for struct `ApiAuth` in the current scope
+   --> crates/discord-core/tests/rest_client.rs:768:25
+    |
+768 |     let auth = ApiAuth::from_token(USER_TOKEN, &super_properties(), "ru", "Asia/Yekaterinburg")
+    |                         ^^^^^^^^^^ associated function or constant not found in `ApiAuth`
+    |
+note: if you're trying to build a new `ApiAuth`, consider using `ApiAuth::from_values` which returns `ApiAuth`
+   --> crates/discord-core/src/rest/client.rs:54:5
+    |
+ 54 |     pub fn from_values(values: &AuthHeaderValues<'_>) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "rest_client") due to 11 previous errors

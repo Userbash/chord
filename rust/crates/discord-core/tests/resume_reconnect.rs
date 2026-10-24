@@ -857,6 +857,7 @@ async fn ws_resume_suppresses_identify() {
             &mut pipe,
             RunOptions {
                 identify: Some(test_identify_params()),
+                on_dispatch: None,
             },
             Some(test_resume_params()),
         ),
@@ -947,6 +948,7 @@ async fn ws_op7_then_resume_keeps_seq() {
             &mut pipe1,
             RunOptions {
                 identify: Some(test_identify_params()),
+                on_dispatch: None,
             },
         ),
     )

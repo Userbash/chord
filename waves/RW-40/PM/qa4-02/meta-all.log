@@ -1,0 +1,87 @@
+▶ backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS
+  ✔ документы существуют: бэклог, два анализа, карта (4.329029ms)
+  ✔ волны R4/R5/R6/D присутствуют и карточек не меньше минимума (0.951123ms)
+  ✔ у каждой карточки уникальный ID и заполненные поля (≥ 6 колонок) (1.177018ms)
+  ✔ README.md и TASKS.md ссылаются на бэклог и анализы (0.733086ms)
+  ✔ docs/map.md содержит Mermaid-граф с референсами и бэклогом (0.419664ms)
+✔ backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS (8.757582ms)
+▶ DP-01: breakpoints SPEC §5.1
+  ✔ токены по ширинам: 311/256 → 240/240 → 240 → 200 (1.509556ms)
+  ✔ дефолт 1200–1599 — базовые токены, без media-переопределения (0.171883ms)
+  ✔ style.css: member panel скрыт на 960–1199, tree — на <720 (1.103409ms)
+  ✔ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.335988ms)
+  ✔ chat ≥ 520 на 960–1199 и отсутствие горизонтального скролла shell (0.439222ms)
+  ✔ aria/screen-switch: скрытие только CSS, aria-hidden — только на .screen (0.603126ms)
+✔ DP-01: breakpoints SPEC §5.1 (5.017892ms)
+▶ docs-sync: README ↔ команды CLI
+  ✔ каждая команда из HELP упомянута в README.md (2.832481ms)
+✔ docs-sync: README ↔ команды CLI (3.624718ms)
+▶ fixtures-tracked: tests/fixtures целиком попадает в git
+  ✔ каждый файл tests/fixtures отслеживается git (не скрыт .gitignore) (5.99473ms)
+✔ fixtures-tracked: tests/fixtures целиком попадает в git (6.777059ms)
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (3.372247ms)
+  ✔ каждая строка §8 указывает на существующий тест; токены встречаются в нём (4.497583ms)
+  ✔ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (1.759577ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (0.90732ms)
+  ✖ строки с одним src-модулем: токены покрывают все экспортируемые функции (2.281166ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (14.080537ms)
+▶ rust-client-sync: план Rust-клиента цел и синхронен
+  ✔ пакет docs/rust-client на месте и непуст (3.682369ms)
+  ✔ индекс ссылается на все документы пакета (0.787118ms)
+  ✔ графы Mermaid есть; карта проекта получила слой 8 (0.582749ms)
+  ✔ каталог функций: ≥100 уникальных F-ID и все 14 групп (1.043588ms)
+  ✔ тест-план: ≥110 уникальных T-ID, все группы, манифест фикстур (3.74234ms)
+  ✔ тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур (0.458729ms)
+  ✔ mutation-ledger: сводка по волнам, классы мутантов и разбор survivors (0.44982ms)
+  ✔ security: модель угроз, границы доверия и чек-листы (0.434922ms)
+  ✔ план: сквозной контур качества Q-01…Q-14 (0.381001ms)
+  ✔ план: волны P0–P8, ≥60 карточек, уникальные ID (0.51692ms)
+  ✔ репозиторные доки ссылаются на план (живые ссылки) (1.0329ms)
+  ✔ RC-07: фикстуры и каркас на месте и согласованы (0.820553ms)
+  ✔ RC-08: отчёт верификации сырья — полный (0.377072ms)
+  ✔ трассировка и строение описывают все группы (0.356935ms)
+✔ rust-client-sync: план Rust-клиента цел и синхронен (16.063609ms)
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.615255ms)
+  ✔ в тестах нет .only, todo и пустых assert (5.603142ms)
+  ✔ скрипты не обходят хуки и проверки (0.541037ms)
+  ✔ гейт содержит обязательные фазы (0.148657ms)
+  ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.351235ms)
+✔ TEST-POLICY: запрет ослабления тестов (8.463158ms)
+▶ waves-sync: журнал волн восстановим
+  ✔ README.md, STATE.md и db.jsonl на месте (2.325759ms)
+  ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (5.580785ms)
+  ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (1.711145ms)
+✔ waves-sync: журнал волн восстановим (10.503511ms)
+ℹ tests 40
+ℹ suites 8
+ℹ pass 39
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.223399
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:179:3
+✖ строки с одним src-модулем: токены покрывают все экспортируемые функции (2.281166ms)
+  AssertionError [ERR_ASSERTION]: расхождение токенов §8 и экспортов модулей
+  + actual - expected
+  
+  + [
+  +   'tests/unit/cdp.test.mjs ↔ src/core/cdp/client.mjs: лишние [], не покрыты [captureScreenshot, clickText, clickTextExpression, listElements, listElementsExpression, openPage]'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:202:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/unit/cdp.test.mjs ↔ src/core/cdp/client.mjs: лишние [], не покрыты [captureScreenshot, clickText, clickTextExpression, listElements, listElementsExpression, openPage]' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

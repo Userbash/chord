@@ -12,11 +12,16 @@
 
 use discord_codec::etf::{EtfError, EtfValue};
 
+use crate::rest::super_properties::SuperProperties;
+
 /// capabilities активного клиента (без обфускации приватных каналов) — из бандла.
 pub const CAPABILITIES_ACTIVE: u64 = 1_734_653;
 
 /// capabilities с фичей `private_channel_obfuscation` — из бандла.
 pub const CAPABILITIES_CHANNEL_OBFUSCATION: u64 = 1_767_421;
+
+/// Причина подключения при холодном старте (модуль 469177 бандла: `r=true`).
+const GATEWAY_CONNECT_COLD_START: &str = "COLD_START";
 
 /// Супер-свойства клиента плюс поля идентификации (см. `handleIdentify` в бандле и ТЗ).
 #[derive(Debug, Clone)]
@@ -79,7 +84,36 @@ impl IdentifyProperties {
             client_app_state: "focused".to_string(),
             is_fast_connect: false,
             // Модуль 469177: первый коннект (`r=true`) → "COLD_START".
-            gateway_connect_reasons: "COLD_START".to_string(),
+            gateway_connect_reasons: GATEWAY_CONNECT_COLD_START.to_string(),
+            installation_id: None,
+        }
+    }
+
+    /// Единый источник свойств: IDENTIFY берёт те же значения, что и `X-Super-Properties`.
+    ///
+    /// Супер-свойства содержат 22 поля REST-заголовка, из них 14 пересекаются с IDENTIFY;
+    /// `client_build_number` приводится `u32 → u64`. Поля IDENTIFY, которых в супер-свойствах
+    /// нет, — константы нашего клиента: `is_fast_connect = false`,
+    /// `gateway_connect_reasons = "COLD_START"`, `installation_id = None`.
+    #[must_use]
+    pub fn from_super_properties(properties: &SuperProperties) -> Self {
+        Self {
+            os: properties.os.clone(),
+            browser: properties.browser.clone(),
+            release_channel: properties.release_channel.clone(),
+            client_version: properties.client_version.clone(),
+            os_version: properties.os_version.clone(),
+            os_arch: properties.os_arch.clone(),
+            app_arch: properties.app_arch.clone(),
+            system_locale: properties.system_locale.clone(),
+            has_client_mods: properties.has_client_mods,
+            client_launch_id: properties.client_launch_id.clone(),
+            browser_user_agent: properties.browser_user_agent.clone(),
+            browser_version: properties.browser_version.clone(),
+            client_build_number: u64::from(properties.client_build_number),
+            client_app_state: properties.client_app_state.clone(),
+            is_fast_connect: false,
+            gateway_connect_reasons: GATEWAY_CONNECT_COLD_START.to_string(),
             installation_id: None,
         }
     }
@@ -138,6 +172,8 @@ impl std::fmt::Debug for IdentifyParams {
 /// Ошибки сборки IDENTIFY: ни одна не является паникой.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IdentifyError {
+    /// Пустой (или состоящий из пробелов) токен — IDENTIFY не уходит.
+    EmptyToken,
     /// `qos_token` не строгий UTF-8 (бинарный protobuf не представим строкой ETF).
     QosTokenNotUtf8,
     /// Собранный терм не разбирается кодеком (самопроверка сборки).
@@ -147,6 +183,7 @@ pub enum IdentifyError {
 impl std::fmt::Display for IdentifyError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::EmptyToken => write!(f, "пустой токен"),
             Self::QosTokenNotUtf8 => write!(f, "qos_token не является строгим UTF-8"),
             Self::Encode(error) => {
                 write!(f, "собранный IDENTIFY не разбирается ETF-кодеком: {error}")
@@ -159,7 +196,7 @@ impl std::error::Error for IdentifyError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Encode(error) => Some(error),
-            Self::QosTokenNotUtf8 => None,
+            Self::EmptyToken | Self::QosTokenNotUtf8 => None,
         }
     }
 }
@@ -271,6 +308,9 @@ pub fn build_identify_frame(p: &IdentifyParams) -> Result<Vec<u8>, IdentifyError
 
 /// Значение payload IDENTIFY (без внешнего кадра `{op, d}`).
 fn identify_value(p: &IdentifyParams) -> Result<EtfValue, IdentifyError> {
+    if p.token.trim().is_empty() {
+        return Err(IdentifyError::EmptyToken);
+    }
     let qos_token =
         String::from_utf8(p.qos_token.clone()).map_err(|_| IdentifyError::QosTokenNotUtf8)?;
     let guild_versions = EtfValue::Map(

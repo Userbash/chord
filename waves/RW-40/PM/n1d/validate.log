@@ -1,0 +1,129 @@
+PASS schema == rw40/server-menu-v1
+PASS card == N1-D
+PASS menu_items == 10 (dump D1)
+PASS active menu items == 3
+PASS active action order: invite, leave, copy-id
+PASS no external css/font refs in SERVER-MENU.md: []
+PASS no external css/font refs in server-menu.json: []
+PASS doc: no confirmed:true / confirmed:false literals
+PASS json: no confirmed:true / confirmed:false literals
+PASS success_rule does not mention confirmed
+PASS success_rule requires 2xx
+PASS endpoint invite_resolve has no confirmed field
+PASS endpoint invite_accept has no confirmed field
+PASS endpoint enter_guild_lurker has no confirmed field
+PASS endpoint join_guild_normal has no confirmed field
+PASS endpoint leave_guild has no confirmed field
+PASS endpoint delete_guild has no confirmed field
+PASS endpoint invite_create has no confirmed field
+PASS endpoint invite_list has no confirmed field
+PASS endpoint guild_list has no confirmed field
+PASS endpoint guild_get has no confirmed field
+PASS accept: POST
+PASS accept: path
+PASS accept: evidence S
+PASS accept: live not observed
+PASS enter: PUT
+PASS enter: lurker path
+PASS enter: 204
+PASS enter: evidence L
+PASS leave: path
+PASS leave: body known [S]
+PASS leave: evidence S
+PASS leave: response not read
+PASS guild list has no REST endpoint
+PASS dialog geometry unmeasured
+PASS preview unmeasured
+PASS menu measured
+PASS tokens exist in tokens.css (refs=37, missing=[])
+PASS mark present: rail.width -> T
+PASS mark present: rail.guild_item -> T
+PASS mark present: rail.gap -> T
+PASS mark present: rail.padding_block -> T
+PASS mark present: rail.radius -> T
+PASS mark present: rail.radius_hover -> T
+PASS mark present: rail.icon -> T
+PASS mark present: server_menu.width -> M
+PASS mark present: server_menu.padding -> T
+PASS mark present: server_menu.radius -> M
+PASS mark present: server_menu.background -> M
+PASS mark present: server_menu.shadow -> T
+PASS mark present: server_menu.border -> A
+PASS mark present: server_menu.item_height -> A
+PASS mark present: server_menu.group_block -> M
+PASS mark present: server_menu.item_padding_x -> A
+PASS mark present: server_menu.item_radius -> A
+PASS mark present: server_menu.item_color -> M
+PASS mark present: server_menu.separator -> M
+PASS mark present: server_menu.danger_text -> T
+PASS mark present: server_menu.max_height -> A
+PASS mark present: server_menu.z_index -> T
+PASS mark present: dialog.scrim -> A
+PASS mark present: dialog.width -> T
+PASS mark present: dialog.padding_y -> T
+PASS mark present: dialog.padding_x -> T
+PASS mark present: dialog.radius -> A
+PASS mark present: dialog.background -> T
+PASS mark present: dialog.shadow -> T
+PASS mark present: dialog.gap -> T
+PASS mark present: dialog.input_height -> T
+PASS mark present: dialog.input_padding_x -> T
+PASS mark present: dialog.input_radius -> T
+PASS mark present: dialog.button_height -> T
+PASS mark present: dialog.button_padding_x -> T
+PASS mark present: dialog.actions_gap -> T
+PASS mark present: dialog.z_index -> T
+PASS mark present: dialog.timeout_ms -> A
+PASS mark present: join_preview.avatar -> T
+PASS mark present: join_preview.loading_height -> A
+PASS mark present: focus.ring -> T
+PASS mark present: focus.offset -> T
+INFO mark counts: T=62, L=14, S=48, M=17, D=135, A=195
+PASS doc uses T/L/S/M/A marks
+PASS doc covers '2xx'
+PASS doc covers '204'
+PASS doc covers 'lurker'
+PASS doc covers 'GET /invites/{code}'
+PASS doc covers 'POST /invites/{code}'
+PASS doc covers 'DELETE /users/@me/guilds/{id}'
+PASS doc covers 'unmeasured'
+PASS doc covers 'timeout'
+PASS doc has no unconfirmed feature flag
+PASS doc has no blocked join state
+PASS ru-catalog keys == 23836 (actual 23836)
+PASS string key present in dump: cs48bs
+PASS string key present in dump: Ts/9Ac
+PASS string key present in dump: AVazqJ
+PASS string key present in dump: 5AkWAd
+PASS string key present in dump: FDsl+J
+PASS D1 guild menu items == 10
+PASS JSON menu texts match D1 dump (two-line item 4 joined)
+PASS captures checked == 4 (actual 4)
+PASS no invite/DELETE calls in captures: {'capture-run2.jsonl': {'invites': 0, 'delete': 0}, 'capture-ready.jsonl': {'invites': 0, 'delete': 0}, 'capture-cold.jsonl': {'invites': 0, 'delete': 0}, 'capture-boot.jsonl': {'invites': 0, 'delete': 0}}
+PASS contracts document the confirmed artifact
+PASS D02 records lurker PUT
+PASS D02 records 204
+PASS contrast danger-text on surface-3: 7.242 >= 4.5
+PASS contrast text-strong on surface-3: 14.175 >= 4.5
+PASS contrast text-muted on surface-2: 5.309 >= 4.5
+PASS contrast text-subtle on surface-2: 6.823 >= 4.5
+PASS contrast white on danger-fill: 4.850 >= 4.5
+PASS contrast white on accent: 4.607 >= 4.5
+PASS contrast text-accent on surface-2: 7.543 >= 4.5
+INFO md5:
+  49e5186e3ce759a6b6bfc063492f6dfa  /home/sanya/orca/project/waves/RW-40/DESIGN/SERVER-MENU.md
+  a165fe3bfdc4867a14aa6e6419775901  /home/sanya/orca/project/waves/RW-40/DESIGN/server-menu.json
+  61dbfe70f8bf9ab88a7dabd5ef0e0e9f  /home/sanya/orca/project/rust/gui-spike/ui/tokens.css
+  79ed101289ac9630fbf5687b2238915b  /home/sanya/orca/project/waves/RW-40/NETWORK-CONTRACTS.md
+  c7e61929677efab6bdac86a05a778fce  /home/sanya/orca/project/docs/re/rest-d02.md
+  7030bafa672a590ccacbe47a676deb0f  /home/sanya/orca/project/waves/RW-39/DESIGN/SPEC.md
+  5d583d15aaef56d892e7a97a4d5fb6af  /home/sanya/orca/project/waves/RW-40/DESIGN/DESIGN-MSG.md
+  2d4cf3d8758de702d1b8620884a80d3a  /home/sanya/orca/project/waves/RW-40/THEME-SPEC.md
+  8c24a205e5a17f02c0d48a68c47e1dc7  /home/sanya/re-deep/ui2/D1-guild-menu.png
+  e801194f00372eae6ca596ee64bc9aeb  /home/sanya/re-deep/ui2/D1-guild-menu-items.json
+  be94a21ec6ad0ef0a7b1c4c04979bc57  /home/sanya/re-deep/ui2/00-start.fingerprint.json
+  09272320cecfa79d479a2b03df7adce1  /home/sanya/re-deep/ru-catalog.json
+  630d448ac34a78835b2d9b3c201e597c  /home/sanya/re-deep/ui/tokens.json
+
+checks=111 failures=0
+RESULT: OK

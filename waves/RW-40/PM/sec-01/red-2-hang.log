@@ -1,0 +1,7 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.05s
+     Running tests/auth_contract.rs (rust/gui-spike/target/debug/deps/auth_contract-9035f729b2f276ef)
+
+running 1 test
+test threaded_store_times_out_instead_of_waiting_forever has been running for over 60 seconds
+EXIT=124

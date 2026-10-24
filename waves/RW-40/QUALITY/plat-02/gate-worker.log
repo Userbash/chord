@@ -1,0 +1,83 @@
+
+> discord-function-lab@0.1.0 gate:worker
+> node scripts/gate.mjs --scope worker
+
+
+✖ typecheck — 0.2 с
+   
+   > discord-function-lab@0.1.0 typecheck
+   > tsc -p tsconfig.json && tsc -p tsconfig.agent.json
+   
+   tests/unit/channel-switch.test.mjs(341,19): error TS2339: Property 'name' does not exist on type '{ id: string; type: number; }'.
+   tests/unit/gui-spike-features.test.mjs(667,24): error TS7006: Parameter 'label' implicitly has an 'any' type.
+   
+✔ ui-tsc — 0.2 с
+✖ meta — 0.1 с (тесты 53: pass 52, fail 1, skip 0)
+     ✔ индекс ссылается на все документы пакета (0.844704ms)
+     ✔ графы Mermaid есть; карта проекта получила слой 8 (1.220171ms)
+     ✔ каталог функций: ≥100 уникальных F-ID и все 14 групп (1.132009ms)
+     ✔ тест-план: ≥110 уникальных T-ID, все группы, манифест фикстур (0.60555ms)
+     ✔ тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур (0.369666ms)
+     ✔ mutation-ledger: сводка по волнам, классы мутантов и разбор survivors (0.353606ms)
+     ✔ security: модель угроз, границы доверия и чек-листы (0.318705ms)
+     ✔ план: сквозной контур качества Q-01…Q-14 (0.463457ms)
+     ✔ план: волны P0–P8, ≥60 карточек, уникальные ID (0.54868ms)
+     ✔ репозиторные доки ссылаются на план (живые ссылки) (1.861821ms)
+     ✔ RC-07: фикстуры и каркас на месте и согласованы (0.914005ms)
+     ✔ RC-08: отчёт верификации сырья — полный (0.338406ms)
+     ✔ трассировка и строение описывают все группы (0.428327ms)
+   ✔ rust-client-sync: план Rust-клиента цел и синхронен (15.399178ms)
+   ▶ TEST-POLICY: запрет ослабления тестов
+     ✔ политика существует и содержит обязательные разделы (0.662331ms)
+     ✔ в тестах нет .only, todo и пустых assert (6.634371ms)
+     ✔ скрипты не обходят хуки и проверки (0.928396ms)
+     ✔ гейт содержит обязательные фазы (0.222673ms)
+     ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.457778ms)
+   ✔ TEST-POLICY: запрет ослабления тестов (10.132519ms)
+   ▶ waves-sync: журнал волн восстановим
+     ✔ README.md, STATE.md и db.jsonl на месте (3.158213ms)
+     ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (6.55446ms)
+     ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (2.080255ms)
+   ✔ waves-sync: журнал волн восстановим (12.880626ms)
+   ℹ tests 53
+   ℹ suites 11
+   ℹ pass 52
+   ℹ fail 1
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 86.322486
+   
+   ✖ failing tests:
+   
+   test at tests/meta/plan-sync.test.mjs:140:3
+   ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.36439ms)
+     AssertionError [ERR_ASSERTION]: тестовые файлы без строки в §8
+     + actual - expected
+     
+     + [
+     +   'tests/unit/channel-switch.test.mjs',
+     +   'tests/unit/guild-rail.test.mjs',
+     +   'tests/unit/voice-ui.test.mjs'
+     + ]
+     - []
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: [ 'tests/unit/channel-switch.test.mjs', 'tests/unit/guild-rail.test.mjs', 'tests/unit/voice-ui.test.mjs' ],
+       expected: [],
+       operator: 'deepStrictEqual',
+       diff: 'simple'
+     }
+   
+✔ unit — 1.4 с (тесты 539: pass 539, fail 0, skip 0)
+✔ spike-rust — 2.3 с
+✔ workspace-rust — 9.7 с (тесты 1115: pass 1103, fail 0, skip 12)
+✔ smoke — 17.3 с (тесты 22: pass 22, fail 0, skip 0)
+
+Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-24T08-50-24-257Z.json
+⚠ workspace-rust: пропущено 12 тестов — пропуск прохождением не считается
+Вердикт: failed

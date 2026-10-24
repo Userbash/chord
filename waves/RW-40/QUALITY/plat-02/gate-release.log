@@ -1,0 +1,326 @@
+
+✖ typecheck — 0.2 с
+   
+   > discord-function-lab@0.1.0 typecheck
+   > tsc -p tsconfig.json && tsc -p tsconfig.agent.json
+   
+   rust/gui-spike/ui/features/chat.js(312,47): error TS2532: Object is possibly 'undefined'.
+   tests/unit/gui-spike-features.test.mjs(667,24): error TS7006: Parameter 'label' implicitly has an 'any' type.
+   
+✖ ui-tsc — 0.2 с
+   rust/gui-spike/ui/features/chat.js(312,47): error TS2532: Object is possibly 'undefined'.
+   
+✖ meta — 0.1 с (тесты 53: pass 52, fail 1, skip 0)
+     ✔ графы Mermaid есть; карта проекта получила слой 8 (0.624402ms)
+     ✔ каталог функций: ≥100 уникальных F-ID и все 14 групп (0.949148ms)
+     ✔ тест-план: ≥110 уникальных T-ID, все группы, манифест фикстур (0.628672ms)
+     ✔ тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур (0.580291ms)
+     ✔ mutation-ledger: сводка по волнам, классы мутантов и разбор survivors (0.440808ms)
+     ✔ security: модель угроз, границы доверия и чек-листы (0.324847ms)
+     ✔ план: сквозной контур качества Q-01…Q-14 (0.52055ms)
+     ✔ план: волны P0–P8, ≥60 карточек, уникальные ID (0.634672ms)
+     ✔ репозиторные доки ссылаются на план (живые ссылки) (1.083661ms)
+     ✔ RC-07: фикстуры и каркас на месте и согласованы (1.011289ms)
+     ✔ RC-08: отчёт верификации сырья — полный (0.389877ms)
+     ✔ трассировка и строение описывают все группы (0.350297ms)
+   ✔ rust-client-sync: план Rust-клиента цел и синхронен (14.054931ms)
+   ▶ TEST-POLICY: запрет ослабления тестов
+     ✔ политика существует и содержит обязательные разделы (0.788376ms)
+     ✔ в тестах нет .only, todo и пустых assert (5.812112ms)
+     ✔ скрипты не обходят хуки и проверки (0.679313ms)
+     ✔ гейт содержит обязательные фазы (0.160353ms)
+     ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.390118ms)
+   ✔ TEST-POLICY: запрет ослабления тестов (9.269669ms)
+   ▶ waves-sync: журнал волн восстановим
+     ✔ README.md, STATE.md и db.jsonl на месте (3.11901ms)
+     ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (5.779971ms)
+     ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (1.864926ms)
+   ✔ waves-sync: журнал волн восстановим (11.781377ms)
+   ℹ tests 53
+   ℹ suites 11
+   ℹ pass 52
+   ℹ fail 1
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 87.471479
+   
+   ✖ failing tests:
+   
+   test at tests/meta/plan-sync.test.mjs:140:3
+   ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.758143ms)
+     AssertionError [ERR_ASSERTION]: тестовые файлы без строки в §8
+     + actual - expected
+     
+     + [
+     +   'tests/meta/keyring-live.test.mjs',
+     +   'tests/unit/channel-switch.test.mjs',
+     +   'tests/unit/guild-rail.test.mjs',
+     +   'tests/unit/voice-ui.test.mjs'
+     + ]
+     - []
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: [ 'tests/meta/keyring-live.test.mjs', 'tests/unit/channel-switch.test.mjs', 'tests/unit/guild-rail.test.mjs', 'tests/unit/voice-ui.test.mjs' ],
+       expected: [],
+       operator: 'deepStrictEqual',
+       diff: 'simple'
+     }
+   
+✖ unit — 1.5 с (тесты 539: pass 529, fail 10, skip 0)
+         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: undefined,
+       expected: true,
+       operator: '==',
+       diff: 'simple'
+     }
+   
+   test at tests/unit/channel-switch.test.mjs:652:5
+   ✖ ошибка 401 видна как alert, а не пустой список (10.743447ms)
+     AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: undefined,
+       expected: true,
+       operator: '==',
+       diff: 'simple'
+     }
+   
+   test at tests/unit/channel-switch.test.mjs:680:3
+   ✖ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (7.100677ms)
+     AssertionError [ERR_ASSERTION]: в гильдии меньше двух открываемых каналов
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:685:14)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: false,
+       expected: true,
+       operator: '==',
+       diff: 'simple'
+     }
+   
+   test at tests/unit/channel-switch.test.mjs:708:3
+   ✖ channels() падает → видимая ошибка дерева с retry, до победы (11.38576ms)
+     AssertionError [ERR_ASSERTION]: ошибка channels() не видна в дереве
+     
+     null !== 'error'
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:719:14)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Promise.all (index 0)
+         at async Suite.run (node:internal/test_runner/test:1905:7)
+         at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: null,
+       expected: 'error',
+       operator: 'strictEqual',
+       diff: 'simple'
+     }
+   
+✔ spike-rust — 2.3 с
+✔ workspace-rust — 9.8 с (тесты 1115: pass 1103, fail 0, skip 12)
+✖ smoke — 13.1 с (тесты 22: pass 21, fail 1, skip 0)
+     ✔ ранний выход c++filt → EPIPE не роняет процесс (4.566497ms)
+     ✔ ENOENT (PATH="") → reject без краха (1.05836ms)
+   ✔ demangle (c++filt) (215.501412ms)
+   ▶ Tauri GUI live smoke
+     ✔ открывает окно и публикует проверяемый DOM-снимок (10128.497001ms)
+   ✔ Tauri GUI live smoke (10129.156313ms)
+   ▶ GUI window probe (AT-SPI + X11)
+     ✖ находит окно, элементы и снимает PNG (69.816165ms)
+   ✖ GUI window probe (AT-SPI + X11) (70.333354ms)
+   ▶ discord-lab hook
+     ✔ неизвестный pid → код 2 из-за недоступной Frida или attach-ошибки (538.667795ms)
+     ✔ ошибка подготовки каталога лога → код 2 без стека (541.232778ms)
+   ✔ discord-lab hook (1080.78715ms)
+   ▶ discord-lab inventory
+     ✔ неизвестный pid → код 2 из-за недоступной Frida или пропущенной цели (536.280214ms)
+   ✔ discord-lab inventory (537.041558ms)
+   ▶ discord-lab pids
+     ✔ pids --all перечисляет процессы в формате '<pid>\t<name>' (542.312044ms)
+   ✔ discord-lab pids (543.129809ms)
+   ▶ discord-lab summarize
+     ✔ пишет <лог>.by-function.csv и печатает сводку (28.259936ms)
+     ✔ без аргументов и без logs/calls-*.jsonl (cwd) → код 1 с подсказкой (19.829679ms)
+     ✔ полный реальный voice-лог: stdout и CSV совпадают с независимым оракулом (28.963899ms)
+   ✔ discord-lab summarize (77.970071ms)
+   ℹ tests 22
+   ℹ suites 8
+   ℹ pass 21
+   ℹ fail 1
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 13080.563046
+   
+   ✖ failing tests:
+   
+   test at tests/smoke/gui-window.smoke.test.mjs:16:3
+   ✖ находит окно, элементы и снимает PNG (69.816165ms)
+     AssertionError [ERR_ASSERTION]: gui-window-probe: FAIL: бинарь старше ui/*: пересоберите `cargo build`
+     
+     
+     1 !== 0
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-window.smoke.test.mjs:38:14)
+         at Test.runInAsyncScope (node:async_hooks:227:14)
+         at Test.run (node:internal/test_runner/test:1402:25)
+         at Test.start (node:internal/test_runner/test:1262:17)
+         at node:internal/test_runner/test:1903:71
+         at node:internal/per_context/primordials:504:82
+         at new Promise (<anonymous>)
+         at new SafePromise (node:internal/per_context/primordials:478:3)
+         at node:internal/per_context/primordials:504:9
+         at Array.map (<anonymous>) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: 1,
+       expected: 0,
+       operator: 'strictEqual',
+       diff: 'simple'
+     }
+   
+✔ e2e — 0.1 с (тесты 4: pass 0, fail 0, skip 4)
+✖ coverage — 1.7 с (тесты 539: pass 529, fail 10, skip 0)
+         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: undefined,
+       expected: true,
+       operator: '==',
+       diff: 'simple'
+     }
+   
+   test at tests/unit/channel-switch.test.mjs:652:5
+   ✖ ошибка 401 видна как alert, а не пустой список (12.204937ms)
+     AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
+         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: undefined,
+       expected: true,
+       operator: '==',
+       diff: 'simple'
+     }
+   
+   test at tests/unit/channel-switch.test.mjs:680:3
+   ✖ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (16.15667ms)
+     AssertionError [ERR_ASSERTION]: в гильдии меньше двух открываемых каналов
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:685:14)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: false,
+       expected: true,
+       operator: '==',
+       diff: 'simple'
+     }
+   
+   test at tests/unit/channel-switch.test.mjs:708:3
+   ✖ channels() падает → видимая ошибка дерева с retry, до победы (9.208811ms)
+     AssertionError [ERR_ASSERTION]: ошибка channels() не видна в дереве
+     
+     null !== 'error'
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:719:14)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Promise.all (index 0)
+         at async Suite.run (node:internal/test_runner/test:1905:7)
+         at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: null,
+       expected: 'error',
+       operator: 'strictEqual',
+       diff: 'simple'
+     }
+   
+✖ keyring-live — 0.0 с (тесты 12: pass 0, fail 12, skip 0) [env: DISCORD_LAB_KEYRING_LIVE=1 (выставлен фазой); secret-tool: /usr/bin/secret-tool (--version код 2)]
+   
+   thread 'k03_lookup_missing_returns_none' (458024) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k06_unicode_secret_roundtrip stdout ----
+   
+   thread 'k06_unicode_secret_roundtrip' (458027) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k08_our_lookup_reads_secret_tool_store stdout ----
+   
+   thread 'k08_our_lookup_reads_secret_tool_store' (458029) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k09_empty_key_is_invalid stdout ----
+   
+   thread 'k09_empty_key_is_invalid' (458030) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k07_secret_tool_reads_our_store stdout ----
+   
+   thread 'k07_secret_tool_reads_our_store' (458028) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k10_nul_in_key_or_secret_is_error_without_panic stdout ----
+   
+   thread 'k10_nul_in_key_or_secret_is_error_without_panic' (458031) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k11_repeated_clear_returns_false stdout ----
+   
+   thread 'k11_repeated_clear_returns_false' (458032) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   ---- k12_debug_does_not_print_secret_or_pointers stdout ----
+   
+   thread 'k12_debug_does_not_print_secret_or_pointers' (458033) panicked at crates/discord-platform/tests/keyring_contract.rs:78:23:
+   KEYRING-LIVE: service-unavailable: Keyring::connect: Secret Service (код 1): Could not connect: No such file or directory
+   
+   
+   failures:
+       k01_connect_to_default_collection
+       k02_store_then_lookup_roundtrip_without_leak
+       k03_lookup_missing_returns_none
+       k04_clear_existing_then_lookup_none
+       k05_overwrite_replaces_value
+       k06_unicode_secret_roundtrip
+       k07_secret_tool_reads_our_store
+       k08_our_lookup_reads_secret_tool_store
+       k09_empty_key_is_invalid
+       k10_nul_in_key_or_secret_is_error_without_panic
+       k11_repeated_clear_returns_false
+       k12_debug_does_not_print_secret_or_pointers
+   
+   test result: FAILED. 0 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+   
+       Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+        Running tests/keyring_contract.rs (target/debug/deps/keyring_contract-08983f2bacdcafa3)
+   error: test failed, to rerun pass `-p discord-platform --test keyring_contract`
+   
+✔ golden — 0.3 с
+
+Отчёт гейта: /home/sanya/orca/project/.gate/release-2026-10-24T08-48-35-183Z.json
+⚠ workspace-rust: пропущено 12 тестов — пропуск прохождением не считается
+⚠ e2e: пропущено 4 тестов — пропуск прохождением не считается
+Вердикт: failed

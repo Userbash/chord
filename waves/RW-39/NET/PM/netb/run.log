@@ -1,0 +1,51 @@
+# NET-B (Core audit) — журнал работы
+
+Дата: 2026-10-23. Роль: NET-B. PM: DeepSeek. Волна RW-39 / N2.
+Режим: **read-only**. Не выполнялось: `cargo build/test/fmt/clippy`, сеть, запуск окна,
+`git commit/push`, правки кода/доков вне `waves/RW-39/NET/`.
+
+## 1. Границы, которые соблюдены
+
+- Читались только исходники, тесты, доки и логи репозитория; golden-каталоги
+  (`logs/`, `functions/`, `evidence/`) не затрагивались.
+- Ни одного изменения в `rust/`, `docs/`, `fixtures/`, `scripts/`, `tests/`.
+- Созданы только файлы отчёта:
+  - `waves/RW-39/NET/CORE-AUDIT.md`
+  - `waves/RW-39/NET/core-audit.json`
+  - `waves/RW-39/NET/PM/netb/{01-inventory,02-symbols,03-tests,04-gaps,run}.log`
+
+## 2. Что и как читалось
+
+| Шаг | Команда/инструмент | Результат |
+|---|---|---|
+| 1 | `git log -1`, `git status --porcelain` | HEAD `0239543`; рабочее дерево грязное (чужие правки не трогались) |
+| 2 | `read waves/RW-39/NET/CHARTER.md` | границы, критерий §5, этапы N0–N7 |
+| 3 | `find rust/crates/{discord-core,discord-store,discord-platform}/src -type f` | инвентарь 60+ файлов → `01-inventory.log` |
+| 4 | `wc -l` по REST/WS/ready/store/keyring | объём модулей → `01-inventory.log` |
+| 5 | `rg -n "^pub fn|pub struct|pub enum|pub const"` по 19 модулям | карта символов → `02-symbols.log` |
+| 6 | `rg -c "#\[test\]|#\[tokio::test"` по 20 файлам + keyring/store | карта тестов → `03-tests.log` |
+| 7 | целевые `rg` на отсутствие: `/auth`, `/gateway`, `gateway.discord.gg`, `compress=zstd-stream`, `auth_status/login_token/logout`, `Keyring` вне крейта, `serde` в prod | доказательства пробелов → `04-gaps.log` |
+| 8 | `sed -n` фрагментов: `rest/client.rs` (дефолты, инъекция заголовков), `transport.rs` (Debug), `keyring.rs` (!Send), `Cargo.toml` core | точные цитаты для отчёта |
+| 9 | `docs/re/gateway-protocol.md` §3–§5, `docs/re/rest-d02.md` §3/U-03, `docs/rust-client/ADR-1.md` | URL шлюза, режим `encoding=etf&v=9&compress=zstd-stream`, отсутствие `GET /gateway` |
+| 10 | `waves/STATE.md`, `TASKS.md` (строки про RW-33/keyring и счётчики) | 531 тест `discord-core`; RW-33 принят |
+
+## 3. Проверенные факты (сводка)
+
+- `GET /users/@me` есть в каталоге (строка 14 из 47) и вызывается в тесте
+  `rest_client.rs::auth_headers_added_in_order` на локальном стабе.
+- `POST /auth/*` и `GET /gateway` отсутствуют и в каталоге, и в коде.
+- `ApiConfig::default()` даёт `ApiAuth` из шести пустых строк; конструктора из токена нет.
+- `discord-core` не имеет production-JSON-парсера (`discord-json` — dev-dependency).
+- `connect_and_run*` — одно соединение; `plan_reconnect` есть, цикла/backoff нет.
+- `Keyring` — `!Send + !Sync`; вне `discord-platform` не используется.
+- `discord-store` v1: только `channels/messages/kv`; `CORE_TABLES` заявляет 5 таблиц.
+- `HttpRequest` (derive `Debug`) печатает заголовки, включая `Authorization`.
+
+## 4. Ограничения аудита
+
+- Тесты не запускались: статус «готово» = «есть реализация и контрактные тесты в репозитории»,
+  а не «прогон подтверждён в этой сессии».
+- Живой шлюз/REST не проверялись (окно не согласовано, сеть запрещена).
+- Оценки готовности (%) — экспертные, по объёму и связности реализованного.
+- Поведение сервера на наших заголовках/IDENTIFY не подтверждено: это задача N6 (live)
+  после ADR-2 и окна.

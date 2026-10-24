@@ -1,0 +1,38 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.62s
+     Running unittests src/lib.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 4 tests
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 5 tests
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... FAILED
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::token_or_preserves_domain_error_codes stdout ----
+
+thread 'wiring_tests::token_or_preserves_domain_error_codes' (329748) panicked at src/main.rs:735:9:
+assertion `left == right` failed: сеть недоступна
+  left: "network"
+ right: "storage"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::token_or_preserves_domain_error_codes
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `--bin discord-gui-spike`

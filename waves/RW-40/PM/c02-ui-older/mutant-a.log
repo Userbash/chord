@@ -1,0 +1,129 @@
+▶ C-02-PAGE: первая страница
+  ✔ открытие канала — position=latest, limit=100, без cursor/before/token (31.729886ms)
+✔ C-02-PAGE: первая страница (32.325177ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (20.594735ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (8.817485ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (9.57895ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (39.224484ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (9.634779ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (8.771487ms)
+✔ C-02-PAGE: ошибки подгрузки видны (18.58891ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (6.17854ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (13.924721ms)
+✔ C-02-PAGE: границы окна (20.297865ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✔ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (9.639919ms)
+✔ C-02-UI-OLDER: открытие на последнем сообщении (9.751375ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (7.251226ms)
+  ✖ направления не смешиваются: nextCursor older-страницы не подменяет forward (11.355603ms)
+✖ C-02-UI-OLDER: скролл вверх (before/olderCursor) (18.843911ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✖ ошибка 404: alert сверху, строки целы, retry догружает (11.549997ms)
+  ✖ ошибка 401: alert сверху, строки целы, retry догружает (6.312446ms)
+✖ C-02-UI-OLDER: ошибки подгрузки вверх (18.031318ms)
+▶ C-02-UI-OLDER: границы окна
+  ✖ окно истории не растёт сверх 500 строк при подгрузке вверх (7.703481ms)
+✖ C-02-UI-OLDER: границы окна (7.838527ms)
+ℹ tests 14
+ℹ suites 8
+ℹ pass 9
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 212.650287
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:669:3
+✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (7.251226ms)
+  AssertionError [ERR_ASSERTION]: запрос ушёл не по olderCursor хвоста
+  + actual - expected
+  
+  + null
+  - '1561627527833849898'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:692:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: '1561627527833849898',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:720:3
+✖ направления не смешиваются: nextCursor older-страницы не подменяет forward (11.355603ms)
+  AssertionError [ERR_ASSERTION]: older-страница не склеилась
+  + actual - expected
+  
+    [
+  -   '1561627527296979046',
+      '1561627527833849898',
+      '1561627528685166655'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:758:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ '1561627527833849898', '1561627528685166655' ],
+    expected: [ '1561627527296979046', '1561627527833849898', '1561627528685166655' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:790:5
+✖ ошибка 404: alert сверху, строки целы, retry догружает (11.549997ms)
+  AssertionError [ERR_ASSERTION]: текст ошибки 404 не виден
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:811:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Не удалось загрузить сообщения канала.Повторить',
+    expected: /не найден|недоступ/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:790:5
+✖ ошибка 401: alert сверху, строки целы, retry догружает (6.312446ms)
+  AssertionError [ERR_ASSERTION]: текст ошибки 401 не виден
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:811:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Не удалось загрузить сообщения канала.Повторить',
+    expected: /сессия|войдите/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/channel-paging.test.mjs:837:3
+✖ окно истории не растёт сверх 500 строк при подгрузке вверх (7.703481ms)
+  AssertionError [ERR_ASSERTION]: подгрузка вверх сделала 7 запросов — больше 500 строк
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:908:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

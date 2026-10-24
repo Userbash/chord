@@ -1,0 +1,28 @@
+▶ PageStore: ensureRange
+  ✖ последняя страница вернула 0 строк при capacity>0 → RangeError (симметрично R1) (0.872715ms)
+✖ PageStore: ensureRange (1.664959ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.233733
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-model.test.mjs:253:3
+✖ последняя страница вернула 0 строк при capacity>0 → RangeError (симметрично R1) (0.872715ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:261:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 7)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }

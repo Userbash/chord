@@ -1,0 +1,15 @@
++ cargo clippy --offline -p discord-core --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
++ echo clippy_core=0
+clippy_core=0
++ cargo clippy --offline --manifest-path gui-spike/Cargo.toml --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
++ echo clippy_gui=0
+clippy_gui=0
++ cargo fmt -p discord-core -- --check
++ echo fmt_core=0
+fmt_core=0
++ cargo fmt --manifest-path gui-spike/Cargo.toml -- --check
++ echo fmt_gui=0
+fmt_gui=0
++ set +x

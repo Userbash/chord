@@ -1,0 +1,185 @@
+/* =============================================================================
+ * composer.css — композер 56px (--layout-composer-h), поле 40 (--input-height).
+ * ========================================================================== */
+
+.composer {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+  align-items: center;
+  height: var(--layout-composer-h);
+  margin: 0 var(--chat-pad-x) var(--space-5);
+  padding: 0 var(--space-2);
+  border-radius: var(--composer-radius);
+  background: var(--surface-sunken);
+}
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--input-height);
+  max-height: var(--input-height);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  resize: none;
+}
+
+.composer-input::placeholder {
+  color: var(--text-muted);
+}
+
+.composer-input:focus-visible {
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+.composer-attach {
+  font-size: var(--icon-size-lg);
+}
+
+/* =============================================================================
+ * P3-02 (W39h): состояния композера (CMP-05…CMP-15) — аддитивно к базовым 56px.
+ * Поле и кнопки остаются в DOM в любом состоянии (§9: disabled не удаляет).
+ * ========================================================================== */
+
+/* Счётчик символов (CMP-06): появляется с 1800, краснеет на лимите (K-10). */
+.composer-counter {
+  flex: 0 0 auto;
+  order: 5;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-height-small);
+}
+
+.composer-counter[data-visible="false"] {
+  display: none;
+}
+
+.composer-counter[data-exceeded="true"] {
+  color: var(--danger-text);
+}
+
+/* Чип «ответ на» (ответ из hover-панели, MSG-27…30). */
+.composer-reply {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: var(--chat-pad-x);
+  display: none;
+  gap: var(--space-2);
+  align-items: center;
+  max-width: 60%;
+  padding: var(--space-1) var(--space-3);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.composer-reply[data-visible="true"] {
+  display: flex;
+}
+
+.composer-reply-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-reply-cancel {
+  flex: 0 0 auto;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* Композер — контейнер для absolute-чипа ответа. */
+.composer {
+  position: relative;
+}
+
+/* CMP-07: disabled — поле в DOM и фокусируемо, ввод не проходит. */
+.composer[data-state="disabled"] .composer-input {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.composer[data-state="disabled"] .icon-btn,
+.composer[data-limit="exceeded"] .icon-btn {
+  opacity: var(--state-disabled-opacity);
+}
+
+/* CMP-14: focus-within на контейнере (ring не двигает раскладку). */
+.composer:focus-within {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* CMP-08: стиль ошибки (логика — вне Phase 2). */
+.composer[data-state="error"] .composer-input {
+  color: var(--danger-text);
+}
+
+.chat-sent-messages { flex: 0 0 auto; }
+.local-message { min-height: var(--line-height-message); }
+.local-message[data-message-status="pending"] { opacity: .65; }
+.local-message[data-message-status="error"] { color: var(--danger-text); }
+.message-error { margin-left: var(--space-2); }
+
+/* =============================================================================
+ * P-03-UI (G6 §3.6): «Печатает…» над композером.
+ * Живёт внутри `.composer` (position: relative), поэтому не двигает раскладку
+ * (56px composer и высота списка не меняются). Пустой регион скрыт атрибутом
+ * hidden, а не нулевой высотой: AT не должен видеть фантомный live-region.
+ * ========================================================================== */
+
+.typing-indicator {
+  position: absolute;
+  bottom: calc(100% + var(--space-1));
+  left: var(--chat-pad-x);
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  max-width: 60%;
+  padding: 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  pointer-events: none;
+}
+
+.typing-indicator[data-visible="true"] {
+  display: flex;
+}
+
+.typing-indicator[hidden] {
+  display: none;
+}
+
+/* Чип ответа тоже висит над композером — индикатор встаёт над ним. */
+.composer[data-reply="true"] .typing-indicator {
+  bottom: calc(100% + var(--space-2) + var(--line-height-small) + var(--space-2));
+}
+
+.typing-indicator-text:empty {
+  display: none;
+}
+
+/* Slowmode/401/429: текст ошибки, без иконок и без нового live-региона. */
+.typing-indicator-notice {
+  color: var(--danger-text);
+}
+
+.typing-indicator-notice[hidden] {
+  display: none;
+}

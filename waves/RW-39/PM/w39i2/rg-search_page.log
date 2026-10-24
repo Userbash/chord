@@ -1,0 +1,14 @@
+130:fn search_page(
+138:    data::search_page(&root, &query, &filters, cursor.as_deref(), limit)
+172:            search_page
+200:    /// Точное совпадение имени, а не подстрока: `search_page` не должен
+201:    /// «находиться» внутри `search_page_v2` и наоборот.
+216:            "search_page",
+270:    fn search_page_command_passes_query_filters_and_cursor() {
+277:            data::search_page(&root, "call of duty", &SearchFilters::default(), None, None)
+279:        let actual = search_page("  call of duty  ".to_string(), None, None, None)
+280:            .expect("команда search_page");
+289:        let expected_filtered = data::search_page(
+301:            search_page(String::new(), Some(filters), None, Some(5)).expect("команда с фильтром");
+309:        let second = search_page(String::new(), None, Some(cursor.clone()), Some(5))
+312:            data::search_page(&root, "", &SearchFilters::default(), Some(&cursor), Some(5))

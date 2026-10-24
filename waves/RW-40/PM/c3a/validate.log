@@ -1,0 +1,331 @@
+ok   json.valid 20865 bytes
+ok   json.schema rw40/theme-spec-v1
+ok   assets.theme-spec.json.no-url найден url(
+ok   assets.theme-spec.json.no-font-face найден @font-face
+ok   assets.THEME-SPEC.md.no-url найден url(
+ok   assets.THEME-SPEC.md.no-font-face найден @font-face
+ok   name.--bg-app.declared имени нет в tokens.css
+ok   ref.--bg-app.exists --neutral-3
+ok   ref.--bg-app.value #f7f7f8 != #f7f7f8
+ok   name.--bg-chat.declared имени нет в tokens.css
+ok   ref.--bg-chat.exists --neutral-1
+ok   ref.--bg-chat.value #ffffff != #ffffff
+ok   name.--surface-1.declared имени нет в tokens.css
+ok   ref.--surface-1.exists --neutral-5
+ok   ref.--surface-1.value #efeff1 != #efeff1
+ok   name.--surface-2.declared имени нет в tokens.css
+ok   ref.--surface-2.exists --neutral-4
+ok   ref.--surface-2.value #f3f3f4 != #f3f3f4
+ok   name.--surface-3.declared имени нет в tokens.css
+ok   ref.--surface-3.exists --neutral-6
+ok   ref.--surface-3.value #ebeced != #ebeced
+ok   name.--surface-4.declared имени нет в tokens.css
+ok   ref.--surface-4.exists --neutral-7
+ok   ref.--surface-4.value #e8e8ea != #e8e8ea
+ok   name.--surface-sunken.declared имени нет в tokens.css
+ok   ref.--surface-sunken.exists --neutral-4
+ok   ref.--surface-sunken.value #f3f3f4 != #f3f3f4
+ok   name.--surface-input.declared имени нет в tokens.css
+ok   ref.--surface-input.exists --neutral-1
+ok   ref.--surface-input.value #ffffff != #ffffff
+ok   name.--row-hover-bg.declared имени нет в tokens.css
+ok   ref.--row-hover-bg.exists --neutral-5
+ok   ref.--row-hover-bg.value #efeff1 != #efeff1
+ok   name.--row-selected-bg.declared имени нет в tokens.css
+ok   ref.--row-selected-bg.exists --neutral-6
+ok   ref.--row-selected-bg.value #ebeced != #ebeced
+ok   name.--text-strong.declared имени нет в tokens.css
+ok   ref.--text-strong.exists --neutral-69
+ok   ref.--text-strong.value #323339 != #323339
+ok   name.--text.declared имени нет в tokens.css
+ok   ref.--text.exists --neutral-60
+ok   ref.--text.value #3f4048 != #3f4048
+ok   name.--text-subtle.declared имени нет в tokens.css
+ok   ref.--text-subtle.exists --neutral-45
+ok   ref.--text-subtle.value #5f606a != #5f606a
+ok   name.--text-muted.declared имени нет в tokens.css
+ok   ref.--text-muted.exists --neutral-42
+ok   ref.--text-muted.value #696a73 != #696a73
+ok   name.--text-faint.declared имени нет в tokens.css
+ok   ref.--text-faint.exists --neutral-40
+ok   ref.--text-faint.value #70717a != #70717a
+ok   name.--text-link.declared имени нет в tokens.css
+ok   ref.--text-link.exists --blue-460
+ok   ref.--text-link.value #0363c1 != #0363c1
+ok   name.--text-accent.declared имени нет в tokens.css
+ok   ref.--text-accent.exists --brand-560
+ok   ref.--text-accent.value #4654c0 != #4654c0
+ok   name.--text-on-accent.declared имени нет в tokens.css
+ok   ref.--text-on-accent.exists --neutral-1
+ok   ref.--text-on-accent.value #ffffff != #ffffff
+ok   name.--text-on-danger.declared имени нет в tokens.css
+ok   ref.--text-on-danger.exists --neutral-1
+ok   ref.--text-on-danger.value #ffffff != #ffffff
+ok   name.--text-on-warning.declared имени нет в tokens.css
+ok   ref.--text-on-warning.exists --neutral-69
+ok   ref.--text-on-warning.value #323339 != #323339
+ok   name.--text-inverse.declared имени нет в tokens.css
+ok   ref.--text-inverse.exists --neutral-1
+ok   ref.--text-inverse.value #ffffff != #ffffff
+ok   name.--accent.declared имени нет в tokens.css
+ok   ref.--accent.exists --brand-500
+ok   ref.--accent.value #5865f2 != #5865f2
+ok   name.--accent-hover.declared имени нет в tokens.css
+ok   ref.--accent-hover.exists --brand-560
+ok   ref.--accent-hover.value #4654c0 != #4654c0
+ok   name.--accent-active.declared имени нет в tokens.css
+ok   ref.--accent-active.exists --brand-600
+ok   ref.--accent-active.value #3a48a3 != #3a48a3
+ok   name.--accent-soft.declared имени нет в tokens.css
+ok   assumption.--accent-soft производная brand-500; дампное message-highlight 16% рассчит
+ok   name.--danger.declared имени нет в tokens.css
+ok   ref.--danger.exists --red-400
+ok   ref.--danger.value #da3e44 != #da3e44
+ok   name.--danger-text.declared имени нет в tokens.css
+ok   ref.--danger-text.exists --red-460
+ok   ref.--danger-text.value #bd2934 != #bd2934
+ok   name.--danger-fill.declared имени нет в tokens.css
+ok   assumption.--danger-fill белый текст 4.85; дампный --danger #da3e44 с белым = 4.42 < 
+ok   name.--danger-fill-hover.declared имени нет в tokens.css
+ok   assumption.--danger-fill-hover белый текст 6.02
+ok   name.--warning.declared имени нет в tokens.css
+ok   ref.--warning.exists --yellow-300
+ok   ref.--warning.value #fdb833 != #fdb833
+ok   name.--warning-text.declared новое имя
+ok   ref.--warning-text.exists --yellow-460
+ok   ref.--warning-text.value #945300 != #945300
+ok   name.--positive.declared имени нет в tokens.css
+ok   ref.--positive.exists --green-400
+ok   ref.--positive.value #269153 != #269153
+ok   name.--positive-text.declared имени нет в tokens.css
+ok   ref.--positive-text.exists --green-460
+ok   ref.--positive-text.value #01713a != #01713a
+ok   name.--info.declared имени нет в tokens.css
+ok   ref.--info.exists --blue-460
+ok   ref.--info.value #0363c1 != #0363c1
+ok   name.--status-online.declared имени нет в tokens.css
+ok   ref.--status-online.exists --green-400
+ok   ref.--status-online.value #269153 != #269153
+ok   name.--status-idle.declared имени нет в tokens.css
+ok   ref.--status-idle.exists --yellow-400
+ok   ref.--status-idle.value #bb7300 != #bb7300
+ok   name.--status-dnd.declared имени нет в tokens.css
+ok   ref.--status-dnd.exists --red-400
+ok   ref.--status-dnd.value #da3e44 != #da3e44
+ok   name.--status-offline.declared имени нет в tokens.css
+ok   assumption.--status-offline нейтральный серый; в дампе статус-токена нет
+ok   name.--status-streaming.declared имени нет в tokens.css
+ok   assumption.--status-streaming в дампе 1.0.162 токена нет (как и для dark)
+ok   name.--border-subtle.declared имени нет в tokens.css
+ok   assumption.--border-subtle инверсия светлого бордера 12%: на светлом фоне работает зате
+ok   name.--border.declared имени нет в tokens.css
+ok   assumption.--border 20% дампа на светлом фоне слишком слабый; 14% даёт #dbdbdb
+ok   name.--border-strong.declared имени нет в tokens.css
+ok   assumption.--border-strong #8f8f8f на белом = 3.03 (non-text AA); 44% дампа = 2.9
+ok   name.--divider.declared имени нет в tokens.css
+ok   assumption.--divider инверсия 6% белого
+ok   name.--state-hover.declared имени нет в tokens.css
+ok   assumption.--state-hover на светлом фон затемняем, а не осветляем
+ok   name.--state-active.declared имени нет в tokens.css
+ok   assumption.--state-active то же
+ok   name.--state-selected.declared имени нет в tokens.css
+ok   assumption.--state-selected выбранный канал в дереве
+ok   name.--state-selected-strong.declared имени нет в tokens.css
+ok   assumption.--state-selected-strong вкладка/пункт меню
+ok   name.--state-disabled-opacity.declared имени нет в tokens.css
+ok   assumption.--state-disabled-opacity общая константа, от темы не зависит
+ok   name.--badge-secondary-bg.declared имени нет в tokens.css
+ok   assumption.--badge-secondary-bg зеркало 16% белого на тёмном
+ok   name.--focus-ring.declared имени нет в tokens.css
+ok   ref.--focus-ring.exists --brand-560
+ok   ref.--focus-ring.value #4654c0 != #4654c0
+ok   name.--scrollbar-thumb.declared имени нет в tokens.css
+ok   ref.--scrollbar-thumb.exists --neutral-35
+ok   ref.--scrollbar-thumb.value #81828a != #81828a
+ok   name.--shadow-elevation-low.declared имени нет в tokens.css
+ok   assumption.--shadow-elevation-low светлая тень вместо светлой заливки
+ok   name.--shadow-elevation-stroke.declared имени нет в tokens.css
+ok   assumption.--shadow-elevation-stroke тонкая граница-тень
+ok   name.--shadow-elevation-medium.declared имени нет в tokens.css
+ok   assumption.--shadow-elevation-medium смягчённая тень
+ok   name.--shadow-elevation-high.declared имени нет в tokens.css
+ok   assumption.--shadow-elevation-high смягчённая тень
+ok   name.--shadow-border.declared имени нет в tokens.css
+ok   assumption.--shadow-border зеркало 8% белого
+ok   name.--shadow-popover.declared имени нет в tokens.css
+ok   assumption.--shadow-popover композиция двух теней
+ok   aa.--text-strong.--bg-app 11.758 >= 4.5
+ok   aa.--text-strong.--bg-chat 12.588 >= 4.5
+ok   aa.--text-strong.--surface-1 10.962 >= 4.5
+ok   aa.--text-strong.--surface-2 11.352 >= 4.5
+ok   aa.--text-strong.--surface-3 10.642 >= 4.5
+ok   aa.--text-strong.--surface-4 10.287 >= 4.5
+ok   aa.--text-strong.--surface-sunken 11.352 >= 4.5
+ok   aa.--text-strong.--surface-input 12.588 >= 4.5
+ok   aa.--text.--bg-app 9.623 >= 4.5
+ok   aa.--text.--bg-chat 10.303 >= 4.5
+ok   aa.--text.--surface-1 8.972 >= 4.5
+ok   aa.--text.--surface-2 9.291 >= 4.5
+ok   aa.--text.--surface-3 8.710 >= 4.5
+ok   aa.--text.--surface-4 8.420 >= 4.5
+ok   aa.--text.--surface-sunken 9.291 >= 4.5
+ok   aa.--text.--surface-input 10.303 >= 4.5
+ok   aa.--text-subtle.--bg-app 5.824 >= 4.5
+ok   aa.--text-subtle.--bg-chat 6.235 >= 4.5
+ok   aa.--text-subtle.--surface-1 5.430 >= 4.5
+ok   aa.--text-subtle.--surface-2 5.623 >= 4.5
+ok   aa.--text-subtle.--surface-3 5.271 >= 4.5
+ok   aa.--text-subtle.--surface-4 5.096 >= 4.5
+ok   aa.--text-subtle.--surface-sunken 5.623 >= 4.5
+ok   aa.--text-subtle.--surface-input 6.235 >= 4.5
+ok   aa.--text-muted.--bg-app 5.017 >= 4.5
+ok   aa.--text-muted.--bg-chat 5.371 >= 4.5
+ok   aa.--text-muted.--surface-1 4.677 >= 4.5
+ok   aa.--text-muted.--surface-2 4.844 >= 4.5
+ok   aa.--text-muted.--surface-3 4.541 >= 4.5
+ok   aa.--text-muted.--surface-sunken 4.844 >= 4.5
+ok   aa.--text-muted.--surface-input 5.371 >= 4.5
+ok   aa.--text-faint.--bg-app 4.528 >= 4.5
+ok   aa.--text-faint.--bg-chat 4.848 >= 4.5
+ok   aa.--text-link.--bg-app 5.512 >= 4.5
+ok   aa.--text-link.--bg-chat 5.901 >= 4.5
+ok   aa.--text-link.--surface-1 5.139 >= 4.5
+ok   aa.--text-link.--surface-2 5.322 >= 4.5
+ok   aa.--text-link.--surface-3 4.989 >= 4.5
+ok   aa.--text-link.--surface-4 4.823 >= 4.5
+ok   aa.--text-link.--surface-sunken 5.322 >= 4.5
+ok   aa.--text-link.--surface-input 5.901 >= 4.5
+ok   aa.--text-accent.--bg-app 5.962 >= 4.5
+ok   aa.--text-accent.--bg-chat 6.384 >= 4.5
+ok   aa.--text-accent.--surface-1 5.559 >= 4.5
+ok   aa.--text-accent.--surface-2 5.757 >= 4.5
+ok   aa.--text-accent.--surface-3 5.397 >= 4.5
+ok   aa.--text-accent.--surface-4 5.217 >= 4.5
+ok   aa.--text-accent.--surface-sunken 5.757 >= 4.5
+ok   aa.--text-accent.--surface-input 6.384 >= 4.5
+ok   aa.--text-on-accent.--accent 4.607 >= 4.5
+ok   aa.--text-on-danger.--danger-fill 4.850 >= 4.5
+ok   aa.--text-on-warning.--warning 7.242 >= 4.5
+ok   aa.--text-inverse.--accent 4.607 >= 4.5
+ok   aa.--accent.--bg-app 4.303 >= 3
+ok   aa.--accent.--bg-chat 4.607 >= 3
+ok   aa.--accent.--surface-1 4.012 >= 3
+ok   aa.--accent.--surface-2 4.154 >= 3
+ok   aa.--accent.--surface-3 3.895 >= 3
+ok   aa.--accent-hover.--bg-app 5.962 >= 3
+ok   aa.--accent-hover.--bg-chat 6.384 >= 3
+ok   aa.--accent-hover.--surface-1 5.559 >= 3
+ok   aa.--accent-hover.--surface-2 5.757 >= 3
+ok   aa.--accent-hover.--surface-3 5.397 >= 3
+ok   aa.--accent-active.--bg-app 7.442 >= 3
+ok   aa.--accent-active.--bg-chat 7.967 >= 3
+ok   aa.--accent-active.--surface-1 6.938 >= 3
+ok   aa.--accent-active.--surface-2 7.185 >= 3
+ok   aa.--accent-active.--surface-3 6.736 >= 3
+ok   aa.--danger.--bg-app 4.126 >= 3
+ok   aa.--danger.--bg-chat 4.418 >= 3
+ok   aa.--danger.--surface-1 3.847 >= 3
+ok   aa.--danger.--surface-2 3.984 >= 3
+ok   aa.--danger.--surface-3 3.735 >= 3
+ok   aa.--danger.--surface-4 3.610 >= 3
+ok   aa.--danger-text.--bg-app 5.556 >= 4.5
+ok   aa.--danger-text.--bg-chat 5.948 >= 4.5
+ok   aa.--danger-text.--surface-1 5.180 >= 4.5
+ok   aa.--danger-text.--surface-2 5.364 >= 4.5
+ok   aa.--danger-text.--surface-3 5.029 >= 4.5
+ok   aa.--danger-text.--surface-4 4.861 >= 4.5
+ok   aa.--danger-text.--surface-sunken 5.364 >= 4.5
+ok   aa.--danger-text.--surface-input 5.948 >= 4.5
+ok   aa.--warning-text.--bg-app 5.610 >= 4.5
+ok   aa.--warning-text.--bg-chat 6.006 >= 4.5
+ok   aa.--warning-text.--surface-1 5.230 >= 4.5
+ok   aa.--warning-text.--surface-2 5.416 >= 4.5
+ok   aa.--warning-text.--surface-3 5.078 >= 4.5
+ok   aa.--warning-text.--surface-4 4.908 >= 4.5
+ok   aa.--warning-text.--surface-sunken 5.416 >= 4.5
+ok   aa.--warning-text.--surface-input 6.006 >= 4.5
+ok   aa.--positive.--bg-app 3.731 >= 3
+ok   aa.--positive.--bg-chat 3.994 >= 3
+ok   aa.--positive.--surface-1 3.478 >= 3
+ok   aa.--positive.--surface-2 3.602 >= 3
+ok   aa.--positive.--surface-3 3.377 >= 3
+ok   aa.--positive.--surface-4 3.264 >= 3
+ok   aa.--positive-text.--bg-app 5.728 >= 4.5
+ok   aa.--positive-text.--bg-chat 6.132 >= 4.5
+ok   aa.--positive-text.--surface-1 5.340 >= 4.5
+ok   aa.--positive-text.--surface-2 5.530 >= 4.5
+ok   aa.--positive-text.--surface-3 5.184 >= 4.5
+ok   aa.--positive-text.--surface-4 5.012 >= 4.5
+ok   aa.--positive-text.--surface-sunken 5.530 >= 4.5
+ok   aa.--positive-text.--surface-input 6.132 >= 4.5
+ok   aa.--info.--bg-app 5.512 >= 4.5
+ok   aa.--info.--bg-chat 5.901 >= 4.5
+ok   aa.--info.--surface-1 5.139 >= 4.5
+ok   aa.--info.--surface-2 5.322 >= 4.5
+ok   aa.--info.--surface-3 4.989 >= 4.5
+ok   aa.--info.--surface-4 4.823 >= 4.5
+ok   aa.--info.--surface-sunken 5.322 >= 4.5
+ok   aa.--info.--surface-input 5.901 >= 4.5
+ok   aa.--status-online.--bg-app 3.731 >= 3
+ok   aa.--status-online.--bg-chat 3.994 >= 3
+ok   aa.--status-online.--surface-1 3.478 >= 3
+ok   aa.--status-online.--surface-2 3.602 >= 3
+ok   aa.--status-online.--surface-3 3.377 >= 3
+ok   aa.--status-online.--surface-4 3.264 >= 3
+ok   aa.--status-idle.--bg-app 3.524 >= 3
+ok   aa.--status-idle.--bg-chat 3.773 >= 3
+ok   aa.--status-idle.--surface-1 3.286 >= 3
+ok   aa.--status-idle.--surface-2 3.403 >= 3
+ok   aa.--status-idle.--surface-3 3.190 >= 3
+ok   aa.--status-idle.--surface-4 3.084 >= 3
+ok   aa.--status-dnd.--bg-app 4.126 >= 3
+ok   aa.--status-dnd.--bg-chat 4.418 >= 3
+ok   aa.--status-dnd.--surface-1 3.847 >= 3
+ok   aa.--status-dnd.--surface-2 3.984 >= 3
+ok   aa.--status-dnd.--surface-3 3.735 >= 3
+ok   aa.--status-dnd.--surface-4 3.610 >= 3
+ok   aa.--status-offline.--bg-app 3.497 >= 3
+ok   aa.--status-offline.--bg-chat 3.744 >= 3
+ok   aa.--status-offline.--surface-1 3.260 >= 3
+ok   aa.--status-offline.--surface-2 3.376 >= 3
+ok   aa.--status-offline.--surface-3 3.165 >= 3
+ok   aa.--status-offline.--surface-4 3.060 >= 3
+ok   aa.--status-streaming.--bg-app 8.219 >= 3
+ok   aa.--status-streaming.--bg-chat 8.800 >= 3
+ok   aa.--status-streaming.--surface-1 7.663 >= 3
+ok   aa.--status-streaming.--surface-2 7.936 >= 3
+ok   aa.--status-streaming.--surface-3 7.439 >= 3
+ok   aa.--status-streaming.--surface-4 7.191 >= 3
+ok   aa.--border-strong.--bg-chat 3.690 >= 3
+ok   aa.--border-strong.--bg-app 3.685 >= 3
+ok   aa.--border-strong.--surface-1 3.631 >= 3
+ok   aa.--border-strong.--surface-2 3.657 >= 3
+ok   aa.--border-strong.--surface-3 3.589 >= 3
+ok   aa.--border-strong.--surface-4 3.554 >= 3
+ok   aa.--focus-ring.--bg-app 5.962 >= 3
+ok   aa.--focus-ring.--bg-chat 6.384 >= 3
+ok   aa.--focus-ring.--surface-1 5.559 >= 3
+ok   aa.--focus-ring.--surface-2 5.757 >= 3
+ok   aa.--focus-ring.--surface-3 5.397 >= 3
+ok   aa.--focus-ring.--surface-4 5.217 >= 3
+ok   aa.--scrollbar-thumb.--bg-app 3.571 >= 3
+ok   aa.--scrollbar-thumb.--bg-chat 3.823 >= 3
+ok   aa.--scrollbar-thumb.--surface-1 3.329 >= 3
+ok   aa.--scrollbar-thumb.--surface-2 3.447 >= 3
+ok   aa.--scrollbar-thumb.--surface-3 3.232 >= 3
+ok   aa.--scrollbar-thumb.--surface-4 3.124 >= 3
+ok   layout.cozy.--message-gutter 64 vs layout 64
+ok   layout.cozy.--row-h-group-start 48 vs layout 48
+ok   layout.cozy.--row-h-continuation 26 vs layout 26
+ok   layout.cozy.--row-line-extra 22 vs layout 22
+ok   layout.cozy.--line-height-message 22 vs layout 22
+ok   layout.compact.--message-gutter 80 vs layout 80
+ok   layout.compact.--row-h-continuation 26 vs layout 26
+ok   layout.compact.--row-line-extra 22 vs layout 22
+ok   layout.compact.--line-height-message 22 vs layout 22
+
+tokens: [T]=36 [A]=21 other=0 total=57
+contrast checks: 160
+total checks: 325
+
+OK: все проверки прошли

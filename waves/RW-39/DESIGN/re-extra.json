@@ -1,0 +1,806 @@
+{
+  "schema": "rw39/re-extra-v1",
+  "generated": "2026-10-23",
+  "card": "RW-39 / W39f — недостающие UI-контракты для P3-02 (чат-вью)",
+  "codes": {
+    "D": "дамп (JSON/HTML/JS/CSS/i18n-каталог)",
+    "M": "измерено/увидено на lossless PNG дампа (кроп в /tmp, в репозиторий не копировался)",
+    "T": "токен ui/tokens.json",
+    "A": "наше допущение"
+  },
+  "sources": {
+    "root": "/home/sanya/re-deep (read-only)",
+    "ui": "ui/00-app.png, ui/tokens.json, ui8/*.json/*.html",
+    "bundles": "decoded/<hash>_0 (веб-чанки: JS и CSS), modules-index.json",
+    "i18n": "ru-catalog.json, en-catalog.json (ключ → AST)",
+    "adopted": "docs/re/frontend-d03.md, waves/RW-39/DESIGN/{SPEC.md,layout.json,REFERENCES.md}"
+  },
+  "sections": {
+    "composer": {
+      "title": "Композер",
+      "facts": [
+        {
+          "id": "C-01",
+          "value": "В референсе композер disabled: текст «У вас недостаточно прав, чтобы отправлять сообщения на этом канале.», кнопок вложения/эмодзи/подарка нет",
+          "code": "M",
+          "source": "ui/00-app.png (кроп y1020..1106, x370..1800 CSS)",
+          "method": "png (PIL-кроп /tmp/opencode/w39f/composer.png)"
+        },
+        {
+          "id": "C-02",
+          "value": "Подпись/плейсхолдер: «Написать {канал}» (en «Message {channel}»); в дампе aria-label=\"Написать #🔴┃поговорить-тут\"",
+          "code": "D",
+          "source": "ui8/20a-searchbar.json inputs[2].aria; ru-catalog.json 8lzR/R",
+          "method": "json + i18n"
+        },
+        {
+          "id": "C-03",
+          "value": "Вариант ЛС: «Message @name» / «Сообщение для @name»",
+          "code": "D",
+          "source": "en-catalog.json / ru-catalog.json, ключ 0ZQw/X",
+          "method": "i18n"
+        },
+        {
+          "id": "C-04",
+          "value": "Лимит 2000 символов; с Nitro 4000",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0: constants nY=2e3 (uvi), nK=4e3 (CS1)",
+          "method": "js"
+        },
+        {
+          "id": "C-05",
+          "value": "Счётчик виден при остатке ≤ max/10 = 200 (для 2000); порог = showRemainingCharsAfterCount",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0, модуль 263582",
+          "method": "js"
+        },
+        {
+          "id": "C-06",
+          "value": "Тексты счётчика: «Осталось символов: {count}», «Достигнут лимит длины сообщения», «Сообщение слишком длинное», «Достигнуто макс. количество символов»; апселл Nitro — «…увеличено до {maxLength}!»",
+          "code": "D",
+          "source": "ru-catalog.json qH8uFW, tU6YQ7, YSRIqa, c2Jqed, vcvHa0",
+          "method": "i18n"
+        },
+        {
+          "id": "C-07",
+          "value": "Enter — отправить; Shift+Enter — перенос; Ctrl+Enter отправляет и при disabled enter-to-submit; Enter игнорируется в незакрытом code block",
+          "code": "D",
+          "source": "decoded/f0a78ad5dbc04c2f_0 handleKeyPress/handleKeyDown (~53411)",
+          "method": "js"
+        },
+        {
+          "id": "C-08",
+          "value": "↑ в пустом редакторе — редактировать последнее сообщение (FOCUS_MESSAGES {atEnd:true})",
+          "code": "D",
+          "source": "decoded/f0a78ad5dbc04c2f_0 (~124134)",
+          "method": "js"
+        },
+        {
+          "id": "C-09",
+          "value": "Порядок: attach слева от поля; ряд buttons__74017 (gap 8px) справа: gift → gif → sticker → emoji|expression → apps → submit",
+          "code": "D",
+          "source": "decoded/f0a78ad5dbc04c2f_0 (JSX), decoded/3eefa7dae1e2c234_0 модуль 846558",
+          "method": "js"
+        },
+        {
+          "id": "C-10",
+          "value": "Attach: aria «Отправить файл», файл-пикер + paste + drag&drop, шорткат Ctrl+Shift+U",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 модуль 846558; keybind registry 2ac5158769dd2c7f_0 (UPLOAD_FILE)",
+          "method": "js"
+        },
+        {
+          "id": "C-11",
+          "value": "Максимум 10 вложений на сообщение (array().max(10), константа XgB=10)",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 (attachments max(10), constants n4)",
+          "method": "js"
+        },
+        {
+          "id": "C-12",
+          "value": "Вставка текста >4000 символов предлагает отправить файлом (uploadPromptCharacterCount = CS1 = 4000)",
+          "code": "D",
+          "source": "decoded/f0a78ad5dbc04c2f_0 (uploadPromptCharacterCount:ea.CS1)",
+          "method": "js"
+        },
+        {
+          "id": "C-13",
+          "value": "Кнопка эмодзи: emojiButton__74017 (radius 8, hover --interactive-background-selected), иконка 20; пикер — слой expressionPickerPositionLayer__74017 inset-inline-start:86px",
+          "code": "D",
+          "source": "decoded/2e60d16dae6e5d86_0 (CSS 962953), decoded/792f0283e57e7880_0",
+          "method": "css"
+        },
+        {
+          "id": "C-14",
+          "value": "Поле: font-size 1rem, line-height 1.375rem, height 56px, padding-inline 0 10px, max-height 50vh + scroll",
+          "code": "D/T",
+          "source": "decoded/2e60d16dae6e5d86_0; ui/tokens.json --custom-channel-textarea-text-area-height/--custom-channel-textarea-text-area-max-height",
+          "method": "css + token"
+        },
+        {
+          "id": "C-15",
+          "value": "Отдельная кнопка отправки поддержана конфигом submit:{button,clearOnSubmit,disableEnterToSubmit}, но скрыта экспериментом isSubmitButtonEnabled",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 (конфиги submit), decoded/f0a78ad5dbc04c2f_0",
+          "method": "js"
+        },
+        {
+          "id": "C-16",
+          "value": "Кнопок в ряду максимум 6; при сжатии emoji+gif+sticker заменяются одной expression-кнопкой",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 модуль 846558 (showAllButtons/expressionButtonsHidden)",
+          "method": "js"
+        },
+        {
+          "id": "C-17",
+          "value": "Notice-подсказка композера в референсе отсутствует (полоса «Отправка недоступна» — наше решение)",
+          "code": "A",
+          "source": "ui/00-app.png (notice-полосы нет)",
+          "method": "png"
+        }
+      ]
+    },
+    "members": {
+      "title": "Панель участников",
+      "facts": [
+        {
+          "id": "M-01",
+          "value": "Порядок групп: hoisted-роли (порядок getSortedRoles, по убыванию позиции) → «В сети» → «Не в сети»",
+          "code": "D",
+          "source": "decoded/f2772fb4bff12a25_0 ep(); decoded/3eefa7dae1e2c234_0 Y() (hoistRoleId)",
+          "method": "js"
+        },
+        {
+          "id": "M-02",
+          "value": "Секция = hoistRoleId при статусе не offline/invisible; иначе online (если hoisted роли нет) или offline",
+          "code": "D",
+          "source": "decoded/4d2a64cb5df5fc4e_0 calculateNewState",
+          "method": "js"
+        },
+        {
+          "id": "M-03",
+          "value": "Внутри секции сортировка по (nick ?? globalName).toLowerCase(), вставка в отсортированную позицию",
+          "code": "D",
+          "source": "decoded/4d2a64cb5df5fc4e_0 rebuild(), findUserIdSortedPosition",
+          "method": "js"
+        },
+        {
+          "id": "M-04",
+          "value": "Заголовок группы «{label} — {count}» (NBSP перед тире); видимый текст aria-hidden, доступное имя — тултип/счётчик",
+          "code": "D",
+          "source": "decoded/f2772fb4bff12a25_0 (JSX), ui8/22-members.json («Server Booster\\u00a0— 2»)",
+          "method": "js + json"
+        },
+        {
+          "id": "M-05",
+          "value": "Снятые группы: «Server Booster — 2», «В сети — 735»; offline-группа в срез не попала",
+          "code": "D",
+          "source": "ui8/22-members.json, ui8/22-members.jpg",
+          "method": "json"
+        },
+        {
+          "id": "M-06",
+          "value": "Видимое окно 35 строк, 2 группы, поиска в панели нет (search: [])",
+          "code": "D",
+          "source": "ui8/22-members.json (rowCount, groupCount, search)",
+          "method": "json"
+        },
+        {
+          "id": "M-07",
+          "value": "Строка: margin-inline-start 8px, max-width calc(256px-16px), padding-block 4px; аватар 32, имя 14/18, статус 12/16",
+          "code": "D",
+          "source": "decoded/79e79bb7b4b2a133_0 (CSS), ui8/22-members.json (classTokens)",
+          "method": "css + json"
+        },
+        {
+          "id": "M-08",
+          "value": "Заголовок группы: padding-block 16/4, padding-inline 12/4; имя ellipsis; у бустеров wheel-иконка 4px + hover",
+          "code": "D/T",
+          "source": "decoded/1377da32500f7fbe_0; ui/tokens.json --space-lg/--space-xxs/--space-md",
+          "method": "css + token"
+        },
+        {
+          "id": "M-09",
+          "value": "Offline-строки: opacity .3, на hover 1 (.offline__5d473)",
+          "code": "D",
+          "source": "decoded/79e79bb7b4b2a133_0",
+          "method": "css"
+        },
+        {
+          "id": "M-10",
+          "value": "Панель: border-inline-start 1px --border-subtle, фон --custom-channel-members-bg, padding-bottom 10px, ширина 256",
+          "code": "D/T",
+          "source": "decoded/1377da32500f7fbe_0; ui/tokens.json --custom-member-list-width",
+          "method": "css + token"
+        },
+        {
+          "id": "M-11",
+          "value": "Локализация групп: «В сети» / «Не в сети»; роль-группа — имя роли как есть",
+          "code": "D",
+          "source": "ru-catalog.json WbGtnH, Vv0abJ",
+          "method": "i18n"
+        },
+        {
+          "id": "M-12",
+          "value": "Иконка роли в заголовке: roleIcon_c8ffbb (margin-inline-end 4px) при наличии icon/unicodeEmoji",
+          "code": "D",
+          "source": "decoded/1377da32500f7fbe_0, decoded/c6debfeca50bb9fd_0",
+          "method": "css"
+        },
+        {
+          "id": "M-13",
+          "value": "Пустые секции не рисуются (фильтр userIds.length > 0)",
+          "code": "D",
+          "source": "decoded/f2772fb4bff12a25_0",
+          "method": "js"
+        },
+        {
+          "id": "M-14",
+          "value": "Счётчик группы — размер секции на момент рендера (online 735), не общее число участников сервера",
+          "code": "D/A",
+          "source": "ui8/22-members.json; docs/re/frontend-d03.md §7.8",
+          "method": "json"
+        }
+      ]
+    },
+    "emoji": {
+      "title": "Эмодзи-пикер",
+      "facts": [
+        {
+          "id": "E-01",
+          "value": "Карточка: min-width 498px, height 440px, radius 8",
+          "code": "T",
+          "source": "ui/tokens.json --custom-emoji-picker-constants-min-emoji-picker-width / -emoji-picker-height / --custom-emoji-picker-border-radius",
+          "method": "token"
+        },
+        {
+          "id": "E-02",
+          "value": "3 контент-вкладки: «Гифки», «Стикеры», «Эмодзи» (aria-selected=true)",
+          "code": "D",
+          "source": "ui8/21-emoji-picker.json, ui8/21b-emoji-full.json",
+          "method": "json"
+        },
+        {
+          "id": "E-03",
+          "value": "Поиск: placeholder «Найдите идеальный эмодзи», aria «Поиск»",
+          "code": "D",
+          "source": "ui8/21-emoji-picker.json (searchPh, searchAria)",
+          "method": "json"
+        },
+        {
+          "id": "E-04",
+          "value": "Видимый рейл (10, порядок): top guild emoji, recent, <имя сервера>, people, nature, food, activity, travel, objects, symbols",
+          "code": "D",
+          "source": "ui8/21d-emoji-categories.json",
+          "method": "json"
+        },
+        {
+          "id": "E-05",
+          "value": "aria вкладки = сырой англ. id; локализованный тултип: Люди, Природа, Еда и напитки, Виды деятельности, Путешествия, Объекты, Символы, Флаги; recent «Часто используемые», top «Лучшие эмодзи сервера {guild}»",
+          "code": "D",
+          "source": "ui8/21d-emoji-categories.json; ru-catalog.json GX594D, egIBDH, ldm9aY, O783tR, w33hIP, gWm7Mk, QXMYAb, vvaizu, 5TvaSm, W6Wi1X",
+          "method": "json + i18n"
+        },
+        {
+          "id": "E-06",
+          "value": "Enum категорий: recent, favorites, top guild emoji, custom, people, nature, food, activity, travel, objects, symbols, flags, premium emoji, soundmoji, suggested; flags в видимый рейл не попал",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 модуль 732139 (R2)",
+          "method": "js"
+        },
+        {
+          "id": "E-07",
+          "value": "Глифы: recent=Clock, top guild=Trophy, activity=GameController, symbols=Heart, flags=Flag, favorites=Star; people/nature/food/travel/objects минифицированы (имена не восстановимы)",
+          "code": "D",
+          "source": "decoded/e903362d141767ee_0 (switch категорий)",
+          "method": "js"
+        },
+        {
+          "id": "E-08",
+          "value": "Рейл: guild-иконка 32, unicode-иконка 24, padding 4, высота пункта 48, разделитель 1px c margin 12",
+          "code": "T",
+          "source": "ui/tokens.json --custom-emoji-picker-constants-*",
+          "method": "token"
+        },
+        {
+          "id": "E-09",
+          "value": "Сетка 9 колонок (rowSize=9 по умолчанию)",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 модуль 818645 (rowSize=9); decoded/e903362d141767ee_0",
+          "method": "js"
+        },
+        {
+          "id": "E-10",
+          "value": "Наблюдено: 50 эмодзи + 17 locked (гильдия), 42 (ЛС); :fire → 10 / 11; секция «Доступно с подпиской Nitro»",
+          "code": "D",
+          "source": "ui8/21-emoji-picker.json, 21b-emoji-full.json, 21-emoji-search.json",
+          "method": "json"
+        },
+        {
+          "id": "E-11",
+          "value": "Поиск: срезать ведущее/хвостовое ':', toLowerCase, удалить пробелы и '_', regex без регистра по цепочке имён эмодзи (в кандидате '_' тоже удаляется)",
+          "code": "D",
+          "source": "decoded/e903362d141767ee_0 (Y), decoded/3eefa7dae1e2c234_0 searchWithoutFetchingLatest",
+          "method": "js"
+        },
+        {
+          "id": "E-12",
+          "value": "Результаты: unlocked/locked (locked = premium); count:0 = все; сортировка по frecency-score, затем имя",
+          "code": "D",
+          "source": "decoded/3eefa7dae1e2c234_0 searchWithoutFetchingLatest / getSearchResultsOrder",
+          "method": "js"
+        },
+        {
+          "id": "E-13",
+          "value": "«Недавние» = часто используемые; для реакций отдельный список reaction-эмодзи",
+          "code": "D",
+          "source": "decoded/e903362d141767ee_0 (K, $)",
+          "method": "js"
+        },
+        {
+          "id": "E-14",
+          "value": "Тон кожи: aria «Выбрать цвет кожи эмодзи (Пусто)»",
+          "code": "D",
+          "source": "ui8/21-emoji-picker.json (skinTone)",
+          "method": "json"
+        },
+        {
+          "id": "E-15",
+          "value": "Секции: «Лучшие эмодзи сервера {guild}», «Часто используемые»; серверные секции сворачиваемые (EXPAND_OR_COLLAPSE_EMOJIS)",
+          "code": "D",
+          "source": "ui8/21-emoji-picker.json sections; decoded/e903362d141767ee_0",
+          "method": "json + js"
+        },
+        {
+          "id": "E-16",
+          "value": "Поиск не ограничен текущей категорией: идёт по всему набору (unicode+custom) канала/интенции",
+          "code": "D",
+          "source": "decoded/e903362d141767ee_0 (Y → searchWithoutFetchingLatest)",
+          "method": "js"
+        }
+      ]
+    },
+    "settings": {
+      "title": "Настройки",
+      "facts": [
+        {
+          "id": "S-01",
+          "value": "18 разделов + «Выйти» в порядке: Учётная запись, Данные и конфиденциальность, Разрешения для сообщений, Уведомления, Nitro, Буст сервера, Подписки, Склад подарков, Выставление счетов, Голос и видео, Внешний вид, Специальные возможности, Система, Язык и время, Зарегистрированные игры, Конфиденциальность активности, Подключённые приложения, Разработчик, Выйти",
+          "code": "D",
+          "source": "ui8/23-settings-categories.json (63 строки, depth 0/1)",
+          "method": "json"
+        },
+        {
+          "id": "S-02",
+          "value": "Подпункты «Учётной записи»: Информация об учётной записи, Пароль и безопасность, Статус учётной записи, Семейный центр",
+          "code": "D",
+          "source": "ui8/23-settings-categories.json (item_e4d939)",
+          "method": "json"
+        },
+        {
+          "id": "S-03",
+          "value": "Поле поиска навигации настроек: placeholder «Поиск»",
+          "code": "D",
+          "source": "ui8/23-settings-categories.json (searchPh)",
+          "method": "json"
+        },
+        {
+          "id": "S-04",
+          "value": "«Голос и видео»: Голос (Микрофон, Динамик, проверка) → Профиль ввода → Настройки чувствительности ввода → Шумоподавление → Эхоподавление/Режим рации/АРУ → Камера → Стриминг → Звуки → Связанные настройки (Уведомления, Звуковая панель) → Расширенные",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (headings, text)",
+          "method": "json"
+        },
+        {
+          "id": "S-05",
+          "value": "38 тумблеров: 12 функциональных + 22 звуковых (4 видимых + 18 скрытых) + 4 расширенных",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (switchCount=38, switches)",
+          "method": "json"
+        },
+        {
+          "id": "S-06",
+          "value": "Функциональные (12) и состояния: авто-чувствительность вкл, эхоподавление вкл, режим рации выкл, АРУ вкл, расширенная активация вкл, предложение устройств вкл, предупреждение об отсутствии звука вкл, предупреждение о смене канала вкл, QoS выкл, предпросмотр видео вкл, предпросмотр стрима вкл, приглушение стрима вкл",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (switches[0..11])",
+          "method": "json"
+        },
+        {
+          "id": "S-07",
+          "value": "Звуковые (22): Откл. звук, Включить звук в динамиках, Заглушить, Вкл. микрофон, Камера включена/выключена, Голосовая связь отключена, Активация/Деактивация режима рации, Пользователь присоединился/вышел/перемещён, Исходящий звонок, Стрим начался/остановлен, Зритель присоединился/вышел, Начало/Завершение активности, Присоединение к активности, Покинул активность, Приглашение выступить — все вкл",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (switches[12..33])",
+          "method": "json"
+        },
+        {
+          "id": "S-08",
+          "value": "Расширенные (4): OpenH264 вкл, оверлей стрима выкл, запись звука для диагностики выкл, журнал отладки вкл; отдельно тумблер «Показывать настройки диагностики»",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (switches[34..37], text)",
+          "method": "json"
+        },
+        {
+          "id": "S-09",
+          "value": "Селекты (4): Микрофон «Система: Easy Effects Source», Динамик «Система: Easy Effects Sink», Камера «Нет видеоустройств», Шумоподавление «Krisp»",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (selects)",
+          "method": "json"
+        },
+        {
+          "id": "S-10",
+          "value": "Ползунки (4): микрофон 0–100=100, динамик 0–200=100, приглушение стрима 1–100=50 (49%), звуковая панель 0–100=26.11 (26%)",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (sliders)",
+          "method": "json"
+        },
+        {
+          "id": "S-11",
+          "value": "Радиогруппа «Профиль ввода» (3): Изоляция голоса, Студия, Пользовательский (+описания)",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (text)",
+          "method": "json"
+        },
+        {
+          "id": "S-12",
+          "value": "Кнопки (6): Проверка микрофона/Прекратить проверку, Проверить видео, Загрузить журналы, Показать папку, Сброс",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (buttons)",
+          "method": "json"
+        },
+        {
+          "id": "S-13",
+          "value": "Связанные настройки: Уведомления (звуки сообщений/звонков) и Звуковая панель (громкость, звук присоединения, селекты «Выберите сервер»/«Все серверы», «Выбрать звук»/«Изменить звук»)",
+          "code": "D",
+          "source": "ui8/23-settings-voice.json (text)",
+          "method": "json"
+        },
+        {
+          "id": "S-14",
+          "value": "Внешний вид (i18n): «Отображение сообщений» с вариантами «Компактное» / «Уютное»; подсказка «Включить уютный режим»",
+          "code": "D",
+          "source": "ru-catalog.json ZEoGMd, 7iegX4, T7G4Y0, CTpwD7",
+          "method": "i18n"
+        },
+        {
+          "id": "S-15",
+          "value": "Вкладка «Уведомления» не открывалась: есть только пункт навигации и ссылка из «Голоса», состав/тумблеры неизвестны",
+          "code": "D/A",
+          "source": "ui8/23-settings-categories.json, ui8/23-settings-voice.json",
+          "method": "json"
+        }
+      ]
+    },
+    "keyboard": {
+      "title": "Клавиатура и фокус",
+      "facts": [
+        {
+          "id": "K-01",
+          "value": "Ctrl+K — QuickSwitcher («Вкл./выкл. быстрый переключатель»)",
+          "code": "D",
+          "source": "registry 2ac5158769dd2c7f_0 (QUICKSWITCHER_SHOW); ru-catalog yYsRlD",
+          "method": "js + i18n"
+        },
+        {
+          "id": "K-02",
+          "value": "Ctrl+E — эмодзи, Ctrl+G — GIF, Ctrl+S — стикеры, Ctrl+P — закреплённые, Ctrl+I — inbox",
+          "code": "D",
+          "source": "registry (877991, 332779, 274794, TOGGLE_CHANNEL_PINS, TOGGLE_INBOX)",
+          "method": "js"
+        },
+        {
+          "id": "K-03",
+          "value": "Ctrl+U — список участников; Ctrl+F / Ctrl+Shift+F — фокус в поиск (с префиллом канала / без)",
+          "code": "D",
+          "source": "registry (TOGGLE_USERS, FOCUS_SEARCH)",
+          "method": "js"
+        },
+        {
+          "id": "K-04",
+          "value": "Escape: закрыть модалку (MODAL_CLOSE), отклонить звонок, закрыть слой/пикер; в контексте сообщения — фокус в поле ввода",
+          "code": "D",
+          "source": "eacbdfad9946a1ad_0, 0ad109a24de5d314_0; ru-catalog rrYBEu",
+          "method": "js + i18n"
+        },
+        {
+          "id": "K-05",
+          "value": "Tab фокусирует композер ([data-can-focus=true]); набор любого печатного символа вне полей ввода фокусирует композер (TEXTAREA_FOCUS=any-character)",
+          "code": "D",
+          "source": "registry 2ac5158769dd2c7f_0 модуль 82038",
+          "method": "js"
+        },
+        {
+          "id": "K-06",
+          "value": "Enter без Shift/Alt в композере = отправка (wasEnterPressed)",
+          "code": "D",
+          "source": "registry 2ac5158769dd2c7f_0 модуль 82038",
+          "method": "js"
+        },
+        {
+          "id": "K-07",
+          "value": "↑ в пустом композере — редактировать последнее сообщение",
+          "code": "D",
+          "source": "decoded/f0a78ad5dbc04c2f_0",
+          "method": "js"
+        },
+        {
+          "id": "K-08",
+          "value": "Ctrl+Alt+↑/↓, Ctrl+Shift+[ / ], Ctrl+Tab / Ctrl+Shift+Tab — переход по каналам; Alt+↑/↓ — навигация",
+          "code": "D",
+          "source": "registry (176522, 928531)",
+          "method": "js"
+        },
+        {
+          "id": "K-09",
+          "value": "PageUp/PageDown — скролл чата; Shift+PageUp — к первому непрочитанному; Shift+Esc — пометить прочитанным / к настоящему",
+          "code": "D",
+          "source": "registry (552049, shift+pageup, shift+esc)",
+          "method": "js"
+        },
+        {
+          "id": "K-10",
+          "value": "Ctrl+Plus / Ctrl+Minus / Ctrl+0 — зум ±/сброс",
+          "code": "D",
+          "source": "registry (406975)",
+          "method": "js"
+        },
+        {
+          "id": "K-11",
+          "value": "Ctrl+Shift+U — отправить файл; Ctrl+Shift+T — группа ЛС; Ctrl+Shift+Alt+N — ветка; Ctrl+T / Ctrl+W — вкладка канала",
+          "code": "D",
+          "source": "registry (UPLOAD_FILE, CREATE_DM_GROUP, CREATE_THREAD, OPEN/CLOSE_CHANNEL_TAB)",
+          "method": "js"
+        },
+        {
+          "id": "K-12",
+          "value": "Drag&drop: ↑/↓ переместить, Space/Enter отпустить, Esc отмена",
+          "code": "D",
+          "source": "ru-catalog dmMqay, cs/HVH, 1ioMJQ; registry (DND)",
+          "method": "i18n + js"
+        },
+        {
+          "id": "K-13",
+          "value": "Модальные карусели: →/↓/Space вперёд, ←/↑ назад, Esc закрыть",
+          "code": "D",
+          "source": "decoded/eacbdfad9946a1ad_0",
+          "method": "js"
+        },
+        {
+          "id": "K-14",
+          "value": "Действия сообщения: E изменить, Backspace удалить, P закрепить, + реакция, R ответ, F переслать, S зачитать, Ctrl+C копировать, Alt+Enter пометить непрочитанным",
+          "code": "D",
+          "source": "registry (MESSAGE); ru-catalog fsBWmS, xwMqD7, CvQ18w, lfIHs4, 5IEsGx, zSyDdA, yGLjXF, JrGD7E, RpE9k7",
+          "method": "js + i18n"
+        },
+        {
+          "id": "K-15",
+          "value": "Диалог «Комбинации клавиш»: 6 групп в порядке Навигация, Перетащить мышью, Чат, Голос и видео, Прочее, Сообщение",
+          "code": "D",
+          "source": "registry eg(); ru-catalog yGE+jg, 69j6+4, /VQax8, bI8F5u, 0Bg9La, BAB0yK",
+          "method": "js + i18n"
+        },
+        {
+          "id": "K-16",
+          "value": "Shift+F10 — контекстное меню; Ctrl+Shift+L — копировать ссылку на канал",
+          "code": "D",
+          "source": "registry (OPEN_CONTEXT_MENU, COPY_CHANNEL_LINK)",
+          "method": "js"
+        },
+        {
+          "id": "K-17",
+          "value": "Ctrl+Alt+I — devtools (на web/discord.com no-op)",
+          "code": "D",
+          "source": "registry (BROWSER_DEVTOOLS)",
+          "method": "js"
+        },
+        {
+          "id": "K-18",
+          "value": "Порядок Tab-обхода и focus-trap в поповерах кодом дампа не подтверждены",
+          "code": "A",
+          "source": "— (в SPEC §10 — [A])",
+          "method": "—"
+        }
+      ]
+    },
+    "chat": {
+      "title": "Чат-вью",
+      "facts": [
+        {
+          "id": "V-01",
+          "value": "Шапка: иконка типа канала + имя слева; справа 4 иконочные кнопки (ветки, уведомления, закреплённые, участники) и поле поиска",
+          "code": "M",
+          "source": "ui/00-app.png (кроп y32..85)",
+          "method": "png"
+        },
+        {
+          "id": "V-02",
+          "value": "Поиск в шапке 244×28, aria/плейсхолдер «Искать «ITSKIDON PC BOOST»» (шаблон «Искать «{guild}»»)",
+          "code": "D",
+          "source": "ui8/20a-searchbar.json (bars[0], inputs[0].aria)",
+          "method": "json"
+        },
+        {
+          "id": "V-03",
+          "value": "Топик канала в снятой шапке отсутствует (у канала нет темы); вариант «имя + тема» визуально не подтверждён",
+          "code": "M/A",
+          "source": "ui/00-app.png",
+          "method": "png"
+        },
+        {
+          "id": "V-04",
+          "value": "Unread divider: height 0, border-top thin solid --border-subtle, по центру; --divider-color: var(--background-feedback-notification); isUnread окрашивает границу и текст",
+          "code": "D",
+          "source": "decoded CSS __908e2 (divider__908e2, isUnread__908e2)",
+          "method": "css"
+        },
+        {
+          "id": "V-05",
+          "value": "New messages bar: высота 32, фон --brand-500, текст белый, radius 0 0 8 8, padding-inline 16, top 0, z-index 3",
+          "code": "D",
+          "source": "decoded CSS newMessagesBar__0f481",
+          "method": "css"
+        },
+        {
+          "id": "V-06",
+          "value": "Плашка «Перейти к последним сообщениям»: bottom 28, padding-inline 12, padding-bottom 8",
+          "code": "D",
+          "source": "decoded CSS jumpToPresentBar__0f481",
+          "method": "css"
+        },
+        {
+          "id": "V-07",
+          "value": "Тексты: «Новые сообщения», «Перейти к последним сообщениям»",
+          "code": "D",
+          "source": "ru-catalog.json q7hm3m, Sj83P7, gpoQsB",
+          "method": "i18n"
+        },
+        {
+          "id": "V-08",
+          "value": "Контент divider: 12px semibold, line-height 13, padding 2px 4px, radius 8, фон чата; cap/endCap 13px, endCap 10px bold uppercase; дата-разделитель — тот же компонент (hasContent)",
+          "code": "D",
+          "source": "decoded CSS __908e2 (content, endCap, unreadPillCap)",
+          "method": "css"
+        },
+        {
+          "id": "V-09",
+          "value": "Cozy DOM: li.container__80bf8[role=listitem] > .searchResult__80bf8 > .message__80bf8 > .wrapper_c19a55.cozy_c19a55.zalgo_c19a55[role=article] > .contents_c19a55 > (#message-content-<id>.markup__75297.messageContent_c19a55 + #message-accessories-<id>.container_b7e1cb)",
+          "code": "D",
+          "source": "ui8/20-search-results.html",
+          "method": "html"
+        },
+        {
+          "id": "V-10",
+          "value": "ARIA: role=article, aria-labelledby=\"message-content-<id> message-accessories-<id>\", h2.header_c19a55[aria-labelledby=message-username-<id>], time#message-timestamp-<id>[datetime]",
+          "code": "D",
+          "source": "ui8/20-search-results.html",
+          "method": "html"
+        },
+        {
+          "id": "V-11",
+          "value": "Время cozy: DD.MM.YYYY, HH:mm («12.10.2026, 12:35»), перед ним <i class=separator_c19a55> — </i>; рядом скрытая полная дата «понедельник, 12 октября 2026 г. в 12:35»",
+          "code": "D",
+          "source": "ui8/20-search-results.html",
+          "method": "html"
+        },
+        {
+          "id": "V-12",
+          "value": "Cozy-метрики: аватар 40 на left 12; контент margin-left 64; wrapper padding-inline-start 64, padding-block 2, min-height 22; header margin-left -72; groupStart min-height 44",
+          "code": "D/T",
+          "source": "decoded CSS c19a55/5126c; ui/tokens.json --chat-avatar-size, --custom-message-margin-left-content-cozy, --custom-message-spacing-vertical-container-cozy",
+          "method": "css + token"
+        },
+        {
+          "id": "V-13",
+          "value": "Compact: аватар 1em inline (top .18em), wrapper padding-inline-start 80, padding-block 2, header inline, groupStart 22, timestamp в gutter цветом --primary-100",
+          "code": "D/T",
+          "source": "decoded CSS compact_c19a55; ui/tokens.json --custom-message-margin-compact-indent, --custom-message-padding-vertical-container-compact",
+          "method": "css + token"
+        },
+        {
+          "id": "V-14",
+          "value": "Вложения/эмбеды — в #message-accessories-<id>.container_b7e1cb; кнопки действий — .buttonsContainer__80bf8",
+          "code": "D",
+          "source": "ui8/20-search-results.html",
+          "method": "html"
+        },
+        {
+          "id": "V-15",
+          "value": "Аватар кликабелен (.avatar_c19a55.clickable_c19a55, pointer-events включается классом clickable) — открывает профиль",
+          "code": "D",
+          "source": "decoded CSS c19a55",
+          "method": "css"
+        },
+        {
+          "id": "V-16",
+          "value": "Строка списка: data-list-item-id=\"NO_LIST___<id>\" и id=\"search-result-<id>\" в результатах поиска; id строки в канале (chat-messages-…) не снят",
+          "code": "D/A",
+          "source": "ui8/20-search-results.html",
+          "method": "html"
+        },
+        {
+          "id": "V-17",
+          "value": "Notice-полоса в референсе не наблюдалась; общий CSS .channelNotice_e2d7b8{padding:6px 12px; border-bottom:1px solid --border-subtle} — не 24px из SPEC",
+          "code": "D/M",
+          "source": "decoded CSS e2d7b8; ui/00-app.png",
+          "method": "css + png"
+        },
+        {
+          "id": "V-18",
+          "value": "В снятом канале нет unread-divider и new-messages bar (канал прочитан, отправка запрещена) — контракты подтверждены только кодом/CSS",
+          "code": "M",
+          "source": "ui/00-app.png",
+          "method": "png"
+        },
+        {
+          "id": "V-19",
+          "value": "Дата и непрочитанное — один компонент: дата без isUnread, непрочитанное с isUnread (акцентная линия/текст)",
+          "code": "D",
+          "source": "decoded CSS __908e2 (isUnread, hasContent)",
+          "method": "css"
+        },
+        {
+          "id": "V-20",
+          "value": "Скролл-контейнер сообщений — scrollerBase_d125d2 с виртуализацией (в DOM только видимое окно, messageListItem__5126c)",
+          "code": "D",
+          "source": "ui8/20-search-results.html; decoded CSS 5126c",
+          "method": "html + css"
+        }
+      ]
+    }
+  },
+  "gaps": [
+    {
+      "id": "G-01",
+      "what": "Композер снят только в disabled-состоянии (нет права отправки): видимый плейсхолдер, порядок/ховеры кнопок пиксельно не подтверждены",
+      "impact": "C-02/C-09/C-13 — из кода; UI-тесты по контракту, не по скриншоту"
+    },
+    {
+      "id": "G-02",
+      "what": "Вкладки «Внешний вид» и «Уведомления» не открывались (только подписи навигации)",
+      "impact": "число тумблеров/группы этих разделов неизвестны ([A] в SPEC §9.4)"
+    },
+    {
+      "id": "G-03",
+      "what": "Offline-группа участников не попала в срез (панель не докручена)",
+      "impact": "M-01/M-02 — правила из кода; счётчик offline — нет данных"
+    },
+    {
+      "id": "G-04",
+      "what": "Сортировка внутри role-группы в дампе не видна",
+      "impact": "M-03 — правило из кода, не из пикселей"
+    },
+    {
+      "id": "G-05",
+      "what": "Категория flags отсутствует в видимом рейле (10 из 11 юникод-категорий), причина не установлена",
+      "impact": "E-06: не добавлять flags в спайк без решения PM"
+    },
+    {
+      "id": "G-06",
+      "what": "Имена/глифы иконок people/nature/food/travel/objects минифицированы",
+      "impact": "E-07: переносить только подтверждённые (Clock/Trophy/GameController/Heart/Flag/Star)"
+    },
+    {
+      "id": "G-07",
+      "what": "Нет unread-divider, new-messages bar, notice-полосы и топика в референсе",
+      "impact": "V-04…V-08, V-17 — только CSS/код, пиксельной проверки нет"
+    },
+    {
+      "id": "G-08",
+      "what": "id строки канала (chat-messages-…) и data-list-item-id списка канала не сняты",
+      "impact": "V-16: id-схема в спайке — [A]"
+    },
+    {
+      "id": "G-09",
+      "what": "Шрифты/иконки/спрайты референса не переносятся",
+      "impact": "вне scope (DESIGN/README.md §4)"
+    }
+  ],
+  "counts": {
+    "composer": 17,
+    "members": 14,
+    "emoji": 16,
+    "settings": 15,
+    "keyboard": 18,
+    "chat": 20,
+    "total": 100
+  }
+}

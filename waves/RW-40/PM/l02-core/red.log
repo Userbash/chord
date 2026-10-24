@@ -1,0 +1,15 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0599]: no method named `with_dispatch_handler` found for struct `SupervisorConfig` in the current scope
+   --> crates/discord-core/tests/gateway_supervisor.rs:825:36
+    |
+825 |     let config = test_config(&url).with_dispatch_handler(move |event| {
+    |                  ------------------^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `with_event_handler` with a similar name
+    |
+825 -     let config = test_config(&url).with_dispatch_handler(move |event| {
+825 +     let config = test_config(&url).with_event_handler(move |event| {
+    |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-core` (test "gateway_supervisor") due to 1 previous error

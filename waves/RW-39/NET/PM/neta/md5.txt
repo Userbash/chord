@@ -1,0 +1,9 @@
+934b1289b7ebf17bc0fd09569b23b438  /home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0
+e0c020f12d8fe0fc6b90925736414f85  /home/sanya/re-deep/decoded/8fed1c84bcaee32d_0
+4fbb7d4afc37f27d16f65a66ba146d27  /home/sanya/re-deep/decoded/43644898c0897078_0
+08edd888cca8426f0cbc6c3bb2edbf17  /home/sanya/re-deep/asar-extract/core/bundle.js
+0fdec99340144310f131c7a9f68a7a4c  /home/sanya/re-deep/out/bundles/discord.com_assets_fast-connect.7c1098d4887bc4b0.js
+c7e61929677efab6bdac86a05a778fce  /home/sanya/orca/project/docs/re/rest-d02.md
+a766e52a585faf5eba2bf2dd2cde8abf  /home/sanya/orca/project/docs/re/gateway-protocol.md
+8e0ead46addbb2f54f143343d0de2108  /home/sanya/orca/project/fixtures/rest/rest-static.json
+6bf6aab01e04f27ea3ac2065465ed517  /home/sanya/orca/project/fixtures/gw-proto/facts-frozen.json

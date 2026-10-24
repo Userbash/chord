@@ -1,0 +1,121 @@
+▶ G-01: рейл серверов из ready()
+  ✖ 7 гильдий из READY fixture: data-guild-id, aria-label, aria-current, монограмма (26.309546ms)
+  ✔ нет статичной заглушки data-guild="1": ни в index.html, ни в готовом рейле (7.799994ms)
+  ✖ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (9.710131ms)
+  ✖ клавиатура ↑/↓/Home/End двигает выбор и фокус (6.234063ms)
+  ✖ 0 гильдий → empty-state, а не пустой рейл (5.346914ms)
+  ✖ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (4.686913ms)
+  ✖ loading skeleton до ответа ready(), затем плитки (5.851228ms)
+  ✔ до auth ready ready() не вызывается (источник — только вход) (4.450135ms)
+✖ G-01: рейл серверов из ready() (71.334792ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 2
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 106.393071
+
+✖ failing tests:
+
+test at tests/unit/guild-rail.test.mjs:138:3
+✖ 7 гильдий из READY fixture: data-guild-id, aria-label, aria-current, монограмма (26.309546ms)
+  AssertionError [ERR_ASSERTION]: рейл не перешёл в ready
+  
+  null !== 'ready'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:142:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'ready',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:183:3
+✖ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (9.710131ms)
+  AssertionError [ERR_ASSERTION]: нет пятой плитки
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:188:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:205:3
+✖ клавиатура ↑/↓/Home/End двигает выбор и фокус (6.234063ms)
+  AssertionError [ERR_ASSERTION]: ArrowDown не перехвачен
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:215:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:232:3
+✖ 0 гильдий → empty-state, а не пустой рейл (5.346914ms)
+  AssertionError [ERR_ASSERTION]: рейл не в состоянии empty
+  
+  null !== 'empty'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:236:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'empty',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:246:3
+✖ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (4.686913ms)
+  AssertionError [ERR_ASSERTION]: рейл не в состоянии error
+  
+  null !== 'error'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:256:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'error',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:278:3
+✖ loading skeleton до ответа ready(), затем плитки (5.851228ms)
+  AssertionError [ERR_ASSERTION]: нет loading-состояния
+  
+  null !== 'loading'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:285:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'loading',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

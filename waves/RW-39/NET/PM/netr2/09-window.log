@@ -1,0 +1,14 @@
+# window/layout facts from /home/sanya/orca/project/docs/re/main-arch.md
+182:    width: 300, height: LOADING_WINDOW_HEIGHT, transparent: !1, frame: !1, resizable: !1, center: !0, show: !1,
+218:let mainWindowOptions = {
+219:    title: "Discord", backgroundColor: getBackgroundColor(), width: 1280, height: 720,
+220:    minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT, transparent: !1, frame: !1, resizable: !0, show: isVisible,
+227:"linux" === process.platform && (mainWindowOptions.icon = path_1.default.join(path_1.default.dirname(app.getPath("exe")), "discord.png")); // @142388
+230:* `MIN_WIDTH/MIN_HEIGHT` = настройки, по умолчанию **940×500** (`settings?.get("MIN_WIDTH", 940)`, @137043);
+262:DEFAULT_POPOUT_OPTIONS = { title: "Discord Popout", backgroundColor: "#2f3136", minWidth: 320, minHeight: 180,
+263:    transparent: !1, frame: !1, resizable: !0, show: !0, titleBarStyle: "darwin" === process.platform ? "hidden" : void 0,
+
+# appMount background rule
+%,var(--border-subtle) 100%)}}.appMount__51fd7,body,html{height:100%;width:100%}
+.appMount__51fd7{color:var(--background-base-lowest);display:flex;flex-direction:column;overflow:hidden;position:absolute}
+ced-colors:not(.platform-web) .appMount__51fd7{background-color:Canvas;box-sizing:border-box;height:calc(100% - 6px);margin:0 6px 6px;width:calc(100% - 12px)}

@@ -1,0 +1,24 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::net::etf_to_json`, `discord_gui_spike::net::map_dispatch`, `discord_gui_spike::net::DispatchChannel`, `discord_gui_spike::net::DispatchEmitter`, `discord_gui_spike::net::DispatchError`, `discord_gui_spike::net::DispatchPayload`, `discord_gui_spike::net::DispatchStats`, `discord_gui_spike::net::CORE_DISPATCH_AVAILABLE`, `discord_gui_spike::net::DISPATCH_EVENT`, `discord_gui_spike::net::FORWARDED_DISPATCHES`
+  --> tests/net_contract.rs:17:5
+   |
+17 |     etf_to_json, map_dispatch, map_supervisor_event, CoreGatewayDriver, DispatchChannel,
+   |     ^^^^^^^^^^^  ^^^^^^^^^^^^ no `map_dispatch` in `net`                ^^^^^^^^^^^^^^^ no `DispatchChannel` in `net`
+   |     |
+   |     no `etf_to_json` in `net`
+18 |     DispatchEmitter, DispatchError, DispatchPayload, DispatchStats, FakeGateway, GatewayDriver,
+   |     ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^ no `DispatchStats` in `net`
+   |     |                |              |
+   |     |                |              no `DispatchPayload` in `net`
+   |     |                no `DispatchError` in `net`
+   |     no `DispatchEmitter` in `net`
+19 |     GatewayEvent, GatewayStatus, NetController, NetError, StaticTokenStore,
+20 |     CORE_DISPATCH_AVAILABLE, DISPATCH_EVENT, FORWARDED_DISPATCHES,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^ no `FORWARDED_DISPATCHES` in `net`
+   |     |                        |
+   |     |                        no `DISPATCH_EVENT` in `net`
+   |     no `CORE_DISPATCH_AVAILABLE` in `net`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "net_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

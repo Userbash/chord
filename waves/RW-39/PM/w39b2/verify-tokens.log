@@ -1,0 +1,3 @@
+$ node waves/RW-39/PM/w39a/verify-tokens.mjs
+ok: 202 токенов 1:1 с tokens.css (md5 9856538ad20eeefa90bce255cc29283c); dump_refs: 57 match, 0 mismatch, 0 missing (расхождения — в REPORT.md, CSS не правится)
+exit=0

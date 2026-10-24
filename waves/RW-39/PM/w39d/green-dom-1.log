@@ -1,0 +1,218 @@
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (15.211413ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (2.954999ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (3.621709ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (3.473189ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (2.664078ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (6.058258ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (2.271239ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.020529ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (2.817189ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (2.879389ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (2.541909ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ настройки: 38 чекбоксов в 3 группах, все включены (2.104919ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.831879ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ UI_SNAPSHOT: все поля контракта и actions=true (1.798139ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (1.67639ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (1.742439ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (4.498238ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✖ граничный скролл не бросает: верх, низ, за концом, отрицательный (3.152559ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (2.528829ms)
+[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (2.634459ms)
+  ✖ при обычной работе нет console.error и предупреждений виртуализации (2.316409ms)
+✖ GUI spike: настоящий app.js в DOM-шиме (73.416541ms)
+ℹ tests 21
+ℹ suites 1
+ℹ pass 12
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.768237
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:379:3
+✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.020529ms)
+  AssertionError [ERR_ASSERTION]: UI_SNAPSHOT не опубликован — нечего проверять
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:382:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:380:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:395:3
+✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (2.817189ms)
+  AssertionError [ERR_ASSERTION]: сетка не перерисовалась на другую категорию
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:418:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:396:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '😀',
+    expected: '😀',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:478:3
+✖ настройки: 38 чекбоксов в 3 группах, все включены (2.104919ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 38
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:482:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:479:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 38,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:495:3
+✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.831879ms)
+  AssertionError [ERR_ASSERTION]: тумблер должен быть HTMLInputElement (instanceof в app.js)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:501:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:496:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:511:3
+✖ UI_SNAPSHOT: все поля контракта и actions=true (1.798139ms)
+  AssertionError [ERR_ASSERTION]: report_ui_snapshot не вызывался
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:514:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:512:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:538:3
+✖ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (1.67639ms)
+  AssertionError [ERR_ASSERTION]: spike_config должен вызываться один раз
+  
+  0 !== 1
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:540:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:539:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:550:3
+✖ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (1.742439ms)
+  AssertionError [ERR_ASSERTION]: первый опрос метрик не выполнен
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:552:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:551:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:602:3
+✖ граничный скролл не бросает: верх, низ, за концом, отрицательный (3.152559ms)
+  AssertionError [ERR_ASSERTION]: граничный скролл дал console.error
+  + actual - expected
+  
+  + [
+  +   "[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '"
+  + ]
+  - []
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:627:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:603:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ "[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '" ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:674:3
+✖ при обычной работе нет console.error и предупреждений виртуализации (2.316409ms)
+  AssertionError [ERR_ASSERTION]: app.js сообщил об ошибке
+  + actual - expected
+  
+  + [
+  +   "[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '"
+  + ]
+  - []
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:683:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:675:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ "[ELEMENT_MISSING] Cannot create property 'parentNode' on string ' '" ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

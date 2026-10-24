@@ -1,0 +1,6 @@
+baseline 20 0
+M1-chat-rows-500 15 5
+M2-no-row-replaceChildren 20 0
+M3-no-emoji-replaceChildren 18 2
+M4-no-resize-observe 18 2
+M5-no-row-remove 12 8

@@ -1,0 +1,15 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: function `timeout_text` is never used
+    --> src/auth.rs:1114:4
+     |
+1114 | fn timeout_text(timeout: Duration) -> String {
+     |    ^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.88s
+     Running tests/auth_contract.rs (rust/gui-spike/target/debug/deps/auth_contract-9035f729b2f276ef)
+
+running 1 test
+EXIT=124

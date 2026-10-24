@@ -1,0 +1,29 @@
+$ node waves/RW-39/PM/w39b2/contrast.mjs
+=== SPEC §3.4 таблица (текст \ фон) ===
+--text #efeff1           16.29  15.11  14.14  13.45  11.96
+--text-strong #fbfbfb    18.08  16.77  15.69  14.93  13.28
+--text-muted #96979e     6.43  5.96  5.58  5.31  4.72
+--text-subtle #abacb2    8.26  7.66  7.17  6.82  6.07
+--text-faint #81828a     4.89  4.54  4.25  4.04  3.59
+--text-link #4d96ee      6.16  5.71  5.34  5.09  4.52
+--text-accent #a5b0ff    9.14  8.47  7.93  7.54  6.71
+--danger-text #ff9a9e    9.24  8.57  8.02  7.63  6.78
+
+=== Пары контролов (inline §3.4) ===
+#ffffff на --accent #5865f2          = 4.61
+#ffffff на --danger-fill #cf3a3f    = 4.85
+#ffffff на --danger-fill-hover #b92d33 = 6.02
+#121214 на --warning #fdb833        = 10.76
+--focus-ring #a5b0ff: 9.14  8.47  7.93  7.54  6.71
+--scrollbar-thumb #5f606a на #1a1a1e = 2.78, на #121214 = 3.00
+--accent #5865f2 как non-text: 4.06  3.77  3.52  3.35  2.98
+
+=== Проверка комментариев tokens.css ===
+--positive #3d9e60 на --bg-chat #1a1a1e = 5.17
+--positive-text #57d98a на #242429 = 8.60, на #2c2d32 = 7.65
+--text-inverse #2f3035 на --warning #fdb833 = 7.57 (Δ23; было #1a1a1e = 9.98)
+--danger #da3e44 на --bg-chat (non-text ≥3) = 3.93
+--warning #fdb833 на --bg-chat (non-text ≥3) = 9.98
+--text-on-accent #ffffff на --accent = 4.61
+--text-strong #fbfbfb на --bg-chat = 16.77
+exit=0

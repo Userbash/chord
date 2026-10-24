@@ -1,0 +1,37 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0277]: the trait bound `SearchFilters: serde::Deserialize<'de>` is not satisfied
+   --> src/main.rs:96:1
+    |
+ 96 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ the trait `serde_core::de::Deserialize<'_>` is not implemented for `SearchFilters`
+...
+130 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+131 | |             process_metrics,
+132 | |             spike_config,
+133 | |             report_bench,
+...   |
+139 | |             search_page
+140 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: for local types consider adding `#[derive(serde::Deserialize)]` to your `SearchFilters` type
+    = note: for types from other crates check whether the crate offers a `serde` feature flag
+    = help: the following other types implement trait `serde_core::de::Deserialize<'de>`:
+              `&'a RawValue` implements `serde_core::de::Deserialize<'de>`
+              `&'a [u8]` implements `serde_core::de::Deserialize<'de>`
+              `&'a std::path::Path` implements `serde_core::de::Deserialize<'de>`
+              `&'a str` implements `serde_core::de::Deserialize<'de>`
+              `&'p jsonptr::pointer::Pointer` implements `serde_core::de::Deserialize<'de>`
+              `()` implements `serde_core::de::Deserialize<'de>`
+              `(T,)` implements `serde_core::de::Deserialize<'de>`
+              `(T0, T1)` implements `serde_core::de::Deserialize<'de>`
+            and 474 others
+    = note: required for `Option<SearchFilters>` to implement `serde_core::de::Deserialize<'_>`
+    = note: required for `Option<SearchFilters>` to implement `CommandArg<'_, tauri_runtime_wry::Wry<EventLoopMessage>>`
+    = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-6f68f7f5176d586c.long-type-10313603600715759614.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+    = note: this error originates in the macro `__cmd__search_page` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `discord-gui-spike` (bin "discord-gui-spike") due to 1 previous error

@@ -1,0 +1,17 @@
+2026-10-24T15:07:03+05:00
+== gen-tokens --check
+ok: tokens.json актуален (205 токенов, md5 css 7ce9c1f03e26056243e13df3237b0a9d)
+exit=0
+== verify-tokens
+ok: 205 токенов 1:1 с tokens.css (md5 7ce9c1f03e26056243e13df3237b0a9d); dump_refs: 57 match, 0 mismatch, 0 missing (расхождения — в REPORT.md, CSS не правится)
+exit=0
+== verify-layout
+ok: layout.json — 65 блоков с source, 22 ссылок на токены, экранов 4; rail 64, tree 240/311, header 49, composer 56, members 240/256, rows 26/48 + member 42; колонки 2047.8 ≈ 2048
+exit=0
+== url/font-face
+6: * никаких правил разметки, картинок, шрифтов и url().
+== md5
+7ce9c1f03e26056243e13df3237b0a9d  waves/RW-39/DESIGN/tokens.css
+12be8c11a82abbe97ba544505ce75ccc  waves/RW-39/DESIGN/tokens.json
+340eeac669096af92ccc62fd4a0f3693  waves/RW-39/DESIGN/SPEC.md
+a564f36fe46f68e6895b956c3a6a5a9d  waves/RW-39/DESIGN/DOM-CONTRACT.md

@@ -1,0 +1,87 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::data::ReadStateEntry`
+  --> tests/read_state_contract.rs:21:48
+   |
+21 | use discord_gui_spike::data::{self, DataError, ReadStateEntry};
+   |                                                ^^^^^^^^^^^^^^ no `ReadStateEntry` in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+  --> tests/read_state_contract.rs:94:25
+   |
+94 |     let entries = data::read_state(&root).expect("READY с read_state читается");
+   |                         ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:133:25
+    |
+133 |     let entries = data::read_state(&root).expect("READY читается");
+    |                         ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:180:25
+    |
+180 |     let entries = data::read_state(&root).expect("пустой read_state — валидный ответ");
+    |                         ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:188:23
+    |
+188 |     let error = data::read_state(&root).expect_err("без READY — ошибка, не пустой список");
+    |                       ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:198:23
+    |
+198 |     let error = data::read_state(&root).expect_err("битый JSON — ошибка");
+    |                       ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:207:23
+    |
+207 |     let error = data::read_state(&root).expect_err("нет read_state — ошибка");
+    |                       ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:219:23
+    |
+219 |     let error = data::read_state(&root).expect_err("entries не массив — ошибка");
+    |                       ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:237:23
+    |
+237 |     let error = data::read_state(&root).expect_err("запись без id — ошибка, не строка-пустышка");
+    |                       ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:256:25
+    |
+256 |     let entries = data::read_state(&root).expect("запись без flags — всё ещё запись READY");
+    |                         ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:282:25
+    |
+282 |     let entries = data::read_state(&root).expect("badge-запись не ломает проекцию");
+    |                         ^^^^^^^^^^ not found in `data`
+
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/read_state_contract.rs:309:23
+    |
+309 |     let error = data::read_state(&root).expect_err("нечитаемый last_viewed — Parse, не null");
+    |                       ^^^^^^^^^^ not found in `data`
+
+Some errors have detailed explanations: E0425, E0432.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "read_state_contract") due to 12 previous errors
+EXIT:101
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0425]: cannot find function `read_state` in module `data`
+   --> tests/data_contract.rs:199:25
+    |
+199 |     let entries = data::read_state(&root).expect("read_state читается из READY");
+    |                         ^^^^^^^^^^ not found in `data`
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `discord-gui-spike` (test "data_contract") due to 1 previous error
+EXIT:101

@@ -1,0 +1,12 @@
+▶ walk fixture
+  ﹣ обходит обычные пункты, пропускает запрещённые, пишет журнал и скриншоты (2.086929ms) # нет браузера: задайте CHROME_BIN (например, /usr/bin/chromium)
+✔ walk fixture (2.573943ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 35.965634
+exit=0

@@ -1,0 +1,182 @@
+{
+ "viewport": {
+  "png_px": [
+   2560,
+   1383
+  ],
+  "dpr": 1.25,
+  "css": [
+   2048.0,
+   1106.4
+  ],
+  "source": "ui/log.json[0].{dpr,size} + PNG IHDR"
+ },
+ "titlebar": {
+  "px": 40,
+  "css": 32.0,
+  "source": "столбец x=1500: полоса #121214 до первой смены цвета"
+ },
+ "header": {
+  "band_px": 60,
+  "band_css": 48.0,
+  "border_px": 2,
+  "with_border_css": 48.8,
+  "source": "столбец x=1500: полоса (26,26,30) + 1px граница; токен --custom-channel-header-height=49px"
+ },
+ "tree_right_edge_css": 375.2,
+ "tree_w": {
+  "css": 311.2,
+  "formula": "граница панелей − rail 64 [L]",
+  "source": "строка y=900: первый x с цветом чата (26,26,30)"
+ },
+ "member_panel": {
+  "x0": 1792,
+  "y0": 82,
+  "w": 256,
+  "h": 1025,
+  "source": "ui8/22-members.json rect (getBoundingClientRect, CSS px)"
+ },
+ "chat_w": {
+  "css": 1416.8,
+  "source": "x0 панели участников − левая граница чата"
+ },
+ "composer": {
+  "y_px": [
+   1305,
+   1374
+  ],
+  "css": {
+   "y": [
+    1044.0,
+    1100.0
+   ],
+   "h": 56.0
+  },
+  "source": "столбец x=1500: бокс #222327 (34,35,39)"
+ },
+ "composer_width": {
+  "css": {
+   "x": [
+    382.4,
+    1784.0
+   ],
+   "w": 1401.6
+  },
+  "source": "столбцы, закрашенные (34,35,39) на ≥80% высоты composer"
+ },
+ "userbar": {
+  "css": {
+   "y": [
+    1044.0,
+    1100.0
+   ],
+   "h": 56.0
+  },
+  "source": "столбец x=400 (дерево): полоса #202024 (32,32,36)"
+ },
+ "channel_row_selected": {
+  "css": 28.0,
+  "y_px": [
+   575,
+   609
+  ],
+  "source": "x=300: непрерывная полоса выделения #2c2c30"
+ },
+ "channel_row_pitch": {
+  "css": 30.0,
+  "n": 19,
+  "source": "медиана шага текстовых полос дерева (x 96…460, y 560…1300)"
+ },
+ "member_row_pitch": {
+  "css": 43.2,
+  "n": 16,
+  "source": "ui8/22-members.jpg: медиана шага верхушек аватаров (x 8…52); JPEG → допуск ±1"
+ },
+ "colors": {
+  "app_bg_rail": "#121214",
+  "app_bg_tree": "#121214",
+  "chat_bg": "#1a1a1e",
+  "header_bg": "#1a1a1e",
+  "selected_channel": "#2c2c30",
+  "userbar": "#202024",
+  "composer": "#222327",
+  "accent_unread_bar": "#5865f2",
+  "titlebar_bg": "#121214",
+  "source": "точечные пробы PNG (lossless)",
+  "member_panel_saturated": [
+   {
+    "hex": "#f1c40f",
+    "px": 2509
+   },
+   {
+    "hex": "#faa61a",
+    "px": 1256
+   },
+   {
+    "hex": "#b700ff",
+    "px": 722
+   },
+   {
+    "hex": "#45a366",
+    "px": 698
+   },
+   {
+    "hex": "#da3e44",
+    "px": 640
+   },
+   {
+    "hex": "#ffc04e",
+    "px": 432
+   }
+  ]
+ },
+ "settings_modal": {
+  "rect": {
+   "x0": 325,
+   "y0": 73,
+   "w": 1398,
+   "h": 961
+  },
+  "rows": 63,
+  "source": "ui8/23-settings-categories.json rect (DOM, CSS px)"
+ },
+ "settings_voice": {
+  "rect": {
+   "x0": 633,
+   "y0": 121,
+   "w": 1020,
+   "h": 865
+  },
+  "switches": 38,
+  "source": "ui8/23-settings-voice.json rect + switchCount"
+ },
+ "search_field": {
+  "boxes": [
+   {
+    "cls": "search__49676",
+    "tag": "DIV",
+    "w": 244,
+    "h": 28,
+    "aria": null,
+    "text": "в:#🔴┃поговорить-тут"
+   },
+   {
+    "cls": "search_c322aa open_c322aa focused_c322aa",
+    "tag": "DIV",
+    "w": 244,
+    "h": 28,
+    "aria": null,
+    "text": "в:#🔴┃поговорить-тут"
+   },
+   {
+    "cls": "searchBar_c322aa searchBar__25bec",
+    "tag": "DIV",
+    "w": 242,
+    "h": 26,
+    "aria": null,
+    "text": "в:#🔴┃поговорить-тут"
+   }
+  ],
+  "source": "ui8/20a-searchbar.json bars[] (DOM, CSS px)"
+ }
+}

@@ -1,0 +1,11 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.21s
+     Running tests/auth_contract.rs (rust/gui-spike/target/debug/deps/auth_contract-9035f729b2f276ef)
+
+running 3 tests
+test threaded_store_propagates_open_failure ... ok
+test threaded_store_owns_store_in_dedicated_thread ... ok
+test threaded_store_times_out_instead_of_waiting_forever ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 37 filtered out; finished in 0.05s
+

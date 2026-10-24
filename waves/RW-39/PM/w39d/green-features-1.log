@@ -1,0 +1,26 @@
+ok   | body[data-active-screen] + aria-current на 4 экранах
+ok   | эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов
+ok   | эмодзи: стрелки двигают aria-selected и roving tabindex
+ok   | настройки: 38 канонических тумблеров (switch/aria-checked) + #settings-nav
+ok   | панель участников: ≤50 строк из model.js, высота 42, data-window=preview
+FAIL | счётчики live (polite), FPS/p95 — не live
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: member-count не counter-live
+
+null !== 'polite'
+
+    at file:///home/sanya/orca/project/waves/RW-39/PM/w39d/features-check.mjs:145:12
+    at check (file:///home/sanya/orca/project/waves/RW-39/PM/w39d/features-check.mjs:17:11)
+    at file:///home/sanya/orca/project/waves/RW-39/PM/w39d/features-check.mjs:144:9 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: 'polite',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.21.0

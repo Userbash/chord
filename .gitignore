@@ -33,3 +33,10 @@ waves/**/*.zst
 # Локальные векторные индексы Socraticode (генерируются, не исходники)
 /discord-lab-vector-db.json
 /discord-lab-knowledge-vdb.json
+
+# B8a: локальные настройки спайка (не коммитить)
+.local/
+
+# Python caches
+__pycache__/
+*.pyc

@@ -1,0 +1,3 @@
+foreign pid=219607
+_NET_CLIENT_LIST(WINDOW): window id # 0x1800003
+window 0x1800003: _NET_WM_PID(CARDINAL) = 219609 | _NET_WM_NAME(UTF8_STRING) = "discord-gui-spike foreign-hold"

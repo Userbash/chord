@@ -1,0 +1,59 @@
+▶ C-02-PAGE: первая страница
+  ✔ открытие канала — position=latest, limit=100, без cursor/before/token (34.648685ms)
+✔ C-02-PAGE: первая страница (35.237186ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (20.113572ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (8.788996ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (9.719937ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (38.861649ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (9.822734ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (8.963401ms)
+✔ C-02-PAGE: ошибки подгрузки видны (18.971069ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (5.481703ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (13.951011ms)
+✔ C-02-PAGE: границы окна (19.604548ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✔ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (9.475395ms)
+✔ C-02-UI-OLDER: открытие на последнем сообщении (9.592831ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (7.892096ms)
+  ✔ направления не смешиваются: nextCursor older-страницы не подменяет forward (11.575657ms)
+✖ C-02-UI-OLDER: скролл вверх (before/olderCursor) (19.628787ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✔ ошибка 404: alert сверху, строки целы, retry догружает (12.11277ms)
+  ✔ ошибка 401: alert сверху, строки целы, retry догружает (6.333186ms)
+✔ C-02-UI-OLDER: ошибки подгрузки вверх (18.562182ms)
+▶ C-02-UI-OLDER: границы окна
+  ✔ окно истории не растёт сверх 500 строк при подгрузке вверх (15.689205ms)
+✔ C-02-UI-OLDER: границы окна (15.782792ms)
+ℹ tests 14
+ℹ suites 8
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.129628
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:669:3
+✖ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (7.892096ms)
+  AssertionError [ERR_ASSERTION]: prepend сбросил позицию скролла
+  
+  0 !== 64
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:703:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 64,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

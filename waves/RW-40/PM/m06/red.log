@@ -1,0 +1,161 @@
+▶ M-06: реакции в реальном канале
+  ✖ messages_page.reactions → pills: emoji, count, active, data-message-id=item.id (30.62231ms)
+  ✖ клик ставит и снимает через toggle_reaction с реальными channelId/messageId (11.170118ms)
+  ✖ откатывает optimistic состояние при 401 и не теряет строку (7.281351ms)
+  ✖ откатывает optimistic состояние при 429 и не теряет строку (6.915997ms)
+  ✖ откатывает optimistic состояние при сеть и не теряет строку (6.674311ms)
+  ✖ двойной клик до ответа IPC — один toggle_reaction (5.873124ms)
+  ✖ hover-панель: быстрые реакции не скрыты и уходят с реальными id строки (15.565646ms)
+  ✖ пустые и битые reactions не паникуют, счётчик остаётся числом (7.611386ms)
+  ✖ состояние реального канала не смешивается с bench-индексом (0.308914ms)
+✖ M-06: реакции в реальном канале (92.923473ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 0
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.578674
+
+✖ failing tests:
+
+test at tests/unit/chat-reactions.test.mjs:205:3
+✖ messages_page.reactions → pills: emoji, count, active, data-message-id=item.id (30.62231ms)
+  AssertionError [ERR_ASSERTION]: реакции из messages_page не отрисованы пилюлями
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:229:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:260:3
+✖ клик ставит и снимает через toggle_reaction с реальными channelId/messageId (11.170118ms)
+  AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
+      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:276:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:323:5
+✖ откатывает optimistic состояние при 401 и не теряет строку (7.281351ms)
+  AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
+      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:323:5
+✖ откатывает optimistic состояние при 429 и не теряет строку (6.915997ms)
+  AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
+      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:323:5
+✖ откатывает optimistic состояние при сеть и не теряет строку (6.674311ms)
+  AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
+      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:354:3
+✖ двойной клик до ответа IPC — один toggle_reaction (5.873124ms)
+  AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
+      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:368:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:385:3
+✖ hover-панель: быстрые реакции не скрыты и уходят с реальными id строки (15.565646ms)
+  AssertionError [ERR_ASSERTION]: быстрая реакция скрыта в реальном канале
+  
+  '' !== null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:402:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:425:3
+✖ пустые и битые reactions не паникуют, счётчик остаётся числом (7.611386ms)
+  AssertionError [ERR_ASSERTION]: валидная реакция потерялась среди битых записей
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:455:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/chat-reactions.test.mjs:470:3
+✖ состояние реального канала не смешивается с bench-индексом (0.308914ms)
+  Error [UIError]: toggleReaction: индекс channel:1163408591315812392:1163408592000000001 вне окна
+      at toggleReaction (file:///home/sanya/orca/project/rust/gui-spike/ui/features/reactions.js:60:11)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:477:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'ACTION_FAILED',
+    cause: undefined
+  }

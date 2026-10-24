@@ -13,8 +13,8 @@
 графы — `docs/re/architecture.md`), сырые доказательства — `/home/sanya/re-deep/`.
 План Rust-клиента (2026-10-19): `docs/rust-client/` — концепт, функции, архитектура, план P0–P8,
 тесты (слой 8 ниже).
-Журнал волн Rust-клиента (2026-10-20): `waves/` — события (`db.jsonl`), точка восстановления
-(`STATE.md`) и логи волн `RW-01`…`RW-21` (см. `waves/README.md`); **фактический статус** —
+Журнал волн Rust-клиента (актуален до RW-35): `waves/` — события (`db.jsonl`), точка восстановления
+(`STATE.md`) и артефакты волн `RW-01`…`RW-35` (см. `waves/README.md`); **фактический статус** —
 `docs/rust-client/STATUS.md`, **batch-план** — `docs/rust-client/WAVE-PLAN.md`, **роли и WIP** —
 `docs/rust-client/TEAM.md`.
 Граф Understand-Anything: `.ua/knowledge-graph.json` — снимок **до** появления `state/`:
@@ -79,7 +79,7 @@ flowchart TB
       a5["Манифест: entries.json"]:::ok
     end
     subgraph S6["6. Проект и референсы"]
-      r1["discord-lab: main 90c012a, v0.1.0"]:::ok
+      r1["discord-lab: main, HEAD 0239543 (2026-10-23)"]:::ok
       r2["Гейты: worker / release / qualify"]:::ok
       r3["Golden-каталоги: только чтение"]:::ok
       r4["Референсы: Vesktop 1.6.7, discord-qt 0.5.1 (GPL — только идеи)"]:::ok
@@ -97,12 +97,13 @@ flowchart TB
     subgraph S8["8. Rust-клиент: план (2026-10-19)"]
       rc1["Концепт: цель, стек, сценарии (docs/rust-client/CONCEPT.md)"]:::ok
       rc2["Функции: 14 групп, каталог F-* (FEATURES.md)"]:::ok
-      rc3["Архитектура: крейты, шина, 8 графов (ARCHITECTURE.md)"]:::ok
+      rc3["Архитектура: крейты, шина, фактический и целевой графы (ARCHITECTURE.md)"]:::ok
       rc4["План P0–P8: 90 карточек (PLAN.md)"]:::ok
       rc5["Тесты: L1–L5, ~130 кейсов (TEST-PLAN.md)"]:::ok
       rc6["Фикстуры: 12 записей, 1,59 МБ (fixtures/MANIFEST.json)"]:::ok
-      rc7["Каркас Rust: воркспейс, 10 крейтов (rust/)"]:::ok
+      rc7["Rust workspace: 13 крейтов (rust/)"]:::ok
       rc8["Верификация: 20/20 сырьё↔доки (verify/report.json)"]:::ok
+      rc9["GUI-спайк: Tauri 2 + ADR-1, 60 fps (rust/gui-spike)"]:::ok
     end
   end
 
@@ -150,19 +151,19 @@ flowchart TB
   b6 -.-> S8
 ```
 
-## Фактическое состояние Rust-клиента (2026-10-22)
+## Фактическое состояние Rust-клиента (2026-10-23)
 
 | Показатель | Значение |
 |---|---|
 | Принято карточек | **46 / 90** (…, P3-15, P4-01, P4-02, **P4-03**, **P4-04**, **P4-07**, **P4-11**, **P4-12**, **P6-02**, **P6-06**, **P6-07**, **P2-03**, **P1-10**, **P6-03**, **P6-04**, P7-01, **P7-02**, P7-04, **P8-01**, P8-03, P8-04; хвосты P7-01b/c/d/e) |
-| В работе | **RW-35 принят 2026-10-23**; следующий — B07 (только GUI), ждёт владельца |
+| Последняя волна | **RW-35 принят 2026-10-23**; далее headless-остатки или P0-01 GUI spike |
 | Осталось | **44** (P0 3, P1 0, P2 0, P3 15, P4 5, P4.5 3, P5 7, P6 5, P7 4, P8 2) |
 | Rust-тесты | **1067 / 1067** (workspace), **531 / 531** (`discord-core`), **83** (`discord-i18n`: +relative 12, +timestamp 14, +duration 13), media 13 + reconnect 12 (`discord-voice`), 110 (`discord-platform`: dbus 21, notifications 25, power 16, spellcheck 13, keyring 12), 14 (`discord-store`) |
 | Гейт | passed — `waves/RW-35/gate-cargo.log` / `.gate/worker-2026-10-22T19-41-26-571Z.json`; мутации 8/8…10/10, 7/7, 7/7, 6/6, 7/7, 6/6, 6/6 |
-| Крейты | 13: 8 рабочих/частично (`codec`, `core`, `json`, `i18n`, `voice`, **`perf`**, **`updater`**, **`store`**), 1 тестовый (`conformance`), 4 каркаса |
-| Следующий batch | **B07** (только GUI); headless-остатки: fd-passing D-Bus, P4-05/P4-06/P4-08/P4-09, P7-03/P7-05/P7-07 |
+| Крейты | 13: 9 рабочих/частично (`codec`, `core`, `json`, `i18n`, `voice`, `perf`, `updater`, `store`, `platform`), 1 тестовый (`conformance`), 3 каркаса (`app`, `ui`, `media`) |
+| Следующий срез | RW-35 закрыл fd-passing; остаются P4-05/P4-06/P4-08/P4-09, P7-03/P7-05/P7-07 и GUI-зависимые задачи |
 | Контракты | RW-35 принят (`RW-35`); RW-34 (`RW-34`); RW-33 (`RW-33`); RW-32 (`RW-32`); RW-31 (`RW-31`); RW-30 (`RW-30`); RW-28/RW-29 (`RW-28`, `RW-29`); RW-26/RW-27 (`RW-26`, `RW-27`); B06 (`RW-25`); B05 (`RW-24`), B04 (`RW-23`), B03 (`RW-22`), B02 (`RW-21`), B01 (`RW-19`, `RW-20`) |
-| Блокеры | GUI-крейты, `keyring`, `rusqlite`, окно живого Discord, rate limit агентов |
+| Блокеры | Решение по GUI-стеку/загрузке зависимостей; согласованное окно для live-smoke Discord |
 
 ```mermaid
 flowchart LR
@@ -235,9 +236,7 @@ flowchart LR
     q4["P7-01e Discord-таймстемпы"]:::ok
   end
   subgraph BLOCKED["Ждёт решения владельца"]
-    b1["P0-01/P3 UI — GUI-крейты"]:::no
-    b2["P2-03 SQLite — rusqlite"]:::no
-    b3["P1-10 keyring"]:::no
+    b1["P0-01 GUI spike — выбор/загрузка GUI-стека"]:::no
     b4["live-smoke — окно Discord"]:::no
   end
   d5 --> d7
@@ -276,8 +275,6 @@ flowchart LR
   n12 --> b1
   d5 --> b1
   d7 --> b1
-  b2 -.-> d8
-  b3 -.-> b1
 ```
 
 Подробно: `docs/rust-client/STATUS.md` (факт, тесты, крейты, блокеры),

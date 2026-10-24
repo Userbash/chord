@@ -1,0 +1,230 @@
+/* =============================================================================
+ * style.css — каркас окна: titlebar 32, shell, workspace, content, правила
+ * видимости экранов (DOM-CONTRACT §3.1). Все размеры — var(--...) из tokens.css.
+ *
+ *   body
+ *   ├─ header.topbar        32  (--layout-titlebar-h)
+ *   └─ div.shell            calc(100% - 32)
+ *      ├─ aside#guild-rail.rail       64  (rail.css)
+ *      └─ div.workspace
+ *         ├─ aside#channel-tree.tree  240 (tree.css)
+ *         └─ main.content             flex:1
+ *            ├─ header#chat-header    49  (components/header.css)
+ *            └─ section.screen       × 4
+ * ========================================================================== */
+
+/* Оверлей входа (RW-39/NET, ADR-2 §A): отдельный компонент подключается здесь,
+ * чтобы список CSS в index.html не рос и каскад был один. */
+@import url("components/auth.css");
+@import url("components/quick-switcher.css");
+
+/* ---------------------------------------------------------------------------
+ * 1. Строка заголовка (полноширинная, вне main)
+ * ------------------------------------------------------------------------ */
+.topbar {
+  position: relative;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  height: var(--layout-titlebar-h);
+  padding: 0 var(--layout-panel-pad);
+  background: var(--bg-app);
+  box-shadow: var(--shadow-elevation-low);
+  color: var(--text-muted);
+}
+
+.screen-title {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metrics {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-5);
+  align-items: center;
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-height-caption);
+}
+
+.metrics b {
+  color: var(--text-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+.bench {
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--btn-radius);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.bench:hover {
+  background: var(--accent-hover);
+}
+
+.bench:active {
+  background: var(--accent-active);
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Каркас: shell → workspace → content
+ * ------------------------------------------------------------------------ */
+.shell {
+  display: flex;
+  height: calc(100% - var(--layout-titlebar-h));
+  min-height: 0;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-chat);
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Экраны. Класс .active — для CSS, aria-hidden — для AT; оба обязательны
+ *    (DOM-CONTRACT §5). display:contents на контейнерах с ролью не используется.
+ * ------------------------------------------------------------------------ */
+.screen {
+  display: none;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* aria-hidden="true" — экран не рисуется, даже если на нём остался .active. */
+.screen[aria-hidden="true"] {
+  display: none;
+}
+
+#screen-chat.screen.active {
+  flex-direction: row;
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. Видимость шапки чата, дерева и панели участников:
+ *    переключается атрибутом body[data-active-screen] (DOM-CONTRACT §3.1,
+ *    ставит app.js — W39d §10.2).
+ *
+ *    Временный дубль до E3b: текущий app.js (RW-38) атрибут body не обновляет,
+ *    поэтому фактический экран берётся из .screen.active через :has() (WebKitGTK
+ *    ≥ 2.40). Когда app.js начнёт выставлять data-active-screen, оба правила
+ *    совпадут; блок с :has() тогда можно удалить без изменения поведения.
+ * ------------------------------------------------------------------------ */
+#chat-header {
+  display: none;
+}
+
+body[data-active-screen="chat"] #chat-header {
+  display: flex;
+}
+
+.content:has(#screen-chat.active) #chat-header {
+  display: flex;
+}
+
+.content:has(#screen-chat:not(.active)) #chat-header {
+  display: none;
+}
+
+/* Настройки — оверлей поверх рабочей области: дерево убирается. */
+body[data-active-screen="settings"] #channel-tree {
+  display: none;
+}
+
+body .workspace:has(#screen-settings.active) #channel-tree {
+  display: none;
+}
+
+#member-panel {
+  display: none;
+}
+
+body[data-active-screen="chat"] #member-panel {
+  display: flex;
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. Раскладка chat-экрана
+ * ------------------------------------------------------------------------ */
+.chat-main {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-chat);
+}
+
+.chat-notice {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  height: var(--layout-group-title-h);
+  padding: 0 var(--chat-pad-x);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Адаптив shell (SPEC.md §5.1, DP-01)
+ *
+ *   ≥1600px    tree 311, member 256      (tokens.css: min-width:1600px)
+ *   1200–1599  tree 240, member 240      (базовые токены)
+ *   960–1199   member panel скрыт, tree 240
+ *   720–959    tree 200, member panel скрыт (ширина дерева — tokens.css)
+ *   <720       tree скрыт, навигация только рейлом
+ *
+ * Скрытие — только CSS display:none по media-query: DOM не меняется, поэтому
+ * aria-hidden/переключение экранов (features/screens.js) и role=complementary
+ * панели остаются валидными для AT. Inline-display из app.js ("", "none")
+ * media-query не перекрывает. Селектор скрытия панели повторяет базовый
+ * body[data-active-screen="chat"] #member-panel, иначе тот выиграл бы каскад.
+ * ------------------------------------------------------------------------ */
+@media (max-width: 1199px) {
+  body[data-active-screen="chat"] #member-panel {
+    display: none;
+  }
+}
+
+/* <720: дерево не помещается — навигация остаётся только в рейле.
+ * #channel-tree (id) специфичнее .tree (tree.css) и перекрывает display:flex
+ * независимо от порядка подключения файлов. */
+@media (max-width: 719px) {
+  #channel-tree {
+    display: none;
+  }
+}

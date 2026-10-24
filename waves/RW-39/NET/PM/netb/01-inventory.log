@@ -1,0 +1,85 @@
+# NET-B inventory 2026-10-23T22:56:24+05:00
+# HEAD: 0239543
+
+## files+lines
+    21 rust/crates/discord-core/src/rest/mod.rs
+    54 rust/crates/discord-core/src/rest/telemetry.rs
+    70 rust/crates/discord-core/src/ready/error.rs
+    88 rust/crates/discord-core/src/rest/headers.rs
+    90 rust/crates/discord-core/src/lib.rs
+    92 rust/crates/discord-core/src/rest/ack.rs
+   128 rust/crates/discord-core/src/rest/retry.rs
+   130 rust/crates/discord-core/src/rest/resources.rs
+   134 rust/crates/discord-core/src/rest/base64.rs
+   142 rust/crates/discord-core/src/ready.rs
+   148 rust/crates/discord-platform/src/keyring.rs
+   152 rust/crates/discord-core/src/ready/value.rs
+   158 rust/crates/discord-core/src/dispatch.rs
+   160 rust/crates/discord-core/src/resume.rs
+   228 rust/crates/discord-core/src/rest/routes.rs
+   236 rust/crates/discord-core/src/rest/rate_limit.rs
+   294 rust/crates/discord-core/src/rest/identity.rs
+   315 rust/crates/discord-core/src/identify.rs
+   356 rust/crates/discord-core/src/rest/client.rs
+   361 rust/crates/discord-core/src/gateway.rs
+   409 rust/crates/discord-core/src/ready/read_state.rs
+   414 rust/crates/discord-core/src/ready/snapshot.rs
+   435 rust/crates/discord-core/src/rest/http1.rs
+   475 rust/crates/discord-platform/src/ffi_secret.rs
+   486 rust/crates/discord-core/src/rest/transport.rs
+   494 rust/crates/discord-store/src/lib.rs
+   587 rust/crates/discord-core/src/ready/social.rs
+   597 rust/crates/discord-core/src/ws.rs
+   628 rust/crates/discord-core/src/rest/super_properties.rs
+   674 rust/crates/discord-core/src/ready/guild.rs
+  8556 итого
+
+## tests
+dispatch_router.rs
+gateway_session.rs
+history_pagination.rs
+history_selectors.rs
+history_types.rs
+identify_ready.rs
+member_chunk_reducer.rs
+member_chunk_selectors.rs
+member_chunk_types.rs
+member_list_reducer.rs
+member_list_selectors.rs
+member_list_types.rs
+presence_reducer.rs
+presence_selectors.rs
+presence_types.rs
+read_state_reducer.rs
+read_state_selectors.rs
+read_state_types.rs
+ready_core.rs
+ready_fixture.rs
+ready_read_state.rs
+ready_review.rs
+ready_social.rs
+rest_ack.rs
+rest_base64.rs
+rest_client.rs
+rest_headers.rs
+rest_http1.rs
+rest_identity.rs
+rest_rate_limit.rs
+rest_resources.rs
+rest_retry.rs
+rest_routes.rs
+rest_super_properties.rs
+rest_telemetry.rs
+rest_transport.rs
+resume_reconnect.rs
+settings_proto.rs
+state_reducer.rs
+state_selectors.rs
+state_types.rs
+typing_reducer.rs
+typing_selectors.rs
+typing_types.rs
+voice_state_reducer.rs
+voice_state_selectors.rs
+voice_state_types.rs
+ws_transport.rs
