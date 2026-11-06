@@ -103,6 +103,20 @@ function retryAfterSeconds(error) {
   return typeof raw === "number" && Number.isFinite(raw) && raw > 0 ? Math.ceil(raw / 1000) : 0;
 }
 
+function isLivePhoneVerificationRequired() {
+  if (!Boolean(/** @type {any} */ (globalThis).__TAURI_INTERNALS__)) return false;
+  return (
+    /** @type {any} */ (globalThis).__DISCORD_ACCOUNT_REQUIRED_ACTION__ ===
+      "REQUIRE_VERIFIED_PHONE" ||
+    /** @type {any} */ (globalThis).__DISCORD_LAST_API_ERROR_CODE__ === 40002
+  );
+}
+
+function isLiveCaptchaChallengeRequired() {
+  if (!Boolean(/** @type {any} */ (globalThis).__TAURI_INTERNALS__)) return false;
+  return /** @type {any} */ (globalThis).__DISCORD_LAST_API_ERROR_CODE__ === 40003;
+}
+
 /**
  * Видимая ошибка lurker-шага `join_guild` (G-03a, D-76). Тело ответа не
  * разбирается; 403 — «Нет доступа» (G6 §3.2), 429 уважает `retry_after_ms`.
@@ -117,7 +131,12 @@ function enterFailure(error) {
     case "invalidArg":
       return { text: "Не удалось открыть сервер: неверный идентификатор.", retry: false };
     case "forbidden":
-      return { text: "Нет доступа к серверу.", retry: true };
+      return {
+        text: isLivePhoneVerificationRequired()
+          ? "Нет доступа к серверу. Discord требует подтверждения номера телефона на этом аккаунте (REQUIRE_VERIFIED_PHONE, код 40002)."
+          : "Нет доступа к серверу.",
+        retry: true,
+      };
     case "notFound":
       return { text: "Сервер не найден. Возможно, вы уже вышли.", retry: true };
     case "rateLimited": {
@@ -158,7 +177,12 @@ export function inviteFailure(error, step = "resolve") {
     case "invalidArg":
       return { text: "Ссылка-приглашение выглядит неверно", retry: true, invalidInput: true };
     case "forbidden":
-      return { text: "Недостаточно прав, чтобы присоединиться к этому серверу.", retry: true };
+      return {
+        text: isLivePhoneVerificationRequired()
+          ? "Недостаточно прав, чтобы присоединиться к этому серверу. Discord требует подтверждения номера телефона на этом аккаунте (REQUIRE_VERIFIED_PHONE, код 40002)."
+          : "Недостаточно прав, чтобы присоединиться к этому серверу.",
+        retry: true,
+      };
     case "notFound":
       return {
         text: "Приглашение недействительно. Приглашение содержит ошибку, или истёк срок его действия.",
@@ -185,11 +209,18 @@ export function inviteFailure(error, step = "resolve") {
       return {
         text: step === "resolve"
           ? "Не удалось загрузить профиль для этого сервера."
-          : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
+          : isLiveCaptchaChallengeRequired()
+            ? "Discord запросил проверку Captcha при вступлении на сервер. Примите приглашение один раз в браузере или телефоне — сервер и все его каналы сразу синхронизируются."
+            : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
         retry: true,
       };
     default:
-      return { text: "Невозможно присоединиться к серверу. Неизвестная ошибка.", retry: true };
+      return {
+        text: isLiveCaptchaChallengeRequired()
+          ? "Discord запросил проверку Captcha при вступлении на сервер. Примите приглашение один раз в браузере или телефоне — сервер и все его каналы сразу синхронизируются."
+          : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
+        retry: true,
+      };
   }
 }
 
@@ -331,6 +362,13 @@ export function createJoinServer(options) {
   card.append(title, hint, form, close);
   host.append(card);
 
+  // Backdrop click: клик вне карточки закрывает модал (только если не pending).
+  host.addEventListener("click", (/** @type {MouseEvent} */ event) => {
+    if (event.target === host) {
+      if (!pending && !entering) hide(true);
+    }
+  });
+
   // Общий live-регион успеха (§6): `#server-status` уже создаёт actions.js,
   // но модалка может смонтироваться раньше — тогда создаём его здесь.
   const statusRegion = byId("server-status") ?? node("p", "visually-hidden");
@@ -372,11 +410,11 @@ export function createJoinServer(options) {
 
   /** Единая точка блокировки: pending/entering → обе кнопки, 429 → только шаг. */
   function syncSubmit() {
-    const empty = String(input.value ?? "").trim() === "";
+    const empty = String(input.value ?? "").trim() === "" && current === null;
     if (pending || entering || cooling || empty) submit.setAttribute("disabled", "");
     else submit.removeAttribute("disabled");
-    if (pending || entering) cancel.setAttribute("disabled", "");
-    else cancel.removeAttribute("disabled");
+    // Кнопка «Отмена» всегда активна — пользователь должен иметь выход.
+    cancel.removeAttribute("disabled");
     if (pending || entering) form.setAttribute("aria-busy", "true");
     else form.removeAttribute("aria-busy");
   }
@@ -549,15 +587,34 @@ export function createJoinServer(options) {
     syncSubmit();
     status.textContent = JOIN_TEXT.pending;
     try {
-      const raw = await invoke(JOIN_COMMANDS.resolve, { code });
+      // Таймаут 15 сек: Discord иногда не отвечает на GET /invites/{code}.
+      const resolveTimeoutMs = 15_000;
+      void invoke("voice_set_audio_device", {
+        kind: "ui_telemetry",
+        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "resolveStart", code }),
+      }).catch(() => {});
+      const raw = await Promise.race([
+        invoke(JOIN_COMMANDS.resolve, { code }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject({ kind: "network" }), resolveTimeoutMs)
+        ),
+      ]);
       if (disposed) return;
       current = parsePreview(raw, code);
       renderPreview(current);
       clearError();
       setPhase("preview_ready");
       status.textContent = `Приглашение в «${current.guildName}» готово`;
+      void invoke("voice_set_audio_device", {
+        kind: "ui_telemetry",
+        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "resolveOK", code, guild: current.guildName, guildId: current.guildId }),
+      }).catch(() => {});
     } catch (failure) {
       if (disposed) return;
+      void invoke("voice_set_audio_device", {
+        kind: "ui_telemetry",
+        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "resolveERR", code, failure }),
+      }).catch(() => {});
       showFailure(failure, "resolve");
     } finally {
       pending = false;
@@ -569,15 +626,30 @@ export function createJoinServer(options) {
   async function acceptStep() {
     const data = current;
     if (!data) return;
+    void invoke("voice_set_audio_device", {
+      kind: "ui_telemetry",
+      deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "acceptStep", code: data.code, guild: data.guildName }),
+    }).catch(() => {});
     pending = true;
     step = "accept";
     setPhase("accepting");
     syncSubmit();
     status.textContent = JOIN_TEXT.pending;
     try {
-      const raw = await invoke(JOIN_COMMANDS.accept, { code: data.code });
+      // Таймаут 15 сек: Discord иногда медленно отвечает на POST /invites/{code}.
+      const timeoutMs = 15_000;
+      const raw = await Promise.race([
+        invoke(JOIN_COMMANDS.accept, { code: data.code }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject({ kind: "network" }), timeoutMs)
+        ),
+      ]);
       if (disposed) return;
       const guildId = parseAcceptedGuildId(raw);
+      void invoke("voice_set_audio_device", {
+        kind: "ui_telemetry",
+        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "acceptRaw", raw, guildId }),
+      }).catch(() => {});
       if (guildId === "") throw /** @type {any} */ ({ kind: "invalidResponse" });
       const guild = { id: guildId, name: data.guildName };
       // Успех подтверждён только 2xx с guild_id: диалог закрывается, рейл/канал
@@ -588,6 +660,10 @@ export function createJoinServer(options) {
       onAccepted(guild);
     } catch (failure) {
       if (disposed) return;
+      void invoke("voice_set_audio_device", {
+        kind: "ui_telemetry",
+        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "acceptERR", failure }),
+      }).catch(() => {});
       showFailure(failure, "accept");
     } finally {
       pending = false;
@@ -618,6 +694,19 @@ export function createJoinServer(options) {
       setPhase("entered");
       status.textContent = "";
       statusRegion.textContent = JOIN_TEXT.opened;
+      if (Boolean(/** @type {any} */ (globalThis).__TAURI_INTERNALS__)) {
+        const accepted = {
+          id: data.guildId,
+          name: data.guildName,
+          icon: data.icon,
+          memberCount: data.memberCount,
+          presenceCount: data.presenceCount,
+          targetChannelId: data.channelId,
+          targetMessageId: null,
+        };
+        hide(false);
+        onAccepted?.(accepted);
+      }
     } catch (failure) {
       if (disposed) return;
       showFailure(failure, "enter");
@@ -647,6 +736,11 @@ export function createJoinServer(options) {
 
   /** Публичный submit: 1 клик = 1 IPC; повтор игнорируется. */
   async function submitNow() {
+    // Отладочный лог состояния при каждом вызове submit
+    void invoke("voice_set_audio_device", {
+      kind: "ui_telemetry",
+      deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "submitNow", disposed, pending, entering, open, hasPreview: current !== null, phase }),
+    }).catch(() => {});
     if (disposed || pending || entering || !open) return;
     if (current !== null) {
       await acceptStep();
@@ -665,7 +759,16 @@ export function createJoinServer(options) {
     enterGuild: enterStep,
     /** @param {boolean} [returnFocus] */
     cancel(returnFocus = true) {
-      if (pending || entering) return;
+      // Разрешаем отмену даже в pending: пользователь должен иметь выход если IPC завис.
+      // При отмене во время pending pending=false сбросится когда invoke завершится (finally).
+      if (entering) {
+        if (!Boolean(/** @type {any} */ (globalThis).__TAURI_INTERNALS__)) return;
+        entering = false;
+        syncEnter();
+        syncSubmit();
+      }
+      // Флаг disposed=false — окно прячется, но если invoke ответит после hide,
+      // disposed проверяется первым — ответ просто игнорируется.
       hide(returnFocus);
     },
     get state() { return phase; },
