@@ -1,0 +1,85 @@
+=== TASK-634 Mutation Testing (5/5) ===
+Original MD5: 242637214af85d8a61ef913557e01c06
+
+--- M1: DEFAULT_QR_SESSION_TIMEOUT_MS 120000 -> 60000 ---
+▶ TASK-634: Константы RE-оракула Remote Auth v2 и чистые функции валидации
+  ✖ экспортирует канонические константы модулей 52423 (QR_CHUNK), 4d2a64cb5df5fc4e_0 и TASK-629 (0.843559ms)
+  ✔ parseQrAuthUrl, verifyFingerprintMatch и formatFingerprintDigest разбирают QR-ссылки и сверяют отпечаток SPKI (0.31985ms)
+  ✔ validateDeviceIpAddress и formatDeviceClientInfo валидируют IPv4/IPv6 и форматируют ОС, браузер и локацию (0.344029ms)
+  ✔ evaluateQrSecurityIndicator вычисляет уровень безопасности verified / warning / danger (0.15608ms)
+  ✖ parseRemoteAuthUserPayload, isValidSnowflake, clampSessionTimeoutMs и classifyQrAuthError обрабатывают граничные случаи (0.27845ms)
+✖ TASK-634: Константы RE-оракула Remote Auth v2 и чистые функции валидации (2.966366ms)
+▶ TASK-634: Интерактивный контроллер модалки #qr-auth-modal, машина состояний и A11y
+  ✔ проходит цикл pending -> confirming -> approved, отображает fingerprint/ОС/браузер/IP/город и требует подтверждения IP (1.769808ms)
+  ✔ выполняет отмену входа («Отклонить» -> rejected), истечение таймера сессии (expired) и блокировку MITM (0.907219ms)
+  ✔ блокирует подтверждение при MITM-несовпадении отпечатка и поддерживает фокус-ловушку Tab/Enter/Escape и ошибки 429/403/400/network (0.927409ms)
+✔ TASK-634: Интерактивный контроллер модалки #qr-auth-modal, машина состояний и A11y (3.826925ms)
+▶ TASK-634: Контракт стилей qr-auth-modal.css и безопасность кода
+  ✔ CSS-файл styles/qr-auth-modal.css использует только токены из tokens.css без сырых цветов, :has() и !important (1.040939ms)
+  ✔ код qr-auth-modal.js не вызывает запрещённые нативные/медиа API и не пишет в console (0.27412ms)
+✔ TASK-634: Контракт стилей qr-auth-modal.css и безопасность кода (1.428069ms)
+ℹ tests 10
+ℹ suites 3
+ℹ pass 8
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.022218
+
+✖ failing tests:
+
+test at tests/unit/qr-auth-modal.test.mjs:92:3
+✖ экспортирует канонические константы модулей 52423 (QR_CHUNK), 4d2a64cb5df5fc4e_0 и TASK-629 (0.843559ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  60000 !== 120000
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-634-mobile-qr-auth-ui/tests/unit/qr-auth-modal.test.mjs:99:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 60000,
+    expected: 120000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/qr-auth-modal.test.mjs:286:3
+✖ parseRemoteAuthUserPayload, isValidSnowflake, clampSessionTimeoutMs и classifyQrAuthError обрабатывают граничные случаи (0.27845ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  60000 !== 120000
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-634-mobile-qr-auth-ui/tests/unit/qr-auth-modal.test.mjs:310:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 60000,
+    expected: 120000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+RESULT M1: KILLED
+
+--- M2: Skip IP confirmation requirement in approve() ---
+▶ TASK-634: Константы RE-оракула Remote Auth v2 и чистые функции валидации
+  ✔ экспортирует канонические константы модулей 52423 (QR_CHUNK), 4d2a64cb5df5fc4e_0 и TASK-629 (0.660349ms)
+  ✔ parseQrAuthUrl, verifyFingerprintMatch и formatFingerprintDigest разбирают QR-ссылки и сверяют отпечаток SPKI (0.634839ms)
+  ✔ validateDeviceIpAddress и formatDeviceClientInfo валидируют IPv4/IPv6 и форматируют ОС, браузер и локацию (0.351749ms)
+  ✔ evaluateQrSecurityIndicator вычисляет уровень безопасности verified / warning / danger (0.16119ms)
+  ✔ parseRemoteAuthUserPayload, isValidSnowflake, clampSessionTimeoutMs и classifyQrAuthError обрабатывают граничные случаи (0.277ms)
+✔ TASK-634: Константы RE-оракула Remote Auth v2 и чистые функции валидации (2.722336ms)

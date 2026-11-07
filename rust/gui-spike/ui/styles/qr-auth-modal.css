@@ -1,0 +1,345 @@
+/* =============================================================================
+ * TASK-634 (G2 Frontend): Стили модального окна подтверждения входа по QR-коду
+ * (#qr-auth-modal, rust/gui-spike/ui/styles/qr-auth-modal.css).
+ *
+ * RE-оракулы:
+ * - frontend-d03.md (§5 п.1 Button, п.5 Modal layer-modal, 442px/602px, 16px radius);
+ * - decoded/f0cac74b6ccdca5e_0 (QR_CHUNK, модуль 52423);
+ * - decoded/d8b0ffc3255e8113_0 (AuthSessionsStore, карточка устройства);
+ * - rust/gui-spike/ui/tokens.css (единый источник дизайн-токенов).
+ * ========================================================================== */
+
+#qr-auth-modal {
+  position: fixed;
+  inset: var(--space-0);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--bg-app);
+  font-family: var(--font-sans);
+  color: var(--text);
+}
+
+#qr-auth-modal[hidden] {
+  display: none;
+}
+
+.qr-auth-modal-card {
+  width: 100%;
+  max-width: var(--modal-w-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popover);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform var(--motion-base) var(--ease-out);
+}
+
+.qr-auth-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--modal-pad-y) var(--modal-pad-x);
+  border-bottom: 1px solid var(--divider);
+  background: var(--surface-1);
+}
+
+.qr-auth-head-titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.qr-auth-title {
+  margin: var(--space-0);
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-strong);
+}
+
+.qr-auth-subtitle {
+  margin: var(--space-0);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  color: var(--text-muted);
+}
+
+.qr-auth-close {
+  min-width: var(--btn-height);
+  height: var(--btn-height);
+  padding: var(--space-0) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text-subtle);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.qr-auth-close:hover:not(:disabled) {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.qr-auth-close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.qr-auth-close:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.qr-auth-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--modal-pad-x);
+}
+
+.qr-auth-security-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-3);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.qr-auth-security-banner[data-security-level="verified"] {
+  border-color: var(--positive);
+  color: var(--positive-text);
+}
+
+.qr-auth-security-banner[data-security-level="warning"] {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.qr-auth-security-banner[data-security-level="danger"] {
+  border-color: var(--danger);
+  color: var(--danger-text);
+}
+
+.qr-auth-timer-pill {
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-round);
+  background: var(--surface-1);
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.qr-auth-device-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+}
+
+.qr-auth-device-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.qr-auth-device-headline {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-strong);
+}
+
+.qr-auth-device-badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--badge-radius);
+  background: var(--badge-secondary-bg);
+  color: var(--text-accent);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+}
+
+.qr-auth-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.qr-auth-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+}
+
+.qr-auth-meta-label {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+}
+
+.qr-auth-meta-value {
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-strong);
+}
+
+.qr-auth-fingerprint {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--text-accent);
+  word-break: break-all;
+}
+
+.qr-auth-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.qr-auth-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.qr-auth-checkbox-row input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  margin: var(--space-0);
+}
+
+.qr-auth-alert {
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--danger);
+  background: var(--surface-3);
+  color: var(--danger-text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.qr-auth-status {
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--positive);
+  background: var(--surface-3);
+  color: var(--positive-text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.qr-auth-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  padding: var(--modal-pad-y) var(--modal-pad-x);
+  border-top: 1px solid var(--divider);
+  background: var(--surface-1);
+}
+
+#qr-auth-reject,
+#qr-auth-approve {
+  min-height: var(--btn-height-lg);
+  padding: var(--space-0) var(--btn-pad-x);
+  border-radius: var(--btn-radius);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+#qr-auth-reject {
+  border: 1px solid var(--border);
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+#qr-auth-reject:hover:not(:disabled) {
+  background: var(--danger-fill-hover);
+}
+
+#qr-auth-approve {
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+#qr-auth-approve:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+#qr-auth-approve:active:not(:disabled) {
+  background: var(--accent-active);
+}
+
+#qr-auth-reject:focus-visible,
+#qr-auth-approve:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+#qr-auth-reject:disabled,
+#qr-auth-approve:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+@media (max-width: 719px) {
+  .qr-auth-meta-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .qr-auth-foot {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
