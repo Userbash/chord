@@ -456,6 +456,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/role-editor.test.mjs` | — | — |
 | `tests/unit/role-permissions.test.mjs` | — | — |
 | `tests/unit/search-panel.test.mjs` | — | — |
+| `tests/unit/search-popover.test.mjs` | — | — |
 | `tests/unit/settings-modal.test.mjs` | — | — |
 | `tests/unit/shell-bridge.test.mjs` | — | — |
 | `tests/unit/shortcuts.test.mjs` | — | — |
