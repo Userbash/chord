@@ -242,6 +242,17 @@ impl X11ShmPixelBuffer {
         };
     }
 
+    /// Захватывает полный буфер окна X11 из сегмента разделяемой памяти `shm_data` напрямую в [`crate::LatestFrameSlot`].
+    pub fn capture_window_into_slot(
+        &self,
+        shm_data: &[u8],
+        output_format: PixelLayout,
+        timestamp_us: u64,
+        slot: &crate::LatestFrameSlot,
+    ) -> Result<u64, CaptureError> {
+        slot.store_x11_window(self, shm_data, output_format, timestamp_us)
+    }
+
     /// Захватывает полный буфер окна X11 из сегмента разделяемой памяти `shm_data`.
     pub fn capture_window(
         &self,
@@ -263,6 +274,18 @@ impl X11ShmPixelBuffer {
             crop: None,
         };
         buf.to_video_frame(output_format, timestamp_us)
+    }
+
+    /// Вырезает и конвертирует прямоугольник монитора `monitor` из буфера root-окна X11 напрямую в [`crate::LatestFrameSlot`].
+    pub fn capture_monitor_rect_into_slot(
+        &self,
+        monitor: &X11MonitorGeometry,
+        root_shm_data: &[u8],
+        output_format: PixelLayout,
+        timestamp_us: u64,
+        slot: &crate::LatestFrameSlot,
+    ) -> Result<u64, CaptureError> {
+        slot.store_x11_monitor(self, monitor, root_shm_data, output_format, timestamp_us)
     }
 
     /// Вырезает и конвертирует прямоугольник монитора `monitor` из буфера root-окна X11.

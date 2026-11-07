@@ -548,12 +548,23 @@ pub struct PipeWireFrameBuffer<'a> {
 }
 
 impl PipeWireFrameBuffer<'_> {
-    /// Валидирует геометрию буфера и конвертирует его в [`VideoFrame`] (`Rgba`, `I420` или `Nv12`).
-    pub fn to_video_frame(
+    /// Записывает кадр PipeWire напрямую в [`crate::LatestFrameSlot`] с переиспользованием памяти.
+    pub fn capture_into_slot(
         &self,
+        slot: &crate::LatestFrameSlot,
         output_format: PixelLayout,
         timestamp_us: u64,
-    ) -> Result<VideoFrame, CaptureError> {
+    ) -> Result<u64, CaptureError> {
+        slot.store_portal_frame(self, output_format, timestamp_us)
+    }
+
+    /// Валидирует геометрию буфера и конвертирует пиксели на месте в переиспользуемый `Vec<u8>`.
+    /// Возвращает итоговые размеры `(out_width, out_height)`.
+    pub fn write_into_vec(
+        &self,
+        output_format: PixelLayout,
+        out: &mut Vec<u8>,
+    ) -> Result<(u32, u32), CaptureError> {
         if self.width == 0
             || self.height == 0
             || self.width > MAX_CAPTURE_DIMENSION
@@ -604,9 +615,17 @@ impl PipeWireFrameBuffer<'_> {
             None => (0, 0, self.width, self.height),
         };
 
+        let required_out_len =
+            output_format
+                .byte_len(out_w, out_h)
+                .ok_or(CaptureError::InvalidDimensions {
+                    width: out_w,
+                    height: out_h,
+                })?;
+        crate::buffer::prepare_reused_vec(out, required_out_len);
+
         match output_format {
             PixelLayout::Rgba => {
-                let mut rgba = Vec::with_capacity((out_w as usize) * (out_h as usize) * 4);
                 for row in start_y..(start_y + out_h) {
                     let row_offset = (row as usize) * self.stride;
                     for col in start_x..(start_x + out_w) {
@@ -621,14 +640,13 @@ impl PipeWireFrameBuffer<'_> {
                             PipeWirePixelFormat::Rgba8 => (b0, b1, b2, b3),
                             PipeWirePixelFormat::Rgbx8 => (b0, b1, b2, 255),
                         };
-                        rgba.extend_from_slice(&[r, g, b, a]);
+                        out.extend_from_slice(&[r, g, b, a]);
                     }
                 }
-                Ok(VideoFrame::new(out_w, out_h, PixelLayout::Rgba, rgba)
-                    .with_timestamp_us(timestamp_us))
             }
             PixelLayout::I420 | PixelLayout::Nv12 => {
-                let frame = convert_strided_to_i420(
+                out.resize(required_out_len, 0);
+                write_strided_to_yuv420_slice(
                     self.data,
                     self.stride,
                     self.format,
@@ -636,29 +654,24 @@ impl PipeWireFrameBuffer<'_> {
                     start_y,
                     out_w,
                     out_h,
-                    timestamp_us,
+                    output_format == PixelLayout::Nv12,
+                    out,
                 );
-                if output_format == PixelLayout::I420 {
-                    Ok(frame)
-                } else {
-                    // Преобразуем плоский U/V из I420 в интерливированный UV для NV12
-                    let y_len = (out_w as usize) * (out_h as usize);
-                    let uv_w = (out_w as usize).div_ceil(2);
-                    let uv_h = (out_h as usize).div_ceil(2);
-                    let plane_len = uv_w * uv_h;
-                    let mut nv12 = Vec::with_capacity(y_len + plane_len * 2);
-                    nv12.extend_from_slice(&frame.data[..y_len]);
-                    let u_plane = &frame.data[y_len..y_len + plane_len];
-                    let v_plane = &frame.data[y_len + plane_len..y_len + plane_len * 2];
-                    for idx in 0..plane_len {
-                        nv12.push(u_plane[idx]);
-                        nv12.push(v_plane[idx]);
-                    }
-                    Ok(VideoFrame::new(out_w, out_h, PixelLayout::Nv12, nv12)
-                        .with_timestamp_us(timestamp_us))
-                }
             }
         }
+
+        Ok((out_w, out_h))
+    }
+
+    /// Валидирует геометрию буфера и конвертирует его в [`VideoFrame`] (`Rgba`, `I420` или `Nv12`).
+    pub fn to_video_frame(
+        &self,
+        output_format: PixelLayout,
+        timestamp_us: u64,
+    ) -> Result<VideoFrame, CaptureError> {
+        let mut out = Vec::new();
+        let (out_w, out_h) = self.write_into_vec(output_format, &mut out)?;
+        Ok(VideoFrame::new(out_w, out_h, output_format, out).with_timestamp_us(timestamp_us))
     }
 }
 
@@ -679,7 +692,7 @@ pub fn rgb_to_yuv_bt601(r: u8, g: u8, b: u8) -> (u8, u8, u8) {
 }
 
 #[allow(clippy::too_many_arguments)]
-pub(crate) fn convert_strided_to_i420(
+pub(crate) fn write_strided_to_yuv420_slice(
     data: &[u8],
     stride: usize,
     format: PipeWirePixelFormat,
@@ -687,16 +700,15 @@ pub(crate) fn convert_strided_to_i420(
     start_y: u32,
     width: u32,
     height: u32,
-    timestamp_us: u64,
-) -> VideoFrame {
+    interleaved_nv12: bool,
+    out: &mut [u8],
+) {
     let w = width as usize;
     let h = height as usize;
     let uv_w = w.div_ceil(2);
     let uv_h = h.div_ceil(2);
     let y_size = w * h;
     let uv_size = uv_w * uv_h;
-
-    let mut out = vec![0u8; y_size + uv_size * 2];
 
     for row in 0..h {
         let src_row = (start_y as usize + row) * stride;
@@ -715,11 +727,14 @@ pub(crate) fn convert_strided_to_i420(
 
             if row % 2 == 0 && col % 2 == 0 {
                 let uv_idx = (row / 2) * uv_w + (col / 2);
-                out[y_size + uv_idx] = u_val;
-                out[y_size + uv_size + uv_idx] = v_val;
+                if interleaved_nv12 {
+                    out[y_size + uv_idx * 2] = u_val;
+                    out[y_size + uv_idx * 2 + 1] = v_val;
+                } else {
+                    out[y_size + uv_idx] = u_val;
+                    out[y_size + uv_size + uv_idx] = v_val;
+                }
             }
         }
     }
-
-    VideoFrame::new(width, height, PixelLayout::I420, out).with_timestamp_us(timestamp_us)
 }
