@@ -1,0 +1,215 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-623-dave-mls-v2/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::dave::DAVE_MAX_GENERATION_GAP`, `discord_voice::dave::DAVE_MAX_LIFETIME_GENERATIONS`, `discord_voice::dave::DAVE_RATCHET_GENERATION_SHIFT_BITS`, `discord_voice::dave::MlsKeyRatchet`, `discord_voice::dave::compute_wrapped_big_nonce`, `discord_voice::dave::compute_wrapped_generation`
+   --> crates/discord-voice/tests/srtp_contract.rs:589:9
+    |
+589 | ...   DAVE_MAX_GENERATION_GAP, DAVE_MAX_LIFETIME_GENERATIONS, DAVE_RATCHET_GENERATION_SHIFT_BITS,
+    |       ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `DAVE_RATCHET_GENERATION_SHIFT_BITS` in `dave`
+    |       |                        |
+    |       |                        no `DAVE_MAX_LIFETIME_GENERATIONS` in `dave`
+    |       no `DAVE_MAX_GENERATION_GAP` in `dave`
+590 | ...   DaveMediaCipher, MlsKeyRatchet, compute_wrapped_big_nonce, compute_wrapped_generation,
+    |                        ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^ no `compute_wrapped_generation` in `dave`
+    |                        |              |
+    |                        |              no `compute_wrapped_big_nonce` in `dave`
+    |                        no `MlsKeyRatchet` in `dave`
+
+error[E0432]: unresolved imports `discord_voice::dave::DAVE_MAX_RESETS`, `discord_voice::dave::MlsProposalType`, `discord_voice::dave::MlsVerificationError`, `discord_voice::dave::build_structured_mls_commit`, `discord_voice::dave::build_structured_mls_proposal`, `discord_voice::dave::build_structured_mls_revoke`, `discord_voice::dave::build_structured_mls_welcome`
+   --> crates/discord-voice/tests/srtp_contract.rs:728:9
+    |
+728 | ...   DAVE_MAX_RESETS, DaveMlsEngine, DaveTransitionOutcome, MlsProposalType,
+    |       ^^^^^^^^^^^^^^^ no `DAVE_MAX_RESETS` in `dave`         ^^^^^^^^^^^^^^^ no `MlsProposalType` in `dave`
+729 | ...   MlsVerificationError, build_structured_mls_commit, build_structured_mls_proposal,
+    |       ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `build_structured_mls_proposal` in `dave`
+    |       |                     |
+    |       |                     no `build_structured_mls_commit` in `dave`
+    |       no `MlsVerificationError` in `dave`
+730 | ...   build_structured_mls_revoke, build_structured_mls_welcome,
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `build_structured_mls_welcome` in `dave`
+    |       |
+    |       no `build_structured_mls_revoke` in `dave`
+
+error[E0599]: no associated function or constant named `with_ratchet` found for struct `DaveMediaCipher` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:683:26
+    |
+683 |         DaveMediaCipher::with_ratchet(MlsKeyRatchet::new(1, 1001, &epoc...
+    |                          ^^^^^^^^^^^^ associated function or constant not found in `DaveMediaCipher`
+    |
+note: if you're trying to build a new `DaveMediaCipher` consider using one of the following associated functions:
+      DaveMediaCipher::new
+      DaveMediaCipher::with_epoch
+   --> crates/discord-voice/src/srtp.rs:90:5
+    |
+ 90 |     pub fn new(key: &[u8; 32]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 96 |     pub fn with_epoch(epoch: u64, key: &[u8; 32]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is an associated function `with_epoch` with a similar name
+   --> crates/discord-voice/src/srtp.rs:96:5
+    |
+ 96 |     pub fn with_epoch(epoch: u64, key: &[u8; 32]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `with_ratchet` found for struct `DaveMediaCipher` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:685:26
+    |
+685 |         DaveMediaCipher::with_ratchet(MlsKeyRatchet::new(1, 1001, &epoc...
+    |                          ^^^^^^^^^^^^ associated function or constant not found in `DaveMediaCipher`
+    |
+note: if you're trying to build a new `DaveMediaCipher` consider using one of the following associated functions:
+      DaveMediaCipher::new
+      DaveMediaCipher::with_epoch
+   --> crates/discord-voice/src/srtp.rs:90:5
+    |
+ 90 |     pub fn new(key: &[u8; 32]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 96 |     pub fn with_epoch(epoch: u64, key: &[u8; 32]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is an associated function `with_epoch` with a similar name
+   --> crates/discord-voice/src/srtp.rs:96:5
+    |
+ 96 |     pub fn with_epoch(epoch: u64, key: &[u8; 32]) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:768:16
+    |
+768 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:789:16
+    |
+789 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:807:16
+    |
+807 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:825:16
+    |
+825 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:840:16
+    |
+840 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `pending_proposal_refs` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:850:23
+    |
+850 |     assert_eq!(engine.pending_proposal_refs(), vec![prop_ref_1]);
+    |                       ^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:856:16
+    |
+856 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `pending_proposal_refs` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:868:20
+    |
+868 |     assert!(engine.pending_proposal_refs().is_empty());
+    |                    ^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:890:16
+    |
+890 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:917:16
+    |
+917 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+   --> crates/discord-voice/tests/srtp_contract.rs:944:16
+    |
+944 |         engine.last_verification_error(),
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `last_verification_error` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1043:23
+     |
+1043 |         joiner_engine.last_verification_error(),
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+error[E0599]: no method named `epoch_authenticator` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1067:10
+     |
+1066 |       let auth_sender = sender_engine
+     |  _______________________-
+1067 | |         .epoch_authenticator()
+     | |         -^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+     | |_________|
+     |
+
+error[E0599]: no method named `epoch_authenticator` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1070:10
+     |
+1069 |       let auth_joiner = joiner_engine
+     |  _______________________-
+1070 | |         .epoch_authenticator()
+     | |         -^^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+     | |_________|
+     |
+
+error[E0599]: no method named `voice_privacy_code` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1076:10
+     |
+1075 |       let code_sender = sender_engine
+     |  _______________________-
+1076 | |         .voice_privacy_code()
+     | |         -^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+     | |_________|
+     |
+
+error[E0599]: no method named `voice_privacy_code` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1079:10
+     |
+1078 |       let code_joiner = joiner_engine
+     |  _______________________-
+1079 | |         .voice_privacy_code()
+     | |         -^^^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+     | |_________|
+     |
+
+error[E0599]: no method named `user_key_ratchet` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1087:10
+     |
+1086 |       let mut r_sender_1001 = sender_engine
+     |  _____________________________-
+1087 | |         .user_key_ratchet(self_user_id)
+     | |         -^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+     | |_________|
+     |
+
+error[E0599]: no method named `user_key_ratchet` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1090:10
+     |
+1089 |       let mut r_joiner_1001 = joiner_engine
+     |  _____________________________-
+1090 | |         .user_key_ratchet(self_user_id)
+     | |         -^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+     | |_________|
+     |
+
+error[E0599]: no method named `user_key_ratchet` found for struct `DaveMlsEngine` in the current scope
+    --> crates/discord-voice/tests/srtp_contract.rs:1102:27
+     |
+1102 |     assert!(sender_engine.user_key_ratchet(intruder_user_id).is_err());
+     |                           ^^^^^^^^^^^^^^^^ method not found in `DaveMlsEngine`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "srtp_contract") due to 23 previous errors

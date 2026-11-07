@@ -582,3 +582,518 @@ fn decrypt_nonce_reuse_rejected_k() {
         }
     );
 }
+
+#[test]
+fn dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds() {
+    use discord_voice::dave::{
+        DAVE_MAX_GENERATION_GAP, DAVE_MAX_LIFETIME_GENERATIONS, DAVE_RATCHET_GENERATION_SHIFT_BITS,
+        DaveMediaCipher, MlsKeyRatchet, compute_wrapped_big_nonce, compute_wrapped_generation,
+    };
+
+    let epoch_secret = [0x42u8; 32];
+    let mut ratchet_a = MlsKeyRatchet::new(1, 1001, &epoch_secret);
+    let mut ratchet_b = MlsKeyRatchet::new(1, 1001, &epoch_secret);
+    let mut ratchet_other_user = MlsKeyRatchet::new(1, 2002, &epoch_secret);
+    let mut ratchet_other_epoch = MlsKeyRatchet::new(2, 1001, &epoch_secret);
+
+    assert_eq!(ratchet_a.epoch(), 1);
+    assert_eq!(ratchet_a.user_id(), 1001);
+    assert_eq!(ratchet_a.next_generation(), 0);
+    assert_eq!(ratchet_a.oldest_generation(), 0);
+
+    // Детерминизм по (epoch, user_id, epoch_secret) и изоляция пользователей/эпох.
+    let k0_a = ratchet_a.get_key_and_nonce(0).expect("generation 0");
+    let k0_b = ratchet_b.get_key_and_nonce(0).expect("generation 0 copy");
+    let k0_other_user = ratchet_other_user
+        .get_key_and_nonce(0)
+        .expect("other user generation 0");
+    let k0_other_epoch = ratchet_other_epoch
+        .get_key_and_nonce(0)
+        .expect("other epoch generation 0");
+    assert_eq!(k0_a.key, k0_b.key);
+    assert_eq!(k0_a.nonce_base, k0_b.nonce_base);
+    assert_ne!(k0_a.key, k0_other_user.key);
+    assert_ne!(k0_a.key, k0_other_epoch.key);
+    assert_eq!(ratchet_a.next_generation(), 1);
+    assert!(ratchet_a.has_cached_key(0));
+
+    // Прыжок вперёд (out-of-order пакеты): промежуточные поколения 1..=4 кэшируются,
+    // а секрет цепочки продвигается до поколения 6.
+    let k5 = ratchet_a.get_key(5).expect("generation 5");
+    assert_eq!(ratchet_a.next_generation(), 6);
+    for g in 0..=5 {
+        assert!(ratchet_a.has_cached_key(g), "generation {g} must be cached");
+    }
+    let k3_late = ratchet_a.get_key(3).expect("cached generation 3");
+    assert_eq!(k3_late, ratchet_b.get_key(3).expect("sequential gen 3"));
+    assert_eq!(k5, ratchet_b.get_key(5).expect("sequential gen 5"));
+
+    // Forward Secrecy: после delete_key(0) и delete_keys_up_to(3) старые ключи
+    // невозможно вычислить повторно или достать из кэша.
+    assert!(ratchet_a.delete_key(0));
+    assert!(!ratchet_a.delete_key(0));
+    assert!(!ratchet_a.has_cached_key(0));
+    assert_eq!(ratchet_a.oldest_generation(), 1);
+    assert_eq!(
+        ratchet_a.get_key(0).expect_err("deleted generation 0"),
+        SrtpError::CounterRewind {
+            current: 1,
+            requested: 0,
+        }
+    );
+    let pruned = ratchet_a.delete_keys_up_to(3);
+    assert_eq!(pruned, 2); // удалены поколения 1 и 2
+    assert_eq!(ratchet_a.oldest_generation(), 3);
+    assert!(ratchet_a.get_key(2).is_err());
+    assert_eq!(ratchet_a.get_key(3).expect("gen 3 still alive"), k3_late);
+
+    // Граничное условие DAVE_MAX_GENERATION_GAP (250):
+    // На свежем рэтчете при next_generation == 0 прыжок на 250 допустим, на 251 — отказ.
+    let mut gap_ratchet = MlsKeyRatchet::new(1, 3003, &epoch_secret);
+    assert!(matches!(
+        gap_ratchet
+            .get_key(DAVE_MAX_GENERATION_GAP + 1)
+            .expect_err("gap 251 must fail"),
+        SrtpError::MalformedHeader { .. }
+    ));
+    assert!(
+        gap_ratchet.get_key(DAVE_MAX_GENERATION_GAP).is_ok(),
+        "exact DAVE_MAX_GENERATION_GAP (250) must succeed"
+    );
+    assert_eq!(
+        gap_ratchet
+            .get_key(DAVE_MAX_LIFETIME_GENERATIONS)
+            .expect_err("generation 256 exceeds max lifetime"),
+        SrtpError::CounterOverflow
+    );
+
+    // Проверка обёртки поколений и 64-битного nonce (compute_wrapped_generation / compute_wrapped_big_nonce).
+    assert_eq!(compute_wrapped_generation(0, 0), 0);
+    assert_eq!(compute_wrapped_generation(0, 5), 5);
+    assert_eq!(compute_wrapped_generation(250, 255), 255);
+    assert_eq!(compute_wrapped_generation(250, 2), 258);
+    assert_eq!(compute_wrapped_big_nonce(0, 1), 1);
+    assert_eq!(
+        compute_wrapped_big_nonce(0x0000_0001_FFFF_FFF0, 0x0000_0005),
+        0x0000_0002_0000_0005
+    );
+
+    // Сквозная работа DaveMediaCipher через смену поколений (generation = nonce >> 24).
+    let mut sender_cipher =
+        DaveMediaCipher::with_ratchet(MlsKeyRatchet::new(1, 1001, &epoch_secret));
+    let mut receiver_cipher =
+        DaveMediaCipher::with_ratchet(MlsKeyRatchet::new(1, 1001, &epoch_secret));
+
+    // Поколение 0 (counter = 1)
+    let frame_gen0 = sender_cipher.encrypt(b"opus-gen-0").expect("encrypt gen 0");
+    // Переводим счётчик отправителя в поколение 2 (2 << 24 | 7)
+    sender_cipher.set_counter((2 << DAVE_RATCHET_GENERATION_SHIFT_BITS) | 7);
+    let frame_gen2 = sender_cipher.encrypt(b"opus-gen-2").expect("encrypt gen 2");
+    // На стороне отправителя старые поколения < 2 автоматически очищены (forward secrecy)
+    assert_eq!(sender_cipher.ratchet().oldest_generation(), 2);
+    assert!(!sender_cipher.ratchet().has_cached_key(0));
+
+    // Получатель принимает сначала пакет поколения 2, затем задержанный пакет поколения 0
+    assert_eq!(
+        receiver_cipher
+            .decrypt(&frame_gen2)
+            .expect("decrypt gen 2 first"),
+        b"opus-gen-2"
+    );
+    assert_eq!(
+        receiver_cipher
+            .decrypt(&frame_gen0)
+            .expect("decrypt late gen 0 from cache"),
+        b"opus-gen-0"
+    );
+
+    // После явного удаления поколения 0 на получателе повторная расшифровка невозможна
+    assert!(receiver_cipher.ratchet_mut().delete_key(0));
+    assert!(receiver_cipher.decrypt(&frame_gen0).is_err());
+
+    // Наблюдаемость: Debug-представление MlsKeyRatchet и MlsRatchetKeyAndNonce маскирует секреты
+    let dbg_ratchet = format!("{:?}", receiver_cipher.ratchet());
+    let dbg_key = format!("{:?}", k0_a);
+    assert!(dbg_ratchet.contains("[REDACTED]"));
+    assert!(dbg_key.contains("[REDACTED]"));
+}
+
+#[test]
+fn dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator() {
+    use discord_voice::dave::{
+        DAVE_MAX_RESETS, DaveMlsEngine, DaveTransitionOutcome, MlsProposalType,
+        MlsVerificationError, build_structured_mls_commit, build_structured_mls_proposal,
+        build_structured_mls_revoke, build_structured_mls_welcome,
+    };
+
+    let channel_id = 0x0102_0304_0506_0708u64;
+    let self_user_id = 1001u64;
+    let peer_user_id = 2002u64;
+    let intruder_user_id = 9999u64;
+    let secret_key = [0x37u8; 32];
+
+    let (mut engine, _op26) = DaveMlsEngine::init_on_op4(
+        self_user_id,
+        channel_id,
+        1,
+        &secret_key,
+        EncryptionMode::Aes256GcmRtpSize,
+    )
+    .expect("init_on_op4");
+    engine
+        .on_clients_connect_op11(&[self_user_id, peer_user_id])
+        .expect("on_clients_connect_op11");
+
+    // До установки external_sender (op:25) структурированный proposal фиксирует MissingExternalSender и возвращает None
+    let ext_sender_bytes = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88];
+    let (valid_add_prop, prop_ref_1) = build_structured_mls_proposal(
+        1,
+        channel_id,
+        0,
+        MlsProposalType::Add,
+        peer_user_id,
+        &ext_sender_bytes,
+    );
+    assert!(
+        engine
+            .on_proposals_op27(&valid_add_prop)
+            .expect("proposal before external sender is ignored")
+            .is_none()
+    );
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::MissingExternalSender)
+    );
+
+    // Устанавливаем external_sender (op:25 = [seq_be16][25][ext_sender_bytes])
+    let mut op25 = vec![0x00, 0x01, 25];
+    op25.extend_from_slice(&ext_sender_bytes);
+    engine.on_external_sender_op25(&op25).expect("op25");
+
+    // 1. Негативные сценарии валидации Proposal (op:27):
+    // 1a. Неверный group_id (channel_id)
+    let (wrong_group_prop, _) = build_structured_mls_proposal(
+        2,
+        channel_id ^ 1,
+        0,
+        MlsProposalType::Add,
+        peer_user_id,
+        &ext_sender_bytes,
+    );
+    assert!(engine.on_proposals_op27(&wrong_group_prop).is_err());
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::UnexpectedGroupId {
+            expected: channel_id,
+            actual: channel_id ^ 1,
+        })
+    );
+
+    // 1b. Неверная эпоха (expected 0, actual 3)
+    let (wrong_epoch_prop, _) = build_structured_mls_proposal(
+        3,
+        channel_id,
+        3,
+        MlsProposalType::Add,
+        peer_user_id,
+        &ext_sender_bytes,
+    );
+    assert!(engine.on_proposals_op27(&wrong_epoch_prop).is_err());
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::EpochMismatch {
+            expected: 0,
+            actual: 3,
+        })
+    );
+
+    // 1c. Подпись от чужого external_sender
+    let (bad_sig_prop, _) = build_structured_mls_proposal(
+        4,
+        channel_id,
+        0,
+        MlsProposalType::Add,
+        peer_user_id,
+        &[0xFF; 8],
+    );
+    assert!(engine.on_proposals_op27(&bad_sig_prop).is_err());
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::InvalidExternalSenderSignature)
+    );
+
+    // 1d. Add proposal для нераспознанного user_id (нет в recognized_users)
+    let (unrecognized_user_prop, _) = build_structured_mls_proposal(
+        5,
+        channel_id,
+        0,
+        MlsProposalType::Add,
+        intruder_user_id,
+        &ext_sender_bytes,
+    );
+    assert!(engine.on_proposals_op27(&unrecognized_user_prop).is_err());
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::UnrecognizedUserId(intruder_user_id))
+    );
+
+    // 2. Позитивный сценарий Proposal append + revoke (op:27):
+    let op28 = engine
+        .on_proposals_op27(&valid_add_prop)
+        .expect("valid add proposal")
+        .expect("op28 generated");
+    assert_eq!(op28[0], 28);
+    assert_eq!(engine.pending_proposal_refs(), vec![prop_ref_1]);
+
+    // Отзыв несуществующего proposal_ref отклоняется
+    let bad_revoke = build_structured_mls_revoke(6, &[[0xEE; 16]]);
+    assert!(engine.on_proposals_op27(&bad_revoke).is_err());
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::UnrecognizedProposalRef([0xEE; 16]))
+    );
+
+    // Отзыв реального prop_ref_1 очищает очередь
+    let good_revoke = build_structured_mls_revoke(7, &[prop_ref_1]);
+    assert!(
+        engine
+            .on_proposals_op27(&good_revoke)
+            .expect("revoke proposal")
+            .is_none()
+    );
+    assert!(engine.pending_proposal_refs().is_empty());
+
+    // Commit без поставленных в очередь proposals отклоняется через op:31 InvalidCommitWelcome
+    let premature_commit = build_structured_mls_commit(
+        8,
+        10,
+        channel_id,
+        1,
+        &ext_sender_bytes,
+        &[valid_add_prop[4..].to_vec()],
+        &[self_user_id, peer_user_id],
+    );
+    match engine
+        .on_commit_or_welcome_op29_op30(&premature_commit)
+        .expect("commit without queued proposals triggers op31")
+    {
+        DaveTransitionOutcome::InvalidCommitWelcome { op31_json, .. } => {
+            assert!(op31_json.contains("\"op\":31"));
+        }
+        other => panic!("expected InvalidCommitWelcome, got {other:?}"),
+    }
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::CommitWithoutQueuedProposals)
+    );
+
+    // Снова добавляем валидный proposal в очередь
+    engine
+        .on_proposals_op27(&valid_add_prop)
+        .expect("re-queue valid proposal");
+
+    // 3. Негативные сценарии Commit (op:29):
+    // 3a. Commit с неверной эпохой (target_epoch = 2 вместо 1)
+    let bad_epoch_commit = build_structured_mls_commit(
+        9,
+        11,
+        channel_id,
+        2,
+        &ext_sender_bytes,
+        &[valid_add_prop[4..].to_vec()],
+        &[self_user_id, peer_user_id],
+    );
+    assert!(matches!(
+        engine
+            .on_commit_or_welcome_op29_op30(&bad_epoch_commit)
+            .expect("bad epoch commit"),
+        DaveTransitionOutcome::InvalidCommitWelcome { .. }
+    ));
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::EpochMismatch {
+            expected: 1,
+            actual: 2,
+        })
+    );
+
+    // 3b. Commit с дубликатом в roster
+    engine
+        .on_proposals_op27(&valid_add_prop)
+        .expect("re-queue after reset 2");
+    let dup_roster_commit = build_structured_mls_commit(
+        10,
+        12,
+        channel_id,
+        1,
+        &ext_sender_bytes,
+        &[valid_add_prop[4..].to_vec()],
+        &[self_user_id, self_user_id],
+    );
+    assert!(matches!(
+        engine
+            .on_commit_or_welcome_op29_op30(&dup_roster_commit)
+            .expect("duplicate roster commit"),
+        DaveTransitionOutcome::InvalidCommitWelcome { .. }
+    ));
+    assert_eq!(
+        engine.last_verification_error(),
+        Some(&MlsVerificationError::DuplicateIdentityInRoster(
+            self_user_id
+        ))
+    );
+    assert_eq!(engine.resets(), DAVE_MAX_RESETS);
+
+    // 3c. Превышение лимита сбросов DAVE_MAX_RESETS (4-й невалидный коммит подряд)
+    engine
+        .on_proposals_op27(&valid_add_prop)
+        .expect("re-queue after reset 3");
+    assert!(matches!(
+        engine
+            .on_commit_or_welcome_op29_op30(&dup_roster_commit)
+            .expect_err("4th invalid commit exceeds DAVE_MAX_RESETS"),
+        SrtpError::MalformedHeader { .. }
+    ));
+
+    // 4. Позитивный сценарий структурированного Commit (op:29) и Welcome (op:30):
+    let (mut sender_engine, _) = DaveMlsEngine::init_on_op4(
+        self_user_id,
+        channel_id,
+        1,
+        &secret_key,
+        EncryptionMode::Aes256GcmRtpSize,
+    )
+    .expect("init sender");
+    sender_engine
+        .on_clients_connect_op11(&[self_user_id, peer_user_id])
+        .expect("connect peers");
+    sender_engine.on_external_sender_op25(&op25).expect("op25");
+    sender_engine
+        .on_proposals_op27(&valid_add_prop)
+        .expect("sender proposal");
+
+    let valid_commit = build_structured_mls_commit(
+        11,
+        15,
+        channel_id,
+        1,
+        &ext_sender_bytes,
+        &[valid_add_prop[4..].to_vec()],
+        &[self_user_id, peer_user_id],
+    );
+    match sender_engine
+        .on_commit_or_welcome_op29_op30(&valid_commit)
+        .expect("valid structured commit")
+    {
+        DaveTransitionOutcome::SendTransitionReadyOp23 {
+            transition_id,
+            op23_json,
+        } => {
+            assert_eq!(transition_id, 15);
+            assert!(op23_json.contains("\"transition_id\":15"));
+        }
+        other => panic!("expected SendTransitionReadyOp23, got {other:?}"),
+    }
+    sender_engine
+        .on_prepare_transition_op21(15, 1)
+        .expect("prepare 15");
+    assert_eq!(
+        sender_engine
+            .on_execute_transition_op22(15)
+            .expect("execute 15"),
+        1
+    );
+
+    // Второй участник присоединяется через структурированный Welcome (op:30) с transition_id = 0 (мгновенная активация)
+    let (mut joiner_engine, _) = DaveMlsEngine::init_on_op4(
+        peer_user_id,
+        channel_id,
+        1,
+        &secret_key,
+        EncryptionMode::Aes256GcmRtpSize,
+    )
+    .expect("init joiner");
+    joiner_engine
+        .on_clients_connect_op11(&[self_user_id, peer_user_id])
+        .expect("connect joiner peers");
+    joiner_engine.on_external_sender_op25(&op25).expect("op25");
+
+    // Проверим негативный Welcome без external_sender расширения (ext_sender_count = 0)
+    let bad_welcome_no_ext = build_structured_mls_welcome(
+        12,
+        0,
+        channel_id,
+        1,
+        &ext_sender_bytes,
+        0,
+        &[valid_add_prop[4..].to_vec()],
+        &[self_user_id, peer_user_id],
+    );
+    assert!(matches!(
+        joiner_engine
+            .on_commit_or_welcome_op29_op30(&bad_welcome_no_ext)
+            .expect("welcome with 0 ext senders"),
+        DaveTransitionOutcome::InvalidCommitWelcome { .. }
+    ));
+    assert_eq!(
+        joiner_engine.last_verification_error(),
+        Some(&MlsVerificationError::UnexpectedExternalSenderCount(0))
+    );
+
+    // Валидный Welcome (op:30)
+    let valid_welcome = build_structured_mls_welcome(
+        13,
+        0,
+        channel_id,
+        1,
+        &ext_sender_bytes,
+        1,
+        &[valid_add_prop[4..].to_vec()],
+        &[self_user_id, peer_user_id],
+    );
+    assert_eq!(
+        joiner_engine
+            .on_commit_or_welcome_op29_op30(&valid_welcome)
+            .expect("valid welcome"),
+        DaveTransitionOutcome::ExecutedImmediate { epoch: 1 }
+    );
+
+    // Оба участника получили идентичный epoch_authenticator, 30-значный voice_privacy_code и совместимые MlsKeyRatchet!
+    let auth_sender = sender_engine
+        .epoch_authenticator()
+        .expect("sender epoch_authenticator");
+    let auth_joiner = joiner_engine
+        .epoch_authenticator()
+        .expect("joiner epoch_authenticator");
+    assert_eq!(auth_sender, auth_joiner);
+    assert_ne!(auth_sender, [0u8; 32]);
+
+    let code_sender = sender_engine
+        .voice_privacy_code()
+        .expect("sender privacy code");
+    let code_joiner = joiner_engine
+        .voice_privacy_code()
+        .expect("joiner privacy code");
+    assert_eq!(code_sender, code_joiner);
+    let digits_only: String = code_sender.chars().filter(|c| c.is_ascii_digit()).collect();
+    assert_eq!(digits_only.len(), 30);
+
+    // Сквозная проверка пользовательских рэтчетов между sender_engine и joiner_engine
+    let mut r_sender_1001 = sender_engine
+        .user_key_ratchet(self_user_id)
+        .expect("ratchet for 1001 on sender");
+    let mut r_joiner_1001 = joiner_engine
+        .user_key_ratchet(self_user_id)
+        .expect("ratchet for 1001 on joiner");
+    assert_eq!(
+        r_sender_1001.get_key(0).expect("gen 0"),
+        r_joiner_1001.get_key(0).expect("gen 0")
+    );
+    assert_eq!(
+        r_sender_1001.get_key(4).expect("gen 4"),
+        r_joiner_1001.get_key(4).expect("gen 4")
+    );
+
+    // Нераспознанный пользователь не может получить рэтчет
+    assert!(sender_engine.user_key_ratchet(intruder_user_id).is_err());
+}

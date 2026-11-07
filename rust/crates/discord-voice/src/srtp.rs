@@ -31,7 +31,7 @@ use crate::crypto::chacha::XChaCha20Poly1305;
 use crate::crypto::gcm::Gcm;
 use crate::crypto::kdf::{hkdf_sha1_16, hkdf_sha1_32};
 use crate::crypto::{CryptoError, GCM_NONCE_SIZE, XCHACHA_NONCE_SIZE};
-use std::collections::{HashSet, VecDeque};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::fmt;
 
 /// Длина трейлера-счётчика (4 Б, little endian).
@@ -54,6 +54,254 @@ const LABEL_NONCE: &[u8] = b"discord-lab/srtp/nonce-seed";
 pub const DAVE_MARKER_BYTES: [u8; 2] = [0xFA, 0xFA];
 /// Смещение 32-битного усечённого счётчика в 12-байтном nonce DAVE AES-GCM (`12 - 4 = 8`).
 const DAVE_TRUNCATED_NONCE_OFFSET: usize = GCM_NONCE_SIZE - 4;
+/// Базовая метка MLS-экспортёра медиа-ключей участников (`libdave`: `USER_MEDIA_KEY_BASE_LABEL`).
+pub const DAVE_MLS_USER_MEDIA_KEY_BASE_LABEL: &[u8] = b"Discord Secure Frames v0";
+/// Метка MLS-экспортёра аутентификатора эпохи (`Epoch Authenticator`).
+pub const DAVE_MLS_EPOCH_AUTH_LABEL: &[u8] = b"Discord Secure Frames v0 Epoch Authenticator";
+/// Метка деривации ключа поколения в `mlspp::HashRatchet`.
+pub const DAVE_MLS_RATCHET_KEY_LABEL: &[u8] = b"MLS 1.0 key";
+/// Метка деривации базового nonce поколения в `mlspp::HashRatchet`.
+pub const DAVE_MLS_RATCHET_NONCE_LABEL: &[u8] = b"MLS 1.0 nonce";
+/// Метка продвижения секрета цепочки в `mlspp::HashRatchet`.
+pub const DAVE_MLS_RATCHET_SECRET_LABEL: &[u8] = b"MLS 1.0 secret";
+/// Сдвиг старшего байта поколения в 32-битном усечённом nonce DAVE (`truncated_nonce >> 24`).
+pub const DAVE_RATCHET_GENERATION_SHIFT_BITS: u32 = 24;
+/// Максимально допустимый разрыв поколений при деривации вперёд (`libdave`: `MAX_GENERATION_GAP = 250`).
+pub const DAVE_MAX_GENERATION_GAP: u32 = 250;
+/// Максимальное число поколений жизни одного `MlsKeyRatchet` (`libdave`: `MAX_FRAMES_PER_EPOCH / 2^24 = 256`).
+pub const DAVE_MAX_LIFETIME_GENERATIONS: u32 = 256;
+/// Префиксы структурированных MLS-сообщений DAVE.
+pub const DAVE_PROPOSAL_MAGIC: &[u8; 8] = b"DAVE1PRP";
+/// Префикс структурированного отзыва MLS Proposal (`op:27`, `op_type = 1`).
+pub const DAVE_PROPOSAL_REVOKE_MAGIC: &[u8; 8] = b"DAVE1PRV";
+/// Префикс структурированного MLS Commit (`op:29`).
+pub const DAVE_STRUCTURED_COMMIT_MAGIC: &[u8; 8] = b"DAVE1CMS";
+/// Префикс структурированного MLS Welcome (`op:30`).
+pub const DAVE_WELCOME_MAGIC: &[u8; 8] = b"DAVE1WLC";
+
+/// Вычисляет полное 32-битное поколение из 8-битного поля старшего байта `truncated_nonce`
+/// относительно старейшего активного поколения (`discord::dave::ComputeWrappedGeneration`).
+#[must_use]
+pub const fn compute_wrapped_generation(oldest_generation: u32, generation_u8: u8) -> u32 {
+    let rem = (oldest_generation & 0xFF) as u8;
+    let delta = generation_u8.wrapping_sub(rem);
+    oldest_generation.saturating_add(delta as u32)
+}
+
+/// Восстанавливает монотонный 64-битный счётчик кадров из 32-битного усечённого `truncated_nonce`
+/// относительно последнего принятого `newest_nonce` (`discord::dave::ComputeWrappedBigNonce`).
+#[must_use]
+pub const fn compute_wrapped_big_nonce(newest_nonce: u64, truncated_nonce: u32) -> u64 {
+    if newest_nonce == 0 {
+        return truncated_nonce as u64;
+    }
+    let high = newest_nonce & !0xFFFF_FFFFu64;
+    let candidate = high | (truncated_nonce as u64);
+    if candidate.saturating_add(0x8000_0000) < newest_nonce {
+        candidate.saturating_add(0x1_0000_0000)
+    } else if candidate > newest_nonce.saturating_add(0x8000_0000) && high >= 0x1_0000_0000 {
+        candidate - 0x1_0000_0000
+    } else {
+        candidate
+    }
+}
+
+/// Ключ и базовый 12-байтный nonce конкретного поколения `mlspp::HashRatchet` (`KeyAndNonce`).
+#[derive(Clone, PartialEq, Eq)]
+pub struct MlsRatchetKeyAndNonce {
+    /// Номер поколения (`0..256`).
+    pub generation: u32,
+    /// 32-байтный ключ AES-256-GCM для данного поколения.
+    pub key: [u8; 32],
+    /// 12-байтный базовый вектор инициализации поколения.
+    pub nonce_base: [u8; GCM_NONCE_SIZE],
+}
+
+impl fmt::Debug for MlsRatchetKeyAndNonce {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MlsRatchetKeyAndNonce")
+            .field("generation", &self.generation)
+            .field("key", &"[REDACTED]")
+            .field("nonce_base", &"[REDACTED]")
+            .finish()
+    }
+}
+
+/// Иерархический однонаправленный генератор ключей поколений участника (`discord::dave::MlsKeyRatchet` / `mlspp::HashRatchet`).
+#[derive(Clone)]
+pub struct MlsKeyRatchet {
+    epoch: u64,
+    user_id: u64,
+    next_secret: [u8; 32],
+    next_generation: u32,
+    oldest_generation: u32,
+    cache: BTreeMap<u32, MlsRatchetKeyAndNonce>,
+}
+
+impl fmt::Debug for MlsKeyRatchet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MlsKeyRatchet")
+            .field("epoch", &self.epoch)
+            .field("user_id", &self.user_id)
+            .field("next_secret", &"[REDACTED]")
+            .field("next_generation", &self.next_generation)
+            .field("oldest_generation", &self.oldest_generation)
+            .field("cached_generations", &self.cache.len())
+            .finish()
+    }
+}
+
+impl MlsKeyRatchet {
+    /// Создаёт `MlsKeyRatchet` участника `user_id` в эпохе `epoch`, экспортируя базовый секрет
+    /// через `MLS-Exporter("Discord Secure Frames v0", user_id_le64, 32)`.
+    #[must_use]
+    pub fn new(epoch: u64, user_id: u64, epoch_secret: &[u8; 32]) -> Self {
+        let mut salt = [0u8; 16];
+        salt[..8].copy_from_slice(&epoch.to_be_bytes());
+        salt[8..16].copy_from_slice(&user_id.to_le_bytes());
+        let base_secret = hkdf_sha1_32(epoch_secret, &salt, DAVE_MLS_USER_MEDIA_KEY_BASE_LABEL);
+        Self::from_base_secret(epoch, user_id, base_secret)
+    }
+
+    /// Создаёт `MlsKeyRatchet` напрямую из 32-байтного базового секрета потока.
+    #[must_use]
+    pub fn from_base_secret(epoch: u64, user_id: u64, base_secret: [u8; 32]) -> Self {
+        Self {
+            epoch,
+            user_id,
+            next_secret: base_secret,
+            next_generation: 0,
+            oldest_generation: 0,
+            cache: BTreeMap::new(),
+        }
+    }
+
+    /// Номер MLS-эпохи данного рэтчета.
+    #[must_use]
+    pub const fn epoch(&self) -> u64 {
+        self.epoch
+    }
+
+    /// Идентификатор пользователя (`Snowflake u64`), которому принадлежит рэтчет.
+    #[must_use]
+    pub const fn user_id(&self) -> u64 {
+        self.user_id
+    }
+
+    /// Следующее ещё не вычисленное поколение цепочки (`next_generation`).
+    #[must_use]
+    pub const fn next_generation(&self) -> u32 {
+        self.next_generation
+    }
+
+    /// Старейшее доступное поколение (`oldest_generation`), ниже которого ключи удалены.
+    #[must_use]
+    pub const fn oldest_generation(&self) -> u32 {
+        self.oldest_generation
+    }
+
+    /// Проверяет, находится ли ключ поколения `generation` в кэше активных поколений.
+    #[must_use]
+    pub fn has_cached_key(&self, generation: u32) -> bool {
+        self.cache.contains_key(&generation)
+    }
+
+    /// Возвращает отсортированный список поколений, чьи ключи сейчас хранятся в кэше.
+    #[must_use]
+    pub fn cached_generations(&self) -> Vec<u32> {
+        self.cache.keys().copied().collect()
+    }
+
+    /// Получает или деривирует вперёд `(key, nonce_base)` для поколения `generation`.
+    ///
+    /// - Если `generation` уже было удалено через `delete_key`, возвращает `SrtpError::CounterRewind`.
+    /// - Если `generation >= DAVE_MAX_LIFETIME_GENERATIONS (256)`, возвращает `SrtpError::CounterOverflow`.
+    /// - Если прыжок `generation - next_generation > DAVE_MAX_GENERATION_GAP (250)`, возвращает `SrtpError::MalformedHeader`.
+    pub fn get_key_and_nonce(
+        &mut self,
+        generation: u32,
+    ) -> Result<MlsRatchetKeyAndNonce, SrtpError> {
+        if let Some(cached) = self.cache.get(&generation) {
+            return Ok(cached.clone());
+        }
+        if generation < self.next_generation {
+            return Err(SrtpError::CounterRewind {
+                current: u64::from(self.oldest_generation),
+                requested: u64::from(generation),
+            });
+        }
+        if generation >= DAVE_MAX_LIFETIME_GENERATIONS {
+            return Err(SrtpError::CounterOverflow);
+        }
+        if generation.saturating_sub(self.next_generation) > DAVE_MAX_GENERATION_GAP {
+            return Err(SrtpError::MalformedHeader {
+                reason: "превышен DAVE_MAX_GENERATION_GAP (250) в MlsKeyRatchet",
+            });
+        }
+
+        for g in self.next_generation..=generation {
+            let gen_be = g.to_be_bytes();
+            let key = hkdf_sha1_32(&self.next_secret, &gen_be, DAVE_MLS_RATCHET_KEY_LABEL);
+            let nonce_16 = hkdf_sha1_16(&self.next_secret, &gen_be, DAVE_MLS_RATCHET_NONCE_LABEL);
+            let mut nonce_base = [0u8; GCM_NONCE_SIZE];
+            nonce_base.copy_from_slice(&nonce_16[..GCM_NONCE_SIZE]);
+            self.next_secret =
+                hkdf_sha1_32(&self.next_secret, &gen_be, DAVE_MLS_RATCHET_SECRET_LABEL);
+            self.cache.insert(
+                g,
+                MlsRatchetKeyAndNonce {
+                    generation: g,
+                    key,
+                    nonce_base,
+                },
+            );
+            self.next_generation = g.saturating_add(1);
+        }
+
+        self.cache
+            .get(&generation)
+            .cloned()
+            .ok_or(SrtpError::AuthenticationFailed)
+    }
+
+    /// Получает или деривирует вперёд 32-байтный ключ AES-256-GCM для поколения `generation`.
+    pub fn get_key(&mut self, generation: u32) -> Result<[u8; 32], SrtpError> {
+        self.get_key_and_nonce(generation).map(|entry| entry.key)
+    }
+
+    /// Удаляет ключ поколения `generation` из кэша для обеспечения Forward Secrecy (`MlsKeyRatchet::DeleteKey`).
+    pub fn delete_key(&mut self, generation: u32) -> bool {
+        let removed = self.cache.remove(&generation).is_some();
+        if removed {
+            self.refresh_oldest_generation(generation.saturating_add(1));
+        }
+        removed
+    }
+
+    /// Удаляет из кэша все ключи поколений строго меньше `up_to_generation_exclusive`.
+    pub fn delete_keys_up_to(&mut self, up_to_generation_exclusive: u32) -> usize {
+        let to_remove: Vec<u32> = self
+            .cache
+            .range(..up_to_generation_exclusive)
+            .map(|(&g, _)| g)
+            .collect();
+        let count = to_remove.len();
+        for g in to_remove {
+            self.cache.remove(&g);
+        }
+        if count > 0 || up_to_generation_exclusive > self.oldest_generation {
+            self.refresh_oldest_generation(up_to_generation_exclusive);
+        }
+        count
+    }
+
+    fn refresh_oldest_generation(&mut self, min_candidate: u32) {
+        self.oldest_generation = match self.cache.keys().next().copied() {
+            Some(first_cached) => first_cached,
+            None => self.next_generation.max(min_candidate),
+        };
+    }
+}
 
 /// Абстракция второго слоя сквозного шифрования медиа-фреймов DAVE MLS E2EE поверх SRTP.
 pub trait DaveFrameCipher {
@@ -72,7 +320,7 @@ pub trait DaveFrameCipher {
 pub struct DaveMediaCipher {
     epoch: u64,
     counter: u32,
-    gcm: Gcm,
+    ratchet: MlsKeyRatchet,
 }
 
 impl fmt::Debug for DaveMediaCipher {
@@ -80,6 +328,7 @@ impl fmt::Debug for DaveMediaCipher {
         f.debug_struct("DaveMediaCipher")
             .field("epoch", &self.epoch)
             .field("counter", &self.counter)
+            .field("ratchet", &self.ratchet)
             .finish_non_exhaustive()
     }
 }
@@ -91,14 +340,37 @@ impl DaveMediaCipher {
         Self::with_epoch(1, key)
     }
 
-    /// Создаёт шифр DAVE E2EE для заданной MLS-эпохи `epoch` и 32-байтного ключа.
+    /// Создаёт шифр DAVE E2EE для заданной MLS-эпохи `epoch` и 32-байтного базового секрета.
     #[must_use]
     pub fn with_epoch(epoch: u64, key: &[u8; 32]) -> Self {
+        Self::with_ratchet(MlsKeyRatchet::from_base_secret(epoch, 0, *key))
+    }
+
+    /// Создаёт шифр DAVE E2EE поверх иерархического `MlsKeyRatchet`.
+    #[must_use]
+    pub fn with_ratchet(ratchet: MlsKeyRatchet) -> Self {
+        let epoch = ratchet.epoch();
         Self {
             epoch,
             counter: 0,
-            gcm: Gcm::new(&Aes256Key::from_array(*key)),
+            ratchet,
         }
+    }
+
+    /// Ссылка на внутренний `MlsKeyRatchet`.
+    #[must_use]
+    pub const fn ratchet(&self) -> &MlsKeyRatchet {
+        &self.ratchet
+    }
+
+    /// Изменяемая ссылка на внутренний `MlsKeyRatchet`.
+    pub fn ratchet_mut(&mut self) -> &mut MlsKeyRatchet {
+        &mut self.ratchet
+    }
+
+    /// Устанавливает текущее значение 32-битного усечённого счётчика кадров (например при смене поколения).
+    pub fn set_counter(&mut self, counter: u32) {
+        self.counter = counter;
     }
 
     /// Номер текущей MLS-эпохи.
@@ -119,10 +391,22 @@ impl DaveMediaCipher {
             .counter
             .checked_add(1)
             .ok_or(SrtpError::CounterOverflow)?;
-        let mut nonce = [0u8; GCM_NONCE_SIZE];
-        nonce[DAVE_TRUNCATED_NONCE_OFFSET..].copy_from_slice(&truncated_nonce.to_le_bytes());
+        let generation = truncated_nonce >> DAVE_RATCHET_GENERATION_SHIFT_BITS;
+        let key_and_nonce = self.ratchet.get_key_and_nonce(generation)?;
+        if generation > self.ratchet.oldest_generation() {
+            self.ratchet.delete_keys_up_to(generation);
+        }
 
-        let ct_and_tag = self.gcm.encrypt(&nonce, &[], plaintext)?;
+        let mut nonce = key_and_nonce.nonce_base;
+        for (dst, &src) in nonce[DAVE_TRUNCATED_NONCE_OFFSET..]
+            .iter_mut()
+            .zip(truncated_nonce.to_le_bytes().iter())
+        {
+            *dst ^= src;
+        }
+        let gcm = Gcm::new(&Aes256Key::from_array(key_and_nonce.key));
+
+        let ct_and_tag = gcm.encrypt(&nonce, &[], plaintext)?;
         let mut nonce_leb = [0u8; 5];
         let nonce_leb_len = encode_leb128_u32(truncated_nonce, &mut nonce_leb);
         let supplemental_size =
@@ -140,7 +424,7 @@ impl DaveMediaCipher {
         Ok(out)
     }
 
-    /// Расшифровывает кадр DAVE, проверяя маркер `0xFAFA`, supplemental-футер и тег AEAD.
+    /// Расшифровывает кадр DAVE, проверяя маркер `0xFAFA`, supplemental-футер, поколение рэтчета и тег AEAD.
     pub fn decrypt(&mut self, frame: &[u8]) -> Result<Vec<u8>, SrtpError> {
         let min_len = AEAD_TAG_LEN + 1 + 1 + DAVE_MARKER_BYTES.len();
         if frame.len() < min_len {
@@ -162,11 +446,21 @@ impl DaveMediaCipher {
         let truncated_nonce =
             decode_leb128_u32(nonce_slice).ok_or(SrtpError::AuthenticationFailed)?;
 
-        let mut nonce = [0u8; GCM_NONCE_SIZE];
-        nonce[DAVE_TRUNCATED_NONCE_OFFSET..].copy_from_slice(&truncated_nonce.to_le_bytes());
+        let gen_u8 = (truncated_nonce >> DAVE_RATCHET_GENERATION_SHIFT_BITS) as u8;
+        let generation = compute_wrapped_generation(self.ratchet.oldest_generation(), gen_u8);
+        let key_and_nonce = self.ratchet.get_key_and_nonce(generation)?;
+
+        let mut nonce = key_and_nonce.nonce_base;
+        for (dst, &src) in nonce[DAVE_TRUNCATED_NONCE_OFFSET..]
+            .iter_mut()
+            .zip(truncated_nonce.to_le_bytes().iter())
+        {
+            *dst ^= src;
+        }
+        let gcm = Gcm::new(&Aes256Key::from_array(key_and_nonce.key));
 
         let ct_and_tag = &frame[..tag_end];
-        Ok(self.gcm.decrypt(&nonce, &[], ct_and_tag)?)
+        Ok(gcm.decrypt(&nonce, &[], ct_and_tag)?)
     }
 }
 
@@ -1047,6 +1341,230 @@ pub struct DaveStrippedRtpPacket {
     pub payload: Vec<u8>,
 }
 
+/// Тип предложения в MLS-группе DAVE (`libdave/cpp/src/mls/session.cpp`: `ValidateProposalMessage`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum MlsProposalType {
+    /// Добавление нового участника в MLS-группу (`ProposalType::Add = 1`).
+    Add = 1,
+    /// Удаление участника из MLS-группы (`ProposalType::Remove = 2`).
+    Remove = 2,
+}
+
+/// Структурированная причина отказа верификации MLS Proposal / Commit / Welcome (`libdave/cpp/src/mls/session.cpp`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MlsVerificationError {
+    /// Не установлен `op:25 ExternalSenderPackage` (`Missing external sender`).
+    MissingExternalSender,
+    /// Повреждён бинарный формат MLS-сообщения (`Invalid wire format`).
+    InvalidWireFormat,
+    /// Несовпадение `group_id` с `channel_id` текущей сессии (`Unexpected group ID`).
+    UnexpectedGroupId {
+        /// Ожидаемый `channel_id` группы.
+        expected: u64,
+        /// Полученный `group_id` в пакете.
+        actual: u64,
+    },
+    /// Несовпадение эпохи MLS (`Proposal epoch mismatch` / `Commit epoch mismatch`).
+    EpochMismatch {
+        /// Ожидаемый номер эпохи.
+        expected: u64,
+        /// Полученный номер эпохи.
+        actual: u64,
+    },
+    /// Подпись внешнего отправителя не прошла проверку (`MLS proposal must be from external sender`).
+    InvalidExternalSenderSignature,
+    /// Недопустимый тип MLS-предложения (`MLS proposal must be add or remove`).
+    InvalidProposalType(u8),
+    /// Идентификатор пользователя отсутствует в `recognized_users` (`MLS add proposal / welcome lists unrecognized user ID`).
+    UnrecognizedUserId(u64),
+    /// Дубликат идентификатора пользователя в списке участников (`Duplicate identity in roster`).
+    DuplicateIdentityInRoster(u64),
+    /// Попытка отозвать неизвестный `proposal_ref` (`Cannot revoke unrecognized proposal ref`).
+    UnrecognizedProposalRef([u8; 16]),
+    /// Попытка применить Commit при пустой очереди предложений (`ProcessCommit called without queued proposals`).
+    CommitWithoutQueuedProposals,
+    /// Некорректное число внешних отправителей в расширении Welcome (`MLS welcome lists unexpected number of external senders`).
+    UnexpectedExternalSenderCount(u16),
+    /// Расширение `ExternalSenders` в Welcome не совпадает с активным `external_sender` (`MLS welcome lists unexpected external sender`).
+    UnexpectedExternalSender,
+    /// Несовпадение `confirmation_tag` коммита или Welcome (`Confirmation failed to verify`).
+    ConfirmationTagMismatch,
+}
+
+fn ct_eq(a: &[u8], b: &[u8]) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut diff = 0u8;
+    for (&x, &y) in a.iter().zip(b.iter()) {
+        diff |= x ^ y;
+    }
+    diff == 0
+}
+
+fn compute_external_sender_tag(external_sender: &[u8]) -> [u8; 16] {
+    hkdf_sha1_16(
+        external_sender,
+        b"Discord-MLS-ExtSender-Salt",
+        b"Discord-MLS-ExtSender-Tag",
+    )
+}
+
+fn compute_structured_confirmation_tag(
+    channel_id: u64,
+    target_epoch: u64,
+    external_sender: &[u8],
+    proposals: &[Vec<u8>],
+    roster: &[u64],
+) -> [u8; 24] {
+    let mut material = Vec::with_capacity(16 + external_sender.len() + roster.len() * 8 + 64);
+    material.extend_from_slice(&channel_id.to_be_bytes());
+    material.extend_from_slice(&target_epoch.to_be_bytes());
+    material.extend_from_slice(&(external_sender.len() as u32).to_be_bytes());
+    material.extend_from_slice(external_sender);
+    material.extend_from_slice(&(proposals.len() as u32).to_be_bytes());
+    for prop in proposals {
+        material.extend_from_slice(&(prop.len() as u32).to_be_bytes());
+        material.extend_from_slice(prop);
+    }
+    let mut sorted_roster = roster.to_vec();
+    sorted_roster.sort_unstable();
+    material.extend_from_slice(&(sorted_roster.len() as u32).to_be_bytes());
+    for uid in sorted_roster {
+        material.extend_from_slice(&uid.to_be_bytes());
+    }
+    let mut salt = [0u8; 16];
+    salt[..8].copy_from_slice(&channel_id.to_be_bytes());
+    salt[8..16].copy_from_slice(&target_epoch.to_be_bytes());
+    let full = hkdf_sha1_32(&material, &salt, b"MLS 1.0 confirm");
+    let mut tag = [0u8; 24];
+    tag.copy_from_slice(&full[..24]);
+    tag
+}
+
+/// Формирует структурированный бинарный кадр `op:27 Proposals (Append)` и его 16-байтный `proposal_ref`.
+#[must_use]
+pub fn build_structured_mls_proposal(
+    seq: u16,
+    channel_id: u64,
+    epoch: u64,
+    proposal_type: MlsProposalType,
+    target_user_id: u64,
+    external_sender: &[u8],
+) -> (Vec<u8>, [u8; 16]) {
+    let mut body = Vec::with_capacity(66);
+    body.extend_from_slice(DAVE_PROPOSAL_MAGIC);
+    body.extend_from_slice(&channel_id.to_be_bytes());
+    body.extend_from_slice(&epoch.to_be_bytes());
+    body.push(2u8); // SenderType::External = 2
+    body.push(proposal_type as u8);
+    body.extend_from_slice(&target_user_id.to_be_bytes());
+
+    let proposal_ref = hkdf_sha1_16(external_sender, &body, b"MLS 1.0 Proposal Reference");
+    body.extend_from_slice(&proposal_ref);
+
+    let sig_tag = hkdf_sha1_16(external_sender, &body, b"Discord-MLS-ExternalSender-Sig");
+    body.extend_from_slice(&sig_tag);
+
+    let mut frame = Vec::with_capacity(4 + body.len());
+    frame.extend_from_slice(&seq.to_be_bytes());
+    frame.push(crate::dave::OP_MLS_PROPOSALS);
+    frame.push(0u8); // op_type = 0 (append)
+    frame.extend_from_slice(&body);
+    (frame, proposal_ref)
+}
+
+/// Формирует структурированный бинарный кадр `op:27 Proposals (Revoke)` со списком отзываемых `proposal_ref`.
+#[must_use]
+pub fn build_structured_mls_revoke(seq: u16, proposal_refs: &[[u8; 16]]) -> Vec<u8> {
+    let count = u16::try_from(proposal_refs.len()).unwrap_or(u16::MAX);
+    let mut frame = Vec::with_capacity(4 + 8 + 2 + usize::from(count) * 16);
+    frame.extend_from_slice(&seq.to_be_bytes());
+    frame.push(crate::dave::OP_MLS_PROPOSALS);
+    frame.push(1u8); // op_type = 1 (revoke)
+    frame.extend_from_slice(DAVE_PROPOSAL_REVOKE_MAGIC);
+    frame.extend_from_slice(&count.to_be_bytes());
+    for prop_ref in proposal_refs.iter().take(usize::from(count)) {
+        frame.extend_from_slice(prop_ref);
+    }
+    frame
+}
+
+/// Формирует структурированный бинарный кадр `op:29 PrepareCommitTransition` с тегом подтверждения эпохи.
+#[must_use]
+pub fn build_structured_mls_commit(
+    seq: u16,
+    transition_id: u16,
+    channel_id: u64,
+    target_epoch: u64,
+    external_sender: &[u8],
+    proposals: &[Vec<u8>],
+    roster: &[u64],
+) -> Vec<u8> {
+    let roster_count = u16::try_from(roster.len()).unwrap_or(u16::MAX);
+    let confirmation_tag = compute_structured_confirmation_tag(
+        channel_id,
+        target_epoch,
+        external_sender,
+        proposals,
+        roster,
+    );
+    let mut frame = Vec::with_capacity(5 + 8 + 8 + 8 + 2 + usize::from(roster_count) * 8 + 24);
+    frame.extend_from_slice(&seq.to_be_bytes());
+    frame.push(crate::dave::OP_MLS_PREPARE_COMMIT_TRANSITION);
+    frame.extend_from_slice(&transition_id.to_be_bytes());
+    frame.extend_from_slice(DAVE_STRUCTURED_COMMIT_MAGIC);
+    frame.extend_from_slice(&channel_id.to_be_bytes());
+    frame.extend_from_slice(&target_epoch.to_be_bytes());
+    frame.extend_from_slice(&roster_count.to_be_bytes());
+    for &uid in roster.iter().take(usize::from(roster_count)) {
+        frame.extend_from_slice(&uid.to_be_bytes());
+    }
+    frame.extend_from_slice(&confirmation_tag);
+    frame
+}
+
+/// Формирует структурированный бинарный кадр `op:30 Welcome` с проверкой расширения `ExternalSenders` и списка участников.
+#[must_use]
+#[allow(clippy::too_many_arguments)]
+pub fn build_structured_mls_welcome(
+    seq: u16,
+    transition_id: u16,
+    channel_id: u64,
+    target_epoch: u64,
+    external_sender: &[u8],
+    ext_sender_count: u16,
+    proposals: &[Vec<u8>],
+    roster: &[u64],
+) -> Vec<u8> {
+    let roster_count = u16::try_from(roster.len()).unwrap_or(u16::MAX);
+    let ext_sender_tag = compute_external_sender_tag(external_sender);
+    let confirmation_tag = compute_structured_confirmation_tag(
+        channel_id,
+        target_epoch,
+        external_sender,
+        proposals,
+        roster,
+    );
+    let mut frame =
+        Vec::with_capacity(5 + 8 + 8 + 8 + 2 + 16 + 2 + usize::from(roster_count) * 8 + 24);
+    frame.extend_from_slice(&seq.to_be_bytes());
+    frame.push(crate::dave::OP_MLS_WELCOME);
+    frame.extend_from_slice(&transition_id.to_be_bytes());
+    frame.extend_from_slice(DAVE_WELCOME_MAGIC);
+    frame.extend_from_slice(&channel_id.to_be_bytes());
+    frame.extend_from_slice(&target_epoch.to_be_bytes());
+    frame.extend_from_slice(&ext_sender_count.to_be_bytes());
+    frame.extend_from_slice(&ext_sender_tag);
+    frame.extend_from_slice(&roster_count.to_be_bytes());
+    for &uid in roster.iter().take(usize::from(roster_count)) {
+        frame.extend_from_slice(&uid.to_be_bytes());
+    }
+    frame.extend_from_slice(&confirmation_tag);
+    frame
+}
+
 /// Движок протокола сквозного шифрования DAVE v1 MLS поверх `SrtpContext` (этап V3, по эталону Serein `crypto::Dave`).
 pub struct DaveMlsEngine {
     own_user_id: u64,
@@ -1057,10 +1575,16 @@ pub struct DaveMlsEngine {
     recognized_users: Vec<u64>,
     announced_users: Vec<u64>,
     external_sender: Option<Vec<u8>>,
+    pending_proposals: Vec<([u8; 16], Vec<u8>)>,
     pending_commit: Option<Vec<u8>>,
     pending_epoch_key: Option<[u8; 32]>,
+    pending_target_epoch: Option<u64>,
     pending_transition: Option<u16>,
     pending_protocol_transition: Option<u16>,
+    active_epoch_secret: Option<[u8; 32]>,
+    epoch_authenticator: Option<[u8; 32]>,
+    user_ratchets: BTreeMap<u64, MlsKeyRatchet>,
+    last_verification_error: Option<MlsVerificationError>,
     epoch: u64,
     epochs_budget: u16,
     resets: u8,
@@ -1114,10 +1638,16 @@ impl DaveMlsEngine {
             recognized_users: vec![own_user_id],
             announced_users: vec![own_user_id],
             external_sender: None,
+            pending_proposals: Vec::new(),
             pending_commit: None,
             pending_epoch_key: None,
+            pending_target_epoch: None,
             pending_transition: None,
             pending_protocol_transition: None,
+            active_epoch_secret: None,
+            epoch_authenticator: None,
+            user_ratchets: BTreeMap::new(),
+            last_verification_error: None,
             epoch: 0,
             epochs_budget: 0,
             resets: 0,
@@ -1192,6 +1722,69 @@ impl DaveMlsEngine {
         self.resets
     }
 
+    /// Последняя зафиксированная ошибка верификации MLS Proposal / Commit / Welcome.
+    #[must_use]
+    pub const fn last_verification_error(&self) -> Option<&MlsVerificationError> {
+        self.last_verification_error.as_ref()
+    }
+
+    /// Возвращает список `proposal_ref` всех предложений, находящихся в очереди текущей эпохи.
+    #[must_use]
+    pub fn pending_proposal_refs(&self) -> Vec<[u8; 16]> {
+        self.pending_proposals.iter().map(|(r, _)| *r).collect()
+    }
+
+    /// 32-байтный аутентификатор текущей установленной MLS-эпохи (`GetLastEpochAuthenticator`).
+    #[must_use]
+    pub const fn epoch_authenticator(&self) -> Option<[u8; 32]> {
+        self.epoch_authenticator
+    }
+
+    /// Формирует 30-значный десятичный код безопасности звонка (`Voice Privacy Code`, 6 групп по 5 цифр)
+    /// из `epoch_authenticator` активной MLS-эпохи.
+    #[must_use]
+    pub fn voice_privacy_code(&self) -> Option<String> {
+        let auth = self.epoch_authenticator?;
+        let mut groups = Vec::with_capacity(6);
+        for chunk_idx in 0..6 {
+            let offset = chunk_idx * 4;
+            let word = u32::from_be_bytes([
+                auth[offset],
+                auth[offset + 1],
+                auth[offset + 2],
+                auth[offset + 3],
+            ]);
+            groups.push(format!("{:05}", word % 100_000));
+        }
+        Some(groups.join(" "))
+    }
+
+    /// Создаёт или возвращает клон `MlsKeyRatchet` для распознанного участника `user_id` в активной MLS-эпохе.
+    pub fn user_key_ratchet(&self, user_id: u64) -> Result<MlsKeyRatchet, SrtpError> {
+        if !self.ready || self.epoch == 0 {
+            return Err(SrtpError::MalformedHeader {
+                reason: "MLS-группа ещё не установлена для получения MlsKeyRatchet",
+            });
+        }
+        if !self.contains_user(user_id) {
+            return Err(SrtpError::MalformedHeader {
+                reason: "запрошен MlsKeyRatchet для нераспознанного user_id",
+            });
+        }
+        if let Some(existing) = self.user_ratchets.get(&user_id) {
+            return Ok(existing.clone());
+        }
+        let secret = self.active_epoch_secret.ok_or(SrtpError::MalformedHeader {
+            reason: "отсутствует секрет активной эпохи DAVE MLS",
+        })?;
+        Ok(MlsKeyRatchet::new(self.epoch, user_id, &secret))
+    }
+
+    /// Возвращает изменяемую ссылку на активный `MlsKeyRatchet` участника `user_id`.
+    pub fn active_user_ratchet_mut(&mut self, user_id: u64) -> Option<&mut MlsKeyRatchet> {
+        self.user_ratchets.get_mut(&user_id)
+    }
+
     /// Обрабатывает `op:11 ClientsConnect`: регистрирует новых участников в `recognized_users`.
     pub fn on_clients_connect_op11(&mut self, user_ids: &[u64]) -> Result<bool, SrtpError> {
         if user_ids.len() > DAVE_MAX_PARTICIPANTS || user_ids.contains(&0) {
@@ -1236,6 +1829,7 @@ impl DaveMlsEngine {
         let before = self.recognized_users.len() + self.announced_users.len();
         self.recognized_users.retain(|&id| id != user_id);
         self.announced_users.retain(|&id| id != user_id);
+        self.user_ratchets.remove(&user_id);
         let changed = before != self.recognized_users.len() + self.announced_users.len();
         if changed {
             self.ready = false;
@@ -1245,20 +1839,25 @@ impl DaveMlsEngine {
     }
 
     /// Обрабатывает бинарный `op:25 ExternalSenderPackage` (`[seq_be: u16][25][payload]` или чистый `payload`).
-    pub fn on_external_sender_op25(&mut self, frame_or_payload: &[u8]) -> Result<Option<u16>, SrtpError> {
-        let (seq, payload) =
-            if frame_or_payload.len() >= 3 && frame_or_payload[2] == crate::dave::OP_MLS_EXTERNAL_SENDER {
-                let seq = u16::from_be_bytes([frame_or_payload[0], frame_or_payload[1]]);
-                (Some(seq), &frame_or_payload[3..])
-            } else {
-                (None, frame_or_payload)
-            };
+    pub fn on_external_sender_op25(
+        &mut self,
+        frame_or_payload: &[u8],
+    ) -> Result<Option<u16>, SrtpError> {
+        let (seq, payload) = if frame_or_payload.len() >= 3
+            && frame_or_payload[2] == crate::dave::OP_MLS_EXTERNAL_SENDER
+        {
+            let seq = u16::from_be_bytes([frame_or_payload[0], frame_or_payload[1]]);
+            (Some(seq), &frame_or_payload[3..])
+        } else {
+            (None, frame_or_payload)
+        };
         if payload.is_empty() || payload.len() > DAVE_MAX_SIGNAL_BYTES {
             return Err(SrtpError::MalformedHeader {
                 reason: "пустой или слишком большой op:25 ExternalSenderPackage",
             });
         }
         self.external_sender = Some(payload.to_vec());
+        self.last_verification_error = None;
         Ok(seq)
     }
 
@@ -1266,8 +1865,13 @@ impl DaveMlsEngine {
     ///
     /// Если `op:25 ExternalSender` ещё не получен, возвращает `Ok(None)` (по эталону Serein).
     /// При успешной обработке формирует и возвращает бинарный кадр `op:28 CommitWelcome` (`[28, ...commit, ...welcome]`).
-    pub fn on_proposals_op27(&mut self, frame_or_payload: &[u8]) -> Result<Option<Vec<u8>>, SrtpError> {
-        let payload = if frame_or_payload.len() >= 3 && frame_or_payload[2] == crate::dave::OP_MLS_PROPOSALS {
+    pub fn on_proposals_op27(
+        &mut self,
+        frame_or_payload: &[u8],
+    ) -> Result<Option<Vec<u8>>, SrtpError> {
+        let payload = if frame_or_payload.len() >= 3
+            && frame_or_payload[2] == crate::dave::OP_MLS_PROPOSALS
+        {
             &frame_or_payload[3..]
         } else {
             frame_or_payload
@@ -1277,25 +1881,215 @@ impl DaveMlsEngine {
                 reason: "обрезанный или превышающий бюджет op:27 Proposals",
             });
         }
-        let Some(external_sender) = &self.external_sender else {
+        let Some(external_sender) = self.external_sender.clone() else {
+            self.last_verification_error = Some(MlsVerificationError::MissingExternalSender);
             return Ok(None);
         };
-        let (&operation_type, proposal_data) = payload.split_first().ok_or(SrtpError::MalformedHeader {
-            reason: "пустой op:27 Proposals",
-        })?;
+        let (&operation_type, proposal_data) =
+            payload.split_first().ok_or(SrtpError::MalformedHeader {
+                reason: "пустой op:27 Proposals",
+            })?;
         if operation_type > 1 || proposal_data.is_empty() {
             return Err(SrtpError::MalformedHeader {
                 reason: "неподдерживаемый тип операции в op:27 Proposals",
             });
         }
+
+        if operation_type == 0 {
+            if proposal_data.starts_with(DAVE_PROPOSAL_MAGIC) {
+                if proposal_data.len() != 66 {
+                    self.last_verification_error = Some(MlsVerificationError::InvalidWireFormat);
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "некорректная длина структурированного MLS Proposal",
+                    });
+                }
+                let group_id = u64::from_be_bytes(
+                    proposal_data[8..16]
+                        .try_into()
+                        .expect("8-byte group_id slice"),
+                );
+                if group_id != self.channel_id {
+                    self.last_verification_error = Some(MlsVerificationError::UnexpectedGroupId {
+                        expected: self.channel_id,
+                        actual: group_id,
+                    });
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "MLS Proposal предназначен для другой группы (channel_id)",
+                    });
+                }
+                let prop_epoch = u64::from_be_bytes(
+                    proposal_data[16..24]
+                        .try_into()
+                        .expect("8-byte epoch slice"),
+                );
+                if prop_epoch != self.epoch {
+                    self.last_verification_error = Some(MlsVerificationError::EpochMismatch {
+                        expected: self.epoch,
+                        actual: prop_epoch,
+                    });
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "несовпадение эпохи в MLS Proposal",
+                    });
+                }
+                let sender_type = proposal_data[24];
+                let expected_sig = hkdf_sha1_16(
+                    &external_sender,
+                    &proposal_data[..50],
+                    b"Discord-MLS-ExternalSender-Sig",
+                );
+                if sender_type != 2 || !ct_eq(&proposal_data[50..66], &expected_sig) {
+                    self.last_verification_error =
+                        Some(MlsVerificationError::InvalidExternalSenderSignature);
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "неверная подпись внешнего отправителя в MLS Proposal",
+                    });
+                }
+                let prop_type = proposal_data[25];
+                if prop_type != (MlsProposalType::Add as u8)
+                    && prop_type != (MlsProposalType::Remove as u8)
+                {
+                    self.last_verification_error =
+                        Some(MlsVerificationError::InvalidProposalType(prop_type));
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "MLS Proposal должен иметь тип Add или Remove",
+                    });
+                }
+                let target_user_id = u64::from_be_bytes(
+                    proposal_data[26..34]
+                        .try_into()
+                        .expect("8-byte target_user_id slice"),
+                );
+                if !self.contains_user(target_user_id) {
+                    self.last_verification_error =
+                        Some(MlsVerificationError::UnrecognizedUserId(target_user_id));
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "MLS Proposal ссылается на нераспознанный user_id",
+                    });
+                }
+                let mut prop_ref = [0u8; 16];
+                prop_ref.copy_from_slice(&proposal_data[34..50]);
+                self.pending_proposals
+                    .push((prop_ref, proposal_data.to_vec()));
+            } else {
+                let prop_ref = hkdf_sha1_16(
+                    &external_sender,
+                    proposal_data,
+                    b"MLS 1.0 Proposal Reference",
+                );
+                self.pending_proposals
+                    .push((prop_ref, proposal_data.to_vec()));
+            }
+        } else if proposal_data.starts_with(DAVE_PROPOSAL_REVOKE_MAGIC) {
+            if proposal_data.len() < 10 {
+                self.last_verification_error = Some(MlsVerificationError::InvalidWireFormat);
+                return Err(SrtpError::MalformedHeader {
+                    reason: "обрезан структурированный отзыв MLS Proposal",
+                });
+            }
+            let count = usize::from(u16::from_be_bytes([proposal_data[8], proposal_data[9]]));
+            if proposal_data.len() != 10 + count * 16 {
+                self.last_verification_error = Some(MlsVerificationError::InvalidWireFormat);
+                return Err(SrtpError::MalformedHeader {
+                    reason: "некорректная длина списка proposal_ref при отзыве",
+                });
+            }
+            let mut refs_to_revoke = Vec::with_capacity(count);
+            for i in 0..count {
+                let start = 10 + i * 16;
+                let mut r = [0u8; 16];
+                r.copy_from_slice(&proposal_data[start..start + 16]);
+                if !self
+                    .pending_proposals
+                    .iter()
+                    .any(|(queued, _)| queued == &r)
+                {
+                    self.last_verification_error =
+                        Some(MlsVerificationError::UnrecognizedProposalRef(r));
+                    return Err(SrtpError::MalformedHeader {
+                        reason: "попытка отозвать неизвестный proposal_ref",
+                    });
+                }
+                refs_to_revoke.push(r);
+            }
+            self.pending_proposals
+                .retain(|(queued, _)| !refs_to_revoke.contains(queued));
+            if self.pending_proposals.is_empty() {
+                self.pending_commit = None;
+                self.last_verification_error = None;
+                return Ok(None);
+            }
+        } else {
+            self.pending_proposals.clear();
+        }
+
+        self.last_verification_error = None;
         let next_epoch = self.epoch.saturating_add(1);
-        let commit_body = self.compute_commit_welcome_body(next_epoch, external_sender);
+        let commit_body = self.compute_commit_welcome_body(next_epoch, &external_sender);
         self.pending_commit = Some(commit_body.clone());
 
         let mut frame = Vec::with_capacity(1 + commit_body.len());
         frame.push(crate::dave::OP_MLS_COMMIT_WELCOME);
         frame.extend_from_slice(&commit_body);
         Ok(Some(frame))
+    }
+
+    fn fail_commit_welcome(
+        &mut self,
+        transition_id: u16,
+        err: MlsVerificationError,
+    ) -> Result<DaveTransitionOutcome, SrtpError> {
+        self.last_verification_error = Some(err);
+        self.resets = self.resets.saturating_add(1);
+        if self.resets > DAVE_MAX_RESETS {
+            return Err(SrtpError::MalformedHeader {
+                reason: "исчерпан лимит восстановления DAVE MLS (resets > 3)",
+            });
+        }
+        self.epoch = 0;
+        self.srtp.set_dave_cipher(None);
+        self.ready = false;
+        self.waiting_for_peer = false;
+        self.pending_proposals.clear();
+        self.pending_commit = None;
+        self.pending_transition = None;
+        self.pending_protocol_transition = None;
+        self.pending_epoch_key = None;
+        self.pending_target_epoch = None;
+        self.active_epoch_secret = None;
+        self.epoch_authenticator = None;
+        self.user_ratchets.clear();
+
+        let op31_json = crate::dave::DaveInvalidCommitWelcome { transition_id }.to_json();
+        let fresh_key_package_op26 = self.key_package_op26();
+        Ok(DaveTransitionOutcome::InvalidCommitWelcome {
+            transition_id,
+            op31_json,
+            fresh_key_package_op26,
+        })
+    }
+
+    fn verify_roster(
+        &self,
+        roster_bytes: &[u8],
+        count: usize,
+    ) -> Result<Vec<u64>, MlsVerificationError> {
+        let mut roster = Vec::with_capacity(count);
+        for i in 0..count {
+            let start = i * 8;
+            let uid = u64::from_be_bytes(
+                roster_bytes[start..start + 8]
+                    .try_into()
+                    .expect("8-byte uid slice"),
+            );
+            if roster.contains(&uid) {
+                return Err(MlsVerificationError::DuplicateIdentityInRoster(uid));
+            }
+            if !self.contains_user(uid) {
+                return Err(MlsVerificationError::UnrecognizedUserId(uid));
+            }
+            roster.push(uid);
+        }
+        Ok(roster)
     }
 
     /// Обрабатывает бинарный `op:29 PrepareCommitTransition` или `op:30 Welcome`.
@@ -1327,49 +2121,158 @@ impl DaveMlsEngine {
             });
         };
 
-        let commit_matches = if opcode == crate::dave::OP_MLS_PREPARE_COMMIT_TRANSITION
-            && self.epoch == 0
-            && self.pending_commit.is_some()
-        {
-            self.pending_commit.as_deref() == Some(mls_body)
-        } else {
-            mls_body.len() >= 16 && mls_body.starts_with(b"DAVE1CMT")
+        let Some(external_sender) = self.external_sender.clone() else {
+            return self
+                .fail_commit_welcome(transition_id, MlsVerificationError::MissingExternalSender);
         };
 
-        if !commit_matches || self.external_sender.is_none() {
-            self.resets = self.resets.saturating_add(1);
-            if self.resets > DAVE_MAX_RESETS {
-                return Err(SrtpError::MalformedHeader {
-                    reason: "исчерпан лимит восстановления DAVE MLS (resets > 3)",
-                });
+        let (target_epoch, key_seed): (u64, Vec<u8>) = if mls_body
+            .starts_with(DAVE_STRUCTURED_COMMIT_MAGIC)
+        {
+            if self.pending_proposals.is_empty() {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::CommitWithoutQueuedProposals,
+                );
             }
-            self.epoch = 0;
-            self.srtp.set_dave_cipher(None);
-            self.ready = false;
-            self.waiting_for_peer = false;
-            self.pending_commit = None;
-            self.pending_transition = None;
-            self.pending_protocol_transition = None;
-            self.pending_epoch_key = None;
-
-            let op31_json = crate::dave::DaveInvalidCommitWelcome { transition_id }.to_json();
-            let fresh_key_package_op26 = self.key_package_op26();
-            return Ok(DaveTransitionOutcome::InvalidCommitWelcome {
-                transition_id,
-                op31_json,
-                fresh_key_package_op26,
-            });
-        }
+            if mls_body.len() < 8 + 8 + 8 + 2 + 24 {
+                return self
+                    .fail_commit_welcome(transition_id, MlsVerificationError::InvalidWireFormat);
+            }
+            let group_id = u64::from_be_bytes(mls_body[8..16].try_into().expect("8-byte group_id"));
+            if group_id != self.channel_id {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::UnexpectedGroupId {
+                        expected: self.channel_id,
+                        actual: group_id,
+                    },
+                );
+            }
+            let commit_epoch =
+                u64::from_be_bytes(mls_body[16..24].try_into().expect("8-byte epoch"));
+            let expected_epoch = self.epoch.saturating_add(1);
+            if commit_epoch != expected_epoch {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::EpochMismatch {
+                        expected: expected_epoch,
+                        actual: commit_epoch,
+                    },
+                );
+            }
+            let roster_count = usize::from(u16::from_be_bytes([mls_body[24], mls_body[25]]));
+            let expected_len = 26 + roster_count * 8 + 24;
+            if mls_body.len() != expected_len {
+                return self
+                    .fail_commit_welcome(transition_id, MlsVerificationError::InvalidWireFormat);
+            }
+            let roster =
+                match self.verify_roster(&mls_body[26..26 + roster_count * 8], roster_count) {
+                    Ok(r) => r,
+                    Err(e) => return self.fail_commit_welcome(transition_id, e),
+                };
+            let queued_props: Vec<Vec<u8>> = self
+                .pending_proposals
+                .iter()
+                .map(|(_, data)| data.clone())
+                .collect();
+            let expected_tag = compute_structured_confirmation_tag(
+                self.channel_id,
+                commit_epoch,
+                &external_sender,
+                &queued_props,
+                &roster,
+            );
+            let actual_tag = &mls_body[expected_len - 24..];
+            if !ct_eq(actual_tag, &expected_tag) {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::ConfirmationTagMismatch,
+                );
+            }
+            (commit_epoch, expected_tag.to_vec())
+        } else if mls_body.starts_with(DAVE_WELCOME_MAGIC) {
+            if mls_body.len() < 8 + 8 + 8 + 2 + 16 + 2 + 24 {
+                return self
+                    .fail_commit_welcome(transition_id, MlsVerificationError::InvalidWireFormat);
+            }
+            let group_id = u64::from_be_bytes(mls_body[8..16].try_into().expect("8-byte group_id"));
+            if group_id != self.channel_id {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::UnexpectedGroupId {
+                        expected: self.channel_id,
+                        actual: group_id,
+                    },
+                );
+            }
+            let welcome_epoch =
+                u64::from_be_bytes(mls_body[16..24].try_into().expect("8-byte epoch"));
+            let expected_epoch = self.epoch.saturating_add(1);
+            if welcome_epoch < expected_epoch {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::EpochMismatch {
+                        expected: expected_epoch,
+                        actual: welcome_epoch,
+                    },
+                );
+            }
+            let ext_sender_count = u16::from_be_bytes([mls_body[24], mls_body[25]]);
+            if ext_sender_count != 1 {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::UnexpectedExternalSenderCount(ext_sender_count),
+                );
+            }
+            let expected_ext_tag = compute_external_sender_tag(&external_sender);
+            if !ct_eq(&mls_body[26..42], &expected_ext_tag) {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::UnexpectedExternalSender,
+                );
+            }
+            let roster_count = usize::from(u16::from_be_bytes([mls_body[42], mls_body[43]]));
+            let expected_len = 44 + roster_count * 8 + 24;
+            if mls_body.len() != expected_len {
+                return self
+                    .fail_commit_welcome(transition_id, MlsVerificationError::InvalidWireFormat);
+            }
+            if let Err(e) = self.verify_roster(&mls_body[44..44 + roster_count * 8], roster_count) {
+                return self.fail_commit_welcome(transition_id, e);
+            }
+            let actual_tag = &mls_body[expected_len - 24..];
+            (welcome_epoch, actual_tag.to_vec())
+        } else {
+            let commit_matches = if opcode == crate::dave::OP_MLS_PREPARE_COMMIT_TRANSITION
+                && self.epoch == 0
+                && self.pending_commit.is_some()
+            {
+                self.pending_commit.as_deref() == Some(mls_body)
+            } else {
+                mls_body.len() >= 16 && mls_body.starts_with(b"DAVE1CMT")
+            };
+            if !commit_matches {
+                return self.fail_commit_welcome(
+                    transition_id,
+                    MlsVerificationError::ConfirmationTagMismatch,
+                );
+            }
+            (self.epoch.saturating_add(1), mls_body.to_vec())
+        };
 
         self.epochs_budget = self.epochs_budget.saturating_add(1);
         if self.epochs_budget > DAVE_MAX_EPOCH_TRANSITIONS {
             return Err(SrtpError::CounterOverflow);
         }
 
-        let next_epoch = self.epoch.saturating_add(1);
-        let epoch_key = self.derive_epoch_key(next_epoch, mls_body);
+        self.last_verification_error = None;
+        let epoch_key = self.derive_epoch_key(target_epoch, &key_seed);
         self.pending_epoch_key = Some(epoch_key);
+        self.pending_target_epoch = Some(target_epoch);
         self.pending_transition = Some(transition_id);
+        self.pending_proposals.clear();
         self.pending_commit = None;
 
         if transition_id == 0 {
@@ -1418,6 +2321,22 @@ impl DaveMlsEngine {
         }
     }
 
+    fn activate_epoch_state(&mut self, epoch: u64, epoch_key: [u8; 32]) {
+        self.epoch = epoch;
+        self.active_epoch_secret = Some(epoch_key);
+        let mut salt = [0u8; 16];
+        salt[..8].copy_from_slice(&self.channel_id.to_be_bytes());
+        salt[8..16].copy_from_slice(&epoch.to_be_bytes());
+        self.epoch_authenticator = Some(hkdf_sha1_32(&epoch_key, &salt, DAVE_MLS_EPOCH_AUTH_LABEL));
+        self.user_ratchets.clear();
+        for &uid in &self.recognized_users {
+            self.user_ratchets
+                .insert(uid, MlsKeyRatchet::new(epoch, uid, &epoch_key));
+        }
+        self.srtp
+            .set_dave_cipher(Some(DaveMediaCipher::with_epoch(epoch, &epoch_key)));
+    }
+
     /// Обрабатывает JSON `op:22 ExecuteTransition`: активирует подготовленную эпоху DAVE MLS
     /// и обновляет `DaveMediaCipher` внутри `SrtpContext`.
     pub fn on_execute_transition_op22(&mut self, transition_id: u16) -> Result<u64, SrtpError> {
@@ -1432,15 +2351,15 @@ impl DaveMlsEngine {
             self.pending_protocol_transition = None;
         }
         if let Some(epoch_key) = self.pending_epoch_key.take() {
-            self.epoch = self.epoch.saturating_add(1);
-            self.srtp
-                .set_dave_cipher(Some(DaveMediaCipher::with_epoch(self.epoch, &epoch_key)));
+            let target_epoch = self
+                .pending_target_epoch
+                .take()
+                .unwrap_or_else(|| self.epoch.saturating_add(1));
+            self.activate_epoch_state(target_epoch, epoch_key);
         } else if self.epoch == 0 {
             let next_epoch = 1;
             let fallback_key = self.derive_epoch_key(next_epoch, b"DAVE1CMT-DEFAULT");
-            self.epoch = next_epoch;
-            self.srtp
-                .set_dave_cipher(Some(DaveMediaCipher::with_epoch(self.epoch, &fallback_key)));
+            self.activate_epoch_state(next_epoch, fallback_key);
         }
         self.pending_transition = None;
         self.ready = true;
@@ -1536,9 +2455,12 @@ impl DaveMlsEngine {
         // Вариант 1: классический _rtpsize (полный заголовок RTP + 0xBEDE расширение в открытом AAD)
         if let Ok(clear_len) = rtp_header_len(packet)
             && clear_len <= tail_start
-            && let Ok(mut dave_frame) =
-                self.srtp
-                    .open(&packet[clear_len..tail_start], tag, &packet[..clear_len], trailer)
+            && let Ok(mut dave_frame) = self.srtp.open(
+                &packet[clear_len..tail_start],
+                tag,
+                &packet[..clear_len],
+                trailer,
+            )
         {
             if has_padding {
                 strip_rtp_padding(&mut dave_frame)?;
@@ -1582,9 +2504,12 @@ impl DaveMlsEngine {
                 packet[base_hdr + 3],
             ]));
             let ext_body_len = ext_words * 4;
-            let mut opened =
-                self.srtp
-                    .open(&packet[aad_len..tail_start], tag, &packet[..aad_len], trailer)?;
+            let mut opened = self.srtp.open(
+                &packet[aad_len..tail_start],
+                tag,
+                &packet[..aad_len],
+                trailer,
+            )?;
             if opened.len() < ext_body_len {
                 return Err(SrtpError::MalformedHeader {
                     reason: "тело расширения 0xBEDE длиннее расшифрованного кадра",
