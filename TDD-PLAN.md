@@ -410,6 +410,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/composer.test.mjs` | `rust/gui-spike/ui/features/composer.js` | `ATTACH_LIMITS`, `ATTACH_TEXT`, `GIFT_TEXT`, `createComposer`, `formatBytes` |
 | `tests/unit/server-menu.test.mjs` | `rust/gui-spike/ui/features/actions.js` | `MENU_LABELS`, `REASONS`, `loadApp` |
 | `tests/unit/account-dynamic-sync.test.mjs` | — | — |
+| `tests/unit/advanced-settings.test.mjs` | `rust/gui-spike/ui/features/advanced-settings.js` | `createAdvancedSettingsController`, `detectKeybindConflicts`, `resolveEntranceSoundForGuild`, `normalizeClipLengthSeconds` |
 | `tests/unit/appearance-settings.test.mjs` | — | — |
 | `tests/unit/attachment-helper.test.mjs` | — | — |
 | `tests/unit/attachment-validator.test.mjs` | — | — |
