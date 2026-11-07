@@ -1,0 +1,42 @@
+# C-02-UI-OLDER fix — RED (P1, геометрический тест до фикса)
+# date: 2026-10-30T16:13:18+05:00
+# HEAD: 4e240481e59ff4d49732ac8bd5ba08a006363748
+# md5 chat.js: 7098d413402c7cc6035f825bc347a286  rust/gui-spike/ui/features/chat.js
+# md5 tests/unit/channel-paging.test.mjs: ae6c0df6bc54e89c97a72c41815448e4  tests/unit/channel-paging.test.mjs
+# command: node --test --test-reporter=spec --test-name-pattern="геометрия prepend" tests/unit/channel-paging.test.mjs
+# ожидание: компенсация по неполному DOM = 424 вместо 484 (недоучтены 60 px двух полос: 2 × 30)
+
+▶ C-02-UI-OLDER: геометрия prepend
+  ✖ prepend компенсирует высоту строки после восстановления обеих полос (46.994671ms)
+  ✔ пересечение страниц: повтор граничной строки не даёт дубля (12.971639ms)
+✖ C-02-UI-OLDER: геометрия prepend (60.885117ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 107.37765
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:837:3
+✖ prepend компенсирует высоту строки после восстановления обеих полос (46.994671ms)
+  AssertionError [ERR_ASSERTION]: prepend не скомпенсировал высоту вставленной строки: измерение шло без восстановленных полос
+  
+  424 !== 484
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:873:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 424,
+    expected: 484,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1

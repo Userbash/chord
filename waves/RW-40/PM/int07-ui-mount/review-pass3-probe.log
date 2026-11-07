@@ -1,0 +1,23 @@
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+OK   voiceDevices===null на старте
+OK   #settings-modal скрыт вне voice? (старт voice)
+OK   #voice-devices hidden
+OK   пометка видна
+OK   expand aria-expanded=false
+OK   тумблеров в диалоге (ожидание 38): 38
+OK   контроллер смонтирован после клика
+OK   секция показана
+OK   data-preliminary=true
+OK   тумблеров после раскрытия: 41
+OK   PTT mode
+OK   PTT key=K
+OK   outputVolume=155
+OK   новые IPC после действий: []
+OK   showPane('Внешний вид') скрыл панель
+OK   showPane('Голос и видео') вернул панель
+OK   повторный клик свернул секцию
+OK   пометка остаётся видимой
+
+ИТОГ: 18/18 OK
+PROBE_EXIT=0

@@ -1,0 +1,248 @@
+BASELINE_FILE=rust/gui-spike/ui/app.js
+BASELINE_MD5=d3a3efe6b18ecfe6fe004e81a81ba961
+
+========================================================================
+MUTATION=MUT-1-voice-devices-empty-list
+TARGET='devices: DEFAULT_VOICE_DEVICES,'
+REPLACEMENT='devices: [],'
+MUTANT_MD5=c0ac89f7f9ead40ff91ca348a0a0f524
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (11.907708ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.37519ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (76.980059ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✖ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (10.234677ms)
+  ✔ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (14.288999ms)
+✖ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (24.654116ms)
+ℹ tests 102
+ℹ suites 14
+ℹ pass 101
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1473.783035
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:3624:3
+✖ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (10.234677ms)
+  AssertionError [ERR_ASSERTION]: не выбрано входное устройство по умолчанию
+      at file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3651:14
+      at withApp (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:112:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3625:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+MUTANT_EXIT_CODE=1
+VERDICT=KILLED
+RESTORED_MD5=d3a3efe6b18ecfe6fe004e81a81ba961 (match=True)
+
+========================================================================
+MUTATION=MUT-2-guild-notif-wrong-guild-id
+TARGET='guildId: guild.id,'
+REPLACEMENT='guildId: "@me",'
+MUTANT_MD5=8668d52282b8882cd1745f8a4bbede84
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (9.946757ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (12.077748ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.17954ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (76.913989ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (10.572247ms)
+  ✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (12.213627ms)
+✖ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (23.253405ms)
+ℹ tests 102
+ℹ suites 14
+ℹ pass 101
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1477.432097
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:3676:3
+✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (12.213627ms)
+  AssertionError [ERR_ASSERTION]: guildId в контроллере не 777
+  
+  '@me' !== '777'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3740:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '@me',
+    expected: '777',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+MUTANT_EXIT_CODE=1
+VERDICT=KILLED
+RESTORED_MD5=d3a3efe6b18ecfe6fe004e81a81ba961 (match=True)
+
+========================================================================
+MUTATION=MUT-3-guild-notif-drop-tree-channels
+TARGET='channels: currentGuildChannels(),'
+REPLACEMENT='channels: [],'
+MUTANT_MD5=61dc282f7043fee35aa4ed915121ce19
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (12.037868ms)
+  ✔ dispose останавливает поллинг net_status, refresh после dispose — no-op (9.788876ms)
+  ✔ без auth ready нет поллинга net_status (гейт не пройден) (10.965887ms)
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (9.856366ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (9.660967ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.16978ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (72.072436ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (11.907967ms)
+  ✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (11.767088ms)
+✖ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (24.141035ms)
+ℹ tests 102
+ℹ suites 14
+ℹ pass 101
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1458.689884
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:3676:3
+✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (11.767088ms)
+  AssertionError [ERR_ASSERTION]: селект каналов в модалке не заполнен каналами из tree.channels
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3754:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+MUTANT_EXIT_CODE=1
+VERDICT=KILLED
+RESTORED_MD5=d3a3efe6b18ecfe6fe004e81a81ba961 (match=True)
+
+========================================================================
+MUTATION=MUT-4-tree-contextmenu-drop-channel-menu
+TARGET='openChannelNotifications(channel.id, button);'
+REPLACEMENT='openChannelNotifications("", button);'
+MUTANT_MD5=0db368286400efcd8bb9f9ddd2a4d093
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (10.021616ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (10.064567ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.17184ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (74.098268ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (12.583198ms)
+  ✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (12.660128ms)
+✖ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (25.716276ms)
+ℹ tests 102
+ℹ suites 14
+ℹ pass 101
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1451.284558
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:3676:3
+✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (12.660128ms)
+  AssertionError [ERR_ASSERTION]: contextmenu по каналу не открыл #channel-notif-menu
+  
+  '' !== null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3774:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+MUTANT_EXIT_CODE=1
+VERDICT=KILLED
+RESTORED_MD5=d3a3efe6b18ecfe6fe004e81a81ba961 (match=True)
+
+========================================================================
+MUTATION=MUT-5-inbox-bell-ignore-chat-channel-id
+TARGET='chat.channelId ||'
+REPLACEMENT='"" ||'
+MUTANT_MD5=801dcb51687db664bccb1cddcf045c88
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (10.114717ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (12.747788ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.18769ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (77.76858ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (10.929837ms)
+  ✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (14.98ms)
+✖ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (26.363487ms)
+ℹ tests 102
+ℹ suites 14
+ℹ pass 101
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1484.085879
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:3676:3
+✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (14.98ms)
+  AssertionError [ERR_ASSERTION]: #channel-notif-menu при открытии из шапки чата не получил chat.channelId
+  
+  'cat-10' !== 'ch-102'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3809:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'cat-10',
+    expected: 'ch-102',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+MUTANT_EXIT_CODE=1
+VERDICT=KILLED
+RESTORED_MD5=d3a3efe6b18ecfe6fe004e81a81ba961 (match=True)
+
+========================================================================
+SUMMARY: 5/5 KILLED
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (12.454718ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.18179ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (79.855481ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (10.178806ms)
+  ✔ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (14.170879ms)
+✔ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (24.447446ms)
+ℹ tests 102
+ℹ suites 14
+ℹ pass 102
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1501.906419
+FINAL_CONTROL_EXIT_CODE=0
+FINAL_MD5=d3a3efe6b18ecfe6fe004e81a81ba961 (match=True)

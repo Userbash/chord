@@ -1,0 +1,28 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-142-ws-outbound-wiring/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s
+     Running tests/ws_transport.rs (/home/sanya/orca/project/rust/target/debug/deps/ws_transport-f0acdecf80584772)
+
+running 19 tests
+test gateway_url_builds_canonical_endpoint ... ok
+test gateway_url_normalizes_resume_url ... ok
+test gateway_url_rejects_bad_input ... ok
+test heartbeat_encode_roundtrip ... ok
+test pipe_missing_magic_is_error ... ok
+test qos_heartbeat_encode_shape ... ok
+test pipe_hello_from_encoded_stream ... ok
+test pipe_desync_tail_is_error ... ok
+test pipe_buffers_partial_term ... ok
+test ws_legacy_heartbeat_op1_fallback ... ok
+test ws_closed_after_stub_close ... ok
+test ws_text_messages_counted ... ok
+test ws_server_reconnect_op7 ... ok
+test lab_capture_stream_feeds_pipe ... ok
+test ws_ping_gets_pong ... ok
+test ws_dispatch_updates_heartbeat_seq ... ok
+test ws_server_op1_triggers_immediate_qos_heartbeat ... ok
+test ws_hello_and_heartbeats_acked ... ok
+test ws_zombie_without_ack ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+EXIT_IT=0

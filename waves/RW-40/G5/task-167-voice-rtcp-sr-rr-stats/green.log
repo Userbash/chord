@@ -1,0 +1,69 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
+
+running 14 tests
+test reception::tests::extension_sequence_wraps_forward ... ok
+test reconnect::tests::backoff_index_is_clamped_to_last_entry ... ok
+test reconnect::tests::attempt_saturates_at_u32_max_without_overflow ... ok
+test rtcp::tests::i24_sign_extension ... ok
+test stats::tests::ntp_middle_is_high_word ... ok
+test tests::voice_constants_match_re ... ok
+test session::tests::hello_and_ready_select_xchacha_over_aes_and_encode_74b_udp_discovery_request ... ok
+test session::tests::speaking_op5_and_heartbeat_op3_op6_ack_and_timeout_detection ... ok
+test session::tests::start_from_server_and_state_updates_builds_op0_identify_and_redacts_secrets ... ok
+test session::tests::discovery_response_decodes_74b_and_automatically_builds_op1_select_protocol ... ok
+test srtp::tests::xchacha20_poly1305_rtpsize_byte_format_uses_raw_op4_secret_key_and_trailer_nonce ... ok
+test srtp::tests::aes256_gcm_rtpsize_byte_format_uses_raw_op4_secret_key_and_trailer_nonce ... ok
+test session::tests::op4_session_description_initializes_live_srtp_and_encrypts_decrypts_media_frames ... ok
+test srtp::tests::rtpsize_roundtrip_between_independent_contexts_with_direct_op4_secret_key ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/rtcp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtcp_contract-7dc3be166e1775b8)
+
+running 16 tests
+test compound_at_the_limit_is_accepted ... ok
+test compound_packet_limit_is_enforced ... ok
+test compound_report_and_sdes_are_both_parsed ... ok
+test cumulative_loss_extremes_are_sign_extended ... ok
+test impossible_length_for_receiver_report_is_rejected ... ok
+test padding_bit_is_rejected_explicitly ... ok
+test real_receiver_report_keeps_encrypted_block_and_detects_trailer ... ok
+test real_sender_report_parses_sender_info_and_20_byte_trailer ... ok
+test empty_input_is_an_empty_compound ... ok
+test sender_report_without_sender_info_is_invalid ... ok
+test session2_receiver_report_has_20_byte_trailer ... ok
+test synthetic_report_block_uses_24_bit_signed_cumulative_loss ... ok
+test trailer_that_starts_with_version_two_is_not_mistaken_for_rtcp ... ok
+test truncated_packet_reports_required_size ... ok
+test unknown_payload_types_are_opaque_not_errors ... ok
+test wrong_version_on_first_packet_is_an_error ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/stats_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/stats_contract-451fd10ac6a48c5d)
+
+running 20 tests
+test clear_sender_report_28_byte_builder_and_compound_parse ... ok
+test negative_rtt_is_clamped_to_zero ... ok
+test rtcp_sender_scheduler_5000ms_interval ... ok
+test ntp_middle_uses_high_word ... ok
+test rtt_subtracts_dlsr ... ok
+test rtt_with_25_percent_dlsr ... ok
+test rtt_without_dlsr_is_plain_round_trip ... ok
+test server_receiver_report_52_byte_wire_layout_parsing_and_roundtrip ... ok
+test session_stats_records_loss_jitter_and_rtt_on_report_block ... ok
+test session_stats_safe_counting_without_key ... ok
+test session_stats_with_key_updates_all_metrics ... ok
+test srtcp_sender_report_60_byte_wire_layout_matches_re_oracle ... ok
+test stats_sample_from_report_block_calculates_fraction_cumulative_and_jitter_ms ... ok
+test unknown_or_zero_lsr_returns_none ... ok
+test window_average_and_max_ignore_missing_rtt ... ok
+test window_keeps_capacity_and_reports_latest ... ok
+test window_loss_delta_can_be_negative_after_stream_restart ... ok
+test window_loss_delta_uses_first_and_last_sample ... ok
+test window_with_single_sample_has_no_loss_delta_or_rtt ... ok
+test zero_capacity_window_is_treated_as_one ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

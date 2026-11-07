@@ -1,0 +1,40 @@
+=== RED 1/2: baseline (prod = 22 kind, before test sync) ===
+
+2026-10-31T06:49:37Z
+$ node --test tests/unit/dispatch_ui.test.mjs
+✖ failing tests:
+
+test at tests/unit/dispatch_ui.test.mjs:264:3
+✖ A2: FORWARDED_KINDS — 21 имя DispatchKind::as_str + MESSAGE_REACTION_REMOVE (1.0035ms)
+  AssertionError [ERR_ASSERTION]: CHANNEL_CREATE форвардится бэкендом, но отбрасывается UI
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:279:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+=== RED 2/2: после синхронизации оракула теста, прод ещё 22 kind ===
+
+2026-10-31T06:50:02Z
+$ node --test tests/unit/dispatch_ui.test.mjs
+✖ L-02-UI: контракт dispatch (A1–A3) (4.595912ms)
+✖ L-02-UI: проекции dispatch (B) (25.559051ms)
+ℹ tests 58
+ℹ pass 56
+ℹ fail 2
+✖ failing tests:
+✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (0.815921ms)
+  AssertionError [ERR_ASSERTION]: в UI не 30 kind
+✖ B14b: 8 расширенных событий приняты моделью — skipped, не ignored (0.13473ms)
+  AssertionError [ERR_ASSERTION]: MESSAGE_DELETE форвардится бэкендом, но отбрасывается UI

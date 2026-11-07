@@ -87,6 +87,26 @@ pub fn apply(mut state: State, event: Event) -> (State, Effects) {
         EventPayload::TypingStart(start) => {
             super::typing::reducer::apply_start(&mut state, start);
         }
+        EventPayload::MessageDelete(ev) => {
+            state.messages.remove(&ev.id);
+        }
+        EventPayload::MessageDeleteBulk(ev) => {
+            for id in &ev.ids {
+                state.messages.remove(id);
+            }
+        }
+        EventPayload::ChannelCreate(ev) | EventPayload::ChannelUpdate(ev) => {
+            apply_channel_upsert(&mut state, ev);
+        }
+        EventPayload::ChannelDelete(ev) => {
+            apply_channel_delete(&mut state, &ev);
+        }
+        EventPayload::ThreadCreate(ev) | EventPayload::ThreadUpdate(ev) => {
+            apply_thread_upsert(&mut state, ev);
+        }
+        EventPayload::ThreadDelete(ev) => {
+            apply_thread_delete(&mut state, &ev);
+        }
         EventPayload::Unsupported(kind) => {
             state
                 .diagnostics
@@ -434,4 +454,137 @@ fn apply_message_patch(state: &mut State, patch: MessagePatch) {
         .inconsistencies
         .push(format!("messages:{}:updated-before-create", patch.id));
     insert_message(state, message);
+}
+
+fn apply_channel_upsert(state: &mut State, ev: crate::dispatch::ChannelLifecycleDispatch) {
+    let channel_id = ev.id;
+    let Some(guild_id) = ev.guild_id else {
+        state
+            .diagnostics
+            .inconsistencies
+            .push(format!("channels:{channel_id}:missing_guild"));
+        return;
+    };
+
+    if !state.guilds.contains_key(&guild_id) {
+        state
+            .diagnostics
+            .inconsistencies
+            .push(format!("guilds:{guild_id}:missing"));
+        return;
+    }
+
+    if let Some(previous) = state.channel_guild.get(&channel_id).copied()
+        && previous != guild_id
+    {
+        if let Some(old_guild) = state.guilds.get_mut(&previous) {
+            old_guild
+                .channels
+                .retain(|existing| existing.id != channel_id);
+        }
+        state.diagnostics.inconsistencies.push(format!(
+            "channels:{channel_id}:guilds:{previous}->{guild_id}"
+        ));
+    }
+
+    let guild = state
+        .guilds
+        .get_mut(&guild_id)
+        .expect("наличие проверено выше");
+    if let Some(existing) = guild.channels.iter_mut().find(|c| c.id == channel_id) {
+        if let Some(name) = ev.name {
+            existing.name = Some(name);
+        }
+        if let Some(kind) = ev.kind {
+            existing.channel_type = kind;
+        }
+        if ev.parent_id.is_some() {
+            existing.parent_id = ev.parent_id;
+        }
+    } else {
+        guild.channels.push(crate::ready::Channel {
+            id: channel_id,
+            channel_type: ev.kind.unwrap_or(0),
+            name: ev.name,
+            parent_id: ev.parent_id,
+            ..crate::ready::Channel::default()
+        });
+    }
+    state.channel_guild.insert(channel_id, guild_id);
+}
+
+fn apply_channel_delete(state: &mut State, ev: &crate::dispatch::ChannelLifecycleDispatch) {
+    let channel_id = ev.id;
+    let target_guild = state.channel_guild.remove(&channel_id).or(ev.guild_id);
+    if let Some(guild_id) = target_guild {
+        if let Some(guild) = state.guilds.get_mut(&guild_id) {
+            guild.channels.retain(|c| c.id != channel_id);
+        }
+    } else {
+        for guild in state.guilds.values_mut() {
+            guild.channels.retain(|c| c.id != channel_id);
+        }
+    }
+    state.messages.retain(|_, msg| msg.channel_id != channel_id);
+    let child_threads: Vec<u64> = state
+        .threads
+        .iter()
+        .filter(|(_, th)| th.parent_id == Some(channel_id))
+        .map(|(&id, _)| id)
+        .collect();
+    for thread_id in child_threads {
+        state.threads.remove(&thread_id);
+        state.thread_guild.remove(&thread_id);
+        state.messages.retain(|_, msg| msg.channel_id != thread_id);
+    }
+}
+
+fn apply_thread_upsert(state: &mut State, ev: crate::dispatch::ThreadLifecycleDispatch) {
+    let thread_id = ev.id;
+    let guild_id = ev
+        .guild_id
+        .or_else(|| state.thread_guild.get(&thread_id).copied());
+
+    if let Some(gid) = ev.guild_id {
+        if let Some(previous) = state.thread_guild.get(&thread_id).copied()
+            && previous != gid
+        {
+            state
+                .diagnostics
+                .inconsistencies
+                .push(format!("threads:{thread_id}:guilds:{previous}->{gid}"));
+        }
+        state.thread_guild.insert(thread_id, gid);
+    }
+
+    if let Some(existing) = state.threads.get_mut(&thread_id) {
+        if let Some(gid) = guild_id {
+            existing.guild_id = gid;
+        }
+        if let Some(name) = ev.name {
+            existing.name = Some(name);
+        }
+        if let Some(kind) = ev.kind {
+            existing.thread_type = kind;
+        }
+        if ev.parent_id.is_some() {
+            existing.parent_id = ev.parent_id;
+        }
+    } else {
+        let thread = super::types::Thread {
+            id: thread_id,
+            guild_id: guild_id.unwrap_or(0),
+            parent_id: ev.parent_id,
+            name: ev.name,
+            thread_type: ev.kind.unwrap_or(11),
+            ..super::types::Thread::default()
+        };
+        state.threads.insert(thread_id, thread);
+    }
+}
+
+fn apply_thread_delete(state: &mut State, ev: &crate::dispatch::ThreadLifecycleDispatch) {
+    state.threads.remove(&ev.id);
+    state.thread_guild.remove(&ev.id);
+    state.messages.retain(|_, msg| msg.channel_id != ev.id);
 }

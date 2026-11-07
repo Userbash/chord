@@ -1,0 +1,64 @@
+# MUTATION: 2026-10-31T03:31:09+08:00
+# baseline lib.rs md5=201b0e576a62032adfb331a12c6c18c2
+
+## M1-schedule-first-delay:     2_000, 3_000, 3_000, 4_000, 5_000, 7_000, 10_000, 12_000, 15_000,  ->      2_500, 3_000, 3_000, 4_000, 5_000, 7_000, 10_000, 12_000, 15_000,
+# mutant md5=2c6c8c26849940f78f309a6b20e78ea4
+test scheduled_backoff_clamps_to_max_k ... FAILED
+test scheduled_backoff_retry_seconds_k ... FAILED
+test scheduled_backoff_sequence_k ... FAILED
+test updater_endpoint_constants_k ... FAILED
+failures:
+failures:
+test result: FAILED. 42 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `-p discord-updater --test updater_contract`
+# exit=101
+VERDICT: KILLED
+# restored md5=201b0e576a62032adfb331a12c6c18c2 (expected 201b0e576a62032adfb331a12c6c18c2)
+
+## M2-disable-flag:     disable_flag || (release_channel == ReleaseChannel::Development && standalone_or_local_modules)  ->      release_channel == ReleaseChannel::Development && standalone_or_local_modules
+# mutant md5=4734540354fc9624d91f75ccdc26ca0a
+test should_disable_updater_k ... FAILED
+failures:
+failures:
+test result: FAILED. 45 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `-p discord-updater --test updater_contract`
+# exit=101
+VERDICT: KILLED
+# restored md5=201b0e576a62032adfb331a12c6c18c2 (expected 201b0e576a62032adfb331a12c6c18c2)
+
+## M3-no-max-clamp:         SCHEDULED_UPDATE_BACKOFF_MS[index].min(self.max_ms)  ->          SCHEDULED_UPDATE_BACKOFF_MS[index]
+# mutant md5=06f044094cad958cd08d42f19ad6ca5c
+test scheduled_backoff_clamps_to_max_k ... FAILED
+failures:
+failures:
+test result: FAILED. 45 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-updater --test updater_contract`
+# exit=101
+VERDICT: KILLED
+# restored md5=201b0e576a62032adfb331a12c6c18c2 (expected 201b0e576a62032adfb331a12c6c18c2)
+
+## M4-manually-uppercase:             Self::UpdateManually { .. } => "update-manually",  ->              Self::UpdateManually { .. } => "UPDATE_MANUALLY",
+# mutant md5=8da59b26132b3bca9de3b5c513449790
+test splash_update_state_event_names_k ... FAILED
+failures:
+failures:
+test result: FAILED. 45 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-updater --test updater_contract`
+# exit=101
+VERDICT: KILLED
+# restored md5=201b0e576a62032adfb331a12c6c18c2 (expected 201b0e576a62032adfb331a12c6c18c2)
+
+## M5-feed-no-trailing-trim:     let authority_and_path = rest.trim_end_matches('/');  ->      let authority_and_path = rest;
+# mutant md5=4367fd56d17e85693904a25f1e2f87e4
+test linux_feed_url_k ... FAILED
+test modules_base_url_k ... FAILED
+test url_builders_reject_bad_endpoint_k ... FAILED
+failures:
+failures:
+test result: FAILED. 43 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `-p discord-updater --test updater_contract`
+# exit=101
+VERDICT: KILLED
+# restored md5=201b0e576a62032adfb331a12c6c18c2 (expected 201b0e576a62032adfb331a12c6c18c2)
+
+# final lib.rs md5=201b0e576a62032adfb331a12c6c18c2

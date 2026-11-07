@@ -1,0 +1,24 @@
+OK   rust/gui-spike/src/automod.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test automod_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/bff_domains_router.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/dm_channels.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test dm_channels_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/expressions.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test expressions_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/forum.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test forum_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/ipc_ext.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test ipc_ext_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/moderation.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test moderation_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/onboarding.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test onboarding_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/polls.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test polls_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/profile.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/profile_ext.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test profile_ext_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/relationships.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test relationships_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/roles.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test roles_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/scheduled_events.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test scheduled_events_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/slash_commands.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test slash_commands_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/soundboard.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test soundboard_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/stage_instances.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test stage_instances_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   rust/gui-spike/src/webhooks.rs → cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test webhooks_contract --test ipc_contract | tier=T1 (batch) | files=true
+OK   ui/features/shell-controllers-registry.js → tests/unit/shell-controllers-registry.test.mjs, tests/unit/gui-spike-dom.test.mjs, tests/unit/gui-spike-features.test.mjs | tier=T0 (targeted) | geometry=false | files=true
+OK   ui/features/chat-helpers-bridge.js → tests/unit/chat-helpers-bridge.test.mjs, tests/unit/gui-spike-dom.test.mjs, tests/unit/gui-spike-features.test.mjs | tier=T0 (targeted) | geometry=false | files=true
+OK   ui/features/composer-popovers-bridge.js → tests/unit/composer-popovers-bridge.test.mjs, tests/unit/gui-spike-dom.test.mjs, tests/unit/gui-spike-features.test.mjs | tier=T0 (targeted) | geometry=false | files=true
+OK   ui/features/app-shell-wiring.js → tests/unit/app-shell-wiring.test.mjs, tests/unit/gui-spike-dom.test.mjs, tests/unit/gui-spike-features.test.mjs | tier=T0 (targeted) | geometry=false | files=true
+
+итого: 18+4 OK

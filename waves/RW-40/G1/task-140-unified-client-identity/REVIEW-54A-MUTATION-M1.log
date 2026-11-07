@@ -1,0 +1,70 @@
+# M1: launch_signature := client_launch_id (launch_signature: properties.launch_signature.clone(),
+# file: rust/crates/discord-core/src/identify.rs
+# exit: 101
+
+$ cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+
+
+running 8 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test tests::gateway_constants_match_capture ... ok
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... FAILED
+test identify::tests::client_identity_drives_identify_properties ... FAILED
+test identify::tests::rw_client_identity_matches_identify_defaults ... FAILED
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... FAILED
+
+failures:
+
+---- rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids stdout ----
+
+thread 'rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids' (1483635) panicked at crates/discord-core/src/rest/identity.rs:494:9:
+assertion `left == right` failed
+  left: "00010203-0405-4607-8809-0a0b0c0d0e0f"
+ right: "10111213-1415-4617-9819-1a1b1c1d1e1f"
+
+---- identify::tests::client_identity_drives_identify_properties stdout ----
+
+thread 'identify::tests::client_identity_drives_identify_properties' (1483631) panicked at crates/discord-core/src/identify.rs:437:9:
+assertion `left == right` failed: launch_signature уходит и в OP2, и в X-Super-Properties
+  left: "11111111-2222-4333-8444-555555555555"
+ right: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- identify::tests::rw_client_identity_matches_identify_defaults stdout ----
+
+thread 'identify::tests::rw_client_identity_matches_identify_defaults' (1483633) panicked at crates/discord-core/src/identify.rs:437:9:
+assertion `left == right` failed: launch_signature уходит и в OP2, и в X-Super-Properties
+  left: "7947fe0f-d504-48fb-8878-149c334a8a0d"
+ right: "751e4cf4-af53-4ff2-9815-5a7bb54853bd"
+
+---- identify::tests::identify_wire_matches_super_properties_byte_for_byte stdout ----
+
+thread 'identify::tests::identify_wire_matches_super_properties_byte_for_byte' (1483632) panicked at crates/discord-core/src/identify.rs:484:13:
+assertion `left == right` failed: поле launch_signature в OP2 IDENTIFY обязано совпадать с X-Super-Properties
+  left: Some("11111111-2222-4333-8444-555555555555")
+ right: Some("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee")
+
+
+failures:
+    identify::tests::client_identity_drives_identify_properties
+    identify::tests::identify_wire_matches_super_properties_byte_for_byte
+    identify::tests::rw_client_identity_matches_identify_defaults
+    rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids
+
+test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling ring v0.17.14
+   Compiling zstd-sys v2.1.2+zstd.1.5.7
+   Compiling rustls v0.23.46
+   Compiling zstd-safe v8.2.0
+   Compiling zstd v0.14.3
+   Compiling rustls-webpki v0.103.15
+   Compiling tungstenite v0.30.0
+   Compiling tokio-rustls v0.26.6
+   Compiling tokio-tungstenite v0.30.0
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.64s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+error: test failed, to rerun pass `-p discord-core --lib`

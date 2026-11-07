@@ -129,3 +129,10 @@ QA-M2-05/07, SEC fix, merge-06, QA-DEDUP. P1B — M-07 UI, G-01b UI, P-03 verify
 C-07, G-05, live reactions/invites. P2 — V-01 impl, Opus/ALSA, ST-01, STREAM.
 Текущая волна 4 writer + 3 read-only + Codex review; новые задачи выдаются по
 завершении, без простоя. P0 live остаётся blocked окном.
+
+## D-152. POOL-06: mutation/gate/merge wave (2026-10-24)
+
+После push `4e24048` активны: L02-UI-MUTATION (G2), TSC-FIX (G4), G-01b contract (G1),
+SEC-L02 (G4b), QA-M2-04 verify (G5), MERGE-READINESS-06 (G6), G3-STREAM-FIX (G3),
+Codex review C02 UI. Цель — mutation evidence, tsc 0, gate-green, accepted set и merge.
+Один cargo (G1); writer-файлы не пересекаются. P0 live по-прежнему blocked окном.

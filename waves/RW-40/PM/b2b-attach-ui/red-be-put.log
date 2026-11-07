@@ -1,0 +1,122 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::attachments::upload_attachment_bytes`, `discord_gui_spike::attachments::upload_put_input`, `discord_gui_spike::attachments::UploadBytes`, `discord_gui_spike::attachments::UploadPutInput`, `discord_gui_spike::attachments::DEFAULT_UPLOAD_CONTENT_TYPE`
+  --> tests/attachments_contract.rs:21:5
+   |
+21 |     upload_attachment_bytes, upload_put_input, AttachmentError, AttachmentFileSpec,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^ no `upload_put_input` in `attachments`
+   |     |
+   |     no `upload_attachment_bytes` in `attachments`
+22 |     AttachmentTransport, AttachmentUploadSlot, DiscordAttachments, GuildBoostTier, UploadBytes,
+   |                                                                                    ^^^^^^^^^^^ no `UploadBytes` in `attachments`
+23 |     UploadPutInput, UploadedAttachment, DEFAULT_UPLOAD_CONTENT_TYPE, MAX_ATTACHMENTS_PER_MESSAGE,
+   |     ^^^^^^^^^^^^^^                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `DEFAULT_UPLOAD_CONTENT_TYPE` in `attachments`
+   |     |
+   |     no `UploadPutInput` in `attachments`
+
+error[E0432]: unresolved import `discord_gui_spike::attachments_upload_put`
+  --> tests/attachments_contract.rs:26:5
+   |
+26 | use discord_gui_spike::attachments_upload_put;
+   |     ^^^^^^^^^^^^^^^^^^^----------------------
+   |                        |
+   |                        no `attachments_upload_put` in the root
+
+error[E0407]: method `put` is not a member of trait `AttachmentTransport`
+   --> tests/attachments_contract.rs:128:5
+    |
+128 | /     fn put<'a>(
+129 | |         &'a self,
+130 | |         upload_url: &'a str,
+131 | |         content_type: &'a str,
+...   |
+147 | |         Box::pin(async move { answer })
+148 | |     }
+    | |_____^ not a member of trait `AttachmentTransport`
+
+error[E0599]: no method named `upload_attachment_bytes` found for struct `DiscordAttachments` in the current scope
+   --> tests/attachments_contract.rs:839:20
+    |
+839 |         run(client.upload_attachment_bytes(url, "", b"raw-binary")),
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordAttachments`
+
+Some errors have detailed explanations: E0407, E0432, E0599.
+For more information about an error, try `rustc --explain E0407`.
+error: could not compile `discord-gui-spike` (test "attachments_contract") due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+EXIT_CODE=101
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.83s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test guild_boost_tier_limits_match_re_oracle ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test builds_message_attachments_in_spec_order ... ok
+test oracle_constants_match_re ... ok
+test api_impl_matches_free_function ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... FAILED
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test maps_429_with_retry_after_header ... ok
+test posts_exact_upload_slot_request ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... FAILED
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... FAILED
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... FAILED
+test tauri_main_registers_and_wires_attachments_upload_put_command ... FAILED
+test rejects_unsafe_channel_id_before_any_io ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test rejects_malformed_upload_slot_response ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+
+failures:
+
+---- maps_put_status_codes_413_429_5xx_and_network_errors stdout ----
+
+thread 'maps_put_status_codes_413_429_5xx_and_network_errors' (519165) panicked at tests/attachments_contract.rs:951:5:
+assertion `left == right` failed
+  left: Ok(())
+ right: Err(EntityTooLarge)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io stdout ----
+
+thread 'rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io' (519171) panicked at tests/attachments_contract.rs:879:9:
+assertion `left == right` failed: upload_url="" обязан отклоняться до сети
+  left: Ok(())
+ right: Err(InvalidArg)
+
+---- upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload stdout ----
+
+thread 'upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload' (519176) panicked at tests/attachments_contract.rs:1033:47:
+десериализация putPayload из composer.js: Error("invalid type: map, expected a sequence", line: 0, column: 0)
+
+---- uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 stdout ----
+
+thread 'uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204' (519177) panicked at tests/attachments_contract.rs:814:9:
+assertion `left == right` failed: HTTP 200: транспорт должен получить точный upload_url, content_type и непустые байты
+  left: []
+ right: [("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123", "image/png", [137, 80, 78, 71, 13, 10, 26, 10, 112, 97, 121, 108, 111, 97, 100, 45, 98, 121, 116, 101, 115])]
+
+---- tauri_main_registers_and_wires_attachments_upload_put_command stdout ----
+
+thread 'tauri_main_registers_and_wires_attachments_upload_put_command' (519175) panicked at tests/attachments_contract.rs:1097:5:
+assertion `left == right` failed: attachments_upload_put обязан быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+
+
+failures:
+    maps_put_status_codes_413_429_5xx_and_network_errors
+    rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io
+    tauri_main_registers_and_wires_attachments_upload_put_command
+    upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload
+    uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204
+
+test result: FAILED. 17 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+EXIT_CODE_RUNTIME_RED=101

@@ -1,0 +1,35 @@
+=== MUTATION TESTING LOG: V-01-RTC-FIX ===
+Baseline src/session.rs MD5:          395df9d9408f50435a966b881870265e
+Baseline tests/session_contract.rs MD5: c59ae2dedeb10eb0c9cce55c87cb6244
+
+--- MF-1: удаление сохранения эффектов реконнекта в TransportFailed ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  ab10e4db074b1526cff84b4d399db8a1
+Exit code:   101
+Expected failing tests: t_v01_07
+Failing output lines:
+  test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... FAILED
+  thread 't_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect' (336812) panicked at crates/discord-voice/tests/session_contract.rs:722:9:
+  TransportFailed обязан сохранять эффекты реконнекта для вызывающей стороны
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+Restored baseline MD5 verified: session.rs=395df9d9408f50435a966b881870265e
+Status: KILLED
+
+--- MF-2: удаление сохранения эффектов реконнекта при Oversize в RawInbound ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  b39a606f4a16ce5708c095512eacc246
+Exit code:   101
+Expected failing tests: t_v01_13
+Failing output lines:
+  test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... FAILED
+  thread 't_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection' (337464) panicked at crates/discord-voice/tests/session_contract.rs:1168:5:
+  Oversize обязан сохранять эффекты реконнекта
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+Restored baseline MD5 verified: session.rs=395df9d9408f50435a966b881870265e
+Status: KILLED
+
+=== FINAL RESTORATION & GREEN CHECK ===
+src/session.rs MD5:          395df9d9408f50435a966b881870265e
+tests/session_contract.rs MD5: c59ae2dedeb10eb0c9cce55c87cb6244
+Final cargo test exit code:  0
+  test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s

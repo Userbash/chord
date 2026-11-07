@@ -1,0 +1,77 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-171-platform-deep-links/rust/crates/discord-platform)
+error[E0432]: unresolved imports `discord_platform::deep_link::DeepLinkQueue`, `discord_platform::deep_link::DISCORD_CLIP_PROTOCOL`, `discord_platform::deep_link::MainWindowPath`, `discord_platform::deep_link::MainWindowPathError`, `discord_platform::deep_link::extract_url_from_args`, `discord_platform::deep_link::main_window_path`
+  --> crates/discord-platform/tests/deep_link_contract.rs:12:30
+   |
+12 |     DeepLink, DeepLinkError, DeepLinkQueue, DISCORD_CLIP_PROTOCOL, MainWindowPath,
+   |                              ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^ no `MainWindowPath` in `deep_link`
+   |                              |              |
+   |                              |              no `DISCORD_CLIP_PROTOCOL` in `deep_link`
+   |                              no `DeepLinkQueue` in `deep_link`
+13 |     MainWindowPathError, MAX_DEEP_LINK_LEN, Route, extract_deep_link, extract_url_from_args,
+   |     ^^^^^^^^^^^^^^^^^^^ no `MainWindowPathError` in `deep_link`       ^^^^^^^^^^^^^^^^^^^^^ no `extract_url_from_args` in `deep_link`
+14 |     main_window_path, parse_deep_link, route,
+   |     ^^^^^^^^^^^^^^^^ no `main_window_path` in `deep_link`
+
+error[E0609]: no field `scheme` on type `DeepLink<'_>`
+   --> crates/discord-platform/tests/deep_link_contract.rs:362:22
+    |
+362 |     assert_eq!(link1.scheme, "disclip");
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `raw`, `host`, `path`, `query`, `fragment`
+
+error[E0599]: no variant named `Clip` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:364:38
+    |
+364 | ...(&link1), Route::Clip { id: "my-cool-clip".to_owned() });
+    |                     ^^^^ variant not found in `Route`
+
+error[E0609]: no field `scheme` on type `DeepLink<'_>`
+   --> crates/discord-platform/tests/deep_link_contract.rs:367:22
+    |
+367 |     assert_eq!(link2.scheme, "disclip");
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `raw`, `host`, `path`, `query`, `fragment`
+
+error[E0599]: no variant named `Clip` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:370:38
+    |
+370 |     assert_eq!(route(&link2), Route::Clip { id: "clip-123".to_owned() });
+    |                                      ^^^^ variant not found in `Route`
+
+error[E0609]: no field `scheme` on type `DeepLink<'_>`
+   --> crates/discord-platform/tests/deep_link_contract.rs:373:22
+    |
+373 |     assert_eq!(link3.scheme, "disclip");
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `raw`, `host`, `path`, `query`, `fragment`
+
+error[E0599]: no variant named `Clip` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:374:38
+    |
+374 |     assert_eq!(route(&link3), Route::Clip { id: "clip-456".to_owned() });
+    |                                      ^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `Clip` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:377:38
+    |
+377 |     assert_eq!(route(&link4), Route::Clip { id: "clip-789".to_owned() });
+    |                                      ^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `Clip` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:380:38
+    |
+380 |     assert_eq!(route(&link5), Route::Clip { id: "clip-789".to_owned() });
+    |                                      ^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `Clip` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:383:38
+    |
+383 |     assert_eq!(route(&link6), Route::Clip { id: "clip-789".to_owned() });
+    |                                      ^^^^ variant not found in `Route`
+
+Some errors have detailed explanations: E0432, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-platform` (test "deep_link_contract") due to 10 previous errors

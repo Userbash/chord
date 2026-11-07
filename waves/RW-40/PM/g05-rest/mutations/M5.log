@@ -1,0 +1,103 @@
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✔ клик по каждому disabled-пункту ничего не меняет (31.129905ms)
+  ✔ Enter/Space на disabled-пункте — no-op (guard в самом обработчике) (22.606285ms)
+  ✖ capability=true не включает invite до G-06: disabled + not-implemented (10.891229ms)
+✖ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (65.578546ms)
+▶ G-05 D2: roving tabindex переезжает вместе с фокусом
+  ✔ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (11.898747ms)
+✔ G-05 D2: roving tabindex переезжает вместе с фокусом (12.022038ms)
+▶ G-05 D3: Esc и Tab не переключают экран
+  ✔ Esc из открытого меню на экране «Настройки» оставляет settings (11.088391ms)
+  ✔ Tab закрывает меню, фокус на opener, default не отменяется (9.386817ms)
+✔ G-05 D3: Esc и Tab не переключают экран (20.649269ms)
+▶ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола
+  ✔ клик по плитке гильдии закрывает меню, но фокус не на opener (10.801639ms)
+  ✔ клик по body закрывает меню и возвращает фокус на opener (9.447277ms)
+✔ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола (20.416827ms)
+▶ G-05 D4: копирование ID — успех только из resolved writeText
+  ✔ resolved writeText → «ID скопирован» тем же id, без утечки id в консоль (8.703122ms)
+  ✔ reject writeText → ошибка, ложного успеха нет (21.860009ms)
+  ✔ нет clipboard API → видимая ошибка, ложного успеха нет (8.902323ms)
+  ✔ пустой/битый id → «ID сервера неизвестен», writeText не вызывается (8.51522ms)
+✔ G-05 D4: копирование ID — успех только из resolved writeText (48.201864ms)
+▶ G-05 D6: причины disabled машиночитаемы и озвучиваемы
+  ✔ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (10.191453ms)
+  ✖ приоритет причин: owner > capability-unknown > not-implemented (10.95687ms)
+  ✔ один polite-статус #server-status и один hidden-узел причины на причину (9.100945ms)
+✖ G-05 D6: причины disabled машиночитаемы и озвучиваемы (30.426059ms)
+▶ G-05: #4 subtitle и #5 aria-checked — только из проекции
+  ✔ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (9.920511ms)
+  ✔ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (12.396482ms)
+  ✔ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (7.904025ms)
+✔ G-05: #4 subtitle и #5 aria-checked — только из проекции (30.400338ms)
+▶ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор
+  ✔ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (12.089218ms)
+✔ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (12.19155ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✔ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (11.08288ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (11.668415ms)
+✔ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (22.939588ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✔ false/true/absent → invite всегда disabled, без диалога и IPC (9.461528ms)
+✔ G-05 T-05-08: capability invite не выводится из ролей (9.568718ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✔ disabled-активация не пишет в #server-status; leave — ровно один статус (9.138684ms)
+✔ G-05 T-05-16: статус меню единственный (9.224496ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✔ меню: ширина/высота с клампом по viewport и прокрутка (0.283262ms)
+  ✔ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.143961ms)
+  ✔ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.210662ms)
+  ✔ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.158911ms)
+✔ G-05 D9/D5: геометрия CSS — статическая проверка контракта (0.897147ms)
+ℹ tests 27
+ℹ suites 12
+ℹ pass 25
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 322.354096
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:225:3
+✖ capability=true не включает invite до G-06: disabled + not-implemented (10.891229ms)
+  AssertionError [ERR_ASSERTION]: у invite с capability=true неверная причина
+  + actual - expected
+  
+  + 'capability-unknown'
+  - 'not-implemented'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:232:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:226:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'capability-unknown',
+    expected: 'not-implemented',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:449:3
+✖ приоритет причин: owner > capability-unknown > not-implemented (10.95687ms)
+  AssertionError [ERR_ASSERTION]: invite без capability не capability-unknown
+  + actual - expected
+  
+  + 'not-implemented'
+  - 'capability-unknown'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:452:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:450:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'not-implemented',
+    expected: 'capability-unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,52 @@
+✔ constants match Discord attachment limits (0.61111ms)
+✔ formatFileSizeRu clamps negative and non-finite input to zero (0.10616ms)
+✔ formatFileSizeRu formats bytes below one kilobyte as integer bytes (0.07502ms)
+✔ formatFileSizeRu formats kilobytes with one decimal (0.07129ms)
+✔ formatFileSizeRu formats megabytes with two decimals (0.08246ms)
+✖ classifyAttachmentKind detects image by extension and content type (0.65601ms)
+✔ classifyAttachmentKind detects video by extension and content type (0.11704ms)
+✔ classifyAttachmentKind detects audio by extension and content type (0.09242ms)
+✔ classifyAttachmentKind falls back to file (0.0923ms)
+✔ isSpoilerFilename checks the SPOILER_ prefix on the basename (0.14859ms)
+✔ toggleSpoilerFilename adds the prefix by default (0.15353ms)
+✔ toggleSpoilerFilename removes the prefix when spoiler is false (0.08008ms)
+✔ validateAttachmentBatch accepts an empty batch (0.38757ms)
+✔ validateAttachmentBatch accepts a valid mixed batch and sums bytes (0.06719ms)
+✔ validateAttachmentBatch rejects more than ten files (0.08813ms)
+✔ validateAttachmentBatch accepts exactly ten files (0.41162ms)
+✔ validateAttachmentBatch rejects a file above the per-file limit (0.07069ms)
+✔ validateAttachmentBatch accepts a file exactly at the limit (0.05269ms)
+✔ validateAttachmentBatch rejects negative sizes (0.05109ms)
+✔ validateAttachmentBatch rejects a batch whose total exceeds the limit (0.0621ms)
+✔ validateAttachmentBatch accepts a batch whose total is exactly the limit (0.05485ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 20
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.973327
+
+✖ failing tests:
+
+test at tests/unit/attachment-validator.test.mjs:49:1
+✖ classifyAttachmentKind detects image by extension and content type (0.65601ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'file' !== 'image'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/attachment-validator.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'file',
+    expected: 'image',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

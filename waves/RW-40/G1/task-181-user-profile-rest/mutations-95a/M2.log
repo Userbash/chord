@@ -1,0 +1,88 @@
+# M2: omit guild_id query param
+mutant_md5=683b6cac457a5a13833906d15afddd97
+exit=101
+verdict=KILLED
+compile_errors=0
+restored_md5=c29689e4daf174f62ba2e0e3e993e4be
+failing_tests=['fetch_forwards_the_guild_scoped_path', 'guild_id_is_appended_last_exactly_as_in_the_capture']
+
+
+running 17 tests
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::custom_emoji_and_invalid_inputs_are_validated ... ok
+test reactions::tests::decode_429_extracts_retry_after_from_json_and_headers ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok
+test search::tests::retry_after_body_parses_float_seconds_when_header_absent ... ok
+test search::tests::retry_after_header_parses_positive_integer_seconds_with_5000ms_fallback ... ok
+test settings_store::tests::normalize_accepts_home_guild_id_and_snowflakes_only ... ok
+test search::tests::uuid_v4_generation_matches_rfc4122_shape ... ok
+test settings_store::tests::patch_updates_home_mode_and_last_guild_id ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test settings_store::tests::validate_accepts_home_guild_id_and_rejects_other_strings ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 26 tests
+test default_query_is_popout_with_mutuals_but_without_guild ... ok
+test absent_profile_type_is_omitted_instead_of_written_empty ... ok
+test connected_account_type_rename_is_reversible_on_serialize ... ok
+test display_is_human_readable_and_keeps_status_and_delay ... ok
+test every_query_flag_is_written_as_the_literal_true_or_false ... ok
+test empty_or_missing_user_identity_is_invalid_response ... ok
+test fetch_429_extracts_retry_after_from_json_body ... ok
+test guild_id_must_be_a_snowflake_when_present ... ok
+test full_response_body_maps_every_documented_field ... ok
+test guild_id_is_appended_last_exactly_as_in_the_capture ... FAILED
+test fetch_forwards_the_guild_scoped_path ... FAILED
+test fetch_429_extracts_retry_after_from_headers ... ok
+test fetch_performs_one_get_on_the_built_path_and_decodes_the_profile ... ok
+test guild_member_null_is_treated_as_absence ... ok
+test minimal_response_body_defaults_absent_collections_and_optionals ... ok
+test malformed_bodies_are_invalid_response ... ok
+test invalid_ids_are_rejected_before_any_transport_call ... ok
+test path_template_and_default_query_match_the_static_oracle ... ok
+test parse_retry_after_supports_strings_headers_and_unusable_values ... ok
+test profile_type_cannot_inject_extra_query_parameters ... ok
+test rest_failure_classifier_maps_every_variant ... ok
+test non_2xx_bodies_are_not_parsed_as_profiles ... ok
+test ok_response_with_broken_identity_is_invalid_response ... ok
+test user_id_must_be_a_non_empty_ascii_digit_snowflake ... ok
+test transport_failure_propagates_and_skips_body_decoding ... ok
+test http_statuses_map_to_typed_errors ... ok
+
+failures:
+
+---- guild_id_is_appended_last_exactly_as_in_the_capture stdout ----
+
+thread 'guild_id_is_appended_last_exactly_as_in_the_capture' (2085681) panicked at tests/profile_contract.rs:200:5:
+assertion `left == right` failed
+  left: Ok("/users/1168176063113875531/profile?type=popout&with_mutual_guilds=true&with_mutual_friends=true&with_mutual_friends_count=false")
+ right: Ok("/users/1168176063113875531/profile?type=popout&with_mutual_guilds=true&with_mutual_friends=true&with_mutual_friends_count=false&guild_id=1014537851418980372")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- fetch_forwards_the_guild_scoped_path stdout ----
+
+thread 'fetch_forwards_the_guild_scoped_path' (2085678) panicked at tests/profile_contract.rs:481:5:
+assertion `left == right` failed
+  left: ["/users/1168176063113875531/profile?type=popout&with_mutual_guilds=true&with_mutual_friends=true&with_mutual_friends_count=false"]
+ right: ["/users/1168176063113875531/profile?type=popout&with_mutual_guilds=true&with_mutual_friends=true&with_mutual_friends_count=false&guild_id=1014537851418980372"]
+
+
+failures:
+    fetch_forwards_the_guild_scoped_path
+    guild_id_is_appended_last_exactly_as_in_the_capture
+
+test result: FAILED. 24 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.66s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-225e1ecc24b7c0ff)
+     Running tests/profile_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/profile_contract-b5572a930a88bc30)
+error: test failed, to rerun pass `--test profile_contract`

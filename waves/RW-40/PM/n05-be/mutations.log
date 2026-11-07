@@ -1,0 +1,104 @@
+BASELINE rust/gui-spike/src/notifications.rs md5=2768dddc07f378bbed7884f5f21579bb
+
+=== MUT-1-allow-guild-message-notifications-3 (md5=fec5b64d0eab650072758126f24b0b92) -> KILLED (exit=101) ===
+
+thread 'transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch_payloads' (668325) panicked at tests/notifications_contract.rs:763:5:
+assertion `left == right` failed
+  left: Ok(Object {})
+ right: Err(InvalidMessageNotifications { value: 3 })
+
+
+failures:
+    guild_and_channel_patch_builders_and_validators_enforce_re_contract
+    transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch_payloads
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.65s
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+error: test failed, to rerun pass `-p discord-gui-spike --test notifications_contract`
+
+=== MUT-2-ignore-mute-end-time-expiry (md5=c883d6518e3026007796a5d277ca38ad) -> KILLED (exit=101) ===
+    oracle_ready_and_rest_static_parity_for_user_guild_settings
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: unused variable: `now_unix`
+    --> src/notifications.rs:1014:70
+     |
+1014 | ...: Option<&MuteConfig>, now_unix: i64) -> bool {
+     |                           ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_now_unix`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (lib) generated 1 warning (run `cargo fix --lib -p discord-gui-spike` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+error: test failed, to rerun pass `-p discord-gui-spike --test notifications_contract`
+
+=== MUT-3-swap-cascade-category-over-channel (md5=fb1f7c3c63276f90be39e3832f7d0299) -> KILLED (exit=101) ===
+
+thread 'cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy' (669752) panicked at tests/notifications_contract.rs:570:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.31s
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+error: test failed, to rerun pass `-p discord-gui-spike --test notifications_contract`
+
+=== MUT-4-suppress-user-mention-badge-when-muted (md5=18564922aaf1f83ded596ad0a5e8f89c) -> KILLED (exit=101) ===
+
+---- cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy stdout ----
+
+thread 'cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy' (670506) panicked at tests/notifications_contract.rs:643:5:
+прямое @user упоминание всегда увеличивает бейдж даже при mute
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.32s
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+error: test failed, to rerun pass `-p discord-gui-spike --test notifications_contract`
+
+=== MUT-5-skip-pre-network-channel-id-validation (md5=7b6fd5c967fd618376e8de9547299d98) -> KILLED (exit=101) ===
+
+thread 'transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch_payloads' (671344) panicked at tests/notifications_contract.rs:748:9:
+assertion `left == right` failed: bad channel_id=""
+  left: Ok(Object {})
+ right: Err(InvalidChannelId)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch_payloads
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.29s
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+error: test failed, to rerun pass `-p discord-gui-spike --test notifications_contract`
+
+RESTORED rust/gui-spike/src/notifications.rs md5=2768dddc07f378bbed7884f5f21579bb match=True
+SUMMARY: 5/5 KILLED, 0 SURVIVED

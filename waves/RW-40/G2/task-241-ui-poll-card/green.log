@@ -1,0 +1,23 @@
+▶ Константы лимитов опроса
+  ✔ экспортирует MAX_POLL_ANSWERS = 10 и MAX_POLL_QUESTION_CHARS = 300 (0.3478ms)
+✔ Константы лимитов опроса (0.91594ms)
+▶ computePollPercentages
+  ✔ вычисляет округлённые проценты, отмечает лидирующий вариант и не мутирует вход (0.51815ms)
+  ✔ возвращает 0% и isLeading=false при totalVotes = 0 или отсутствии голосов (0.11716ms)
+  ✔ отмечает несколько вариантов как isLeading при равенстве максимальных голосов > 0 (0.13048ms)
+✔ computePollPercentages (0.92412ms)
+▶ createPollCardController
+  ✔ рендерит [data-poll-card] с role=group, вопрос, варианты с процентами, лидера и статус голосов (0.86326ms)
+  ✔ в режиме single-select заменяет выбор при клике и отправляет голос через onSubmitVote (0.76046ms)
+  ✔ в режиме multiselect (role=checkbox) переключает несколько вариантов вплоть до MAX_POLL_ANSWERS (0.982971ms)
+  ✔ блокирует голосование и выбор при isExpired = true и показывает статус «Опрос завершён» (0.18576ms)
+  ✔ поддерживает setState, getState и destroy (0.29617ms)
+✔ createPollCardController (3.327601ms)
+ℹ tests 9
+ℹ suites 3
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.757273

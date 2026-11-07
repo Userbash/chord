@@ -1,0 +1,172 @@
+▶ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json
+  ✔ MUTE_TIMER_PRESETS и перечисления совпадают с RE-оракулом и спецификацией (0.79149ms)
+  ✔ buildMuteConfig и evaluateMuteState: расчёт истечения таймера, бессрочный mute и строгий разбор ETF-строк (0.37993ms)
+  ✔ сверка парсера с реальным дампом 002-READY.json (58 гильдий, 1328 overrides, 3 истёкших mute) (0.39596ms)
+✔ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json (2.22281ms)
+▶ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний
+  ✔ resolveEffectiveNotifications: каскад канал (!=3) -> родительская категория (!=3) -> гильдия -> дефолт (0.46724ms)
+  ✖ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.72414ms)
+  ✔ битовые флаги UNREADS_*, двойная форма channel_overrides и фильтр видимых строк таблицы (0.32617ms)
+✖ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний (1.71736ms)
+▶ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree
+  ✖ computeChannelIndicatorState и applyChannelIndicatorToDom: точка, бейдж 99+, mute и hide_muted_channels (1.16219ms)
+  ✔ computeGuildRailIndicatorState и applyGuildRailIndicatorToDom: левая пилюля и бейдж на плитке сервера (0.26202ms)
+✖ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree (1.56963ms)
+▶ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu)
+  ✔ открывает модалку #guild-notif-modal, рендерит секции, радиогруппу .notif-level-list и баннер >= 2500 участников (1.9989ms)
+  ✔ тумблеры подавления (suppress_everyone, suppress_roles, notify_highlights 2/1) и отсутствие оптимистичной мутации до ответа IPC (0.97215ms)
+  ✖ таблица .notif-override-table: roving tabindex, навигация ArrowLeft/ArrowRight по радио, чекбокс mute и сброс override (2.087059ms)
+  ✖ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (0.60861ms)
+  ✖ focus trap внутри #guild-notif-modal: Tab и Shift+Tab циклически переключают фокус (NOTIFICATIONS-SPEC §5.2 п.4) (0.69255ms)
+  ✖ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.45736ms)
+  ✖ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.45176ms)
+  ✔ тумблер mute сервера, селект 6 окон длительности, DM (@me) маршрут и закрытие модалки по Escape с возвратом фокуса (0.74618ms)
+  ✔ добавление канала в таблицу через #notif-override-channel-select и обработка ошибок IPC (#guild-notif-error) (0.6824ms)
+✖ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (8.992939ms)
+ℹ tests 17
+ℹ suites 4
+ℹ pass 10
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 64.333885
+
+✖ failing tests:
+
+test at tests/unit/notifications-ui.test.mjs:415:3
+✖ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.72414ms)
+  AssertionError [ERR_ASSERTION]: при ONLY_MENTIONS (без UNREADS_ALL_MESSAGES) обычное сообщение не помечает канал непрочитанным (§1.5.3 строка 4)
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:504:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/notifications-ui.test.mjs:628:3
+✖ computeChannelIndicatorState и applyChannelIndicatorToDom: точка, бейдж 99+, mute и hide_muted_channels (1.16219ms)
+  AssertionError [ERR_ASSERTION]: внутри #channel-tree[data-hide-muted='true'] заглушённый канал без упоминаний получает data-muted-hidden='true'
+  
+  null !== 'true'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:715:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'true',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/notifications-ui.test.mjs:895:3
+✖ таблица .notif-override-table: roving tabindex, навигация ArrowLeft/ArrowRight по радио, чекбокс mute и сброс override (2.087059ms)
+  AssertionError [ERR_ASSERTION]: сброс override обязан всегда отправлять поле flags: PW(flags ?? 0), даже если в исходной записи не было ключа flags
+  + actual - expected
+  
+    {
+  -   flags: 0,
+      message_notifications: 3,
+      muted: false
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1019:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { message_notifications: 3, muted: false },
+    expected: { message_notifications: 3, muted: false, flags: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/notifications-ui.test.mjs:1030:3
+✖ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (0.60861ms)
+  TypeError [Error]: channelMenu.querySelectorAll(...).filter is not a function
+      at getEnabledChannelMenuItems (file:///home/sanya/orca/project/rust/gui-spike/ui/features/notifications.js:1833:8)
+      at setChannelMenuRovingFocus (file:///home/sanya/orca/project/rust/gui-spike/ui/features/notifications.js:1845:19)
+      at Object.openChannelMenu (file:///home/sanya/orca/project/rust/gui-spike/ui/features/notifications.js:2074:5)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1060:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/notifications-ui.test.mjs:1121:3
+✖ focus trap внутри #guild-notif-modal: Tab и Shift+Tab циклически переключают фокус (NOTIFICATIONS-SPEC §5.2 п.4) (0.69255ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1143:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/notifications-ui.test.mjs:1170:3
+✖ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.45736ms)
+  AssertionError [ERR_ASSERTION]: должен быть запланирован таймер истечения mute сервера на 900000 мс
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1226:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/notifications-ui.test.mjs:1264:3
+✖ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.45176ms)
+  AssertionError [ERR_ASSERTION]: при 429 с retry_after_ms=3000 должно выводиться сообщение 'Повторите через 3 с.'
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1310:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Rate limited',
+    expected: /Повторите через 3 с\./u,
+    operator: 'match',
+    diff: 'simple'
+  }
+EXIT_CODE=1

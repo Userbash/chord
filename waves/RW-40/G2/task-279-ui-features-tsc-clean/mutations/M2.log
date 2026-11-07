@@ -1,0 +1,90 @@
+▶ INBOX_TABS
+  ✖ содержит ровно 4 вкладки в контрактном порядке и заморожен (1.22587ms)
+✖ INBOX_TABS (1.82748ms)
+▶ formatInboxBadge
+  ✔ возвращает пустую строку для 0 и отрицательных (0.15731ms)
+  ✔ возвращает строку числа для 1..99 (0.08062ms)
+  ✔ сжимает всё больше 99 в 99+ (0.07352ms)
+✔ formatInboxBadge (0.49674ms)
+▶ createInboxController: DOM-каркас
+  ✔ рендерит попап с ролью dialog, aria-label и скрытым состоянием (0.660851ms)
+  ✔ рендерит по кнопке на каждую вкладку, бейдж и кнопку «прочитать все» (0.35435ms)
+  ✔ open/close/toggle синхронизируют hidden и aria-hidden (0.57553ms)
+  ✖ setTab переключает aria-selected и содержимое панели (0.4102ms)
+  ✔ клик по кнопке вкладки переключает активную вкладку (0.23196ms)
+✖ createInboxController: DOM-каркас (2.473721ms)
+▶ createInboxController: данные и счётчики
+  ✔ бейдж считает mentions + friendRequests (0.27245ms)
+  ✔ бейдж сжимается в 99+ при 100 упоминаниях (0.39991ms)
+  ✔ показывает «Всё прочитано» на пустой вкладке (0.12078ms)
+  ✔ вкладка for_you объединяет упоминания и заявки в друзья (0.1327ms)
+  ✔ клик по элементу зовёт onSelectMessage (0.21504ms)
+  ✔ кнопка «Принять» на заявке зовёт onAcceptFriend (0.20414ms)
+  ✔ markItemRead удаляет элемент и уменьшает бейдж (0.17324ms)
+  ✔ markAllRead очищает списки, бейдж и показывает пустое состояние (0.14024ms)
+  ✔ клик по кнопке mark-all-read очищает бейдж (0.11931ms)
+  ✔ destroy удаляет попап из документа (0.10623ms)
+✔ createInboxController: данные и счётчики (2.17763ms)
+ℹ tests 19
+ℹ suites 4
+ℹ pass 17
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.436947
+
+✖ failing tests:
+
+test at tests/unit/inbox.test.mjs:171:3
+✖ содержит ровно 4 вкладки в контрактном порядке и заморожен (1.22587ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'for_you',
+      'unreads',
+  -   'mentions',
+  -   'friend_requests'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/inbox.test.mjs:172:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'for_you', 'unreads' ],
+    expected: [ 'for_you', 'unreads', 'mentions', 'friend_requests' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/inbox.test.mjs:231:3
+✖ setTab переключает aria-selected и содержимое панели (0.4102ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'for_you'
+  - 'mentions'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/inbox.test.mjs:239:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'for_you',
+    expected: 'mentions',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

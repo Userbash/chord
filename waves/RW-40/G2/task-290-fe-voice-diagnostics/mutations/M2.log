@@ -1,0 +1,126 @@
+▶ voice-diagnostics: константы и пороги оракула (модули 613681 / 978171 / 412780)
+  ✔ пороги качества совпадают с RTCConnection.quality: 250/500 мс и 5%/10% (0.39246ms)
+  ✔ история пингов и таймаут: 199 точек, окно среднего 20, таймаут 4000 мс (0.07869ms)
+  ✔ размеры попапа, спарклайна и модалки отладки: 300 / 258x80 / 854x480 (0.07256ms)
+  ✔ RTC_DEBUG_SECTIONS — замороженный массив из 8 секций в порядке zWA (0.357331ms)
+  ✔ попытка изменить RTC_DEBUG_SECTIONS на месте не проходит (strict mode) (0.24103ms)
+✔ voice-diagnostics: константы и пороги оракула (модули 613681 / 978171 / 412780) (1.869701ms)
+▶ evaluatePingQuality: позитивные сценарии
+  ✔ fine: пинг 45 мс без данных о потерях (0.13646ms)
+  ✔ fine: пинг 45 мс и потери 0% (0.06958ms)
+  ✔ average: пинг 300 мс без потерь (0.07401ms)
+  ✔ average: малый пинг 80 мс, но потери 6.5% (0.12803ms)
+  ✔ bad: пинг 501 мс без потерь (0.08935ms)
+  ✔ bad: малый пинг 40 мс, но потери 10.1% (0.05605ms)
+✔ evaluatePingQuality: позитивные сценарии (0.77438ms)
+▶ evaluatePingQuality: граничные значения (ровно 250 / 500 мс и 5% / 10%)
+  ✔ пинг 250 мс — ещё fine, 251 мс — уже average (0.06576ms)
+  ✔ пинг 500 мс — average, 501 мс — bad (0.04891ms)
+  ✔ потери 5% — fine, 5.0001% — average (0.03856ms)
+  ✔ потери 10% — average, 10.0001% — bad (0.0334ms)
+  ✔ нулевой пинг и 0% потерь — fine (0.03217ms)
+✔ evaluatePingQuality: граничные значения (ровно 250 / 500 мс и 5% / 10%) (0.31692ms)
+▶ evaluatePingQuality: негативные и ошибочные значения
+  ✔ невалидный pingMs (null, undefined, NaN, -1, "") возвращает unknown (0.06281ms)
+  ✔ нечисловые pingMs ("250", {}, [], true) возвращает unknown (0.04472ms)
+  ✔ невалидный процент потерь (NaN, -1, 101, "abc") возвращает unknown (0.03842ms)
+  ✔ бесконечности и переполнение трактуются как unknown / bad без исключений (0.03518ms)
+✔ evaluatePingQuality: негативные и ошибочные значения (0.254091ms)
+▶ extractShortHostname: короткое имя RTC-сервера (getShortHostname)
+  ✔ отрезает домен и порт: finland10192.discord.media:443 → finland10192 (0.09112ms)
+  ✔ работает без порта и с ведущими пробелами (0.07366ms)
+  ✔ возвращает имя целиком, если точки и двоеточия нет (0.03724ms)
+  ✔ пустой, нестроковый и «только порт» вход даёт пустую строку (0.0374ms)
+✔ extractShortHostname: короткое имя RTC-сервера (getShortHostname) (0.33828ms)
+▶ formatVoicePrivacyCodeChunks: 30 цифр → 6 групп по 5 (модуль 917592)
+  ✔ разбивает сплошные 30 цифр на 6 групп по 5 (0.18544ms)
+  ✔ допускает пробелы между группами (0.07864ms)
+  ✔ возвращает замороженный массив (0.08494ms)
+  ✔ неверная длина (29 / 31 цифра) → null (0.05182ms)
+  ✔ нецифровые символы, пустая строка и нестроковый вход → null (0.05294ms)
+✔ formatVoicePrivacyCodeChunks: 30 цифр → 6 групп по 5 (модуль 917592) (0.56376ms)
+▶ computeSparklinePoints: координаты Canvas 258×80 (модули 229659 / 546738)
+  ✔ три числовых точки: x от 0 до width, y от height до 0 (0.21554ms)
+  ✔ одна точка: x = 0, y = середина высоты (0.06426ms)
+  ✔ все значения равны: плоская линия по середине высоты (0.07193ms)
+  ✔ поддерживает точки вида { value } и отбрасывает невалидные значения (0.11613ms)
+  ✔ пустой ввод, null и нестроковый массив → пустой результат (0.07531ms)
+  ✔ хранит только последние 199 точек (PING_HISTORY_MAX_POINTS) (0.15552ms)
+  ✔ все координаты лежат в пределах [0..width] × [0..height] (0.07855ms)
+  ✔ учитывает явные width/height (0.05241ms)
+✔ computeSparklinePoints: координаты Canvas 258×80 (модули 229659 / 546738) (1.01127ms)
+▶ formatPopoutMetricsRu: русские строки попапа (модуль 978171)
+  ✔ полный снимок: заголовок с хостом, метрики, E2EE-баннер и предупреждение (0.160271ms)
+  ✔ без хоста и без потерь: базовый заголовок, прочерк и SRTP-баннер (0.07777ms)
+  ✔ пустой объект и undefined нормализуются без исключений (0.08494ms)
+  ✖ границы предупреждения: 250 мс и 10% не warn, 251 мс и 10.1% — warn (0.54621ms)
+  ✔ потери 0% печатаются как 0.0%, нечисловая потеря — прочерк (0.07212ms)
+  ✔ округляет средний и последний пинг до целых (toFixed(0) в оракуле) (0.05609ms)
+✖ formatPopoutMetricsRu: русские строки попапа (модуль 978171) (1.176991ms)
+▶ createVoiceDiagnosticsController: начальное состояние и открытие/закрытие
+  ✔ начальное состояние: попап закрыт, вкладка «Интеграция», секция TRANSPORT (0.14354ms)
+  ✔ open() открывает попап и запрашивает снимок диагностики; повторный open не дублирует загрузку (0.0814ms)
+  ✔ close() закрывает попап и модалку; toggle() переключает состояние (0.11103ms)
+  ✔ колбэки необязательны: контроллер без options работает без исключений (0.08101ms)
+✔ createVoiceDiagnosticsController: начальное состояние и открытие/закрытие (0.51366ms)
+▶ createVoiceDiagnosticsController: вкладки попапа
+  ✔ selectTab("privacy") переключает на вкладку конфиденциальности (0.102101ms)
+  ✔ неизвестная вкладка игнорируется, состояние не портится (0.06822ms)
+✔ createVoiceDiagnosticsController: вкладки попапа (0.258681ms)
+▶ createVoiceDiagnosticsController: модалка отладки (8 секций zWA)
+  ✔ openDebugModal(section) открывает модалку, нормализует регистр и уведомляет колбэк (0.12508ms)
+  ✔ без аргумента и с неизвестной секцией модалка открывается на текущей секции (0.08073ms)
+  ✔ closeDebugModal() закрывает только модалку, попап и активная секция сохраняются (0.05556ms)
+  ✔ все 8 секций оракула принимаются как activeDebugSection (0.06014ms)
+✔ createVoiceDiagnosticsController: модалка отладки (8 секций zWA) (0.41511ms)
+▶ createVoiceDiagnosticsController: копирование кода конфиденциальности
+  ✔ copyPrivacyCode() без снимка возвращает false и не вызывает колбэк (0.07805ms)
+  ✔ копирует код из snapshot.privacyCodeChunks и передаёт 30 цифр без пробелов (0.09208ms)
+  ✔ форматирует сырой код из snapshot.privacyCode с пробелами (0.07654ms)
+  ✔ невалидный или пустой код не копируется (0.07201ms)
+✔ createVoiceDiagnosticsController: копирование кода конфиденциальности (0.68144ms)
+▶ createVoiceDiagnosticsController: handleKeyDown (Escape) и доступность
+  ✔ Escape при открытой модалке закрывает модалку, попап остаётся открытым (0.09745ms)
+  ✔ Escape при открытом попапе закрывает попап (0.04971ms)
+  ✔ Escape при закрытом попапе и чужие клавиши не перехватываются (0.0531ms)
+  ✔ null/undefined-событие не ломает обработчик (0.03393ms)
+✔ createVoiceDiagnosticsController: handleKeyDown (Escape) и доступность (0.30569ms)
+▶ createVoiceDiagnosticsController: updateSnapshot и наблюдаемость
+  ✔ updateSnapshot сохраняет снимок и сбрасывает copiedPrivacyCode (0.09758ms)
+  ✔ updateSnapshot копирует снимок, внешние мутации не влияют на состояние (0.04652ms)
+  ✔ невалидный снимок (null, строка, число) нормализуется в null (0.03916ms)
+  ✔ getState() возвращает копию: мутация результата не меняет контроллер (0.03337ms)
+  ✔ восстановление: после close() попап открывается снова с чистыми флагами (0.05369ms)
+  ✔ совместимость: updateSnapshot отдаёт данные, пригодные для formatPopoutMetricsRu (0.065701ms)
+✔ createVoiceDiagnosticsController: updateSnapshot и наблюдаемость (0.429811ms)
+ℹ tests 67
+ℹ suites 14
+ℹ pass 66
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.966977
+
+✖ failing tests:
+
+test at tests/unit/voice-diagnostics.test.mjs:414:3
+✖ границы предупреждения: 250 мс и 10% не warn, 251 мс и 10.1% — warn (0.54621ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/tests/unit/voice-diagnostics.test.mjs:417:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

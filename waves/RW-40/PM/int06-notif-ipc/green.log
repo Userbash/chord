@@ -1,0 +1,102 @@
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.08s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --lib notifications -- --nocapture)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --lib --bins --test notifications_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.76s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 12 tests
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+
+running 4 tests
+test cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy ... ok
+test guild_and_channel_patch_builders_and_validators_enforce_re_contract ... ok
+test transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch_payloads ... ok
+test oracle_ready_and_rest_static_parity_for_user_guild_settings ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+$ (cd rust/gui-spike && cargo clippy --offline -p discord-gui-spike --lib --bins --test ipc_wiring_contract -- -D warnings)
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
+$ rustfmt --edition 2021 --check rust/gui-spike/src/main.rs rust/gui-spike/tests/ipc_wiring_contract.rs
+$ node --test tests/meta/ipc-path.test.mjs
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (0.960382ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.17898ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.24652ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.15996ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.14732ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.370954ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (6.32926ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (3.795556ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (2.181803ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (15.224664ms)
+✔ ipc-path: текущий код спайка (27.864874ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.550151ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (1.049001ms)
+  ✔ capability окна ограничена core:default (0.188191ms)
+✔ ipc-path: файловые плагины не подключены (1.930583ms)
+ℹ tests 12
+ℹ suites 3
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.261594
+EXIT_CODE=0

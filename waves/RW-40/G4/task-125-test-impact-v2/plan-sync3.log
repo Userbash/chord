@@ -1,0 +1,47 @@
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (5.37812ms)
+  ✔ каждая строка §8 указывает на существующий тест; токены встречаются в нём (3.113025ms)
+  ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.021403ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (1.229544ms)
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.014732ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (13.551893ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.603639
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:140:3
+✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.021403ms)
+  AssertionError [ERR_ASSERTION]: тестовые файлы без строки в §8
+  + actual - expected
+  
+  + [
+  +   'tests/e2e/m2-channel-send.e2e.test.mjs',
+  +   'tests/e2e/m2-invite.e2e.test.mjs',
+  +   'tests/e2e/m2-login-ready-rail.e2e.test.mjs',
+  +   'tests/e2e/m2-reconnect.e2e.test.mjs',
+  +   'tests/e2e/m2-search-error.e2e.test.mjs',
+  +   'tests/e2e/m2-settings-reload.e2e.test.mjs',
+  +   'tests/e2e/m2-voice-idle.e2e.test.mjs',
+  +   'tests/meta/e2e-required.test.mjs',
+  +   'tests/unit/dispatch_ui.test.mjs',
+  +   'tests/unit/search-remote-real-index.test.mjs'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/meta/plan-sync.test.mjs:148:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/e2e/m2-channel-send.e2e.test.mjs', 'tests/e2e/m2-invite.e2e.test.mjs', 'tests/e2e/m2-login-ready-rail.e2e.test.mjs', 'tests/e2e/m2-reconnect.e2e.test.mjs', 'tests/e2e/m2-search-error.e2e.test.mjs', 'tests/e2e/m2-settings-reload.e2e.test.mjs', 'tests/e2e/m2-voice-idle.e2e.test.mjs', 'tests/meta/e2e-required.test.mjs', 'tests/unit/dispatch_ui.test.mjs', 'tests/unit/search-remote-real-index.test.mjs' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

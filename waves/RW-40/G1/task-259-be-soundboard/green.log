@@ -1,0 +1,15 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-259-be-soundboard/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.53s
+     Running tests/soundboard_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/soundboard_contract-98aab6f9acda163b)
+
+running 6 tests
+test soundboard_constants_match_discord_contract ... ok
+test build_send_soundboard_route_and_body_formats_route_and_validates_snowflakes ... ok
+test soundboard_request_structs_serde_roundtrip ... ok
+test validate_create_guild_sound_enforces_trimmed_unicode_name_bounds ... ok
+test validate_create_guild_sound_enforces_byte_len_and_audio_data_uri_prefixes ... ok
+test validate_create_guild_sound_validates_volume_and_optional_emoji_id ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

@@ -8,9 +8,9 @@
 //!   139 264 Б, md5 payload `4dbd601d877520056a7bcc3ca534ad4a`;
 //! - lab-поток `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl` —
 //!   снимок из `capture-run2.jsonl` (`gw-extract-frames.mjs`), 137 кадров, 104 066 Б сжатых;
-//!   распаковка 824 816 Б, из них ruzstd отдаёт 759 280 Б (удержание окна 65 536 = 824 816 −
-//!   759 280), совпало с Node `createZstdDecompress`; границы термов — из
-//!   `gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение 758 576, остаток 704 Б;
+//!   распаковка 824 816 Б — эталон Node `createZstdDecompress` без `end()`, весь объём отдаётся
+//!   сразу (F-GW-01/task-137); границы термов — из `gw-proto/msgs-run2-95974_1389.jsonl`:
+//!   137 полных термов, остатка нет;
 //! - `gw-proto/zstd-frames-95974_8158.hexl` — 1 кадр (74 Б) середины потока, без магии
 //!   (референс Node: «Unknown frame descriptor»).
 //!
@@ -292,21 +292,21 @@ fn lab_stream_1389_matches_oracle() {
     }
     assert_eq!(
         out.len(),
-        759_280,
-        "выдано распакованных байт: 824 816 − удержанное окно 65 536"
+        824_816,
+        "выдано распакованных байт: весь поток без удержания окна (F-GW-01)"
     );
     assert_eq!(
         stream.compressed_consumed(),
         104_066,
         "потреблено сжатых байт"
     );
+    assert_eq!(stream.pending_bytes(), 0, "хвоста в накопителе нет");
     assert!(
         !stream.is_finished(),
         "непрерывный кадр не завершён: end() не вызывается"
     );
     assert_eq!(hex(&out[..138]), HELLO_HEX, "HELLO из оракула захвата");
-    // Жадный разбор `etf::decode`: 44 полных терма, смещение 758 576, остаток 704 Б
-    // (последний терм обрезан удержанием окна ruzstd).
+    // Жадный разбор `etf::decode`: весь поток — 137 полных термов, остатка нет.
     let mut offset = 0usize;
     let mut terms = 0usize;
     while let Ok((_value, consumed)) = etf::decode(&out[offset..]) {
@@ -314,13 +314,9 @@ fn lab_stream_1389_matches_oracle() {
         offset += consumed;
         terms += 1;
     }
-    assert_eq!(terms, 44, "полных термов");
-    assert_eq!(offset, 758_576, "смещение после последнего полного терма");
-    assert_eq!(out.len() - offset, 704, "остаток байт");
-    assert!(
-        etf::decode(&out[offset..]).is_err(),
-        "неполный терм обязан давать ошибку"
-    );
+    assert_eq!(terms, 137, "полных термов");
+    assert_eq!(offset, 824_816, "смещение после последнего полного терма");
+    assert_eq!(out.len() - offset, 0, "остаток байт");
 }
 
 #[test]

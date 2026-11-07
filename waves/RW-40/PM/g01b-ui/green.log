@@ -1,0 +1,35 @@
+$ node --test tests/unit/guild-rail.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/dispatch_ui.test.mjs
+✔ L-02-UI: контракт dispatch (A1–A3) (2.028228ms)
+✔ L-02-UI: проекции dispatch (B) (26.101406ms)
+✔ L-02-UI: транспорт bridge (D) (1.033921ms)
+✔ L-02-UI: интеграция dispatch → DOM (C1–C14) (237.941403ms)
+✔ G2-03: пустое состояние QuickSwitcher соответствует выдаче (30.001622ms)
+✔ G2-11: подтверждение удаления не липнет к следующей строке (22.251395ms)
+▶ C-07: QuickSwitcher находит гильдии по data-guild-id
+✔ C-07: QuickSwitcher находит гильдии по data-guild-id (12.611048ms)
+✔ G-01: рейл серверов из ready() (81.962798ms)
+▶ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+✔ G-01b: последний сервер из settings_load восстанавливается и сохраняется (28.290745ms)
+ℹ tests 57
+ℹ suites 9
+ℹ pass 57
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 315.108095
+unit_exit=0
+
+$ npx tsc -p tsconfig.json
+tsc_exit=0
+
+$ node --test 'tests/unit/**/*.test.mjs'   # контрольный прогон всех unit (вне карточки)
+ℹ tests 713
+ℹ suites 143
+ℹ pass 713
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2582.721944
+unit_all_exit=0

@@ -1,0 +1,33 @@
+# mutant M4: op37: GUILD_SUBSCRIPTIONS_BULK_OP 37 -> 14
+# exit=101
+
+
+running 7 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test gateway::tests::presence_update_frame_bytes_match_wetf_layout ... ok
+test gateway::tests::user_ids_chunk_at_one_hundred ... ok
+test gateway::tests::voice_state_update_frame_matches_client_shape ... ok
+test gateway::tests::guild_members_request_covers_query_and_user_ids_paths ... ok
+test gateway::tests::guild_subscriptions_frame_matches_client_shape ... FAILED
+test gateway::tests::presence_update_frame_passes_activity_terms_and_afk ... ok
+
+failures:
+
+---- gateway::tests::guild_subscriptions_frame_matches_client_shape stdout ----
+
+thread 'gateway::tests::guild_subscriptions_frame_matches_client_shape' (1472804) panicked at crates/discord-core/src/gateway.rs:961:9:
+assertion `left == right` failed
+  left: Some(14)
+ right: Some(37)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    gateway::tests::guild_subscriptions_frame_matches_client_shape
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+error: test failed, to rerun pass `-p discord-core --lib`

@@ -1,0 +1,181 @@
+$ node --test tests/unit/voice-ui.test.mjs
+▶ V-08 voice: контракт разметки и сборки
+  ✔ 12 состояний и их порядок совпадают со спекой; тексты — из copy (0.795651ms)
+  ✔ index.html содержит host панели (id/класс/disabled) и подключает voice.css (0.25311ms)
+  ✔ в сборке без voice-сервиса панель disabled, а не «подключено» (76.80582ms)
+  ✔ клик join без backend не даёт фейкового успеха и пишет причину в live-регион (20.366301ms)
+  ✔ user-bar mute/deafen сохраняют прежний aria-pressed, панель их не подменяет (18.21584ms)
+✔ V-08 voice: контракт разметки и сборки (117.369712ms)
+▶ V-08 voice: 12 состояний на fake store
+  ✔ idle: data-state, статус, aria-busy/alert (0.55254ms)
+  ✔ loading: data-state, статус, aria-busy/alert (0.18303ms)
+  ✔ connecting: data-state, статус, aria-busy/alert (0.16684ms)
+  ✔ connected: data-state, статус, aria-busy/alert (0.278891ms)
+  ✔ reconnecting: data-state, статус, aria-busy/alert (0.17447ms)
+  ✔ empty: data-state, статус, aria-busy/alert (0.14956ms)
+  ✔ error: data-state, статус, aria-busy/alert (0.17753ms)
+  ✔ no-permission: data-state, статус, aria-busy/alert (0.13156ms)
+  ✔ ptt-required: data-state, статус, aria-busy/alert (0.10422ms)
+  ✔ device-missing: data-state, статус, aria-busy/alert (0.11824ms)
+  ✔ server-mute: data-state, статус, aria-busy/alert (0.097ms)
+  ✔ disabled: data-state, статус, aria-busy/alert (0.09993ms)
+  ✔ состояние вне контракта не применяется (0.13036ms)
+  ✔ idle: блок связи скрыт, строка пользователя видна, join активен (0.13234ms)
+  ✔ connected: канал, ping 93 ms, участники, leave (0.30002ms)
+  ✔ ping: quality по порогам спеки, без значения — aria-disabled (0.18629ms)
+  ✔ empty: строка wM2WTM с role=status, participants пуст (0.247851ms)
+  ✔ error: ровно один join на клик, фокус уходит на «Переподключиться» (2.216611ms)
+  ✔ повтор после ошибки: второй клик в pending не шлёт второй join (0.30394ms)
+  ✔ leave: 1 вызов, состояние меняется только по событию store (0.37806ms)
+  ✔ no-permission: 0 вызовов сервиса, reconnect отсутствует (0.25873ms)
+  ✔ ptt-required: NYklhr + «Перейти на режим рации» (0.332501ms)
+  ✔ device-missing: bgn75v + MA+OZh, разговор не рвётся (0.16372ms)
+  ✔ server-mute: mute aria-disabled, клик не меняет aria-checked и не зовёт сервис (0.36675ms)
+✔ V-08 voice: 12 состояний на fake store (7.910954ms)
+▶ V-08 voice: участники и speaking
+  ✔ своя строка первая, data-self/data-mute и tjtv3P в aria-label (0.25137ms)
+  ✔ speaking: bool и число > 0, только у своего пользователя (0.24662ms)
+  ✔ без op5 ни у кого нет data-speaking=true (0.14621ms)
+  ✔ 7 участников → 6 строк + «Ещё 1» (0.25405ms)
+  ✔ чужой mute: data-mute=server и текст в aria-label (0.16704ms)
+  ✔ mute/deafen: сервис вызывается, aria-checked только из store (2.477532ms)
+✔ V-08 voice: участники и speaking (3.734782ms)
+▶ V-08 voice: индикация PTT
+  ✔ data-ptt idle|held|blocked и текстовый индикатор (не только цветом) (0.24946ms)
+✔ V-08 voice: индикация PTT (0.31091ms)
+▶ V-08 voice: доступность
+  ✔ у каждой иконочной кнопки русский aria-label, svg aria-hidden (0.20497ms)
+  ✔ один live-регион статуса + отдельный на действия; ошибка assertive (0.10667ms)
+  ✔ ping доступен с клавиатуры, значение — через aria-describedby (0.13462ms)
+  ✔ Tab-порядок панели: ping → leave → mute → deafen (0.12931ms)
+✔ V-08 voice: доступность (0.67258ms)
+▶ V-08 voice: CSS-контракт и приватность
+  ✔ строка участника 32px, speaking-кольцо 2px --positive (оракул — спека) (0.238131ms)
+  ✔ токены voice.css существуют в tokens.css; нет внешних ассетов (0.6064ms)
+  ✔ в коде панели нет media/record/screen API и новых каналов (0.24917ms)
+  ✔ панель не логирует имена участников/устройств (0.09878ms)
+✔ V-08 voice: CSS-контракт и приватность (1.280161ms)
+▶ V-08 voice: интеграция voice-diagnostics (RE-22-04)
+  ✔ voice.js реэкспортирует evaluatePingQuality и createVoiceDiagnosticsController (0.17717ms)
+  ✔ клик по #voice-ping в connected отдаёт попап diagnosticsController.togglePopout (0.22449ms)
+  ✔ openPopout() и enableDiagnosticsPopout покрывают контроллер без DOM-методов (0.20794ms)
+✔ V-08 voice: интеграция voice-diagnostics (RE-22-04) (0.68356ms)
+ℹ tests 47
+ℹ suites 7
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.269412
+
+$ node --test tests/unit/voice-diagnostics.test.mjs
+▶ voice-diagnostics: константы и пороги оракула (модули 613681 / 978171 / 412780)
+  ✔ пороги качества совпадают с RTCConnection.quality: 250/500 мс и 5%/10% (0.40668ms)
+  ✔ история пингов и таймаут: 199 точек, окно среднего 20, таймаут 4000 мс (0.07643ms)
+  ✔ размеры попапа, спарклайна и модалки отладки: 300 / 258x80 / 854x480 (0.07102ms)
+  ✔ RTC_DEBUG_SECTIONS — замороженный массив из 8 секций в порядке zWA (0.36017ms)
+  ✔ попытка изменить RTC_DEBUG_SECTIONS на месте не проходит (strict mode) (0.24765ms)
+✔ voice-diagnostics: константы и пороги оракула (модули 613681 / 978171 / 412780) (1.893041ms)
+▶ evaluatePingQuality: позитивные сценарии
+  ✔ fine: пинг 45 мс без данных о потерях (0.13335ms)
+  ✔ fine: пинг 45 мс и потери 0% (0.08177ms)
+  ✔ average: пинг 300 мс без потерь (0.073531ms)
+  ✔ average: малый пинг 80 мс, но потери 6.5% (0.07782ms)
+  ✔ bad: пинг 501 мс без потерь (0.08932ms)
+  ✔ bad: малый пинг 40 мс, но потери 10.1% (0.05525ms)
+✔ evaluatePingQuality: позитивные сценарии (0.726421ms)
+▶ evaluatePingQuality: граничные значения (ровно 250 / 500 мс и 5% / 10%)
+  ✔ пинг 250 мс — ещё fine, 251 мс — уже average (0.06632ms)
+  ✔ пинг 500 мс — average, 501 мс — bad (0.04322ms)
+  ✔ потери 5% — fine, 5.0001% — average (0.03881ms)
+  ✔ потери 10% — average, 10.0001% — bad (0.03272ms)
+  ✔ нулевой пинг и 0% потерь — fine (0.02862ms)
+✔ evaluatePingQuality: граничные значения (ровно 250 / 500 мс и 5% / 10%) (0.30897ms)
+▶ evaluatePingQuality: негативные и ошибочные значения
+  ✔ невалидный pingMs (null, undefined, NaN, -1, "") возвращает unknown (0.06406ms)
+  ✔ нечисловые pingMs ("250", {}, [], true) возвращает unknown (0.04619ms)
+  ✔ невалидный процент потерь (NaN, -1, 101, "abc") возвращает unknown (0.03831ms)
+  ✔ бесконечности и переполнение трактуются как unknown / bad без исключений (0.03586ms)
+✔ evaluatePingQuality: негативные и ошибочные значения (0.25704ms)
+▶ extractShortHostname: короткое имя RTC-сервера (getShortHostname)
+  ✔ отрезает домен и порт: finland10192.discord.media:443 → finland10192 (0.09559ms)
+  ✔ работает без порта и с ведущими пробелами (0.05959ms)
+  ✔ возвращает имя целиком, если точки и двоеточия нет (0.03907ms)
+  ✔ пустой, нестроковый и «только порт» вход даёт пустую строку (0.03767ms)
+✔ extractShortHostname: короткое имя RTC-сервера (getShortHostname) (0.31414ms)
+▶ formatVoicePrivacyCodeChunks: 30 цифр → 6 групп по 5 (модуль 917592)
+  ✔ разбивает сплошные 30 цифр на 6 групп по 5 (0.204431ms)
+  ✔ допускает пробелы между группами (0.07923ms)
+  ✔ возвращает замороженный массив (0.09222ms)
+  ✔ неверная длина (29 / 31 цифра) → null (0.0623ms)
+  ✔ нецифровые символы, пустая строка и нестроковый вход → null (0.05177ms)
+✔ formatVoicePrivacyCodeChunks: 30 цифр → 6 групп по 5 (модуль 917592) (0.610821ms)
+▶ computeSparklinePoints: координаты Canvas 258×80 (модули 229659 / 546738)
+  ✔ три числовых точки: x от 0 до width, y от height до 0 (0.23591ms)
+  ✔ одна точка: x = 0, y = середина высоты (0.06338ms)
+  ✔ все значения равны: плоская линия по середине высоты (0.074ms)
+  ✔ поддерживает точки вида { value } и отбрасывает невалидные значения (0.09932ms)
+  ✔ пустой ввод, null и нестроковый массив → пустой результат (0.08699ms)
+  ✔ хранит только последние 199 точек (PING_HISTORY_MAX_POINTS) (0.15603ms)
+  ✔ все координаты лежат в пределах [0..width] × [0..height] (0.08227ms)
+  ✔ учитывает явные width/height (0.05655ms)
+✔ computeSparklinePoints: координаты Canvas 258×80 (модули 229659 / 546738) (1.03059ms)
+▶ formatPopoutMetricsRu: русские строки попапа (модуль 978171)
+  ✔ полный снимок: заголовок с хостом, метрики, E2EE-баннер и предупреждение (0.16255ms)
+  ✔ без хоста и без потерь: базовый заголовок, прочерк и SRTP-баннер (0.06007ms)
+  ✔ пустой объект и undefined нормализуются без исключений (0.09666ms)
+  ✔ границы предупреждения: 250 мс и 10% не warn, 251 мс и 10.1% — warn (0.06603ms)
+  ✔ потери 0% печатаются как 0.0%, нечисловая потеря — прочерк (0.06346ms)
+  ✔ округляет средний и последний пинг до целых (toFixed(0) в оракуле) (0.05325ms)
+✔ formatPopoutMetricsRu: русские строки попапа (модуль 978171) (0.626321ms)
+▶ createVoiceDiagnosticsController: начальное состояние и открытие/закрытие
+  ✔ начальное состояние: попап закрыт, вкладка «Интеграция», секция TRANSPORT (0.14275ms)
+  ✔ open() открывает попап и запрашивает снимок диагностики; повторный open не дублирует загрузку (0.08114ms)
+  ✔ close() закрывает попап и модалку; toggle() переключает состояние (0.10624ms)
+  ✔ колбэки необязательны: контроллер без options работает без исключений (0.07913ms)
+✔ createVoiceDiagnosticsController: начальное состояние и открытие/закрытие (0.50407ms)
+▶ createVoiceDiagnosticsController: вкладки попапа
+  ✔ selectTab("privacy") переключает на вкладку конфиденциальности (0.08395ms)
+  ✔ неизвестная вкладка игнорируется, состояние не портится (0.0626ms)
+✔ createVoiceDiagnosticsController: вкладки попапа (0.21053ms)
+▶ createVoiceDiagnosticsController: модалка отладки (8 секций zWA)
+  ✔ openDebugModal(section) открывает модалку, нормализует регистр и уведомляет колбэк (0.11748ms)
+  ✔ без аргумента и с неизвестной секцией модалка открывается на текущей секции (0.08076ms)
+  ✔ closeDebugModal() закрывает только модалку, попап и активная секция сохраняются (0.05644ms)
+  ✔ все 8 секций оракула принимаются как activeDebugSection (0.05973ms)
+✔ createVoiceDiagnosticsController: модалка отладки (8 секций zWA) (0.39868ms)
+▶ createVoiceDiagnosticsController: копирование кода конфиденциальности
+  ✔ copyPrivacyCode() без снимка возвращает false и не вызывает колбэк (0.07567ms)
+  ✔ копирует код из snapshot.privacyCodeChunks и передаёт 30 цифр без пробелов (0.09181ms)
+  ✔ форматирует сырой код из snapshot.privacyCode с пробелами (0.07902ms)
+  ✔ невалидный или пустой код не копируется (0.05901ms)
+✔ createVoiceDiagnosticsController: копирование кода конфиденциальности (0.39361ms)
+▶ createVoiceDiagnosticsController: handleKeyDown (Escape) и доступность
+  ✔ Escape при открытой модалке закрывает модалку, попап остаётся открытым (0.12131ms)
+  ✔ Escape при открытом попапе закрывает попап (0.104341ms)
+  ✔ Escape при закрытом попапе и чужие клавиши не перехватываются (0.08356ms)
+  ✔ null/undefined-событие не ломает обработчик (0.05049ms)
+✔ createVoiceDiagnosticsController: handleKeyDown (Escape) и доступность (0.786101ms)
+▶ createVoiceDiagnosticsController: updateSnapshot и наблюдаемость
+  ✔ updateSnapshot сохраняет снимок и сбрасывает copiedPrivacyCode (0.09969ms)
+  ✔ updateSnapshot копирует снимок, внешние мутации не влияют на состояние (0.05326ms)
+  ✔ невалидный снимок (null, строка, число) нормализуется в null (0.0477ms)
+  ✔ getState() возвращает копию: мутация результата не меняет контроллер (0.04422ms)
+  ✔ восстановление: после close() попап открывается снова с чистыми флагами (0.06133ms)
+  ✔ совместимость: updateSnapshot отдаёт данные, пригодные для formatPopoutMetricsRu (0.0649ms)
+✔ createVoiceDiagnosticsController: updateSnapshot и наблюдаемость (0.47978ms)
+ℹ tests 67
+ℹ suites 14
+ℹ pass 67
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.91927
+
+$ npm run typecheck
+
+> discord-function-lab@0.1.0 typecheck
+> tsc -p tsconfig.json && tsc -p tsconfig.agent.json
+

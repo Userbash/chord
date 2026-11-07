@@ -1,0 +1,37 @@
+# M2: drop launch_signature from OP2 wire properties
+# file: rust/crates/discord-core/src/identify.rs
+# exit: 101
+
+$ cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+
+
+running 8 tests
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok
+test gateway::tests::op_codes_match_protocol_table ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... ok
+test tests::gateway_constants_match_capture ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test identify::tests::client_identity_drives_identify_properties ... ok
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... FAILED
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+
+failures:
+
+---- identify::tests::identify_wire_matches_super_properties_byte_for_byte stdout ----
+
+thread 'identify::tests::identify_wire_matches_super_properties_byte_for_byte' (1485180) panicked at crates/discord-core/src/identify.rs:480:13:
+assertion `left == right` failed: поле launch_signature в OP2 IDENTIFY обязано совпадать с X-Super-Properties
+  left: None
+ right: Some("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    identify::tests::identify_wire_matches_super_properties_byte_for_byte
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.95s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+error: test failed, to rerun pass `-p discord-core --lib`

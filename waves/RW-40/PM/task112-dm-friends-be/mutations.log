@@ -1,0 +1,72 @@
+BASELINE: d1820fe304816de3e4def848d992d3b9  rust/gui-spike/src/dm_friends.rs
+==============================================================================
+
+[MUT-1] sort_private_channels_by_last_message_desc: lexicographical string sort instead of u64 snowflake sort
+MUTATED_MD5: 638606a5978bc8d5c4eb6fe6f52e6c94
+  test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+  test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... ok
+  test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+  test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+  test ready_private_channels_and_rest_static_oracle_parity ... FAILED
+  thread 'ready_private_channels_and_rest_static_oracle_parity' (847606) panicked at tests/dm_friends_contract.rs:320:5:
+  assertion `left == right` failed
+  test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+RESULT: MUT-1 -> KILLED (exit=101)
+
+[MUT-2] RelationshipCounts::from_relationships: omit subtracting spam_count and pending_ignored_count
+MUTATED_MD5: dee493d88c0d71c732f6770ab96e6aa3
+  test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+  test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... ok
+  test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+  test ready_relationships_parsing_and_tabs_filtering_contract ... FAILED
+  test ready_private_channels_and_rest_static_oracle_parity ... ok
+  thread 'ready_relationships_parsing_and_tabs_filtering_contract' (848301) panicked at tests/dm_friends_contract.rs:482:5:
+  assertion `left == right` failed: pendingCount = max(incoming(3) - spam(1) - ignored(1), 0) == 1 (@9318383)
+  test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+RESULT: MUT-2 -> KILLED (exit=101)
+
+[MUT-3] validate_recipients_list: allow 10 recipients instead of MAX_DM_RECIPIENTS (9)
+MUTATED_MD5: b830f4d8d136f884b2118cb97b6f237a
+  test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+  test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... FAILED
+  test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... ok
+  test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+  test ready_private_channels_and_rest_static_oracle_parity ... ok
+  thread 'rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds' (848982) panicked at tests/dm_friends_contract.rs:580:5:
+  assertion `left == right` failed
+  test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+RESULT: MUT-3 -> KILLED (exit=101)
+
+[MUT-4] map_error_response: disable typed 80013 StrangerConfirmationRequired detection
+MUTATED_MD5: a8f531000e426560aa80b196dbb24681
+  test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+  test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... FAILED
+  test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+  test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+  test ready_private_channels_and_rest_static_oracle_parity ... ok
+  thread 'rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract' (849691) panicked at tests/dm_friends_contract.rs:829:5:
+  assertion failed: stranger_err.is_stranger_confirmation_required()
+  test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+RESULT: MUT-4 -> KILLED (exit=101)
+
+[MUT-5] send_friend_request: serialize '0' instead of null for Pomelo discriminator
+MUTATED_MD5: 14fd47a86cefd8a19a9212079d17b015
+  test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+  test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... FAILED
+  test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+  test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+  test ready_private_channels_and_rest_static_oracle_parity ... ok
+  thread 'rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract' (850368) panicked at tests/dm_friends_contract.rs:949:5:
+  assertion `left == right` failed: для Pomelo-аккаунтов discriminator в JSON обязан быть null (JSON.stringify(parseInt(undefined)))
+  test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+RESULT: MUT-5 -> KILLED (exit=101)
+
+==============================================================================
+RESTORED: d1820fe304816de3e4def848d992d3b9  rust/gui-spike/src/dm_friends.rs
+  test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+  test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... ok
+  test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+  test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+  test ready_private_channels_and_rest_static_oracle_parity ... ok
+  test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+SUMMARY: 5/5 KILLED; baseline restored (md5=d1820fe304816de3e4def848d992d3b9, post_verify_exit=0)

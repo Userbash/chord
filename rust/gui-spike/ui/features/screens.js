@@ -18,6 +18,14 @@ export const TITLES = {
   settings: "Настройки · 38 переключателей",
 };
 
+/** @type {Record<string, string>} */
+export const LIVE_TITLES = {
+  chat: "Чат",
+  emoji: "Эмодзи",
+  members: "Участники",
+  settings: "Настройки",
+};
+
 /** @typedef {"chat" | "emoji" | "members" | "settings"} ScreenName */
 
 /**
@@ -67,7 +75,10 @@ export function createScreenRouter(options = {}) {
     document.body.dataset.activeScreen = name;
     document.body.setAttribute("data-active-screen", name);
     const title = document.querySelector(".screen-title");
-    if (title) title.textContent = TITLES[name] ?? "";
+    if (title) {
+      const isLive = Boolean(/** @type {any} */ (globalThis).__LIVE_SESSION_ACTIVE__);
+      title.textContent = (isLive ? LIVE_TITLES[name] : TITLES[name]) ?? "";
+    }
     current = name;
     onShow(name);
   }

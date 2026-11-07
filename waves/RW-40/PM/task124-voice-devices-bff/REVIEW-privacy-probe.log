@@ -1,0 +1,18 @@
+
+running 1 test
+--- state Debug after fallback ---
+VoiceDevicesState { devices: [AudioDevice { id: "mic-builtin", label: "<redacted>", kind: Input, is_default: true }, AudioDevice { id: "spk-1", label: "<redacted>", kind: Output, is_default: true }], selected_input: Some("mic-builtin"), selected_output: Some("spk-1"), selected_video: None, input_volume: 100, output_volume: 100, input_mode: VoiceActivity { threshold_db: -40 }, vad_threshold_db: -40, auto_sensitivity: false, ptt_release_delay_ms: 200, ptt_key: None, ptt_capturing: false, window_focused: true, global_shortcuts_available: true, user_mute: false, self_deaf: false, effective_mute: false, mic_test_state: Idle, notice: Some(VoiceNotice { level: Status, message: "Устройство «Система: USB Studio Microphone» отключено. Выбрано «Система: Built-in Microphone»." }) }
+---
+
+thread 'debug_after_hotplug_fallback_leaks_device_labels' (1115898) panicked at leak_probe.rs:30:5:
+LEAK: fmt::Debug for VoiceDevicesState contains OS device labels
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test debug_after_hotplug_fallback_leaks_device_labels ... FAILED
+
+failures:
+
+failures:
+    debug_after_hotplug_fallback_leaks_device_labels
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

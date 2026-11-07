@@ -1,0 +1,35 @@
+ORIG settings.js md5=12144dbf2d4ce592b8c9dc91f5e80138
+ORIG voice-devices-settings.js md5=dce9faaca993a0ae72f2f5a3a4746d87
+=== M1: settings.js — пропуск unmountVoiceDevices() при смене вкладки в showPane() -> KILLED (exit=1) ===
+    ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (2.209158ms)
+    ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.65395ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (6.666666ms)
+  ℹ fail 2
+  ✖ failing tests:
+  ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (2.209158ms)
+    AssertionError [ERR_ASSERTION]: при уходе на Внешний вид контроллер уничтожается
+  ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.65395ms)
+    AssertionError [ERR_ASSERTION]: destroy() вызван при смене вкладки
+=== M2: settings.js — пропуск unmountVoiceDevices() при закрытии модалки в close() -> KILLED (exit=1) ===
+    ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (1.32082ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (8.854466ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (1.32082ms)
+    AssertionError [ERR_ASSERTION]: destroy() вызван при close() модалки настроек
+=== M3: voice-devices-settings.js — порог чувствительности VAD в createVoiceDevicesSettingsController не ограничен -100..0 дБ -> KILLED (exit=1) ===
+    ✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (1.21883ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (6.983186ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (1.21883ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+=== M4: voice-devices-settings.js — destroy() не останавливает активную проверку микрофона (stopMicTest) -> KILLED (exit=1) ===
+    ✖ проверка микрофона (mic test): старт/стоп кнопкой, индикатор уровня -100..0 дБ и авто-стоп при destroy() (1.422389ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (7.372206ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ проверка микрофона (mic test): старт/стоп кнопкой, индикатор уровня -100..0 дБ и авто-стоп при destroy() (1.422389ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+RESTORED settings.js md5=12144dbf2d4ce592b8c9dc91f5e80138
+RESTORED voice-devices-settings.js md5=dce9faaca993a0ae72f2f5a3a4746d87

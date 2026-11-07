@@ -1,0 +1,50 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-json)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/gui-spike)
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-platform)
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.73s
+     Running tests/ipc_wiring_contract.rs (rust/gui-spike/target/debug/deps/ipc_wiring_contract-753abf523feb46d5)
+
+running 9 tests
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/search_contract.rs (rust/gui-spike/target/debug/deps/search_contract-bbc6edbdf1e46774)
+
+running 23 tests
+test decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted ... ok
+test enforces_max_search_offset_9975_and_rejects_above_ceiling_before_transport ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test maps_malformed_json_to_typed_error ... ok
+test rejects_empty_guild_id_before_transport ... ok
+test maps_network_error_without_exposing_details ... ok
+test no_token_is_typed_before_network ... ok
+test rejects_invalid_filter_values_before_transport ... ok
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... ok
+test storage_failure_is_typed_for_ui ... ok
+test debug_and_errors_do_not_expose_token ... ok
+test decodes_hits_and_deep_index_flag ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... ok
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... ok
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test sends_all_confirmed_re_filters_in_query ... ok
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... ok
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... ok
+test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test rejects_negative_offset_before_transport ... ok
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+

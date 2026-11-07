@@ -1,0 +1,22 @@
+▶ FE-P1-06 / task-164: монтирование createUserPopoutController и createGuildModalsController в app.js
+  ✖ 1. В app.js импортированы и смонтированы createUserPopoutController и createGuildModalsController, возвращены в currentApp() (2.543451ms)
+  ✖ 2. userPopout открывается по клику на .author в чате и .member в списке участников с корректными данными (74.534197ms)
+  ✖ 3. guildModals открывает #guild-context-menu по contextmenu на триггере сервера/рейла и обрабатывает Escape (45.788794ms)
+  ✖ 4. В #guild-context-menu пункт 'Настройки уведомлений' вызывает onOpenNotifications (sync/openModal) (15.874882ms)
+  ✖ 5. Очистка ресурсов при destroy() контроллеров: удаление DOM узлов и снятие слушателей (15.712271ms)
+✖ FE-P1-06 / task-164: монтирование createUserPopoutController и createGuildModalsController в app.js (155.916175ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 236.389903
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:5192:3
+✖ 1. В app.js импортированы и смонтированы createUserPopoutController и createGuildModalsController, возвращены в currentApp() (2.543451ms)
+  AssertionError [ERR_ASSERTION]: в app.js не найден импорт createUserPopoutController
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-164-mount-popouts-guild-modals/tests/unit/gui-spike-features.test.mjs:5194:12)

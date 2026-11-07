@@ -1,0 +1,86 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.379601ms)
+✔ test-impact: docs → docs-sync (0.852271ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.10261ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (3.568742ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (3.774582ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.21819ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.08754ms)
+✔ test-impact: rust/crates/discord-core (0.39893ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.16037ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.26762ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.17835ms)
+✔ test-impact: src/cli (0.25905ms)
+▶ test-impact v2: точечный граф новых UI-модулей
+  ✔ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.29447ms)
+  ✔ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.102831ms)
+  ✔ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.11046ms)
+  ✔ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.07784ms)
+  ✔ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.06088ms)
+  ✔ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.06169ms)
+  ✔ каждый ключ — реальный layout ui/features/<mod>.js (0.04866ms)
+  ✔ таблица согласована с диском: модуль либо есть, либо запланирован (0.16613ms)
+  ✔ после интеграции смежных карточек инвариант остаётся зелёным (0.09939ms)
+  ✔ фантомный ключ и плоский путь ловятся инвариантом, а не снимком (0.1254ms)
+  ✔ фантомный плоский путь ui/<mod>.js не получает точечное правило (0.11568ms)
+  ✔ профильные тесты таблицы либо в tests/unit, либо помечены запланированными (0.14095ms)
+  ✔ features/chat.js расширен профилем вложений и общими контрактами (0.15027ms)
+  ✔ search.js и search-overlay.js дают одинаковый целевой набор (0.08882ms)
+  ✔ несколько новых модулей объединяются без потери профильных тестов (0.1326ms)
+✔ test-impact v2: точечный граф новых UI-модулей (2.071941ms)
+▶ test-impact v2: правила модулей интеграции оболочки
+  ✔ features/shell-controllers-registry.js → shell-controllers-registry.test.mjs + общие UI-контракты (0.154161ms)
+  ✔ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.07663ms)
+  ✔ features/composer-popovers-bridge.js → composer-popovers-bridge.test.mjs + общие UI-контракты (0.08247ms)
+  ✔ features/app-shell-wiring.js → app-shell-wiring.test.mjs + общие UI-контракты (0.07642ms)
+✔ test-impact v2: правила модулей интеграции оболочки (0.494801ms)
+▶ test-impact v2: точечный граф Rust BFF
+  ✔ src/attachments.rs → attachments_contract + ipc_contract (0.17691ms)
+  ✔ src/auth.rs → auth_contract + ipc_contract (0.04807ms)
+  ✔ src/core_bridge.rs → core_bridge + ipc_contract (0.05002ms)
+  ✔ src/data.rs → data_contract + ipc_contract (0.03937ms)
+  ✔ src/dm_friends.rs → dm_friends_contract + ipc_contract (0.06299ms)
+  ✔ src/guilds.rs → guilds_contract + ipc_contract (0.04197ms)
+  ✔ src/invites.rs → invites_contract + ipc_contract (0.03552ms)
+  ✔ src/messages.rs → messages_contract + ipc_contract (0.03609ms)
+  ✔ src/net.rs → net_contract + ipc_contract (0.03741ms)
+  ✔ src/notifications.rs → notifications_contract + ipc_contract (0.04306ms)
+  ✔ src/pins_threads.rs → pins_threads_contract + ipc_contract (0.04456ms)
+  ✔ src/reactions.rs → reactions_contract + ipc_contract (0.04289ms)
+  ✔ src/rest_failure.rs → rest_failure_contract + ipc_contract (0.05022ms)
+  ✔ src/search.rs → search_contract + ipc_contract (0.30984ms)
+  ✔ src/settings_store.rs → settings_contract + ipc_contract (0.05083ms)
+  ✔ src/typing.rs → typing_contract + ipc_contract (0.04025ms)
+  ✔ src/voice_devices.rs → voice_devices_contract + ipc_contract (0.0316ms)
+  ✔ src/voice_diagnostics.rs → voice_diagnostics_contract + ipc_contract (0.02906ms)
+  ✔ каждый таргет контракта существует в rust/gui-spike/tests (0.17848ms)
+  ✔ каждый pub mod из lib.rs покрыт правилом (0.535521ms)
+  ✔ lib.rs и main.rs дают полный прогон крейта, а не отдельный таргет (0.08671ms)
+  ✔ новый src/<mod>.rs без правила не теряет контракты — полный прогон (0.06001ms)
+✔ test-impact v2: точечный граф Rust BFF (2.334131ms)
+▶ test-impact v2: safety net общих файлов
+  ✔ package.json → полный прогон T2 (0.12092ms)
+  ✔ scripts/test-impact.mjs → полный прогон T2 (0.04154ms)
+  ✔ rust/gui-spike/Cargo.toml → полный прогон T2 (0.03516ms)
+  ✔ rust/gui-spike/src/lib.rs → полный прогон T2 (0.02705ms)
+  ✔ rust/gui-spike/src/main.rs → полный прогон T2 (0.05135ms)
+  ✔ rust/gui-spike/ui/app.js → полный прогон T2 (0.03919ms)
+  ✔ обычный модуль не получает release-набор (0.06555ms)
+✔ test-impact v2: safety net общих файлов (0.48275ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный путь переключает полный прогон §5.2.3 (0.10179ms)
+  ✔ --full даёт tier T2 и offline release-набор (15.218988ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (16.605089ms)
+✔ test-impact: fallback и tier (32.033627ms)
+ℹ tests 58
+ℹ suites 10
+ℹ pass 58
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 79.576232

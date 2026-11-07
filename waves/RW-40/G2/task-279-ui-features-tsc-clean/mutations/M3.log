@@ -1,0 +1,50 @@
+✔ MAX_INVITE_EMBEDS равен 3 (3.81948ms)
+✔ extractInviteCodes: все поддерживаемые формы ссылок (0.53238ms)
+✔ extractInviteCodes: три формы в одном тексте дают три кода по порядку (0.19599ms)
+✖ extractInviteCodes: дедупликация с сохранением порядка первого вхождения (0.75233ms)
+✔ extractInviteCodes: ограничение MAX_INVITE_EMBEDS (0.10353ms)
+✔ extractInviteCodes: код из [A-Za-z0-9-]{2,32}, минимум 2 символа (0.07988ms)
+✔ extractInviteCodes: пустой/невалидный ввод даёт пустой массив (0.08736ms)
+✔ formatInviteSummaryRu: недействительное приглашение (null) (0.12991ms)
+✔ formatInviteSummaryRu: истёкшее приглашение (0.12459ms)
+✔ formatInviteSummaryRu: валидное приглашение, не вступил (0.1463ms)
+✔ formatInviteSummaryRu: уже участник -> кнопка «Перейти» (0.09486ms)
+✔ formatInviteSummaryRu: fallback имени и нормализация чисел (0.06916ms)
+✔ formatInviteSummaryRu: отсутствующие счётчики дают 0 (0.05904ms)
+✔ formatInviteSummaryRu: нечисловые счётчики дают 0 (0.06274ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.776026
+
+✖ failing tests:
+
+test at tests/unit/invite-parser.test.mjs:34:1
+✖ extractInviteCodes: дедупликация с сохранением порядка первого вхождения (0.75233ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'abc',
+      'xyz',
+  +   'abc'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/invite-parser.test.mjs:36:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'abc', 'xyz', 'abc' ],
+    expected: [ 'abc', 'xyz' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

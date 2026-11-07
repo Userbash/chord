@@ -1,0 +1,22 @@
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-245-be-webhooks/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.78s
+     Running tests/webhooks_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/webhooks_contract-6c236c9b424d8a1c)
+
+running 8 tests
+test build_create_webhook_route_and_body_rejects_invalid_channel_id_or_name ... ok
+test build_follow_channel_route_and_body_returns_canonical_route_and_payload ... ok
+test build_create_webhook_route_and_body_returns_canonical_route_and_payload ... ok
+test build_follow_channel_route_and_body_rejects_same_channel_and_invalid_snowflakes ... ok
+test validate_webhook_name_rejects_clyde_and_discord_case_insensitively ... ok
+test create_webhook_request_serde_roundtrip ... ok
+test webhooks_constants_match_discord_contract ... ok
+test validate_webhook_name_trims_and_enforces_1_to_80_unicode_char_bounds ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

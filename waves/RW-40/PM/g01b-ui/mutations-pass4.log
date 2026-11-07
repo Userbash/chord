@@ -1,0 +1,93 @@
+# Mutation run — G-01b-UI-SETTINGS-MUTATIONS pass 4 (RW-40, INT-03-SAVE-QUEUE-FIX)
+
+Repository: /home/sanya/orca/project
+Target test: tests/unit/guild-rail.test.mjs
+Mutation targets: rust/gui-spike/ui/app.js
+Node: v26.13.0
+
+## Baseline
+md5 app.js: 8f5d84c14dc6e9aea749a202ecb3a96b
+md5 guild-rail.test.mjs: 76a0acca4dcc95ac21ec1d7f90370a32
+exit code: 0
+summary: ℹ tests 16 | ℹ pass 16 | ℹ fail 0 | ℹ skipped 0
+
+## M1 — Снятие сериализации saveQueue (запуск каждого сохранения без ожидания предыдущего)
+file: rust/gui-spike/ui/app.js
+md5 до: 8f5d84c14dc6e9aea749a202ecb3a96b
+md5 мутанта: fa0191badf7fd479cf8e5493d68c264f
+patch:
+  -     saveQueue = saveQueue
+  -       .catch(() => {})
+  -       .then(async () => {
+  +     saveQueue = Promise.resolve().then(async () => {
+exit code: 1
+summary: ℹ tests 16 | ℹ pass 15 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ быстрые клики серверов A -> B с задержкой завершения settings_save от A сохраняют итоговый выбор B
+md5 после восстановления: 8f5d84c14dc6e9aea749a202ecb3a96b (OK, совпал)
+verdict: KILLED
+
+## M2 — Инвертирование проверки токена поколения (latestGuildId) на входе в задачу очереди
+file: rust/gui-spike/ui/app.js
+md5 до: 8f5d84c14dc6e9aea749a202ecb3a96b
+md5 мутанта: c9bd121b8b19d862eba8db357ae0d793
+patch:
+  -     if (latestGuildId !== id) return;
+  +     if (latestGuildId === id) return;
+exit code: 1
+summary: ℹ tests 16 | ℹ pass 12 | ℹ fail 4 | ℹ skipped 0
+failed tests:
+  ✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B
+  ✖ быстрые клики серверов A -> B с задержкой завершения settings_save от A сохраняют итоговый выбор B
+md5 после восстановления: 8f5d84c14dc6e9aea749a202ecb3a96b (OK, совпал)
+verdict: KILLED
+
+## M3 — Потеря существующих настроек при сохранении (пропуск normalizeSettings)
+file: rust/gui-spike/ui/app.js
+md5 до: 8f5d84c14dc6e9aea749a202ecb3a96b
+md5 мутанта: f3f0b6d55e1814a5ece5d04a7ae1dcd9
+patch:
+  -     await invoke("settings_save", { settings: { ...normalizeSettings(raw), lastGuildId: id } });
+  +     await invoke("settings_save", { settings: { lastGuildId: id } });
+exit code: 1
+summary: ℹ tests 16 | ℹ pass 15 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки
+md5 после восстановления: 8f5d84c14dc6e9aea749a202ecb3a96b (OK, совпал)
+verdict: KILLED
+
+## M4 — Искажение payload: запись пустого lastGuildId вместо выбранного id
+file: rust/gui-spike/ui/app.js
+md5 до: 8f5d84c14dc6e9aea749a202ecb3a96b
+md5 мутанта: 8b3b877965734025193317f539fb793c
+patch:
+  -     await invoke("settings_save", { settings: { ...normalizeSettings(raw), lastGuildId: id } });
+  +     await invoke("settings_save", { settings: { ...normalizeSettings(raw), lastGuildId: "" } });
+exit code: 1
+summary: ℹ tests 16 | ℹ pass 12 | ℹ fail 4 | ℹ skipped 0
+failed tests:
+  ✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B
+  ✖ быстрые клики серверов A -> B с задержкой завершения settings_save от A сохраняют итоговый выбор B
+md5 после восстановления: 8f5d84c14dc6e9aea749a202ecb3a96b (OK, совпал)
+verdict: KILLED
+
+## M5 — Потеря экспорта pinsThreads из currentApp()
+file: rust/gui-spike/ui/app.js
+md5 до: 8f5d84c14dc6e9aea749a202ecb3a96b
+md5 мутанта: 1c83ba3cc43da98e0c01867fc5897328
+patch:
+  -     get pinsThreads() {
+  -       return getPinsThreads();
+  -     },
+  +     // mutant 5: drop pinsThreads export
+  +     pinsThreads: null,
+exit code: 1
+summary: ℹ tests 16 | ℹ pass 15 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ STUB-10 / STUB-05: currentApp() экспортирует рабочие контроллеры pinsThreads и inviteModal
+md5 после восстановления: 8f5d84c14dc6e9aea749a202ecb3a96b (OK, совпал)
+verdict: KILLED

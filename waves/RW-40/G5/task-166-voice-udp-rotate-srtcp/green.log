@@ -1,0 +1,60 @@
+
+running 14 tests
+test reception::tests::extension_sequence_wraps_forward ... ok
+test reconnect::tests::attempt_saturates_at_u32_max_without_overflow ... ok
+test rtcp::tests::i24_sign_extension ... ok
+test reconnect::tests::backoff_index_is_clamped_to_last_entry ... ok
+test stats::tests::ntp_middle_is_high_word ... ok
+test session::tests::hello_and_ready_select_xchacha_over_aes_and_encode_74b_udp_discovery_request ... ok
+test tests::voice_constants_match_re ... ok
+test session::tests::speaking_op5_and_heartbeat_op3_op6_ack_and_timeout_detection ... ok
+test session::tests::start_from_server_and_state_updates_builds_op0_identify_and_redacts_secrets ... ok
+test session::tests::discovery_response_decodes_74b_and_automatically_builds_op1_select_protocol ... ok
+test srtp::tests::xchacha20_poly1305_rtpsize_byte_format_uses_raw_op4_secret_key_and_trailer_nonce ... ok
+test srtp::tests::aes256_gcm_rtpsize_byte_format_uses_raw_op4_secret_key_and_trailer_nonce ... ok
+test session::tests::op4_session_description_initializes_live_srtp_and_encrypts_decrypts_media_frames ... ok
+test srtp::tests::rtpsize_roundtrip_between_independent_contexts_with_direct_op4_secret_key ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 16 tests
+test m03_encode_header_without_extension ... ok
+test m05_encode_rejects_misaligned_or_oversized_extension ... ok
+test m07_parse_strips_padding_and_rejects_out_of_range ... ok
+test m06_parse_rejects_short_bad_version_and_truncated_extension ... ok
+test m08_sender_increments_sequence_and_timestamp_with_one_marker ... ok
+test m09_sender_silence_moves_only_timestamp_and_rearms_marker ... ok
+test m10_classify_opus_payload_by_comfort_noise_threshold ... ok
+test m11_jitter_reorders_three_one_two ... ok
+test m12_jitter_counts_duplicate_late_and_missing_once ... ok
+test m13_jitter_handles_wraparound_and_capacity_one ... ok
+test m14_srtcp_empty_rr_exact_byte_layout_oracle_28b ... ok
+test m15_udp_socket_rotation_due_at_60080ms_sends_discovery_and_28b_srtcp_rr ... ok
+test m16_udp_socket_rotation_closes_old_socket_and_increments_shared_counter ... ok
+test m02_parse_captured_anomalies_without_standard_extension ... ok
+test m04_encode_header_with_extension ... ok
+test m01_parse_captured_valid_packets ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 15 tests
+test empty_receiver_report_has_exact_rtcp_header_and_ssrc ... ok
+test discovery_matches_strace_request_and_response_oracles ... ok
+test empty_srtcp_receiver_report_matches_capture ... ok
+test discovery_receivers_reject_oversized_datagrams ... ok
+test keepalive_constants_match_re_and_interval ... ok
+test encode_rejects_invalid_response ... ok
+test keepalive_sequence_matches_capture_and_increments ... ok
+test response_round_trips_and_rejects_malformed_fields ... ok
+test receivers_reject_foreign_peer_and_wrong_ssrc ... ok
+test parser_never_panics_on_prefixes_or_arbitrary_packets ... ok
+test rotate_changes_loopback_port_and_closes_old_socket ... ok
+test rotation_boundary_and_action_match_capture_contract ... ok
+test rotate_srtcp_sends_captured_28_byte_rr ... ok
+test rotate_if_due_integrates_schedule_and_socket ... ok
+test loopback_send_receive_discovery_keepalive_and_timeout ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

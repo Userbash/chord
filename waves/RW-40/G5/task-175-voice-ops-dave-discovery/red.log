@@ -1,0 +1,216 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-175-voice-ops-dave-discovery/rust/crates/discord-voice)
+error[E0599]: no variant, associated function, or constant named `Speaking` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:610:22
+    |
+610 |         (5, VoiceOp::Speaking, "SPEAKING"),
+    |                      ^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `Resume` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:612:22
+    |
+612 |         (7, VoiceOp::Resume, "RESUME"),
+    |                      ^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `Resumed` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:614:22
+    |
+614 |         (9, VoiceOp::Resumed, "RESUMED"),
+    |                      ^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `ClientsConnect` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:616:23
+    |
+616 |         (11, VoiceOp::ClientsConnect, "CLIENTS_CONNECT"),
+    |                       ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `Video` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:617:23
+    |
+617 |         (12, VoiceOp::Video, "VIDEO"),
+    |                       ^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `ClientDisconnect` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:618:23
+    |
+618 |         (13, VoiceOp::ClientDisconnect, "CLIENT_DISCONNECT"),
+    |                       ^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MediaSinkWants` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:620:23
+    |
+620 |         (15, VoiceOp::MediaSinkWants, "MEDIA_SINK_WANTS"),
+    |                       ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `VoiceBackendVersion` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:621:23
+    |
+621 |         (16, VoiceOp::VoiceBackendVersion, "VOICE_BACKEND_VERSION"),
+    |                       ^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `SecureFramesPrepareProtocolTransition` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:628:22
+    |
+628 |             VoiceOp::SecureFramesPrepareProtocolTransition,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `SecureFramesExecuteTransition` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:633:22
+    |
+633 |             VoiceOp::SecureFramesExecuteTransition,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `SecureFramesReadyForTransition` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:638:22
+    |
+638 |             VoiceOp::SecureFramesReadyForTransition,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `SecureFramesPrepareEpoch` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:643:22
+    |
+643 |             VoiceOp::SecureFramesPrepareEpoch,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsExternalSenderPackage` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:648:22
+    |
+648 |             VoiceOp::MlsExternalSenderPackage,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsKeyPackage` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:651:23
+    |
+651 |         (26, VoiceOp::MlsKeyPackage, "MLS_KEY_PACKAGE"),
+    |                       ^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsProposals` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:652:23
+    |
+652 |         (27, VoiceOp::MlsProposals, "MLS_PROPOSALS"),
+    |                       ^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsCommitWelcome` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:653:23
+    |
+653 |         (28, VoiceOp::MlsCommitWelcome, "MLS_COMMIT_WELCOME"),
+    |                       ^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsPrepareCommitTransition` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:656:22
+    |
+656 |             VoiceOp::MlsPrepareCommitTransition,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsWelcome` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:659:23
+    |
+659 |         (30, VoiceOp::MlsWelcome, "MLS_WELCOME"),
+    |                       ^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `MlsInvalidCommitWelcome` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:662:22
+    |
+662 |             VoiceOp::MlsInvalidCommitWelcome,
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `NoRoute` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:665:23
+    |
+665 |         (32, VoiceOp::NoRoute, "NO_ROUTE"),
+    |                       ^^^^^^^ variant, associated function, or constant not found in `VoiceOp`
+
+error[E0599]: no method named `name` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:672:23
+    |
+672 | ...   assert_eq!(op.name(), expected_name, "op.name() mismatch for {cod...
+    |                     ^^^^
+    |
+help: there is a method `ne` with a similar name, but with different arguments
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:275:4
+
+error[E0599]: no method named `name` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:680:23
+    |
+680 |         assert_eq!(op.name(), "UNKNOWN");
+    |                       ^^^^
+    |
+help: there is a method `ne` with a similar name, but with different arguments
+   --> /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library/core/src/cmp.rs:275:4
+
+error[E0599]: no method named `is_dave_or_mls` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:691:16
+    |
+691 |             op.is_dave_or_mls(),
+    |                ^^^^^^^^^^^^^^ method not found in `VoiceOp`
+
+error[E0599]: no method named `is_dave_or_mls` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:699:40
+    |
+699 |         assert!(VoiceOp::Unknown(code).is_dave_or_mls());
+    |                                        ^^^^^^^^^^^^^^ method not found in `VoiceOp`
+
+error[E0599]: no method named `is_dave_or_mls` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:701:35
+    |
+701 |     assert!(!VoiceOp::Unknown(20).is_dave_or_mls());
+    |                                   ^^^^^^^^^^^^^^ method not found in `VoiceOp`
+
+error[E0599]: no method named `is_dave_or_mls` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:702:35
+    |
+702 |     assert!(!VoiceOp::Unknown(32).is_dave_or_mls());
+    |                                   ^^^^^^^^^^^^^^ method not found in `VoiceOp`
+
+error[E0599]: no method named `is_dave_or_mls` found for enum `VoiceOp` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:703:35
+    |
+703 |     assert!(!VoiceOp::Unknown(77).is_dave_or_mls());
+    |                                   ^^^^^^^^^^^^^^ method not found in `VoiceOp`
+
+error[E0599]: no variant, associated function, or constant named `encode_request_with_port` found for enum `DiscoveryPacket` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:712:42
+    |
+712 | ...DiscoveryPacket::encode_request_with_port(ssrc, "", port)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `DiscoveryPacket`
+    |
+note: if you're trying to build a new `DiscoveryPacket`, consider using `DiscoveryPacket::parse` which returns `Result<DiscoveryPacket, UdpError>`
+   --> crates/discord-voice/src/udp.rs:112:5
+    |
+112 |     pub fn parse(bytes: &[u8]) -> Result<Self, UdpError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `encode_request` found for enum `DiscoveryPacket` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:730:39
+    |
+730 | ...0 = DiscoveryPacket::encode_request(ssrc).expect("encode request wit...
+    |                         ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `DiscoveryPacket`
+    |
+note: if you're trying to build a new `DiscoveryPacket`, consider using `DiscoveryPacket::parse` which returns `Result<DiscoveryPacket, UdpError>`
+   --> crates/discord-voice/src/udp.rs:112:5
+    |
+112 |     pub fn parse(bytes: &[u8]) -> Result<Self, UdpError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `encode_request_with_port` found for enum `DiscoveryPacket` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:754:26
+    |
+754 | ...DiscoveryPacket::encode_request_with_port(ssrc, &"a".repeat(64), port),
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `DiscoveryPacket`
+    |
+note: if you're trying to build a new `DiscoveryPacket`, consider using `DiscoveryPacket::parse` which returns `Result<DiscoveryPacket, UdpError>`
+   --> crates/discord-voice/src/udp.rs:112:5
+    |
+112 |     pub fn parse(bytes: &[u8]) -> Result<Self, UdpError> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `send_discovery_with_local_port` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:781:10
+    |
+780 | /     client
+781 | |         .send_discovery_with_local_port(server_addr, 9208)
+    | |         -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `UdpMediaSocket`
+    | |_________|
+    |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `discord-voice` (test "signaling") due to 31 previous errors

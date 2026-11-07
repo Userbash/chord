@@ -1,0 +1,2 @@
+6c706ccf38a79e01a50cca056dc31145  rust/gui-spike/ui/features/inbox.js
+cc7037b14d9443d09b41cb4ecf9706b6  tests/unit/inbox.test.mjs

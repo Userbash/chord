@@ -1,0 +1,23 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/rust/crates/discord-core)
+error[E0432]: unresolved imports `super::OutboundGuildMembersRequest`, `super::OutboundGuildSubscription`, `super::OutboundPresenceUpdate`, `super::OutboundVoiceStateUpdate`, `super::chunk_user_ids`, `super::encode_guild_subscriptions`, `super::encode_presence_update`, `super::encode_request_guild_members`, `super::encode_voice_state_update`
+   --> crates/discord-core/src/gateway.rs:450:13
+    |
+450 |         Op, OutboundGuildMembersRequest, OutboundGuildSubscription, OutboundPresenceUpdate,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^ no `OutboundPresenceUpdate` in `gateway`
+    |             |                            |
+    |             |                            no `OutboundGuildSubscription` in `gateway`
+    |             no `OutboundGuildMembersRequest` in `gateway`
+451 |         OutboundVoiceStateUpdate, chunk_user_ids, encode_guild_subscriptions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^ no `encode_guild_subscriptions` in `gateway`
+    |         |                         |
+    |         |                         no `chunk_user_ids` in `gateway`
+    |         no `OutboundVoiceStateUpdate` in `gateway`
+452 |         encode_presence_update, encode_request_guild_members, encode_voice_state_update,
+    |         ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^ no `encode_voice_state_update` in `gateway`
+    |         |                       |
+    |         |                       no `encode_request_guild_members` in `gateway`
+    |         no `encode_presence_update` in `gateway`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

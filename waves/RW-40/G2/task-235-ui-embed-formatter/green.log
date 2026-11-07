@@ -1,0 +1,18 @@
+✔ EMBED_LIMITS matches Discord rich embed limits (4.063029ms)
+✔ isSafeEmbedUrl accepts only absolute http and https urls (0.12207ms)
+✔ isSafeEmbedUrl rejects dangerous, relative and empty values (0.143621ms)
+✔ isSafeEmbedUrl rejects non-string input (0.08737ms)
+✔ normalizeEmbedForRender truncates long strings to embed limits (0.183771ms)
+✔ normalizeEmbedForRender keeps only safe urls (0.11967ms)
+✔ normalizeEmbedForRender maps integer colors to hex and falls back (0.12017ms)
+✔ normalizeEmbedForRender slices fields to 25 and truncates name/value (0.224301ms)
+✔ normalizeEmbedForRender tolerates missing and malformed input (0.40348ms)
+✔ normalizeEmbedForRender does not mutate the source embed (0.15534ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.923965

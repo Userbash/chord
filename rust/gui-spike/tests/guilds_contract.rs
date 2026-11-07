@@ -15,8 +15,9 @@
 
 use discord_core::rest::transport::HttpResponse;
 use discord_gui_spike::guilds::{
-    enter_guild, join_guild, leave_guild, DiscordGuilds, EnterGuildError, GuildLeaving,
-    GuildMembership, GuildTransport, LeaveGuildError,
+    create_guild, enter_guild, join_guild, leave_guild, CreateGuildError, CreateGuildPayload,
+    DiscordGuilds, EnterGuildError, GuildLeaving, GuildMembership, GuildTransport,
+    LeaveGuildError,
 };
 use std::future::Future;
 use std::pin::Pin;
@@ -32,8 +33,11 @@ struct FakeTransport {
     status: u16,
     error: Option<EnterGuildError>,
     leave_error: Option<LeaveGuildError>,
+    post_error: Option<CreateGuildError>,
+    post_body: Option<Vec<u8>>,
     calls: Mutex<Vec<(String, Vec<u8>)>>,
     deletes: Mutex<Vec<(String, Vec<u8>)>>,
+    posts: Mutex<Vec<(String, Vec<u8>)>>,
 }
 
 impl FakeTransport {
@@ -42,8 +46,24 @@ impl FakeTransport {
             status,
             error: None,
             leave_error: None,
+            post_error: None,
+            post_body: None,
             calls: Mutex::new(Vec::new()),
             deletes: Mutex::new(Vec::new()),
+            posts: Mutex::new(Vec::new()),
+        })
+    }
+
+    fn answering_post(status: u16, body: &[u8]) -> Arc<Self> {
+        Arc::new(Self {
+            status,
+            error: None,
+            leave_error: None,
+            post_error: None,
+            post_body: Some(body.to_vec()),
+            calls: Mutex::new(Vec::new()),
+            deletes: Mutex::new(Vec::new()),
+            posts: Mutex::new(Vec::new()),
         })
     }
 
@@ -52,8 +72,11 @@ impl FakeTransport {
             status: 0,
             error: Some(error),
             leave_error: None,
+            post_error: None,
+            post_body: None,
             calls: Mutex::new(Vec::new()),
             deletes: Mutex::new(Vec::new()),
+            posts: Mutex::new(Vec::new()),
         })
     }
 
@@ -62,8 +85,24 @@ impl FakeTransport {
             status: 0,
             error: None,
             leave_error: Some(error),
+            post_error: None,
+            post_body: None,
             calls: Mutex::new(Vec::new()),
             deletes: Mutex::new(Vec::new()),
+            posts: Mutex::new(Vec::new()),
+        })
+    }
+
+    fn failing_post(error: CreateGuildError) -> Arc<Self> {
+        Arc::new(Self {
+            status: 0,
+            error: None,
+            leave_error: None,
+            post_error: Some(error),
+            post_body: None,
+            calls: Mutex::new(Vec::new()),
+            deletes: Mutex::new(Vec::new()),
+            posts: Mutex::new(Vec::new()),
         })
     }
 
@@ -73,6 +112,10 @@ impl FakeTransport {
 
     fn deletes(&self) -> Vec<(String, Vec<u8>)> {
         self.deletes.lock().unwrap().clone()
+    }
+
+    fn posts(&self) -> Vec<(String, Vec<u8>)> {
+        self.posts.lock().unwrap().clone()
     }
 }
 
@@ -112,6 +155,26 @@ impl GuildTransport for FakeTransport {
                 status: self.status,
                 headers: Vec::new(),
                 body: Vec::new(),
+            }),
+        };
+        Box::pin(async move { answer })
+    }
+
+    fn post<'a>(
+        &'a self,
+        target: &'a str,
+        body: &'a [u8],
+    ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, CreateGuildError>> + Send + 'a>> {
+        self.posts
+            .lock()
+            .unwrap()
+            .push((target.to_string(), body.to_vec()));
+        let answer = match &self.post_error {
+            Some(error) => Err(error.clone()),
+            None => Ok(HttpResponse {
+                status: self.status,
+                headers: Vec::new(),
+                body: self.post_body.clone().unwrap_or_default(),
             }),
         };
         Box::pin(async move { answer })
@@ -694,5 +757,214 @@ fn tauri_registers_leave_guild_once_and_reads_token_via_helper() {
     assert!(
         body.contains("LeaveGuildError::MissingToken"),
         "leave_guild: отсутствие токена — типизированный код домена"
+    );
+}
+
+#[test]
+fn create_guild_posts_to_guilds_endpoint_with_valid_name() {
+    let response_body = r#"{"id":"999888777666555444","name":"Новый сервер","channels":[]}"#.as_bytes();
+    let transport = FakeTransport::answering_post(201, response_body);
+    let guilds = api(transport.clone());
+
+    let payload = CreateGuildPayload {
+        name: "Новый сервер".to_string(),
+        icon: None,
+        channels: None,
+        guild_template_code: None,
+    };
+
+    let outcome = run(guilds.create_guild(payload)).expect("успешное создание сервера");
+    assert_eq!(outcome.id, "999888777666555444");
+    assert_eq!(outcome.name, "Новый сервер");
+
+    let posts = transport.posts();
+    assert_eq!(posts.len(), 1, "ровно один POST запрос");
+    let (target, body) = &posts[0];
+    assert_eq!(target, "/guilds", "маршрут POST /guilds");
+    let parsed: serde_json::Value = serde_json::from_slice(body).expect("валидный JSON");
+    assert_eq!(parsed["name"], "Новый сервер");
+    assert!(parsed.get("icon").is_none() || parsed["icon"].is_null());
+}
+
+#[test]
+fn create_guild_rejects_empty_or_too_long_name_before_transport() {
+    let transport = FakeTransport::answering_post(201, b"{}");
+    let guilds = api(transport.clone());
+
+    // Пустое имя или пробелы
+    let payload = CreateGuildPayload {
+        name: "   ".to_string(),
+        icon: None,
+        channels: None,
+        guild_template_code: None,
+    };
+    assert_eq!(
+        run(guilds.create_guild(payload)),
+        Err(CreateGuildError::InvalidArg)
+    );
+    assert!(transport.posts().is_empty(), "в сеть не уходим");
+
+    // Имя длинее 100 символов
+    let long_name = "a".repeat(101);
+    let payload = CreateGuildPayload {
+        name: long_name,
+        icon: None,
+        channels: None,
+        guild_template_code: None,
+    };
+    assert_eq!(
+        run(guilds.create_guild(payload)),
+        Err(CreateGuildError::InvalidArg)
+    );
+    assert!(transport.posts().is_empty(), "в сеть не уходим");
+}
+
+#[test]
+fn create_guild_sends_icon_when_provided() {
+    let response_body = r#"{"id":"111222333444555666","name":"Сервер с иконкой","channels":[]}"#.as_bytes();
+    let transport = FakeTransport::answering_post(201, response_body);
+    let guilds = api(transport.clone());
+
+    let payload = CreateGuildPayload {
+        name: "Сервер с иконкой".to_string(),
+        icon: Some("data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==".to_string()),
+        channels: None,
+        guild_template_code: None,
+    };
+
+    let outcome = run(guilds.create_guild(payload)).expect("успех");
+    assert_eq!(outcome.id, "111222333444555666");
+
+    let posts = transport.posts();
+    assert_eq!(posts.len(), 1);
+    let (_, body) = &posts[0];
+    let parsed: serde_json::Value = serde_json::from_slice(body).expect("валидный JSON");
+    assert_eq!(
+        parsed["icon"],
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg=="
+    );
+}
+
+#[test]
+fn create_guild_maps_http_statuses_to_typed_errors() {
+    let cases = [
+        (401, CreateGuildError::Unauthorized),
+        (403, CreateGuildError::Forbidden),
+        (
+            429,
+            CreateGuildError::RateLimited {
+                retry_after_ms: 500,
+            },
+        ),
+        (400, CreateGuildError::Client { status: 400 }),
+        (500, CreateGuildError::Server { status: 500 }),
+    ];
+
+    for (status, expected) in cases {
+        let transport = FakeTransport::failing_post(expected.clone());
+        let guilds = api(transport);
+        let payload = CreateGuildPayload {
+            name: format!("Сервер-{status}"),
+            icon: None,
+            channels: None,
+            guild_template_code: None,
+        };
+        assert_eq!(
+            run(guilds.create_guild(payload)),
+            Err(expected),
+            "HTTP {status} -> typed error"
+        );
+    }
+}
+
+#[test]
+fn create_guild_errors_serialize_with_camel_case_kind_only() {
+    let cases = [
+        (CreateGuildError::InvalidArg, "invalidArg"),
+        (CreateGuildError::MissingToken, "missingToken"),
+        (CreateGuildError::Unauthorized, "unauthorized"),
+        (CreateGuildError::Forbidden, "forbidden"),
+        (
+            CreateGuildError::RateLimited {
+                retry_after_ms: 250,
+            },
+            "rateLimited",
+        ),
+        (CreateGuildError::Client { status: 400 }, "client"),
+        (CreateGuildError::Server { status: 500 }, "server"),
+        (CreateGuildError::Network, "network"),
+        (CreateGuildError::Storage, "storage"),
+        (CreateGuildError::InvalidResponse, "invalidResponse"),
+    ];
+    for (error, kind) in cases {
+        let value = serde_json::to_value(&error).expect("ошибка сериализуется");
+        assert_eq!(value["kind"], kind, "{value}");
+        assert!(!error.to_string().is_empty(), "Display непустой: {error}");
+    }
+}
+
+#[derive(Default)]
+struct FakeCreation {
+    seen: Mutex<Vec<CreateGuildPayload>>,
+    result: Option<CreateGuildError>,
+}
+
+impl discord_gui_spike::guilds::GuildCreation for FakeCreation {
+    fn create_guild<'a>(
+        &'a self,
+        payload: CreateGuildPayload,
+    ) -> Pin<Box<dyn Future<Output = Result<discord_gui_spike::guilds::CreateGuildOutcome, CreateGuildError>> + Send + 'a>> {
+        self.seen.lock().unwrap().push(payload.clone());
+        let answer = match &self.result {
+            Some(err) => Err(err.clone()),
+            None => Ok(discord_gui_spike::guilds::CreateGuildOutcome {
+                id: "123".to_string(),
+                name: payload.name,
+                icon: payload.icon,
+                owner_id: None,
+                channels: Vec::new(),
+            }),
+        };
+        Box::pin(async move { answer })
+    }
+}
+
+#[test]
+fn create_guild_free_function_validates_and_delegates() {
+    let fake = FakeCreation::default();
+    let payload = CreateGuildPayload {
+        name: "Test Guild".to_string(),
+        icon: None,
+        channels: None,
+        guild_template_code: None,
+    };
+    let outcome = run(create_guild(&fake, payload.clone())).expect("успех");
+    assert_eq!(outcome.name, "Test Guild");
+    assert_eq!(fake.seen.lock().unwrap().len(), 1);
+
+    // Валидация до вызова: пустое имя
+    let invalid_payload = CreateGuildPayload {
+        name: "   ".to_string(),
+        icon: None,
+        channels: None,
+        guild_template_code: None,
+    };
+    assert_eq!(
+        run(create_guild(&fake, invalid_payload)),
+        Err(CreateGuildError::InvalidArg)
+    );
+}
+
+#[test]
+fn tauri_registers_create_guild_once() {
+    let source = include_str!("../src/main.rs");
+    let commands = registered_commands(source);
+    assert_eq!(
+        commands
+            .iter()
+            .filter(|name| **name == "create_guild")
+            .count(),
+        1,
+        "create_guild регистрируется ровно один раз"
     );
 }

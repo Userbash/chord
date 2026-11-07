@@ -496,6 +496,54 @@ describe("G-03-UI: диалог join (#join-server-dialog)", () => {
     }
   });
 
+  it("CARD-TEL-006: Captcha Required (код 40003) отображает понятное объяснение вместо неизвестной ошибки", async () => {
+    const app = await loadJoinApp((cmd) => {
+      if (cmd === "resolve_invite") return PREVIEW;
+      if (cmd === "accept_invite") throw { kind: "captchaRequired", code: 40003 };
+      return undefined;
+    });
+    try {
+      openDialog(app);
+      typeCode(app, "abc123");
+      firstNode(app, "#join-submit").click();
+      await app.settle(3);
+      firstNode(app, "#join-submit").click();
+      await app.settle(3);
+
+      assert.equal(firstNode(app, "#join-server-dialog .dialog").getAttribute("data-state"), "error");
+      assert.match(
+        firstNode(app, "#join-error").textContent,
+        /Discord запросил проверку Captcha при вступлении на сервер \(код 40003\)/,
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("CARD-TEL-006: Client 400 с code 40003 распознаётся как Captcha Required", async () => {
+    const app = await loadJoinApp((cmd) => {
+      if (cmd === "resolve_invite") return PREVIEW;
+      if (cmd === "accept_invite") throw { kind: "client", status: 400, code: 40003 };
+      return undefined;
+    });
+    try {
+      openDialog(app);
+      typeCode(app, "abc123");
+      firstNode(app, "#join-submit").click();
+      await app.settle(3);
+      firstNode(app, "#join-submit").click();
+      await app.settle(3);
+
+      assert.equal(firstNode(app, "#join-server-dialog .dialog").getAttribute("data-state"), "error");
+      assert.match(
+        firstNode(app, "#join-error").textContent,
+        /Discord запросил проверку Captcha при вступлении на сервер \(код 40003\)/,
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
   it("«Отмена»/Esc: закрытие, фокус на «+», форма сброшена (SM-38)", async () => {
     const app = await loadJoinApp(() => undefined);
     try {

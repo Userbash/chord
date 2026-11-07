@@ -99,7 +99,7 @@ B3b (UI реакций) — **red: frontend 176/5**, gui-spike **121/0**, core *
 
 `token-efficiency` (фильтровать чтение, bash вместо Read), `discord-lab-context`
 (навигация по репо), `context-engineering-collection`; `session-compression` избыточен.
-MCP: rea, socraticode, github, basic-memory, context7.
+MCP: understand, rea, socraticode, basic-memory, context7.
 
 ## Известные расхождения
 
@@ -115,3 +115,19 @@ MCP: rea, socraticode, github, basic-memory, context7.
   RAM-бюджет §9 сверяется по PSS дерева (`waves/RW-36/pss.json`), не по RSS родителя.
 - RW-36: `rust/gui-spike/ui/tsconfig.json` не подключён к `npm run typecheck` (правка
   `package.json` требует разрешения владельца); гоняется вручную в отчёте волны.
+
+
+## Быстрая памятка правил оркестрации, веток и тестирования (2026-10-30)
+
+- **Полные регламенты:** [`AGENTS.md`](AGENTS.md), [`TEAM.md`](TEAM.md), [`PROCESS.md`](PROCESS.md) (§8–§10), [`TEST-POLICY.md`](TEST-POLICY.md) (§11–§14) и [`waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`](waves/RW-40/QUALITY/TEST-STRATEGY-V2.md).
+- **Маршрутизация моделей:**
+  - `--agent codex` **запрещён** (исчерпан лимит).
+  - **DeepSeek (`--agent opencode --model deepseek/deepseek-v4.1-flash`)** — для валидации, технического ревью, тестирования (QA/DevOps/мутации) и рефакторинга (Pass 2/3) **в будни (Пн–Пт) с 18:00 по пекинскому времени (`TZ=Asia/Shanghai`) и в выходные (Сб–Вс) без ограничений**.
+  - **Antigravity (`--agent antigravity --model gemini-4-argon-high --effort high`)** — для первичной реализации новых задач и спецификаций.
+- **Иерархия веток:** `<type>/task-<id>-<slug>` (от `unstable`) → PR в `unstable` (одобрение PM + Технического ревьюера DeepSeek + CI + 0 блокеров -> удаление рабочей ветки) → централизованная сборка `BUILD-00X` в `testing` для G4 QA → `beta` (предрелизная проверка + `SHA256SUMS`/SBOM + план отката) → PR в `main` (релиз + тег + обратная синхронизация в `unstable`).
+- **13 статусов задачи:** `Backlog` → `Ready for Development` → `In Progress` → `Ready for Product Review` → `Ready for Technical Review` → `Ready for Merge` → `Merged to Unstable` → `In Testing` → (`QA Failed` | `QA Passed`) → `In Beta` → `Ready for Release` → `Released`.
+- **Zero-Idle Policy:** ни один отдел (`G1–G6`, `DevOps`, `PM`, `Tech Review`) и ни один воркер не простаивает без задачи.
+
+- **RE-оракул `/home/sanya/re-deep` и инструменты `rea` (`reverse-engineer-anything`):** при любой неясности в работе функции, протокола или UI сверяйся с дампом `/home/sanya/re-deep/` (`README.md`, `decoded/`, `rest-d02.*`, `gateway-protocol.*`, `frontend-d03.*`, `voice-deep.*`, `backend-ipc.*`, `ru-catalog.json`) и применяй инструменты MCP `rea` (статический/динамический RE бандлов, нативных модулей и отдельно запущенного Discord), чтобы реализовать функцию в точном соответствии с оригиналом.
+
+- **Лимит ОЗУ (48 GB RAM, `Swap: 0B`):** не запускать более **4–6 активных воркеров (`terminal=active`) одновременно**; сразу после `worker_done` освобождать завершённые терминалы через `orca orchestration worker-release --dispatch <ctx_id>`, удерживая `available >= 10 GiB` (`free -h`).

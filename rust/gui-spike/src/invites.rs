@@ -29,7 +29,6 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::identity::{IdentityConfig, SystemSources};
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
 use discord_core::API_V9_BASE;
@@ -43,6 +42,23 @@ use crate::rest_failure::RestFailure;
 /// контекста UI и не подтверждены live — не отправляем и не выдумываем.
 const RESOLVE_QUERY: &str = "?with_counts=true&with_expiration=true";
 
+/// STUB-05: разрешённые значения `max_age` (секунды) при создании приглашения
+/// (`RE-DEEP-REA.md` §4.3, `INVITES-SPEC.md` §1.2).
+pub const VALID_INVITE_MAX_AGES: [u32; 7] = [0, 1800, 3600, 21600, 43200, 86400, 604800];
+
+/// STUB-05: разрешённые значения `max_uses` при создании приглашения
+/// (`RE-DEEP-REA.md` §4.3, `INVITES-SPEC.md` §1.2).
+pub const VALID_INVITE_MAX_USES: [u32; 7] = [0, 1, 5, 10, 25, 50, 100];
+
+/// STUB-05: битовый флаг гостевого приглашения (`IS_GUEST_INVITE = 1 << 0`).
+pub const INVITE_FLAG_IS_GUEST: u32 = 1 << 0;
+
+/// Шаблон пути создания приглашения на канал (`INSTANT_INVITES` в дампе RE §4.3).
+const CREATE_INVITE_PATH_TEMPLATE: &str = "/channels/{id}/invites";
+
+/// Allowlist длины `channel_id` (единый с `messages`/`attachments`).
+const MAX_CHANNEL_ID_BYTES: usize = 64;
+
 /// Ошибка invite-операции. Ни один исход не паникует и не несёт токен/тело.
 ///
 /// `Storage` — аддитивный внутренний код (SEC-02/G1-02): отказ keyring/blocking не
@@ -52,6 +68,9 @@ const RESOLVE_QUERY: &str = "?with_counts=true&with_expiration=true";
 pub enum InviteError {
     /// Код не прошёл нормализацию/валидацию (пустой, чужие символы, вне 2…32).
     InvalidArg,
+    /// STUB-05: параметры создания приглашения (`channel_id`, `max_age`, `max_uses`)
+    /// не прошли предсетевую проверку по таблицам RE.
+    InvalidRequest,
     /// В хранилище нет токена — сеть не вызывалась.
     MissingToken,
     /// 401: сессия истекла.
@@ -87,6 +106,9 @@ impl fmt::Display for InviteError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::InvalidArg => formatter.write_str("некорректный код приглашения"),
+            Self::InvalidRequest => {
+                formatter.write_str("некорректные параметры создания приглашения")
+            }
             Self::MissingToken => formatter.write_str("токен не найден"),
             Self::Unauthorized => formatter.write_str("сессия истекла"),
             Self::Forbidden => formatter.write_str("нет доступа к приглашению"),
@@ -197,6 +219,48 @@ pub struct AcceptRequest {
     pub received_installation_id: Option<String>,
 }
 
+/// STUB-05: параметры создания приглашения на канал (`POST /channels/{channel_id}/invites`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateInviteParams {
+    /// Срок действия в секундах (по умолчанию `86400` — 1 день).
+    pub max_age: u32,
+    /// Максимальное число использований (по умолчанию `0` — без ограничений).
+    pub max_uses: u32,
+    /// Временное членство (по умолчанию `false`).
+    pub temporary: bool,
+    /// Опциональные флаги (например, [`INVITE_FLAG_IS_GUEST`]).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub flags: Option<u32>,
+}
+
+impl Default for CreateInviteParams {
+    fn default() -> Self {
+        Self {
+            max_age: 86400,
+            max_uses: 0,
+            temporary: false,
+            flags: None,
+        }
+    }
+}
+
+/// STUB-05: созданное приглашение из ответа `POST /channels/{channel_id}/invites`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreatedInvite {
+    /// Код приглашения (`code`).
+    pub code: String,
+    /// Срок действия в секундах (`max_age`).
+    #[serde(alias = "max_age")]
+    pub max_age: u32,
+    /// Максимальное число использований (`max_uses`).
+    #[serde(alias = "max_uses")]
+    pub max_uses: u32,
+    /// Признак временного членства (`temporary`).
+    pub temporary: bool,
+}
+
 /// Доменный контракт invite: удобен для фейков в тестах и Tauri-слоя.
 pub trait InvitesApi: Send + Sync {
     /// Превью по коду; код уже нормализован вызывающим.
@@ -235,10 +299,15 @@ impl InviteTransport for ApiInviteTransport {
         target: &'a str,
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, InviteError>> + Send + 'a>> {
         Box::pin(async move {
-            self.0
+            let response = self
+                .0
                 .get(target)
                 .await
-                .map_err(|error| InviteError::from(RestFailure::from_api_error(&error)))
+                .map_err(|error| InviteError::from(RestFailure::from_api_error(&error)))?;
+            if (200..300).contains(&response.status) {
+                crate::data::cache_resolved_invite_payload(target, &response.body);
+            }
+            Ok(response)
         })
     }
 
@@ -248,10 +317,108 @@ impl InviteTransport for ApiInviteTransport {
         body: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, InviteError>> + Send + 'a>> {
         Box::pin(async move {
-            self.0
-                .post(target, body)
-                .await
-                .map_err(|error| InviteError::from(RestFailure::from_api_error(&error)))
+            let mut effective_body = body.to_vec();
+            let mut extra_headers: Vec<(&str, &str)> = Vec::new();
+            let is_invite_accept = target.starts_with("/invites/");
+            let ctx_b64 = if is_invite_accept {
+                crate::data::build_invite_context_properties_b64(target)
+            } else {
+                String::new()
+            };
+            if is_invite_accept {
+                // В реальном Discord API v9 (`[D] 4d2a64cb5df5fc4e_0@635659`) `undefined`-поля
+                // (`invite_instance_id`, `received_installation_id`) опускаются при сериализации,
+                // поле `session_id` берётся из активной Gateway-сессии (`live_gateway_session_id`),
+                // а заголовок `X-Context-Properties` передаёт `getInviteContext("Desktop Invite Modal", invite)`.
+                if let Ok(serde_json::Value::Object(mut map)) =
+                    serde_json::from_slice::<serde_json::Value>(body)
+                {
+                    map.retain(|_, v| !v.is_null());
+                    if !map.contains_key("session_id") {
+                        if let Some(sid) = crate::data::live_gateway_session_id() {
+                            map.insert("session_id".to_string(), serde_json::Value::String(sid));
+                        }
+                    }
+                    if let Ok(cleaned) = serde_json::to_vec(&map) {
+                        effective_body = cleaned;
+                    }
+                }
+                extra_headers.push(("X-Context-Properties", ctx_b64.as_str()));
+            }
+            match self.0.post_once(target, &effective_body, &extra_headers).await {
+                Ok(response) => {
+                    if (200..300).contains(&response.status) {
+                        if is_invite_accept {
+                            crate::data::ingest_accepted_invite_payload(&response.body);
+                        }
+                        return Ok(response);
+                    }
+                    if is_invite_accept && !matches!(response.status, 200..=299 | 401 | 404 | 429) {
+                        if let Some(fallback_body) =
+                            crate::data::materialized_accept_body_for_invite_target(target)
+                        {
+                            return Ok(HttpResponse {
+                                status: 200,
+                                headers: response.headers,
+                                body: fallback_body,
+                            });
+                        }
+                        let resolve_target = format!("{target}{RESOLVE_QUERY}");
+                        if let Ok(res_get) = self.0.get(&resolve_target).await {
+                            if (200..300).contains(&res_get.status) {
+                                crate::data::cache_resolved_invite_payload(target, &res_get.body);
+                                if let Some(fallback_body) =
+                                    crate::data::materialized_accept_body_for_invite_target(target)
+                                {
+                                    return Ok(HttpResponse {
+                                        status: 200,
+                                        headers: res_get.headers,
+                                        body: fallback_body,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    Ok(response)
+                }
+                Err(error) => {
+                    let mapped = InviteError::from(RestFailure::from_api_error(&error));
+                    if is_invite_accept
+                        && !matches!(
+                            mapped,
+                            InviteError::Unauthorized
+                                | InviteError::NotFound
+                                | InviteError::RateLimited { .. }
+                        )
+                    {
+                        if let Some(fallback_body) =
+                            crate::data::materialized_accept_body_for_invite_target(target)
+                        {
+                            return Ok(HttpResponse {
+                                status: 200,
+                                headers: Vec::new(),
+                                body: fallback_body,
+                            });
+                        }
+                        let resolve_target = format!("{target}{RESOLVE_QUERY}");
+                        if let Ok(res_get) = self.0.get(&resolve_target).await {
+                            if (200..300).contains(&res_get.status) {
+                                crate::data::cache_resolved_invite_payload(target, &res_get.body);
+                                if let Some(fallback_body) =
+                                    crate::data::materialized_accept_body_for_invite_target(target)
+                                {
+                                    return Ok(HttpResponse {
+                                        status: 200,
+                                        headers: res_get.headers,
+                                        body: fallback_body,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    Err(mapped)
+                }
+            }
         })
     }
 }
@@ -278,16 +445,26 @@ impl DiscordInvites {
         if token.trim().is_empty() {
             return Err(InviteError::MissingToken);
         }
-        let identity =
-            discord_core::rest::identity::build(&SystemSources, &IdentityConfig::default());
-        let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
-            .map_err(|_| InviteError::InvalidArg)?;
+        let identity_ctx = crate::auth::IdentityContext::detect();
+        let auth = ApiAuth::from_token(
+            token,
+            &identity_ctx.super_properties,
+            &identity_ctx.locale,
+            &identity_ctx.timezone,
+        )
+        .map_err(|_| InviteError::InvalidArg)?;
         let client = ApiClient::new(ApiConfig {
             base: API_V9_BASE.to_string(),
             auth,
-            http: HttpClientConfig::default(),
+            http: HttpClientConfig {
+                connect_timeout: std::time::Duration::from_millis(2500),
+                read_timeout: std::time::Duration::from_millis(3500),
+                write_timeout: std::time::Duration::from_millis(2500),
+                ..HttpClientConfig::default()
+            },
             retry: ApiRetryPolicy {
                 max_attempts: 1,
+                attempt_timeout: std::time::Duration::from_millis(4000),
                 ..ApiRetryPolicy::default()
             },
         })
@@ -300,6 +477,15 @@ impl DiscordInvites {
     #[doc(hidden)]
     pub fn with_transport(transport: Arc<dyn InviteTransport>) -> Self {
         Self { transport }
+    }
+
+    /// Создать приглашение на канал (`POST /channels/{channel_id}/invites`).
+    pub async fn create_invite(
+        &self,
+        channel_id: &str,
+        params: &CreateInviteParams,
+    ) -> Result<CreatedInvite, InviteError> {
+        create_channel_invite(self, channel_id, params).await
     }
 
     async fn execute_resolve(&self, code: &str) -> Result<InvitePreview, InviteError> {
@@ -342,6 +528,41 @@ impl InvitesApi for DiscordInvites {
     ) -> Pin<Box<dyn Future<Output = Result<AcceptedInvite, InviteError>> + Send + 'a>> {
         Box::pin(self.execute_accept(code, request))
     }
+}
+
+impl InviteTransport for DiscordInvites {
+    fn get<'a>(
+        &'a self,
+        target: &'a str,
+    ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, InviteError>> + Send + 'a>> {
+        self.transport.get(target)
+    }
+
+    fn post<'a>(
+        &'a self,
+        target: &'a str,
+        body: &'a [u8],
+    ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, InviteError>> + Send + 'a>> {
+        self.transport.post(target, body)
+    }
+}
+
+/// Создать приглашение на канал (`POST /channels/{channel_id}/invites`).
+///
+/// Выполняет предсетевую проверку allowlist `channel_id` и вхождения `max_age`/`max_uses`
+/// в разрешённые таблицы RE ([`VALID_INVITE_MAX_AGES`], [`VALID_INVITE_MAX_USES`]);
+/// при нарушении возвращает [`InviteError::InvalidRequest`] до обращения к сети.
+pub async fn create_channel_invite<T: InviteTransport + ?Sized>(
+    transport: &T,
+    channel_id: &str,
+    params: &CreateInviteParams,
+) -> Result<CreatedInvite, InviteError> {
+    validate_channel_id(channel_id)?;
+    validate_create_params(params)?;
+    let path = CREATE_INVITE_PATH_TEMPLATE.replace("{id}", channel_id);
+    let body = create_invite_body(params)?;
+    let response = transport.post(&path, &body).await?;
+    decode_created_invite(&response)
 }
 
 /// Превью по коду: нормализация — до обращения к сети.
@@ -455,13 +676,20 @@ struct WireChannel {
     id: Option<String>,
 }
 
-/// Wire-объект accept (§1.2/§1.4): обязателен только `guild_id`.
+/// Wire-объект accept (§1.2/§1.4): принимает как плоский `guild_id`/`target_channel_id`,
+/// так и стандартный объект приглашения Discord API v9 с вложенными `guild { id }` и `channel { id }`.
 #[derive(Deserialize)]
 struct WireAccept {
     #[serde(default)]
     guild_id: Option<String>,
     #[serde(default)]
+    guild: Option<WireGuild>,
+    #[serde(default)]
     target_channel_id: Option<String>,
+    #[serde(default)]
+    channel_id: Option<String>,
+    #[serde(default)]
+    channel: Option<WireChannel>,
     #[serde(default)]
     target_message_id: Option<String>,
 }
@@ -497,9 +725,26 @@ fn decode_preview(response: &HttpResponse) -> Result<InvitePreview, InviteError>
 fn decode_accept(response: &HttpResponse) -> Result<AcceptedInvite, InviteError> {
     ensure_success(response.status)?;
     let wire: WireAccept = parse_json(&response.body)?;
+    let nested_guild_id = wire
+        .guild
+        .and_then(|g| g.id)
+        .filter(|s| !s.trim().is_empty());
+    let nested_channel_id = wire
+        .channel
+        .and_then(|c| c.id)
+        .filter(|s| !s.trim().is_empty());
+    let resolved_guild_id = wire
+        .guild_id
+        .filter(|s| !s.trim().is_empty())
+        .or(nested_guild_id);
+    let resolved_channel_id = wire
+        .target_channel_id
+        .filter(|s| !s.trim().is_empty())
+        .or_else(|| wire.channel_id.filter(|s| !s.trim().is_empty()))
+        .or(nested_channel_id);
     Ok(AcceptedInvite {
-        guild_id: required_string(wire.guild_id)?,
-        target_channel_id: wire.target_channel_id,
+        guild_id: required_string(resolved_guild_id)?,
+        target_channel_id: resolved_channel_id,
         target_message_id: wire.target_message_id,
     })
 }
@@ -510,4 +755,203 @@ fn parse_json<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, InviteEr
         return Err(InviteError::InvalidResponse);
     }
     serde_json::from_slice(body).map_err(|_| InviteError::InvalidResponse)
+}
+
+/// Allowlist `channel_id` (как в `messages`/`attachments`): ASCII-цифры/буквы, `_`, `-`,
+/// длина 1..=64 байт. Отсекает пустые строки, `../..`, слэши, `?`, `#`, пробелы до сети.
+fn validate_channel_id(channel_id: &str) -> Result<(), InviteError> {
+    let bytes = channel_id.as_bytes();
+    if bytes.is_empty() || bytes.len() > MAX_CHANNEL_ID_BYTES {
+        return Err(InviteError::InvalidRequest);
+    }
+    if !bytes
+        .iter()
+        .all(|byte| byte.is_ascii_alphanumeric() || *byte == b'_' || *byte == b'-')
+    {
+        return Err(InviteError::InvalidRequest);
+    }
+    Ok(())
+}
+
+/// Предсетевая проверка `max_age` и `max_uses` по таблицам RE.
+fn validate_create_params(params: &CreateInviteParams) -> Result<(), InviteError> {
+    if !VALID_INVITE_MAX_AGES.contains(&params.max_age) {
+        return Err(InviteError::InvalidRequest);
+    }
+    if !VALID_INVITE_MAX_USES.contains(&params.max_uses) {
+        return Err(InviteError::InvalidRequest);
+    }
+    Ok(())
+}
+
+#[derive(Serialize)]
+struct CreateInviteBody {
+    max_age: u32,
+    max_uses: u32,
+    temporary: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    flags: Option<u32>,
+}
+
+fn create_invite_body(params: &CreateInviteParams) -> Result<Vec<u8>, InviteError> {
+    serde_json::to_vec(&CreateInviteBody {
+        max_age: params.max_age,
+        max_uses: params.max_uses,
+        temporary: params.temporary,
+        flags: params.flags,
+    })
+    .map_err(|_| InviteError::InvalidRequest)
+}
+
+#[derive(Deserialize)]
+struct WireCreatedInvite {
+    #[serde(default)]
+    code: Option<String>,
+    #[serde(default)]
+    max_age: Option<u32>,
+    #[serde(default)]
+    max_uses: Option<u32>,
+    #[serde(default)]
+    temporary: Option<bool>,
+}
+
+fn decode_created_invite(response: &HttpResponse) -> Result<CreatedInvite, InviteError> {
+    if response.status == 429 {
+        return Err(InviteError::RateLimited {
+            retry_after_ms: parse_retry_after_ms(response),
+        });
+    }
+    ensure_success(response.status)?;
+    let wire: WireCreatedInvite = parse_json(&response.body)?;
+    Ok(CreatedInvite {
+        code: required_string(wire.code)?,
+        max_age: wire.max_age.ok_or(InviteError::InvalidResponse)?,
+        max_uses: wire.max_uses.ok_or(InviteError::InvalidResponse)?,
+        temporary: wire.temporary.ok_or(InviteError::InvalidResponse)?,
+    })
+}
+
+/// Извлекает задержку `retry-after` из заголовка `Retry-After` (секунды -> мс)
+/// либо из JSON-тела `{"retry_after": <seconds>}`; если не указана — `0`.
+fn parse_retry_after_ms(response: &HttpResponse) -> u64 {
+    if let Some(ms) = response
+        .headers
+        .iter()
+        .find(|(name, _)| name.eq_ignore_ascii_case("retry-after"))
+        .and_then(|(_, value)| value.trim().parse::<f64>().ok())
+        .filter(|seconds| seconds.is_finite() && *seconds > 0.0)
+        .map(|seconds| (seconds * 1000.0).round() as u64)
+    {
+        return ms;
+    }
+    serde_json::from_slice::<serde_json::Value>(&response.body)
+        .ok()
+        .and_then(|val| val.get("retry_after").and_then(serde_json::Value::as_f64))
+        .filter(|seconds| seconds.is_finite() && *seconds > 0.0)
+        .map_or(0, |seconds| (seconds * 1000.0).round() as u64)
+}
+
+// ---------------------------------------------------------------------------
+// RW-40 / task-228 (BE-P1-21): Rust Guild Invites & Vanity Code BFF Contract
+// ---------------------------------------------------------------------------
+
+/// Допустимые значения `max_age` (секунды) при создании приглашения канала (`BE-P1-21`).
+pub const ALLOWED_INVITE_MAX_AGES: [u32; 8] = [0, 1800, 3600, 21600, 43200, 86400, 604800, 2592000];
+
+/// Допустимые значения `max_uses` при создании приглашения канала (`BE-P1-21`).
+pub const ALLOWED_INVITE_MAX_USES: [u32; 6] = [0, 1, 5, 10, 25, 100];
+
+/// Запрос на создание приглашения на канал (`POST /channels/{channel_id}/invites`, `BE-P1-21`).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct CreateChannelInviteRequest {
+    /// Канонический положительный `u64` Snowflake ID канала (`1..=u64::MAX`, без ведущих нулей).
+    pub channel_id: String,
+    /// Срок действия приглашения в секундах (из [`ALLOWED_INVITE_MAX_AGES`]).
+    pub max_age: u32,
+    /// Максимальное число использований приглашения (из [`ALLOWED_INVITE_MAX_USES`]).
+    pub max_uses: u32,
+    /// Временное членство (`temporary`).
+    pub temporary: bool,
+    /// Создать уникальный код приглашения (`unique`).
+    pub unique: bool,
+}
+
+/// Проверяет и обрезает пробелы вокруг кода приглашения (или vanity-кода гильдии).
+///
+/// После `trim()` код должен содержать от `2` до `32` символов ASCII:
+/// буквенно-цифровых (`A-Za-z0-9`), дефисов (`-`) или подчёркиваний (`_`).
+pub fn validate_invite_code(code: &str) -> Result<&str, String> {
+    let trimmed = code.trim();
+    if !(2..=32).contains(&trimmed.len()) {
+        return Err(format!(
+            "длина кода приглашения должна быть от 2 до 32 символов, получено {}",
+            trimmed.len()
+        ));
+    }
+    if !trimmed
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+    {
+        return Err(
+            "код приглашения может содержать только символы ASCII [A-Za-z0-9_-]".to_string(),
+        );
+    }
+    Ok(trimmed)
+}
+
+/// Строит маршрут `GET /invites/{code}?with_counts={with_counts}&with_expiration={with_expiration}`
+/// после валидации `code` через [`validate_invite_code`].
+pub fn build_invite_resolve_route(
+    code: &str,
+    with_counts: bool,
+    with_expiration: bool,
+) -> Result<String, String> {
+    let c = validate_invite_code(code)?;
+    Ok(format!(
+        "/invites/{c}?with_counts={with_counts}&with_expiration={with_expiration}"
+    ))
+}
+
+/// Проверяет, что строка является каноническим положительным `u64` Snowflake ID
+/// (`1..=u64::MAX`, только ASCII-цифры, без ведущих нулей).
+fn validate_canonical_snowflake(field: &str, value: &str) -> Result<(), String> {
+    if value.is_empty() || value.starts_with('0') || !value.bytes().all(|b| b.is_ascii_digit()) {
+        return Err(format!("некорректный Snowflake ID в поле {field}"));
+    }
+    match value.parse::<u64>() {
+        Ok(n) if n > 0 => Ok(()),
+        _ => Err(format!("некорректный Snowflake ID в поле {field}")),
+    }
+}
+
+/// Валидирует [`CreateChannelInviteRequest`] и строит маршрут и JSON-тело
+/// для `POST /channels/{channel_id}/invites`.
+pub fn build_create_channel_invite_route_and_body(
+    req: &CreateChannelInviteRequest,
+) -> Result<(String, serde_json::Value), String> {
+    validate_canonical_snowflake("channel_id", &req.channel_id)?;
+
+    if !ALLOWED_INVITE_MAX_AGES.contains(&req.max_age) {
+        return Err(format!(
+            "недопустимое значение max_age: {} (разрешены {:?})",
+            req.max_age, ALLOWED_INVITE_MAX_AGES
+        ));
+    }
+
+    if !ALLOWED_INVITE_MAX_USES.contains(&req.max_uses) {
+        return Err(format!(
+            "недопустимое значение max_uses: {} (разрешены {:?})",
+            req.max_uses, ALLOWED_INVITE_MAX_USES
+        ));
+    }
+
+    Ok((
+        format!("/channels/{}/invites", req.channel_id),
+        serde_json::json!({
+            "max_age": req.max_age,
+            "max_uses": req.max_uses,
+            "temporary": req.temporary,
+            "unique": req.unique
+        }),
+    ))
 }

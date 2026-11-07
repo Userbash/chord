@@ -1,0 +1,23 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-142-ws-outbound-wiring/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+
+running 14 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test gateway::tests::guild_subscriptions_frame_matches_client_shape ... ok
+test gateway::tests::guild_members_request_covers_query_and_user_ids_paths ... ok
+test gateway::tests::presence_update_frame_bytes_match_wetf_layout ... ok
+test gateway::tests::presence_update_frame_passes_activity_terms_and_afk ... ok
+test gateway::tests::user_ids_chunk_at_one_hundred ... ok
+test tests::gateway_constants_match_capture ... ok
+test gateway::tests::voice_state_update_frame_matches_client_shape ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test ws::tests::send_voice_state_update_sends_binary_etf_op4_join_and_leave ... ok
+test ws::tests::send_presence_update_sends_binary_etf_op3_frame ... ok
+test ws::tests::send_guild_subscriptions_bulk_sends_binary_etf_op37_frame ... ok
+test ws::tests::send_request_guild_members_chunks_user_ids_by_100_and_supports_query ... ok
+test ws::tests::outbound_guards_dead_session_and_flushes_queued_frames_after_hello ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+EXIT_CODE=0

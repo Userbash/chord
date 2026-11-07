@@ -1,0 +1,18 @@
+✔ PERMISSION_FLAGS exposes frozen Discord bit positions (4.141927ms)
+✔ hasPermissionBit accepts decimal strings (0.141572ms)
+✔ hasPermissionBit accepts BigInt input (0.073891ms)
+✔ hasPermissionBit grants everything for ADMINISTRATOR (0.07127ms)
+✔ hasPermissionBit returns false on invalid bitfield (0.07707ms)
+✔ intColorToHex formats valid colors as 6-digit hex (0.077971ms)
+✔ intColorToHex falls back to default blurple-grey for absent/invalid colors (0.145652ms)
+✔ resolveHighestColoredRole picks the highest positioned role that has a color (0.366263ms)
+✔ resolveHighestColoredRole skips top roles without color (0.091981ms)
+✔ resolveHighestColoredRole returns null when no role carries color (0.127701ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.91963

@@ -1,0 +1,45 @@
+# M3: boot(): shellWiring больше не возвращается в объекте
+mutation applied, exit=1
+
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.71465ms)
+✔ getState: до любых действий активных слоёв нет (0.410361ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.24671ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.13222ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.47832ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.09484ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.2009ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.458401ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.5302ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.17791ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.15298ms)
+✔ openAdminPanel: невалидный id не снимает уже открытые модальные слои (0.11898ms)
+✔ openModalLayer: невалидный id не закрывает активную админ-панель (0.0967ms)
+✔ после destroy() мутаторы бросают Error и оверлеи не открываются (0.15828ms)
+✔ getState: снимок и вложенный activeModalStack заморожены (0.12437ms)
+✔ app.js: импортирует createAppShellWiring и createComposerPopoversBridge из ./features (3.297832ms)
+✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.352431ms)
+✔ app.js: реэкспортирует createAppShellWiring и createComposerPopoversBridge вместе с прежними фабриками (1.207751ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.465535
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:454:1
+✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.352431ms)
+  AssertionError [ERR_ASSERTION]: boot() не возвращает shellWiring
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:482:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

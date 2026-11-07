@@ -1,0 +1,22 @@
+# GREEN: task-280 unit tsc batch1 — npx tsc -p tsconfig.json --noEmit | grep profile-modal.test.mjs|appearance-settings.test.mjs
+2026-10-31T11:36:01+05:00
+# errors in profile-modal.test.mjs / appearance-settings.test.mjs: 0
+
+--- grep output (пусто = 0 ошибок) ---
+--- end grep ---
+
+# Остаточные ошибки tsc по другим файлам проекта (вне write-scope): 88
+
+# node --test tests/unit/profile-modal.test.mjs tests/unit/appearance-settings.test.mjs
+▶ createProfileModalController: переключение режимов и close()
+  ✔ openFullModal заменяет открытый popout, а close() полностью удаляет карточку/модалку из контейнера (0.21944ms)
+  ✔ поддерживает поле about как синоним bio, скрывает пустые местоимения и отвергает невалидный containerEl (0.25265ms)
+✔ createProfileModalController: переключение режимов и close() (0.54186ms)
+ℹ tests 27
+ℹ suites 9
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.709933

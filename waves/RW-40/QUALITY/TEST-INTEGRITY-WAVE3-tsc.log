@@ -1,0 +1,5 @@
+# snapshot 2026-10-30T16:57:47+05:00
+# command: npx tsc -p tsconfig.json
+tests/unit/gui-spike-regressions.test.mjs(457,13): error TS2339: Property 'ensureMemberProfilePopover' does not exist on type 'typeof import("/home/sanya/orca/project/rust/gui-spike/ui/features/members")'.
+tests/unit/gui-spike-regressions.test.mjs(457,41): error TS2339: Property 'renderMemberProfileState' does not exist on type 'typeof import("/home/sanya/orca/project/rust/gui-spike/ui/features/members")'.
+EXIT=1

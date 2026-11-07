@@ -1,0 +1,27 @@
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.50s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
+
+running 5 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+test zstd::tests::flush_releases_each_message_immediately ... ok
+test zstd::tests::flush_keeps_window_history_across_chunks ... ok
+test zstd::tests::flush_then_frame_end_releases_everything ... FAILED
+
+failures:
+
+---- zstd::tests::flush_then_frame_end_releases_everything stdout ----
+
+thread 'zstd::tests::flush_then_frame_end_releases_everything' (1482998) panicked at crates/discord-codec/src/zstd.rs:346:9:
+мусор после завершённого кадра терминален
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    zstd::tests::flush_then_frame_end_releases_everything
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --lib`

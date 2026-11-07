@@ -1,0 +1,69 @@
+PLAT-11a mutations — HEAD 4e240481e59ff4d49732ac8bd5ba08a006363748
+baseline md5(messages.rs)=c449a06c783c795effb33c7fc763614e
+command: cd rust/gui-spike && cargo test --offline --test messages_contract
+
+=== MUT-1-drop-empty-check ===
+--- mutation ---
+old:     if bytes.is_empty() || bytes.len() > MAX_CHANNEL_ID_BYTES {
+new:     if bytes.len() > MAX_CHANNEL_ID_BYTES {
+mutant md5=1ddfefe3201bcd174b99ea9f87fdd0cf
+exit=101
+  test send_message_rejects_path_traversal_in_channel_id_before_sender ... FAILED
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  error: test failed, to rerun pass `--test messages_contract`
+verdict=KILLED
+restore md5=c449a06c783c795effb33c7fc763614e (baseline c449a06c783c795effb33c7fc763614e)
+
+=== MUT-2-drop-64-byte-ceiling ===
+--- mutation ---
+old:     if bytes.is_empty() || bytes.len() > MAX_CHANNEL_ID_BYTES {
+new:     if bytes.is_empty() {
+mutant md5=d226bc0b85ee123ecffb8556a43e7f54
+exit=101
+  test send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound ... FAILED
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  error: test failed, to rerun pass `--test messages_contract`
+verdict=KILLED
+restore md5=c449a06c783c795effb33c7fc763614e (baseline c449a06c783c795effb33c7fc763614e)
+
+=== MUT-3-allow-slash ===
+--- mutation ---
+old: .all(|byte| byte.is_ascii_alphanumeric() || *byte == b'_' || *byte == b'-')
+new: .all(|byte| byte.is_ascii_alphanumeric() || *byte == b'_' || *byte == b'-' || *byte == b'/')
+mutant md5=68f62c044a006e51c3a5f9ab869c21a3
+exit=101
+  test send_message_rejects_path_traversal_in_channel_id_before_sender ... FAILED
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  error: test failed, to rerun pass `--test messages_contract`
+verdict=KILLED
+restore md5=c449a06c783c795effb33c7fc763614e (baseline c449a06c783c795effb33c7fc763614e)
+
+=== MUT-4-drop-fixture-charset ===
+--- mutation ---
+old: .all(|byte| byte.is_ascii_alphanumeric() || *byte == b'_' || *byte == b'-')
+new: .all(|byte| byte.is_ascii_alphanumeric())
+mutant md5=c97a49b6f6c4ab25204dc2667ee6425d
+exit=101
+  test send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound ... FAILED
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  error: test failed, to rerun pass `--test messages_contract`
+verdict=KILLED
+restore md5=c449a06c783c795effb33c7fc763614e (baseline c449a06c783c795effb33c7fc763614e)
+
+=== MUT-5-drop-sender-guard ===
+--- mutation ---
+old:         validate_channel_id(channel_id)?;
+        if content.trim().is_empty()
+new:         if content.trim().is_empty()
+mutant md5=07b742f620f775585e502f5781a8e51f
+exit=101
+  test sender_rejects_path_traversal_channel_id_before_http ... FAILED
+  test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+  error: test failed, to rerun pass `--test messages_contract`
+verdict=KILLED
+restore md5=c449a06c783c795effb33c7fc763614e (baseline c449a06c783c795effb33c7fc763614e)
+
+=== final restore check ===
+final md5=c449a06c783c795effb33c7fc763614e (baseline c449a06c783c795effb33c7fc763614e)
+final green exit=0
+  test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

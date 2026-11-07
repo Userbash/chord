@@ -1,0 +1,54 @@
+▶ ICON_SIZE и SVG_ICONS
+  ✔ канонический размер иконки — 20 (0.40741ms)
+  ✔ карта иконок заморожена и содержит ровно 20 канонических имён (0.38982ms)
+  ✔ каждый path — непустая строка d, начинающаяся с команды перемещения (0.19029ms)
+✔ ICON_SIZE и SVG_ICONS (1.67295ms)
+▶ createIconSvg
+  ✔ создаёт svg с каноническими атрибутами по умолчанию (0.25438ms)
+  ✔ вкладывает ровно один path с d из карты (0.09212ms)
+  ✖ принимает размер и className из options (0.59338ms)
+  ✔ дополняет частичные options значениями по умолчанию (0.1112ms)
+  ✔ возвращает null для неизвестного имени и для пустого документа (0.09471ms)
+✖ createIconSvg (1.413ms)
+▶ upgradeGlyphIcons
+  ✔ заменяет текстовый глиф на svg внутри [data-icon] (0.29928ms)
+  ✔ идемпотентен: повторный вызов не дублирует svg (0.13489ms)
+  ✔ обновляет несколько узлов и считает только реально заменённые (0.13614ms)
+  ✔ неизвестная иконка остаётся нетронутой (0.12195ms)
+  ✔ обновляет и сам корень, если он помечен data-icon (0.0998ms)
+  ✔ возвращает 0 без исключения для пустого корня (0.06207ms)
+✔ upgradeGlyphIcons (1.38094ms)
+ℹ tests 14
+ℹ suites 3
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.698137
+
+✖ failing tests:
+
+test at tests/unit/svg-icons.test.mjs:158:3
+✖ принимает размер и className из options (0.59338ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '0 0 32 32'
+  - '0 0 20 20'
+         ^
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/svg-icons.test.mjs:164:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '0 0 32 32',
+    expected: '0 0 20 20',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

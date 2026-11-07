@@ -1,0 +1,27 @@
+diff:
+--- /tmp/opencode/mut-backup/keyring.rs.orig	2026-10-31 12:01:53.973298010 +0500
++++ rust/crates/discord-platform/src/keyring.rs	2026-10-31 12:01:54.170750330 +0500
+@@ -209,7 +209,7 @@
+ /// (начинается ли после trim с префикса [`ENCRYPTED_TOKEN_PREFIX`]).
+ #[must_use]
+ pub fn is_safe_storage_token(raw: &str) -> bool {
+-    raw.trim().starts_with(ENCRYPTED_TOKEN_PREFIX)
++    raw.starts_with(ENCRYPTED_TOKEN_PREFIX)
+ }
+ 
+ /// Извлекает зашифрованный ciphertext из строки токена safeStorage:
+
+thread 'k13_safe_storage_prefix_and_detection' (267491) panicked at crates/discord-platform/tests/safe_storage_contract.rs:84:5:
+assertion failed: is_safe_storage_token("  dQw4w9WgXcQ:aGVsbG8=  \n")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    k13_safe_storage_prefix_and_detection
+
+test result: FAILED. 12 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-platform --test safe_storage_contract`
+M2 EXIT=101
+restore-ok src=934bfb9f9cefd76fb67640c07909c68c test=4e08fb1900a103f974ea97863c60bb7d
+M2 KILLED

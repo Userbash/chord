@@ -1,0 +1,19 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-209-be-forum-contract/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
+     Running tests/forum_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/forum_contract-698fac12ff22e348)
+
+running 10 tests
+test build_forum_post_route_and_body_propagates_validation_errors ... ok
+test create_forum_post_request_serde_roundtrip ... ok
+test build_forum_post_route_and_body_returns_threads_route_and_json_payload ... ok
+test forum_sort_order_discriminants_and_serde_roundtrip ... ok
+test validate_forum_post_request_checks_channel_id_snowflake_bounds ... ok
+test forum_constants_match_discord_contract ... ok
+test validate_forum_post_request_enforces_allowed_auto_archive_minutes ... ok
+test validate_forum_post_request_enforces_applied_tags_max_5_and_snowflakes ... ok
+test validate_forum_post_request_enforces_trimmed_content_1_to_2000_chars ... ok
+test validate_forum_post_request_enforces_trimmed_title_1_to_100_chars ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

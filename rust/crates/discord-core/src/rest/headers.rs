@@ -8,6 +8,148 @@
 //! с полным набором из 6 auth-заголовков; выдержка для тестов —
 //! `tests/data/rest-auth-6.tsv` (6 строк, md5 `144c34c24ecd4645540be518e69fbe3b`).
 
+use std::fmt::Write;
+
+/// Дефолтный язык (оракул: discord-i18n и веб-клиент Discord).
+pub const DEFAULT_LOCALE: &str = "en-US";
+
+/// Имя опционального заголовка `X-Fingerprint` (BE-P2-02, task-165).
+pub const HEADER_FINGERPRINT: &str = "X-Fingerprint";
+/// Имя опционального заголовка `X-Installation-ID` (BE-P2-02, task-165).
+pub const HEADER_INSTALLATION_ID: &str = "X-Installation-ID";
+/// Имя опционального заголовка `X-Routing-Key` (BE-P2-02, task-165).
+pub const HEADER_ROUTING_KEY: &str = "X-Routing-Key";
+
+/// Имена опциональных auth-заголовков (BE-P2-02, task-165).
+pub const OPTIONAL_HEADER_NAMES: [&str; 3] = [
+    HEADER_FINGERPRINT,
+    HEADER_INSTALLATION_ID,
+    HEADER_ROUTING_KEY,
+];
+
+/// Сформировать значение заголовка `Accept-Language` со списком q-весов `q=0.9..0.1`
+/// как в браузере/Electron клиенте Discord (BE-P2-02, task-165).
+///
+/// Первый язык идёт без `q`, второй — `;q=0.9`, третий — `;q=0.8` и т.д. до `;q=0.1`.
+/// Пустой список (или список только из пустых/пробельных строк) возвращает [`DEFAULT_LOCALE`].
+#[must_use]
+pub fn format_accept_language(locales: &[&str]) -> String {
+    let clean: Vec<&str> = locales
+        .iter()
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
+    if clean.is_empty() {
+        return DEFAULT_LOCALE.to_string();
+    }
+    let mut result = String::new();
+    for (idx, locale) in clean.into_iter().enumerate() {
+        if idx > 0 {
+            result.push(',');
+        }
+        result.push_str(locale);
+        if idx > 0 {
+            let q_tenth = 10usize.saturating_sub(idx).max(1);
+            let _ = write!(result, ";q=0.{q_tenth}");
+        }
+    }
+    result
+}
+
+/// Конфигурация опциональных заголовков REST-запросов (BE-P2-02, task-165).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct HeaderConfig {
+    /// Значение заголовка `X-Fingerprint`.
+    pub fingerprint: Option<String>,
+    /// Значение заголовка `X-Installation-ID`.
+    pub installation_id: Option<String>,
+    /// Значение заголовка `X-Routing-Key`.
+    pub routing_key: Option<String>,
+}
+
+/// Алиас типа конфигурации заголовков для обратной совместимости.
+pub type OptionalHeaderConfig = HeaderConfig;
+/// Алиас типа конфигурации заголовков для клиента.
+pub type ClientHeadersConfig = HeaderConfig;
+/// Алиас типа конфигурации заголовков REST.
+pub type RestHeadersConfig = HeaderConfig;
+
+impl HeaderConfig {
+    /// Создать пустую конфигурацию опциональных заголовков.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Установить `fingerprint`.
+    #[must_use]
+    pub fn with_fingerprint(mut self, fingerprint: impl Into<String>) -> Self {
+        self.fingerprint = Some(fingerprint.into());
+        self
+    }
+
+    /// Установить `installation_id`.
+    #[must_use]
+    pub fn with_installation_id(mut self, installation_id: impl Into<String>) -> Self {
+        self.installation_id = Some(installation_id.into());
+        self
+    }
+
+    /// Установить `routing_key`.
+    #[must_use]
+    pub fn with_routing_key(mut self, routing_key: impl Into<String>) -> Self {
+        self.routing_key = Some(routing_key.into());
+        self
+    }
+
+    /// Проверить, задан ли непустой `fingerprint`.
+    #[must_use]
+    pub fn has_fingerprint(&self) -> bool {
+        self.fingerprint
+            .as_ref()
+            .is_some_and(|s| !s.trim().is_empty())
+    }
+
+    /// Проверить, задан ли непустой `installation_id`.
+    #[must_use]
+    pub fn has_installation_id(&self) -> bool {
+        self.installation_id
+            .as_ref()
+            .is_some_and(|s| !s.trim().is_empty())
+    }
+
+    /// Проверить, задан ли непустой `routing_key`.
+    #[must_use]
+    pub fn has_routing_key(&self) -> bool {
+        self.routing_key
+            .as_ref()
+            .is_some_and(|s| !s.trim().is_empty())
+    }
+
+    /// Пары `(имя, значение)` для непустых опциональных заголовков.
+    /// Пустые строки и `None` не включаются.
+    #[must_use]
+    pub fn extra_headers(&self) -> Vec<(&'static str, &str)> {
+        let mut pairs = Vec::with_capacity(3);
+        if let Some(ref val) = self.fingerprint
+            && !val.trim().is_empty()
+        {
+            pairs.push((HEADER_FINGERPRINT, val.as_str()));
+        }
+        if let Some(ref val) = self.installation_id
+            && !val.trim().is_empty()
+        {
+            pairs.push((HEADER_INSTALLATION_ID, val.as_str()));
+        }
+        if let Some(ref val) = self.routing_key
+            && !val.trim().is_empty()
+        {
+            pairs.push((HEADER_ROUTING_KEY, val.as_str()));
+        }
+        pairs
+    }
+}
+
 /// Имена шести auth-заголовков полного набора API-запросов в порядке §3.1.
 ///
 /// Порядок зафиксирован выдержкой `tests/data/rest-auth-6.tsv` (колонка 1):

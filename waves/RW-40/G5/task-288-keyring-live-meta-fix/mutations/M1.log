@@ -1,0 +1,27 @@
+diff:
+--- /tmp/opencode/mut-backup/keyring.rs.orig	2026-10-31 12:01:53.973298010 +0500
++++ rust/crates/discord-platform/src/keyring.rs	2026-10-31 12:01:53.981175354 +0500
+@@ -33,7 +33,7 @@
+ /// Имя схемы записей (TZ W33a §1).
+ pub const SCHEMA_NAME: &str = "com.discordlab.Token";
+ /// Префикс токена, зашифрованного через Electron safeStorage (BE-P3-08, RE/rest-static.md §4).
+-pub const ENCRYPTED_TOKEN_PREFIX: &str = "dQw4w9WgXcQ:";
++pub const ENCRYPTED_TOKEN_PREFIX: &str = "dQw4w9WgXcQ";
+ /// Строковый атрибут, по которому ищется запись.
+ const ATTRIBUTE_KEY: &str = "key";
+ /// Метка записи в Secret Service.
+    k15_extract_safe_storage_ciphertext_rejects_empty_payload
+    k18_migrator_happy_path_migrates_once
+    k19_migrator_idempotent_no_reimport
+    k20_migrator_skips_when_target_already_has_token
+    k22_migrator_fails_on_decrypt_error
+    k23_migrator_rejects_invalid_tokens
+    k24_migrator_propagates_keyring_storage_error
+    k26_migration_failure_paths_and_state_do_not_leak_secrets
+
+test result: FAILED. 3 passed; 10 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-platform --test safe_storage_contract`
+M1 EXIT=101
+restore-ok src=934bfb9f9cefd76fb67640c07909c68c test=4e08fb1900a103f974ea97863c60bb7d
+M1 KILLED

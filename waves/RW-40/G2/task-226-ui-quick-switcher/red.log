@@ -1,0 +1,25 @@
+file:///home/sanya/orca/workspaces/project/feature-task-226-ui-quick-switcher/tests/unit/quick-switcher.test.mjs:11
+  MAX_QUICK_SWITCHER_RESULTS,
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../../rust/gui-spike/ui/features/quick-switcher.js' does not provide an export named 'MAX_QUICK_SWITCHER_RESULTS'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:463:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:561:5)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5)
+
+Node.js v26.13.0
+✖ tests/unit/quick-switcher.test.mjs (23.06676ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 27.961302
+
+✖ failing tests:
+
+test at tests/unit/quick-switcher.test.mjs:1:1
+✖ tests/unit/quick-switcher.test.mjs (23.06676ms)
+  'test failed'

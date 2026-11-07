@@ -1,0 +1,26 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::attachments::refresh_attachment_urls`, `discord_gui_spike::attachments::RefreshedAttachmentUrl`, `discord_gui_spike::attachments::MAX_REFRESH_URLS_PER_REQUEST`, `discord_gui_spike::attachments::REFRESH_ATTACHMENT_URLS_PATH`
+  --> tests/attachments_contract.rs:20:32
+   |
+20 |     build_message_attachments, refresh_attachment_urls, request_upload_s...
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^ no `refresh_attachment_urls` in `attachments`
+...
+23 |     DiscordAttachments, GuildBoostTier, RefreshedAttachmentUrl, UploadBy...
+   |                                         ^^^^^^^^^^^^^^^^^^^^^^ no `RefreshedAttachmentUrl` in `attachments`
+24 |     UploadPutInput, UploadedAttachment, DEFAULT_UPLOAD_CONTENT_TYPE, MAX...
+25 |     MAX_REFRESH_URLS_PER_REQUEST, MAX_UPLOAD_FILE_BYTES, MAX_UPLOAD_FILE...
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `MAX_REFRESH_URLS_PER_REQUEST` in `attachments`
+26 |     MAX_UPLOAD_FILE_BYTES_TIER3, REFRESH_ATTACHMENT_URLS_PATH, UPLOAD_PU...
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `REFRESH_ATTACHMENT_URLS_PATH` in `attachments`
+
+error[E0599]: no method named `refresh_attachment_urls` found for struct `DiscordAttachments` in the current scope
+    --> tests/attachments_contract.rs:1387:20
+     |
+1387 |         run(client.refresh_attachment_urls(&urls)).expect("успешный re...
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordAttachments`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "attachments_contract") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

@@ -1,0 +1,89 @@
+▶ V-08 voice: контракт разметки и сборки
+  ✔ 12 состояний и их порядок совпадают со спекой; тексты — из copy (0.68406ms)
+  ✔ index.html содержит host панели (id/класс/disabled) и подключает voice.css (0.20583ms)
+  ✔ в сборке без voice-сервиса панель disabled, а не «подключено» (67.475996ms)
+  ✔ клик join без backend не даёт фейкового успеха и пишет причину в live-регион (16.089068ms)
+  ✔ user-bar mute/deafen сохраняют прежний aria-pressed, панель их не подменяет (15.123838ms)
+✔ V-08 voice: контракт разметки и сборки (100.340123ms)
+▶ V-08 voice: 12 состояний на fake store
+  ✔ idle: data-state, статус, aria-busy/alert (0.43965ms)
+  ✔ loading: data-state, статус, aria-busy/alert (0.144021ms)
+  ✔ connecting: data-state, статус, aria-busy/alert (0.15696ms)
+  ✔ connected: data-state, статус, aria-busy/alert (0.32412ms)
+  ✔ reconnecting: data-state, статус, aria-busy/alert (0.15925ms)
+  ✔ empty: data-state, статус, aria-busy/alert (0.12048ms)
+  ✔ error: data-state, статус, aria-busy/alert (0.17369ms)
+  ✔ no-permission: data-state, статус, aria-busy/alert (0.09965ms)
+  ✔ ptt-required: data-state, статус, aria-busy/alert (0.11017ms)
+  ✔ device-missing: data-state, статус, aria-busy/alert (0.09499ms)
+  ✔ server-mute: data-state, статус, aria-busy/alert (0.09166ms)
+  ✔ disabled: data-state, статус, aria-busy/alert (0.07999ms)
+  ✔ состояние вне контракта не применяется (0.125451ms)
+  ✔ idle: блок связи скрыт, строка пользователя видна, join активен (0.11584ms)
+  ✔ connected: канал, ping 93 ms, участники, leave (0.28175ms)
+  ✔ ping: quality по порогам спеки, без значения — aria-disabled (0.15311ms)
+  ✔ empty: строка wM2WTM с role=status, participants пуст (0.13624ms)
+  ✔ error: ровно один join на клик, фокус уходит на «Переподключиться» (1.955761ms)
+  ✔ повтор после ошибки: второй клик в pending не шлёт второй join (0.25276ms)
+  ✔ leave: 1 вызов, состояние меняется только по событию store (0.34149ms)
+  ✔ no-permission: 0 вызовов сервиса, reconnect отсутствует (0.23688ms)
+  ✔ ptt-required: NYklhr + «Перейти на режим рации» (0.281621ms)
+  ✔ device-missing: bgn75v + MA+OZh, разговор не рвётся (0.1524ms)
+  ✔ server-mute: mute aria-disabled, клик не меняет aria-checked и не зовёт сервис (0.50589ms)
+✔ V-08 voice: 12 состояний на fake store (7.120804ms)
+▶ V-08 voice: участники и speaking
+  ✔ своя строка первая, data-self/data-mute и tjtv3P в aria-label (0.23874ms)
+  ✔ speaking: bool и число > 0, только у своего пользователя (0.22563ms)
+  ✔ без op5 ни у кого нет data-speaking=true (0.13624ms)
+  ✔ 7 участников → 6 строк + «Ещё 1» (0.22069ms)
+  ✔ чужой mute: data-mute=server и текст в aria-label (0.131671ms)
+  ✔ mute/deafen: сервис вызывается, aria-checked только из store (2.260061ms)
+✔ V-08 voice: участники и speaking (3.387872ms)
+▶ V-08 voice: индикация PTT
+  ✔ data-ptt idle|held|blocked и текстовый индикатор (не только цветом) (0.1948ms)
+✔ V-08 voice: индикация PTT (0.23404ms)
+▶ V-08 voice: доступность
+  ✔ у каждой иконочной кнопки русский aria-label, svg aria-hidden (0.17071ms)
+  ✔ один live-регион статуса + отдельный на действия; ошибка assertive (0.09033ms)
+  ✔ ping доступен с клавиатуры, значение — через aria-describedby (0.10797ms)
+  ✔ Tab-порядок панели: ping → leave → mute → deafen (0.11015ms)
+✔ V-08 voice: доступность (0.56017ms)
+▶ V-08 voice: CSS-контракт и приватность
+  ✔ строка участника 32px, speaking-кольцо 2px --positive (оракул — спека) (0.20055ms)
+  ✔ токены voice.css существуют в tokens.css; нет внешних ассетов (0.524171ms)
+  ✔ в коде панели нет media/record/screen API и новых каналов (0.21985ms)
+  ✔ панель не логирует имена участников/устройств (0.08276ms)
+✔ V-08 voice: CSS-контракт и приватность (1.105981ms)
+▶ V-08 voice: интеграция voice-diagnostics (RE-22-04)
+  ✔ voice.js реэкспортирует evaluatePingQuality и createVoiceDiagnosticsController (0.15725ms)
+  ✔ клик по #voice-ping в connected отдаёт попап diagnosticsController.togglePopout (0.19478ms)
+  ✖ openPopout() и enableDiagnosticsPopout покрывают контроллер без DOM-методов (0.44535ms)
+✖ V-08 voice: интеграция voice-diagnostics (RE-22-04) (0.88965ms)
+ℹ tests 47
+ℹ suites 7
+ℹ pass 46
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 151.09178
+
+✖ failing tests:
+
+test at tests/unit/voice-ui.test.mjs:767:3
+✖ openPopout() и enableDiagnosticsPopout покрывают контроллер без DOM-методов (0.44535ms)
+  AssertionError [ERR_ASSERTION]: enableDiagnosticsPopout не создал контроллер
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring/tests/unit/voice-ui.test.mjs:791:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

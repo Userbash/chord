@@ -1,0 +1,33 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-167-voice-rtcp-sr-rr-stats/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::rtcp::RTCP_SR_INTERVAL_MS`, `discord_voice::rtcp::RtcpSenderScheduler`, `discord_voice::rtcp::build_receiver_report`, `discord_voice::rtcp::build_sender_report`, `discord_voice::rtcp::build_srtcp_receiver_report`, `discord_voice::rtcp::build_srtcp_sender_report`, `discord_voice::rtcp::is_server_receiver_report`, `discord_voice::rtcp::parse_server_receiver_report`
+  --> crates/discord-voice/tests/stats_contract.rs:8:33
+   |
+ 8 |     Compound, RTCP_RR, RTCP_SR, RTCP_SR_INTERVAL_MS, ReportBlock, RtcpPacket,
+   |                                 ^^^^^^^^^^^^^^^^^^^ no `RTCP_SR_INTERVAL_MS` in `rtcp`
+ 9 |     RtcpSenderScheduler, SenderInfo, build_receiver_report, build_sender_report,
+   |     ^^^^^^^^^^^^^^^^^^^              ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^ no `build_sender_report` in `rtcp`
+   |     |                                |
+   |     |                                no `build_receiver_report` in `rtcp`
+   |     no `RtcpSenderScheduler` in `rtcp`
+10 |     build_srtcp_receiver_report, build_srtcp_sender_report, is_server_receiver_report,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^ no `is_server_receiver_report` in `rtcp`
+   |     |                            |
+   |     |                            no `build_srtcp_sender_report` in `rtcp`
+   |     no `build_srtcp_receiver_report` in `rtcp`
+11 |     parse_compound, parse_server_receiver_report,
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `parse_server_receiver_report` in `rtcp`
+
+error[E0432]: unresolved import `discord_voice::stats::SessionStats`
+  --> crates/discord-voice/tests/stats_contract.rs:14:19
+   |
+14 |     RttEstimator, SessionStats, StatsSample, StatsWindow, ntp_middle_32,
+   |                   ^^^^^^^^^^^^ no `SessionStats` in `stats`
+
+error[E0599]: no associated function or constant named `from_report_block` found for struct `StatsSample` in the current scope
+   --> crates/discord-voice/tests/stats_contract.rs:327:31
+    |
+327 | ...ample = StatsSample::from_report_block(&block, 5_000, Some(42.5));
+    |                         ^^^^^^^^^^^^^^^^^ associated function or constant not found in `StatsSample`
+
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "stats_contract") due to 3 previous errors

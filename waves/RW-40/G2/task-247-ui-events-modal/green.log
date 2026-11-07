@@ -1,0 +1,21 @@
+▶ EVENT_FILTER_TABS_RU
+  ✔ содержит замороженный список вкладок upcoming, active, all с русскими подписями (0.5687ms)
+✔ EVENT_FILTER_TABS_RU (1.071061ms)
+▶ filterEventsByTab
+  ✔ фильтрует по вкладке upcoming (status === 1) и сортирует по scheduledStartTime, затем по id по возрастанию (0.17751ms)
+  ✔ фильтрует по вкладке active (status === 2) и вкладке all (исключая status === 4), не мутируя вход (0.12869ms)
+✔ filterEventsByTab (0.41142ms)
+▶ createEventsModalController
+  ✔ рендерит диалог События сервера, вкладки и карточки предстоящих событий с переключением вкладок (0.957821ms)
+  ✔ переключает RSVP на карточке события (aria-pressed и вызов onToggleRsvp) (0.61578ms)
+  ✔ рендерит форму создания события при canManageEvents === true и валидирует обязательные поля (0.31619ms)
+  ✔ поддерживает кнопку закрытия [data-events-close-btn], setState, getState, close и destroy (0.25173ms)
+✔ createEventsModalController (2.327091ms)
+ℹ tests 7
+ℹ suites 3
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 35.886285

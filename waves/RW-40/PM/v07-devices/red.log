@@ -1,0 +1,24 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::devices::AudioDevice`, `discord_voice::devices::AudioDeviceKind`, `discord_voice::devices::DeviceEvent`, `discord_voice::devices::DeviceSelectError`, `discord_voice::devices::DEFAULT_INPUT_VOLUME`, `discord_voice::devices::DEFAULT_OUTPUT_VOLUME`, `discord_voice::devices::MAX_INPUT_VOLUME`, `discord_voice::devices::MAX_OUTPUT_VOLUME`, `discord_voice::devices::MIN_VOLUME`, `discord_voice::devices::VoiceDevicesState`, `discord_voice::devices::VoiceInputMode`
+  --> crates/discord-voice/tests/devices_contract.rs:9:5
+   |
+ 9 |     AudioDevice, AudioDeviceKind, DeviceEvent, DeviceSelectError, DEFAULT_INPUT_VOLUME,
+   |     ^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^ no `DEFAULT_INPUT_VOLUME` in `devices`
+   |     |            |                |            |
+   |     |            |                |            no `DeviceSelectError` in `devices`
+   |     |            |                no `DeviceEvent` in `devices`
+   |     |            no `AudioDeviceKind` in `devices`
+   |     no `AudioDevice` in `devices`
+10 |     DEFAULT_OUTPUT_VOLUME, MAX_INPUT_VOLUME, MAX_OUTPUT_VOLUME, MIN_VOLUME, VoiceDevicesState,
+   |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `VoiceDevicesState` in `devices`
+   |     |                      |                 |                  |
+   |     |                      |                 |                  no `MIN_VOLUME` in `devices`
+   |     |                      |                 no `MAX_OUTPUT_VOLUME` in `devices`
+   |     |                      no `MAX_INPUT_VOLUME` in `devices`
+   |     no `DEFAULT_OUTPUT_VOLUME` in `devices`
+11 |     VoiceInputMode,
+   |     ^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "devices_contract") due to 1 previous error

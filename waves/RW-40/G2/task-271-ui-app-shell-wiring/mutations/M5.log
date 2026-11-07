@@ -1,0 +1,47 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.60335ms)
+✔ getState: до любых действий активных слоёв нет (0.34284ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.20532ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.109501ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.10446ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.07849ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.17655ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.28074ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.27112ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.20423ms)
+✖ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.8272ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.550421
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:210:1
+✖ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.8272ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: null,
+  +   activeModalLayer: 'expression-picker'
+  -   activeModalLayer: null
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/app-shell-wiring.test.mjs:220:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: 'expression-picker', activeAdminPanel: null },
+    expected: { activeModalLayer: null, activeAdminPanel: null },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

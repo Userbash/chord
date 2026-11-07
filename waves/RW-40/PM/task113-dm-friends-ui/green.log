@@ -1,0 +1,64 @@
+=== 1. UNIT TEST: tests/unit/dm-friends-ui.test.mjs ===
+▶ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a)
+  ✔ T-N107-READY-01: константы и размеры коллекций 002-READY.json совпадают с RE-оракулом (0.682583ms)
+  ✔ T-N107-SORT-01: сортирует 17 private_channels из 002-READY.json по BigInt(last_message_id ?? 0) по убыванию и разрешает имена/аватары из 146 READY.users (1.126204ms)
+  ✔ отображает типы 1 (DM) и 3 (Group DM с числом участников, кастомным именем и fallback через запятую, плюс приоритет PINNED=2) (0.296691ms)
+✔ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a) (2.696181ms)
+▶ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b)
+  ✔ T-N107-READY-01 & T-N107-TABS-01: классифицирует 60 relationships из 002-READY.json (18 друзей type=1, 42 блокировки type=2) (1.119484ms)
+  ✔ фильтрует типы 1=Friend, 2=Blocked, 3=Incoming, 4=Outgoing по вкладкам Online / All / Pending / Blocked / Add Friend и считает pendingCount по формуле RE @9318383 (0.709583ms)
+✔ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b) (1.959999ms)
+▶ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c)
+  ✔ T-N107-DM-GET-01 & Home Navigation: переключает guildId='@me' по клику на #home-rail-btn без вызовов GET /users/@me/channels, рендерит дерево ЛС и восстанавливает шапку гильдии при возврате (4.056407ms)
+  ✔ T-N107-A11Y-01: вкладки друзей реализуют WAI-ARIA роли tablist/tab/tabpanel и циклический roving tabindex по ArrowRight/ArrowLeft/Home/End (3.413984ms)
+  ✔ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (2.989812ms)
+  ✔ T-N107-GDM-MODAL-01 & T-N107-DM-POST-01: модалка Group DM ограничивает выбор до 9 друзей (10 участников с @me), отправляет POST /users/@me/channels с {recipients:[...]}, использует кэш для одиночного DM и обрабатывает 30004 (4.578779ms)
+  ✔ T-N107-GDM-SHELL-01, T-N107-NOTE-01 & T-N107-DISPATCH-01: поддерживает group-dm-shell (201 vs 200), валидацию note_user_id и 7 Gateway-диспатчей (1.785247ms)
+✔ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (17.052792ms)
+ℹ tests 10
+ℹ suites 3
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.685253
+UNIT_EXIT=0
+=== 2. META TEST: tests/meta/test-policy.test.mjs ===
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.593972ms)
+  ✔ в тестах нет .only, todo и пустых assert (8.539216ms)
+  ✔ скрипты не обходят хуки и проверки (0.559173ms)
+  ✔ гейт содержит обязательные фазы (0.215231ms)
+  ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.614373ms)
+✔ TEST-POLICY: запрет ослабления тестов (11.360098ms)
+▶ QA-M2-01: e2e-skip не является прохождением
+  ✔ failOnSkips превращает skip в провал фазы (пример, а не декларация) (0.391791ms)
+  ✔ без failOnSkips тот же skip не валит фазу (unit/smoke skip-aware) (0.136221ms)
+  ✔ нулевой pass — e2e_unmet даже без skip (0.149791ms)
+  ✔ выполненный набор без skip и fail проходит (0.265301ms)
+  ✔ вердикт при упавшей e2e-фазе — failed, а не passed_with_skips (0.558522ms)
+  ✔ live-фаза без среды — passed_with_unmet, не passed и не skip (0.134011ms)
+  ✔ Rust ignored не смешивается с e2e-skip (0.11743ms)
+  ✔ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.177141ms)
+  ✔ приёмка запрещена без fixture-доказательства и без live в qualify (0.539072ms)
+  ✔ fixture-набор e2e исключает live и объявлен с failOnSkips (0.18872ms)
+  ✔ live-фаза отдельная и только в qualify (0.185501ms)
+  ✔ оба результата повтора сохраняются в attempts[] (0.306772ms)
+✔ QA-M2-01: e2e-skip не является прохождением (3.661136ms)
+ℹ tests 17
+ℹ suites 2
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.475142
+META_EXIT=0
+=== 3. EXPLICIT TSC: rust/gui-spike/ui/features/dm-friends.js ===
+TSC_EXPLICIT_EXIT=0
+=== 4. UI TSCONFIG: rust/gui-spike/ui/tsconfig.json ===
+TSC_UI_EXIT=0
+=== 5. ROOT TSCONFIG: tsconfig.json ===
+TSC_ROOT_EXIT=0
+EXIT_CODE=0

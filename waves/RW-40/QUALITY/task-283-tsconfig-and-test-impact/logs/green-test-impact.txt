@@ -1,0 +1,10 @@
+tier: T1 (batch)
+changed: rust/gui-spike/ui/features/shell-controllers-registry.js, rust/gui-spike/ui/features/chat-helpers-bridge.js, rust/gui-spike/ui/features/composer-popovers-bridge.js, rust/gui-spike/ui/features/app-shell-wiring.js, rust/gui-spike/src/bff_domains_router.rs
+  $ npm run typecheck  # 
+  $ node --test tests/unit/shell-controllers-registry.test.mjs  # rust/gui-spike/ui/features/shell-controllers-registry.js: профильный UI-модуль
+  $ node --test tests/unit/gui-spike-dom.test.mjs  # rust/gui-spike/ui/features/shell-controllers-registry.js: общий UI-контракт; rust/gui-spike/ui/features/chat-helpers-bridge.js: общий UI-контракт; rust/gui-spike/ui/features/composer-popovers-bridge.js: общий UI-контракт; rust/gui-spike/ui/features/app-shell-wiring.js: общий UI-контракт
+  $ node --test tests/unit/gui-spike-features.test.mjs  # rust/gui-spike/ui/features/shell-controllers-registry.js: общий UI-контракт; rust/gui-spike/ui/features/chat-helpers-bridge.js: общий UI-контракт; rust/gui-spike/ui/features/composer-popovers-bridge.js: общий UI-контракт; rust/gui-spike/ui/features/app-shell-wiring.js: общий UI-контракт
+  $ node --test tests/unit/chat-helpers-bridge.test.mjs  # rust/gui-spike/ui/features/chat-helpers-bridge.js: профильный UI-модуль
+  $ node --test tests/unit/composer-popovers-bridge.test.mjs  # rust/gui-spike/ui/features/composer-popovers-bridge.js: профильный UI-модуль
+  $ node --test tests/unit/app-shell-wiring.test.mjs  # rust/gui-spike/ui/features/app-shell-wiring.js: профильный UI-модуль
+  $ cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract --test ipc_contract  # rust/gui-spike/src/bff_domains_router.rs: BFF-контракт bff_domains_router_contract + ipc_contract

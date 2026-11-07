@@ -1,0 +1,38 @@
+=== M1 (settings.js: пропуск unmountVoiceDevices() при смене вкладки в showPane()) | mut_md5=374121351dab42b4e3843f73ccc7ed0e | exit=1 | KILLED ===
+    ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (2.194299ms)
+    ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.709019ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (6.730158ms)
+  ℹ fail 2
+  ✖ failing tests:
+  ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (2.194299ms)
+    AssertionError [ERR_ASSERTION]: при уходе на Внешний вид контроллер уничтожается
+  ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.709019ms)
+    AssertionError [ERR_ASSERTION]: destroy() вызван при смене вкладки
+=== M2 (settings.js: пропуск unmountVoiceDevices() при закрытии модалки в close()) | mut_md5=136b8afe9a61b37252665b2e70d633a4 | exit=1 | KILLED ===
+    ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (1.28104ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (6.903048ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (1.28104ms)
+    AssertionError [ERR_ASSERTION]: destroy() вызван при close() модалки настроек
+=== M3 (settings.js: удаление алиасов вкладки voice / voice-video из PANE_BY_SECTION) | mut_md5=c9166831a8dd276bd82c2c5a77055927 | exit=1 | KILLED ===
+    ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (2.151179ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (7.009648ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (2.151179ms)
+    AssertionError [ERR_ASSERTION]: showPane('voice') должен смонтировать контроллер
+=== M4 (voice-devices-settings.js: отсутствие UI-границ порога чувствительности VAD -100..0 дБ в createVoiceDevicesSettingsController) | mut_md5=fa5cd4b8d7ba9414c4415e455dfce511 | exit=1 | KILLED ===
+    ✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (1.07854ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (6.191538ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (1.07854ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+=== M5 (voice-devices-settings.js: пропуск stopMicTest() при вызове destroy()) | mut_md5=5ed6d1761b4cc3cd54da53041b1a45c8 | exit=1 | KILLED ===
+    ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (1.01846ms)
+  ✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (6.259929ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (1.01846ms)
+    AssertionError [ERR_ASSERTION]: проверка микрофона остановлена при destroy()

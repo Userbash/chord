@@ -7,6 +7,11 @@ description = "Голосовая сигнализация RTC: SRTP, keepalive,
 
 [dependencies]
 discord-json = { workspace = true }
+# Сериализация `VerifiedKeyStore` в persisted-store (V-28-L1-01).
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"
 
 [lints.rust]
 unsafe_code = "forbid"

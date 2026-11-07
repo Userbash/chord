@@ -220,3 +220,189 @@
   height: var(--btn-height-sm);
   font-size: var(--icon-size-sm);
 }
+
+.user-bar .icon-btn[aria-pressed="true"] {
+  background: var(--state-hover);
+  color: var(--danger);
+}
+
+.user-bar .auth-logout {
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+}
+
+.user-bar .auth-logout:hover {
+  background: var(--state-hover);
+  color: var(--danger);
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Режим Home (@me): Личные сообщения и навигация Друзей
+ * ------------------------------------------------------------------------ */
+.dm-tree-header {
+  padding: 0 var(--space-4);
+}
+
+.dm-search-trigger {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dm-search-trigger:hover {
+  color: var(--text);
+}
+
+.dm-search-trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dm-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.dm-nav-item {
+  height: var(--row-member-track);
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-body);
+}
+
+.dm-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--layout-group-title-h);
+  margin: var(--space-3) 0 var(--space-1);
+  padding: 0 var(--space-4);
+}
+
+.dm-group-header .dm-group-title {
+  margin: 0;
+  padding: 0;
+}
+
+.dm-create-btn {
+  flex: 0 0 auto;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-body);
+  line-height: 1;
+}
+
+.dm-create-btn:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.dm-channel-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dm-channel-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.dm-channel-item {
+  flex: 1 1 auto;
+  gap: var(--space-4);
+  height: var(--row-member);
+  padding: 0 var(--space-4);
+  min-width: 0;
+}
+
+.dm-avatar {
+  position: relative;
+  flex: 0 0 var(--avatar-md);
+  width: var(--avatar-md);
+  height: var(--avatar-md);
+  font-size: var(--font-size-small);
+}
+
+.dm-item-meta {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.dm-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dm-item-subtext {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dm-close-btn {
+  position: absolute;
+  right: var(--space-3);
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dm-channel-row:hover .dm-close-btn,
+.dm-channel-row:focus-within .dm-close-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dm-close-btn:hover {
+  color: var(--text-strong);
+}
+
+.dm-channel-row:hover .dm-channel-item,
+.dm-channel-row:focus-within .dm-channel-item {
+  padding-right: var(--space-8);
+}

@@ -1,0 +1,54 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-178-routes-catalog-s-markers/rust/crates/discord-json)
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-178-routes-catalog-s-markers/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-178-routes-catalog-s-markers/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_core::rest::routes::CAPTURED_D02_ROUTE_COUNT`, `discord_core::rest::routes::STATIC_EXTENSION_ROUTE_COUNT`
+  --> crates/discord-core/tests/rest_routes.rs:26:5
+   |
+26 |     CAPTURED_D02_ROUTE_COUNT, CAPTURED_QUERY_PARAMS, CHANNEL_SEARCH_PATH, DEFAULT_PINS_LIMIT,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ no `CAPTURED_D02_ROUTE_COUNT` in `rest::routes`
+27 |     INVITE_PATH, MAX_PINS_LIMIT, ROUTES, STATIC_EXTENSION_ROUTE_COUNT, TYPING_PATH,
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `STATIC_EXTENSION_ROUTE_COUNT` in `rest::routes`
+
+error[E0425]: cannot find value `id` in this scope
+   --> crates/discord-core/tests/rest_routes.rs:832:25
+    |
+832 |         "GET /channels/{id}/messages — строка D-02, не расширение"
+    |                         ^^ not found in this scope
+    |
+help: consider importing this function
+    |
+ 21 + use std::process::id;
+    |
+
+error[E0599]: no method named `is_static_extension` found for reference `&&RouteSpec` in the current scope
+   --> crates/discord-core/tests/rest_routes.rs:800:29
+    |
+800 |         .filter(|spec| spec.is_static_extension())
+    |                             ^^^^^^^^^^^^^^^^^^^ method not found in `&&RouteSpec`
+
+error[E0599]: no method named `is_static_extension` found for reference `&&RouteSpec` in the current scope
+   --> crates/discord-core/tests/rest_routes.rs:823:34
+    |
+823 |             .filter(|spec| !spec.is_static_extension())
+    |                                  ^^^^^^^^^^^^^^^^^^^ method not found in `&&RouteSpec`
+
+error[E0599]: no method named `is_static_extension` found for reference `&RouteSpec` in the current scope
+   --> crates/discord-core/tests/rest_routes.rs:831:14
+    |
+829 |           !find(HttpMethod::Get, "/channels/{id}/messages")
+    |  __________-
+830 | |             .expect("маршрут истории сообщений")
+831 | |             .is_static_extension(),
+    | |             -^^^^^^^^^^^^^^^^^^^ method not found in `&RouteSpec`
+    | |_____________|
+    |
+
+error[E0599]: no method named `is_static_extension` found for reference `&RouteSpec` in the current scope
+   --> crates/discord-core/tests/rest_routes.rs:845:18
+    |
+845 |             spec.is_static_extension(),
+    |                  ^^^^^^^^^^^^^^^^^^^ method not found in `&RouteSpec`
+
+Some errors have detailed explanations: E0425, E0432, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `discord-core` (test "rest_routes") due to 6 previous errors

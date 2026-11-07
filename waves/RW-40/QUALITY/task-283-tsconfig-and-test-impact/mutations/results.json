@@ -1,0 +1,68 @@
+{
+  "task": "task-283 / PR-165 / TR-194A",
+  "file": "scripts/test-impact.mjs",
+  "test": "tests/unit/test-impact.test.mjs",
+  "baselineKilled": false,
+  "originalMd5": "330caeeac8e6f553df0ecfd25eea84cc",
+  "expectedMd5": "330caeeac8e6f553df0ecfd25eea84cc",
+  "killed": 7,
+  "total": 7,
+  "results": [
+    {
+      "id": "M1",
+      "scope": "RUST_MODULE_CONTRACTS",
+      "mutation": "значение automod_contract → automod_contracts (суффикс-опечатка)",
+      "mutantMd5": "bb22fef84753c7ce18edc0e9c99fb8a7",
+      "exitKilled": true,
+      "killedBy": "✖ каждый pub mod из lib.rs покрыт правилом (1.035781ms); ✖ test-impact v2: точечный граф Rust BFF (2.988281ms)"
+    },
+    {
+      "id": "M2",
+      "scope": "RUST_MODULE_CONTRACTS",
+      "mutation": "удалено правило bff_domains_router (уходит в полный прогон крейта)",
+      "mutantMd5": "55731642b6a9df2b0f2cb9a0ed8c7ba1",
+      "exitKilled": true,
+      "killedBy": "✖ каждый pub mod из lib.rs покрыт правилом (1.256271ms); ✖ test-impact v2: точечный граф Rust BFF (3.436282ms)"
+    },
+    {
+      "id": "M3",
+      "scope": "RUST_MODULE_CONTRACTS",
+      "mutation": "stage_instances_contract подменён на soundboard_contract",
+      "mutantMd5": "9a8ae6bd92416a0eb88ef47555030f85",
+      "exitKilled": true,
+      "killedBy": "✖ каждый pub mod из lib.rs покрыт правилом (1.264201ms); ✖ test-impact v2: точечный граф Rust BFF (3.416572ms)"
+    },
+    {
+      "id": "M4",
+      "scope": "UI_MODULE_TESTS",
+      "mutation": "удалено правило app-shell-wiring.js (фоллбэк frontend()+geometry)",
+      "mutantMd5": "2a6cb7c00ce6fb62446acfdc705ccce5",
+      "exitKilled": true,
+      "killedBy": "✖ features/app-shell-wiring.js → app-shell-wiring.test.mjs + общие UI-контракты (0.759301ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.249751ms)"
+    },
+    {
+      "id": "M5",
+      "scope": "UI_MODULE_TESTS",
+      "mutation": "у composer-popovers-bridge.js отрезан профильный тест (остались общие)",
+      "mutantMd5": "71c6360c1c2cade4ea597aa2dcf2b82c",
+      "exitKilled": true,
+      "killedBy": "✖ features/composer-popovers-bridge.js → composer-popovers-bridge.test.mjs + общие UI-контракты (0.629431ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.097811ms)"
+    },
+    {
+      "id": "M6",
+      "scope": "UI_MODULE_TESTS",
+      "mutation": "удалено правило shell-controllers-registry.js",
+      "mutantMd5": "d6288c124afe129a8c64067987aa0b96",
+      "exitKilled": true,
+      "killedBy": "✖ features/shell-controllers-registry.js → shell-controllers-registry.test.mjs + общие UI-контракты (0.729851ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.126001ms)"
+    },
+    {
+      "id": "M7",
+      "scope": "UI_MODULE_TESTS",
+      "mutation": "chat-helpers-bridge.js сшит с чужим профилем app-shell-wiring.test.mjs",
+      "mutantMd5": "03eac7b365ea418ce2576a66b6bec3cb",
+      "exitKilled": true,
+      "killedBy": "✖ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.80088ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.32909ms)"
+    }
+  ]
+}

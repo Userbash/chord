@@ -1,0 +1,26 @@
+▶ computeGuildFolderState
+  ✔ returns zeroed state for an empty folder (0.797271ms)
+  ✔ counts guilds in the folder regardless of their state (0.12059ms)
+  ✔ treats unread === true as unread even without mentions (0.08824ms)
+  ✔ treats mentionCount > 0 as unread (0.079201ms)
+  ✔ ignores guilds that are not in the folder (0.0894ms)
+  ✔ sums positive integer mentions and skips invalid values (0.10903ms)
+  ✔ ignores missing guild ids in the state map (0.07781ms)
+  ✔ formats the badge: empty, plain number, then 99+ (0.11287ms)
+  ✔ caps only the text, not the numeric mention total (0.119841ms)
+  ✔ reports active voice when any guild in the folder has it (0.12191ms)
+✔ computeGuildFolderState (2.605354ms)
+▶ toggleFolderCollapsed
+  ✔ appends a folder that is not collapsed yet (0.13874ms)
+  ✔ removes a folder that is already collapsed (0.06901ms)
+  ✔ does not mutate the input array (0.087181ms)
+  ✔ returns an empty array for an empty input (0.07028ms)
+✔ toggleFolderCollapsed (0.499351ms)
+ℹ tests 14
+ℹ suites 2
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.216316

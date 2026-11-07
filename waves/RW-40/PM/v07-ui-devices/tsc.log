@@ -1,0 +1,2 @@
+# tsc -p tsconfig.json (root, includes tests/unit/voice-devices-settings.test.mjs)
+exit=0

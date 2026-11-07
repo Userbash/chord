@@ -1,0 +1,55 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.21s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 5 tests
+test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... FAILED
+test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds ... FAILED
+test dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes ... FAILED
+test dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing ... FAILED
+test dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes ... FAILED
+
+failures:
+
+---- dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing stdout ----
+
+thread 'dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing' (1590644) panicked at crates/discord-core/src/dispatch.rs:859:14:
+CHANNEL_CREATE маршрутизируется
+
+---- dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds stdout ----
+
+thread 'dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds' (1590643) panicked at crates/discord-core/src/dispatch.rs:660:13:
+assertion `left == right` failed: from_name должен находить MESSAGE_DELETE
+  left: None
+ right: Some(MessageDelete)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes stdout ----
+
+thread 'dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes' (1590646) panicked at crates/discord-core/src/dispatch.rs:1005:14:
+MESSAGE_DELETE распознан
+
+---- dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing stdout ----
+
+thread 'dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing' (1590647) panicked at crates/discord-core/src/dispatch.rs:934:14:
+THREAD_CREATE маршрутизируется
+
+---- dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes stdout ----
+
+thread 'dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes' (1590645) panicked at crates/discord-core/src/dispatch.rs:749:9:
+assertion `left == right` failed
+  left: None
+ right: Some(MessageDelete)
+
+
+failures:
+    dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds
+    dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing
+    dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes
+    dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes
+    dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --lib`
+EXIT=101

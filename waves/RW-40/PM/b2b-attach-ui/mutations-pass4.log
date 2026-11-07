@@ -1,0 +1,51 @@
+# B2b-ATTACH-UI-20MIB-SYNC: лог 5 мутаций (Pass 4)
+Дата: 2026-10-30
+Файл мутаций: rust/gui-spike/ui/features/composer.js
+Опорный md5: 223e7641d973ea68c93fde90969f3053
+
+======================================================================
+M1-20MIB-TO-10MIB: возврат MAX_UPLOAD_FILE_BYTES к 10 * 1024 * 1024
+Мутант md5: b288f0e4c85ffe0ddb17c6a7832b6916
+Результат: FAIL (exit 1) — CAUGHT (3 теста)
+  ✖ лимиты совпадают с бэкендом B2a и RE (20 МиБ на файл, 10 файлов на сообщение)
+    AssertionError: базовый лимит файла — 20 МиБ (20971520): actual 10485760 !== 20971520
+  ✖ файл больше MAX_UPLOAD_FILE_BYTES получает состояние error-size/error-413 без сети
+    AssertionError: input did not match /больше 20\s*(?:МиБ|МБ)/i ('Файл больше 10 МиБ...')
+  ✖ файл размером до 20 МиБ (в диапазоне 10…20 МиБ) принимается в очередь без ошибки error-size
+    AssertionError: actual 'error-size' !== 'error-size'
+Восстановление md5: 223e7641d973ea68c93fde90969f3053 — OK
+
+======================================================================
+M2-ATTACH-LIMIT-HARDCODED: хардкод ATTACH_LIMITS.maxFileSize = 10485760
+Мутант md5: de4bbe131c0ce67692b85aafad0a32dd
+Результат: FAIL (exit 1) — CAUGHT (1 тест)
+  ✖ лимиты совпадают с бэкендом B2a и RE (20 МиБ на файл, 10 файлов на сообщение)
+    AssertionError: actual 10485760 !== 20971520 in ATTACH_LIMITS.maxFileSize
+Восстановление md5: 223e7641d973ea68c93fde90969f3053 — OK
+
+======================================================================
+M3-SIZE-GREATER-EQUAL: замена size > MAX_UPLOAD_FILE_BYTES на size >= MAX_UPLOAD_FILE_BYTES
+Мутант md5: 109d7b86f654b3f8a5ee9edab385d36c
+Результат: FAIL (exit 1) — CAUGHT (1 тест)
+  ✖ файл размером до 20 МиБ (в диапазоне 10…20 МиБ) принимается в очередь без ошибки error-size
+    AssertionError: файл 20 МиБ (20971520 байт) ошибочно получил error-size на граничном условии
+Восстановление md5: 223e7641d973ea68c93fde90969f3053 — OK
+
+======================================================================
+M4-NO-SIZE-CHECK: отключение предпроверки размера в addFiles (false && size > MAX_UPLOAD_FILE_BYTES)
+Мутант md5: 4ad83e398bc6b54610268822eabb9b42
+Результат: FAIL (exit 1) — CAUGHT (1 тест)
+  ✖ файл больше MAX_UPLOAD_FILE_BYTES получает состояние error-size/error-413 без сети
+    AssertionError: сеть не должна вызываться при превышении лимита размера (true !== false)
+Восстановление md5: 223e7641d973ea68c93fde90969f3053 — OK
+
+======================================================================
+M5-WRONG-ERROR-MSG: замена сообщения об ошибке на "Размер файла превышен"
+Мутант md5: 5bb487b3710789113800f6a270014c7c
+Результат: FAIL (exit 1) — CAUGHT (1 тест)
+  ✖ файл больше MAX_UPLOAD_FILE_BYTES получает состояние error-size/error-413 без сети
+    AssertionError: input did not match /больше 20\s*(?:МиБ|МБ)/i ('Размер файла превышен')
+Восстановление md5: 223e7641d973ea68c93fde90969f3053 — OK
+
+======================================================================
+ИТОГ: 5/5 мутантов пойманы тестами (CAUGHT). Опорный md5 rust/gui-spike/ui/features/composer.js подтверждён.

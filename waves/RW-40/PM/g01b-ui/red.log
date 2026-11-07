@@ -1,0 +1,95 @@
+$ node --test tests/unit/guild-rail.test.mjs tests/unit/gui-spike-regressions.test.mjs   # red-фаза, до правок app.js/quick-switcher.js
+▶ G2-03: пустое состояние QuickSwitcher соответствует выдаче
+  ✔ empty скрыт при опциях и виден только при нуле совпадений (29.251337ms)
+✔ G2-03: пустое состояние QuickSwitcher соответствует выдаче (29.844736ms)
+[ACTION_FAILED] Не удалось удалить сообщение
+[ACTION_FAILED] Не удалось удалить сообщение
+▶ G2-11: подтверждение удаления не липнет к следующей строке
+  ✔ смена строки и завершение onDelete снимают confirm (20.701034ms)
+✔ G2-11: подтверждение удаления не липнет к следующей строке (20.825364ms)
+▶ C-07: QuickSwitcher находит гильдии по data-guild-id
+  ✖ выбор гильдии в switcher не зависит от legacy data-guild (10.058888ms)
+✖ C-07: QuickSwitcher находит гильдии по data-guild-id (10.468397ms)
+▶ G-01: рейл серверов из ready()
+  ✔ 7 гильдий из READY fixture: data-guild-id, aria-label, aria-current, монограмма (29.065108ms)
+  ✔ нет статичной заглушки data-guild="1": ни в index.html, ни в готовом рейле (9.272731ms)
+  ✔ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (12.45793ms)
+  ✔ клавиатура ↑/↓/Home/End двигает выбор и фокус (6.26109ms)
+  ✔ 0 гильдий → empty-state, а не пустой рейл (5.383653ms)
+  ✔ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (6.735059ms)
+  ✔ loading skeleton до ответа ready(), затем плитки (6.648679ms)
+  ✔ до auth ready ready() не вызывается (источник — только вход) (6.43499ms)
+✔ G-01: рейл серверов из ready() (83.163277ms)
+▶ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+  ✖ boot: выбирается гильдия с id == lastGuildId из settings_load (5.386483ms)
+  ✔ boot: lastGuildId вне READY или без поля → первая гильдия (11.240634ms)
+  ✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки (5.416833ms)
+✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется (22.33211ms)
+ℹ tests 14
+ℹ suites 5
+ℹ pass 11
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.542767
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:231:3
+✖ выбор гильдии в switcher не зависит от legacy data-guild (10.058888ms)
+  AssertionError [ERR_ASSERTION]: выбранных плиток не одна
+  
+  7 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:266:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 7,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:365:3
+✖ boot: выбирается гильдия с id == lastGuildId из settings_load (5.386483ms)
+  AssertionError [ERR_ASSERTION]: выбран не последний сервер из настроек
+  + actual - expected
+  
+  + '274093052673392641'
+  - '700482297027231765'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:371:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '274093052673392641',
+    expected: '700482297027231765',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/guild-rail.test.mjs:411:3
+✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки (5.416833ms)
+  AssertionError [ERR_ASSERTION]: клик по гильдии не дал ровно один settings_save
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:422:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1

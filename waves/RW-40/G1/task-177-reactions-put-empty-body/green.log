@@ -1,0 +1,57 @@
+# final source: reactions.rs md5 1cb0952e95d5c237add7b4b16332bcb2
+# commit: 38f7b5c
+$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --lib
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.57s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-0f0450519753feb0)
+
+running 17 tests
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::custom_emoji_and_invalid_inputs_are_validated ... ok
+test reactions::tests::decode_429_extracts_retry_after_from_json_and_headers ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok
+test search::tests::retry_after_body_parses_float_seconds_when_header_absent ... ok
+test search::tests::retry_after_header_parses_positive_integer_seconds_with_5000ms_fallback ... ok
+test search::tests::uuid_v4_generation_matches_rfc4122_shape ... ok
+test settings_store::tests::normalize_accepts_home_guild_id_and_snowflakes_only ... ok
+test settings_store::tests::patch_updates_home_mode_and_last_guild_id ... ok
+test settings_store::tests::validate_accepts_home_guild_id_and_rejects_other_strings ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/reactions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reactions_contract-6afcd55b7e97d5ea)
+
+running 16 tests
+test emoji_path_uses_percent_encoding_without_plain_unicode ... ok
+test custom_and_unicode_emoji_encoding_and_route_construction ... ok
+test add_reaction_empty_body_sends_zero_byte_put_and_accepts_204 ... ok
+test active_selects_put_and_inactive_selects_delete ... ok
+test discord_reaction_api_transport_handles_204_no_content_and_put_delete_routing ... ok
+test empty_body_constant_is_zero_bytes_and_default_transport_method_puts_it ... ok
+test legacy_add_reaction_still_sends_json_body_for_backward_compatibility ... ok
+test add_reaction_empty_body_handles_204_and_maps_429_403_404_401_5xx_network ... ok
+test invalid_ids_and_emoji_are_rejected_before_api ... ok
+test add_reaction_empty_body_encodes_custom_emoji_and_validates_before_transport ... ok
+test idempotent_toggle_helper_adds_when_inactive_and_removes_when_active ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test sender_debug_and_empty_token_do_not_expose_or_accept_token ... ok
+test typed_failures_are_preserved ... ok
+test http_429_parses_retry_after_float_seconds_from_json_and_header_and_maps_401_403_404_network ... ok
+test strict_validation_rejects_control_chars_slashes_whitespace_and_malformed_custom_emoji ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit=0

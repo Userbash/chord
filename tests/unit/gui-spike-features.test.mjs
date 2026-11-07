@@ -13,7 +13,7 @@
 // смысл «штатная работа без console.error/warn» сохранён, а не ослаблен.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { loadApp } from "../support/gui-dom-harness.mjs";
 // W39h3 / P0: проверяем сам рендер embed, а не только данные демо-строки.
@@ -190,7 +190,7 @@ function key(app, value, init = {}) {
 
 describe("gui-spike features: интеракции W39d", () => {
   it("QuickSwitcher открывается по Ctrl/Cmd+K, фильтрует, перемещает выбор и переключает канал/экран", async () => {
-    await withApp((app) => {
+    await withApp(async (app) => {
       key(app, "k", { ctrlKey: true });
       const dialog = firstNode(app, ".quick-switcher");
       assert.equal(dialog.getAttribute("role"), "dialog");
@@ -327,6 +327,8 @@ describe("gui-spike features: интеракции W39d", () => {
       assert.doesNotMatch(app.document.body.textContent, /secret-token/);
       mode = "RateLimited"; input.value = "two"; input.emit("input"); input.dispatchEvent("keydown", { key: "Enter" }); await new Promise((resolve) => setImmediate(resolve));
       assert.match(app.document.body.textContent, /4200|4 с/); assert.equal(attempts, 2);
+      mode = "forbidden"; input.value = "three"; input.emit("input"); input.dispatchEvent("keydown", { key: "Enter" }); await new Promise((resolve) => setImmediate(resolve));
+      assert.match(app.document.body.textContent, /нет прав на отправку сообщений в этом канале \(403\)/); assert.equal(attempts, 3);
     });
   });
   it("body[data-active-screen] + aria-current на 4 экранах", async () => {
@@ -508,6 +510,7 @@ describe("gui-spike features: интеракции W39d", () => {
 
       // Стартовый контент — «Голос и видео» (D-17), тумблеры уже в DOM.
       assert.equal(settings.getAttribute("data-active-pane"), "voice", "стартовая панель не voice");
+      assert.equal(byId(app, "settings-modal").getAttribute("hidden"), null, "voice-панель настроек скрыта");
       assert.equal(settings.querySelectorAll(".toggle").length, SETTINGS_TOGGLES);
       assert.equal(
         settings.querySelectorAll('input[type="checkbox"]').length,
@@ -518,6 +521,7 @@ describe("gui-spike features: интеракции W39d", () => {
       // «Внешний вид» — честная заглушка с подписью (S-14, SET-15).
       /** @type {ShimElement} */ (items[10]).click();
       assert.equal(settings.getAttribute("data-active-pane"), "appearance", "клик не открыл «Внешний вид»");
+      assert.notEqual(byId(app, "settings-modal").getAttribute("hidden"), null, "voice-панель видна вне voice");
       const appearance = settings.querySelector('[data-pane="appearance"]');
       assert.ok(appearance, "нет панели «Внешний вид»");
       assert.equal(appearance.getAttribute("hidden"), null, "панель «Внешний вид» скрыта");
@@ -538,6 +542,7 @@ describe("gui-spike features: интеракции W39d", () => {
 
       /** @type {ShimElement} */ (items[3]).click();
       assert.equal(settings.getAttribute("data-active-pane"), "notifications", "клик не открыл «Уведомления»");
+      assert.notEqual(byId(app, "settings-modal").getAttribute("hidden"), null, "voice-панель видна на вкладке уведомлений");
       const notifications = settings.querySelector('[data-pane="notifications"]');
       assert.ok(notifications, "нет панели «Уведомления»");
       assert.match(notifications.textContent, /не открывал|неизвест/i, "нет честной подписи SET-15");
@@ -990,6 +995,25 @@ function api(app) {
   const instance = app.appModule?.currentApp?.();
   assert.ok(instance, "app.js не экспортирует currentApp() — нечего проверять");
   return instance;
+}
+
+/**
+ * INT-07 (Pass 3): голосовые IPC-команды, которых нет в `generate_handler!`
+ * `rust/gui-spike/src/main.rs`. Предварительная секция не должна их вызывать.
+ */
+const VOICE_IPC_COMMANDS = [
+  "set_input_device",
+  "set_output_device",
+  "set_input_volume",
+  "set_output_volume",
+  "set_input_mode",
+  "set_mute_state",
+  "set_ptt_key",
+];
+
+/** @param {GuiDom} app @returns {number} */
+function voiceIpcCalls(app) {
+  return VOICE_IPC_COMMANDS.reduce((total, cmd) => total + app.callsOf(cmd).length, 0);
 }
 
 /**
@@ -3084,8 +3108,27 @@ describe("G-04: подтверждение выхода, leave_guild и види
       byId(app, "leave-confirm").click();
       await app.settle(3);
       assert.match(byId(app, "leave-error").textContent, /Слишком много попыток\. Повторите через 3 с\./, "текст 429");
-      assert.equal(byId(app, "leave-confirm").getAttribute("disabled"), null, "кнопка осталась disabled после 429");
-      assert.equal(app.callsOf("leave_guild").length, 2, "повтор после ошибки не ушёл");
+
+      // G05-REST-SPEC §3.9/D7 (блок из waves/RW-40/PM/g05-rest/REPORT.md §5):
+      // 429 блокирует до 0 без автоповтора, затем ровно один ручной повтор.
+      assert.notEqual(
+        byId(app, "leave-confirm").getAttribute("disabled"),
+        null,
+        "кнопка осталась активной во время отсчёта 429",
+      );
+      assert.equal(app.callsOf("leave_guild").length, 2, "429 дал автоповтор");
+      app.flushTimers();
+      app.flushTimers();
+      app.flushTimers();
+      assert.equal(byId(app, "leave-error").textContent, "Слишком много попыток. Повторите через 0 с.");
+      assert.equal(
+        byId(app, "leave-confirm").getAttribute("disabled"),
+        null,
+        "кнопка осталась disabled после отсчёта 429",
+      );
+      byId(app, "leave-confirm").click();
+      await app.settle(3);
+      assert.equal(app.callsOf("leave_guild").length, 3, "ручной повтор после отсчёта не ушёл");
     });
   });
 
@@ -3605,3 +3648,1747 @@ describe("L-01 (RW-40): видимый reconnect/offline state", () => {
     assert.match(css, /\.net-status\[hidden\]/, "нет правила скрытия баннера");
   });
 });
+
+/* =============================================================================
+ * INT-07-UI-APP-MOUNT (RW-40): монтирование createVoiceDevicesSettings и
+ * createNotificationSettingsController в rust/gui-spike/ui/app.js.
+ * ========================================================================== */
+
+describe("INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js", () => {
+  it("aria-disabled контролы уведомлений на старте не выполняют действия мышью и клавиатурой", async () => {
+    await withApp((app) => {
+      const bell = action(app, "inbox");
+      const serverItem = byId(app, "server-menu-notifications");
+      const guildDialog = byId(app, "guild-notifications-dialog");
+      const channelMenu = byId(app, "channel-notif-menu");
+
+      assert.equal(bell.getAttribute("aria-disabled"), "true");
+      assert.equal(serverItem.getAttribute("aria-disabled"), "true");
+      // P1-1: до выбора гильдии пункт объявлен заглушкой (data-static-disabled,
+      // tabindex=-1, причина через aria-describedby), а колокол — disabled VW-01.
+      assert.equal(serverItem.getAttribute("data-static-disabled"), "true", "пункт не заглушка до rail.load");
+      assert.equal(serverItem.getAttribute("tabindex"), "-1", "disabled-пункт в tab-порядке");
+      assert.equal(serverItem.getAttribute("aria-haspopup"), "menu", "aria-haspopup заглушки не menu");
+      assert.equal(bell.getAttribute("aria-haspopup"), null, "disabled-колокол обещает подменю");
+      assert.equal(bell.getAttribute("aria-controls"), null, "disabled-колокол ссылается на меню");
+      assert.equal(bell.getAttribute("title"), "Уведомления (Phase 3)");
+      openServerMenu(app);
+      assert.equal(
+        serverItem.getAttribute("aria-describedby"),
+        "menu-reason-not-implemented",
+        "у disabled-пункта нет причины",
+      );
+      assert.equal(serverItem.getAttribute("aria-disabled"), "true", "refreshMenuState снял disabled до гильдии");
+      bell.click();
+      serverItem.click();
+      for (const key of ["Enter", " "]) {
+        serverItem.dispatchEvent("keydown", { key });
+        bell.dispatchEvent("keydown", { key });
+      }
+      assert.notEqual(guildDialog.getAttribute("hidden"), null, "disabled пункт открыл диалог");
+      assert.notEqual(channelMenu.getAttribute("hidden"), null, "disabled колокол открыл меню");
+      assert.equal(app.callsOf("update_guild_notification_settings").length, 0);
+      assert.equal(app.callsOf("update_channel_notification_override").length, 0);
+    });
+  });
+
+  it("монтирует createVoiceDevicesSettings в предварительном режиме: состояние в памяти, без незарегистрированных IPC", async () => {
+    await withApp((app) => {
+      const runtime = api(app);
+      // Сравнение через === : сама ссылка на контроллер содержит DOM-дерево, и diff
+      // от `assert.equal(obj, null)` упирается в сериализацию циклической структуры.
+      assert.equal(runtime.voiceDevices === null, true, "контроллер смонтирован до раскрытия секции");
+
+      const settingsDialog = byId(app, "settings-dialog");
+      const settingsModal = byId(app, "settings-modal");
+      const voiceSection = byId(app, "voice-devices");
+      assert.ok(
+        settingsDialog.querySelector("#voice-devices"),
+        "#voice-devices не смонтирован внутри #settings-dialog",
+      );
+      assert.ok(
+        settingsModal.querySelector("#voice-devices"),
+        "#voice-devices не смонтирован внутри #settings-modal",
+      );
+
+      // P1-1 (Pass 3): голосового IPC в main.rs нет. Секция живёт в памяти и явно
+      // объявляет себя предварительной — иначе каждое изменение давало бы alert
+      // «Не удалось сохранить настройку…» на незарегистрированной команде.
+      const preliminary = byId(app, "voice-devices-preliminary");
+      assert.ok(preliminary, "нет видимой пометки предварительного режима");
+      assert.equal(preliminary.getAttribute("hidden"), null, "пометка предварительного режима скрыта");
+      assert.equal(preliminary.getAttribute("role"), "status", "пометка не live-регион");
+      assert.match(
+        preliminary.textContent,
+        /Предварительный режим/,
+        "пометка не объявляет предварительный режим",
+      );
+      assert.match(
+        preliminary.textContent,
+        /voice-devices IPC/,
+        "пометка не называет причину (нет voice-devices IPC)",
+      );
+
+      // AT-SPI RW-38: пока секция свёрнута, её тумблеры не попадают в диалог настроек.
+      assert.notEqual(voiceSection.getAttribute("hidden"), null, "свёрнутая voice-секция видима");
+      const expand = byId(app, "voice-devices-expand");
+      assert.ok(expand, "нет кнопки раскрытия настроек устройств");
+      assert.equal(expand.getAttribute("aria-expanded"), "false", "кнопка раскрытия объявлена раскрытой");
+      assert.equal(expand.getAttribute("aria-controls"), "voice-devices");
+      assert.match(expand.textContent, /Показать настройки устройств/);
+      assert.equal(
+        settingsDialog.querySelectorAll('[role="switch"]').length,
+        SETTINGS_TOGGLES,
+        "свёрнутая voice-секция добавила тумблеры в диалог настроек (AT-SPI: ожидалось 38)",
+      );
+
+      expand.click();
+      assert.equal(expand.getAttribute("aria-expanded"), "true", "кнопка не объявила раскрытие");
+      assert.equal(voiceSection.getAttribute("hidden"), null, "раскрытие не показало секцию");
+      assert.ok(runtime.voiceDevices, "currentApp().voiceDevices не инициализирован после раскрытия");
+      assert.equal(typeof runtime.voiceDevices.getState, "function");
+      assert.equal(typeof runtime.voiceDevices.setDevices, "function");
+      assert.equal(voiceSection.getAttribute("data-preliminary"), "true", "#voice-devices не помечен предварительным");
+      assert.equal(
+        settingsDialog.querySelectorAll('[role="switch"]').length,
+        SETTINGS_TOGGLES + 3,
+        "раскрытая секция должна добавить ровно 3 тумблера (PTT/mute/deafen)",
+      );
+
+      const inputSelect = byId(app, "voice-devices-input");
+      const outputSelect = byId(app, "voice-devices-output");
+      const outputVol = byId(app, "voice-devices-output-volume");
+      const pttToggle = byId(app, "voice-devices-ptt");
+      const muteToggle = byId(app, "voice-devices-user-mute");
+      const deafToggle = byId(app, "voice-devices-self-deaf");
+      const voiceCallsBefore = voiceIpcCalls(app);
+
+      const initialState = runtime.voiceDevices.getState();
+      assert.ok(initialState.selectedInput, "не выбрано входное устройство по умолчанию");
+      assert.ok(initialState.selectedOutput, "не выбрано выходное устройство по умолчанию");
+      assert.equal(inputSelect.getAttribute("aria-disabled"), null);
+      assert.equal(outputSelect.getAttribute("aria-disabled"), null);
+
+      outputSelect.value = "default-output";
+      outputSelect.emit("change");
+      inputSelect.value = "default-input";
+      inputSelect.emit("change");
+      assert.equal(runtime.voiceDevices.getState().selectedOutput, "default-output", "выбор вывода не сохранился в памяти");
+      assert.equal(runtime.voiceDevices.getState().selectedInput, "default-input", "выбор ввода не сохранился в памяти");
+
+      outputVol.value = "155";
+      outputVol.emit("input");
+      assert.equal(runtime.voiceDevices.getState().outputVolume, 155, "громкость вывода не обновилась");
+      assert.equal(outputVol.getAttribute("aria-valuenow"), "155");
+      const inputVol = byId(app, "voice-devices-input-volume");
+      inputVol.value = "80";
+      inputVol.emit("input");
+      assert.equal(runtime.voiceDevices.getState().inputVolume, 80, "громкость ввода не обновилась в памяти");
+
+      pttToggle.click();
+      assert.equal(
+        runtime.voiceDevices.getState().inputMode.kind,
+        "push-to-talk",
+        "режим PTT не переключился",
+      );
+      // P2-1 (Pass 2): PTT-клавиша должна доходить до адаптера, а не теряться молча.
+      const pttKeyButton = byId(app, "voice-devices-ptt-key");
+      pttKeyButton.click();
+      pttKeyButton.dispatchEvent("keydown", { key: "K" });
+      assert.equal(runtime.voiceDevices.getState().pttKey, "K", "PTT-клавиша не сохранена даже в памяти");
+
+      deafToggle.click();
+      assert.equal(runtime.voiceDevices.getState().selfDeaf, true);
+      assert.equal(runtime.voiceDevices.getState().effectiveMute, true);
+      assert.equal(voiceSection.getAttribute("data-effective-mute"), "true");
+      assert.equal(muteToggle.getAttribute("aria-checked"), "false");
+
+      // Ни одно действие в предварительной секции не уходит в IPC: команд
+      // set_input_device…set_mute_state/set_ptt_key в Tauri-слое нет.
+      assert.equal(
+        voiceIpcCalls(app),
+        voiceCallsBefore,
+        "предварительная секция вызвала незарегистрированную voice-команду",
+      );
+      const notice = byId(app, "voice-devices-notice");
+      assert.notEqual(notice.getAttribute("hidden"), null, "предварительный режим показал alert вместо пометки");
+      assert.deepEqual(app.consoleErrors, [], "взаимодействие с voice-панелью дало console.error");
+
+      const notifCss = readFileSync(`${uiDirNet}index.html`, "utf8");
+      assert.match(notifCss, /\.notif-toggle\s*\{/);
+      assert.match(notifCss, /\.notif-toggle-input\s*\{/);
+      assert.match(notifCss, /\.notif-toggle-input:checked\s*\+\s*\.toggle-track/);
+      // P2-3: ключевые правила строки тумблера продублированы, иначе в модалке
+      // остаются голые чекбоксы (нет flex-строки, скрытия input, hover-трека).
+      assert.match(notifCss, /\.notif-toggle\s*\{[^}]*display:\s*flex/s, "нет flex-строки .notif-toggle");
+      assert.match(notifCss, /\.notif-toggle\s*\{[^}]*justify-content:\s*space-between/s);
+      assert.match(notifCss, /\.notif-toggle:hover \.toggle-track/, "нет hover-трека");
+      assert.match(notifCss, /\.notif-toggle:hover \.notif-toggle-input:checked \+ \.toggle-track/);
+    });
+  });
+
+  it("P2-3: тумблеры модалки уведомлений живут на .notif-toggle и не раздувают инвариант 38", () => {
+    return withApp((app) => {
+      const dialog = byId(app, "guild-notifications-dialog");
+      const settings = byId(app, "settings");
+      const notifToggles = dialog.querySelectorAll(".notif-toggle");
+      const notifInputs = dialog.querySelectorAll(".notif-toggle-input");
+      assert.equal(notifToggles.length, 6, "в модалке не 6 тумблеров .notif-toggle");
+      assert.equal(notifInputs.length, 6, "в модалке не 6 input .notif-toggle-input");
+      assert.equal(dialog.querySelectorAll(".toggle").length, 0, "в модалке остались .toggle");
+      assert.equal(dialog.querySelectorAll(".toggle-input").length, 0, "в модалке остались .toggle-input");
+      assert.equal(settings.querySelectorAll(".toggle").length, SETTINGS_TOGGLES, "инвариант 38 .toggle сломан");
+      assert.equal(
+        settings.querySelectorAll(".toggle-input").length,
+        SETTINGS_TOGGLES,
+        "инвариант 38 .toggle-input сломан",
+      );
+    });
+  });
+
+  it("P2-1: панель голосовых устройств видна только на вкладке voice", async () => {
+    await withApp((app) => {
+      const settings = byId(app, "settings");
+      const modal = byId(app, "settings-modal");
+      const navItems = all(app, "#settings-nav .settings-nav-item");
+      /** @param {string} section @returns {ShimElement} */
+      const nav = (section) => {
+        const node = navItems.find((item) => item.textContent === section);
+        assert.ok(node, `нет вкладки ${section}`);
+        return node;
+      };
+
+      // Стартовая панель D-17 — voice, значит панель устройств видима.
+      assert.equal(settings.getAttribute("data-active-pane"), "voice");
+      assert.equal(modal.getAttribute("hidden"), null, "voice-панель скрыта на старте");
+      assert.equal(modal.getAttribute("role"), "region", "#settings-modal без role=region");
+
+      nav("Внешний вид").click();
+      assert.equal(settings.getAttribute("data-active-pane"), "appearance");
+      assert.equal(modal.getAttribute("hidden"), "", "voice-панель видна на «Внешнем виде»");
+
+      nav("Уведомления").click();
+      assert.equal(settings.getAttribute("data-active-pane"), "notifications");
+      assert.equal(modal.getAttribute("hidden"), "", "voice-панель видна на «Уведомлениях»");
+
+      nav("Голос и видео").click();
+      assert.equal(settings.getAttribute("data-active-pane"), "voice");
+      assert.equal(modal.getAttribute("hidden"), null, "voice-панель не вернулась на своей вкладке");
+    });
+  });
+
+  it("P2-5 (Pass 3): видимость voice-панели следует и за программной сменой вкладки", async () => {
+    await withApp((app) => {
+      const runtime = api(app);
+      const settings = byId(app, "settings");
+      const modal = byId(app, "settings-modal");
+      assert.equal(typeof runtime.settings.showPane, "function", "settings.showPane не собран");
+
+      // Не клик по #settings-nav, а прямой вызов — так переключает панели сам
+      // settings.js и любой deep-link из другого экрана.
+      runtime.settings.showPane("Внешний вид");
+      assert.equal(settings.getAttribute("data-active-pane"), "appearance");
+      assert.equal(
+        modal.getAttribute("hidden"),
+        "",
+        "программная смена вкладки оставила voice-панель видимой",
+      );
+
+      runtime.settings.showPane("Голос и видео");
+      assert.equal(settings.getAttribute("data-active-pane"), "voice");
+      assert.equal(modal.getAttribute("hidden"), null, "программный возврат на voice не показал панель");
+
+      runtime.settings.showPane("Уведомления");
+      assert.equal(
+        modal.getAttribute("hidden"),
+        "",
+        "переход на «Уведомления» программой оставил voice-панель видимой",
+      );
+    });
+  });
+
+  it("связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов", async () => {
+    const guildChannels = [
+      { id: "cat-10", type: 4, name: "Инфо", parentId: "", position: 0 },
+      { id: "ch-101", type: 0, name: "общий-чат", parentId: "cat-10", position: 1 },
+      { id: "ch-102", type: 0, name: "новости", parentId: "cat-10", position: 2 },
+    ];
+    const app = await loadApp({
+      invokeHandler: (cmd, args) => {
+        if (cmd === "ready") {
+          return {
+            user: { id: "42", username: "tester" },
+            guilds: [
+              { id: "777", name: "Гильдия Рубин" },
+              { id: "888", name: "Гильдия Сапфир" },
+            ],
+          };
+        }
+        if (cmd === "channels") {
+          if (args?.guildId === "777") return guildChannels;
+          return [];
+        }
+        if (cmd === "messages_page") {
+          return [];
+        }
+        if (cmd === "update_guild_notification_settings") {
+          return args?.payload ?? {};
+        }
+        if (cmd === "update_channel_notification_override") {
+          return {
+            guild_id: args?.guildId,
+            channel_overrides: {
+              [args?.channelId]: {
+                channel_id: args?.channelId,
+                ...(args?.patch ?? {}),
+              },
+            },
+          };
+        }
+        return undefined;
+      },
+    });
+    try {
+      const runtime = api(app);
+      assert.ok(runtime.notifications, "currentApp().notifications не инициализирован");
+      const dialogBackdrop = byId(app, "guild-notifications-dialog");
+      const channelMenu = byId(app, "channel-notif-menu");
+      assert.notEqual(dialogBackdrop.getAttribute("hidden"), null, "модалка уведомлений открыта до клика");
+      assert.notEqual(channelMenu.getAttribute("hidden"), null, "меню канала открыто до клика");
+
+      await runtime.rail.load();
+      await app.settle(4);
+      assert.equal(runtime.rail.selectedId, "777", "рейл не выбрал гильдию 777");
+      assert.equal(runtime.tree.channels.length, 3, "каналы гильдии 777 не загружены в tree");
+
+      const serverMenuNotif = byId(app, "server-menu-notifications");
+      assert.equal(serverMenuNotif.getAttribute("aria-disabled"), null, "guild control остался disabled после rail.load");
+      assert.equal(serverMenuNotif.getAttribute("data-action"), "guild-notifications");
+      assert.equal(serverMenuNotif.getAttribute("aria-haspopup"), "dialog");
+      assert.equal(serverMenuNotif.getAttribute("tabindex"), "0", "доступный пункт вне tab-порядка");
+      assert.equal(serverMenuNotif.getAttribute("data-static-disabled"), null, "data-static-disabled не снят");
+      assert.equal(serverMenuNotif.getAttribute("aria-describedby"), null, "aria-describedby не снят");
+      assert.equal(serverMenuNotif.getAttribute("title"), null, "disabled title не снят");
+      openServerMenu(app);
+      assert.equal(serverMenuNotif.getAttribute("aria-disabled"), null, "refreshMenuState снова отключил пункт");
+      const guildMenuButton = firstNode(app, '[data-action="guild-menu"]');
+
+      // 1. Открытие модалки уведомлений гильдии через пункт меню сервера #server-menu-notifications
+      openServerMenu(app);
+      serverMenuNotif.click();
+
+      assert.equal(
+        dialogBackdrop.getAttribute("hidden"),
+        null,
+        "клик по #server-menu-notifications не открыл #guild-notifications-dialog",
+      );
+      assert.equal(runtime.notifications.getState().guildId, "777", "guildId в контроллере не 777");
+      assert.notEqual(byId(app, "server-menu").getAttribute("hidden"), null, "меню сервера осталось открытым");
+      assert.equal(guildMenuButton.getAttribute("aria-expanded"), "false", "aria-expanded не сброшен");
+      assert.deepEqual(app.consoleErrors, [], "открытие настроек уведомлений создало ACTION_FAILED");
+      assert.equal(
+        runtime.notifications.getState().guildName,
+        "Гильдия Рубин",
+        "guildName в контроллере не соответствует выбранной гильдии",
+      );
+      assert.equal(
+        byId(app, "guild-notif-subtitle").textContent,
+        "Гильдия Рубин",
+        "подзаголовок модалки (#guild-notif-subtitle) не содержит имя текущей гильдии",
+      );
+
+      const channelSelect = byId(app, "notif-override-channel-select");
+      const optionValues = channelSelect.querySelectorAll("option").map((opt) => opt.getAttribute("value"));
+      assert.ok(
+        optionValues.includes("ch-101") && optionValues.includes("ch-102"),
+        "селект каналов в модалке не заполнен каналами из tree.channels",
+      );
+
+      runtime.notifications.closeGuildModal();
+      openServerMenu(app);
+      serverMenuNotif.dispatchEvent("keydown", { key: "Enter" });
+      assert.equal(dialogBackdrop.getAttribute("hidden"), null, "Enter не открыл настройки уведомлений");
+      assert.notEqual(byId(app, "server-menu").getAttribute("hidden"), null, "Enter не закрыл меню сервера");
+      runtime.notifications.closeGuildModal();
+
+      // Изменение настройки гильдии отправляет IPC для текущей гильдии 777
+      openServerMenu(app);
+      serverMenuNotif.click();
+      byId(app, "guild-notif-mute-switch").click();
+      await app.settle(2);
+      const guildCalls = app.callsOf("update_guild_notification_settings");
+      assert.equal(guildCalls.length, 1, "не вызван update_guild_notification_settings");
+      assert.equal(guildCalls[0]?.args?.guildId, "777", "guildId в update_guild_notification_settings не 777");
+      assert.ok(
+        guildCalls[0]?.args?.body?.guilds?.["777"],
+        "update_guild_notification_settings отправлен не для текущей гильдии 777",
+      );
+      runtime.notifications.closeGuildModal();
+
+      // 2. Открытие контекстного меню уведомлений канала (#channel-notif-menu) из дерева каналов
+      const chButton = firstNode(app, '.channel-item[data-channel-id="ch-101"]');
+      chButton.dispatchEvent("contextmenu", { target: chButton });
+      assert.equal(
+        channelMenu.getAttribute("hidden"),
+        null,
+        "contextmenu по каналу не открыл #channel-notif-menu",
+      );
+      assert.equal(
+        channelMenu.getAttribute("data-channel-id"),
+        "ch-101",
+        "#channel-notif-menu не привязан к ch-101",
+      );
+      assert.equal(runtime.notifications.getState().activeMenuChannelId, "ch-101");
+
+      const levelAllBtn = firstNode(
+        app,
+        '#channel-notif-menu [data-action="channel-notif-level"][data-level="0"]',
+      );
+      levelAllBtn.click();
+      await app.settle(2);
+      const chCalls = app.callsOf("update_channel_notification_override");
+      assert.equal(chCalls.length, 1, "не вызван update_channel_notification_override");
+      assert.equal(chCalls[0]?.args?.guildId, "777", "guildId в override канала не равен 777");
+      assert.equal(chCalls[0]?.args?.channelId, "ch-101", "channelId в override канала не равен ch-101");
+      runtime.notifications.closeChannelMenu();
+
+      // 3. Открытие #channel-notif-menu через колокол шапки чата для открытого в чате канала
+      await runtime.chat.openChannel({ id: "ch-102", name: "новости" });
+      await app.settle(3);
+      assert.equal(runtime.chat.channelId, "ch-102", "канал ch-102 не открылся в чате");
+      const bell = action(app, "inbox");
+      assert.equal(bell.getAttribute("aria-disabled"), null, "колокол остался disabled после открытия канала");
+      assert.equal(bell.getAttribute("title"), null, "у доступного колокола остался disabled title");
+      assert.equal(bell.getAttribute("aria-haspopup"), "menu");
+      assert.equal(bell.getAttribute("aria-controls"), "channel-notif-menu");
+
+      bell.click();
+      assert.equal(
+        channelMenu.getAttribute("hidden"),
+        null,
+        "клик по колоколу шапки не открыл #channel-notif-menu для активного канала",
+      );
+      assert.equal(
+        channelMenu.getAttribute("data-channel-id"),
+        "ch-102",
+        "#channel-notif-menu при открытии из шапки чата не получил chat.channelId",
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("P2-6: пустой рейл не выдумывает гильдию и не шлёт уведомления в IPC", async () => {
+    const app = await loadApp({
+      invokeHandler: (cmd) => {
+        if (cmd === "ready") return { user: { id: "42", username: "tester" }, guilds: [] };
+        return undefined;
+      },
+    });
+    try {
+      const runtime = api(app);
+      await runtime.rail.load();
+      await app.settle(4);
+      assert.equal(runtime.rail.selectedId, "", "рейл выбрал гильдию из пустого payload");
+
+      const item = byId(app, "server-menu-notifications");
+      assert.equal(item.getAttribute("aria-disabled"), "true", "пункт доступен без загруженной гильдии");
+      openServerMenu(app);
+      item.click();
+      item.dispatchEvent("keydown", { key: "Enter" });
+      assert.notEqual(
+        byId(app, "guild-notifications-dialog").getAttribute("hidden"),
+        null,
+        "модалка открылась без гильдии",
+      );
+      assert.equal(app.callsOf("update_guild_notification_settings").length, 0);
+      assert.equal(app.callsOf("update_channel_notification_override").length, 0);
+      assert.equal(
+        app.invokeCalls.some((call) => JSON.stringify(call.args ?? "").includes('"guildId":"1"')),
+        false,
+        "в IPC ушёл выдуманный guildId=1",
+      );
+      assert.deepEqual(app.consoleErrors, [], "disabled-пункт дал ACTION_FAILED");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("P2-5: contextmenu при закрытой модалке её не открывает; Escape возвращает фокус", async () => {
+    const app = await loadApp({
+      invokeHandler: (cmd, args) => {
+        if (cmd === "ready") {
+          return {
+            user: { id: "42", username: "tester" },
+            guilds: [{ id: "777", name: "Гильдия Рубин" }],
+          };
+        }
+        if (cmd === "channels") {
+          return [
+            { id: "cat-20", type: 4, name: "Инфо", parentId: "", position: 0 },
+            { id: "ch-201", type: 0, name: "общий-чат", parentId: "cat-20", position: 1 },
+          ];
+        }
+        if (cmd === "update_guild_notification_settings") return args?.payload ?? {};
+        if (cmd === "update_channel_notification_override") return {};
+        return undefined;
+      },
+    });
+    try {
+      const runtime = api(app);
+      await runtime.rail.load();
+      await app.settle(4);
+      const dialog = byId(app, "guild-notifications-dialog");
+      const muteSwitch = byId(app, "guild-notif-mute-switch");
+      assert.notEqual(dialog.getAttribute("hidden"), null, "модалка открыта до сценария");
+
+      // 1. Контекстное меню канала не должно открывать закрытую модалку (P2-5).
+      const chButton = firstNode(app, '.channel-item[data-channel-id="ch-201"]');
+      chButton.dispatchEvent("contextmenu", { target: chButton });
+      assert.notEqual(dialog.getAttribute("hidden"), null, "contextmenu открыл модалку уведомлений");
+      assert.notEqual(app.document.activeElement, muteSwitch, "фокус ушёл в скрытую модалку");
+      assert.equal(byId(app, "channel-notif-menu").getAttribute("hidden"), null, "меню канала не открылось");
+      runtime.notifications.closeChannelMenu();
+
+      // 2. Escape закрывает модалку и возвращает фокус на пункт меню-опенер.
+      const item = byId(app, "server-menu-notifications");
+      openServerMenu(app);
+      item.click();
+      assert.equal(dialog.getAttribute("hidden"), null, "модалка не открылась пунктом меню");
+      assert.equal(app.document.activeElement, muteSwitch, "фокус не переведён в модалку");
+      byId(app, "guild-notif-modal").dispatchEvent("keydown", { key: "Escape" });
+      assert.notEqual(dialog.getAttribute("hidden"), null, "Escape не закрыл модалку");
+      assert.equal(app.document.activeElement, item, "фокус не вернулся на #server-menu-notifications");
+    } finally {
+      app.dispose();
+    }
+  });
+});
+
+/* =============================================================================
+ * INT-07 (Pass 3, P1-2/P2-7): durable guard «UI invoke ⊆ generate_handler!».
+ * Пока такого теста не было, монтаж контроллера на незарегистрированные команды
+ * (`set_input_device`…) проходил все гейты. Оракул — исходник `main.rs`, а не
+ * список в тесте: набор команд читается из `generate_handler![…]`.
+ * ========================================================================== */
+
+/**
+ * Рекурсивно собирает `.js`-файлы UI-слоя спайка.
+ * @param {string} dir
+ * @returns {string[]}
+ */
+function collectUiScripts(dir) {
+  const files = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = `${dir}${entry.name}`;
+    if (entry.isDirectory()) files.push(...collectUiScripts(`${full}/`));
+    else if (entry.name.endsWith(".js")) files.push(full);
+  }
+  return files;
+}
+
+describe("INT-07: UI invoke ⊆ generate_handler!", () => {
+  it("каждая литеральная invoke-команда из rust/gui-spike/ui зарегистрирована в main.rs", () => {
+    const uiFiles = collectUiScripts(uiDirNet);
+    assert.ok(uiFiles.length > 0, "в rust/gui-spike/ui нет .js-файлов");
+
+    /** @type {Map<string, string>} */
+    const invokes = new Map();
+    for (const file of uiFiles) {
+      const source = readFileSync(file, "utf8");
+      const pattern = /invoke\(\s*"([A-Za-z0-9_]+)"/g;
+      /** @type {RegExpExecArray | null} */
+      let match;
+      while ((match = pattern.exec(source)) !== null) {
+        const command = String(match[1]);
+        const line = source.slice(0, match.index).split("\n").length;
+        if (!invokes.has(command)) {
+          invokes.set(command, `${file.slice(uiDirNet.length)}:${line}`);
+        }
+      }
+    }
+    assert.ok(invokes.size > 0, "в UI-слое не найдено ни одного литерального invoke");
+
+    const mainSource = readFileSync(`${uiDirNet}../src/main.rs`, "utf8");
+    const handlerBlock = mainSource.match(/generate_handler!\[([\s\S]*?)\]/);
+    assert.ok(handlerBlock, "в rust/gui-spike/src/main.rs нет generate_handler![");
+    const handlerBlockBody = String(handlerBlock?.[1] ?? "");
+    const handlers = new Set(
+      handlerBlockBody
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => /^[a-z0-9_]+$/.test(entry)),
+    );
+    assert.ok(handlers.size > 0, "generate_handler![…] пуст — парсер сломан");
+
+    const missing = [...invokes.entries()]
+      .filter(([command]) => !handlers.has(command))
+      .map(([command, where]) => `${command} (${where})`);
+    assert.deepEqual(
+      missing,
+      [],
+      `UI вызывает команды, которых нет в generate_handler!: ${missing.join(", ")}`,
+    );
+  });
+
+  it("предварительная voice-секция не вызывает voice IPC, которого нет в Rust", () => {
+    const appSource = readFileSync(`${uiDirNet}app.js`, "utf8");
+    for (const command of VOICE_IPC_COMMANDS) {
+      assert.doesNotMatch(
+        appSource,
+        new RegExp(`invoke\\(\\s*"${command}"`),
+        `app.js всё ещё вызывает незарегистрированную команду ${command}`,
+      );
+    }
+  });
+
+  it("видимая пометка предварительного режима есть и в статической разметке index.html", () => {
+    const html = readFileSync(`${uiDirNet}index.html`, "utf8");
+    assert.match(html, /id="voice-devices-preliminary"/, "в index.html нет #voice-devices-preliminary");
+    assert.match(html, /Предварительный режим/, "в index.html нет текста предварительного режима");
+  });
+});
+
+/* =============================================================================
+ * FE-P0-01 / task-133 (RW-40): монтирование createDmFriendsController в app.js
+ * и хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog,
+ * #stranger-confirm-dialog) в index.html + поддержка lastGuildId="@me".
+ * Оракул: waves/RW-40/DESIGN/DM-FRIENDS-SPEC.md и waves/RW-40/DM-FRIENDS-RE.md.
+ * ========================================================================== */
+
+/**
+ * Фикстура READY с пользователями, relationships и private_channels для Home/ЛС.
+ */
+function makeDmReadyPayload() {
+  return {
+    sessionId: "sess-dm-133",
+    user: { id: "900000000000000001", username: "tester" },
+    guilds: [
+      { id: "100000000000000001", name: "Основная гильдия" },
+      { id: "100000000000000002", name: "Вторая гильдия" },
+    ],
+    users: [
+      { id: "200000000000000001", username: "alice", global_name: "Алиса", avatar: null },
+      { id: "200000000000000002", username: "bob", global_name: "Боб", avatar: null },
+      { id: "200000000000000003", username: "charlie", global_name: "Чарли", avatar: null },
+      { id: "200000000000000004", username: "stranger", global_name: "Незнакомец", avatar: null },
+    ],
+    presences: {
+      "200000000000000001": "online",
+      "200000000000000002": "offline",
+      "200000000000000003": "idle",
+      "200000000000000004": "online",
+    },
+    relationships: [
+      { id: "200000000000000001", type: 1 },
+      { id: "200000000000000002", type: 1 },
+      { id: "200000000000000003", type: 3 },
+    ],
+    private_channels: [
+      {
+        id: "300000000000000001",
+        type: 1,
+        recipients: [{ id: "200000000000000001", username: "alice", global_name: "Алиса" }],
+        last_message_id: "400000000000000099",
+        unread_count: 2,
+      },
+      {
+        id: "300000000000000002",
+        type: 3,
+        name: "Штаб разработки",
+        recipients: [
+          { id: "200000000000000001", username: "alice", global_name: "Алиса" },
+          { id: "200000000000000002", username: "bob", global_name: "Боб" },
+        ],
+        last_message_id: "400000000000000050",
+      },
+      {
+        id: "300000000000000003",
+        type: 1,
+        recipients: [{ id: "200000000000000004", username: "stranger", global_name: "Незнакомец" }],
+        last_message_id: "400000000000000010",
+      },
+    ],
+  };
+}
+
+describe("FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html", () => {
+  it("1. В index.html и DOM смонтированы все 5 обязательных хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog, #stranger-confirm-dialog)", async () => {
+    const html = readFileSync(`${uiDirNet}index.html`, "utf8");
+    for (const hostId of [
+      "home-rail-btn",
+      "dm-channel-list",
+      "friends-view",
+      "group-dm-dialog",
+      "stranger-confirm-dialog",
+    ]) {
+      assert.match(
+        html,
+        new RegExp(`id="${hostId}"`),
+        `в index.html отсутствует обязательный хост #${hostId}`,
+      );
+    }
+
+    await withApp(async (app) => {
+      const homeBtn = byId(app, "home-rail-btn");
+      const dmList = byId(app, "dm-channel-list");
+      const friendsView = byId(app, "friends-view");
+      const groupDialog = byId(app, "group-dm-dialog");
+      const strangerDialog = byId(app, "stranger-confirm-dialog");
+
+      assert.equal(homeBtn.getAttribute("data-guild-id"), "@me");
+      assert.equal(homeBtn.getAttribute("data-action"), "nav-home");
+      assert.ok(dmList, "нет #dm-channel-list в DOM");
+      assert.ok(friendsView, "нет #friends-view в DOM");
+      assert.ok(groupDialog, "нет #group-dm-dialog в DOM");
+      assert.ok(strangerDialog, "нет #stranger-confirm-dialog в DOM");
+      assert.ok(api(app).dmFriends, "currentApp().dmFriends не экспортирован");
+    });
+  });
+
+  it("2. Клик по #home-rail-btn включает режим Home (@me), скрывает серверные каналы, показывает #dm-channel-list и #friends-view и сохраняет lastGuildId='@me'", async () => {
+    /** @type {Array<Record<string, any>>} */
+    const savedSettings = [];
+    const app = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        if (cmd === "settings_save") {
+          savedSettings.push(args?.settings ?? {});
+          return null;
+        }
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      const homeBtn = byId(app, "home-rail-btn");
+      const tree = byId(app, "channel-tree");
+      assert.notEqual(tree.getAttribute("data-nav-mode"), "home", "до клика не должен быть режим home");
+
+      homeBtn.click();
+      await app.settle(6);
+
+      assert.equal(tree.getAttribute("data-nav-mode"), "home", "#channel-tree не переключился в data-nav-mode=home");
+      assert.equal(homeBtn.classList.contains("is-selected"), true, "#home-rail-btn не получил .is-selected");
+      assert.equal(homeBtn.getAttribute("aria-current"), "page", "#home-rail-btn не получил aria-current=page");
+      assert.equal(api(app).rail.selectedId, "@me", "rail.selectedId должен быть '@me' в режиме Home");
+
+      const guildTiles = app.document.querySelectorAll("#guild-rail .guild-item");
+      for (const tile of guildTiles) {
+        assert.equal(tile.classList.contains("is-selected"), false, "плитка гильдии осталась выбранной в Home");
+        assert.equal(tile.getAttribute("aria-current"), null, "у невыбранной плитки гильдии остался aria-current");
+      }
+
+      assert.equal(byId(app, "dm-channel-list").getAttribute("hidden"), null, "#dm-channel-list скрыт в Home");
+      assert.equal(byId(app, "friends-view").getAttribute("hidden"), null, "#friends-view скрыт в Home");
+      assert.ok(
+        savedSettings.some((s) => s.lastGuildId === "@me"),
+        `settings_save не сохранил lastGuildId="@me": ${JSON.stringify(savedSettings)}`,
+      );
+      assert.deepEqual(app.consoleErrors, [], `ошибки консоли при входе в Home: ${app.consoleErrors.join("; ")}`);
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("3. Возврат из Home на гильдию восстанавливает дерево каналов гильдии, скрывает #friends-view и сохраняет id гильдии", async () => {
+    /** @type {Array<Record<string, any>>} */
+    const savedSettings = [];
+    const app = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        if (cmd === "settings_save") {
+          savedSettings.push(args?.settings ?? {});
+          return null;
+        }
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      const homeBtn = byId(app, "home-rail-btn");
+      homeBtn.click();
+      await app.settle(6);
+      assert.equal(byId(app, "channel-tree").getAttribute("data-nav-mode"), "home");
+
+      const secondGuild = /** @type {ShimElement | null} */ (
+        app.document.querySelector('#guild-rail .guild-item[data-guild-id="100000000000000002"]')
+      );
+      assert.ok(secondGuild, "не найдена вторая гильдия в рейле");
+      secondGuild.click();
+      await app.settle(6);
+
+      assert.equal(byId(app, "channel-tree").getAttribute("data-nav-mode"), "guild");
+      assert.equal(homeBtn.classList.contains("is-selected"), false);
+      assert.equal(homeBtn.getAttribute("aria-current"), "false");
+      assert.notEqual(byId(app, "friends-view").getAttribute("hidden"), null, "#friends-view не скрылся на гильдии");
+      assert.notEqual(byId(app, "dm-channel-list").getAttribute("hidden"), null, "#dm-channel-list не скрылся на гильдии");
+      assert.equal(secondGuild.classList.contains("is-selected"), true);
+      assert.equal(secondGuild.getAttribute("aria-current"), "true");
+
+      const treeGuild = app.document.querySelector(".tree-guild");
+      assert.equal(treeGuild?.textContent, "Вторая гильдия", "заголовок гильдии в .tree-header не восстановился");
+      assert.ok(
+        savedSettings.some((s) => s.lastGuildId === "100000000000000002"),
+        `settings_save не сохранил id выбранной гильдии: ${JSON.stringify(savedSettings)}`,
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me')", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        if (cmd === "settings_load") {
+          return { version: 1, toggles: {}, density: "cozy", theme: "dark", locale: "ru", lastGuildId: "@me" };
+        }
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(8);
+
+      const homeBtn = byId(app, "home-rail-btn");
+      const tree = byId(app, "channel-tree");
+      assert.equal(tree.getAttribute("data-nav-mode"), "home", "режим Home не восстановился из lastGuildId='@me'");
+      assert.equal(homeBtn.classList.contains("is-selected"), true, "#home-rail-btn не выбран после восстановления");
+      assert.equal(homeBtn.getAttribute("aria-current"), "page");
+      assert.equal(byId(app, "friends-view").getAttribute("hidden"), null, "#friends-view скрыт при старте в Home");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        if (cmd === "settings_load") {
+          return { version: 1, toggles: {}, density: "cozy", theme: "dark", locale: "ru", homeMode: true };
+        }
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(8);
+
+      assert.equal(
+        byId(app, "channel-tree").getAttribute("data-nav-mode"),
+        "home",
+        "режим Home не восстановился из homeMode: true",
+      );
+      assert.equal(byId(app, "home-rail-btn").classList.contains("is-selected"), true);
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("6. Проброс users, relationships и private_channels из ready() рендерит список ЛС и счётчики друзей", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      byId(app, "home-rail-btn").click();
+      await app.settle(6);
+
+      const dmRows = app.document.querySelectorAll("#dm-channel-list .dm-channel-row");
+      assert.equal(dmRows.length, 3, "в #dm-channel-list должны отрендериться 3 приватных канала из ready()");
+      // Отсортированы по last_message_id по убыванию: 300000000000000001 (Алиса), 300000000000000002 (Штаб), 300000000000000003 (Незнакомец)
+      assert.equal(dmRows[0]?.getAttribute("data-channel-id"), "300000000000000001");
+      assert.match(dmRows[0]?.textContent ?? "", /Алиса/);
+      assert.equal(dmRows[1]?.getAttribute("data-channel-id"), "300000000000000002");
+      assert.match(dmRows[1]?.textContent ?? "", /Штаб разработки/);
+      assert.match(dmRows[1]?.textContent ?? "", /3 участника/);
+
+      // Вкладка «В сети» по умолчанию показывает онлайн-друга Алису (type=1, online), но не Боба (offline)
+      const friendRows = app.document.querySelectorAll("#friends-view .friend-row");
+      assert.equal(friendRows.length, 1, "во вкладке 'В сети' должен быть ровно 1 онлайн-друг");
+      assert.equal(friendRows[0]?.getAttribute("data-user-id"), "200000000000000001");
+
+      // Бейдж «Ожидание» на вкладке показывает 1 входящий запрос (Чарли, type=3)
+      const pendingBadge = byId(app, "friends-pending-badge");
+      assert.equal(pendingBadge.textContent, "1");
+      assert.equal(pendingBadge.getAttribute("hidden"), null);
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели", async () => {
+    /** @type {string[]} */
+    const openedChannelIds = [];
+    const app = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        if (cmd === "messages_page") {
+          const cid = String(args?.channelId ?? args?.channel_id ?? "");
+          openedChannelIds.push(cid);
+          return [
+            {
+              id: "500000000000000001",
+              channelId: cid,
+              author: "Алиса",
+              content: "Привет из личных сообщений!",
+              timestamp: "12:30",
+            },
+          ];
+        }
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      byId(app, "home-rail-btn").click();
+      await app.settle(6);
+
+      const firstDm = /** @type {ShimElement | null} */ (
+        app.document.querySelector('#dm-channel-list .dm-channel-item[data-channel-id="300000000000000001"]')
+      );
+      assert.ok(firstDm, "не найдена кнопка ЛС 300000000000000001");
+      firstDm.click();
+      await app.settle(8);
+
+      assert.equal(firstDm.getAttribute("aria-current"), "page", "кнопка ЛС не получила aria-current=page");
+      assert.equal(firstDm.classList.contains("is-selected"), true, "кнопка ЛС не получила .is-selected");
+      assert.notEqual(byId(app, "friends-view").getAttribute("hidden"), null, "#friends-view должен скрыться при открытии ЛС");
+      assert.equal(byId(app, "screen-chat").classList.contains("active"), true, "#screen-chat должен быть активен в ЛС");
+      assert.ok(
+        openedChannelIds.includes("300000000000000001"),
+        `messages_page не был вызван для канала ЛС 300000000000000001: ${JSON.stringify(openedChannelIds)}`,
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("8. Клик по пункту 'Друзья' (#dm-nav-friends) после открытия ЛС возвращает центральную область на #friends-view", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels" || cmd === "messages_page") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      byId(app, "home-rail-btn").click();
+      await app.settle(6);
+
+      const firstDm = /** @type {ShimElement} */ (
+        app.document.querySelector('#dm-channel-list .dm-channel-item[data-channel-id="300000000000000001"]')
+      );
+      firstDm.click();
+      await app.settle(6);
+      assert.notEqual(byId(app, "friends-view").getAttribute("hidden"), null);
+
+      const navFriends = byId(app, "dm-nav-friends");
+      navFriends.click();
+      await app.settle(6);
+
+      assert.equal(byId(app, "friends-view").getAttribute("hidden"), null, "#friends-view не показался снова");
+      const updatedFirstDm = /** @type {ShimElement} */ (
+        app.document.querySelector('#dm-channel-list .dm-channel-item[data-channel-id="300000000000000001"]')
+      );
+      assert.equal(updatedFirstDm.getAttribute("aria-current"), null, "aria-current со строки ЛС не сбросился");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("9. Переключение вкладок #friends-view ('Все', 'Ожидание', 'Добавить в друзья') и фильтрация поиском", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      byId(app, "home-rail-btn").click();
+      await app.settle(6);
+
+      const allTab = byId(app, "friends-tab-all");
+      allTab.click();
+      await app.settle(4);
+      assert.equal(allTab.getAttribute("aria-selected"), "true");
+      assert.equal(
+        app.document.querySelectorAll("#friends-view .friend-row").length,
+        2,
+        "во вкладке 'Все' должны быть оба друга (Алиса и Боб)",
+      );
+
+      const searchInput = byId(app, "friends-search-input");
+      searchInput.value = "боб";
+      searchInput.dispatchEvent("input");
+      await app.settle(4);
+      const filtered = app.document.querySelectorAll("#friends-view .friend-row");
+      assert.equal(filtered.length, 1, "поиск по 'боб' должен оставить 1 строку");
+      assert.equal(filtered[0]?.getAttribute("data-user-id"), "200000000000000002");
+
+      searchInput.value = "";
+      searchInput.dispatchEvent("input");
+      const pendingTab = byId(app, "friends-tab-pending");
+      pendingTab.click();
+      await app.settle(4);
+      const pendingRows = app.document.querySelectorAll("#friends-view .friend-row");
+      assert.equal(pendingRows.length, 1, "во вкладке 'Ожидание' должен быть 1 запрос (Чарли)");
+      assert.equal(pendingRows[0]?.getAttribute("data-user-id"), "200000000000000003");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("10. Вкладка 'Добавить в друзья' отправляет запрос и нормализует ошибки Discord на русском языке", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      byId(app, "home-rail-btn").click();
+      await app.settle(6);
+
+      const addTab = byId(app, "friends-tab-add");
+      addTab.click();
+      await app.settle(4);
+
+      const input = byId(app, "add-friend-input");
+      const submit = /** @type {any} */ (byId(app, "add-friend-submit"));
+      assert.equal(submit.disabled, true, "кнопка отправки должна быть disabled при пустом поле");
+
+      api(app).dmFriends.setRestHandler(async () => {
+        const err = /** @type {any} */ (new Error("Friend request failed"));
+        err.code = 80000;
+        throw err;
+      });
+
+      input.value = "nobody#0001";
+      input.dispatchEvent("input");
+      assert.equal(submit.disabled, false, "кнопка должна активироваться при непустом вводе");
+
+      const form = byId(app, "add-friend-form");
+      form.dispatchEvent("submit");
+      await app.settle(6);
+
+      const feedback = byId(app, "add-friend-feedback");
+      assert.equal(feedback.getAttribute("data-kind"), "error");
+      assert.equal(feedback.getAttribute("hidden"), null);
+      assert.ok(feedback.textContent.trim().length > 0, "сообщение об ошибке пустое");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("11. Диалог создания группового ЛС (#group-dm-dialog) и диалог подтверждения незнакомца (#stranger-confirm-dialog, код 80013) работают из смонтированного контроллера", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels" || cmd === "messages_page") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      byId(app, "home-rail-btn").click();
+      await app.settle(6);
+
+      // Открытие #group-dm-dialog кнопкой +
+      const createBtn = byId(app, "create-group-dm-btn");
+      createBtn.click();
+      await app.settle(4);
+      const groupDialog = byId(app, "group-dm-dialog");
+      assert.equal(groupDialog.getAttribute("hidden"), null, "#group-dm-dialog не открылся");
+
+      const options = groupDialog.querySelectorAll('#group-dm-friend-list [role="option"]');
+      assert.equal(options.length, 2, "в диалоге группового ЛС должны быть 2 друга (type=1)");
+      options[0]?.click();
+      options[1]?.click();
+      byId(app, "group-dm-submit").click();
+      await app.settle(6);
+
+      assert.notEqual(groupDialog.getAttribute("hidden"), null, "#group-dm-dialog не закрылся после создания");
+      assert.equal(
+        app.document.querySelectorAll("#dm-channel-list .dm-channel-row").length,
+        4,
+        "новый групповой канал не добавился в #dm-channel-list",
+      );
+
+      // Код 80013 при принятии входящей заявки (Чарли, 200000000000000003) открывает #stranger-confirm-dialog
+      let confirmCalls = 0;
+      api(app).dmFriends.setRestHandler(async (/** @type {any} */ req) => {
+        if (req.method === "PUT" && req.url.includes("/relationships/200000000000000003")) {
+          confirmCalls += 1;
+          if (!req.body?.confirm_stranger_request) {
+            const err = /** @type {any} */ (new Error("Needs confirmation"));
+            err.code = 80013;
+            throw err;
+          }
+          return { status: 204, body: null };
+        }
+        return { status: 200, body: {} };
+      });
+
+      byId(app, "dm-nav-friends").click();
+      byId(app, "friends-tab-pending").click();
+      await app.settle(4);
+
+      const acceptBtn = /** @type {ShimElement} */ (
+        app.document.querySelector('#friends-view [data-action="accept-friend"][data-user-id="200000000000000003"]')
+      );
+      assert.ok(acceptBtn, "нет кнопки принятия заявки Чарли");
+      acceptBtn.click();
+      await app.settle(6);
+
+      const strangerDialog = byId(app, "stranger-confirm-dialog");
+      assert.equal(strangerDialog.getAttribute("hidden"), null, "#stranger-confirm-dialog не открылся при коде 80013");
+
+      const confirmAcceptBtn = /** @type {ShimElement} */ (
+        strangerDialog.querySelector('[data-action="accept-stranger-confirm"]')
+      );
+      confirmAcceptBtn.click();
+      await app.settle(6);
+
+      assert.notEqual(strangerDialog.getAttribute("hidden"), null, "#stranger-confirm-dialog не закрылся после подтверждения");
+      assert.equal(confirmCalls, 2, "повторный PUT с confirm_stranger_request: true не был отправлен");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("12. Клавиатурная активация #home-rail-btn (Enter/Space) и отсутствие console.error/warn", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd) => {
+        if (cmd === "ready") return makeDmReadyPayload();
+        if (cmd === "channels") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      const homeBtn = byId(app, "home-rail-btn");
+      homeBtn.dispatchEvent("keydown", { key: "Enter" });
+      await app.settle(6);
+
+      assert.equal(byId(app, "channel-tree").getAttribute("data-nav-mode"), "home");
+      assert.equal(homeBtn.classList.contains("is-selected"), true);
+      assert.deepEqual(app.consoleErrors, []);
+      assert.deepEqual(app.consoleWarns, []);
+    } finally {
+      app.dispose();
+    }
+  });
+});
+
+/* =============================================================================
+ * FE-P0-03 / task-148 (RW-40): монтирование createNotificationsController в app.js,
+ * бейджи непрочитанного (.guild-unread-pill) и счётчики упоминаний (1..99 и '99+'
+ * с aria-label) в #guild-list и #channel-list, автоматический ackChannel
+ * (ack_channel_message) при переключении текстового канала, контекстное меню
+ * гильдии (Mute 15m/1h/8h/24h/indefinitely и All/Mentions/Nothing ->
+ * update_guild_notification_settings) и очистка при destroy().
+ * ========================================================================== */
+
+function makeNotifMountReadyPayload() {
+  return {
+    user: { id: "42", username: "tester" },
+    guilds: [
+      { id: "7001", name: "Альфа Сервер", memberCount: 120 },
+      { id: "7002", name: "Бета Мегаполис", memberCount: 3200 },
+    ],
+    read_state: {
+      entries: [
+        {
+          id: "8001",
+          guild_id: "7001",
+          unread: true,
+          mention_count: 5,
+          last_message_id: "9001001",
+          last_viewed: 4280,
+          flags: 1,
+        },
+        {
+          id: "8002",
+          guild_id: "7001",
+          unread: true,
+          mention_count: 0,
+          last_message_id: "9001002",
+          last_viewed: 4280,
+          flags: 1,
+        },
+        {
+          id: "8003",
+          guild_id: "7002",
+          unread: true,
+          mention_count: 120,
+          last_message_id: "9002001",
+          last_viewed: 4280,
+          flags: 1,
+        },
+      ],
+    },
+    user_guild_settings: {
+      entries: [
+        {
+          guild_id: "7001",
+          message_notifications: 1,
+          muted: false,
+          mute_config: null,
+          suppress_everyone: false,
+          suppress_roles: false,
+          notify_highlights: 0,
+          hide_muted_channels: false,
+          mute_scheduled_events: false,
+          mobile_push: true,
+          version: 10,
+          channel_overrides: [],
+        },
+        {
+          guild_id: "7002",
+          message_notifications: 1,
+          muted: false,
+          mute_config: null,
+          suppress_everyone: false,
+          suppress_roles: false,
+          notify_highlights: 0,
+          hide_muted_channels: false,
+          mute_scheduled_events: false,
+          mobile_push: true,
+          version: 11,
+          channel_overrides: [],
+        },
+      ],
+    },
+  };
+}
+
+const NOTIF_MOUNT_CHANNELS = /** @type {Record<string, any[]>} */ ({
+  "7001": [
+    { id: "8000", type: 4, name: "ИНФО", parentId: "", position: 0 },
+    {
+      id: "8001",
+      type: 0,
+      name: "объявления",
+      parentId: "8000",
+      position: 1,
+      last_message_id: "9001001",
+    },
+    {
+      id: "8002",
+      type: 0,
+      name: "общий",
+      parentId: "8000",
+      position: 2,
+      last_message_id: "9001002",
+    },
+  ],
+  "7002": [
+    {
+      id: "8003",
+      type: 0,
+      name: "горячая-линия",
+      parentId: "",
+      position: 0,
+      last_message_id: "9002001",
+    },
+  ],
+});
+
+describe("FE-P0-03 / task-148: монтирование createNotificationsController, бейджи, авто-ack и контекстное меню в app.js", () => {
+  it("1. В app.js импортирован и инициализирован createNotificationsController при старте приложения, в DOM есть #guild-list и #channel-list", async () => {
+    const appSource = readFileSync(`${uiDirNet}app.js`, "utf8");
+    assert.match(
+      appSource,
+      /createNotificationsController/,
+      "в app.js не найден createNotificationsController",
+    );
+
+    await withApp(async (app) => {
+      assert.equal(
+        typeof /** @type {any} */ (app.appModule)?.createNotificationsController,
+        "function",
+        "app.js не экспортирует createNotificationsController",
+      );
+      const runtime = api(app);
+      assert.ok(runtime.notifications, "currentApp().notifications не инициализирован при старте");
+      assert.equal(
+        typeof /** @type {any} */ (runtime.notifications).ackChannel,
+        "function",
+        "у контроллера уведомлений нет метода ackChannel(channelId, lastMessageId)",
+      );
+      assert.equal(
+        typeof /** @type {any} */ (runtime.notifications).openGuildContextMenu,
+        "function",
+        "у контроллера уведомлений нет метода openGuildContextMenu",
+      );
+      assert.equal(
+        typeof runtime.notifications.destroy,
+        "function",
+        "у контроллера уведомлений нет метода destroy()",
+      );
+      assert.ok(byId(app, "guild-list"), "в DOM нет #guild-list");
+      assert.ok(byId(app, "channel-list"), "в DOM нет #channel-list");
+    });
+  });
+
+  it("2. Отрисовка бейджей непрочитанных сообщений (.guild-unread-pill) и счётчиков упоминаний (1..99 и '99+' с aria-label) в #guild-list и #channel-list", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "ready") return makeNotifMountReadyPayload();
+        if (cmd === "channels") return NOTIF_MOUNT_CHANNELS[String(args?.guildId ?? "")] ?? [];
+        if (cmd === "messages_page") return [];
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      const guildList = byId(app, "guild-list");
+      const g1Tile = /** @type {ShimElement} */ (
+        guildList.querySelector('.guild-item[data-guild-id="7001"]')
+      );
+      const g2Tile = /** @type {ShimElement} */ (
+        guildList.querySelector('.guild-item[data-guild-id="7002"]')
+      );
+      assert.ok(g1Tile, "нет плитки гильдии 7001 в #guild-list");
+      assert.ok(g2Tile, "нет плитки гильдии 7002 в #guild-list");
+
+      // Гильдия 7001: непрочитано + 5 упоминаний
+      const g1Pill = g1Tile.querySelector(".guild-unread-pill");
+      assert.ok(g1Pill, "на непрочитанной гильдии 7001 нет .guild-unread-pill");
+      assert.equal(g1Pill.getAttribute("hidden"), null, ".guild-unread-pill гильдии 7001 скрыт");
+      const g1Badge = g1Tile.querySelector(".guild-mention-badge");
+      assert.ok(g1Badge, "на гильдии 7001 нет .guild-mention-badge");
+      assert.equal(g1Badge.textContent, "5", "счётчик упоминаний гильдии 7001 не равен '5'");
+      assert.match(
+        g1Tile.getAttribute("aria-label") ?? "",
+        /5 упоминаний/u,
+        "aria-label гильдии 7001 не содержит '5 упоминаний'",
+      );
+
+      // Гильдия 7002: непрочитано + 120 упоминаний -> кэппинг '99+'
+      const g2Pill = g2Tile.querySelector(".guild-unread-pill");
+      assert.ok(g2Pill, "на непрочитанной гильдии 7002 нет .guild-unread-pill");
+      const g2Badge = g2Tile.querySelector(".guild-mention-badge");
+      assert.ok(g2Badge, "на гильдии 7002 нет .guild-mention-badge");
+      assert.equal(g2Badge.textContent, "99+", "счётчик 120 упоминаний гильдии 7002 не округлён до '99+'");
+      assert.match(
+        g2Tile.getAttribute("aria-label") ?? "",
+        /120 упоминаний/u,
+        "aria-label гильдии 7002 не содержит точное число '120 упоминаний'",
+      );
+
+      // Каналы гильдии 7001 в #channel-list
+      const channelList = byId(app, "channel-list");
+      const ch1Btn = /** @type {ShimElement} */ (
+        channelList.querySelector('.channel-item[data-channel-id="8001"]')
+      );
+      const ch2Btn = /** @type {ShimElement} */ (
+        channelList.querySelector('.channel-item[data-channel-id="8002"]')
+      );
+      assert.ok(ch1Btn, "в #channel-list нет канала 8001");
+      assert.ok(ch2Btn, "в #channel-list нет канала 8002");
+
+      assert.equal(ch1Btn.classList.contains("is-unread"), true, "канал 8001 не помечен .is-unread");
+      assert.ok(ch1Btn.querySelector(".guild-unread-pill"), "в канале 8001 нет .guild-unread-pill");
+      assert.equal(ch1Btn.querySelector(".mention-badge")?.textContent, "5", "бейдж канала 8001 не '5'");
+      assert.match(
+        ch1Btn.getAttribute("aria-label") ?? "",
+        /5 упоминаний/u,
+        "aria-label канала 8001 не содержит '5 упоминаний'",
+      );
+
+      assert.equal(ch2Btn.classList.contains("is-unread"), true, "канал 8002 не помечен .is-unread");
+      assert.ok(ch2Btn.querySelector(".guild-unread-pill"), "в канале 8002 нет .guild-unread-pill");
+      assert.equal(ch2Btn.querySelector(".mention-badge"), null, "у канала 8002 без упоминаний есть .mention-badge");
+
+      // Переключаемся на гильдию 7002 и проверяем '99+' в #channel-list
+      g2Tile.click();
+      await app.settle(6);
+      const ch3Btn = /** @type {ShimElement} */ (
+        byId(app, "channel-list").querySelector('.channel-item[data-channel-id="8003"]')
+      );
+      assert.ok(ch3Btn, "в #channel-list гильдии 7002 нет канала 8003");
+      assert.equal(ch3Btn.querySelector(".mention-badge")?.textContent, "99+", "бейдж канала 8003 не '99+'");
+      assert.match(
+        ch3Btn.getAttribute("aria-label") ?? "",
+        /120 упоминаний/u,
+        "aria-label канала 8003 не содержит '120 упоминаний'",
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("3. Автоматический вызов ackChannel(channelId, lastMessageId) (ack_channel_message) при переключении активного текстового канала", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "ready") return makeNotifMountReadyPayload();
+        if (cmd === "channels") return NOTIF_MOUNT_CHANNELS[String(args?.guildId ?? "")] ?? [];
+        if (cmd === "messages_page") return [];
+        if (cmd === "ack_channel_message") return { ok: true };
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      const ch1Btn = /** @type {ShimElement} */ (
+        byId(app, "channel-list").querySelector('.channel-item[data-channel-id="8001"]')
+      );
+      assert.ok(ch1Btn, "нет канала 8001");
+      ch1Btn.click();
+      await app.settle(6);
+
+      const ackCalls1 = app.callsOf("ack_channel_message");
+      assert.equal(ackCalls1.length, 1, "при открытии канала 8001 не вызван ack_channel_message");
+      assert.equal(ackCalls1[0]?.args?.channelId, "8001");
+      assert.equal(ackCalls1[0]?.args?.lastMessageId, "9001001");
+
+      // Бейдж упоминаний и непрочитанности канала 8001 снят
+      assert.equal(ch1Btn.classList.contains("is-unread"), false, "после ack канал 8001 остался .is-unread");
+      assert.equal(ch1Btn.querySelector(".mention-badge"), null, "после ack у канала 8001 остался .mention-badge");
+      assert.equal(ch1Btn.querySelector(".guild-unread-pill"), null, "после ack у канала 8001 остался .guild-unread-pill");
+
+      // У гильдии 7001 упоминаний стало 0, но .guild-unread-pill ещё виден из-за непрочитанного канала 8002
+      const g1Tile = /** @type {ShimElement} */ (
+        byId(app, "guild-list").querySelector('.guild-item[data-guild-id="7001"]')
+      );
+      assert.equal(g1Tile.querySelector(".guild-mention-badge"), null, "у гильдии 7001 остался .guild-mention-badge после ack 8001");
+      assert.ok(g1Tile.querySelector(".guild-unread-pill"), "у гильдии 7001 пропал .guild-unread-pill при непрочитанном 8002");
+
+      // Переключаемся на второй канал 8002 -> второй ack_channel_message снимает и .guild-unread-pill у гильдии 7001
+      const ch2Btn = /** @type {ShimElement} */ (
+        byId(app, "channel-list").querySelector('.channel-item[data-channel-id="8002"]')
+      );
+      ch2Btn.click();
+      await app.settle(6);
+
+      const ackCalls2 = app.callsOf("ack_channel_message");
+      assert.equal(ackCalls2.length, 2, "при переключении на канал 8002 не вызван второй ack_channel_message");
+      assert.equal(ackCalls2[1]?.args?.channelId, "8002");
+      assert.equal(ackCalls2[1]?.args?.lastMessageId, "9001002");
+      assert.equal(g1Tile.querySelector(".guild-unread-pill"), null, "после прочтения всех каналов у гильдии 7001 остался .guild-unread-pill");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("4. Контекстное меню гильдии / настройки уведомлений (Mute 15m/1h/8h/24h/indefinitely и All/Mentions/Nothing -> update_guild_notification_settings) и очистка при destroy()", async () => {
+    const app = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "ready") return makeNotifMountReadyPayload();
+        if (cmd === "channels") return NOTIF_MOUNT_CHANNELS[String(args?.guildId ?? "")] ?? [];
+        if (cmd === "messages_page") return [];
+        if (cmd === "update_guild_notification_settings") return { ok: true };
+        return undefined;
+      },
+    });
+    try {
+      await api(app).rail.load();
+      await app.settle(6);
+
+      const g1Tile = /** @type {ShimElement} */ (
+        byId(app, "guild-list").querySelector('.guild-item[data-guild-id="7001"]')
+      );
+      assert.ok(g1Tile, "нет плитки гильдии 7001");
+
+      // Открываем контекстное меню гильдии по правому клику (contextmenu)
+      g1Tile.dispatchEvent("contextmenu", { target: g1Tile });
+      const ctxMenu = byId(app, "guild-notif-context-menu");
+      assert.equal(ctxMenu.getAttribute("hidden"), null, "contextmenu по гильдии не открыл #guild-notif-context-menu");
+      assert.equal(ctxMenu.getAttribute("data-guild-id"), "7001");
+
+      // Проверяем пресеты Mute: 15m (900), 1h (3600), 8h (28800), 24h (86400), indefinitely (-1)
+      for (const [durationKey, windowSec] of /** @type {Array<[string, number]>} */ ([
+        ["15m", 900],
+        ["1h", 3600],
+        ["8h", 28800],
+        ["24h", 86400],
+        ["indefinitely", -1],
+      ])) {
+        const presetBtn = /** @type {ShimElement} */ (
+          ctxMenu.querySelector(`[data-action="guild-mute-preset"][data-mute-duration="${durationKey}"]`) ??
+          ctxMenu.querySelector(`[data-action="guild-mute-preset"][data-window="${windowSec}"]`)
+        );
+        assert.ok(presetBtn, `нет пресета Mute ${durationKey} (${windowSec}) в контекстном меню гильдии`);
+        presetBtn.click();
+        await app.settle(3);
+        const lastCall = app.callsOf("update_guild_notification_settings").at(-1);
+        assert.ok(lastCall, `клик по Mute ${durationKey} не вызвал update_guild_notification_settings`);
+        assert.equal(lastCall.args?.guildId, "7001");
+        assert.equal(lastCall.args?.patch?.muted, true);
+        assert.equal(lastCall.args?.patch?.mute_config?.selected_time_window, windowSec);
+      }
+
+      // При заглушённой гильдии пилюля непрочитанного скрыта, а data-muted="true"
+      assert.equal(g1Tile.getAttribute("data-muted"), "true", "гильдия 7001 не получила data-muted=true после Mute");
+      assert.equal(g1Tile.querySelector(".guild-unread-pill"), null, "у заглушённой гильдии 7001 остался .guild-unread-pill");
+
+      // Проверяем уровни уведомлений: All (0), Mentions (1), Nothing (2)
+      for (const [levelKey, levelNum] of /** @type {Array<[string, number]>} */ ([
+        ["all", 0],
+        ["mentions", 1],
+        ["nothing", 2],
+      ])) {
+        const lvlBtn = /** @type {ShimElement} */ (
+          ctxMenu.querySelector(`[data-action="guild-notif-level"][data-level="${levelNum}"]`)
+        );
+        assert.ok(lvlBtn, `нет уровня уведомлений ${levelKey} (${levelNum}) в контекстном меню гильдии`);
+        lvlBtn.click();
+        await app.settle(3);
+        const lastCall = app.callsOf("update_guild_notification_settings").at(-1);
+        assert.equal(lastCall?.args?.guildId, "7001");
+        assert.equal(lastCall?.args?.patch?.message_notifications, levelNum);
+      }
+
+      // Проверяем очистку при destroy()
+      api(app).notifications.destroy();
+      assert.equal(app.document.getElementById("guild-notifications-dialog"), null, "destroy() не удалил #guild-notifications-dialog");
+      assert.equal(app.document.getElementById("channel-notif-menu"), null, "destroy() не удалил #channel-notif-menu");
+      assert.equal(app.document.getElementById("guild-notif-context-menu"), null, "destroy() не удалил #guild-notif-context-menu");
+    } finally {
+      app.dispose();
+    }
+  });
+});
+
+describe("FE-P1-06 / task-164: монтирование createUserPopoutController и createGuildModalsController в app.js", () => {
+  it("1. В app.js импортированы и смонтированы createUserPopoutController и createGuildModalsController, возвращены в currentApp()", async () => {
+    const appSource = readFileSync(`${uiDirNet}app.js`, "utf8");
+    assert.match(
+      appSource,
+      /createUserPopoutController/,
+      "в app.js не найден импорт createUserPopoutController",
+    );
+    assert.match(
+      appSource,
+      /createGuildModalsController/,
+      "в app.js не найден импорт createGuildModalsController",
+    );
+
+    await withApp(async (app) => {
+      const runtime = api(app);
+      assert.ok(runtime.userPopout, "currentApp().userPopout не инициализирован при старте");
+      assert.equal(
+        typeof runtime.userPopout.openPopout,
+        "function",
+        "у userPopout нет метода openPopout",
+      );
+      assert.equal(
+        typeof runtime.userPopout.closePopout,
+        "function",
+        "у userPopout нет метода closePopout",
+      );
+      assert.equal(
+        typeof runtime.userPopout.openProfileModal,
+        "function",
+        "у userPopout нет метода openProfileModal",
+      );
+      assert.equal(
+        typeof runtime.userPopout.attachToChatAndMembers,
+        "function",
+        "у userPopout нет метода attachToChatAndMembers",
+      );
+
+      assert.ok(runtime.guildModals, "currentApp().guildModals не инициализирован при старте");
+      assert.equal(
+        typeof runtime.guildModals.openContextMenu,
+        "function",
+        "у guildModals нет метода openContextMenu",
+      );
+      assert.equal(
+        typeof runtime.guildModals.openInviteModal,
+        "function",
+        "у guildModals нет метода openInviteModal",
+      );
+      assert.equal(
+        typeof runtime.guildModals.openLeaveModal,
+        "function",
+        "у guildModals нет метода openLeaveModal",
+      );
+      assert.equal(
+        typeof runtime.guildModals.openJoinModal,
+        "function",
+        "у guildModals нет метода openJoinModal",
+      );
+      assert.equal(
+        typeof runtime.guildModals.attachTrigger,
+        "function",
+        "у guildModals нет метода attachTrigger",
+      );
+
+      // DOM элементы в body
+      assert.ok(byId(app, "user-popout"), "в DOM нет #user-popout");
+      assert.ok(byId(app, "user-profile-modal"), "в DOM нет #user-profile-modal");
+      assert.ok(byId(app, "guild-context-menu"), "в DOM нет #guild-context-menu");
+      assert.ok(byId(app, "invite-modal"), "в DOM нет #invite-modal");
+      assert.ok(byId(app, "leave-guild-modal"), "в DOM нет #leave-guild-modal");
+      assert.ok(byId(app, "join-guild-modal"), "в DOM нет #join-guild-modal");
+
+      // До первого взаимодействия модалки и поповеры скрыты
+      assert.notEqual(byId(app, "user-popout").getAttribute("hidden"), null, "#user-popout не скрыт по умолчанию");
+      assert.notEqual(byId(app, "guild-context-menu").getAttribute("hidden"), null, "#guild-context-menu не скрыт по умолчанию");
+      assert.notEqual(byId(app, "invite-modal").getAttribute("hidden"), null, "#invite-modal не скрыт по умолчанию");
+    });
+  });
+
+  it("2. userPopout открывается по клику на .author в чате и .member в списке участников с корректными данными", async () => {
+    await withApp(async (app) => {
+      const runtime = api(app);
+      const chatList = byId(app, "chat-list");
+      const memberList = byId(app, "member-list");
+
+      // Создаём тестовую строку чата с автором
+      const chatRow = app.document.createElement("div");
+      chatRow.className = "row";
+      chatRow.setAttribute("data-message-id", "msg-test-1");
+      chatRow.setAttribute("data-author-id", "user-42");
+      const authorSpan = app.document.createElement("span");
+      authorSpan.className = "author";
+      const authorName = app.document.createElement("span");
+      authorName.className = "author-name";
+      authorName.textContent = "TestUser";
+      authorSpan.appendChild(authorName);
+      chatRow.appendChild(authorSpan);
+      chatList.appendChild(chatRow);
+
+      // Клик по имени автора в чате
+      chatList.dispatchEvent("click", { target: authorName });
+
+      const popout = byId(app, "user-popout");
+      assert.equal(popout.getAttribute("hidden"), null, "клик по .author-name не открыл #user-popout");
+      assert.equal(
+        popout.querySelector(".user-popout-display-name")?.textContent,
+        "TestUser",
+        "в поповере неверное имя пользователя",
+      );
+
+      // Закрываем через closePopout()
+      runtime.userPopout.closePopout();
+      assert.notEqual(popout.getAttribute("hidden"), null, "closePopout() не скрыл #user-popout");
+
+      // Создаём тестовую строку участника
+      const memberRow = app.document.createElement("div");
+      memberRow.className = "member member-row";
+      memberRow.setAttribute("data-user-id", "member-99");
+      const memberName = app.document.createElement("span");
+      memberName.className = "member-name";
+      memberName.textContent = "CommanderShepard";
+      memberRow.appendChild(memberName);
+      memberList.appendChild(memberRow);
+
+      // Клик по участнику в списке участников
+      memberList.dispatchEvent("click", { target: memberName });
+      assert.equal(popout.getAttribute("hidden"), null, "клик по .member-name не открыл #user-popout");
+      assert.equal(
+        popout.querySelector(".user-popout-display-name")?.textContent,
+        "CommanderShepard",
+        "в поповере неверное имя участника",
+      );
+    });
+  });
+
+  it("3. guildModals открывает #guild-context-menu по contextmenu на триггере сервера/рейла и обрабатывает Escape", async () => {
+    await withApp(async (app) => {
+      const runtime = api(app);
+      const rail = byId(app, "guild-rail");
+      assert.ok(rail, "нет #guild-rail");
+
+      // Правый клик (contextmenu) по рейлу гильдий открывает #guild-context-menu
+      rail.dispatchEvent("contextmenu", /** @type {any} */ ({ clientX: 120, clientY: 80 }));
+
+      const ctxMenu = byId(app, "guild-context-menu");
+      assert.equal(ctxMenu.getAttribute("hidden"), null, "contextmenu на #guild-rail не открыл #guild-context-menu");
+      assert.equal(runtime.guildModals.getState().contextMenuOpen, true, "getState().contextMenuOpen !== true");
+
+      // Escape закрывает контекстное меню
+      ctxMenu.dispatchEvent("keydown", { key: "Escape" });
+      assert.notEqual(ctxMenu.getAttribute("hidden"), null, "Escape не скрыл #guild-context-menu");
+      assert.equal(runtime.guildModals.getState().contextMenuOpen, false, "getState().contextMenuOpen !== false");
+    });
+  });
+
+  it("4. В #guild-context-menu пункт 'Настройки уведомлений' вызывает onOpenNotifications (sync/openModal)", async () => {
+    let notifOpened = false;
+    const app = await loadApp();
+    try {
+      const runtime = api(app);
+      // Подменяем notifications.openModal
+      runtime.notifications.openModal = () => {
+        notifOpened = true;
+      };
+
+      runtime.guildModals.openContextMenu({ x: 50, y: 50, guildId: "g-test" });
+      const ctxMenu = byId(app, "guild-context-menu");
+      assert.equal(ctxMenu.getAttribute("hidden"), null, "контекстное меню не открылось");
+
+      const notifItem = /** @type {ShimElement} */ (
+        ctxMenu.querySelector('[data-action="notifications"]')
+      );
+      assert.ok(notifItem, "в #guild-context-menu нет кнопки с data-action='notifications'");
+      notifItem.click();
+
+      assert.equal(notifOpened, true, "клик по 'Настройки уведомлений' не вызвал notifications.openModal()");
+      assert.notEqual(ctxMenu.getAttribute("hidden"), null, "клик по пункту меню не закрыл #guild-context-menu");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("5. Очистка ресурсов при destroy() контроллеров: удаление DOM узлов и снятие слушателей", async () => {
+    await withApp(async (app) => {
+      const runtime = api(app);
+      assert.ok(byId(app, "user-popout"), "#user-popout отсутствует перед destroy()");
+      assert.ok(byId(app, "guild-context-menu"), "#guild-context-menu отсутствует перед destroy()");
+
+      runtime.userPopout.destroy();
+      assert.equal(app.document.getElementById("user-popout"), null, "userPopout.destroy() не удалил #user-popout");
+      assert.equal(app.document.getElementById("user-profile-modal"), null, "userPopout.destroy() не удалил #user-profile-modal");
+
+      runtime.guildModals.destroy();
+      // guildModals.destroy() закрывает модалки и снимает слушатели
+      assert.equal(runtime.guildModals.getState().contextMenuOpen, false);
+      assert.equal(runtime.guildModals.getState().inviteModalOpen, false);
+    });
+  });
+});
+
+

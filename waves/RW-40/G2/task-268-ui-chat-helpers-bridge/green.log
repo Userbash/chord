@@ -1,0 +1,19 @@
+✔ buildChannelHeaderBadgesModel: возвращает замороженный объект с ровно шестью полями (0.897751ms)
+✔ buildChannelHeaderBadgesModel: пустые options дают безопасные значения по умолчанию (0.09708ms)
+✔ buildChannelHeaderBadgesModel: unreadBadge через formatUnreadCountBadge (0, 5, 99, 150) (0.09305ms)
+✔ buildChannelHeaderBadgesModel: threadDurationLabel через справочник thread-badge (0.11399ms)
+✔ buildChannelHeaderBadgesModel: флаги locked/archived пробрасываются как boolean (0.10176ms)
+✔ buildChannelHeaderBadgesModel: boostTier через resolveBoostTierFromCount (0/1/2/7/13/14) (0.09688ms)
+✔ buildChannelHeaderBadgesModel: boostProgressPercent — прогресс до следующего уровня, 100 на максимуме (0.10184ms)
+✔ formatChannelTopicTooltip: не строка и пустая строка дают пустую строку (0.08941ms)
+✔ formatChannelTopicTooltip: короткая тема обрезается по краям и не меняется (0.08714ms)
+✔ formatChannelTopicTooltip: длинная тема режется до maxChars с многоточием (0.1306ms)
+✔ formatChannelTopicTooltip: maxChars=1 отдаёт только многоточие, maxChars=2 — один символ и многоточие (0.07586ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 35.04342

@@ -1,0 +1,85 @@
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.6916ms)
+✔ COMPOSER_POPOVER_LAYERS (1.204481ms)
+▶ resolveComposerDraftPopover
+  ✖ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.76677ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.14414ms)
+✖ resolveComposerDraftPopover (1.05017ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.305231ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.10629ms)
+  ✖ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.296702ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.48551ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.13606ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.23209ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.12317ms)
+  ✔ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.19882ms)
+✖ createComposerPopoversBridge (6.167154ms)
+ℹ tests 11
+ℹ suites 3
+ℹ pass 9
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.688817
+
+✖ failing tests:
+
+test at tests/unit/composer-popovers-bridge.test.mjs:49:3
+✖ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.76677ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activePopover: 'slash-command-picker',
+  +   commandName: '',
+  -   commandName: 'ping',
+      rawArgs: ''
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:51:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activePopover: 'slash-command-picker', commandName: '', rawArgs: '' },
+    expected: { activePopover: 'slash-command-picker', commandName: 'ping', rawArgs: '' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer-popovers-bridge.test.mjs:114:3
+✖ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.296702ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activePopover: 'slash-command-picker',
+  +   commandName: 'тестовый аргумент',
+  -   commandName: 'mod',
+      rawArgs: 'тестовый аргумент',
+      volume: 1
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:121:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activePopover: 'slash-command-picker', commandName: 'тестовый аргумент', rawArgs: 'тестовый аргумент', volume: 1 },
+    expected: { activePopover: 'slash-command-picker', commandName: 'mod', rawArgs: 'тестовый аргумент', volume: 1 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

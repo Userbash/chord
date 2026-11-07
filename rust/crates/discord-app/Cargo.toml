@@ -6,7 +6,16 @@ license.workspace = true
 description = "Точка входа клиента: сборка процессов, конфиг, запуск"
 
 [dependencies]
+discord-codec = { workspace = true }
+discord-json = { workspace = true }
 discord-core = { workspace = true }
+discord-voice = { workspace = true }
+discord-store = { workspace = true }
+discord-i18n = { workspace = true }
+discord-platform = { workspace = true }
+discord-media = { workspace = true }
+discord-ui = { workspace = true }
+discord-updater = { workspace = true }
 
 [lints.rust]
 unsafe_code = "forbid"

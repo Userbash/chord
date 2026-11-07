@@ -1,0 +1,61 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-919f0e9723f79b28)
+
+running 17 tests
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::decode_429_extracts_retry_after_from_json_and_headers ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test reactions::tests::custom_emoji_and_invalid_inputs_are_validated ... ok
+test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok
+test search::tests::retry_after_header_parses_positive_integer_seconds_with_5000ms_fallback ... ok
+test search::tests::retry_after_body_parses_float_seconds_when_header_absent ... ok
+test search::tests::uuid_v4_generation_matches_rfc4122_shape ... ok
+test settings_store::tests::normalize_accepts_home_guild_id_and_snowflakes_only ... ok
+test settings_store::tests::patch_updates_home_mode_and_last_guild_id ... ok
+test settings_store::tests::validate_accepts_home_guild_id_and_rejects_other_strings ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/attachments_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/attachments_contract-51496b6253551971)
+
+running 30 tests
+test guild_boost_tier_limits_match_re_oracle ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test builds_message_attachments_in_spec_order ... ok
+test oracle_constants_match_re ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test api_impl_matches_free_function ... ok
+test maps_429_with_retry_after_header ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test refresh_attachment_urls_constants_match_oracle_and_limits ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test posts_exact_upload_slot_request ... ok
+test maps_other_transport_and_http_failures ... ok
+test refresh_attachment_urls_rejects_empty_and_oversized_batches_before_network ... ok
+test refreshed_attachment_url_implements_serde_and_traits ... ok
+test refresh_attachment_urls_rejects_malformed_and_invalid_responses ... ok
+test refresh_attachment_urls_maps_rest_error_status_codes ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test refresh_attachment_urls_rejects_invalid_urls_and_duplicates_before_network ... ok
+test refresh_attachment_urls_sends_post_and_parses_response ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test rejects_malformed_upload_slot_response ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

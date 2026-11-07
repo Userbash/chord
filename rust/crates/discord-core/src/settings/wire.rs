@@ -170,6 +170,29 @@ pub struct ProtoField {
     pub value: ProtoValue,
 }
 
+impl ProtoField {
+    /// Закодировать поле в protobuf wire-буфер.
+    pub fn encode_into(&self, out: &mut Vec<u8>) {
+        let tag = (u64::from(self.number) << 3) | u64::from(self.value.wire_type());
+        write_varint(tag, out);
+        match &self.value {
+            ProtoValue::Varint(val) => {
+                write_varint(*val, out);
+            }
+            ProtoValue::Fixed64(val) => {
+                out.extend_from_slice(&val.to_le_bytes());
+            }
+            ProtoValue::LengthDelimited(bytes) => {
+                write_varint(bytes.len() as u64, out);
+                out.extend_from_slice(bytes);
+            }
+            ProtoValue::Fixed32(val) => {
+                out.extend_from_slice(&val.to_le_bytes());
+            }
+        }
+    }
+}
+
 /// Разобранное protobuf-сообщение (один уровень).
 #[derive(Clone, PartialEq, Eq)]
 pub struct ProtoMessage {
@@ -187,6 +210,36 @@ impl fmt::Debug for ProtoMessage {
 }
 
 impl ProtoMessage {
+    /// Закодировать все поля сообщения в protobuf wire-байты.
+    #[must_use]
+    pub fn encode(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+        for field in &self.fields {
+            field.encode_into(&mut out);
+        }
+        out
+    }
+
+    /// Установить значение поля с номером `number`.
+    ///
+    /// Если поле уже присутствует, заменяет его значение (и удаляет любые последующие дубликаты);
+    /// иначе добавляет поле в конец списка полей.
+    pub fn set_field(&mut self, number: u32, value: ProtoValue) {
+        if let Some(pos) = self.fields.iter().position(|field| field.number == number) {
+            self.fields[pos].value = value;
+            let mut i = pos + 1;
+            while i < self.fields.len() {
+                if self.fields[i].number == number {
+                    self.fields.remove(i);
+                } else {
+                    i += 1;
+                }
+            }
+        } else {
+            self.fields.push(ProtoField { number, value });
+        }
+    }
+
     /// Разобрать одно protobuf-сообщение.
     pub fn decode(bytes: &[u8]) -> Result<Self, SettingsProtoError> {
         if bytes.len() > MAX_PROTO_BYTES {
@@ -443,4 +496,12 @@ fn read_varint(bytes: &[u8], offset: &mut usize) -> Result<u64, SettingsProtoErr
             return Err(SettingsProtoError::VarintOverflow { offset: start });
         }
     }
+}
+
+fn write_varint(mut value: u64, out: &mut Vec<u8>) {
+    while value >= 0x80 {
+        out.push(((value & 0x7F) as u8) | 0x80);
+        value >>= 7;
+    }
+    out.push((value & 0x7F) as u8);
 }

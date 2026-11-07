@@ -1,0 +1,61 @@
+# Review 178A — mutation log (task-266, rust/gui-spike/ui/features/stage-request-queue.js)
+# backup md5: 80e6c4caefa68d35499bd7dec39636fc
+
+===== M1 =====
+ℹ tests 11
+ℹ pass 2
+ℹ fail 9
+✖ classifyStageVoiceState: suppress=false всегда докладчик, даже с заявкой на слово
+✖ classifyStageVoiceState: битый вход не бросает и даёт 'listener'
+✖ classifyStageVoiceState: непустая строка requestToSpeakTimestamp даёт 'requested'
+✖ classifyStageVoiceState: пустые, нестроковые и отсутствующие заявки дают 'listener'
+✖ failing tests:
+✖ sortStageSpeakerRequests: невалидная дата уходит в конец, между собой — по userId
+✖ sortStageSpeakerRequests: не мутирует входной массив и объекты участников
+✖ sortStageSpeakerRequests: оставляет только 'requested', отсекая докладчиков и слушателей
+✖ sortStageSpeakerRequests: равное время разрешается строковым userId по возрастанию
+✖ sortStageSpeakerRequests: сортирует по возрастанию времени поднятой руки
+exit: 1
+
+===== M2 =====
+ℹ tests 11
+ℹ pass 10
+ℹ fail 1
+✖ classifyStageVoiceState: пустые, нестроковые и отсутствующие заявки дают 'listener'
+✖ failing tests:
+exit: 1
+
+===== M3 =====
+ℹ tests 11
+ℹ pass 8
+ℹ fail 3
+✖ failing tests:
+✖ sortStageSpeakerRequests: невалидная дата уходит в конец, между собой — по userId
+✖ sortStageSpeakerRequests: не мутирует входной массив и объекты участников
+✖ sortStageSpeakerRequests: сортирует по возрастанию времени поднятой руки
+exit: 1
+
+===== M4 =====
+ℹ tests 11
+ℹ pass 9
+ℹ fail 2
+✖ failing tests:
+✖ sortStageSpeakerRequests: невалидная дата уходит в конец, между собой — по userId
+✖ sortStageSpeakerRequests: равное время разрешается строковым userId по возрастанию
+exit: 1
+
+===== M5 =====
+ℹ tests 11
+ℹ pass 10
+ℹ fail 1
+✖ failing tests:
+✖ sortStageSpeakerRequests: невалидная дата уходит в конец, между собой — по userId
+exit: 1
+
+===== FINAL (restored, byte-identical) =====
+ℹ tests 11
+ℹ pass 11
+ℹ fail 0
+ℹ skipped 0
+exit: 0
+md5 after restore: 80e6c4caefa68d35499bd7dec39636fc

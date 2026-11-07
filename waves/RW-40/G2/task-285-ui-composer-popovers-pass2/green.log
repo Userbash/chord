@@ -1,0 +1,35 @@
+# task-285 Pass 2 — Green
+# node: v26.13.0
+
+$ node --test tests/unit/composer-popovers-bridge.test.mjs
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.67371ms)
+✔ COMPOSER_POPOVER_LAYERS (1.18406ms)
+▶ resolveComposerDraftPopover
+  ✔ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.24272ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.14311ms)
+✔ resolveComposerDraftPopover (0.49885ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.320161ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.10865ms)
+  ✔ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.127201ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.13335ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.14565ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.2318ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.12847ms)
+  ✔ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.18557ms)
+  ✔ getFilteredSlashCommands отдаёт глубокую копию options и не мутирует состояние моста (0.12286ms)
+  ✔ selectSlashCommand с пустым именем команды возвращает null и не вызывает колбэк выбора (0.09616ms)
+✔ createComposerPopoversBridge (6.310523ms)
+ℹ tests 13
+ℹ suites 3
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.174016
+# exit=0
+
+$ npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit
+# exit=0 (0 errors)

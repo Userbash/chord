@@ -1,0 +1,50 @@
+# RED pass 3 — целевой тест на диспетчерский guard (P1 из REVIEW-PASS2.md)
+# Дата: 2026-10-30. Воркер: G2 Frontend Lane C. Карточка: G05-REST-MUTATIONS-FIX.
+#
+# RED = новый тест против pre-fix продукта с одиночной мутацией M1:
+#   guard диспетчера 'if (node.getAttribute("aria-disabled") === "true") return;' -> 'if (false) return;'
+#   pre-fix md5: 4effc2bec384b30ba074bb26933a6863
+#   mutant  md5: 799f869e7b1ac36fb55d07edf1c00d7f
+#
+$ node --test --test-name-pattern='guard диспетчера' tests/unit/server-menu.test.mjs
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✖ guard диспетчера гасит disabled data-action вне меню (30.678014ms)
+✖ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (31.613482ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 68.191102
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:228:3
+✖ guard диспетчера гасит disabled data-action вне меню (30.678014ms)
+  AssertionError [ERR_ASSERTION]: disabled data-action выполнил обработчик — guard диспетчера не сработал
+  
+  'false' !== null
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:238:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:229:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 2)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'false',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+exit=1
+
+# Ожидание: exit 1, падает ровно новый тест «guard диспетчера гасит disabled data-action вне меню».
+# Причина падения должна быть поведенческой (обработчик выполнился), не синтаксис.
+# Файл восстановлен из final-копии.
+restore md5: e7ba88e8c347012340f0e7e448d71b68 (final)

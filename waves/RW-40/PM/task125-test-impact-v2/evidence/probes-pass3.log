@@ -1,0 +1,40 @@
+## LICENSE
+tier: T2 (release)
+changed: LICENSE
+  $ npm run typecheck  # 
+  $ node --test tests/unit/test-impact.test.mjs  # LICENSE: неизвестный путь §5.2.3 — полный прогон
+  $ npm test  # LICENSE: неизвестный путь §5.2.3 — полный прогон
+  $ cargo test --offline --manifest-path rust/gui-spike/Cargo.toml  # LICENSE: неизвестный путь §5.2.3 — полный прогон
+  $ cargo test --offline --manifest-path rust/Cargo.toml --workspace  # LICENSE: неизвестный путь §5.2.3 — полный прогон
+
+## ui/app.js
+tier: T2 (release)
+changed: rust/gui-spike/ui/app.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/test-impact.test.mjs  # rust/gui-spike/ui/app.js: safety net §5.2.3 — полный прогон
+  $ npm test  # rust/gui-spike/ui/app.js: safety net §5.2.3 — полный прогон
+  $ cargo test --offline --manifest-path rust/gui-spike/Cargo.toml  # rust/gui-spike/ui/app.js: safety net §5.2.3 — полный прогон
+  $ cargo test --offline --manifest-path rust/Cargo.toml --workspace  # rust/gui-spike/ui/app.js: safety net §5.2.3 — полный прогон
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/app.js: геометрия (не входит в npm test)
+
+## features/chat.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/chat.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/chat.js: channel switch
+  $ node --test tests/unit/gui-spike-features.test.mjs  # rust/gui-spike/ui/features/chat.js: chat UI
+  $ node --test tests/unit/gui-spike-model.test.mjs  # rust/gui-spike/ui/features/chat.js: heights
+
+## features/notifications.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/notifications.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs  # rust/gui-spike/ui/features/notifications.js: общий UI-контракт
+  $ node --test tests/unit/gui-spike-features.test.mjs  # rust/gui-spike/ui/features/notifications.js: общий UI-контракт
+
+## ui/features/unknown-feature.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/unknown-feature.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/unknown-feature.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/unknown-feature.js: геометрия

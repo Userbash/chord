@@ -1,0 +1,11 @@
+# REVIEW-199A mutation run
+# app.js base md5: a97d997ba0578e184cc491fa4db4b3e9
+
+M1	KILLED	import createAppShellWiring: путь ./features/app-shell-wiring.js -> ./features/shell-wiring.js	killer=✖ app.js: импортирует createAppShellWiring и createComposerPopoversBridge из ./features (3.850582ms); ✖ app.js: импортирует createAppShellWiring и createComposerPopoversBridge из ./features (3.850582ms)	md5_after_restore=a97d997ba0578e184cc491fa4db4b3e9
+M2	KILLED	shellWiring.onDispatchIpc: invoke(command, payload) -> () => undefined	killer=✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.427511ms); ✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.427511ms)	md5_after_restore=a97d997ba0578e184cc491fa4db4b3e9
+M3	KILLED	boot(): shellWiring больше не возвращается в объекте	killer=✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.352431ms); ✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.352431ms)	md5_after_restore=a97d997ba0578e184cc491fa4db4b3e9
+M4	KILLED	composerPopoversBridge.onDispatchIpc: invoke(command, payload) -> (payload), вызова IPC нет	killer=✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.113421ms); ✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.113421ms)	md5_after_restore=a97d997ba0578e184cc491fa4db4b3e9
+M5	KILLED	финальный export: убран createComposerPopoversBridge	killer=✖ app.js: реэкспортирует createAppShellWiring и createComposerPopoversBridge вместе с прежними фабриками (1.01878ms); ✖ app.js: реэкспортирует createAppShellWiring и createComposerPopoversBridge вместе с прежними фабриками (1.01878ms)	md5_after_restore=a97d997ba0578e184cc491fa4db4b3e9
+
+RESULT: killed 5/5
+FINAL md5: a97d997ba0578e184cc491fa4db4b3e9 (base a97d997ba0578e184cc491fa4db4b3e9)

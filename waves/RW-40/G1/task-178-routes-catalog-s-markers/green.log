@@ -1,0 +1,70 @@
+$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+
+running 33 tests
+test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes ... ok
+test dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes ... ok
+test gateway::tests::encode_guild_subscriptions_bulk_backward_compatible_with_single_frame ... ok
+test gateway::tests::encode_guild_subscriptions_bulk_chunked_empty_yields_empty_frames ... ok
+test gateway::tests::max_guild_subscriptions_frame_bytes_constant_matches_oracle ... ok
+test gateway::tests::guild_members_request_covers_query_and_user_ids_paths ... ok
+test gateway::tests::guild_subscriptions_frame_matches_client_shape ... ok
+test gateway::tests::op_codes_match_protocol_table ... ok
+test gateway::tests::user_ids_chunk_at_one_hundred ... ok
+test gateway::tests::presence_update_frame_passes_activity_terms_and_afk ... ok
+test gateway::tests::presence_update_frame_bytes_match_wetf_layout ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test gateway::tests::voice_state_update_frame_matches_client_shape ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test tests::gateway_constants_match_capture ... ok
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... ok
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok
+test identify::tests::client_identity_drives_identify_properties ... ok
+test gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session ... ok
+test ws::tests::send_guild_subscriptions_bulk_sends_binary_etf_op37_frame ... ok
+test ws::tests::send_presence_update_sends_binary_etf_op3_frame ... ok
+test ws::tests::send_voice_state_update_sends_binary_etf_op4_join_and_leave ... ok
+test ws::tests::send_request_guild_members_chunks_user_ids_by_100_and_supports_query ... ok
+test gateway::supervisor::tests::resume_ttl_preserves_session_up_to_180s_and_resets_to_identify_after_180s ... ok
+test gateway::tests::encode_guild_subscriptions_bulk_chunked_splits_oversized_payloads_into_frames_le_15360 ... ok
+test gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify ... ok
+test gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff ... ok
+test gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 ... ok
+test ws::tests::outbound_guards_dead_session_and_flushes_queued_frames_after_hello ... ok
+test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+     Running tests/rest_routes.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_routes-2d22ade7450fc362)
+
+running 18 tests
+test body_keys_only_on_six_routes ... ok
+test captured_query_params_catalog_matches_re_oracle_45 ... ok
+test catalog_counts_separate_d02_and_static_extensions ... ok
+test channel_pins_path_matches_oracle_and_validates ... ok
+test channel_messages_path_matches_oracle_and_validates ... ok
+test find_roundtrip_and_rejects ... ok
+test guild_search_route_is_catalogued ... ok
+test catalog_shape_48_unique ... ok
+test method_names_cover_enum ... ok
+test messages_search_path_matches_live_capture ... ok
+test query_builder_assembly_and_spec_validation ... ok
+test render_path_substitutes_and_rejects ... ok
+test method_distribution_matches_capture ... ok
+test catalog_matches_live_capture ... ok
+test rfc3986_percent_encoding_matches_capture_and_standards ... ok
+test thread_search_path_matches_oracle_and_validates ... ok
+test crossref_static_confirms_catalog ... ok
+test rest_d02_copy_matches_lab_oracle ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+exit=0
+
+$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+exit=0

@@ -1,0 +1,19 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.67456ms)
+✔ getState: до любых действий активных слоёв нет (0.401111ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.24115ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.12452ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.11868ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.09221ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.20173ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.32496ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.636651ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.18563ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.14328ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.459754

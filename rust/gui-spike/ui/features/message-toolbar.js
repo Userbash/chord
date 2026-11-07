@@ -33,6 +33,8 @@ import { reactionsFor, requestReaction } from "./reactions.js";
  *   },
  *   onEdit?: (index: number, content: string) => Promise<void>,
  *   onDelete?: (index: number) => Promise<void>,
+ *   canEdit?: (index: number, row: HTMLElement) => boolean,
+ *   canDelete?: (index: number, row: HTMLElement) => boolean,
  *   onError?: (error: UIError) => void,
  * }} ToolbarOptions
  */
@@ -152,6 +154,47 @@ export function createMessageToolbar(options) {
   }
 
   /**
+   * @param {HTMLElement} row
+   */
+  function isSystemMessageRow(row) {
+    const rawType = row?.getAttribute?.("data-message-type");
+    if (rawType !== null && rawType !== undefined && rawType !== "") {
+      const msgType = Number(rawType);
+      if (Number.isFinite(msgType) && msgType !== 0 && msgType !== 19) {
+        return true;
+      }
+    }
+    const body = row?.querySelector?.(".text-body");
+    if (body?.getAttribute?.("data-system-call") === "true") return true;
+    const txt = String(body?.textContent ?? "").trim();
+    if (txt.startsWith("📞")) return true;
+    return false;
+  }
+
+  /**
+   * @param {number} index
+   * @param {HTMLElement} row
+   */
+  function syncActionPermissions(index, row) {
+    const isSystem = isSystemMessageRow(row);
+    const allowEdit = !isSystem && (options.canEdit ? options.canEdit(index, row) : true);
+    const allowDelete = !isSystem && (options.canDelete ? options.canDelete(index, row) : true);
+    const editBtn = actionButtons.get("Изменить сообщение");
+    if (editBtn) {
+      editBtn.style.display = allowEdit ? "" : "none";
+      if (allowEdit) editBtn.removeAttribute("hidden");
+      else editBtn.setAttribute("hidden", "");
+    }
+    const deleteBtn = actionButtons.get(DELETE_LABEL);
+    if (deleteBtn) {
+      deleteBtn.style.display = allowDelete ? "" : "none";
+      if (allowDelete) deleteBtn.removeAttribute("hidden");
+      else deleteBtn.setAttribute("hidden", "");
+    }
+    return { allowEdit, allowDelete };
+  }
+
+  /**
    * @param {number} index
    * @param {HTMLElement} row
    */
@@ -166,6 +209,7 @@ export function createMessageToolbar(options) {
     bar.setAttribute("data-open", "true");
     bar.setAttribute("data-for-index", String(index));
     bar.setAttribute("aria-label", `Действия с сообщением ${indexLabel(index)}`);
+    syncActionPermissions(index, row);
     syncPressed(index);
     syncDeleteLabel(index);
   }
@@ -180,6 +224,14 @@ export function createMessageToolbar(options) {
 
   /** @param {Event} event */
   function onPointer(event) {
+    if (
+      typeof document !== "undefined" &&
+      document.body?.dataset?.liveSession === "true" &&
+      !(/** @type {any} */ (globalThis).__QA__)
+    ) {
+      close();
+      return;
+    }
     const target = /** @type {Node | null} */ (/** @type {any} */ (event).target ?? null);
     const row = closestRow(target);
     if (!row) return;
@@ -236,6 +288,7 @@ export function createMessageToolbar(options) {
       return;
     }
     if (command === "edit") {
+      if (currentRow && !syncActionPermissions(index, currentRow).allowEdit) return;
       const text = currentRow?.querySelector(".text");
       if (!text) return;
       const input = document.createElement("textarea");
@@ -276,6 +329,7 @@ export function createMessageToolbar(options) {
       return;
     }
     if (command === "delete") {
+      if (currentRow && !syncActionPermissions(index, currentRow).allowDelete) return;
       // Повторный клик до ответа IPC — не новый confirm.
       if (deleteInFlight.has(index)) return;
       if (!deletePending.has(index)) {

@@ -1,0 +1,18 @@
+▶ task-230 presence activity
+  ✔ exports frozen activity types and 128-char limit (4.238681ms)
+  ✔ returns empty string for missing activity (0.12402ms)
+  ✔ formats every known type with exact Russian prefix (0.114621ms)
+  ✔ formats custom status from emoji and state (0.1027ms)
+  ✔ slices custom status to 128 chars and returns empty for empty custom (0.08955ms)
+  ✔ returns empty string for unknown type or unknown name (0.068991ms)
+  ✔ selects custom first, then streaming, then first valid (0.12948ms)
+  ✔ ignores empty custom and invalid entries when selecting (0.09116ms)
+✔ task-230 presence activity (5.832085ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.443379

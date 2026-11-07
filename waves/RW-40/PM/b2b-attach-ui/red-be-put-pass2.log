@@ -1,0 +1,117 @@
+=== RED STAGE 1: Unmodified src/ (old main.rs without id: Option<String>) ===
+84d8905b20a67c46a7908c9ac103560a  rust/gui-spike/src/attachments.rs
+48d01ef823c7babff52614ad95b0e60d  rust/gui-spike/src/lib.rs
+dc1d395fd083020f5a7d5e038925cd1d  rust/gui-spike/src/main.rs
+c071c086a4467568789d4ddd09148c22  rust/gui-spike/tests/attachments_contract.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 23 tests
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test guild_boost_tier_limits_match_re_oracle ... ok
+test oracle_constants_match_re ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test api_impl_matches_free_function ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test maps_429_with_retry_after_header ... ok
+test posts_exact_upload_slot_request ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put ... FAILED
+test rejects_unsafe_channel_id_before_any_io ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test rejects_malformed_upload_slot_response ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+
+failures:
+
+---- tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put stdout ----
+
+thread 'tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put' (579820) panicked at tests/attachments_contract.rs:1189:5:
+#[tauri::command] async fn attachments_upload_put обязан принимать параметр `id: Option<String>` для плоского putPayload из composer.js; текущие параметры: [("payload", "payload"), ("slot_id", "slotId"), ("channel_id", "channelId"), ("upload_url", "uploadUrl"), ("content_type", "contentType"), ("data", "data"), ("bytes", "bytes")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put
+
+test result: FAILED. 22 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+EXIT_CODE_STAGE1=101
+
+=== RED STAGE 2: Compile-time RED (new UploadPutCommandArgs contract against unmodified src/) ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::attachments::upload_put_command`, `discord_gui_spike::attachments::UploadPutCommandArgs`, `discord_gui_spike::attachments::UPLOAD_PUT_COMMAND_PARAM_KEYS`
+  --> tests/attachments_contract.rs:21:30
+   |
+21 | ...s, upload_put_command, upload_put_input, AttachmentError,
+   |       ^^^^^^^^^^^^^^^^^^ no `upload_put_command` in `attachments`
+22 | ...tachmentTransport, AttachmentUploadSlot, DiscordAttachments,
+23 | ...Bytes, UploadPutCommandArgs, UploadPutInput, UploadedAttachment,
+   |           ^^^^^^^^^^^^^^^^^^^^ no `UploadPutCommandArgs` in `attachments`
+24 | ..._TYPE, MAX_ATTACHMENTS_PER_MESSAGE, MAX_UPLOAD_FILE_BYTES,
+25 | ...TIER2, MAX_UPLOAD_FILE_BYTES_TIER3, UPLOAD_PUT_COMMAND_PARAM_KEYS,
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `UPLOAD_PUT_COMMAND_PARAM_KEYS` in `attachments`
+
+error[E0432]: unresolved import `discord_gui_spike::attachments_upload_put_command`
+  --> tests/attachments_contract.rs:27:49
+   |
+27 | ...ts_upload_put, attachments_upload_put_command};
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `attachments_upload_put_command` in the root
+   |
+help: a similar name exists in the module
+   |
+27 - use discord_gui_spike::{attachments_upload_put, attachments_upload_put_command};
+27 + use discord_gui_spike::{attachments_upload_put, attachments_upload_put};
+   |
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "attachments_contract") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+EXIT_CODE_STAGE2=101
+
+=== RED STAGE 3: Runtime assertion RED in both attachments_contract and main.rs wiring_tests (old main.rs without id) ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.42s
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 10 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... FAILED
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes stdout ----
+
+thread 'wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes' (586513) panicked at src/main.rs:1513:9:
+assertion `left == right` failed: параметры #[tauri::command] async fn attachments_upload_put должны включать `id: Option<String>`
+  left: [("payload", "payload"), ("slot_id", "slotId"), ("channel_id", "channelId"), ("upload_url", "uploadUrl"), ("content_type", "contentType"), ("data", "data"), ("bytes", "bytes")]
+ right: [("payload", "payload"), ("slot_id", "slotId"), ("id", "id"), ("channel_id", "channelId"), ("upload_url", "uploadUrl"), ("content_type", "contentType"), ("data", "data"), ("bytes", "bytes")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+EXIT_CODE=101

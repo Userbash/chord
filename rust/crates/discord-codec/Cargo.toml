@@ -9,4 +9,7 @@ description = "ETF (erlpack) и zstd-стрим кодеки протокола 
 unsafe_code = "forbid"
 
 [dependencies]
-ruzstd = "0.9.1"
+# Потоковый декодер zstd (libzstd, `ZSTD_decompressStream`): отдаёт распакованные байты сразу и
+# держит окно/историю отдельно. ruzstd этого не умеет — до завершения кадра он удерживает
+# последние window_size байт (находка F-GW-01, task-137).
+zstd = { workspace = true }

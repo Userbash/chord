@@ -588,3 +588,516 @@ describe("D-04: высоты строк — RE-оракул layout.json", () => 
     assert.equal(heights.indexAt(42 * 100 + 41), 100, "последний пиксель строки участника не в ней");
   });
 });
+
+/* =============================================================================
+ * M-08 (RW-40, G2 Frontend Lane C): безопасный markdown и упоминания сообщений.
+ *
+ * Контракт `rust/gui-spike/ui/features/markdown.js`:
+ *   parseMessageMarkdown(text, context) -> Token[]          // без DOM
+ *   renderMessageMarkdown(container, text, context)         // DOM через ownerDocument
+ *
+ * Оракул безопасности — не текущий код модуля, а правила Discord-клиента и
+ * требования M-08: сырой HTML остаётся текстом, ссылками становятся только
+ * http(s), опасные схемы (javascript:, data:, vbscript:, file:) не дают <a>,
+ * внутри кода markdown и упоминания не парсятся, спойлер скрыт до активации.
+ * DOM — шим `tests/support/gui-dom-harness.mjs`: документ создаётся напрямую,
+ * без импорта `app.js`, поэтому утечки состояния приложения нет.
+ * ========================================================================== */
+
+import { ShimDocument } from "../support/gui-dom-harness.mjs";
+import {
+  parseMessageMarkdown,
+  renderMessageMarkdown,
+} from "../../rust/gui-spike/ui/features/markdown.js";
+
+/** @typedef {import("../support/gui-dom-harness.mjs").ShimElement} ShimElement */
+
+/**
+ * @typedef {{
+ *   users?: Record<string, string>,
+ *   channels?: Record<string, string>,
+ *   roles?: Record<string, string>,
+ * }} RenderContext
+ */
+
+const markdownDoc = new ShimDocument();
+
+/**
+ * Рендер одного сообщения в свежий контейнер.
+ * @param {string} text
+ * @param {RenderContext} [context]
+ * @returns {ShimElement}
+ */
+function renderMarkdown(text, context) {
+  const container = /** @type {any} */ (markdownDoc.createElement("div"));
+  renderMessageMarkdown(container, text, context);
+  return /** @type {ShimElement} */ (container);
+}
+
+/**
+ * Ровно один элемент по селектору (падение, если их 0 или больше).
+ * @param {ShimElement} root
+ * @param {string} selector
+ * @returns {ShimElement}
+ */
+function only(root, selector) {
+  const found = root.querySelectorAll(selector);
+  assert.equal(found.length, 1, `ожидался ровно один элемент «${selector}»`);
+  const first = found[0];
+  assert.ok(first, `элемент «${selector}» не найден`);
+  return first;
+}
+
+describe("M-08: markdown и упоминания — безопасный рендер сообщений", () => {
+  it("parseMessageMarkdown: форматы становятся токенами, DOM не требуется", () => {
+    const tokens = /** @type {Array<any>} */ (
+      parseMessageMarkdown("**жирный** *курсив* ~~зачёркнуто~~ ||спойлер|| `код`")
+    );
+    assert.ok(Array.isArray(tokens), "parseMessageMarkdown должен вернуть массив токенов");
+    assert.deepEqual(
+      tokens.filter((token) => token.type !== "text").map((token) => token.type),
+      ["bold", "italic", "strikethrough", "spoiler", "code"],
+      "порядок и типы токенов не совпадают с markdown-разметкой",
+    );
+    const bold = tokens.find((token) => token.type === "bold");
+    const boldChildren = /** @type {Array<{ value?: string }>} */ (bold.children);
+    assert.equal(
+      boldChildren.map((child) => child.value ?? "").join(""),
+      "жирный",
+      "содержимое токена bold",
+    );
+    const code = tokens.find((token) => token.type === "code");
+    assert.equal(code.value, "код", "содержимое инлайн-кода");
+  });
+
+  it("сырой HTML остаётся текстом: <script>, <img onerror> не создают узлов", () => {
+    const source = `<script>alert("xss")</script><img src=x onerror="alert(1)">`;
+    const container = renderMarkdown(source);
+    assert.equal(container.textContent, source, "текст сообщения должен дойти до DOM дословно");
+    assert.equal(container.querySelectorAll("script").length, 0, "<script> не должен стать элементом");
+    assert.equal(container.querySelectorAll("img").length, 0, "<img> не должен стать элементом");
+    for (const element of container.querySelectorAll("*")) {
+      assert.equal(element.hasAttribute("onerror"), false, "атрибут onerror не должен попасть в DOM");
+      assert.equal(element.hasAttribute("onclick"), false, "атрибут onclick не должен попасть в DOM");
+    }
+  });
+
+  it("ссылки: http(s) получают rel=noopener noreferrer и target=_blank", () => {
+    const container = renderMarkdown("[сайт](https://example.com/a?b=1) и [второй](http://example.org)");
+    const links = container.querySelectorAll("a");
+    assert.equal(links.length, 2, "обе http(s)-ссылки должны отрендериться");
+    const first = links[0];
+    assert.ok(first, "первая ссылка должна существовать");
+    assert.match(first.getAttribute("href") ?? "", /^https:\/\/example\.com\/a\?b=1$/, "href https");
+    assert.equal(first.getAttribute("target"), "_blank", "target=_blank");
+    const rel = (first.getAttribute("rel") ?? "").split(/\s+/);
+    assert.ok(rel.includes("noopener"), "rel должен содержать noopener");
+    assert.ok(rel.includes("noreferrer"), "rel должен содержать noreferrer");
+    assert.equal(first.textContent, "сайт", "подпись ссылки");
+    const second = links[1];
+    assert.ok(second);
+    assert.match(second.getAttribute("href") ?? "", /^http:\/\/example\.org/, "href http");
+  });
+
+  it("опасные схемы не становятся ссылкой", () => {
+    const dangerous = [
+      "javascript:alert(1)",
+      "JaVaScRiPt:alert(1)",
+      "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
+      "vbscript:msgbox(1)",
+      "file:///etc/passwd",
+      "java\tscript:alert(1)",
+      "//evil.example.com/x",
+    ];
+    for (const href of dangerous) {
+      const container = renderMarkdown(`[опасно](${href})`);
+      assert.equal(container.querySelectorAll("a").length, 0, `«${href}» не должен стать ссылкой`);
+      assert.match(container.textContent, /опасно/, "подпись отклонённой ссылки остаётся текстом");
+    }
+  });
+
+  it("код: markdown и упоминания внутри не парсятся", () => {
+    const context = { users: { "123": "Alice" } };
+    const inline = renderMarkdown("`**не жирный** <@123> [x](https://e.com)`", context);
+    const span = only(inline, "code");
+    assert.equal(span.textContent, "**не жирный** <@123> [x](https://e.com)", "код дословный");
+    assert.equal(inline.querySelectorAll("strong").length, 0, "внутри инлайн-кода нет жирного");
+    assert.equal(inline.querySelectorAll("a").length, 0, "внутри инлайн-кода нет ссылок");
+    assert.equal(inline.querySelectorAll("[data-user-id]").length, 0, "внутри кода нет упоминаний");
+
+    const block = renderMarkdown("```js\n<@123> **b** ||s||\n```", context);
+    const pre = only(block, "pre");
+    assert.equal(pre.getAttribute("data-language"), "js", "язык блока кода");
+    assert.equal(only(pre, "code").textContent, "<@123> **b** ||s||", "содержимое блока дословное");
+    assert.equal(block.querySelectorAll("strong").length, 0, "внутри блока нет жирного");
+    assert.equal(block.querySelectorAll("[data-spoiler]").length, 0, "внутри блока нет спойлеров");
+    assert.equal(block.querySelectorAll("[data-user-id]").length, 0, "внутри блока нет упоминаний");
+  });
+
+  it("спойлер: data-spoiler=hidden, клик/Enter/Space раскрывают", () => {
+    const container = renderMarkdown("до ||секрет|| после");
+    const spoiler = only(container, "[data-spoiler]");
+    assert.equal(spoiler.getAttribute("data-spoiler"), "hidden", "спойлер скрыт по умолчанию");
+    assert.equal(spoiler.textContent, "секрет", "текст спойлера на месте");
+    assert.equal(spoiler.getAttribute("tabindex"), "0", "спойлер доступен с клавиатуры");
+
+    spoiler.dispatchEvent("keydown", { key: "a" });
+    assert.equal(spoiler.getAttribute("data-spoiler"), "hidden", "посторонняя клавиша не раскрывает");
+    spoiler.dispatchEvent("keydown", { key: "Enter" });
+    assert.equal(spoiler.getAttribute("data-spoiler"), "revealed", "Enter раскрывает спойлер");
+
+    const byClick = only(renderMarkdown("||клик||"), "[data-spoiler]");
+    byClick.click();
+    assert.equal(byClick.getAttribute("data-spoiler"), "revealed", "клик раскрывает спойлер");
+
+    const bySpace = only(renderMarkdown("||пробел||"), "[data-spoiler]");
+    bySpace.dispatchEvent("keydown", { key: " " });
+    assert.equal(bySpace.getAttribute("data-spoiler"), "revealed", "Space раскрывает спойлер");
+  });
+
+  it("цитата > quote → blockquote, остальной текст не съеден", () => {
+    const container = renderMarkdown("> первая строка\n> вторая строка\nобычный текст");
+    const quote = only(container, "blockquote");
+    assert.equal(quote.textContent, "первая строка\nвторая строка", "строки цитаты склеены построчно");
+    assert.match(container.textContent, /обычный текст/, "текст после цитаты сохранён");
+  });
+
+  it("упоминания: пользователи, каналы, роли из context", () => {
+    const context = {
+      users: { "123": "Alice" },
+      channels: { "456": "general" },
+      roles: { "789": "Moderator" },
+    };
+    const container = renderMarkdown("<@123> <@!123> <#456> <@&789>", context);
+    const users = container.querySelectorAll("[data-user-id]");
+    assert.equal(users.length, 2, "оба варианта <@id> и <@!id> — упоминания пользователя");
+    for (const user of users) {
+      assert.equal(user.getAttribute("data-user-id"), "123");
+      assert.equal(user.textContent, "@Alice", "имя из context.users");
+      assert.ok(user.classes.has("mention"), "у упоминания есть класс mention");
+    }
+    const channel = only(container, "[data-channel-id]");
+    assert.equal(channel.getAttribute("data-channel-id"), "456");
+    assert.equal(channel.textContent, "#general", "имя канала из context.channels");
+    const role = only(container, "[data-role-id]");
+    assert.equal(role.getAttribute("data-role-id"), "789");
+    assert.equal(role.textContent, "@Moderator", "имя роли из context.roles");
+    assert.equal(
+      container.querySelectorAll("[data-user-id=789]").length,
+      0,
+      "роль не должна рендериться как упоминание пользователя",
+    );
+  });
+
+  it("@everyone и @here — только целым словом", () => {
+    const container = renderMarkdown("@everyone @here почта@everyone.com @everyoneX");
+    const everyone = container.querySelectorAll("[data-mention=everyone]");
+    const here = container.querySelectorAll("[data-mention=here]");
+    assert.equal(everyone.length, 1, "ровно одно @everyone");
+    assert.equal(here.length, 1, "ровно одно @here");
+    assert.equal(only(container, "[data-mention=everyone]").textContent, "@everyone");
+    assert.equal(only(container, "[data-mention=here]").textContent, "@here");
+    assert.match(container.textContent, /почта@everyone\.com/, "адрес почты остаётся текстом");
+    assert.match(container.textContent, /@everyoneX/, "слово с продолжением не упоминание");
+  });
+
+  it("неизвестные id → fallback, битые упоминания остаются текстом", () => {
+    const container = renderMarkdown("<@999> <#999> <@&999> <@abc> <@12 34> <@123 <img src=x>", {});
+    assert.equal(only(container, "[data-user-id]").textContent, "@пользователь", "fallback пользователя");
+    assert.equal(only(container, "[data-channel-id]").textContent, "#канал", "fallback канала");
+    assert.equal(only(container, "[data-role-id]").textContent, "@роль", "fallback роли");
+    assert.match(container.textContent, /<@abc>/, "нецифровой id остаётся текстом");
+    assert.match(container.textContent, /<@12 34>/, "id с пробелом остаётся текстом");
+    assert.match(container.textContent, /<@123/, "незакрытое упоминание остаётся текстом");
+    assert.equal(container.querySelectorAll("img").length, 0, "инъекция через хвост не создаёт <img>");
+  });
+
+  it("данные context не инжектят HTML", () => {
+    const container = renderMarkdown("<@123> <@&789> <#456>", {
+      users: { "123": "<img src=x onerror=alert(1)>" },
+      roles: { "789": "<script>alert(1)</script>" },
+      channels: { "456": "\"><svg onload=alert(1)>" },
+    });
+    assert.equal(container.querySelectorAll("img").length, 0);
+    assert.equal(container.querySelectorAll("script").length, 0);
+    assert.equal(container.querySelectorAll("svg").length, 0);
+    assert.match(container.textContent, /<script>alert\(1\)<\/script>/, "имя роли остаётся текстом");
+  });
+
+  it("жирный/курсив/зачёркнутый рендерятся элементами", () => {
+    const container = renderMarkdown("**жирный** и *курсив* и ~~зачёркнуто~~");
+    assert.equal(only(container, "strong").textContent, "жирный");
+    assert.equal(only(container, "em").textContent, "курсив");
+    assert.equal(only(container, "s").textContent, "зачёркнуто");
+  });
+
+  it("ссылка с форматированием: anchor содержит strong, href проверен", () => {
+    const container = renderMarkdown("[**жирная** ссылка](https://example.com)");
+    const link = only(container, "a");
+    assert.equal(only(link, "strong").textContent, "жирная");
+    assert.match(link.textContent ?? "", /ссылка/);
+    assert.match(link.getAttribute("href") ?? "", /^https:\/\/example\.com/);
+  });
+
+  it("пустой текст не создаёт узлов, нестроковый вход → TypeError", () => {
+    const container = renderMarkdown("");
+    assert.equal(container.childElementCount, 0, "пустое сообщение не создаёт элементов");
+    assert.equal(container.textContent, "", "пустое сообщение не создаёт текста");
+    assert.throws(() => parseMessageMarkdown(/** @type {any} */ (null)), TypeError);
+    assert.throws(() => parseMessageMarkdown(/** @type {any} */ (42)), TypeError);
+  });
+
+  it("рендер не использует innerHTML/outerHTML/insertAdjacentHTML", () => {
+    const source = readFileSync(
+      fileURLToPath(new URL("../../rust/gui-spike/ui/features/markdown.js", import.meta.url)),
+      "utf8",
+    );
+    assert.doesNotMatch(source, /\binnerHTML\b/, "innerHTML в рендере сообщений запрещён");
+    assert.doesNotMatch(source, /\bouterHTML\b/, "outerHTML в рендере сообщений запрещён");
+    assert.doesNotMatch(source, /insertAdjacentHTML/, "insertAdjacentHTML запрещён");
+    assert.doesNotMatch(source, /document\.write/, "document.write запрещён");
+  });
+});
+
+/* =============================================================================
+ * INT-02-UI-CHAT-MARKDOWN-TYPING (RW-40, G2 Frontend Integration Lane A):
+ * подключение безопасного рендера renderMessageMarkdown в строки чата
+ * (renderChatRow / renderChannelMessage) и токенизированные стили в composer.css.
+ * ========================================================================== */
+
+import {
+  CHAT_ROWS,
+  makeMessage,
+  renderChannelMessage,
+  renderChatRow,
+} from "../../rust/gui-spike/ui/features/chat.js";
+
+/**
+ * Выполняет синхронную проверку с установленным `globalThis.document` для `chat.js`.
+ * @template T
+ * @param {(doc: ShimDocument) => T} fn
+ * @returns {T}
+ */
+function withChatDoc(fn) {
+  const prevDoc = globalThis.document;
+  const doc = new ShimDocument();
+  globalThis.document = /** @type {any} */ (doc);
+  try {
+    return fn(doc);
+  } finally {
+    if (prevDoc === undefined) {
+      delete /** @type {any} */ (globalThis).document;
+    } else {
+      globalThis.document = prevDoc;
+    }
+  }
+}
+
+describe("INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css", () => {
+  it("renderChatRow: рендерит markdown внутри .text-body и сохраняет контракт строки (§7.1)", () => {
+    withChatDoc((doc) => {
+      const row = doc.createElement("div");
+      const base = makeMessage(12);
+      const item = {
+        ...base,
+        text: "#12 **жирный** *курсив* ~~зачёркнуто~~ `код` [ссылка](https://example.com/docs)",
+      };
+      renderChatRow(/** @type {any} */ (row), item, 12);
+
+      assert.equal(row.className, "row", "класс строки должен оставаться row");
+      assert.equal(row.getAttribute("role"), "listitem");
+      assert.equal(row.getAttribute("data-index"), "12");
+      assert.equal(row.getAttribute("data-message-id"), "12");
+      assert.equal(row.getAttribute("data-group"), item.group);
+      assert.equal(row.getAttribute("aria-setsize"), String(CHAT_ROWS));
+      assert.equal(row.getAttribute("aria-posinset"), "13");
+      assert.equal(row.children.length, 2, "у строки ровно два ребёнка: .author и .text (§7.1)");
+
+      const textNode = only(row, ".text");
+      const body = /** @type {ShimElement | undefined} */ (textNode.children[0]);
+      assert.ok(body, "первый ребёнок .text должен существовать");
+      assert.equal(body.className, "text-body", "первый ребёнок .text всегда .text-body");
+      assert.match(body.textContent, /^#12 /, "текст .text-body начинается с #<index>");
+
+      assert.equal(only(body, "strong.md-bold").textContent, "жирный");
+      assert.equal(only(body, "em.md-italic").textContent, "курсив");
+      assert.equal(only(body, "s.md-strike").textContent, "зачёркнуто");
+      assert.equal(only(body, "code.md-code").textContent, "код");
+
+      const link = only(body, "a.md-link");
+      assert.equal(link.getAttribute("href"), "https://example.com/docs");
+      assert.equal(link.getAttribute("target"), "_blank");
+      assert.equal(link.getAttribute("rel"), "noopener noreferrer");
+      assert.equal(link.textContent, "ссылка");
+
+      // Extras строки 12 (edited: 12 % 11 === 1, reply: 12 % 40 === 12) сохранены после .text-body
+      assert.ok(textNode.querySelector(".edited"), "метка .edited сохранена");
+      assert.ok(textNode.querySelector(".reply-quote"), "блок .reply-quote сохранён");
+    });
+  });
+
+  it("renderChatRow: блоки кода, цитаты, спойлеры и упоминания в строке чата", () => {
+    withChatDoc((doc) => {
+      const row = doc.createElement("div");
+      const item = {
+        ...makeMessage(1),
+        text: "||секрет|| <@123> <#456> <@&789> @everyone\n> цитата\n```rs\nlet x = 1;\n```",
+      };
+      const context = {
+        users: { "123": "Alice" },
+        channels: { "456": "general" },
+        roles: { "789": "Core" },
+      };
+      renderChatRow(/** @type {any} */ (row), item, 1, context);
+
+      const body = only(row, ".text .text-body");
+      const spoiler = only(body, ".md-spoiler");
+      assert.equal(spoiler.getAttribute("data-spoiler"), "hidden");
+      assert.equal(spoiler.getAttribute("aria-expanded"), "false");
+      spoiler.click();
+      assert.equal(spoiler.getAttribute("data-spoiler"), "revealed");
+      assert.equal(spoiler.getAttribute("aria-expanded"), "true");
+
+      const userMention = only(body, ".mention--user");
+      assert.equal(userMention.getAttribute("data-user-id"), "123");
+      assert.equal(userMention.textContent, "@Alice");
+
+      const channelMention = only(body, ".mention--channel");
+      assert.equal(channelMention.getAttribute("data-channel-id"), "456");
+      assert.equal(channelMention.textContent, "#general");
+
+      const roleMention = only(body, ".mention--role");
+      assert.equal(roleMention.getAttribute("data-role-id"), "789");
+      assert.equal(roleMention.textContent, "@Core");
+
+      const everyone = only(body, ".mention--everyone");
+      assert.equal(everyone.getAttribute("data-mention"), "everyone");
+      assert.equal(everyone.textContent, "@everyone");
+
+      assert.equal(only(body, "blockquote.md-quote").textContent, "цитата");
+      const pre = only(body, "pre.md-code-block");
+      assert.equal(pre.getAttribute("data-language"), "rs");
+      assert.equal(only(pre, "code.md-code").textContent, "let x = 1;");
+    });
+  });
+
+  it("renderChatRow: блокирует XSS и опасные схемы ссылок в строке чата при активном markdown", () => {
+    withChatDoc((doc) => {
+      const row = doc.createElement("div");
+      const item = {
+        ...makeMessage(2),
+        text: `**безопасно** <script>alert(1)</script><img src=x onerror=alert(1)> [клик](javascript:alert(1))`,
+      };
+      renderChatRow(/** @type {any} */ (row), item, 2);
+
+      const body = only(row, ".text .text-body");
+      assert.equal(only(body, "strong.md-bold").textContent, "безопасно");
+      assert.equal(body.querySelectorAll("script").length, 0, "<script> не должен создаваться в строке чата");
+      assert.equal(body.querySelectorAll("img").length, 0, "<img> не должен создаваться в строке чата");
+      assert.equal(body.querySelectorAll("a").length, 0, "javascript:-ссылка не должна создавать <a>");
+      assert.match(body.textContent, /<script>alert\(1\)<\/script>/);
+      assert.match(body.textContent, /клик/);
+    });
+  });
+
+  it("renderChannelMessage: рендерит markdown, спойлеры и упоминания в реальном канале без потери атрибутов", () => {
+    withChatDoc((doc) => {
+      const row = doc.createElement("div");
+      /** @type {import("../../rust/gui-spike/ui/features/chat.js").ChannelMessage} */
+      const item = {
+        id: "1561627527296979046",
+        author: "habr_bot",
+        authorId: "9001",
+        text: "**Заголовок** `inline` ||спойлер|| <@42> <#77> [habr](https://habr.com/ru/news/1/) <script>x</script>",
+        time: "21:15",
+        iso: "2026-10-23T21:15:00Z",
+        day: "2026-10-23",
+        dayLabel: "2026-10-23",
+        group: "start",
+        edited: true,
+        bot: true,
+        hue: 120,
+        channelId: "1163408591315812392",
+        reactions: [{ emoji: "🔥", count: 3, me: true }],
+      };
+
+      renderChannelMessage(/** @type {any} */ (row), item, 0, 3, {
+        channelId: "1163408591315812392",
+        context: {
+          users: { "42": "Bob" },
+          channels: { "77": "news" },
+        },
+      });
+
+      assert.equal(row.className, "row channel-message");
+      assert.equal(row.getAttribute("data-channel-message"), "true");
+      assert.equal(row.getAttribute("data-message-id"), "1561627527296979046");
+      assert.equal(row.getAttribute("data-group"), "start");
+      assert.equal(row.getAttribute("aria-setsize"), "3");
+      assert.equal(row.getAttribute("aria-posinset"), "1");
+
+      const body = only(row, ".text .text-body");
+      assert.equal(
+        /** @type {any} */ (body.style).whiteSpace,
+        "pre-wrap",
+        "переносы реального канала сохраняются (pre-wrap)",
+      );
+      assert.equal(only(body, "strong.md-bold").textContent, "Заголовок");
+      assert.equal(only(body, "code.md-code").textContent, "inline");
+      assert.equal(only(body, ".md-spoiler").getAttribute("data-spoiler"), "hidden");
+      assert.equal(only(body, ".mention--user").textContent, "@Bob");
+      assert.equal(only(body, ".mention--channel").textContent, "#news");
+      assert.equal(only(body, "a.md-link").getAttribute("href"), "https://habr.com/ru/news/1/");
+      assert.equal(body.querySelectorAll("script").length, 0, "сырой <script> экранирован");
+
+      assert.ok(row.querySelector(".edited"), "метка (изменено) сохранена в реальном канале");
+      assert.ok(row.querySelector(".day-divider"), "разделитель дня сохранён в реальном канале");
+      assert.ok(row.querySelector(".reactions-row .reaction"), "реакции сохранены в реальном канале");
+    });
+  });
+
+  it("composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb", () => {
+    const composerCss = readFileSync(
+      fileURLToPath(new URL("../../rust/gui-spike/ui/components/composer.css", import.meta.url)),
+      "utf8",
+    );
+    const tokensCss = readFileSync(
+      fileURLToPath(new URL("../../rust/gui-spike/ui/tokens.css", import.meta.url)),
+      "utf8",
+    );
+
+    assert.match(composerCss, /\.md-code\s*\{/, "в composer.css должен быть селектор .md-code");
+    assert.match(composerCss, /\.md-code-block\s*\{/, "в composer.css должен быть селектор .md-code-block");
+    assert.match(composerCss, /\.md-spoiler\s*\{/, "в composer.css должен быть селектор .md-spoiler");
+    assert.match(
+      composerCss,
+      /\.md-spoiler\[data-spoiler="hidden"\]/,
+      "в composer.css должно быть состояние .md-spoiler[data-spoiler=\"hidden\"]",
+    );
+    assert.match(
+      composerCss,
+      /\.md-spoiler\[data-spoiler="revealed"\]/,
+      "в composer.css должно быть состояние .md-spoiler[data-spoiler=\"revealed\"]",
+    );
+    assert.match(composerCss, /\.mention\s*\{/, "в composer.css должен быть селектор .mention");
+
+    const withoutComments = composerCss.replace(/\/\*[\s\S]*?\*\//g, "");
+    assert.doesNotMatch(withoutComments, /#[0-9a-fA-F]{3,8}\b/, "в composer.css запрещены raw hex-цвета");
+    assert.doesNotMatch(withoutComments, /\brgba?\s*\(/i, "в composer.css запрещены raw rgb/rgba()");
+    assert.doesNotMatch(withoutComments, /\bhsla?\s*\(/i, "в composer.css запрещены raw hsl/hsla()");
+    assert.doesNotMatch(withoutComments, /!important/, "в composer.css запрещён !important");
+
+    const definedTokens = new Set(
+      [...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/gi)].map((match) => match[1]),
+    );
+    const mdStart = composerCss.indexOf(".md-code");
+    assert.ok(mdStart >= 0, "секция markdown-стилей в composer.css не найдена");
+    const mdSection = composerCss.slice(mdStart);
+    const usedTokens = [...mdSection.matchAll(/var\(\s*(--[a-z0-9-]+)\s*\)/gi)].map((match) => match[1]);
+    assert.ok(usedTokens.length >= 10, "стили markdown должны использовать токены var(--token)");
+    for (const token of usedTokens) {
+      assert.ok(definedTokens.has(token), `токен ${token} из composer.css отсутствует в tokens.css`);
+    }
+  });
+});
+

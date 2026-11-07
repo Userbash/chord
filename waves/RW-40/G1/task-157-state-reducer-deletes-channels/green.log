@@ -1,0 +1,118 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-157-state-reducer-deletes-channels/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.63s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+
+running 29 tests
+test dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes ... ok
+test dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes ... ok
+test gateway::tests::op_codes_match_protocol_table ... ok
+test gateway::tests::guild_members_request_covers_query_and_user_ids_paths ... ok
+test gateway::tests::guild_subscriptions_frame_matches_client_shape ... ok
+test gateway::tests::presence_update_frame_bytes_match_wetf_layout ... ok
+test gateway::tests::presence_update_frame_passes_activity_terms_and_afk ... ok
+test gateway::tests::user_ids_chunk_at_one_hundred ... ok
+test gateway::tests::voice_state_update_frame_matches_client_shape ... ok
+test identify::tests::client_identity_drives_identify_properties ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... ok
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test tests::gateway_constants_match_capture ... ok
+test gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session ... ok
+test ws::tests::send_voice_state_update_sends_binary_etf_op4_join_and_leave ... ok
+test ws::tests::send_guild_subscriptions_bulk_sends_binary_etf_op37_frame ... ok
+test ws::tests::send_presence_update_sends_binary_etf_op3_frame ... ok
+test ws::tests::send_request_guild_members_chunks_user_ids_by_100_and_supports_query ... ok
+test gateway::supervisor::tests::resume_ttl_preserves_session_up_to_180s_and_resets_to_identify_after_180s ... ok
+test gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify ... ok
+test gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff ... ok
+test gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 ... ok
+test ws::tests::outbound_guards_dead_session_and_flushes_queued_frames_after_hello ... ok
+test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+     Running tests/state_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/state_contract-b2ea6817b6eb2d2c)
+
+running 15 tests
+test c03_channel_create_and_update_in_existing_guild ... ok
+test c01_message_delete_removes_message_and_is_idempotent ... ok
+test c04_channel_create_in_unknown_guild_records_inconsistency ... ok
+test c06_thread_create_and_update ... ok
+test c09_stale_lifecycle_events_are_ignored ... ok
+test c07_thread_delete_removes_thread_and_messages ... ok
+test c02_message_delete_bulk_removes_multiple_messages ... ok
+test c10_channel_migration_between_guilds_records_inconsistency ... ok
+test c05_channel_delete_removes_channel_and_messages ... ok
+test c11_thread_migration_between_guilds_records_inconsistency ... ok
+test c15_channel_create_without_guild_id_records_inconsistency ... ok
+test c08_wire_etf_frames_route_and_apply_all_eight_events ... ok
+test c13_type_aliases_and_api_compatibility ... ok
+test c14_malformed_wire_payload_records_diagnostic ... ok
+test c12_channel_delete_cleans_child_threads_and_messages ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/state_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/state_reducer-dda1fcc193c948e2)
+
+running 19 tests
+test r06_channel_info_upserts_and_creates_stub_guild ... ok
+test r10_unknown_and_unsupported_are_non_fatal ... ok
+test r13_effects_api_declares_all_four_kinds ... ok
+test r11_malformed_dispatch_is_diagnostic ... ok
+test r12_message_update_unknown_message ... ok
+test r15_malformed_update_does_not_upsert_author ... ok
+test r17_supplemental_invalid_raw_index_is_inconsistency ... ok
+test r19_crate_root_reexports ... ok
+test r14_stale_malformed_dispatch_does_not_rewind_sequence ... ok
+test r16_message_in_private_channel_is_known ... ok
+test r04_sessions_replace_replaces_sessions ... ok
+test r03_supplemental_merges_members_by_raw_guild_index ... ok
+test r08_stale_sequence_is_ignored ... ok
+test r07_message_create_and_update ... ok
+test r01_state_from_real_ready_matches_jq ... ok
+test r05_thread_list_sync_upserts ... ok
+test r18_resumed_is_noop ... ok
+test r09_ready_resets_sequence_and_state ... ok
+test r02_ready_is_deterministic_and_emits_sorted_effects ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/state_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/state_selectors-20288302c90fef1d)
+
+running 8 tests
+test s06_missing_lookups ... ok
+test s08_channel_index_after_channel_info ... ok
+test s07_counts ... ok
+test s03_messages_in_channel_sorted_by_id ... ok
+test s01_ready_lookups ... ok
+test s05_threads_in_guild_sorted ... ok
+test s02_channels_in_guild_sorted ... ok
+test s04_guild_member_lookup ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/state_types.rs (/home/sanya/orca/project/rust/target/debug/deps/state_types-0cfcd84c1f08efd7)
+
+running 15 tests
+test t03_sessions_replace_parses_array ... ok
+test t04_thread_fixture_negative_guild_id_is_invalid ... ok
+test t05_channel_info_synthetic_channel_fields ... ok
+test t04b_thread_synthetic_fields_from_fixture ... ok
+test t08_unknown_and_unsupported_events ... ok
+test t09_message_without_channel_is_error ... ok
+test t10_sessions_replace_wrong_type ... ok
+test t06_message_create_real_fixture ... ok
+test t12_supplemental_length_mismatch_is_diagnostic ... ok
+test t13_minimal_ready_state_is_redacted ... ok
+test t07_message_update_real_fixture ... ok
+test t05b_channel_info_negative_ids_are_diagnostics ... ok
+test t02_ready_supplemental_groups_match_oracle ... ok
+test t11_state_debug_redacts_secrets ... ok
+test t01_ready_event_parses_real_fixture ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

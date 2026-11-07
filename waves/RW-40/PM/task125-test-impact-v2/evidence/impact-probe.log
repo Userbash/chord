@@ -1,0 +1,109 @@
+# probe: real module paths (exist on unstable / feature branches)
+== rust/gui-spike/ui/features/notifications.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/notifications.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/notifications.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/notifications.js: геометрия
+== rust/gui-spike/ui/features/voice-devices-settings.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/voice-devices-settings.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/voice-devices-settings.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/voice-devices-settings.js: геометрия
+== rust/gui-spike/ui/features/dm-friends.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/dm-friends.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/dm-friends.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/dm-friends.js: геометрия
+== rust/gui-spike/ui/features/search.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/search.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/search.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/search.js: геометрия
+== rust/gui-spike/ui/features/search-overlay.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/search-overlay.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/search-overlay.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/search-overlay.js: геометрия
+== rust/gui-spike/ui/features/reactions.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/reactions.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/reactions.js: frontend-контракт (shared DOM/state)
+  $ node waves/RW-39/PM/w39c/geometry-check.mjs  # rust/gui-spike/ui/features/reactions.js: геометрия
+== rust/gui-spike/ui/features/chat.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/features/chat.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/channel-switch.test.mjs  # rust/gui-spike/ui/features/chat.js: channel switch
+  $ node --test tests/unit/gui-spike-features.test.mjs  # rust/gui-spike/ui/features/chat.js: chat UI
+  $ node --test tests/unit/gui-spike-model.test.mjs  # rust/gui-spike/ui/features/chat.js: heights
+
+# probe: phantom paths used by the patch
+== rust/gui-spike/ui/notifications.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/notifications.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/notifications-ui.test.mjs  # rust/gui-spike/ui/notifications.js: профильный UI-модуль
+  $ node --test tests/unit/gui-spike-dom.test.mjs  # rust/gui-spike/ui/notifications.js: общий UI-контракт
+  $ node --test tests/unit/gui-spike-features.test.mjs  # rust/gui-spike/ui/notifications.js: общий UI-контракт
+== rust/gui-spike/ui/dm-friends.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/dm-friends.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/dm-friends-ui.test.mjs  # rust/gui-spike/ui/dm-friends.js: профильный UI-модуль
+  $ node --test tests/unit/gui-spike-dom.test.mjs  # rust/gui-spike/ui/dm-friends.js: общий UI-контракт
+  $ node --test tests/unit/gui-spike-features.test.mjs  # rust/gui-spike/ui/dm-friends.js: общий UI-контракт
+== rust/gui-spike/ui/attachments-render.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/attachments-render.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/attachments-render.test.mjs  # rust/gui-spike/ui/attachments-render.js: профильный UI-модуль
+  $ node --test tests/unit/gui-spike-dom.test.mjs  # rust/gui-spike/ui/attachments-render.js: общий UI-контракт
+== rust/gui-spike/ui/chat-reactions.js
+tier: T0 (targeted)
+changed: rust/gui-spike/ui/chat-reactions.js
+  $ npm run typecheck  # 
+  $ node --test tests/unit/chat-reactions.test.mjs  # rust/gui-spike/ui/chat-reactions.js: профильный UI-модуль
+  $ node --test tests/unit/gui-spike-dom.test.mjs  # rust/gui-spike/ui/chat-reactions.js: общий UI-контракт
+
+# probe: rust BFF
+== rust/gui-spike/src/data.rs
+tier: T1 (batch)
+changed: rust/gui-spike/src/data.rs
+  $ npm run typecheck  # 
+  $ cargo test --offline --manifest-path rust/gui-spike/Cargo.toml  # rust/gui-spike/src/data.rs: gui backend
+== rust/gui-spike/src/search.rs
+tier: T1 (batch)
+changed: rust/gui-spike/src/search.rs
+  $ npm run typecheck  # 
+  $ cargo test --offline --manifest-path rust/gui-spike/Cargo.toml  # rust/gui-spike/src/search.rs: gui backend
+== rust/gui-spike/src
+tier: T1 (batch)
+changed: rust/gui-spike/src
+  $ npm run typecheck  # 
+  $ cargo test --offline --manifest-path rust/gui-spike/Cargo.toml  # rust/gui-spike/src: gui backend
+
+# probe: safety net per §5.2.3
+== package.json
+tier: T0 (targeted)
+changed: package.json
+  $ npm run typecheck  # 
+  $ node --test tests/meta/plan-sync.test.mjs  # package.json: fallback meta
+== scripts/test-impact.mjs
+tier: T0 (targeted)
+changed: scripts/test-impact.mjs
+  $ npm run typecheck  # 
+  $ node --test tests/meta/plan-sync.test.mjs  # scripts/test-impact.mjs: fallback meta
+== src/lib.rs
+tier: T1 (batch)
+changed: src/lib.rs
+  $ npm run typecheck  # 
+  $ node --test tests/unit/*.test.mjs  # src/lib.rs: затронутый src-модуль
+
+# tracked files matching claimed top-level modules
+NONE

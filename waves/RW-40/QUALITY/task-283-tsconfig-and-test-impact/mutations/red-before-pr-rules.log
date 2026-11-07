@@ -1,0 +1,225 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.423031ms)
+✔ test-impact: docs → docs-sync (0.966431ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.12599ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.50059ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (0.7486ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.2642ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.09808ms)
+✔ test-impact: rust/crates/discord-core (0.46858ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.14623ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.24648ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.16436ms)
+✔ test-impact: src/cli (0.241031ms)
+▶ test-impact v2: точечный граф новых UI-модулей
+  ✔ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.27881ms)
+  ✔ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.10425ms)
+  ✔ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.12229ms)
+  ✔ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.08747ms)
+  ✔ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.06929ms)
+  ✔ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.07078ms)
+  ✔ каждый ключ — реальный layout ui/features/<mod>.js (0.0557ms)
+  ✔ таблица согласована с диском: модуль либо есть, либо запланирован (0.19616ms)
+  ✔ после интеграции смежных карточек инвариант остаётся зелёным (0.11502ms)
+  ✔ фантомный ключ и плоский путь ловятся инвариантом, а не снимком (0.13455ms)
+  ✔ фантомный плоский путь ui/<mod>.js не получает точечное правило (0.1282ms)
+  ✔ профильные тесты таблицы либо в tests/unit, либо помечены запланированными (0.14736ms)
+  ✔ features/chat.js расширен профилем вложений и общими контрактами (0.14889ms)
+  ✔ search.js и search-overlay.js дают одинаковый целевой набор (0.11344ms)
+  ✔ несколько новых модулей объединяются без потери профильных тестов (0.15249ms)
+✔ test-impact v2: точечный граф новых UI-модулей (2.23714ms)
+▶ test-impact v2: правила модулей интеграции оболочки
+  ✖ features/shell-controllers-registry.js → shell-controllers-registry.test.mjs + общие UI-контракты (0.84684ms)
+  ✖ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.21059ms)
+  ✖ features/composer-popovers-bridge.js → composer-popovers-bridge.test.mjs + общие UI-контракты (0.16243ms)
+  ✖ features/app-shell-wiring.js → app-shell-wiring.test.mjs + общие UI-контракты (0.15383ms)
+✖ test-impact v2: правила модулей интеграции оболочки (1.52146ms)
+▶ test-impact v2: точечный граф Rust BFF
+  ✔ src/attachments.rs → attachments_contract + ipc_contract (0.20269ms)
+  ✔ src/auth.rs → auth_contract + ipc_contract (0.066621ms)
+  ✔ src/core_bridge.rs → core_bridge + ipc_contract (0.05951ms)
+  ✔ src/data.rs → data_contract + ipc_contract (0.06242ms)
+  ✔ src/dm_friends.rs → dm_friends_contract + ipc_contract (0.05821ms)
+  ✔ src/guilds.rs → guilds_contract + ipc_contract (0.05757ms)
+  ✔ src/invites.rs → invites_contract + ipc_contract (0.04343ms)
+  ✔ src/messages.rs → messages_contract + ipc_contract (0.05437ms)
+  ✔ src/net.rs → net_contract + ipc_contract (0.04694ms)
+  ✔ src/notifications.rs → notifications_contract + ipc_contract (0.04972ms)
+  ✔ src/pins_threads.rs → pins_threads_contract + ipc_contract (0.05208ms)
+  ✔ src/reactions.rs → reactions_contract + ipc_contract (0.0403ms)
+  ✔ src/rest_failure.rs → rest_failure_contract + ipc_contract (0.04582ms)
+  ✔ src/search.rs → search_contract + ipc_contract (0.35456ms)
+  ✔ src/settings_store.rs → settings_contract + ipc_contract (0.07059ms)
+  ✔ src/typing.rs → typing_contract + ipc_contract (0.04016ms)
+  ✔ src/voice_devices.rs → voice_devices_contract + ipc_contract (0.03966ms)
+  ✔ каждый таргет контракта существует в rust/gui-spike/tests (0.19291ms)
+  ✖ каждый pub mod из lib.rs покрыт правилом (0.34946ms)
+  ✔ lib.rs и main.rs дают полный прогон крейта, а не отдельный таргет (0.10094ms)
+  ✔ новый src/<mod>.rs без правила не теряет контракты — полный прогон (0.05746ms)
+✖ test-impact v2: точечный граф Rust BFF (2.404341ms)
+▶ test-impact v2: safety net общих файлов
+  ✔ package.json → полный прогон T2 (0.12616ms)
+  ✔ scripts/test-impact.mjs → полный прогон T2 (0.04843ms)
+  ✔ rust/gui-spike/Cargo.toml → полный прогон T2 (0.03624ms)
+  ✔ rust/gui-spike/src/lib.rs → полный прогон T2 (0.03771ms)
+  ✔ rust/gui-spike/src/main.rs → полный прогон T2 (0.03383ms)
+  ✔ rust/gui-spike/ui/app.js → полный прогон T2 (0.02877ms)
+  ✔ обычный модуль не получает release-набор (0.08116ms)
+✔ test-impact v2: safety net общих файлов (0.51468ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный путь переключает полный прогон §5.2.3 (0.11595ms)
+  ✔ --full даёт tier T2 и offline release-набор (16.063077ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (15.205117ms)
+✔ test-impact: fallback и tier (31.481474ms)
+ℹ tests 57
+ℹ suites 10
+ℹ pass 52
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 85.651829
+
+✖ failing tests:
+
+test at tests/unit/test-impact.test.mjs:451:5
+✖ features/shell-controllers-registry.js → shell-controllers-registry.test.mjs + общие UI-контракты (0.84684ms)
+  AssertionError [ERR_ASSERTION]: shell-controllers-registry.js: ожидался профильный тест первым и только общие контракты, получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  + actual - expected
+  
+    [
+  +   'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs'
+  -   'node --test tests/unit/shell-controllers-registry.test.mjs',
+  -   'node --test tests/unit/gui-spike-dom.test.mjs',
+  -   'node --test tests/unit/gui-spike-features.test.mjs'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/tests/unit/test-impact.test.mjs:457:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs' ],
+    expected: [ 'node --test tests/unit/shell-controllers-registry.test.mjs', 'node --test tests/unit/gui-spike-dom.test.mjs', 'node --test tests/unit/gui-spike-features.test.mjs' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:451:5
+✖ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.21059ms)
+  AssertionError [ERR_ASSERTION]: chat-helpers-bridge.js: ожидался профильный тест первым и только общие контракты, получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  + actual - expected
+  
+    [
+  +   'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs'
+  -   'node --test tests/unit/chat-helpers-bridge.test.mjs',
+  -   'node --test tests/unit/gui-spike-dom.test.mjs',
+  -   'node --test tests/unit/gui-spike-features.test.mjs'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/tests/unit/test-impact.test.mjs:457:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs' ],
+    expected: [ 'node --test tests/unit/chat-helpers-bridge.test.mjs', 'node --test tests/unit/gui-spike-dom.test.mjs', 'node --test tests/unit/gui-spike-features.test.mjs' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:451:5
+✖ features/composer-popovers-bridge.js → composer-popovers-bridge.test.mjs + общие UI-контракты (0.16243ms)
+  AssertionError [ERR_ASSERTION]: composer-popovers-bridge.js: ожидался профильный тест первым и только общие контракты, получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  + actual - expected
+  
+    [
+  +   'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs'
+  -   'node --test tests/unit/composer-popovers-bridge.test.mjs',
+  -   'node --test tests/unit/gui-spike-dom.test.mjs',
+  -   'node --test tests/unit/gui-spike-features.test.mjs'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/tests/unit/test-impact.test.mjs:457:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs' ],
+    expected: [ 'node --test tests/unit/composer-popovers-bridge.test.mjs', 'node --test tests/unit/gui-spike-dom.test.mjs', 'node --test tests/unit/gui-spike-features.test.mjs' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:451:5
+✖ features/app-shell-wiring.js → app-shell-wiring.test.mjs + общие UI-контракты (0.15383ms)
+  AssertionError [ERR_ASSERTION]: app-shell-wiring.js: ожидался профильный тест первым и только общие контракты, получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  + actual - expected
+  
+    [
+  +   'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs'
+  -   'node --test tests/unit/app-shell-wiring.test.mjs',
+  -   'node --test tests/unit/gui-spike-dom.test.mjs',
+  -   'node --test tests/unit/gui-spike-features.test.mjs'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/tests/unit/test-impact.test.mjs:457:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs' ],
+    expected: [ 'node --test tests/unit/app-shell-wiring.test.mjs', 'node --test tests/unit/gui-spike-dom.test.mjs', 'node --test tests/unit/gui-spike-features.test.mjs' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:527:3
+✖ каждый pub mod из lib.rs покрыт правилом (0.34946ms)
+  AssertionError [ERR_ASSERTION]: lib.rs: pub mod forum должен идти ровно таргетами forum_contract + ipc_contract: cargo test --offline --manifest-path rust/gui-spike/Cargo.toml
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test forum_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test forum_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

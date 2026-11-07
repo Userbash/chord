@@ -1,0 +1,49 @@
+tests/unit/attachment-validator.test.mjs(83,53): error TS2554: Expected 1 arguments, but got 2.
+tests/unit/audit-log.test.mjs(82,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+tests/unit/embed-formatter.test.mjs(60,16): error TS18047: 'normalized.footer' is possibly 'null'.
+tests/unit/embed-formatter.test.mjs(92,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(93,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(94,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(95,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(96,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/forum-filter.test.mjs(224,22): error TS2532: Object is possibly 'undefined'.
+tests/unit/inbox.test.mjs(61,7): error TS7023: 'textContent' implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
+tests/unit/inbox.test.mjs(62,60): error TS7024: Function implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
+tests/unit/inbox.test.mjs(143,55): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/inbox.test.mjs(144,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/inbox.test.mjs(239,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/inbox.test.mjs(306,33): error TS2531: Object is possibly 'null'.
+tests/unit/invite-parser.test.mjs(106,75): error TS2322: Type 'null' is not assignable to type 'string | number | undefined'.
+tests/unit/locale-switcher.test.mjs(61,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/locale-switcher.test.mjs(62,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/locale-switcher.test.mjs(63,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/locale-switcher.test.mjs(83,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/locale-switcher.test.mjs(91,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/locale-switcher.test.mjs(106,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/locale-switcher.test.mjs(162,43): error TS7006: Parameter 'o' implicitly has an 'any' type.
+tests/unit/locale-switcher.test.mjs(170,46): error TS7006: Parameter 'o' implicitly has an 'any' type.
+tests/unit/locale-switcher.test.mjs(178,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/markdown-helper.test.mjs(80,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/unit/markdown-helper.test.mjs(82,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/unit/markdown-helper.test.mjs(84,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/unit/poll-progress.test.mjs(34,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/poll-progress.test.mjs(44,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/poll-progress.test.mjs(45,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/voice-input-mode.test.mjs(49,38): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+tests/unit/voice-input-mode.test.mjs(72,41): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+tests/unit/voice-input-mode.test.mjs(96,48): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.

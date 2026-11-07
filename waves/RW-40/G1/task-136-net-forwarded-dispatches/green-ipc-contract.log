@@ -1,0 +1,31 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-136-net-forwarded-dispatches/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_contract-4939e923719eac42)
+
+running 20 tests
+test accepts_values_exactly_at_the_floors ... ok
+test accepts_full_snapshot_and_preserves_extra_fields ... ok
+test metrics_serialize_with_snake_case_fields ... ok
+test accepts_bench_payload_with_chat_and_members_objects ... ok
+test missing_status_field_is_none ... ok
+test non_numeric_status_value_is_none ... ok
+test parse_metrics_rejects_non_numeric_field ... ok
+test parse_metrics_rejects_missing_each_field ... ok
+test parses_all_metrics_and_maps_rss_to_vmrss_not_hwm ... ok
+test reads_numeric_fields_from_proc_status ... ok
+test rejects_bench_payload_with_invalid_json ... ok
+test rejects_degenerate_zero_values ... ok
+test rejects_invalid_json_with_parser_message ... ok
+test rejects_bench_payload_with_non_object_chat_or_members ... ok
+test rejects_negative_values ... ok
+test rejects_rendered_rows_below_floor ... ok
+test snapshot_floors_are_the_documented_ones ... ok
+test status_field_matches_only_line_start ... ok
+test rejects_missing_each_required_field ... ok
+test rejects_wrong_types ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

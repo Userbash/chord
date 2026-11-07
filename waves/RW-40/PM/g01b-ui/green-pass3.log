@@ -1,0 +1,27 @@
+▶ G-01: рейл серверов из ready()
+  ✔ 7 гильдий из READY fixture: data-guild-id, aria-label, aria-current, монограмма (40.569008ms)
+  ✔ нет статичной заглушки data-guild="1": ни в index.html, ни в готовом рейле (33.651663ms)
+  ✔ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (12.737053ms)
+  ✔ клавиатура ↑/↓/Home/End двигает выбор и фокус (11.394694ms)
+  ✔ 0 гильдий → empty-state, а не пустой рейл (12.054934ms)
+  ✔ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (11.992324ms)
+  ✔ loading skeleton до ответа ready(), затем плитки (11.782304ms)
+  ✔ до auth ready ready() не вызывается (источник — только вход) (10.571164ms)
+✔ G-01: рейл серверов из ready() (145.771054ms)
+▶ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+  ✔ boot: выбирается гильдия с id == lastGuildId из settings_load (10.721934ms)
+  ✔ boot: lastGuildId вне READY или без поля → первая гильдия (20.20071ms)
+  ✔ клик по плитке сохраняет lastGuildId, не теряя остальные настройки (11.646214ms)
+  ✔ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её (22.847668ms)
+  ✔ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B (14.113973ms)
+  ✔ STUB-10 / STUB-05: currentApp() экспортирует рабочие контроллеры pinsThreads и inviteModal (29.254234ms)
+  ✔ PINS-THREADS-SPEC §1–§3: server-menu.css содержит поповер-правила .header-dropdown-panel, .pins-panel, .threads-panel (0.39179ms)
+✔ G-01b: последний сервер из settings_load восстанавливается и сохраняется (109.512053ms)
+ℹ tests 15
+ℹ suites 2
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 304.056243

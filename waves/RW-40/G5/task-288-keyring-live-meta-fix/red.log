@@ -1,0 +1,193 @@
+▶ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча
+  ✔ в файле нет skip()-хелпера и его вызовов (0.59717ms)
+  ✖ ровно 12 #[test] и 12 #[ignore] с причиной live-keyring (1.858601ms)
+  ✖ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.681551ms)
+  ✔ в телах live-кейсов нет раннего return под видом skip (0.81316ms)
+  ✖ имена и число кейсов не изменились (0.91022ms)
+  ✔ пороги security-кейсов не ослаблены (0.549621ms)
+  ✔ live_guard различает not-enabled, tool-missing и service-unavailable (0.10383ms)
+✖ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча (6.366194ms)
+▶ PLAT-02 T2: live-фаза гейта видима и не пропускается
+  ✔ фаза keyring-live объявлена и запускает ignored-набор cargo (0.23125ms)
+  ✔ live-флаг включается только фазой release/qualify (0.25092ms)
+  ✔ failOnSkips превращает skip в failed, а не в warning (0.23372ms)
+  ✔ cargoTestCounts по-прежнему считает ignored как skipped (0.44044ms)
+✔ PLAT-02 T2: live-фаза гейта видима и не пропускается (1.35118ms)
+▶ PLAT-02 T3: cargo подтверждает ignored-набор
+  ✖ в дефолтном прогоне 0 passed и 12 ignored (651.779831ms)
+  ✖ --list --ignored перечисляет ровно 12 кейсов k01…k12 (20.64203ms)
+✖ PLAT-02 T3: cargo подтверждает ignored-набор (672.552832ms)
+ℹ tests 13
+ℹ suites 3
+ℹ pass 8
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 720.074674
+
+✖ failing tests:
+
+test at tests/meta/keyring-live.test.mjs:105:3
+✖ ровно 12 #[test] и 12 #[ignore] с причиной live-keyring (1.858601ms)
+  AssertionError [ERR_ASSERTION]: #[test] в rust/crates/discord-platform/tests/keyring_contract.rs: 26, ожидалось 12
+  
+  26 !== 12
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:112:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 26,
+    expected: 12,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/meta/keyring-live.test.mjs:116:3
+✖ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.681551ms)
+  AssertionError [ERR_ASSERTION]: k13_safe_storage_prefix_and_detection: нет #[ignore = "live-keyring: …"] (skip-маркера нет, тест засчитается passed)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:118:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/meta/keyring-live.test.mjs:136:3
+✖ имена и число кейсов не изменились (0.91022ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      'k01_connect_to_default_collection',
+      'k02_store_then_lookup_roundtrip_without_leak',
+      'k03_lookup_missing_returns_none',
+      'k04_clear_existing_then_lookup_none',
+  ...
+      'k12_debug_does_not_print_secret_or_pointers',
+  +   'k13_safe_storage_prefix_and_detection',
+  +   'k14_extract_safe_storage_ciphertext_decodes_base64',
+  +   'k15_extract_safe_storage_ciphertext_rejects_empty_payload',
+  +   'k16_extract_safe_storage_ciphertext_rejects_invalid_base64',
+  +   'k17_migration_errors_do_not_leak_secrets',
+  +   'k18_migrator_happy_path_migrates_once',
+  +   'k19_migrator_idempotent_no_reimport',
+  +   'k20_migrator_skips_when_target_already_has_token',
+  +   'k21_migrator_skips_non_safe_storage_token',
+  +   'k22_migrator_fails_on_decrypt_error',
+  +   'k23_migrator_rejects_invalid_tokens',
+  +   'k24_migrator_propagates_keyring_storage_error',
+  +   'k25_migrator_with_live_keyring',
+  +   'k26_migration_failure_paths_and_state_do_not_leak_secrets'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:137:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'k01_connect_to_default_collection', 'k02_store_then_lookup_roundtrip_without_leak', 'k03_lookup_missing_returns_none', 'k04_clear_existing_then_lookup_none', 'k05_overwrite_replaces_value', 'k06_unicode_secret_roundtrip', 'k07_secret_tool_reads_our_store', 'k08_our_lookup_reads_secret_tool_store', 'k09_empty_key_is_invalid', 'k10_nul_in_key_or_secret_is_error_without_panic', 'k11_repeated_clear_returns_false', 'k12_debug_does_not_print_secret_or_pointers', 'k13_safe_storage_prefix_and_detection', 'k14_extract_safe_storage_ciphertext_decodes_base64', 'k15_extract_safe_storage_ciphertext_rejects_empty_payload', 'k16_extract_safe_storage_ciphertext_rejects_invalid_base64', 'k17_migration_errors_do_not_leak_secrets', 'k18_migrator_happy_path_migrates_once', 'k19_migrator_idempotent_no_reimport', 'k20_migrator_skips_when_target_already_has_token', 'k21_migrator_skips_non_safe_storage_token', 'k22_migrator_fails_on_decrypt_error', 'k23_migrator_rejects_invalid_tokens', 'k24_migrator_propagates_keyring_storage_error', 'k25_migrator_with_live_keyring', 'k26_migration_failure_paths_and_state_do_not_leak_secrets' ],
+    expected: [ 'k01_connect_to_default_collection', 'k02_store_then_lookup_roundtrip_without_leak', 'k03_lookup_missing_returns_none', 'k04_clear_existing_then_lookup_none', 'k05_overwrite_replaces_value', 'k06_unicode_secret_roundtrip', 'k07_secret_tool_reads_our_store', 'k08_our_lookup_reads_secret_tool_store', 'k09_empty_key_is_invalid', 'k10_nul_in_key_or_secret_is_error_without_panic', 'k11_repeated_clear_returns_false', 'k12_debug_does_not_print_secret_or_pointers' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/meta/keyring-live.test.mjs:243:3
+✖ в дефолтном прогоне 0 passed и 12 ignored (651.779831ms)
+  AssertionError [ERR_ASSERTION]: ожидалось «0 passed; 0 failed; 12 ignored», получено: k05_overwrite_replaces_value ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k06_unicode_secret_roundtrip ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k07_secret_tool_reads_our_store ... ignored, live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool
+  test k08_our_lookup_reads_secret_tool_store ... ignored, live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool
+  test k09_empty_key_is_invalid ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k10_nul_in_key_or_secret_is_error_without_panic ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k11_repeated_clear_returns_false ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k12_debug_does_not_print_secret_or_pointers ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k14_extract_safe_storage_ciphertext_decodes_base64 ... ok
+  test k13_safe_storage_prefix_and_detection ... ok
+  test k15_extract_safe_storage_ciphertext_rejects_empty_payload ... ok
+  test k16_extract_safe_storage_ciphertext_rejects_invalid_base64 ... ok
+  test k18_migrator_happy_path_migrates_once ... ok
+  test k17_migration_errors_do_not_leak_secrets ... ok
+  test k19_migrator_idempotent_no_reimport ... ok
+  test k20_migrator_skips_when_target_already_has_token ... ok
+  test k21_migrator_skips_non_safe_storage_token ... ok
+  test k22_migrator_fails_on_decrypt_error ... ok
+  test k25_migrator_with_live_keyring ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+  test k23_migrator_rejects_invalid_tokens ... ok
+  test k24_migrator_propagates_keyring_storage_error ... ok
+  test k26_migration_failure_paths_and_state_do_not_leak_secrets ... ok
+  
+  test result: ok. 13 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:251:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\nrunning 26 tests\ntest k01_connect_to_default_collection ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k02_store_then_lookup_roundtrip_without_leak ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k03_lookup_missing_returns_none ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k04_clear_existing_then_lookup_none ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k05_overwrite_replaces_value ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k06_unicode_secret_roundtrip ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k07_secret_tool_reads_our_store ... ignored, live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool\ntest k08_our_lookup_reads_secret_tool_store ... ignored, live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool\ntest k09_empty_key_is_invalid ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k10_nul_in_key_or_secret_is_error_without_panic ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k11_repeated_clear_returns_false ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k12_debug_does_not_print_secret_or_pointers ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k14_extract_safe_storage_ciphertext_decodes_base64 ... ok\ntest k13_safe_storage_prefix_and_detection ... ok\ntest k15_extract_safe_storage_ciphertext_rejects_empty_payload ... ok\ntest k16_extract_safe_storage_ciphertext_rejects_invalid_base64 ... ok\ntest k18_migrator_happy_path_migrates_once ... ok\ntest k17_migration_errors_do_not_leak_secrets ... ok\ntest k19_migrator_idempotent_no_reimport ... ok\ntest k20_migrator_skips_when_target_already_has_token ... ok\ntest k21_migrator_skips_non_safe_storage_token ... ok\ntest k22_migrator_fails_on_decrypt_error ... ok\ntest k25_migrator_with_live_keyring ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets\ntest k23_migrator_rejects_invalid_tokens ... ok\ntest k24_migrator_propagates_keyring_storage_error ... ok\ntest k26_migration_failure_paths_and_state_do_not_leak_secrets ... ok\n\ntest result: ok. 13 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n',
+    expected: /test result: ok\. 0 passed; 0 failed; 12 ignored/u,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/meta/keyring-live.test.mjs:258:3
+✖ --list --ignored перечисляет ровно 12 кейсов k01…k12 (20.64203ms)
+  AssertionError [ERR_ASSERTION]: `--list --ignored` должен давать ровно 12 live-кейсов
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      'k01_connect_to_default_collection',
+      'k02_store_then_lookup_roundtrip_without_leak',
+      'k03_lookup_missing_returns_none',
+      'k04_clear_existing_then_lookup_none',
+  ...
+      'k12_debug_does_not_print_secret_or_pointers',
+  +   'k25_migrator_with_live_keyring'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:272:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'k01_connect_to_default_collection', 'k02_store_then_lookup_roundtrip_without_leak', 'k03_lookup_missing_returns_none', 'k04_clear_existing_then_lookup_none', 'k05_overwrite_replaces_value', 'k06_unicode_secret_roundtrip', 'k07_secret_tool_reads_our_store', 'k08_our_lookup_reads_secret_tool_store', 'k09_empty_key_is_invalid', 'k10_nul_in_key_or_secret_is_error_without_panic', 'k11_repeated_clear_returns_false', 'k12_debug_does_not_print_secret_or_pointers', 'k25_migrator_with_live_keyring' ],
+    expected: [ 'k01_connect_to_default_collection', 'k02_store_then_lookup_roundtrip_without_leak', 'k03_lookup_missing_returns_none', 'k04_clear_existing_then_lookup_none', 'k05_overwrite_replaces_value', 'k06_unicode_secret_roundtrip', 'k07_secret_tool_reads_our_store', 'k08_our_lookup_reads_secret_tool_store', 'k09_empty_key_is_invalid', 'k10_nul_in_key_or_secret_is_error_without_panic', 'k11_repeated_clear_returns_false', 'k12_debug_does_not_print_secret_or_pointers' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

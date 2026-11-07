@@ -1,0 +1,88 @@
+### MUTANT M5
+expected-caught-by: C16 (ready() IPC unsafe self ID)
+md5-before: 37dacc61d7daf74c144681637dded1f5,1ac5c36976a064120529c132e61cfb54
+md5-mutated: 37dacc61d7daf74c144681637dded1f5,b6951da8733c3c8cf0eabcaf582a7071
+command: node --test --test-reporter=spec tests/unit/dispatch_ui.test.mjs (cwd=/tmp/opencode/l02-ui-mutation)
+▶ L-02-UI: контракт dispatch (A1–A3)
+  ✔ A1: DISPATCH_EVENT совпадает с net.rs::DISPATCH_EVENT (0.418675ms)
+  ✔ A2: FORWARDED_KINDS — ровно 6 имён из net.rs::FORWARDED_DISPATCHES (0.467886ms)
+  ✔ A3: конверт — только {kind,data}; seq принимается, если есть, и не выдумывается (0.274313ms)
+  ✔ нормализация nil/чисел/строк — общая для дампа и живого кадра (0.191763ms)
+✔ L-02-UI: контракт dispatch (A1–A3) (1.975915ms)
+▶ L-02-UI: проекции dispatch (B)
+  ✔ B1: READY → гильдии/имена/member_count/selfUserId по фикстуре (5.730624ms)
+  ✔ B2: дамп с "nil" и тот же d с null дают равную проекцию (8.316687ms)
+  ✔ B3: READY дважды — тот же store, второй раз changes пустые (3.15137ms)
+  ✔ B4: CHUNK — участники по user.id, имя по global_name→nick→username→id (0.511476ms)
+  ✔ B5: CHUNK дважды — duplicate, store равен (0.172682ms)
+  ✔ B6: LIST_UPDATE SYNC — order/counts из ops[0].items, range=null на мусоре (1.049343ms)
+  ✔ B7: INSERT/UPDATE/DELETE применяются в порядке провода (2 и 4 op кадры) (0.7645ms)
+  ✔ B8: INSERT существующего userId — без дубля, duplicate+1 (0.623688ms)
+  ✔ B9: DELETE вне окна — outOfRange, порядок не меняется (0.666579ms)
+  ✔ B10: PRESENCE — LWW по ts, равный ts применяется, отрицательный/строковый ts (0.233933ms)
+  ✔ B11: REACTION ADD/REMOVE — ±1, me по selfUserId, повтор ADD — no-op (0.224233ms)
+  ✔ B12: REMOVE без ADD — счётчик не уходит в минус (0.062951ms)
+  ✔ B13: malformed-таблица (null/[]/"x"/{}) для каждого kind (0.137042ms)
+  ✔ B14: неизвестный kind — ignored, изменений нет (0.081841ms)
+  ✔ B15: секреты READY не попадают в store/changes, redactedKeys учтён (1.436918ms)
+  ✔ B16: непустой READY → пустой READY — полный снапшот очищает store (3.06645ms)
+  ✔ B16b: первый пустой READY на чистом store — снапшот, а не duplicate (0.719449ms)
+  ✔ B17: self ID — string точно, safe integer допустим, unsafe integer отвергнут (1.457789ms)
+✔ L-02-UI: проекции dispatch (B) (28.975293ms)
+▶ L-02-UI: транспорт bridge (D)
+  ✔ D1: start() подписывается на gateway://dispatch, колбэк применяет конверт (0.367375ms)
+  ✔ D2: stop() вызывает unlisten; повторный start() не создаёт вторую подписку (0.130572ms)
+  ✔ D3: ошибка view.apply — failed+lastErrorKind, следующее событие обрабатывается (0.264354ms)
+  ✔ D4: resolveDispatchListen без __TAURI__.event → null, с функцией — она же (0.074571ms)
+  ✔ D5: listen упал — source=unavailable, ошибка учтена, rejection не всплывает (0.152922ms)
+✔ L-02-UI: транспорт bridge (D) (1.122584ms)
+▶ L-02-UI: интеграция dispatch → DOM (C1–C14)
+  ✔ C1: READY upsert-ит рейл без смены выбора/фокуса и без IPC (38.552456ms)
+  ✔ C2: LIST_UPDATE → live-панель, порядок/высота/счётчик без reload (24.167592ms)
+  ✔ C3: CHUNK после LIST_UPDATE — имена у тех же строк, без роста списка (19.198457ms)
+  ✔ C4: PRESENCE online→idle→online — тот же узел, статус в данных и aria (15.707052ms)
+  ✔ C5–C7: реакции — ADD чужой/себя, REMOVE до нуля удаляет пилюлю (15.093005ms)
+  ✔ C5b: live-реакция прибавляется к базовому счётчику messages_page (15.262227ms)
+  ✔ C8: реакция чужого канала/незагруженного сообщения — DOM не тронут (17.928291ms)
+  ✔ C9: секреты READY не попадают ни в DOM, ни в снапшот (12.42781ms)
+  ✔ C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят (14.887892ms)
+  ✔ C11: burst 100 PRESENCE — 100 применений, строки не пересозданы (15.853955ms)
+  ✔ C12: N11 — событие на экране settings обновляет DOM в фоне (13.793328ms)
+  ✔ C13: N12 — без transport source=absent, handle работает (тестовый путь) (8.834314ms)
+  ✔ C14: снапшот содержит dispatch без payload/секретов; живые счётчики в stats (9.144827ms)
+  ✔ C15: пустой READY очищает рейл (полный снапшот), без reload-IPC (16.814566ms)
+  ✔ C15b: первый пустой READY после boot очищает рейл от ready() IPC (12.908336ms)
+  ✖ C16: ready() self ID — string точно, unsafe integer отвергнут (без String()) (10.774729ms)
+✖ L-02-UI: интеграция dispatch → DOM (C1–C14) (262.524833ms)
+ℹ tests 43
+ℹ suites 4
+ℹ pass 42
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 340.75728
+
+✖ failing tests:
+
+test at tests/unit/dispatch_ui.test.mjs:1321:3
+✖ C16: ready() self ID — string точно, unsafe integer отвергнут (без String()) (10.774729ms)
+  AssertionError [ERR_ASSERTION]: unsafe integer превращён в строку вслепую
+  + actual - expected
+  
+  + '384299970632876000'
+  - ''
+  
+      at TestContext.<anonymous> (file:///tmp/opencode/l02-ui-mutation/tests/unit/dispatch_ui.test.mjs:1328:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '384299970632876000',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1
+restore-ok model=37dacc61d7daf74c144681637dded1f5 app=1ac5c36976a064120529c132e61cfb54
+---- killed? expected: C16 (ready() IPC unsafe self ID); exit=1

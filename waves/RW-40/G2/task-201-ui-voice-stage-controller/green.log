@@ -1,0 +1,19 @@
+▶ createVoiceStageController: сетка и плитки участников
+  ✔ выставляет data-columns и data-rows из computeVoiceGridDimensions для разного числа участников (1.120606ms)
+  ✔ рендерит плитки с data-participant-id, data-speaking, data-streaming, data-focused и русскими бейджами (0.244489ms)
+  ✔ клик по плитке переключает фокус, обновляет data-focused и вызывает onFocusChange(focusedId) (0.658847ms)
+  ✔ при переполнении (> 25 участников) рендерит плитку data-voice-overflow="true" с текстом "+N ещё" (0.769507ms)
+✔ createVoiceStageController: сетка и плитки участников (3.513307ms)
+▶ createVoiceStageController: openScreenSharePicker
+  ✔ рендерит русский диалог «Демонстрация экрана» с дефолтами 1080p / 60 FPS и вызывает onStartStream (0.491798ms)
+  ✔ позволяет выбрать источник, разрешение (720p|1080p|1440p), FPS (30|60) и чекбокс звука системы (0.361319ms)
+  ✔ блокирует отправку «Начать трансляцию», если список источников пуст (0.171439ms)
+✔ createVoiceStageController: openScreenSharePicker (1.191336ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.74147

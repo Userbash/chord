@@ -1,0 +1,29 @@
+baseline: src=e28b8cbc5dfb2db2e14aecabbd61caf2 test=8563afd362e5e3ba7f66b4f2e3704c02
+baseline targeted: test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=0
+
+== M1 Tier2 возвращает базовый лимит 10 MiB вместо 50 MiB
+   mutant md5=d2786e371102aee16757be28a297183f
+   KILLED | test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, guild_boost_tier_limits_match_re_oracle
+   restore md5=e28b8cbc5dfb2db2e14aecabbd61caf2 (совпал)
+
+== M2 Tier3 возвращает лимит Tier2 (50 MiB) вместо 100 MiB
+   mutant md5=4a2ce9580a9f1258f374ff7590b2992b
+   KILLED | test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, guild_boost_tier_limits_match_re_oracle
+   restore md5=e28b8cbc5dfb2db2e14aecabbd61caf2 (совпал)
+
+== M3 Граница размера в validate_files: >= вместо > (режет точный размер Tier2/Tier3)
+   mutant md5=94c5b7dd671cf1993e8cbd24e4536459
+   KILLED | test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, rejects_oversized_file_locally_with_entity_too_large
+   restore md5=e28b8cbc5dfb2db2e14aecabbd61caf2 (совпал)
+
+== M4 validate_files игнорирует tier и проверяет жёсткий MAX_UPLOAD_FILE_BYTES
+   mutant md5=04b521c81580c31aa032f08f37592e30
+   KILLED | test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier
+   restore md5=e28b8cbc5dfb2db2e14aecabbd61caf2 (совпал)
+
+финал: src=e28b8cbc5dfb2db2e14aecabbd61caf2 test=8563afd362e5e3ba7f66b4f2e3704c02 | совпадает с baseline: True
+мутаций убито: 4/4

@@ -1,0 +1,127 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
+error[E0425]: cannot find value `RESUME_TTL_MS` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1047:13
+     |
+1047 |             RESUME_TTL_MS, 180_000,
+     |             ^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `RESUME_TTL_MS` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1083:51
+     |
+1083 |         supervisor_within.set_last_ack_elapsed_ms(RESUME_TTL_MS);
+     |                                                   ^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `RESUME_TTL_MS` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1152:52
+     |
+1152 |         supervisor_expired.set_last_ack_elapsed_ms(RESUME_TTL_MS + 1);
+     |                                                    ^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `PresenceUpdate` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1201:24
+     |
+1201 |         let presence = PresenceUpdate {
+     |                        ^^^^^^^^^^^^^^ not found in this scope
+     |
+help: consider importing one of these items
+     |
+ 517 +     use crate::DispatchKind::PresenceUpdate;
+     |
+ 517 +     use crate::PresenceUpdate;
+     |
+ 517 +     use crate::state::EventPayload::PresenceUpdate;
+     |
+
+error[E0422]: cannot find struct, variant or union type `VoiceStateUpdateOut` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1207:21
+     |
+1207 |         let voice = VoiceStateUpdateOut {
+     |                     ^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `RequestGuildMembers` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1215:30
+     |
+1215 |         let members_single = RequestGuildMembers {
+     |                              ^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `OutboundGuildSubscription` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1226:13
+     |
+1226 |             OutboundGuildSubscription {
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+     |
+help: consider importing this struct
+     |
+ 517 +     use crate::gateway::OutboundGuildSubscription;
+     |
+
+error[E0422]: cannot find struct, variant or union type `RequestGuildMembers` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1348:27
+     |
+1348 |         let members_101 = RequestGuildMembers {
+     |                           ^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `RESUME_TTL_MS` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1391:44
+     |
+1391 |         supervisor.set_last_ack_elapsed_ms(RESUME_TTL_MS + 1);
+     |                                            ^^^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `GatewaySupervisor` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1082:37
+     |
+1082 | ... = GatewaySupervisor::new(config_within);
+     |       ^^^^^^^^^^^^^^^^^ use of undeclared type `GatewaySupervisor`
+
+error[E0433]: cannot find type `GatewaySupervisor` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1151:38
+     |
+1151 | ... = GatewaySupervisor::new(config_expired);
+     |       ^^^^^^^^^^^^^^^^^ use of undeclared type `GatewaySupervisor`
+
+error[E0433]: cannot find type `GatewaySupervisor` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1199:30
+     |
+1199 | ... = GatewaySupervisor::new(SupervisorConfig::new(gateway, "TEST_TOKE...
+     |       ^^^^^^^^^^^^^^^^^ use of undeclared type `GatewaySupervisor`
+
+error[E0433]: cannot find type `GuildSubscriptionsBulk` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1223:24
+     |
+1223 |         let mut subs = GuildSubscriptionsBulk::default();
+     |                        ^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `GuildSubscriptionsBulk`
+
+error[E0433]: cannot find type `SupervisorOutboundError` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1396:17
+     |
+1396 |             Err(SupervisorOutboundError::NotReady { op: 3 })
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `SupervisorOutboundError`
+
+error[E0433]: cannot find type `SupervisorOutboundError` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1266:17
+     |
+1266 |             Err(SupervisorOutboundError::NotReady { op: 37 })
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `SupervisorOutboundError`
+
+error[E0433]: cannot find type `SupervisorOutboundError` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1262:17
+     |
+1262 |             Err(SupervisorOutboundError::NotReady { op: 8 })
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `SupervisorOutboundError`
+
+error[E0433]: cannot find type `SupervisorOutboundError` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1258:17
+     |
+1258 |             Err(SupervisorOutboundError::NotReady { op: 4 })
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `SupervisorOutboundError`
+
+error[E0433]: cannot find type `SupervisorOutboundError` in this scope
+    --> crates/discord-core/src/gateway/supervisor.rs:1254:17
+     |
+1254 |             Err(SupervisorOutboundError::NotReady { op: 3 })
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `SupervisorOutboundError`
+
+Some errors have detailed explanations: E0422, E0425, E0433.
+For more information about an error, try `rustc --explain E0422`.
+error: could not compile `discord-core` (lib test) due to 18 previous errors
+EXIT=101

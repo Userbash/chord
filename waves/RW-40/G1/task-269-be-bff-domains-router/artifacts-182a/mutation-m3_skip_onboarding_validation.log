@@ -1,0 +1,29 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-269-be-bff-domains-router/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.55s
+     Running tests/bff_domains_router_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/bff_domains_router_contract-ca9df234e77072dd)
+
+running 8 tests
+test dispatch_bff_domain_action_propagates_validation_errors_across_all_domains ... FAILED
+test dispatch_send_soundboard_sound_builds_channel_route_and_body ... ok
+test is_supported_bff_domain_accepts_only_registered_domains ... ok
+test bff_domain_action_serde_roundtrip_all_variants ... ok
+test dispatch_update_guild_onboarding_builds_welcome_screen_route_and_body ... ok
+test dispatch_create_stage_instance_builds_stage_instances_route_and_body ... ok
+test dispatch_invoke_slash_command_builds_interactions_route_and_body ... ok
+test supported_bff_domains_constant_matches_exact_contract ... ok
+
+failures:
+
+---- dispatch_bff_domain_action_propagates_validation_errors_across_all_domains stdout ----
+
+thread 'dispatch_bff_domain_action_propagates_validation_errors_across_all_domains' (162690) panicked at tests/bff_domains_router_contract.rs:334:5:
+UpdateGuildOnboarding with blank description must fail
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dispatch_bff_domain_action_propagates_validation_errors_across_all_domains
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test bff_domains_router_contract`

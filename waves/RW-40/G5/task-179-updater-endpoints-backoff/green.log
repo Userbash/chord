@@ -1,0 +1,138 @@
+# GREEN: 2026-10-31T03:30:47+08:00
+# CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-updater --test updater_contract --lib
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_updater-377bc9cf830c13b5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/updater_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/updater_contract-fd91db638e905d79)
+
+running 46 tests
+test linux_download_url_k ... ok
+test linux_feed_url_k ... ok
+test linux_package_format_query_value_k ... ok
+test manifest_invalid_json_k ... ok
+test manifest_duplicate_artifact_k ... ok
+test manifest_invalid_digest_k ... ok
+test manifest_missing_field_k ... ok
+test manifest_invalid_version_k ... ok
+test manifest_parse_k ... ok
+test modules_base_url_k ... ok
+test manifest_parse_pre_release_k ... ok
+test parse_manifest_stays_plain_manifest_k ... ok
+test release_channel_as_str_k ... ok
+test scheduled_backoff_clamps_to_max_k ... ok
+test plan_unknown_artifact_k ... ok
+test plan_not_newer_k ... ok
+test plan_keeps_all_paths_inside_install_dir_k ... ok
+test digest_mismatch_k ... ok
+test scheduled_backoff_retry_seconds_k ... ok
+test scheduled_backoff_sequence_k ... ok
+test should_disable_updater_k ... ok
+test sha256_hex_known_k ... ok
+test plan_from_verified_manifest_k ... ok
+test splash_update_state_event_names_k ... ok
+test rollback_k ... ok
+test plan_steps_k ... ok
+test updater_endpoint_constants_k ... ok
+test rollback_refuses_occupied_temp_name_k ... ok
+test url_builders_reject_bad_endpoint_k ... ok
+test rfc8032_test_vector_k ... ok
+test rollback_missing_backup_keeps_target_k ... ok
+test swap_failure_rollback_k ... ok
+test signature_missing_k ... ok
+test version_order_k ... ok
+test version_parse_rejects_k ... ok
+test signature_bad_k ... ok
+test verified_manifest_requires_valid_signature_k ... ok
+test signature_tampered_body_k ... ok
+test signature_ok_k ... ok
+test rollback_rejects_corrupted_backup_k ... ok
+test signature_wrong_key_k ... ok
+test verified_manifest_from_signed_bytes_k ... ok
+test rollback_replaces_existing_target_k ... ok
+test staged_swap_k ... ok
+test plan_accepts_safe_artifact_name_k ... ok
+test plan_rejects_unsafe_artifact_name_k ... ok
+
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+# cargo test exit=0
+
+# Дополнительно: 2026-10-31T03:30:54+08:00
+# cargo test --manifest-path rust/Cargo.toml -p discord-updater --all-targets
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_updater-377bc9cf830c13b5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/updater_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/updater_contract-fd91db638e905d79)
+
+running 46 tests
+test linux_download_url_k ... ok
+test linux_package_format_query_value_k ... ok
+test linux_feed_url_k ... ok
+test manifest_duplicate_artifact_k ... ok
+test manifest_invalid_json_k ... ok
+test manifest_invalid_digest_k ... ok
+test manifest_missing_field_k ... ok
+test manifest_invalid_version_k ... ok
+test manifest_parse_k ... ok
+test modules_base_url_k ... ok
+test manifest_parse_pre_release_k ... ok
+test parse_manifest_stays_plain_manifest_k ... ok
+test release_channel_as_str_k ... ok
+test plan_not_newer_k ... ok
+test digest_mismatch_k ... ok
+test scheduled_backoff_clamps_to_max_k ... ok
+test plan_from_verified_manifest_k ... ok
+test scheduled_backoff_retry_seconds_k ... ok
+test should_disable_updater_k ... ok
+test sha256_hex_known_k ... ok
+test scheduled_backoff_sequence_k ... ok
+test plan_keeps_all_paths_inside_install_dir_k ... ok
+test rollback_missing_backup_keeps_target_k ... ok
+test plan_unknown_artifact_k ... ok
+test rollback_refuses_occupied_temp_name_k ... ok
+test splash_update_state_event_names_k ... ok
+test signature_missing_k ... ok
+test plan_steps_k ... ok
+test updater_endpoint_constants_k ... ok
+test rollback_replaces_existing_target_k ... ok
+test swap_failure_rollback_k ... ok
+test url_builders_reject_bad_endpoint_k ... ok
+test rollback_k ... ok
+test rollback_rejects_corrupted_backup_k ... ok
+test version_order_k ... ok
+test version_parse_rejects_k ... ok
+test signature_bad_k ... ok
+test rfc8032_test_vector_k ... ok
+test signature_ok_k ... ok
+test signature_tampered_body_k ... ok
+test signature_wrong_key_k ... ok
+test verified_manifest_requires_valid_signature_k ... ok
+test verified_manifest_from_signed_bytes_k ... ok
+test staged_swap_k ... ok
+test plan_accepts_safe_artifact_name_k ... ok
+test plan_rejects_unsafe_artifact_name_k ... ok
+
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+# cargo test --all-targets exit=0
+
+# Финальный прогон после восстановления мутантов: 2026-10-31T03:31:14+08:00
+# md5 lib.rs=201b0e576a62032adfb331a12c6c18c2 manifest.rs=17ae70c360f0ab6f5b37cfce734ba595 tests/updater_contract.rs=11fda0ad490300d0660a0df91c288608
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 46 tests
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+# exit=0
+    Checking discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+# clippy exit=0
+# rustfmt(2024) exit=0

@@ -1,0 +1,73 @@
+=== node --test tests/unit/notifications-ui.test.mjs ===
+▶ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json
+  ✔ MUTE_TIMER_PRESETS и перечисления совпадают с RE-оракулом и спецификацией (0.776241ms)
+  ✔ buildMuteConfig и evaluateMuteState: расчёт истечения таймера, бессрочный mute и строгий разбор ETF-строк (0.378121ms)
+  ✔ сверка парсера с реальным дампом 002-READY.json (58 гильдий, 1328 overrides, 3 истёкших mute) (0.484561ms)
+✔ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json (2.300564ms)
+▶ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний
+  ✔ resolveEffectiveNotifications: каскад канал (!=3) -> родительская категория (!=3) -> гильдия -> дефолт (0.438151ms)
+  ✔ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.371441ms)
+  ✔ битовые флаги UNREADS_*, двойная форма channel_overrides и фильтр видимых строк таблицы (0.31357ms)
+✔ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний (1.298962ms)
+▶ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree
+  ✔ computeChannelIndicatorState и applyChannelIndicatorToDom: точка, бейдж 99+, mute и hide_muted_channels (1.099542ms)
+  ✔ computeGuildRailIndicatorState и applyGuildRailIndicatorToDom: левая пилюля и бейдж на плитке сервера (0.237281ms)
+✔ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree (1.469653ms)
+▶ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu)
+  ✔ открывает модалку #guild-notif-modal, рендерит секции, радиогруппу .notif-level-list и баннер >= 2500 участников (1.967563ms)
+  ✔ тумблеры подавления (suppress_everyone, suppress_roles, notify_highlights 2/1) и отсутствие оптимистичной мутации до ответа IPC (0.840111ms)
+  ✔ таблица .notif-override-table: roving tabindex, навигация ArrowLeft/ArrowRight по радио, чекбокс mute и сброс override (1.723263ms)
+  ✔ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (1.211602ms)
+  ✔ focus trap внутри #guild-notif-modal: Tab и Shift+Tab циклически переключают фокус (NOTIFICATIONS-SPEC §5.2 п.4) (0.564491ms)
+  ✔ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.528741ms)
+  ✔ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.795621ms)
+  ✔ тумблер mute сервера, селект 6 окон длительности, DM (@me) маршрут и закрытие модалки по Escape с возвратом фокуса (0.577641ms)
+  ✔ добавление канала в таблицу через #notif-override-channel-select и обработка ошибок IPC (#guild-notif-error) (0.603761ms)
+✔ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (9.075024ms)
+ℹ tests 17
+ℹ suites 4
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.184825
+UNIT_EXIT=0
+=== node --test tests/meta/test-policy.test.mjs ===
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.507501ms)
+  ✔ в тестах нет .only, todo и пустых assert (6.4814ms)
+  ✔ скрипты не обходят хуки и проверки (0.427541ms)
+  ✔ гейт содержит обязательные фазы (0.15969ms)
+  ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.450741ms)
+✔ TEST-POLICY: запрет ослабления тестов (8.742734ms)
+▶ QA-M2-01: e2e-skip не является прохождением
+  ✔ failOnSkips превращает skip в провал фазы (пример, а не декларация) (0.333331ms)
+  ✔ без failOnSkips тот же skip не валит фазу (unit/smoke skip-aware) (0.10715ms)
+  ✔ нулевой pass — e2e_unmet даже без skip (0.12482ms)
+  ✔ выполненный набор без skip и fail проходит (0.14127ms)
+  ✔ вердикт при упавшей e2e-фазе — failed, а не passed_with_skips (0.166361ms)
+  ✔ live-фаза без среды — passed_with_unmet, не passed и не skip (0.10334ms)
+  ✔ Rust ignored не смешивается с e2e-skip (0.0837ms)
+  ✔ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.12621ms)
+  ✔ приёмка запрещена без fixture-доказательства и без live в qualify (0.128791ms)
+  ✔ fixture-набор e2e исключает live и объявлен с failOnSkips (0.14319ms)
+  ✔ live-фаза отдельная и только в qualify (0.17133ms)
+  ✔ оба результата повтора сохраняются в attempts[] (0.17384ms)
+✔ QA-M2-01: e2e-skip не является прохождением (2.153523ms)
+ℹ tests 17
+ℹ suites 2
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.834279
+META_EXIT=0
+=== npx tsc --ignoreConfig --noEmit --allowJs --checkJs --strict --noUncheckedIndexedAccess --target es2022 --module es2022 --moduleResolution bundler rust/gui-spike/ui/features/notifications.js ===
+TSC_EXPLICIT_EXIT=0
+=== npx tsc -p rust/gui-spike/ui/tsconfig.json ===
+TSC_UI_EXIT=0
+=== npx tsc -p tsconfig.json ===
+TSC_ROOT_EXIT=0
+EXIT_CODE=0

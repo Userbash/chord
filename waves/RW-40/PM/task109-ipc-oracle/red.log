@@ -1,0 +1,113 @@
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.01s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-46f8193065e72d2d)
+
+running 9 tests
+
+thread 'channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field' (753958) panicked at tests/ipc_wiring_contract.rs:1456:5:
+ChannelOverrideInput::into_patch не должен молча брать первый попавшийся чужой канал (.into_values().next()): enum ChannelOverrideInput {
+    Envelope {
+        channel_overrides: std::collections::BTreeMap<String, ChannelNotificationOverridePatch>,
+    },
+    Direct(ChannelNotificationOverridePatch),
+}
+
+impl ChannelOverrideInput {
+    fn into_patch(self, channel_id: &str) -> ChannelNotificationOverridePatch {
+        match self {
+            Self::Envelope {
+                mut channel_overrides,
+            } => channel_overrides
+                .remove(channel_id)
+                .or_else(|| channel_overrides.into_values().next())
+                .unwrap_or_default(),
+            Self::Direct(patch) => patch,
+        }
+    }
+
+    fn resolve(
+        channel_id: &str,
+        override_patch: Option<ChannelNotificationOverridePatch>,
+        patch: Option<Self>,
+        payload: Option<Self>,
+    ) -> ChannelNotificationOverridePatch {
+        override_patch
+            .or_else(|| patch.map(|input| input.into_patch(channel_id)))
+            .or_else(|| payload.map(|input| input.into_patch(channel_id)))
+            .unwrap_or_default()
+    }
+}
+
+/// Обновить настройки уведомлений гильдии / DM: `PATCH /users/@me/guilds/{guild_id}/settings`.
+#[tauri::command]
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... FAILED
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (753964) panicked at tests/ipc_wiring_contract.rs:1311:5:
+update_channel_notification_override принимает r#override / override_field / override_patch / patch / payload (P2-3): async fn update_channel_notification_override(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    guild_id: String,
+    channel_id: String,
+    override_patch: Option<ChannelNotificationOverridePatch>,
+    patch: Option<ChannelOverrideInput>,
+    payload: Option<ChannelOverrideInput>,
+) -> Result<serde_json::Value, NotificationError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<NotificationError, _>(
+        move || backend.token(),
+        || NotificationError::Storage,
+        || NotificationError::MissingToken,
+    )
+    .await?;
+    let api = DiscordNotifications::new(&token)?;
+    let resolved = ChannelOverrideInput::resolve(&channel_id, override_patch, patch, payload);
+    discord_gui_spike::update_channel_notification_override(
+        &api,
+        &token,
+        &guild_id,
+        &channel_id,
+        &resolved,
+    )
+    .await
+}
+
+// ---------------------------------------------------------------------------
+// RW-39/NET-C2: авторизация. Вся логика — в `discord_gui_spike::auth`, здесь
+// только Tauri-обёртки. `Keyring` — `!Send` и может ждать D-Bus, поэтому каждая
+// команда уходит в `spawn_blocking`: UI-поток и async-runtime не блокируются.
+// ---------------------------------------------------------------------------
+
+/// Блокирующая операция — вне async-runtime (keyring, файл настроек).
+async fn blocking<T, F>(work: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce() -> T + Send + 'static,
+{
+    tokio::task::spawn_blocking(work)
+        .await
+        .map_err(|error| format!("блокирующая операция не завершилась: {error}"))
+}
+
+/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+failures:
+
+failures:
+    channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101

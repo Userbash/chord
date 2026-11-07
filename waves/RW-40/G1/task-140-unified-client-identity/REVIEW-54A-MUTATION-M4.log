@@ -1,0 +1,46 @@
+# M4: rw_client() no longer caches (no OnceLock)
+# file: rust/crates/discord-core/src/rest/identity.rs
+# exit: 101
+
+$ cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+
+
+running 8 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test identify::tests::client_identity_drives_identify_properties ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... ok
+test tests::gateway_constants_match_capture ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... FAILED
+
+failures:
+
+---- identify::tests::rw_client_identity_matches_identify_defaults stdout ----
+
+thread 'identify::tests::rw_client_identity_matches_identify_defaults' (1489404) panicked at crates/discord-core/src/identify.rs:426:9:
+assertion `left == right` failed: client_launch_id: один запуск — одна идентичность
+  left: "203d69bb-481f-4e27-9c76-fc389ed5228a"
+ right: "af765794-5f3d-464e-88b7-8519a60ea486"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    identify::tests::rw_client_identity_matches_identify_defaults
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+warning: static `RW_CLIENT` is never used
+   --> crates/discord-core/src/rest/identity.rs:151:16
+    |
+151 |         static RW_CLIENT: std::sync::OnceLock<ClientIdentity> = std::sync::OnceLock::new();
+    |                ^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.29s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+error: test failed, to rerun pass `-p discord-core --lib`

@@ -1,0 +1,2 @@
+3b3961b64533e5733754321fdef919a5  tests/unit/slowmode.test.mjs
+1a12cfbcb84b9654e7b71629df1173ce  rust/gui-spike/ui/features/slowmode.js

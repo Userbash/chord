@@ -1,0 +1,52 @@
+baseline invites.rs md5=951bb4bc5f79b8e96ac3d96f8f5bafca
+baseline invites_contract.rs md5=f6a8d252207558d7cae0aa58a67368e4
+=== MUT-1-allow-dot-in-channel-id ===
+mutant invites.rs md5=bf6fa0fd44887aea6d4fb10939fa69ed
+exit=101
+test create_invite_rejects_unsafe_channel_id_before_network ... FAILED
+thread 'create_invite_rejects_unsafe_channel_id_before_network' (352292) panicked at tests/invites_contract.rs:1068:9:
+assertion `left == right` failed: free fn: bad_channel="chan.1"
+  left: Ok(CreatedInvite { code: "aBcD123XyZ", max_age: 86400, max_uses: 0, temporary: false })
+ right: Err(InvalidRequest)
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored invites.rs md5=951bb4bc5f79b8e96ac3d96f8f5bafca (match=True)
+=== MUT-2-drop-max-age-table-validation ===
+mutant invites.rs md5=6faa9354d2ecf740d5fdc886ed9f27b1
+exit=101
+test create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network ... FAILED
+thread 'create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network' (352972) panicked at tests/invites_contract.rs:1127:9:
+assertion `left == right` failed: free fn: bad max_age=1
+  left: Ok(CreatedInvite { code: "aBcD123XyZ", max_age: 86400, max_uses: 0, temporary: false })
+ right: Err(InvalidRequest)
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored invites.rs md5=951bb4bc5f79b8e96ac3d96f8f5bafca (match=True)
+=== MUT-3-drop-max-uses-table-validation ===
+mutant invites.rs md5=346f396e9485ca9dae33ffb27ec9d661
+exit=101
+test create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network ... FAILED
+thread 'create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network' (353651) panicked at tests/invites_contract.rs:1148:9:
+assertion `left == right` failed: free fn: bad max_uses=2
+  left: Ok(CreatedInvite { code: "aBcD123XyZ", max_age: 86400, max_uses: 0, temporary: false })
+ right: Err(InvalidRequest)
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored invites.rs md5=951bb4bc5f79b8e96ac3d96f8f5bafca (match=True)
+=== MUT-4-drop-flags-from-request-body ===
+mutant invites.rs md5=9d5c3f9c4a4b3b925e3e1f94317ca7db
+exit=101
+test create_invite_posts_to_channel_invites_with_params_and_parses_created_invite ... FAILED
+thread 'create_invite_posts_to_channel_invites_with_params_and_parses_created_invite' (354335) panicked at tests/invites_contract.rs:977:5:
+assertion `left == right` failed
+  left: Object {"max_age": Number(1800), "max_uses": Number(5), "temporary": Bool(true)}
+ right: Object {"flags": Number(1), "max_age": Number(1800), "max_uses": Number(5), "temporary": Bool(true)}
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored invites.rs md5=951bb4bc5f79b8e96ac3d96f8f5bafca (match=True)
+=== MUT-5-ignore-429-retry-after ===
+mutant invites.rs md5=bd1d81ab1f57cbddd2642d6c7427d5b3
+exit=101
+test create_invite_maps_429_retry_after_and_403_401_errors ... FAILED
+thread 'create_invite_maps_429_retry_after_and_403_401_errors' (355013) panicked at tests/invites_contract.rs:1181:9:
+assertion `left == right` failed: 429 header retry-after=4
+  left: Err(RateLimited { retry_after_ms: 0 })
+ right: Err(RateLimited { retry_after_ms: 4000 })
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored invites.rs md5=951bb4bc5f79b8e96ac3d96f8f5bafca (match=True)

@@ -21,6 +21,10 @@ use tokio_rustls::TlsConnector;
 use super::http1::{
     self, ChunkedParse, HeadParse, Http1Error, content_length, is_chunked, parse_response_head,
 };
+pub use super::http1::{
+    DEFAULT_USER_AGENT, decode_deflate, decode_deflate_or_zlib, decode_gzip, decode_response_body,
+    decode_response_body_with_limit,
+};
 use super::routes::HttpMethod;
 
 /// Конфигурация клиента: корни TLS, таймаут connect, лимит тела ответа.
@@ -300,6 +304,16 @@ pub async fn send_with(
     if !has_header(&headers, "connection") {
         headers.push(("Connection".to_string(), "close".to_string()));
     }
+    if !headers
+        .iter()
+        .any(|(k, v)| k.eq_ignore_ascii_case("user-agent") && !v.trim().is_empty())
+    {
+        headers.retain(|(k, _)| !k.eq_ignore_ascii_case("user-agent"));
+        headers.push(("User-Agent".to_string(), DEFAULT_USER_AGENT.to_string()));
+    }
+    if !has_header(&headers, "accept-encoding") {
+        headers.push(("Accept-Encoding".to_string(), "gzip, deflate".to_string()));
+    }
 
     let bytes = http1::encode_request(request.method, &target, &headers, &request.body)
         .map_err(HttpError::Protocol)?;
@@ -439,6 +453,22 @@ where
         });
     }
 
+    let finalize =
+        |status: u16, headers: Vec<(String, String)>, raw_body: Vec<u8>| {
+            let body = http1::decode_response_body_with_limit(&headers, &raw_body, max_body)
+                .map_err(|e| match e {
+                    Http1Error::BodyTooLarge => {
+                        HttpError::TooLarge(format!("распакованное тело > {max_body}"))
+                    }
+                    other => HttpError::Protocol(other),
+                })?;
+            Ok(HttpResponse {
+                status,
+                headers,
+                body,
+            })
+        };
+
     if is_chunked(&headers).map_err(HttpError::Protocol)? {
         let mut body_bytes = buffer[consumed..].to_vec();
         // Запас на служебные байты chunked; защищает от потока миллионов мелких чанков.
@@ -451,11 +481,7 @@ where
             }
             match http1::decode_chunked(&body_bytes, max_body).map_err(HttpError::Protocol)? {
                 ChunkedParse::Complete { body, .. } => {
-                    return Ok(HttpResponse {
-                        status,
-                        headers,
-                        body,
-                    });
+                    return finalize(status, headers, body);
                 }
                 ChunkedParse::Incomplete => {
                     if read_more(&mut stream, &mut body_bytes, read_timeout).await? == 0 {
@@ -479,11 +505,8 @@ where
                 )));
             }
         }
-        return Ok(HttpResponse {
-            status,
-            headers,
-            body: buffer[consumed..consumed + length].to_vec(),
-        });
+        let raw_body = buffer[consumed..consumed + length].to_vec();
+        return finalize(status, headers, raw_body);
     }
 
     let mut body = buffer[consumed..].to_vec();
@@ -492,11 +515,7 @@ where
     }
     loop {
         if read_more(&mut stream, &mut body, read_timeout).await? == 0 {
-            return Ok(HttpResponse {
-                status,
-                headers,
-                body,
-            });
+            return finalize(status, headers, body);
         }
         if body.len() > max_body {
             return Err(HttpError::TooLarge(format!("тело > {max_body}")));

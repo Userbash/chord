@@ -1,0 +1,4 @@
+## merged layout: 6 modules (search, search-overlay, reactions + notifications, dm-friends, voice-devices-settings), 4 profile tests (notifications-ui, voice-devices-settings, dm-friends-ui, attachments-render)
+ℹ tests 48
+ℹ pass 48
+ℹ fail 0

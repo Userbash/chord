@@ -1,0 +1,56 @@
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.66711ms)
+✔ COMPOSER_POPOVER_LAYERS (1.146811ms)
+▶ resolveComposerDraftPopover
+  ✔ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.32784ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.18294ms)
+✔ resolveComposerDraftPopover (0.64954ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.38037ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.137651ms)
+  ✖ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.727563ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.13345ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.47164ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.23582ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.13103ms)
+  ✔ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.188731ms)
+✖ createComposerPopoversBridge (6.736925ms)
+ℹ tests 11
+ℹ suites 3
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.384407
+
+✖ failing tests:
+
+test at tests/unit/composer-popovers-bridge.test.mjs:114:3
+✖ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.727563ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'cmd-4',
+      'cmd-1',
+      'cmd-2',
+      'cmd-3',
+  +   'cmd-5'
+  -   'cmd-4'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:131:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cmd-4', 'cmd-1', 'cmd-2', 'cmd-3', 'cmd-5' ],
+    expected: [ 'cmd-1', 'cmd-2', 'cmd-3', 'cmd-4' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

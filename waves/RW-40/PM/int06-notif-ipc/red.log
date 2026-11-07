@@ -1,0 +1,34 @@
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.58s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (709429) panicked at tests/ipc_wiring_contract.rs:1122:9:
+assertion `left == right` failed: update_guild_notification_settings должен быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (709424) panicked at tests/ipc_wiring_contract.rs:1040:13:
+UI-команда `update_guild_notification_settings` из `ui/features/notifications.js` не зарегистрирована в generate_handler! main.rs
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+
+failures:
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101

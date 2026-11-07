@@ -1,0 +1,21 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-196-be-ipc-ext-dispatcher/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.58s
+     Running tests/ipc_ext_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_ext_contract-d8fb51f01a9602da)
+
+running 12 tests
+test add_reaction_empty_body_builds_put_plan_with_none_body ... ok
+test ack_messages_bulk_builds_post_read_states_ack_bulk_plan ... ok
+test add_reaction_empty_body_rejects_invalid_snowflakes_and_empty_emoji ... ok
+test get_user_profile_builds_exact_route_with_and_without_guild_id ... ok
+test search_guild_messages_enforces_offset_limit_and_guild_id_bounds ... ok
+test search_guild_messages_builds_get_plan_with_and_without_content ... ok
+test get_user_profile_accepts_min_positive_and_u64_max_snowflakes_and_rejects_invalid ... ok
+test serde_rejects_unknown_command_tag ... ok
+test vote_poll_builds_put_answers_me_with_answer_ids_body ... ok
+test vote_poll_enforces_answer_ids_1_to_10_and_snowflake_ids ... ok
+test serde_roundtrip_all_five_commands_matches_tagged_snake_case_wire_format ... ok
+test ack_messages_bulk_enforces_1_to_100_bounds_and_snowflake_ids ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

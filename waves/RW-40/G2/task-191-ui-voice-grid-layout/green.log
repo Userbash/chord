@@ -1,0 +1,30 @@
+▶ voice-grid: MAX_VISIBLE_VOICE_TILES
+  ✔ равен 25 (0.35625ms)
+✔ voice-grid: MAX_VISIBLE_VOICE_TILES (0.920912ms)
+▶ voice-grid: computeVoiceGridDimensions
+  ✔ 0 плиток — пустая сетка (0.487831ms)
+  ✔ 1 плитка — одна колонка (0.0899ms)
+  ✔ 2 плитки — две колонки в один ряд (0.0802ms)
+  ✔ 3..=4 плитки — 2x2 (0.0995ms)
+  ✔ 5..=9 плиток — три колонки (0.13869ms)
+  ✔ 10..=16 плиток — четыре колонки (0.113311ms)
+  ✔ 17..=25 плиток — пять колонок (0.11779ms)
+  ✔ больше 25 — 5x5 и счётчик переполнения (0.10106ms)
+  ✔ отрицательные и нечисловые значения прижимаются к 0 (0.12965ms)
+✔ voice-grid: computeVoiceGridDimensions (1.711662ms)
+▶ voice-grid: prioritizeVoiceParticipants
+  ✔ пустой список даёт пустые visible/overflow и нулевую сетку (0.197341ms)
+  ✔ фокус всегда первый, даже без флагов (0.15724ms)
+  ✔ порядок весов: стрим -> видео -> говорит -> без mute -> алфавит (0.10142ms)
+  ✔ алфавит по displayName, затем по id при равенстве/отсутствии имени (0.12392ms)
+  ✔ visible обрезается до 25, остальные уходят в overflow (0.13459ms)
+  ✔ не мутирует входной массив (0.08288ms)
+✔ voice-grid: prioritizeVoiceParticipants (1.311782ms)
+ℹ tests 16
+ℹ suites 3
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.53633

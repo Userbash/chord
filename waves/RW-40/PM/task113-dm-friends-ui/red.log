@@ -1,0 +1,250 @@
+▶ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a)
+  ✖ T-N107-READY-01: константы и размеры коллекций 002-READY.json совпадают с RE-оракулом (0.969793ms)
+  ✖ T-N107-SORT-01: сортирует 17 private_channels из 002-READY.json по BigInt(last_message_id ?? 0) по убыванию и разрешает имена/аватары из 146 READY.users (0.304034ms)
+  ✖ отображает типы 1 (DM) и 3 (Group DM с числом участников, кастомным именем и fallback через запятую, плюс приоритет PINNED=2) (0.195593ms)
+✖ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a) (2.148759ms)
+▶ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b)
+  ✖ T-N107-READY-01 & T-N107-TABS-01: классифицирует 60 relationships из 002-READY.json (18 друзей type=1, 42 блокировки type=2) (0.192183ms)
+  ✖ фильтрует типы 1=Friend, 2=Blocked, 3=Incoming, 4=Outgoing по вкладкам Online / All / Pending / Blocked / Add Friend и считает pendingCount по формуле RE @9318383 (0.270343ms)
+✖ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b) (0.604818ms)
+▶ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c)
+  ✖ T-N107-DM-GET-01 & Home Navigation: переключает guildId='@me' по клику на #home-rail-btn без вызовов GET /users/@me/channels, рендерит дерево ЛС и восстанавливает шапку гильдии при возврате (0.73324ms)
+  ✖ T-N107-A11Y-01: вкладки друзей реализуют WAI-ARIA роли tablist/tab/tabpanel и циклический roving tabindex по ArrowRight/ArrowLeft/Home/End (2.387503ms)
+  ✖ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (0.821601ms)
+  ✖ T-N107-GDM-MODAL-01 & T-N107-DM-POST-01: модалка Group DM ограничивает выбор до 9 друзей (10 участников с @me), отправляет POST /users/@me/channels с {recipients:[...]}, использует кэш для одиночного DM и обрабатывает 30004 (0.332564ms)
+  ✖ T-N107-GDM-SHELL-01, T-N107-NOTE-01 & T-N107-DISPATCH-01: поддерживает group-dm-shell (201 vs 200), валидацию note_user_id и 7 Gateway-диспатчей (0.293454ms)
+✖ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (4.798375ms)
+ℹ tests 10
+ℹ suites 3
+ℹ pass 0
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63.867328
+
+✖ failing tests:
+
+test at tests/unit/dm-friends-ui.test.mjs:270:3
+✖ T-N107-READY-01: константы и размеры коллекций 002-READY.json совпадают с RE-оракулом (0.969793ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '' !== '@me'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:280:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: '@me',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:306:3
+✖ T-N107-SORT-01: сортирует 17 private_channels из 002-READY.json по BigInt(last_message_id ?? 0) по убыванию и разрешает имена/аватары из 146 READY.users (0.304034ms)
+  AssertionError [ERR_ASSERTION]: все 146 пользователей из READY.users должны быть в карте
+  
+  0 !== 146
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:308:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 146,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:368:3
+✖ отображает типы 1 (DM) и 3 (Group DM с числом участников, кастомным именем и fallback через запятую, плюс приоритет PINNED=2) (0.195593ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 3
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:386:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 3,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:435:3
+✖ T-N107-READY-01 & T-N107-TABS-01: классифицирует 60 relationships из 002-READY.json (18 друзей type=1, 42 блокировки type=2) (0.192183ms)
+  AssertionError [ERR_ASSERTION]: user_id 194374444821643266 обязан быть в READY.users
+      at file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:443:16
+      at Array.reduce (<anonymous>)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:439:46)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:470:3
+✖ фильтрует типы 1=Friend, 2=Blocked, 3=Incoming, 4=Outgoing по вкладкам Online / All / Pending / Blocked / Add Friend и считает pendingCount по формуле RE @9318383 (0.270343ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 18
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:538:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 18,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:591:3
+✖ T-N107-DM-GET-01 & Home Navigation: переключает guildId='@me' по клику на #home-rail-btn без вызовов GET /users/@me/channels, рендерит дерево ЛС и восстанавливает шапку гильдии при возврате (0.73324ms)
+  AssertionError [ERR_ASSERTION]: #home-rail-btn должен быть смонтирован в #guild-rail
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:595:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:674:3
+✖ T-N107-A11Y-01: вкладки друзей реализуют WAI-ARIA роли tablist/tab/tabpanel и циклический roving tabindex по ArrowRight/ArrowLeft/Home/End (2.387503ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(friendsView && tablist && tabpanel && addPanel)
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:687:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:762:3
+✖ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (0.821601ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   ok: false
+  -   ok: true,
+  -   payload: {
+  -     discriminator: null,
+  -     username: 'shadowbyte'
+  -   }
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:806:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { ok: false },
+    expected: { ok: true, payload: { username: 'shadowbyte', discriminator: null } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:881:3
+✖ T-N107-GDM-MODAL-01 & T-N107-DM-POST-01: модалка Group DM ограничивает выбор до 9 друзей (10 участников с @me), отправляет POST /users/@me/channels с {recipients:[...]}, использует кэш для одиночного DM и обрабатывает 30004 (0.332564ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + ''
+  - '696738350706458685'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:916:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: '696738350706458685',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/dm-friends-ui.test.mjs:973:3
+✖ T-N107-GDM-SHELL-01, T-N107-NOTE-01 & T-N107-DISPATCH-01: поддерживает group-dm-shell (201 vs 200), валидацию note_user_id и 7 Gateway-диспатчей (0.293454ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + ''
+  - 'shell-channel-1'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:991:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: 'shell-channel-1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+EXIT_CODE=1

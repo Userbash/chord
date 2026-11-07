@@ -1,0 +1,105 @@
+▶ RESOLVED_COLLISIONS
+  ✔ содержит ровно 7 разрешённых коллизий с точными именами (0.650241ms)
+  ✔ заморожен (0.11031ms)
+✔ RESOLVED_COLLISIONS (1.373981ms)
+▶ CANONICAL_TOKEN_MAP
+  ✔ заморожен и содержит не менее 24 записей (0.12833ms)
+  ✔ включает все 7 ключей коллизий с теми же значениями (0.09169ms)
+  ✔ покрывает обязательные локальные токены (0.08866ms)
+  ✔ все ключи и значения — валидные CSS custom properties (0.23794ms)
+✔ CANONICAL_TOKEN_MAP (0.73582ms)
+▶ resolveClientToken
+  ✔ возвращает канонический токен Discord для известного локального (0.14807ms)
+  ✔ разрешает ключи коллизий в канонические имена (0.10722ms)
+  ✖ возвращает null для неизвестного токена (0.59132ms)
+  ✖ возвращает null для нестроковых и пустых входов (0.18049ms)
+✖ resolveClientToken (1.25606ms)
+▶ auditStylesheetTokens
+  ✖ возвращает mapped/unmapped/collisionsResolved (0.75701ms)
+  ✔ помечает разрешённые коллизии отдельно (0.09455ms)
+  ✔ дедуплицирует повторяющиеся токены (0.07094ms)
+  ✔ игнорирует текст без custom properties и нестроковый вход (0.08167ms)
+  ✔ не считает коллизией ключ, который отсутствует в CSS (0.06401ms)
+✖ auditStylesheetTokens (1.20873ms)
+ℹ tests 15
+ℹ suites 4
+ℹ pass 12
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.336976
+
+✖ failing tests:
+
+test at tests/unit/token-map.test.mjs:99:3
+✖ возвращает null для неизвестного токена (0.59132ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '--definitely-not-a-token'
+  - null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/token-map.test.mjs:100:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '--definitely-not-a-token',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/token-map.test.mjs:103:3
+✖ возвращает null для нестроковых и пустых входов (0.18049ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '' !== null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/token-map.test.mjs:106:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/token-map.test.mjs:112:3
+✖ возвращает mapped/unmapped/collisionsResolved (0.75701ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '--accent',
+  +   '--mystery'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-279-ui-features-tsc-clean/tests/unit/token-map.test.mjs:115:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '--accent', '--mystery' ],
+    expected: [ '--accent' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

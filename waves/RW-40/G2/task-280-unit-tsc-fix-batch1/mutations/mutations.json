@@ -1,0 +1,91 @@
+{
+  "review": "TR-188A",
+  "task": "task-280",
+  "pr": "PR-159",
+  "date": "2026-10-31",
+  "baseline_md5": {
+    "rust/gui-spike/ui/features/profile-modal.js": "1518ab1b8972591a49746291b1e21400",
+    "rust/gui-spike/ui/features/appearance-settings.js": "da96a0ee035e62d771dc741c02f2ce9c"
+  },
+  "final_md5": {
+    "rust/gui-spike/ui/features/profile-modal.js": "1518ab1b8972591a49746291b1e21400",
+    "rust/gui-spike/ui/features/appearance-settings.js": "da96a0ee035e62d771dc741c02f2ce9c"
+  },
+  "restored": true,
+  "score": "5/5",
+  "mutations": [
+    {
+      "id": "M1",
+      "file": "rust/gui-spike/ui/features/profile-modal.js",
+      "mutation": "normalizeStatus: fallback статуса 'offline' -> 'online'",
+      "mutant_md5": "47dda5f8074e84528a05399cba8f6c5a",
+      "exit_code": 1,
+      "killed": true,
+      "killed_by": [
+        "✖ createProfileModalController: openPopout (3.271871ms)",
+        "✖ корректно отображает все 4 статуса из STATUS_LABELS_RU и фоллбэчит неизвестный в offline (1.201871ms)"
+      ],
+      "log": "mutations/M1-red.log",
+      "log_md5": "7fb400d0ff2377e54065a17b757f8428"
+    },
+    {
+      "id": "M2",
+      "file": "rust/gui-spike/ui/features/profile-modal.js",
+      "mutation": "buildProfileHeader: инверсия скрытия пустых местоимений (if (profile.pronouns))",
+      "mutant_md5": "eb6c15b287621adc111d65eee8b324e1",
+      "exit_code": 1,
+      "killed": true,
+      "killed_by": [
+        "✖ createProfileModalController: переключение режимов и close() (1.16976ms)",
+        "✖ поддерживает поле about как синоним bio, скрывает пустые местоимения и отвергает невалидный containerEl (0.74156ms)"
+      ],
+      "log": "mutations/M2-red.log",
+      "log_md5": "e4211baede16f539c8d83b6a4cbe0adc"
+    },
+    {
+      "id": "M3",
+      "file": "rust/gui-spike/ui/features/profile-modal.js",
+      "mutation": "submitQuickDm: инверсия guard пустого текста (text.length !== 0)",
+      "mutant_md5": "004268cc7152113d23cc77e762d2ae6a",
+      "exit_code": 1,
+      "killed": true,
+      "killed_by": [
+        "✖ createProfileModalController: openPopout (2.81935ms)",
+        "✖ рендерит быстрый инпут ЛС с placeholder 'Написать @' + username и вызывает onSendQuickMessage только для непустого текста (0.63057ms)"
+      ],
+      "log": "mutations/M3-red.log",
+      "log_md5": "1ea5e8b69594b34089db4ddbeec5ba2d"
+    },
+    {
+      "id": "M4",
+      "file": "rust/gui-spike/ui/features/appearance-settings.js",
+      "mutation": "isGroupSpacing: валидация по FONT_SCALE_STEPS вместо GROUP_SPACING_STEPS",
+      "mutant_md5": "54cba494002a2470aa727203969a7a84",
+      "exit_code": 1,
+      "killed": true,
+      "killed_by": [
+        "✖ T-185-04: валидный JSON из storage восстанавливает все 4 контрола (1.198161ms)",
+        "✖ T-185-05: невалидные поля в JSON отбрасываются по одному, остальные применяются (0.24464ms)",
+        "✖ T-185-11: setGroupSpacing принимает 0 и остальные шаги, отвергая прочие (0.19632ms)",
+        "✖ appearance-settings: гидратация (1.959891ms)",
+        "✖ appearance-settings: сеттеры и валидация (1.02537ms)"
+      ],
+      "log": "mutations/M4-red.log",
+      "log_md5": "41201dcf88c6251a15e89e9ea0a369e7"
+    },
+    {
+      "id": "M5",
+      "file": "rust/gui-spike/ui/features/appearance-settings.js",
+      "mutation": "getState: возврат внутренней ссылки state вместо копии { ...state }",
+      "mutant_md5": "b9bdeedf613aa1914ec1c178fb3726a9",
+      "exit_code": 1,
+      "killed": true,
+      "killed_by": [
+        "✖ T-185-13: getState отдаёт копию, внешняя мутация не меняет контроллер (0.91464ms)",
+        "✖ appearance-settings: getState и resetDefaults (1.26491ms)"
+      ],
+      "log": "mutations/M5-red.log",
+      "log_md5": "eb4dc5dbab9e82436818ca350c4160c0"
+    }
+  ]
+}

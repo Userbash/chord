@@ -1,0 +1,19 @@
+▶ SHELL_MODAL_LAYERS
+  ✔ содержит точный упорядоченный список из 10 слоёв оболочки и заморожен (0.775422ms)
+✔ SHELL_MODAL_LAYERS (1.350862ms)
+▶ createShellFeatureBridge — регистрация и стек слоёв
+  ✔ регистрирует контроллеры валидных слоёв и отклоняет неизвестный layerId (0.26271ms)
+  ✔ openLayer открывает слой, передаёт payload в controller.open и кладёт layerId на вершину activeOverlayStack (0.195901ms)
+  ✔ взаимно исключающие модалки закрывают предыдущую открытую модалку перед открытием новой (0.20416ms)
+  ✔ closeTopLayer и closeAllLayers закрывают открытые слои в строгом порядке LIFO (0.16583ms)
+  ✔ handleGlobalKeyDown обрабатывает Ctrl+K, Ctrl+F и Escape через normalizeKeyCombo (0.210141ms)
+  ✔ проксирует вызовы onDispatchIpc и onNavigate (0.15327ms)
+✔ createShellFeatureBridge — регистрация и стек слоёв (1.488052ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.589027

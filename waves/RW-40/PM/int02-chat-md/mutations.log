@@ -1,0 +1,59 @@
+=== INT-02 Mutation Testing ===
+Baseline MD5:
+  d2e3bb0958fbafb44dc14fe72cee0426  rust/gui-spike/ui/features/chat.js
+  d62aa5c55b033f3fe7da1708e151d717  rust/gui-spike/ui/components/composer.css
+  0eee4284af263c3d412b0afe4910bd58  tests/unit/gui-spike-model.test.mjs
+
+--- M1: renderChatRow bypasses renderMessageMarkdown (body.textContent = item.text) ---
+✖ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (3.309097ms)
+✖ failing tests:
+✖ renderChatRow: рендерит markdown внутри .text-body и сохраняет контракт строки (§7.1) (1.097089ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «strong.md-bold»
+✖ renderChatRow: блоки кода, цитаты, спойлеры и упоминания в строке чата (0.23537ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.md-spoiler»
+✖ renderChatRow: блокирует XSS и опасные схемы ссылок в строке чата при активном markdown (0.183779ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «strong.md-bold»
+Restore M1 MD5: d2e3bb0958fbafb44dc14fe72cee0426
+
+--- M2: renderChatRow drops MentionContext ---
+✖ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (3.061407ms)
+✖ failing tests:
+✖ renderChatRow: блоки кода, цитаты, спойлеры и упоминания в строке чата (0.80631ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+Restore M2 MD5: d2e3bb0958fbafb44dc14fe72cee0426
+
+--- M3: renderChannelMessage bypasses renderMessageMarkdown (body.textContent = item.text) ---
+✖ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (2.962527ms)
+✖ failing tests:
+✖ renderChannelMessage: рендерит markdown, спойлеры и упоминания в реальном канале без потери атрибутов (0.803219ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «strong.md-bold»
+Restore M3 MD5: d2e3bb0958fbafb44dc14fe72cee0426
+
+--- M4: composer.css omits .md-spoiler[data-spoiler="hidden"] rule ---
+✖ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (2.173058ms)
+✖ failing tests:
+✖ composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb (0.540529ms)
+  AssertionError [ERR_ASSERTION]: в composer.css должно быть состояние .md-spoiler[data-spoiler="hidden"]
+Restore M4 MD5: d62aa5c55b033f3fe7da1708e151d717
+
+--- M5: composer.css introduces raw hex color in .mention ---
+✖ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (2.216799ms)
+✖ failing tests:
+✖ composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb (0.58491ms)
+  AssertionError [ERR_ASSERTION]: в composer.css запрещены raw hex-цвета
+Restore M5 MD5: d62aa5c55b033f3fe7da1708e151d717
+
+=== Final Verification ===
+d2e3bb0958fbafb44dc14fe72cee0426  rust/gui-spike/ui/features/chat.js
+d62aa5c55b033f3fe7da1708e151d717  rust/gui-spike/ui/components/composer.css
+0eee4284af263c3d412b0afe4910bd58  tests/unit/gui-spike-model.test.mjs
+  ✔ composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb (0.847269ms)
+✔ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (2.449978ms)
+ℹ tests 53
+ℹ suites 7
+ℹ pass 53
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.382067

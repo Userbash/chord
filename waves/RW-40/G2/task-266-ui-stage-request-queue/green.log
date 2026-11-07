@@ -1,0 +1,19 @@
+✔ STAGE_MEMBER_ROLES_RU: словарь заморожен и содержит три статуса с точными подписями (1.212831ms)
+✔ classifyStageVoiceState: suppress=false всегда докладчик, даже с заявкой на слово (0.11758ms)
+✔ classifyStageVoiceState: непустая строка requestToSpeakTimestamp даёт 'requested' (0.09121ms)
+✔ classifyStageVoiceState: пустые, нестроковые и отсутствующие заявки дают 'listener' (0.12501ms)
+✔ classifyStageVoiceState: битый вход не бросает и даёт 'listener' (0.15404ms)
+✔ sortStageSpeakerRequests: оставляет только 'requested', отсекая докладчиков и слушателей (0.18015ms)
+✔ sortStageSpeakerRequests: сортирует по возрастанию времени поднятой руки (0.12482ms)
+✔ sortStageSpeakerRequests: равное время разрешается строковым userId по возрастанию (0.08972ms)
+✔ sortStageSpeakerRequests: невалидная дата уходит в конец, между собой — по userId (0.162441ms)
+✔ sortStageSpeakerRequests: не мутирует входной массив и объекты участников (0.23745ms)
+✔ sortStageSpeakerRequests: пустой и битый вход даёт пустой массив (0.12511ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31.485348

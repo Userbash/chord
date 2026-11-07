@@ -1,0 +1,28 @@
+▶ STATUS_LABELS_RU
+  ✔ заморожен и содержит русские подписи для online, idle, dnd, offline (0.632639ms)
+✔ STATUS_LABELS_RU (1.241378ms)
+▶ createProfileModalController: openPopout
+  ✔ рендерит компактную карточку data-profile-mode='popout' с именем, юзернеймом, местоимениями, статусом и био (0.858718ms)
+  ✔ корректно отображает все 4 статуса из STATUS_LABELS_RU и фоллбэчит неизвестный в offline (0.329479ms)
+  ✔ рендерит пилюли ролей с data-role-id и цветом роли (0.491759ms)
+  ✔ вызывает onSaveNote(userId, noteText) при изменении поля личной заметки (0.23896ms)
+  ✔ рендерит быстрый инпут ЛС с placeholder 'Написать @' + username и вызывает onSendQuickMessage только для непустого текста (0.202379ms)
+✔ createProfileModalController: openPopout (2.348735ms)
+▶ createProfileModalController: openFullModal и setTab
+  ✔ рендерит диалог полного профиля (role='dialog', aria-modal='true', data-profile-mode='modal') с 3 вкладками и счётчиками (0.356929ms)
+  ✔ setTab('mutual_guilds') и setTab('mutual_friends') переключают активную вкладку и рендерят списки (0.27072ms)
+  ✔ рендерит русские пустые состояния 'Нет общих серверов' и 'Нет общих друзей' при пустых списках (0.248099ms)
+  ✔ клик по кнопке вкладки переключает вкладку, а невалидный setTab возвращает false (0.18086ms)
+✔ createProfileModalController: openFullModal и setTab (1.230888ms)
+▶ createProfileModalController: переключение режимов и close()
+  ✔ openFullModal заменяет открытый popout, а close() полностью удаляет карточку/модалку из контейнера (0.217559ms)
+  ✔ поддерживает поле about как синоним bio, скрывает пустые местоимения и отвергает невалидный containerEl (0.26539ms)
+✔ createProfileModalController: переключение режимов и close() (0.552649ms)
+ℹ tests 12
+ℹ suites 4
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.898501

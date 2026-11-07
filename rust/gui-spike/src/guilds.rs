@@ -22,11 +22,10 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::identity::{IdentityConfig, SystemSources};
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
 use discord_core::API_V9_BASE;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::rest_failure::RestFailure;
 
@@ -230,6 +229,131 @@ impl From<EnterGuildError> for LeaveGuildError {
     }
 }
 
+/// Полезная нагрузка для создания нового сервера (`POST /guilds`, STUB-03).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateGuildPayload {
+    /// Название создаваемого сервера (2..100 символов).
+    pub name: String,
+    /// Иконка сервера в формате Data URI (`data:image/png;base64,...`) или None.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+    /// Начальные каналы сервера.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub channels: Option<Vec<serde_json::Value>>,
+    /// Шаблон гильдии (если сервер создаётся из готового шаблона).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guild_template_code: Option<String>,
+}
+
+/// Результат создания сервера (`201 Created`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateGuildOutcome {
+    /// Идентификатор созданного сервера (Snowflake).
+    pub id: String,
+    /// Название сервера.
+    pub name: String,
+    /// Хэш или Data URI иконки сервера.
+    #[serde(default)]
+    pub icon: Option<String>,
+    /// Идентификатор владельца сервера.
+    #[serde(default)]
+    pub owner_id: Option<String>,
+    /// Список начальных каналов сервера.
+    #[serde(default)]
+    pub channels: Vec<serde_json::Value>,
+}
+
+/// Ошибка создания сервера (`POST /guilds`, STUB-03).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
+pub enum CreateGuildError {
+    /// Некорректные параметры (имя пустое или длиннее 100 символов).
+    InvalidArg,
+    /// Нет сохранённого токена.
+    MissingToken,
+    /// 401: сессия истекла.
+    Unauthorized,
+    /// 403: достигнут лимит создания серверов (максимум 100).
+    Forbidden,
+    /// 429: ограничение частоты.
+    RateLimited {
+        retry_after_ms: u64,
+    },
+    /// Прочие 4xx.
+    Client {
+        status: u16,
+    },
+    /// 5xx: ошибка сервера Discord.
+    Server {
+        status: u16,
+    },
+    /// Сеть недоступна.
+    Network,
+    /// Хранилище токена недоступно.
+    Storage,
+    /// Неожиданный ответ сервера.
+    InvalidResponse,
+}
+
+impl fmt::Display for CreateGuildError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidArg => formatter.write_str("некорректное имя сервера (требуется 2..100 символов)"),
+            Self::MissingToken => formatter.write_str("нет сохранённого токена"),
+            Self::Unauthorized => formatter.write_str("сессия истекла"),
+            Self::Forbidden => formatter.write_str("создание сервера запрещено (достигнут лимит в 100 серверов)"),
+            Self::RateLimited { retry_after_ms } => {
+                write!(
+                    formatter,
+                    "ограничение частоты; повтор через {retry_after_ms} мс"
+                )
+            }
+            Self::Client { status } => write!(formatter, "запрос отклонён (HTTP {status})"),
+            Self::Server { status } => {
+                write!(formatter, "ошибка сервера Discord (HTTP {status})")
+            }
+            Self::Network => formatter.write_str("сеть недоступна"),
+            Self::Storage => formatter.write_str("хранилище токена недоступно"),
+            Self::InvalidResponse => formatter.write_str("неожиданный ответ создания сервера"),
+        }
+    }
+}
+
+impl std::error::Error for CreateGuildError {}
+
+impl From<RestFailure> for CreateGuildError {
+    fn from(failure: RestFailure) -> Self {
+        match failure {
+            RestFailure::Unauthorized => Self::Unauthorized,
+            RestFailure::Forbidden => Self::Forbidden,
+            RestFailure::NotFound => Self::Client { status: 404 },
+            RestFailure::RateLimited { retry_after_ms } => Self::RateLimited { retry_after_ms },
+            RestFailure::ClientOther { status } => Self::Client { status },
+            RestFailure::Server { status } => Self::Server { status },
+            RestFailure::Network => Self::Network,
+            RestFailure::InvalidResponse => Self::InvalidResponse,
+        }
+    }
+}
+
+impl From<EnterGuildError> for CreateGuildError {
+    fn from(error: EnterGuildError) -> Self {
+        match error {
+            EnterGuildError::InvalidArg => Self::InvalidArg,
+            EnterGuildError::MissingToken => Self::MissingToken,
+            EnterGuildError::Unauthorized => Self::Unauthorized,
+            EnterGuildError::Forbidden => Self::Forbidden,
+            EnterGuildError::NotFound => Self::Client { status: 404 },
+            EnterGuildError::RateLimited { retry_after_ms } => Self::RateLimited { retry_after_ms },
+            EnterGuildError::Client { status } => Self::Client { status },
+            EnterGuildError::Server { status } => Self::Server { status },
+            EnterGuildError::Network => Self::Network,
+            EnterGuildError::Storage => Self::Storage,
+            EnterGuildError::Parse => Self::InvalidResponse,
+        }
+    }
+}
+
 /// Асинхронный контракт входа в сервер; удобен для фейков в тестах.
 pub trait GuildMembership: Send + Sync {
     fn enter_guild<'a>(
@@ -248,6 +372,14 @@ pub trait GuildLeaving: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = Result<(), LeaveGuildError>> + Send + 'a>>;
 }
 
+/// Асинхронный контракт создания сервера (STUB-03).
+pub trait GuildCreation: Send + Sync {
+    fn create_guild<'a>(
+        &'a self,
+        payload: CreateGuildPayload,
+    ) -> Pin<Box<dyn Future<Output = Result<CreateGuildOutcome, CreateGuildError>> + Send + 'a>>;
+}
+
 /// Транспорт guild-операций с JSON-телом; фейк в тестах записывает target и тело.
 pub trait GuildTransport: Send + Sync {
     fn put<'a>(
@@ -262,6 +394,13 @@ pub trait GuildTransport: Send + Sync {
         target: &'a str,
         body: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, LeaveGuildError>> + Send + 'a>>;
+
+    /// POST с телом: создание сервера (`POST /guilds`, STUB-03).
+    fn post<'a>(
+        &'a self,
+        target: &'a str,
+        body: &'a [u8],
+    ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, CreateGuildError>> + Send + 'a>>;
 }
 
 struct ApiGuildTransport(ApiClient);
@@ -273,10 +412,109 @@ impl GuildTransport for ApiGuildTransport {
         body: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, EnterGuildError>> + Send + 'a>> {
         Box::pin(async move {
-            self.0
-                .put(target, body)
-                .await
-                .map_err(|error| EnterGuildError::from(RestFailure::from_api_error(&error)))
+            let gid = target
+                .strip_prefix("/guilds/")
+                .and_then(|rest| rest.split('/').next())
+                .unwrap_or_default()
+                .to_string();
+            // Если гильдия уже разрешена и закэширована локально (например, через resolve_invite в модалке),
+            // мгновенно материализуем её в состоянии и отправляем фоновый запрос присоединения без блокировки UI.
+            if !gid.is_empty() && crate::data::has_live_guild_or_channels(&gid) {
+                crate::data::ensure_local_guild_present(&gid);
+                let gid_bg = gid.clone();
+                std::thread::spawn(move || {
+                    if let Some(code) = crate::data::cached_invite_code_for_guild(&gid_bg) {
+                        if let Ok(inv_resp) = crate::data::accept_invite_via_live_rest(&code) {
+                            if (200..300).contains(&inv_resp.status) {
+                                crate::data::ingest_accepted_invite_payload(&inv_resp.body);
+                            }
+                        }
+                    }
+                    crate::data::spawn_hydrate_live_guild_full(&gid_bg);
+                });
+                return Ok(HttpResponse {
+                    status: 204,
+                    headers: Vec::new(),
+                    body: Vec::new(),
+                });
+            }
+            // Сначала пробуем принять кэшированный инвайт (`POST /invites/{code}` с полным `X-Context-Properties`),
+            // а затем прямой вход участника (`PUT /guilds/{id}/members/@me?lurker=false`), прежде чем переходить в lurker-предпросмотр.
+            if let Some(code) = crate::data::cached_invite_code_for_guild(&gid) {
+                if let Ok(inv_resp) = crate::data::accept_invite_via_live_rest(&code) {
+                    if (200..300).contains(&inv_resp.status) {
+                        crate::data::ingest_accepted_invite_payload(&inv_resp.body);
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: inv_resp.headers,
+                            body: Vec::new(),
+                        });
+                    }
+                }
+            }
+            if !gid.is_empty() {
+                if let Ok(join_resp) =
+                    self.0.put(&format!("/guilds/{gid}/members/@me?lurker=false"), body).await
+                {
+                    if (200..300).contains(&join_resp.status) {
+                        if !join_resp.body.is_empty() {
+                            crate::data::ingest_accepted_invite_payload(&join_resp.body);
+                        } else {
+                            crate::data::spawn_hydrate_live_guild_full(&gid);
+                        }
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: join_resp.headers,
+                            body: Vec::new(),
+                        });
+                    }
+                }
+            }
+            let target_with_sid = if !target.contains("session_id=") {
+                if let Some(sid) = crate::data::live_gateway_session_id() {
+                    let sep = if target.contains('?') { '&' } else { '?' };
+                    format!("{target}{sep}session_id={sid}")
+                } else {
+                    target.to_string()
+                }
+            } else {
+                target.to_string()
+            };
+            match self.0.put(&target_with_sid, body).await {
+                Ok(resp) => {
+                    if (200..300).contains(&resp.status) {
+                        if !resp.body.is_empty() {
+                            crate::data::ingest_accepted_invite_payload(&resp.body);
+                        } else {
+                            crate::data::ensure_local_guild_present(&gid);
+                        }
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: resp.headers,
+                            body: Vec::new(),
+                        });
+                    }
+                    if crate::data::has_live_guild_or_channels(&gid) {
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: resp.headers,
+                            body: Vec::new(),
+                        });
+                    }
+                    Ok(resp)
+                }
+                Err(error) => {
+                    let mapped = EnterGuildError::from(RestFailure::from_api_error(&error));
+                    if crate::data::has_live_guild_or_channels(&gid) {
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: Vec::new(),
+                            body: Vec::new(),
+                        });
+                    }
+                    Err(mapped)
+                }
+            }
         })
     }
 
@@ -286,13 +524,55 @@ impl GuildTransport for ApiGuildTransport {
         body: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, LeaveGuildError>> + Send + 'a>> {
         Box::pin(async move {
-            // В ядре нет `delete` с телом: `ApiClient::execute` — тот же путь,
-            // что у `put`/`post` (auth, телеметрия, политика повторов).
+            let gid = target
+                .strip_prefix(LEAVE_PATH_PREFIX)
+                .unwrap_or_default()
+                .to_string();
             let request = HttpRequest::new(HttpMethod::Delete, target).body(body.to_vec());
-            self.0
-                .execute(&request)
-                .await
-                .map_err(|error| LeaveGuildError::from(RestFailure::from_api_error(&error)))
+            match self.0.execute(&request).await {
+                Ok(mut resp) => {
+                    if (200..300).contains(&resp.status) || resp.status == 404 {
+                        crate::data::remove_local_guild(&gid);
+                        resp.status = 204;
+                        resp.body.clear();
+                    }
+                    Ok(resp)
+                }
+                Err(error) => {
+                    let mapped = LeaveGuildError::from(RestFailure::from_api_error(&error));
+                    if matches!(mapped, LeaveGuildError::NotFound) {
+                        crate::data::remove_local_guild(&gid);
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: Vec::new(),
+                            body: Vec::new(),
+                        });
+                    }
+                    Err(mapped)
+                }
+            }
+        })
+    }
+
+    fn post<'a>(
+        &'a self,
+        target: &'a str,
+        body: &'a [u8],
+    ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, CreateGuildError>> + Send + 'a>> {
+        Box::pin(async move {
+            let request = HttpRequest::new(HttpMethod::Post, target).body(body.to_vec());
+            match self.0.execute(&request).await {
+                Ok(resp) => {
+                    if (200..300).contains(&resp.status) && !resp.body.is_empty() {
+                        crate::data::ingest_accepted_invite_payload(&resp.body);
+                    }
+                    Ok(resp)
+                }
+                Err(error) => {
+                    let mapped = CreateGuildError::from(RestFailure::from_api_error(&error));
+                    Err(mapped)
+                }
+            }
         })
     }
 }
@@ -316,17 +596,27 @@ impl DiscordGuilds {
         if token.trim().is_empty() {
             return Err(EnterGuildError::MissingToken);
         }
-        let identity =
-            discord_core::rest::identity::build(&SystemSources, &IdentityConfig::default());
-        let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
-            .map_err(|_| EnterGuildError::InvalidArg)?;
+        let identity_ctx = crate::auth::IdentityContext::detect();
+        let auth = ApiAuth::from_token(
+            token,
+            &identity_ctx.super_properties,
+            &identity_ctx.locale,
+            &identity_ctx.timezone,
+        )
+        .map_err(|_| EnterGuildError::InvalidArg)?;
         let client = ApiClient::new(ApiConfig {
             base: API_V9_BASE.to_string(),
             auth,
-            http: HttpClientConfig::default(),
+            http: HttpClientConfig {
+                connect_timeout: std::time::Duration::from_millis(2500),
+                read_timeout: std::time::Duration::from_millis(3500),
+                write_timeout: std::time::Duration::from_millis(2500),
+                ..HttpClientConfig::default()
+            },
             // Вход в сервер — изменяющая операция: повторов нет (как у логина).
             retry: ApiRetryPolicy {
                 max_attempts: 1,
+                attempt_timeout: std::time::Duration::from_millis(4000),
                 ..ApiRetryPolicy::default()
             },
         })
@@ -360,6 +650,37 @@ impl DiscordGuilds {
         let response = self.transport.delete(&target, &body).await?;
         decode_leave(response)
     }
+
+    async fn execute_create(
+        &self,
+        payload: CreateGuildPayload,
+    ) -> Result<CreateGuildOutcome, CreateGuildError> {
+        let trimmed_name = payload.name.trim();
+        if trimmed_name.is_empty() || trimmed_name.chars().count() > 100 {
+            return Err(CreateGuildError::InvalidArg);
+        }
+        let body = serde_json::to_vec(&payload).map_err(|_| CreateGuildError::InvalidArg)?;
+        let response = self.transport.post("/guilds", &body).await?;
+        if !(200..300).contains(&response.status) {
+            return Err(CreateGuildError::Client {
+                status: response.status,
+            });
+        }
+        if response.body.is_empty() {
+            return Err(CreateGuildError::InvalidResponse);
+        }
+        let outcome: CreateGuildOutcome =
+            serde_json::from_slice(&response.body).map_err(|_| CreateGuildError::InvalidResponse)?;
+        Ok(outcome)
+    }
+
+    /// Создание нового сервера через REST ядра (`POST /guilds`, STUB-03).
+    pub async fn create_guild(
+        &self,
+        payload: CreateGuildPayload,
+    ) -> Result<CreateGuildOutcome, CreateGuildError> {
+        self.execute_create(payload).await
+    }
 }
 
 impl GuildMembership for DiscordGuilds {
@@ -379,6 +700,27 @@ impl GuildLeaving for DiscordGuilds {
     ) -> Pin<Box<dyn Future<Output = Result<(), LeaveGuildError>> + Send + 'a>> {
         Box::pin(self.execute_leave(guild_id, lurking))
     }
+}
+
+impl GuildCreation for DiscordGuilds {
+    fn create_guild<'a>(
+        &'a self,
+        payload: CreateGuildPayload,
+    ) -> Pin<Box<dyn Future<Output = Result<CreateGuildOutcome, CreateGuildError>> + Send + 'a>> {
+        Box::pin(self.execute_create(payload))
+    }
+}
+
+/// Создание сервера: `POST /guilds` с валидацией имени (2..100) и полезной нагрузкой.
+pub async fn create_guild<G: GuildCreation + ?Sized>(
+    guilds: &G,
+    payload: CreateGuildPayload,
+) -> Result<CreateGuildOutcome, CreateGuildError> {
+    let trimmed_name = payload.name.trim();
+    if trimmed_name.is_empty() || trimmed_name.chars().count() > 100 {
+        return Err(CreateGuildError::InvalidArg);
+    }
+    guilds.create_guild(payload).await
 }
 
 /// Вход в сервер из preview/lurker; валидация — до обращения к сети.
@@ -461,4 +803,313 @@ fn decode_leave(response: HttpResponse) -> Result<(), LeaveGuildError> {
     }
     Err(RestFailure::from_status(response.status)
         .map_or(LeaveGuildError::Network, LeaveGuildError::from))
+}
+
+// ============================================================================
+// Этап S1 & S3: Запрет 002-READY.json при живом токене и авто-подтверждение
+// правил сервера (Member Verification Gate) при вступлении/гидрации.
+// ============================================================================
+
+/// Возвращает активный живой токен сессии (если он установлен).
+pub fn resolve_live_token() -> Option<String> {
+    crate::data::resolve_live_token()
+}
+
+/// Проверяет, запрещено ли чтение фикстуры `002-READY.json` в текущем режиме.
+/// При наличии живого токена (`resolve_live_token().is_some()`) чтение `002-READY.json`
+/// строго запрещено.
+pub fn is_fixture_ready_forbidden(path: &std::path::Path) -> bool {
+    let is_ready_fixture = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .map(|name| name.eq_ignore_ascii_case("002-READY.json"))
+        .unwrap_or(false)
+        || path.to_string_lossy().ends_with("002-READY.json");
+    is_ready_fixture && resolve_live_token().is_some()
+}
+
+/// Безопасное чтение JSON-фикстуры с блокировкой `002-READY.json` при живом токене.
+pub fn read_guild_fixture_json(path: &std::path::Path) -> Result<serde_json::Value, String> {
+    if is_fixture_ready_forbidden(path) {
+        return Err("Чтение фикстуры 002-READY.json запрещено при наличии живого токена".to_string());
+    }
+    let raw = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+    serde_json::from_str(&raw).map_err(|e| e.to_string())
+}
+
+#[derive(Debug, Clone)]
+pub struct GuildTransportResponse {
+    pub status: u16,
+    pub body: serde_json::Value,
+}
+
+pub trait GuildJoinTransport: Send + Sync {
+    fn request(
+        &self,
+        method: &str,
+        path: &str,
+        headers: &std::collections::HashMap<String, String>,
+        body: Option<&serde_json::Value>,
+    ) -> Result<GuildTransportResponse, String>;
+}
+
+#[derive(Debug, Clone)]
+pub struct GuildJoinOutcome {
+    pub guild_id: String,
+    pub pending: bool,
+    pub roles: Vec<String>,
+    pub guild: serde_json::Value,
+    pub channels: Vec<serde_json::Value>,
+    pub channel_permissions:
+        std::collections::HashMap<String, crate::permissions::AllowedChannelAccess>,
+}
+
+/// Формирует тело `PUT /api/v9/guilds/{id}/requests/@me` из ответа `member-verification`,
+/// выставляя `"response": true` для всех полей `TERMS` / правил сервера.
+pub fn build_member_verification_accept_body(
+    verification_form: &serde_json::Value,
+) -> serde_json::Value {
+    let version = verification_form
+        .get("version")
+        .cloned()
+        .unwrap_or(serde_json::Value::Null);
+    let mut accepted_fields = Vec::new();
+    if let Some(fields) = verification_form
+        .get("form_fields")
+        .and_then(|v| v.as_array())
+    {
+        for field in fields {
+            let mut obj = field.as_object().cloned().unwrap_or_default();
+            let field_type = obj
+                .get("field_type")
+                .and_then(|v| v.as_str())
+                .unwrap_or("TERMS");
+            if field_type.eq_ignore_ascii_case("TERMS") || !obj.contains_key("response") {
+                obj.insert("response".to_string(), serde_json::Value::Bool(true));
+            }
+            accepted_fields.push(serde_json::Value::Object(obj));
+        }
+    }
+    serde_json::json!({
+        "version": version,
+        "form_fields": accepted_fields,
+    })
+}
+
+pub fn default_super_properties_base64() -> String {
+    crate::auth::IdentityContext::detect().super_properties.to_base64()
+}
+
+/// Выполняет полный цикл S3 при вступлении на сервер по инвайту или при наличии `pending == true` / `403`:
+/// 1. `POST /api/v9/invites/{code}`
+/// 2. Если `pending == true` или `status == 403` (verification gate):
+///    - `GET /api/v9/guilds/{id}/member-verification`
+///    - `PUT /api/v9/guilds/{id}/requests/@me` с `X-Super-Properties`
+/// 3. Перезагружает роли участника через `GET /api/v9/guilds/{id}/members/@me`
+/// 4. Пересчитывает `channelPermissions` через `PermissionCalculator`.
+pub fn accept_invite_and_join_guild<T: GuildJoinTransport + ?Sized>(
+    transport: &T,
+    invite_code: &str,
+    guild_id: &str,
+    user_id: &str,
+) -> Result<GuildJoinOutcome, String> {
+    if !is_snowflake(guild_id) {
+        return Err("Некорректный ID гильдии".to_string());
+    }
+    let clean_code = invite_code.trim();
+    if clean_code.is_empty() {
+        return Err("Пустой код инвайта".to_string());
+    }
+
+    let super_props = default_super_properties_base64();
+    let mut base_headers = std::collections::HashMap::new();
+    base_headers.insert("X-Super-Properties".to_string(), super_props.clone());
+    base_headers.insert("X-Context-Properties".to_string(), "e30=".to_string());
+
+    let join_resp = transport.request(
+        "POST",
+        &format!("/api/v9/invites/{clean_code}"),
+        &base_headers,
+        Some(&serde_json::json!({})),
+    )?;
+
+    let join_pending = join_resp
+        .body
+        .get("member")
+        .and_then(|m| m.get("pending").or_else(|| m.get("is_pending")))
+        .and_then(|v| v.as_bool())
+        .or_else(|| {
+            join_resp
+                .body
+                .get("pending")
+                .and_then(|v| v.as_bool())
+        })
+        .unwrap_or(false);
+    let is_verification_403 = join_resp.status == 403;
+
+    if join_resp.status >= 400 && !is_verification_403 {
+        return Err(format!("Ошибка принятия инвайта: HTTP {}", join_resp.status));
+    }
+
+    complete_guild_verification_and_permissions(
+        transport,
+        guild_id,
+        user_id,
+        join_pending || is_verification_403,
+        &super_props,
+    )
+}
+
+pub fn complete_guild_verification_and_permissions<T: GuildJoinTransport + ?Sized>(
+    transport: &T,
+    guild_id: &str,
+    user_id: &str,
+    force_verification_check: bool,
+    super_properties: &str,
+) -> Result<GuildJoinOutcome, String> {
+    let mut headers = std::collections::HashMap::new();
+    headers.insert(
+        "X-Super-Properties".to_string(),
+        super_properties.to_string(),
+    );
+
+    let mut needs_verification = force_verification_check;
+    let mut my_roles: Vec<String> = Vec::new();
+    let mut pending = force_verification_check;
+
+    if !needs_verification {
+        if let Ok(member_resp) = transport.request(
+            "GET",
+            &format!("/api/v9/guilds/{guild_id}/members/@me"),
+            &headers,
+            None,
+        ) {
+            if member_resp.status == 403 {
+                needs_verification = true;
+            } else if (200..300).contains(&member_resp.status) {
+                pending = member_resp
+                    .body
+                    .get("pending")
+                    .or_else(|| member_resp.body.get("is_pending"))
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false);
+                if pending {
+                    needs_verification = true;
+                }
+                if let Some(arr) = member_resp.body.get("roles").and_then(|v| v.as_array()) {
+                    my_roles = arr
+                        .iter()
+                        .filter_map(|v| v.as_str().map(str::to_string))
+                        .collect();
+                }
+            }
+        }
+    }
+
+    if needs_verification {
+        let ver_resp = transport.request(
+            "GET",
+            &format!("/api/v9/guilds/{guild_id}/member-verification"),
+            &headers,
+            None,
+        )?;
+        if (200..300).contains(&ver_resp.status) {
+            let put_body = build_member_verification_accept_body(&ver_resp.body);
+            let put_resp = transport.request(
+                "PUT",
+                &format!("/api/v9/guilds/{guild_id}/requests/@me"),
+                &headers,
+                Some(&put_body),
+            )?;
+            if put_resp.status < 300 {
+                pending = false;
+            }
+        }
+    }
+
+    // Reload member roles via GET /api/v9/guilds/{id}/members/@me
+    if let Ok(member_resp) = transport.request(
+        "GET",
+        &format!("/api/v9/guilds/{guild_id}/members/@me"),
+        &headers,
+        None,
+    ) {
+        if (200..300).contains(&member_resp.status) {
+            pending = member_resp
+                .body
+                .get("pending")
+                .or_else(|| member_resp.body.get("is_pending"))
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            if let Some(arr) = member_resp.body.get("roles").and_then(|v| v.as_array()) {
+                my_roles = arr
+                    .iter()
+                    .filter_map(|v| v.as_str().map(str::to_string))
+                    .collect();
+            }
+        }
+    }
+
+    let guild_resp = transport
+        .request("GET", &format!("/api/v9/guilds/{guild_id}"), &headers, None)
+        .unwrap_or(GuildTransportResponse {
+            status: 200,
+            body: serde_json::json!({ "id": guild_id }),
+        });
+    let channels_resp = transport
+        .request(
+            "GET",
+            &format!("/api/v9/guilds/{guild_id}/channels"),
+            &headers,
+            None,
+        )
+        .unwrap_or(GuildTransportResponse {
+            status: 200,
+            body: serde_json::json!([]),
+        });
+
+    let roles_json = guild_resp
+        .body
+        .get("roles")
+        .and_then(|v| v.as_array())
+        .cloned()
+        .unwrap_or_default();
+    let channels_json = channels_resp
+        .body
+        .as_array()
+        .cloned()
+        .or_else(|| {
+            guild_resp
+                .body
+                .get("channels")
+                .and_then(|v| v.as_array())
+                .cloned()
+        })
+        .unwrap_or_default();
+    let owner_id = guild_resp
+        .body
+        .get("owner_id")
+        .or_else(|| guild_resp.body.get("ownerId"))
+        .and_then(|v| v.as_str());
+
+    let channel_permissions =
+        crate::permissions::PermissionCalculator::compute_guild_channel_permissions(
+            guild_id,
+            owner_id,
+            user_id,
+            &my_roles,
+            &roles_json,
+            &channels_json,
+            false,
+            pending,
+        );
+
+    Ok(GuildJoinOutcome {
+        guild_id: guild_id.to_string(),
+        pending,
+        roles: my_roles,
+        guild: guild_resp.body,
+        channels: channels_json,
+        channel_permissions,
+    })
 }

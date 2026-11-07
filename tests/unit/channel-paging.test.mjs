@@ -27,6 +27,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { loadApp } from "../support/gui-dom-harness.mjs";
+import { createPinsThreadsPanels } from "../../rust/gui-spike/ui/features/pins-threads.js";
 
 /** @typedef {import("../support/gui-dom-harness.mjs").GuiDom} GuiDom */
 /** @typedef {import("../support/gui-dom-harness.mjs").ShimElement} ShimElement */
@@ -919,4 +920,327 @@ describe("C-02-UI-OLDER: границы окна", () => {
     }
   });
 });
+
+/* =============================================================================
+ * STUB-10 (M-10 и M-11, RW-40): выпадающие панели пинов и веток в хедере чата.
+ * waves/RW-40/DESIGN/PINS-THREADS-PROFILE-SPEC.md (§2 и §3).
+ * ========================================================================== */
+
+describe("STUB-10-PINS-THREADS-PANELS-UI: M-10 (pins) и M-11 (threads) выпадающие панели", () => {
+  it("прогрессивное создание #chat-pins-panel и #chat-threads-panel с корректными ролями и ARIA-атрибутами", async () => {
+    const app = await loadPagingApp(tailPage);
+    try {
+      assert.equal(app.document.getElementById("chat-pins-panel"), null);
+      assert.equal(app.document.getElementById("chat-threads-panel"), null);
+
+      const pinsBtn = app.document.querySelector('[data-action="pins"]');
+      const threadsBtn = app.document.querySelector('[data-action="threads"]');
+      assert.ok(pinsBtn, "кнопка pins должна присутствовать в хедере чата");
+      assert.ok(threadsBtn, "кнопка threads должна присутствовать в хедере чата");
+
+      const ctrl = createPinsThreadsPanels({
+        document: app.document,
+        pinsButton: pinsBtn,
+        threadsButton: threadsBtn,
+      });
+
+      assert.equal(pinsBtn.getAttribute("aria-haspopup"), "dialog");
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(pinsBtn.getAttribute("aria-controls"), "chat-pins-panel");
+
+      assert.equal(threadsBtn.getAttribute("aria-haspopup"), "dialog");
+      assert.equal(threadsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(threadsBtn.getAttribute("aria-controls"), "chat-threads-panel");
+
+      const pinsPanel = app.document.getElementById("chat-pins-panel");
+      const threadsPanel = app.document.getElementById("chat-threads-panel");
+      assert.ok(pinsPanel, "#chat-pins-panel должен быть создан");
+      assert.ok(threadsPanel, "#chat-threads-panel должен быть создан");
+
+      assert.equal(pinsPanel.getAttribute("role"), "dialog");
+      assert.equal(pinsPanel.getAttribute("aria-label"), "Закреплённые сообщения");
+      assert.equal(pinsPanel.getAttribute("aria-modal"), "false");
+      assert.equal(pinsPanel.getAttribute("data-state"), "empty");
+      assert.equal(pinsPanel.getAttribute("tabindex"), "-1");
+      assert.ok(pinsPanel.hasAttribute("hidden"), "закрытая панель пинов скрыта");
+      assert.ok(pinsPanel.querySelector('[data-action="close-pins"]'), "кнопка закрытия close-pins");
+      assert.ok(pinsPanel.querySelector(".pins-content"), "контейнер .pins-content");
+
+      assert.equal(threadsPanel.getAttribute("role"), "dialog");
+      assert.equal(threadsPanel.getAttribute("aria-label"), "Ветки");
+      assert.equal(threadsPanel.getAttribute("aria-modal"), "false");
+      assert.equal(threadsPanel.getAttribute("data-state"), "empty");
+      assert.equal(threadsPanel.getAttribute("tabindex"), "-1");
+      assert.ok(threadsPanel.hasAttribute("hidden"), "закрытая панель веток скрыта");
+      assert.ok(threadsPanel.querySelector('[data-action="close-threads"]'), "кнопка закрытия close-threads");
+      assert.ok(threadsPanel.querySelector(".threads-content"), "контейнер .threads-content");
+      assert.ok(threadsPanel.querySelector('[role="tablist"]'), "табы активные/архив");
+      assert.ok(threadsPanel.querySelector(".threads-search-input"), "поле поиска веток");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("взаимное исключение: открытие панели пинов автоматически закрывает панель веток и наоборот", async () => {
+    const app = await loadPagingApp(tailPage);
+    try {
+      const pinsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="pins"]'));
+      const threadsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="threads"]'));
+      const ctrl = createPinsThreadsPanels({
+        document: app.document,
+        pinsButton: pinsBtn,
+        threadsButton: threadsBtn,
+      });
+
+      const pinsPanel = ctrl.pinsPanel;
+      const threadsPanel = ctrl.threadsPanel;
+
+      pinsBtn.click();
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "true");
+      assert.equal(pinsPanel.hasAttribute("hidden"), false, "панель пинов открыта");
+      assert.equal(threadsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(threadsPanel.hasAttribute("hidden"), true, "панель веток закрыта");
+
+      threadsBtn.click();
+      assert.equal(threadsBtn.getAttribute("aria-expanded"), "true");
+      assert.equal(threadsPanel.hasAttribute("hidden"), false, "панель веток открыта");
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(pinsPanel.hasAttribute("hidden"), true, "панель пинов закрыта");
+
+      pinsBtn.click();
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "true");
+      assert.equal(pinsPanel.hasAttribute("hidden"), false);
+      assert.equal(threadsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(threadsPanel.hasAttribute("hidden"), true);
+
+      pinsBtn.click();
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(pinsPanel.hasAttribute("hidden"), true);
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("панель пинов: 4 состояния (loading со скелетонами, empty, error с role='alert' и populated с переходом jump)", async () => {
+    const app = await loadPagingApp(tailPage);
+    try {
+      const pinsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="pins"]'));
+      const threadsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="threads"]'));
+      let retried = false;
+      /** @type {string | null} */
+      let jumpedMessageId = null;
+
+      const ctrl = createPinsThreadsPanels({
+        document: app.document,
+        pinsButton: pinsBtn,
+        threadsButton: threadsBtn,
+        onRetryPins: () => { retried = true; },
+        onJumpToMessage: (id) => { jumpedMessageId = id; },
+      });
+
+      const panel = ctrl.pinsPanel;
+      const content = /** @type {ShimElement} */ (panel.querySelector(".pins-content"));
+
+      // 1. loading
+      ctrl.setPinsState("loading");
+      assert.equal(panel.getAttribute("data-state"), "loading");
+      assert.equal(content.getAttribute("aria-busy"), "true");
+      const skeletons = panel.querySelectorAll(".pin-skeleton");
+      assert.equal(skeletons.length, 3, "должно быть 3 скелетона в состоянии loading");
+      assert.ok(content.textContent.includes("Загрузка"), "screen reader текст загрузки");
+
+      // 2. empty
+      ctrl.setPinsState("empty");
+      assert.equal(panel.getAttribute("data-state"), "empty");
+      assert.equal(content.getAttribute("aria-busy"), "false");
+      assert.ok(panel.querySelector(".dropdown-empty-state"), "контейнер пустого состояния");
+      assert.ok(content.textContent.includes("нет закреплённых сообщений"));
+
+      // 3. error
+      ctrl.setPinsState("error");
+      assert.equal(panel.getAttribute("data-state"), "error");
+      assert.equal(content.getAttribute("aria-busy"), "false");
+      const errorBox = panel.querySelector(".dropdown-error-state");
+      assert.ok(errorBox, "блок ошибки");
+      assert.equal(errorBox.getAttribute("role"), "alert");
+      const retryBtn = /** @type {ShimElement} */ (panel.querySelector('[data-action="retry-pins"]'));
+      assert.ok(retryBtn, "кнопка повтора");
+      retryBtn.click();
+      assert.equal(retried, true, "клик по retry-pins вызывает onRetryPins");
+
+      // 4. populated
+      const samplePins = [
+        { id: "1001", author: "Alice", content: "Первый важный пин", timestamp: "12:00" },
+        { id: "1002", author: "Bob", content: "Второй важный пин", timestamp: "12:30" },
+      ];
+      ctrl.setPinsState("populated", samplePins);
+      assert.equal(panel.getAttribute("data-state"), "populated");
+      assert.equal(content.getAttribute("aria-busy"), "false");
+      const pinItems = panel.querySelectorAll(".pin-item");
+      assert.equal(pinItems.length, 2, "2 карточки пинов");
+      assert.ok(pinItems[0]?.textContent.includes("Alice"));
+      assert.ok(pinItems[0]?.textContent.includes("Первый важный пин"));
+      assert.ok(pinItems[1]?.textContent.includes("Bob"));
+
+      const jumpBtn = /** @type {ShimElement} */ (panel.querySelector('[data-action="jump-to-message"][data-message-id="1001"]'));
+      assert.ok(jumpBtn, "кнопка перехода к сообщению 1001");
+      jumpBtn.click();
+      assert.equal(jumpedMessageId, "1001", "клик по кнопке перехода передаёт id сообщения");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("панель веток: 4 состояния (loading, empty, error, populated), переход к ветке и фильтрация поиска", async () => {
+    const app = await loadPagingApp(tailPage);
+    try {
+      const pinsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="pins"]'));
+      const threadsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="threads"]'));
+      let retriedThreads = false;
+      /** @type {string | null} */
+      let openedThreadId = null;
+
+      const ctrl = createPinsThreadsPanels({
+        document: app.document,
+        pinsButton: pinsBtn,
+        threadsButton: threadsBtn,
+        onRetryThreads: () => { retriedThreads = true; },
+        onOpenThread: (id) => { openedThreadId = id; },
+      });
+
+      const panel = ctrl.threadsPanel;
+      const content = /** @type {ShimElement} */ (panel.querySelector(".threads-content"));
+
+      // 1. loading
+      ctrl.setThreadsState("loading");
+      assert.equal(panel.getAttribute("data-state"), "loading");
+      assert.equal(content.getAttribute("aria-busy"), "true");
+      const skeletons = panel.querySelectorAll(".thread-skeleton");
+      assert.equal(skeletons.length, 4, "должно быть 4 скелетона в состоянии loading веток");
+
+      // 2. empty
+      ctrl.setThreadsState("empty");
+      assert.equal(panel.getAttribute("data-state"), "empty");
+      assert.equal(content.getAttribute("aria-busy"), "false");
+      assert.ok(panel.querySelector(".dropdown-empty-state"));
+      assert.ok(content.textContent.includes("нет активных веток"));
+
+      // 3. error
+      ctrl.setThreadsState("error");
+      assert.equal(panel.getAttribute("data-state"), "error");
+      assert.equal(content.getAttribute("aria-busy"), "false");
+      const errorBox = panel.querySelector(".dropdown-error-state");
+      assert.ok(errorBox);
+      assert.equal(errorBox.getAttribute("role"), "alert");
+      const retryBtn = /** @type {ShimElement} */ (panel.querySelector('[data-action="retry-threads"]'));
+      assert.ok(retryBtn);
+      retryBtn.click();
+      assert.equal(retriedThreads, true, "клик по retry-threads вызывает onRetryThreads");
+
+      // 4. populated
+      const sampleThreads = [
+        { id: "t-1", name: "Обсуждение релиза", replyCount: 15, lastMessageTime: "10:15", archived: false },
+        { id: "t-2", name: "Архитектура Rust", replyCount: 42, lastMessageTime: "11:20", archived: false },
+        { id: "t-3", name: "Старый архивный тред", replyCount: 3, lastMessageTime: "вчера", archived: true },
+      ];
+      ctrl.setThreadsState("populated", sampleThreads);
+      assert.equal(panel.getAttribute("data-state"), "populated");
+      assert.equal(content.getAttribute("aria-busy"), "false");
+
+      let items = panel.querySelectorAll(".thread-item");
+      assert.equal(items.length, 2, "2 активные ветки в списке");
+      assert.ok(items[0]?.textContent.includes("Обсуждение релиза"));
+      assert.ok(items[0]?.textContent.includes("15 ответов"));
+
+      const firstItem = /** @type {ShimElement} */ (items[0]);
+      firstItem.click();
+      assert.equal(openedThreadId, "t-1");
+
+      const searchInput = /** @type {ShimElement} */ (panel.querySelector(".threads-search-input"));
+      assert.ok(searchInput);
+      searchInput.value = "Rust";
+      searchInput.emit("input");
+      items = panel.querySelectorAll(".thread-item");
+      assert.equal(items.length, 1, "только 1 ветка совпала с 'Rust'");
+      assert.ok(items[0]?.textContent.includes("Архитектура Rust"));
+
+      const archiveTab = /** @type {ShimElement} */ (panel.querySelector("#tab-archived-threads"));
+      const activeTab = /** @type {ShimElement} */ (panel.querySelector("#tab-active-threads"));
+      assert.ok(archiveTab && activeTab);
+      archiveTab.click();
+      assert.equal(archiveTab.getAttribute("aria-selected"), "true");
+      assert.equal(activeTab.getAttribute("aria-selected"), "false");
+      searchInput.value = "";
+      searchInput.emit("input");
+      items = panel.querySelectorAll(".thread-item");
+      assert.equal(items.length, 1, "1 архивная ветка");
+      assert.ok(items[0]?.textContent.includes("Старый архивный тред"));
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("закрытие по Escape, клику вне панели и кнопкам закрытия с возвратом фокуса на триггер", async () => {
+    const app = await loadPagingApp(tailPage);
+    try {
+      const pinsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="pins"]'));
+      const threadsBtn = /** @type {ShimElement} */ (app.document.querySelector('[data-action="threads"]'));
+      const ctrl = createPinsThreadsPanels({
+        document: app.document,
+        pinsButton: pinsBtn,
+        threadsButton: threadsBtn,
+      });
+
+      const pinsPanel = ctrl.pinsPanel;
+      const threadsPanel = ctrl.threadsPanel;
+
+      // 1. Закрытие pins кнопкой [data-action="close-pins"]
+      pinsBtn.click();
+      assert.equal(pinsPanel.hasAttribute("hidden"), false);
+      const closePinsBtn = /** @type {ShimElement} */ (pinsPanel.querySelector('[data-action="close-pins"]'));
+      assert.ok(closePinsBtn);
+      closePinsBtn.click();
+      assert.equal(pinsPanel.hasAttribute("hidden"), true, "панель пинов скрыта");
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(app.document.activeElement, pinsBtn, "фокус вернулся на кнопку pins");
+
+      // 2. Закрытие threads кнопкой [data-action="close-threads"]
+      threadsBtn.click();
+      assert.equal(threadsPanel.hasAttribute("hidden"), false);
+      const closeThreadsBtn = /** @type {ShimElement} */ (threadsPanel.querySelector('[data-action="close-threads"]'));
+      assert.ok(closeThreadsBtn);
+      closeThreadsBtn.click();
+      assert.equal(threadsPanel.hasAttribute("hidden"), true, "панель веток скрыта");
+      assert.equal(threadsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(app.document.activeElement, threadsBtn, "фокус вернулся на кнопку threads");
+
+      // 3. Закрытие pins по клавише Escape
+      pinsBtn.click();
+      assert.equal(pinsPanel.hasAttribute("hidden"), false);
+      app.document.body.dispatchEvent("keydown", { key: "Escape" });
+      assert.equal(pinsPanel.hasAttribute("hidden"), true, "панель закрыта по Escape");
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(app.document.activeElement, pinsBtn, "фокус вернулся на кнопку pins после Escape");
+
+      // 4. Закрытие threads по клавише Escape
+      threadsBtn.click();
+      assert.equal(threadsPanel.hasAttribute("hidden"), false);
+      app.document.body.dispatchEvent("keydown", { key: "Escape" });
+      assert.equal(threadsPanel.hasAttribute("hidden"), true, "панель веток закрыта по Escape");
+      assert.equal(threadsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(app.document.activeElement, threadsBtn, "фокус вернулся на кнопку threads после Escape");
+
+      // 5. Закрытие по клику вне панели (outside click)
+      pinsBtn.click();
+      assert.equal(pinsPanel.hasAttribute("hidden"), false);
+      app.document.body.dispatchEvent("click", { target: app.document.body });
+      assert.equal(pinsPanel.hasAttribute("hidden"), true, "панель пинов закрыта по клику вне");
+      assert.equal(pinsBtn.getAttribute("aria-expanded"), "false");
+      assert.equal(app.document.activeElement, pinsBtn, "фокус вернулся на кнопку pins после outside click");
+    } finally {
+      app.dispose();
+    }
+  });
+});
+
 

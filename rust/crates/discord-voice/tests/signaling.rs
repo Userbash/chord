@@ -1,7 +1,8 @@
 use discord_json::{JsonValue, parse};
+use discord_voice::udp::{DISCOVERY_LEN, DiscoveryPacket, UdpError, UdpMediaSocket};
 use discord_voice::{
     Codec, Hello, Identify, OBSERVED_RTC_OPS, SelectProtocol, StreamSpec, VoiceOp, VoicePayload,
-    VoiceServerUpdate, parse_frame, select_region,
+    VoiceServerUpdate, default_client_codecs, parse_frame, select_region,
 };
 use std::fmt::Debug;
 
@@ -317,14 +318,22 @@ fn outgoing_identify_and_select_protocol_are_wire_serializable() {
                 kind: "audio".into(),
                 priority: 1000,
                 payload_type: 120,
+                rtx_payload_type: None,
+                encode: None,
+                decode: None,
             },
             Codec {
                 name: "AV1".into(),
                 kind: "video".into(),
                 priority: 1000,
                 payload_type: 101,
+                rtx_payload_type: None,
+                encode: None,
+                decode: None,
             },
         ],
+        experiments: Vec::new(),
+        rtc_connection_id: None,
     };
     let wire = select.to_json();
     let wire_json = parse(&wire).expect("select protocol wire JSON");
@@ -398,4 +407,390 @@ fn every_prefix_of_frame_is_panic_free() {
         let malformed = format!("{{\"op\":{},\"d\":{{}}}}", byte % 256);
         let _ = parse_frame(&malformed);
     }
+}
+
+#[test]
+fn test_default_client_codecs_specification() {
+    let codecs = default_client_codecs();
+    assert_eq!(codecs.len(), 5);
+
+    // Opus (audio, 120, priority 1000)
+    assert_eq!(codecs[0].name, "opus");
+    assert_eq!(codecs[0].kind, "audio");
+    assert_eq!(codecs[0].priority, 1000);
+    assert_eq!(codecs[0].payload_type, 120);
+    assert_eq!(codecs[0].rtx_payload_type, None);
+    assert_eq!(codecs[0].encode, None);
+    assert_eq!(codecs[0].decode, None);
+
+    // AV1 (video, 101, priority 1000, rtx 102)
+    assert_eq!(codecs[1].name, "AV1");
+    assert_eq!(codecs[1].kind, "video");
+    assert_eq!(codecs[1].priority, 1000);
+    assert_eq!(codecs[1].payload_type, 101);
+    assert_eq!(codecs[1].rtx_payload_type, Some(102));
+    assert_eq!(codecs[1].encode, Some(true));
+    assert_eq!(codecs[1].decode, Some(true));
+
+    // H265 (video, 103, priority 2000, rtx 104)
+    assert_eq!(codecs[2].name, "H265");
+    assert_eq!(codecs[2].kind, "video");
+    assert_eq!(codecs[2].priority, 2000);
+    assert_eq!(codecs[2].payload_type, 103);
+    assert_eq!(codecs[2].rtx_payload_type, Some(104));
+    assert_eq!(codecs[2].encode, Some(true));
+    assert_eq!(codecs[2].decode, Some(true));
+
+    // H264 (video, 105, priority 3000, rtx 106)
+    assert_eq!(codecs[3].name, "H264");
+    assert_eq!(codecs[3].kind, "video");
+    assert_eq!(codecs[3].priority, 3000);
+    assert_eq!(codecs[3].payload_type, 105);
+    assert_eq!(codecs[3].rtx_payload_type, Some(106));
+    assert_eq!(codecs[3].encode, Some(true));
+    assert_eq!(codecs[3].decode, Some(true));
+
+    // VP8 (video, 107, priority 4000, rtx 108)
+    assert_eq!(codecs[4].name, "VP8");
+    assert_eq!(codecs[4].kind, "video");
+    assert_eq!(codecs[4].priority, 4000);
+    assert_eq!(codecs[4].payload_type, 107);
+    assert_eq!(codecs[4].rtx_payload_type, Some(108));
+    assert_eq!(codecs[4].encode, Some(true));
+    assert_eq!(codecs[4].decode, Some(true));
+}
+
+#[test]
+fn test_select_protocol_wire_parity_with_rtc1_oracle() {
+    let oracle_frame = r#"{"op":1,"d":{"protocol":"udp","data":{"address":"193.222.99.83","port":43689,"mode":"aead_aes256_gcm_rtpsize"},"address":"193.222.99.83","port":43689,"mode":"aead_aes256_gcm_rtpsize","codecs":[{"name":"opus","type":"audio","priority":1000,"payload_type":120},{"name":"AV1","type":"video","priority":1000,"payload_type":101,"rtx_payload_type":102,"encode":true,"decode":true},{"name":"H265","type":"video","priority":2000,"payload_type":103,"rtx_payload_type":104,"encode":true,"decode":true},{"name":"H264","type":"video","priority":3000,"payload_type":105,"rtx_payload_type":106,"encode":true,"decode":true},{"name":"VP8","type":"video","priority":4000,"payload_type":107,"rtx_payload_type":108,"encode":true,"decode":true}],"rtc_connection_id":"5363ba05-d6fa-4736-8c04-0d09144e7a8d","experiments":["fixed_keyframe_interval"]}}"#;
+
+    let parsed = parse_frame(oracle_frame).expect("parse oracle op1 SelectProtocol frame");
+    assert_eq!(parsed.op, VoiceOp::SelectProtocol);
+
+    let select = match parsed.payload {
+        VoicePayload::SelectProtocol(s) => s,
+        other => panic!("expected VoicePayload::SelectProtocol, got {other:?}"),
+    };
+
+    assert_eq!(select.protocol, "udp");
+    assert_eq!(select.address, "193.222.99.83");
+    assert_eq!(select.port, 43689);
+    assert_eq!(select.mode, "aead_aes256_gcm_rtpsize");
+    assert_eq!(select.codecs, default_client_codecs());
+    assert_eq!(
+        select.rtc_connection_id.as_deref(),
+        Some("5363ba05-d6fa-4736-8c04-0d09144e7a8d")
+    );
+    assert_eq!(
+        select.experiments,
+        vec!["fixed_keyframe_interval".to_string()]
+    );
+
+    // Test serialization with to_frame_json()
+    let wire_frame = select.to_frame_json();
+    let wire_json = parse(&wire_frame).expect("valid wire frame json");
+    let d = wire_json.get("d").expect("d in wire frame");
+
+    assert_eq!(d.get("protocol").and_then(JsonValue::as_str), Some("udp"));
+    assert_eq!(
+        d.get("address").and_then(JsonValue::as_str),
+        Some("193.222.99.83")
+    );
+    assert_eq!(d.get("port").and_then(JsonValue::as_u64), Some(43689));
+    assert_eq!(
+        d.get("mode").and_then(JsonValue::as_str),
+        Some("aead_aes256_gcm_rtpsize")
+    );
+    assert_eq!(
+        d.get("rtc_connection_id").and_then(JsonValue::as_str),
+        Some("5363ba05-d6fa-4736-8c04-0d09144e7a8d")
+    );
+
+    let exps = d
+        .get("experiments")
+        .and_then(JsonValue::as_array)
+        .expect("experiments array");
+    assert_eq!(exps.len(), 1);
+    assert_eq!(exps[0].as_str(), Some("fixed_keyframe_interval"));
+
+    let codecs = d
+        .get("codecs")
+        .and_then(JsonValue::as_array)
+        .expect("codecs array");
+    assert_eq!(codecs.len(), 5);
+    // Opus should not serialize rtx_payload_type/encode/decode
+    assert!(codecs[0].get("rtx_payload_type").is_none());
+    assert!(codecs[0].get("encode").is_none());
+    assert!(codecs[0].get("decode").is_none());
+
+    // AV1 should serialize rtx_payload_type: 102, encode: true, decode: true
+    assert_eq!(
+        codecs[1]
+            .get("rtx_payload_type")
+            .and_then(JsonValue::as_u64),
+        Some(102)
+    );
+    assert_eq!(
+        codecs[1].get("encode").and_then(JsonValue::as_bool),
+        Some(true)
+    );
+    assert_eq!(
+        codecs[1].get("decode").and_then(JsonValue::as_bool),
+        Some(true)
+    );
+
+    // VP8
+    assert_eq!(
+        codecs[4]
+            .get("rtx_payload_type")
+            .and_then(JsonValue::as_u64),
+        Some(108)
+    );
+    assert_eq!(
+        codecs[4].get("encode").and_then(JsonValue::as_bool),
+        Some(true)
+    );
+    assert_eq!(
+        codecs[4].get("decode").and_then(JsonValue::as_bool),
+        Some(true)
+    );
+
+    // Roundtrip
+    let roundtripped = parse_frame(&wire_frame).expect("roundtrip parse");
+    match roundtripped.payload {
+        VoicePayload::SelectProtocol(s) => assert_eq!(s, select),
+        other => panic!("expected VoicePayload::SelectProtocol, got {other:?}"),
+    }
+
+    // to_json() produces equivalent result
+    assert_eq!(select.to_json(), wire_frame);
+}
+
+#[test]
+fn test_select_protocol_backward_compatibility_without_new_fields() {
+    // Old frame without rtx_payload_type, encode, decode, rtc_connection_id, experiments
+    let old_frame = r#"{"op":1,"d":{"protocol":"udp","data":{"address":"10.0.0.1","port":12345,"mode":"aead_aes256_gcm_rtpsize"},"codecs":[{"name":"opus","type":"audio","priority":1000,"payload_type":120},{"name":"AV1","type":"video","priority":1000,"payload_type":101}]}}"#;
+
+    let parsed = parse_frame(old_frame).expect("old frame parses cleanly");
+    let select = match parsed.payload {
+        VoicePayload::SelectProtocol(s) => s,
+        other => panic!("expected VoicePayload::SelectProtocol, got {other:?}"),
+    };
+
+    assert_eq!(select.protocol, "udp");
+    assert_eq!(select.address, "10.0.0.1");
+    assert_eq!(select.port, 12345);
+    assert_eq!(select.mode, "aead_aes256_gcm_rtpsize");
+    assert_eq!(select.rtc_connection_id, None);
+    assert!(select.experiments.is_empty());
+    assert_eq!(select.codecs.len(), 2);
+    assert_eq!(select.codecs[0].rtx_payload_type, None);
+    assert_eq!(select.codecs[0].encode, None);
+    assert_eq!(select.codecs[0].decode, None);
+    assert_eq!(select.codecs[1].rtx_payload_type, None);
+    assert_eq!(select.codecs[1].encode, None);
+    assert_eq!(select.codecs[1].decode, None);
+
+    let wire = select.to_frame_json();
+    let parsed_back = parse_frame(&wire).expect("re-parsed wire");
+    match parsed_back.payload {
+        VoicePayload::SelectProtocol(s) => assert_eq!(s, select),
+        other => panic!("expected VoicePayload::SelectProtocol, got {other:?}"),
+    }
+}
+
+#[test]
+fn test_voice_op_extended_variants_roundtrip_0_to_32_and_unknown() {
+    let table: [(u8, VoiceOp, &'static str); 33] = [
+        (0, VoiceOp::Identify, "IDENTIFY"),
+        (1, VoiceOp::SelectProtocol, "SELECT_PROTOCOL"),
+        (2, VoiceOp::Ready, "READY"),
+        (3, VoiceOp::Heartbeat, "HEARTBEAT"),
+        (4, VoiceOp::SessionDescription, "SESSION_DESCRIPTION"),
+        (5, VoiceOp::Speaking, "SPEAKING"),
+        (6, VoiceOp::HeartbeatAck, "HEARTBEAT_ACK"),
+        (7, VoiceOp::Resume, "RESUME"),
+        (8, VoiceOp::Hello, "HELLO"),
+        (9, VoiceOp::Resumed, "RESUMED"),
+        (10, VoiceOp::Unknown(10), "UNKNOWN"),
+        (11, VoiceOp::ClientsConnect, "CLIENTS_CONNECT"),
+        (12, VoiceOp::Video, "VIDEO"),
+        (13, VoiceOp::ClientDisconnect, "CLIENT_DISCONNECT"),
+        (14, VoiceOp::Unknown(14), "UNKNOWN"),
+        (15, VoiceOp::MediaSinkWants, "MEDIA_SINK_WANTS"),
+        (16, VoiceOp::VoiceBackendVersion, "VOICE_BACKEND_VERSION"),
+        (17, VoiceOp::Unknown(17), "UNKNOWN"),
+        (18, VoiceOp::Unknown(18), "UNKNOWN"),
+        (19, VoiceOp::Unknown(19), "UNKNOWN"),
+        (20, VoiceOp::Unknown(20), "UNKNOWN"),
+        (
+            21,
+            VoiceOp::SecureFramesPrepareProtocolTransition,
+            "SECURE_FRAMES_PREPARE_PROTOCOL_TRANSITION",
+        ),
+        (
+            22,
+            VoiceOp::SecureFramesExecuteTransition,
+            "SECURE_FRAMES_EXECUTE_TRANSITION",
+        ),
+        (
+            23,
+            VoiceOp::SecureFramesReadyForTransition,
+            "SECURE_FRAMES_READY_FOR_TRANSITION",
+        ),
+        (
+            24,
+            VoiceOp::SecureFramesPrepareEpoch,
+            "SECURE_FRAMES_PREPARE_EPOCH",
+        ),
+        (
+            25,
+            VoiceOp::MlsExternalSenderPackage,
+            "MLS_EXTERNAL_SENDER_PACKAGE",
+        ),
+        (26, VoiceOp::MlsKeyPackage, "MLS_KEY_PACKAGE"),
+        (27, VoiceOp::MlsProposals, "MLS_PROPOSALS"),
+        (28, VoiceOp::MlsCommitWelcome, "MLS_COMMIT_WELCOME"),
+        (
+            29,
+            VoiceOp::MlsPrepareCommitTransition,
+            "MLS_PREPARE_COMMIT_TRANSITION",
+        ),
+        (30, VoiceOp::MlsWelcome, "MLS_WELCOME"),
+        (
+            31,
+            VoiceOp::MlsInvalidCommitWelcome,
+            "MLS_INVALID_COMMIT_WELCOME",
+        ),
+        (32, VoiceOp::NoRoute, "NO_ROUTE"),
+    ];
+
+    for (code, expected_op, expected_name) in table {
+        let op = VoiceOp::from_u8(code);
+        assert_eq!(op, expected_op, "VoiceOp::from_u8({code}) mismatch");
+        assert_eq!(op.as_u8(), code, "op.as_u8() mismatch for {code}");
+        assert_eq!(op.name(), expected_name, "op.name() mismatch for {code}");
+    }
+
+    // Verify unmapped / unknown opcodes outside 0..=32 preserve raw byte
+    for raw in [33u8, 77, 99, 128, 200, 255] {
+        let op = VoiceOp::from_u8(raw);
+        assert_eq!(op, VoiceOp::Unknown(raw));
+        assert_eq!(op.as_u8(), raw);
+        assert_eq!(op.name(), "UNKNOWN");
+    }
+}
+
+#[test]
+fn test_voice_op_is_dave_or_mls_predicate() {
+    // 21..=31 are DAVE / MLS opcodes
+    for code in 0..=255u8 {
+        let op = VoiceOp::from_u8(code);
+        let expected = (21..=31).contains(&code);
+        assert_eq!(
+            op.is_dave_or_mls(),
+            expected,
+            "is_dave_or_mls() failed for opcode {code} ({op:?})"
+        );
+    }
+
+    // Also verify Unknown(21..=31) behaves consistently
+    for code in 21..=31u8 {
+        assert!(VoiceOp::Unknown(code).is_dave_or_mls());
+    }
+    assert!(!VoiceOp::Unknown(20).is_dave_or_mls());
+    assert!(!VoiceOp::Unknown(32).is_dave_or_mls());
+    assert!(!VoiceOp::Unknown(77).is_dave_or_mls());
+}
+
+#[test]
+fn test_discovery_request_trailing_2_bytes_port_layout() {
+    let ssrc = 9208u32; // 0x000023f8
+    let port = 33801u16; // 0x8409
+
+    // 1. encode_request_with_port
+    let req_with_port = DiscoveryPacket::encode_request_with_port(ssrc, "", port)
+        .expect("encode request with port");
+    assert_eq!(req_with_port.len(), DISCOVERY_LEN);
+    assert_eq!(&req_with_port[0..2], &[0x00, 0x01]); // type: 1 (Request)
+    assert_eq!(&req_with_port[2..4], &[0x00, 0x46]); // length: 70
+    assert_eq!(&req_with_port[4..8], &ssrc.to_be_bytes()); // SSRC: 9208
+    assert_eq!(&req_with_port[8..72], &[0u8; 64]); // 64 bytes zeros
+    assert_eq!(&req_with_port[72..74], &port.to_be_bytes()); // Trailing 2 bytes: port (0x8409)
+
+    // Byte-for-byte match with strace-media-s3.jsonl line 2 hex oracle
+    let oracle_hex = "00010046000023f8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008409";
+    let expected_bytes: Vec<u8> = (0..oracle_hex.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&oracle_hex[i..i + 2], 16).unwrap())
+        .collect();
+    assert_eq!(req_with_port.as_slice(), expected_bytes.as_slice());
+
+    // 2. Backward compatibility: encode_request(ssrc) produces port 0 (strace line 1 oracle)
+    let req_port_0 = DiscoveryPacket::encode_request(ssrc).expect("encode request without port");
+    assert_eq!(&req_port_0[72..74], &[0x00, 0x00]);
+    let oracle_line1_hex = "00010046000023f8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    let expected_line1: Vec<u8> = (0..oracle_line1_hex.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&oracle_line1_hex[i..i + 2], 16).unwrap())
+        .collect();
+    assert_eq!(req_port_0.as_slice(), expected_line1.as_slice());
+
+    // 3. Roundtrip parsing
+    let parsed_with_port = DiscoveryPacket::parse(&req_with_port).expect("parse request with port");
+    assert_eq!(parsed_with_port, DiscoveryPacket::Request { ssrc, port });
+
+    let parsed_port_0 = DiscoveryPacket::parse(&req_port_0).expect("parse request port 0");
+    assert_eq!(parsed_port_0, DiscoveryPacket::Request { ssrc, port: 0 });
+
+    // 4. Overlong or invalid address is rejected
+    assert_eq!(
+        DiscoveryPacket::encode_request_with_port(ssrc, &"a".repeat(64), port),
+        Err(UdpError::InvalidAddress)
+    );
+}
+
+#[test]
+fn test_udp_media_socket_send_discovery_with_local_port() {
+    let server = match std::net::UdpSocket::bind("127.0.0.1:0") {
+        Ok(socket) => socket,
+        Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => {
+            eprintln!("skip: loopback UDP unavailable: {err}");
+            return;
+        }
+        Err(err) => panic!("server bind failed: {err}"),
+    };
+    let server_addr = server.local_addr().unwrap();
+
+    let mut client = match UdpMediaSocket::bind("127.0.0.1:0") {
+        Ok(client) => client,
+        Err(err) => {
+            eprintln!("skip: loopback UDP client bind: {err}");
+            return;
+        }
+    };
+    let client_addr = client.local_addr().unwrap();
+
+    client
+        .send_discovery_with_local_port(server_addr, 9208)
+        .expect("send_discovery_with_local_port succeeds");
+
+    let mut buf = [0u8; 128];
+    let (size, peer) = server.recv_from(&mut buf).unwrap();
+    assert_eq!(size, DISCOVERY_LEN);
+    assert_eq!(peer, client_addr);
+
+    let parsed = DiscoveryPacket::parse(&buf[..size]).expect("received valid discovery request");
+    assert_eq!(
+        parsed,
+        DiscoveryPacket::Request {
+            ssrc: 9208,
+            port: client_addr.port()
+        }
+    );
+    assert_eq!(
+        u16::from_be_bytes([buf[72], buf[73]]),
+        client_addr.port(),
+        "trailing 2 bytes must match client local port"
+    );
 }

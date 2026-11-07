@@ -17,9 +17,17 @@ rust-version = "1.87"
 discord-json = { path = "crates/discord-json" }
 discord-codec = { path = "crates/discord-codec" }
 discord-core = { path = "crates/discord-core" }
+discord-voice = { path = "crates/discord-voice" }
+discord-store = { path = "crates/discord-store" }
+discord-i18n = { path = "crates/discord-i18n" }
+discord-platform = { path = "crates/discord-platform" }
+discord-media = { path = "crates/discord-media" }
+discord-ui = { path = "crates/discord-ui" }
+discord-updater = { path = "crates/discord-updater" }
+discord-perf = { path = "crates/discord-perf" }
 discord-conformance = { path = "crates/discord-conformance" }
 # Транспорт шлюза (RW-04). Версии — стартовые из ТЗ, точные фиксирует Cargo.lock.
-tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time"] }
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time", "sync"] }
 tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
 # TLS-провайдер ring (не aws-lc-rs: без cmake/nasm), tls12 оставлен для совместимости.
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }

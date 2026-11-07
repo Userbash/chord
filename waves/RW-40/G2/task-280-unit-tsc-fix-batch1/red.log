@@ -1,0 +1,55 @@
+# RED: task-280 unit tsc batch1 — npx tsc -p tsconfig.json --noEmit | grep profile-modal.test.mjs|appearance-settings.test.mjs
+2026-10-31T11:34:56+05:00
+# errors: 51
+
+tests/unit/appearance-settings.test.mjs(63,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(74,32): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(86,7): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(89,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(105,7): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(108,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(118,32): error TS2345: Argument of type '"{not json"' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(119,45): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(120,35): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(121,45): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(122,32): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(123,45): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(136,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(150,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(161,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(173,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(190,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(205,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(220,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(235,7): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(238,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(274,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/profile-modal.test.mjs(275,55): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+tests/unit/profile-modal.test.mjs(276,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+tests/unit/profile-modal.test.mjs(390,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(391,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(392,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(393,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(395,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(396,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(397,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(398,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(471,18): error TS18048: 'aboutTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(472,18): error TS18048: 'aboutTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(473,15): error TS18048: 'aboutTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(475,18): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(476,18): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(477,18): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(478,15): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(479,15): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(481,18): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(482,18): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(483,18): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(484,15): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(485,15): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(507,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(508,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(509,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(510,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(519,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(520,15): error TS2532: Object is possibly 'undefined'.

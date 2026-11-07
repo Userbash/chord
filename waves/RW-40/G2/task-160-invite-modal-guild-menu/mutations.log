@@ -1,0 +1,23 @@
+# Mutation Testing Log: task-160 (guild-modals.js)
+
+Mutation 1: В `openContextMenu` убрать снятие `hidden` (`contextMenu.removeAttribute("hidden")`)
+Result: KILLED (5 failed: 03, 04, 05, 06, 18)
+Error: AssertionError [ERR_ASSERTION]: меню открыто (hidden снят): true !== false
+
+Mutation 2: В `copyInviteLink` убрать запись в буфер обмена (`options.clipboard.writeText` / `navigator.clipboard.writeText`)
+Result: KILLED (1 failed: 12)
+Error: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: 0 !== 1
+
+Mutation 3: В клавиатурной навигации заменить циклический переход ArrowDown `focusMenuItem(focusedItemIndex + 1)` на jump `focusMenuItem(0)`
+Result: KILLED (1 failed: 04)
+Error: AssertionError [ERR_ASSERTION]: Expected "actual" to be reference-equal to "expected" (активный элемент не сменился на notifications)
+
+Mutation 4: В `confirmLeave` убрать вызов `invoker("leave_guild", ...)`
+Result: KILLED (1 failed: 15)
+Error: AssertionError [ERR_ASSERTION]: команда leave_guild должна быть вызвана
+
+Mutation 5: В `normalizeInviteCode` пропустить валидацию регулярного выражения `CODE_RE.test(code)`
+Result: KILLED (2 failed: 01, 17)
+Error: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: 'invalid@@@$$$' !== ''
+
+Summary: 5/5 mutations killed (100%).

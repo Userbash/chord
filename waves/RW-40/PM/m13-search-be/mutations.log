@@ -1,0 +1,96 @@
+baseline search.rs md5=3ec29ae3219be411465ce3b2cc749287
+baseline search_contract.rs md5=f113b75de5727b82fe1ca5dc0f57eb3b
+=== MUT-1-off-by-one-202-retry-limit-and-indexing-envelope ===
+mutant search.rs md5=d4273ecdabeaa10e2034a236beba4d0b
+exit=101
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... FAILED
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... FAILED
+thread 'returns_typed_indexing_error_when_all_5_retries_return_202' (761477) panicked at tests/search_contract.rs:727:5:
+assertion `left == right` failed
+  left: Indexing { retry_after_ms: 4000, attempts: 4 }
+ right: Indexing { retry_after_ms: 3000, attempts: 5 }
+thread 'retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results' (761475) panicked at tests/search_contract.rs:691:10:
+test result: FAILED. 21 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+restored search.rs md5=3ec29ae3219be411465ce3b2cc749287 (match=True)
+=== MUT-2-ignore-retry-after-header ===
+mutant search.rs md5=a6d9d21e95ec90b8a73df544cf3b79f8
+exit=101
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... FAILED
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... FAILED
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... FAILED
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... FAILED
+thread 'returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body' (762286) panicked at tests/search_contract.rs:577:5:
+assertion `left == right` failed
+  left: SearchResponse { messages: [], total_results: 0, doing_deep_historical_index: false, documents_indexed: 0, indexing: true, retry_after_ms: Some(5000) }
+ right: SearchResponse { messages: [], total_results: 0, doing_deep_historical_index: false, documents_indexed: 0, indexing: true, retry_after_ms: Some(2000) }
+thread 'returns_typed_indexing_error_when_all_5_retries_return_202' (762287) panicked at tests/search_contract.rs:727:5:
+assertion `left == right` failed
+  left: Indexing { retry_after_ms: 5000, attempts: 5 }
+ right: Indexing { retry_after_ms: 3000, attempts: 5 }
+thread 'retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results' (762285) panicked at tests/search_contract.rs:658:5:
+assertion `left == right` failed: задержки должны браться из заголовка Retry-After (сек * 1000) с fallback 5000 мс
+  left: [5000, 5000, 5000]
+ right: [2000, 5000, 5000]
+thread 'retries_http_202_against_local_mock_http_server_and_parses_200_ok' (762284) panicked at tests/search_contract.rs:1043:10:
+test result: FAILED. 19 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.00s
+restored search.rs md5=3ec29ae3219be411465ce3b2cc749287 (match=True)
+=== MUT-3-drop-documents-indexed-deserialization ===
+mutant search.rs md5=c92af851faf772a42dbf6dec3ba09112
+exit=101
+test decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted ... FAILED
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... FAILED
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... FAILED
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... FAILED
+thread 'decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted' (763365) panicked at tests/search_contract.rs:771:5:
+assertion `left == right` failed
+  left: 0
+ right: 590
+thread 'returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body' (763380) panicked at tests/search_contract.rs:591:5:
+assertion `left == right` failed
+  left: Null
+ right: 0
+thread 'retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results' (763379) panicked at tests/search_contract.rs:654:5:
+assertion `left == right` failed
+  left: 0
+ right: 590
+thread 'retries_http_202_against_local_mock_http_server_and_parses_200_ok' (763378) panicked at tests/search_contract.rs:1047:5:
+assertion `left == right` failed
+  left: 0
+ right: 590
+test result: FAILED. 19 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+restored search.rs md5=3ec29ae3219be411465ce3b2cc749287 (match=True)
+=== MUT-4-omit-attempts-query-parameter ===
+mutant search.rs md5=c16601a4f9c0533a979336cd97b73c44
+exit=101
+test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... FAILED
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... FAILED
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... FAILED
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... FAILED
+thread 'includes_nsfw_and_attempts_query_params_and_validates_attempts_range' (764172) panicked at tests/search_contract.rs:935:9:
+assertion `left == right` failed
+  left: Some("/guilds/1/messages/search?content=q")
+ right: Some("/guilds/1/messages/search?content=q&attempts=1")
+thread 'returns_typed_indexing_error_when_all_5_retries_return_202' (764184) panicked at tests/search_contract.rs:739:5:
+assertion `left == right` failed
+  left: ["/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search"]
+ right: ["/guilds/1/messages/search", "/guilds/1/messages/search?attempts=1", "/guilds/1/messages/search?attempts=2", "/guilds/1/messages/search?attempts=3", "/guilds/1/messages/search?attempts=4", "/guilds/1/messages/search?attempts=5"]
+thread 'retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results' (764182) panicked at tests/search_contract.rs:664:5:
+assertion `left == right` failed
+  left: ["/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81", "/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81", "/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81", "/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81"]
+ right: ["/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81", "/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81&attempts=1", "/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81&attempts=2", "/guilds/1014537851418980372/messages/search?content=%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81&attempts=3"]
+thread 'retries_http_202_against_local_mock_http_server_and_parses_200_ok' (764181) panicked at tests/search_contract.rs:1056:5:
+assertion `left == right` failed
+  left: "GET /api/v9/guilds/42/messages/search?content=hello&offset=9975&include_nsfw=true HTTP/1.1"
+ right: "GET /api/v9/guilds/42/messages/search?content=hello&offset=9975&include_nsfw=true&attempts=1 HTTP/1.1"
+test result: FAILED. 19 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+restored search.rs md5=3ec29ae3219be411465ce3b2cc749287 (match=True)
+=== MUT-5-send-include-nsfw-on-some-false-and-drop-offset-ceiling ===
+mutant search.rs md5=c855037e2c94b89f2e47af087aebef33
+exit=101
+test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... FAILED
+thread 'includes_nsfw_and_attempts_query_params_and_validates_attempts_range' (764921) panicked at tests/search_contract.rs:889:9:
+assertion `left == right` failed
+  left: "/guilds/1/messages/search?content=safe&include_nsfw=true"
+ right: "/guilds/1/messages/search?content=safe"
+test result: FAILED. 22 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+restored search.rs md5=3ec29ae3219be411465ce3b2cc749287 (match=True)

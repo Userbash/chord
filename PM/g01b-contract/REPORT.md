@@ -2,7 +2,9 @@
 
 - batch/карточка: `RW-40 / G-01b-CONTRACT` (P1B, G1 Backend writer);
 - роль/место: G1 backend, файлы настроек `rust/gui-spike/**`; UI — не мой файл (G2 отдельно);
-- дата: 2026-10-24 (UTC), HEAD `0239543` (RW-35), рабочее дерево — как было у координатора.
+- дата: 2026-10-24 (UTC). Первый прогон шёл на HEAD `0239543` (RW-35); повторная
+  проверка (`G-01b-CONTRACT-RETRY`) — на HEAD `4e24048` (RW-40), куда результат уже
+  вошёл коммитом координатора.
 
 ## Сделано
 
@@ -94,11 +96,46 @@ cd rust/gui-spike && cargo test --offline --test settings_contract
 | `rust/gui-spike/tests/settings_contract.rs` | `0e943bb9a487d77718cb37b3338e4ea6` | +6 тестов G-01b, `sample()` с `None` |
 | `PM/g01b-contract/logs/red.log` | red-прогон (exit 101) | новый |
 | `PM/g01b-contract/logs/green.log` | green-прогон (23/23, exit 0) | новый |
+| `PM/g01b-contract/logs/green-verify.log` | повторный green на HEAD `4e24048` (23/23, exit 0) | новый (retry) |
 | `PM/g01b-contract/logs/clippy-targeted.log` | clippy clean, exit 0 | новый |
 | `rust/gui-spike/ui/**` | без изменений | — |
 | `.local/settings.json` | `c14195f667c064e14daa899d5999d4fd` | только чтение |
 
-`rust/gui-spike/` в git — untracked целиком (`?? rust/gui-spike/`); коммитов нет (не мой уровень).
+`rust/gui-spike/` вошёл в integration-коммит `4e24048` (RW-40); на момент retry
+`git status --short -- rust/gui-spike .local` пуст — рабочее дерево совпадает с HEAD,
+локального дрейфа нет. md5 файлов совпадают с зафиксированными ниже
+(`ac58e876…` / `0e943bb9…`), т.е. после приёмки код не менялся.
+
+## Пост-проверка `G-01b-CONTRACT-RETRY` (2026-10-24, HEAD `4e24048`)
+
+Предыдущий запуск отчёт **оставил** (`PM/g01b-contract/REPORT.md` уже в коммите
+`4e24048`), но он ссылался на старый HEAD и на «untracked» статус — это исправлено
+выше. Содержательно работа подтверждена без правок product-кода:
+
+1. **Поле на месте:** `UiSettings.last_guild_id: Option<String>` — `#[serde(default,
+   rename = "lastGuildId", skip_serializing_if = "Option::is_none",
+   deserialize_with = "deserialize_last_guild_id")]`
+   (`rust/gui-spike/src/settings_store.rs:158-166`); `Default` — `None`;
+   `SETTINGS_VERSION` остался `1`.
+2. **Валидация:** `is_snowflake` — непустая ASCII-цифровая строка, влезающая в `u64`
+   (то же правило, что `guilds::is_snowflake`, `guilds.rs:421-426`);
+   `normalize_last_guild_id` → `None` для пустого/чужого; `load` не падает на битой
+   подсказке; `save` нормализует до `validate()`; прямой `validate()` строгий
+   (`Invalid { field: "lastGuildId" }`); гильдия из READY/списка не подставляется.
+3. **Повторный targeted-прогон** (единственный `cargo` в retry):
+   `cd rust/gui-spike && cargo test --offline --test settings_contract`
+   → exit **0**, `23 passed; 0 failed; 0 ignored`
+   (`logs/green-verify.log`, md5 `8aec8a7ad5af229b678c51149806534e`).
+   Red-доказательство прежнего запуска действительно: `logs/red.log` (exit 101,
+   12 строк `error`) ссылается на строки 518/540/582/620/631 текущего
+   `settings_contract.rs`, т.е. тесты были написаны до поля.
+4. **UI не менялся:** `git status` по `rust/gui-spike` пуст; `ui/app.js:332`
+   по-прежнему помечает restore как G-01b (потребитель — G2).
+5. Live/attach/spawn, сеть, полный `gate:worker`/`tsc`/e2e не запускались; golden
+   (`logs/`, `functions/`, `evidence/`) только читался.
+
+**Итог retry:** контракт G-01b принят к ревью, дефектов не найдено, новых правок не
+потребовалось. Остаток — `G-01b-UI` (G2, restore рейла из READY).
 
 ## Следующий шаг
 

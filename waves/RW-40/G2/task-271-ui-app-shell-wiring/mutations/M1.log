@@ -1,0 +1,47 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.59147ms)
+✔ getState: до любых действий активных слоёв нет (0.34734ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.19709ms)
+✖ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.65893ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.12625ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.0843ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.238481ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.2841ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.74678ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.189871ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.12912ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.333977
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:77:1
+✖ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.65893ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   activeAdminPanel: 'moderation-panel',
+  -   activeAdminPanel: null,
+      activeModalLayer: 'quick-switcher'
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/app-shell-wiring.test.mjs:87:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: 'quick-switcher', activeAdminPanel: 'moderation-panel' },
+    expected: { activeModalLayer: 'quick-switcher', activeAdminPanel: null },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

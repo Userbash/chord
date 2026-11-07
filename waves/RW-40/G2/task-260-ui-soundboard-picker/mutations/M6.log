@@ -1,0 +1,60 @@
+▶ soundboard-picker: константы контракта
+  ✔ T-260-01: экспортирует точные значения MIN_SOUNDBOARD_NAME_CHARS, MAX_SOUNDBOARD_NAME_CHARS и MAX_SOUNDBOARD_BYTES (0.30361ms)
+✔ soundboard-picker: константы контракта (0.789701ms)
+▶ soundboard-picker: isValidSoundboardName
+  ✔ T-260-02: проверяет тип string и длину name.trim() в диапазоне 2..=32 символов (0.11338ms)
+✔ soundboard-picker: isValidSoundboardName (0.18693ms)
+▶ soundboard-picker: clampSoundboardVolume
+  ✔ T-260-03: ограничивает громкость диапазоном 0..1 и возвращает 1 для нечисловых или NaN значений (0.10791ms)
+✔ soundboard-picker: clampSoundboardVolume (0.18386ms)
+▶ soundboard-picker: filterSoundboardSounds
+  ✔ T-260-04: при пустом запросе возвращает доступные звуки (available !== false), сортируя по name (ru) и tie-break по String(soundId) без мутации входа (4.685573ms)
+  ✔ T-260-05: фильтрует по регистронезависимой подстроке name и отбрасывает недоступные (available === false) (0.15186ms)
+✔ soundboard-picker: filterSoundboardSounds (4.952383ms)
+▶ soundboard-picker: createSoundboardPickerController
+  ✔ T-260-06: рендерит диалог [data-soundboard-picker], поиск, громкость, кнопки звуков и форму загрузки (0.95169ms)
+  ✖ T-260-07: клик по [data-soundboard-play] вызывает onPlaySound(soundId, currentVolume) с учётом ползунка громкости (0.803431ms)
+  ✔ T-260-08: ввод в [data-soundboard-search] фильтрует список кнопок [data-soundboard-play] (0.19993ms)
+  ✔ T-260-09: форма загрузки валидирует имя и data:audio/ URI, выставляет [data-soundboard-error] при ошибке и вызывает onUploadSound при успехе (0.32841ms)
+  ✔ T-260-10: поддерживает setState(patch), защищённый от мутаций getState() и destroy() (0.23956ms)
+✖ soundboard-picker: createSoundboardPickerController (2.734551ms)
+ℹ tests 10
+ℹ suites 5
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.460753
+
+✖ failing tests:
+
+test at tests/unit/soundboard-picker.test.mjs:166:3
+✖ T-260-07: клик по [data-soundboard-play] вызывает onPlaySound(soundId, currentVolume) с учётом ползунка громкости (0.803431ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      {
+        soundId: 's-1',
+  +     volume: 1
+  -     volume: 0.6
+      }
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-260-ui-soundboard-picker/tests/unit/soundboard-picker.test.mjs:179:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { soundId: 's-1', volume: 1 } ],
+    expected: [ { soundId: 's-1', volume: 0.6 } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

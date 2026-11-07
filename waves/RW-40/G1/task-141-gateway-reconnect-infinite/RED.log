@@ -1,0 +1,43 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-141-gateway-reconnect-infinite/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 3 tests
+test gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify ... FAILED
+test gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 ... FAILED
+test gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff ... FAILED
+
+failures:
+
+---- gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify stdout ----
+
+thread 'gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify' (1530362) panicked at crates/discord-core/src/gateway/supervisor.rs:714:9:
+assertion `left == right` failed: после 4 неудачных RESUME (op=6) 5-я попытка обязана перейти на свежий IDENTIFY (op=2)
+  left: [Some(2), Some(6), Some(6), Some(6), Some(6), Some(6)]
+ right: [Some(2), Some(6), Some(6), Some(6), Some(6), Some(2)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 stdout ----
+
+thread 'gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004' (1530364) panicked at crates/discord-core/src/gateway/supervisor.rs:893:9:
+assertion `left == right` failed: неограниченный режим проходит >8 попыток и останавливается только на 4004
+  left: Stop(ReconnectLimit { reconnects: 8 })
+ right: Stop(Unauthorized)
+
+---- gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff stdout ----
+
+thread 'gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff' (1530363) panicked at crates/discord-core/src/gateway/supervisor.rs:807:9:
+assertion `left == right` failed
+  left: Stop(ReconnectLimit { reconnects: 8 })
+ right: Stop(Unauthorized)
+
+
+failures:
+    gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify
+    gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff
+    gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p discord-core --lib`
+EXIT=101

@@ -9,7 +9,9 @@
 //! - `discord://channels/...` и `discord://-/channels/...` — форма навигации каналов.
 
 use discord_platform::deep_link::{
-    DeepLink, DeepLinkError, MAX_DEEP_LINK_LEN, Route, extract_deep_link, parse_deep_link, route,
+    DISCORD_CLIP_PROTOCOL, DeepLink, DeepLinkError, DeepLinkQueue, MAX_DEEP_LINK_LEN,
+    MainWindowPath, MainWindowPathError, Route, extract_deep_link, extract_url_from_args,
+    main_window_path, parse_deep_link, route,
 };
 
 fn parse(raw: &str) -> DeepLink<'_> {
@@ -350,4 +352,291 @@ fn d13_deep_link_debug_redacts_query_and_fragment() {
     let plain_debug = format!("{plain:?}");
     assert!(plain_debug.contains("query: None"), "{plain_debug}");
     assert!(plain_debug.contains("fragment: None"), "{plain_debug}");
+}
+
+#[test]
+fn d14_disclip_protocol_parsing() {
+    assert_eq!(DISCORD_CLIP_PROTOCOL, "disclip");
+
+    let link1 = parse("disclip://my-cool-clip");
+    assert_eq!(link1.scheme, "disclip");
+    assert_eq!(link1.host, "my-cool-clip");
+    assert_eq!(
+        route(&link1),
+        Route::Clip {
+            id: "my-cool-clip".to_owned()
+        }
+    );
+
+    let link2 = parse("disclip:///clip-123");
+    assert_eq!(link2.scheme, "disclip");
+    assert_eq!(link2.host, "");
+    assert_eq!(link2.path, "/clip-123");
+    assert_eq!(
+        route(&link2),
+        Route::Clip {
+            id: "clip-123".to_owned()
+        }
+    );
+
+    let link3 = parse("disclip:clip-456");
+    assert_eq!(link3.scheme, "disclip");
+    assert_eq!(
+        route(&link3),
+        Route::Clip {
+            id: "clip-456".to_owned()
+        }
+    );
+
+    let link4 = parse("disclip://clips/clip-789");
+    assert_eq!(
+        route(&link4),
+        Route::Clip {
+            id: "clip-789".to_owned()
+        }
+    );
+
+    let link5 = parse("discord://clips/clip-789");
+    assert_eq!(
+        route(&link5),
+        Route::Clip {
+            id: "clip-789".to_owned()
+        }
+    );
+
+    let link6 = parse("discord://-/clips/clip-789");
+    assert_eq!(
+        route(&link6),
+        Route::Clip {
+            id: "clip-789".to_owned()
+        }
+    );
+}
+
+#[test]
+fn d15_extract_url_from_args_oracle() {
+    // 1. Direct deep link in argv[1..]
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "discord://channels/123/456"])),
+        Some("discord://channels/123/456".to_owned())
+    );
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--flag", "DISCLIP://clip-123"])),
+        Some("DISCLIP://clip-123".to_owned())
+    );
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "disclip:clip-456"])),
+        Some("disclip:clip-456".to_owned())
+    );
+
+    // 2. Electron oracle: --url before --
+    assert_eq!(
+        extract_url_from_args(&args(&[
+            "discord-lab",
+            "--url",
+            "ignored",
+            "--",
+            "discord://login/one-time?token=x"
+        ])),
+        Some("discord://login/one-time?token=x".to_owned())
+    );
+
+    // 3. --url after --
+    assert_eq!(
+        extract_url_from_args(&args(&[
+            "discord-lab",
+            "--",
+            "--url",
+            "discord://channels/1/2"
+        ])),
+        Some("discord://channels/1/2".to_owned())
+    );
+
+    // 4. --url=<val> after --
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--", "--url=disclip://clip-99"])),
+        Some("disclip://clip-99".to_owned())
+    );
+
+    // 5. Standalone --url=<val>
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--url=discord://app/open"])),
+        Some("discord://app/open".to_owned())
+    );
+
+    // 6. Standalone --url <val>
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--url", "discord://channels/1/2"])),
+        Some("discord://channels/1/2".to_owned())
+    );
+
+    // 7. Direct link after --
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--", "discord://channels/1/2"])),
+        Some("discord://channels/1/2".to_owned())
+    );
+
+    // 8. Empty and non-matches
+    assert_eq!(extract_url_from_args(&[]), None);
+    assert_eq!(extract_url_from_args(&args(&["discord://app/open"])), None);
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--flag"])),
+        None
+    );
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--url"])),
+        None
+    );
+    assert_eq!(
+        extract_url_from_args(&args(&["discord-lab", "--url="])),
+        None
+    );
+}
+
+#[test]
+fn d16_deep_link_queue_lifecycle() {
+    let mut queue = DeepLinkQueue::with_capacity(3);
+    assert!(!queue.is_window_ready());
+    assert_eq!(queue.len(), 0);
+    assert!(queue.is_empty());
+
+    // Pre-ready: links are queued
+    let res1 = queue.open_or_queue_url("discord://-/channels/1/2");
+    assert_eq!(res1, Ok(None));
+    assert_eq!(queue.len(), 1);
+
+    let res2 = queue.open_or_queue_url("discord://app/settings/nitro");
+    assert_eq!(res2, Ok(None));
+    assert_eq!(queue.len(), 2);
+
+    let res3 = queue.open_or_queue_url("disclip://clip-01");
+    assert_eq!(res3, Ok(None));
+    assert_eq!(queue.len(), 3);
+
+    // Capped FIFO: pushing a 4th item drops the oldest (channels/1/2)
+    let res4 = queue.open_or_queue_url("disclip://clip-02");
+    assert_eq!(res4, Ok(None));
+    assert_eq!(queue.len(), 3);
+
+    // Drain queued before or at ready
+    let drained = queue.drain_queued();
+    assert_eq!(drained.len(), 3);
+    assert_eq!(drained[0].path(), "/settings/nitro");
+    assert_eq!(drained[1].path(), "/clips/clip-01");
+    assert_eq!(drained[2].path(), "/clips/clip-02");
+    assert!(queue.is_empty());
+
+    // Mark window ready
+    queue.mark_window_ready();
+    assert!(queue.is_window_ready());
+
+    // Post-ready: links are returned immediately, not queued
+    let post_res = queue.open_or_queue_url("discord://guilds/500/600");
+    assert_eq!(
+        post_res,
+        Ok(Some(MainWindowPath {
+            path: "/channels/500/600".to_owned(),
+            query: None,
+        }))
+    );
+    assert!(queue.is_empty());
+}
+
+#[test]
+fn d17_main_window_path_routing_and_errors() {
+    // Channel routing
+    assert_eq!(
+        main_window_path("discord://-/channels/1/2"),
+        Ok(MainWindowPath {
+            path: "/channels/1/2".to_owned(),
+            query: None,
+        })
+    );
+    assert_eq!(
+        main_window_path("discord://channels/@me"),
+        Ok(MainWindowPath {
+            path: "/channels/@me".to_owned(),
+            query: None,
+        })
+    );
+
+    // Guild routing
+    assert_eq!(
+        main_window_path("discord://guilds/100/200"),
+        Ok(MainWindowPath {
+            path: "/channels/100/200".to_owned(),
+            query: None,
+        })
+    );
+    assert_eq!(
+        main_window_path("discord://guilds/100"),
+        Ok(MainWindowPath {
+            path: "/channels/100".to_owned(),
+            query: None,
+        })
+    );
+
+    // Settings routing
+    assert_eq!(
+        main_window_path("discord://app/settings/nitro"),
+        Ok(MainWindowPath {
+            path: "/settings/nitro".to_owned(),
+            query: None,
+        })
+    );
+    assert_eq!(
+        main_window_path("discord://settings/voice"),
+        Ok(MainWindowPath {
+            path: "/settings/voice".to_owned(),
+            query: None,
+        })
+    );
+
+    // Clip routing
+    assert_eq!(
+        main_window_path("disclip://clip-42"),
+        Ok(MainWindowPath {
+            path: "/clips/clip-42".to_owned(),
+            query: None,
+        })
+    );
+    assert_eq!(
+        main_window_path("disclip:clip-42"),
+        Ok(MainWindowPath {
+            path: "/clips/clip-42".to_owned(),
+            query: None,
+        })
+    );
+    assert_eq!(
+        main_window_path("discord://clips/clip-42"),
+        Ok(MainWindowPath {
+            path: "/clips/clip-42".to_owned(),
+            query: None,
+        })
+    );
+
+    // Query preservation
+    assert_eq!(
+        main_window_path("discord://-/channels/1/2?search=test"),
+        Ok(MainWindowPath {
+            path: "/channels/1/2".to_owned(),
+            query: Some("search=test".to_owned()),
+        })
+    );
+
+    // Unknown route error (typed, no panic)
+    assert!(matches!(
+        main_window_path("discord://random/unknown"),
+        Err(MainWindowPathError::UnknownRoute(_))
+    ));
+
+    // Invalid URL error (typed, no panic)
+    assert_eq!(
+        main_window_path("https://example.com"),
+        Err(MainWindowPathError::InvalidUrl(DeepLinkError::WrongScheme))
+    );
+    assert_eq!(
+        main_window_path(""),
+        Err(MainWindowPathError::InvalidUrl(DeepLinkError::Empty))
+    );
 }

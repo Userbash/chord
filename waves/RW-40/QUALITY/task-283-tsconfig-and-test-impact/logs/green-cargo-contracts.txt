@@ -1,0 +1,41 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/bff_domains_router_contract.rs (rust/gui-spike/target/debug/deps/bff_domains_router_contract-77385c3346bfcea2)
+
+running 8 tests
+test dispatch_create_stage_instance_builds_stage_instances_route_and_body ... ok
+test dispatch_bff_domain_action_propagates_validation_errors_across_all_domains ... ok
+test is_supported_bff_domain_accepts_only_registered_domains ... ok
+test dispatch_send_soundboard_sound_builds_channel_route_and_body ... ok
+test bff_domain_action_serde_roundtrip_all_variants ... ok
+test supported_bff_domains_constant_matches_exact_contract ... ok
+test dispatch_invoke_slash_command_builds_interactions_route_and_body ... ok
+test dispatch_update_guild_onboarding_builds_welcome_screen_route_and_body ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_contract.rs (rust/gui-spike/target/debug/deps/ipc_contract-80f8cbcb9b5f6533)
+
+running 20 tests
+test accepts_values_exactly_at_the_floors ... ok
+test accepts_bench_payload_with_chat_and_members_objects ... ok
+test accepts_full_snapshot_and_preserves_extra_fields ... ok
+test metrics_serialize_with_snake_case_fields ... ok
+test missing_status_field_is_none ... ok
+test parse_metrics_rejects_missing_each_field ... ok
+test non_numeric_status_value_is_none ... ok
+test parse_metrics_rejects_non_numeric_field ... ok
+test parses_all_metrics_and_maps_rss_to_vmrss_not_hwm ... ok
+test reads_numeric_fields_from_proc_status ... ok
+test rejects_bench_payload_with_invalid_json ... ok
+test rejects_bench_payload_with_non_object_chat_or_members ... ok
+test rejects_degenerate_zero_values ... ok
+test rejects_invalid_json_with_parser_message ... ok
+test rejects_rendered_rows_below_floor ... ok
+test rejects_negative_values ... ok
+test snapshot_floors_are_the_documented_ones ... ok
+test status_field_matches_only_line_start ... ok
+test rejects_missing_each_required_field ... ok
+test rejects_wrong_types ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

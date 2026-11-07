@@ -1,0 +1,187 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-291-voice-stats-re22/rust/crates/discord-voice)
+warning: field `timeout_seqs` is never read
+   --> crates/discord-voice/src/stats.rs:537:5
+    |
+534 | pub struct PingHistory {
+    |            ----------- field in this struct
+...
+537 |     timeout_seqs: Vec<u64>,
+    |     ^^^^^^^^^^^^
+    |
+    = note: `PingHistory` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning
+warning: `discord-voice` (lib test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
+
+running 36 tests
+test reception::tests::extension_sequence_wraps_forward ... ok
+test reconnect::tests::attempt_saturates_at_u32_max_without_overflow ... ok
+test reconnect::tests::backoff_index_is_clamped_to_last_entry ... ok
+test rtcp::tests::i24_sign_extension ... ok
+test session::tests::hello_and_ready_select_xchacha_over_aes_and_encode_74b_udp_discovery_request ... ok
+test stats::tests::empty_history_has_zero_average_and_no_last_ping ... ok
+test session::tests::speaking_op5_and_heartbeat_op3_op6_ack_and_timeout_detection ... ok
+test stats::tests::average_uses_first_twenty_samples_and_rounds ... FAILED
+test stats::tests::loss_rate_rejects_counter_regressions ... ok
+test stats::tests::history_holds_at_most_199_samples ... FAILED
+test stats::tests::loss_rate_small_delta ... FAILED
+test stats::tests::loss_rate_uses_deltas ... FAILED
+test stats::tests::non_consecutive_timeouts_do_not_record_fallback ... ok
+test session::tests::start_from_server_and_state_updates_builds_op0_identify_and_redacts_secrets ... ok
+test stats::tests::ntp_middle_is_high_word ... ok
+test stats::tests::clear_resets_samples_counters_and_timeout_history ... FAILED
+test stats::tests::average_of_single_sample_is_that_sample ... FAILED
+test stats::tests::quality_as_str_matches_wire_names ... ok
+test stats::tests::loss_rate_zero_when_no_packets_sent ... FAILED
+test stats::tests::quality_average_loss_boundaries ... FAILED
+test stats::tests::ping_bad_count_counts_only_values_above_500 ... FAILED
+test stats::tests::quality_average_ping_boundaries ... FAILED
+test stats::tests::quality_bad_ping_and_loss_boundaries ... FAILED
+test session::tests::discovery_response_decodes_74b_and_automatically_builds_op1_select_protocol ... ok
+test stats::tests::push_ping_keeps_last_value_and_time ... FAILED
+test stats::tests::quality_unknown_for_impossible_loss_values ... ok
+test stats::tests::quality_unknown_without_connection_or_ping ... ok
+test stats::tests::quality_fine_on_low_ping_and_loss ... FAILED
+test stats::tests::short_hostname_strips_domain_and_port ... FAILED
+test stats::tests::snapshot_holds_transport_and_packet_counters ... FAILED
+test stats::tests::three_consecutive_timeouts_record_4000_ms ... FAILED
+test tests::voice_constants_match_re ... ok
+test srtp::tests::xchacha20_poly1305_rtpsize_byte_format_uses_raw_op4_secret_key_and_trailer_nonce ... ok
+test srtp::tests::aes256_gcm_rtpsize_byte_format_uses_raw_op4_secret_key_and_trailer_nonce ... ok
+test session::tests::op4_session_description_initializes_live_srtp_and_encrypts_decrypts_media_frames ... ok
+test srtp::tests::rtpsize_roundtrip_between_independent_contexts_with_direct_op4_secret_key ... ok
+
+failures:
+
+---- stats::tests::average_uses_first_twenty_samples_and_rounds stdout ----
+
+thread 'stats::tests::average_uses_first_twenty_samples_and_rounds' (282754) panicked at crates/discord-voice/src/stats.rs:782:9:
+assertion `left == right` failed
+  left: 0
+ right: 11
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- stats::tests::history_holds_at_most_199_samples stdout ----
+
+thread 'stats::tests::history_holds_at_most_199_samples' (282757) panicked at crates/discord-voice/src/stats.rs:770:9:
+assertion `left == right` failed
+  left: 0
+ right: 199
+
+---- stats::tests::loss_rate_small_delta stdout ----
+
+thread 'stats::tests::loss_rate_small_delta' (282759) panicked at crates/discord-voice/src/stats.rs:858:64:
+called `Option::unwrap()` on a `None` value
+
+---- stats::tests::loss_rate_uses_deltas stdout ----
+
+thread 'stats::tests::loss_rate_uses_deltas' (282760) panicked at crates/discord-voice/src/stats.rs:838:9:
+assertion `left == right` failed
+  left: None
+ right: Some(10.0)
+
+---- stats::tests::clear_resets_samples_counters_and_timeout_history stdout ----
+
+thread 'stats::tests::clear_resets_samples_counters_and_timeout_history' (282755) panicked at crates/discord-voice/src/stats.rs:829:9:
+assertion failed: history.note_ping_timeout(4, 4_000)
+
+---- stats::tests::average_of_single_sample_is_that_sample stdout ----
+
+thread 'stats::tests::average_of_single_sample_is_that_sample' (282753) panicked at crates/discord-voice/src/stats.rs:789:9:
+assertion `left == right` failed
+  left: 0
+ right: 123
+
+---- stats::tests::loss_rate_zero_when_no_packets_sent stdout ----
+
+thread 'stats::tests::loss_rate_zero_when_no_packets_sent' (282761) panicked at crates/discord-voice/src/stats.rs:843:9:
+assertion `left == right` failed
+  left: None
+ right: Some(0.0)
+
+---- stats::tests::quality_average_loss_boundaries stdout ----
+
+thread 'stats::tests::quality_average_loss_boundaries' (282767) panicked at crates/discord-voice/src/stats.rs:701:9:
+assertion `left == right` failed
+  left: Unknown
+ right: Average
+
+---- stats::tests::ping_bad_count_counts_only_values_above_500 stdout ----
+
+thread 'stats::tests::ping_bad_count_counts_only_values_above_500' (282764) panicked at crates/discord-voice/src/stats.rs:759:9:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- stats::tests::quality_average_ping_boundaries stdout ----
+
+thread 'stats::tests::quality_average_ping_boundaries' (282768) panicked at crates/discord-voice/src/stats.rs:689:9:
+assertion `left == right` failed
+  left: Unknown
+ right: Average
+
+---- stats::tests::quality_bad_ping_and_loss_boundaries stdout ----
+
+thread 'stats::tests::quality_bad_ping_and_loss_boundaries' (282769) panicked at crates/discord-voice/src/stats.rs:713:9:
+assertion `left == right` failed
+  left: Unknown
+ right: Bad
+
+---- stats::tests::push_ping_keeps_last_value_and_time stdout ----
+
+thread 'stats::tests::push_ping_keeps_last_value_and_time' (282765) panicked at crates/discord-voice/src/stats.rs:747:9:
+assertion `left == right` failed
+  left: None
+ right: Some(57)
+
+---- stats::tests::quality_fine_on_low_ping_and_loss stdout ----
+
+thread 'stats::tests::quality_fine_on_low_ping_and_loss' (282770) panicked at crates/discord-voice/src/stats.rs:673:9:
+assertion `left == right` failed
+  left: Unknown
+ right: Fine
+
+---- stats::tests::short_hostname_strips_domain_and_port stdout ----
+
+thread 'stats::tests::short_hostname_strips_domain_and_port' (282773) panicked at crates/discord-voice/src/stats.rs:866:9:
+assertion `left == right` failed
+  left: ""
+ right: "finland10192"
+
+---- stats::tests::snapshot_holds_transport_and_packet_counters stdout ----
+
+thread 'stats::tests::snapshot_holds_transport_and_packet_counters' (282774) panicked at crates/discord-voice/src/stats.rs:893:9:
+assertion `left == right` failed
+  left: ""
+ right: "finland10192"
+
+---- stats::tests::three_consecutive_timeouts_record_4000_ms stdout ----
+
+thread 'stats::tests::three_consecutive_timeouts_record_4000_ms' (282775) panicked at crates/discord-voice/src/stats.rs:810:9:
+assertion failed: history.note_ping_timeout(6, 5_000)
+
+
+failures:
+    stats::tests::average_of_single_sample_is_that_sample
+    stats::tests::average_uses_first_twenty_samples_and_rounds
+    stats::tests::clear_resets_samples_counters_and_timeout_history
+    stats::tests::history_holds_at_most_199_samples
+    stats::tests::loss_rate_small_delta
+    stats::tests::loss_rate_uses_deltas
+    stats::tests::loss_rate_zero_when_no_packets_sent
+    stats::tests::ping_bad_count_counts_only_values_above_500
+    stats::tests::push_ping_keeps_last_value_and_time
+    stats::tests::quality_average_loss_boundaries
+    stats::tests::quality_average_ping_boundaries
+    stats::tests::quality_bad_ping_and_loss_boundaries
+    stats::tests::quality_fine_on_low_ping_and_loss
+    stats::tests::short_hostname_strips_domain_and_port
+    stats::tests::snapshot_holds_transport_and_packet_counters
+    stats::tests::three_consecutive_timeouts_record_4000_ms
+
+test result: FAILED. 20 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --lib`

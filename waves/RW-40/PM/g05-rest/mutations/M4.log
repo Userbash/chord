@@ -1,0 +1,82 @@
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✔ клик по каждому disabled-пункту ничего не меняет (31.929501ms)
+  ✔ Enter/Space на disabled-пункте — no-op (guard в самом обработчике) (21.427535ms)
+  ✔ capability=true не включает invite до G-06: disabled + not-implemented (9.971402ms)
+✔ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (63.987974ms)
+▶ G-05 D2: roving tabindex переезжает вместе с фокусом
+  ✔ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (11.394773ms)
+✔ G-05 D2: roving tabindex переезжает вместе с фокусом (11.516845ms)
+▶ G-05 D3: Esc и Tab не переключают экран
+  ✔ Esc из открытого меню на экране «Настройки» оставляет settings (9.884511ms)
+  ✔ Tab закрывает меню, фокус на opener, default не отменяется (8.986114ms)
+✔ G-05 D3: Esc и Tab не переключают экран (19.049936ms)
+▶ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола
+  ✔ клик по плитке гильдии закрывает меню, но фокус не на opener (9.366807ms)
+  ✔ клик по body закрывает меню и возвращает фокус на opener (9.240096ms)
+✔ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола (18.779324ms)
+▶ G-05 D4: копирование ID — успех только из resolved writeText
+  ✔ resolved writeText → «ID скопирован» тем же id, без утечки id в консоль (8.768372ms)
+  ✖ reject writeText → ошибка, ложного успеха нет (21.238134ms)
+  ✔ нет clipboard API → видимая ошибка, ложного успеха нет (8.719172ms)
+  ✔ пустой/битый id → «ID сервера неизвестен», writeText не вызывается (8.192827ms)
+✖ G-05 D4: копирование ID — успех только из resolved writeText (47.143726ms)
+▶ G-05 D6: причины disabled машиночитаемы и озвучиваемы
+  ✔ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (9.142275ms)
+  ✔ приоритет причин: owner > capability-unknown > not-implemented (10.386675ms)
+  ✔ один polite-статус #server-status и один hidden-узел причины на причину (8.745952ms)
+✔ G-05 D6: причины disabled машиночитаемы и озвучиваемы (28.412193ms)
+▶ G-05: #4 subtitle и #5 aria-checked — только из проекции
+  ✔ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (11.576335ms)
+  ✔ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (8.517249ms)
+  ✔ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (7.645562ms)
+✔ G-05: #4 subtitle и #5 aria-checked — только из проекции (27.873208ms)
+▶ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор
+  ✔ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (15.175074ms)
+✔ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (15.321495ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✔ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (14.996033ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (7.976815ms)
+✔ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (23.1239ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✔ false/true/absent → invite всегда disabled, без диалога и IPC (8.112117ms)
+✔ G-05 T-05-08: capability invite не выводится из ролей (8.203417ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✔ disabled-активация не пишет в #server-status; leave — ровно один статус (9.66882ms)
+✔ G-05 T-05-16: статус меню единственный (9.73871ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✔ меню: ширина/высота с клампом по viewport и прокрутка (0.267042ms)
+  ✔ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.137451ms)
+  ✔ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.289252ms)
+  ✔ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.212102ms)
+✔ G-05 D9/D5: геометрия CSS — статическая проверка контракта (1.015898ms)
+ℹ tests 27
+ℹ suites 12
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 314.750015
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:373:3
+✖ reject writeText → ошибка, ложного успеха нет (21.238134ms)
+  AssertionError [ERR_ASSERTION]: статус при reject: «ID сервера скопирован»
+  + actual - expected
+  
+  + 'ID сервера скопирован'
+  - 'Не удалось скопировать ID'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:382:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:374:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'ID сервера скопирован',
+    expected: 'Не удалось скопировать ID',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

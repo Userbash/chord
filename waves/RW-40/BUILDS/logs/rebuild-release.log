@@ -1,0 +1,63 @@
+release: cargo build --offline --release -p discord-app
+   Compiling libc v0.2.191
+   Compiling proc-macro2 v1.0.107
+   Compiling cfg-if v1.0.5
+   Compiling shlex v2.0.1
+   Compiling quote v1.0.47
+   Compiling find-msvc-tools v0.1.15
+   Compiling unicode-ident v1.0.27
+   Compiling zeroize v1.9.1
+   Compiling typenum v1.20.1
+   Compiling untrusted v0.9.0
+   Compiling bytes v1.12.1
+   Compiling rand_core v0.10.1
+   Compiling rustls v0.23.46
+   Compiling cpufeatures v0.3.1
+   Compiling getrandom v0.4.3
+   Compiling pin-project-lite v0.2.17
+   Compiling subtle v2.6.1
+   Compiling once_cell v1.21.4
+   Compiling thiserror v2.0.21
+   Compiling const-oid v0.10.2
+   Compiling httparse v1.10.1
+   Compiling chacha20 v0.10.2
+   Compiling cc v1.9.0
+   Compiling itoa v1.0.18
+   Compiling rustls-pki-types v1.15.1
+   Compiling slab v0.4.12
+   Compiling log v0.4.34
+   Compiling futures-task v0.3.34
+   Compiling futures-sink v0.3.34
+   Compiling futures-core v0.3.34
+   Compiling twox-hash v2.1.5
+   Compiling data-encoding v2.11.1
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-json)
+   Compiling ruzstd v0.9.1
+   Compiling futures-util v0.3.34
+   Compiling http v1.5.0
+   Compiling webpki-roots v1.0.9
+   Compiling webpki-roots v0.26.11
+   Compiling syn v3.0.9
+   Compiling hybrid-array v0.4.15
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling getrandom v0.2.17
+   Compiling mio v1.2.4
+   Compiling socket2 v0.6.5
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-codec)
+   Compiling rand v0.10.3
+   Compiling ring v0.17.14
+   Compiling digest v0.11.3
+   Compiling sha1 v0.11.0
+   Compiling tokio-macros v2.7.2
+   Compiling thiserror-impl v2.0.21
+   Compiling tokio v1.53.3
+   Compiling rustls-webpki v0.103.15
+   Compiling tungstenite v0.30.0
+   Compiling tokio-rustls v0.26.6
+   Compiling tokio-tungstenite v0.30.0
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-core)
+   Compiling discord-app v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-app)
+    Finished `release` profile [optimized] target(s) in 11.90s
+release: артефакт /tmp/opencode/dist-rebuild/discord-rs
+release: checksum /tmp/opencode/dist-rebuild/SHA256SUMS

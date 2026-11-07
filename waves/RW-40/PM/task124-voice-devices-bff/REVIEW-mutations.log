@@ -1,0 +1,21 @@
+baseline md5: 08560cb909a06d2027e2554a1e2896b4
+MUT-1 [KILLED] rc=101 md5=1e7385ab16cf251c6b5f611a28a4b56a failed=['t13_mute_deafen_invariant_effective_mute_and_transmission_gating', 't14_mic_test_consent_meter_states_and_service_error_alert_recovery']
+MUT-2 [KILLED] rc=101 md5=10e80cf7c8cc9c944b1d7af9f73b513c failed=['t01_initial_state_and_default_selection_ignores_list_order', 't06_hotplug_active_device_removal_falls_back_to_is_default_or_first_without_service_call', 't07_hotplug_all_devices_removed_emits_no_device_available_and_disables_select']
+MUT-3 [KILLED] rc=101 md5=3a850ac169c3431f6995cf81f1c4a76c failed=['t08_volume_clamping_0_to_100_input_and_0_to_200_output_and_channel_independence', 't14_mic_test_consent_meter_states_and_service_error_alert_recovery']
+MUT-4 [KILLED] rc=101 md5=b282cd6be2cb4aff9b7a64393f9d17a2 failed=['t13_mute_deafen_invariant_effective_mute_and_transmission_gating']
+MUT-5 [KILLED] rc=101 md5=ef0b18ae01baea05c716173690275695 failed=['t03_long_device_labels_preserved_in_dom_options_and_redacted_in_debug']
+MUT-X1 [KILLED] rc=101 md5=556f8968df8f978c87dec7c7ad128c00 failed=['t09_vad_threshold_working_range_minus100_to_0_and_sensitivity_mapping']
+MUT-X2 [KILLED] rc=101 md5=14c7bad2fed2c29ef50c1ba4dc9c36aa failed=['t13_mute_deafen_invariant_effective_mute_and_transmission_gating']
+MUT-X3 [SURVIVED] rc=0 md5=475e4953532d96f29920052f3e229c1a failed=[]
+
+=== SUMMARY ===
+MUT-1    KILLED     t13_mute_deafen_invariant_effective_mute_and_transmission_gating, t14_mic_test_consent_meter_states_and_service_error_alert_recovery effective_mute: || -> &&
+MUT-2    KILLED     t01_initial_state_and_default_selection_ignores_list_order, t06_hotplug_active_device_removal_falls_back_to_is_default_or_first_without_service_call, t07_hotplug_all_devices_removed_emits_no_device_available_and_disables_select pick_fallback: ignore is_default priority
+MUT-3    KILLED     t08_volume_clamping_0_to_100_input_and_0_to_200_output_and_channel_independence, t14_mic_test_consent_meter_states_and_service_error_alert_recovery set_output_volume: clamp to 100 instead of 200
+MUT-4    KILLED     t13_mute_deafen_invariant_effective_mute_and_transmission_gating is_transmitting PTT window: <= -> <
+MUT-5    KILLED     t03_long_device_labels_preserved_in_dom_options_and_redacted_in_debug Debug for AudioDevice: raw label instead of <redacted>
+MUT-X1   KILLED     t09_vad_threshold_working_range_minus100_to_0_and_sensitivity_mapping sensitivity mapping: round -> trunc (extra probe)
+MUT-X2   KILLED     t13_mute_deafen_invariant_effective_mute_and_transmission_gating VAD gate: >= -> > (extra probe)
+MUT-X3   SURVIVED   -                                                            DEFAULT_MIC_TEST_LEVEL_DB -100 -> -90 (tautology probe)
+
+final source md5: 08560cb909a06d2027e2554a1e2896b4

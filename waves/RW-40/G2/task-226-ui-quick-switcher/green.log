@@ -1,0 +1,20 @@
+▶ QUICK_SWITCHER_PREFIXES, MAX_QUICK_SWITCHER_RESULTS и scoreAndFilterQuickSwitcherItems (FE-P1-22)
+  ✔ экспортирует замороженный словарь QUICK_SWITCHER_PREFIXES и лимит MAX_QUICK_SWITCHER_RESULTS = 10 (0.701241ms)
+  ✔ фильтрует элементы по префиксам '@', '#', '!' и '*' и возвращает все элементы соответствующего типа при пустом остатке запроса (8.890461ms)
+  ✔ выполняет регистронезависимый поиск по подстроке и нечёткой подпоследовательности (fuzzy subsequence) на item.name (0.299491ms)
+  ✔ ранжирует результаты: точный префикс имени -> mentionCount > 0 -> unreadCount > 0 -> по алфавиту, и обрезает до MAX_QUICK_SWITCHER_RESULTS (10) (0.27828ms)
+✔ QUICK_SWITCHER_PREFIXES, MAX_QUICK_SWITCHER_RESULTS и scoreAndFilterQuickSwitcherItems (FE-P1-22) (10.888576ms)
+▶ createQuickSwitcherController — рендер, фильтрация, навигация и выбор (FE-P1-22)
+  ✔ рендерит диалог [data-quick-switcher] (role='dialog', aria-modal='true'), поле [data-quick-switcher-input] с placeholder 'Куда отправимся?', список [data-quick-switcher-results], опции [data-quick-switcher-option] и бейджи [data-quick-switcher-badge] (1.375013ms)
+  ✔ setQuery(q) обновляет фильтр, перерисовывает [data-quick-switcher-option] и сбрасывает выделение на первый элемент (0.340391ms)
+  ✔ moveSelection(delta) циклически перемещает выделение (wrapping) и обновляет aria-selected (0.241521ms)
+  ✔ confirmSelection() вызывает onSelectTarget(item) с текущим выбранным элементом и закрывает модальное окно, а close() закрывает без вызова callback (0.333751ms)
+✔ createQuickSwitcherController — рендер, фильтрация, навигация и выбор (FE-P1-22) (2.525426ms)
+ℹ tests 8
+ℹ suites 2
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 54.8691

@@ -1,0 +1,42 @@
+# GREEN — task-281 batch 2, после правок JSDoc
+# $ npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "svg-icons\.test\.mjs|channel-tree\.test\.mjs"
+# matching lines: 0 (пустой вывод)
+
+# $ node --test tests/unit/svg-icons.test.mjs tests/unit/channel-tree.test.mjs
+✔ CHANNEL_TYPES matches the Discord gateway enum and is frozen (4.241301ms)
+✔ isVoiceLikeChannel is true only for voice and stage-voice channels (0.10936ms)
+✔ buildGuildChannelTree separates categories and keeps an empty tree stable (0.1631ms)
+✔ categories are sorted by position then id and get both child lists (4.675031ms)
+✔ non-voice channels sort before voice-like ones, then by position, then by id (0.15579ms)
+✔ collapsed category hides read channels but keeps allChildren intact (0.14593ms)
+✔ collapsed category with no unread channels has an empty visible list (0.10266ms)
+✔ channels pointing at an unknown parent fall back to uncategorized (0.10659ms)
+✔ input array is not mutated (0.12418ms)
+▶ ICON_SIZE и SVG_ICONS
+  ✔ канонический размер иконки — 20 (0.45008ms)
+  ✔ карта иконок заморожена и содержит ровно 20 канонических имён (0.383471ms)
+  ✔ каждый path — непустая строка d, начинающаяся с команды перемещения (0.19371ms)
+✔ ICON_SIZE и SVG_ICONS (1.683641ms)
+▶ createIconSvg
+  ✔ создаёт svg с каноническими атрибутами по умолчанию (0.24037ms)
+  ✔ вкладывает ровно один path с d из карты (0.09499ms)
+  ✔ принимает размер и className из options (0.09389ms)
+  ✔ дополняет частичные options значениями по умолчанию (0.09598ms)
+  ✔ возвращает null для неизвестного имени и для пустого документа (0.09386ms)
+✔ createIconSvg (0.8629ms)
+▶ upgradeGlyphIcons
+  ✔ заменяет текстовый глиф на svg внутри [data-icon] (0.292789ms)
+  ✔ идемпотентен: повторный вызов не дублирует svg (0.13047ms)
+  ✔ обновляет несколько узлов и считает только реально заменённые (0.13567ms)
+  ✔ неизвестная иконка остаётся нетронутой (0.40358ms)
+  ✔ обновляет и сам корень, если он помечен data-icon (0.099251ms)
+  ✔ возвращает 0 без исключения для пустого корня (0.04827ms)
+✔ upgradeGlyphIcons (1.31018ms)
+ℹ tests 23
+ℹ suites 3
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.048665

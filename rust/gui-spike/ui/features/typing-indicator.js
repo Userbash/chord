@@ -34,6 +34,8 @@ export const TYPING_TTL_MS = 10_000;
 export const TYPING_RESEND_MS = 8_000;
 /** Guard: одновременно «в наборе» не более 5 каналов (G6 §3.6). */
 export const TYPING_MAX_CHANNELS = 5;
+/** Guard: одновременно «в наборе» не более 5 каналов (P-03). */
+export const MAX_TYPING_CHANNELS = 5;
 /** Период проверки истечения TTL; таймер живёт только пока есть записи. */
 export const TYPING_SWEEP_MS = 1_000;
 
@@ -479,4 +481,578 @@ export function createTypingSender(options = {}) {
       return lastSentAt.size;
     },
   };
+}
+
+/**
+ * Форматирование русского текста для печатающих участников (P-03):
+ * - 1 чел. -> 'X печатает…'
+ * - 2 чел. -> 'X и Y печатают…'
+ * - 3 чел. -> 'X, Y и Z печатают…'
+ * - >3 чел. -> 'Несколько человек печатают…'
+ * @param {string[]} names
+ * @returns {string}
+ */
+export function formatTypingText(names) {
+  if (!Array.isArray(names) || names.length === 0) return "";
+  if (names.length === 1) return `${names[0]} печатает…`;
+  if (names.length === 2) return `${names[0]} и ${names[1]} печатают…`;
+  if (names.length === 3) return `${names[0]}, ${names[1]} и ${names[2]} печатают…`;
+  return "Несколько человек печатают…";
+}
+
+/**
+ * @typedef {{
+ *   channelId: string,
+ *   userId: string,
+ *   username?: string,
+ *   now?: number,
+ * }} TypingStartEvent
+ */
+
+/**
+ * @typedef {{
+ *   channelId: string,
+ *   authorId: string,
+ * }} MessageCreatedEvent
+ */
+
+/**
+ * @typedef {{
+ *   container?: HTMLElement,
+ *   host?: HTMLElement,
+ *   document?: Document,
+ *   currentUserId?: string,
+ *   currentChannelId?: string,
+ *   channelId?: string,
+ *   getCurrentChannelId?: () => string,
+ *   invoke?: (cmd: string, args?: any) => Promise<any>,
+ *   now?: () => number,
+ *   ttlMs?: number,
+ *   resendMs?: number,
+ *   maxChannels?: number,
+ * }} TypingControllerOptions
+ */
+
+/**
+ * @typedef {{
+ *   username: string,
+ *   expiresAt: number,
+ *   startedAt: number,
+ * }} UserTypingEntry
+ */
+
+/**
+ * @typedef {{
+ *   element: HTMLElement,
+ *   node: HTMLElement,
+ *   onTypingStart: (event: TypingStartEvent) => boolean,
+ *   onMessageCreated: (event: MessageCreatedEvent) => void,
+ *   notifyInput: (channelId: string, text: string, now?: number) => Promise<{ sent: boolean, reason?: string, retryAfterMs?: number, result?: any, error?: any }>,
+ *   sweep: (at?: number) => number,
+ *   render: (at?: number) => void,
+ *   setChannel: (channelId: string) => void,
+ *   setChannelId: (channelId: string) => void,
+ *   setCurrentUserId: (userId: string) => void,
+ *   getTypingText: (channelId: string) => string,
+ *   getTypingUsers: (channelId: string) => string[],
+ *   dispose: () => void,
+ *   readonly currentChannelId: string | null,
+ *   readonly currentUserId: string,
+ *   readonly channels: number,
+ * }} TypingController
+ */
+
+/**
+ * Контроллер индикатора набора и исходящего typing (P-03).
+ *
+ * @param {TypingControllerOptions} [options]
+ * @returns {TypingController}
+ */
+export function createTypingController(options = {}) {
+  const doc = options.document
+    ?? (typeof document !== "undefined" ? document : null)
+    ?? options.container?.ownerDocument
+    ?? options.host?.ownerDocument
+    ?? null;
+
+  if (!doc) {
+    throw new UIError("ELEMENT_MISSING", "индикатор набора: недоступен document");
+  }
+
+  let lastKnownTime = 0;
+
+  /**
+   * @param {number} [at]
+   * @returns {number}
+   */
+  function getCurrentTime(at) {
+    if (typeof at === "number" && Number.isFinite(at)) {
+      lastKnownTime = Math.max(lastKnownTime, at);
+      return at;
+    }
+    if (options.now) {
+      return options.now();
+    }
+    if (lastKnownTime > 0) {
+      return lastKnownTime;
+    }
+    return Date.now();
+  }
+  const ttlMs = Number.isFinite(options.ttlMs) && Number(options.ttlMs) > 0
+    ? Number(options.ttlMs)
+    : TYPING_TTL_MS;
+  const resendMs = Number.isFinite(options.resendMs) && Number(options.resendMs) >= 0
+    ? Number(options.resendMs)
+    : TYPING_RESEND_MS;
+  const maxChannels = Number.isFinite(options.maxChannels) && Number(options.maxChannels) > 0
+    ? Math.trunc(Number(options.maxChannels))
+    : MAX_TYPING_CHANNELS;
+
+  let currentUserId = String(options.currentUserId ?? "").trim();
+  /** @type {string | null} */
+  let currentChannelId = options.currentChannelId ?? options.channelId ?? null;
+  const getCurrentChannelId = options.getCurrentChannelId
+    ?? (() => currentChannelId ?? "");
+
+  const invoke = options.invoke ?? null;
+
+  // Прогрессивный поиск или создание узла #chat-typing-indicator
+  /** @type {HTMLElement | null} */
+  let element = doc.getElementById("chat-typing-indicator");
+  if (!element && options.container?.querySelector) {
+    element = options.container.querySelector("#chat-typing-indicator");
+  }
+  if (!element && options.host?.querySelector) {
+    element = options.host.querySelector("#chat-typing-indicator");
+  }
+
+  if (!element) {
+    element = doc.createElement("div");
+    element.id = "chat-typing-indicator";
+    element.setAttribute("role", "status");
+    element.setAttribute("aria-live", "polite");
+    element.setAttribute("data-state", "idle");
+    element.textContent = "";
+
+    const parent = options.container
+      ?? options.host
+      ?? doc.getElementById("composer")
+      ?? (doc.querySelector ? doc.querySelector(".chat-main") : null)
+      ?? doc.body;
+
+    if (parent?.append) {
+      parent.append(element);
+    }
+  } else {
+    if (!element.getAttribute("role")) {
+      element.setAttribute("role", "status");
+    }
+    if (!element.getAttribute("aria-live")) {
+      element.setAttribute("aria-live", "polite");
+    }
+    if (!element.getAttribute("data-state")) {
+      element.setAttribute("data-state", "idle");
+    }
+  }
+
+  /**
+   * Канал -> Map<userId, UserTypingEntry>
+   * @type {Map<string, Map<string, UserTypingEntry>>}
+   */
+  const channels = new Map();
+
+  /**
+   * Последняя отправка по каналу (мс) — для троттлинга TYPING_RESEND_MS.
+   * @type {Map<string, number>}
+   */
+  const lastSentAt = new Map();
+
+  /** Блокировка повторной отправки после 429/slowmode (монотонные часы/время). */
+  let blockedUntil = 0;
+
+  /** @type {ReturnType<typeof setInterval> | null} */
+  let sweepTimer = null;
+  let disposed = false;
+
+  /**
+   * @param {number} [at]
+   */
+  function render(at) {
+    if (disposed || !element) return;
+    const currentTime = getCurrentTime(at);
+    const activeChannel = getCurrentChannelId();
+
+    if (!activeChannel) {
+      const currentState = element.getAttribute("data-state");
+      if (currentState !== "slowmode" && currentState !== "error") {
+        element.setAttribute("data-state", "idle");
+        element.textContent = "";
+      }
+      return;
+    }
+
+    const channelUsers = channels.get(activeChannel);
+    if (!channelUsers || channelUsers.size === 0) {
+      const currentState = element.getAttribute("data-state");
+      if (currentState !== "slowmode" && currentState !== "error") {
+        element.setAttribute("data-state", "idle");
+        element.textContent = "";
+      }
+      return;
+    }
+
+    // Собираем неистёкших
+    /** @type {string[]} */
+    const activeNames = [];
+    for (const [userId, entry] of [...channelUsers.entries()]) {
+      if (currentTime >= entry.expiresAt) {
+        channelUsers.delete(userId);
+      } else {
+        activeNames.push(entry.username);
+      }
+    }
+
+    if (channelUsers.size === 0) {
+      channels.delete(activeChannel);
+    }
+
+    if (activeNames.length > 0) {
+      element.setAttribute("data-state", "active");
+      element.textContent = formatTypingText(activeNames);
+    } else {
+      const currentState = element.getAttribute("data-state");
+      if (currentState !== "slowmode" && currentState !== "error") {
+        element.setAttribute("data-state", "idle");
+        element.textContent = "";
+      }
+    }
+  }
+
+  /**
+   * Очистить истёкшие записи во всех каналах.
+   * @param {number} [at]
+   * @returns {number} количество удалённых записей
+   */
+  function sweep(at) {
+    if (disposed) return 0;
+    const currentTime = getCurrentTime(at);
+    let removed = 0;
+    for (const [chId, userMap] of [...channels.entries()]) {
+      for (const [uId, entry] of [...userMap.entries()]) {
+        if (currentTime >= entry.expiresAt) {
+          userMap.delete(uId);
+          removed++;
+        }
+      }
+      if (userMap.size === 0) {
+        channels.delete(chId);
+      }
+    }
+    render(currentTime);
+    return removed;
+  }
+
+  /**
+   * @param {TypingStartEvent} event
+   * @returns {boolean}
+   */
+  function onTypingStart(event) {
+    if (disposed) return false;
+    const channelId = String(event?.channelId ?? "").trim();
+    const userId = String(event?.userId ?? "").trim();
+    if (!channelId || !userId) return false;
+
+    // Игнорирование собственного currentUserId
+    if (currentUserId && userId === currentUserId) return false;
+
+    const timestamp = getCurrentTime(event?.now);
+
+    // Если текущий канал не был явно задан — переключаемся на этот канал
+    if (currentChannelId === null) {
+      currentChannelId = channelId;
+    }
+
+    // Хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого)
+    let userMap = channels.get(channelId);
+    if (userMap) {
+      // Обновляем порядок использования канала (LRU)
+      channels.delete(channelId);
+      channels.set(channelId, userMap);
+    } else {
+      // Сначала чистим пустые/истёкшие каналы
+      for (const [existingChId, existingUsers] of [...channels.entries()]) {
+        for (const [uId, entry] of [...existingUsers.entries()]) {
+          if (timestamp >= entry.expiresAt) {
+            existingUsers.delete(uId);
+          }
+        }
+        if (existingUsers.size === 0) {
+          channels.delete(existingChId);
+        }
+      }
+
+      // Если всё ещё каналов >= maxChannels, вытесняем самый старый
+      if (channels.size >= maxChannels) {
+        const oldestChannelId = channels.keys().next().value;
+        if (oldestChannelId !== undefined) {
+          channels.delete(oldestChannelId);
+        }
+      }
+
+      userMap = new Map();
+      channels.set(channelId, userMap);
+    }
+
+    const username = String(event?.username ?? "").trim() || userId;
+    userMap.set(userId, {
+      username,
+      expiresAt: timestamp + ttlMs,
+      startedAt: timestamp,
+    });
+
+    render(timestamp);
+    return true;
+  }
+
+  /**
+   * @param {MessageCreatedEvent} event
+   */
+  function onMessageCreated(event) {
+    if (disposed) return;
+    const channelId = String(event?.channelId ?? "").trim();
+    const authorId = String(event?.authorId ?? "").trim();
+    if (!channelId || !authorId) return;
+
+    const userMap = channels.get(channelId);
+    if (userMap && userMap.has(authorId)) {
+      userMap.delete(authorId);
+      if (userMap.size === 0) {
+        channels.delete(channelId);
+      }
+      render();
+    }
+  }
+
+  /**
+   * @param {string} channelId
+   * @param {string} text
+   * @param {number} [now]
+   * @returns {Promise<{ sent: boolean, reason?: string, retryAfterMs?: number, result?: any, error?: any }>}
+   */
+  async function notifyInput(channelId, text, now) {
+    if (disposed) return { sent: false, reason: "disposed" };
+    const ch = String(channelId ?? "").trim();
+    if (!ch) return { sent: false, reason: "invalid" };
+
+    // Не вызывает invoke('send_typing', { channelId }) на пустом/пробельном тексте
+    if (typeof text !== "string" || text.trim().length === 0) {
+      return { sent: false, reason: "empty" };
+    }
+
+    const at = getCurrentTime(now);
+
+    // Блокировка после 429 RateLimited
+    if (blockedUntil > 0) {
+      if (at < blockedUntil) {
+        return { sent: false, reason: "slowmode", retryAfterMs: blockedUntil - at };
+      }
+      blockedUntil = 0;
+      if (element?.getAttribute("data-state") === "slowmode") {
+        element.setAttribute("data-state", "idle");
+      }
+    }
+
+    // Троттлинг TYPING_RESEND_MS (8000 мс) на канал
+    const lastSent = lastSentAt.get(ch);
+    if (lastSent !== undefined && at < lastSent + resendMs) {
+      return { sent: false, reason: "throttle" };
+    }
+
+    if (!invoke) {
+      return { sent: false, reason: "unavailable" };
+    }
+
+    try {
+      const result = await invoke("send_typing", { channelId: ch });
+      lastSentAt.set(ch, at);
+
+      // Если был в состоянии ошибки/slowmode — восстанавливаем
+      if (element?.getAttribute("data-state") === "error" || element?.getAttribute("data-state") === "slowmode") {
+        render(at);
+      }
+
+      // Проверяем кулдаун в ответе
+      const cooldownMs = Number(result?.messageSendCooldownMs ?? result?.message_send_cooldown_ms ?? 0);
+      if (cooldownMs > 0) {
+        blockedUntil = at + cooldownMs;
+        element?.setAttribute("data-state", "slowmode");
+      }
+
+      return { sent: true, result };
+    } catch (error) {
+      const bag = /** @type {Record<string, any>} */ (error ?? {});
+      const status = Number(bag.status ?? bag.code ?? 0);
+      const kind = String(bag.kind ?? bag.message ?? "");
+      const isRateLimit = status === 429 || /ratelimit/i.test(kind);
+
+      if (isRateLimit) {
+        const retryAfterMs = Number(bag.retry_after_ms ?? bag.retryAfterMs ?? bag.retryAfter ?? 0) || resendMs;
+        blockedUntil = at + retryAfterMs;
+        element?.setAttribute("data-state", "slowmode");
+        return { sent: false, reason: "slowmode", retryAfterMs, error };
+      } else {
+        element?.setAttribute("data-state", "error");
+        return { sent: false, reason: "error", error };
+      }
+    }
+  }
+
+  /**
+   * @param {string} channelId
+   * @returns {string}
+   */
+  function getTypingText(channelId) {
+    const ch = String(channelId ?? "").trim();
+    const userMap = channels.get(ch);
+    if (!userMap) return "";
+    const names = [...userMap.values()].map((e) => e.username);
+    return formatTypingText(names);
+  }
+
+  /**
+   * @param {string} channelId
+   * @returns {string[]}
+   */
+  function getTypingUsers(channelId) {
+    const ch = String(channelId ?? "").trim();
+    const userMap = channels.get(ch);
+    if (!userMap) return [];
+    return [...userMap.values()].map((e) => e.username);
+  }
+
+  /**
+   * @param {string} channelId
+   */
+  function setChannel(channelId) {
+    currentChannelId = String(channelId ?? "");
+    render();
+  }
+
+  /**
+   * @param {string} userId
+   */
+  function setCurrentUserId(userId) {
+    currentUserId = String(userId ?? "").trim();
+    render();
+  }
+
+  function dispose() {
+    disposed = true;
+    if (sweepTimer !== null) {
+      clearInterval(sweepTimer);
+      sweepTimer = null;
+    }
+    channels.clear();
+    lastSentAt.clear();
+  }
+
+  render();
+
+  return {
+    element,
+    node: element,
+    onTypingStart,
+    onMessageCreated,
+    notifyInput,
+    sweep,
+    render,
+    setChannel,
+    setChannelId: setChannel,
+    setCurrentUserId,
+    getTypingText,
+    getTypingUsers,
+    dispose,
+    get currentChannelId() {
+      return currentChannelId;
+    },
+    get currentUserId() {
+      return currentUserId;
+    },
+    get channels() {
+      return channels.size;
+    },
+  };
+}
+
+/**
+ * Входящая запись «печатает» для строки индикатора (task-206).
+ * @typedef {{
+ *   userId: string,
+ *   displayName: string,
+ *   startedAtMs: number,
+ * }} TypingUserEntry
+ */
+
+/**
+ * Оставить только живые записи «печатает» и схлопнуть дубли по `userId`.
+ *
+ * Окно активности — `0 <= nowMs - startedAtMs < TYPING_TTL_MS`: на самой
+ * границе TTL запись уже мертва, «из будущего» (`age < 0`) — тоже, чтобы
+ * расхождение часов не держало индикатор вечно. При дублях остаётся запись с
+ * наибольшим `startedAtMs` (устаревший `TYPING_START` не откатывает строку
+ * назад). Возвращаемые записи упорядочены по `startedAtMs` по возрастанию —
+ * так строка не «прыгает» между рендерами.
+ *
+ * @param {readonly TypingUserEntry[]} entries
+ * @param {number} [nowMs] монотонное «сейчас»; по умолчанию `Date.now()`
+ * @returns {TypingUserEntry[]}
+ */
+export function pruneExpiredTypingUsers(entries, nowMs = Date.now()) {
+  if (!Array.isArray(entries)) return [];
+  const at = Number.isFinite(nowMs) ? Number(nowMs) : Date.now();
+  /** @type {Map<string, TypingUserEntry>} */
+  const latest = new Map();
+  for (const raw of entries) {
+    if (raw === null || typeof raw !== "object") continue;
+    const userId = String(raw.userId ?? "").trim();
+    if (userId === "") continue;
+    const startedAtMs = Number(raw.startedAtMs);
+    if (!Number.isFinite(startedAtMs)) continue;
+    const age = at - startedAtMs;
+    if (!(age >= 0 && age < TYPING_TTL_MS)) continue;
+    const previous = latest.get(userId);
+    if (previous !== undefined && previous.startedAtMs >= startedAtMs) continue;
+    latest.set(userId, {
+      userId,
+      displayName: String(raw.displayName ?? ""),
+      startedAtMs,
+    });
+  }
+  return [...latest.values()].sort((a, b) => a.startedAtMs - b.startedAtMs);
+}
+
+/**
+ * Русская строка «печатает» для набора имён (task-206).
+ *
+ * Пустые и пробельные имена отбрасываются до подсчёта, поэтому «Аня, '   '»
+ * даёт форму единственного числа, а не «Несколько человек». Формы:
+ * `0 -> ''`, `1 -> 'X печатает...'`, `2 -> 'X и Y печатают...'`,
+ * `3 -> 'X, Y и Z печатают...'`, `>= 4 -> 'Несколько человек печатают...'`.
+ *
+ * @param {readonly string[]} displayNames
+ * @returns {string}
+ */
+export function formatTypingIndicatorRu(displayNames) {
+  if (!Array.isArray(displayNames)) return "";
+  /** @type {string[]} */
+  const names = [];
+  for (const raw of displayNames) {
+    const name = String(raw ?? "").trim();
+    if (name !== "") names.push(name);
+  }
+  if (names.length === 0) return "";
+  if (names.length === 1) return `${names[0]} печатает...`;
+  if (names.length === 2) return `${names[0]} и ${names[1]} печатают...`;
+  if (names.length === 3) return `${names[0]}, ${names[1]} и ${names[2]} печатают...`;
+  return "Несколько человек печатают...";
 }

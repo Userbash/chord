@@ -1,0 +1,13 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-258-be-onboarding/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/onboarding_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/onboarding_contract-d1d7c41b84554de6)
+
+running 5 tests
+test onboarding_constants_match_discord_contract ... ok
+test build_guild_welcome_screen_and_onboarding_routes_validate_snowflake_and_format_paths ... ok
+test validate_welcome_screen_request_enforces_description_and_channels_count_bounds ... ok
+test validate_welcome_screen_request_validates_channel_entries ... ok
+test welcome_screen_structs_serde_roundtrip ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

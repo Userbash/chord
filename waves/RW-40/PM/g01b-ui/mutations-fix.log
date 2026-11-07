@@ -1,0 +1,132 @@
+# Mutation run — G-01b-UI-SETTINGS-MUTATIONS (RW-40)
+
+Repository: /home/sanya/orca/project
+Target test: tests/unit/guild-rail.test.mjs
+Mutation target: rust/gui-spike/ui/features/settings.js
+Node: v26.13.0
+
+## Baseline
+md5 settings.js: 040013d5212a3a0b8e50c045270144ec
+exit code: 0
+summary: ℹ tests 12 | ℹ pass 12 | ℹ fail 0 | ℹ skipped 0
+
+## M1 — normalizeSettings отбрасывает lastGuildId (старое поведение: ключ не возвращается)
+file: rust/gui-spike/ui/features/settings.js
+md5 до: 040013d5212a3a0b8e50c045270144ec
+md5 мутанта: d9710c44216fedf7dc922ee82dbf386d
+patch (anchor-замена, ровно 1 вхождение):
+  -     locale: pick(source.locale, SETTINGS_LOCALES, "ru"),
+  -     ...(lastGuildId !== undefined ? { lastGuildId } : {}),
+  -   };
+  +     locale: pick(source.locale, SETTINGS_LOCALES, "ru"),
+  +   };
+exit code: 1
+summary: ℹ tests 12 | ℹ pass 11 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+md5 после восстановления: 040013d5212a3a0b8e50c045270144ec (OK, совпал)
+verdict: KILLED
+
+## M2 — normalizeSettings теряет точность snowflake: String(Number(id))
+file: rust/gui-spike/ui/features/settings.js
+md5 до: 040013d5212a3a0b8e50c045270144ec
+md5 мутанта: 930e188ec1764dec6cee9504b1a954e2
+patch (anchor-замена, ровно 1 вхождение):
+  -       ? source.lastGuildId
+  -       : undefined;
+  +       ? String(Number(source.lastGuildId))
+  +       : undefined;
+exit code: 1
+summary: ℹ tests 12 | ℹ pass 11 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+md5 после восстановления: 040013d5212a3a0b8e50c045270144ec (OK, совпал)
+verdict: KILLED
+
+## M3 — collectSettings не добавляет lastGuildId при сохранении тумблера
+file: rust/gui-spike/ui/features/settings.js
+md5 до: 040013d5212a3a0b8e50c045270144ec
+md5 мутанта: 325766e027a3d568ce8b14d08ea6b8bf
+patch (anchor-замена, ровно 1 вхождение):
+  -       locale: html.getAttribute("data-locale"),
+  -       ...(activeGuildId !== "" ? { lastGuildId: activeGuildId } : {}),
+  -     });
+  +       locale: html.getAttribute("data-locale"),
+  +     });
+exit code: 1
+summary: ℹ tests 12 | ℹ pass 11 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+md5 после восстановления: 040013d5212a3a0b8e50c045270144ec (OK, совпал)
+verdict: KILLED
+
+## M4 — collectSettings пишет lastGuildId под snake_case-ключом (нарушение контракта settings_store.rs)
+file: rust/gui-spike/ui/features/settings.js
+md5 до: 040013d5212a3a0b8e50c045270144ec
+md5 мутанта: e31b9d883450069749df2cec38db0fb3
+patch (anchor-замена, ровно 1 вхождение):
+  -       locale: html.getAttribute("data-locale"),
+  -       ...(activeGuildId !== "" ? { lastGuildId: activeGuildId } : {}),
+  -     });
+  +       locale: html.getAttribute("data-locale"),
+  +       ...(activeGuildId !== "" ? { last_guild_id: activeGuildId } : {}),
+  +     });
+exit code: 1
+summary: ℹ tests 12 | ℹ pass 11 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+md5 после восстановления: 040013d5212a3a0b8e50c045270144ec (OK, совпал)
+verdict: KILLED
+
+## M5 — persist() вырезает lastGuildId из payload перед settings_save
+file: rust/gui-spike/ui/features/settings.js
+md5 до: 040013d5212a3a0b8e50c045270144ec
+md5 мутанта: 7dd78df676e17351dcf067d9265ee3ac
+patch (anchor-замена, ровно 1 вхождение):
+  -       await invoke("settings_save", { settings: collectSettings() });
+  -       clearStatus();
+  +       const payload = collectSettings();
+  +       const { lastGuildId: _dropped, ...withoutGuild } = payload;
+  +       await invoke("settings_save", { settings: withoutGuild });
+  +       clearStatus();
+exit code: 1
+summary: ℹ tests 12 | ℹ pass 11 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+md5 после восстановления: 040013d5212a3a0b8e50c045270144ec (OK, совпал)
+verdict: KILLED
+
+Итого: killed 5/5, survived 0
+Итоговый md5 settings.js: 040013d5212a3a0b8e50c045270144ec
+
+## Контрольный прогон после восстановления
+exit code: 0
+summary: ℹ tests 12 | ℹ pass 12 | ℹ fail 0 | ℹ skipped 0
+
+## Проверка восстановления по md5
+
+| Файл | md5 до прогона | md5 после каждой мутации | Итог |
+|---|---|---|---|
+| `rust/gui-spike/ui/features/settings.js` | `040013d5212a3a0b8e50c045270144ec` | `040013d5212a3a0b8e50c045270144ec` | совпал 5/5 |
+| `tests/unit/guild-rail.test.mjs` | `8e44df12e01f2fd8a831ec615e30a360` | не изменялся | без правок |
+
+Тест не редактировался: мутации вносились только в `settings.js`, после каждого
+прогона файл восстанавливался из эталонной копии, md5 сверялся до следующей
+мутации и после последней.
+
+## Область
+
+- Карточка: G-01b-UI-SETTINGS-MUTATIONS, воркер G2 Frontend Lane C (RW-40).
+- Мутировался только `rust/gui-spike/ui/features/settings.js`; целевой тест —
+  `tests/unit/guild-rail.test.mjs`.
+- Мутации `app.js` (`rememberGuild`, `resolvePreferred`, `onChoose`) в этот прогон
+  не входят. Предыдущий смешанный прогон (M1–M2 по `settings.js`, M3–M5 по
+  `app.js`) сохранён как `mutations-fix-prev.log` без изменений.
+- P1 из `REVIEW-PASS2.md` (гонка A → B при быстрых кликах серверов) этим
+  прогоном не закрывается: она про порядок `settings_load`/`settings_save` в
+  `app.js` и требует отдельного red-теста.

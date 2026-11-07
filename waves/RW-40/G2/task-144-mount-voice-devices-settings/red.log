@@ -1,0 +1,120 @@
+▶ V-07 UI: устройства и режим активации («Голос и видео»)
+  ✔ начальное состояние: default-устройства и громкости из оракула (2.291537ms)
+  ✔ длинное имя устройства: полный текст и title, без обрезки в DOM (0.247ms)
+  ✔ явный выбор устройства: один вызов сервиса, состояние и select синхронны (0.513689ms)
+  ✔ нельзя выбрать устройство чужого типа или неизвестное (0.344109ms)
+  ✔ hot-plug сохраняет присутствующее устройство и не вызывает select (0.28462ms)
+  ✔ hot-plug: откат на isDefault === true, уведомление DeviceFallback (0.410179ms)
+  ✔ hot-plug без устройств: NoDeviceAvailable, пустой disabled-список (0.26907ms)
+  ✔ громкость микрофона клампится в 0..100 и сервис получает кламп (0.557009ms)
+  ✔ громкость вывода клампится в 0..200 по оракулу aUJ062 (0.40092ms)
+  ✔ переключатель PTT меняет режим и показывает задержку (0.447209ms)
+  ✔ releaseDelayMs клампится в 0..2000 мс (0.26364ms)
+  ✔ thresholdDb клампится по i8 (−128..127) (0.203109ms)
+  ✔ захват клавиши PTT: Escape отменяет, модификатор игнорируется, Space назначается (0.32014ms)
+  ✔ effectiveMute = userMute || selfDeaf, deafen не трогает userMute (0.324539ms)
+  ✔ ARIA: русские подписи, роли, значения и live-регион (0.43951ms)
+  ✔ ошибка сервиса показывается в alert, а не глотается (0.264409ms)
+  ✔ приватность и запрет медиа-API: нет логов, сети и захвата (0.13657ms)
+✔ V-07 UI: устройства и режим активации («Голос и видео») (8.778498ms)
+▶ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js
+  ✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (0.659889ms)
+  ✖ инициализирует списки устройств ввода, вывода и видео (input / output / video) (1.382198ms)
+  ✖ инициализирует ползунки громкости микрофона 0..100 и динамика 0..200 в панели настроек (0.44199ms)
+  ✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (0.626399ms)
+  ✖ проверка микрофона (mic test): старт/стоп кнопкой, индикатор уровня -100..0 дБ и авто-стоп при destroy() (0.335639ms)
+  ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.44897ms)
+✖ FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js (4.119935ms)
+ℹ tests 23
+ℹ suites 2
+ℹ pass 17
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.848165
+
+✖ failing tests:
+
+test at tests/unit/voice-devices-settings.test.mjs:701:3
+✖ экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video) (0.659889ms)
+  AssertionError [ERR_ASSERTION]: voice-devices-settings.js должен экспортировать createVoiceDevicesSettingsController
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:702:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/voice-devices-settings.test.mjs:740:3
+✖ инициализирует списки устройств ввода, вывода и видео (input / output / video) (1.382198ms)
+  TypeError [Error]: settings.getVoiceDevices is not a function
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:743:56)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/voice-devices-settings.test.mjs:782:3
+✖ инициализирует ползунки громкости микрофона 0..100 и динамика 0..200 в панели настроек (0.44199ms)
+  TypeError [Error]: settings.getVoiceDevices is not a function
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:785:56)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/voice-devices-settings.test.mjs:825:3
+✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (0.626399ms)
+  TypeError [Error]: settings.getVoiceDevices is not a function
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:828:56)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/voice-devices-settings.test.mjs:883:3
+✖ проверка микрофона (mic test): старт/стоп кнопкой, индикатор уровня -100..0 дБ и авто-стоп при destroy() (0.335639ms)
+  TypeError [Error]: settings.getVoiceDevices is not a function
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:886:56)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/voice-devices-settings.test.mjs:924:3
+✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.44897ms)
+  TypeError [Error]: s.getVoiceDevices is not a function
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:928:33)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

@@ -1,0 +1,22 @@
+▶ onboarding-wizard: константы и isValidWelcomeDescription
+  ✔ T-262-01: экспортирует точные лимиты MAX_WELCOME_CHANNELS = 5 и MAX_WELCOME_DESCRIPTION_CHARS = 140 (0.368091ms)
+  ✔ T-262-02: isValidWelcomeDescription проверяет тип строки и длину trimmed-текста в диапазоне 1..=140 (0.11293ms)
+✔ onboarding-wizard: константы и isValidWelcomeDescription (1.089521ms)
+▶ onboarding-wizard: areRequiredPromptsSatisfied
+  ✔ T-262-03: возвращает true при выполнении всех обязательных вопросов (массив и Set) и при отсутствии обязательных (0.20773ms)
+  ✔ T-262-04: возвращает false, если обязательный вопрос пропущен или нарушено ограничение singleSelect (0.09975ms)
+✔ onboarding-wizard: areRequiredPromptsSatisfied (0.42792ms)
+▶ onboarding-wizard: createOnboardingWizardController
+  ✔ T-262-05: рендерит регион [data-onboarding-wizard], не более 5 каналов приветствия и вызывает onOpenWelcomeChannel (1.498681ms)
+  ✔ T-262-06: рендерит вопросы [data-onboarding-prompt] и переключает опции [data-onboarding-option] с учётом singleSelect (0.582431ms)
+  ✔ T-262-07: кнопка [data-onboarding-complete-btn] выводит ошибку в [data-onboarding-error] при невыполненных обязательных вопросах и вызывает onCompleteOnboarding после их заполнения (0.35255ms)
+  ✔ T-262-08: поддерживает setState, защиту getState от внешних мутаций и destroy (0.32521ms)
+✔ onboarding-wizard: createOnboardingWizardController (3.248292ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.592493

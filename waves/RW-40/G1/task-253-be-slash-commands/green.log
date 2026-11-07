@@ -1,0 +1,22 @@
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-253-be-slash-commands/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.48s
+     Running tests/slash_commands_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/slash_commands_contract-e19a840c903419c9)
+
+running 8 tests
+test slash_commands_constants_match_discord_contract ... ok
+test build_interactions_route_and_body_propagates_validation_errors ... ok
+test build_interactions_route_and_body_returns_canonical_route_and_payload ... ok
+test validate_slash_command_name_accepts_valid_names_and_boundaries ... ok
+test validate_slash_command_name_rejects_empty_too_long_uppercase_or_invalid_chars ... ok
+test invoke_slash_command_request_serde_roundtrip ... ok
+test validate_invoke_slash_command_accepts_guild_and_dm_requests_and_option_bounds ... ok
+test validate_invoke_slash_command_rejects_invalid_snowflakes_session_name_or_options ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

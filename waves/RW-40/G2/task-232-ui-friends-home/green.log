@@ -1,0 +1,19 @@
+▶ RELATIONSHIP_TYPES, FRIENDS_TABS_RU и filterRelationshipsByTab (FE-P1-25)
+  ✔ экспортирует замороженные константы RELATIONSHIP_TYPES и FRIENDS_TABS_RU (0.686911ms)
+  ✔ фильтрует вкладку 'online' (только type === 1 и status !== 'offline') и сортирует по алфавиту (displayName || username) (16.301142ms)
+  ✔ фильтрует вкладку 'all' (все type === 1 включая offline), 'pending' (type === 3 и type === 4) и 'blocked' (type === 2) (0.20814ms)
+  ✔ фильтрует по регистронезависимому searchQuery на (displayName || username) и не мутирует входной массив (0.164881ms)
+✔ RELATIONSHIP_TYPES, FRIENDS_TABS_RU и filterRelationshipsByTab (FE-P1-25) (18.102915ms)
+▶ createFriendsHomeController — вкладки, бейдж заявок, поиск и действия (FE-P1-25)
+  ✔ рендерит [data-friends-home], вкладки [data-friends-tab] с aria-selected, бейдж входящих заявок [data-friends-pending-badge] (count of type === 3), поиск [data-friends-search] и список [data-friends-list] (1.795833ms)
+  ✔ переключает вкладки, фильтрует строки по поиску [data-friends-search] и вызывает onOpenDm, onAcceptRequest и onRemoveOrBlock по кликам на кнопки действий (1.347203ms)
+  ✔ на вкладке 'add' рендерит форму [data-add-friend-form] с [data-add-friend-input] и [data-add-friend-submit], вызывая onSendFriendRequest(username.trim()) (0.344641ms)
+✔ createFriendsHomeController — вкладки, бейдж заявок, поиск и действия (FE-P1-25) (3.670347ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63.788652

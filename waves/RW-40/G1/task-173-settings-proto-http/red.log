@@ -1,0 +1,108 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-173-settings-proto-http/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_core::settings::SettingsProtoHttpError`, `discord_core::settings::build_get_settings_proto_request`, `discord_core::settings::build_patch_settings_proto_body`, `discord_core::settings::parse_settings_proto_response`, `discord_core::settings::settings_proto_path`
+  --> crates/discord-core/tests/settings_proto_http.rs:9:52
+   |
+ 9 |     ProtoValue, SettingsProto, SettingsProtoError, SettingsProtoHttpError,
+   |                                                    ^^^^^^^^^^^^^^^^^^^^^^ no `SettingsProtoHttpError` in `settings`
+10 |     build_get_settings_proto_request, build_patch_settings_proto_body,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `build_patch_settings_proto_body` in `settings`
+   |     |
+   |     no `build_get_settings_proto_request` in `settings`
+11 |     parse_settings_proto_response, settings_proto_path,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^ no `settings_proto_path` in `settings`
+   |     |
+   |     no `parse_settings_proto_response` in `settings`
+   |
+help: a similar name exists in the module
+   |
+ 9 -     ProtoValue, SettingsProto, SettingsProtoError, SettingsProtoHttpError,
+ 9 +     ProtoValue, SettingsProto, SettingsProtoError, SettingsProtoError,
+   |
+
+error[E0599]: no method named `encode` found for struct `ProtoMessage` in the current scope
+  --> crates/discord-core/tests/settings_proto_http.rs:39:23
+   |
+39 |     let encoded = msg.encode();
+   |                       ^^^^^^ method not found in `ProtoMessage`
+
+error[E0599]: no method named `encode` found for struct `ProtoMessage` in the current scope
+  --> crates/discord-core/tests/settings_proto_http.rs:42:24
+   |
+42 |     assert_eq!(decoded.encode(), encoded);
+   |                        ^^^^^^ method not found in `ProtoMessage`
+
+error[E0599]: no method named `encode` found for struct `ProtoMessage` in the current scope
+  --> crates/discord-core/tests/settings_proto_http.rs:57:23
+   |
+57 |     let encoded = msg.encode();
+   |                       ^^^^^^ method not found in `ProtoMessage`
+
+error[E0599]: no method named `encode` found for struct `ProtoMessage` in the current scope
+  --> crates/discord-core/tests/settings_proto_http.rs:65:24
+   |
+65 |     assert_eq!(decoded.encode(), encoded);
+   |                        ^^^^^^ method not found in `ProtoMessage`
+
+error[E0599]: no method named `set_field` found for struct `ProtoMessage` in the current scope
+   --> crates/discord-core/tests/settings_proto_http.rs:73:9
+    |
+ 73 |     msg.set_field(10, ProtoValue::Varint(100));
+    |         ^^^^^^^^^
+    |
+help: there is a method `field` with a similar name, but with different arguments
+   --> crates/discord-core/src/settings/wire.rs:278:5
+    |
+278 |     pub fn field(&self, number: u32) -> Option<&ProtoField> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `set_field` found for struct `ProtoMessage` in the current scope
+   --> crates/discord-core/tests/settings_proto_http.rs:78:9
+    |
+ 78 |     msg.set_field(20, ProtoValue::Fixed32(555));
+    |         ^^^^^^^^^
+    |
+help: there is a method `field` with a similar name, but with different arguments
+   --> crates/discord-core/src/settings/wire.rs:278:5
+    |
+278 |     pub fn field(&self, number: u32) -> Option<&ProtoField> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `set_field` found for struct `ProtoMessage` in the current scope
+   --> crates/discord-core/tests/settings_proto_http.rs:83:9
+    |
+ 83 |     msg.set_field(10, ProtoValue::Varint(200));
+    |         ^^^^^^^^^
+    |
+help: there is a method `field` with a similar name, but with different arguments
+   --> crates/discord-core/src/settings/wire.rs:278:5
+    |
+278 |     pub fn field(&self, number: u32) -> Option<&ProtoField> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `set_field` found for struct `ProtoMessage` in the current scope
+   --> crates/discord-core/tests/settings_proto_http.rs:104:13
+    |
+104 |     dup_msg.set_field(1, ProtoValue::Varint(99));
+    |             ^^^^^^^^^
+    |
+help: there is a method `field` with a similar name, but with different arguments
+   --> crates/discord-core/src/settings/wire.rs:278:5
+    |
+278 |     pub fn field(&self, number: u32) -> Option<&ProtoField> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `encode_bytes` found for enum `SettingsProto` in the current scope
+   --> crates/discord-core/tests/settings_proto_http.rs:123:36
+    |
+123 |         let encoded_bytes = parsed.encode_bytes();
+    |                                    ^^^^^^^^^^^^ method not found in `SettingsProto`
+
+error[E0599]: no method named `encode_base64` found for enum `SettingsProto` in the current scope
+   --> crates/discord-core/tests/settings_proto_http.rs:129:34
+    |
+129 |         let encoded_b64 = parsed.encode_base64();
+    |                                  ^^^^^^^^^^^^^ method not found in `SettingsProto`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "settings_proto_http") due to 11 previous errors

@@ -1,0 +1,131 @@
+=== MUTATION TESTING LOG: V-01-RTC-SESSION-OFFLINE ===
+Baseline src/lib.rs MD5:     3688883a78f4daa43e9f62e0a564eb8a
+Baseline src/session.rs MD5: 030303adeef732029c70806312f367d2
+
+--- M1: Connected на op2 вместо op4 ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  85f91b8da904460981173a42a9bb9284
+Exit code:   101
+Expected failing tests: t_v01_02, t_v01_10
+Failing output lines:
+  test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... FAILED
+  test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... FAILED
+  test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... FAILED
+  test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... FAILED
+  test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... FAILED
+  test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... FAILED
+  test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... FAILED
+  test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... FAILED
+  test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... FAILED
+  test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... FAILED
+  test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... FAILED
+  test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... FAILED
+  test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... FAILED
+  test result: FAILED. 3 passed; 13 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M2: интервал heartbeat из константы 13_750 вместо op8 ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  3126141ddc530f854c22a32029c98a25
+Exit code:   101
+Expected failing tests: t_v01_04
+Failing output lines:
+  test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M3: ACK_DEADLINE = 1 * interval вместо 2 * interval ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  2b714c63da24d5aa9cbaebec9759ede6
+Exit code:   101
+Expected failing tests: t_v01_04, t_v01_05
+Failing output lines:
+  test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... FAILED
+  test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... FAILED
+  test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M4: seq_ack всегда 1 вместо H-SEQ (last_inbound_root_seq + 1) ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  7eca3ca0d11756f0facbe65d47e5d049
+Exit code:   101
+Expected failing tests: t_v01_04
+Failing output lines:
+  test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M5: убрать проверку sdp -> провал в общий missing secret_key ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  740c837b9034f76042648344b7ead64d
+Exit code:   101
+Expected failing tests: t_v01_10
+Failing output lines:
+  test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M6: close 1000 -> реконнект вместо Closed ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  97d20abd8fefc7f2fdca661956ea82a0
+Exit code:   101
+Expected failing tests: t_v01_07
+Failing output lines:
+  test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M7: 3 попытки реконнекта -> 4 ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  8f1e982d09c9b5b70ff1c502fc643cb1
+Exit code:   101
+Expected failing tests: t_v01_08
+Failing output lines:
+  test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M8: убрать CancelTimer(Hello) после op8 ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  ea93d14f933c74f2a98e988efede7fd3
+Exit code:   101
+Expected failing tests: t_v01_06
+Failing output lines:
+  test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... FAILED
+  test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... FAILED
+  test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M9: логировать media_session_id / token в Debug или snapshot ---
+Target file: rust/crates/discord-voice/src/session.rs
+Mutant MD5:  facf2e62e03a3a7eda6ef364db382b74
+Exit code:   101
+Expected failing tests: t_v01_12
+Failing output lines:
+  test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+--- M10: убрать experiments из op1 ---
+Target file: rust/crates/discord-voice/src/lib.rs
+Mutant MD5:  b82902e426f02c4e074eaf5847d9859f
+Exit code:   101
+Expected failing tests: t_v01_14
+Failing output lines:
+  test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... FAILED
+  test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Restored baseline MD5 verified: lib.rs=3688883a78f4daa43e9f62e0a564eb8a, session.rs=030303adeef732029c70806312f367d2
+Status: KILLED
+
+=== POST-MUTATION GREEN VERIFICATION ===
+Final exit code: 0
+  test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

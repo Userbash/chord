@@ -10,6 +10,7 @@ use std::time::{Duration, Instant};
 
 use discord_core::rest::client::{
     ApiAuth, ApiAuthError, ApiClient, ApiConfig, ApiError, ApiRetryPolicy, AuthScheme,
+    HeaderConfig, format_accept_language,
 };
 use discord_core::rest::routes::HttpMethod;
 use discord_core::rest::super_properties::SuperProperties;
@@ -939,5 +940,233 @@ async fn post_once_returns_5xx_instead_of_retrying() {
             .len(),
         1,
         "post_once не повторяет 5xx"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// BE-P2-02 (task-165): Accept-Language q-list и опциональные REST-заголовки
+// ---------------------------------------------------------------------------
+
+#[test]
+fn format_accept_language_qlist_spec_examples() {
+    // 3 языка из ТЗ
+    assert_eq!(
+        format_accept_language(&["ru", "ru-RU", "en-US"]),
+        "ru,ru-RU;q=0.9,en-US;q=0.8"
+    );
+
+    // Пустой список -> дефолтный язык (en-US)
+    assert_eq!(format_accept_language(&[]), "en-US");
+
+    // Пустые/пробельные строки -> дефолтный язык (en-US)
+    assert_eq!(format_accept_language(&["", "   "]), "en-US");
+
+    // 1 язык -> без q
+    assert_eq!(format_accept_language(&["ru"]), "ru");
+
+    // 2 языка -> первый без q, второй с q=0.9
+    assert_eq!(format_accept_language(&["en-US", "en"]), "en-US,en;q=0.9");
+
+    // 10 языков: q убывает от 0.9 до 0.1
+    let ten = ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10"];
+    assert_eq!(
+        format_accept_language(&ten),
+        "l1,l2;q=0.9,l3;q=0.8,l4;q=0.7,l5;q=0.6,l6;q=0.5,l7;q=0.4,l8;q=0.3,l9;q=0.2,l10;q=0.1"
+    );
+
+    // 11 языков: не опускается ниже 0.1
+    let eleven = [
+        "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11",
+    ];
+    assert_eq!(
+        format_accept_language(&eleven),
+        "l1,l2;q=0.9,l3;q=0.8,l4;q=0.7,l5;q=0.6,l6;q=0.5,l7;q=0.4,l8;q=0.3,l9;q=0.2,l10;q=0.1,l11;q=0.1"
+    );
+}
+
+#[test]
+fn api_auth_from_token_with_locales_sets_accept_language_and_discord_locale() {
+    let sp = super_properties();
+    let auth = ApiAuth::from_token_with_locales(
+        USER_TOKEN,
+        &sp,
+        &["ru", "ru-RU", "en-US"],
+        "Europe/Moscow",
+    )
+    .expect("валидный auth с локалями");
+
+    assert_eq!(auth.locale, "ru");
+    assert_eq!(auth.accept_language, "ru,ru-RU;q=0.9,en-US;q=0.8");
+    assert_eq!(auth.timezone, "Europe/Moscow");
+    assert_eq!(auth.authorization, USER_TOKEN);
+    assert_eq!(auth.debug_options, "bugReporterEnabled");
+    assert_eq!(auth.super_properties, sp.to_base64());
+}
+
+#[tokio::test]
+async fn optional_headers_sent_when_some_and_non_empty() {
+    let (port, server) = spawn_sequence(vec![response("200 OK", "{}")]).await;
+    let headers_config = HeaderConfig {
+        fingerprint: Some("test-fingerprint-123".to_string()),
+        installation_id: Some("test-installation-456".to_string()),
+        routing_key: Some("test-routing-key-789".to_string()),
+    };
+    let client = client_for(port, auth(), policy()).with_headers(headers_config);
+
+    let result = timeout(CASE_TIMEOUT, client.get("/users/@me"))
+        .await
+        .expect("timeout")
+        .expect("ответ");
+    assert_eq!(result.status, 200);
+
+    let raw = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    let text = String::from_utf8_lossy(&raw[0]);
+
+    // Проверяем наличие всех 3 опциональных заголовков
+    assert!(
+        text.contains("X-Fingerprint: test-fingerprint-123\r\n"),
+        "X-Fingerprint отсутствует: {text}"
+    );
+    assert!(
+        text.contains("X-Installation-ID: test-installation-456\r\n"),
+        "X-Installation-ID отсутствует: {text}"
+    );
+    assert!(
+        text.contains("X-Routing-Key: test-routing-key-789\r\n"),
+        "X-Routing-Key отсутствует: {text}"
+    );
+
+    // Проверяем, что все 6 базовых обязательных заголовков также на месте
+    for base in [
+        "Authorization: Bot test-token",
+        "X-Super-Properties: sp-base64",
+        "X-Discord-Locale: en-US",
+        "X-Discord-Timezone: UTC",
+        "X-Debug-Options: debug",
+        "Accept-Language: en-US,en;q=0.9",
+    ] {
+        assert!(text.contains(base), "базовый заголовок отсутствует: {base}");
+    }
+}
+
+#[tokio::test]
+async fn optional_headers_omitted_when_none_or_empty_or_whitespace() {
+    let (port, server) = spawn_sequence(vec![response("200 OK", "{}")]).await;
+    let headers_config = HeaderConfig {
+        fingerprint: Some("".to_string()),
+        installation_id: Some("   ".to_string()),
+        routing_key: None,
+    };
+    let client = client_for(port, auth(), policy()).with_headers(headers_config);
+
+    let result = timeout(CASE_TIMEOUT, client.get("/users/@me"))
+        .await
+        .expect("timeout")
+        .expect("ответ");
+    assert_eq!(result.status, 200);
+
+    let raw = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    let text = String::from_utf8_lossy(&raw[0]);
+
+    // Ни один из опциональных заголовков не должен уйти в сеть
+    assert!(
+        !text.contains("X-Fingerprint"),
+        "пустой X-Fingerprint утёк в запрос: {text}"
+    );
+    assert!(
+        !text.contains("X-Installation-ID"),
+        "пробельный X-Installation-ID утёк в запрос: {text}"
+    );
+    assert!(
+        !text.contains("X-Routing-Key"),
+        "None X-Routing-Key утёк в запрос: {text}"
+    );
+
+    // Базовый набор из 6 обязательных заголовков остаётся неизменным
+    assert_eq!(
+        text.matches("Authorization:").count(),
+        1,
+        "ровно один Authorization"
+    );
+    assert_eq!(
+        text.matches("X-Super-Properties:").count(),
+        1,
+        "ровно один X-Super-Properties"
+    );
+    assert_eq!(
+        text.matches("X-Discord-Locale:").count(),
+        1,
+        "ровно один X-Discord-Locale"
+    );
+    assert_eq!(
+        text.matches("X-Discord-Timezone:").count(),
+        1,
+        "ровно один X-Discord-Timezone"
+    );
+    assert_eq!(
+        text.matches("X-Debug-Options:").count(),
+        1,
+        "ровно один X-Debug-Options"
+    );
+    assert_eq!(
+        text.matches("Accept-Language:").count(),
+        1,
+        "ровно один Accept-Language"
+    );
+}
+
+#[tokio::test]
+async fn optional_headers_builder_methods_and_post_once() {
+    let (port, server) = spawn_sequence(vec![response("200 OK", "{}")]).await;
+    let client = client_for(port, auth(), policy())
+        .with_fingerprint("builder-fp")
+        .with_installation_id("builder-inst")
+        .with_routing_key("builder-rk");
+
+    assert_eq!(client.headers().fingerprint.as_deref(), Some("builder-fp"));
+    assert_eq!(
+        client.headers().installation_id.as_deref(),
+        Some("builder-inst")
+    );
+    assert_eq!(client.headers().routing_key.as_deref(), Some("builder-rk"));
+
+    let result = timeout(
+        CASE_TIMEOUT,
+        client.post_once("/auth/register", b"{}", &[("X-Fingerprint", "explicit-fp")]),
+    )
+    .await
+    .expect("timeout")
+    .expect("post_once ответ");
+    assert_eq!(result.status, 200);
+
+    let raw = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    let text = String::from_utf8_lossy(&raw[0]);
+
+    // Явный X-Fingerprint не должен дублироваться заголовком из конфигурации клиента
+    assert_eq!(
+        text.matches("X-Fingerprint:").count(),
+        1,
+        "ровно один X-Fingerprint: {text}"
+    );
+    assert!(
+        text.contains("X-Fingerprint: explicit-fp"),
+        "явный заголовок перекрывает: {text}"
+    );
+    assert!(
+        text.contains("X-Installation-ID: builder-inst"),
+        "X-Installation-ID дошёл: {text}"
+    );
+    assert!(
+        text.contains("X-Routing-Key: builder-rk"),
+        "X-Routing-Key дошёл: {text}"
     );
 }

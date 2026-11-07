@@ -1,0 +1,23 @@
+▶ Константы QUICK_REACTION_EMOJIS и MAX_FORWARD_DESTINATIONS
+  ✔ QUICK_REACTION_EMOJIS заморожен и содержит ['👍', '❤️', '😂'], а MAX_FORWARD_DESTINATIONS равен 5 (0.58835ms)
+✔ Константы QUICK_REACTION_EMOJIS и MAX_FORWARD_DESTINATIONS (1.11093ms)
+▶ createMessageActionsController: renderActionBar
+  ✔ всегда рендерит 3 быстрые реакции, 'Ответить' и 'Переслать' и вызывает onReact / onReply (0.765299ms)
+  ✔ рендерит 'Изменить' ТОЛЬКО когда message.authorId === context.currentUserId и вызывает onEdit(message.id) (0.29528ms)
+  ✔ рендерит 'Закрепить сообщение' / 'Открепить сообщение' ТОЛЬКО при context.canManageMessages === true и вызывает onTogglePin (0.21234ms)
+  ✔ рендерит 'Удалить сообщение' для автора ИЛИ при canManageMessages === true и вызывает onDelete(message.id) (0.1748ms)
+✔ createMessageActionsController: renderActionBar (1.629059ms)
+▶ createMessageActionsController: openForwardModal
+  ✔ рендерит диалог 'Переслать сообщение' с фильтром каналов, чекбоксами, полем комментария и кнопкой 'Отправить' (0.884629ms)
+  ✔ ограничивает выбор получателей лимитом MAX_FORWARD_DESTINATIONS (5) и блокирует остальные чекбоксы (0.33286ms)
+  ✔ фильтрует список каналов по вводу и передаёт комментарий в onForward(message.id, selectedChannelIds, comment) (0.25489ms)
+  ✔ не вызывает onForward при пустом выборе каналов и валидирует containerEl (0.28938ms)
+✔ createMessageActionsController: openForwardModal (1.952739ms)
+ℹ tests 9
+ℹ suites 3
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.535452

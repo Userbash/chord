@@ -1,0 +1,20 @@
+✔ VOICE_SOUND_EVENTS_RU: frozen, 8 событий с русскими подписями (4.234532ms)
+✔ VOICE_SOUND_EVENTS_RU: справочник нельзя расширить (0.24564ms)
+✔ shouldPlayVoiceCue: неизвестный ключ события не играет (0.10594ms)
+✔ shouldPlayVoiceCue: все 8 известных событий играют при пустом state (0.112571ms)
+✔ shouldPlayVoiceCue: disableAllSounds выключает любые события (0.10019ms)
+✔ shouldPlayVoiceCue: mutedEvents глушит только перечисленные события (0.08682ms)
+✔ shouldPlayVoiceCue: selfDeaf оставляет слышимыми только deafen/undeafen (0.08975ms)
+✔ shouldPlayVoiceCue: streamerMode глушит только join/leave (0.0891ms)
+✔ shouldPlayVoiceCue: комбинация фильтров и приоритет selfDeaf над streamerMode (0.11918ms)
+✔ normalizeCueVolume: проценты 0..200 переводятся в 0..2 (0.15029ms)
+✔ normalizeCueVolume: выход за диапазон обрезается, дробные округляются (0.08925ms)
+✔ normalizeCueVolume: нечисловой вход даёт 1 (0.0684ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.393669

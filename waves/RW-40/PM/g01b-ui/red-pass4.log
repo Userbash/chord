@@ -1,0 +1,49 @@
+▶ G-01: рейл серверов из ready()
+  ✔ 7 гильдий из READY fixture: data-guild-id, aria-label, aria-current, монограмма (40.526278ms)
+  ✔ нет статичной заглушки data-guild="1": ни в index.html, ни в готовом рейле (34.72911ms)
+  ✔ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (12.736348ms)
+  ✔ клавиатура ↑/↓/Home/End двигает выбор и фокус (12.61933ms)
+  ✔ 0 гильдий → empty-state, а не пустой рейл (11.912632ms)
+  ✔ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (13.764845ms)
+  ✔ loading skeleton до ответа ready(), затем плитки (11.680843ms)
+  ✔ до auth ready ready() не вызывается (источник — только вход) (9.86382ms)
+✔ G-01: рейл серверов из ready() (148.854622ms)
+▶ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+  ✔ boot: выбирается гильдия с id == lastGuildId из settings_load (11.884692ms)
+  ✔ boot: lastGuildId вне READY или без поля → первая гильдия (21.800863ms)
+  ✔ клик по плитке сохраняет lastGuildId, не теряя остальные настройки (13.091478ms)
+  ✔ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её (23.150277ms)
+  ✔ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B (25.586517ms)
+  ✖ быстрые клики серверов A -> B с задержкой завершения settings_save от A сохраняют итоговый выбор B (10.05361ms)
+  ✔ STUB-10 / STUB-05: currentApp() экспортирует рабочие контроллеры pinsThreads и inviteModal (9.573342ms)
+  ✔ PINS-THREADS-SPEC §1–§3: server-menu.css содержит поповер-правила .header-dropdown-panel, .pins-panel, .threads-panel (0.340108ms)
+✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется (115.847935ms)
+ℹ tests 16
+ℹ suites 2
+ℹ pass 15
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 308.74263
+
+✖ failing tests:
+
+test at tests/unit/guild-rail.test.mjs:558:3
+✖ быстрые клики серверов A -> B с задержкой завершения settings_save от A сохраняют итоговый выбор B (10.05361ms)
+  AssertionError [ERR_ASSERTION]: гонка при отложенном settings_save от A: сохранён 294064825540280335, ожидался последний выбор 338001249918255106
+  + actual - expected
+  
+  + '294064825540280335'
+  - '338001249918255106'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:620:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '294064825540280335',
+    expected: '338001249918255106',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

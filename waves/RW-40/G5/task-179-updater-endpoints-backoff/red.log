@@ -1,0 +1,78 @@
+# RED: 2026-10-31T03:29:53+08:00
+# cargo test -p discord-updater --test updater_contract --lib (до реализации)
+    Blocking waiting for file lock on build directory
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.191
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-json)
+   Compiling ring v0.17.14
+   Compiling generic-array v0.14.7
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling getrandom v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
+error: struct literals are not allowed here
+    --> crates/discord-updater/tests/updater_contract.rs:1160:11
+     |
+1160 |     match SplashUpdateState::UpdateFailure { seconds: 7 } {
+     |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: surround the struct literal with parentheses
+     |
+1160 |     match (SplashUpdateState::UpdateFailure { seconds: 7 }) {
+     |           +                                               +
+
+error: struct literals are not allowed here
+    --> crates/discord-updater/tests/updater_contract.rs:1164:11
+     |
+1164 |       match SplashUpdateState::UpdateManually {
+     |  ___________^
+1165 | |         latest_version: "2.0.0".to_string(),
+1166 | |     } {
+     | |_____^
+     |
+help: surround the struct literal with parentheses
+     |
+1164 ~     match (SplashUpdateState::UpdateManually {
+1165 |         latest_version: "2.0.0".to_string(),
+1166 ~     }) {
+     |
+
+error[E0432]: unresolved imports `discord_updater::DEFAULT_UPDATE_BACKOFF_MAX_MS`, `discord_updater::DEFAULT_UPDATE_ENDPOINT`, `discord_updater::LinuxPackageFormat`, `discord_updater::NEW_UPDATE_ENDPOINT`, `discord_updater::ReleaseChannel`, `discord_updater::SCHEDULED_UPDATE_BACKOFF_MS`, `discord_updater::ScheduledUpdateBackoff`, `discord_updater::SplashUpdateState`, `discord_updater::build_linux_download_url`, `discord_updater::build_linux_feed_url`, `discord_updater::build_modules_base_url`, `discord_updater::should_disable_updater`
+  --> crates/discord-updater/tests/updater_contract.rs:28:5
+   |
+28 |     DEFAULT_UPDATE_BACKOFF_MAX_MS, DEFAULT_UPDATE_ENDPOINT, LinuxPackageFormat, NEW_UPDATE_ENDPOINT,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^ no `NEW_UPDATE_ENDPOINT` in the root
+   |     |                              |                        |
+   |     |                              |                        no `LinuxPackageFormat` in the root
+   |     |                              no `DEFAULT_UPDATE_ENDPOINT` in the root
+   |     no `DEFAULT_UPDATE_BACKOFF_MAX_MS` in the root
+29 |     ReleaseChannel, SCHEDULED_UPDATE_BACKOFF_MS, ScheduledUpdateBackoff, SplashUpdateState,
+   |     ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^ no `SplashUpdateState` in the root
+   |     |               |                            |
+   |     |               |                            no `ScheduledUpdateBackoff` in the root
+   |     |               no `SCHEDULED_UPDATE_BACKOFF_MS` in the root
+   |     no `ReleaseChannel` in the root
+30 |     build_linux_download_url, build_linux_feed_url, build_modules_base_url, should_disable_updater,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^
+   |     |                         |
+   |     |                         no `build_linux_feed_url` in the root
+   |     no `build_linux_download_url` in the root
+
+error[E0599]: no variant named `InvalidEndpoint` found for enum `ManifestError`
+    --> crates/discord-updater/tests/updater_contract.rs:1039:42
+     |
+1039 |             matches!(err, ManifestError::InvalidEndpoint { .. }),
+     |                                          ^^^^^^^^^^^^^^^ variant not found in `ManifestError`
+
+error[E0599]: no variant named `InvalidEndpoint` found for enum `ManifestError`
+    --> crates/discord-updater/tests/updater_contract.rs:1046:42
+     |
+1046 |             matches!(err, ManifestError::InvalidEndpoint { .. }),
+     |                                          ^^^^^^^^^^^^^^^ variant not found in `ManifestError`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-updater` (test "updater_contract") due to 5 previous errors
+# exit=101

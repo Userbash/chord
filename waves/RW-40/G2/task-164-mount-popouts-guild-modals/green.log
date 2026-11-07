@@ -1,0 +1,15 @@
+▶ FE-P1-06 / task-164: монтирование createUserPopoutController и createGuildModalsController в app.js
+  ✔ 1. В app.js импортированы и смонтированы createUserPopoutController и createGuildModalsController, возвращены в currentApp() (51.179379ms)
+  ✔ 2. userPopout открывается по клику на .author в чате и .member в списке участников с корректными данными (49.344358ms)
+  ✔ 3. guildModals открывает #guild-context-menu по contextmenu на триггере сервера/рейла и обрабатывает Escape (16.444869ms)
+  ✔ 4. В #guild-context-menu пункт 'Настройки уведомлений' вызывает onOpenNotifications (sync/openModal) (15.754035ms)
+  ✔ 5. Очистка ресурсов при destroy() контроллеров: удаление DOM узлов и снятие слушателей (15.540635ms)
+✔ FE-P1-06 / task-164: монтирование createUserPopoutController и createGuildModalsController в app.js (149.289523ms)
+ℹ tests 206
+ℹ suites 24
+ℹ pass 206
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2398.239948

@@ -1,0 +1,22 @@
+▶ ROLE_PERMISSIONS_CATALOG_RU
+  ✔ содержит замороженный каталог из 6 прав с русскими подписями и битовыми масками (0.65438ms)
+✔ ROLE_PERMISSIONS_CATALOG_RU (1.22849ms)
+▶ sortRolesByPositionDesc
+  ✔ сортирует роли по убыванию position и при равенстве по String(id) по возрастанию без мутации входа (0.230371ms)
+  ✔ безопасно обрабатывает роли без position и невалидный вход (0.11216ms)
+✔ sortRolesByPositionDesc (0.468751ms)
+▶ createRoleEditorController
+  ✔ рендерит [data-role-editor], отсортированный список ролей и контролы выбранной роли (0.977211ms)
+  ✔ переключает выбранную роль по клику в сайдбаре и через selectRole(roleId) (0.74171ms)
+  ✔ переключает биты прав и флаг hoist в черновике и вызывает onSaveRole с обрезанным именем (0.51614ms)
+  ✔ валидирует длину имени роли (1..100 символов после trim) перед вызовом onSaveRole (0.205401ms)
+  ✔ поддерживает setState, getState и destroy (0.22155ms)
+✔ createRoleEditorController (2.930682ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.370196

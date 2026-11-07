@@ -1,0 +1,52 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
+
+running 15 tests
+test ack_message_delegates_counter_and_nullable_token_verbatim ... ok
+test message_actions_delegate_to_expected_paths_and_payloads ... ok
+test send_message_delegates_and_returns_receipt ... ok
+test ack_message_preserves_typed_errors ... ok
+test send_message_rejects_content_over_2000_before_sender ... ok
+test send_message_rejects_empty_or_whitespace_content_before_sender ... ok
+test message_actions_reject_invalid_ids_and_content_before_io ... ok
+test send_message_preserves_typed_http_errors ... ok
+test send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound ... ok
+test actions_preserve_http_errors_and_debug_hides_token ... ok
+test send_message_rejects_path_traversal_in_channel_id_before_sender ... ok
+test tauri_registers_send_message_command ... ok
+test sender_debug_does_not_reveal_token ... ok
+test sender_rejects_path_traversal_channel_id_before_http ... ok
+test tauri_registers_message_action_commands ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+=== exit=0 ===
+
+=== final re-run after restore ===
+md5(messages.rs) before run: c449a06c783c795effb33c7fc763614e
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.63s
+     Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
+
+running 15 tests
+test send_message_delegates_and_returns_receipt ... ok
+test ack_message_preserves_typed_errors ... ok
+test ack_message_delegates_counter_and_nullable_token_verbatim ... ok
+test message_actions_delegate_to_expected_paths_and_payloads ... ok
+test send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound ... ok
+test send_message_preserves_typed_http_errors ... ok
+test send_message_rejects_content_over_2000_before_sender ... ok
+test send_message_rejects_empty_or_whitespace_content_before_sender ... ok
+test message_actions_reject_invalid_ids_and_content_before_io ... ok
+test actions_preserve_http_errors_and_debug_hides_token ... ok
+test tauri_registers_send_message_command ... ok
+test sender_debug_does_not_reveal_token ... ok
+test send_message_rejects_path_traversal_in_channel_id_before_sender ... ok
+test tauri_registers_message_action_commands ... ok
+test sender_rejects_path_traversal_channel_id_before_http ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== exit=0 ===

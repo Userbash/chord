@@ -1,0 +1,87 @@
+# MUTANT M1: normalizeStatus: fallback статуса 'offline' -> 'online'
+# file: rust/gui-spike/ui/features/profile-modal.js
+# mutant md5: 47dda5f8074e84528a05399cba8f6c5a
+# exit: 1
+# verdict: KILLED
+# command: node --test tests/unit/profile-modal.test.mjs tests/unit/appearance-settings.test.mjs
+
+▶ appearance-settings: константы
+  ✔ T-185-01: наборы шагов и ключ хранилища зафиксированы и заморожены (0.64359ms)
+✔ appearance-settings: константы (1.19982ms)
+▶ appearance-settings: состояние по умолчанию
+  ✔ T-185-02: без storage контроллер стартует с дефолтами (0.35844ms)
+  ✔ T-185-03: create применяет значения к documentElement сразу (0.13277ms)
+✔ appearance-settings: состояние по умолчанию (0.68701ms)
+▶ appearance-settings: гидратация
+  ✔ T-185-04: валидный JSON из storage восстанавливает все 4 контрола (0.56869ms)
+  ✔ T-185-05: невалидные поля в JSON отбрасываются по одному, остальные применяются (0.1332ms)
+  ✔ T-185-06: битый JSON и мусор в storage не ломают контроллер (0.14611ms)
+  ✔ T-185-07: падение storage.getItem не мешает старту с дефолтами (0.134621ms)
+✔ appearance-settings: гидратация (1.179981ms)
+▶ appearance-settings: сеттеры и валидация
+  ✔ T-185-08: setTheme применяет тему и пишет JSON в storage (0.18422ms)
+  ✔ T-185-09: setTheme отвергает чужое значение без мутации и записи в storage (0.11951ms)
+  ✔ T-185-10: setFontScale принимает только шаги и пишет проценты в CSS-переменную (0.20965ms)
+  ✔ T-185-11: setGroupSpacing принимает 0 и остальные шаги, отвергая прочие (0.14475ms)
+  ✔ T-185-12: setReducedMotion принимает строго boolean (0.10606ms)
+✔ appearance-settings: сеттеры и валидация (0.93695ms)
+▶ appearance-settings: getState и resetDefaults
+  ✔ T-185-13: getState отдаёт копию, внешняя мутация не меняет контроллер (0.13293ms)
+  ✔ T-185-14: resetDefaults возвращает дефолты, применяет их и перезаписывает storage (0.12564ms)
+  ✔ T-185-15: падение storage.setItem не отменяет применение к DOM (0.09059ms)
+✔ appearance-settings: getState и resetDefaults (0.43059ms)
+▶ STATUS_LABELS_RU
+  ✔ заморожен и содержит русские подписи для online, idle, dnd, offline (0.63455ms)
+✔ STATUS_LABELS_RU (1.20716ms)
+▶ createProfileModalController: openPopout
+  ✔ рендерит компактную карточку data-profile-mode='popout' с именем, юзернеймом, местоимениями, статусом и био (1.22432ms)
+  ✖ корректно отображает все 4 статуса из STATUS_LABELS_RU и фоллбэчит неизвестный в offline (1.201871ms)
+  ✔ рендерит пилюли ролей с data-role-id и цветом роли (0.14434ms)
+  ✔ вызывает onSaveNote(userId, noteText) при изменении поля личной заметки (0.21331ms)
+  ✔ рендерит быстрый инпут ЛС с placeholder 'Написать @' + username и вызывает onSendQuickMessage только для непустого текста (0.21471ms)
+✖ createProfileModalController: openPopout (3.271871ms)
+▶ createProfileModalController: openFullModal и setTab
+  ✔ рендерит диалог полного профиля (role='dialog', aria-modal='true', data-profile-mode='modal') с 3 вкладками и счётчиками (0.40426ms)
+  ✔ setTab('mutual_guilds') и setTab('mutual_friends') переключают активную вкладку и рендерят списки (0.23516ms)
+  ✔ рендерит русские пустые состояния 'Нет общих серверов' и 'Нет общих друзей' при пустых списках (0.17036ms)
+  ✔ клик по кнопке вкладки переключает вкладку, а невалидный setTab возвращает false (0.1918ms)
+✔ createProfileModalController: openFullModal и setTab (1.19884ms)
+▶ createProfileModalController: переключение режимов и close()
+  ✔ openFullModal заменяет открытый popout, а close() полностью удаляет карточку/модалку из контейнера (0.34894ms)
+  ✔ поддерживает поле about как синоним bio, скрывает пустые местоимения и отвергает невалидный containerEl (0.28074ms)
+✔ createProfileModalController: переключение режимов и close() (0.71964ms)
+ℹ tests 27
+ℹ suites 9
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.967738
+
+✖ failing tests:
+
+test at tests/unit/profile-modal.test.mjs:363:3
+✖ корректно отображает все 4 статуса из STATUS_LABELS_RU и фоллбэчит неизвестный в offline (1.201871ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'online'
+  - 'offline'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-280-unit-tsc-fix-batch1/tests/unit/profile-modal.test.mjs:378:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'online',
+    expected: 'offline',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

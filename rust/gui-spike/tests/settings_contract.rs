@@ -19,8 +19,8 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use discord_gui_spike::settings_store::{
-    self, Density, Locale, SettingsError, SettingsStore, Theme, UiSettings, MAX_SETTINGS_BYTES,
-    MAX_TOGGLES, MAX_TOGGLE_ID_LEN, SETTINGS_VERSION,
+    self, Density, Locale, SettingsError, SettingsStore, Theme, UiSettings, UiSettingsPatch,
+    HOME_GUILD_ID, MAX_SETTINGS_BYTES, MAX_TOGGLES, MAX_TOGGLE_ID_LEN, SETTINGS_VERSION,
 };
 use serde_json::{json, Value};
 
@@ -80,6 +80,7 @@ fn sample() -> UiSettings {
         theme: Theme::Light,
         locale: Locale::En,
         last_guild_id: None,
+        home_mode: None,
     }
 }
 
@@ -600,6 +601,10 @@ fn non_snowflake_last_guild_id_normalizes_to_none() {
         json!(""),
         json!("   "),
         json!("abc"),
+        json!("@you"),
+        json!(" @me"),
+        json!("@me "),
+        json!("@ME"),
         json!("12 34"),
         json!("-1"),
         json!("+1"),
@@ -641,7 +646,16 @@ fn save_drops_non_snowflake_last_guild_id_without_failing() {
     let path = dir.join("settings.json");
     let store = SettingsStore::new(&path);
 
-    for bad in ["", "   ", "guild-1", "123456789012345678901"] {
+    for bad in [
+        "",
+        "   ",
+        "abc",
+        "@you",
+        " @me",
+        "@ME",
+        "guild-1",
+        "123456789012345678901",
+    ] {
         let settings = UiSettings {
             last_guild_id: Some(bad.to_string()),
             ..UiSettings::default()
@@ -671,14 +685,25 @@ fn save_drops_non_snowflake_last_guild_id_without_failing() {
 
 #[test]
 fn validate_rejects_non_snowflake_last_guild_id() {
-    for bad in ["not-a-snowflake", " 123", "123 ", "1e3", "١٢٣"] {
+    for bad in [
+        "not-a-snowflake",
+        "abc",
+        "@you",
+        " @me",
+        "@me ",
+        "@ME",
+        " 123",
+        "123 ",
+        "1e3",
+        "١٢٣",
+    ] {
         let settings = UiSettings {
             last_guild_id: Some(bad.to_string()),
             ..UiSettings::default()
         };
         let error = settings
             .validate()
-            .expect_err("не snowflake — вне контракта");
+            .expect_err("не snowflake и не @me — вне контракта");
         assert_eq!(invalid_field(error), "lastGuildId");
     }
 
@@ -688,6 +713,175 @@ fn validate_rejects_non_snowflake_last_guild_id() {
     };
     ok.validate()
         .expect("настоящий snowflake проходит валидацию");
+
+    let home_ok = UiSettings {
+        last_guild_id: Some(HOME_GUILD_ID.to_string()),
+        ..UiSettings::default()
+    };
+    home_ok
+        .validate()
+        .expect("@me (HOME_GUILD_ID) проходит валидацию");
+}
+
+#[test]
+fn home_guild_id_at_me_roundtrips_save_and_load_without_dropping() {
+    let dir = TempDir::new("home-at-me");
+    let path = dir.join("settings.json");
+    let store = SettingsStore::new(&path);
+
+    assert_eq!(HOME_GUILD_ID, "@me");
+    assert_eq!(
+        settings_store::normalize_last_guild_id(Some(HOME_GUILD_ID)),
+        Some("@me".to_string()),
+        "normalize_last_guild_id обязан пропускать @me (HOME_GUILD_ID)"
+    );
+    assert_eq!(
+        settings_store::normalize_last_guild_id(Some("@you")),
+        None,
+        "посторонний @-идентификатор отбрасывается в None"
+    );
+    assert_eq!(
+        settings_store::normalize_last_guild_id(Some("abc")),
+        None,
+        "нечисловая строка кроме @me отбрасывается в None"
+    );
+
+    let settings = UiSettings {
+        last_guild_id: Some(HOME_GUILD_ID.to_string()),
+        ..sample()
+    };
+    settings
+        .validate()
+        .expect("lastGuildId=@me должен проходить UiSettings::validate без Invalid(lastGuildId)");
+    store
+        .save(&settings)
+        .expect("сохранение режима Home (lastGuildId=@me)");
+
+    let raw = fs::read_to_string(&path).expect("файл настроек читается");
+    let value: Value = serde_json::from_str(&raw).expect("на диске валидный JSON");
+    assert_eq!(
+        value["lastGuildId"], "@me",
+        "на диске должен сохраниться lastGuildId=\"@me\""
+    );
+    assert_eq!(
+        store.load().expect("загрузка после сохранения @me"),
+        settings,
+        "save -> load для lastGuildId=\"@me\" не должен терять значение в None"
+    );
+}
+
+#[test]
+fn home_mode_field_roundtrips_and_omits_when_none() {
+    let dir = TempDir::new("home-mode");
+    let path = dir.join("settings.json");
+    let store = SettingsStore::new(&path);
+
+    let defaults = UiSettings::default();
+    assert_eq!(defaults.home_mode, None);
+    let default_json = serde_json::to_value(&defaults).expect("сериализация дефолтов");
+    assert!(
+        default_json.get("homeMode").is_none(),
+        "при home_mode=None ключ homeMode не сериализуется: {default_json}"
+    );
+    assert!(
+        default_json.get("home_mode").is_none(),
+        "snake_case home_mode не должен появляться: {default_json}"
+    );
+
+    let home_settings = UiSettings {
+        last_guild_id: Some(HOME_GUILD_ID.to_string()),
+        home_mode: Some(true),
+        ..sample()
+    };
+    store
+        .save(&home_settings)
+        .expect("сохранение настроек с homeMode=true");
+
+    let raw = fs::read_to_string(&path).expect("файл настроек читается");
+    let value: Value = serde_json::from_str(&raw).expect("валидный JSON");
+    assert_eq!(value["lastGuildId"], "@me");
+    assert_eq!(value["homeMode"], true);
+    assert!(value.get("home_mode").is_none());
+    assert_eq!(store.load().expect("загрузка homeMode=true"), home_settings);
+
+    let guild_settings = UiSettings {
+        last_guild_id: Some(GUILD_ID.to_string()),
+        home_mode: Some(false),
+        ..sample()
+    };
+    store
+        .save(&guild_settings)
+        .expect("сохранение настроек с homeMode=false");
+    let value: Value =
+        serde_json::from_str(&fs::read_to_string(&path).expect("файл")).expect("JSON");
+    assert_eq!(value["lastGuildId"], GUILD_ID);
+    assert_eq!(value["homeMode"], false);
+    assert_eq!(
+        store.load().expect("загрузка homeMode=false"),
+        guild_settings
+    );
+
+    // Null в файле читается как None без ошибки.
+    let mut with_null = settings_json();
+    with_null["homeMode"] = json!(null);
+    write_raw(&path, &with_null.to_string());
+    assert_eq!(store.load().expect("homeMode: null").home_mode, None);
+}
+
+#[test]
+fn settings_patch_updates_home_mode_and_last_guild_id_preserving_other_fields() {
+    let dir = TempDir::new("settings-patch");
+    let path = dir.join("settings.json");
+    let store = SettingsStore::new(&path);
+
+    let initial = sample();
+    store.save(&initial).expect("начальное сохранение");
+
+    let patch_to_home: UiSettingsPatch = serde_json::from_value(json!({
+        "lastGuildId": "@me",
+        "homeMode": true,
+    }))
+    .expect("разбор UiSettingsPatch для Home");
+    assert_eq!(patch_to_home.last_guild_id.as_deref(), Some("@me"));
+    assert_eq!(patch_to_home.home_mode, Some(true));
+
+    let patched = store
+        .patch(&patch_to_home)
+        .expect("применение patch для перехода в Home");
+    assert_eq!(patched.last_guild_id.as_deref(), Some("@me"));
+    assert_eq!(patched.home_mode, Some(true));
+    assert_eq!(patched.density, initial.density);
+    assert_eq!(patched.theme, initial.theme);
+    assert_eq!(patched.locale, initial.locale);
+    assert_eq!(patched.toggles, initial.toggles);
+    assert_eq!(store.load().expect("чтение после patch"), patched);
+
+    let patch_to_guild = UiSettingsPatch {
+        last_guild_id: Some(GUILD_ID.to_string()),
+        home_mode: Some(false),
+        density: Some(Density::Cozy),
+        ..UiSettingsPatch::default()
+    };
+    let switched = store
+        .patch(&patch_to_guild)
+        .expect("переключение из Home обратно в сервер через patch");
+    assert_eq!(switched.last_guild_id.as_deref(), Some(GUILD_ID));
+    assert_eq!(switched.home_mode, Some(false));
+    assert_eq!(switched.density, Density::Cozy);
+    assert_eq!(switched.theme, Theme::Light);
+    assert_eq!(switched.locale, Locale::En);
+
+    // Невалидный lastGuildId в patch нормализуется в None и не ломает сохранение.
+    let bad_patch = UiSettingsPatch {
+        last_guild_id: Some("@you".to_string()),
+        ..UiSettingsPatch::default()
+    };
+    let after_bad = store
+        .patch(&bad_patch)
+        .expect("битый lastGuildId в patch нормализуется в None");
+    assert_eq!(after_bad.last_guild_id, None);
+    assert_eq!(after_bad.home_mode, Some(false));
+    assert_eq!(store.load().expect("чтение после bad_patch"), after_bad);
 }
 
 // ---------------------------------------------------------------------------

@@ -18,6 +18,84 @@
     <link rel="stylesheet" href="components/server-menu.css" />
     <link rel="stylesheet" href="components/net-status.css" />
     <link rel="stylesheet" href="components/voice.css" />
+    <!-- INT-07 (P2-3): тумблеры модалки уведомлений получают собственные классы
+         `.notif-toggle` / `.notif-toggle-input` (узкий инвариант 38 `.toggle` в
+         `#settings`), поэтому стили строки и трека продублированы здесь дословно
+         по `components/settings.css` — иначе в модалке остаются голые чекбоксы. -->
+    <style>
+      .notif-toggle {
+        position: relative;
+        display: flex;
+        gap: var(--space-6);
+        align-items: center;
+        justify-content: space-between;
+        min-height: var(--space-11);
+        max-width: var(--layout-content-max-w);
+        padding: var(--space-2) 0;
+        border-bottom: var(--menu-border) solid var(--divider);
+        cursor: pointer;
+      }
+      .notif-toggle-input {
+        position: absolute;
+        width: var(--menu-border);
+        height: var(--menu-border);
+        margin: 0;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .notif-toggle-input:checked + .toggle-track {
+        background: var(--accent);
+      }
+      .notif-toggle-input:checked + .toggle-track .toggle-thumb {
+        background: var(--text-on-accent);
+        transform: translateX(
+          calc(var(--switch-w) - var(--switch-thumb) - (var(--switch-h) - var(--switch-thumb)))
+        );
+      }
+      .notif-toggle-input:focus-visible + .toggle-track {
+        box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring);
+      }
+      .notif-toggle:hover .toggle-track {
+        background: var(--surface-4);
+      }
+      .notif-toggle:hover .notif-toggle-input:checked + .toggle-track {
+        background: var(--accent-hover);
+      }
+      /* INT-07 / P1-1 (Pass 3): секция «Голос и видео» предварительная — голосовых
+         IPC-команд в Rust ещё нет. Пометка видна всегда, а не только при ошибке. */
+      .voice-devices-preliminary-block {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: flex-start;
+        margin-bottom: var(--space-4);
+      }
+      .voice-devices-preliminary {
+        margin: 0;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        background: var(--surface-3);
+        color: var(--text-muted);
+        font-size: var(--font-size-small);
+        line-height: var(--line-height-small);
+      }
+      .voice-devices-expand {
+        height: var(--btn-height-sm);
+        padding: 0 var(--btn-pad-x);
+        border: 0;
+        border-radius: var(--btn-radius);
+        background: var(--accent);
+        color: var(--text-on-accent);
+        font-size: var(--font-size-small);
+        cursor: pointer;
+      }
+      .voice-devices-expand:hover {
+        background: var(--accent-hover);
+      }
+      .voice-devices-expand:focus-visible {
+        box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring);
+      }
+    </style>
   </head>
   <body data-active-screen="chat">
     <!-- 1. Строка заголовка: 32px, на всю ширину (RE topbar_h=32). -->
@@ -33,12 +111,13 @@
     </header>
 
     <div class="shell">
-      <!-- 2. Рейл 64px: бренд DL, гильдии, разделитель, 4 кнопки экранов. -->
+      <!-- 2. Рейл 64px: бренд DL (Home @me), гильдии, разделитель, 4 кнопки экранов. -->
       <aside id="guild-rail" class="rail" role="navigation" aria-label="Серверы и экраны">
-        <div class="brand" title="discord-lab" aria-hidden="true">DL</div>
+        <button id="home-rail-btn" class="brand home-rail-btn" type="button" title="Личные сообщения и Друзья" aria-label="Личные сообщения и Друзья" aria-current="false" tabindex="-1"><span class="brand-monogram" aria-hidden="true">DL</span><span class="guild-mention-badge" aria-hidden="true" hidden>0</span></button>
         <!-- G-01 (RW-40): плитки серверов собирает app.js из `ready()` (READY fixture,
              7 гильдий). Статичных заглушек data-guild="1|2|3" больше нет: имена и
              id берутся только из payload, иконка-хеш CDN в URL не склеивается. -->
+        <div id="guild-list" class="guild-list" role="navigation" aria-label="Серверы"></div>
         <div class="rail-sep" role="separator" aria-hidden="true"></div>
         <button class="rail-btn active" type="button" data-screen="chat" title="Чат 100k" aria-label="Чат" aria-current="page">💬</button>
         <button class="rail-btn" type="button" data-screen="emoji" title="Эмодзи-пикер" aria-label="Эмодзи">😀</button>
@@ -61,7 +140,7 @@
               <h3 class="channel-group-title">
                 <button class="group-toggle" type="button" aria-expanded="true">НОВОСТИ</button>
               </h3>
-              <ul class="channel-list" role="list">
+              <ul id="channel-list" class="channel-list" role="list">
                 <li><button class="channel-item" type="button" aria-current="page"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">новости</span></button></li>
                 <li><button class="channel-item is-unread" type="button"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">объявления</span></button></li>
               </ul>
@@ -74,6 +153,7 @@
                 <li><button class="channel-item" type="button"><span class="channel-icon" aria-hidden="true">🔊</span><span class="channel-name">Пекарня</span></button></li>
               </ul>
             </section>
+            <ul id="dm-channel-list" class="channel-list dm-channel-list" role="list" hidden></ul>
           </nav>
           <!-- V-08: голосовая панель. Содержимое (12 состояний, участники,
                ping, mute/deafen) собирает features/voice.js — один код-путь с
@@ -119,7 +199,7 @@
               <div id="chat-list" class="list chat-list" tabindex="0" role="list" aria-label="Сообщения" aria-busy="false" data-row-height="44"></div>
               <p class="chat-notice" role="note">Отправка недоступна в спайке (без сети)</p>
               <div id="composer" class="composer" role="group" aria-label="Поле ввода сообщения">
-                <button class="icon-btn composer-attach" type="button" data-action="attach" aria-label="Прикрепить файл">＋</button>
+                <button class="icon-btn composer-attach" type="button" data-action="attach" aria-label="Прикрепить файл">+</button>
                 <textarea id="composer-input" class="composer-input" rows="1" placeholder="Написать сообщение…" aria-label="Сообщение" aria-describedby="composer-hint"></textarea>
                 <button class="icon-btn" type="button" data-action="emoji" aria-label="Эмодзи" aria-haspopup="dialog" aria-expanded="false">😀</button>
                 <button class="icon-btn" type="button" data-action="gift" aria-label="Подарок" aria-disabled="true" title="Подарок (Phase 3): недоступно в спайке">🎁</button>
@@ -167,16 +247,25 @@
 
           <!-- 9. Экран settings: оверлей с навигацией и контентом (контент генерит W39d). -->
           <section id="screen-settings" class="screen" role="region" aria-label="Настройки" aria-hidden="true">
-            <div class="settings-shell" role="dialog" aria-modal="true" aria-label="Настройки пользователя">
+            <div id="settings-dialog" class="settings-shell" role="dialog" aria-modal="true" aria-label="Настройки пользователя">
               <header class="settings-head">
                 <button class="icon-btn" type="button" data-action="settings-close" aria-label="Закрыть настройки">✕</button>
               </header>
               <div class="settings-body">
                 <nav id="settings-nav" class="settings-nav" aria-label="Разделы настроек"><!-- gen --></nav>
                 <div id="settings" class="settings" role="group" aria-label="Настройки"><!-- gen --></div>
+                <!-- INT-07 / P2-1: панель «Голос и видео» живёт рядом с `#settings`
+                     (инвариант 38 тумблеров RW-38), но видна только при активной
+                     вкладке `data-active-pane="voice"`; скрыта атрибутом `hidden`.
+                     P1-1 (Pass 3): секция предварительная — голосовых IPC-команд в
+                     Rust нет, поэтому по умолчанию она свёрнута и в диалоге
+                     «Настройки» остаётся ровно 38 тумблеров (AT-SPI smoke RW-38);
+                     контроллер монтируется по кнопке «Показать настройки устройств». -->
+                <div id="settings-modal" class="settings-voice-panel" role="region" aria-label="Голос и видео" hidden><div id="voice-devices-preliminary-block" class="voice-devices-preliminary-block"><p id="voice-devices-preliminary" class="voice-devices-preliminary" role="status">Предварительный режим: сохранение в системный голосовой движок появится после подключения voice-devices IPC.</p><button type="button" id="voice-devices-expand" class="voice-devices-expand" aria-controls="voice-devices" aria-expanded="false">Показать настройки устройств</button></div><section id="voice-devices" aria-label="Голос и видео" data-preliminary="true" hidden></section></div>
               </div>
             </div>
           </section>
+          <section id="friends-view" class="friends-view" role="region" aria-label="Друзья" hidden></section>
         </main>
       </div>
     </div>
@@ -205,6 +294,10 @@
          #auth-gate. Данные preview не хардкодятся в разметке. -->
     <div id="join-server-dialog" class="dialog-backdrop" hidden></div>
     <div id="leave-server-dialog" class="dialog-backdrop" hidden></div>
+    <div id="guild-notifications-dialog" class="dialog-backdrop" hidden></div>
+    <div id="channel-notif-menu" class="menu server-menu channel-notif-menu" hidden></div>
+    <div id="group-dm-dialog" class="dialog-backdrop" role="presentation" hidden></div>
+    <div id="stranger-confirm-dialog" class="dialog-backdrop" role="presentation" hidden></div>
     <p id="server-status" class="visually-hidden" role="status" aria-live="polite"></p>
 
     <script type="module" src="app.js"></script>

@@ -1,0 +1,29 @@
+▶ FE-P0-04 (task-149): интеграция createReactionsController и chat.js
+  ✔ экспортирует createReactionsController и 9 категорий пикера реакций (1.68685ms)
+  ✔ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (72.918624ms)
+  ✔ всплывающая панель действий (.message-action-toolbar / .msg-hover-toolbar): быстрые реакции, открытие 9-категорийного #reaction-picker-popover и ответ (21.056436ms)
+  ✔ открывает модалку «Кто поставил реакцию» (#reaction-users-modal, вкладки Обычные type=0 и Супер-реакции type=1) из контекстного меню пилюли реакции (17.825486ms)
+  ✔ корректно очищает обработчики, поповеры и модалки при перерисовке и destroy() (17.068977ms)
+✔ FE-P0-04 (task-149): интеграция createReactionsController и chat.js (131.297732ms)
+▶ T-212: REACTION_TYPES
+  ✔ заморожен (Object.freeze) и содержит NORMAL: 0, BURST: 1 (0.47238ms)
+✔ T-212: REACTION_TYPES (0.55137ms)
+▶ T-212: createReactionsUiController — renderReactionBar
+  ✔ рендерит пилюли с data-emoji, data-reaction-burst ('true' при burstCount > 0 иначе 'false'), aria-pressed ('true' при me || meBurst иначе 'false') и общим счётчиком count + (burstCount || 0) (0.68143ms)
+  ✔ клик по пилюле вызывает onToggleReaction(emoji, meBurst ? REACTION_TYPES.BURST : REACTION_TYPES.NORMAL, !(me || meBurst)) (0.37204ms)
+  ✔ повторный вызов renderReactionBar перерисовывает панель без дублирования и корректно обрабатывает пустой массив (0.12694ms)
+✔ T-212: createReactionsUiController — renderReactionBar (1.32881ms)
+▶ T-212: createReactionsUiController — openReactorsModal
+  ✔ рендерит русский диалог 'Реакции' с вкладками фильтра эмодзи (эмодзи + счётчик) и списком пользователей с бейджем 'Суперреакция' при reactionType === 1 (0.48455ms)
+  ✔ переключает активную вкладку эмодзи по клику и фильтрует список пользователей (0.18964ms)
+  ✔ рендерит русское пустое состояние 'Нет реакций' при пустом списке реакций или пустом списке пользователей (0.14265ms)
+  ✔ выбрасывает TypeError при невалидном containerEl и поддерживает закрытие модалки closeReactorsModal() (0.14375ms)
+✔ T-212: createReactionsUiController — openReactorsModal (1.0672ms)
+ℹ tests 13
+ℹ suites 4
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 173.178874

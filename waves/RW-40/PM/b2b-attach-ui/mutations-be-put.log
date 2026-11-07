@@ -1,0 +1,387 @@
+=== BASELINE MD5 (before mutations) ===
+84d8905b20a67c46a7908c9ac103560a  rust/gui-spike/src/attachments.rs
+48d01ef823c7babff52614ad95b0e60d  rust/gui-spike/src/lib.rs
+dc1d395fd083020f5a7d5e038925cd1d  rust/gui-spike/src/main.rs
+d1113587c21f7a91e4e0f00dc4e0c435  rust/gui-spike/tests/attachments_contract.rs
+
+=== M1: parse_https_upload_url allows http:// ===
+da1a6f62a463e0514f24ae7d0116d264  rust/gui-spike/src/attachments.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.35s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test oracle_constants_match_re ... ok
+test api_impl_matches_free_function ... ok
+test maps_429_with_retry_after_header ... ok
+test guild_boost_tier_limits_match_re_oracle ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test rejects_malformed_upload_slot_response ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... FAILED
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test posts_exact_upload_slot_request ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test maps_other_transport_and_http_failures ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+
+failures:
+
+---- rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io stdout ----
+
+thread 'rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io' (528986) panicked at tests/attachments_contract.rs:878:9:
+assertion `left == right` failed: upload_url="http://cdn.discordapp.com/upload/1" обязан отклоняться до сети
+  left: Ok(())
+ right: Err(InvalidArg)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io
+
+test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+M1_EXIT_CODE=101
+
+=== M2: upload_attachment_bytes_with_tier allows empty data ===
+788d55cc34a865c25d367758d84846a9  rust/gui-spike/src/attachments.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.00s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test builder_rejects_mismatched_slots_and_specs ... ok
+test api_impl_matches_free_function ... ok
+test builds_message_attachments_in_spec_order ... ok
+test guild_boost_tier_limits_match_re_oracle ... ok
+test oracle_constants_match_re ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test maps_429_with_retry_after_header ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test posts_exact_upload_slot_request ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test rejects_malformed_upload_slot_response ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... FAILED
+
+failures:
+
+---- rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io stdout ----
+
+thread 'rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io' (530368) panicked at tests/attachments_contract.rs:901:5:
+assertion `left == right` failed: пустые байты не должны уходить в PUT
+  left: Ok(())
+ right: Err(InvalidArg)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io
+
+test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+M2_EXIT_CODE=101
+
+=== M3: upload_attachment_bytes_with_tier drops content_type and bytes ===
+dcc00db6c9a329ad0dea0f16c7296161  rust/gui-spike/src/attachments.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: unused variable: `mime`
+   --> src/attachments.rs:556:9
+    |
+556 |     let mime = normalize_content_type(content_type)?;
+    |         ^^^^ help: if this is intentional, prefix it with an underscore: `_mime`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (lib) generated 1 warning (run `cargo fix --lib -p discord-gui-spike` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.85s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test guild_boost_tier_limits_match_re_oracle ... ok
+test oracle_constants_match_re ... ok
+test api_impl_matches_free_function ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test posts_exact_upload_slot_request ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test maps_429_with_retry_after_header ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... FAILED
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... FAILED
+test channel_id_allowlist_matches_messages_module ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+test rejects_malformed_upload_slot_response ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+
+failures:
+
+---- uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 stdout ----
+
+thread 'uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204' (532388) panicked at tests/attachments_contract.rs:813:9:
+assertion `left == right` failed: HTTP 200: транспорт должен получить точный upload_url, content_type и непустые байты
+  left: [("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123", "application/octet-stream", [])]
+ right: [("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123", "image/png", [137, 80, 78, 71, 13, 10, 26, 10, 112, 97, 121, 108, 111, 97, 100, 45, 98, 121, 116, 101, 115])]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload stdout ----
+
+thread 'upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload' (532387) panicked at tests/attachments_contract.rs:1043:5:
+assertion `left == right` failed
+  left: [("https://discord.upload/slot-1", "application/octet-stream", [])]
+ right: [("https://discord.upload/slot-1", "application/octet-stream", [10, 20, 30, 40])]
+
+
+failures:
+    upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload
+    uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204
+
+test result: FAILED. 20 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+M3_EXIT_CODE=101
+
+=== M4: decode_put maps HTTP 413 to Ok(()) ===
+2242590308f98489109f0e7a3adf5100  rust/gui-spike/src/attachments.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test guild_boost_tier_limits_match_re_oracle ... ok
+test oracle_constants_match_re ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test api_impl_matches_free_function ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test maps_429_with_retry_after_header ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... FAILED
+test posts_exact_upload_slot_request ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test rejects_malformed_upload_slot_response ... ok
+
+failures:
+
+---- maps_put_status_codes_413_429_5xx_and_network_errors stdout ----
+
+thread 'maps_put_status_codes_413_429_5xx_and_network_errors' (534533) panicked at tests/attachments_contract.rs:950:5:
+assertion `left == right` failed
+  left: Ok(())
+ right: Err(EntityTooLarge)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    maps_put_status_codes_413_429_5xx_and_network_errors
+
+test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+M4_EXIT_CODE=101
+
+=== M5: main.rs omits attachments_upload_put from generate_handler! ===
+84d8905b20a67c46a7908c9ac103560a  rust/gui-spike/src/attachments.rs
+1cce0298f8329de96639846e3f67934e  rust/gui-spike/src/main.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: function `attachments_upload_put` is never used
+   --> src/main.rs:531:10
+    |
+531 | async fn attachments_upload_put(
+    |          ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.48s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test guild_boost_tier_limits_match_re_oracle ... ok
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test oracle_constants_match_re ... ok
+test api_impl_matches_free_function ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test maps_429_with_retry_after_header ... ok
+test posts_exact_upload_slot_request ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test rejects_malformed_upload_slot_response ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... FAILED
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+
+failures:
+
+---- tauri_main_registers_and_wires_attachments_upload_put_command stdout ----
+
+thread 'tauri_main_registers_and_wires_attachments_upload_put_command' (536053) panicked at tests/attachments_contract.rs:1102:5:
+assertion `left == right` failed: attachments_upload_put обязан быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tauri_main_registers_and_wires_attachments_upload_put_command
+
+test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+M5_EXIT_CODE=101
+
+=== RESTORED MD5 (after 5 mutations) ===
+84d8905b20a67c46a7908c9ac103560a  rust/gui-spike/src/attachments.rs
+48d01ef823c7babff52614ad95b0e60d  rust/gui-spike/src/lib.rs
+dc1d395fd083020f5a7d5e038925cd1d  rust/gui-spike/src/main.rs
+d1113587c21f7a91e4e0f00dc4e0c435  rust/gui-spike/tests/attachments_contract.rs
+
+=== POST-MUTATION GREEN VERIFY ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.19s
+     Running unittests src/lib.rs (/tmp/target-int01/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 9 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 22 tests
+test guild_boost_tier_limits_match_re_oracle ... ok
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test api_impl_matches_free_function ... ok
+test maps_429_with_retry_after_header ... ok
+test oracle_constants_match_re ... ok
+test maps_other_transport_and_http_failures ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test posts_exact_upload_slot_request ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test rejects_malformed_upload_slot_response ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+POST_MUTATION_TEST_EXIT=0
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.58s
+POST_MUTATION_CLIPPY_EXIT=0
+POST_MUTATION_RUSTFMT_EXIT=0
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (0.960229ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.176569ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.17074ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.12268ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.11669ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.170558ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (3.802395ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (2.874106ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (2.568787ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (9.410878ms)
+✔ ipc-path: текущий код спайка (18.920685ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.46566ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (0.79743ms)
+  ✔ capability окна ограничена core:default (0.307259ms)
+✔ ipc-path: файловые плагины не подключены (1.705388ms)
+ℹ tests 12
+ℹ suites 3
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.296509
+POST_MUTATION_IPC_PATH_EXIT=0

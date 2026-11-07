@@ -1,5 +1,6 @@
 # STATE — где мы и что дальше
 
+- Обновлено: **2026-10-31**. **RW-40 (`PR-01..PR-124`, `task-101..task-239`) — на паузе, состояние сохранено** (`waves/RW-40/PM/CHECKPOINT-PR124-PAUSED.md`): влиты **124 PR** (`5/5` мутаций на каждом срезе, `P0=0, P1=0`) в `origin/unstable` и `origin/testing` (`BUILD-003`). Готовность приложения ~91–92% (13 Rust-крейтов, 30 модулей `discord-gui-spike` BFF, 81 UI-модуль `rust/gui-spike/ui/features/*.js`). Активных воркеров `0`, временных worktree `0`. При снятии с паузы: интеграция `shell-bridge.js` в `app.js`/`screens.js` и финальный QA-прогон `BUILD-003` (`testing -> beta -> main`).
 - Обновлено: **2026-10-23**. **RW-38 (усиление тестов GUI) — принят** (D-05,
   `waves/RW-39/PM/DECISIONS.md`; REV-2 PASS P0=0/P1=0). DOM 21/21 + model 26/26 (0 skip,
   ~120 мс, окно не нужно), Rust IPC 20 + launch 1, AT-SPI/X11-проба с PID-привязкой

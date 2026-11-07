@@ -1,0 +1,19 @@
+▶ DEFAULT_GROUP_LABELS_RU и groupMembersByHoistedRole (FE-P1-20)
+  ✔ DEFAULT_GROUP_LABELS_RU заморожен и содержит русские подписи 'В сети' и 'Не в сети' (0.593582ms)
+  ✔ группирует участников по старшей hoisted-роли (position по убыванию), 'online' и 'offline', сортируя внутри групп по localeCompare('ru') (8.80717ms)
+  ✔ исключает пустые группы и не мутирует входные массивы members и roles (0.173761ms)
+✔ DEFAULT_GROUP_LABELS_RU и groupMembersByHoistedRole (FE-P1-20) (10.257816ms)
+▶ createMemberListController — рендер, клик по участнику и toggleVisibility
+  ✔ рендерит [data-member-list], заголовки групп [data-member-group-header] ('NAME — COUNT') и элементы [data-member-item] с цветом роли, статусом, короной владельца и customStatus (2.129229ms)
+  ✔ поддерживает динамическое обновление списка через controller.render({ members, roles }) (0.427892ms)
+  ✔ клик по элементу участника [data-member-item] вызывает onSelectMember({ userId, anchorElement }) (0.367391ms)
+  ✔ toggleVisibility() переключает видимость сайдбара, синхронизирует атрибут hidden и возвращает boolean состояние (0.246581ms)
+✔ createMemberListController — рендер, клик по участнику и toggleVisibility (3.406605ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 54.510545

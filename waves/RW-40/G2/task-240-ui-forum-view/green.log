@@ -1,0 +1,19 @@
+▶ FORUM_SORT_ORDERS, FORUM_LAYOUT_VIEWS, MAX_FORUM_POST_TAGS и sortAndFilterForumPosts
+  ✔ экспортирует замороженные константы FORUM_SORT_ORDERS, FORUM_LAYOUT_VIEWS и MAX_FORUM_POST_TAGS = 5 (0.671791ms)
+  ✔ сортирует закреплённые публикации первыми, затем по lastActivityTimestamp (sortOrder=0/omitted) или createdAtTimestamp (sortOrder=1) по убыванию с tie-break по String(id) desc и не мутирует вход (4.765542ms)
+  ✔ фильтрует публикации по всем выбранным тегам (ALL selectedTagIds) и регистронезависимому подстрочному поиску по title (0.18618ms)
+✔ FORUM_SORT_ORDERS, FORUM_LAYOUT_VIEWS, MAX_FORUM_POST_TAGS и sortAndFilterForumPosts (6.281653ms)
+▶ createForumViewController — рендер региона, фильтра тегов, карточек и формы создания публикации
+  ✔ рендерит регион [data-forum-view] (role='region', aria-label='Форум'), фильтр тегов и отсортированные карточки публикаций (1.139441ms)
+  ✔ клик по кнопке [data-forum-tag-filter='<tagId>'] переключает aria-pressed='true'|'false' и фильтрует карточки по всем активным тегам (0.89198ms)
+  ✔ форма создания публикации [data-forum-new-post-form] запрещает выбор более MAX_FORUM_POST_TAGS (5) тегов и отправляет обрезанные title/content/appliedTags только при непустых полях (0.439131ms)
+  ✔ поддерживает setState, getState и destroy (0.31744ms)
+✔ createForumViewController — рендер региона, фильтра тегов, карточек и формы создания публикации (3.031382ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.418303

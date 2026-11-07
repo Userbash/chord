@@ -1,0 +1,32 @@
+reviewer: DeepSeek Review 37B
+date: 2026-10-30
+cwd: /home/sanya/orca/workspaces/project/rw40-m13-search-202-ui
+head: 4e240481e59ff4d49732ac8bd5ba08a006363748
+
+$ node --test tests/unit/search-remote-real-index.test.mjs tests/meta/test-policy.test.mjs
+  ✔ T-M13-CHIPS-01..03: объектная форма searchDateBounds({ date, before, after }) и синхронизация чипов фильтров (16.831057ms)
+  ✔ T-M13-CHIPS-02: отрицающие токены (-has:file -authorType:bot) и русские алиасы (от:777001 имеет:ссылку) (11.466467ms)
+  ✔ T-M13-PAGE-01: потолок пагинации MAX_SEARCH_OFFSET = 9975 / MAX_SEARCH_PAGES = 400 блокирует переход далее 400 страницы с предупреждением E+2azY (71.837345ms)
+✔ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (195.885379ms)
+ℹ tests 50
+ℹ suites 6
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 677.110724
+exit=0
+
+$ node --test tests/unit/gui-spike-features.test.mjs
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.212479ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (64.156833ms)
+ℹ tests 100
+ℹ suites 13
+ℹ pass 100
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1285.267187
+exit=0

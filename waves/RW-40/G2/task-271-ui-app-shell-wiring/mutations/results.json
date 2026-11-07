@@ -1,0 +1,46 @@
+{
+  "original_md5": "928cbb029bee1ae75ce4e80336a7a356",
+  "final_md5": "928cbb029bee1ae75ce4e80336a7a356",
+  "mutations": [
+    {
+      "id": "M1",
+      "title": "openModalLayer не закрывает активную админ-панель",
+      "mutant_md5": "4f0ccd18dcaa9426849c15967438c718",
+      "exit": 1,
+      "killed": true,
+      "fail_line": "ℹ fail 1"
+    },
+    {
+      "id": "M2",
+      "title": "openAdminPanel не закрывает модальные слои",
+      "mutant_md5": "f63aca1a88b431c8288e0da72e203947",
+      "exit": 1,
+      "killed": true,
+      "fail_line": "ℹ fail 2"
+    },
+    {
+      "id": "M3",
+      "title": "closeTopLayer игнорирует приоритет админ-панели",
+      "mutant_md5": "b51eabf408540dadbe406c916651cc36",
+      "exit": 1,
+      "killed": true,
+      "fail_line": "ℹ fail 1"
+    },
+    {
+      "id": "M4",
+      "title": "IPC-префикс панели искажён (guild_admin: -> guild_admin-)",
+      "mutant_md5": "806a1d901837808567f6e05d5b77f728",
+      "exit": 1,
+      "killed": true,
+      "fail_line": "ℹ fail 1"
+    },
+    {
+      "id": "M5",
+      "title": "destroy не закрывает модальные слои",
+      "mutant_md5": "f238ba6ef0c9c0594f7e526ea802fcd1",
+      "exit": 1,
+      "killed": true,
+      "fail_line": "ℹ fail 1"
+    }
+  ]
+}

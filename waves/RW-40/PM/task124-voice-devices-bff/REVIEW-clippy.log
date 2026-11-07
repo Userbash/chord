@@ -1,0 +1,31 @@
+$ cargo clippy --test voice_devices_contract -- -D warnings
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.85s
+EXIT=0
+
+$ cargo clippy --all-targets -- -D warnings
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike)
+error: very complex type used. Consider factoring parts into `type` definitions
+   --> tests/net_contract.rs:782:15
+    |
+782 |     callback: Arc<Mutex<Option<Arc<dyn Fn(GatewayEvent) + Send + Sync>>>>,
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#type_complexity
+    = note: `-D clippy::type-complexity` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::type_complexity)]`
+
+error: could not compile `discord-gui-spike` (test "net_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: very complex type used. Consider factoring parts into `type` definitions
+    --> src/main.rs:1703:15
+     |
+1703 |         puts: std::sync::Arc<std::sync::Mutex<Vec<(String, String, Vec<u8>)>>>,
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#type_complexity
+     = note: `-D clippy::type-complexity` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::type_complexity)]`
+
+error: could not compile `discord-gui-spike` (bin "discord-gui-spike" test) due to 1 previous error
+EXIT=101

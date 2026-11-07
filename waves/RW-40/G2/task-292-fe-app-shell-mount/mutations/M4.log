@@ -1,0 +1,45 @@
+# M4: composerPopoversBridge.onDispatchIpc: invoke(command, payload) -> (payload), вызова IPC нет
+mutation applied, exit=1
+
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.62461ms)
+✔ getState: до любых действий активных слоёв нет (0.35958ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.219601ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.1207ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.11673ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.37529ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.18719ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.28628ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.26615ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.14985ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.12974ms)
+✔ openAdminPanel: невалидный id не снимает уже открытые модальные слои (0.105641ms)
+✔ openModalLayer: невалидный id не закрывает активную админ-панель (0.0828ms)
+✔ после destroy() мутаторы бросают Error и оверлеи не открываются (0.0943ms)
+✔ getState: снимок и вложенный activeModalStack заморожены (0.11431ms)
+✔ app.js: импортирует createAppShellWiring и createComposerPopoversBridge из ./features (3.009541ms)
+✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.113421ms)
+✔ app.js: реэкспортирует createAppShellWiring и createComposerPopoversBridge вместе с прежними фабриками (0.80991ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.282851
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:454:1
+✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.113421ms)
+  AssertionError [ERR_ASSERTION]: composerPopoversBridge не прокидывает onDispatchIpc в invoke(command, payload)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:474:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'createComposerPopoversBridge(\n    /**\n     * Мост пока не объявляет `onDispatchIpc` в `ComposerPopoversBridgeOptions`,\n     * но контракт FE-INT-15 требует прокинуть его так же, как в wiring оболочки.\n     */\n    /** @type {NonNullable<Parameters<typeof createComposerPopoversBridge>[0]> & {\n     *   onDispatchIpc: (command: string, payload?: unknown) => unknown,\n     * }} */ ({\n      onDispatchIpc: (command, payload) =>\n        (payload),\n    }),\n  )',
+    expected: /onDispatchIpc:\s*\(command, payload\)\s*=>\s*invoke\(\s*command,\s*\/\*\* @type \{Record<string, unknown> \| undefined\} \*\/\s*\(payload\)\s*\)/,
+    operator: 'match',
+    diff: 'simple'
+  }

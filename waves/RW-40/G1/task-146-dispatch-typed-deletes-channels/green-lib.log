@@ -1,0 +1,14 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 5 tests
+test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes ... ok
+test dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes ... ok
+test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.37s
+
+EXIT=0

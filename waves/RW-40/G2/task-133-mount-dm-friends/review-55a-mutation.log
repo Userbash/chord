@@ -1,0 +1,80 @@
+# Review 55A — Мутационные проверки (task-133)
+Baseline MD5:
+- rust/gui-spike/ui/app.js: e83caa7d335328eeb06599d5cd4093e1
+- rust/gui-spike/ui/index.html: 04f3e0d3d532219b8187938172b6fc50
+
+## M1: app.js:373 — удаление ветки HOME_GUILD_ID / homeMode в readLastGuildId
+- Статус: **KILLED** (exit code 1)
+- Restore MD5: `e83caa7d335328eeb06599d5cd4093e1`
+- Упавшие проверки:
+  - `✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (16.104807ms)`
+  - `✖ 5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load (16.904105ms)`
+  - `✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (246.954197ms)`
+  - `ℹ fail 2`
+  - `✖ failing tests:`
+  - `✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (16.104807ms)`
+  - `✖ 5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load (16.904105ms)`
+
+## M2: app.js:1500 — отключение dmFriendsController?.selectHome() в onEnterHome
+- Статус: **KILLED** (exit code 1)
+- Restore MD5: `e83caa7d335328eeb06599d5cd4093e1`
+- Упавшие проверки:
+  - `✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (14.543914ms)`
+  - `✖ 5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load (15.42862ms)`
+  - `✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (237.644973ms)`
+  - `ℹ fail 2`
+  - `✖ failing tests:`
+  - `✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (14.543914ms)`
+  - `✖ 5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load (15.42862ms)`
+
+## M3: app.js:1503 — отключение dmFriendsController?.selectGuild(guildId) в onLeaveHome
+- Статус: **KILLED** (exit code 1)
+- Restore MD5: `e83caa7d335328eeb06599d5cd4093e1`
+- Упавшие проверки:
+  - `✖ 3. Возврат из Home на гильдию восстанавливает дерево каналов гильдии, скрывает #friends-view и сохраняет id гильдии (15.252941ms)`
+  - `✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (245.594784ms)`
+  - `ℹ fail 1`
+  - `✖ failing tests:`
+  - `✖ 3. Возврат из Home на гильдию восстанавливает дерево каналов гильдии, скрывает #friends-view и сохраняет id гильдии (15.252941ms)`
+
+## M4: app.js:1991-1992 — подмена relationships и privateChannels на [] в mountDmFriends
+- Статус: **KILLED** (exit code 1)
+- Restore MD5: `e83caa7d335328eeb06599d5cd4093e1`
+- Упавшие проверки:
+  - `✖ 6. Проброс users, relationships и private_channels из ready() рендерит список ЛС и счётчики друзей (14.304755ms)`
+  - `✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (14.159205ms)`
+  - `✖ 8. Клик по пункту 'Друзья' (#dm-nav-friends) после открытия ЛС возвращает центральную область на #friends-view (13.001ms)`
+  - `✖ 9. Переключение вкладок #friends-view ('Все', 'Ожидание', 'Добавить в друзья') и фильтрация поиском (17.216433ms)`
+  - `✖ 11. Диалог создания группового ЛС (#group-dm-dialog) и диалог подтверждения незнакомца (#stranger-confirm-dialog, код 80013) работают из смонтированного контроллера (16.412807ms)`
+  - `✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (235.024175ms)`
+  - `ℹ fail 5`
+  - `✖ failing tests:`
+  - `✖ 6. Проброс users, relationships и private_channels из ready() рендерит список ЛС и счётчики друзей (14.304755ms)`
+  - `✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (14.159205ms)`
+  - `✖ 8. Клик по пункту 'Друзья' (#dm-nav-friends) после открытия ЛС возвращает центральную область на #friends-view (13.001ms)`
+  - `✖ 9. Переключение вкладок #friends-view ('Все', 'Ожидание', 'Добавить в друзья') и фильтрация поиском (17.216433ms)`
+  - `✖ 11. Диалог создания группового ЛС (#group-dm-dialog) и диалог подтверждения незнакомца (#stranger-confirm-dialog, код 80013) работают из смонтированного контроллера (16.412807ms)`
+
+## M5: app.js:2004 — отключение chat.openChannel в onSelectChannel контроллера ЛС
+- Статус: **KILLED** (exit code 1)
+- Restore MD5: `e83caa7d335328eeb06599d5cd4093e1`
+- Упавшие проверки:
+  - `✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (14.858033ms)`
+  - `✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (244.698687ms)`
+  - `ℹ fail 1`
+  - `✖ failing tests:`
+  - `✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (14.858033ms)`
+
+## M6: index.html:267 — искажение id="friends-view" -> id="friends-view-broken"
+- Статус: **KILLED** (exit code 1)
+- Restore MD5: `04f3e0d3d532219b8187938172b6fc50`
+- Упавшие проверки:
+  - `✖ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (53.165165ms)`
+  - `✖ GUI spike: настоящий app.js в DOM-шиме (110.265376ms)`
+  - `✖ 1. В index.html и DOM смонтированы все 5 обязательных хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog, #stranger-confirm-dialog) (0.540548ms)`
+  - `✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (213.702748ms)`
+  - `ℹ fail 2`
+  - `✖ failing tests:`
+  - `✖ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (53.165165ms)`
+  - `✖ 1. В index.html и DOM смонтированы все 5 обязательных хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog, #stranger-confirm-dialog) (0.540548ms)`
+

@@ -1,0 +1,143 @@
+# STUB-10 Mutations Log (Strict TDD Mutation Testing)
+
+Date: 2026-10-30
+Task: STUB-10-PINS-THREADS-PANELS-UI (M-10 и M-11)
+Target file: rust/gui-spike/ui/features/pins-threads.js
+Test file: tests/unit/channel-paging.test.mjs
+
+---
+
+## Mutation 1: Mutual Exclusion (opening pins closes threads)
+- **Invariant**: Opening the pins panel must automatically close the threads panel.
+- **Mutation Diff**:
+```diff
+--- rust/gui-spike/ui/features/pins-threads.js
++++ rust/gui-spike/ui/features/pins-threads.js
+@@ -656,3 +656,3 @@
+   const openPins = () => {
+-    closeThreads({ restoreFocus: false });
++    // closeThreads({ restoreFocus: false });
+     pinsPanel.removeAttribute("hidden");
+```
+- **Command**: `node --test tests/unit/channel-paging.test.mjs`
+- **Exit Code**: 1
+- **Result**: CAUGHT
+- **Failure Output**:
+```
+test at tests/unit/channel-paging.test.mjs:984:3
+✖ взаимное исключение: открытие панели пинов автоматически закрывает панель веток и наоборот (11.187729ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'true' !== 'false'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1013:14)
+```
+
+---
+
+## Mutation 2: Pins Loading Skeletons Count
+- **Invariant**: Loading state for `#chat-pins-panel` must display exactly 3 skeletons (.pin-skeleton).
+- **Mutation Diff**:
+```diff
+--- rust/gui-spike/ui/features/pins-threads.js
++++ rust/gui-spike/ui/features/pins-threads.js
+@@ -246,3 +246,3 @@
+-    for (let i = 0; i < 3; i++) {
++    for (let i = 0; i < 2; i++) {
+       const skeleton = doc.createElement("div");
+```
+- **Command**: `node --test tests/unit/channel-paging.test.mjs`
+- **Exit Code**: 1
+- **Result**: CAUGHT
+- **Failure Output**:
+```
+test at tests/unit/channel-paging.test.mjs:1024:3
+✖ панель пинов: 4 состояния (loading со скелетонами, empty, error с role='alert' и populated с переходом jump) (10.995487ms)
+  AssertionError [ERR_ASSERTION]: должно быть 3 скелетона в состоянии loading
+  
+  2 !== 3
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1049:14)
+```
+
+---
+
+## Mutation 3: Threads Search Query Filtering
+- **Invariant**: Threads search input must filter the thread items list by matching the query substring.
+- **Mutation Diff**:
+```diff
+--- rust/gui-spike/ui/features/pins-threads.js
++++ rust/gui-spike/ui/features/pins-threads.js
+@@ -365,3 +365,3 @@
+     if (!normalizedQuery) return true;
+-    return (t.name || "").toLowerCase().includes(normalizedQuery);
++    return !(t.name || "").toLowerCase().includes(normalizedQuery);
+```
+- **Command**: `node --test tests/unit/channel-paging.test.mjs`
+- **Exit Code**: 1
+- **Result**: CAUGHT
+- **Failure Output**:
+```
+test at tests/unit/channel-paging.test.mjs:1094:3
+✖ панель веток: 4 состояния (loading, empty, error, populated), переход к ветке и фильтрация поиска (12.998453ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(items[0]?.textContent.includes("Архитектура Rust"))
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1165:14)
+```
+
+---
+
+## Mutation 4: Focus Return on Pins Dismissal
+- **Invariant**: Dismissing the pins panel must restore keyboard focus back to the triggering button.
+- **Mutation Diff**:
+```diff
+--- rust/gui-spike/ui/features/pins-threads.js
++++ rust/gui-spike/ui/features/pins-threads.js
+@@ -637,3 +637,3 @@
+     if (opts.restoreFocus && pinsBtn && typeof pinsBtn.focus === "function") {
+-      pinsBtn.focus();
++      // pinsBtn.focus();
+     }
+```
+- **Command**: `node --test tests/unit/channel-paging.test.mjs`
+- **Exit Code**: 1
+- **Result**: CAUGHT
+- **Failure Output**:
+```
+test at tests/unit/channel-paging.test.mjs:1183:3
+✖ закрытие по Escape, клику вне панели и кнопкам закрытия с возвратом фокуса на триггер (8.77438ms)
+  AssertionError [ERR_ASSERTION]: фокус вернулся на кнопку pins
+```
+
+---
+
+## Mutation 5: Trigger Accessibility Attribute `aria-controls`
+- **Invariant**: Pins trigger button must be bound to `chat-pins-panel` via `aria-controls`.
+- **Mutation Diff**:
+```diff
+--- rust/gui-spike/ui/features/pins-threads.js
++++ rust/gui-spike/ui/features/pins-threads.js
+@@ -560,3 +560,3 @@
+-    pinsBtn.setAttribute("aria-controls", "chat-pins-panel");
++    pinsBtn.setAttribute("aria-controls", "wrong-panel");
+```
+- **Command**: `node --test tests/unit/channel-paging.test.mjs`
+- **Exit Code**: 1
+- **Result**: CAUGHT
+- **Failure Output**:
+```
+test at tests/unit/channel-paging.test.mjs:930:3
+✖ прогрессивное создание #chat-pins-panel и #chat-threads-panel с корректными ролями и ARIA-атрибутами (13.689948ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'wrong-panel'
+  - 'chat-pins-panel'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:949:14)
+```
+
+---
+**Summary**: 5/5 mutations CAUGHT. Coverage of invariants: 100%.

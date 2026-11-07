@@ -205,19 +205,38 @@ export function inviteFailure(error, step = "resolve") {
       return { text: "Сетевое подключение ограничено или недоступно.", retry: true };
     case "storage":
       return { text: "Хранилище токена недоступно. Повторите позже.", retry: true };
+    case "captchaRequired":
+      return {
+        text: "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить.",
+        retry: true,
+      };
+    case "client":
+      if (
+        (/** @type {any} */ (error))?.code === 40003 ||
+        isLiveCaptchaChallengeRequired()
+      ) {
+        return {
+          text: "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить.",
+          retry: true,
+        };
+      }
+      return {
+        text: "Невозможно присоединиться к серверу: запрос отклонён сервером (HTTP 400).",
+        retry: true,
+      };
     case "invalidResponse":
       return {
         text: step === "resolve"
           ? "Не удалось загрузить профиль для этого сервера."
           : isLiveCaptchaChallengeRequired()
-            ? "Discord запросил проверку Captcha при вступлении на сервер. Примите приглашение один раз в браузере или телефоне — сервер и все его каналы сразу синхронизируются."
+            ? "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить."
             : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
         retry: true,
       };
     default:
       return {
         text: isLiveCaptchaChallengeRequired()
-          ? "Discord запросил проверку Captcha при вступлении на сервер. Примите приглашение один раз в браузере или телефоне — сервер и все его каналы сразу синхронизируются."
+          ? "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить."
           : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
         retry: true,
       };
@@ -411,12 +430,25 @@ export function createJoinServer(options) {
   /** Единая точка блокировки: pending/entering → обе кнопки, 429 → только шаг. */
   function syncSubmit() {
     const empty = String(input.value ?? "").trim() === "" && current === null;
-    if (pending || entering || cooling || empty) submit.setAttribute("disabled", "");
-    else submit.removeAttribute("disabled");
+    const isBusy = pending || entering;
+    const isDisabled = isBusy || cooling || empty;
+    if (isDisabled) {
+      submit.setAttribute("disabled", "");
+      submit.disabled = true;
+    } else {
+      submit.removeAttribute("disabled");
+      submit.disabled = false;
+    }
     // Кнопка «Отмена» всегда активна — пользователь должен иметь выход.
     cancel.removeAttribute("disabled");
-    if (pending || entering) form.setAttribute("aria-busy", "true");
-    else form.removeAttribute("aria-busy");
+    cancel.disabled = false;
+    if (isBusy) {
+      submit.setAttribute("aria-busy", "true");
+      form.setAttribute("aria-busy", "true");
+    } else {
+      submit.removeAttribute("aria-busy");
+      form.removeAttribute("aria-busy");
+    }
   }
 
   /** G-03a: кнопка «Открыть сервер» — один pending-флаг, повтор игнорируется. */
@@ -589,10 +621,6 @@ export function createJoinServer(options) {
     try {
       // Таймаут 15 сек: Discord иногда не отвечает на GET /invites/{code}.
       const resolveTimeoutMs = 15_000;
-      void invoke("voice_set_audio_device", {
-        kind: "ui_telemetry",
-        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "resolveStart", code }),
-      }).catch(() => {});
       const raw = await Promise.race([
         invoke(JOIN_COMMANDS.resolve, { code }),
         new Promise((_, reject) =>
@@ -605,16 +633,8 @@ export function createJoinServer(options) {
       clearError();
       setPhase("preview_ready");
       status.textContent = `Приглашение в «${current.guildName}» готово`;
-      void invoke("voice_set_audio_device", {
-        kind: "ui_telemetry",
-        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "resolveOK", code, guild: current.guildName, guildId: current.guildId }),
-      }).catch(() => {});
     } catch (failure) {
       if (disposed) return;
-      void invoke("voice_set_audio_device", {
-        kind: "ui_telemetry",
-        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "resolveERR", code, failure }),
-      }).catch(() => {});
       showFailure(failure, "resolve");
     } finally {
       pending = false;
@@ -626,10 +646,6 @@ export function createJoinServer(options) {
   async function acceptStep() {
     const data = current;
     if (!data) return;
-    void invoke("voice_set_audio_device", {
-      kind: "ui_telemetry",
-      deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "acceptStep", code: data.code, guild: data.guildName }),
-    }).catch(() => {});
     pending = true;
     step = "accept";
     setPhase("accepting");
@@ -646,10 +662,6 @@ export function createJoinServer(options) {
       ]);
       if (disposed) return;
       const guildId = parseAcceptedGuildId(raw);
-      void invoke("voice_set_audio_device", {
-        kind: "ui_telemetry",
-        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "acceptRaw", raw, guildId }),
-      }).catch(() => {});
       if (guildId === "") throw /** @type {any} */ ({ kind: "invalidResponse" });
       const guild = { id: guildId, name: data.guildName };
       // Успех подтверждён только 2xx с guild_id: диалог закрывается, рейл/канал
@@ -660,10 +672,6 @@ export function createJoinServer(options) {
       onAccepted(guild);
     } catch (failure) {
       if (disposed) return;
-      void invoke("voice_set_audio_device", {
-        kind: "ui_telemetry",
-        deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "acceptERR", failure }),
-      }).catch(() => {});
       showFailure(failure, "accept");
     } finally {
       pending = false;
@@ -736,12 +744,9 @@ export function createJoinServer(options) {
 
   /** Публичный submit: 1 клик = 1 IPC; повтор игнорируется. */
   async function submitNow() {
-    // Отладочный лог состояния при каждом вызове submit
-    void invoke("voice_set_audio_device", {
-      kind: "ui_telemetry",
-      deviceId: JSON.stringify({ type: "JOIN-DEBUG", fn: "submitNow", disposed, pending, entering, open, hasPreview: current !== null, phase }),
-    }).catch(() => {});
     if (disposed || pending || entering || !open) return;
+    pending = true;
+    syncSubmit();
     if (current !== null) {
       await acceptStep();
       return;

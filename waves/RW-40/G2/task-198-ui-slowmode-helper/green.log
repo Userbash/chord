@@ -1,0 +1,30 @@
+▶ MAX_SLOWMODE_SECONDS
+  ✔ равен 6 часам (0.381131ms)
+✔ MAX_SLOWMODE_SECONDS (0.962701ms)
+▶ formatSlowmodeIntervalRu
+  ✔ клампит в 0..=MAX с обеих сторон (0.181151ms)
+  ✔ 0 и мусор дают 'выключен' (0.08651ms)
+  ✔ меньше минуты — секунды (0.07787ms)
+  ✔ меньше часа — минуты (floor) (0.07562ms)
+  ✔ час и больше — часы (floor) (0.11123ms)
+✔ formatSlowmodeIntervalRu (0.747651ms)
+▶ computeSlowmodeRemainingSec
+  ✔ bypass обнуляет остаток (0.168461ms)
+  ✔ нулевой/отрицательный лимит и отсутствие последнего сообщения дают 0 (0.09592ms)
+  ✔ считает остаток вверх до целых секунд (0.08169ms)
+  ✔ истёкший или будущий лимит даёт 0 (0.10112ms)
+  ✔ по умолчанию берёт Date.now() и canBypass=false (0.13096ms)
+✔ computeSlowmodeRemainingSec (0.790141ms)
+▶ formatSlowmodeCountdownMMSS
+  ✔ MM:SS для значений меньше часа (0.143381ms)
+  ✔ HH:MM:SS начиная с часа (0.37582ms)
+  ✔ неположительные и нечисловые значения дают 00:00 (0.06525ms)
+✔ formatSlowmodeCountdownMMSS (0.684931ms)
+ℹ tests 14
+ℹ suites 4
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.172398

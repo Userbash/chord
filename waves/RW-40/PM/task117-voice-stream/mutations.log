@@ -1,0 +1,267 @@
+=== BASELINE MD5 ===
+2a84f53056d5398cdb6d27e914780bba  rust/crates/discord-voice/src/session.rs
+fcf0410d132703eb87adeb1ba4a3945b  rust/crates/discord-voice/tests/session_contract.rs
+
+==================================================================
+=== M1: apply_device_selection: input_volume > MAX_OUTPUT_VOLUME -> >= MAX_OUTPUT_VOLUME (boundary 200 rejected) ===
+976829c1226f5b42a0991527e190e6c4  rust/crates/discord-voice/src/session.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 19 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session ... FAILED
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... ok
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract ... ok
+test t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures ... ok
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+failures:
+
+---- t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session stdout ----
+
+thread 't_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session' (844303) panicked at crates/discord-voice/tests/session_contract.rs:1525:10:
+громкость 200/200 допустима: VolumeOutOfRange { field: "input_volume", value: 200, max: 200 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session
+
+test result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --test session_contract`
+=== M1 EXIT_CODE=101 (expected 101 => KILLED) ===
+
+==================================================================
+=== M2: apply_device_selection: effective_mute ignores self_deaf ===
+a911c18f1c94947de4f09cd78ef95f32  rust/crates/discord-voice/src/session.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 19 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session ... FAILED
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... ok
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures ... ok
+test t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract ... ok
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+failures:
+
+---- t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session stdout ----
+
+thread 't_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session' (844630) panicked at crates/discord-voice/tests/session_contract.rs:1586:5:
+при self_deaf=true эффективный mute обязан становиться true
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session
+
+test result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --test session_contract`
+=== M2 EXIT_CODE=101 (expected 101 => KILLED) ===
+
+==================================================================
+=== M3: start_screen_share: does not bind active_stream_key to session ===
+02c7ad5816a14960819a6f30eacae41d  rust/crates/discord-voice/src/session.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 19 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... ok
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures ... FAILED
+test t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract ... ok
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+failures:
+
+---- t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures stdout ----
+
+thread 't_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures' (844967) panicked at crates/discord-voice/tests/session_contract.rs:1772:5:
+assertion `left == right` failed
+  left: None
+ right: Some(StreamKey { kind: Guild, guild_id: "<redacted>", channel_id: 100000000000000002, owner_id: 100000000000000003 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures
+
+test result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --test session_contract`
+=== M3 EXIT_CODE=101 (expected 101 => KILLED) ===
+
+==================================================================
+=== M4: stop_screen_share: clone instead of take (does not unbind active_stream_key) ===
+3deb5c9f8feeef6dc88473e26af4569c  rust/crates/discord-voice/src/session.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 19 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... ok
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract ... ok
+test t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures ... FAILED
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+failures:
+
+---- t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures stdout ----
+
+thread 't_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures' (845295) panicked at crates/discord-voice/tests/session_contract.rs:1855:5:
+assertion `left == right` failed: после stop_screen_share stream_key обязан быть отвязан от сессии
+  left: Some(StreamKey { kind: Guild, guild_id: "<redacted>", channel_id: 100000000000000002, owner_id: 100000000000000003 })
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures
+
+test result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --test session_contract`
+=== M4 EXIT_CODE=101 (expected 101 => KILLED) ===
+
+==================================================================
+=== M5: on_stream_dispatch(STREAM_DELETE): ignore unavailable=true priority rule (A-REDUCER-DELETE) ===
+68d64851a0324d8fe60acc21a0b970e6  rust/crates/discord-voice/src/session.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 19 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... ok
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... ok
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures ... ok
+test t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract ... FAILED
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+failures:
+
+---- t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract stdout ----
+
+thread 't_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract' (845623) panicked at crates/discord-voice/tests/session_contract.rs:1982:5:
+assertion `left == right` failed
+  left: Some(Ended)
+ right: Some(Reconnecting)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract
+
+test result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --test session_contract`
+=== M5 EXIT_CODE=101 (expected 101 => KILLED) ===
+
+==================================================================
+=== RESTORED BASELINE MD5 & GREEN CHECK ===
+2a84f53056d5398cdb6d27e914780bba  rust/crates/discord-voice/src/session.rs
+fcf0410d132703eb87adeb1ba4a3945b  rust/crates/discord-voice/tests/session_contract.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 19 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_17_apply_device_selection_volumes_and_mute_deaf_in_voice_session ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... ok
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_18_stream_key_binding_and_opcodes_18_to_22_match_contract_and_fixtures ... ok
+test t_v01_19_stream_inbound_dispatches_and_delete_priority_rules_follow_contract ... ok
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+RESTORED_TEST_EXIT=0

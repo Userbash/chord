@@ -1,0 +1,157 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: constant `ORACLE_RETRY_HEADER` is never used
+  --> tests/attachments_contract.rs:40:7
+   |
+40 | const ORACLE_RETRY_HEADER: &str = "retry-after";
+   |       ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (test "attachments_contract") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.00s
+     Running tests/attachments_contract.rs (target/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 15 tests
+test builder_rejects_mismatched_slots_and_specs ... FAILED
+test oracle_constants_match_re ... ok
+test api_impl_matches_free_function ... FAILED
+test real_client_requires_token_and_sends_nothing ... FAILED
+test parses_slots_and_keeps_only_oracle_fields ... FAILED
+test maps_413_and_40005_to_entity_too_large ... FAILED
+test rejects_empty_or_broken_file_lists_before_io ... FAILED
+test rejects_malformed_upload_slot_response ... FAILED
+test builds_message_attachments_in_spec_order ... FAILED
+test rejects_oversized_file_locally_with_entity_too_large ... FAILED
+test rejects_unsafe_channel_id_before_any_io ... FAILED
+test maps_other_transport_and_http_failures ... FAILED
+test posts_exact_upload_slot_request ... FAILED
+test channel_id_allowlist_matches_messages_module ... FAILED
+test maps_429_with_retry_after_header ... FAILED
+
+failures:
+
+---- builder_rejects_mismatched_slots_and_specs stdout ----
+
+thread 'builder_rejects_mismatched_slots_and_specs' (172487) panicked at tests/attachments_contract.rs:561:5:
+assertion `left == right` failed: нет слотов под файл
+  left: Ok([])
+ right: Err(InvalidArg)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- api_impl_matches_free_function stdout ----
+
+thread 'api_impl_matches_free_function' (172486) panicked at tests/attachments_contract.rs:631:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+
+---- real_client_requires_token_and_sends_nothing stdout ----
+
+thread 'real_client_requires_token_and_sends_nothing' (172496) panicked at tests/attachments_contract.rs:614:5:
+assertion failed: matches!(DiscordAttachments::new("   "), Err(AttachmentError::Unauthorized))
+
+---- parses_slots_and_keeps_only_oracle_fields stdout ----
+
+thread 'parses_slots_and_keeps_only_oracle_fields' (172494) panicked at tests/attachments_contract.rs:411:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- maps_413_and_40005_to_entity_too_large stdout ----
+
+thread 'maps_413_and_40005_to_entity_too_large' (172490) panicked at tests/attachments_contract.rs:477:5:
+assertion `left == right` failed
+  left: Ok([])
+ right: Err(EntityTooLarge)
+
+---- rejects_empty_or_broken_file_lists_before_io stdout ----
+
+thread 'rejects_empty_or_broken_file_lists_before_io' (172497) panicked at tests/attachments_contract.rs:291:9:
+assertion `left == right` failed: пустой список files
+  left: Ok([])
+ right: Err(InvalidArg)
+
+---- rejects_malformed_upload_slot_response stdout ----
+
+thread 'rejects_malformed_upload_slot_response' (172498) panicked at tests/attachments_contract.rs:440:9:
+assertion `left == right` failed: пустое тело
+  left: Ok([])
+ right: Err(InvalidResponse)
+
+---- builds_message_attachments_in_spec_order stdout ----
+
+thread 'builds_message_attachments_in_spec_order' (172488) panicked at tests/attachments_contract.rs:535:5:
+assertion `left == right` failed
+  left: Ok([])
+ right: Ok([UploadedAttachment { id: "local-1", filename: "a.txt", uploaded_filename: "1/a.txt" }, UploadedAttachment { id: "local-2", filename: "b.png", uploaded_filename: "2/b.png" }])
+
+---- rejects_oversized_file_locally_with_entity_too_large stdout ----
+
+thread 'rejects_oversized_file_locally_with_entity_too_large' (172499) panicked at tests/attachments_contract.rs:313:5:
+assertion `left == right` failed
+  left: Ok([])
+ right: Err(EntityTooLarge)
+
+---- rejects_unsafe_channel_id_before_any_io stdout ----
+
+thread 'rejects_unsafe_channel_id_before_any_io' (172500) panicked at tests/attachments_contract.rs:210:9:
+assertion `left == right` failed: id=""
+  left: Ok([])
+ right: Err(InvalidArg)
+
+---- maps_other_transport_and_http_failures stdout ----
+
+thread 'maps_other_transport_and_http_failures' (172492) panicked at tests/attachments_contract.rs:502:9:
+assertion `left == right` failed: HTTP 401
+  left: Ok([])
+ right: Err(Unauthorized)
+
+---- posts_exact_upload_slot_request stdout ----
+
+thread 'posts_exact_upload_slot_request' (172495) panicked at tests/attachments_contract.rs:354:5:
+assertion `left == right` failed
+  left: []
+ right: [AttachmentUploadSlot { id: "local-1", upload_url: "https://cdn.discordapp.com/upload/1", upload_filename: "1/report.pdf" }, AttachmentUploadSlot { id: "local-2", upload_url: "https://cdn.discordapp.com/upload/2", upload_filename: "2/clip.mp4" }]
+
+---- channel_id_allowlist_matches_messages_module stdout ----
+
+thread 'channel_id_allowlist_matches_messages_module' (172489) panicked at tests/attachments_contract.rs:249:9:
+assertion `left == right` failed: расхождение allowlist для id=""
+  left: false
+ right: true
+
+---- maps_429_with_retry_after_header stdout ----
+
+thread 'maps_429_with_retry_after_header' (172491) panicked at tests/attachments_contract.rs:456:9:
+assertion `left == right` failed: header=retry-after
+  left: Ok([])
+ right: Err(RateLimited { retry_after_ms: 3000 })
+
+
+failures:
+    api_impl_matches_free_function
+    builder_rejects_mismatched_slots_and_specs
+    builds_message_attachments_in_spec_order
+    channel_id_allowlist_matches_messages_module
+    maps_413_and_40005_to_entity_too_large
+    maps_429_with_retry_after_header
+    maps_other_transport_and_http_failures
+    parses_slots_and_keeps_only_oracle_fields
+    posts_exact_upload_slot_request
+    real_client_requires_token_and_sends_nothing
+    rejects_empty_or_broken_file_lists_before_io
+    rejects_malformed_upload_slot_response
+    rejects_oversized_file_locally_with_entity_too_large
+    rejects_unsafe_channel_id_before_any_io
+
+test result: FAILED. 1 passed; 14 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test attachments_contract`
+
+---
+Red-фаза: cargo test --offline --test attachments_contract
+Состояние: src/attachments.rs — заглушка с сигнатурами (request_upload_slots/build_message_attachments
+возвращают пустой Ok, валидации и сети нет), lib.rs уже экспортирует pub mod attachments.
+Итог: test result: FAILED. 1 passed; 14 failed; 0 ignored; finished in 0.00s
+Код возврата cargo: 101 (провал тестов, как в мутационных прогонах mutations.log).
+Прошёл только oracle_constants_match_re — он сверяет константы с RE, а не поведение.

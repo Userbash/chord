@@ -5,11 +5,10 @@
 //! - union семи снимков `gw-proto/msgs-*.jsonl` (run1 `.5112` + run2 `.1389/.5532/.8269/.8608/
 //!   `.10029/.13072`): **1340** op0, **21** тип; потиповые числа — `LAB_TYPE_COUNTS` (§3.1 ТЗ);
 //! - снимок потока `gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых Б;
-//!   распаковка при окне ruzstd 65 536 — 759 280 Б, 44 полных терма (36 op0, s = 1..36,
-//!   8 не-диспатчей op10/op11), 704 Б обрезанного терма в хвосте; потиповые числа префикса
-//!   s ≤ 36 — `LAB_STREAM_COUNTS` (§3.2 ТЗ). В полном потоке 113 диспатчей (s = 1..113,
-//!   независимый оракул — таймлайн того же сокета): хвост удержан окном декодера (нит P1-02),
-//!   а не потерян роутером.
+//!   распаковка без удержания окна — **824 816 Б, 137 полных термов** (113 op0, s = 1..113;
+//!   24 не-диспатча: 23 op11 + 1 op10); потиповые числа сокета — `LAB_STREAM_COUNTS` (§3.2 ТЗ,
+//!   независимый источник — таймлайн `gw-proto/msgs-run2-95974_1389.jsonl`). До task-137
+//!   (F-GW-01) ruzstd удерживал последние 64 КиБ, и в тест попадал префикс из 44 термов.
 //!
 //! Lab-файлы опциональны: нет файла — skip с причиной, а не падение.
 
@@ -90,17 +89,19 @@ const LAB_TYPE_COUNTS: [(&str, u64); 21] = [
     ("MESSAGE_REACTION_ADD", 1),
 ];
 
-/// Потиповые числа реального сокета `.1389` в доступном префиксе (s ≤ 36; сумма — 36).
-const LAB_STREAM_COUNTS: [(&str, u64); 9] = [
-    ("GUILD_MEMBER_LIST_UPDATE", 13),
-    ("PRESENCE_UPDATE", 7),
+/// Потиповые числа реального сокета `.1389` целиком (113 op0, s = 1..113; сумма — 113).
+const LAB_STREAM_COUNTS: [(&str, u64); 11] = [
+    ("GUILD_MEMBER_LIST_UPDATE", 51),
+    ("PRESENCE_UPDATE", 40),
     ("MESSAGE_UPDATE", 6),
+    ("GUILD_MEMBERS_CHUNK", 4),
     ("MESSAGE_CREATE", 3),
     ("SESSIONS_REPLACE", 2),
     ("THREAD_LIST_SYNC", 2),
+    ("MESSAGE_ACK", 2),
     ("READY", 1),
     ("READY_SUPPLEMENTAL", 1),
-    ("GUILD_MEMBERS_CHUNK", 1),
+    ("CHANNEL_INFO", 1),
 ];
 
 // ---------------------------------------------------------------------------
@@ -573,7 +574,7 @@ fn lab_all_dispatch_types_route_to_kinds() {
 
 #[test]
 fn lab_real_stream_routes_known_kinds() {
-    // Кейс L2: реальные кадры `.1389` — префикс до окна ruzstd роутится без raw.
+    // Кейс L2: реальные кадры `.1389` — весь поток (137 термов) роутится без raw.
     let path = lab_root().join("gw-proto/zstd-frames-95974_1389.hexl");
     let Some(text) = read_opt(&path) else {
         eprintln!("skip: нет lab-файла {}", path.display());
@@ -588,7 +589,7 @@ fn lab_real_stream_routes_known_kinds() {
     let compressed: u64 = frames.iter().map(|frame| frame.len() as u64).sum();
     assert_eq!(compressed, 104_066, "сжатых байт в снимке");
 
-    // Окно ruzstd (65 536) удерживает хвост незавершённого кадра: из 824 816 Б доступно 759 280.
+    // F-GW-01: незавершённый кадр больше не удерживает окно — 824 816 Б отдаются целиком.
     let mut stream = ZstdStream::new();
     let mut out = Vec::new();
     for (index, frame) in frames.iter().enumerate() {
@@ -598,9 +599,10 @@ fn lab_real_stream_routes_known_kinds() {
                 .unwrap_or_else(|error| panic!("кадр {index}: {error}")),
         );
     }
-    assert_eq!(out.len(), 759_280, "распаковано до удержания окна ruzstd");
+    assert_eq!(out.len(), 824_816, "распакован весь поток");
+    assert_eq!(stream.pending_bytes(), 0, "хвоста в накопителе нет");
 
-    // Разбор термов: 44 полных; остаток — обрезанный терм s=37 (удержан окном).
+    // Разбор термов: 137 полных, остатка нет (раньше хвост обрезался окном на 44-м терме).
     let mut offset = 0usize;
     let mut terms = 0usize;
     let mut routed: Vec<DispatchEvent> = Vec::new();
@@ -623,9 +625,9 @@ fn lab_real_stream_routes_known_kinds() {
             Err(error) => panic!("терм на смещении {offset}: {error}"),
         }
     }
-    assert_eq!(terms, 44, "полных термов в доступном префиксе");
-    assert_eq!(routed.len(), 36, "из них op0");
-    assert_eq!(non_dispatch_ops.len(), 8, "не-диспатчей (op10/op11)");
+    assert_eq!(terms, 137, "полных термов в потоке");
+    assert_eq!(routed.len(), 113, "из них op0");
+    assert_eq!(non_dispatch_ops.len(), 24, "не-диспатчей (op10/op11)");
     assert!(
         non_dispatch_ops
             .iter()
@@ -637,20 +639,20 @@ fn lab_real_stream_routes_known_kinds() {
         terms,
         "баланс термов"
     );
-    assert_eq!(out.len() - offset, 704, "обрезанный терм в хвосте");
+    assert_eq!(out.len() - offset, 0, "обрезанного хвоста нет");
 
-    // Виды и серии: все известные, raw нет, s = 1..36.
+    // Виды и серии: все известные, raw нет, s = 1..113.
     let seqs: Vec<u64> = routed
         .iter()
         .map(|event| event.seq.expect("`s` реального диспатча"))
         .collect();
     assert_eq!(
         seqs,
-        (1..=36).collect::<Vec<u64>>(),
-        "s = 1..36 без разрывов"
+        (1..=113).collect::<Vec<u64>>(),
+        "s = 1..113 без разрывов"
     );
     let raw = routed.iter().filter(|event| event.kind.is_none()).count();
-    assert_eq!(raw, 0, "в префиксе нет неизвестных типов");
+    assert_eq!(raw, 0, "в потоке нет неизвестных типов");
     assert_eq!(
         routed.first().and_then(|event| event.kind),
         Some(DispatchKind::Ready),
@@ -663,8 +665,8 @@ fn lab_real_stream_routes_known_kinds() {
     );
     assert_eq!(
         routed.last().and_then(|event| event.seq),
-        Some(36),
-        "последний routed в префиксе — s=36"
+        Some(113),
+        "последний routed — s=113"
     );
 
     let mut counts: BTreeMap<String, u64> = BTreeMap::new();
@@ -672,6 +674,6 @@ fn lab_real_stream_routes_known_kinds() {
         *counts.entry(event.name.clone()).or_insert(0) += 1;
     }
     let stream_oracle: BTreeMap<&str, u64> = LAB_STREAM_COUNTS.into_iter().collect();
-    assert_eq!(stream_oracle.len(), 9, "оракул префикса без дублей");
+    assert_eq!(stream_oracle.len(), 11, "оракул потока без дублей");
     assert_type_counts(&counts, &LAB_STREAM_COUNTS, "поток .1389");
 }

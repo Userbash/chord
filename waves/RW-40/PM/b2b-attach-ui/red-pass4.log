@@ -1,0 +1,110 @@
+▶ B2b-ATTACH-UI: константы и оракулы лимитов
+  ✖ лимиты совпадают с бэкендом B2a и RE (20 МиБ на файл, 10 файлов на сообщение) (0.888148ms)
+  ✔ formatBytes форматирует размеры в соответствии с §2.3 (неразрывный пробел, запятая) (0.13565ms)
+✖ B2b-ATTACH-UI: константы и оракулы лимитов (1.700728ms)
+▶ B2b-ATTACH-UI: progressive enhancement композера
+  ✔ идемпотентно достраивает узлы очереди, счётчика, скрытого input и live-region (1.455919ms)
+  ✔ клик по [data-action='attach'] триггерит click() на скрытом file input (0.430339ms)
+✔ B2b-ATTACH-UI: progressive enhancement композера (2.028377ms)
+▶ B2b-ATTACH-UI: очередь файлов и валидация лимитов
+  ✔ добавление валидного файла создаёт чип со статусом queued и обновляет счётчик (0.913709ms)
+  ✔ addFiles сохраняет ссылку на исходный File и его байты (bytes/data) в элементе очереди (0.948238ms)
+  ✖ файл больше MAX_UPLOAD_FILE_BYTES получает состояние error-size/error-413 без сети (0.634599ms)
+  ✖ файл размером до 20 МиБ (в диапазоне 10…20 МиБ) принимается в очередь без ошибки error-size (0.6041ms)
+  ✔ пустой файл 0 байт получает состояние error-empty/error-size без сети (0.652999ms)
+  ✔ превышение лимита 10 файлов помечает 11-й как error-limit и блокирует кнопку attach (1.174719ms)
+✖ B2b-ATTACH-UI: очередь файлов и валидация лимитов (5.216603ms)
+▶ B2b-ATTACH-UI: состояния чипов и прогресс
+  ✔ чип содержит progressbar с aria-valuenow и aria-valuetext (0.407139ms)
+  ✔ удаление чипа по кнопке attachment-remove убирает его из DOM и обновляет счётчик (0.762099ms)
+✔ B2b-ATTACH-UI: состояния чипов и прогресс (1.313828ms)
+▶ B2b-ATTACH-UI: транспорт слотов и отправка сообщения
+  ✔ вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename (0.405819ms)
+  ✔ поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put') (0.35372ms)
+  ✔ передаёт экземпляр File и прочитанные байты в attachments_upload_put, сохраняя их при повторе после сбоя (10.742555ms)
+  ✔ ошибка сервера 413 при выдаче слота переводит чип в error-413 (0.39637ms)
+  ✔ ошибка сервера 429 при выдаче слота переводит чип в error-429 (0.29311ms)
+  ✔ ошибка PUT (413) переводит чип в error-413 и блокирует отправку сообщения (0.446909ms)
+  ✔ ошибка PUT (429) переводит чип в error-429 и блокирует отправку сообщения (0.38917ms)
+  ✔ сетевая ошибка PUT переводит чип в error-network и блокирует отправку сообщения (0.431139ms)
+  ✔ отсутствие слота или upload_filename не синтезирует fallback и переводит чип в ошибку (0.3261ms)
+  ✔ отправка сообщения блокируется при наличии ошибок вложения (0.22354ms)
+  ✔ при отправке сообщения передаются uploaded_filename готовых вложений и очередь очищается (0.423129ms)
+✔ B2b-ATTACH-UI: транспорт слотов и отправка сообщения (14.81436ms)
+▶ STUB-12-GIFT-UI: модалка подарка #gift-modal
+  ✔ клик по [data-action='composer-gift'] открывает #gift-modal и выставляет aria-expanded='true' (0.351799ms)
+  ✔ отображает честный статус Nitro-каталога без фейковой оплаты (0.27747ms)
+  ✔ закрывается по Escape и возвращает фокус на кнопку подарка (0.2684ms)
+  ✔ закрывается по клику на backdrop (0.831509ms)
+  ✔ закрывается по кнопке закрытия [data-action='gift-close'] (0.182669ms)
+  ✔ клик при aria-disabled='true' не открывает модалку (0.1286ms)
+✔ STUB-12-GIFT-UI: модалка подарка #gift-modal (2.191647ms)
+ℹ tests 29
+ℹ suites 6
+ℹ pass 26
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.226296
+
+✖ failing tests:
+
+test at tests/unit/composer.test.mjs:97:3
+✖ лимиты совпадают с бэкендом B2a и RE (20 МиБ на файл, 10 файлов на сообщение) (0.888148ms)
+  AssertionError [ERR_ASSERTION]: базовый лимит файла — 20 МиБ (20971520)
+  + actual - expected
+  
+  + 10485760
+  - 20971520
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:98:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 10485760,
+    expected: 20971520,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:202:3
+✖ файл больше MAX_UPLOAD_FILE_BYTES получает состояние error-size/error-413 без сети (0.634599ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /больше 20\s*(?:МиБ|МБ)/i. Input:
+  
+  'Файл больше 10 МиБ. Уменьшите размер и попробуйте снова.'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:222:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Файл больше 10 МиБ. Уменьшите размер и попробуйте снова.',
+    expected: /больше 20\s*(?:МиБ|МБ)/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:226:3
+✖ файл размером до 20 МиБ (в диапазоне 10…20 МиБ) принимается в очередь без ошибки error-size (0.6041ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  'error-size'
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:239:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'error-size',
+    expected: 'error-size',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

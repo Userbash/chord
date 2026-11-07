@@ -1,0 +1,33 @@
+▶ appearance-settings: константы
+  ✔ T-185-01: наборы шагов и ключ хранилища зафиксированы и заморожены (0.666261ms)
+✔ appearance-settings: константы (1.233422ms)
+▶ appearance-settings: состояние по умолчанию
+  ✔ T-185-02: без storage контроллер стартует с дефолтами (0.329701ms)
+  ✔ T-185-03: create применяет значения к documentElement сразу (0.12815ms)
+✔ appearance-settings: состояние по умолчанию (0.589402ms)
+▶ appearance-settings: гидратация
+  ✔ T-185-04: валидный JSON из storage восстанавливает все 4 контрола (0.24591ms)
+  ✔ T-185-05: невалидные поля в JSON отбрасываются по одному, остальные применяются (0.446581ms)
+  ✔ T-185-06: битый JSON и мусор в storage не ломают контроллер (0.14194ms)
+  ✔ T-185-07: падение storage.getItem не мешает старту с дефолтами (0.130251ms)
+✔ appearance-settings: гидратация (1.159962ms)
+▶ appearance-settings: сеттеры и валидация
+  ✔ T-185-08: setTheme применяет тему и пишет JSON в storage (0.19261ms)
+  ✔ T-185-09: setTheme отвергает чужое значение без мутации и записи в storage (0.12617ms)
+  ✔ T-185-10: setFontScale принимает только шаги и пишет проценты в CSS-переменную (0.205541ms)
+  ✔ T-185-11: setGroupSpacing принимает 0 и остальные шаги, отвергая прочие (0.13969ms)
+  ✔ T-185-12: setReducedMotion принимает строго boolean (0.11054ms)
+✔ appearance-settings: сеттеры и валидация (0.947891ms)
+▶ appearance-settings: getState и resetDefaults
+  ✔ T-185-13: getState отдаёт копию, внешняя мутация не меняет контроллер (0.133831ms)
+  ✔ T-185-14: resetDefaults возвращает дефолты, применяет их и перезаписывает storage (0.1433ms)
+  ✔ T-185-15: падение storage.setItem не отменяет применение к DOM (0.09131ms)
+✔ appearance-settings: getState и resetDefaults (0.450021ms)
+ℹ tests 15
+ℹ suites 5
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.677844

@@ -1,0 +1,291 @@
+=== RED PASS 1: untouched src/search.rs (Pass 1 baseline) ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+error[E0624]: method `execute` is private
+   --> tests/search_contract.rs:568:10
+    |
+568 |           .execute(
+    |            ^^^^^^^ private method
+    |
+   ::: src/search.rs:342:5
+    |
+342 | /     async fn execute(
+343 | |         &self,
+344 | |         guild_id: &str,
+345 | |         params: &SearchParams,
+346 | |     ) -> Result<SearchResponse, SearchError> {
+    | |____________________________________________- private method defined here
+
+error[E0308]: mismatched types
+   --> tests/search_contract.rs:583:32
+    |
+583 |             documents_indexed: 0,
+    |                                ^ expected `Option<u64>`, found integer
+    |
+    = note: expected enum `Option<u64>`
+               found type `{integer}`
+help: try wrapping the expression in `Some`
+    |
+583 |             documents_indexed: Some(0),
+    |                                +++++ +
+
+error[E0560]: struct `SearchResponse` has no field named `indexing`
+   --> tests/search_contract.rs:584:13
+    |
+584 |             indexing: true,
+    |             ^^^^^^^^ `SearchResponse` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchResponse` has no field named `retry_after_ms`
+   --> tests/search_contract.rs:585:13
+    |
+585 |             retry_after_ms: Some(2000),
+    |             ^^^^^^^^^^^^^^ `SearchResponse` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0609]: no field `indexing` on type `SearchResponse`
+   --> tests/search_contract.rs:601:21
+    |
+601 |         assert!(env.indexing);
+    |                     ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `messages`, `total_results`, `doing_deep_historical_index`, `documents_indexed`
+
+error[E0609]: no field `retry_after_ms` on type `SearchResponse`
+   --> tests/search_contract.rs:602:24
+    |
+602 | ...   assert_eq!(env.retry_after_ms, Some(DEFAULT_SEARCH_202_RETRY_AFTE...
+    |                      ^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `messages`, `total_results`, `doing_deep_historical_index`, `documents_indexed`
+
+error[E0308]: mismatched types
+   --> tests/search_contract.rs:603:43
+    |
+603 |         assert_eq!(env.documents_indexed, 0);
+    |                                           ^ expected `Option<u64>`, found integer
+    |
+    = note: expected enum `Option<u64>`
+               found type `{integer}`
+help: try wrapping the expression in `Some`
+    |
+603 |         assert_eq!(env.documents_indexed, Some(0));
+    |                                           +++++ +
+
+error[E0599]: no method named `execute_with_retry` found for struct `DiscordSearch` in the current scope
+   --> tests/search_contract.rs:642:10
+    |
+641 |       let result = search
+    |  __________________-
+642 | |         .execute_with_retry(
+    | |         -^^^^^^^^^^^^^^^^^^ method not found in `DiscordSearch`
+    | |_________|
+    |
+
+error[E0599]: no method named `execute_with_retry` found for struct `DiscordSearch` in the current scope
+   --> tests/search_contract.rs:689:10
+    |
+688 |       let boundary_ok = boundary_search
+    |  _______________________-
+689 | |         .execute_with_retry("1", SearchParams::default())
+    | |         -^^^^^^^^^^^^^^^^^^ method not found in `DiscordSearch`
+    | |_________|
+    |
+
+error[E0599]: no method named `execute_with_retry` found for struct `DiscordSearch` in the current scope
+   --> tests/search_contract.rs:723:10
+    |
+722 |       let error = search
+    |  _________________-
+723 | |         .execute_with_retry("1", SearchParams::default())
+    | |         -^^^^^^^^^^^^^^^^^^ method not found in `DiscordSearch`
+    | |_________|
+    |
+
+error[E0308]: mismatched types
+   --> tests/search_contract.rs:771:42
+    |
+771 |     assert_eq!(result.documents_indexed, 590_u64);
+    |                                          ^^^^^^^ expected `Option<u64>`, found `u64`
+    |
+    = note: expected enum `Option<u64>`
+               found type `u64`
+help: try wrapping the expression in `Some`
+    |
+771 |     assert_eq!(result.documents_indexed, Some(590_u64));
+    |                                          +++++       +
+
+error[E0609]: no field `indexing` on type `SearchResponse`
+   --> tests/search_contract.rs:774:21
+    |
+774 |     assert!(!result.indexing);
+    |                     ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `messages`, `total_results`, `doing_deep_historical_index`, `documents_indexed`
+
+error[E0609]: no field `retry_after_ms` on type `SearchResponse`
+   --> tests/search_contract.rs:775:23
+    |
+775 |     assert_eq!(result.retry_after_ms, None);
+    |                       ^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `messages`, `total_results`, `doing_deep_historical_index`, `documents_indexed`
+
+error[E0308]: mismatched types
+   --> tests/search_contract.rs:793:47
+    |
+793 |     assert_eq!(result_zero.documents_indexed, 0_u64);
+    |                                               ^^^^^ expected `Option<u64>`, found `u64`
+    |
+    = note: expected enum `Option<u64>`
+               found type `u64`
+help: try wrapping the expression in `Some`
+    |
+793 |     assert_eq!(result_zero.documents_indexed, Some(0_u64));
+    |                                               +++++     +
+
+error[E0609]: no field `indexing` on type `SearchResponse`
+   --> tests/search_contract.rs:794:26
+    |
+794 |     assert!(!result_zero.indexing);
+    |                          ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `messages`, `total_results`, `doing_deep_historical_index`, `documents_indexed`
+
+error[E0609]: no field `retry_after_ms` on type `SearchResponse`
+   --> tests/search_contract.rs:795:28
+    |
+795 |     assert_eq!(result_zero.retry_after_ms, None);
+    |                            ^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `messages`, `total_results`, `doing_deep_historical_index`, `documents_indexed`
+
+error[E0560]: struct `SearchParams` has no field named `attempts`
+   --> tests/search_contract.rs:906:21
+    |
+906 |                     attempts: omitted_attempts,
+    |                     ^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `channel_id`, `author_id`, `mentions`, `has`, `pinned` ... and 8 others
+
+error[E0560]: struct `SearchParams` has no field named `attempts`
+   --> tests/search_contract.rs:929:21
+    |
+929 |                     attempts: Some(n),
+    |                     ^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `channel_id`, `author_id`, `mentions`, `has`, `pinned` ... and 8 others
+
+error[E0560]: struct `SearchParams` has no field named `attempts`
+   --> tests/search_contract.rs:948:21
+    |
+948 |                     attempts: Some(invalid_attempts),
+    |                     ^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `author_id`, `mentions`, `has` ... and 9 others
+
+error[E0609]: no field `attempts` on type `SearchParams`
+   --> tests/search_contract.rs:971:28
+    |
+971 |     assert_eq!(from_nested.attempts, Some(3));
+    |                            ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `author_id`, `mentions`, `has` ... and 9 others
+
+error[E0609]: no field `attempts` on type `SearchParams`
+   --> tests/search_contract.rs:979:25
+    |
+979 |     assert_eq!(from_top.attempts, Some(2));
+    |                         ^^^^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `author_id`, `mentions`, `has` ... and 9 others
+
+error[E0599]: no method named `execute_with_retry` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1033:10
+     |
+1032 |       let result = search
+     |  __________________-
+1033 | |         .execute_with_retry(
+     | |         -^^^^^^^^^^^^^^^^^^ method not found in `DiscordSearch`
+     | |_________|
+     |
+
+Some errors have detailed explanations: E0308, E0560, E0599, E0609, E0624.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `discord-gui-spike` (test "search_contract") due to 22 previous errors
+exit=101
+
+=== RED PASS 2: runtime assertion failures before Pass 2 contract implementation ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.74s
+     Running tests/search_contract.rs (target/debug/deps/search_contract-c5836221419f214a)
+
+running 23 tests
+
+thread 'decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted' (752535) panicked at tests/search_contract.rs:771:5:
+assertion `left == right` failed
+  left: 0
+ right: 590
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test decodes_hits_and_deep_index_flag ... ok
+
+thread 'includes_nsfw_and_attempts_query_params_and_validates_attempts_range' (752539) panicked at tests/search_contract.rs:935:9:
+assertion `left == right` failed
+  left: Some("/guilds/1/messages/search?content=q")
+ right: Some("/guilds/1/messages/search?content=q&attempts=1")
+test no_token_is_typed_before_network ... ok
+test enforces_max_search_offset_9975_and_rejects_above_ceiling_before_transport ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted ... FAILED
+test maps_network_error_without_exposing_details ... ok
+
+thread 'returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body' (752550) panicked at tests/search_contract.rs:576:10:
+202 envelope from execute: Indexing { retry_after_ms: 5000, attempts: 5 }
+
+thread 'retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results' (752549) panicked at tests/search_contract.rs:654:5:
+assertion `left == right` failed
+  left: 0
+ right: 590
+test debug_and_errors_do_not_expose_token ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test maps_malformed_json_to_typed_error ... ok
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... ok
+test rejects_empty_guild_id_before_transport ... 
+thread 'okreturns_typed_indexing_error_when_all_5_retries_return_202
+' (test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... 752551ok
+) panicked at test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... tests/search_contract.rsFAILED:
+739test rejects_invalid_filter_values_before_transport ... :ok
+test rejects_negative_offset_before_transport ... ok
+test storage_failure_is_typed_for_ui ... ok5
+:
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... assertion `left == right` failed
+  left: ["/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search", "/guilds/1/messages/search"]
+ right: ["/guilds/1/messages/search", "/guilds/1/messages/search?attempts=1", "/guilds/1/messages/search?attempts=2", "/guilds/1/messages/search?attempts=3", "/guilds/1/messages/search?attempts=4", "/guilds/1/messages/search?attempts=5"]FAILED
+
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... FAILED
+test sends_all_confirmed_re_filters_in_query ... ok
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... FAILED
+
+thread 'retries_http_202_against_local_mock_http_server_and_parses_200_ok' (752548) panicked at tests/search_contract.rs:1047:5:
+assertion `left == right` failed
+  left: 0
+ right: 590
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... FAILED
+
+failures:
+
+failures:
+    decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted
+    includes_nsfw_and_attempts_query_params_and_validates_attempts_range
+    retries_http_202_against_local_mock_http_server_and_parses_200_ok
+    retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results
+    returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body
+    returns_typed_indexing_error_when_all_5_retries_return_202
+
+test result: FAILED. 17 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test search_contract`
+exit=101

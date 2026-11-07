@@ -1,0 +1,4 @@
+    Checking discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-codec)
+    Checking discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.37s
+EXIT=0

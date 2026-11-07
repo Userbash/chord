@@ -1,0 +1,14 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.14s
+     Running tests/pins_threads_contract.rs (/tmp/target-g1-pins/debug/deps/pins_threads_contract-5fe6d5921f88b1f1)
+
+running 6 tests
+test list_channel_pins_gets_pins_endpoint_and_parses_pinned_messages ... ok
+test pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200 ... ok
+test rejects_malformed_200_payloads_and_protects_token_in_debug ... ok
+test list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries ... ok
+test maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations ... ok
+test rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

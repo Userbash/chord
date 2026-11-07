@@ -1,0 +1,13 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... ok
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... ok
+test t_v07_05_volume_clamping_and_privacy_redaction ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

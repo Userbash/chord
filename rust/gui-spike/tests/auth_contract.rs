@@ -843,11 +843,39 @@ fn identity_context_is_complete_for_auth_headers() {
     assert_eq!(identity.timezone, "Europe/Moscow");
     // 22 поля супер-свойств: `X-Super-Properties` не должен быть пустым.
     assert!(!identity.super_properties.to_base64().is_empty());
+    assert_eq!(identity.super_properties.client_version, "1.0.162");
+    assert_eq!(identity.super_properties.browser_version, "42.11.12");
+    assert_eq!(identity.super_properties.client_build_number, 641_004);
+    assert_eq!(identity.super_properties.native_build_number, 94_186);
+    assert_eq!(
+        identity.super_properties.browser_user_agent,
+        discord_core::rest::http1::DEFAULT_USER_AGENT
+    );
 
-    // Реальная identity читает среду, но не сеть и не keyring.
+    // Реальная identity читает среду, но не сеть и не keyring, и кэширует UUID на процесс.
     let detected = IdentityContext::detect();
+    let detected_again = IdentityContext::detect();
     assert!(!detected.locale.trim().is_empty());
     assert!(!detected.timezone.trim().is_empty());
+    assert_eq!(
+        detected.super_properties.client_launch_id,
+        detected_again.super_properties.client_launch_id,
+        "client_launch_id обязан быть единым на весь процесс (защита от антифрода Discord)"
+    );
+    assert_eq!(
+        detected.super_properties.launch_signature,
+        detected_again.super_properties.launch_signature,
+        "launch_signature обязан быть единым на весь процесс"
+    );
+    assert_eq!(
+        detected.super_properties.client_heartbeat_session_id,
+        detected_again.super_properties.client_heartbeat_session_id,
+        "client_heartbeat_session_id обязан быть единым на весь процесс"
+    );
+    assert_eq!(
+        identity.super_properties.client_launch_id,
+        detected.super_properties.client_launch_id
+    );
 }
 
 // ---------------------------------------------------------------------------

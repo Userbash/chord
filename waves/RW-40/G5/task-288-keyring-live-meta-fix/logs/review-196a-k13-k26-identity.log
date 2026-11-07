@@ -1,0 +1,6 @@
+oracle: git show HEAD:rust/crates/discord-platform/tests/keyring_contract.rs, строки с fn k13 и до EOF
+vs: rust/crates/discord-platform/tests/safe_storage_contract.rs, fn k13 и до EOF
+IDENTICAL: k13..k26 (354 строки) побайтно совпадают с базой
+
+HEAD-файл: 731 строк, 26 #[test]
+tests/meta/keyring-live.test.mjs: 1f3cec9bf9695a9073164603e8d04cc5  tests/meta/keyring-live.test.mjs, git diff = 0 строк

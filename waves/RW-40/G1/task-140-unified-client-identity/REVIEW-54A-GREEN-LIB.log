@@ -1,0 +1,16 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 8 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test identify::tests::client_identity_drives_identify_properties ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... ok
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... ok
+test tests::gateway_constants_match_capture ... ok
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

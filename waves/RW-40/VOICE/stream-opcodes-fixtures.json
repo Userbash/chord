@@ -1,0 +1,1094 @@
+{
+  "schema": "rw40/stream-opcodes-fixtures-v1",
+  "card": "STUB-27-STREAM-CONTRACT",
+  "owner": "G5 Platform & Voice/Video",
+  "contract": "waves/RW-40/VOICE/STREAM-GATEWAY-CONTRACT.md",
+  "generated": "2026-10-30",
+  "consumers": [
+    "G1 Core/Network: discord-core::stream (encode/decode/reducer)",
+    "G4 QA: мутации §7.2 контракта"
+  ],
+  "provenance": {
+    "method": "code-derived",
+    "liveConfirmed": false,
+    "warning": "Ни одно серверное событие STREAM_* живьём не приходило (0 в 1340 op0). Payload собран по коду клиента; значения идентификаторов, seq, endpoint и token синтетические. Это контракт, не конформанс-захват.",
+    "oracle": {
+      "artifact": "4d2a64cb5df5fc4e_0",
+      "labPath": "/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0",
+      "bytes": 12410287,
+      "md5": "934b1289b7ebf17bc0fd09569b23b438",
+      "sourceDoc": "waves/RW-40/RE-DEEP-REA.md §6",
+      "offsetsAre": "байтовые смещения в артефакте"
+    }
+  },
+  "anchors": [
+    {
+      "id": "A-OPCODES",
+      "offset": 4996751,
+      "len": 188,
+      "proves": "значения и имена опкодов 18..22",
+      "quote": "STREAM_CREATE=18]=\"STREAM_CREATE\",s[s.STREAM_DELETE=19]=\"STREAM_DELETE\",s[s.STREAM_WATCH=20]=\"STREAM_WATCH\",s[s.STREAM_PING=21]=\"STREAM_PING\",s[s.STREAM_SET_PAUSED=22]=\"STREAM_SET_PAUSED\","
+    },
+    {
+      "id": "A-SENDERS",
+      "offset": 4998965,
+      "len": 441,
+      "proves": "точные payload пяти команд",
+      "quote": "LL_CONNECT,{channel_id:e})}streamCreate(e,t,n){let i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:null;this.send(e2.STREAM_CREATE,{type:e,guild_id:t,channel_id:n,preferred_region:i})}streamWatch(e){this.send(e2.STREAM_WATCH,{stream_key:e})}streamPing(e){this.send(e2.STREAM_PING,{stream_key:e})}streamDelete(e){this.send(e2.STREAM_DELETE,{stream_key:e})}streamSetPaused(e,t){this.send(e2.STREAM_SET_PAUSED,{stream_key:e,paused:t})}"
+    },
+    {
+      "id": "A-ROUTER",
+      "offset": 4937830,
+      "len": 576,
+      "proves": "четыре серверных op0-диспатча и их поля",
+      "quote": "ion:e})}),eV([\"STREAM_CREATE\"],e=>{eW({type:\"STREAM_CREATE\",streamKey:e.stream_key,region:e.region,viewerIds:e.viewer_ids,rtcServerId:e.rtc_server_id,rtcChannelId:e.rtc_channel_id,paused:e.paused})}),eV([\"STREAM_SERVER_UPDATE\"],e=>{eW({type:\"STREAM_SERVER_UPDATE\",streamKey:e.stream_key,endpoint:e.endpoint,token:e.token})}),eV([\"STREAM_UPDATE\"],e=>{eW({type:\"STREAM_UPDATE\",streamKey:e.stream_key,region:e.region,viewerIds:e.viewer_ids,paused:e.paused})}),eV([\"STREAM_DELETE\"],e=>{eW({type:\"STREAM_DELETE\",streamKey:e.stream_key,unavailable:e.unavailable,reason:e.reason})}),"
+    },
+    {
+      "id": "A-KEY-MODULE",
+      "offset": 5089580,
+      "len": 580,
+      "proves": "guard, parse и build ключа в одном модуле (экспорт _z)",
+      "quote": "_z:()=>s,wL:()=>r});var i=n(325278);function r(e){return null!=e&&(e.startsWith(i.U4.GUILD)||e.startsWith(i.U4.CALL))}function a(e){let t=e.split(\":\"),n=t[0];switch(n){case i.U4.GUILD:{let[e,n,i,r]=t;return{streamType:e,guildId:n,channelId:i,ownerId:r}}case i.U4.CALL:{let[e,n,i]=t;return{streamType:e,channelId:n,ownerId:i}}default:throw Error(`Unknown stream type ${n}`)}}function s(e){let{streamType:t,guildId:n,channelId:r,ownerId:a}=e;switch(t){case i.U4.GUILD:return[t,n,r,a].join(\":\");case i.U4.CALL:return[t,r,a].join(\":\");default:throw Error(`Unknown stream type ${t}`)}}"
+    },
+    {
+      "id": "A-KEY-PARSE",
+      "offset": 5089698,
+      "len": 256,
+      "proves": "разбор: split(':'), guild=4 сегмента, call=3, неизвестный префикс — throw",
+      "quote": "function a(e){let t=e.split(\":\"),n=t[0];switch(n){case i.U4.GUILD:{let[e,n,i,r]=t;return{streamType:e,guildId:n,channelId:i,ownerId:r}}case i.U4.CALL:{let[e,n,i]=t;return{streamType:e,channelId:n,ownerId:i}}default:throw Error(`Unknown stream type ${n}`)}}"
+    },
+    {
+      "id": "A-KEY-BUILD",
+      "offset": 5089954,
+      "len": 206,
+      "proves": "сборка: guild = join(':') из 4, call — из 3",
+      "quote": "function s(e){let{streamType:t,guildId:n,channelId:r,ownerId:a}=e;switch(t){case i.U4.GUILD:return[t,n,r,a].join(\":\");case i.U4.CALL:return[t,r,a].join(\":\");default:throw Error(`Unknown stream type ${t}`)}}"
+    },
+    {
+      "id": "A-STREAMTYPE",
+      "offset": 5084903,
+      "len": 45,
+      "proves": "литералы типа: guild / call",
+      "quote": "var p=((a={}).GUILD=\"guild\",a.CALL=\"call\",a);"
+    },
+    {
+      "id": "A-REASONS",
+      "offset": 528586,
+      "len": 165,
+      "proves": "четыре кода отказа STREAM_DELETE.reason",
+      "quote": "aO=((th={}).USER_REQUESTED=\"user_requested\",th.STREAM_FULL=\"stream_full\",th.UNAUTHORIZED=\"unauthorized\",th.SAFETY_GUILD_RATE_LIMITED=\"safety_guild_rate_limited\",th),"
+    },
+    {
+      "id": "A-PHASES",
+      "offset": 528441,
+      "len": 145,
+      "proves": "шесть фаз клиента",
+      "quote": "aC=((tA={}).CONNECTING=\"CONNECTING\",tA.ACTIVE=\"ACTIVE\",tA.RECONNECTING=\"RECONNECTING\",tA.ENDED=\"ENDED\",tA.PAUSED=\"PAUSED\",tA.FAILED=\"FAILED\",tA),"
+    },
+    {
+      "id": "A-REDUCER-START",
+      "offset": 4954827,
+      "len": 222,
+      "proves": "STREAM_START шлётся только при isSessionEstablished; регион из channel.rtcRegion/call.region",
+      "quote": "STREAM_START:function(e){let{streamType:t,guildId:n,channelId:i}=e;if(B.isSessionEstablished()){let e=null!=n?f.A.getChannel(i)?.rtcRegion:h.A.getCall(i)?.region;B.streamCreate(t,n,i,e??T.A.getPreferredRegion())}return!1},"
+    },
+    {
+      "id": "A-REDUCER-WATCH",
+      "offset": 4955049,
+      "len": 277,
+      "proves": "STREAM_WATCH под guard'ом сессии",
+      "quote": "STREAM_WATCH:function(e){let{streamKey:t,allowMultiple:n}=e;if(B.isSessionEstablished()){if(n);else{let e;e=S.A.getAllActiveStreamKeys().find(e=>(0,u.Iy)(e).ownerId===A.default.getId()),S.A.getAllActiveStreamKeys().filter(t=>t!==e).forEach(e=>e9(e))}B.streamWatch(t)}return!1},"
+    },
+    {
+      "id": "A-STOP-HELPER",
+      "offset": 4951180,
+      "len": 59,
+      "proves": "стоп = STREAM_DELETE под guard'ом сессии",
+      "quote": "function e9(e){B.isSessionEstablished()&&B.streamDelete(e)}"
+    },
+    {
+      "id": "A-PING-CALLSITE",
+      "offset": 4952506,
+      "len": 155,
+      "proves": "STREAM_PING шлётся, когда RTC этого стрима ушёл в DISCONNECTED с willReconnect",
+      "quote": "RTC_CONNECTION_STATE:function(e){if(e.state!==x.S7L.DISCONNECTED)return!1;e.willReconnect&&(null!=e.streamKey?B.streamPing(e.streamKey):B.voiceServerPing()"
+    },
+    {
+      "id": "A-REDUCER-CREATEUP",
+      "offset": 8966402,
+      "len": 214,
+      "proves": "CREATE/UPDATE: фаза ACTIVE/PAUSED по paused, region и viewer_ids сохраняются",
+      "quote": "function x(e){let t,{streamKey:n,region:r,viewerIds:s,paused:o}=e;null==(t=l.get(n))||Date.now()-t<P||l.delete(n),i.set(n,{...(0,A.Iy)(n),state:o?y.XYD.PAUSED:y.XYD.ACTIVE}),a[n]={streamKey:n,region:r,viewerIds:s}}"
+    },
+    {
+      "id": "A-REDUCER-DELETE",
+      "offset": 8972115,
+      "len": 560,
+      "proves": "приоритет правил DELETE: unavailable -> RECONNECTING, unauthorized -> FAILED, safety -> ENDED, user_requested после FAILED -> FAILED",
+      "quote": "STREAM_DELETE:function(e){let t,{streamKey:r,unavailable:s,reason:o}=e;delete a[r];let d=!1;o===y.H2B.STREAM_FULL&&(t=!l.has(r),l.set(r,Date.now()),d=t);let c=i.get(r);if(null==c)return d;let u=y.XYD.ENDED;if(s)u=y.XYD.RECONNECTING;else if(o===y.H2B.UNAUTHORIZED)u=y.XYD.FAILED;else if(o===y.H2B.SAFETY_GUILD_RATE_LIMITED){let{guildId:e}=(0,A.Iy)(r);n.e(\"452729\").then(n.bind(n,116960)).then(t=>{let{default:n}=t;n(e)}),u=y.XYD.ENDED}else c.state===y.XYD.FAILED&&o===y.H2B.USER_REQUESTED&&(u=y.XYD.FAILED);i.set(r,{...c,state:u}),u===y.XYD.ENDED&&v!==r&&w(r)},"
+    },
+    {
+      "id": "A-PAUSE-UI",
+      "offset": 710516,
+      "len": 96,
+      "proves": "пауза строит ключ из {streamType,guildId,channelId,ownerId} и шлёт STREAM_SET_PAUSED",
+      "quote": "function y(e,t){let n=(0,d._z)(e);l.h.dispatch({type:\"STREAM_SET_PAUSED\",streamKey:n,paused:t})}"
+    },
+    {
+      "id": "A-REST",
+      "offset": 292006,
+      "len": 115,
+      "proves": "REST-ветка /streams/{key}/{preview,notify,stream}",
+      "quote": "STREAM_PREVIEW:e=>`/streams/${e}/preview`,STREAM_NOTIFY:e=>`/streams/${e}/notify`,STREAM:e=>`/streams/${e}/stream`,"
+    }
+  ],
+  "opcodes": [
+    { "code": 18, "name": "STREAM_CREATE", "direction": "client_to_server", "fields": ["type", "guild_id", "channel_id", "preferred_region"], "anchors": ["A-OPCODES", "A-SENDERS"] },
+    { "code": 19, "name": "STREAM_DELETE", "direction": "client_to_server", "fields": ["stream_key"], "anchors": ["A-OPCODES", "A-SENDERS"] },
+    { "code": 20, "name": "STREAM_WATCH", "direction": "client_to_server", "fields": ["stream_key"], "anchors": ["A-OPCODES", "A-SENDERS"] },
+    { "code": 21, "name": "STREAM_PING", "direction": "client_to_server", "fields": ["stream_key"], "anchors": ["A-OPCODES", "A-SENDERS", "A-PING-CALLSITE"] },
+    { "code": 22, "name": "STREAM_SET_PAUSED", "direction": "client_to_server", "fields": ["stream_key", "paused"], "anchors": ["A-OPCODES", "A-SENDERS"] },
+    { "code": 0, "name": "STREAM_CREATE", "direction": "server_to_client", "fields": ["stream_key", "region", "viewer_ids", "rtc_server_id", "rtc_channel_id", "paused"], "anchors": ["A-ROUTER"] },
+    { "code": 0, "name": "STREAM_SERVER_UPDATE", "direction": "server_to_client", "fields": ["stream_key", "endpoint", "token"], "anchors": ["A-ROUTER"] },
+    { "code": 0, "name": "STREAM_UPDATE", "direction": "server_to_client", "fields": ["stream_key", "region", "viewer_ids", "paused"], "anchors": ["A-ROUTER"] },
+    { "code": 0, "name": "STREAM_DELETE", "direction": "server_to_client", "fields": ["stream_key", "unavailable", "reason"], "anchors": ["A-ROUTER", "A-REASONS"] }
+  ],
+  "keys": {
+    "canonical": {
+      "guild": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "call": "call:100000000000000002:100000000000000003"
+    },
+    "parts": {
+      "guild": { "guildId": "100000000000000001", "channelId": "100000000000000002", "ownerId": "100000000000000003" },
+      "call": { "channelId": "100000000000000002", "ownerId": "100000000000000003" }
+    },
+    "rule": "guild: 4 сегмента (type:guild_id:channel_id:user_id); call: 3 сегмента (type:channel_id:user_id). Сегменты — десятичные ASCII, 1..20 знаков, > 0, без ведущих нулей.",
+    "anchors": ["A-KEY-MODULE", "A-KEY-PARSE", "A-KEY-BUILD", "A-STREAMTYPE"]
+  },
+  "outbound": [
+    {
+      "id": "out-18-create-guild",
+      "op": 18,
+      "opName": "STREAM_CREATE",
+      "anchors": ["A-SENDERS", "A-REDUCER-START", "A-STREAMTYPE"],
+      "source": { "offset": 4998992 },
+      "payload": {
+        "type": "guild",
+        "guild_id": "100000000000000001",
+        "channel_id": "100000000000000002",
+        "preferred_region": "us-east"
+      },
+      "expectCommand": { "variant": "create", "kind": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": "us-east" }
+    },
+    {
+      "id": "out-18-create-guild-no-region",
+      "op": 18,
+      "opName": "STREAM_CREATE",
+      "anchors": ["A-SENDERS", "A-REDUCER-START"],
+      "source": { "offset": 4998992 },
+      "payload": {
+        "type": "guild",
+        "guild_id": "100000000000000001",
+        "channel_id": "100000000000000002",
+        "preferred_region": null
+      },
+      "expectCommand": { "variant": "create", "kind": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": null }
+    },
+    {
+      "id": "out-18-create-call",
+      "op": 18,
+      "opName": "STREAM_CREATE",
+      "anchors": ["A-SENDERS", "A-REDUCER-START", "A-STREAMTYPE"],
+      "source": { "offset": 4998992 },
+      "policyRef": "D-27-2: guild_id кодируется явным null",
+      "payload": {
+        "type": "call",
+        "guild_id": null,
+        "channel_id": "100000000000000002",
+        "preferred_region": null
+      },
+      "expectCommand": { "variant": "create", "kind": "call", "guildId": null, "channelId": "100000000000000002", "preferredRegion": null }
+    },
+    {
+      "id": "out-19-delete",
+      "op": 19,
+      "opName": "STREAM_DELETE",
+      "anchors": ["A-SENDERS", "A-STOP-HELPER"],
+      "source": { "offset": 4999270 },
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003" },
+      "expectCommand": { "variant": "delete", "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003" }
+    },
+    {
+      "id": "out-19-delete-call",
+      "op": 19,
+      "opName": "STREAM_DELETE",
+      "anchors": ["A-SENDERS", "A-STOP-HELPER"],
+      "source": { "offset": 4999270 },
+      "payload": { "stream_key": "call:100000000000000002:100000000000000003" },
+      "expectCommand": { "variant": "delete", "streamKey": "call:100000000000000002:100000000000000003" }
+    },
+    {
+      "id": "out-20-watch",
+      "op": 20,
+      "opName": "STREAM_WATCH",
+      "anchors": ["A-SENDERS", "A-REDUCER-WATCH"],
+      "source": { "offset": 4999158 },
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003" },
+      "expectCommand": { "variant": "watch", "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003" }
+    },
+    {
+      "id": "out-21-ping",
+      "op": 21,
+      "opName": "STREAM_PING",
+      "anchors": ["A-SENDERS", "A-PING-CALLSITE"],
+      "source": { "offset": 4999215 },
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003" },
+      "expectCommand": { "variant": "ping", "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003" }
+    },
+    {
+      "id": "out-22-set-paused-true",
+      "op": 22,
+      "opName": "STREAM_SET_PAUSED",
+      "anchors": ["A-SENDERS", "A-PAUSE-UI"],
+      "source": { "offset": 4999329 },
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003", "paused": true },
+      "expectCommand": { "variant": "set_paused", "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003", "paused": true }
+    },
+    {
+      "id": "out-22-set-paused-false",
+      "op": 22,
+      "opName": "STREAM_SET_PAUSED",
+      "anchors": ["A-SENDERS", "A-PAUSE-UI"],
+      "source": { "offset": 4999329 },
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003", "paused": false },
+      "expectCommand": { "variant": "set_paused", "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003", "paused": false }
+    }
+  ],
+  "inbound": [
+    {
+      "id": "in-create",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9001,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": ["100000000000000004", "100000000000000005"],
+        "rtc_server_id": "100000000000000010",
+        "rtc_channel_id": "100000000000000002",
+        "paused": false
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": ["100000000000000004", "100000000000000005"],
+        "rtcServerId": "100000000000000010",
+        "rtcChannelId": "100000000000000002",
+        "paused": false
+      }
+    },
+    {
+      "id": "in-create-stale",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9001,
+      "sequence": "synthetic",
+      "note": "тот же s, что у in-create; должен быть отброшен политикой stale",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "eu-central",
+        "viewer_ids": ["100000000000000099"],
+        "rtc_server_id": "100000000000000011",
+        "rtc_channel_id": "100000000000000002",
+        "paused": true
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "eu-central",
+        "viewerIds": ["100000000000000099"],
+        "rtcServerId": "100000000000000011",
+        "rtcChannelId": "100000000000000002",
+        "paused": true
+      }
+    },
+    {
+      "id": "in-create-minimal",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9002,
+      "sequence": "synthetic",
+      "note": "мягкие поля отсутствуют: Option = None, фаза Active (paused по умолчанию false)",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "paused": false
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": null,
+        "viewerIds": null,
+        "rtcServerId": null,
+        "rtcChannelId": null,
+        "paused": false
+      }
+    },
+    {
+      "id": "in-create-empty-viewers",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9003,
+      "sequence": "synthetic",
+      "note": "пустой массив != отсутствие поля (D-27-5)",
+      "anchors": ["A-ROUTER"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": [],
+        "rtc_server_id": "100000000000000010",
+        "rtc_channel_id": "100000000000000002",
+        "paused": false
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": [],
+        "rtcServerId": "100000000000000010",
+        "rtcChannelId": "100000000000000002",
+        "paused": false
+      }
+    },
+    {
+      "id": "in-create-paused",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9004,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": ["100000000000000004"],
+        "rtc_server_id": "100000000000000010",
+        "rtc_channel_id": "100000000000000002",
+        "paused": true
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": ["100000000000000004"],
+        "rtcServerId": "100000000000000010",
+        "rtcChannelId": "100000000000000002",
+        "paused": true
+      }
+    },
+    {
+      "id": "in-create-call",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9005,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-KEY-PARSE"],
+      "payload": {
+        "stream_key": "call:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": ["100000000000000004"],
+        "rtc_server_id": "100000000000000010",
+        "rtc_channel_id": "100000000000000002",
+        "paused": false
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "call:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": ["100000000000000004"],
+        "rtcServerId": "100000000000000010",
+        "rtcChannelId": "100000000000000002",
+        "paused": false
+      }
+    },
+    {
+      "id": "in-server-update",
+      "op": 0,
+      "t": "STREAM_SERVER_UPDATE",
+      "seq": 9006,
+      "sequence": "synthetic",
+      "note": "endpoint и token синтетические; token в фикстуре всегда REDACTED",
+      "anchors": ["A-ROUTER"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "endpoint": "wss://stream.example.invalid/?v=9",
+        "token": "REDACTED"
+      },
+      "expect": {
+        "variant": "server_update",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "endpoint": "wss://stream.example.invalid/?v=9",
+        "token": "REDACTED"
+      }
+    },
+    {
+      "id": "in-server-update-call",
+      "op": 0,
+      "t": "STREAM_SERVER_UPDATE",
+      "seq": 9007,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER"],
+      "payload": {
+        "stream_key": "call:100000000000000002:100000000000000003",
+        "endpoint": "wss://stream.example.invalid/?v=9",
+        "token": "REDACTED"
+      },
+      "expect": {
+        "variant": "server_update",
+        "streamKey": "call:100000000000000002:100000000000000003",
+        "endpoint": "wss://stream.example.invalid/?v=9",
+        "token": "REDACTED"
+      }
+    },
+    {
+      "id": "in-update-viewers",
+      "op": 0,
+      "t": "STREAM_UPDATE",
+      "seq": 9008,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": ["100000000000000004", "100000000000000005", "100000000000000006"],
+        "paused": false
+      },
+      "expect": {
+        "variant": "update",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": ["100000000000000004", "100000000000000005", "100000000000000006"],
+        "paused": false
+      }
+    },
+    {
+      "id": "in-update-paused",
+      "op": 0,
+      "t": "STREAM_UPDATE",
+      "seq": 9009,
+      "sequence": "synthetic",
+      "note": "viewer_ids отсутствует -> прежний список сохраняется (H-VIEWERS/H-PAUSE)",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "paused": true
+      },
+      "expect": {
+        "variant": "update",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": null,
+        "paused": true
+      }
+    },
+    {
+      "id": "in-update-resumed",
+      "op": 0,
+      "t": "STREAM_UPDATE",
+      "seq": 9010,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": ["100000000000000004"],
+        "paused": false
+      },
+      "expect": {
+        "variant": "update",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": ["100000000000000004"],
+        "paused": false
+      }
+    },
+    {
+      "id": "in-delete-user-requested",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9011,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REASONS", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "user_requested"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "user_requested",
+        "reasonKind": "known"
+      }
+    },
+    {
+      "id": "in-delete-unavailable",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9012,
+      "sequence": "synthetic",
+      "note": "unavailable имеет приоритет над любым reason",
+      "anchors": ["A-ROUTER", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": true,
+        "reason": "user_requested"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": true,
+        "reason": "user_requested",
+        "reasonKind": "known"
+      }
+    },
+    {
+      "id": "in-delete-stream-full",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9013,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REASONS", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "stream_full"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "stream_full",
+        "reasonKind": "known"
+      }
+    },
+    {
+      "id": "in-delete-unauthorized",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9014,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REASONS", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "unauthorized"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "unauthorized",
+        "reasonKind": "known"
+      }
+    },
+    {
+      "id": "in-delete-safety",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9015,
+      "sequence": "synthetic",
+      "anchors": ["A-ROUTER", "A-REASONS", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "safety_guild_rate_limited"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "safety_guild_rate_limited",
+        "reasonKind": "known"
+      }
+    },
+    {
+      "id": "in-delete-unknown-reason",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9016,
+      "sequence": "synthetic",
+      "note": "forward-compat: неизвестный reason не ломает событие (D-27-7)",
+      "anchors": ["A-ROUTER", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "campaign_promo_2027"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "campaign_promo_2027",
+        "reasonKind": "unknown"
+      }
+    },
+    {
+      "id": "in-delete-minimal",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9017,
+      "sequence": "synthetic",
+      "note": "unavailable и reason отсутствуют: default-ветка правил -> Ended",
+      "anchors": ["A-ROUTER", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": null,
+        "reason": null,
+        "reasonKind": "absent"
+      }
+    },
+    {
+      "id": "in-create-reconnect",
+      "op": 0,
+      "t": "STREAM_CREATE",
+      "seq": 9021,
+      "sequence": "synthetic",
+      "note": "повторный CREATE после unavailable: seq выше предыдущего события",
+      "anchors": ["A-ROUTER", "A-REDUCER-CREATEUP"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewer_ids": ["100000000000000004", "100000000000000005"],
+        "rtc_server_id": "100000000000000010",
+        "rtc_channel_id": "100000000000000002",
+        "paused": false
+      },
+      "expect": {
+        "variant": "created",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "region": "us-east",
+        "viewerIds": ["100000000000000004", "100000000000000005"],
+        "rtcServerId": "100000000000000010",
+        "rtcChannelId": "100000000000000002",
+        "paused": false
+      }
+    },
+    {
+      "id": "in-delete-user-requested-late",
+      "op": 0,
+      "t": "STREAM_DELETE",
+      "seq": 9022,
+      "sequence": "synthetic",
+      "note": "user_requested после failed: seq выше предыдущего события",
+      "anchors": ["A-ROUTER", "A-REASONS", "A-REDUCER-DELETE"],
+      "payload": {
+        "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "user_requested"
+      },
+      "expect": {
+        "variant": "deleted",
+        "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+        "unavailable": false,
+        "reason": "user_requested",
+        "reasonKind": "known"
+      }
+    },
+    {
+      "id": "in-voice-state-self-stream-false",
+      "op": 0,
+      "t": "VOICE_STATE_UPDATE",
+      "seq": 9018,
+      "sequence": "synthetic",
+      "note": "не STREAM_*: parse_dispatch = None; редьюсер стрима не меняет фазу (правило §4.3 контракта)",
+      "anchors": ["A-REDUCER-DELETE"],
+      "payload": {
+        "guild_id": "100000000000000001",
+        "channel_id": "100000000000000002",
+        "user_id": "100000000000000003",
+        "self_stream": false,
+        "self_video": false
+      },
+      "expect": {
+        "variant": "not_a_stream_dispatch",
+        "parseDispatch": null
+      }
+    }
+  ],
+  "negative": [
+    {
+      "id": "neg-key-guild-3-parts",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:100000000000000001:100000000000000002",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "SegmentCount"
+    },
+    {
+      "id": "neg-key-guild-5-parts",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:100000000000000001:100000000000000002:100000000000000003:100000000000000004",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "SegmentCount"
+    },
+    {
+      "id": "neg-key-call-4-parts",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "call:100000000000000001:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "SegmentCount"
+    },
+    {
+      "id": "neg-key-call-2-parts",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "call:100000000000000002",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "SegmentCount"
+    },
+    {
+      "id": "neg-key-unknown-prefix",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE", "A-STREAMTYPE"],
+      "value": "group:100000000000000001:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "UnknownKind"
+    },
+    {
+      "id": "neg-key-empty-segment",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild::100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "EmptySegment"
+    },
+    {
+      "id": "neg-key-non-numeric",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:100000000000000001:10000000000000000x:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "NotSnowflake"
+    },
+    {
+      "id": "neg-key-leading-zero",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:0100000000000000001:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "NotSnowflake"
+    },
+    {
+      "id": "neg-key-zero",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:0:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "NotSnowflake"
+    },
+    {
+      "id": "neg-key-overflow",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:18446744073709551616:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "Overflow"
+    },
+    {
+      "id": "neg-key-too-long",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-MODULE"],
+      "value": "guild:11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "TooLong"
+    },
+    {
+      "id": "neg-key-nonascii-digits",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-PARSE"],
+      "value": "guild:١٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠١:100000000000000002:100000000000000003",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "NotSnowflake"
+    },
+    {
+      "id": "neg-key-empty",
+      "kind": "stream_key",
+      "anchors": ["A-KEY-MODULE"],
+      "value": "",
+      "expectError": "stream.key.invalid",
+      "expectKeyError": "Empty"
+    },
+    {
+      "id": "neg-out-create-upper-type",
+      "kind": "command",
+      "anchors": ["A-STREAMTYPE", "A-SENDERS"],
+      "command": { "variant": "create", "type": "GUILD", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": null },
+      "expectError": "stream.command.kind"
+    },
+    {
+      "id": "neg-out-create-guild-without-id",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "create", "type": "guild", "guildId": null, "channelId": "100000000000000002", "preferredRegion": null },
+      "expectError": "stream.command.guild_id.missing"
+    },
+    {
+      "id": "neg-out-create-call-with-id",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "create", "type": "call", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": null },
+      "expectError": "stream.command.guild_id.unexpected"
+    },
+    {
+      "id": "neg-out-paused-string",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "set_paused", "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003", "paused": "true" },
+      "expectError": "stream.field.paused"
+    },
+    {
+      "id": "neg-out-region-empty",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "create", "type": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": "" },
+      "expectError": "stream.field.region"
+    },
+    {
+      "id": "neg-out-region-nonascii",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "create", "type": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": "европа" },
+      "expectError": "stream.field.region"
+    },
+    {
+      "id": "neg-out-region-too-long",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "create", "type": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+      "expectError": "stream.field.region"
+    },
+    {
+      "id": "neg-out-create-channel-zero",
+      "kind": "command",
+      "anchors": ["A-SENDERS"],
+      "command": { "variant": "create", "type": "guild", "guildId": "100000000000000001", "channelId": "0", "preferredRegion": null },
+      "expectError": "stream.field.id"
+    },
+    {
+      "id": "neg-session-not-established",
+      "kind": "command",
+      "anchors": ["A-REDUCER-START", "A-STOP-HELPER", "A-REDUCER-WATCH", "A-PAUSE-UI"],
+      "session": "connecting",
+      "command": { "variant": "create", "type": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "preferredRegion": null },
+      "expectError": "stream.session.not_established"
+    },
+    {
+      "id": "neg-in-create-bad-key",
+      "kind": "inbound",
+      "t": "STREAM_CREATE",
+      "anchors": ["A-ROUTER", "A-KEY-PARSE"],
+      "payload": { "stream_key": "guild:1:2", "paused": false },
+      "expectError": "stream.key.invalid"
+    },
+    {
+      "id": "neg-in-create-viewer-not-array",
+      "kind": "inbound",
+      "t": "STREAM_CREATE",
+      "anchors": ["A-ROUTER"],
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003", "viewer_ids": "100000000000000004" },
+      "expectDiagnostic": "malformed_fields",
+      "expectParsed": true
+    },
+    {
+      "id": "neg-in-delete-bad-unavailable",
+      "kind": "inbound",
+      "t": "STREAM_DELETE",
+      "anchors": ["A-ROUTER"],
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003", "unavailable": "yes", "reason": "user_requested" },
+      "expectDiagnostic": "malformed_fields",
+      "expectParsed": true
+    },
+    {
+      "id": "neg-in-not-map",
+      "kind": "inbound",
+      "t": "STREAM_UPDATE",
+      "anchors": ["A-ROUTER"],
+      "payload": [],
+      "expectError": "stream.field.type"
+    },
+    {
+      "id": "neg-in-server-update-missing-token",
+      "kind": "inbound",
+      "t": "STREAM_SERVER_UPDATE",
+      "anchors": ["A-ROUTER"],
+      "payload": { "stream_key": "guild:100000000000000001:100000000000000002:100000000000000003", "endpoint": "wss://stream.example.invalid/?v=9" },
+      "expectError": "stream.field.missing"
+    }
+  ],
+  "reducer": [
+    {
+      "id": "R-01-happy-path",
+      "anchors": ["A-REDUCER-WATCH", "A-REDUCER-CREATEUP", "A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "local", "local": "watch_requested", "expect": { "phase": "connecting", "retained": true, "effects": [] } },
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "transportReady": false, "viewerIds": ["100000000000000004", "100000000000000005"], "effects": [] } },
+        { "do": "dispatch", "vector": "in-server-update", "expect": { "phase": "active", "transportReady": true, "effects": ["open_stream_rtc"] } },
+        { "do": "dispatch", "vector": "in-update-paused", "expect": { "phase": "paused", "viewerIds": ["100000000000000004", "100000000000000005"], "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-user-requested", "expect": { "phase": "ended", "retained": true, "transportReady": false, "effects": ["close_stream_rtc"] } }
+      ]
+    },
+    {
+      "id": "R-02-start-no-optimism",
+      "anchors": ["A-REDUCER-START"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "local", "local": "start_requested", "kind": "guild", "guildId": "100000000000000001", "channelId": "100000000000000002", "expect": { "phase": null, "retained": false, "effects": [] } },
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "retained": true, "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-03-stop-no-optimism",
+      "anchors": ["A-STOP-HELPER", "A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "local", "local": "stop_requested", "expect": { "phase": "active", "retained": true, "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-user-requested", "expect": { "phase": "ended", "effects": ["close_stream_rtc"] } }
+      ]
+    },
+    {
+      "id": "R-04-pause-round-trip",
+      "anchors": ["A-PAUSE-UI", "A-REDUCER-CREATEUP"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "local", "local": "set_paused_requested", "paused": true, "expect": { "phase": "active", "retained": true, "effects": [] } },
+        { "do": "dispatch", "vector": "in-update-paused", "expect": { "phase": "paused", "effects": [] } },
+        { "do": "local", "local": "set_paused_requested", "paused": false, "expect": { "phase": "paused", "effects": [] } },
+        { "do": "dispatch", "vector": "in-update-resumed", "expect": { "phase": "active", "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-05-unavailable-reconnect",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-unavailable", "expect": { "phase": "reconnecting", "retained": true, "transportReady": false, "effects": ["close_stream_rtc"] } },
+        { "do": "dispatch", "vector": "in-create-reconnect", "expect": { "phase": "active", "retained": true, "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-06-unauthorized-failed",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-unauthorized", "expect": { "phase": "failed", "retained": true, "effects": ["close_stream_rtc"] } },
+        { "do": "dispatch", "vector": "in-delete-user-requested-late", "expect": { "phase": "failed", "retained": true, "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-07-safety-rate-limit",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-safety", "expect": { "phase": "ended", "effects": ["close_stream_rtc", "show_safety_rate_limit"] } }
+      ]
+    },
+    {
+      "id": "R-08-stream-full-while-connecting",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "local", "local": "watch_requested", "expect": { "phase": "connecting", "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-stream-full", "expect": { "phase": "ended", "effects": ["notify_viewer_full"] } }
+      ]
+    },
+    {
+      "id": "R-08b-stream-full-while-active",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-stream-full", "expect": { "phase": "ended", "effects": ["close_stream_rtc", "notify_viewer_full"] } }
+      ]
+    },
+    {
+      "id": "R-09-unknown-reason",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-delete-unknown-reason", "expect": { "phase": "ended", "deleteReason": "campaign_promo_2027", "effects": ["close_stream_rtc"] } }
+      ]
+    },
+    {
+      "id": "R-10-voice-state-ignored",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-voice-state-self-stream-false", "expect": { "phase": "active", "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-11-stale-sequence",
+      "anchors": ["A-ROUTER"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "region": "us-east", "effects": [] } },
+        { "do": "dispatch", "vector": "in-create-stale", "expect": { "phase": "active", "region": "us-east", "staleSequences": [9001], "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-12-delete-without-entry",
+      "anchors": ["A-REDUCER-DELETE"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "precondition": "карта пуста",
+      "steps": [
+        { "do": "dispatch", "vector": "in-delete-user-requested", "expect": { "phase": null, "retained": false, "unknownStreams": 1, "effects": [] } }
+      ]
+    },
+    {
+      "id": "R-13-ready-reset",
+      "anchors": ["A-ROUTER"],
+      "streamKey": "guild:100000000000000001:100000000000000002:100000000000000003",
+      "steps": [
+        { "do": "dispatch", "vector": "in-create", "expect": { "phase": "active", "effects": [] } },
+        { "do": "dispatch", "vector": "in-server-update", "expect": { "phase": "active", "transportReady": true, "effects": ["open_stream_rtc"] } },
+        { "do": "local", "local": "ready", "expect": { "phase": null, "retained": false, "effects": ["close_stream_rtc"] } }
+      ]
+    }
+  ],
+  "effects": [
+    { "code": "open_stream_rtc", "variant": "OpenStreamRtc", "carries": ["streamKey", "endpoint", "token"] },
+    { "code": "close_stream_rtc", "variant": "CloseStreamRtc", "carries": ["streamKey"] },
+    { "code": "show_safety_rate_limit", "variant": "ShowSafetyRateLimit", "carries": ["guildId"] },
+    { "code": "notify_viewer_full", "variant": "NotifyViewerFull", "carries": ["streamKey"] }
+  ],
+  "notes": [
+    "seq/s: синтетические; порядок кадров в сценариях reducer задаёт тест, а не сервер.",
+    "Все id — синтетические; совпадение формата с реальными снежинками не означает совпадения значений.",
+    "endpoint использует домен .invalid, token всегда REDACTED: секретов в фикстуре нет.",
+    "Серверные STREAM_* приходят как op0 dispatch с t, а не как опкод 18/19: см. §0 п. 1 контракта.",
+    "viewer_ids: пустой массив и отсутствие поля — разные состояния (D-27-5).",
+    "Неизвестный reason сохраняется как Unknown(raw), фаза Ended (D-27-7).",
+    "Эффекты перечислены кодами из массива effects; порядок эффектов в шаге значим.",
+    "Все векторы code-derived: liveConfirmed=false, паритет не заявлен."
+  ]
+}

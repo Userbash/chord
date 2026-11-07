@@ -20,12 +20,74 @@
 
 use std::collections::HashSet;
 use std::fs;
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
+use std::sync::{OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use discord_gui_spike::data::{
-    self, DataError, SearchFilters, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT, UI_WINDOW_ROWS,
+    self, ChannelAccessPolicy, DataError, SearchFilters, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT,
+    PERM_ADD_REACTIONS, PERM_ADMINISTRATOR, PERM_ATTACH_FILES, PERM_CONNECT,
+    PERM_CREATE_INSTANT_INVITE, PERM_READ_MESSAGE_HISTORY, PERM_SEND_MESSAGES, PERM_SPEAK,
+    PERM_USE_VAD, PERM_VIEW_CHANNEL, UI_WINDOW_ROWS,
 };
-use serde_json::Value;
+use serde_json::{json, Value};
+
+fn live_test_lock() -> &'static RwLock<()> {
+    static LOCK: OnceLock<RwLock<()>> = OnceLock::new();
+    LOCK.get_or_init(|| RwLock::new(()))
+}
+
+thread_local! {
+    static THREAD_READ_LOCKS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+struct ScopedRoot {
+    path: PathBuf,
+    _guard: Option<RwLockReadGuard<'static, ()>>,
+}
+
+impl Drop for ScopedRoot {
+    fn drop(&mut self) {
+        self._guard.take();
+        THREAD_READ_LOCKS.with(|c| c.set(c.get().saturating_sub(1)));
+    }
+}
+
+fn acquire_live_read_guard() -> Option<RwLockReadGuard<'static, ()>> {
+    THREAD_READ_LOCKS.with(|c| {
+        let prev = c.get();
+        c.set(prev + 1);
+        if prev == 0 {
+            Some(
+                live_test_lock()
+                    .read()
+                    .unwrap_or_else(|poison| poison.into_inner()),
+            )
+        } else {
+            None
+        }
+    })
+}
+
+impl Deref for ScopedRoot {
+    type Target = Path;
+
+    fn deref(&self) -> &Path {
+        &self.path
+    }
+}
+
+impl AsRef<Path> for ScopedRoot {
+    fn as_ref(&self) -> &Path {
+        &self.path
+    }
+}
+
+fn acquire_live_write_guard() -> RwLockWriteGuard<'static, ()> {
+    live_test_lock()
+        .write()
+        .unwrap_or_else(|poison| poison.into_inner())
+}
 
 /// Корень фикстур: `DL_FIXTURES` или `fixtures/` на два уровня выше crate.
 fn repo_fixtures_root() -> PathBuf {
@@ -45,10 +107,14 @@ fn candidate_root() -> PathBuf {
         .unwrap_or_else(repo_fixtures_root)
 }
 
-fn fixtures_root() -> Option<PathBuf> {
+fn fixtures_root() -> Option<ScopedRoot> {
     let root = candidate_root();
     if root.join("gateway/by-type/002-READY.json").is_file() {
-        Some(root)
+        let guard = acquire_live_read_guard();
+        Some(ScopedRoot {
+            path: root,
+            _guard: guard,
+        })
     } else {
         None
     }
@@ -83,11 +149,15 @@ fn read_json(path: &Path) -> Value {
 }
 
 /// Временный корень фикстур под `target/tmp`-подобным каталогом ОС.
-fn temp_root(name: &str) -> PathBuf {
+fn temp_root(name: &str) -> ScopedRoot {
+    let guard = acquire_live_read_guard();
     let root = std::env::temp_dir().join(format!("dl-w39e-{}-{name}", std::process::id()));
     let _ = fs::remove_dir_all(&root);
     fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог создаётся");
-    root
+    ScopedRoot {
+        path: root,
+        _guard: guard,
+    }
 }
 
 /// Убираем за собой; ошибки удаления не влияют на проверку — это best-effort.
@@ -1530,3 +1600,669 @@ fn errors_serialize_to_typed_json() {
         assert!(!error.to_string().is_empty());
     }
 }
+
+// ---------------------------------------------------------------------------
+// task-575: права доступа Discord (роли, permission_overwrites, evaluate_channel_access)
+// и синхронизация живой сессии (LiveSession ready/channels/read_state/record_sent_message)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn permission_constants_match_discord_api_v9_bitmasks() {
+    assert_eq!(PERM_CREATE_INSTANT_INVITE, 1_u64 << 0);
+    assert_eq!(PERM_ADMINISTRATOR, 1_u64 << 3);
+    assert_eq!(PERM_ADD_REACTIONS, 1_u64 << 6);
+    assert_eq!(PERM_VIEW_CHANNEL, 1_u64 << 10);
+    assert_eq!(PERM_SEND_MESSAGES, 1_u64 << 11);
+    assert_eq!(PERM_ATTACH_FILES, 1_u64 << 15);
+    assert_eq!(PERM_READ_MESSAGE_HISTORY, 1_u64 << 16);
+    assert_eq!(PERM_CONNECT, 1_u64 << 20);
+    assert_eq!(PERM_SPEAK, 1_u64 << 21);
+    assert_eq!(PERM_USE_VAD, 1_u64 << 25);
+}
+
+#[test]
+fn compute_effective_permissions_owner_and_administrator_bypass_overwrites() {
+    let guild_id = "100";
+    let owner_id = "900";
+    let admin_user = "901";
+    let regular_user = "902";
+
+    let guild_roles = vec![
+        json!({"id": "100", "permissions": "0"}),
+        json!({"id": "200", "permissions": PERM_ADMINISTRATOR.to_string()}),
+    ];
+    // Канал явно запрещает всё для @everyone и для конкретного участника.
+    let restrictive_overwrites = vec![
+        json!({
+            "id": "100",
+            "type": 0,
+            "allow": "0",
+            "deny": (PERM_VIEW_CHANNEL | PERM_SEND_MESSAGES | PERM_CONNECT).to_string()
+        }),
+        json!({
+            "id": owner_id,
+            "type": 1,
+            "allow": "0",
+            "deny": (PERM_VIEW_CHANNEL | PERM_SEND_MESSAGES).to_string()
+        }),
+        json!({
+            "id": admin_user,
+            "type": 1,
+            "allow": "0",
+            "deny": (PERM_VIEW_CHANNEL | PERM_SEND_MESSAGES).to_string()
+        }),
+    ];
+
+    // a) Владелец сервера всегда получает u64::MAX.
+    let owner_perms = data::compute_effective_permissions(
+        owner_id,
+        guild_id,
+        Some(owner_id),
+        &guild_roles,
+        &[],
+        &restrictive_overwrites,
+    );
+    assert_eq!(owner_perms, u64::MAX);
+    let owner_access = data::evaluate_channel_access(owner_perms, 0);
+    assert_eq!(
+        owner_access,
+        ChannelAccessPolicy {
+            permissions: u64::MAX,
+            can_view: true,
+            can_send_messages: true,
+            can_read_history: true,
+            can_attach_files: true,
+            can_add_reactions: true,
+            can_connect_voice: false,
+            can_speak_voice: false,
+        }
+    );
+
+    // b) Участник с ролью ADMINISTRATOR (1 << 3) также получает u64::MAX и игнорирует deny-оверрайты.
+    let admin_perms = data::compute_effective_permissions(
+        admin_user,
+        guild_id,
+        Some(owner_id),
+        &guild_roles,
+        &["200".to_string()],
+        &restrictive_overwrites,
+    );
+    assert_eq!(admin_perms, u64::MAX);
+
+    // Обычный участник без ролей получает 0.
+    let regular_perms = data::compute_effective_permissions(
+        regular_user,
+        guild_id,
+        Some(owner_id),
+        &guild_roles,
+        &[],
+        &restrictive_overwrites,
+    );
+    assert_eq!(regular_perms, 0);
+}
+
+#[test]
+fn compute_effective_permissions_follows_everyone_role_and_member_overwrite_hierarchy() {
+    let guild_id = "1000";
+    let user_id = "5000";
+    let base_bits =
+        PERM_VIEW_CHANNEL | PERM_SEND_MESSAGES | PERM_READ_MESSAGE_HISTORY | PERM_ADD_REACTIONS;
+    let guild_roles = vec![
+        json!({"id": "1000", "permissions": base_bits.to_string()}),
+        json!({"id": "2001", "permissions": PERM_ATTACH_FILES.to_string()}),
+        json!({"id": "2002", "permissions": "0"}),
+    ];
+
+    // 1. @everyone overwrite запрещает SEND_MESSAGES и ATTACH_FILES.
+    // 2. Роль 2001 разрешает SEND_MESSAGES и запрещает ADD_REACTIONS.
+    // 3. Роль 2002 разрешает ATTACH_FILES и ADD_REACTIONS (в комбинированных ролях allow перекрывает deny другой роли).
+    // 4. Member overwrite для user_id запрещает SEND_MESSAGES (перекрывает role allow) и разрешает CREATE_INSTANT_INVITE.
+    let overwrites = vec![
+        json!({
+            "id": "1000",
+            "type": 0,
+            "allow": "0",
+            "deny": (PERM_SEND_MESSAGES | PERM_ATTACH_FILES).to_string()
+        }),
+        json!({
+            "id": "2001",
+            "type": 0,
+            "allow": PERM_SEND_MESSAGES.to_string(),
+            "deny": PERM_ADD_REACTIONS.to_string()
+        }),
+        json!({
+            "id": "2002",
+            "type": 0,
+            "allow": (PERM_ATTACH_FILES | PERM_ADD_REACTIONS).to_string(),
+            "deny": "0"
+        }),
+        json!({
+            "id": user_id,
+            "type": 1,
+            "allow": PERM_CREATE_INSTANT_INVITE.to_string(),
+            "deny": PERM_SEND_MESSAGES.to_string()
+        }),
+    ];
+
+    let member_roles = vec!["2001".to_string(), "2002".to_string()];
+
+    // Проверка без member overwrite (для другого пользователя с теми же ролями):
+    // SEND_MESSAGES разрешён ролью 2001, ATTACH_FILES и ADD_REACTIONS разрешены ролью 2002.
+    let role_level_perms = data::compute_effective_permissions(
+        "5001",
+        guild_id,
+        Some("9999"),
+        &guild_roles,
+        &member_roles,
+        &overwrites,
+    );
+    assert_ne!(role_level_perms & PERM_VIEW_CHANNEL, 0);
+    assert_ne!(role_level_perms & PERM_SEND_MESSAGES, 0);
+    assert_ne!(role_level_perms & PERM_ATTACH_FILES, 0);
+    assert_ne!(role_level_perms & PERM_ADD_REACTIONS, 0);
+
+    // Проверка с member overwrite для user_id ("5000"):
+    // SEND_MESSAGES сброшен member deny, а CREATE_INSTANT_INVITE выставлен member allow.
+    let final_perms = data::compute_effective_permissions(
+        user_id,
+        guild_id,
+        Some("9999"),
+        &guild_roles,
+        &member_roles,
+        &overwrites,
+    );
+    let expected = PERM_VIEW_CHANNEL
+        | PERM_READ_MESSAGE_HISTORY
+        | PERM_ATTACH_FILES
+        | PERM_ADD_REACTIONS
+        | PERM_CREATE_INSTANT_INVITE;
+    assert_eq!(final_perms, expected);
+
+    let policy = data::evaluate_channel_access(final_perms, 0);
+    assert!(policy.can_view);
+    assert!(!policy.can_send_messages, "member deny запретил отправку");
+    assert!(
+        !policy.can_attach_files,
+        "без права отправки нельзя прикреплять файлы в чат"
+    );
+    assert!(policy.can_read_history);
+    assert!(policy.can_add_reactions);
+}
+
+#[test]
+fn compute_effective_permissions_matches_real_ready_news_and_hidden_channels() {
+    let root = fixtures_or_skip!();
+    let ready = read_json(&root.join("gateway/by-type/002-READY.json"));
+    let guilds = ready["d"]["guilds"].as_array().expect("guilds");
+
+    // 1. Read-only новостной канал #📃┃новости (1163408591315812392) в гильдии ITSKIDON PC BOOST (1014537851418980372).
+    let boost_guild = guilds
+        .iter()
+        .find(|g| g["id"] == "1014537851418980372")
+        .expect("гильдия ITSKIDON PC BOOST");
+    let boost_roles = boost_guild["roles"].as_array().expect("roles");
+    let boost_owner = boost_guild["properties"]["owner_id"].as_str();
+    let news_ch = boost_guild["channels"]
+        .as_array()
+        .expect("channels")
+        .iter()
+        .find(|c| c["id"] == NEWS_CHANNEL)
+        .expect("канал новостей");
+    let news_overwrites = news_ch["permission_overwrites"]
+        .as_array()
+        .expect("permission_overwrites");
+
+    // Обычный участник с ролью «Пользователь» (1056564729235120158): может видеть и читать, но не писать.
+    let member_roles = vec!["1056564729235120158".to_string()];
+    let perms = data::compute_effective_permissions(
+        "384299970632876032",
+        "1014537851418980372",
+        boost_owner,
+        boost_roles,
+        &member_roles,
+        news_overwrites,
+    );
+    let access = data::evaluate_channel_access(perms, news_ch["type"].as_i64().unwrap_or(0));
+    assert!(access.can_view, "новостной канал виден");
+    assert!(access.can_read_history, "история новостей доступна");
+    assert!(access.can_add_reactions, "реакции в новостях разрешены");
+    assert!(
+        !access.can_send_messages,
+        "в новостном канале отправка запрещена оверрайтом @everyone"
+    );
+    assert!(!access.can_attach_files, "файлы в read-only канале запрещены");
+    assert!(!access.can_connect_voice);
+    assert!(!access.can_speak_voice);
+
+    // 2. Скрытый канал ___hidden___ (751425447614480414) в гильдии MONOLIT (274093052673392641).
+    let monolit_guild = guilds
+        .iter()
+        .find(|g| g["id"] == "274093052673392641")
+        .expect("гильдия MONOLIT");
+    let monolit_roles = monolit_guild["roles"].as_array().expect("roles");
+    let monolit_owner = monolit_guild["properties"]["owner_id"].as_str();
+    let hidden_ch = monolit_guild["channels"]
+        .as_array()
+        .expect("channels")
+        .iter()
+        .find(|c| c["id"] == "751425447614480414")
+        .expect("скрытый канал ___hidden___");
+    let hidden_overwrites = hidden_ch["permission_overwrites"]
+        .as_array()
+        .expect("permission_overwrites");
+
+    let hidden_perms = data::compute_effective_permissions(
+        "384299970632876032",
+        "274093052673392641",
+        monolit_owner,
+        monolit_roles,
+        &[],
+        hidden_overwrites,
+    );
+    assert_eq!(
+        hidden_perms & PERM_VIEW_CHANNEL,
+        0,
+        "VIEW_CHANNEL (1024) сброшен оверрайтом @everyone"
+    );
+    let hidden_access =
+        data::evaluate_channel_access(hidden_perms, hidden_ch["type"].as_i64().unwrap_or(0));
+    assert!(!hidden_access.can_view);
+    assert!(!hidden_access.can_send_messages);
+    assert!(!hidden_access.can_read_history);
+    assert!(!hidden_access.can_attach_files);
+    assert!(!hidden_access.can_add_reactions);
+}
+
+#[test]
+fn evaluate_channel_access_handles_voice_connect_speak_and_dm_channels() {
+    // Голосовой канал (type = 2): режим слушателя (CONNECT без SPEAK).
+    let listener_perms = PERM_VIEW_CHANNEL | PERM_CONNECT | PERM_USE_VAD;
+    let listener = data::evaluate_channel_access(listener_perms, 2);
+    assert!(listener.can_view);
+    assert!(listener.can_connect_voice);
+    assert!(!listener.can_speak_voice);
+
+    // Голосовой канал (type = 2): полный доступ (CONNECT + SPEAK).
+    let speaker_perms = PERM_VIEW_CHANNEL | PERM_CONNECT | PERM_SPEAK;
+    let speaker = data::evaluate_channel_access(speaker_perms, 2);
+    assert!(speaker.can_view);
+    assert!(speaker.can_connect_voice);
+    assert!(speaker.can_speak_voice);
+
+    // Голосовой канал без CONNECT, но с битом SPEAK -> нельзя ни подключиться, ни говорить.
+    let no_connect = data::evaluate_channel_access(PERM_VIEW_CHANNEL | PERM_SPEAK, 2);
+    assert!(no_connect.can_view);
+    assert!(!no_connect.can_connect_voice);
+    assert!(!no_connect.can_speak_voice);
+
+    // Голосовой канал без VIEW_CHANNEL -> всё закрыто.
+    let hidden_voice = data::evaluate_channel_access(PERM_CONNECT | PERM_SPEAK, 2);
+    assert!(!hidden_voice.can_view);
+    assert!(!hidden_voice.can_connect_voice);
+    assert!(!hidden_voice.can_speak_voice);
+
+    // Личные сообщения (type = 1 / 3): все базовые действия разрешены.
+    let dm_access = data::evaluate_channel_access(0, 1);
+    assert!(dm_access.can_view);
+    assert!(dm_access.can_send_messages);
+    assert!(dm_access.can_read_history);
+    assert!(dm_access.can_attach_files);
+    assert!(dm_access.can_add_reactions);
+    assert!(dm_access.can_connect_voice);
+    assert!(dm_access.can_speak_voice);
+}
+
+#[test]
+fn live_session_syncs_ready_channels_read_state_and_sent_messages() {
+    let _write_guard = acquire_live_write_guard();
+    let root = std::env::temp_dir().join(format!("dl-w47-live-sync-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог");
+    write_minimal_ready(&root, "42", "1");
+
+    let live_ready = json!({
+        "user": {
+            "id": "777000",
+            "username": "live_pilot",
+            "global_name": "Live Pilot",
+            "avatar": "a_live_hash",
+            "email": "REDACTED",
+            "premium": true,
+            "mfa_enabled": true
+        },
+        "guilds": [{
+            "id": "888000",
+            "properties": {
+                "name": "Live Server Alpha",
+                "icon": "icon_888",
+                "owner_id": "777000"
+            },
+            "member_count": 42,
+            "channels": [
+                {"id": "888001", "type": 0, "name": "general", "position": 1},
+                {"id": "888002", "type": 2, "name": "voice-lobby", "position": 2}
+            ]
+        }],
+        "users": [{"id": "777001", "username": "friend_one"}],
+        "relationships": [{"id": "777001", "type": 1}],
+        "private_channels": [{"id": "999001", "type": 1, "recipient_ids": ["777001"]}],
+        "read_state": {
+            "entries": [{
+                "id": "888001",
+                "flags": 1,
+                "last_message_id": "5001",
+                "last_viewed": 4321,
+                "mention_count": 3
+            }]
+        }
+    });
+
+    data::set_live_session(Some("live-test-token".to_string()), None);
+    data::ingest_live_dispatch("READY", &live_ready);
+
+    let ready_payload = data::ready(&root).expect("ready из живой сессии");
+    assert_eq!(ready_payload.user.id, "777000");
+    assert_eq!(ready_payload.user.username, "live_pilot");
+    assert_eq!(ready_payload.guild_count, 1);
+    assert_eq!(ready_payload.guilds[0].id, "888000");
+    assert_eq!(ready_payload.guilds[0].name, "Live Server Alpha");
+    assert_eq!(ready_payload.private_channel_count, 1);
+    assert_eq!(ready_payload.relationship_count, 1);
+    assert_eq!(ready_payload.read_state_count, 1);
+    assert_eq!(ready_payload.users.len(), 1);
+
+    let all_channels = data::channels(&root, None).expect("channels из живой сессии");
+    assert_eq!(all_channels.len(), 3, "2 канала гильдии + 1 ЛС из live_d");
+    let guild_channels =
+        data::channels(&root, Some("888000")).expect("фильтр каналов живой гильдии");
+    assert_eq!(guild_channels.len(), 2);
+    assert_eq!(guild_channels[0].id, "888001");
+    assert_eq!(guild_channels[1].id, "888002");
+
+    let rs_entries = data::read_state(&root).expect("read_state из живой сессии");
+    assert_eq!(rs_entries.len(), 1);
+    assert_eq!(rs_entries[0].channel_id, "888001");
+    assert_eq!(rs_entries[0].mention_count, Some(3));
+    assert_eq!(rs_entries[0].last_viewed, Some(4321));
+
+    // Отправленное в живой сессии сообщение сразу попадает в выдачу messages_page.
+    data::record_sent_message(
+        "888001",
+        json!({
+            "id": "5002",
+            "channel_id": "888001",
+            "content": "Привет из живой сессии!",
+            "timestamp": "2026-10-31T15:00:00.000000+00:00",
+            "author": {
+                "id": "777000",
+                "username": "live_pilot",
+                "global_name": "Live Pilot"
+            }
+        }),
+    );
+
+    let msg_page =
+        data::messages_page(&root, "888001", None, Some(50)).expect("сообщения живого канала");
+    assert_eq!(msg_page.total, 1);
+    assert_eq!(msg_page.items[0].id, "5002");
+    assert_eq!(msg_page.items[0].content, "Привет из живой сессии!");
+
+    // Сброс живой сессии возвращает чтение к фикстуре 002-READY.json.
+    data::set_live_session(None, None);
+    let fallback_ready = data::ready(&root).expect("fallback к фикстуре");
+    assert_eq!(fallback_ready.guilds[0].id, "1");
+    cleanup(&root);
+}
+
+#[test]
+fn live_session_account_switch_to_zero_guilds_clears_previous_servers_and_fixtures() {
+    let _write_guard = acquire_live_write_guard();
+    let root =
+        std::env::temp_dir().join(format!("dl-w47-live-zero-guilds-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог");
+    write_minimal_ready(&root, "42", "1");
+
+    // 1. Аккаунт 1 (с серверами, каналами, друзьями и сообщениями).
+    let live_ready_acc1 = json!({
+        "user": {
+            "id": "777000",
+            "username": "live_pilot",
+            "global_name": "Live Pilot",
+            "avatar": "a_live_hash"
+        },
+        "guilds": [{
+            "id": "888000",
+            "properties": {
+                "name": "Live Server Alpha",
+                "icon": "icon_888",
+                "owner_id": "777000"
+            },
+            "member_count": 42,
+            "channels": [
+                {"id": "888001", "type": 0, "name": "general", "position": 1}
+            ]
+        }],
+        "users": [{"id": "777001", "username": "friend_one"}],
+        "relationships": [{"id": "777001", "type": 1}],
+        "private_channels": [{"id": "999001", "type": 1, "recipient_ids": ["777001"]}],
+        "read_state": {
+            "entries": [{
+                "id": "888001",
+                "flags": 1,
+                "last_message_id": "5001",
+                "last_viewed": 4321,
+                "mention_count": 3
+            }]
+        }
+    });
+    data::set_live_session(Some("live-test-token".to_string()), None);
+    data::ingest_live_dispatch("READY", &live_ready_acc1);
+    assert_eq!(data::ready(&root).expect("acc1 ready").guild_count, 1);
+
+    // 2. Переключение на Аккаунт 2 (RU Rusty / @rusty021573), у которого 0 серверов.
+    let acc2_user = discord_gui_spike::auth::AuthUser {
+        id: "test-rusty-021573".to_string(),
+        username: "rusty021573".to_string(),
+        discriminator: "0".to_string(),
+        global_name: Some("RU Rusty".to_string()),
+        avatar: None,
+        bot: false,
+    };
+    data::set_live_session(Some("live-test-token".to_string()), Some(&acc2_user));
+
+    // Ещё до прихода READY от шлюза старые серверы Аккаунта 1 и фикстуры не должны утекать.
+    let pre_ready = data::ready(&root).expect("ready до прихода WS READY");
+    assert_eq!(pre_ready.user.id, "test-rusty-021573");
+    assert_eq!(pre_ready.user.username, "rusty021573");
+    assert_eq!(
+        pre_ready.guild_count, 0,
+        "до прихода READY чужие серверы не должны показываться"
+    );
+    assert!(pre_ready.guilds.is_empty());
+
+    // 3. Приходит READY от шлюза для Аккаунта 2 с пустыми массивами guilds/private_channels/relationships/read_state.
+    let live_ready_acc2 = json!({
+        "user": {
+            "id": "test-rusty-021573",
+            "username": "rusty021573",
+            "global_name": "RU Rusty",
+            "avatar": null
+        },
+        "guilds": [],
+        "users": [],
+        "relationships": [],
+        "private_channels": [],
+        "read_state": {
+            "entries": []
+        }
+    });
+    data::ingest_live_dispatch("READY", &live_ready_acc2);
+
+    let ready_acc2 = data::ready(&root).expect("ready acc2 без серверов");
+    assert_eq!(ready_acc2.user.id, "test-rusty-021573");
+    assert_eq!(ready_acc2.user.username, "rusty021573");
+    assert_eq!(ready_acc2.user.global_name.as_deref(), Some("RU Rusty"));
+    assert_eq!(ready_acc2.guild_count, 0, "у аккаунта 0 серверов");
+    assert!(ready_acc2.guilds.is_empty(), "список гильдий обязан быть пустым");
+    assert_eq!(ready_acc2.private_channel_count, 0);
+    assert!(ready_acc2.private_channels.is_empty());
+    assert_eq!(ready_acc2.relationship_count, 0);
+    assert!(ready_acc2.relationships.is_empty());
+    assert_eq!(ready_acc2.read_state_count, 0);
+    assert!(ready_acc2.users.is_empty());
+
+    let channels_acc2 = data::channels(&root, None).expect("channels acc2 без серверов");
+    assert!(
+        channels_acc2.is_empty(),
+        "у аккаунта без серверов и ЛС список каналов обязан быть пустым: {channels_acc2:?}"
+    );
+    assert!(
+        data::channels(&root, Some("888000")).is_err(),
+        "гильдия предыдущего аккаунта не должна находиться"
+    );
+    assert!(
+        data::channels(&root, Some("1")).is_err(),
+        "гильдия из фикстуры не должна находиться"
+    );
+
+    let rs_acc2 = data::read_state(&root).expect("read_state acc2");
+    assert!(
+        rs_acc2.is_empty(),
+        "пустой read_state живого аккаунта не должен откатываться к фикстуре"
+    );
+
+    data::set_live_session(None, None);
+    cleanup(&root);
+}
+
+#[test]
+fn live_session_syncs_relationship_private_channel_and_guild_dispatches() {
+    let _write_guard = acquire_live_write_guard();
+    let root =
+        std::env::temp_dir().join(format!("dl-w47-live-rel-dm-sync-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог");
+    write_minimal_ready(&root, "42", "1");
+
+    let live_ready = json!({
+        "user": {
+            "id": "777000",
+            "username": "live_pilot",
+            "global_name": "Live Pilot",
+            "avatar": null
+        },
+        "guilds": [],
+        "users": [],
+        "relationships": [],
+        "private_channels": [],
+        "read_state": { "entries": [] }
+    });
+    data::set_live_session(Some("live-test-token".to_string()), None);
+    data::ingest_live_dispatch("READY", &live_ready);
+
+    // 1. Входящий запрос дружбы (RELATIONSHIP_ADD, type=3) с вложенным профилем user.
+    data::ingest_live_dispatch(
+        "RELATIONSHIP_ADD",
+        &json!({
+            "id": "777010",
+            "type": 3,
+            "user": {
+                "id": "777010",
+                "username": "incoming_friend",
+                "global_name": "Incoming Friend",
+                "avatar": "av_777010"
+            }
+        }),
+    );
+    let r1 = data::ready(&root).expect("ready after RELATIONSHIP_ADD");
+    assert_eq!(r1.relationship_count, 1);
+    assert_eq!(r1.relationships[0]["id"], "777010");
+    assert_eq!(r1.relationships[0]["type"], 3);
+    assert!(
+        r1.users.iter().any(|u| u["id"] == "777010" && u["username"] == "incoming_friend"),
+        "вложенный user из RELATIONSHIP_ADD обязан индексироваться в ready.users"
+    );
+
+    // 2. Подтверждение дружбы (RELATIONSHIP_UPDATE, type=1).
+    data::ingest_live_dispatch(
+        "RELATIONSHIP_UPDATE",
+        &json!({
+            "id": "777010",
+            "type": 1
+        }),
+    );
+    let r2 = data::ready(&root).expect("ready after RELATIONSHIP_UPDATE");
+    assert_eq!(r2.relationships[0]["type"], 1);
+
+    // 3. Создание группового чата (CHANNEL_CREATE, type=3) и добавление/удаление участника.
+    data::ingest_live_dispatch(
+        "CHANNEL_CREATE",
+        &json!({
+            "id": "999010",
+            "type": 3,
+            "name": "Rusty Squad",
+            "recipients": [
+                { "id": "777010", "username": "incoming_friend" }
+            ]
+        }),
+    );
+    let r3 = data::ready(&root).expect("ready after CHANNEL_CREATE");
+    assert_eq!(r3.private_channel_count, 1);
+    assert_eq!(r3.private_channels[0]["id"], "999010");
+    assert_eq!(r3.private_channels[0]["name"], "Rusty Squad");
+
+    data::ingest_live_dispatch(
+        "CHANNEL_RECIPIENT_ADD",
+        &json!({
+            "channel_id": "999010",
+            "user": { "id": "777011", "username": "third_member", "global_name": "Third Member" }
+        }),
+    );
+    let r4 = data::ready(&root).expect("ready after CHANNEL_RECIPIENT_ADD");
+    let recs = r4.private_channels[0]["recipients"].as_array().expect("recipients array");
+    assert_eq!(recs.len(), 2);
+    assert!(r4.users.iter().any(|u| u["id"] == "777011"));
+
+    data::ingest_live_dispatch(
+        "CHANNEL_RECIPIENT_REMOVE",
+        &json!({
+            "channel_id": "999010",
+            "user": { "id": "777011" }
+        }),
+    );
+    let r5 = data::ready(&root).expect("ready after CHANNEL_RECIPIENT_REMOVE");
+    let recs_after = r5.private_channels[0]["recipients"].as_array().expect("recipients array");
+    assert_eq!(recs_after.len(), 1);
+
+    // 4. Присоединение к серверу по инвайту (GUILD_CREATE) и выход (GUILD_DELETE).
+    data::ingest_live_dispatch(
+        "GUILD_CREATE",
+        &json!({
+            "id": "888010",
+            "name": "Joined Guild",
+            "member_count": 12,
+            "channels": [
+                { "id": "888011", "type": 0, "name": "welcome", "position": 0 }
+            ]
+        }),
+    );
+    let r6 = data::ready(&root).expect("ready after GUILD_CREATE");
+    assert_eq!(r6.guild_count, 1);
+    assert_eq!(r6.guilds[0].id, "888010");
+    assert_eq!(r6.guilds[0].name, "Joined Guild");
+
+    // 5. Удаление друга, закрытие чата и удаление гильдии.
+    data::ingest_live_dispatch("RELATIONSHIP_REMOVE", &json!({ "id": "777010" }));
+    data::ingest_live_dispatch("CHANNEL_DELETE", &json!({ "id": "999010", "type": 3 }));
+    data::ingest_live_dispatch("GUILD_DELETE", &json!({ "id": "888010" }));
+    let r7 = data::ready(&root).expect("ready after removals");
+    assert_eq!(r7.relationship_count, 0);
+    assert_eq!(r7.private_channel_count, 0);
+    assert_eq!(r7.guild_count, 0);
+
+    data::set_live_session(None, None);
+    cleanup(&root);
+}
+
+

@@ -1,0 +1,10 @@
+# baseline 195A: чистый файл (md5 9c7439d1db386a89fbd2347a95a207a2)
+2026-10-31T06:56:27Z
+$ node --test tests/unit/dispatch_ui.test.mjs
+ℹ tests 58
+ℹ suites 4
+ℹ pass 58
+ℹ fail 0
+ℹ skipped 0
+$ npx tsc -p tsconfig.json --noEmit
+EXIT=0

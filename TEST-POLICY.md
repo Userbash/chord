@@ -111,3 +111,64 @@
 - Любое «потом добавим тест» после слияния.
 
 Такие решения недействительны; работа возвращается, решение отменяется.
+
+
+---
+
+## 11. Двенадцать уровней тестирования (`TEST-STRATEGY-V2`)
+
+Полная детализация — в `waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`. В проекте поддерживаются 12 уровней:
+1. **Unit:** чистые функции, парсеры CLI (`args`, `calls`, `csv`, `domains`, `nm`, `paths`), редьюсеры `discord-core`, изолированные рендереры.
+2. **Integration:** связка `discord-core <-> discord-gui-spike` (`core_bridge`, `data_contract`), `discord-store` (SQLite), конвейер `Frida <-> CDP <-> Walk Log`.
+3. **Contract:** `38/38` IPC-оракул (`tests/meta/ipc-path.test.mjs` + `rust/gui-spike/tests/ipc_wiring_contract.rs`), `stream_gateway_contract.rs` (`OP 18..=22`), `002-READY.json`, `waves-sync`, `plan-sync`.
+4. **API (REST/HTTP Mock):** проверка методов, маршрутов, заголовков (`Authorization`, `X-Super-Properties`), query-параметров и статусов (`200`, `202`, `204`, `400`, `401`, `403`, `404`, `413`, `429`, `5xx`) на локальном `TcpListener` (`127.0.0.1:0`).
+5. **E2E:** сквозные сценарии в Playwright + бинарник (`m2-auth-gate`, `m2-channel-send`, `m2-guild-switch`, `m2-reconnect`, `m2-search-error`, `m2-settings-reload`, `m2-voice-idle`, `walk-fixture`).
+6. **UI:** компонентные и интерактивные состояния DOM (`gui-spike-dom`, `gui-spike-features`, `notifications-ui`, `voice-devices-settings`, `dm-friends-ui`, `search-remote-real-index`, `attachments-render`, `chat-reactions`).
+7. **Visual:** CSS-брейкпоинты и токены (`design-breakpoints.test.mjs`) + геометрия окна под Xvfb (`gui-window.smoke.test.mjs`).
+8. **Accessibility (A11y):** роли (`dialog`, `tablist`, `tab`, `status`, `alert`), `aria-live`, `aria-busy`, `aria-selected`, `focus trap`, клавиатура (`Escape`, `Tab`, `Enter`, `Arrow*`).
+9. **Performance:** бюджеты парсинга `002-READY.json` и редьюсера (`perf_contract.rs`) + микробенчмарки UI (`gui-spike-bench.test.mjs`).
+10. **Security:** системный Keyring (`keyring_contract`, `keyring_offline_contract`), защита от XSS (`textContent`, запрет `javascript:`/`data:` URL в аттачах), SRTP (`srtp_contract`), SBOM и `SHA256SUMS`.
+11. **Regression:** исторические баги и гонки состояния (`gui-spike-regressions`, `channel-switch`, `read-state-ui`).
+12. **Smoke:** проверка запускаемости CLI, нативных утилит и бинарника с кодами выхода `0`/`1`/`2` (`tests/smoke/*.smoke.test.mjs`).
+
+---
+
+## 12. Распределение по критичности (`P0–P3`) и этапам CI (`T0–T4`)
+
+- **Запрет понижения приоритета:** ни один существующий тест никогда не переводится в более низкий приоритет; все действующие тесты остаются блокирующими (`P0` или `P1`). Классы `P2` и `P3` применяются только к новым расширенным нагрузочным/стресс/soak проверкам.
+- **Этапы CI:**
+  - `T0 (Worker Targeted Gate, 3–8 с)`: `node scripts/test-impact.mjs --run` + целевой `cargo test --test <slice>_contract` + `meta` (`test-policy`, `ipc-path`) + `tsc`.
+  - `T1 (PR / Batch Gate -> unstable, 18–25 с)`: `npm run gate:worker` (все `P0/P1` + `5/5` мутаций).
+  - `T2 (Centralized QA Build -> testing, 35–45 с)`: 100% прогон без фильтрации `test-impact` + `npm run test:coverage` (`90/90/80`).
+  - `T3 (Pre-Release & Release Gate -> beta/main, 45–60 с)`: `npm run gate:release` (`failOnSkips: true`, `minPass`, live keyring, `SHA256SUMS`, SBOM).
+  - `T4 (Nightly / Soak)`: многократные повторы `e2e`/`smoke` и стресс-профили `discord-perf`.
+
+---
+
+## 13. Девять обязательных измерений покрытия для каждого среза
+
+Каждый модуль обязан покрывать:
+1. **Негативные сценарии** (невалидные ID, пустые поля, отказ внешнего инструмента -> код `1`/`2`).
+2. **Граничные значения** (Snowflake `0`/`1`/`u64::MAX`, сообщение `0`/`2000`/`2001`/`4000` символов, `0`/`1`/`10` вложений и `25 МБ ± 1B`, поиск `offset=9975`, громкость `0..200`, бейдж `99+`).
+3. **Состояния ошибок** (`400`, `401` auth-gate, `403` Missing Access / NSFW, `404`, `413`, `429 retry_after_ms` с cooldown, `5xx`/disconnect).
+4. **Пустые состояния (`empty`)** (нет каналов, нет сообщений, `total_results: 0`, пустые списки друзей/устройств).
+5. **Загрузочные и индексные состояния (`loading` / `202`)** (`skeleton`, `aria-busy="true"`, `HTTP 202 Accepted` с повторным опросом вместо ошибки).
+6. **Права доступа и Capabilities** (`VIEW_CHANNEL`, `SEND_MESSAGES`, `ADD_REACTIONS`, `ATTACH_FILES`, `MANAGE_MESSAGES`, `STREAM`, `is_owner`, `AGE_GATED_SPACES`, `data-capability-*`).
+7. **Восстановление (`recovery`)** (`Gateway Resume OP 6 -> Identify OP 2`, `Voice Reconnect`, fallback настроек при битом JSON / недоступном Keyring).
+8. **Совместимость (`compatibility`)** (forward-compatible парсинг `002-READY.json`, миграция старых конфигов `settings_store.rs`, работа под `Xvfb`).
+9. **Наблюдаемость (`observability`)** (артефакты `.gate/*.json`, `logs/window-runs.jsonl`, метрики `stats_contract.rs`, маскирование секретов `[REDACTED]`).
+
+---
+
+## 14. Карантин Flaky-тестов и пороги качества CI
+
+- **Протокол карантина (`SLA <= 24ч`):** тест, прошедший в `scripts/gate.mjs` только со 2-й попытки (`attempts === 2` в `.gate/e2e.json`), помечается как `FLAKE-DETECTED (P1)`, не отключается и не понижается в приоритете; создаётся `bugfix/task-*` со сроком исправления `<= 24ч`.
+- **Пороги качества CI:** `Pass Rate (P0/P1) = 100%`, `lines >= 90%`, `branches >= 90%`, `functions >= 80%`, `Mutation Score = 100% (5/5 killed)`, `IPC Parity = 38/38 (100%)`, `Flaky Rate = 0%` на `beta`/`main`.
+
+
+---
+
+## 15. Независимый RE-оракул `/home/sanya/re-deep` и верификация через `rea`
+
+- Эталонным оракулом для контрактных, модульных и UI-тестов (наряду с `logs/golden/`) служит каталог `/home/sanya/re-deep/` и инструменты MCP-сервера `rea` (`reverse-engineer-anything`).
+- При проверке незнакомых функций или спорных контрактов (например, диапазонов VAD, структуры ошибок REST, правил сериализации Snowflake/ETF, ключей локализации `xxh64` или DOM-структуры компонентов) тест и реализация обязаны опираться на фактические данные из `/home/sanya/re-deep/` или прямую трассировку через `rea` на артефактах / отдельном процессе Discord, а не на предположения автора кода.

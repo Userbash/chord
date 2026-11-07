@@ -1,0 +1,19 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/dispatch_router.rs (/home/sanya/orca/project/rust/target/debug/deps/dispatch_router-37bf5f65a5815d93)
+
+running 12 tests
+test kind_from_name_exact_roundtrip ... ok
+test kind_table_covers_21_observed_types ... ok
+test route_ignores_non_dispatches ... ok
+test route_known_keeps_seq_and_payload ... ok
+test route_lowercase_known_name_is_raw ... ok
+test pipe_hello_only_yields_no_events ... ok
+test pipe_take_events_drains_once ... ok
+test route_unknown_is_raw_with_name ... ok
+test route_seq_and_data_optional ... ok
+test pipe_routes_dispatches_in_order ... ok
+test lab_all_dispatch_types_route_to_kinds ... ok
+test lab_real_stream_routes_known_kinds ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

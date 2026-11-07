@@ -1,0 +1,229 @@
+▶ QA-M2-03: search_remote на реальном index.html (data-guild-id)
+  ✔ после ready шлёт ровно один search_remote с guildId из data-guild-id (43.352274ms)
+  ✔ STUB-14: передаёт все подтверждённые фильтры поиска в query (§2) (16.650153ms)
+  ✔ STUB-14: дата → min_id/max_id, has — массив токенов, сортировка asc (12.67313ms)
+  ✔ STUB-14: пустые фильтры не уходят в query (только content/limit/sort/offset) (10.956599ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: не найдено (404)
+  ✔ unauthorized/forbidden/notFound — видимая ошибка без локального fallback (36.941049ms)
+✔ QA-M2-03: search_remote на реальном index.html (data-guild-id) (121.434356ms)
+▶ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2)
+  ✔ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (12.14389ms)
+  ✔ P2: невалидные календарные даты отклоняются, валидные считаются по UTC (0.1629ms)
+[ACTION_FAILED] дата «2026-02-31» не в формате ГГГГ-ММ-ДД
+[ACTION_FAILED] дата «2026-02-31» не в формате ГГГГ-ММ-ДД
+  ✔ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (13.903981ms)
+✔ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (26.461751ms)
+▶ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975
+  ✖ T-M13-202-01: HTTP 202 игнорирует тело, берёт задержку из Retry-After / retry_after_ms и рендерит прогресс попытки 1 из 5 (31.196935ms)
+  ✖ T-M13-202-02: HTTP 202 при Retry-After '0', '0.25' или без заголовка (и при IPC retry_after_ms) использует контрактную задержку / fallback 5000 мс (0.79634ms)
+  ✖ T-M13-202-03: лимит 5 автоматических повторов (6 запросов 202 подряд) переводит баннер в exhausted с кнопкой повтора (11.500709ms)
+  ✖ T-M13-202-04: смена запроса и закрытие панели немедленно отменяют таймер поллинга 202 (11.209399ms)
+  ✖ T-M13-202-05: ответ 200 OK с doing_deep_historical_index=true и documents_indexed=8450 показывает результаты и баннер 4Y3O+O (13.356331ms)
+  ✖ T-M13-NSFW-01..03: didAgreeNsfwGuild, пропуск include_nsfw при !didAgree и баннер .search-nsfw-gate (prompt, Continue, Go Back) (0.31881ms)
+  ✖ T-M13-NSFW-04: при AGE_GATED_SPACES=1 и age_verification_status=2 (teen) didAgree=false даже при сохранённом согласии, режим underage (0.191151ms)
+  ✖ T-M13-CHIPS-01..03: объектная форма searchDateBounds({ date, before, after }) и синхронизация чипов фильтров (0.45381ms)
+  ✖ T-M13-CHIPS-02: отрицающие токены (-has:file -authorType:bot) и русские алиасы (от:777001 имеет:ссылку) (12.078899ms)
+  ✖ T-M13-PAGE-01: потолок пагинации MAX_SEARCH_OFFSET = 9975 / MAX_SEARCH_PAGES = 400 блокирует переход далее 400 страницы с предупреждением E+2azY (0.285381ms)
+✖ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (81.803025ms)
+ℹ tests 18
+ℹ suites 3
+ℹ pass 8
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 277.386369
+
+✖ failing tests:
+
+test at tests/unit/search-remote-real-index.test.mjs:449:3
+✖ T-M13-202-01: HTTP 202 игнорирует тело, берёт задержку из Retry-After / retry_after_ms и рендерит прогресс попытки 1 из 5 (31.196935ms)
+  AssertionError [ERR_ASSERTION]: нет .search-indexing-banner
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:477:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:515:3
+✖ T-M13-202-02: HTTP 202 при Retry-After '0', '0.25' или без заголовка (и при IPC retry_after_ms) использует контрактную задержку / fallback 5000 мс (0.79634ms)
+  AssertionError [ERR_ASSERTION]: computeIndexingRetryDelayMs не экспортирована из search.js
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:517:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:559:3
+✖ T-M13-202-03: лимит 5 автоматических повторов (6 запросов 202 подряд) переводит баннер в exhausted с кнопкой повтора (11.500709ms)
+  AssertionError [ERR_ASSERTION]: шаг 1: нет таймера ретрая
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:572:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:595:3
+✖ T-M13-202-04: смена запроса и закрытие панели немедленно отменяют таймер поллинга 202 (11.209399ms)
+  AssertionError [ERR_ASSERTION]: таймер для старого запроса не создан
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:612:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:631:3
+✖ T-M13-202-05: ответ 200 OK с doing_deep_historical_index=true и documents_indexed=8450 показывает результаты и баннер 4Y3O+O (13.356331ms)
+  AssertionError [ERR_ASSERTION]: нет .search-indexing-banner
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:645:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:659:3
+✖ T-M13-NSFW-01..03: didAgreeNsfwGuild, пропуск include_nsfw при !didAgree и баннер .search-nsfw-gate (prompt, Continue, Go Back) (0.31881ms)
+  AssertionError [ERR_ASSERTION]: AGE_GATED_SPACES должна быть равна 1
+  
+  undefined !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:662:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:776:3
+✖ T-M13-NSFW-04: при AGE_GATED_SPACES=1 и age_verification_status=2 (teen) didAgree=false даже при сохранённом согласии, режим underage (0.191151ms)
+  TypeError [Error]: didAgreeNsfwGuild is not a function
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:783:7)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/search-remote-real-index.test.mjs:842:3
+✖ T-M13-CHIPS-01..03: объектная форма searchDateBounds({ date, before, after }) и синхронизация чипов фильтров (0.45381ms)
+  AssertionError [ERR_ASSERTION]: searchDateBounds({ before, after }) вернул неверные границы snowflake
+  + actual - expected
+  
+  + null
+  - {
+  -   max_id: '1477455328051200000',
+  -   min_id: '1456436831842205696'
+  - }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:853:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: { max_id: '1477455328051200000', min_id: '1456436831842205696' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:927:3
+✖ T-M13-CHIPS-02: отрицающие токены (-has:file -authorType:bot) и русские алиасы (от:777001 имеет:ссылку) (12.078899ms)
+  AssertionError [ERR_ASSERTION]: должно быть 2 чипа с отрицанием data-chip-negated=true
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:938:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:949:3
+✖ T-M13-PAGE-01: потолок пагинации MAX_SEARCH_OFFSET = 9975 / MAX_SEARCH_PAGES = 400 блокирует переход далее 400 страницы с предупреждением E+2azY (0.285381ms)
+  AssertionError [ERR_ASSERTION]: MAX_SEARCH_OFFSET != 9975
+  + actual - expected
+  
+  + undefined
+  - 9975
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:950:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 9975,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

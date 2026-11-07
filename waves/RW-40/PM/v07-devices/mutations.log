@@ -1,0 +1,193 @@
+=== V-07 MUTATION LOG ===
+BASELINE_MD5=ceaa10efd2729455e76ba05656f2fc98
+
+--- MUT-1: effective_mute ignores self_deaf (returns self.user_mute only) ---
+MUTANT_MD5=d6d5cc0e9fe209259c591e9fde793b26
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... ok
+test t_v07_05_volume_clamping_and_privacy_redaction ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... FAILED
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... FAILED
+
+failures:
+
+---- t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute stdout ----
+
+thread 't_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute' (385467) panicked at crates/discord-voice/tests/devices_contract.rs:229:5:
+при self_deaf = true эффективный self_mute обязан автоматически становиться true
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking stdout ----
+
+thread 't_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking' (385468) panicked at crates/discord-voice/tests/devices_contract.rs:307:5:
+при self_deaf == true (effective_mute == true) передача обязана быть false
+
+
+failures:
+    t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute
+    t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test devices_contract`
+EXIT_CODE=101
+RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
+
+--- MUT-2: reconcile_kind picks first device instead of is_default device on fallback ---
+MUTANT_MD5=153a42db1bcfb7942419dc92b3fe3622
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... FAILED
+test t_v07_05_volume_clamping_and_privacy_redaction ... ok
+
+failures:
+
+---- t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal stdout ----
+
+thread 't_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal' (385730) panicked at crates/discord-voice/tests/devices_contract.rs:163:5:
+assertion `left == right` failed
+  left: [DeviceFallback { kind: Input, previous_id: "mic-usb", fallback_id: "mic-bluetooth" }]
+ right: [DeviceFallback { kind: Input, previous_id: "mic-usb", fallback_id: "mic-default" }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test devices_contract`
+EXIT_CODE=101
+RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
+
+--- MUT-3: is_transmitting ignores effective_mute gate ---
+MUTANT_MD5=7517f2a32fe1a75ebc6c0afddb8d6466
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... ok
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... FAILED
+test t_v07_05_volume_clamping_and_privacy_redaction ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... ok
+
+failures:
+
+---- t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking stdout ----
+
+thread 't_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking' (385995) panicked at crates/discord-voice/tests/devices_contract.rs:301:5:
+при user_mute == true передача обязана быть false при любом уровне сигнала
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test devices_contract`
+EXIT_CODE=101
+RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
+
+--- MUT-4: PTT release_delay_ms ignored (strictly 0 instead of release_delay_ms) ---
+MUTANT_MD5=09cf2e0c0fd0aaa0734382eca68a0c64
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+warning: unused variable: `release_delay_ms`
+   --> crates/discord-voice/src/devices.rs:415:42
+    |
+415 |             VoiceInputMode::PushToTalk { release_delay_ms } => {
+    |                                          ^^^^^^^^^^^^^^^^ help: try ignoring the field: `release_delay_ms: _`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... ok
+test t_v07_05_volume_clamping_and_privacy_redaction ... ok
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... FAILED
+
+failures:
+
+---- t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking stdout ----
+
+thread 't_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking' (386259) panicked at crates/discord-voice/tests/devices_contract.rs:325:5:
+внутри окна release_delay_ms (50 мс <= 200 мс) передача должна удерживаться
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test devices_contract`
+EXIT_CODE=101
+RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
+
+--- MUT-5: set_output_volume clamps to MAX_INPUT_VOLUME (100) instead of MAX_OUTPUT_VOLUME (200) ---
+MUTANT_MD5=b28b6b2bb527165d0796061afd60b90d
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... ok
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... ok
+test t_v07_05_volume_clamping_and_privacy_redaction ... FAILED
+
+failures:
+
+---- t_v07_05_volume_clamping_and_privacy_redaction stdout ----
+
+thread 't_v07_05_volume_clamping_and_privacy_redaction' (386523) panicked at crates/discord-voice/tests/devices_contract.rs:381:5:
+assertion `left == right` failed
+  left: 100
+ right: 150
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_v07_05_volume_clamping_and_privacy_redaction
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test devices_contract`
+EXIT_CODE=101
+RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
+
+=== FINAL VERIFY AFTER RESTORE ===
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
+
+running 5 tests
+test t_v07_01_initial_state_and_device_selection_by_kind ... ok
+test t_v07_02_hotplug_preserves_present_device_and_falls_back_to_default_on_removal ... ok
+test t_v07_03_mute_deafen_invariant_forces_effective_mute_and_restores_user_mute ... ok
+test t_v07_04_voice_activity_and_ptt_release_delay_and_mute_blocking ... ok
+test t_v07_05_volume_clamping_and_privacy_redaction ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+FINAL_EXIT_CODE=0
+FINAL_MD5=ceaa10efd2729455e76ba05656f2fc98

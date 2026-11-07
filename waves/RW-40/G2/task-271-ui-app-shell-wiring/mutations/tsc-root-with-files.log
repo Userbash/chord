@@ -1,0 +1,182 @@
+rust/gui-spike/ui/features/attachment-validator.js(47,10): error TS2532: Object is possibly 'undefined'.
+rust/gui-spike/ui/features/inbox.js(83,26): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Readonly<{ for_you: "Для вас"; unreads: "Непрочитанные"; mentions: "Упоминания"; friend_requests: "Заявки в друзья"; }>'.
+  No index signature with a parameter of type 'string' was found on type 'Readonly<{ for_you: "Для вас"; unreads: "Непрочитанные"; mentions: "Упоминания"; friend_requests: "Заявки в друзья"; }>'.
+rust/gui-spike/ui/features/invite-parser.js(33,25): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+rust/gui-spike/ui/features/invite-parser.js(34,18): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+rust/gui-spike/ui/features/svg-icons.js(74,26): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+rust/gui-spike/ui/features/svg-icons.js(76,3): error TS2739: Type 'HTMLElement' is missing the following properties from type 'SVGElement': ownerSVGElement, viewportElement
+rust/gui-spike/ui/features/svg-icons.js(91,19): error TS2339: Property 'hasAttribute' does not exist on type 'Document | Element'.
+  Property 'hasAttribute' does not exist on type 'Document'.
+rust/gui-spike/ui/features/svg-icons.js(91,55): error TS2339: Property 'hasAttribute' does not exist on type 'Document | Element'.
+  Property 'hasAttribute' does not exist on type 'Document'.
+rust/gui-spike/ui/features/svg-icons.js(104,52): error TS2339: Property 'createElement' does not exist on type 'Document | Element'.
+  Property 'createElement' does not exist on type 'Element'.
+rust/gui-spike/ui/features/thread-badge.js(75,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+rust/gui-spike/ui/features/token-map.js(75,3): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/appearance-settings.test.mjs(63,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(74,32): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(86,7): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(89,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(105,7): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(108,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(118,32): error TS2345: Argument of type '"{not json"' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(119,45): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(120,35): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(121,45): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(122,32): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(123,45): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(136,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(150,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(161,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(173,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(190,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(205,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(220,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(235,7): error TS2345: Argument of type 'string' is not assignable to parameter of type 'null | undefined'.
+tests/unit/appearance-settings.test.mjs(238,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/appearance-settings.test.mjs(274,51): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/attachment-validator.test.mjs(83,53): error TS2554: Expected 1 arguments, but got 2.
+tests/unit/audit-log.test.mjs(82,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+tests/unit/channel-tree.test.mjs(16,13): error TS7006: Parameter 'id' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,17): error TS7006: Parameter 'name' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,23): error TS7006: Parameter 'type' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,29): error TS7006: Parameter 'position' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,39): error TS7006: Parameter 'parentId' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,49): error TS7006: Parameter 'unread' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(62,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(63,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(64,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(65,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(99,16): error TS18048: 'cat' is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(100,20): error TS18048: 'cat' is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(106,20): error TS18048: 'cat' is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(116,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(117,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(118,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(128,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/chat-helpers-bridge.test.mjs(94,66): error TS2322: Type 'number' is not assignable to type 'boolean | undefined'.
+tests/unit/chat-helpers-bridge.test.mjs(94,77): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+tests/unit/embed-formatter.test.mjs(60,16): error TS18047: 'normalized.footer' is possibly 'null'.
+tests/unit/embed-formatter.test.mjs(92,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(93,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(94,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(95,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/embed-formatter.test.mjs(96,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/event-banner.test.mjs(61,39): error TS2322: Type 'string' is not assignable to type 'number'.
+tests/unit/forum-filter.test.mjs(224,22): error TS2532: Object is possibly 'undefined'.
+tests/unit/guild-boost.test.mjs(21,19): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type 'Readonly<Record<0 | 1 | 2 | 3, Readonly<{ emojiSlots: number; maxUploadMb: number; maxBitrateKbps: number; }>>>'.
+  No index signature with a parameter of type 'number' was found on type 'Readonly<Record<0 | 1 | 2 | 3, Readonly<{ emojiSlots: number; maxUploadMb: number; maxBitrateKbps: number; }>>>'.
+tests/unit/inbox.test.mjs(61,7): error TS7023: 'textContent' implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
+tests/unit/inbox.test.mjs(62,60): error TS7024: Function implicitly has return type 'any' because it does not have a return type annotation and is referenced directly or indirectly in one of its return expressions.
+tests/unit/inbox.test.mjs(143,55): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/inbox.test.mjs(144,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/inbox.test.mjs(239,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/inbox.test.mjs(306,33): error TS2531: Object is possibly 'null'.
+tests/unit/invite-parser.test.mjs(106,75): error TS2322: Type 'null' is not assignable to type 'string | number | undefined'.
+tests/unit/locale-switcher.test.mjs(61,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/locale-switcher.test.mjs(62,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/locale-switcher.test.mjs(63,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/locale-switcher.test.mjs(83,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/locale-switcher.test.mjs(91,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/locale-switcher.test.mjs(106,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/locale-switcher.test.mjs(162,43): error TS7006: Parameter 'o' implicitly has an 'any' type.
+tests/unit/locale-switcher.test.mjs(170,46): error TS7006: Parameter 'o' implicitly has an 'any' type.
+tests/unit/locale-switcher.test.mjs(178,44): error TS2322: Type '{ getItem: (k: string) => string | null | undefined; setItem: (k: string, v: string) => void; map: Map<string, string>; }' is not assignable to type 'LocaleStorage'.
+  The types returned by 'getItem(...)' are incompatible between these types.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+tests/unit/markdown-helper.test.mjs(80,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/unit/markdown-helper.test.mjs(82,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/unit/markdown-helper.test.mjs(84,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/unit/poll-card.test.mjs(442,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/poll-progress.test.mjs(34,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/poll-progress.test.mjs(44,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/poll-progress.test.mjs(45,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(275,55): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/profile-modal.test.mjs(276,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/profile-modal.test.mjs(390,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(391,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(392,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(393,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(395,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(396,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(397,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(398,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(471,18): error TS18048: 'aboutTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(472,18): error TS18048: 'aboutTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(473,15): error TS18048: 'aboutTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(475,18): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(476,18): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(477,18): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(478,15): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(479,15): error TS18048: 'guildsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(481,18): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(482,18): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(483,18): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(484,15): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(485,15): error TS18048: 'friendsTab' is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(507,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(508,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(509,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(510,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(519,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/profile-modal.test.mjs(520,15): error TS2532: Object is possibly 'undefined'.
+tests/unit/slowmode.test.mjs(87,52): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'number'.
+tests/unit/slowmode.test.mjs(108,58): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'number'.
+tests/unit/svg-icons.test.mjs(128,17): error TS18048: 'd' is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(129,20): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/unit/svg-icons.test.mjs(137,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(152,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(153,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(154,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(154,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(154,36): error TS2339: Property 'tagName' does not exist on type 'ChildNode'.
+tests/unit/svg-icons.test.mjs(155,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(155,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(155,36): error TS2339: Property 'getAttribute' does not exist on type 'ChildNode'.
+tests/unit/svg-icons.test.mjs(160,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(161,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(162,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(163,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(164,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(169,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(170,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(171,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(176,32): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(177,32): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(178,32): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(190,40): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+  Type 'FakeNode' is missing the following properties from type 'Element': classList, className, clientHeight, clientLeft, and 170 more.
+tests/unit/svg-icons.test.mjs(205,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+  Type 'FakeNode' is missing the following properties from type 'Element': classList, className, clientHeight, clientLeft, and 170 more.
+tests/unit/svg-icons.test.mjs(207,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+  Type 'FakeNode' is missing the following properties from type 'Element': classList, className, clientHeight, clientLeft, and 170 more.
+tests/unit/svg-icons.test.mjs(219,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+  Type 'FakeNode' is missing the following properties from type 'Element': classList, className, clientHeight, clientLeft, and 170 more.
+tests/unit/svg-icons.test.mjs(233,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+  Type 'FakeNode' is missing the following properties from type 'Element': classList, className, clientHeight, clientLeft, and 170 more.
+tests/unit/thread-badge.test.mjs(75,46): error TS2322: Type 'number' is not assignable to type 'string'.
+tests/unit/thread-badge.test.mjs(100,46): error TS2322: Type 'string' is not assignable to type 'number'.
+tests/unit/voice-input-mode.test.mjs(49,38): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+tests/unit/voice-input-mode.test.mjs(72,41): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+tests/unit/voice-input-mode.test.mjs(96,48): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.

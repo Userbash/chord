@@ -23,8 +23,9 @@
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::HttpResponse;
 use discord_gui_spike::invites::{
-    accept_invite, resolve_invite, AcceptRequest, AcceptedInvite, DiscordInvites, InviteError,
-    InvitePreview, InviteTransport, InvitesApi,
+    accept_invite, create_channel_invite, resolve_invite, AcceptRequest, AcceptedInvite,
+    CreateInviteParams, CreatedInvite, DiscordInvites, InviteError, InvitePreview, InviteTransport,
+    InvitesApi, INVITE_FLAG_IS_GUEST, VALID_INVITE_MAX_AGES, VALID_INVITE_MAX_USES,
 };
 use std::future::Future;
 use std::pin::Pin;
@@ -72,6 +73,7 @@ type Posts = Arc<Mutex<Vec<(String, Vec<u8>)>>>;
 #[derive(Clone, Default)]
 struct FakeTransport {
     status: u16,
+    headers: Vec<(String, String)>,
     body: Vec<u8>,
     error: Option<InviteError>,
     gets: Arc<Mutex<Vec<String>>>,
@@ -82,6 +84,7 @@ impl FakeTransport {
     fn answering(status: u16) -> Self {
         Self {
             status,
+            headers: Vec::new(),
             body: Vec::new(),
             error: None,
             ..Self::default()
@@ -91,15 +94,25 @@ impl FakeTransport {
     fn with_body(status: u16, body: &[u8]) -> Self {
         Self {
             status,
+            headers: Vec::new(),
             body: body.to_vec(),
             error: None,
             ..Self::default()
         }
     }
 
+    fn with_headers(mut self, headers: &[(&str, &str)]) -> Self {
+        self.headers = headers
+            .iter()
+            .map(|(name, value)| ((*name).to_string(), (*value).to_string()))
+            .collect();
+        self
+    }
+
     fn failing(error: InviteError) -> Self {
         Self {
             status: 0,
+            headers: Vec::new(),
             body: Vec::new(),
             error: Some(error),
             ..Self::default()
@@ -125,7 +138,7 @@ impl InviteTransport for FakeTransport {
             Some(error) => Err(error),
             None => Ok(HttpResponse {
                 status: self.status,
-                headers: Vec::new(),
+                headers: self.headers.clone(),
                 body: self.body.clone(),
             }),
         };
@@ -145,7 +158,7 @@ impl InviteTransport for FakeTransport {
             Some(error) => Err(error),
             None => Ok(HttpResponse {
                 status: self.status,
-                headers: Vec::new(),
+                headers: self.headers.clone(),
                 body: self.body.clone(),
             }),
         };
@@ -562,6 +575,7 @@ fn client_debug_does_not_reveal_token() {
 fn errors_serialize_with_camel_case_kind_only() {
     let cases = [
         (InviteError::InvalidArg, "invalidArg"),
+        (InviteError::InvalidRequest, "invalidRequest"),
         (InviteError::MissingToken, "missingToken"),
         (InviteError::Unauthorized, "unauthorized"),
         (InviteError::Forbidden, "forbidden"),
@@ -835,5 +849,656 @@ fn tauri_invite_commands_read_bearer_through_token_or_without_logging() {
     assert!(
         resolve.contains("InvitePreview"),
         "resolve: типизированный preview: {resolve}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// STUB-05-INVITES-BACKEND: создание приглашения на канал
+// `POST /channels/{channel_id}/invites` (RE-DEEP-REA §4.3, INVITES-SPEC §1.2).
+// ---------------------------------------------------------------------------
+
+const CREATE_CHANNEL_ID: &str = "1014537851418980375";
+
+const CREATE_RESPONSE_BODY: &str = r#"{
+    "code": "aBcD123XyZ",
+    "type": 0,
+    "expires_at": "2026-10-31T12:00:00.000Z",
+    "guild": { "id": "1014537851418980372", "name": "ITSKIDON PC BOOST", "icon": "icon_hash" },
+    "channel": { "id": "1014537851418980375", "name": "новости", "type": 0 },
+    "max_age": 86400,
+    "max_uses": 0,
+    "temporary": false,
+    "uses": 0,
+    "flags": 0
+}"#;
+
+#[test]
+fn create_invite_oracle_constants_and_defaults_match_re() {
+    assert_eq!(
+        VALID_INVITE_MAX_AGES,
+        [0, 1800, 3600, 21600, 43200, 86400, 604800]
+    );
+    assert_eq!(VALID_INVITE_MAX_USES, [0, 1, 5, 10, 25, 50, 100]);
+    assert_eq!(INVITE_FLAG_IS_GUEST, 1 << 0);
+
+    let defaults = CreateInviteParams::default();
+    assert_eq!(
+        defaults,
+        CreateInviteParams {
+            max_age: 86400,
+            max_uses: 0,
+            temporary: false,
+            flags: None,
+        }
+    );
+}
+
+#[test]
+fn create_invite_posts_to_channel_invites_with_params_and_parses_created_invite() {
+    let transport = FakeTransport::with_body(200, CREATE_RESPONSE_BODY.as_bytes());
+    let params = CreateInviteParams::default();
+
+    let created = run(create_channel_invite(
+        &transport,
+        CREATE_CHANNEL_ID,
+        &params,
+    ))
+    .expect("create_invite");
+    assert_eq!(
+        created,
+        CreatedInvite {
+            code: "aBcD123XyZ".to_string(),
+            max_age: 86400,
+            max_uses: 0,
+            temporary: false,
+        }
+    );
+    assert_eq!(
+        serde_json::to_value(&created).expect("IPC"),
+        serde_json::json!({
+            "code": "aBcD123XyZ",
+            "maxAge": 86400,
+            "maxUses": 0,
+            "temporary": false
+        })
+    );
+
+    let posts = transport.posts();
+    assert_eq!(posts.len(), 1, "ровно один POST");
+    let (target, body) = &posts[0];
+    assert_eq!(
+        target,
+        &format!("/channels/{CREATE_CHANNEL_ID}/invites"),
+        "маршрут INSTANT_INVITES"
+    );
+    assert!(transport.gets().is_empty(), "только POST");
+
+    let value: serde_json::Value = serde_json::from_slice(body).expect("JSON тело");
+    assert_eq!(
+        value,
+        serde_json::json!({
+            "max_age": 86400,
+            "max_uses": 0,
+            "temporary": false
+        }),
+        "без flags при flags=None"
+    );
+
+    // С гостевым флагом и временным членством:
+    let guest_response = br#"{
+        "code": "Guest99",
+        "max_age": 1800,
+        "max_uses": 5,
+        "temporary": true
+    }"#;
+    let transport_guest = FakeTransport::with_body(201, guest_response);
+    let client = api(&transport_guest);
+    let guest_params = CreateInviteParams {
+        max_age: 1800,
+        max_uses: 5,
+        temporary: true,
+        flags: Some(INVITE_FLAG_IS_GUEST),
+    };
+    let created_guest =
+        run(client.create_invite(CREATE_CHANNEL_ID, &guest_params)).expect("create_invite method");
+    assert_eq!(
+        created_guest,
+        CreatedInvite {
+            code: "Guest99".to_string(),
+            max_age: 1800,
+            max_uses: 5,
+            temporary: true,
+        }
+    );
+    let posts_guest = transport_guest.posts();
+    assert_eq!(posts_guest.len(), 1);
+    let guest_json: serde_json::Value =
+        serde_json::from_slice(&posts_guest[0].1).expect("JSON тело с flags");
+    assert_eq!(
+        guest_json,
+        serde_json::json!({
+            "max_age": 1800,
+            "max_uses": 5,
+            "temporary": true,
+            "flags": 1
+        })
+    );
+}
+
+#[test]
+fn create_invite_accepts_every_table_entry_for_max_age_and_max_uses() {
+    for max_age in VALID_INVITE_MAX_AGES {
+        let body = format!(
+            r#"{{"code":"age{max_age}","max_age":{max_age},"max_uses":0,"temporary":false}}"#
+        );
+        let transport = FakeTransport::with_body(200, body.as_bytes());
+        let params = CreateInviteParams {
+            max_age,
+            ..CreateInviteParams::default()
+        };
+        let created =
+            run(create_channel_invite(&transport, "news", &params)).unwrap_or_else(|err| {
+                panic!("max_age={max_age} из таблицы RE обязан проходить: {err}")
+            });
+        assert_eq!(created.max_age, max_age);
+        assert_eq!(transport.posts().len(), 1);
+    }
+
+    for max_uses in VALID_INVITE_MAX_USES {
+        let body = format!(
+            r#"{{"code":"uses{max_uses}","max_age":86400,"max_uses":{max_uses},"temporary":false}}"#
+        );
+        let transport = FakeTransport::with_body(200, body.as_bytes());
+        let params = CreateInviteParams {
+            max_uses,
+            ..CreateInviteParams::default()
+        };
+        let created = run(create_channel_invite(&transport, "c1", &params)).unwrap_or_else(|err| {
+            panic!("max_uses={max_uses} из таблицы RE обязан проходить: {err}")
+        });
+        assert_eq!(created.max_uses, max_uses);
+        assert_eq!(transport.posts().len(), 1);
+    }
+}
+
+#[test]
+fn create_invite_rejects_unsafe_channel_id_before_network() {
+    use discord_gui_spike::messages::{send_message, MessageError, MessageReceipt, MessageSender};
+
+    #[derive(Default)]
+    struct DummyMessageSender;
+    impl MessageSender for DummyMessageSender {
+        fn send_message<'a>(
+            &'a self,
+            channel_id: &'a str,
+            content: &'a str,
+            nonce: &'a str,
+        ) -> Pin<Box<dyn Future<Output = Result<MessageReceipt, MessageError>> + Send + 'a>>
+        {
+            let receipt = MessageReceipt {
+                id: "1".to_string(),
+                channel_id: channel_id.to_string(),
+                content: content.to_string(),
+                nonce: nonce.to_string(),
+            };
+            Box::pin(async move { Ok(receipt) })
+        }
+    }
+
+    let transport = FakeTransport::with_body(200, CREATE_RESPONSE_BODY.as_bytes());
+    let client = api(&transport);
+    let params = CreateInviteParams::default();
+    let too_long = "1".repeat(65);
+
+    for bad_channel in [
+        "",
+        "   ",
+        "../..",
+        "../../channels/1/invites",
+        "123/456",
+        "123?x=1",
+        "123#frag",
+        "123 456",
+        "123\n456",
+        "%2e%2e",
+        "chan.1",
+        "канал",
+        too_long.as_str(),
+    ] {
+        assert_eq!(
+            run(create_channel_invite(&transport, bad_channel, &params)),
+            Err(InviteError::InvalidRequest),
+            "free fn: bad_channel={bad_channel:?}"
+        );
+        assert_eq!(
+            run(client.create_invite(bad_channel, &params)),
+            Err(InviteError::InvalidRequest),
+            "method: bad_channel={bad_channel:?}"
+        );
+    }
+    assert!(
+        transport.posts().is_empty(),
+        "невалидный channel_id не должен доходить до транспорта"
+    );
+
+    // Сверка allowlist с независимым модулем messages::send_message:
+    let sender = DummyMessageSender;
+    for sample in [
+        CREATE_CHANNEL_ID,
+        "news",
+        "c1",
+        "chan_1-A",
+        "",
+        "../..",
+        "a.b",
+        "a/b",
+        "a b",
+    ] {
+        let invite_err = run(create_channel_invite(&transport, sample, &params)).is_err();
+        let msg_err = run(send_message(&sender, sample, "hi", "n")).is_err();
+        assert_eq!(
+            invite_err, msg_err,
+            "allowlist channel_id должен совпадать с messages для {sample:?}"
+        );
+    }
+}
+
+#[test]
+fn create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network() {
+    let transport = FakeTransport::with_body(200, CREATE_RESPONSE_BODY.as_bytes());
+    let client = api(&transport);
+
+    for bad_age in [
+        1,
+        60,
+        1799,
+        1801,
+        7200,
+        28800,
+        86401,
+        604801,
+        1209600,
+        u32::MAX,
+    ] {
+        let params = CreateInviteParams {
+            max_age: bad_age,
+            ..CreateInviteParams::default()
+        };
+        assert_eq!(
+            run(create_channel_invite(
+                &transport,
+                CREATE_CHANNEL_ID,
+                &params
+            )),
+            Err(InviteError::InvalidRequest),
+            "free fn: bad max_age={bad_age}"
+        );
+        assert_eq!(
+            run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+            Err(InviteError::InvalidRequest),
+            "method: bad max_age={bad_age}"
+        );
+    }
+
+    for bad_uses in [2, 3, 4, 6, 9, 11, 24, 26, 49, 51, 99, 101, 1000, u32::MAX] {
+        let params = CreateInviteParams {
+            max_uses: bad_uses,
+            ..CreateInviteParams::default()
+        };
+        assert_eq!(
+            run(create_channel_invite(
+                &transport,
+                CREATE_CHANNEL_ID,
+                &params
+            )),
+            Err(InviteError::InvalidRequest),
+            "free fn: bad max_uses={bad_uses}"
+        );
+        assert_eq!(
+            run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+            Err(InviteError::InvalidRequest),
+            "method: bad max_uses={bad_uses}"
+        );
+    }
+
+    assert!(
+        transport.posts().is_empty(),
+        "предсетевая проверка обязана отсекать невалидные max_age/max_uses до сети"
+    );
+}
+
+#[test]
+fn create_invite_maps_429_retry_after_and_403_401_errors() {
+    let params = CreateInviteParams::default();
+
+    // 429 с заголовком Retry-After (секунды -> мс)
+    for (header_name, header_val, expected_ms) in [
+        ("retry-after", "4", 4000_u64),
+        ("Retry-After", "1.5", 1500_u64),
+    ] {
+        let transport = FakeTransport::answering(429).with_headers(&[(header_name, header_val)]);
+        let client = api(&transport);
+        assert_eq!(
+            run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+            Err(InviteError::RateLimited {
+                retry_after_ms: expected_ms
+            }),
+            "429 header {header_name}={header_val}"
+        );
+    }
+
+    // 429 с телом {"retry_after": ...} при отсутствии заголовка
+    let transport_body_429 = FakeTransport::with_body(
+        429,
+        br#"{"message":"You are being rate limited.","retry_after":2.5}"#,
+    );
+    assert_eq!(
+        run(create_channel_invite(
+            &transport_body_429,
+            CREATE_CHANNEL_ID,
+            &params
+        )),
+        Err(InviteError::RateLimited {
+            retry_after_ms: 2500
+        })
+    );
+
+    // 429 без заголовка и тела -> retry_after_ms: 0
+    let transport_bare_429 = FakeTransport::answering(429);
+    assert_eq!(
+        run(create_channel_invite(
+            &transport_bare_429,
+            CREATE_CHANNEL_ID,
+            &params
+        )),
+        Err(InviteError::RateLimited { retry_after_ms: 0 })
+    );
+
+    // 403 / 401 / 404 / 500
+    for (status, expected) in [
+        (401, InviteError::Unauthorized),
+        (403, InviteError::Forbidden),
+        (404, InviteError::NotFound),
+        (400, InviteError::Client { status: 400 }),
+        (500, InviteError::Server { status: 500 }),
+    ] {
+        let transport = FakeTransport::answering(status);
+        let client = api(&transport);
+        assert_eq!(
+            run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+            Err(expected),
+            "HTTP {status}"
+        );
+    }
+
+    // Malformed 200 ответы -> InvalidResponse
+    for bad_body in [
+        b"".as_slice(),
+        br#"{}"#.as_slice(),
+        br#"{"code":"","max_age":86400,"max_uses":0,"temporary":false}"#.as_slice(),
+        br#"{"code":"abc","max_uses":0,"temporary":false}"#.as_slice(),
+        br#"{"code":"abc","max_age":86400,"temporary":false}"#.as_slice(),
+        br#"{"code":"abc","max_age":86400,"max_uses":0}"#.as_slice(),
+    ] {
+        let transport = FakeTransport::with_body(200, bad_body);
+        assert_eq!(
+            run(create_channel_invite(
+                &transport,
+                CREATE_CHANNEL_ID,
+                &params
+            )),
+            Err(InviteError::InvalidResponse),
+            "bad_body={bad_body:?}"
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// RW-40 / task-228 (BE-P1-21): Rust Guild Invites & Vanity Code BFF Contract
+// ---------------------------------------------------------------------------
+
+use discord_gui_spike::invites::{
+    build_create_channel_invite_route_and_body, build_invite_resolve_route, validate_invite_code,
+    CreateChannelInviteRequest, ALLOWED_INVITE_MAX_AGES, ALLOWED_INVITE_MAX_USES,
+};
+
+#[test]
+fn be_p1_21_allowed_invite_constants_match_contract() {
+    assert_eq!(
+        ALLOWED_INVITE_MAX_AGES,
+        [0, 1800, 3600, 21600, 43200, 86400, 604800, 2592000]
+    );
+    assert_eq!(ALLOWED_INVITE_MAX_USES, [0, 1, 5, 10, 25, 100]);
+}
+
+#[test]
+fn be_p1_21_create_channel_invite_request_serde_roundtrip() {
+    let req = CreateChannelInviteRequest {
+        channel_id: "1014537851418980375".to_string(),
+        max_age: 86400,
+        max_uses: 10,
+        temporary: true,
+        unique: false,
+    };
+    let json = serde_json::to_value(&req).expect("serialize CreateChannelInviteRequest");
+    assert_eq!(
+        json,
+        serde_json::json!({
+            "channel_id": "1014537851418980375",
+            "max_age": 86400,
+            "max_uses": 10,
+            "temporary": true,
+            "unique": false
+        })
+    );
+    let decoded: CreateChannelInviteRequest =
+        serde_json::from_value(json).expect("deserialize CreateChannelInviteRequest");
+    assert_eq!(decoded, req);
+}
+
+#[test]
+fn be_p1_21_validate_invite_code_trims_and_enforces_2_to_32_ascii_alnum_dash_underscore() {
+    let min_code = "ab";
+    let max_code = "A1_b2-C3_d4-E5_f6-G7_h8-I9_j0-K1";
+    assert_eq!(max_code.len(), 32);
+
+    for (raw, expected) in [
+        ("ab", "ab"),
+        ("  discord-lab_2026  ", "discord-lab_2026"),
+        ("\t\nvanity_CODE-99\r\n", "vanity_CODE-99"),
+        ("__", "__"),
+        ("--", "--"),
+        ("_-", "_-"),
+        (min_code, min_code),
+        (max_code, max_code),
+    ] {
+        assert_eq!(
+            validate_invite_code(raw),
+            Ok(expected),
+            "validate_invite_code({raw:?})"
+        );
+    }
+
+    let len_33 = "a".repeat(33);
+    for invalid in [
+        "",
+        "   ",
+        "a",
+        " a ",
+        len_33.as_str(),
+        "ab cd",
+        "abc/def",
+        "abc?x=1",
+        "abc#frag",
+        "abc.def",
+        "abc!",
+        "инвайт",
+        "https://discord.gg/abc",
+    ] {
+        assert!(
+            validate_invite_code(invalid).is_err(),
+            "validate_invite_code({invalid:?}) должен возвращать Err"
+        );
+    }
+}
+
+#[test]
+fn be_p1_21_build_invite_resolve_route_formats_query_and_propagates_code_validation() {
+    assert_eq!(
+        build_invite_resolve_route("  rust_guild-1  ", true, true),
+        Ok("/invites/rust_guild-1?with_counts=true&with_expiration=true".to_string())
+    );
+    assert_eq!(
+        build_invite_resolve_route("ab", false, true),
+        Ok("/invites/ab?with_counts=false&with_expiration=true".to_string())
+    );
+    assert_eq!(
+        build_invite_resolve_route("VANITY_99", true, false),
+        Ok("/invites/VANITY_99?with_counts=true&with_expiration=false".to_string())
+    );
+    assert_eq!(
+        build_invite_resolve_route("a_b-c", false, false),
+        Ok("/invites/a_b-c?with_counts=false&with_expiration=false".to_string())
+    );
+
+    for bad_code in ["", "x", "bad/code", "bad?query", &"z".repeat(33)] {
+        assert!(
+            build_invite_resolve_route(bad_code, true, true).is_err(),
+            "build_invite_resolve_route({bad_code:?}) должен отклонять невалидный код"
+        );
+    }
+}
+
+#[test]
+fn be_p1_21_build_create_channel_invite_route_and_body_validates_snowflake_and_tables() {
+    let u64_max_str = u64::MAX.to_string();
+
+    for channel_id in ["1", "1014537851418980375", u64_max_str.as_str()] {
+        for max_age in ALLOWED_INVITE_MAX_AGES {
+            for max_uses in ALLOWED_INVITE_MAX_USES {
+                let req = CreateChannelInviteRequest {
+                    channel_id: channel_id.to_string(),
+                    max_age,
+                    max_uses,
+                    temporary: max_age == 1800,
+                    unique: max_uses == 1,
+                };
+                let (route, body) = build_create_channel_invite_route_and_body(&req)
+                    .unwrap_or_else(|e| panic!("ожидался Ok для {req:?}: {e}"));
+                assert_eq!(route, format!("/channels/{channel_id}/invites"));
+                assert_eq!(
+                    body,
+                    serde_json::json!({
+                        "max_age": max_age,
+                        "max_uses": max_uses,
+                        "temporary": req.temporary,
+                        "unique": req.unique
+                    })
+                );
+            }
+        }
+    }
+
+    // Невалидные Snowflake channel_id (0, ведущие нули, не-цифры, > u64::MAX, пустой)
+    for bad_channel_id in [
+        "",
+        "0",
+        "00",
+        "01",
+        "01014537851418980375",
+        "-1",
+        "123abc",
+        "123 456",
+        " 123456 ",
+        "123/456",
+        "18446744073709551616", // u64::MAX + 1
+    ] {
+        let req = CreateChannelInviteRequest {
+            channel_id: bad_channel_id.to_string(),
+            max_age: 86400,
+            max_uses: 0,
+            temporary: false,
+            unique: false,
+        };
+        assert!(
+            build_create_channel_invite_route_and_body(&req).is_err(),
+            "bad_channel_id={bad_channel_id:?} должен отклоняться"
+        );
+    }
+
+    // Невалидные max_age (вне ALLOWED_INVITE_MAX_AGES)
+    for bad_age in [
+        1,
+        60,
+        1799,
+        1801,
+        3599,
+        7200,
+        86399,
+        604801,
+        2591999,
+        2592001,
+        u32::MAX,
+    ] {
+        let req = CreateChannelInviteRequest {
+            channel_id: "1014537851418980375".to_string(),
+            max_age: bad_age,
+            max_uses: 0,
+            temporary: false,
+            unique: false,
+        };
+        assert!(
+            build_create_channel_invite_route_and_body(&req).is_err(),
+            "bad_age={bad_age} должен отклоняться"
+        );
+    }
+
+    // Невалидные max_uses (включая 50, которого нет в ALLOWED_INVITE_MAX_USES = [0, 1, 5, 10, 25, 100])
+    for bad_uses in [2, 3, 4, 6, 9, 11, 24, 26, 50, 99, 101, u32::MAX] {
+        let req = CreateChannelInviteRequest {
+            channel_id: "1014537851418980375".to_string(),
+            max_age: 86400,
+            max_uses: bad_uses,
+            temporary: false,
+            unique: false,
+        };
+        assert!(
+            build_create_channel_invite_invite_check_bad_uses(&req),
+            "bad_uses={bad_uses} должен отклоняться"
+        );
+    }
+}
+
+fn build_create_channel_invite_invite_check_bad_uses(
+    req: &discord_gui_spike::invites::CreateChannelInviteRequest,
+) -> bool {
+    discord_gui_spike::invites::build_create_channel_invite_route_and_body(req).is_err()
+}
+
+#[test]
+fn accept_decodes_nested_guild_and_channel_when_top_level_guild_id_is_absent() {
+    let real_discord_accept_body = br#"{
+        "type": 0,
+        "code": "eSrxp2YGUC",
+        "guild": {
+            "id": "274093052673392641",
+            "name": "ITSKIDON PC BOOST",
+            "icon": "a_123456"
+        },
+        "channel": {
+            "id": "274093052673392642",
+            "name": "welcome",
+            "type": 0
+        },
+        "new_member": true
+    }"#;
+    let transport = FakeTransport::with_body(200, real_discord_accept_body);
+    let client = api(&transport);
+    let accepted = run(accept_invite(&client, "eSrxp2YGUC", None, None, None))
+        .expect("POST /invites/{code} с вложенными guild.id и channel.id должен декодироваться");
+    assert_eq!(accepted.guild_id, "274093052673392641");
+    assert_eq!(
+        accepted.target_channel_id.as_deref(),
+        Some("274093052673392642")
     );
 }

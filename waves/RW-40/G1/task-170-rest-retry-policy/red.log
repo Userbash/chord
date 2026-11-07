@@ -1,0 +1,144 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-170-rest-retry-policy/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_core::rest::rate_limit::DEFAULT_RETRY_AFTER`, `discord_core::rest::rate_limit::MAX_RETRY_AFTER`, `discord_core::rest::rate_limit::RETRYABLE_SERVER_STATUSES`, `discord_core::rest::rate_limit::is_retryable_server_status`, `discord_core::rest::rate_limit::parse_retry_after_or_default`, `discord_core::rest::rate_limit::retry_delay_client_parity`, `discord_core::rest::rate_limit::should_retry_client_parity`
+   --> crates/discord-core/tests/rest_retry.rs:642:5
+    |
+642 |     DEFAULT_RETRY_AFTER, MAX_RETRY_AFTER, RETRYABLE_SERVER_STATUSES, Ra...
+    |     ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^ no `RETRYABLE_SERVER_STATUSES` in `rest::rate_limit`
+    |     |                    |
+    |     |                    no `MAX_RETRY_AFTER` in `rest::rate_limit`
+    |     no `DEFAULT_RETRY_AFTER` in `rest::rate_limit`
+643 |     is_retryable_server_status, parse_retry_after_or_default, rate_limi...
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `parse_retry_after_or_default` in `rest::rate_limit`
+    |     |
+    |     no `is_retryable_server_status` in `rest::rate_limit`
+644 |     retry_delay_client_parity, should_retry_client_parity,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^ no `should_retry_client_parity` in `rest::rate_limit`
+    |     |
+    |     no `retry_delay_client_parity` in `rest::rate_limit`
+
+error[E0599]: no associated function or constant named `new` found for struct `RateLimitInfo` in the current scope
+   --> crates/discord-core/tests/rest_retry.rs:785:63
+    |
+785 | ...teLimited(RateLimitInfo::new(Duration::from_secs(1)));
+    |                             ^^^ associated function or constant not found in `RateLimitInfo`
+    |
+help: there is a method `ne` with a similar name
+    |
+785 -     let failure_429 = RestFailure::RateLimited(RateLimitInfo::new(Duration::from_secs(1)));
+785 +     let failure_429 = RestFailure::RateLimited(RateLimitInfo::ne(Duration::from_secs(1)));
+    |
+
+error[E0599]: no associated function or constant named `new` found for struct `RateLimitInfo` in the current scope
+   --> crates/discord-core/tests/rest_retry.rs:876:63
+    |
+876 | ...teLimited(RateLimitInfo::new(Duration::from_millis(250)));
+    |                             ^^^ associated function or constant not found in `RateLimitInfo`
+    |
+help: there is a method `ne` with a similar name
+    |
+876 -     let failure_429 = RestFailure::RateLimited(RateLimitInfo::new(Duration::from_millis(250)));
+876 +     let failure_429 = RestFailure::RateLimited(RateLimitInfo::ne(Duration::from_millis(250)));
+    |
+
+error[E0599]: no associated function or constant named `default` found for struct `RateLimitInfo` in the current scope
+   --> crates/discord-core/tests/rest_retry.rs:897:68
+    |
+897 | ...teLimited(RateLimitInfo::default());
+    |                             ^^^^^^^ associated function or constant not found in `RateLimitInfo`
+
+error[E0609]: no field `limit` on type `RateLimitInfo`
+   --> crates/discord-core/tests/rest_retry.rs:995:21
+    |
+995 |     assert_eq!(info.limit, Some(10));
+    |                     ^^^^^ unknown field
+    |
+    = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `scope` on type `RateLimitInfo`
+   --> crates/discord-core/tests/rest_retry.rs:996:21
+    |
+996 |     assert_eq!(info.scope.as_deref(), Some("user"));
+    |                     ^^^^^ unknown field
+    |
+    = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `scope` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1004:28
+     |
+1004 |     assert_eq!(info_global.scope.as_deref(), Some("global"));
+     |                            ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `limit` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1005:28
+     |
+1005 |     assert_eq!(info_global.limit, Some(50));
+     |                            ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `scope` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1009:28
+     |
+1009 |     assert_eq!(info_shared.scope.as_deref(), Some("shared"));
+     |                            ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `limit` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1010:28
+     |
+1010 |     assert_eq!(info_shared.limit, None);
+     |                            ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `limit` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1014:27
+     |
+1014 |     assert_eq!(info_empty.limit, None);
+     |                           ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `scope` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1015:27
+     |
+1015 |     assert_eq!(info_empty.scope, None);
+     |                           ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `limit` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1023:29
+     |
+1023 |     assert_eq!(info_invalid.limit, None);
+     |                             ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0609]: no field `scope` on type `RateLimitInfo`
+    --> crates/discord-core/tests/rest_retry.rs:1024:29
+     |
+1024 |     assert_eq!(info_invalid.scope, None);
+     |                             ^^^^^ unknown field
+     |
+     = note: available fields are: `retry_after`, `global`, `remaining`, `reset_after`, `bucket`
+
+error[E0599]: no associated function or constant named `new` found for struct `RateLimitInfo` in the current scope
+    --> crates/discord-core/tests/rest_retry.rs:1027:39
+     |
+1027 |     let builder_info = RateLimitInfo::new(Duration::from_secs(1))
+     |                                       ^^^ associated function or constant not found in `RateLimitInfo`
+     |
+help: there is a method `ne` with a similar name
+     |
+1027 -     let builder_info = RateLimitInfo::new(Duration::from_secs(1))
+1027 +     let builder_info = RateLimitInfo::ne(Duration::from_secs(1))
+     |
+
+Some errors have detailed explanations: E0432, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "rest_retry") due to 15 previous errors
+warning: build failed, waiting for other jobs to finish...

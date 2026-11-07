@@ -94,11 +94,48 @@
  * C-02/M-06: строка реального канала живёт в потоке (не виртуализация), поэтому
  * её `.text` не имеет замороженной высоты 40: контент (переносы, цитата,
  * реакции) задаёт высоту сам, а не обрезается `overflow: hidden`.
+ * Cozy 2-line layout как в оригинальном Discord: аватар слева (16px),
+ * строка 1 — автор + время, строка 2+ — текст/цитата/вложения/реакции.
  * ========================================================================== */
+.channel-message {
+  position: relative;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-4) var(--space-1) var(--message-gutter);
+}
+
+.channel-message[data-group="start"] {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.channel-message .author {
+  flex: 0 0 auto;
+  height: var(--line-height-message);
+  gap: var(--space-2);
+}
+
+.channel-message .author .avatar {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-2);
+}
+
 .channel-message .text {
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
   height: auto;
-  min-height: var(--avatar-lg);
+  min-height: var(--line-height-message);
   overflow: visible;
+}
+
+.channel-message .text-body {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Реакции реального сообщения: пилюли под текстом, перенос разрешён. */
@@ -739,4 +776,1085 @@
   background: var(--surface-2);
   color: var(--text-strong);
   font: inherit;
+}
+
+/* =============================================================================
+ * AT-03: Рендер вложений в ленте сообщений (IMAGE / VIDEO / AUDIO / VOICE / FILE)
+ * Все значения строго привязаны к существующим токенам rust/gui-spike/ui/tokens.css.
+ * ========================================================================== */
+
+.message-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  max-width: 100%;
+}
+
+/* -----------------------------------------------------------------------------
+ * 1. Сетка Mosaic и одиночные медиа-контейнеры
+ * -------------------------------------------------------------------------- */
+.attachments-mosaic {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: var(--modal-w-md);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.attachments-mosaic[data-layout="single"] {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: var(--modal-w-sm);
+}
+
+.attachments-mosaic[data-layout="mosaic-2"],
+.attachments-mosaic[data-layout="mosaic-3"],
+.attachments-mosaic[data-layout="mosaic-4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.attachments-mosaic[data-layout="mosaic-3"] .attachment-media-item:first-child {
+  grid-row: 1 / span 2;
+}
+
+.attachments-mosaic[data-layout="mosaic-many"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.attachment-media-item {
+  position: relative;
+  margin: var(--space-0);
+  min-width: calc(var(--layout-tree-min-w) - var(--space-11));
+  min-height: calc(var(--layout-composer-h) + var(--space-12) - var(--space-1));
+  max-height: calc(var(--emoji-picker-h) - var(--space-10));
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+/* В многоячеечной сетке карточки заполняют свою ячейку */
+.attachments-mosaic:not([data-layout="single"]) .attachment-media-item {
+  min-width: var(--space-0);
+  aspect-ratio: 4 / 3;
+}
+
+.attachment-media-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-0);
+  border: var(--space-0);
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.attachment-image,
+.attachment-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: calc(var(--emoji-picker-h) - var(--space-10));
+  object-fit: cover;
+}
+
+.attachments-mosaic[data-layout="single"] .attachment-image,
+.attachments-mosaic[data-layout="single"] .attachment-video {
+  object-fit: contain;
+  background: var(--surface-sunken);
+}
+
+/* -----------------------------------------------------------------------------
+ * 2. Skeleton-загрузка, ошибки и бейджи (GIF / REMIX / ALT / +N)
+ * -------------------------------------------------------------------------- */
+.attachment-skeleton {
+  position: absolute;
+  inset: var(--space-0);
+  background: var(--surface-3);
+  transition: opacity var(--motion-base) var(--ease-in-out);
+}
+
+.attachment-skeleton[hidden],
+.attachment-media-error[hidden],
+.attachment-spoiler-overlay[hidden],
+.attachment-alt-badge[hidden],
+.attachment-gif-badge[hidden],
+.attachment-remix-badge[hidden],
+.attachment-video-play-overlay[hidden] {
+  display: none;
+}
+
+.attachment-media-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  min-height: calc(var(--layout-composer-h) * 2);
+  background: var(--surface-2);
+  color: var(--danger-text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.attachment-gif-badge,
+.attachment-remix-badge,
+.attachment-alt-badge,
+.attachment-mosaic-overflow {
+  position: absolute;
+  z-index: var(--z-header);
+  padding: var(--space-1) var(--space-3);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-4);
+  color: var(--text-strong);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-caption);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+}
+
+.attachment-gif-badge {
+  top: var(--space-4);
+  left: var(--space-4);
+  pointer-events: none;
+}
+
+.attachment-remix-badge {
+  top: var(--space-4);
+  right: var(--space-4);
+  pointer-events: none;
+}
+
+.attachment-mosaic-overflow {
+  right: var(--space-4);
+  bottom: var(--space-4);
+  pointer-events: none;
+}
+
+.attachment-alt-badge {
+  bottom: var(--space-4);
+  left: var(--space-4);
+  cursor: pointer;
+}
+
+.attachment-alt-badge:hover {
+  background: var(--surface-3);
+  border-color: var(--border-strong);
+}
+
+/* -----------------------------------------------------------------------------
+ * 3. Spoiler-оверлей ('СПОЙЛЕР' / предупреждение о контенте)
+ * -------------------------------------------------------------------------- */
+.attachment-media-item[data-spoiler="hidden"] .attachment-image,
+.attachment-media-item[data-spoiler="hidden"] .attachment-video,
+.attachment-media-item[data-spoiler="hidden"] .attachment-video-controls,
+.attachment-media-item[data-spoiler="hidden"] .attachment-video-badges {
+  filter: blur(var(--space-7));
+  transform: scale(1.08);
+  pointer-events: none;
+  user-select: none;
+}
+
+.attachment-file-card[data-spoiler="hidden"] .attachment-file-meta,
+.attachment-file-card[data-spoiler="hidden"] .attachment-file-icon,
+.attachment-file-card[data-spoiler="hidden"] .attachment-file-download {
+  filter: blur(var(--space-4));
+  pointer-events: none;
+  user-select: none;
+}
+
+.attachment-spoiler-overlay {
+  position: absolute;
+  inset: var(--space-0);
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--space-0);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.attachment-spoiler-overlay:hover {
+  background: var(--surface-4);
+}
+
+.attachment-spoiler-pill {
+  padding: var(--space-2) var(--space-5);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-round);
+  background: var(--surface-1);
+  color: var(--text-strong);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+  box-shadow: var(--shadow-elevation-medium);
+}
+
+.attachment-spoiler-hint {
+  color: var(--text-subtle);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+/* -----------------------------------------------------------------------------
+ * 4. Видео-вложения: постер, центральная кнопка Play, длительность, контролы
+ * -------------------------------------------------------------------------- */
+.attachment-video-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: var(--surface-sunken);
+}
+
+.attachment-video-badges {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.attachment-video-duration,
+.attachment-video-title {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--surface-1);
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.attachment-video-play-overlay {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-11);
+  height: var(--space-11);
+  border: var(--space-0);
+  border-radius: var(--radius-round);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: var(--font-size-title);
+  line-height: 1;
+  box-shadow: var(--shadow-elevation-high);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.attachment-video-play-overlay:hover {
+  background: var(--accent-hover);
+}
+
+.attachment-video-play-overlay:active {
+  background: var(--accent-active);
+}
+
+.attachment-video-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--btn-height-lg);
+  padding: var(--space-2) var(--space-4);
+  border-top: var(--menu-border) solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text);
+}
+
+.attachment-ctrl-time {
+  flex: 0 0 auto;
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.attachment-ctrl-seek {
+  flex: 1 1 auto;
+  min-width: var(--space-13);
+  height: var(--slider-track-h);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.attachment-ctrl-volume {
+  width: var(--space-13);
+  height: var(--slider-track-h);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* -----------------------------------------------------------------------------
+ * 5. Аудио-карточка (.attachment-audio-card) и Голосовое сообщение (.attachment-voice-card)
+ * -------------------------------------------------------------------------- */
+.attachment-audio-card,
+.attachment-voice-card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: var(--modal-w-sm);
+  padding: var(--space-4);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.attachment-audio-card {
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.attachment-audio-metadata {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: var(--space-0);
+}
+
+.attachment-audio-icon {
+  flex: 0 0 auto;
+  font-size: var(--icon-size);
+  line-height: 1;
+}
+
+.attachment-audio-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-audio-size {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.attachment-audio-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.attachment-audio-play,
+.attachment-voice-play {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height);
+  height: var(--btn-height);
+  border: var(--space-0);
+  border-radius: var(--radius-round);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.attachment-voice-play {
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
+}
+
+.attachment-audio-play:hover,
+.attachment-voice-play:hover {
+  background: var(--accent-hover);
+}
+
+.attachment-voice-card {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.attachment-waveform-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  height: var(--layout-group-title-h);
+  min-width: var(--space-13);
+}
+
+.attachment-waveform-bars {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.attachment-waveform-bar {
+  flex: 0 0 var(--space-2);
+  width: var(--space-2);
+  min-height: var(--space-1);
+  border-radius: var(--radius-round);
+  background: var(--text-muted);
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.attachment-waveform-bar[data-played="true"] {
+  background: var(--accent);
+}
+
+.attachment-waveform-bar[data-level="1"] { height: var(--space-1); }
+.attachment-waveform-bar[data-level="2"] { height: var(--space-2); }
+.attachment-waveform-bar[data-level="3"] { height: var(--space-3); }
+.attachment-waveform-bar[data-level="4"] { height: var(--space-4); }
+.attachment-waveform-bar[data-level="5"] { height: var(--space-5); }
+.attachment-waveform-bar[data-level="6"] { height: var(--space-6); }
+.attachment-waveform-bar[data-level="7"] { height: var(--space-7); }
+.attachment-waveform-bar[data-level="8"] { height: var(--layout-group-title-h); }
+
+.attachment-waveform-slider {
+  position: absolute;
+  inset: var(--space-0);
+  width: 100%;
+  height: 100%;
+  margin: var(--space-0);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.attachment-voice-duration {
+  flex: 0 0 auto;
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.attachment-voice-speed {
+  flex: 0 0 auto;
+  min-height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-3);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.attachment-voice-speed:hover {
+  background: var(--surface-4);
+}
+
+/* -----------------------------------------------------------------------------
+ * 6. Файловые вложения (.attachment-file-card)
+ * -------------------------------------------------------------------------- */
+.attachment-file-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--modal-w-sm);
+  min-height: var(--layout-composer-h);
+  padding: var(--space-4);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.attachment-file-icon {
+  flex: 0 0 var(--avatar-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--text-accent);
+  font-size: var(--icon-size-lg);
+  line-height: 1;
+}
+
+.attachment-file-meta {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: var(--space-0);
+}
+
+.attachment-file-name {
+  overflow: hidden;
+  color: var(--text-link);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-ui);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-file-name:hover:not([aria-disabled="true"]) {
+  text-decoration: underline;
+}
+
+.attachment-file-name[aria-disabled="true"] {
+  color: var(--text-muted);
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.attachment-file-size {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.attachment-file-download {
+  flex: 0 0 var(--btn-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height);
+  height: var(--btn-height);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--btn-radius);
+  background: var(--surface-3);
+  color: var(--text-subtle);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.attachment-file-download:hover:not([aria-disabled="true"]) {
+  background: var(--surface-4);
+  color: var(--text-strong);
+}
+
+.attachment-file-download[aria-disabled="true"] {
+  opacity: var(--state-disabled-opacity);
+  pointer-events: none;
+}
+
+/* -----------------------------------------------------------------------------
+ * 7. Lightbox-модалка (#attachment-lightbox)
+ * -------------------------------------------------------------------------- */
+.attachment-lightbox-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--modal-w-lg);
+  padding: var(--modal-pad-y) var(--modal-pad-x);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-popover);
+}
+
+.attachment-lightbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.attachment-lightbox-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: var(--space-0);
+}
+
+.attachment-lightbox-filename {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-lightbox-details {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.attachment-lightbox-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.attachment-lightbox-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: calc(var(--layout-tree-min-w) + var(--space-10));
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--bg-app);
+}
+
+.attachment-lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(var(--emoji-picker-h) + var(--space-13));
+  border-radius: var(--radius-xs);
+  object-fit: contain;
+}
+
+/* -----------------------------------------------------------------------------
+ * 8. Клавиатурный фокус (WCAG 2.2 AA non-text >= 3:1) и Reduced Motion
+ * -------------------------------------------------------------------------- */
+.attachment-media-trigger:focus-visible,
+.attachment-spoiler-overlay:focus-visible,
+.attachment-alt-badge:focus-visible,
+.attachment-video-play-overlay:focus-visible,
+.attachment-ctrl-seek:focus-visible,
+.attachment-ctrl-volume:focus-visible,
+.attachment-audio-play:focus-visible,
+.attachment-voice-play:focus-visible,
+.attachment-voice-speed:focus-visible,
+.attachment-file-name:focus-visible,
+.attachment-file-download:focus-visible,
+.attachment-waveform-wrap:focus-within {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attachment-skeleton,
+  .attachment-spoiler-overlay,
+  .attachment-video-play-overlay,
+  .attachment-audio-play,
+  .attachment-voice-play,
+  .attachment-waveform-bar,
+  .attachment-file-download {
+    transition: none;
+  }
+}
+
+/* =============================================================================
+ * M-13 (RW-40): HTTP 202 Indexing Progress, NSFW Gate & Search Filter Chips
+ *
+ * Нормативная база — SEARCH-202-NSFW-SPEC §2.1, §2.2 и §6: только токены
+ * rust/gui-spike/ui/tokens.css, span-классы чипов `.search-chip-prefix` /
+ * `.search-chip-value`, фон бейджей 18+ и кнопки «Продолжить» — `--danger-fill`
+ * с `--text-on-danger` (4.85:1 >= WCAG AA).
+ * ========================================================================== */
+
+/* 0. Контраст заголовков и подписей секций (--text-muted на --surface-2/3). */
+.search-section-title,
+.search-section-note {
+  color: var(--text-muted);
+}
+
+/* --- 1. Полоса чипов активных фильтров (.search-filter-chips) --- */
+.search-filter-chips {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--divider);
+}
+
+.search-filter-chips[hidden],
+.search-indexing-banner[hidden],
+.search-indexing-actions[hidden],
+.search-nsfw-banner[hidden],
+.search-nsfw-gate[hidden],
+.search-nsfw-btn[hidden] {
+  display: none;
+}
+
+.search-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.search-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-round);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.search-chip:hover {
+  background: var(--surface-4);
+  border-color: var(--border);
+}
+
+.search-chip:focus-within {
+  background: var(--accent-soft);
+  border-color: var(--focus-ring);
+}
+
+.search-chip[data-chip-negated="true"] {
+  background: var(--state-selected);
+  border-color: var(--danger);
+}
+
+.search-chip-prefix {
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.search-chip[data-chip-negated="true"] .search-chip-prefix {
+  color: var(--danger-text);
+}
+
+.search-chip-value {
+  color: var(--text-strong);
+  font-weight: var(--font-weight-medium);
+  max-width: calc(var(--space-11) * 3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--badge-h);
+  height: var(--badge-h);
+  padding: var(--space-0);
+  border: 0;
+  border-radius: var(--radius-round);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.search-chip-remove:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.search-chips-clear {
+  flex: 0 0 auto;
+  height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--surface-1);
+  color: var(--text-subtle);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.search-chips-clear:hover {
+  background: var(--surface-4);
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+
+/* --- 2. Баннер индексации HTTP 202 / исторического индекса --- */
+.search-indexing-banner {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-left: var(--space-2) solid var(--warning);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.search-indexing-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.search-indexing-spinner {
+  flex: 0 0 var(--icon-size-sm);
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  border: var(--icon-stroke) solid var(--border-strong);
+  border-top-color: var(--warning);
+  border-radius: var(--radius-round);
+  animation: search-indexing-spin var(--motion-base) linear infinite;
+}
+
+.search-indexing-banner[data-indexing-state="exhausted"] .search-indexing-spinner {
+  border-color: var(--warning);
+  animation: none;
+}
+
+@keyframes search-indexing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.search-indexing-title {
+  flex: 1 1 auto;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+}
+
+.search-indexing-badge {
+  flex: 0 0 auto;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-round);
+  background: var(--warning);
+  color: var(--text-on-warning);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.search-indexing-detail {
+  margin: var(--space-0);
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.search-indexing-progress {
+  position: relative;
+  width: 100%;
+  height: var(--space-3);
+  border-radius: var(--radius-round);
+  background: var(--bg-app);
+  overflow: hidden;
+}
+
+.search-indexing-progress-bar {
+  display: block;
+  width: 20%;
+  height: 100%;
+  border-radius: var(--radius-round);
+  background: var(--accent);
+  transition: width var(--motion-base) var(--ease-out);
+}
+
+.search-indexing-progress[aria-valuenow="1"] .search-indexing-progress-bar { width: 20%; }
+.search-indexing-progress[aria-valuenow="2"] .search-indexing-progress-bar { width: 40%; }
+.search-indexing-progress[aria-valuenow="3"] .search-indexing-progress-bar { width: 60%; }
+.search-indexing-progress[aria-valuenow="4"] .search-indexing-progress-bar { width: 80%; }
+.search-indexing-progress[aria-valuenow="5"] .search-indexing-progress-bar { width: 100%; }
+
+.search-indexing-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-indexing-retry-btn {
+  height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-5);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-xs);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out);
+}
+
+.search-indexing-retry-btn:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.search-indexing-retry-btn:active {
+  background: var(--accent-active);
+  border-color: var(--accent-active);
+}
+
+/* --- 3. Баннер NSFW 18+ гейта (.search-nsfw-banner / .search-nsfw-gate) --- */
+.search-nsfw-banner,
+.search-nsfw-gate {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-left: var(--space-2) solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.search-nsfw-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.search-nsfw-badge,
+.search-result-nsfw-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--badge-h);
+  padding: var(--space-0) var(--badge-pad-x);
+  border-radius: var(--radius-xs);
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-caption);
+  letter-spacing: var(--letter-spacing-caps);
+}
+
+.search-nsfw-title {
+  margin: var(--space-0);
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+}
+
+.search-nsfw-desc {
+  margin: var(--space-0);
+  color: var(--text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.search-nsfw-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.search-nsfw-btn {
+  height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-6);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.search-nsfw-btn-continue {
+  border: 1px solid var(--danger-fill);
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+.search-nsfw-btn-continue:hover {
+  background: var(--danger-fill-hover);
+  border-color: var(--danger-fill-hover);
+}
+
+.search-nsfw-btn-back {
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text);
+}
+
+.search-nsfw-btn-back:hover {
+  background: var(--surface-4);
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+
+/* --- 4. Фокус-кольца и Reduced Motion (WCAG 2.2 AA) --- */
+.search-chip-remove:focus-visible,
+.search-chips-clear:focus-visible,
+.search-indexing-retry-btn:focus-visible,
+.search-nsfw-btn:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-chip,
+  .search-chip-remove,
+  .search-chips-clear,
+  .search-indexing-spinner,
+  .search-indexing-progress-bar,
+  .search-indexing-retry-btn,
+  .search-nsfw-btn {
+    animation: none;
+    transition: none;
+  }
 }

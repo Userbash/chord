@@ -1,0 +1,152 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ лимит композера 2000, IPC payload не содержит токен/пароль (31.436796ms)
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (31.095403ms)
+  ✔ #auth-gate: новый id из index.html есть в шиме и не считается экраном (9.628955ms)
+  ✔ шапка чата: колокол между ветками и закреплёнными (VW-01, D-17) (8.360915ms)
+  ✔ подарок в композере: disabled-affordance в index.html и в шиме (P1 REVIEW-W39h) (8.082933ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (10.844984ms)
+  ✔ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (18.876297ms)
+  ✔ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (9.947508ms)
+  ✔ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (7.863332ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (30.78476ms)
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (8.683988ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (8.617667ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (10.320871ms)
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (8.830209ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (10.689113ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, состояния из дампа (SET-06/07/08) (12.491197ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (7.829081ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (9.093781ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (7.241886ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (7.150826ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (10.944565ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (8.452336ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (9.250163ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (8.391245ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (11.303028ms)
+✔ GUI spike: настоящий app.js в DOM-шиме (307.764111ms)
+▶ чат-вью P3-02: новые блоки не ломают инварианты списка
+  ✔ QuickSwitcher host и ресурсы доступны отдельно от четырёх frozen экранов (7.223807ms)
+  ✔ extras живут внутри .text, у строки по-прежнему ровно 2 ребёнка (7.731801ms)
+  ✔ D-13: unread-полоса 34 и блок группы участников 42 — из токенов, не литералов (8.542686ms)
+  ✔ окно данных не растёт от новых панелей: loadedRows ≤ 500, inFlight пуст (8.269365ms)
+✔ чат-вью P3-02: новые блоки не ломают инварианты списка (31.941189ms)
+▶ P-03-UI: контроллер индикатора набора и исходящего typing
+  ✖ константы TYPING_TTL_MS, TYPING_RESEND_MS и MAX_TYPING_CHANNELS экспортированы корректно (0.620294ms)
+  ✖ прогрессивное создание узла #chat-typing-indicator с нужными атрибутами и переиспользование (7.456548ms)
+  ✖ форматирование русского текста: 1, 2, 3 и >3 человек (10.346421ms)
+  ✖ игнорирование собственного currentUserId (7.102676ms)
+  ✖ автоматическое истечение через TYPING_TTL_MS и мгновенное снятие по onMessageCreated (7.069135ms)
+  ✖ хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого) (8.98014ms)
+  ✖ исходящий notifyInput: игнорирование пустого ввода и троттлинг TYPING_RESEND_MS (6.979095ms)
+  ✖ ошибка 429 RateLimited выставляет data-state='slowmode' и блокирует повторную отправку (6.980535ms)
+  ✖ прочие ошибки invoke выставляют data-state='error' (8.97552ms)
+✖ P-03-UI: контроллер индикатора набора и исходящего typing (64.869966ms)
+ℹ tests 38
+ℹ suites 3
+ℹ pass 29
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 445.395985
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:862:3
+✖ константы TYPING_TTL_MS, TYPING_RESEND_MS и MAX_TYPING_CHANNELS экспортированы корректно (0.620294ms)
+  AssertionError [ERR_ASSERTION]: createTypingController должен быть функцией
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:863:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-dom.test.mjs:869:3
+✖ прогрессивное создание узла #chat-typing-indicator с нужными атрибутами и переиспользование (7.456548ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:872:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:870:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:894:3
+✖ форматирование русского текста: 1, 2, 3 и >3 человек (10.346421ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:896:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:895:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:925:3
+✖ игнорирование собственного currentUserId (7.102676ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:927:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:926:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:944:3
+✖ автоматическое истечение через TYPING_TTL_MS и мгновенное снятие по onMessageCreated (7.069135ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:947:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:945:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:978:3
+✖ хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого) (8.98014ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:980:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:979:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:1007:3
+✖ исходящий notifyInput: игнорирование пустого ввода и троттлинг TYPING_RESEND_MS (6.979095ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1011:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1008:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:1047:3
+✖ ошибка 429 RateLimited выставляет data-state='slowmode' и блокирует повторную отправку (6.980535ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1051:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1048:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/gui-spike-dom.test.mjs:1081:3
+✖ прочие ошибки invoke выставляют data-state='error' (8.97552ms)
+  TypeError [Error]: createTypingController is not a function
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1083:26
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1082:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

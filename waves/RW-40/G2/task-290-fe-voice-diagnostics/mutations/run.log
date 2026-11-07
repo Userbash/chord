@@ -1,0 +1,142 @@
+=== M1 [обязательная] evaluatePingQuality: граница bad по пингу > 500 → >= 500
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:50.900075880 +0500
+@@ -185,7 +185,7 @@
+     lossRatePct = parsedLoss;
+   }
+ 
+-  if (pingMs > PING_AVERAGE_MAX_MS || (lossRatePct !== null && lossRatePct > LOSS_AVERAGE_MAX_PCT)) {
++  if (pingMs >= PING_AVERAGE_MAX_MS || (lossRatePct !== null && lossRatePct > LOSS_AVERAGE_MAX_PCT)) {
+     return 'bad';
+   }
+   if (pingMs > PING_FINE_MAX_MS || (lossRatePct !== null && lossRatePct > LOSS_FINE_MAX_PCT)) {
+M1: exit=1 pass=66 fail=1
+    ✖ пинг 500 мс — average, 501 мс — bad (0.54739ms)
+  ✖ evaluatePingQuality: граничные значения (ровно 250 / 500 мс и 5% / 10%) (0.88693ms)
+  ✖ failing tests:
+  ✖ пинг 500 мс — average, 501 мс — bad (0.54739ms)
+M1: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+=== M2 [обязательная] formatPopoutMetricsRu: порог предупреждения по потерям 10% → 5%
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:50.986435464 +0500
+@@ -327,7 +327,7 @@
+     encryptionLabel: isEncrypted ? 'Защищено сквозным шифрованием' : 'Защищённое соединение',
+     hasWarning:
+       Number(source.lastPingMs) > PING_FINE_MAX_MS ||
+-      (hasLoss && numericLoss > LOSS_AVERAGE_MAX_PCT),
++      (hasLoss && numericLoss > LOSS_FINE_MAX_PCT),
+   };
+ }
+ 
+M2: exit=1 pass=66 fail=1
+    ✖ границы предупреждения: 250 мс и 10% не warn, 251 мс и 10.1% — warn (0.54621ms)
+  ✖ formatPopoutMetricsRu: русские строки попапа (модуль 978171) (1.176991ms)
+  ✖ failing tests:
+  ✖ границы предупреждения: 250 мс и 10% не warn, 251 мс и 10.1% — warn (0.54621ms)
+M2: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+=== M3 [обязательная] extractShortHostname: отсечение порта по ':' убрано (regex [^.:] → [^.])
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:51.071958078 +0500
+@@ -206,7 +206,7 @@
+     return '';
+   }
+   const trimmed = endpoint.trim();
+-  const match = /^[^.:]*/.exec(trimmed);
++  const match = /^[^.]*/.exec(trimmed);
+   return match ? match[0] ?? '' : '';
+ }
+ 
+M3: exit=1 pass=66 fail=1
+    ✖ пустой, нестроковый и «только порт» вход даёт пустую строку (0.47665ms)
+  ✖ extractShortHostname: короткое имя RTC-сервера (getShortHostname) (0.74809ms)
+  ✖ failing tests:
+  ✖ пустой, нестроковый и «только порт» вход даёт пустую строку (0.47665ms)
+M3: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+=== M4 [обязательная] formatVoicePrivacyCodeChunks: длина кода 30 → >=29 цифр
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:51.151052698 +0500
+@@ -222,7 +222,7 @@
+     return null;
+   }
+   const digits = code.replace(/\s+/g, '');
+-  if (!/^\d{30}$/.test(digits)) {
++  if (!/^\d{29,}$/.test(digits)) {
+     return null;
+   }
+   /** @type {string[]} */
+M4: exit=1 pass=66 fail=1
+    ✖ неверная длина (29 / 31 цифра) → null (0.64734ms)
+  ✖ formatVoicePrivacyCodeChunks: 30 цифр → 6 групп по 5 (модуль 917592) (1.16765ms)
+  ✖ failing tests:
+  ✖ неверная длина (29 / 31 цифра) → null (0.64734ms)
+M4: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+=== M5 [обязательная] computeSparklinePoints: окно истории 199 → 20 точек (PING_AVERAGE_WINDOW)
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:51.229433489 +0500
+@@ -266,7 +266,7 @@
+     }
+   }
+ 
+-  const window = values.slice(-PING_HISTORY_MAX_POINTS);
++  const window = values.slice(-PING_AVERAGE_WINDOW);
+   if (window.length === 0) {
+     return [];
+   }
+M5: exit=1 pass=66 fail=1
+    ✖ хранит только последние 199 точек (PING_HISTORY_MAX_POINTS) (0.512091ms)
+  ✖ computeSparklinePoints: координаты Canvas 258×80 (модули 229659 / 546738) (1.358001ms)
+  ✖ failing tests:
+  ✖ хранит только последние 199 точек (PING_HISTORY_MAX_POINTS) (0.512091ms)
+M5: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+=== B1 [проба] controller.open(): снят guard идемпотентности → повторный open дергает загрузку
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:51.306863278 +0500
+@@ -382,12 +382,10 @@
+ 
+   /** @returns {VoiceDiagnosticsState} */
+   function open() {
+-    if (!state.isOpen) {
+-      state.isOpen = true;
+-      state.copiedPrivacyCode = false;
+-      if (typeof callbacks.onFetchDiagnostics === 'function') {
+-        callbacks.onFetchDiagnostics();
+-      }
++    state.isOpen = true;
++    state.copiedPrivacyCode = false;
++    if (typeof callbacks.onFetchDiagnostics === 'function') {
++      callbacks.onFetchDiagnostics();
+     }
+     return getState();
+   }
+B1: exit=1 pass=66 fail=1
+    ✖ open() открывает попап и запрашивает снимок диагностики; повторный open не дублирует загрузку (0.47836ms)
+  ✖ createVoiceDiagnosticsController: начальное состояние и открытие/закрытие (0.886721ms)
+  ✖ failing tests:
+  ✖ open() открывает попап и запрашивает снимок диагностики; повторный open не дублирует загрузку (0.47836ms)
+B1: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+=== B2 [проба] controller.handleKeyDown: Escape сначала закрывает попап, потом модалку (обратный порядок)
+--- /tmp/opencode/tr197a/voice-diagnostics.js.orig	2026-10-31 12:05:50.892205366 +0500
++++ /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js	2026-10-31 12:05:51.386412809 +0500
+@@ -477,11 +477,11 @@
+     if (key !== 'Escape' && key !== 'Esc') {
+       return false;
+     }
+-    if (state.isDebugModalOpen) {
+-      state.isDebugModalOpen = false;
+-    } else if (state.isOpen) {
++    if (state.isOpen) {
+       state.isOpen = false;
+       state.copiedPrivacyCode = false;
++    } else if (state.isDebugModalOpen) {
++      state.isDebugModalOpen = false;
+     } else {
+       return false;
+     }
+B2: exit=1 pass=66 fail=1
+    ✖ Escape при открытой модалке закрывает модалку, попап остаётся открытым (0.53776ms)
+  ✖ createVoiceDiagnosticsController: handleKeyDown (Escape) и доступность (0.76431ms)
+  ✖ failing tests:
+  ✖ Escape при открытой модалке закрывает модалку, попап остаётся открытым (0.53776ms)
+B2: откат OK (MD5 75a2a965b69d65471377f8c0506895ac)
+ИТОГ: исходник 75a2a965b69d65471377f8c0506895ac (ожидался 75a2a965b69d65471377f8c0506895ac)
+OK: файл восстановлен побайтово, тесты не тронуты

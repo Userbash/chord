@@ -204,3 +204,61 @@ pub fn core_messages_page(
         limit,
     })
 }
+
+/// Типизированная ошибка единого моста крейтов (`thiserror` + `serde::Serialize`),
+/// исключающая нетипизированные строковые галлюцинации и обеспечивающая единый формат отказа.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, thiserror::Error)]
+#[serde(tag = "kind", content = "detail")]
+pub enum TypedBridgeError {
+    /// Ошибка разбора идентификатора Snowflake (`u64`).
+    #[error("некорректный Snowflake ID ({context}): {raw}")]
+    InvalidSnowflake { context: String, raw: String },
+    /// Ошибка локального SQLite-хранилища (`discord-store`).
+    #[error("ошибка хранилища discord-store: {0}")]
+    Store(String),
+    /// Ошибка локализации (`discord-i18n`).
+    #[error("неподдерживаемая локаль discord-i18n: {0}")]
+    UnsupportedLocale(String),
+}
+
+/// Сводный типизированный паспорт подключённых нативных крейтов волн RW-01..RW-35.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnifiedEngineSnapshot {
+    pub gateway_heartbeat_ms: u64,
+    pub api_v9_base: &'static str,
+    pub etf_tag_count: usize,
+    pub zstd_magic: [u8; 4],
+    pub store_schema_version: u32,
+    pub store_in_memory_ok: bool,
+    pub i18n_total_locales: usize,
+    pub i18n_resolved_ru: String,
+    pub voice_opus_payload_type: u8,
+    pub media_video_payload_type: u8,
+    pub media_rtx_payload_type: u8,
+    pub ui_component_contracts: usize,
+    pub updater_endpoint: &'static str,
+}
+
+/// Проверяет и возвращает типизированный снимок всех подключённых крейтов (`discord-core`,
+/// `discord-codec`, `discord-store`, `discord-i18n`, `discord-voice`, `discord-media`,
+/// `discord-ui`, `discord-updater`, `discord-platform`).
+pub fn unified_engine_snapshot() -> Result<UnifiedEngineSnapshot, TypedBridgeError> {
+    let store_ok = discord_store::Store::open_in_memory().is_ok();
+    let resolved_ru = discord_i18n::resolve_locale("ru-RU", &discord_i18n::SUPPORTED_LOCALES);
+    Ok(UnifiedEngineSnapshot {
+        gateway_heartbeat_ms: discord_core::HEARTBEAT_INTERVAL_MS,
+        api_v9_base: discord_core::API_V9_BASE,
+        etf_tag_count: discord_codec::ETF_TAG_CODES.len(),
+        zstd_magic: discord_codec::ZSTD_FRAME_MAGIC,
+        store_schema_version: discord_store::SCHEMA_VERSION,
+        store_in_memory_ok: store_ok,
+        i18n_total_locales: discord_i18n::TOTAL_LOCALES,
+        i18n_resolved_ru: resolved_ru,
+        voice_opus_payload_type: discord_voice::RTP_OPUS_PAYLOAD_TYPE,
+        media_video_payload_type: discord_media::RTP_VIDEO_PAYLOAD_TYPE,
+        media_rtx_payload_type: discord_media::RTP_RTX_PAYLOAD_TYPE,
+        ui_component_contracts: discord_ui::COMPONENT_CONTRACTS,
+        updater_endpoint: discord_updater::DEFAULT_UPDATE_ENDPOINT,
+    })
+}

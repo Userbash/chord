@@ -106,6 +106,7 @@ fn launches_real_window_and_reports_ui_snapshot() {
     command
         .env("SPIKE_EXIT_AFTER_MS", SPIKE_EXIT_AFTER_MS.to_string())
         .env("SPIKE_AUTOBENCH", "0")
+        .env("SPIKE_AUTH_DISABLED", "1")
         .env("GDK_BACKEND", "x11")
         .env("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
         .env("WEBKIT_DISABLE_COMPOSITING_MODE", "1")

@@ -370,13 +370,18 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/channel-paging.test.mjs` | `rust/gui-spike/src/data.rs` | `messages_page`, `nextCursor`, `hasMore`, `loaded_rows_limit` |
 | `tests/unit/gui-spike-dom.test.mjs` | `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/app.js` | DOM-контракт: 4 экрана, обязательные id, константы |
 | `tests/unit/gui-spike-features.test.mjs` | `rust/gui-spike/ui/app.js`, `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/ui/features/emoji.js`, `rust/gui-spike/ui/features/search-overlay.js` | `loadApp`, `data-action`, `settings`, `emoji`, `search` |
+| `tests/unit/dm-friends-ui.test.mjs` | `rust/gui-spike/ui/features/dm-friends.js` | `createDmFriendsController`, `DM_FRIENDS_ENDPOINTS`, `FRIENDS_TABS`, `applyDmFriendsDispatch`, `sortPrivateChannels` |
 | `tests/meta/test-policy.test.mjs` | — | `TEST-POLICY`, `--no-verify`, `gate.mjs` |
 | `tests/meta/design-breakpoints.test.mjs` | — | мета: адаптив shell 1600/1200/960/720 (`--layout-tree-w`, `--layout-tree-min-w`, `#member-panel`, `channel-tree`) |
 | `tests/unit/gui-spike-regressions.test.mjs` | — | `quick-switcher`, `quick-switcher-empty`, `msg-toolbar`, `delete_message` |
 | `tests/unit/channel-switch.test.mjs` | — | `channels`, `messages_page`, `channel-item`, `chat-title-text`, `G6-D-01` |
 | `tests/unit/guild-rail.test.mjs` | — | `ready`, `guild-rail`, `data-guild-id` |
 | `tests/unit/voice-ui.test.mjs` | — | `voice-panel`, `voice-spec`, `data-state` |
+| `tests/unit/voice-devices-settings.test.mjs` | — | `createVoiceDevicesSettings`, `DeviceFallback`, `NoDeviceAvailable` |
+| `tests/unit/attachments-render.test.mjs` | — | `renderChannelMessage`, `decodeWaveform`, `IS_VOICE_MESSAGE` |
+| `tests/unit/notifications-ui.test.mjs` | — | `MUTE_TIMER_PRESETS`, `MESSAGE_NOTIFICATION_LEVELS`, `NOTIFY_HIGHLIGHTS` |
 | `tests/unit/join-server.test.mjs` | — | `join-server`, `resolve_invite`, `accept_invite` |
+| `tests/unit/create-guild.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | STUB-03, `create_guild`, `create-guild-dialog` |
 | `tests/unit/read-state-ui.test.mjs` | — | `read_state`, `ack_message`, `chat-unread-divider` |
 | `tests/unit/chat-reactions.test.mjs` | — | `toggle_reaction`, `messageId`, `reaction` |
 | `tests/unit/typing-ui.test.mjs` | — | `typing-indicator`, `send_typing`, `TYPING_RESEND_MS` |
@@ -390,6 +395,84 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/meta/keyring-live.test.mjs` | — | мета: live keyring `#[ignore]` ↔ `--ignored` ↔ `failOnSkips` |
 | `tests/meta/ipc-path.test.mjs` | — | мета: IPC не принимает путь — `scan` сигнатур `#[tauri::command]` (`PathBuf`, `File`, `path`/`root`/`dir`), `tauri-plugin-fs`/`tauri-plugin-dialog`, 0 violations |
 | `tests/meta/ci-browser.test.mjs` | — | мета: CI `qa-browser` — pinned Chromium, `CHROME_BIN`, preflight, `--test-concurrency=1`, `.gate` |
+| `tests/meta/e2e-required.test.mjs` | — | мета: `m2-scenarios.json`, `failOnSkips`, `requireBrowser`, `InfraError` |
+| `tests/unit/dispatch_ui.test.mjs` | — | `gateway://dispatch`, `FORWARDED_DISPATCHES`, `createDispatchBridge`, `READY`, `PRESENCE_UPDATE` |
+| `tests/unit/search-remote-real-index.test.mjs` | — | `search_remote`, `data-guild-id`, `ready`, `002-READY.json` |
+| `tests/e2e/m2-login-ready-rail.e2e.test.mjs` | — | `auth_status`, `auth_login_token`, `ready`, `002-READY.json` |
+| `tests/e2e/m2-channel-send.e2e.test.mjs` | — | `M2_IDS`, `m2Channels`, `MESSAGE_CREATE`, `openApp` |
+| `tests/e2e/m2-search-error.e2e.test.mjs` | — | `search_remote`, `data-guild-id`, `openApp` |
+| `tests/e2e/m2-invite.e2e.test.mjs` | — | `resolve_invite`, `accept_invite`, `JOIN_TEXT`, `openApp` |
+| `tests/e2e/m2-settings-reload.e2e.test.mjs` | — | `openApp`, `m2FixtureData` |
+| `tests/e2e/m2-reconnect.e2e.test.mjs` | — | `NET_STATUSES`, `NET_TEXT`, `net_connect`, `openApp` |
+| `tests/e2e/m2-voice-idle.e2e.test.mjs` | — | `VOICE_TEXT`, `disabled`, `openApp` |
+| `tests/unit/composer.test.mjs` | `rust/gui-spike/ui/features/composer.js` | `ATTACH_LIMITS`, `ATTACH_TEXT`, `GIFT_TEXT`, `createComposer`, `formatBytes` |
+| `tests/unit/server-menu.test.mjs` | `rust/gui-spike/ui/features/actions.js` | `MENU_LABELS`, `REASONS`, `loadApp` |
+| `tests/unit/account-dynamic-sync.test.mjs` | — | — |
+| `tests/unit/appearance-settings.test.mjs` | — | — |
+| `tests/unit/attachment-helper.test.mjs` | — | — |
+| `tests/unit/attachment-validator.test.mjs` | — | — |
+| `tests/unit/attachments-ui.test.mjs` | — | — |
+| `tests/unit/audit-log.test.mjs` | — | — |
+| `tests/unit/automod-editor.test.mjs` | — | — |
+| `tests/unit/bindings-permissions.test.mjs` | — | — |
+| `tests/unit/channel-gate.test.mjs` | — | — |
+| `tests/unit/channel-tree.test.mjs` | — | — |
+| `tests/unit/composer-autocomplete.test.mjs` | — | — |
+| `tests/unit/context-menu.test.mjs` | — | — |
+| `tests/unit/embed-formatter.test.mjs` | — | — |
+| `tests/unit/event-banner.test.mjs` | — | — |
+| `tests/unit/events-modal.test.mjs` | — | — |
+| `tests/unit/expression-picker.test.mjs` | — | — |
+| `tests/unit/forum-filter.test.mjs` | — | — |
+| `tests/unit/forum-view.test.mjs` | — | — |
+| `tests/unit/friends-home.test.mjs` | — | — |
+| `tests/unit/guild-folders.test.mjs` | — | — |
+| `tests/unit/guild-modals.test.mjs` | — | — |
+| `tests/unit/i18n.test.mjs` | — | — |
+| `tests/unit/inbox.test.mjs` | — | — |
+| `tests/unit/inbox-panel.test.mjs` | — | — |
+| `tests/unit/invite-modal.test.mjs` | — | — |
+| `tests/unit/invite-parser.test.mjs` | — | — |
+| `tests/unit/keybinds.test.mjs` | — | — |
+| `tests/unit/locale-switcher.test.mjs` | — | — |
+| `tests/unit/markdown-helper.test.mjs` | — | — |
+| `tests/unit/member-list.test.mjs` | — | — |
+| `tests/unit/members-subscriptions.test.mjs` | — | — |
+| `tests/unit/message-actions.test.mjs` | — | — |
+| `tests/unit/message-context-actions.test.mjs` | — | — |
+| `tests/unit/message-media-polls.test.mjs` | — | — |
+| `tests/unit/notifications.test.mjs` | — | — |
+| `tests/unit/path1-frameworks.test.mjs` | — | — |
+| `tests/unit/pins-threads.test.mjs` | — | — |
+| `tests/unit/plural-format.test.mjs` | — | — |
+| `tests/unit/poll-card.test.mjs` | — | — |
+| `tests/unit/poll-progress.test.mjs` | — | — |
+| `tests/unit/presence-activity.test.mjs` | — | — |
+| `tests/unit/profile-modal.test.mjs` | — | — |
+| `tests/unit/quick-switcher.test.mjs` | — | — |
+| `tests/unit/reactions-ui.test.mjs` | — | — |
+| `tests/unit/reactive-store.test.mjs` | — | — |
+| `tests/unit/role-editor.test.mjs` | — | — |
+| `tests/unit/role-permissions.test.mjs` | — | — |
+| `tests/unit/search-panel.test.mjs` | — | — |
+| `tests/unit/settings-modal.test.mjs` | — | — |
+| `tests/unit/shell-bridge.test.mjs` | — | — |
+| `tests/unit/shortcuts.test.mjs` | — | — |
+| `tests/unit/slowmode.test.mjs` | — | — |
+| `tests/unit/stage-channel.test.mjs` | — | — |
+| `tests/unit/svg-icons.test.mjs` | — | — |
+| `tests/unit/threads-drawer.test.mjs` | — | — |
+| `tests/unit/token-map.test.mjs` | — | — |
+| `tests/unit/tooltip.test.mjs` | — | — |
+| `tests/unit/typing-indicator.test.mjs` | — | — |
+| `tests/unit/unread-bar.test.mjs` | — | — |
+| `tests/unit/user-popout.test.mjs` | — | — |
+| `tests/unit/voice-call-phases-and-server-access.test.mjs` | — | — |
+| `tests/unit/voice-grid.test.mjs` | — | — |
+| `tests/unit/voice-input-mode.test.mjs` | — | — |
+| `tests/unit/voice-quality.test.mjs` | — | — |
+| `tests/unit/voice-stage-ui.test.mjs` | — | — |
+| `tests/unit/voice-volume.test.mjs` | — | — |
 
 Цикл для новой функциональности (рецепт):
 

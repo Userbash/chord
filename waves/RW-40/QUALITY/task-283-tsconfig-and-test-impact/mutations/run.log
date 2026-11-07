@@ -1,0 +1,10 @@
+baseline: killed=false (ожидается false)
+M1 RUST_MODULE_CONTRACTS: KILLED :: значение automod_contract → automod_contracts (суффикс-опечатка) :: ✖ каждый pub mod из lib.rs покрыт правилом (1.035781ms); ✖ test-impact v2: точечный граф Rust BFF (2.988281ms)
+M2 RUST_MODULE_CONTRACTS: KILLED :: удалено правило bff_domains_router (уходит в полный прогон крейта) :: ✖ каждый pub mod из lib.rs покрыт правилом (1.256271ms); ✖ test-impact v2: точечный граф Rust BFF (3.436282ms)
+M3 RUST_MODULE_CONTRACTS: KILLED :: stage_instances_contract подменён на soundboard_contract :: ✖ каждый pub mod из lib.rs покрыт правилом (1.264201ms); ✖ test-impact v2: точечный граф Rust BFF (3.416572ms)
+M4 UI_MODULE_TESTS: KILLED :: удалено правило app-shell-wiring.js (фоллбэк frontend()+geometry) :: ✖ features/app-shell-wiring.js → app-shell-wiring.test.mjs + общие UI-контракты (0.759301ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.249751ms)
+M5 UI_MODULE_TESTS: KILLED :: у composer-popovers-bridge.js отрезан профильный тест (остались общие) :: ✖ features/composer-popovers-bridge.js → composer-popovers-bridge.test.mjs + общие UI-контракты (0.629431ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.097811ms)
+M6 UI_MODULE_TESTS: KILLED :: удалено правило shell-controllers-registry.js :: ✖ features/shell-controllers-registry.js → shell-controllers-registry.test.mjs + общие UI-контракты (0.729851ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.126001ms)
+M7 UI_MODULE_TESTS: KILLED :: chat-helpers-bridge.js сшит с чужим профилем app-shell-wiring.test.mjs :: ✖ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.80088ms); ✖ test-impact v2: правила модулей интеграции оболочки (1.32909ms)
+
+итог: убито 7/7; MD5 после цикла 330caeeac8e6f553df0ecfd25eea84cc

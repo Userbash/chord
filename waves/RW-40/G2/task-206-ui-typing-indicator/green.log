@@ -1,0 +1,19 @@
+✔ TYPING_TTL_MS = 10000 (0.49504ms)
+✔ pruneExpiredTypingUsers: окно 0 <= age < TTL, границы (0.409449ms)
+✔ pruneExpiredTypingUsers: дедупликация по userId, остаётся latest startedAtMs (0.12283ms)
+✔ pruneExpiredTypingUsers: по умолчанию nowMs = Date.now() (0.11637ms)
+✔ pruneExpiredTypingUsers: пустой вход и мусор не бросают (0.08408ms)
+✔ formatTypingIndicatorRu: 0 имён -> пустая строка (0.097209ms)
+✔ formatTypingIndicatorRu: 1 имя -> 'печатает...' (0.06268ms)
+✔ formatTypingIndicatorRu: 2 имени -> 'и ... печатают...' (0.05715ms)
+✔ formatTypingIndicatorRu: 3 имени -> перечисление через запятую и 'и' (0.07434ms)
+✔ formatTypingIndicatorRu: 4+ имён -> 'Несколько человек печатают...' (0.11986ms)
+✔ formatTypingIndicatorRu: имена обрезаются, пустые не считаются при подсчёте (0.07896ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.119669

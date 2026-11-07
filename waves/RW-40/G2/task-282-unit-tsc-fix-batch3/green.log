@@ -1,0 +1,11 @@
+# GREEN: npx tsc -p tsconfig.json --noEmit | grep -E '<10 файлов>'
+# (выше пусто: 0 строк, 0 ошибок в 10 файлах)
+
+# GREEN: node --test по 10 файлам
+ℹ tests 150
+ℹ suites 27
+ℹ pass 150
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

@@ -1,0 +1,22 @@
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.66627ms)
+✔ BAN_DELETE_OPTIONS_RU (1.26591ms)
+▶ filterAuditEntries
+  ✔ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.24812ms)
+  ✔ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.15035ms)
+✔ filterAuditEntries (0.52204ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (0.96762ms)
+  ✔ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.67083ms)
+  ✔ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.18787ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.22094ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.28917ms)
+✔ createModerationPanelController (2.57739ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.530161

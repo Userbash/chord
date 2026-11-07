@@ -1,0 +1,49 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-174-platform-notifications-router/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_platform-c5c656a7d2cc4967)
+
+running 1 test
+test tests::legacy_channel_counts_match_re ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/notifications_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/notifications_contract-17eb78e018ef6c1e)
+
+running 34 tests
+test e07_hints_bytes_match_libgio_and_round_trip ... ok
+test n02_auth_external_and_hello_yield_unique_name ... ok
+test n16_live_service_is_flag_gated_and_read_only ... ok
+test n08b_notify_requires_app_name_and_summary ... ok
+test e05_key_order_is_frozen ... ok
+test e06_unicode_and_long_new_hints_are_delivered_without_panic ... ok
+test n10_close_notification_reaches_mock ... ok
+test n07_capabilities_and_server_information_come_from_mock ... ok
+test n11_error_reply_maps_to_remote_error ... ok
+test n09_notify_actions_reach_mock_as_pairs ... ok
+test r01_router_suppresses_self_author ... ok
+test r02_router_suppresses_dnd ... ok
+test r03_router_suppresses_active_channel_only_when_window_focused ... ok
+test r04_router_suppresses_when_not_mention_and_not_dm ... ok
+test r05_router_dedup_and_bounded_fifo_eviction ... ok
+test r06_router_builds_notification_and_deep_links ... ok
+test r07_router_redacts_tokens_mfa_base64_bearer ... ok
+test r08_router_register_sent_and_handle_event ... ok
+test r09_router_handle_event_unknown_id ... ok
+test n12_action_and_close_signals_become_events ... ok
+test n15_repeated_close_and_closed_session_survive ... ok
+test e01_all_eight_hints_reach_mock_with_freedesktop_types ... ok
+test n08_notify_returns_server_id_and_mock_sees_fields ... ok
+test n13_foreign_signals_are_skipped ... ok
+test e03_transient_and_suppress_sound_are_bools_including_false ... ok
+test e04_empty_new_strings_are_skipped ... ok
+test e02_image_path_and_sound_name_are_string_variants ... ok
+test q01_notify_without_hints_sends_empty_dict ... ok
+test q04_desktop_entry_and_resident_have_string_and_bool_variants ... ok
+test q05_all_hints_are_four_entries_in_frozen_order ... ok
+test q03_category_is_string_variant ... ok
+test q06_empty_category_and_desktop_entry_are_skipped ... ok
+test q07_unicode_and_long_values_are_delivered_without_panic ... ok
+test q02_urgency_is_byte_variant_with_contract_values ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+

@@ -1,0 +1,25 @@
+file:///home/sanya/orca/workspaces/project/feature-task-240-ui-forum-view/tests/unit/forum-view.test.mjs:11
+  FORUM_LAYOUT_VIEWS,
+  ^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../../rust/gui-spike/ui/features/forum-view.js' does not provide an export named 'FORUM_LAYOUT_VIEWS'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:463:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:561:5)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5)
+
+Node.js v26.13.0
+✖ tests/unit/forum-view.test.mjs (18.503273ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23.206683
+
+✖ failing tests:
+
+test at tests/unit/forum-view.test.mjs:1:1
+✖ tests/unit/forum-view.test.mjs (18.503273ms)
+  'test failed'

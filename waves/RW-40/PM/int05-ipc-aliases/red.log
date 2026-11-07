@@ -1,0 +1,91 @@
+$ (cd rust/gui-spike && cargo test --offline -p discord-gui-spike --test ipc_wiring_contract --lib --bins --no-fail-fast)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.60s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... FAILED
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... FAILED
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts' (628016) panicked at src/main.rs:1604:13:
+attachments_upload_slots не зарегистрирован в invoke_handler!
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- wiring_tests::every_network_command_reads_token_through_one_helper stdout ----
+
+thread 'wiring_tests::every_network_command_reads_token_through_one_helper' (628013) panicked at src/main.rs:1114:32:
+main.rs должен объявлять команду create_invite
+
+
+failures:
+    wiring_tests::every_network_command_reads_token_through_one_helper
+    wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts
+
+test result: FAILED. 9 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... FAILED
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+failures:
+
+---- tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or stdout ----
+
+thread 'tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or' (628075) panicked at tests/ipc_wiring_contract.rs:851:9:
+assertion `left == right` failed: attachments_upload_slots должен быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main stdout ----
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (628069) panicked at tests/ipc_wiring_contract.rs:1009:13:
+UI-команда `pins_list` из `ui/app.js` не зарегистрирована в generate_handler! main.rs
+
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+    tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+error: 2 targets failed:
+    `-p discord-gui-spike --bin discord-gui-spike`
+    `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101

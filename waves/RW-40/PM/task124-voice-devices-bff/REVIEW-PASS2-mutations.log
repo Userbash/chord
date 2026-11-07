@@ -1,0 +1,14 @@
+baseline md5=8c4a072084bc33c888dd06bbd8eca89c
+P2-M1 md5=676b791be89ec4eb233b43722eed2d22 KILLED failed=['t15_debug_after_device_fallback_does_not_leak_os_device_labels'] | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+P2-M2 md5=01dfaa90cff33656401ba3d011ffefdc KILLED failed=['t09_vad_threshold_full_i8_range_matches_spec_and_sister_ui_controller'] | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+P2-M3 md5=2093e803ec511b576daaea77e8089529 KILLED failed=['t14_mic_test_consent_meter_states_and_service_error_alert_recovery'] | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+P2-M4 md5=6fe70eb0f782d9a49d1ae2641a7178af KILLED failed=['t08_volume_clamping_0_to_100_input_and_0_to_200_output_and_channel_independence'] | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+P2-M5 md5=c0ffc5dbcc7b4e072c819711790d3ab3 KILLED failed=['t13_mute_deafen_invariant_effective_mute_and_transmission_gating', 't14_mic_test_consent_meter_states_and_service_error_alert_recovery'] | test result: FAILED. 13 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+P2-M6 md5=4e79b26345e50c737e1e076b5f7a8d39 KILLED failed=['t13_mute_deafen_invariant_effective_mute_and_transmission_gating'] | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+P2-M7 md5=8ae17e893d4641faae7bd818e4ef37ba KILLED failed=['t01_initial_state_and_default_selection_ignores_list_order'] | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored md5=8c4a072084bc33c888dd06bbd8eca89c
+baseline md5=8c4a072084bc33c888dd06bbd8eca89c
+MUT-2 md5=005e6688ce2236affc5e19f90874949e KILLED failed=['t07_hotplug_all_devices_removed_emits_no_device_available_and_disables_select', 't06_hotplug_active_device_removal_falls_back_to_is_default_or_first_without_service_call', 't15_debug_after_device_fallback_does_not_leak_os_device_labels', 't01_initial_state_and_default_selection_ignores_list_order'] | test result: FAILED. 11 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+MUT-3 md5=5772dff291ba6a87eb2341c983090d97 KILLED failed=['t08_volume_clamping_0_to_100_input_and_0_to_200_output_and_channel_independence', 't14_mic_test_consent_meter_states_and_service_error_alert_recovery'] | test result: FAILED. 13 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+MUT-5 md5=6ed437afaab5d04a2aced4b240623cdd KILLED failed=['t03_long_device_labels_preserved_in_dom_options_and_redacted_in_debug', 't15_debug_after_device_fallback_does_not_leak_os_device_labels'] | test result: FAILED. 13 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored md5=8c4a072084bc33c888dd06bbd8eca89c

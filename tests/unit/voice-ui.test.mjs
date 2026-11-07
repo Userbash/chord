@@ -28,6 +28,9 @@ import {
   VOICE_TEXT,
   createVoicePanel,
   createVoiceStore,
+  createVoiceStageGrid,
+  createGoLiveModal,
+  createVoiceStreamController,
   pingQuality,
   speakingFlag,
 } from "../../rust/gui-spike/ui/features/voice.js";
@@ -82,6 +85,10 @@ function makeService(options = {}) {
     setSelfMute: method("setSelfMute"),
     setSelfDeaf: method("setSelfDeaf"),
     enablePtt: method("enablePtt"),
+    voice_stream_create: method("voice_stream_create"),
+    voice_stream_delete: method("voice_stream_delete"),
+    voice_stream_watch: method("voice_stream_watch"),
+    voice_stream_set_paused: method("voice_stream_set_paused"),
   };
 }
 
@@ -700,5 +707,360 @@ describe("V-08 voice: CSS-контракт и приватность", () => {
 
   it("панель не логирует имена участников/устройств", () => {
     assert.equal(/console\.(log|warn|error)/.test(voiceJs), false, "voice.js пишет в console");
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/* 7. FE-P1-02 / task-154: Go Live & Stream Tiles UI                          */
+/* -------------------------------------------------------------------------- */
+
+describe("FE-P1-02 / task-154: Go Live & Stream Tiles UI в voice.js", () => {
+  /** @param {Record<string, any>} [options] */
+  function makeStage(options = {}) {
+    const doc = new ShimDocument();
+    const host = doc.createElement("section");
+    host.id = "voice-stage";
+    doc.body.append(host);
+    const store = options.store ?? createVoiceStore();
+    const service = options.service === undefined ? makeService() : options.service;
+    const stage = createVoiceStageGrid({ host: /** @type {any} */ (host), store, service, ...options });
+    return { doc, host, store, service, stage };
+  }
+
+  /** @param {Record<string, any>} [options] */
+  function makeModal(options = {}) {
+    const doc = new ShimDocument();
+    const host = doc.createElement("div");
+    host.id = "modal-root";
+    doc.body.append(host);
+    const service = options.service === undefined ? makeService() : options.service;
+    const modal = createGoLiveModal({ host: /** @type {any} */ (host), service, ...options });
+    return { doc, host, service, modal };
+  }
+
+  /** @param {Record<string, any>} [options] */
+  function makePanelWithStage(options = {}) {
+    const doc = new ShimDocument();
+    const host = doc.createElement("section");
+    host.id = "voice-panel";
+    host.className = "voice-panel";
+    const stageHost = doc.createElement("section");
+    stageHost.id = "voice-stage-host";
+    doc.body.append(host, stageHost);
+    const store = options.store ?? createVoiceStore();
+    const service = options.service === undefined ? makeService() : options.service;
+    const panel = createVoicePanel({
+      host: /** @type {any} */ (host),
+      stageHost: /** @type {any} */ (stageHost),
+      store,
+      service,
+      ...options,
+    });
+    return { doc, host, stageHost, store, service, panel };
+  }
+
+  // 1. Сетка видеоплиток (#voice-stage-grid / .voice-tile)
+  it("сетка видеоплиток #voice-stage-grid отображает плитки участников .voice-tile", () => {
+    const { host, store } = makeStage();
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      participants: [
+        participant({ id: "u1", name: "Alice" }),
+        participant({ id: "u2", name: "Bob" }),
+      ],
+    });
+    const grid = byId(host, "voice-stage-grid");
+    assert.ok(grid, "в stage нет #voice-stage-grid");
+    const tiles = host.querySelectorAll(".voice-tile");
+    assert.equal(tiles.length, 2, "число .voice-tile не равно числу участников");
+    assert.equal(tiles[0]?.getAttribute("data-user-id"), "u1");
+    assert.equal(tiles[1]?.getAttribute("data-user-id"), "u2");
+    assert.match(tiles[0]?.textContent ?? "", /Alice/);
+    assert.match(tiles[1]?.textContent ?? "", /Bob/);
+    assert.equal(tiles[0]?.classList.contains("is-speaking"), false, "тихий участник получил is-speaking");
+  });
+
+  it("активная говорящая рамка (.is-speaking) выставляется при speaking=true и снимается при false", () => {
+    const { host, store } = makeStage();
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      participants: [
+        participant({ id: "u1", name: "Alice", speaking: true }),
+        participant({ id: "u2", name: "Bob", speaking: false }),
+      ],
+    });
+    const tileAlice = host.querySelector('.voice-tile[data-user-id="u1"]');
+    const tileBob = host.querySelector('.voice-tile[data-user-id="u2"]');
+    assert.ok(tileAlice, "плитка Alice не найдена");
+    assert.ok(tileBob, "плитка Bob не найдена");
+    assert.equal(tileAlice.classList.contains("is-speaking"), true, "Alice без .is-speaking");
+    assert.equal(tileAlice.getAttribute("data-speaking"), "true", "Alice data-speaking не true");
+    assert.equal(tileBob.classList.contains("is-speaking"), false, "Bob получил .is-speaking");
+
+    store.set({
+      participants: [
+        participant({ id: "u1", name: "Alice", speaking: false }),
+        participant({ id: "u2", name: "Bob", speaking: true }),
+      ],
+    });
+    const nextAlice = host.querySelector('.voice-tile[data-user-id="u1"]');
+    const nextBob = host.querySelector('.voice-tile[data-user-id="u2"]');
+    assert.ok(nextAlice);
+    assert.ok(nextBob);
+    assert.equal(nextAlice.classList.contains("is-speaking"), false, "Alice не сбросила .is-speaking");
+    assert.equal(nextBob.classList.contains("is-speaking"), true, "Bob не получил .is-speaking");
+  });
+
+  it("плитка стрима Go Live имеет бейдж 'В ЭФИРЕ' (#stream-live-badge / .badge-live)", () => {
+    const { host, store } = makeStage();
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      participants: [
+        participant({ id: "u1", name: "Alice", isStream: true }),
+        participant({ id: "u2", name: "Bob" }),
+      ],
+    });
+    const streamTile = host.querySelector('.voice-tile[data-user-id="u1"]');
+    assert.ok(streamTile, "плитка стрима не найдена");
+    assert.equal(streamTile.getAttribute("data-is-stream"), "true", "нет data-is-stream");
+    const badge = streamTile.querySelector("#stream-live-badge, .badge-live");
+    assert.ok(badge, "нет бейджа стрима #stream-live-badge / .badge-live");
+    assert.match(badge.textContent ?? "", /В ЭФИРЕ/, "текст бейджа не содержит 'В ЭФИРЕ'");
+  });
+
+  it("переключение фокуса (#voice-stage-focused) активирует фокусный режим выбранной плитки и переключает его", () => {
+    const { host, store } = makeStage();
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      participants: [
+        participant({ id: "u1", name: "Alice", isStream: true }),
+        participant({ id: "u2", name: "Bob" }),
+      ],
+    });
+    const focusedArea = byId(host, "voice-stage-focused");
+    assert.ok(focusedArea, "нет контейнера #voice-stage-focused");
+    assert.equal(focusedArea.getAttribute("hidden") !== null, true, "по умолчанию #voice-stage-focused должен быть скрыт");
+
+    const tileAlice = /** @type {ShimElement} */ (host.querySelector('.voice-tile[data-user-id="u1"]'));
+    assert.ok(tileAlice);
+    tileAlice.click();
+    assert.equal(focusedArea.getAttribute("hidden"), null, "#voice-stage-focused не открылся после клика");
+    assert.equal(focusedArea.getAttribute("data-focused-user-id"), "u1", "data-focused-user-id не u1");
+    assert.equal(tileAlice.classList.contains("is-focused"), true, "плитка Alice не получила .is-focused");
+
+    // Переключение на другую плитку (Bob)
+    const tileBob = /** @type {ShimElement} */ (host.querySelector('.voice-tile[data-user-id="u2"]'));
+    assert.ok(tileBob);
+    tileBob.click();
+    assert.equal(focusedArea.getAttribute("data-focused-user-id"), "u2", "data-focused-user-id не переключился на Bob");
+    assert.equal(tileAlice.classList.contains("is-focused"), false, "плитка Alice сохранила .is-focused");
+    assert.equal(tileBob.classList.contains("is-focused"), true, "плитка Bob не получила .is-focused");
+
+    // Повторный клик по активной плитке снимает фокус
+    tileBob.click();
+    assert.equal(focusedArea.getAttribute("hidden") !== null, true, "повторный клик не снял фокус");
+    assert.equal(tileBob.classList.contains("is-focused"), false, "плитка Bob сохранила .is-focused");
+  });
+
+  // 2. Модалка запуска стрима Go Live (#go-live-modal, role='dialog')
+  it("модалка #go-live-modal имеет role='dialog', вкладки 'Приложения' / 'Экраны' и переключает их", () => {
+    const { host } = makeModal();
+    const modal = byId(host, "go-live-modal");
+    assert.equal(modal.getAttribute("role"), "dialog", "модалка без role=dialog");
+    assert.equal(modal.getAttribute("aria-modal"), "true", "модалка без aria-modal=true");
+
+    const tabApps = /** @type {ShimElement} */ (host.querySelector('#go-live-tab-apps, [data-tab="applications"]'));
+    const tabScreens = /** @type {ShimElement} */ (host.querySelector('#go-live-tab-screens, [data-tab="screens"]'));
+    assert.ok(tabApps, "нет вкладки Приложения");
+    assert.ok(tabScreens, "нет вкладки Экраны");
+    assert.match(tabApps.textContent ?? "", /Приложения/);
+    assert.match(tabScreens.textContent ?? "", /Экраны/);
+    assert.equal(tabApps.getAttribute("aria-selected"), "true", "Приложения должны быть выбраны по умолчанию");
+    assert.equal(tabScreens.getAttribute("aria-selected"), "false", "Экраны не должны быть выбраны по умолчанию");
+
+    tabScreens.click();
+    assert.equal(tabScreens.getAttribute("aria-selected"), "true", "клик по Экраны не переключил вкладку");
+    assert.equal(tabApps.getAttribute("aria-selected"), "false", "Приложения остались активными");
+  });
+
+  it("выбор разрешения (720p / 1080p / 1440p) и FPS (30 / 60) в модалке", () => {
+    const { host, modal } = makeModal();
+    const btn720 = /** @type {ShimElement} */ (host.querySelector('[data-resolution="720p"]'));
+    const btn1080 = /** @type {ShimElement} */ (host.querySelector('[data-resolution="1080p"]'));
+    const btn1440 = /** @type {ShimElement} */ (host.querySelector('[data-resolution="1440p"]'));
+    assert.ok(btn720, "нет опции 720p");
+    assert.ok(btn1080, "нет опции 1080p");
+    assert.ok(btn1440, "нет опции 1440p");
+
+    const btnFps30 = /** @type {ShimElement} */ (host.querySelector('[data-fps="30"]'));
+    const btnFps60 = /** @type {ShimElement} */ (host.querySelector('[data-fps="60"]'));
+    assert.ok(btnFps30, "нет опции 30 fps");
+    assert.ok(btnFps60, "нет опции 60 fps");
+
+    btn1080.click();
+    assert.equal(modal.getResolution(), "1080p", "getResolution() не вернул 1080p");
+    assert.equal(btn1080.getAttribute("aria-checked"), "true");
+    assert.equal(btn720.getAttribute("aria-checked"), "false");
+
+    btnFps60.click();
+    assert.equal(modal.getFps(), 60, "getFps() не вернул 60");
+    assert.equal(btnFps60.getAttribute("aria-checked"), "true");
+    assert.equal(btnFps30.getAttribute("aria-checked"), "false");
+  });
+
+  it("кнопка 'Прямой эфир' (#go-live-submit-btn) вызывает voice_stream_create / onStartStream и закрывает модалку", async () => {
+    const service = makeService();
+    let started = null;
+    const { host } = makeModal({
+      service,
+      onStartStream: (/** @type {any} */ params) => { started = params; },
+    });
+    const submitBtn = byId(host, "go-live-submit-btn");
+    assert.match(submitBtn.textContent ?? "", /Прямой эфир/, "кнопка не содержит 'Прямой эфир'");
+
+    submitBtn.click();
+    await tick();
+
+    const createCalls = service.calls.filter((c) => c.op === "voice_stream_create");
+    assert.equal(createCalls.length, 1, "voice_stream_create не был вызван в сервисе");
+    assert.ok(started, "onStartStream колбэк не был вызван");
+    assert.equal(byId(host, "go-live-modal").getAttribute("hidden") !== null, true, "модалка не закрылась после отправки");
+  });
+
+  // 3. Элементы управления активным стримом (просмотр, пауза, остановка)
+  it("просмотр чужого стрима: клик вызывает voice_stream_watch / onWatchStream", async () => {
+    const service = makeService();
+    let watchedId = null;
+    const { host, store } = makeStage({
+      service,
+      onWatchStream: (/** @type {any} */ id) => { watchedId = id; },
+    });
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      participants: [
+        participant({ id: "u42", name: "StreamerUser", isStream: true }),
+      ],
+    });
+    const watchBtn = /** @type {ShimElement} */ (host.querySelector('.stream-watch-btn, [data-stream-action="watch"]'));
+    assert.ok(watchBtn, "нет кнопки просмотра стрима .stream-watch-btn");
+
+    watchBtn.click();
+    await tick();
+
+    const watchCalls = service.calls.filter((c) => c.op === "voice_stream_watch");
+    assert.equal(watchCalls.length, 1, "voice_stream_watch не был вызван в сервисе");
+    assert.equal(watchCalls[0]?.args[0], "u42", "аргумент watchCalls не u42");
+    assert.equal(watchedId, "u42", "onWatchStream не получил u42");
+  });
+
+  it("пауза стрима: контрол паузы вызывает voice_stream_set_paused / onPauseStream и меняет состояние", async () => {
+    const service = makeService();
+    let pausedState = null;
+    const { host } = makeStage({
+      service,
+      onPauseStream: (/** @type {any} */ val) => { pausedState = val; },
+    });
+    const pauseBtn = byId(host, "stream-pause-btn");
+    assert.ok(pauseBtn, "нет кнопки паузы #stream-pause-btn");
+    assert.equal(pauseBtn.getAttribute("aria-pressed"), "false");
+    assert.match(pauseBtn.textContent ?? "", /Приостановить стрим/);
+
+    pauseBtn.click();
+    await tick();
+
+    const pauseCalls = service.calls.filter((c) => c.op === "voice_stream_set_paused");
+    assert.equal(pauseCalls.length, 1, "voice_stream_set_paused не был вызван");
+    assert.equal(pauseCalls[0]?.args[0], true, "voice_stream_set_paused аргумент не true");
+    assert.equal(pausedState, true, "onPauseStream не получил true");
+    assert.equal(pauseBtn.getAttribute("aria-pressed"), "true", "aria-pressed не стал true");
+    assert.match(pauseBtn.textContent ?? "", /Возобновить стрим/, "текст не сменился на Возобновить");
+
+    pauseBtn.click();
+    await tick();
+
+    assert.equal(service.calls.filter((c) => c.op === "voice_stream_set_paused").length, 2);
+    assert.equal(pausedState, false, "onPauseStream не получил false");
+    assert.equal(pauseBtn.getAttribute("aria-pressed"), "false", "aria-pressed не вернулся в false");
+  });
+
+  it("остановка стрима: контрол остановки вызывает voice_stream_delete / onStopStream", async () => {
+    const service = makeService();
+    let stopped = false;
+    const { host } = makeStage({
+      service,
+      onStopStream: () => { stopped = true; },
+    });
+    const stopBtn = byId(host, "stream-stop-btn");
+    assert.ok(stopBtn, "нет кнопки остановки #stream-stop-btn");
+    assert.match(stopBtn.textContent ?? "", /Прекратить стрим/);
+
+    stopBtn.click();
+    await tick();
+
+    const deleteCalls = service.calls.filter((c) => c.op === "voice_stream_delete");
+    assert.equal(deleteCalls.length, 1, "voice_stream_delete не был вызван в сервисе");
+    assert.equal(stopped, true, "onStopStream не был вызван");
+  });
+
+  // 4. Оверлей возрастного ограничения AGE_GATED_SPACES (#voice-age-gated-overlay)
+  it("оверлей #voice-age-gated-overlay блокирует предпросмотр до подтверждения", async () => {
+    let confirmed = false;
+    const { host, store } = makeStage({
+      onConfirmAge: () => { confirmed = true; },
+    });
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      ageGated: true,
+      participants: [
+        participant({ id: "u1", name: "MatureStreamer", isStream: true }),
+      ],
+    });
+
+    const overlay = byId(host, "voice-age-gated-overlay");
+    assert.ok(overlay, "нет #voice-age-gated-overlay");
+    assert.equal(overlay.getAttribute("hidden"), null, "overlay должен быть видим при ageGated: true");
+    const grid = byId(host, "voice-stage-grid");
+    assert.equal(grid.getAttribute("data-blocked"), "true", "grid не заблокирован оверлеем");
+
+    const confirmBtn = /** @type {ShimElement} */ (host.querySelector('#voice-age-gated-confirm-btn, [data-action="confirm-age"]'));
+    assert.ok(confirmBtn, "нет кнопки подтверждения возраста");
+    assert.match(confirmBtn.textContent ?? "", /18|Подтвердить|Продолжить/i);
+
+    confirmBtn.click();
+    await tick();
+
+    assert.equal(overlay.getAttribute("hidden") !== null, true, "overlay не скрылся после подтверждения");
+    assert.equal(overlay.getAttribute("data-confirmed"), "true", "overlay не получил data-confirmed='true'");
+    assert.equal(grid.getAttribute("data-blocked"), "false", "grid не разблокирован");
+    assert.equal(confirmed, true, "onConfirmAge не был вызван");
+  });
+
+  it("интеграция в createVoicePanel: панель связывается со сценой и модалкой запуска стрима", async () => {
+    const service = makeService();
+    const { host, stageHost, store, panel } = makePanelWithStage({ service });
+    store.set({
+      ...CHANNEL,
+      state: "connected",
+      participants: [
+        participant({ id: "u1", name: "Alice", isStream: true }),
+      ],
+    });
+
+    assert.ok(panel.stageGrid, "panel.stageGrid не экспортирован");
+    assert.ok(panel.goLiveModal, "panel.goLiveModal не экспортирован");
+    assert.ok(panel.ageGatedOverlay, "panel.ageGatedOverlay не экспортирован");
+
+    // Открытие модалки стрима через метод панели
+    panel.openGoLiveModal();
+    assert.equal(panel.goLiveModal.getAttribute("hidden"), null, "openGoLiveModal не открыл модалку");
+
+    panel.closeGoLiveModal();
+    assert.equal(panel.goLiveModal.getAttribute("hidden") !== null, true, "closeGoLiveModal не закрыл модалку");
   });
 });

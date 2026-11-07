@@ -56,6 +56,9 @@ pub const MAX_TOGGLE_ID_LEN: usize = 256;
 pub const SETTINGS_FILE_NAME: &str = "settings.json";
 /// Переменная окружения с явным путём к файлу настроек.
 pub const SETTINGS_PATH_ENV: &str = "DL_SETTINGS_PATH";
+/// Специальный идентификатор режима Home («Личные сообщения и Друзья», N1-07 / G-01b)
+/// в поле `lastGuildId`.
+pub const HOME_GUILD_ID: &str = "@me";
 /// Сколько символов значения показывать в тексте ошибки (плюс `…` при усечении).
 const ERROR_VALUE_PREVIEW: usize = 32;
 
@@ -139,7 +142,7 @@ impl Locale {
 // Модель настроек
 // ---------------------------------------------------------------------------
 
-/// UI-настройки, которые переживают перезапуск. Ровно шесть полей; сикретов нет.
+/// UI-настройки, которые переживают перезапуск. Сикретов нет.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UiSettings {
@@ -153,10 +156,11 @@ pub struct UiSettings {
     pub theme: Theme,
     /// Язык интерфейса.
     pub locale: Locale,
-    /// G-01b: последний выбранный сервер — **подсказка** восстановления рейла.
-    /// `None` — выбора не было или значение не snowflake; backend не выдумывает
-    /// гильдию из READY/списка. В файле и IPC — camelCase `lastGuildId`;
-    /// отсутствие ключа и `null` читаются как `None` (аддитивная миграция).
+    /// G-01b: последний выбранный сервер или [`HOME_GUILD_ID`] (`"@me"`) —
+    /// **подсказка** восстановления рейла. `None` — выбора не было или значение
+    /// вне контракта; backend не выдумывает гильдию из READY/списка. В файле и
+    /// IPC — camelCase `lastGuildId`; отсутствие ключа и `null` читаются как
+    /// `None` (аддитивная миграция).
     #[serde(
         default,
         rename = "lastGuildId",
@@ -164,12 +168,46 @@ pub struct UiSettings {
         deserialize_with = "deserialize_last_guild_id"
     )]
     pub last_guild_id: Option<String>,
+    /// Признак активного режима Home («Личные сообщения и Друзья», N1-07 / G-01b)
+    /// для обратной и прямой совместимости. Отсутствие ключа и `null` читаются
+    /// как `None`; при `None` ключ не сериализуется.
+    #[serde(default, rename = "homeMode", skip_serializing_if = "Option::is_none")]
+    pub home_mode: Option<bool>,
+}
+
+/// Частичное обновление [`UiSettings`] (patch): изменяет только переданные поля,
+/// сохраняя остальные значения настроек нетронутыми.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UiSettingsPatch {
+    /// Обновления тумблеров (`id → bool`), мержатся поверх существующей карты.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub toggles: Option<BTreeMap<String, bool>>,
+    /// Новая плотность сообщений.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub density: Option<Density>,
+    /// Новая тема оформления.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<Theme>,
+    /// Новый язык интерфейса.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub locale: Option<Locale>,
+    /// Новый `lastGuildId` (`"@me"` или snowflake u64).
+    #[serde(
+        default,
+        rename = "lastGuildId",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub last_guild_id: Option<String>,
+    /// Признак режима Home (`homeMode`).
+    #[serde(default, rename = "homeMode", skip_serializing_if = "Option::is_none")]
+    pub home_mode: Option<bool>,
 }
 
 impl Default for UiSettings {
     /// Дефолты совпадают с отгруженным UI (`ui/index.html`): cozy/dark/ru,
     /// тумблеры пусты — их стартовые состояния принадлежат UI (D-17),
-    /// `lastGuildId` пуст — выбор сервера не выдумывается.
+    /// `lastGuildId` и `homeMode` пусты — выбор сервера не выдумывается.
     fn default() -> Self {
         Self {
             version: SETTINGS_VERSION,
@@ -178,11 +216,44 @@ impl Default for UiSettings {
             theme: Theme::Dark,
             locale: Locale::Ru,
             last_guild_id: None,
+            home_mode: None,
         }
     }
 }
 
 impl UiSettings {
+    /// Применяет частичное обновление [`UiSettingsPatch`] к текущим настройкам,
+    /// нормализуя `lastGuildId` (если передан).
+    pub fn apply_patch(&mut self, patch: &UiSettingsPatch) {
+        if let Some(toggles) = &patch.toggles {
+            for (key, value) in toggles {
+                self.toggles.insert(key.clone(), *value);
+            }
+        }
+        if let Some(density) = patch.density {
+            self.density = density;
+        }
+        if let Some(theme) = patch.theme {
+            self.theme = theme;
+        }
+        if let Some(locale) = patch.locale {
+            self.locale = locale;
+        }
+        if let Some(last_guild_id) = patch.last_guild_id.as_deref() {
+            self.last_guild_id = normalize_last_guild_id(Some(last_guild_id));
+        }
+        if let Some(home_mode) = patch.home_mode {
+            self.home_mode = Some(home_mode);
+        }
+    }
+
+    /// Возвращает копию настроек с применённым [`UiSettingsPatch`].
+    pub fn patched(&self, patch: &UiSettingsPatch) -> Self {
+        let mut updated = self.clone();
+        updated.apply_patch(patch);
+        updated
+    }
+
     /// Проверка значений, которые не ловятся типами: версия схемы, число и id
     /// тумблеров, форма `lastGuildId`. Размер проверяется отдельно — по
     /// сериализованным байтам.
@@ -200,11 +271,11 @@ impl UiSettings {
             ));
         }
         if let Some(guild_id) = self.last_guild_id.as_deref() {
-            if !is_snowflake(guild_id) {
+            if !is_valid_last_guild_id(guild_id) {
                 return Err(SettingsError::invalid(
                     "lastGuildId",
                     format!(
-                        "lastGuildId должен быть snowflake (только цифры, u64): \"{}\"",
+                        "lastGuildId должен быть snowflake (только цифры, u64) или \"{HOME_GUILD_ID}\": \"{}\"",
                         preview(guild_id)
                     ),
                 ));
@@ -275,11 +346,20 @@ fn is_snowflake(value: &str) -> bool {
         && value.parse::<u64>().is_ok()
 }
 
-/// G-01b: `lastGuildId` — только snowflake; пустое/чужое значение даёт `None`.
+/// Допустимое значение `lastGuildId`: специальный идентификатор режима Home
+/// ([`HOME_GUILD_ID`] = `"@me"`) либо числовой snowflake `u64`.
+fn is_valid_last_guild_id(value: &str) -> bool {
+    value == HOME_GUILD_ID || is_snowflake(value)
+}
+
+/// G-01b / N1-07: `lastGuildId` — только [`HOME_GUILD_ID`] (`"@me"`) или
+/// snowflake; пустое/чужое значение даёт `None`.
 /// Функция не ищет замену (первая гильдия из READY и т.п.): источник — явная
 /// запись UI, backend лишь отбрасывает негодное.
 pub fn normalize_last_guild_id(value: Option<&str>) -> Option<String> {
-    value.filter(|text| is_snowflake(text)).map(str::to_string)
+    value
+        .filter(|text| is_valid_last_guild_id(text))
+        .map(str::to_string)
 }
 
 /// Разбор `lastGuildId` из файла/IPC. Строка-snowflake → `Some`, всё остальное
@@ -539,6 +619,16 @@ impl SettingsStore {
         self.write_atomic(&bytes)
     }
 
+    /// Загружает текущие настройки (или дефолты при отсутствии файла),
+    /// применяет [`UiSettingsPatch`], сохраняет результат и возвращает его.
+    pub fn patch(&self, patch: &UiSettingsPatch) -> Result<UiSettings, SettingsError> {
+        let mut settings = self.load()?;
+        settings.apply_patch(patch);
+        settings.last_guild_id = normalize_last_guild_id(settings.last_guild_id.as_deref());
+        self.save(&settings)?;
+        Ok(settings)
+    }
+
     /// Пишет байты во временный файл рядом с целевым и переименовывает его.
     fn write_atomic(&self, bytes: &[u8]) -> Result<(), SettingsError> {
         let parent = match self.path.parent() {
@@ -644,4 +734,67 @@ fn enum_field<T>(
             ),
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalize_accepts_home_guild_id_and_snowflakes_only() {
+        assert_eq!(
+            normalize_last_guild_id(Some(HOME_GUILD_ID)),
+            Some("@me".to_string())
+        );
+        assert_eq!(
+            normalize_last_guild_id(Some("1234567890123456789")),
+            Some("1234567890123456789".to_string())
+        );
+        for invalid in ["", " ", "abc", "@you", " @me", "@me ", "@ME"] {
+            assert_eq!(
+                normalize_last_guild_id(Some(invalid)),
+                None,
+                "{invalid:?} должен отбрасываться в None"
+            );
+        }
+    }
+
+    #[test]
+    fn validate_accepts_home_guild_id_and_rejects_other_strings() {
+        let mut settings = UiSettings {
+            last_guild_id: Some(HOME_GUILD_ID.to_string()),
+            home_mode: Some(true),
+            ..UiSettings::default()
+        };
+        assert!(settings.validate().is_ok());
+
+        for bad in ["abc", "@you", " @me", "@ME"] {
+            settings.last_guild_id = Some(bad.to_string());
+            let err = settings.validate().expect_err("ожидалась ошибка валидации");
+            assert_eq!(
+                err,
+                SettingsError::invalid(
+                    "lastGuildId",
+                    format!(
+                        "lastGuildId должен быть snowflake (только цифры, u64) или \"{HOME_GUILD_ID}\": \"{}\"",
+                        preview(bad)
+                    )
+                )
+            );
+        }
+    }
+
+    #[test]
+    fn patch_updates_home_mode_and_last_guild_id() {
+        let base = UiSettings::default();
+        let patch = UiSettingsPatch {
+            last_guild_id: Some(HOME_GUILD_ID.to_string()),
+            home_mode: Some(true),
+            ..UiSettingsPatch::default()
+        };
+        let updated = base.patched(&patch);
+        assert_eq!(updated.last_guild_id.as_deref(), Some("@me"));
+        assert_eq!(updated.home_mode, Some(true));
+        assert_eq!(updated.density, Density::Cozy);
+    }
 }

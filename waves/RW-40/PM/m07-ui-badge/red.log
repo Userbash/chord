@@ -1,0 +1,110 @@
+▶ M-07-UI: read-state/ack в реальном канале
+  ✔ триггер ack зафиксирован как [A] и окно троттлинга — именованная константа (0.467228ms)
+  ✔ открытие канала → ровно один ack_message с lastViewed из READY (число, не snowflake) (30.906002ms)
+  ✔ null/badge-запись read_state не даёт ack и не превращается в 0 (9.38802ms)
+  ✔ троттлинг: фокус/скролл в низ не дублируют ack, новый курсор — только после окна (9.633539ms)
+  ✔ unread/mention-полоса: цитата из READY и сброс после успешного ack (9.253971ms)
+  ✖ badgeCount > 0 при mentionCount = 0 → бейдж непрочитанных, flags канала в dataset (8.740382ms)
+  ✖ mentionCount null, badgeCount > 0 → бейдж без ack; flags = 0 сохраняется как значение (7.724985ms)
+  ✖ согласованность: упоминания приоритетнее, badgeCount сохраняется отдельно (8.335154ms)
+  ✖ badgeCount меньше mentionCount не занижает упоминания (11.804782ms)
+  ✖ badgeCount = 0 — значение, а не бейдж (RW-17): полоса скрыта, 0 не выдуман (6.786419ms)
+  ✔ 401 Unauthorized: ошибка ack видима, без цикла и без дублей (8.819522ms)
+  ✔ 429 RateLimited: ошибка ack видима и не повторяется (9.26196ms)
+  ✔ синтетический бенч (CHAT_ROWS) не ack'ает: ни read_state, ни ack_message (6.37213ms)
+✖ M-07-UI: read-state/ack в реальном канале (128.628133ms)
+ℹ tests 13
+ℹ suites 1
+ℹ pass 8
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 175.255656
+
+✖ failing tests:
+
+test at tests/unit/read-state-ui.test.mjs:503:3
+✖ badgeCount > 0 при mentionCount = 0 → бейдж непрочитанных, flags канала в dataset (8.740382ms)
+  AssertionError [ERR_ASSERTION]: бейдж непрочитанных скрыт
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:522:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:543:3
+✖ mentionCount null, badgeCount > 0 → бейдж без ack; flags = 0 сохраняется как значение (7.724985ms)
+  AssertionError [ERR_ASSERTION]: бейдж непрочитанных скрыт
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:554:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:566:3
+✖ согласованность: упоминания приоритетнее, badgeCount сохраняется отдельно (8.335154ms)
+  AssertionError [ERR_ASSERTION]: badgeCount потерян рядом с упоминаниями
+  
+  null !== '9'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:578:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: '9',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:592:3
+✖ badgeCount меньше mentionCount не занижает упоминания (11.804782ms)
+  AssertionError [ERR_ASSERTION]: badgeCount не сохранён как значение
+  
+  null !== '3'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:601:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: '3',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/read-state-ui.test.mjs:609:3
+✖ badgeCount = 0 — значение, а не бейдж (RW-17): полоса скрыта, 0 не выдуман (6.786419ms)
+  AssertionError [ERR_ASSERTION]: flags READY не сохранён
+  
+  null !== '1'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/read-state-ui.test.mjs:621:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: '1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

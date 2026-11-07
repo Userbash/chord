@@ -13,6 +13,7 @@ pub mod keyring;
 pub mod notifications;
 pub mod power;
 pub mod spellcheck;
+pub mod tray;
 
 #[allow(unsafe_code)]
 mod ffi_hunspell;
@@ -41,3 +42,5 @@ mod tests {
         assert_eq!(super::NOTIFICATION_CHANNELS, 7);
     }
 }
+
+pub mod rpc_ipc;

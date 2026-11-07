@@ -1,0 +1,37 @@
+# GREEN pass 3 — targeted после dedup guard'ов
+# Дата: 2026-10-30. Воркер: G2 Frontend Lane C. Карточка: G05-REST-MUTATIONS-FIX.
+#
+# Файлы:
+#   e7ba88e8c347012340f0e7e448d71b68  rust/gui-spike/ui/features/actions.js
+#   6e20b67c93fc348c835bd8bb193a7414  tests/unit/server-menu.test.mjs
+#
+$ npx tsc -p tsconfig.json
+tsc exit=0
+
+$ node --test tests/unit/server-menu.test.mjs
+✔ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (10.898293ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✔ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (12.46227ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (7.893251ms)
+✔ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (20.48184ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✔ false/true/absent → invite всегда disabled, без диалога и IPC (9.676287ms)
+✔ G-05 T-05-08: capability invite не выводится из ролей (9.787727ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✔ disabled-активация не пишет в #server-status; leave — ровно один статус (11.161743ms)
+✔ G-05 T-05-16: статус меню единственный (11.245993ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✔ меню: ширина/высота с клампом по viewport и прокрутка (0.292399ms)
+  ✔ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.14474ms)
+  ✔ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.227469ms)
+  ✔ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.15408ms)
+✔ G-05 D9/D5: геометрия CSS — статическая проверка контракта (0.918008ms)
+ℹ tests 28
+ℹ suites 12
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 328.834207
+test exit=0

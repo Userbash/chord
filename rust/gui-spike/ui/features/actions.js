@@ -59,6 +59,159 @@ const SERVER_MENU_SPEC = [
 ];
 
 /**
+ * Человекочитаемые причины disabled (§2.3 п.5, §5). Узел на причину один
+ * (`#menu-reason-*`), пункты ссылаются на него через `aria-describedby` + `title`.
+ * @type {Record<string, string>}
+ */
+const DISABLED_REASON_TEXT = {
+  "not-implemented": "Функция ещё не подключена",
+  "capability-unknown": "Нет данных о правах",
+  owner: "Владелец сервера",
+};
+
+const PERM_CREATE_INSTANT_INVITE = 1n << 0n;
+const PERM_ADMINISTRATOR = 1n << 3n;
+const PERM_VIEW_CHANNEL = 1n << 10n;
+const PERM_SEND_MESSAGES = 1n << 11n;
+const PERM_ATTACH_FILES = 1n << 15n;
+
+/**
+ * Разбирает 64-битную маску прав из BigInt, числа или десятичной строки.
+ * @param {unknown} value
+ * @returns {bigint | null}
+ */
+function parseActionPermBits(value) {
+  if (typeof value === "bigint") return value >= 0n ? value : 0n;
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value >= 0 ? BigInt(Math.trunc(value)) : null;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (/^\d+$/.test(trimmed)) {
+      try {
+        return BigInt(trimmed);
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Вычисляет доступность интерактивного действия (`invite`, `threads`, `pins`, `members`, `attach`, `user-profile`)
+ * в живой сессии по политике канала/сервера.
+ *
+ * @param {string} actionName
+ * @param {{
+ *   permissions?: string | number | bigint | null,
+ *   canView?: boolean | null,
+ *   canSend?: boolean | null,
+ *   canAttach?: boolean | null,
+ *   canInvite?: boolean | null,
+ *   canReadHistory?: boolean | null,
+ *   canViewProfile?: boolean | null,
+ *   isOwner?: boolean | null,
+ *   isAdmin?: boolean | null,
+ *   disabledReason?: string | null,
+ * } | null | undefined} [policy]
+ * @returns {Readonly<{ allowed: boolean, reason: string }>}
+ */
+export function resolveLiveActionCapability(actionName, policy = null) {
+  const action = typeof actionName === "string" ? actionName.trim().toLowerCase() : "";
+  const p = policy && typeof policy === "object" ? policy : null;
+  const bits =
+    p && p.permissions !== undefined && p.permissions !== null
+      ? parseActionPermBits(p.permissions)
+      : null;
+  const isAdminOrOwner =
+    p?.isOwner === true ||
+    p?.isAdmin === true ||
+    (bits !== null && (bits & PERM_ADMINISTRATOR) !== 0n);
+
+  const canView = isAdminOrOwner
+    ? true
+    : p?.canView === false
+      ? false
+      : p?.canView === true
+        ? true
+        : bits !== null
+          ? (bits & PERM_VIEW_CHANNEL) !== 0n
+          : true;
+
+  switch (action) {
+    case "user-profile":
+    case "profile": {
+      if (p?.canViewProfile === false) {
+        return Object.freeze({ allowed: false, reason: "Профиль недоступен" });
+      }
+      return Object.freeze({ allowed: true, reason: "" });
+    }
+    case "invite":
+    case "guild-invite": {
+      if (!canView) {
+        return Object.freeze({ allowed: false, reason: "Нет доступа к каналу" });
+      }
+      if (isAdminOrOwner || p?.canInvite === true) {
+        return Object.freeze({ allowed: true, reason: "" });
+      }
+      if (p?.canInvite === false) {
+        return Object.freeze({ allowed: false, reason: "У вас нет прав на создание приглашений" });
+      }
+      if (bits !== null && (bits & PERM_CREATE_INSTANT_INVITE) === 0n) {
+        return Object.freeze({ allowed: false, reason: "У вас нет прав на создание приглашений" });
+      }
+      return Object.freeze({ allowed: true, reason: "" });
+    }
+    case "attach": {
+      if (!canView) {
+        return Object.freeze({ allowed: false, reason: "Нет доступа к каналу" });
+      }
+      if (isAdminOrOwner) {
+        return Object.freeze({ allowed: true, reason: "" });
+      }
+      const sendDeniedReason =
+        typeof p?.disabledReason === "string" && p.disabledReason.length > 0
+          ? p.disabledReason
+          : "У вас нет прав на отправку сообщений в этом канале";
+      if (p?.canSend === false) {
+        return Object.freeze({ allowed: false, reason: sendDeniedReason });
+      }
+      if (bits !== null && p?.canSend !== true && (bits & PERM_SEND_MESSAGES) === 0n) {
+        return Object.freeze({ allowed: false, reason: sendDeniedReason });
+      }
+      if (p?.canAttach === false) {
+        return Object.freeze({
+          allowed: false,
+          reason: "У вас нет прав на прикрепление файлов в этом канале",
+        });
+      }
+      if (bits !== null && p?.canAttach !== true && (bits & PERM_ATTACH_FILES) === 0n) {
+        return Object.freeze({
+          allowed: false,
+          reason: "У вас нет прав на прикрепление файлов в этом канале",
+        });
+      }
+      return Object.freeze({ allowed: true, reason: "" });
+    }
+    case "threads":
+    case "pins":
+    case "members":
+    case "all-members": {
+      if (!canView) {
+        return Object.freeze({ allowed: false, reason: "Нет доступа к каналу" });
+      }
+      if ((action === "threads" || action === "pins") && p?.canReadHistory === false) {
+        return Object.freeze({ allowed: false, reason: "Нет прав на чтение истории сообщений" });
+      }
+      return Object.freeze({ allowed: true, reason: "" });
+    }
+    default:
+      return Object.freeze({ allowed: false, reason: "Неизвестное действие" });
+  }
+}
+
+/**
  * Поповер `#server-menu`: в браузере это пустой контейнер из `index.html`, в
  * DOM-шиме его нет — поэтому содержимое собирается здесь одним код-путём
  * (как содержимое `#auth-gate` в `features/auth.js`).
@@ -78,10 +231,13 @@ function ensureServerMenu() {
     menu.setAttribute("data-capability-invite", "false");
   }
   if (menu.childElementCount > 0) menu.replaceChildren();
+  let index = 0;
   for (const spec of SERVER_MENU_SPEC) {
     const item = make("button", "menu-item");
     item.setAttribute("type", "button");
     item.setAttribute("role", spec.role ?? "menuitem");
+    item.setAttribute("data-menu-index", String(index));
+    index += 1;
     if (spec.action) item.setAttribute("data-action", spec.action);
     if (spec.hasPopup) item.setAttribute("aria-haspopup", spec.hasPopup);
     if (spec.role === "menuitemcheckbox") item.setAttribute("aria-checked", "false");
@@ -91,14 +247,39 @@ function ensureServerMenu() {
     if (spec.disabled) item.setAttribute("data-static-disabled", "true");
     item.setAttribute("aria-disabled", "true");
     item.setAttribute("tabindex", "-1");
-    item.append(make("span", "menu-item-label", spec.label));
-    if (spec.subtitle) item.append(make("span", "menu-item-subtitle", spec.subtitle));
+    // D9: иконка 20×20 слева у #10 (глиф «ID» наш, ассеты Discord не копируем).
+    if (spec.action === "guild-copy-id") {
+      const icon = make("span", "menu-item-icon", "ID");
+      icon.setAttribute("aria-hidden", "true");
+      item.append(icon);
+    }
+    const text = make("span", "menu-item-text");
+    text.append(make("span", "menu-item-label", spec.label));
+    if (spec.subtitle) {
+      const subtitle = make("span", "menu-item-subtitle", spec.subtitle);
+      // §2.2 #4: вторая строка — только из проекции; до данных не рендерится.
+      subtitle.setAttribute("hidden", "");
+      text.append(subtitle);
+    }
+    item.append(text);
+    // D9: визуальный чекбокс 20×20 справа у #5, синхронен aria-checked.
+    if (spec.role === "menuitemcheckbox") {
+      const check = make("span", "menu-item-check");
+      check.setAttribute("aria-hidden", "true");
+      item.append(check);
+    }
     menu.append(item);
     if (spec.separatorAfter) {
       const separator = make("div", "menu-sep");
       separator.setAttribute("role", "separator");
       menu.append(separator);
     }
+  }
+  // Причины disabled: один скрытый узел на причину, переиспользуется пунктами.
+  for (const [reason, text] of Object.entries(DISABLED_REASON_TEXT)) {
+    const node = make("span", "visually-hidden", text);
+    node.id = `menu-reason-${reason}`;
+    menu.append(node);
   }
   if (menu.parentNode === null) document.body.append(menu);
   return menu;
@@ -214,10 +395,35 @@ function leaveFailureText(error) {
       return "Сервер не ответил. Попробуйте ещё раз.";
     case "network":
       return "Сетевое подключение ограничено или недоступно.";
+    // §3.9: исход известен — «неизвестно» здесь ложь (T-05-14). Тексты — `[A]`.
+    case "client": {
+      const status = statusOf(error);
+      return status > 0
+        ? `Сервер отклонил запрос (код ${status}). Вы остаётесь на сервере.`
+        : "Сервер отклонил запрос. Вы остаётесь на сервере.";
+    }
+    case "storage":
+      return "Хранилище токена недоступно. Войдите снова.";
+    case "missingToken":
+      return "Сессия истекла. Войдите снова.";
+    case "invalidArg":
+    case "invalidResponse":
+      return "Внутренняя ошибка. Плитка сервера сохранена.";
     default:
       // Таймаут/неизвестный исход: успехом не считается, плитка остаётся.
       return "Результат неизвестен. Проверьте список серверов.";
   }
+}
+
+/**
+ * HTTP-код из типизированной ошибки (`client{status}`), 0 — нет кода.
+ * @param {unknown} error
+ * @returns {number}
+ */
+function statusOf(error) {
+  if (typeof error !== "object" || error === null) return 0;
+  const raw = /** @type {Record<string, unknown>} */ (error).status;
+  return typeof raw === "number" && Number.isFinite(raw) ? raw : 0;
 }
 
 /**
@@ -323,6 +529,10 @@ export function initActions(context) {
   let leaveOpener = null;
   let leaveOpen = false;
   let leavePending = false;
+  /** D7: остаток обратного отсчёта 429 в секундах, 0 — блокировки нет. */
+  let leaveCooldown = 0;
+  /** @type {ReturnType<typeof setInterval> | null} */
+  let leaveTimer = null;
   /** @type {{ id: string, name: string, lurking: boolean, owner: boolean }} */
   let leaveTarget = { id: "", name: "", lurking: false, owner: false };
 
@@ -375,29 +585,100 @@ export function initActions(context) {
   }
 
   /**
-   * Пересчёт disabled по capabilities/правам: статичные заглушки C2 + invite
-   * (нет capability) + leave (владелец). Ровинг-tabindex — только доступные.
+   * Причина disabled по §2.3 п.5 (приоритет owner > capability-unknown >
+   * not-implemented); пустая строка — пункт доступен.
+   * @param {HTMLElement} entry
+   * @param {boolean} canInvite
+   * @param {boolean} isOwner
+   * @returns {string}
+   */
+  function disabledReason(entry, canInvite, isOwner) {
+    const action = entry.getAttribute("data-action");
+    // #9 — единственный пункт, где владелец влияет на доступность.
+    if (action === "guild-leave") return isOwner ? "owner" : "";
+    // #2 без принятого диалога G-06 недоступен даже при capability=true.
+    if (action === "guild-invite") return canInvite ? "not-implemented" : "capability-unknown";
+    if (entry.getAttribute("data-static-disabled") === "true") return "not-implemented";
+    return "";
+  }
+
+  /**
+   * Применить disabled/причину к пункту: `aria-disabled` + машиночитаемая
+   * причина + `aria-describedby` на общий скрытый узел + `title` (§2.3 п.5).
+   * @param {HTMLElement} entry
+   * @param {string} reason
+   */
+  function applyDisabledReason(entry, reason) {
+    if (!reason) {
+      entry.removeAttribute("aria-disabled");
+      entry.removeAttribute("data-disabled-reason");
+      entry.removeAttribute("aria-describedby");
+      entry.removeAttribute("title");
+      return;
+    }
+    entry.setAttribute("aria-disabled", "true");
+    entry.setAttribute("data-disabled-reason", reason);
+    entry.setAttribute("aria-describedby", `menu-reason-${reason}`);
+    entry.setAttribute("title", DISABLED_REASON_TEXT[reason] ?? "");
+  }
+
+  /**
+   * Roving tabindex (APG): `0` — ровно у текущего enabled-пункта, остальные `−1`.
+   * @param {HTMLElement | null} active
+   */
+  function setRoving(active) {
+    for (const entry of menuEntries()) {
+      const current = entry === active && !isEntryDisabled(entry);
+      entry.setAttribute("tabindex", current ? "0" : "-1");
+    }
+  }
+
+  /**
+   * Пересчёт disabled по capabilities/правам + причины + roving-вход + данные
+   * проекции (#4 subtitle, #5 aria-checked). Вызывается при каждом открытии.
    */
   function refreshMenuState() {
     const tile = focusedGuildTile();
     const canInvite = menu.getAttribute("data-capability-invite") === "true";
     const isOwner = readGuildState(tile).owner;
     for (const entry of menuEntries()) {
-      const action = entry.getAttribute("data-action");
-      let disabled = entry.getAttribute("data-static-disabled") === "true";
-      if (action === "guild-invite") disabled = !canInvite;
-      if (action === "guild-leave") disabled = isOwner;
-      if (disabled) entry.setAttribute("aria-disabled", "true");
-      else entry.removeAttribute("aria-disabled");
-      entry.setAttribute("tabindex", "-1");
+      applyDisabledReason(entry, disabledReason(entry, canInvite, isOwner));
     }
-    const first = enabledEntries()[0];
-    if (first) first.setAttribute("tabindex", "0");
+
+    // #5: строка "false" не считается истиной (§0.5 п.2).
+    const checkbox = /** @type {HTMLElement | null} */ (menu.querySelector('[data-menu-index="4"]'));
+    if (checkbox) {
+      checkbox.setAttribute(
+        "aria-checked",
+        menu.getAttribute("data-hide-muted-channels") === "true" ? "true" : "false",
+      );
+    }
+
+    // #4: subtitle — только из проекции, без хардкода (§2.2).
+    const notifications = /** @type {HTMLElement | null} */ (
+      menu.querySelector('[data-menu-index="3"]')
+    );
+    const subtitle = /** @type {HTMLElement | null} */ (
+      notifications?.querySelector(".menu-item-subtitle") ?? null
+    );
+    if (notifications && subtitle) {
+      const label = menu.getAttribute("data-notifications-label") ?? "";
+      if (label) {
+        subtitle.textContent = label;
+        subtitle.removeAttribute("hidden");
+        notifications.classList.add("has-subtitle");
+      } else {
+        subtitle.setAttribute("hidden", "");
+        notifications.classList.remove("has-subtitle");
+      }
+    }
+
+    setRoving(enabledEntries()[0] ?? null);
   }
 
   /**
-   * Позиция поповера: правый край плитки +8, верх по центру, кламп в viewport
-   * (SERVER-MENU.md §4.2). DOM-шим не считает layout — там работает CSS.
+   * Позиция поповера: правый край opener +8, верх по центру, кламп по обеим
+   * осям и горизонтальный flip (§4.3). DOM-шим не считает layout — там работает CSS.
    * @param {HTMLElement} opener
    */
   function placeMenu(opener) {
@@ -406,11 +687,20 @@ export function initActions(context) {
       : null;
     if (!rect) return;
     const width = 288;
-    const viewport = window.innerWidth || 0;
-    if (viewport > 0) {
-      menu.style.left = `${Math.max(8, Math.min(rect.left + rect.width + 8, viewport - width - 8))}px`;
+    const viewportW = window.innerWidth || 0;
+    // При H === 0 (шим/скрыто) — консервативные 480 из max-height.
+    const height = menu.offsetHeight > 0 ? menu.offsetHeight : 480;
+    const viewportH = window.innerHeight || 0;
+    if (viewportW > 0) {
+      let left = rect.left + rect.width + 8;
+      // §4.3 п.3: не хватает места справа — меню слева от opener.
+      if (left + width > viewportW - 8) left = rect.left - width - 8;
+      left = Math.max(8, Math.min(left, viewportW - width - 8));
+      menu.style.left = `${left}px`;
     }
-    menu.style.top = `${Math.max(8, rect.top + rect.height / 2 - 24)}px`;
+    let top = rect.top + rect.height / 2 - 24;
+    if (viewportH > 0) top = Math.min(top, viewportH - height - 8);
+    menu.style.top = `${Math.max(8, top)}px`;
   }
 
   /** @param {HTMLElement} opener */
@@ -446,10 +736,47 @@ export function initActions(context) {
     }
   }
 
+  /** D7: снять таймер и блокировку (закрытие/успех/новая попытка). */
+  function stopLeaveCooldown() {
+    if (leaveTimer !== null) {
+      clearInterval(leaveTimer);
+      leaveTimer = null;
+    }
+    leaveCooldown = 0;
+  }
+
+  /**
+   * D7: 429 — текст с целыми секундами, контрол disabled, тик раз в секунду до
+   * 0, затем кнопки активны. Авто-ретраев нет: повтор только ручной.
+   * @param {number} seconds
+   */
+  function startLeaveCooldown(seconds) {
+    stopLeaveCooldown();
+    if (seconds <= 0) return;
+    leaveCooldown = seconds;
+    setLeaveButtonsDisabled(true);
+    /** @param {number} left */
+    const paint = (left) => {
+      if (!leaveError) return;
+      leaveError.textContent = `Слишком много попыток. Повторите через ${left} с.`;
+      leaveError.removeAttribute("hidden");
+    };
+    paint(seconds);
+    leaveTimer = setInterval(() => {
+      leaveCooldown = Math.max(0, leaveCooldown - 1);
+      paint(leaveCooldown);
+      if (leaveCooldown === 0) {
+        stopLeaveCooldown();
+        setLeaveButtonsDisabled(false);
+      }
+    }, 1000);
+  }
+
   function openLeaveDialog() {
     const tile = focusedGuildTile();
     leaveTarget = readGuildState(tile);
     if (!leaveTarget.id) return;
+    stopLeaveCooldown();
     if (leaveError) {
       leaveError.textContent = "";
       leaveError.setAttribute("hidden", "");
@@ -477,6 +804,7 @@ export function initActions(context) {
     leaveDialog.setAttribute("hidden", "");
     leaveCard.setAttribute("data-state", "idle");
     leaveCard.removeAttribute("aria-busy");
+    stopLeaveCooldown();
     if (leaveError) {
       leaveError.textContent = "";
       leaveError.setAttribute("hidden", "");
@@ -545,6 +873,7 @@ export function initActions(context) {
     const tile = leaveTarget.id ? findGuildTile(leaveTarget.id) : null;
     leaveOpen = false;
     leavePending = false;
+    stopLeaveCooldown();
     leaveDialog.setAttribute("hidden", "");
     leaveCard.setAttribute("data-state", "left");
     leaveCard.removeAttribute("aria-busy");
@@ -562,6 +891,7 @@ export function initActions(context) {
 
   /** @param {string} message */
   function showLeaveError(message) {
+    stopLeaveCooldown();
     leaveCard.setAttribute("data-state", "error");
     leaveCard.removeAttribute("aria-busy");
     setLeaveButtonsDisabled(false);
@@ -572,7 +902,8 @@ export function initActions(context) {
   }
 
   async function confirmLeave() {
-    if (leavePending) return;
+    // D7: пока идёт отсчёт 429, повтор не отправляется (и не зацикливается).
+    if (leavePending || leaveCooldown > 0) return;
     leavePending = true;
     leaveCard.setAttribute("data-state", "pending");
     leaveCard.setAttribute("aria-busy", "true");
@@ -586,7 +917,14 @@ export function initActions(context) {
       completeLeave();
     } catch (error) {
       leavePending = false;
-      showLeaveError(leaveFailureText(error));
+      const seconds = errorKind(error) === "rateLimited" ? retryAfterSeconds(error) : 0;
+      if (seconds > 0) {
+        leaveCard.setAttribute("data-state", "error");
+        leaveCard.removeAttribute("aria-busy");
+        startLeaveCooldown(seconds);
+      } else {
+        showLeaveError(leaveFailureText(error));
+      }
     }
   }
 
@@ -602,9 +940,34 @@ export function initActions(context) {
     if (panel) panel.style.display = expanded ? "none" : "";
   }
 
+  /**
+   * D4: копирование ID — успех только из resolved `writeText`. Нет clipboard /
+   * reject / пустой id → видимая ошибка; id не логируется (§3.10).
+   */
+  async function copyGuildId() {
+    const id = readGuildState(focusedGuildTile()).id;
+    closeMenu(true);
+    if (!id) {
+      statusRegion.textContent = "ID сервера неизвестен";
+      return;
+    }
+    const clipboard = typeof navigator === "undefined"
+      ? null
+      : /** @type {any} */ (navigator).clipboard;
+    if (!clipboard || typeof clipboard.writeText !== "function") {
+      statusRegion.textContent = "Не удалось скопировать ID";
+      return;
+    }
+    try {
+      await clipboard.writeText(id);
+      statusRegion.textContent = "ID сервера скопирован";
+    } catch {
+      statusRegion.textContent = "Не удалось скопировать ID";
+    }
+  }
+
   /** @type {Record<string, (node: HTMLElement) => void>} */
-  const handlers = {
-    // G-03: «+» в рейле. Слушатель плитки прямой (создаётся после init),
+  const handlers = {    // G-03: «+» в рейле. Слушатель плитки прямой (создаётся после init),
     // здесь — защита от «неизвестного data-action», если разметка статична.
     "add-server": (node) => {
       join?.open(node);
@@ -630,26 +993,16 @@ export function initActions(context) {
       else openMenu(node);
     },
     "guild-invite": () => {
-      // C2: share-поток инвайтов ещё не реализован; по умолчанию пункт
-      // aria-disabled (capability=false), поэтому сюда можно попасть только с
-      // явной capability. Endpoint/превью не выдумываем — честное сообщение.
-      statusRegion.textContent = "Приглашения на сервер недоступны в спайке";
+      // D1: доступность проверяет единый guard диспетчера (isEntryDisabled),
+      // в обработчике проверки нет — иначе мутация одного guard'а не видна тесту.
+      // C2/G-06: диалог, URL, код и TTL не выдумываются — пункт всегда disabled.
       closeMenu(true);
     },
     "guild-copy-id": () => {
-      const id = readGuildState(focusedGuildTile()).id;
-      const clipboard = typeof navigator === "undefined"
-        ? null
-        : /** @type {any} */ (navigator).clipboard;
-      // Clipboard — best-effort: в DOM-шиме API нет, токен не логируем.
-      if (id && clipboard && typeof clipboard.writeText === "function") {
-        void Promise.resolve(clipboard.writeText(id)).catch(() => {});
-      }
-      statusRegion.textContent = id ? "ID сервера скопирован" : "ID сервера неизвестен";
-      closeMenu(true);
+      void copyGuildId();
     },
-    "guild-leave": (node) => {
-      if (isEntryDisabled(node)) return;
+    "guild-leave": () => {
+      // D1: доступность — только единый guard диспетчера (см. ниже).
       openLeaveDialog();
     },
     "leave-cancel": () => {
@@ -681,7 +1034,10 @@ export function initActions(context) {
       toggleMemberPanel(node);
     },
     attach: () => {
-      // Файл-диалог — Phase 3; кнопка видимо недоступна (aria-disabled + подсказка).
+      const fileInput = /** @type {HTMLInputElement | null} */ (
+        document.querySelector("#composer-file-input") || document.querySelector('#composer input[type="file"]')
+      );
+      fileInput?.click?.();
     },
     gift: () => {
       // Подарок — Phase 3: кнопка честно помечена aria-disabled + подпись (см. ниже),
@@ -692,7 +1048,10 @@ export function initActions(context) {
       node.setAttribute("aria-expanded", "true");
     },
     "emoji-close": () => router.switchScreen("chat"),
-    "all-members": () => router.switchScreen("members"),
+    "all-members": (node) => {
+      if (node?.getAttribute("data-live-expand") === "true") return;
+      router.switchScreen("members");
+    },
     profile: (node) => {
       // Поповер профиля — Phase 3.
       node.setAttribute("aria-expanded", node.getAttribute("aria-expanded") === "true" ? "false" : "true");
@@ -715,6 +1074,10 @@ export function initActions(context) {
     const node = /** @type {HTMLElement} */ (actionNode);
     const action = node.getAttribute("data-action") ?? "";
     node.addEventListener("click", () => {
+      // D1: disabled-элемент — полный no-op: ни статуса, ни закрытия, ни IPC,
+      // ни console.error (§2.3 п.1). Это единственный guard клика: обработчики
+      // ниже не дублируют проверку, поэтому её снятие ловится тестом.
+      if (isEntryDisabled(node)) return;
       const handler = handlers[action];
       if (!handler) {
         onError(reportError("ACTION_FAILED", new UIError("ACTION_FAILED", `неизвестный data-action="${action}"`)));
@@ -735,6 +1098,9 @@ export function initActions(context) {
     const key = "key" in event ? String(event.key) : "";
     if (key === "Escape") {
       event.preventDefault();
+      // D3: не даём тому же keydown дойти до body — иначе единый обработчик
+      // увидит menuOpen=false и вызовет closeTopLayer() → switchScreen("chat").
+      event.stopPropagation();
       closeMenu(true);
       return;
     }
@@ -758,15 +1124,42 @@ export function initActions(context) {
     else if (key === "End") next = entries.length - 1;
     else if (key === "ArrowUp") next = current < 0 ? entries.length - 1 : (current - 1 + entries.length) % entries.length;
     else next = current < 0 ? 0 : (current + 1) % entries.length;
-    focusNode(entries[next] ?? null);
+    const target = entries[next] ?? null;
+    // D2: roving tabindex переезжает вместе с фокусом (APG).
+    setRoving(target);
+    focusNode(target);
+    // §4.3 п.6: сфокусированный пункт — в видимую область (best-effort).
+    if (target && typeof target.scrollIntoView === "function") {
+      target.scrollIntoView({ block: "nearest" });
+    }
   });
+
+  /**
+   * Фокусируемый контрол или узел внутри него (§4.4): закрытие меню не должно
+   * перехватывать фокус у того, по чему кликнули.
+   * @param {Element | null} node
+   * @returns {boolean}
+   */
+  function isFocusableControl(node) {
+    /** @type {any} */
+    let current = node;
+    while (current) {
+      const tag = typeof current.tagName === "string" ? current.tagName.toUpperCase() : "";
+      if (tag === "BUTTON" || tag === "A" || tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
+        return true;
+      }
+      if (typeof current.hasAttribute === "function" && current.hasAttribute("tabindex")) return true;
+      current = current.parentNode ?? null;
+    }
+    return false;
+  }
 
   document.body.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : null;
     // Клик по пункту меню/опенеру обрабатывает сам пункт: не закрываем
     // диалог, который этот же клик открыл (событие всплывает до body).
     if ((target && isInside(menu, target)) || (menuOpener && target === menuOpener)) return;
-    if (menuOpen) closeMenu(true);
+    if (menuOpen) closeMenu(!isFocusableControl(target));
     if (
       join?.isOpen
       && !join.busy
@@ -784,7 +1177,7 @@ export function initActions(context) {
   const attach = [...document.querySelectorAll('[data-action="attach"]')][0];
   if (attach) {
     attach.setAttribute("aria-disabled", "true");
-    attach.setAttribute("title", "Недоступно в спайке (Phase 3)");
+    attach.setAttribute("title", "Прикрепить файл (до 10, не более 25 МБ)");
   }
   // P1 (REVIEW-W39h): подарок — Phase 3, но клик не должен быть «мёртвым»:
   // видимый disabled-affordance с подписью, а не непонятная ошибка в логе.
@@ -967,6 +1360,12 @@ export function initActions(context) {
       }
       event.preventDefault();
       closeTopLayer();
+      return;
+    }
+    // D3: Tab/Shift+Tab закрывают меню (меню не modal). Default не отменяем:
+    // браузер продолжит tab-порядок от opener.
+    if (key === "Tab" && menuOpen) {
+      closeMenu(true);
       return;
     }
     // В input/textarea глобальные шорткаты не перехватываем (кроме Escape выше).

@@ -1,0 +1,165 @@
+# Мутационное тестирование — G-05-REST (D1–D7, D9)
+
+Дата: 2026-10-30. Воркер: **G2 Frontend Lane B**. Карточка: **G05-REST-MUTATIONS**
+(закрытие P1 из `waves/RW-40/PM/g05-rest/REVIEW.md`).
+Мутируемый файл: `rust/gui-spike/ui/features/actions.js`.
+Команда прогона: `node --test tests/unit/server-menu.test.mjs` (27 тестов, 12 suites).
+
+Исходный md5 (до мутаций): `4effc2bec384b30ba074bb26933a6863`.
+База мутаций: копия `/tmp/opencode/g05/actions.js.orig` с тем же md5.
+Процесс на каждую мутацию: правка → `md5sum` мутанта → прогон (лог в `mutations/<ID>.log`)
+→ восстановление из базы → контроль md5 = исходный. Мутанты друг с другом не смешивались.
+
+Итог: **6/6 инвариантов caught**, из них 5 — одиночными мутантами; M1 (guard
+диспетчера) одиночно **missed**, потому что тот же инвариант держат ещё два guard'а.
+Ниже — фактические результаты без округления в «удобную» сторону.
+
+---
+
+## M1 — D1: guard `aria-disabled` в клик-диспетчере отключён
+
+Правка (строка 931): `if (node.getAttribute("aria-disabled") === "true") return;` →
+`if (false) return;`.
+
+- md5 мутанта: `8dcb1b42e02b9a9594c1cbae3084237d`
+- exit: **0**
+- результат: 27 pass / 0 fail
+- упавшие тесты: **нет**
+- вердикт: **MISSED**
+- лог: `mutations/M1.log`
+
+Причина miss: у 7 статичных disabled-пунктов нет `data-action`, поэтому на них нет
+слушателя вовсе; у двух оставшихся (`guild-invite`, `guild-leave`) есть собственный
+guard в обработчике. Диспетчерский guard — третий слой, отдельного теста на него нет.
+
+## M1b — D1 (диагностика): guard в обработчике `guild-invite` отключён
+
+Правка: `if (isEntryDisabled(node)) return;` → пустое тело (обработчик всегда
+выполняет `closeMenu(true)`).
+
+- md5 мутанта: `7e37114b05410eb785dc65bfc1753f4e`
+- exit: **0**
+- результат: 27 pass / 0 fail
+- упавшие тесты: **нет**
+- вердикт: **MISSED** (клик перехватывает guard диспетчера, Enter/Space — фильтр
+  `enabledEntries()`)
+- лог: `mutations/M1b.log`
+
+## M1c — D1: снята вся цепочка guard'ов (диспетчер + обработчик invite)
+
+Правка: M1 + M1b одновременно.
+
+- md5 мутанта: `cb40980705b5cd22feb50afb45149960`
+- exit: **1**
+- результат: 24 pass / 3 fail
+- упавшие тесты:
+  - `D1: клик по каждому disabled-пункту ничего не меняет` (`server-menu.test.mjs:183`)
+  - `D1: capability=true не включает invite до G-06: disabled + not-implemented` (`:225`)
+  - `T-05-08: false/true/absent → invite всегда disabled, без диалога и IPC` (`:641`)
+- первая ошибка: `AssertionError: disabled-пункт закрыл меню — '' !== null` (`:197`)
+- вердикт: **CAUGHT** (инвариант D1 покрыт)
+- лог: `mutations/M1c.log`
+
+## M2 — D2: перенос `tabindex=0` в `setRoving` отключён
+
+Правка: `0` закреплён за первым enabled-пунктом, фокус его больше не переносит.
+
+- md5 мутанта: `1b3c47b4d7d4937330677b690e7d16f7`
+- exit: **1**
+- результат: 26 pass / 1 fail
+- упавший тест: `D2: ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled` (`:246`)
+- первая ошибка: `AssertionError: tabindex «Покинуть сервер» = 0 — '0' !== '-1'` (`:255`)
+- вердикт: **CAUGHT**
+- лог: `mutations/M2.log`
+
+## M3 — D3: закрытие меню по Tab убрано
+
+Правка: ветка `if (key === "Tab" && menuOpen) { closeMenu(true); return; }` → пустой
+`return` (меню остаётся открытым).
+
+- md5 мутанта: `783c525d99850bddf2087aeae9cb40f5`
+- exit: **1**
+- результат: 26 pass / 1 fail
+- упавший тест: `D3: Tab закрывает меню, фокус на opener, default не отменяется` (`:303`)
+- первая ошибка: `AssertionError: Tab не закрыл меню` (`:309`)
+- вердикт: **CAUGHT**
+- лог: `mutations/M3.log`
+
+## M4 — D4: «ID скопирован» даже при reject `writeText`
+
+Правка: в `copyGuildId` ветка `catch` пишет `"ID сервера скопирован"` вместо
+`"Не удалось скопировать ID"`.
+
+- md5 мутанта: `6ef41fee42be9bf7399d718567f06326`
+- exit: **1**
+- результат: 26 pass / 1 fail
+- упавший тест: `D4: reject writeText → ошибка, ложного успеха нет` (`:373`)
+- первая ошибка: `AssertionError: статус при reject: «ID сервера скопирован»` (`:382`)
+- вердикт: **CAUGHT**
+- лог: `mutations/M4.log`
+
+## M5 — D6: приоритет причин `disabledReason` перевёрнут
+
+Правка: `return canInvite ? "not-implemented" : "capability-unknown"` →
+`return canInvite ? "capability-unknown" : "not-implemented"`.
+
+- md5 мутанта: `c9a77ba82187ad31f1eb39a074e5419e`
+- exit: **1**
+- результат: 25 pass / 2 fail
+- упавшие тесты:
+  - `D6: приоритет причин: owner > capability-unknown > not-implemented` (`:449`)
+  - `D1: capability=true не включает invite до G-06: disabled + not-implemented` (`:225`)
+- первая ошибка: `AssertionError: у invite с capability=true неверная причина —
+  'capability-unknown' !== 'not-implemented'` (`:232`)
+- вердикт: **CAUGHT**
+- лог: `mutations/M5.log`
+
+## M6 — D7: кнопка подтверждения не блокируется во время 429 cooldown
+
+Правка: в `startLeaveCooldown` вызов `setLeaveButtonsDisabled(true)` заменён на
+`setLeaveButtonsDisabled(false)`.
+
+- md5 мутанта: `0c9db71d1e48c50310240f357c6fd648`
+- exit: **1**
+- результат: 26 pass / 1 fail
+- упавший тест: `D7: 3 с → тик каждую секунду до 0, затем кнопка активна,
+  автоповтора нет` (`:559`)
+- первая ошибка: `AssertionError: кнопка активна сразу после 429` (`:576`)
+- вердикт: **CAUGHT**
+- лог: `mutations/M6.log`
+
+---
+
+## Сводка
+
+| ID | Инвариант | md5 мутанта | exit | fail | Вердикт |
+|---|---|---|---|---|---|
+| M1 | D1 guard диспетчера | `8dcb1b42e02b9a9594c1cbae3084237d` | 0 | 0 | **missed** |
+| M1b | D1 guard обработчика invite | `7e37114b05410eb785dc65bfc1753f4e` | 0 | 0 | **missed** |
+| M1c | D1 вся цепочка guard'ов | `cb40980705b5cd22feb50afb45149960` | 1 | 3 | caught |
+| M2 | D2 roving tabindex | `1b3c47b4d7d4937330677b690e7d16f7` | 1 | 1 | caught |
+| M3 | D3 Tab закрывает меню | `783c525d99850bddf2087aeae9cb40f5` | 1 | 1 | caught |
+| M4 | D4 успех только из resolved writeText | `6ef41fee42be9bf7399d718567f06326` | 1 | 1 | caught |
+| M5 | D6 приоритет причин | `c9a77ba82187ad31f1eb39a074e5419e` | 1 | 2 | caught |
+| M6 | D7 429 блокирует подтверждение | `0c9db71d1e48c50310240f357c6fd648` | 1 | 1 | caught |
+
+D9 (геометрия CSS) в этой карточке не мутировался: мутации затрагивают только
+`actions.js`, а проверки D9/D5 — статические assert'ы по `components/server-menu.css`.
+
+## Восстановление
+
+```
+4effc2bec384b30ba074bb26933a6863  rust/gui-spike/ui/features/actions.js   (после restore)
+cmp /tmp/opencode/g05/actions.js.orig rust/gui-spike/ui/features/actions.js → идентичны
+node --test tests/unit/server-menu.test.mjs → exit 0, 27 pass / 0 fail
+```
+
+Лог финального прогона: `mutations/RESTORE-green.log`. Следов мутаций в файле нет.
+
+## Открытый вопрос к Team Lead (по TEST-POLICY §3.6)
+
+M1 и M1b по отдельности **missed**: guard'ы дублируют друг друга, и тест D1 ловит
+инвариант только при снятии всей цепочки. Варианты:
+1. признать диспетчерский guard defense-in-depth и записать это в карточку (текущее
+   покрытие D1 достаточно: M1c caught);
+2. добавить отдельный тест на диспетчерский путь — потребует правки тестов, зона TL.

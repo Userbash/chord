@@ -1,0 +1,20 @@
+baseline net.rs md5=b286d1779fc89f1dd6c829dc3a32dba7
+baseline net_contract.rs md5=573d271204f3c1db601e2df73684f129
+=== MUT-1-drop-connect-reset ===
+mutant net.rs md5=5fedd24f4e94eabdbf042e2296068cf3
+exit=101
+test connect_and_disconnect_reset_sequence_dedup_before_ready ... FAILED
+assertion `left == right` failed: connect() обязан сбрасывать last_seq до прихода Ready
+  left: 1
+ right: 0
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+restored net.rs md5=b286d1779fc89f1dd6c829dc3a32dba7 (match=True)
+=== MUT-2-drop-disconnect-reset ===
+mutant net.rs md5=c88e7d949351d82e6d27389d413cbe6c
+exit=101
+test connect_and_disconnect_reset_sequence_dedup_before_ready ... FAILED
+assertion `left == right` failed: disconnect() обязан сбрасывать last_seq
+  left: 1
+ right: 0
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+restored net.rs md5=b286d1779fc89f1dd6c829dc3a32dba7 (match=True)

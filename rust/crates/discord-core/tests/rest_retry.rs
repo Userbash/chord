@@ -633,3 +633,402 @@ async fn stub_close_is_transport_then_retry() {
     );
     assert_eq!(stub.requests(), 2, "сервер увидел два запроса");
 }
+
+// ---------------------------------------------------------------------------
+// P1–P5: Task-170 (BE-P2-01 & BE-P3-04) — REST Retry Policy & Client Parity
+// ---------------------------------------------------------------------------
+
+use discord_core::rest::rate_limit::{
+    DEFAULT_RETRY_AFTER, MAX_RETRY_AFTER, RETRYABLE_SERVER_STATUSES, RateLimitInfo, RestFailure,
+    is_retryable_server_status, parse_retry_after_or_default, rate_limit_info,
+    retry_delay_client_parity, should_retry_client_parity,
+};
+
+fn test_header(name: &str, value: &str) -> (String, String) {
+    (name.to_string(), value.to_string())
+}
+
+/// P1: Константа RETRYABLE_SERVER_STATUSES и предикат is_retryable_server_status.
+/// Оракул: Discord web bundle @10 692 340 (E = Set([502, 504, 507, 598, 599, 522, 523, 524])).
+#[test]
+fn test_retryable_server_statuses_parity() {
+    assert_eq!(
+        RETRYABLE_SERVER_STATUSES,
+        [502, 504, 507, 522, 523, 524, 598, 599],
+        "RETRYABLE_SERVER_STATUSES обязан содержать ровно 8 кодов из оракула E"
+    );
+
+    for &status in &RETRYABLE_SERVER_STATUSES {
+        assert!(
+            is_retryable_server_status(status),
+            "статус {status} обязан классифицироваться как повторяемый"
+        );
+    }
+
+    // Неповторяемые серверные и клиентские статусы
+    for non_retryable in [200, 204, 400, 401, 403, 404, 413, 429, 500, 501, 503, 505, 520, 521, 525] {
+        assert!(
+            !is_retryable_server_status(non_retryable),
+            "статус {non_retryable} НЕ должен быть в RETRYABLE_SERVER_STATUSES"
+        );
+    }
+}
+
+/// P2: parse_retry_after_or_default для 429 и 503:
+/// - заголовок retry-after (целые/дробные секунды)
+/// - тело retry_after (float)
+/// - дефолт 5 с при отсутствии
+/// - cap 60 с
+/// - для прочих кодов (500, 502, 200, 404) -> None
+#[test]
+fn test_parse_retry_after_or_default() {
+    assert_eq!(DEFAULT_RETRY_AFTER, Duration::from_secs(5));
+    assert_eq!(MAX_RETRY_AFTER, Duration::from_secs(60));
+
+    // 429: заголовок retry-after
+    let h1 = [test_header("retry-after", "3")];
+    assert_eq!(
+        parse_retry_after_or_default(429, &h1, b""),
+        Some(Duration::from_secs(3)),
+        "429 с retry-after: 3 -> 3s"
+    );
+
+    // 429: заголовок Retry-After (case-insensitive)
+    let h2 = [test_header("Retry-After", "10")];
+    assert_eq!(
+        parse_retry_after_or_default(429, &h2, b""),
+        Some(Duration::from_secs(10)),
+        "429 с Retry-After: 10 -> 10s"
+    );
+
+    // 429: тело retry_after (float)
+    let body = br#"{"message":"rate limited","retry_after":2.5}"#;
+    assert_eq!(
+        parse_retry_after_or_default(429, &[], body),
+        Some(Duration::from_millis(2500)),
+        "429 с JSON retry_after: 2.5 -> 2500ms"
+    );
+
+    // 429: приоритет заголовка над телом
+    let h_prio = [test_header("retry-after", "4")];
+    let b_prio = br#"{"retry_after":1.5}"#;
+    assert_eq!(
+        parse_retry_after_or_default(429, &h_prio, b_prio),
+        Some(Duration::from_secs(4)),
+        "заголовок имеет приоритет над телом"
+    );
+
+    // 429: дефолт 5с при отсутствии заголовка и тела
+    assert_eq!(
+        parse_retry_after_or_default(429, &[], b""),
+        Some(Duration::from_secs(5)),
+        "429 без retry-after -> дефолт 5s"
+    );
+
+    // 429: cap 60с
+    let h_cap = [test_header("retry-after", "120")];
+    assert_eq!(
+        parse_retry_after_or_default(429, &h_cap, b""),
+        Some(Duration::from_secs(60)),
+        "429 с retry-after: 120 -> cap 60s"
+    );
+
+    // 503: заголовок retry-after (DoD: 503 с retry-after: 3 ждёт 3 с)
+    let h_503 = [test_header("retry-after", "3")];
+    assert_eq!(
+        parse_retry_after_or_default(503, &h_503, b""),
+        Some(Duration::from_secs(3)),
+        "503 с retry-after: 3 -> 3s"
+    );
+
+    // 503: дефолт 5с
+    assert_eq!(
+        parse_retry_after_or_default(503, &[], b""),
+        Some(Duration::from_secs(5)),
+        "503 без retry-after -> дефолт 5s"
+    );
+
+    // 503: тело retry_after
+    assert_eq!(
+        parse_retry_after_or_default(503, &[], br#"{"retry_after":0.75}"#),
+        Some(Duration::from_millis(750)),
+        "503 с телом retry_after -> 750ms"
+    );
+
+    // Битое значение заголовка -> fallback на дефолт 5с
+    let h_bad = [test_header("retry-after", "invalid")];
+    assert_eq!(
+        parse_retry_after_or_default(429, &h_bad, b""),
+        Some(Duration::from_secs(5)),
+        "битое значение -> дефолт 5s"
+    );
+
+    // Прочие статусы (500, 502, 200, 404) -> None
+    for st in [200, 400, 401, 404, 500, 501, 502, 504] {
+        assert_eq!(
+            parse_retry_after_or_default(st, &h1, b""),
+            None,
+            "статус {st} не должен разбирать retry-after"
+        );
+    }
+}
+
+/// P3: should_retry_client_parity:
+/// - 429: всегда true для любого метода и explicit_retries
+/// - 503: всегда true для любого метода и explicit_retries
+/// - RETRYABLE_SERVER_STATUSES: true если метод идемпотентен ИЛИ explicit_retries > 0;
+///   false если не-идемпотентный и explicit_retries == 0.
+/// - 500/501/505: всегда false
+/// - 401/4xx: всегда false
+#[test]
+fn test_should_retry_client_parity() {
+    let failure_429 = RestFailure::RateLimited(RateLimitInfo::new(Duration::from_secs(1)));
+    let failure_503 = RestFailure::Server { status: 503 };
+    let failure_500 = RestFailure::Server { status: 500 };
+    let failure_501 = RestFailure::Server { status: 501 };
+    let failure_505 = RestFailure::Server { status: 505 };
+    let failure_401 = RestFailure::Unauthorized;
+    let failure_404 = RestFailure::Client { status: 404 };
+
+    let all_methods = [
+        HttpMethod::Get,
+        HttpMethod::Put,
+        HttpMethod::Delete,
+        HttpMethod::Post,
+        HttpMethod::Patch,
+    ];
+
+    // 429: всегда true
+    for method in all_methods {
+        assert!(should_retry_client_parity(method, &failure_429, 0), "429 с retries=0");
+        assert!(should_retry_client_parity(method, &failure_429, 2), "429 с retries=2");
+    }
+
+    // 503: всегда true
+    for method in all_methods {
+        assert!(should_retry_client_parity(method, &failure_503, 0), "503 с retries=0");
+        assert!(should_retry_client_parity(method, &failure_503, 3), "503 с retries=3");
+    }
+
+    // RETRYABLE_SERVER_STATUSES (502, 504, 507, 522, 523, 524, 598, 599)
+    for &status in &RETRYABLE_SERVER_STATUSES {
+        let failure_server = RestFailure::Server { status };
+
+        // Идемпотентные методы (GET, PUT, DELETE) ретраятся даже с explicit_retries = 0
+        for method in [HttpMethod::Get, HttpMethod::Put, HttpMethod::Delete] {
+            assert!(
+                should_retry_client_parity(method, &failure_server, 0),
+                "{status}: идемпотентный метод {method:?} ретраится при retries=0"
+            );
+        }
+
+        // Не-идемпотентные (POST, PATCH) НЕ ретраятся при explicit_retries = 0
+        for method in [HttpMethod::Post, HttpMethod::Patch] {
+            assert!(
+                !should_retry_client_parity(method, &failure_server, 0),
+                "{status}: не-идемпотентный метод {method:?} НЕ ретраится при retries=0"
+            );
+        }
+
+        // Не-идемпотентные (POST, PATCH) ретраятся при explicit_retries > 0
+        for method in [HttpMethod::Post, HttpMethod::Patch] {
+            assert!(
+                should_retry_client_parity(method, &failure_server, 1),
+                "{status}: не-идемпотентный метод {method:?} ретраится при retries=1"
+            );
+            assert!(
+                should_retry_client_parity(method, &failure_server, 3),
+                "{status}: не-идемпотентный метод {method:?} ретраится при retries=3"
+            );
+        }
+    }
+
+    // 500, 501, 505: никогда не повторяются (DoD: 500 не повторяется)
+    for server_fail in [&failure_500, &failure_501, &failure_505] {
+        for method in all_methods {
+            assert!(
+                !should_retry_client_parity(method, server_fail, 0),
+                "500/501/505 не повторяются при retries=0"
+            );
+            assert!(
+                !should_retry_client_parity(method, server_fail, 5),
+                "500/501/505 не повторяются даже при retries=5"
+            );
+        }
+    }
+
+    // 401 и 4xx: никогда не повторяются
+    for client_fail in [&failure_401, &failure_404] {
+        for method in all_methods {
+            assert!(!should_retry_client_parity(method, client_fail, 0));
+            assert!(!should_retry_client_parity(method, client_fail, 3));
+        }
+    }
+}
+
+/// P4: retry_delay_client_parity:
+/// - 429 и 503 используют parse_retry_after_or_default (дефолт 5 с, cap 60 с; 503 с retry-after: 3 -> 3 с)
+/// - повторяемые серверные статусы используют 1с базовая * 2^(attempt-1) capped at 60с
+/// - 500/501/505 возвращают None
+/// - 401/4xx возвращают None
+#[test]
+fn test_retry_delay_client_parity() {
+    let failure_429 = RestFailure::RateLimited(RateLimitInfo::new(Duration::from_millis(250)));
+    let failure_503 = RestFailure::Server { status: 503 };
+    let failure_500 = RestFailure::Server { status: 500 };
+    let failure_502 = RestFailure::Server { status: 502 };
+    let failure_401 = RestFailure::Unauthorized;
+    let failure_404 = RestFailure::Client { status: 404 };
+
+    // 429 с заголовком retry-after: 3 -> 3с
+    let h3 = [test_header("retry-after", "3")];
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_429, &h3, b""),
+        Some(Duration::from_secs(3))
+    );
+
+    // 429 без заголовков, но с существующим info.retry_after = 250ms -> 250ms
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_429, &[], b""),
+        Some(Duration::from_millis(250))
+    );
+
+    // 429 с нулевым info и без заголовков -> дефолт 5с
+    let failure_429_zero = RestFailure::RateLimited(RateLimitInfo::default());
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_429_zero, &[], b""),
+        Some(Duration::from_secs(5))
+    );
+
+    // 503 с заголовком retry-after: 3 -> 3с
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_503, &h3, b""),
+        Some(Duration::from_secs(3)),
+        "503 с retry-after: 3 ждёт 3 с"
+    );
+
+    // 503 без заголовков -> дефолт 5с
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_503, &[], b""),
+        Some(Duration::from_secs(5)),
+        "503 без retry-after ждёт дефолтные 5 с"
+    );
+
+    // 503 с заголовком retry-after: 90 -> cap 60с
+    let h90 = [test_header("retry-after", "90")];
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_503, &h90, b""),
+        Some(Duration::from_secs(60)),
+        "503 с retry-after: 90 ограничивается 60 с"
+    );
+
+    // Повторяемый серверный статус 502: экспоненциальный бэкофф с базой 1с
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_502, &[], b""),
+        Some(Duration::from_secs(1)),
+        "attempt 1 -> 1s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(2, &failure_502, &[], b""),
+        Some(Duration::from_secs(2)),
+        "attempt 2 -> 2s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(3, &failure_502, &[], b""),
+        Some(Duration::from_secs(4)),
+        "attempt 3 -> 4s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(4, &failure_502, &[], b""),
+        Some(Duration::from_secs(8)),
+        "attempt 4 -> 8s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(5, &failure_502, &[], b""),
+        Some(Duration::from_secs(16)),
+        "attempt 5 -> 16s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(6, &failure_502, &[], b""),
+        Some(Duration::from_secs(32)),
+        "attempt 6 -> 32s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(7, &failure_502, &[], b""),
+        Some(Duration::from_secs(60)),
+        "attempt 7 -> cap 60s"
+    );
+    assert_eq!(
+        retry_delay_client_parity(u32::MAX, &failure_502, &[], b""),
+        Some(Duration::from_secs(60)),
+        "attempt u32::MAX -> cap 60s без паники/переполнения"
+    );
+
+    // Неповторяемый 500 -> None
+    assert_eq!(
+        retry_delay_client_parity(1, &failure_500, &[], b""),
+        None,
+        "500 -> None"
+    );
+    assert_eq!(
+        retry_delay_client_parity(2, &failure_500, &h3, b""),
+        None,
+        "500 даже с заголовком retry-after -> None"
+    );
+
+    // Клиентские ошибки и 401 -> None
+    assert_eq!(retry_delay_client_parity(1, &failure_401, &[], b""), None);
+    assert_eq!(retry_delay_client_parity(1, &failure_404, &[], b""), None);
+}
+
+/// P5: RateLimitInfo limit и scope (BE-P3-04).
+/// Разбор x-ratelimit-limit (u32) и x-ratelimit-scope (user/global/shared).
+#[test]
+fn test_rate_limit_info_limit_and_scope() {
+    let headers = [
+        test_header("retry-after", "2"),
+        test_header("x-ratelimit-limit", "10"),
+        test_header("x-ratelimit-scope", "user"),
+    ];
+    let info = rate_limit_info(429, &headers, b"").expect("429");
+    assert_eq!(info.retry_after, Duration::from_secs(2));
+    assert_eq!(info.limit, Some(10));
+    assert_eq!(info.scope.as_deref(), Some("user"));
+
+    // scope global и shared
+    let headers_global = [
+        test_header("x-ratelimit-scope", "global"),
+        test_header("x-ratelimit-limit", "50"),
+    ];
+    let info_global = rate_limit_info(429, &headers_global, b"").expect("429");
+    assert_eq!(info_global.scope.as_deref(), Some("global"));
+    assert_eq!(info_global.limit, Some(50));
+
+    let headers_shared = [test_header("X-RateLimit-Scope", "shared")];
+    let info_shared = rate_limit_info(429, &headers_shared, b"").expect("429");
+    assert_eq!(info_shared.scope.as_deref(), Some("shared"));
+    assert_eq!(info_shared.limit, None);
+
+    // Отсутствие заголовков -> None
+    let info_empty = rate_limit_info(429, &[], b"").expect("429");
+    assert_eq!(info_empty.limit, None);
+    assert_eq!(info_empty.scope, None);
+
+    // Битое значение limit -> None; пустой scope -> None
+    let headers_invalid = [
+        test_header("x-ratelimit-limit", "not_a_number"),
+        test_header("x-ratelimit-scope", "   "),
+    ];
+    let info_invalid = rate_limit_info(429, &headers_invalid, b"").expect("429");
+    assert_eq!(info_invalid.limit, None);
+    assert_eq!(info_invalid.scope, None);
+
+    // Билдер методы RateLimitInfo
+    let builder_info = RateLimitInfo::new(Duration::from_secs(1))
+        .with_limit(25)
+        .with_scope("user");
+    assert_eq!(builder_info.retry_after, Duration::from_secs(1));
+    assert_eq!(builder_info.limit, Some(25));
+    assert_eq!(builder_info.scope.as_deref(), Some("user"));
+}
+

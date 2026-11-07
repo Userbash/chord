@@ -1,0 +1,126 @@
+{
+  "task": "TR-197A",
+  "pr": "PR-169",
+  "card": "task-290 (RE-22-04)",
+  "date": "2026-10-31",
+  "head": "70c0473",
+  "files": {
+    "rust/gui-spike/ui/features/voice-diagnostics.js": {
+      "md5_report": "75a2a965b69d65471377f8c0506895ac",
+      "md5_before": "75a2a965b69d65471377f8c0506895ac",
+      "md5_after": "75a2a965b69d65471377f8c0506895ac",
+      "restored": true
+    },
+    "tests/unit/voice-diagnostics.test.mjs": {
+      "md5_report": "4faed2e5814fee87d04df0bd9ad294cc",
+      "md5_before": "4faed2e5814fee87d04df0bd9ad294cc",
+      "md5_after": "4faed2e5814fee87d04df0bd9ad294cc",
+      "mutated_during_review": false
+    },
+    "TDD-PLAN.md": {
+      "md5_report": "66f4670fb4dbb6bd9c13bd21af61a35d",
+      "md5_before": "66f4670fb4dbb6bd9c13bd21af61a35d",
+      "md5_after": "66f4670fb4dbb6bd9c13bd21af61a35d"
+    }
+  },
+  "baseline": {
+    "unit_voice_diagnostics": "67/67 pass, 14 suites, 0 fail, 0 skip",
+    "tsc_root": "exit 0",
+    "tsc_ui": "exit 0",
+    "plan_sync": "5/5 pass",
+    "full_unit": "2005/2005 pass",
+    "voice_regression_slice": "262/262 pass"
+  },
+  "mutations": [
+    {
+      "id": "M1",
+      "kind": "обязательная",
+      "target": "evaluatePingQuality",
+      "change": "pingMs > PING_AVERAGE_MAX_MS -> >=",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["пинг 500 мс — average, 501 мс — bad"],
+      "verdict": "killed"
+    },
+    {
+      "id": "M2",
+      "kind": "обязательная",
+      "target": "formatPopoutMetricsRu",
+      "change": "hasWarning loss threshold LOSS_AVERAGE_MAX_PCT (10) -> LOSS_FINE_MAX_PCT (5)",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["границы предупреждения: 250 мс и 10% не warn, 251 мс и 10.1% — warn"],
+      "verdict": "killed"
+    },
+    {
+      "id": "M3",
+      "kind": "обязательная",
+      "target": "extractShortHostname",
+      "change": "regex /^[^.:]*/ -> /^[^.]*/ (порт не отсекается)",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["пустой, нестроковый и «только порт» вход даёт пустую строку"],
+      "verdict": "killed"
+    },
+    {
+      "id": "M4",
+      "kind": "обязательная",
+      "target": "formatVoicePrivacyCodeChunks",
+      "change": "^\\d{30}$ -> ^\\d{29,}$",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["неверная длина (29 / 31 цифра) → null"],
+      "verdict": "killed"
+    },
+    {
+      "id": "M5",
+      "kind": "обязательная",
+      "target": "computeSparklinePoints",
+      "change": "values.slice(-PING_HISTORY_MAX_POINTS) -> slice(-PING_AVERAGE_WINDOW)",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["хранит только последние 199 точек (PING_HISTORY_MAX_POINTS)"],
+      "verdict": "killed"
+    },
+    {
+      "id": "B1",
+      "kind": "проба",
+      "target": "createVoiceDiagnosticsController.open",
+      "change": "снят guard идемпотентности (onFetchDiagnostics на каждый open)",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["open() открывает попап и запрашивает снимок диагностики; повторный open не дублирует загрузку"],
+      "verdict": "killed"
+    },
+    {
+      "id": "B2",
+      "kind": "проба",
+      "target": "createVoiceDiagnosticsController.handleKeyDown",
+      "change": "Escape закрывает сначала попап, потом модалку",
+      "exit": 1,
+      "pass": 66,
+      "fail": 1,
+      "killed_by": ["Escape при открытой модалке закрывает модалку, попап остаётся открытым"],
+      "verdict": "killed"
+    }
+  ],
+  "mutation_summary": {
+    "required_total": 5,
+    "required_killed": 5,
+    "kill_rate": "100%",
+    "extra_probes": 2,
+    "extra_killed": 2,
+    "source_restored_byte_identical": true
+  },
+  "verdict": "APPROVED",
+  "p0": 0,
+  "p1": 0,
+  "p2": 2,
+  "p3": 5
+}

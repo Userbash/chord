@@ -1,0 +1,68 @@
+▶ onboarding-wizard: константы и isValidWelcomeDescription
+  ✔ T-262-01: экспортирует точные лимиты MAX_WELCOME_CHANNELS = 5 и MAX_WELCOME_DESCRIPTION_CHARS = 140 (0.3514ms)
+  ✔ T-262-02: isValidWelcomeDescription проверяет тип строки и длину trimmed-текста в диапазоне 1..=140 (0.10719ms)
+✔ onboarding-wizard: константы и isValidWelcomeDescription (1.029651ms)
+▶ onboarding-wizard: areRequiredPromptsSatisfied
+  ✔ T-262-03: возвращает true при выполнении всех обязательных вопросов (массив и Set) и при отсутствии обязательных (0.19579ms)
+  ✖ T-262-04: возвращает false, если обязательный вопрос пропущен или нарушено ограничение singleSelect (0.51041ms)
+✖ onboarding-wizard: areRequiredPromptsSatisfied (0.85495ms)
+▶ onboarding-wizard: createOnboardingWizardController
+  ✔ T-262-05: рендерит регион [data-onboarding-wizard], не более 5 каналов приветствия и вызывает onOpenWelcomeChannel (1.726421ms)
+  ✔ T-262-06: рендерит вопросы [data-onboarding-prompt] и переключает опции [data-onboarding-option] с учётом singleSelect (0.438091ms)
+  ✖ T-262-07: кнопка [data-onboarding-complete-btn] выводит ошибку в [data-onboarding-error] при невыполненных обязательных вопросах и вызывает onCompleteOnboarding после их заполнения (0.28712ms)
+  ✔ T-262-08: поддерживает setState, защиту getState от внешних мутаций и destroy (0.29213ms)
+✖ onboarding-wizard: createOnboardingWizardController (2.938202ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.721794
+
+✖ failing tests:
+
+test at tests/unit/onboarding-wizard.test.mjs:95:3
+✖ T-262-04: возвращает false, если обязательный вопрос пропущен или нарушено ограничение singleSelect (0.51041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-262-ui-onboarding-wizard/tests/unit/onboarding-wizard.test.mjs:97:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/onboarding-wizard.test.mjs:224:3
+✖ T-262-07: кнопка [data-onboarding-complete-btn] выводит ошибку в [data-onboarding-error] при невыполненных обязательных вопросах и вызывает onCompleteOnboarding после их заполнения (0.28712ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-262-ui-onboarding-wizard/tests/unit/onboarding-wizard.test.mjs:243:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

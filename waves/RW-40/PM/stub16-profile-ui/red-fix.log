@@ -1,0 +1,215 @@
+▶ G2-03: пустое состояние QuickSwitcher соответствует выдаче
+  ✔ empty скрыт при опциях и виден только при нуле совпадений (37.15545ms)
+✔ G2-03: пустое состояние QuickSwitcher соответствует выдаче (37.827686ms)
+[ACTION_FAILED] Не удалось удалить сообщение
+[ACTION_FAILED] Не удалось удалить сообщение
+▶ G2-11: подтверждение удаления не липнет к следующей строке
+  ✔ смена строки и завершение onDelete снимают confirm (36.136526ms)
+✔ G2-11: подтверждение удаления не липнет к следующей строке (36.273995ms)
+▶ C-07: QuickSwitcher находит гильдии по data-guild-id
+  ✔ выбор гильдии в switcher не зависит от legacy data-guild (15.658757ms)
+✔ C-07: QuickSwitcher находит гильдии по data-guild-id (15.801867ms)
+▶ STUB-16 / MB-03: member profile popover
+  ✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (12.153759ms)
+  ✖ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (12.571066ms)
+  ✖ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (9.272195ms)
+  ✖ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.433159ms)
+  ✖ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (9.789472ms)
+  ✖ клавиатурная активация по Enter и Space открывает поповер (10.192259ms)
+  ✖ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (23.294663ms)
+  ✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (9.939232ms)
+  ✖ закрытие открытого поповера при смене канала (9.747763ms)
+  ✖ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.253409ms)
+✖ STUB-16 / MB-03: member profile popover (108.23589ms)
+ℹ tests 13
+ℹ suites 4
+ℹ pass 3
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 241.373524
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:292:3
+✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (12.153759ms)
+  AssertionError [ERR_ASSERTION]: интерактивная строка участника должна иметь role=button
+  + actual - expected
+  
+  + 'listitem'
+  - 'button'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:309:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'listitem',
+    expected: 'button',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:330:3
+✖ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (12.571066ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:343:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:331:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:358:3
+✖ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (9.272195ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:370:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:359:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:384:3
+✖ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.433159ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:396:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:385:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:409:3
+✖ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (9.789472ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:421:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:410:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:434:3
+✖ клавиатурная активация по Enter и Space открывает поповер (10.192259ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:446:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:435:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:461:3
+✖ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (23.294663ms)
+  AssertionError [ERR_ASSERTION]: id поповера должен быть user-profile-popover
+  + actual - expected
+  
+  + 'member-profile-popover'
+  - 'user-profile-popover'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:469:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:466:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'member-profile-popover',
+    expected: 'user-profile-popover',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:497:3
+✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (9.939232ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:509:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:498:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:522:3
+✖ закрытие открытого поповера при смене канала (9.747763ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:534:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:523:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:549:3
+✖ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.253409ms)
+  AssertionError [ERR_ASSERTION]: нет селектора .profile-avatar-skeleton в members.css
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:558:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '/* =============================================================================\n * members.css — панель участников 240 (--layout-member-panel-w), превью 42\n * (--row-member), список участников 40 (--row-member-track, inline из JS),\n * тулбар 48 (--space-11).\n * Видимость #member-panel переключает style.css (body[data-active-screen]).\n * ========================================================================== */\n\n/* ---------------------------------------------------------------------------\n * Панель в чате\n * ------------------------------------------------------------------------ */\n.member-panel {\n  flex: 0 0 var(--layout-member-panel-w);\n  flex-direction: column;\n  width: var(--layout-member-panel-w);\n  min-width: 0;\n  min-height: 0;\n  padding: var(--layout-panel-pad) var(--layout-member-pad-x);\n  overflow: hidden;\n  background: var(--bg-chat);\n  box-shadow: var(--shadow-elevation-stroke);\n}\n\n.member-panel-title {\n  flex: 0 0 auto;\n  margin: 0 0 var(--space-4);\n  padding: 0 var(--space-2);\n  color: var(--text-faint);\n  font-size: var(--font-size-small);\n  font-weight: var(--font-weight-semibold);\n  letter-spacing: var(--letter-spacing-caps);\n  line-height: var(--line-height-small);\n  text-transform: uppercase;\n}\n\n#member-online {\n  font-variant-numeric: tabular-nums;\n}\n\n.member-panel-list {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);\n  scrollbar-width: thin;\n}\n\n.member-panel-all {\n  flex: 0 0 auto;\n  height: var(--btn-height);\n  margin-top: var(--space-2);\n  border: 0;\n  border-radius: var(--btn-radius);\n  background: transparent;\n  color: var(--text-muted);\n  font-size: var(--font-size-ui);\n  line-height: var(--line-height-ui);\n  text-align: left;\n}\n\n.member-panel-all:hover {\n  background: var(--state-hover);\n  color: var(--text-strong);\n}\n\n/* ---------------------------------------------------------------------------\n * Экран участников\n * ------------------------------------------------------------------------ */\n.members-toolbar {\n  display: flex;\n  flex: 0 0 auto;\n  gap: var(--space-5);\n  align-items: center;\n  height: var(--space-11);\n  padding: 0 var(--space-6);\n  box-shadow: var(--shadow-elevation-low);\n}\n\n.members-toolbar .search-field {\n  flex: 0 1 var(--layout-member-panel-w);\n  width: var(--layout-member-panel-w);\n}\n\n.members-count {\n  margin-left: auto;\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  font-variant-numeric: tabular-nums;\n  line-height: var(--line-height-small);\n}\n\n.member-list {\n  padding: var(--space-4) 0;\n  scrollbar-gutter: stable;\n}\n\n/* Строка участника: 40 на экране / 42 в панели — height приходит inline. */\n.member {\n  display: flex;\n  gap: var(--space-4);\n  align-items: center;\n  padding: 0 var(--space-4);\n  border-radius: var(--radius-xs);\n  transition: background var(--motion-fast) var(--ease-out);\n}\n\n.member:hover {\n  background: var(--state-hover);\n}\n\n.member.is-selected {\n  background: var(--state-selected);\n}\n\n.member-name {\n  display: flex;\n  flex: 1 1 auto;\n  gap: var(--space-2);\n  align-items: center;\n  min-width: 0;\n}\n\n.member-label {\n  overflow: hidden;\n  color: var(--text);\n  font-size: var(--font-size-ui);\n  line-height: var(--line-height-ui);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.member-role {\n  flex: 0 1 auto;\n  min-width: 0;\n  overflow: hidden;\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n/* =============================================================================\n * P3-02 (W39h): 6 групп участников (MEM-02/04) и чипы экрана.\n * Блок заголовка группы — 42 (D-13, `--row-member-group`): 16 pad-top + строка 24.\n * ========================================================================== */\n.member-group {\n  display: flex;\n  flex: 0 0 auto;\n  flex-direction: column;\n}\n\n.member-group-title {\n  display: flex;\n  flex: 0 0 var(--row-member-group);\n  align-items: flex-end;\n  box-sizing: border-box;\n  height: var(--row-member-group);\n  margin: 0;\n  padding: var(--space-4) var(--space-2) 0;\n  color: var(--text-faint);\n  font-size: var(--font-size-small);\n  font-weight: var(--font-weight-semibold);\n  letter-spacing: var(--letter-spacing-caps);\n  line-height: var(--row-menu-item); /* строка 24 внутри блока 42 */\n  text-transform: uppercase;\n}\n\n/* Чипы 6 групп на экране участников: тулбар 48 + поиск 32 (MEM-13). */\n.member-groups {\n  display: flex;\n  flex: 0 1 auto;\n  gap: var(--space-2);\n  align-items: center;\n  overflow-x: auto;\n  scrollbar-width: none;\n}\n\n.member-group-chip {\n  display: inline-flex;\n  flex: 0 0 auto;\n  gap: var(--space-2);\n  align-items: center;\n  height: var(--btn-height-sm);\n  padding: 0 var(--space-3);\n  border: 1px solid var(--border-subtle);\n  border-radius: var(--radius-round);\n  background: var(--surface-input);\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n}\n\n.member-group-chip:hover {\n  border-color: var(--border);\n  color: var(--text-strong);\n}\n\n.member-group-chip[aria-pressed="true"] {\n  border-color: var(--accent);\n  background: var(--accent-soft);\n  color: var(--text-strong);\n}\n\n.member-group-chip-count {\n  color: var(--text-faint);\n  font-variant-numeric: tabular-nums;\n}\n\n.member-group-chip[aria-pressed="true"] .member-group-chip-count {\n  color: var(--text-subtle);\n}\n\n.member[aria-current="true"] {\n  background: var(--state-selected);\n}\n\n/* =============================================================================\n * MB-03 (STUB-16): поповер профиля участника\n * SPEC: waves/RW-40/DESIGN/PINS-THREADS-PROFILE-SPEC.md §4, §6\n * ========================================================================== */\n.user-profile-popover,\n#member-profile-popover {\n  position: fixed;\n  z-index: var(--z-popover);\n  display: flex;\n  flex-direction: column;\n  width: min(300px, calc(100vw - var(--space-6)));\n  max-height: min(480px, calc(100vh - var(--space-6)));\n  overflow: hidden;\n  border: 1px solid var(--border-subtle);\n  border-radius: var(--radius-md);\n  background: var(--surface-1);\n  box-shadow: var(--shadow-popover);\n  color: var(--text);\n}\n\n.user-profile-popover[hidden],\n#member-profile-popover[hidden] {\n  display: none;\n}\n\n/* 1. Верхний баннер */\n.profile-banner {\n  position: relative;\n  flex: 0 0 calc(var(--space-12) + var(--space-2));\n  height: calc(var(--space-12) + var(--space-2));\n  background-color: var(--surface-3);\n}\n\n/* Кнопка закрытия */\n.profile-close {\n  position: absolute;\n  top: var(--space-3);\n  right: var(--space-3);\n  z-index: var(--z-header);\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: var(--btn-height-sm);\n  height: var(--btn-height-sm);\n  border: 0;\n  border-radius: var(--radius-round);\n  background: var(--surface-sunken);\n  color: var(--text-muted);\n  font-size: var(--font-size-ui);\n  line-height: var(--line-height-ui);\n  cursor: pointer;\n}\n\n.profile-close:hover {\n  background: var(--surface-4);\n  color: var(--text-strong);\n}\n\n.profile-close:focus-visible {\n  outline: var(--focus-ring-width) solid var(--focus-ring);\n  outline-offset: var(--focus-ring-offset);\n}\n\n/* 2. Аватар со статусом */\n.profile-avatar-wrap {\n  position: relative;\n  flex: 0 0 auto;\n  padding: 0 var(--space-6);\n}\n\n.profile-avatar {\n  position: relative;\n  width: var(--layout-composer-h);\n  height: var(--layout-composer-h);\n  margin-top: calc(var(--btn-height-sm) * -1);\n  border: 4px solid var(--surface-1);\n  border-radius: var(--radius-round);\n  background: var(--surface-4);\n  font-size: var(--font-size-title);\n  font-weight: var(--font-weight-bold);\n}\n\n.profile-avatar .status-dot {\n  position: absolute;\n  right: var(--space-0);\n  bottom: var(--space-0);\n  width: var(--icon-size-sm);\n  height: var(--icon-size-sm);\n  border: 2px solid var(--surface-1);\n  border-radius: var(--radius-round);\n}\n\n/* 3. Тело профиля */\n.profile-body {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  padding: var(--space-4) var(--space-6) var(--space-6);\n  overflow-y: auto;\n}\n\n.profile-header-info {\n  display: flex;\n  flex-direction: column;\n  gap: var(--space-1);\n}\n\n.profile-display-name {\n  margin: 0;\n  color: var(--text-strong);\n  font-size: var(--font-size-body);\n  font-weight: var(--font-weight-semibold);\n  line-height: var(--line-height-body);\n}\n\n.profile-tag {\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n}\n\n.profile-custom-status {\n  margin-top: var(--space-2);\n  color: var(--text-subtle);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n}\n\n.profile-custom-status[data-has-status="false"] {\n  display: none;\n}\n\n.profile-divider {\n  height: 1px;\n  margin: var(--space-4) 0;\n  background: var(--divider);\n}\n\n/* 4. Роли */\n.profile-section {\n  display: flex;\n  flex-direction: column;\n  gap: var(--space-2);\n}\n\n.profile-section-title {\n  margin: 0;\n  color: var(--text-faint);\n  font-size: var(--font-size-caption);\n  font-weight: var(--font-weight-bold);\n  letter-spacing: var(--letter-spacing-caps);\n  text-transform: uppercase;\n}\n\n.profile-badges {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--space-2);\n}\n\n.profile-badges .badge--role {\n  display: inline-flex;\n  align-items: center;\n  height: var(--btn-height-sm);\n  padding: 0 var(--space-4);\n  border: 1px solid var(--border-subtle);\n  border-radius: var(--radius-xs);\n  background: var(--surface-input);\n  color: var(--text-strong);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n}\n\n/* 5. Действия */\n.profile-actions {\n  display: flex;\n  flex-direction: column;\n  gap: var(--space-3);\n  margin-top: var(--space-2);\n}\n\n.profile-actions .btn {\n  height: var(--btn-height-sm);\n  font-size: var(--font-size-small);\n}\n\n/* Состояния загрузки, ошибки и пустого профиля */\n.profile-loading,\n.profile-empty,\n.profile-error {\n '... 554 more characters,
+    expected: /\.profile-avatar-skeleton/,
+    operator: 'match',
+    diff: 'simple'
+  }
+EXIT_CODE=1

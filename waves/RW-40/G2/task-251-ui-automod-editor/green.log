@@ -1,0 +1,23 @@
+▶ automod-editor: словари меток триггеров и действий
+  ✔ T-251-01: AUTOMOD_TRIGGER_LABELS_RU и AUTOMOD_ACTION_LABELS_RU заморожены и содержат точные русские метки (0.56441ms)
+✔ automod-editor: словари меток триггеров и действий (1.0534ms)
+▶ automod-editor: parseKeywordListInput
+  ✔ T-251-02: разбивает по запятым и переводам строк, обрезает пробелы и отбрасывает пустые токены (0.215441ms)
+  ✔ T-251-03: сохраняет токен длиной ровно 60 символов и отбрасывает токены длиннее 60 символов (0.09564ms)
+  ✔ T-251-04: дедуплицирует без учёта регистра с сохранением первого встреченного регистра (0.08646ms)
+  ✔ T-251-05: ограничивает результат максимум 1000 ключевыми словами (0.67137ms)
+✔ automod-editor: parseKeywordListInput (1.238411ms)
+▶ automod-editor: createAutoModEditorController
+  ✔ T-251-06: рендерит регион [data-automod-editor] и карточки правил с метками и переключателем role=switch (1.005951ms)
+  ✔ T-251-07: клик по [data-automod-rule-toggle] переключает enabled, обновляет aria-checked и вызывает onToggleRule (0.46884ms)
+  ✔ T-251-08: форма [data-automod-form] сохраняет правило с распарсенными ключевыми словами и игнорирует пустое имя (0.263621ms)
+  ✔ T-251-09: поддерживает setState, иммутабельный getState и destroy (0.24771ms)
+✔ automod-editor: createAutoModEditorController (2.167842ms)
+ℹ tests 9
+ℹ suites 3
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.1079

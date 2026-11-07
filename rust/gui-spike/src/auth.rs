@@ -367,8 +367,23 @@ pub struct IdentityContext {
     pub timezone: String,
 }
 
+fn official_client_identity_config(system_locale: Option<String>) -> IdentityConfig {
+    IdentityConfig {
+        browser: Some("Discord Client".to_string()),
+        browser_user_agent: Some(
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36".to_string(),
+        ),
+        browser_version: Some("42.11.12".to_string()),
+        client_version: Some("1.0.162".to_string()),
+        client_build_number: Some(641_004),
+        native_build_number: Some(94_186),
+        system_locale,
+        ..IdentityConfig::default()
+    }
+}
+
 impl IdentityContext {
-    /// Контекст с заданными локалью/таймзоной (супер-свойства — из среды).
+    /// Контекст с заданными локалью/таймзоной (супер-свойства — из среды, UUID процесса едины).
     ///
     /// Пустые аргументы заменяются на `en-US`/`UTC`: `ApiAuth::from_token` не принимает
     /// пустых заголовков, а падать из-за окружения нельзя.
@@ -383,11 +398,15 @@ impl IdentityContext {
         } else {
             timezone.trim().to_string()
         };
-        // Локаль приложения совпадает с system_locale: иначе заголовки разойдутся.
-        let config = IdentityConfig {
-            system_locale: Some(locale.clone()),
-            ..IdentityConfig::default()
-        };
+        let base = Self::detect();
+        // Локаль приложения совпадает с system_locale: иначе заголовки разойдутся,
+        // а три UUID процесса (`client_launch_id`, `launch_signature`, `client_heartbeat_session_id`)
+        // остаются неизменными на всю сессию (`rest-d02.md` §6.2).
+        let mut config = official_client_identity_config(Some(locale.clone()));
+        config.client_launch_id = Some(base.super_properties.client_launch_id.clone());
+        config.launch_signature = Some(base.super_properties.launch_signature.clone());
+        config.client_heartbeat_session_id =
+            Some(base.super_properties.client_heartbeat_session_id.clone());
         let super_properties = identity::build(&SystemSources, &config);
         Self {
             super_properties,
@@ -396,14 +415,22 @@ impl IdentityContext {
         }
     }
 
-    /// Контекст из среды: локаль — `identity::build`, таймзона — `TZ`/`/etc/timezone`.
+    /// Контекст из среды (кэшируется один раз на процесс: единые `client_launch_id`,
+    /// `launch_signature` и `client_heartbeat_session_id` для всех REST-вызовов и Gateway OP2 IDENTIFY).
     pub fn detect() -> Self {
-        let super_properties = identity::build(&SystemSources, &IdentityConfig::default());
-        Self {
-            locale: super_properties.system_locale.clone(),
-            timezone: detect_timezone(),
-            super_properties,
-        }
+        static DETECTED_IDENTITY: std::sync::OnceLock<IdentityContext> =
+            std::sync::OnceLock::new();
+        DETECTED_IDENTITY
+            .get_or_init(|| {
+                let super_properties =
+                    identity::build(&SystemSources, &official_client_identity_config(None));
+                Self {
+                    locale: super_properties.system_locale.clone(),
+                    timezone: detect_timezone(),
+                    super_properties,
+                }
+            })
+            .clone()
     }
 }
 
@@ -705,6 +732,87 @@ impl LoginTransport for DiscordLogin {
             .map_err(|error| {
                 ApiError::InvalidRequest(format!("не удалось создать runtime: {error}"))
             })?;
+        if self.base == API_V9_BASE {
+            static LIVE_FINGERPRINT: std::sync::OnceLock<std::sync::Mutex<String>> =
+                std::sync::OnceLock::new();
+            let fp_mutex = LIVE_FINGERPRINT.get_or_init(|| std::sync::Mutex::new(String::new()));
+            let mut cached_fp = fp_mutex.lock().map(|g| g.clone()).unwrap_or_default();
+            if cached_fp.is_empty() {
+                if let Ok(exp_resp) =
+                    runtime.block_on(client.get("/experiments?with_guild_experiments=true"))
+                {
+                    if let Ok(val) = serde_json::from_slice::<serde_json::Value>(&exp_resp.body) {
+                        if let Some(fp) = val
+                            .get("fingerprint")
+                            .and_then(serde_json::Value::as_str)
+                            .map(str::trim)
+                            .filter(|s| !s.is_empty())
+                        {
+                            cached_fp = fp.to_string();
+                            if let Ok(mut g) = fp_mutex.lock() {
+                                *g = cached_fp.clone();
+                            }
+                        }
+                    }
+                }
+            }
+            let mut ext_headers: Vec<(&str, &str)> = headers
+                .iter()
+                .copied()
+                .filter(|(k, _)| !k.eq_ignore_ascii_case(CAPTCHA_RQDATA_HEADER))
+                .collect();
+            if !cached_fp.is_empty()
+                && !ext_headers
+                    .iter()
+                    .any(|(k, _)| k.eq_ignore_ascii_case("x-fingerprint"))
+            {
+                ext_headers.push(("x-fingerprint", cached_fp.as_str()));
+            }
+            if !ext_headers
+                .iter()
+                .any(|(k, _)| k.eq_ignore_ascii_case("origin"))
+            {
+                ext_headers.push(("origin", "https://discord.com"));
+            }
+            if !ext_headers
+                .iter()
+                .any(|(k, _)| k.eq_ignore_ascii_case("referer"))
+            {
+                ext_headers.push(("referer", "https://discord.com/login"));
+            }
+            let has_captcha_key = ext_headers
+                .iter()
+                .any(|(k, v)| k.eq_ignore_ascii_case(CAPTCHA_KEY_HEADER) && !v.is_empty());
+            let has_rqtoken = ext_headers
+                .iter()
+                .any(|(k, v)| k.eq_ignore_ascii_case(CAPTCHA_RQTOKEN_HEADER) && !v.is_empty());
+            let has_session_id = ext_headers
+                .iter()
+                .any(|(k, v)| k.eq_ignore_ascii_case(CAPTCHA_SESSION_ID_HEADER) && !v.is_empty());
+            let res = runtime.block_on(client.post_once(path, body, &ext_headers));
+            match &res {
+                Ok(resp) => {
+                    crate::data::append_live_user_telemetry(serde_json::json!({
+                        "kind": "rust_auth_post",
+                        "path": path,
+                        "status": resp.status,
+                        "has_captcha_key": has_captcha_key,
+                        "has_rqtoken": has_rqtoken,
+                        "has_session_id": has_session_id,
+                        "has_fingerprint": !cached_fp.is_empty(),
+                    }));
+                }
+                Err(e) => {
+                    crate::data::append_live_user_telemetry(serde_json::json!({
+                        "kind": "rust_auth_post_err",
+                        "path": path,
+                        "error": e.to_string(),
+                        "has_captcha_key": has_captcha_key,
+                    }));
+                }
+            }
+            return res;
+        }
         runtime.block_on(client.post_once(path, body, headers))
     }
 }
@@ -824,8 +932,15 @@ fn parse_login_response(status: u16, headers: &[(String, String)], body: &[u8]) 
                 return LoginOutcome::Token(token.trim().to_string());
             }
         }
-        if let Some(sitekey) =
-            json_string(value, "captcha_sitekey").or_else(|| json_string(value, "captcha_key"))
+        if let Some(sitekey) = json_string(value, "captcha_sitekey")
+            .or_else(|| json_string(value, "captcha_key"))
+            .or_else(|| {
+                value
+                    .get("captcha_key")
+                    .and_then(serde_json::Value::as_array)
+                    .filter(|arr| !arr.is_empty())
+                    .map(|_| "a9b5fb07-92ff-493f-86fe-352a2803b3df".to_string())
+            })
         {
             return LoginOutcome::Captcha {
                 sitekey,
@@ -998,32 +1113,140 @@ pub trait TokenStore {
     fn clear(&mut self) -> Result<bool, String>;
 }
 
-/// Продакшн-хранилище поверх `discord-platform::Keyring` (живёт в потоке-владельце).
+fn session_token_file_path() -> Option<std::path::PathBuf> {
+    let base = std::env::var_os("XDG_CONFIG_HOME")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".config"))
+        })?;
+    Some(base.join("discord-client").join("session.json"))
+}
+
+fn session_backup_file_path() -> Option<std::path::PathBuf> {
+    let base = std::env::var_os("XDG_CONFIG_HOME")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".config"))
+        })?;
+    Some(base.join("discord-client").join("session.backup.json"))
+}
+
+fn load_file_session_token() -> Option<String> {
+    let path = session_token_file_path()?;
+    let meta = std::fs::metadata(&path).ok()?;
+    if meta.len() > 64 * 1024 {
+        return None;
+    }
+    let raw = std::fs::read_to_string(path).ok()?;
+    let val: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    val.get("token")
+        .and_then(serde_json::Value::as_str)
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+}
+
+#[allow(dead_code)]
+fn load_backup_session_token() -> Option<String> {
+    let path = session_backup_file_path()?;
+    let meta = std::fs::metadata(&path).ok()?;
+    if meta.len() > 64 * 1024 {
+        return None;
+    }
+    let raw = std::fs::read_to_string(path).ok()?;
+    let val: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    val.get("token")
+        .and_then(serde_json::Value::as_str)
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+}
+
+fn store_file_session_token(token: &str) -> Result<(), String> {
+    let Some(path) = session_token_file_path() else {
+        return Err("не удалось определить каталог конфигурации".to_string());
+    };
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| truncate(&e.to_string()))?;
+    }
+    let body = serde_json::json!({ "token": token }).to_string();
+    std::fs::write(&path, body.as_bytes()).map_err(|e| truncate(&e.to_string()))?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600));
+    }
+    if let Some(backup_path) = session_backup_file_path() {
+        let _ = std::fs::write(&backup_path, body.as_bytes());
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = std::fs::set_permissions(&backup_path, std::fs::Permissions::from_mode(0o600));
+        }
+    }
+    Ok(())
+}
+
+fn clear_file_session_token() -> bool {
+    if let Some(backup_path) = session_backup_file_path() {
+        let _ = std::fs::remove_file(backup_path);
+    }
+    let Some(path) = session_token_file_path() else {
+        return false;
+    };
+    if path.exists() {
+        let _ = std::fs::remove_file(&path);
+        true
+    } else {
+        false
+    }
+}
+
+/// Продакшн-хранилище поверх `discord-platform::Keyring` + локального файла сессии (`0600`).
 struct KeyringStore {
-    ring: Keyring,
+    ring: Option<Keyring>,
 }
 
 impl TokenStore for KeyringStore {
     fn load(&mut self) -> Result<Option<String>, String> {
-        self.ring
-            .lookup(TOKEN_KEY)
-            .map_err(|error| keyring_text(&error))
+        if let Some(tok) = load_file_session_token() {
+            if !tok.trim().is_empty() {
+                return Ok(Some(tok));
+            }
+        }
+        if let Some(ref mut ring) = self.ring {
+            if let Ok(Some(tok)) = ring.lookup(TOKEN_KEY) {
+                if !tok.trim().is_empty() {
+                    return Ok(Some(tok));
+                }
+            }
+        }
+        Ok(None)
     }
 
     fn store(&mut self, token: &str) -> Result<(), String> {
-        self.ring
-            .store(TOKEN_KEY, token)
-            .map_err(|error| keyring_text(&error))
+        let file_res = store_file_session_token(token);
+        if let Some(ref mut ring) = self.ring {
+            if ring.store(TOKEN_KEY, token).is_ok() {
+                return Ok(());
+            }
+        }
+        file_res
     }
 
     fn clear(&mut self) -> Result<bool, String> {
-        self.ring
-            .clear(TOKEN_KEY)
-            .map_err(|error| keyring_text(&error))
+        let file_removed = clear_file_session_token();
+        let ring_removed = if let Some(ref mut ring) = self.ring {
+            ring.clear(TOKEN_KEY).unwrap_or(false)
+        } else {
+            false
+        };
+        Ok(file_removed || ring_removed)
     }
 }
 
 /// Текст ошибки keyring: `KeyringError` не содержит значения секрета (инвариант крейта).
+#[allow(dead_code)]
 fn keyring_text(error: &KeyringError) -> String {
     truncate(&error.to_string())
 }
@@ -1082,10 +1305,10 @@ impl ThreadedStore {
         self
     }
 
-    /// Продакшн-хранилище: `Keyring` поверх Secret Service, ленивое подключение.
+    /// Продакшн-хранилище: `Keyring` поверх Secret Service + резервный файл сессии (`0600`).
     pub fn keyring() -> Self {
         Self::spawn(|| {
-            let ring = Keyring::connect().map_err(|error| keyring_text(&error))?;
+            let ring = Keyring::connect().ok();
             Ok(Box::new(KeyringStore { ring }) as Box<dyn TokenStore>)
         })
     }
@@ -1162,18 +1385,32 @@ fn serve<F>(open: F, receiver: mpsc::Receiver<Request>)
 where
     F: FnOnce() -> Result<Box<dyn TokenStore>, String>,
 {
-    match open() {
+    let opened = std::panic::catch_unwind(std::panic::AssertUnwindSafe(open))
+        .unwrap_or_else(|_| Err("паника при открытии хранилища keyring".to_string()));
+    match opened {
         Ok(mut store) => {
             while let Ok(request) = receiver.recv() {
                 match request {
                     Request::Load(reply) => {
-                        let _ = reply.send(store.load());
+                        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            store.load()
+                        }))
+                        .unwrap_or_else(|_| Err("паника при чтении keyring".to_string()));
+                        let _ = reply.send(res);
                     }
                     Request::Store(token, reply) => {
-                        let _ = reply.send(store.store(&token));
+                        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            store.store(&token)
+                        }))
+                        .unwrap_or_else(|_| Err("паника при записи в keyring".to_string()));
+                        let _ = reply.send(res);
                     }
                     Request::Clear(reply) => {
-                        let _ = reply.send(store.clear());
+                        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            store.clear()
+                        }))
+                        .unwrap_or_else(|_| Err("паника при очистке keyring".to_string()));
+                        let _ = reply.send(res);
                     }
                 }
             }
@@ -1540,6 +1777,11 @@ impl AuthBackend {
                 message: format!("неизвестный метод MFA: {}", truncate(method)),
             });
         }
+        // MFA_CHUNK (модуль 572469, функция `w`): перед отправкой резервного кода
+        // дефисы удаляются (`h.replace(/-/g, "")`).
+        if method == "backup" {
+            code.retain(|ch| ch != '-');
+        }
         if code.is_empty() || ticket.is_empty() {
             wipe_string(&mut code);
             return LoginOutcome::Error(AuthError::EmptyCredentials);
@@ -1752,4 +1994,264 @@ impl fmt::Debug for AuthBackend {
             .field("identity", &self.identity)
             .finish_non_exhaustive()
     }
+}
+
+// ---------------------------------------------------------------------------
+// QR Code / Remote Auth & Step-Up MFA (`QR_CHUNK` 52423, `MFA_CHUNK` 533925)
+// ---------------------------------------------------------------------------
+
+/// WebSocket-шлюз Remote Auth для входа по QR-коду (`QR_CHUNK` 52423: `REMOTE_AUTH_ENDPOINT + "/?v=2"`).
+pub const REMOTE_AUTH_GATEWAY_URL: &str = "wss://remote-auth-gateway.discord.gg/?v=2";
+/// REST-маршрут обмена `ticket` на `encrypted_token` (`QR_CHUNK` 52423: `Endpoints.REMOTE_AUTH_LOGIN`).
+pub const REMOTE_AUTH_LOGIN_PATH: &str = "/users/@me/remote-auth/login";
+/// Префикс URL внутри QR-кода (`QR_CHUNK` 52423: `https://discord.com/ra/${fingerprint}`).
+pub const REMOTE_AUTH_QR_URL_PREFIX: &str = "https://discord.com/ra/";
+/// Минимальный шаг backoff при переподключении Remote Auth WS (`new Backoff(1500, 30000)`).
+pub const REMOTE_AUTH_BACKOFF_MIN_MS: u64 = 1_500;
+/// Максимальный шаг backoff при переподключении Remote Auth WS (`new Backoff(1500, 30000)`).
+pub const REMOTE_AUTH_BACKOFF_MAX_MS: u64 = 30_000;
+
+/// Step-up MFA маршрут (`MFA_CHUNK` 533925: `POST /mfa/finish`).
+pub const STEP_UP_MFA_FINISH_PATH: &str = "/mfa/finish";
+/// Заголовок авторизации step-up MFA (`MFA_CHUNK` 533925: `X-Discord-MFA-Authorization`).
+pub const STEP_UP_MFA_HEADER: &str = "X-Discord-MFA-Authorization";
+/// Длина кода TOTP (`MFA_CHUNK` 533925: `XZ = 6`).
+pub const MFA_TOTP_LEN: usize = 6;
+/// Длина кода SMS для активации кнопки подтверждения (`MFA_CHUNK` 533925: `$A = 6`).
+pub const MFA_SMS_LEN: usize = 6;
+/// Минимальная длина резервного кода (`MFA_CHUNK` 533925: `Zp = 8`).
+pub const MFA_BACKUP_MIN_LEN: usize = 8;
+/// Максимальная длина поля резервного кода с дефисами (`MFA_CHUNK` 533925: `pu = 11`).
+pub const MFA_BACKUP_MAX_LEN: usize = 11;
+
+/// Шаги конечного автомата QR-входа (`QR_CHUNK` 52423 enum `I`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[repr(u8)]
+pub enum RemoteAuthStep {
+    /// Генерация пары ключей RSA-OAEP-2048 и ожидание `pending_remote_init`.
+    Initializing = 0,
+    /// Получен и сверен `fingerprint`, отображается QR-код `https://discord.com/ra/{fingerprint}`.
+    PendingRemoteInit = 1,
+    /// Мобильное приложение отсканировало QR-код (`pending_ticket`), ожидание подтверждения на телефоне.
+    PendingTicket = 2,
+    /// Получен `pending_login`, выполняется `POST /users/@me/remote-auth/login`.
+    PendingLogin = 3,
+    /// Токен расшифрован и применён.
+    Finish = 4,
+}
+
+/// Профиль пользователя из зашифрованного `pending_ticket` (`id:discriminator:avatar:username` в `QR_CHUNK` 52423).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct RemoteAuthUser {
+    /// Snowflake ID пользователя (`^\d+`).
+    pub id: String,
+    /// Дискриминатор (`^\d{1,4}`).
+    pub discriminator: String,
+    /// Хеш аватара (`None`, если в записи было `"0"`).
+    pub avatar: Option<String>,
+    /// Имя пользователя.
+    pub username: String,
+}
+
+/// Кодирует байты в URL-safe Base64 без `=`-паддинга (`O(e)` в `QR_CHUNK` 52423):
+/// `btoa(...).replace(/\//g, "_").replace(/\+/g, "-").replace(/={1,2}$/, "")`.
+#[must_use]
+pub fn encode_base64url_nopad(bytes: &[u8]) -> String {
+    discord_core::rest::base64::encode(bytes)
+        .trim_end_matches('=')
+        .bytes()
+        .map(|b| match b {
+            b'+' => '-',
+            b'/' => '_',
+            other => char::from(other),
+        })
+        .collect()
+}
+
+/// Вычисляет SHA-256 (FIPS 180-4) от произвольного среза байтов без `unsafe`.
+#[must_use]
+pub fn sha256_bytes(data: &[u8]) -> [u8; 32] {
+    const K: [u32; 64] = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
+        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
+        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
+        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
+        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
+        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
+        0xc67178f2,
+    ];
+    let mut state: [u32; 8] = [
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
+        0x5be0cd19,
+    ];
+
+    let bit_len = (data.len() as u64).wrapping_mul(8);
+    let mut padded = Vec::with_capacity((data.len() + 9).div_ceil(64) * 64);
+    padded.extend_from_slice(data);
+    padded.push(0x80);
+    while (padded.len() % 64) != 56 {
+        padded.push(0);
+    }
+    padded.extend_from_slice(&bit_len.to_be_bytes());
+
+    for chunk in padded.as_chunks::<64>().0 {
+        let mut w = [0u32; 64];
+        for (i, word) in chunk.as_chunks::<4>().0.iter().enumerate() {
+            w[i] = u32::from_be_bytes(*word);
+        }
+        for i in 16..64 {
+            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
+            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
+            w[i] = w[i - 16]
+                .wrapping_add(s0)
+                .wrapping_add(w[i - 7])
+                .wrapping_add(s1);
+        }
+
+        let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = state;
+        for i in 0..64 {
+            let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
+            let ch = (e & f) ^ ((!e) & g);
+            let temp1 = h
+                .wrapping_add(s1)
+                .wrapping_add(ch)
+                .wrapping_add(K[i])
+                .wrapping_add(w[i]);
+            let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
+            let maj = (a & b) ^ (a & c) ^ (b & c);
+            let temp2 = s0.wrapping_add(maj);
+
+            h = g;
+            g = f;
+            f = e;
+            e = d.wrapping_add(temp1);
+            d = c;
+            c = b;
+            b = a;
+            a = temp1.wrapping_add(temp2);
+        }
+
+        state[0] = state[0].wrapping_add(a);
+        state[1] = state[1].wrapping_add(b);
+        state[2] = state[2].wrapping_add(c);
+        state[3] = state[3].wrapping_add(d);
+        state[4] = state[4].wrapping_add(e);
+        state[5] = state[5].wrapping_add(f);
+        state[6] = state[6].wrapping_add(g);
+        state[7] = state[7].wrapping_add(h);
+    }
+
+    let mut out = [0u8; 32];
+    for (i, word) in state.iter().enumerate() {
+        let bytes = word.to_be_bytes();
+        out[i * 4] = bytes[0];
+        out[i * 4 + 1] = bytes[1];
+        out[i * 4 + 2] = bytes[2];
+        out[i * 4 + 3] = bytes[3];
+    }
+    out
+}
+
+/// Вычисляет `fingerprint` публичного ключа SPKI (`publicKeyFingerprint` в `QR_CHUNK` 52423):
+/// `base64url_nopad(SHA-256(spki_der))`.
+#[must_use]
+pub fn compute_remote_auth_fingerprint(spki_der: &[u8]) -> String {
+    let digest = sha256_bytes(spki_der);
+    encode_base64url_nopad(&digest)
+}
+
+/// Формирует канонический URL для QR-кода входа (`https://discord.com/ra/{fingerprint}`, `QR_CHUNK` 52423).
+pub fn format_remote_auth_qr_url(fingerprint: &str) -> Result<String, AuthError> {
+    let fp = fingerprint.trim();
+    if fp.is_empty()
+        || !fp
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+    {
+        return Err(AuthError::Parse {
+            message: "некорректный fingerprint QR-кода".to_string(),
+        });
+    }
+    Ok(format!("{REMOTE_AUTH_QR_URL_PREFIX}{fp}"))
+}
+
+/// Разбирает расшифрованную запись пользователя из `pending_ticket` (`D(e, t)` в `QR_CHUNK` 52423):
+/// формат `^(\d+):(\d{1,4}):([a-zA-Z0-9_]+):(.*)$`, где `avatar == "0"` означает `None`.
+pub fn parse_remote_auth_user_payload(decrypted_utf8: &str) -> Result<RemoteAuthUser, AuthError> {
+    let mut parts = decrypted_utf8.splitn(4, ':');
+    let (Some(id), Some(discriminator), Some(avatar), Some(username)) =
+        (parts.next(), parts.next(), parts.next(), parts.next())
+    else {
+        return Err(AuthError::Parse {
+            message: "Invalid encoded user record.".to_string(),
+        });
+    };
+
+    if id.is_empty() || !id.bytes().all(|b| b.is_ascii_digit()) {
+        return Err(AuthError::Parse {
+            message: "Invalid encoded user record.".to_string(),
+        });
+    }
+    if !(1..=4).contains(&discriminator.len()) || !discriminator.bytes().all(|b| b.is_ascii_digit())
+    {
+        return Err(AuthError::Parse {
+            message: "Invalid encoded user record.".to_string(),
+        });
+    }
+    if avatar.is_empty()
+        || !avatar
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'_')
+    {
+        return Err(AuthError::Parse {
+            message: "Invalid encoded user record.".to_string(),
+        });
+    }
+    if username.contains('\n') || username.contains('\r') {
+        return Err(AuthError::Parse {
+            message: "Invalid encoded user record.".to_string(),
+        });
+    }
+
+    Ok(RemoteAuthUser {
+        id: id.to_string(),
+        discriminator: discriminator.to_string(),
+        avatar: if avatar == "0" {
+            None
+        } else {
+            Some(avatar.to_string())
+        },
+        username: username.to_string(),
+    })
+}
+
+/// Формирует JSON-кадр `init` для `wss://remote-auth-gateway.discord.gg/?v=2` (`QR_CHUNK` 52423).
+#[must_use]
+pub fn encode_remote_auth_init(encoded_public_key: &str) -> String {
+    serde_json::json!({
+        "op": "init",
+        "encoded_public_key": encoded_public_key,
+    })
+    .to_string()
+}
+
+/// Формирует JSON-кадр `nonce_proof` из расшифрованного RSA-OAEP `encrypted_nonce` (`QR_CHUNK` 52423:
+/// `decryptNonce` применяет `O(decrypted)` без повторного хеширования).
+#[must_use]
+pub fn encode_remote_auth_nonce_proof(decrypted_nonce: &[u8]) -> String {
+    let nonce = encode_base64url_nopad(decrypted_nonce);
+    serde_json::json!({
+        "op": "nonce_proof",
+        "nonce": nonce,
+    })
+    .to_string()
+}
+
+/// Формирует JSON-кадр `heartbeat` для Remote Auth WS (`QR_CHUNK` 52423).
+#[must_use]
+pub const fn encode_remote_auth_heartbeat() -> &'static str {
+    r#"{"op":"heartbeat"}"#
 }

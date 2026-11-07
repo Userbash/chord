@@ -1,0 +1,71 @@
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.67891ms)
+✔ COMPOSER_POPOVER_LAYERS (1.18256ms)
+▶ resolveComposerDraftPopover
+  ✔ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.237411ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.14122ms)
+✔ resolveComposerDraftPopover (0.495501ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.32ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.10997ms)
+  ✔ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.186811ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.133731ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.14374ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.23587ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.12864ms)
+  ✔ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.18657ms)
+  ✖ getFilteredSlashCommands отдаёт глубокую копию options и не мутирует состояние моста (0.51273ms)
+  ✖ selectSlashCommand с пустым именем команды возвращает null и не вызывает колбэк выбора (0.16106ms)
+✖ createComposerPopoversBridge (6.849252ms)
+ℹ tests 13
+ℹ suites 3
+ℹ pass 11
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.904496
+
+✖ failing tests:
+
+test at tests/unit/composer-popovers-bridge.test.mjs:275:3
+✖ getFilteredSlashCommands отдаёт глубокую копию options и не мутирует состояние моста (0.51273ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  3 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-285-ui-composer-popovers-pass2/tests/unit/composer-popovers-bridge.test.mjs:309:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 3,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer-popovers-bridge.test.mjs:319:3
+✖ selectSlashCommand с пустым именем команды возвращает null и не вызывает колбэк выбора (0.16106ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  {} !== null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-285-ui-composer-popovers-pass2/tests/unit/composer-popovers-bridge.test.mjs:333:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {},
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

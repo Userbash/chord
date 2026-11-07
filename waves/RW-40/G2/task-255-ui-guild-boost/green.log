@@ -1,0 +1,16 @@
+✔ BOOST_TIER_THRESHOLDS: frozen и содержит пороги 2/7/14 (0.77383ms)
+✔ BOOST_TIER_PERKS_RU: 4 уровня, вложенные объекты заморожены (0.16659ms)
+✔ resolveBoostTierFromCount: границы уровней (0.10055ms)
+✔ resolveBoostTierFromCount: негативные, дробные и мусорные значения (0.08624ms)
+✔ formatBoostProgressSummaryRu: уровень 0 (0.11734ms)
+✔ formatBoostProgressSummaryRu: остаток бустов до следующего уровня (0.08524ms)
+✔ formatBoostProgressSummaryRu: максимальный уровень, остаток и перки (0.073291ms)
+✔ formatBoostProgressSummaryRu: нормализация отрицательных и мусорных входов (0.07163ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.45817

@@ -1,0 +1,30 @@
+▶ DEFAULT_SHORTCUTS
+  ✔ содержит точный набор комбинаций (0.893095ms)
+  ✔ заморожен (0.338422ms)
+✔ DEFAULT_SHORTCUTS (2.08459ms)
+▶ normalizeKeyCombo
+  ✔ собирает Ctrl + буква и поднимает регистр (0.347912ms)
+  ✔ трактует metaKey как Ctrl (0.110181ms)
+  ✔ не дублирует Ctrl при ctrlKey и metaKey (0.112281ms)
+  ✔ порядок модификаторов: Ctrl, Alt, Shift (0.944944ms)
+  ✔ отдаёт одиночную клавишу без модификаторов (0.11564ms)
+  ✔ кодирует пробел как Space (0.180561ms)
+  ✔ возвращает null на пустой клавише и на голом модификаторе (0.16809ms)
+✔ normalizeKeyCombo (2.420272ms)
+▶ matchesShortcut
+  ✔ совпадает с дефолтным комбо (0.192871ms)
+  ✔ не совпадает при другом наборе модификаторов (0.083451ms)
+  ✔ не совпадает, когда нормализация дала null (0.07672ms)
+✔ matchesShortcut (0.511083ms)
+▶ formatShortcutAriaLabelRu
+  ✔ добавляет русский префикс к комбо (0.10343ms)
+  ✔ подставляет «не назначена» на пустом значении (0.09105ms)
+✔ formatShortcutAriaLabelRu (0.844184ms)
+ℹ tests 14
+ℹ suites 4
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.539842

@@ -1,0 +1,21 @@
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-239-be-scheduled-events/rust/crates/discord-codec)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-239-be-scheduled-events/rust/gui-spike)
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-239-be-scheduled-events/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-239-be-scheduled-events/rust/crates/discord-platform)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-239-be-scheduled-events/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_gui_spike::scheduled_events`
+  --> tests/scheduled_events_contract.rs:24:24
+   |
+24 | use discord_gui_spike::scheduled_events::{
+   |                        ^^^^^^^^^^^^^^^^ could not find `scheduled_events` in `discord_gui_spike`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "scheduled_events_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+EXIT_CODE=101

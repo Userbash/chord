@@ -1,0 +1,34 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.11s
+     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-ec4bcc86c6ada46a)
+
+running 13 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains ... FAILED
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains' (309252) panicked at src/main.rs:2200:9:
+invoke_bff_domain не зарегистрирован в invoke_handler!
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `--bin discord-gui-spike`

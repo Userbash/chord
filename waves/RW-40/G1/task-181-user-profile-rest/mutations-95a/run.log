@@ -1,0 +1,76 @@
+
+=== M1: skip user_id snowflake validation
+--- a/rust/gui-spike/src/profile.rs
++++ b/rust/gui-spike/src/profile.rs
+@@ -334,7 +334,4 @@
+     query: &ProfileQuery,
+ ) -> Result<String, ProfileError> {
+-    if !is_snowflake(user_id) {
+-        return Err(ProfileError::InvalidArg);
+-    }
+     if let Some(guild_id) = query.guild_id.as_deref() {
+         if !is_snowflake(guild_id) {
+
+M1 RESULT: KILLED exit=101 compile_errors=0 failing=['invalid_ids_are_rejected_before_any_transport_call', 'user_id_must_be_a_non_empty_ascii_digit_snowflake']
+
+=== M2: omit guild_id query param
+--- a/rust/gui-spike/src/profile.rs
++++ b/rust/gui-spike/src/profile.rs
+@@ -359,7 +359,4 @@
+         query.with_mutual_friends_count
+     ));
+-    if let Some(guild_id) = query.guild_id.as_deref() {
+-        params.push(format!("guild_id={guild_id}"));
+-    }
+ 
+     Ok(format!("/users/{user_id}/profile?{}", params.join("&")))
+
+M2 RESULT: KILLED exit=101 compile_errors=0 failing=['fetch_forwards_the_guild_scoped_path', 'guild_id_is_appended_last_exactly_as_in_the_capture']
+
+=== M3: allow empty user.id in parse_user_profile
+--- a/rust/gui-spike/src/profile.rs
++++ b/rust/gui-spike/src/profile.rs
+@@ -373,5 +373,5 @@
+     let profile: UserProfileResponse =
+         serde_json::from_slice(body).map_err(|_| ProfileError::InvalidResponse)?;
+-    if profile.user.id.trim().is_empty() || profile.user.username.trim().is_empty() {
++    if profile.user.username.trim().is_empty() {
+         return Err(ProfileError::InvalidResponse);
+     }
+
+M3 RESULT: KILLED exit=101 compile_errors=0 failing=['empty_or_missing_user_identity_is_invalid_response']
+
+=== M4: return retry_after_ms=0 on 429
+--- a/rust/gui-spike/src/profile.rs
++++ b/rust/gui-spike/src/profile.rs
+@@ -427,5 +427,5 @@
+     if response.status == 429 {
+         return Err(ProfileError::RateLimited {
+-            retry_after_ms: parse_retry_after_ms(response),
++            retry_after_ms: 0,
+         });
+     }
+
+M4 RESULT: KILLED exit=101 compile_errors=0 failing=['fetch_429_extracts_retry_after_from_headers', 'fetch_429_extracts_retry_after_from_json_body']
+
+=== M5: map 404 to NotFound->Unauthorized
+--- a/rust/gui-spike/src/profile.rs
++++ b/rust/gui-spike/src/profile.rs
+@@ -430,4 +430,7 @@
+         });
+     }
++    if response.status == 404 {
++        return Err(ProfileError::Unauthorized);
++    }
+     if let Some(failure) = RestFailure::from_status(response.status) {
+         return Err(failure.into());
+
+M5 RESULT: KILLED exit=101 compile_errors=0 failing=['http_statuses_map_to_typed_errors']
+
+SUMMARY
+  M1 KILLED   skip user_id snowflake validation -> invalid_ids_are_rejected_before_any_transport_call, user_id_must_be_a_non_empty_ascii_digit_snowflake
+  M2 KILLED   omit guild_id query param -> fetch_forwards_the_guild_scoped_path, guild_id_is_appended_last_exactly_as_in_the_capture
+  M3 KILLED   allow empty user.id in parse_user_profile -> empty_or_missing_user_identity_is_invalid_response
+  M4 KILLED   return retry_after_ms=0 on 429 -> fetch_429_extracts_retry_after_from_headers, fetch_429_extracts_retry_after_from_json_body
+  M5 KILLED   map 404 to NotFound->Unauthorized -> http_statuses_map_to_typed_errors
+TOTAL: 5 / 5

@@ -1,0 +1,94 @@
+# MUTANT M5: getState: возврат внутренней ссылки state вместо копии { ...state }
+# file: rust/gui-spike/ui/features/appearance-settings.js
+# mutant md5: b9bdeedf613aa1914ec1c178fb3726a9
+# exit: 1
+# verdict: KILLED
+# command: node --test tests/unit/profile-modal.test.mjs tests/unit/appearance-settings.test.mjs
+
+▶ appearance-settings: константы
+  ✔ T-185-01: наборы шагов и ключ хранилища зафиксированы и заморожены (0.66073ms)
+✔ appearance-settings: константы (1.4077ms)
+▶ appearance-settings: состояние по умолчанию
+  ✔ T-185-02: без storage контроллер стартует с дефолтами (0.323591ms)
+  ✔ T-185-03: create применяет значения к documentElement сразу (0.27953ms)
+✔ appearance-settings: состояние по умолчанию (0.744501ms)
+▶ appearance-settings: гидратация
+  ✔ T-185-04: валидный JSON из storage восстанавливает все 4 контрола (0.25503ms)
+  ✔ T-185-05: невалидные поля в JSON отбрасываются по одному, остальные применяются (0.50485ms)
+  ✔ T-185-06: битый JSON и мусор в storage не ломают контроллер (0.23114ms)
+  ✔ T-185-07: падение storage.getItem не мешает старту с дефолтами (0.13689ms)
+✔ appearance-settings: гидратация (1.34696ms)
+▶ appearance-settings: сеттеры и валидация
+  ✔ T-185-08: setTheme применяет тему и пишет JSON в storage (0.18747ms)
+  ✔ T-185-09: setTheme отвергает чужое значение без мутации и записи в storage (0.12ms)
+  ✔ T-185-10: setFontScale принимает только шаги и пишет проценты в CSS-переменную (0.21936ms)
+  ✔ T-185-11: setGroupSpacing принимает 0 и остальные шаги, отвергая прочие (0.14196ms)
+  ✔ T-185-12: setReducedMotion принимает строго boolean (0.10781ms)
+✔ appearance-settings: сеттеры и валидация (0.94762ms)
+▶ appearance-settings: getState и resetDefaults
+  ✖ T-185-13: getState отдаёт копию, внешняя мутация не меняет контроллер (0.91464ms)
+  ✔ T-185-14: resetDefaults возвращает дефолты, применяет их и перезаписывает storage (0.13703ms)
+  ✔ T-185-15: падение storage.setItem не отменяет применение к DOM (0.09314ms)
+✖ appearance-settings: getState и resetDefaults (1.26491ms)
+▶ STATUS_LABELS_RU
+  ✔ заморожен и содержит русские подписи для online, idle, dnd, offline (0.64486ms)
+✔ STATUS_LABELS_RU (1.213091ms)
+▶ createProfileModalController: openPopout
+  ✔ рендерит компактную карточку data-profile-mode='popout' с именем, юзернеймом, местоимениями, статусом и био (0.89997ms)
+  ✔ корректно отображает все 4 статуса из STATUS_LABELS_RU и фоллбэчит неизвестный в offline (0.68538ms)
+  ✔ рендерит пилюли ролей с data-role-id и цветом роли (0.1479ms)
+  ✔ вызывает onSaveNote(userId, noteText) при изменении поля личной заметки (0.23382ms)
+  ✔ рендерит быстрый инпут ЛС с placeholder 'Написать @' + username и вызывает onSendQuickMessage только для непустого текста (0.21587ms)
+✔ createProfileModalController: openPopout (2.41896ms)
+▶ createProfileModalController: openFullModal и setTab
+  ✔ рендерит диалог полного профиля (role='dialog', aria-modal='true', data-profile-mode='modal') с 3 вкладками и счётчиками (0.40251ms)
+  ✔ setTab('mutual_guilds') и setTab('mutual_friends') переключают активную вкладку и рендерят списки (0.24758ms)
+  ✔ рендерит русские пустые состояния 'Нет общих серверов' и 'Нет общих друзей' при пустых списках (0.16433ms)
+  ✔ клик по кнопке вкладки переключает вкладку, а невалидный setTab возвращает false (0.1878ms)
+✔ createProfileModalController: openFullModal и setTab (1.19044ms)
+▶ createProfileModalController: переключение режимов и close()
+  ✔ openFullModal заменяет открытый popout, а close() полностью удаляет карточку/модалку из контейнера (0.246411ms)
+  ✔ поддерживает поле about как синоним bio, скрывает пустые местоимения и отвергает невалидный containerEl (0.31067ms)
+✔ createProfileModalController: переключение режимов и close() (0.634631ms)
+ℹ tests 27
+ℹ suites 9
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.919969
+
+✖ failing tests:
+
+test at tests/unit/appearance-settings.test.mjs:221:3
+✖ T-185-13: getState отдаёт копию, внешняя мутация не меняет контроллер (0.91464ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   fontScale: 150,
+  -   fontScale: 100,
+      groupSpacing: 16,
+      reducedMotion: false,
+  +   theme: 'light'
+  -   theme: 'dark'
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-280-unit-tsc-fix-batch1/tests/unit/appearance-settings.test.mjs:227:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { theme: 'light', fontScale: 150, groupSpacing: 16, reducedMotion: false },
+    expected: { theme: 'dark', fontScale: 100, groupSpacing: 16, reducedMotion: false },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

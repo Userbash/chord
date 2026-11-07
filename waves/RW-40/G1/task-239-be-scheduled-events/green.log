@@ -1,0 +1,18 @@
+    Blocking waiting for file lock on build directory
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-239-be-scheduled-events/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.59s
+     Running tests/scheduled_events_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/scheduled_events_contract-75e724bb9d875536)
+
+running 8 tests
+test build_event_rsvp_route_validates_both_snowflakes_and_formats_path ... ok
+test build_guild_events_route_validates_guild_id_and_formats_query ... ok
+test scheduled_events_constants_match_discord_contract ... ok
+test validate_scheduled_event_request_enforces_name_and_description_bounds ... ok
+test create_scheduled_event_request_serde_roundtrip ... ok
+test validate_scheduled_event_request_validates_external_location_and_end_time_and_rejects_unknown_entity ... ok
+test validate_scheduled_event_request_enforces_privacy_level_and_start_time ... ok
+test validate_scheduled_event_request_validates_stage_and_voice_channel_snowflake ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

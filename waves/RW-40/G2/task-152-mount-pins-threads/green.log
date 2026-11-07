@@ -1,0 +1,62 @@
+=== node --test tests/unit/pins-threads.test.mjs ===
+▶ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels
+  ✔ прогрессивно создаёт #chat-pins-panel и #chat-threads-panel и переключает их взаимно исключающе (2.248803ms)
+✔ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels (2.812023ms)
+▶ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)
+  ✔ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (1.456552ms)
+  ✔ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.420421ms)
+  ✔ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (1.518192ms)
+  ✔ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (1.083311ms)
+  ✔ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.53739ms)
+✔ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts) (5.263726ms)
+ℹ tests 6
+ℹ suites 2
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.886946
+=== node --test tests/unit/channel-paging.test.mjs ===
+▶ C-02-PAGE: первая страница
+  ✔ открытие канала — position=latest, limit=100, без cursor/before/token (37.223303ms)
+✔ C-02-PAGE: первая страница (37.902074ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (21.801595ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (9.404341ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (10.591862ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (42.042428ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (11.193753ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (9.643441ms)
+✔ C-02-PAGE: ошибки подгрузки видны (21.037735ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (11.622454ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (15.115187ms)
+✔ C-02-PAGE: границы окна (26.924831ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✔ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (10.771843ms)
+✔ C-02-UI-OLDER: открытие на последнем сообщении (10.879573ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✔ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (11.311703ms)
+  ✔ направления не смешиваются: nextCursor older-страницы не подменяет forward (11.106763ms)
+✔ C-02-UI-OLDER: скролл вверх (before/olderCursor) (22.553996ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✔ ошибка 404: alert сверху, строки целы, retry догружает (7.340759ms)
+  ✔ ошибка 401: alert сверху, строки целы, retry догружает (8.99398ms)
+✔ C-02-UI-OLDER: ошибки подгрузки вверх (16.455409ms)
+▶ C-02-UI-OLDER: границы окна
+  ✔ окно истории не растёт сверх 500 строк при подгрузке вверх (15.792699ms)
+✔ C-02-UI-OLDER: границы окна (15.883799ms)
+ℹ tests 14
+ℹ suites 8
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 257.304919
+=== npx tsc -p tsconfig.json ===
+TSC_ROOT_EXIT=0
+=== npx tsc -p rust/gui-spike/ui/tsconfig.json ===
+TSC_UI_EXIT=0

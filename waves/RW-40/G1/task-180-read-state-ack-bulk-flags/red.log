@@ -1,0 +1,198 @@
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/crates/discord-codec)
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/crates/discord-platform)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_gui_spike::messages::AckBulkEntry`, `discord_gui_spike::messages::AckMessageOptions`, `discord_gui_spike::messages::ACK_BULK_PATH`, `discord_gui_spike::messages::MAX_ACK_BULK_ENTRIES`
+ --> tests/messages_contract.rs:3:77
+  |
+3 |     ack_message, delete_message, edit_message, reply_message, send_message, AckBulkEntry,
+  |                                                                             ^^^^^^^^^^^^ no `AckBulkEntry` in `messages`
+4 |     AckMessageOptions, AckTransport, DiscordMessageSender, DiscordReadState, MessageActions,
+  |     ^^^^^^^^^^^^^^^^^ no `AckMessageOptions` in `messages`
+5 |     MessageError, MessageReceipt, MessageSender, ReadStateAck, ACK_BULK_PATH,
+  |                                                                ^^^^^^^^^^^^^ no `ACK_BULK_PATH` in `messages`
+6 |     MAX_ACK_BULK_ENTRIES,
+  |     ^^^^^^^^^^^^^^^^^^^^ no `MAX_ACK_BULK_ENTRIES` in `messages`
+  |
+help: a similar name exists in the module
+  |
+4 -     AckMessageOptions, AckTransport, DiscordMessageSender, DiscordReadState, MessageActions,
+4 +     MessageActions, AckTransport, DiscordMessageSender, DiscordReadState, MessageActions,
+  |
+
+error[E0599]: no method named `ack_message_with_options` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:550:17
+    |
+550 |         run(api.ack_message_with_options(
+    |             ----^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordReadState`
+
+error[E0599]: no method named `ack_message_with_options` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:582:17
+    |
+582 |         run(api.ack_message_with_options(
+    |             ----^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordReadState`
+
+error[E0599]: no method named `ack_message_with_options` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:598:17
+    |
+598 |         run(api.ack_message_with_options(
+    |             ----^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordReadState`
+
+error[E0599]: no method named `ack_message_with_options` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:669:21
+    |
+669 |             run(api.ack_message_with_options(channel, message, AckMessageOptions::default())),
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordReadState`
+
+error[E0599]: no method named `ack_message_with_options` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:698:21
+    |
+698 |             run(api.ack_message_with_options(
+    |                 ----^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordReadState`
+
+error[E0599]: no method named `ack_message_with_options` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:709:21
+    |
+709 |             run(api.ack_message_with_options(
+    |                 ----^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordReadState`
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:729:24
+    |
+729 |     assert_eq!(run(api.ack_messages_bulk(&entries)), Ok(()));
+    |                        ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:731:17
+    |
+731 |         run(api.ack_messages_bulk(&entries[..1])),
+    |                 ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:776:17
+    |
+776 |         run(api.ack_messages_bulk(&[])),
+    |                 ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:786:17
+    |
+786 |         run(api.ack_messages_bulk(&too_many)),
+    |                 ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:800:24
+    |
+800 |     assert_eq!(run(api.ack_messages_bulk(&exactly)), Ok(()));
+    |                        ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:832:21
+    |
+832 |             run(api.ack_messages_bulk(&entries)),
+    |                     ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+error[E0599]: no method named `ack_messages_bulk` found for struct `DiscordReadState` in the current scope
+   --> tests/messages_contract.rs:864:21
+    |
+864 |             run(api.ack_messages_bulk(&entries)),
+    |                     ^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `ack_message` with a similar name, but with different arguments
+   --> src/messages.rs:291:5
+    |
+291 | /     fn ack_message<'a>(
+292 | |         &'a self,
+293 | |         channel_id: &'a str,
+294 | |         message_id: &'a str,
+295 | |         last_viewed: u64,
+296 | |         token: Option<String>,
+297 | |     ) -> Pin<Box<dyn Future<Output = Result<(), MessageError>> + Send + 'a>>;
+    | |_____________________________________________________________________________^
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "messages_contract") due to 14 previous errors
+warning: build failed, waiting for other jobs to finish...

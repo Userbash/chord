@@ -1,0 +1,48 @@
+# RED — task-281 batch 2, до правок
+# $ npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "svg-icons\.test\.mjs|channel-tree\.test\.mjs"
+# matching lines: 44
+
+tests/unit/channel-tree.test.mjs(16,13): error TS7006: Parameter 'id' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,17): error TS7006: Parameter 'name' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,23): error TS7006: Parameter 'type' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,29): error TS7006: Parameter 'position' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,39): error TS7006: Parameter 'parentId' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(16,49): error TS7006: Parameter 'unread' implicitly has an 'any' type.
+tests/unit/channel-tree.test.mjs(62,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(63,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(64,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(65,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(99,16): error TS18048: 'cat' is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(100,20): error TS18048: 'cat' is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(106,20): error TS18048: 'cat' is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(116,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(117,16): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(118,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/channel-tree.test.mjs(128,20): error TS2532: Object is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(128,17): error TS18048: 'd' is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(129,20): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+tests/unit/svg-icons.test.mjs(137,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(152,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(153,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(154,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(154,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(154,36): error TS2339: Property 'tagName' does not exist on type 'ChildNode'.
+tests/unit/svg-icons.test.mjs(155,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(155,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/svg-icons.test.mjs(155,36): error TS2339: Property 'getAttribute' does not exist on type 'ChildNode'.
+tests/unit/svg-icons.test.mjs(160,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(161,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(162,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(163,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(164,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(169,31): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(170,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(171,18): error TS18047: 'svg' is possibly 'null'.
+tests/unit/svg-icons.test.mjs(176,32): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(177,32): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(178,32): error TS2740: Type '{ createElement(tag: string): FakeNode; }' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 262 more.
+tests/unit/svg-icons.test.mjs(190,40): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+tests/unit/svg-icons.test.mjs(205,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+tests/unit/svg-icons.test.mjs(207,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+tests/unit/svg-icons.test.mjs(219,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.
+tests/unit/svg-icons.test.mjs(233,36): error TS2345: Argument of type 'FakeNode' is not assignable to parameter of type 'Document | Element | null | undefined'.

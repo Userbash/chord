@@ -1,0 +1,38 @@
+# RED-FINAL (Review 40A, P2-1): финальная (отформатированная) ревизия tests/dm_friends_contract.rs
+# против отката реализации P2-2: src/dm_friends.rs в редакции до фикса (map_error_response без кодов 4xx).
+# Дата: 2026-10-30T21:01:17+05:00
+# Команда: CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract
+# MD5 tests/dm_friends_contract.rs: 920b11eef5ef5de7bebf715a9846f5ad
+# MD5 src/dm_friends.rs (откат P2-2): d1820fe304816de3e4def848d992d3b9
+#
+    Blocking waiting for file lock on build directory
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.19s
+     Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-a6b95d0d0a5c72b0)
+
+running 6 tests
+test rest_error_responses_preserve_discord_code_on_403_and_404 ... FAILED
+test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... ok
+test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+test ready_private_channels_and_rest_static_oracle_parity ... ok
+
+failures:
+
+---- rest_error_responses_preserve_discord_code_on_403_and_404 stdout ----
+
+thread 'rest_error_responses_preserve_discord_code_on_403_and_404' (1089963) panicked at tests/dm_friends_contract.rs:1127:5:
+assertion `left == right` failed: 403 обязан сохранять код Discord 40002 (EMAIL_VERIFICATION_REQUIRED)
+  left: Forbidden
+ right: DiscordApiCode { status: 403, code: 40002 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rest_error_responses_preserve_discord_code_on_403_and_404
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `--test dm_friends_contract`
+EXIT=101

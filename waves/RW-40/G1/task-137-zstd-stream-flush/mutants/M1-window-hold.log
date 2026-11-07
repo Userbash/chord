@@ -1,0 +1,45 @@
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.18s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
+
+running 5 tests
+test tests::etf_tags_are_the_frozen_eleven ... ok
+test tests::zstd_magic_matches_capture ... ok
+test zstd::tests::flush_then_frame_end_releases_everything ... FAILED
+test zstd::tests::flush_releases_each_message_immediately ... FAILED
+test zstd::tests::flush_keeps_window_history_across_chunks ... FAILED
+
+failures:
+
+---- zstd::tests::flush_then_frame_end_releases_everything stdout ----
+
+thread 'zstd::tests::flush_then_frame_end_releases_everything' (1457386) panicked at crates/discord-codec/src/zstd.rs:340:9:
+assertion `left == right` failed: весь поток отдан без потерь
+  left: ""
+ right: "8374000000046400016474000000026400047479706564000b4d4553534147455f435245415445640001736400013164000264640002696467000000016400086368616e6e656c5f69646700000001640007636f6e74656e7464000c7072697665742d68692d31640001736400013264000264640002696467000000016400086368616e6e656c5f69646700000001640007636f6e74656e7464000c7072697665742d68692d32640001736400013364000264640002696467000000016400086368616e6e656c5f69646700000001640007636f6e74656e7464000c7072697665742d68692d33640001736400013464000264640002696467000000016400086368616e6e656c5f69646700000001640007636f6e74656e7464000c7072697665742d68692d34640001736400013564000264640002696467000000016400086368616e6e656c5f69646700000001640007636f6e74656e7464000c7072697665742d68692d35"
+
+---- zstd::tests::flush_releases_each_message_immediately stdout ----
+
+thread 'zstd::tests::flush_releases_each_message_immediately' (1457385) panicked at crates/discord-codec/src/zstd.rs:286:13:
+assertion `left == right` failed: push 0: выход обязан содержать сообщение целиком и сразу
+  left: ""
+ right: "8374000000046400016474000000026400047479706564000b4d4553534147455f435245415445"
+
+---- zstd::tests::flush_keeps_window_history_across_chunks stdout ----
+
+thread 'zstd::tests::flush_keeps_window_history_across_chunks' (1457384) panicked at crates/discord-codec/src/zstd.rs:318:13:
+assertion `left == right` failed: push 0: накопленный выход = все сообщения до текущего
+  left: ""
+ right: "8374000000046400016474000000026400047479706564000b4d4553534147455f435245415445"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    zstd::tests::flush_keeps_window_history_across_chunks
+    zstd::tests::flush_releases_each_message_immediately
+    zstd::tests::flush_then_frame_end_releases_everything
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-codec --lib`

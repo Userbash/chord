@@ -6,9 +6,9 @@
 //! `disconnect` идемпотентен. Реальный драйвер (core supervisor) подключается
 //! отдельно; в тестах — `FakeGateway`, без сети.
 //!
-//! L-02 (первый backend-срез dispatch → UI): `GatewayEvent::Dispatch` несёт
-//! `discord_core::DispatchEvent`; [`map_dispatch`] фильтрует шесть наблюдаемых
-//! имён, вырезает секреты READY и конвертирует `d` в JSON-конверт
+//! L-02 (backend-срез dispatch → UI): `GatewayEvent::Dispatch` несёт
+//! `discord_core::DispatchEvent`; [`map_dispatch`] пропускает канонические типы
+//! ядра, вырезает секреты READY и конвертирует `d` в JSON-конверт
 //! `{kind, data}`; [`DispatchChannel`] отдаёт его в UI-канал
 //! [`DISPATCH_EVENT`] на отдельном потоке (try_send: источник не блокируется).
 //!
@@ -18,6 +18,7 @@
 //! `CONTRACTS/dispatch.md` §6). Поэтому [`CORE_DISPATCH_AVAILABLE`] = true: источник
 //! живой, а не тестовый; `FakeGateway` в тестах идёт тем же путём.
 
+use std::collections::BTreeMap;
 use std::fmt;
 use std::sync::mpsc::{sync_channel, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex};
@@ -28,8 +29,14 @@ use discord_core::dispatch::{DispatchEvent, DispatchKind};
 use discord_core::gateway::supervisor::{
     StopReason, Supervisor, SupervisorConfig, SupervisorEvent,
 };
-use discord_core::ws::GatewayUrl;
-use serde::Serialize;
+use discord_core::gateway::{
+    encode_guild_subscriptions_bulk_chunked, encode_presence_update, encode_voice_state_update,
+    GuildSubscriptionsBulk, OutboundGuildMembersRequest, OutboundGuildSubscription,
+    OutboundPresenceUpdate, OutboundVoiceStateUpdate,
+};
+use discord_core::state::PresenceStatus;
+use discord_core::ws::{encode_request_guild_members_frames, GatewayUrl};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Ошибка сетевого слоя. Токен в сообщениях/`Debug` не появляется.
@@ -103,20 +110,54 @@ pub const DISPATCH_EVENT: &str = "gateway://dispatch";
 /// Сколько событий ждёт медленный UI, прежде чем источник получает отказ.
 pub const DISPATCH_QUEUE_CAPACITY: usize = 256;
 
-/// Типы op0, доходящие до UI, — только наблюдаемые имена провода.
-///
-/// READY/CHUNK/PRESENCE — данные первого экрана (PARITY L-02); `LIST_UPDATE` —
-/// реальный поток участников (70 кадров `by-type`, 1048 в union ядра);
-/// `MESSAGE_REACTION_ADD` наблюдён один раз (union 7 снимков). `REMOVE` — по
-/// имени провода: в захватах его нет (`CONTRACTS/dispatch.md` §4), поэтому
-/// форма события не парсится и не выдумывается.
-pub const FORWARDED_DISPATCHES: [&str; 6] = [
-    "READY",
+/// 8 расширенных событий жизненного цикла каналов/тредов и удаления сообщений из PR-32
+/// (`MESSAGE_DELETE`, `MESSAGE_DELETE_BULK`, `CHANNEL_CREATE`, `CHANNEL_UPDATE`, `CHANNEL_DELETE`,
+/// `THREAD_CREATE`, `THREAD_UPDATE`, `THREAD_DELETE`).
+const EXTENDED_DISPATCHES: [&str; 8] = [
+    "CHANNEL_CREATE",
+    "CHANNEL_UPDATE",
+    "CHANNEL_DELETE",
+    "THREAD_CREATE",
+    "THREAD_UPDATE",
+    "THREAD_DELETE",
+    "MESSAGE_DELETE",
+    "MESSAGE_DELETE_BULK",
+];
+
+/// Типы op0, доходящие до UI: все 21 канонических имени ядра ([`DispatchKind`])
+/// плюс 8 расширенных событий жизненного цикла каналов/тредов и удаления сообщений из PR-32
+/// и `MESSAGE_REACTION_REMOVE`.
+pub const FORWARDED_DISPATCHES: [&str; 30] = [
+    "CHANNEL_INFO",
     "GUILD_MEMBERS_CHUNK",
     "GUILD_MEMBER_LIST_UPDATE",
-    "PRESENCE_UPDATE",
+    "MESSAGE_ACK",
+    "MESSAGE_CREATE",
+    "MESSAGE_POLL_VOTE_ADD",
     "MESSAGE_REACTION_ADD",
     "MESSAGE_REACTION_REMOVE",
+    "MESSAGE_UPDATE",
+    "PRESENCE_UPDATE",
+    "READY",
+    "READY_SUPPLEMENTAL",
+    "RESUMED",
+    "SESSIONS_REPLACE",
+    "SOUNDBOARD_SOUNDS",
+    "THREAD_LIST_SYNC",
+    "TYPING_START",
+    "USER_SETTINGS_PROTO_UPDATE",
+    "VOICE_CHANNEL_START_TIME_UPDATE",
+    "VOICE_CHANNEL_STATUS_UPDATE",
+    "VOICE_SERVER_UPDATE",
+    "VOICE_STATE_UPDATE",
+    EXTENDED_DISPATCHES[0],
+    EXTENDED_DISPATCHES[1],
+    EXTENDED_DISPATCHES[2],
+    EXTENDED_DISPATCHES[3],
+    EXTENDED_DISPATCHES[4],
+    EXTENDED_DISPATCHES[5],
+    EXTENDED_DISPATCHES[6],
+    EXTENDED_DISPATCHES[7],
 ];
 
 /// Отдаёт ли ядро диспатчи наружу (см. `CONTRACTS/dispatch.md` §6).
@@ -192,7 +233,13 @@ pub fn etf_to_json(value: &EtfValue) -> Result<Value, DispatchError> {
     Ok(match value {
         EtfValue::Nil => Value::Null,
         EtfValue::Atom(text) | EtfValue::Str(text) => Value::String(text.clone()),
-        EtfValue::Int(int) => Value::Number((*int).into()),
+        EtfValue::Int(int) => {
+            if int.unsigned_abs() > 9_007_199_254_740_991 {
+                Value::String(int.to_string())
+            } else {
+                Value::Number((*int).into())
+            }
+        }
         EtfValue::Float(float) => serde_json::Number::from_f64(*float)
             .map(Value::Number)
             .unwrap_or(Value::Null),
@@ -241,7 +288,7 @@ fn redact_secrets(value: Value, redacted: &mut usize) -> Value {
     }
 }
 
-/// op0 ядра → конверт UI; `Ok(None)` — тип вне среза L-02 (включая raw).
+/// op0 ядра → конверт UI; `Ok(None)` — тип вне списка проброса (включая raw).
 ///
 /// Порядок: фильтр по имени провода → `d` в JSON → вырезание секретов. Ни
 /// одно поле не добавляется: UI получает ровно то, что пришло.
@@ -259,6 +306,35 @@ pub fn map_dispatch(event: &DispatchEvent) -> Result<Option<MappedDispatch>, Dis
         },
         redacted,
     }))
+}
+
+/// Псевдоним [`map_dispatch`] для единообразия именования BFF-обработчиков событий шлюза.
+pub fn map_dispatch_event(event: &DispatchEvent) -> Result<Option<MappedDispatch>, DispatchError> {
+    map_dispatch(event)
+}
+
+/// JSON → ETF для исходящих команд и тестовых фикстур.
+pub fn json_to_etf(value: &Value) -> EtfValue {
+    match value {
+        Value::Null => EtfValue::Nil,
+        Value::Bool(b) => EtfValue::Atom(b.to_string()),
+        Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                EtfValue::Int(i)
+            } else if let Some(f) = n.as_f64() {
+                EtfValue::Float(f)
+            } else {
+                EtfValue::Nil
+            }
+        }
+        Value::String(s) => EtfValue::Str(s.clone()),
+        Value::Array(arr) => EtfValue::List(arr.iter().map(json_to_etf).collect()),
+        Value::Object(map) => EtfValue::Map(
+            map.iter()
+                .map(|(k, v)| (EtfValue::Str(k.clone()), json_to_etf(v)))
+                .collect(),
+        ),
+    }
 }
 
 /// Куда уходит конверт: Tauri-событие в проде, fake-канал в тестах.
@@ -305,7 +381,12 @@ impl DispatchChannel {
             .name("gateway-dispatch".to_string())
             .spawn(move || {
                 for payload in receiver {
-                    let result = emitter.emit(&payload);
+                    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        emitter.emit(&payload)
+                    }))
+                    .unwrap_or_else(|_| {
+                        Err("паника при отправке события в UI-канал".to_string())
+                    });
                     let mut stats = worker_stats
                         .lock()
                         .unwrap_or_else(|poison| poison.into_inner());
@@ -415,6 +496,42 @@ impl DispatchSink {
                 state.last_seq = Some(seq);
             }
         }
+        if matches!(
+            event.name.as_str(),
+            "READY"
+                | "RESUMED"
+                | "READY_SUPPLEMENTAL"
+                | "VOICE_STATE_UPDATE"
+                | "VOICE_SERVER_UPDATE"
+                | "STREAM_CREATE"
+                | "STREAM_SERVER_UPDATE"
+                | "STREAM_UPDATE"
+                | "STREAM_DELETE"
+        ) {
+            if let Ok(raw_json) = etf_to_json(&event.data) {
+                crate::data::ingest_raw_gateway_dispatch(&event.name, &raw_json);
+            }
+        }
+        if matches!(
+            event.name.as_str(),
+            "CALL_CREATE"
+                | "CALL_UPDATE"
+                | "CALL_DELETE"
+                | "GUILD_CREATE"
+                | "GUILD_DELETE"
+                | "RELATIONSHIP_ADD"
+                | "RELATIONSHIP_REMOVE"
+        ) {
+            if let Ok(raw_json) = etf_to_json(&event.data) {
+                crate::data::ingest_live_dispatch(&event.name, &raw_json);
+                if let Some(channel) = &self.channel {
+                    channel.deliver(DispatchPayload {
+                        kind: event.name.clone(),
+                        data: raw_json,
+                    });
+                }
+            }
+        }
         match map_dispatch(event) {
             Ok(Some(mapped)) => {
                 {
@@ -428,6 +545,7 @@ impl DispatchSink {
                         .redacted
                         .saturating_add(u64::try_from(mapped.redacted).unwrap_or(u64::MAX));
                 }
+                crate::data::ingest_live_dispatch(&mapped.payload.kind, &mapped.payload.data);
                 if let Some(channel) = &self.channel {
                     channel.deliver(mapped.payload);
                 }
@@ -463,7 +581,7 @@ pub struct DispatchStats {
     pub seen: u64,
     /// Прошло фильтр, дедуп и конвертацию.
     pub forwarded: u64,
-    /// Тип вне среза L-02 (включая raw).
+    /// Тип вне [`FORWARDED_DISPATCHES`] (включая raw).
     pub filtered: u64,
     /// Повтор `s` в текущем соединении.
     pub duplicates: u64,
@@ -631,12 +749,19 @@ pub fn core_supervisor_config(
 ) -> SupervisorConfig {
     let lifecycle = Arc::clone(&events);
     let dispatches = Arc::clone(&events);
-    SupervisorConfig::new(GatewayUrl::default(), token.to_string())
-        .with_event_handler(move |event| lifecycle(map_supervisor_event(event)))
-        .with_dispatch_handler(move |event| {
-            // Сырой op0 ядра → контроллер: без переписывания имени/`d`.
-            dispatches(GatewayEvent::Dispatch(event.clone()));
-        })
+    let identity = crate::auth::IdentityContext::detect();
+    let mut cfg = SupervisorConfig::with_super_properties(
+        GatewayUrl::default(),
+        token.to_string(),
+        &identity.super_properties,
+    )
+    .with_event_handler(move |event| lifecycle(map_supervisor_event(event)))
+    .with_dispatch_handler(move |event| {
+        // Сырой op0 ядра → контроллер: без переписывания имени/`d`.
+        dispatches(GatewayEvent::Dispatch(event.clone()));
+    });
+    cfg.jitter_seed = 15_000;
+    cfg
 }
 
 struct DriverTask {
@@ -680,13 +805,20 @@ impl GatewayDriver for CoreGatewayDriver {
                         return;
                     }
                 };
-                runtime.block_on(async move {
-                    Supervisor::new(config)
-                        .run_until(async move {
-                            let _ = receiver.await;
-                        })
-                        .await;
-                });
+                let run_res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    runtime.block_on(async move {
+                        Supervisor::new(config)
+                            .run_until(async move {
+                                let _ = receiver.await;
+                            })
+                            .await;
+                    });
+                }));
+                if run_res.is_err() {
+                    events(GatewayEvent::Error(
+                        "поток шлюза перехватил внутреннюю панику".to_string(),
+                    ));
+                }
             })
             .map_err(|_| NetError::Gateway("не удалось запустить поток шлюза".to_string()))?;
         *state = Some(DriverTask { shutdown, thread });
@@ -703,6 +835,12 @@ impl GatewayDriver for CoreGatewayDriver {
             let _ = task.shutdown.send(());
             let _ = task.thread.join();
         }
+    }
+}
+
+impl Drop for CoreGatewayDriver {
+    fn drop(&mut self) {
+        self.disconnect();
     }
 }
 
@@ -812,6 +950,8 @@ impl NetController {
     /// Подключиться: токен из store → driver.connect.
     pub fn connect(&self) -> Result<(), NetError> {
         let token = self.store.load()?.ok_or(NetError::MissingToken)?;
+        // SEC-L02-01: сброс last_seq на границе нового соединения до прихода Ready.
+        self.sink.reset();
         self.set_status(GatewayStatus::Connecting);
         let status = Arc::clone(&self.status);
         let store = Arc::clone(&self.store);
@@ -821,6 +961,10 @@ impl NetController {
                 // Диспатч — не статус: конверт уходит в UI-канал, состояние сети
                 // не трогается (порядок событий сохраняет поток супервайзера).
                 GatewayEvent::Dispatch(event) => {
+                    if matches!(event.kind, Some(DispatchKind::Ready | DispatchKind::Resumed)) {
+                        *status.lock().unwrap_or_else(|poison| poison.into_inner()) =
+                            GatewayStatus::Ready;
+                    }
                     sink.on_dispatch(&event);
                     return;
                 }
@@ -834,14 +978,21 @@ impl NetController {
                     GatewayStatus::Reconnecting
                 }
                 GatewayEvent::Closed(4004) => {
+                    sink.reset();
                     if store.clear().is_err() {
                         GatewayStatus::Error
                     } else {
                         GatewayStatus::Offline
                     }
                 }
-                GatewayEvent::Closed(4013 | 4014) => GatewayStatus::Error,
-                GatewayEvent::Closed(_) => GatewayStatus::Reconnecting,
+                GatewayEvent::Closed(4013 | 4014) => {
+                    sink.reset();
+                    GatewayStatus::Error
+                }
+                GatewayEvent::Closed(_) => {
+                    sink.reset();
+                    GatewayStatus::Reconnecting
+                }
                 GatewayEvent::Error(_) => GatewayStatus::Error,
             };
             *status.lock().unwrap_or_else(|poison| poison.into_inner()) = next;
@@ -856,6 +1007,7 @@ impl NetController {
     /// Остановить соединение; повторный вызов — no-op.
     pub fn disconnect(&self) -> Result<(), NetError> {
         self.driver.disconnect();
+        self.sink.reset();
         self.set_status(GatewayStatus::Offline);
         Ok(())
     }
@@ -1012,4 +1164,415 @@ impl GatewayDriver for FakeGateway {
         state.disconnects = state.disconnects.saturating_add(1);
         state.callback = None;
     }
+}
+
+// ---------------------------------------------------------------------------
+// BFF: построение и валидация клиентских исходящих команд шлюза
+// OP 3 (presence), OP 4 (voice state), OP 8 (request members), OP 37 (subscriptions)
+// ---------------------------------------------------------------------------
+
+/// Проверяет, что строка является валидной снежинкой Discord (1..20 десятичных цифр, влезает в u64).
+pub fn is_snowflake(id: &str) -> bool {
+    !id.is_empty() && id.bytes().all(|byte| byte.is_ascii_digit()) && id.parse::<u64>().is_ok()
+}
+
+/// Ошибка построения/валидации клиентских исходящих команд шлюза BFF.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", content = "detail", rename_all = "camelCase")]
+pub enum GatewayCommandError {
+    /// Поле содержит невалидный snowflake Discord.
+    InvalidSnowflake { field: String, value: String },
+    /// Невалидный статус presence.
+    InvalidStatus { status: String },
+    /// Обязательное поле пустое.
+    EmptyField { field: String },
+    /// Ошибка кодирования кадра wetf/etf.
+    Encode(String),
+}
+
+impl fmt::Display for GatewayCommandError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidSnowflake { field, value } => {
+                write!(
+                    formatter,
+                    "поле {field} содержит невалидный snowflake: '{value}'"
+                )
+            }
+            Self::InvalidStatus { status } => {
+                write!(formatter, "недопустимый статус presence: '{status}'")
+            }
+            Self::EmptyField { field } => {
+                write!(formatter, "обязательное поле {field} не может быть пустым")
+            }
+            Self::Encode(msg) => write!(formatter, "ошибка кодирования кадра шлюза: {msg}"),
+        }
+    }
+}
+
+impl std::error::Error for GatewayCommandError {}
+
+/// Команда обновления статуса и активности (OP 3 PRESENCE_UPDATE).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PresenceCommand {
+    /// Статус ("online", "idle", "dnd", "invisible", "offline").
+    pub status: String,
+    /// Unix-время миллисекунд активности (`0` по умолчанию).
+    #[serde(default)]
+    pub since: Option<u64>,
+    /// Массив активностей (сырые JSON-значения, конвертируемые в ETF).
+    #[serde(default)]
+    pub activities: Option<Vec<Value>>,
+    /// AFK-флаг.
+    #[serde(default)]
+    pub afk: Option<bool>,
+}
+
+impl PresenceCommand {
+    /// Валидирует статус команды; допустимы: "online", "idle", "dnd", "invisible", "offline".
+    pub fn validate(&self) -> Result<(), GatewayCommandError> {
+        match self.status.as_str() {
+            "online" | "idle" | "dnd" | "invisible" | "offline" => Ok(()),
+            other => Err(GatewayCommandError::InvalidStatus {
+                status: other.to_string(),
+            }),
+        }
+    }
+
+    /// Преобразует команду в структуру ядра [`OutboundPresenceUpdate`].
+    pub fn build(&self) -> Result<OutboundPresenceUpdate, GatewayCommandError> {
+        self.validate()?;
+        let status = PresenceStatus::from_wire(&self.status);
+        let activities = if let Some(items) = &self.activities {
+            items.iter().map(json_to_etf).collect()
+        } else {
+            Vec::new()
+        };
+        Ok(OutboundPresenceUpdate {
+            status,
+            since: self.since.unwrap_or(0),
+            activities,
+            afk: self.afk.unwrap_or(false),
+        })
+    }
+
+    /// Кодирует команду в ETF-кадр OP 3.
+    pub fn encode(&self) -> Result<Vec<u8>, GatewayCommandError> {
+        let update = self.build()?;
+        encode_presence_update(&update).map_err(|e| GatewayCommandError::Encode(e.to_string()))
+    }
+}
+
+/// Команда изменения голосового состояния (OP 4 VOICE_STATE_UPDATE).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VoiceStateCommand {
+    /// Snowflake id гильдии; `None` для выхода из голосового канала в ЛС.
+    #[serde(default)]
+    pub guild_id: Option<String>,
+    /// Snowflake id целевого голосового канала; `None` для отключения.
+    #[serde(default)]
+    pub channel_id: Option<String>,
+    /// Флаг локального отключения микрофона.
+    #[serde(default)]
+    pub self_mute: Option<bool>,
+    /// Флаг локального отключения звука.
+    #[serde(default)]
+    pub self_deaf: Option<bool>,
+    /// Флаг локальной трансляции камеры.
+    #[serde(default)]
+    pub self_video: Option<bool>,
+    /// Битовая маска флагов голосового состояния (`0` по умолчанию).
+    #[serde(default)]
+    pub flags: Option<u64>,
+}
+
+impl VoiceStateCommand {
+    /// Валидирует команду; если `guild_id` или `channel_id` заданы, они обязаны быть валидными snowflake.
+    pub fn validate(&self) -> Result<(), GatewayCommandError> {
+        if let Some(ref gid) = self.guild_id {
+            if !is_snowflake(gid) {
+                return Err(GatewayCommandError::InvalidSnowflake {
+                    field: "guild_id".to_string(),
+                    value: gid.clone(),
+                });
+            }
+        }
+        if let Some(ref cid) = self.channel_id {
+            if !is_snowflake(cid) {
+                return Err(GatewayCommandError::InvalidSnowflake {
+                    field: "channel_id".to_string(),
+                    value: cid.clone(),
+                });
+            }
+        }
+        Ok(())
+    }
+
+    /// Преобразует команду в структуру ядра [`OutboundVoiceStateUpdate`].
+    pub fn build(&self) -> Result<OutboundVoiceStateUpdate, GatewayCommandError> {
+        self.validate()?;
+        Ok(OutboundVoiceStateUpdate {
+            guild_id: self.guild_id.clone(),
+            channel_id: self.channel_id.clone(),
+            self_mute: self.self_mute.unwrap_or(false),
+            self_deaf: self.self_deaf.unwrap_or(false),
+            self_video: self.self_video.unwrap_or(false),
+            flags: self.flags.unwrap_or(0),
+        })
+    }
+
+    /// Кодирует команду в ETF-кадр OP 4.
+    pub fn encode(&self) -> Result<Vec<u8>, GatewayCommandError> {
+        let update = self.build()?;
+        encode_voice_state_update(&update).map_err(|e| GatewayCommandError::Encode(e.to_string()))
+    }
+}
+
+/// Команда запроса участников гильдии (OP 8 REQUEST_GUILD_MEMBERS).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RequestGuildMembersCommand {
+    /// Snowflake id целевой гильдии (обязателен).
+    pub guild_id: String,
+    /// Префикс имени участников для поиска; взаимно дополняет `user_ids`.
+    #[serde(default)]
+    pub query: Option<String>,
+    /// Максимальное число возвращаемых участников (`0` = без лимита на сервере).
+    #[serde(default)]
+    pub limit: Option<u64>,
+    /// Точечный список snowflake id участников.
+    #[serde(default)]
+    pub user_ids: Option<Vec<String>>,
+    /// Запрашивать ли presences участников (`false` по умолчанию).
+    #[serde(default)]
+    pub presences: Option<bool>,
+    /// Необязательный nonce для сопоставления чанка.
+    #[serde(default)]
+    pub nonce: Option<String>,
+}
+
+impl RequestGuildMembersCommand {
+    /// Валидирует команду: `guild_id` обязан быть непустым snowflake,
+    /// а каждый id в `user_ids` (при наличии) — валидным snowflake.
+    pub fn validate(&self) -> Result<(), GatewayCommandError> {
+        if self.guild_id.trim().is_empty() {
+            return Err(GatewayCommandError::EmptyField {
+                field: "guild_id".to_string(),
+            });
+        }
+        if !is_snowflake(&self.guild_id) {
+            return Err(GatewayCommandError::InvalidSnowflake {
+                field: "guild_id".to_string(),
+                value: self.guild_id.clone(),
+            });
+        }
+        if let Some(ref ids) = self.user_ids {
+            for id in ids {
+                if !is_snowflake(id) {
+                    return Err(GatewayCommandError::InvalidSnowflake {
+                        field: "user_ids".to_string(),
+                        value: id.clone(),
+                    });
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Преобразует команду в структуру ядра [`OutboundGuildMembersRequest`].
+    pub fn build(&self) -> Result<OutboundGuildMembersRequest, GatewayCommandError> {
+        self.validate()?;
+        Ok(OutboundGuildMembersRequest {
+            guild_id: self.guild_id.clone(),
+            query: self.query.clone(),
+            limit: self.limit,
+            user_ids: self.user_ids.clone().unwrap_or_default(),
+            presences: self.presences.unwrap_or(false),
+            nonce: self.nonce.clone(),
+        })
+    }
+
+    /// Кодирует команду в ETF-кадры OP 8 с чанкованием `user_ids` по 100 id на кадр.
+    pub fn encode_frames(&self) -> Result<Vec<Vec<u8>>, GatewayCommandError> {
+        let request = self.build()?;
+        encode_request_guild_members_frames(&request)
+            .map_err(|e| GatewayCommandError::Encode(e.to_string()))
+    }
+}
+
+/// Элемент подписки на одну гильдию (`SubscriptionManager.get(guild)` @9 112 505).
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SubscriptionEntry {
+    /// Подписка на typing.
+    #[serde(default)]
+    pub typing: Option<bool>,
+    /// Подписка на threads.
+    #[serde(default)]
+    pub threads: Option<bool>,
+    /// Подписка на activities.
+    #[serde(default)]
+    pub activities: Option<bool>,
+    /// Точечные id участников (ключи `_members`).
+    #[serde(default)]
+    pub members: Option<Vec<String>>,
+    /// Подписка на member updates.
+    #[serde(default)]
+    pub member_updates: Option<bool>,
+    /// id каналов (ключи `_channels`).
+    #[serde(default)]
+    pub channels: Option<Vec<String>>,
+}
+
+impl SubscriptionEntry {
+    /// Валидирует все id участников и каналов на соответствие формату snowflake.
+    pub fn validate(&self) -> Result<(), GatewayCommandError> {
+        if let Some(ref members) = self.members {
+            for mid in members {
+                if !is_snowflake(mid) {
+                    return Err(GatewayCommandError::InvalidSnowflake {
+                        field: "members".to_string(),
+                        value: mid.clone(),
+                    });
+                }
+            }
+        }
+        if let Some(ref channels) = self.channels {
+            for cid in channels {
+                if !is_snowflake(cid) {
+                    return Err(GatewayCommandError::InvalidSnowflake {
+                        field: "channels".to_string(),
+                        value: cid.clone(),
+                    });
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Преобразует запись подписки в структуру ядра [`OutboundGuildSubscription`].
+    pub fn build(&self) -> Result<OutboundGuildSubscription, GatewayCommandError> {
+        self.validate()?;
+        Ok(OutboundGuildSubscription {
+            typing: self.typing.unwrap_or(false),
+            threads: self.threads.unwrap_or(false),
+            activities: self.activities.unwrap_or(false),
+            members: self.members.clone().unwrap_or_default(),
+            member_updates: self.member_updates.unwrap_or(false),
+            channels: self.channels.clone().unwrap_or_default(),
+        })
+    }
+}
+
+/// Команда обновления подписок гильдий (OP 37 GUILD_SUBSCRIPTIONS_BULK).
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GuildSubscriptionsBulkCommand {
+    /// Карта `guild_id -> SubscriptionEntry`.
+    pub subscriptions: BTreeMap<String, SubscriptionEntry>,
+}
+
+impl GuildSubscriptionsBulkCommand {
+    /// Валидирует команду: каждый ключ гильдии обязан быть snowflake, а внутренние id каналов/участников валидными.
+    pub fn validate(&self) -> Result<(), GatewayCommandError> {
+        for (gid, sub) in &self.subscriptions {
+            if !is_snowflake(gid) {
+                return Err(GatewayCommandError::InvalidSnowflake {
+                    field: "subscriptions.key".to_string(),
+                    value: gid.clone(),
+                });
+            }
+            sub.validate()?;
+        }
+        Ok(())
+    }
+
+    /// Преобразует команду в словарь [`GuildSubscriptionsBulk`] ядра.
+    pub fn build(&self) -> Result<GuildSubscriptionsBulk, GatewayCommandError> {
+        self.validate()?;
+        let mut bulk = GuildSubscriptionsBulk::new();
+        for (gid, sub) in &self.subscriptions {
+            bulk.insert(gid.clone(), sub.build()?);
+        }
+        Ok(bulk)
+    }
+
+    /// Кодирует команду в серию ETF-кадров OP 37 с автоматическим разбиением по лимиту 15 360 байт.
+    pub fn encode_chunks(&self) -> Result<Vec<Vec<u8>>, GatewayCommandError> {
+        let bulk = self.build()?;
+        encode_guild_subscriptions_bulk_chunked(&bulk)
+            .map_err(|e| GatewayCommandError::Encode(e.to_string()))
+    }
+}
+
+/// Обобщённая клиентская исходящая команда шлюза (OP 3 / OP 4 / OP 8 / OP 37).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "op", content = "d")]
+pub enum ClientGatewayCommand {
+    /// OP 3 `PRESENCE_UPDATE`.
+    #[serde(rename = "3")]
+    PresenceUpdate(PresenceCommand),
+    /// OP 4 `VOICE_STATE_UPDATE`.
+    #[serde(rename = "4")]
+    VoiceStateUpdate(VoiceStateCommand),
+    /// OP 8 `REQUEST_GUILD_MEMBERS`.
+    #[serde(rename = "8")]
+    RequestGuildMembers(RequestGuildMembersCommand),
+    /// OP 37 `GUILD_SUBSCRIPTIONS_BULK`.
+    #[serde(rename = "37")]
+    GuildSubscriptionsBulk(GuildSubscriptionsBulkCommand),
+}
+
+/// BFF-хелпер построения команды OP 3.
+pub fn build_presence_command(
+    cmd: &PresenceCommand,
+) -> Result<OutboundPresenceUpdate, GatewayCommandError> {
+    cmd.build()
+}
+
+/// BFF-хелпер валидации команды OP 3.
+pub fn validate_presence_command(cmd: &PresenceCommand) -> Result<(), GatewayCommandError> {
+    cmd.validate()
+}
+
+/// BFF-хелпер построения команды OP 4.
+pub fn build_voice_state_command(
+    cmd: &VoiceStateCommand,
+) -> Result<OutboundVoiceStateUpdate, GatewayCommandError> {
+    cmd.build()
+}
+
+/// BFF-хелпер валидации команды OP 4.
+pub fn validate_voice_state_command(cmd: &VoiceStateCommand) -> Result<(), GatewayCommandError> {
+    cmd.validate()
+}
+
+/// BFF-хелпер построения команды OP 8.
+pub fn build_request_members_command(
+    cmd: &RequestGuildMembersCommand,
+) -> Result<OutboundGuildMembersRequest, GatewayCommandError> {
+    cmd.build()
+}
+
+/// BFF-хелпер валидации команды OP 8.
+pub fn validate_request_members_command(
+    cmd: &RequestGuildMembersCommand,
+) -> Result<(), GatewayCommandError> {
+    cmd.validate()
+}
+
+/// BFF-хелпер построения команды OP 37.
+pub fn build_guild_subscriptions_command(
+    cmd: &GuildSubscriptionsBulkCommand,
+) -> Result<GuildSubscriptionsBulk, GatewayCommandError> {
+    cmd.build()
+}
+
+/// BFF-хелпер валидации команды OP 37.
+pub fn validate_guild_subscriptions_command(
+    cmd: &GuildSubscriptionsBulkCommand,
+) -> Result<(), GatewayCommandError> {
+    cmd.validate()
 }

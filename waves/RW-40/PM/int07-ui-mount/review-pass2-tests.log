@@ -1,0 +1,256 @@
+$ node --test tests/unit/gui-spike-features.test.mjs tests/unit/notifications-ui.test.mjs tests/unit/voice-devices-settings.test.mjs tests/meta/ipc-path.test.mjs
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (0.997842ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.18914ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.178681ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.12769ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.1184ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.282615ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (6.071503ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (4.110399ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (2.217094ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (14.808152ms)
+✔ ipc-path: текущий код спайка (27.503189ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.717111ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (1.219703ms)
+  ✔ capability окна ограничена core:default (0.20041ms)
+✔ ipc-path: файловые плагины не подключены (2.286174ms)
+▶ gui-spike features: интеракции W39d
+  ✔ QuickSwitcher открывается по Ctrl/Cmd+K, фильтрует, перемещает выбор и переключает канал/экран (67.618605ms)
+  ✔ QuickSwitcher показывает пустое состояние и ловит Tab внутри диалога (16.587545ms)
+  ✔ композер отправляет Enter, сохраняет Shift+Enter и не отправляет пустое (12.552607ms)
+  ✔ optimistic строка получает error и ручной retry переводит её в sent (13.171229ms)
+  ✔ ошибка отправки не затирает набранный поверх черновик, пустое поле — возвращает текст (13.711979ms)
+  ✔ 401/429 показывают классовое сообщение и не делают автоповтор (14.625471ms)
+  ✔ body[data-active-screen] + aria-current на 4 экранах (13.612579ms)
+  ✔ шапка чата: 4 icon-btn — ветки, колокол, закреплённые, участники (VW-01, D-17) (14.48941ms)
+  ✔ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (38.363273ms)
+  ✔ эмодзи: стрелки двигают aria-selected и roving tabindex (11.582144ms)
+  ✔ эмодзи-поиск: глобальный по всем категориям, вкладка только листает (EMO-16) (15.805084ms)
+  ✔ настройки: 18 разделов навигации, 3 доступных, остальные disabled (SET-01, D-17) (14.655482ms)
+  ✔ настройки ST-01: профиль и 4 развёрнутых подпункта «Учётной записи» из оракула (15.290872ms)
+  ✔ настройки ST-01: «Выйти» → auth_logout без токена, результат видим (15.344482ms)
+  ✔ настройки ST-01: ошибка logout видима, кнопка снова доступна (11.457595ms)
+  ✔ настройки ST-01: клавиатура, aria-current и причина disabled-раздела (13.775729ms)
+  ✔ настройки: «Голос и видео» — 38 тумблеров (12+22+4), 10 блоков, состояния из дампа (11.575475ms)
+  ✔ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (13.229558ms)
+  ✔ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (12.542487ms)
+  ✔ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (14.155521ms)
+  ✔ клавиши §11: Ctrl+F/Ctrl+Shift+F, Ctrl+U, PageUp/PageDown, Shift+Esc (40.044065ms)
+  ✔ счётчики live (polite), FPS/p95 — не live (12.891497ms)
+  ✔ штатная работа без console.error/warn (весь сценарий) (14.951662ms)
+✔ gui-spike features: интеракции W39d (423.900715ms)
+▶ чат-вью P3-02: сообщения и extras строки
+  ✔ group start/continuation, day divider, reply-quote, reactions, embeds, edited (14.143201ms)
+  ✔ embeds: link-карточка и image-заглушка (без сети) (11.561434ms)
+  ✔ link-embed: в href только http(s), javascript: не становится ссылкой (P0) (12.672908ms)
+  ✔ unread-полоса 34 (D-13) — вне #chat-list, с честным счётчиком (10.245262ms)
+[ACTION_FAILED] сеть недоступна
+  ✔ hover-панель: 15 пунктов R-16, без мёртвых кнопок, реакция и reply работают (14.600101ms)
+[ACTION_FAILED] сессия истекла
+  ✔ hover-панель: быстрая реакция уходит в IPC один раз и откатывается при 401 (12.834727ms)
+[ACTION_FAILED] Не удалось изменить сообщение
+  ✔ B4b: edit сохраняет через IPC, оптимистично меняет текст и откатывает ошибку (16.214555ms)
+  ✔ B4b: повторный submit edit не отправляет второй edit_message до ответа (13.81421ms)
+[ACTION_FAILED] gui-dom-harness: неизвестная IPC-команда «delete_message»
+[ACTION_FAILED] Не удалось удалить сообщение
+  ✔ B4b: delete требует подтверждение и возвращает строку при ошибке (14.627531ms)
+  ✔ B4b: удалённая строка не возвращается из PageStore после выгрузки и не оставляет пустого места (14.03902ms)
+[ACTION_FAILED] gui-dom-harness: неизвестная IPC-команда «reply_message»
+  ✔ B4b: reply отправляет reply_message с replyTo и отменяется Escape (13.617319ms)
+✔ чат-вью P3-02: сообщения и extras строки (148.940028ms)
+[ACTION_FAILED] сеть недоступна
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+▶ B3b: UI реакций
+  ✔ отправляет toggle_reaction и оптимистично меняет счётчик/aria-pressed (10.754753ms)
+[ACTION_FAILED] сессия истекла
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при 401 (14.826621ms)
+[ACTION_FAILED] ограничение частоты; повтор через 250 мс
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при 429 (11.297375ms)
+[ACTION_FAILED] сеть недоступна
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при сеть (13.130807ms)
+  ✔ двойной клик до ответа делает один запрос и не оставляет pending (10.995653ms)
+  ✔ неизвестная или пустая реакция не вызывает IPC и показывает подсказку (13.045568ms)
+✔ B3b: UI реакций (74.349089ms)
+▶ чат-вью P3-02: композер
+  ✔ empty → typing → empty, счётчик с 1800, лимит 2000 (10.268182ms)
+  ✔ вставка эмодзи в позицию курсора; лимит 2000 и disabled не ломаются (13.327439ms)
+  ✔ disabled: aria-disabled, поле в DOM, attach — affordance с подсказкой (12.589647ms)
+  ✔ gift: явная заглушка Phase 3 — disabled-affordance, клик без ACTION_FAILED (P1) (10.272842ms)
+  ✔ Ctrl+E открывает пикер, Escape возвращает чат и не ломает черновик (13.126178ms)
+✔ чат-вью P3-02: композер (59.831038ms)
+▶ чат-вью P3-02: участники — 6 групп (D-13)
+  ✔ панель чата: 6 групп, заголовок 42, счётчики = строкам группы (11.396644ms)
+  ✔ экран участников: чипы 6 групп, roving tabindex, клик выбирает строку группы (17.782208ms)
+  ✔ поиск участников по загруженному окну: честный счётчик (10.598902ms)
+✔ чат-вью P3-02: участники — 6 групп (D-13) (39.972426ms)
+▶ чат-вью P3-02: search overlay
+  ✔ 7 секций, 5 input, сортировка из 3 пунктов, честный статус (13.342678ms)
+  ✔ фильтр по запросу и сортировка меняют выдачу; счётчик остаётся оконным (12.018616ms)
+  ✔ «Самое актуальное» — закреплённые выше, затем свежие; порядок ≠ «По новизне» (P2) (11.766205ms)
+  ✔ переход к сообщению: оверлей закрыт, список прокручен, строка подсвечена (31.864818ms)
+[ACTION_FAILED] дата «2026-99-99» не в формате ГГГГ-ММ-ДД
+[ACTION_FAILED] дата «2026-99-99» не в формате ГГГГ-ММ-ДД
+  ✔ ошибка фильтра — UIError в статусе, без падения оверлея (35.900317ms)
+  ✔ Esc и крестик закрывают оверлей; состояние не теряется (11.277644ms)
+✔ чат-вью P3-02: search overlay (116.481138ms)
+▶ B7b: сетевой поиск (search_remote)
+  ✔ зовёт search_remote с guildId и подтверждёнными params; рисует total_results (11.301725ms)
+  ✔ offset-пагинация: вторая страница без дублей, offset растёт (12.475306ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+  ✔ 401 — видимая ошибка, локального fallback нет (10.907713ms)
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: сеть недоступна
+[ACTION_FAILED] поиск: сеть недоступна
+  ✔ 429 и сеть — разные видимые сообщения, без fallback (26.400016ms)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: ошибка запроса (400)
+[ACTION_FAILED] поиск: ошибка запроса (400)
+[ACTION_FAILED] поиск: ошибка запроса (422)
+[ACTION_FAILED] поиск: ошибка запроса (422)
+[ACTION_FAILED] поиск: ошибка сервера (503)
+[ACTION_FAILED] поиск: ошибка сервера (503)
+[ACTION_FAILED] поиск: ошибка сервера (5xx)
+[ACTION_FAILED] поиск: ошибка сервера (5xx)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: сеть недоступна
+[ACTION_FAILED] поиск: сеть недоступна
+  ✔ G1-01: forbidden/notFound/client/server — видимая ошибка без fallback и свои тексты (109.532064ms)
+[ACTION_FAILED] поиск: хранилище токена недоступно
+[ACTION_FAILED] поиск: хранилище токена недоступно
+  ✔ SEC-02: storage — видимая ошибка хранилища, не сеть и без fallback (13.204238ms)
+  ✔ loading: до ответа сервера видно состояние загрузки, потом результаты (10.668233ms)
+  ✔ пустой ответ сервера — empty-состояние при total_results=0 (10.610343ms)
+  ✔ 7 фильтров: content/channel/sort — сервер, остальные честно «локально» (14.20023ms)
+  ✔ локальные фильтры применяются к серверной выдаче и не уходят в params (12.014206ms)
+  ✔ IPC-команды нет (демо) — локальный fallback с видимой пометкой (16.186794ms)
+✔ B7b: сетевой поиск (search_remote) (248.03076ms)
+▶ настройки: гидратация и сохранение (B8b)
+  ✔ settings_load на старте: тумблеры по id, density/theme/locale и lang (12.325406ms)
+  ✔ change: один settings_save после debounce, только белый список и без секретов (13.606849ms)
+  ✔ битые/чужие значения → дефолты cozy/dark/ru, без падения и без save (12.065816ms)
+  ✔ settings_load упал → дефолты и отсутствие молчаливого падения (13.498488ms)
+  ✔ debounce: несколько изменений (тумблер+density+theme) → один save с финальными значениями (14.253781ms)
+  ✔ ошибка settings_save видна, состояние не откатывается (12.420286ms)
+  ✔ id тумблеров стабильные ASCII; старый формат по индексу мигрируется без падения (14.520431ms)
+✔ настройки: гидратация и сохранение (B8b) (93.122089ms)
+▶ G2 (RW-40): P1 — reply, error-overlay, auth focus-trap
+  ✔ G2-01: набор текста не отменяет reply, отменяют Escape и крестик (10.380052ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+  ✔ G2-02: error-overlay закрывается, снимается успехом и не выходит за .content (15.379183ms)
+  ✔ G2-04: Tab заперт в auth-gate, Escape не уводит фокус в aria-hidden shell (12.562777ms)
+✔ G2 (RW-40): P1 — reply, error-overlay, auth focus-trap (38.509752ms)
+▶ G-05: поповер меню сервера (10 пунктов, роли, клавиатура)
+  ✔ open: aria-haspopup/expanded, role=menu, 10 пунктов в порядке D1 (15.091362ms)
+  ✔ keyboard: ↑/↓/Home/End, Escape закрывает и возвращает фокус, клик вне тоже (13.365589ms)
+  ✔ owner: leave disabled, подтверждение не открывается и IPC не уходит (15.748084ms)
+✔ G-05: поповер меню сервера (10 пунктов, роли, клавиатура) (44.450145ms)
+▶ G-04: подтверждение выхода, leave_guild и видимые ошибки
+  ✔ открытие confirm: alertdialog, безопасный фокус, отмена без IPC (13.742689ms)
+  ✔ 2xx: один invoke(«leave_guild», {guildId, lurking}), удаление плитки, выбор предыдущей (14.968102ms)
+  ✔ lurking берётся из явного состояния плитки, а не хардкодится (12.430607ms)
+  ✔ двойной клик по «Покинуть сервер» даёт ровно один IPC (14.0031ms)
+  ✔ 401: видимая ошибка, диалог и плитка остаются (11.764015ms)
+  ✔ 403: «Недостаточно прав», плитка на месте; 429: обратный отсчёт в тексте (10.701813ms)
+  ✔ нет мёртвых обработчиков: все data-action меню/диалога отрабатывают без ACTION_FAILED (13.95323ms)
+✔ G-04: подтверждение выхода, leave_guild и видимые ошибки (91.922896ms)
+▶ D-04: переменная высота строк в живом списке
+  ✔ высоты строк чата 26/48/+22, .text по тексту/переносам (не 44-трек) (10.688903ms)
+  ✔ renderChatRow считает высоту из текста, а не из строки/трека (13.265109ms)
+  ✔ data-row-height моделей D-04 и отсутствие старых треков в коде (10.950903ms)
+  ✔ scrollToIndex/якорь: строка встаёт на свой top из prefix-sum (14.751352ms)
+  ✔ tombstone уменьшает totalHeight на высоту удалённой строки и не оставляет дыру (11.851625ms)
+  ✔ участники: строка 42, шаг 43 (RE, JPEG ±1), панель и список (14.326771ms)
+  ✔ tokens.css: D-04 значения на месте, треки RW-38 помечены legacy (0.348471ms)
+✔ D-04: переменная высота строк в живом списке (76.486184ms)
+▶ L-01 (RW-40): видимый reconnect/offline state
+  ✔ ready скрыт; connecting/reconnecting — «Переподключение…», retry только в offline (11.096123ms)
+  ✔ offline/error: «Нет соединения» + «Повторить»; retry — ровно один net_connect, без авто-цикла (12.894837ms)
+  ✔ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (10.675203ms)
+  ✔ dispose останавливает поллинг net_status, refresh после dispose — no-op (10.530172ms)
+  ✔ без auth ready нет поллинга net_status (гейт не пройден) (13.824509ms)
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (12.005776ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (13.582679ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.371741ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (85.306832ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ aria-disabled контролы уведомлений на старте не выполняют действия мышью и клавиатурой (11.870035ms)
+  ✔ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (11.771615ms)
+  ✔ P2-3: тумблеры модалки уведомлений живут на .notif-toggle и не раздувают инвариант 38 (13.411429ms)
+  ✔ P2-1: панель голосовых устройств видна только на вкладке voice (11.515975ms)
+  ✔ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (24.916653ms)
+  ✔ P2-6: пустой рейл не выдумывает гильдию и не шлёт уведомления в IPC (15.311593ms)
+  ✔ P2-5: contextmenu при закрытой модалке её не открывает; Escape возвращает фокус (16.853946ms)
+✔ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (106.051936ms)
+▶ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json
+  ✔ MUTE_TIMER_PRESETS и перечисления совпадают с RE-оракулом и спецификацией (0.886942ms)
+  ✔ buildMuteConfig и evaluateMuteState: расчёт истечения таймера, бессрочный mute и строгий разбор ETF-строк (0.364121ms)
+  ✔ сверка парсера с реальным дампом 002-READY.json (58 гильдий, 1328 overrides, 3 истёкших mute) (0.395091ms)
+✔ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json (2.301765ms)
+▶ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний
+  ✔ resolveEffectiveNotifications: каскад канал (!=3) -> родительская категория (!=3) -> гильдия -> дефолт (0.470501ms)
+  ✔ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.288021ms)
+  ✔ битовые флаги UNREADS_*, двойная форма channel_overrides и фильтр видимых строк таблицы (0.302101ms)
+✔ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний (1.229033ms)
+▶ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree
+  ✔ computeChannelIndicatorState и applyChannelIndicatorToDom: точка, бейдж 99+, mute и hide_muted_channels (0.968262ms)
+  ✔ computeGuildRailIndicatorState и applyGuildRailIndicatorToDom: левая пилюля и бейдж на плитке сервера (0.239911ms)
+✔ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree (1.337213ms)
+▶ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu)
+  ✔ открывает модалку #guild-notif-modal, рендерит секции, радиогруппу .notif-level-list и баннер >= 2500 участников (2.202314ms)
+  ✔ тумблеры подавления (suppress_everyone, suppress_roles, notify_highlights 2/1) и отсутствие оптимистичной мутации до ответа IPC (0.944103ms)
+  ✔ таблица .notif-override-table: roving tabindex, навигация ArrowLeft/ArrowRight по радио, чекбокс mute и сброс override (1.709863ms)
+  ✔ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (0.991263ms)
+  ✔ тумблер mute сервера, селект 6 окон длительности, DM (@me) маршрут и закрытие модалки по Escape с возвратом фокуса (1.001562ms)
+  ✔ добавление канала в таблицу через #notif-override-channel-select и обработка ошибок IPC (#guild-notif-error) (0.706291ms)
+✔ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (7.745966ms)
+▶ V-07 UI: устройства и режим активации («Голос и видео»)
+  ✔ начальное состояние: default-устройства и громкости из оракула (2.050015ms)
+  ✔ длинное имя устройства: полный текст и title, без обрезки в DOM (0.197561ms)
+  ✔ явный выбор устройства: один вызов сервиса, состояние и select синхронны (0.468451ms)
+  ✔ нельзя выбрать устройство чужого типа или неизвестное (0.279831ms)
+  ✔ hot-plug сохраняет присутствующее устройство и не вызывает select (0.24648ms)
+  ✔ hot-plug: откат на isDefault === true, уведомление DeviceFallback (0.385991ms)
+  ✔ hot-plug без устройств: NoDeviceAvailable, пустой disabled-список (0.237121ms)
+  ✔ громкость микрофона клампится в 0..100 и сервис получает кламп (0.31699ms)
+  ✔ громкость вывода клампится в 0..200 по оракулу aUJ062 (0.39295ms)
+  ✔ переключатель PTT меняет режим и показывает задержку (0.843622ms)
+  ✔ releaseDelayMs клампится в 0..2000 мс (0.220431ms)
+  ✔ thresholdDb клампится по i8 (−128..127) (0.16718ms)
+  ✔ захват клавиши PTT: Escape отменяет, модификатор игнорируется, Space назначается (0.252801ms)
+  ✔ effectiveMute = userMute || selfDeaf, deafen не трогает userMute (0.267211ms)
+  ✔ ARIA: русские подписи, роли, значения и live-регион (0.40659ms)
+  ✔ ошибка сервиса показывается в alert, а не глотается (0.242711ms)
+  ✔ приватность и запрет медиа-API: нет логов, сети и захвата (0.12232ms)
+✔ V-07 UI: устройства и режим активации («Голос и видео») (8.098297ms)
+ℹ tests 150
+ℹ suites 22
+ℹ pass 150
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1720.425813
+EXIT_CODE=0

@@ -1,0 +1,23 @@
+# source modules claimed by the patch (this branch)
+MISSING rust/gui-spike/ui/notifications.js
+MISSING rust/gui-spike/ui/features/notifications.js
+MISSING rust/gui-spike/ui/voice-devices-settings.js
+MISSING rust/gui-spike/ui/features/voice-devices-settings.js
+MISSING rust/gui-spike/ui/dm-friends.js
+MISSING rust/gui-spike/ui/features/dm-friends.js
+MISSING rust/gui-spike/ui/search.js
+EXISTS  rust/gui-spike/ui/features/search.js
+MISSING rust/gui-spike/ui/search-overlay.js
+EXISTS  rust/gui-spike/ui/features/search-overlay.js
+MISSING rust/gui-spike/ui/attachments-render.js
+MISSING rust/gui-spike/ui/features/attachments-render.js
+MISSING rust/gui-spike/ui/chat-reactions.js
+MISSING rust/gui-spike/ui/features/chat-reactions.js
+
+# profile tests on this branch
+MISSING tests/unit/notifications-ui.test.mjs
+MISSING tests/unit/voice-devices-settings.test.mjs
+MISSING tests/unit/dm-friends-ui.test.mjs
+EXISTS  tests/unit/search-remote-real-index.test.mjs
+MISSING tests/unit/attachments-render.test.mjs
+EXISTS  tests/unit/chat-reactions.test.mjs

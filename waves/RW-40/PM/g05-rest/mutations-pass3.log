@@ -1,0 +1,80 @@
+# MUTATIONS pass 3 — одиночные мутации guard-цепочки D1
+# Дата: 2026-10-30. Воркер: G2 Frontend Lane C. Карточка: G05-REST-MUTATIONS-FIX.
+# Основание: P1 из REVIEW-PASS2.md (M1/M1b проходили по отдельности).
+#
+# Продукт после dedup: md5 e7ba88e8c347012340f0e7e448d71b68 (единый предикат isEntryDisabled;
+# проверок aria-disabled в обработчиках guild-invite/guild-leave больше нет).
+# Оракул: node --test tests/unit/server-menu.test.mjs (28 тестов), тесты не менялись между мутантами.
+# Процесс: мутация -> md5 -> прогон -> восстановление из final -> контроль md5.
+
+== M1 — предикат isEntryDisabled всегда false (все aria-disabled-проверки нейтрализованы)
+   mutant md5=83986478f35420a41786dcaf467deb0b
+   KILLED | exit=1 | pass=22 fail=6
+   упали:
+     ✖ клик по каждому disabled-пункту ничего не меняет
+     ✖ Enter/Space на disabled-пункте — no-op (guard в едином предикате)
+     ✖ guard диспетчера гасит disabled data-action вне меню
+     ✖ capability=true не включает invite до G-06: disabled + not-implemented
+     ✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled
+     ✖ false/true/absent → invite всегда disabled, без диалога и IPC
+   первая ошибка:
+       AssertionError [ERR_ASSERTION]: disabled-пункт закрыл меню
+       
+       '' !== null
+   restore md5=e7ba88e8c347012340f0e7e448d71b68 (совпал)
+
+== M2 — guard диспетчера кликов: if (isEntryDisabled(node)) return; -> if (false) return;
+   mutant md5=2b8bcfbdb4f04db9c322d2a9f3322c14
+   KILLED | exit=1 | pass=24 fail=4
+   упали:
+     ✖ клик по каждому disabled-пункту ничего не меняет
+     ✖ guard диспетчера гасит disabled data-action вне меню
+     ✖ capability=true не включает invite до G-06: disabled + not-implemented
+     ✖ false/true/absent → invite всегда disabled, без диалога и IPC
+   первая ошибка:
+       AssertionError [ERR_ASSERTION]: disabled-пункт закрыл меню
+       
+       '' !== null
+   restore md5=e7ba88e8c347012340f0e7e448d71b68 (совпал)
+
+== M3 — enabledEntries больше не фильтрует disabled (фокус/клавиатура видят все пункты)
+   mutant md5=cb6c96f1dbe3ae7ab8da8e6164a11226
+   KILLED | exit=1 | pass=26 fail=2
+   упали:
+     ✖ Enter/Space на disabled-пункте — no-op (guard в едином предикате)
+     ✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled
+   первая ошибка:
+       AssertionError [ERR_ASSERTION]: disabled invite перехватил Enter
+       
+       true !== false
+   restore md5=e7ba88e8c347012340f0e7e448d71b68 (совпал)
+
+== M4 — Enter/Space: снята проверка enabledEntries().includes(active)
+   mutant md5=a21109199d9d079c85503a65f85b53b4
+   KILLED | exit=1 | pass=27 fail=1
+   упали:
+     ✖ Enter/Space на disabled-пункте — no-op (guard в едином предикате)
+   первая ошибка:
+       AssertionError [ERR_ASSERTION]: disabled invite перехватил Enter
+       
+       true !== false
+   restore md5=e7ba88e8c347012340f0e7e448d71b68 (совпал)
+
+== M5 — disabledReason для guild-invite возвращает "" (invite становится enabled)
+   mutant md5=3564e1be047bfd26961bfee6a5451c9a
+   KILLED | exit=1 | pass=21 fail=7
+   упали:
+     ✖ клик по каждому disabled-пункту ничего не меняет
+     ✖ Enter/Space на disabled-пункте — no-op (guard в едином предикате)
+     ✖ capability=true не включает invite до G-06: disabled + not-implemented
+     ✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled
+     ✖ у каждого disabled-пункта data-disabled-reason + aria-describedby + title
+     ✖ приоритет причин: owner > capability-unknown > not-implemented
+   первая ошибка:
+       AssertionError [ERR_ASSERTION]: disabled-пунктов 7, а не 8
+       
+       7 !== 8
+   restore md5=e7ba88e8c347012340f0e7e448d71b68 (совпал)
+
+финал: prod=e7ba88e8c347012340f0e7e448d71b68 final=e7ba88e8c347012340f0e7e448d71b68 | совпадает: True
+мутаций убито: 5/5

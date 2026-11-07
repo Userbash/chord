@@ -1,0 +1,19 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_07_redacted_debug_display_and_snapshot ... ok
+test t_stream_11_12_13_hypotheses_and_diagnostics ... ok
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... ok
+test t_stream_06_negative_stream_key_vectors ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

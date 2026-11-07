@@ -1,0 +1,64 @@
+=== AT-03 Mutation Testing Log ===
+Baseline MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f
+Baseline MD5 (rust/gui-spike/ui/components/chat.css): 96b789ab7b8459008efa1f429dfe3863
+Baseline MD5 (tests/unit/attachments-render.test.mjs): 8b4678d19c6aa4ed9a6b7aa8ad787615
+
+--- M1: Отключение фильтра IS_THUMBNAIL = 2 в renderAttachments ---
+Mutated MD5 (rust/gui-spike/ui/features/chat.js): 06284f2caf0ba5587cdb055dd379f38c
+Status: KILLED (exit=1)
+  ✖ T-AT03-01: фильтрует IS_THUMBNAIL=2, пропускает пустые/опросы и сохраняет инвариант 2 детей .row (.author, .text) (2.614929ms)
+✖ AT-03: рендер карточек вложений в сообщениях чата (11.027711ms)
+ℹ fail 1
+✖ failing tests:
+✖ T-AT03-01: фильтрует IS_THUMBNAIL=2, пропускает пустые/опросы и сохраняет инвариант 2 детей .row (.author, .text) (2.614929ms)
+  AssertionError [ERR_ASSERTION]: отрисовывается только вложение без IS_THUMBNAIL
+Restored MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f
+
+--- M2: Подмена классификатора Rr (classifyInlineMedia) с расширения файла на первый сегмент MIME ---
+Mutated MD5 (rust/gui-spike/ui/features/chat.js): ed70ddb0850446d383605be4973bec38
+Status: KILLED (exit=1)
+  ✖ T-AT03-02: классифицирует inline-медиа строго по расширению filename (Rr), а файлы без расширения, .svg и .psd направляет в file-card (0.809816ms)
+✖ AT-03: рендер карточек вложений в сообщениях чата (11.420879ms)
+ℹ fail 1
+✖ failing tests:
+✖ T-AT03-02: классифицирует inline-медиа строго по расширению filename (Rr), а файлы без расширения, .svg и .psd направляет в file-card (0.809816ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+Restored MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f
+
+--- M3: Игнорирование IS_SPOILER = 8 и префикса SPOILER_ в getObscureReason ---
+Mutated MD5 (rust/gui-spike/ui/features/chat.js): 30ef76284858a7741f0c889a98a3d933
+Status: KILLED (exit=1)
+  ✖ T-AT03-05: рендерит спойлер-оверлей 'СПОЙЛЕР' (IS_SPOILER=8, префикс SPOILER_, harm-флаги) и раскрывает в два шага по клику/Enter/Space (1.151275ms)
+✖ AT-03: рендер карточек вложений в сообщениях чата (12.324685ms)
+ℹ fail 1
+✖ failing tests:
+✖ T-AT03-05: рендерит спойлер-оверлей 'СПОЙЛЕР' (IS_SPOILER=8, префикс SPOILER_, harm-флаги) и раскрывает в два шага по клику/Enter/Space (1.151275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+Restored MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f
+
+--- M4: Игнорирование MessageFlags.IS_VOICE_MESSAGE = 8192 при выборе между AUDIO и VOICE_MESSAGE ---
+Mutated MD5 (rust/gui-spike/ui/features/chat.js): c9c3e0c89de113f461786f9bcc96269f
+Status: KILLED (exit=1)
+  ✖ T-AT03-08 & T-AT03-09: разделяет AUDIO и VOICE_MESSAGE по MessageFlags.IS_VOICE_MESSAGE=8192 и декодирует base64 waveform (323.667176ms)
+✖ AT-03: рендер карточек вложений в сообщениях чата (335.455674ms)
+ℹ fail 1
+✖ failing tests:
+✖ T-AT03-08 & T-AT03-09: разделяет AUDIO и VOICE_MESSAGE по MessageFlags.IS_VOICE_MESSAGE=8192 и декодирует base64 waveform (323.667176ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+Restored MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f
+
+--- M5: Удаление параметра ?format=webp в buildVideoPosterUrl ---
+Mutated MD5 (rust/gui-spike/ui/features/chat.js): 6e04688138637f3408c27661df6e3917
+Status: KILLED (exit=1)
+  ✖ T-AT03-07: рендерит видео-вложение (постер proxy_url?format=webp, длительность m:ss, контролы и forceExternal > 6016×3384) (0.914326ms)
+✖ AT-03: рендер карточек вложений в сообщениях чата (11.555359ms)
+ℹ fail 1
+✖ failing tests:
+✖ T-AT03-07: рендерит видео-вложение (постер proxy_url?format=webp, длительность m:ss, контролы и forceExternal > 6016×3384) (0.914326ms)
+  AssertionError [ERR_ASSERTION]: постер видео обязан содержать format=webp
+Restored MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f
+
+Summary: 5/5 mutations killed
+Final MD5 (rust/gui-spike/ui/features/chat.js): 0e3dc4984bf7a5db8f400e3c288f873f (matches baseline: true)
+Final MD5 (rust/gui-spike/ui/components/chat.css): 96b789ab7b8459008efa1f429dfe3863 (matches baseline: true)
+Final MD5 (tests/unit/attachments-render.test.mjs): 8b4678d19c6aa4ed9a6b7aa8ad787615 (matches baseline: true)

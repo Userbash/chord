@@ -1,0 +1,6 @@
+ipcCalls: []
+selected: ["shrug"]
+played: [["s1",1]]
+picked: {"id":"cmd-1","name":"shrug"}
+state: {"activePopover":null,"commandName":null,"rawArgs":"","volume":1}
+VERDICT: onDispatchIpc NEVER called (dead option)

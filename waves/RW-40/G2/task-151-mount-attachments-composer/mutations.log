@@ -1,0 +1,66 @@
+=== M1 (attachments.js: MAX_ATTACHMENT_COUNT = 10 -> 9): KILLED (exit=1) ===
+    ✖ экспортирует константы лимитов (10 файлов, 25 МБ = 26 214 400 байт) и SPOILER_ хелперы (0.747761ms)
+    ✖ соблюдает лимиты: не более 10 файлов и <= 25 МБ на каждый файл (0.672891ms)
+  ✖ M-11 UI: контроллер очереди вложений createAttachmentsController (4.667964ms)
+    ✖ кнопка #composer-attach-btn (file input), drag-and-drop и paste добавляют файлы в createAttachmentsController (лимит 10 файлов, <= 25 МБ) (0.947511ms)
+  ✖ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js (13.31188ms)
+  ℹ fail 3
+  ✖ failing tests:
+  ✖ экспортирует константы лимитов (10 файлов, 25 МБ = 26 214 400 байт) и SPOILER_ хелперы (0.747761ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ соблюдает лимиты: не более 10 файлов и <= 25 МБ на каждый файл (0.672891ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ кнопка #composer-attach-btn (file input), drag-and-drop и paste добавляют файлы в createAttachmentsController (лимит 10 файлов, <= 25 МБ) (0.947511ms)
+    AssertionError [ERR_ASSERTION]: Очередь ограничена максимум 10 файлами
+=== M2 (attachments.js: SPOILER_PREFIX = 'SPOILER_' -> 'HIDDEN_'): KILLED (exit=1) ===
+    ✖ экспортирует константы лимитов (10 файлов, 25 МБ = 26 214 400 байт) и SPOILER_ хелперы (0.78489ms)
+    ✖ рендерит полку #attachment-shelf над #composer-input и управляет spoiler, alt text и удалением (1.567791ms)
+    ✖ uploadAll() вызывает upload_attachments и возвращает нормализованный массив метаданных (0.846301ms)
+  ✖ M-11 UI: контроллер очереди вложений createAttachmentsController (4.504764ms)
+    ✖ рендерит полку #attachment-shelf над #composer-input с карточками, переключателем SPOILER_, alt text и кнопкой удаления (0.56818ms)
+    ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.566151ms)
+  ✖ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js (13.44757ms)
+  ℹ fail 5
+  ✖ failing tests:
+  ✖ экспортирует константы лимитов (10 файлов, 25 МБ = 26 214 400 байт) и SPOILER_ хелперы (0.78489ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ рендерит полку #attachment-shelf над #composer-input и управляет spoiler, alt text и удалением (1.567791ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ uploadAll() вызывает upload_attachments и возвращает нормализованный массив метаданных (0.846301ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ рендерит полку #attachment-shelf над #composer-input с карточками, переключателем SPOILER_, alt text и кнопкой удаления (0.56818ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.566151ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+=== M3 (composer.js: block empty text even when attachments > 0): KILLED (exit=1) ===
+    ✖ позволяет отправить сообщение с пустым текстом, если в очереди есть хотя бы 1 вложение, и блокирует пустую отправку без вложений (0.66102ms)
+  ✖ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js (14.500301ms)
+  ℹ fail 1
+  ✖ failing tests:
+  ✖ позволяет отправить сообщение с пустым текстом, если в очереди есть хотя бы 1 вложение, и блокирует пустую отправку без вложений (0.66102ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+=== M4 (composer.js: skip attachments.uploadAll(channelId) on submit): KILLED (exit=1) ===
+    ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.797001ms)
+    ✖ позволяет отправить сообщение с пустым текстом, если в очереди есть хотя бы 1 вложение, и блокирует пустую отправку без вложений (0.28852ms)
+    ✖ отправка по клавише Enter (без Shift) и сохранение очереди при ошибке upload_attachments (0.321591ms)
+  ✖ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js (3.600493ms)
+  ℹ fail 3
+  ✖ failing tests:
+  ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.797001ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ позволяет отправить сообщение с пустым текстом, если в очереди есть хотя бы 1 вложение, и блокирует пустую отправку без вложений (0.28852ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ отправка по клавише Enter (без Shift) и сохранение очереди при ошибке upload_attachments (0.321591ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+=== M5 (composer.js: skip attachments.clear() after submit): KILLED (exit=1) ===
+    ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.863681ms)
+    ✖ отправка по клавише Enter (без Shift) и сохранение очереди при ошибке upload_attachments (9.854228ms)
+  ✖ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js (13.48069ms)
+  ℹ fail 2
+  ✖ failing tests:
+  ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.863681ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  ✖ отправка по клавише Enter (без Shift) и сохранение очереди при ошибке upload_attachments (9.854228ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+ALL 5 MUTATIONS KILLED (5/5)

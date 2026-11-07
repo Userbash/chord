@@ -216,3 +216,255 @@
 .member[aria-current="true"] {
   background: var(--state-selected);
 }
+
+/* =============================================================================
+ * MB-03 (STUB-16): поповер профиля участника
+ * SPEC: waves/RW-40/DESIGN/PINS-THREADS-PROFILE-SPEC.md §4, §6
+ * ========================================================================== */
+.user-profile-popover,
+#user-profile-popover,
+#member-profile-popover {
+  position: fixed;
+  z-index: var(--z-popover);
+  display: flex;
+  flex-direction: column;
+  width: min(300px, calc(100vw - var(--space-6)));
+  max-height: min(480px, calc(100vh - var(--space-6)));
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+}
+
+.user-profile-popover[hidden],
+#user-profile-popover[hidden],
+#member-profile-popover[hidden] {
+  display: none;
+}
+
+/* 1. Верхний баннер */
+.profile-banner {
+  position: relative;
+  flex: 0 0 calc(var(--space-12) + var(--space-2));
+  height: calc(var(--space-12) + var(--space-2));
+  background-color: var(--surface-3);
+}
+
+/* Кнопка закрытия */
+.profile-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: var(--z-header);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  border: 0;
+  border-radius: var(--radius-round);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  cursor: pointer;
+}
+
+.profile-close:hover {
+  background: var(--surface-4);
+  color: var(--text-strong);
+}
+
+.profile-close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* 2. Аватар со статусом */
+.profile-avatar-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.profile-avatar {
+  position: relative;
+  width: var(--layout-composer-h);
+  height: var(--layout-composer-h);
+  margin-top: calc(var(--btn-height-sm) * -1);
+  border: 4px solid var(--surface-1);
+  border-radius: var(--radius-round);
+  background: var(--surface-4);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+}
+
+.profile-avatar .status-dot {
+  position: absolute;
+  right: var(--space-0);
+  bottom: var(--space-0);
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  border: 2px solid var(--surface-1);
+  border-radius: var(--radius-round);
+}
+
+/* 3. Тело профиля */
+.profile-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  overflow-y: auto;
+}
+
+.profile-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.profile-display-name {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+}
+
+.profile-tag {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.profile-custom-status {
+  margin-top: var(--space-2);
+  color: var(--text-subtle);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.profile-custom-status[data-has-status="false"] {
+  display: none;
+}
+
+.profile-divider {
+  height: 1px;
+  margin: var(--space-4) 0;
+  background: var(--divider);
+}
+
+/* 4. Роли */
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.profile-section-title {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+}
+
+.profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.profile-badges .badge--role {
+  display: inline-flex;
+  align-items: center;
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  color: var(--text-strong);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* 5. Действия */
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.profile-actions .btn {
+  height: var(--btn-height-sm);
+  font-size: var(--font-size-small);
+}
+
+/* Состояния загрузки, ошибки и пустого профиля */
+.profile-loading,
+.profile-empty,
+.profile-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+}
+
+.profile-error .error-text {
+  margin: 0 0 var(--space-4);
+  color: var(--danger-text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.profile-empty .empty-title {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.profile-empty .empty-icon {
+  font-size: var(--font-size-title);
+}
+
+/* Скелетоны состояния загрузки (PINS-THREADS-PROFILE-SPEC.md §4.3) */
+.profile-avatar-skeleton {
+  border: 4px solid var(--surface-1);
+  border-radius: var(--radius-round);
+  background: var(--surface-3);
+  animation: profile-skeleton-pulse 1.2s var(--ease-out) infinite alternate;
+}
+
+.profile-skeleton-name {
+  height: 14px;
+  width: 140px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  animation: profile-skeleton-pulse 1.2s var(--ease-out) infinite alternate;
+}
+
+.profile-skeleton-name--sub {
+  height: 12px;
+  width: 90px;
+  margin-bottom: 0;
+}
+
+@keyframes profile-skeleton-pulse {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
+

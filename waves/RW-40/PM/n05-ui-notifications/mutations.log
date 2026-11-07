@@ -1,0 +1,73 @@
+=== MUTATION TESTING: N-05-UI-NOTIFICATIONS (PASS 2) ===
+Target: rust/gui-spike/ui/features/notifications.js
+Baseline MD5: 001ff70a7538378d16d52fd3b6b10117
+
+--- MUT-1-channel-menu-nodelist-filter ---
+Description: getEnabledChannelMenuItems вызывает .filter напрямую на результате querySelectorAll без Array.from (P1.1)
+Mutant MD5: c76e6a38e8f76056f1e0135aa65854e7
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (0.602511ms)
+  ✖ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (9.000444ms)
+  ✖ failing tests:
+  ✖ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (0.602511ms)
+    TypeError [Error]: channelMenu.querySelectorAll(...).filter is not a function
+Restored MD5: 001ff70a7538378d16d52fd3b6b10117 (match=true)
+
+--- MUT-2-modal-drop-focus-trap ---
+Description: handleModalKeydown игнорирует циклический перехват Tab/Shift+Tab внутри #guild-notif-modal (P2.1)
+Mutant MD5: bb54096fe0a0eae4f8a884c0fd7b5046
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ focus trap внутри #guild-notif-modal: Tab и Shift+Tab циклически переключают фокус (NOTIFICATIONS-SPEC §5.2 п.4) (0.738851ms)
+  ✖ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (8.845774ms)
+  ✖ failing tests:
+  ✖ focus trap внутри #guild-notif-modal: Tab и Shift+Tab циклически переключают фокус (NOTIFICATIONS-SPEC §5.2 п.4) (0.738851ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+Restored MD5: 001ff70a7538378d16d52fd3b6b10117 (match=true)
+
+--- MUT-3-skip-mute-expiry-timer ---
+Description: scheduleMuteExpiryTimers не планирует setTimeout при активном временном mute (P2.2)
+Mutant MD5: ed615263fd3064c9eb71c686e1779afc
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.593851ms)
+  ✖ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (8.844213ms)
+  ✖ failing tests:
+  ✖ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.593851ms)
+    AssertionError [ERR_ASSERTION]: должен быть запланирован таймер истечения mute сервера на 900000 мс
+Restored MD5: 001ff70a7538378d16d52fd3b6b10117 (match=true)
+
+--- MUT-4-ignore-429-rate-limit ---
+Description: isRateLimitedError возвращает false на статус 429, пропуская блокировку disabled и отсчёт retry_after (P2.3)
+Mutant MD5: 07b0b8b8382af39969a6c231e0e2ca34
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.910211ms)
+  ✖ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (8.828333ms)
+  ✖ failing tests:
+  ✖ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.910211ms)
+    AssertionError [ERR_ASSERTION]: при 429 с retry_after_ms=3000 должно выводиться сообщение 'Повторите через 3 с.'
+Restored MD5: 001ff70a7538378d16d52fd3b6b10117 (match=true)
+
+--- MUT-5-marks-unread-ignores-resolved-unread ---
+Description: evaluateIncomingMessageNotification помечает обычное сообщение непрочитанным даже при ONLY_MENTIONS (P2.4)
+Mutant MD5: 50073573ceaf022be89d547f8fe8e797
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.636001ms)
+  ✖ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний (1.500212ms)
+  ✖ failing tests:
+  ✖ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.636001ms)
+    AssertionError [ERR_ASSERTION]: при ONLY_MENTIONS (без UNREADS_ALL_MESSAGES) обычное сообщение не помечает канал непрочитанным (§1.5.3 строка 4)
+Restored MD5: 001ff70a7538378d16d52fd3b6b10117 (match=true)
+
+=== SUMMARY ===
+Killed: 5/5
+Final MD5: 001ff70a7538378d16d52fd3b6b10117 (baseline=001ff70a7538378d16d52fd3b6b10117, match=true)
+Post-restore test exit code: 0

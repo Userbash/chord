@@ -1,0 +1,51 @@
+baseline md5 = 3e14e44521110a282863f7f855a0358b
+
+BASELINE green run: exit=0
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 40.841551
+
+M1-upcoming-filter-lets-status-3-through: exit=1 -> KILLED
+      actual: [ 'ev-50', 'ev-10', 'ev-20', 'ev-30' ],
+      expected: [ 'ev-10', 'ev-20', 'ev-30' ],
+      operator: 'deepStrictEqual',
+      diff: 'simple'
+    }
+  restored md5 = 3e14e44521110a282863f7f855a0358b (OK)
+
+M2-normalize-active-tab-falls-back-to-upcoming: exit=1 -> KILLED
+      actual: 'upcoming',
+      expected: 'active',
+      operator: 'strictEqual',
+      diff: 'simple'
+    }
+  restored md5 = 3e14e44521110a282863f7f855a0358b (OK)
+
+M3-sort-start-time-inverted: exit=1 -> KILLED
+      actual: [ 'ev-2', 'ev-1' ],
+      expected: [ 'ev-1', 'ev-2' ],
+      operator: 'deepStrictEqual',
+      diff: 'simple'
+    }
+  restored md5 = 3e14e44521110a282863f7f855a0358b (OK)
+
+M4-tab-aria-selected-always-false: exit=1 -> KILLED
+      actual: 'false',
+      expected: 'true',
+      operator: 'strictEqual',
+      diff: 'simple'
+    }
+  restored md5 = 3e14e44521110a282863f7f855a0358b (OK)
+
+M5-rsvp-does-not-toggle: exit=1 -> KILLED
+      actual: [ { eventId: 'ev-2', nextInterested: false } ],
+      expected: [ { eventId: 'ev-2', nextInterested: true } ],
+      operator: 'deepStrictEqual',
+      diff: 'simple'
+    }
+  restored md5 = 3e14e44521110a282863f7f855a0358b (OK)
+
+mutations killed = 5/5
+final md5 = 3e14e44521110a282863f7f855a0358b expected 3e14e44521110a282863f7f855a0358b -> BYTE-IDENTICAL

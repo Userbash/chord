@@ -1,0 +1,46 @@
+▶ G-01: рейл серверов из ready()
+  ✔ 7 гильдий из READY fixture: data-guild-id, aria-label, aria-current, монограмма (34.008879ms)
+  ✔ нет статичной заглушки data-guild="1": ни в index.html, ни в готовом рейле (26.073266ms)
+  ✔ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (11.473157ms)
+  ✔ клавиатура ↑/↓/Home/End двигает выбор и фокус (13.065783ms)
+  ✔ 0 гильдий → empty-state, а не пустой рейл (8.981212ms)
+  ✔ ошибка ready() → .error-state + retry, повторный вызов отдаёт список (10.748247ms)
+  ✔ loading skeleton до ответа ready(), затем плитки (10.458189ms)
+  ✔ до auth ready ready() не вызывается (источник — только вход) (7.349635ms)
+✔ G-01: рейл серверов из ready() (123.166955ms)
+▶ G-01b: последний сервер из settings_load восстанавливается и сохраняется
+  ✔ boot: выбирается гильдия с id == lastGuildId из settings_load (9.354901ms)
+  ✔ boot: lastGuildId вне READY или без поля → первая гильдия (33.664461ms)
+  ✔ клик по плитке сохраняет lastGuildId, не теряя остальные настройки (8.588362ms)
+  ✔ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её (18.186442ms)
+  ✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B (11.419056ms)
+✖ G-01b: последний сервер из settings_load восстанавливается и сохраняется (81.788591ms)
+ℹ tests 13
+ℹ suites 2
+ℹ pass 12
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 245.385922
+
+✖ failing tests:
+
+test at tests/unit/guild-rail.test.mjs:495:3
+✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B (11.419056ms)
+  AssertionError [ERR_ASSERTION]: гонка при быстрых кликах A -> B: сохранён 294064825540280335, ожидался последний выбор 338001249918255106
+  + actual - expected
+  
+  + '294064825540280335'
+  - '338001249918255106'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:545:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '294064825540280335',
+    expected: '338001249918255106',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

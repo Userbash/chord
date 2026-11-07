@@ -1,0 +1,17 @@
+✔ markdown-helper: исходник помечен // @ts-check и содержит JSDoc (0.84762ms)
+✔ markdown-helper: TIMESTAMP_STYLES заморожен и совпадает с клиентом (0.34281ms)
+✔ markdown-helper: parseDiscordTimestampTag разбирает валидные теги (0.17338ms)
+✔ markdown-helper: parseDiscordTimestampTag отвергает невалидные теги (0.11028ms)
+✔ markdown-helper: extractSpoilerSpans собирает непустые спойлеры (0.15072ms)
+✔ markdown-helper: extractSpoilerSpans игнорирует inline-бэктики (0.09803ms)
+✔ markdown-helper: formatRelativeTimestampRu — секунды (0.08586ms)
+✔ markdown-helper: formatRelativeTimestampRu — минуты и часы (0.08211ms)
+✔ markdown-helper: formatRelativeTimestampRu — дни (0.08364ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.203935

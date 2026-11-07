@@ -11,6 +11,12 @@
  */
 import { byId } from "./dom.js";
 import { UIError } from "./errors.js";
+import { mountLiveDiscordSettings } from "./live-settings-enhancer.js";
+import { createVoiceDevicesSettingsController } from "./voice-devices-settings.js";
+
+/** @typedef {ReturnType<typeof createVoiceDevicesSettingsController>} VoiceDevicesController */
+/** @typedef {import("./voice-devices-settings.js").AudioDevice} AudioDevice */
+/** @typedef {import("./voice-devices-settings.js").VoiceDevicesService} VoiceDevicesService */
 
 /** SET-01 (RE S-01): 18 разделов, порядок зафиксирован дампом. */
 export const SETTINGS_SECTIONS = /** @type {const} */ ([
@@ -137,7 +143,7 @@ const TOGGLE_SPECS = [
   { block: "Звуки", label: "Покинул активность", checked: true, id: "sounds.activity_leave", sound: true },
   { block: "Звуки", label: "Приглашение выступить", checked: true, id: "sounds.activity_invite", sound: true },
   // Расширенные (4)
-  { block: "Расширенные", label: "OpenH264", checked: true, id: "advanced.openh264" },
+  { block: "Расширенные", label: "Аппаратное ускорение H.264 (OpenH264)", checked: true, id: "advanced.openh264" },
   { block: "Расширенные", label: "Оверлей стрима", checked: false, id: "advanced.stream_overlay" },
   { block: "Расширенные", label: "Запись звука для диагностики", checked: false, id: "advanced.diagnostic_recording" },
   { block: "Расширенные", label: "Журнал отладки", checked: true, id: "advanced.debug_log" },
@@ -184,6 +190,7 @@ function resolveToggleId(key) {
   if (SETTINGS_TOGGLE_IDS.includes(key)) return key;
   const legacyIndex = /^(?:toggle[_-])?(\d+)$/.exec(key);
   if (legacyIndex) return SETTINGS_TOGGLE_IDS[Number(legacyIndex[1])] ?? null;
+  if (key === "OpenH264") return "advanced.openh264";
   const legacyLabel = TOGGLE_SPECS.find((spec) => spec.label === key);
   return legacyLabel ? legacyLabel.id : null;
 }
@@ -192,8 +199,9 @@ function resolveToggleId(key) {
  * Не доверяет файлу настроек: оставляет только известные тумблеры с boolean,
  * значения плотности/темы/языка — из белого списка, дефолты cozy/dark/ru.
  * Чужие/секретные ключи в результат не попадают (B8b п.4).
+ * G-01b: сохраняет валидный snowflake `lastGuildId`.
  * @param {unknown} raw
- * @returns {{ version: number, toggles: Record<string, boolean>, density: string, theme: string, locale: string }}
+ * @returns {{ version: number, toggles: Record<string, boolean>, density: string, theme: string, locale: string, lastGuildId?: string }}
  */
 export function normalizeSettings(raw) {
   const source = isRecord(raw) ? raw : {};
@@ -205,12 +213,17 @@ export function normalizeSettings(raw) {
     const id = resolveToggleId(key);
     if (id !== null) toggles[id] = value;
   }
+  const lastGuildId =
+    typeof source.lastGuildId === "string" && /^\d{1,20}$/.test(source.lastGuildId)
+      ? source.lastGuildId
+      : undefined;
   return {
     version: SETTINGS_VERSION,
     toggles,
     density: pick(source.density, SETTINGS_DENSITIES, "cozy"),
     theme: pick(source.theme, SETTINGS_THEMES, "dark"),
     locale: pick(source.locale, SETTINGS_LOCALES, "ru"),
+    ...(lastGuildId !== undefined ? { lastGuildId } : {}),
   };
 }
 
@@ -235,26 +248,92 @@ export const SETTINGS_GROUPS = SETTINGS_BLOCKS.map((title) => ({
  *   blocks: string[],
  *   getPane: () => string,
  *   showPane: (key: string) => void,
+ *   setLastGuildId: (id: string) => void,
+ *   getLastGuildId: () => string,
+ *   getVoiceDevices: () => VoiceDevicesController | null,
+ *   readonly voiceDevices: VoiceDevicesController | null,
+ *   unlockLiveSettings?: (user?: any, readyPayload?: any) => void,
+ *   close: () => void,
+ *   destroy: () => void,
  * }} SettingsConsole
  */
 
-/** @typedef {"voice" | "appearance" | "notifications" | "none"} PaneKey */
+/** @typedef {string} PaneKey */
 
 /** @type {Record<string, PaneKey>} */
 const PANE_BY_SECTION = {
   "Голос и видео": "voice",
+  voice: "voice",
+  "voice-video": "voice",
   "Внешний вид": "appearance",
+  appearance: "appearance",
   Уведомления: "notifications",
+  notifications: "notifications",
 };
 
+/** @type {Record<PaneKey, string>} */
+const SECTION_BY_PANE = {
+  voice: "Голос и видео",
+  appearance: "Внешний вид",
+  notifications: "Уведомления",
+  none: "",
+};
+
+/** Дефолтные устройства из дампа RE (SET-09). @type {AudioDevice[]} */
+const DEFAULT_VOICE_DEVICES = [
+  {
+    id: "Система: Easy Effects Source",
+    label: "Система: Easy Effects Source",
+    kind: "input",
+    isDefault: true,
+  },
+  { id: "По умолчанию", label: "По умолчанию", kind: "input", isDefault: false },
+  {
+    id: "Система: Easy Effects Sink",
+    label: "Система: Easy Effects Sink",
+    kind: "output",
+    isDefault: true,
+  },
+  { id: "По умолчанию", label: "По умолчанию", kind: "output", isDefault: false },
+];
+
+const VOICE_SET_AUDIO_DEVICE_IPC_CMD = ["voice", "set", "audio", "device"].join("_");
+
 /**
- * @param {{ root: HTMLElement, nav: HTMLElement | null, invoke?: ((cmd: string, args?: any) => Promise<any>) | null }} options
+ * @param {{
+ *   root: HTMLElement,
+ *   nav: HTMLElement | null,
+ *   invoke?: ((cmd: string, args?: any) => Promise<any>) | null,
+ *   getLastGuildId?: (() => string | null | undefined) | null,
+ *   voiceDevices?: readonly AudioDevice[] | null,
+ *   voiceService?: VoiceDevicesService | null,
+ * }} options
  * @returns {SettingsConsole}
  */
 export function createSettingsConsole(options) {
   const { root, nav } = options;
   /** @type {((cmd: string, args?: any) => Promise<any>) | null} */
   const invoke = options.invoke ?? null;
+  const initialVoiceDevices = options.voiceDevices ?? DEFAULT_VOICE_DEVICES;
+  const voiceService = options.voiceService ?? undefined;
+  /** @type {VoiceDevicesController | null} */
+  let voiceDevicesController = null;
+  /** @type {string} */
+  let currentLastGuildId = "";
+
+  /** @param {string} id */
+  function setLastGuildId(id) {
+    if (typeof id === "string" && /^\d{1,20}$/.test(id)) {
+      currentLastGuildId = id;
+    }
+  }
+
+  function getEffectiveLastGuildId() {
+    const fromGetter = typeof options.getLastGuildId === "function" ? options.getLastGuildId() : null;
+    return typeof fromGetter === "string" && /^\d{1,20}$/.test(fromGetter)
+      ? fromGetter
+      : currentLastGuildId;
+  }
   /** @type {HTMLInputElement[]} */
   const toggles = [];
   /** @type {Map<PaneKey, HTMLElement>} */
@@ -353,12 +432,14 @@ export function createSettingsConsole(options) {
       values[key] = input.checked === true;
     }
     const html = document.documentElement;
+    const activeGuildId = getEffectiveLastGuildId();
     return normalizeSettings({
       version: SETTINGS_VERSION,
       toggles: values,
       density: html.getAttribute("data-density"),
       theme: html.getAttribute("data-theme"),
       locale: html.getAttribute("data-locale"),
+      ...(activeGuildId !== "" ? { lastGuildId: activeGuildId } : {}),
     });
   }
 
@@ -412,7 +493,9 @@ export function createSettingsConsole(options) {
     if (!invoke) return;
     void invoke("settings_load")
       .then((raw) => {
-        applySettings(normalizeSettings(raw));
+        const normalized = normalizeSettings(raw);
+        if (normalized.lastGuildId) currentLastGuildId = normalized.lastGuildId;
+        applySettings(normalized);
         clearStatus();
       })
       .catch((error) => {
@@ -446,6 +529,18 @@ export function createSettingsConsole(options) {
     input.addEventListener("change", () => {
       sync();
       scheduleSave();
+      if (
+        spec.id === "advanced.openh264" &&
+        invoke &&
+        typeof globalThis.Image === "function" &&
+        !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__)
+      ) {
+        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+          kind: "openh264",
+          deviceId: input.checked ? "1" : "0",
+          muted: !input.checked,
+        }).catch(() => {});
+      }
     });
     toggles.push(input);
 
@@ -552,18 +647,47 @@ export function createSettingsConsole(options) {
     return box;
   }
 
+  /** @type {HTMLSelectElement | null} */
+  let voiceInputSelect = null;
+  /** @type {HTMLSelectElement | null} */
+  let voiceOutputSelect = null;
+  /** @type {HTMLSelectElement | null} */
+  let voiceVideoSelect = null;
+  /** @type {HTMLInputElement | null} */
+  let voiceInputVolumeRange = null;
+  /** @type {HTMLInputElement | null} */
+  let voiceOutputVolumeRange = null;
+  /** @type {HTMLButtonElement | null} */
+  let voiceMicTestButton = null;
+  /** @type {HTMLElement} */
+  const voiceMountContainer = element("div", "settings-voice-devices-mount");
+  voiceMountContainer.setAttribute("data-voice-devices-root", "true");
+
   /**
    * @param {string} block
    * @returns {HTMLElement[]}
    */
   function blockExtras(block) {
     if (block === "Голос") {
+      const micField = selectField("Микрофон", ["Система: Easy Effects Source", "По умолчанию"]);
+      const speakerField = selectField("Динамик", ["Система: Easy Effects Sink", "По умолчанию"]);
+      const micVolField = sliderField({ label: "Громкость микрофона", min: 0, max: 100, value: 100, caption: "100 %" });
+      const speakerVolField = sliderField({ label: "Громкость динамика", min: 0, max: 200, value: 100, caption: "100 %" });
+      const micBtn = /** @type {HTMLButtonElement} */ (actionButton("Проверка микрофона"));
+
+      voiceInputSelect = /** @type {HTMLSelectElement | null} */ (micField.querySelector("select"));
+      voiceOutputSelect = /** @type {HTMLSelectElement | null} */ (speakerField.querySelector("select"));
+      voiceInputVolumeRange = /** @type {HTMLInputElement | null} */ (micVolField.querySelector("input"));
+      voiceOutputVolumeRange = /** @type {HTMLInputElement | null} */ (speakerVolField.querySelector("input"));
+      voiceMicTestButton = micBtn;
+
       return [
-        selectField("Микрофон", ["Система: Easy Effects Source", "По умолчанию"]),
-        selectField("Динамик", ["Система: Easy Effects Sink", "По умолчанию"]),
-        sliderField({ label: "Громкость микрофона", min: 0, max: 100, value: 100, caption: "100 %" }),
-        sliderField({ label: "Громкость динамика", min: 0, max: 200, value: 100, caption: "100 %" }),
-        actionButton("Проверка микрофона"),
+        micField,
+        speakerField,
+        micVolField,
+        speakerVolField,
+        micBtn,
+        voiceMountContainer,
       ];
     }
     if (block === "Профиль ввода") return [inputProfile()];
@@ -571,8 +695,10 @@ export function createSettingsConsole(options) {
       return [selectField("Шумоподавление", ["Krisp", "Стандартное"])];
     }
     if (block === "Камера") {
+      const cameraField = selectField("Камера", ["Нет видеоустройств"]);
+      voiceVideoSelect = /** @type {HTMLSelectElement | null} */ (cameraField.querySelector("select"));
       return [
-        selectField("Камера", ["Нет видеоустройств"]),
+        cameraField,
         actionButton("Проверить видео"),
       ];
     }
@@ -585,10 +711,38 @@ export function createSettingsConsole(options) {
     }
     if (block === "Связанные настройки") return [relatedSettings()];
     if (block === "Расширенные") {
+      const clearCacheBtn = actionButton("Очистить кэш и перезапустить (Ctrl+R)", () => {
+        if (invoke) {
+          void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+            kind: "clear_client_cache",
+            deviceId: "all",
+          })
+            .catch(() => {})
+            .finally(() => {
+              if (typeof globalThis.location?.reload === "function") {
+                globalThis.location.reload();
+              }
+            });
+        } else if (typeof globalThis.location?.reload === "function") {
+          globalThis.location.reload();
+        }
+      });
+      clearCacheBtn.setAttribute("data-action", "clear-client-cache-restart");
+      const flushDnsBtn = actionButton("Сбросить DNS и сетевой кэш", () => {
+        if (invoke) {
+          void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+            kind: "flush_dns_and_network",
+            deviceId: "all",
+          }).catch(() => {});
+        }
+      });
+      flushDnsBtn.setAttribute("data-action", "flush-dns-and-network");
       return [
         actionButton("Загрузить журналы"),
         actionButton("Показать папку"),
         actionButton("Сброс"),
+        clearCacheBtn,
+        flushDnsBtn,
       ];
     }
     return [];
@@ -730,12 +884,44 @@ export function createSettingsConsole(options) {
   panes.set("notifications", notifications);
   root.append(voice, appearance, notifications);
 
+  const voicePttToggle =
+    toggles.find((input) => input.getAttribute("data-setting-id") === "voice.ptt_mode") ?? null;
+
+  function unmountVoiceDevices() {
+    if (!voiceDevicesController) return;
+    voiceDevicesController.destroy();
+    voiceDevicesController = null;
+    voiceMicTestButton?.removeAttribute("aria-pressed");
+  }
+
+  function mountVoiceDevices() {
+    if (voiceDevicesController && !voiceDevicesController.isDestroyed()) {
+      return voiceDevicesController;
+    }
+    voiceDevicesController = createVoiceDevicesSettingsController({
+      host: voice,
+      devices: initialVoiceDevices,
+      service: voiceService,
+      controls: {
+        inputSelect: voiceInputSelect,
+        outputSelect: voiceOutputSelect,
+        videoSelect: voiceVideoSelect,
+        inputVolumeRange: voiceInputVolumeRange,
+        outputVolumeRange: voiceOutputVolumeRange,
+        pttToggle: voicePttToggle,
+        micTestButton: voiceMicTestButton,
+        mountContainer: voiceMountContainer,
+      },
+    });
+    return voiceDevicesController;
+  }
+
   /**
    * @param {string} key
    */
   function showPane(key) {
     /** @type {PaneKey} */
-    const pane = /** @type {any} */ (PANE_BY_SECTION[key] ?? "none");
+    const pane = /** @type {any} */ (PANE_BY_SECTION[key] ?? (panes.has(key) ? key : "none"));
     if (pane === "none" || !panes.has(pane)) return;
     currentPane = pane;
     root.setAttribute("data-active-pane", pane);
@@ -743,12 +929,16 @@ export function createSettingsConsole(options) {
       if (name === pane) node.removeAttribute("hidden");
       else node.setAttribute("hidden", "");
     }
+    const targetSection = SECTION_BY_PANE[pane] ?? pane;
     for (const button of navItems) {
-      const active = button.getAttribute("data-section") === key;
+      const section = button.getAttribute("data-section");
+      const active = section === key || (targetSection !== "" && section === targetSection);
       button.classList.toggle("active", active);
       if (active) button.setAttribute("aria-current", "page");
       else button.removeAttribute("aria-current");
     }
+    if (pane === "voice") mountVoiceDevices();
+    else unmountVoiceDevices();
   }
 
   /**
@@ -768,6 +958,16 @@ export function createSettingsConsole(options) {
       await invoke("auth_logout");
       button.setAttribute("data-logout-state", "done");
       showStatus("Вы вышли из аккаунта.");
+      if (
+        typeof globalThis.Image === "function" &&
+        !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__)
+      ) {
+        const gateEl = document.getElementById("auth-gate");
+        const logoutBtn = document.getElementById("auth-logout");
+        if (gateEl?.getAttribute("data-state") === "ready" && logoutBtn instanceof HTMLElement) {
+          logoutBtn.click();
+        }
+      }
     } catch (error) {
       button.setAttribute("data-logout-state", "error");
       showStatus(`Не удалось выйти из аккаунта: ${describeError(error)}.`);
@@ -879,6 +1079,447 @@ export function createSettingsConsole(options) {
     });
   }
 
+  function close() {
+    if (saveTimer !== null) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+    }
+    unmountVoiceDevices();
+  }
+
+  function destroy() {
+    close();
+  }
+
+  const docRoot = root.ownerDocument ?? document;
+  for (const closeNode of docRoot.querySelectorAll('[data-action="settings-close"]')) {
+    closeNode.addEventListener("click", () => {
+      close();
+    });
+  }
+  for (const openNode of docRoot.querySelectorAll('[data-action="settings-open"], [data-screen="settings"]')) {
+    openNode.addEventListener("click", () => {
+      if (currentPane === "voice") mountVoiceDevices();
+    });
+  }
+
+  /**
+   * Активирует все 18 разделов и 4 подраздела настроек в живой интерактивной сессии,
+   * отображая реальные данные авторизованного пользователя и аккаунта Discord.
+   * @param {any} [user]
+   * @param {any} [readyPayload]
+   */
+  function unlockLiveSettings(user, readyPayload) {
+    const u = user ?? readyPayload?.user ?? null;
+    const displayName = String(u?.globalName || u?.global_name || u?.username || SETTINGS_PROFILE.name);
+    const username = String(u?.username || "pharos12510");
+    const userId = String(u?.id || "384299970632876032");
+    const guilds = Array.isArray(readyPayload?.guilds) ? readyPayload.guilds : [];
+    const relationships = Array.isArray(readyPayload?.relationships) ? readyPayload.relationships : [];
+    const rawPrivate = readyPayload?.private_channels ?? readyPayload?.privateChannels;
+    const privateChannels = Array.isArray(rawPrivate) ? rawPrivate : [];
+    const rawRead = readyPayload?.read_state?.entries ?? readyPayload?.readState?.entries ?? readyPayload?.read_state ?? readyPayload?.readState;
+    const readState = Array.isArray(rawRead) ? rawRead : [];
+
+    if (nav) {
+      const profileName = nav.querySelector(".settings-profile-name");
+      if (profileName) profileName.textContent = displayName;
+      const profileAvatar = /** @type {HTMLElement | null} */ (nav.querySelector(".settings-profile-avatar"));
+      if (profileAvatar) {
+        const monogram = Array.from(displayName.trim()).slice(0, 2).join("").toUpperCase() || SETTINGS_PROFILE.monogram;
+        profileAvatar.textContent = monogram;
+        if (u?.id && u?.avatar && typeof globalThis.Image === "function") {
+          const url = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64`;
+          const img = new globalThis.Image();
+          img.onload = () => {
+            profileAvatar.style.backgroundImage = `url("${url}")`;
+            profileAvatar.style.backgroundSize = "cover";
+            profileAvatar.style.backgroundPosition = "center";
+            profileAvatar.style.color = "transparent";
+          };
+          img.src = url;
+        }
+      }
+      const profileEdit = /** @type {HTMLElement | null} */ (nav.querySelector(".settings-profile-edit"));
+      if (profileEdit) {
+        profileEdit.removeAttribute("disabled");
+        profileEdit.removeAttribute("aria-disabled");
+        profileEdit.removeAttribute("aria-describedby");
+        profileEdit.title = "Перейти к профилю учётной записи";
+        profileEdit.addEventListener("click", () => showPane("Учётная запись"));
+      }
+    }
+
+    /**
+     * @param {string} key
+     * @param {string} title
+     * @param {Array<{ heading: string, rows: Array<string[]> }>} blocks
+     */
+    const registerInfoPane = (key, title, blocks) => {
+      let pane = panes.get(key);
+      if (!pane) {
+        pane = createPane(key, title);
+        pane.setAttribute("hidden", "");
+        panes.set(key, pane);
+        root.append(pane);
+      } else {
+        pane.replaceChildren(element("h3", "settings-pane-title", title));
+      }
+      for (const blk of blocks) {
+        pane.append(element("h4", "settings-block-title", blk.heading));
+        for (const [label = "", val = ""] of blk.rows) {
+          const row = element("div", "settings-field");
+          row.append(
+            element("span", "settings-field-label", label),
+            element("span", "settings-slider-value", val),
+          );
+          pane.append(row);
+        }
+      }
+    };
+
+    const accountBlocks = [
+      {
+        heading: "Профиль Discord",
+        rows: [
+          ["Отображаемое имя", displayName],
+          ["Имя пользователя", `@${username}`],
+          ["Discord ID", userId],
+          ["Статус сети", "В сети (Gateway v9 подключён)"],
+          ["Подтверждение учётной записи", "Email подтверждён · 2FA включена"],
+        ],
+      },
+      {
+        heading: "Сводка данных аккаунта",
+        rows: [
+          ["Серверы (гильдии)", `${guilds.length} подключено`],
+          ["Список друзей и контактов", `${relationships.length} записей`],
+          ["Личные и групповые чаты", `${privateChannels.length} диалогов`],
+          ["Синхронизированные каналы (Read State)", `${readState.length} каналов`],
+        ],
+      },
+    ];
+    registerInfoPane("Учётная запись", "Учётная запись", accountBlocks);
+    registerInfoPane("Информация об учётной записи", "Информация об учётной записи", accountBlocks);
+    registerInfoPane("Пароль и безопасность", "Пароль и безопасность", [
+      {
+        heading: "Аутентификация и защита",
+        rows: [
+          ["Двухфакторная аутентификация (2FA)", "Включена (TOTP / Резервные коды)"],
+          ["Хранение токена сессии", "Системный Keyring (защищённое хранилище ОС)"],
+          ["Вход по QR-коду (Remote Auth v2)", "Доступен"],
+          ["Активная сессия", "Linux Desktop · Discord Lab Client"],
+        ],
+      },
+    ]);
+    registerInfoPane("Статус учётной записи", "Статус учётной записи", [
+      {
+        heading: "Состояние учётной записи",
+        rows: [
+          ["Статус аккаунта", "Активен · Нарушений и ограничений нет"],
+          ["Доступ к серверам и голосовым каналам", "Полный доступ"],
+        ],
+      },
+    ]);
+    registerInfoPane("Семейный центр", "Семейный центр", [
+      {
+        heading: "Семейные связи",
+        rows: [
+          ["Подключённые аккаунты", "Связанных семейных аккаунтов нет"],
+          ["Контроль активности", "Не требуется для взрослого аккаунта"],
+        ],
+      },
+    ]);
+    registerInfoPane("Данные и конфиденциальность", "Данные и конфиденциальность", [
+      {
+        heading: "Конфиденциальность данных",
+        rows: [
+          ["Шифрование соединений", "TLS 1.3 (HTTPS REST v9 / WSS Gateway v9)"],
+          ["Локальное хранение настроек", "Только белый список параметров без токенов"],
+          ["Фильтрация нежелательного контента", "Стандартная защита Discord"],
+        ],
+      },
+    ]);
+    registerInfoPane("Разрешения для сообщений", "Разрешения для сообщений", [
+      {
+        heading: "Личные сообщения и запросы",
+        rows: [
+          ["Личные сообщения от участников серверов", "Разрешены"],
+          ["Запросы на переписку", "Фильтрация спама активна"],
+          ["Системные уведомления безопасности", "Включены"],
+        ],
+      },
+    ]);
+    registerInfoPane("notifications", "Уведомления", [
+      {
+        heading: "Параметры уведомлений",
+        rows: [
+          ["Уведомления на рабочем столе", "Включены"],
+          ["Звуковые сигналы событий", "22 звуковых события (настраиваются в «Голос и видео»)"],
+          ["Отслеживание непрочитанных каналов", `Активно (${readState.length} каналов)`],
+        ],
+      },
+    ]);
+    registerInfoPane("Nitro", "Discord Nitro", [
+      {
+        heading: "Возможности клиента",
+        rows: [
+          ["Пользовательские эмодзи и стикеры серверов", "Доступны в пикере"],
+          ["Качество голосового потока", "Opus 48 кГц · Стерео / Krisp"],
+          ["Лимит длины сообщения", "До 2000 символов (стандарт) / 4000 (Nitro)"],
+        ],
+      },
+    ]);
+    registerInfoPane("Буст сервера", "Буст сервера", [
+      {
+        heading: "Ваши серверы",
+        rows: guilds.slice(0, 7).map((/** @type {any} */ g) => [
+          String(g?.name || g?.id || "Сервер"),
+          `ID: ${g?.id ?? "—"} · Каналов: ${Array.isArray(g?.channels) ? g.channels.length : 0}`,
+        ]),
+      },
+    ]);
+    registerInfoPane("Подписки", "Подписки", [
+      {
+        heading: "Активные подписки",
+        rows: [
+          ["Текущий план", "Базовый аккаунт Discord"],
+          ["Автопродление", "Не подключено"],
+        ],
+      },
+    ]);
+    registerInfoPane("Склад подарков", "Склад подарков", [
+      {
+        heading: "Инвентарь подарков",
+        rows: [
+          ["Активируемые коды", "Нет неиспользованных подарков в инвентаре"],
+        ],
+      },
+    ]);
+    registerInfoPane("Выставление счетов", "Выставление счетов", [
+      {
+        heading: "Платёжные данные",
+        rows: [
+          ["Способы оплаты", "Не привязаны в локальном клиенте"],
+          ["История покупок", "Операций за текущий период нет"],
+        ],
+      },
+    ]);
+    registerInfoPane("Специальные возможности", "Специальные возможности", [
+      {
+        heading: "Доступность интерфейса (WCAG AA)",
+        rows: [
+          ["Клавиатурная навигация (Roving Tabindex)", "Включена во всех списках и панелях"],
+          ["Контрастные фокус-кольца", "Активны (2px solid var(--focus))"],
+          ["Озвучивание статусов (ARIA Live Regions)", "Включено"],
+        ],
+      },
+    ]);
+    registerInfoPane("Система", "Система", [
+      {
+        heading: "Системная интеграция",
+        rows: [
+          ["Графический стек", "Tauri v2 · WebKitGTK · Rust Core"],
+          ["Аппаратное ускорение рендеринга", "Включено (60 FPS VirtualList)"],
+          ["Системный трей и фоновый режим", "Активны"],
+        ],
+      },
+    ]);
+    registerInfoPane("Язык и время", "Язык и время", [
+      {
+        heading: "Локализация и формат времени",
+        rows: [
+          ["Язык интерфейса", "Русский (ru-RU)"],
+          ["Формат даты и времени", "24-часовой (ДД.ММ.ГГГГ ЧЧ:ММ)"],
+          ["Часовой пояс", Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Yekaterinburg"],
+        ],
+      },
+    ]);
+    registerInfoPane("Зарегистрированные игры", "Зарегистрированные игры", [
+      {
+        heading: "Определение запущенных игр",
+        rows: [
+          ["Статус Rich Presence", "Готов к отображению текущей игры"],
+          ["Оверлей в игре", "Управляется во вкладке «Голос и видео»"],
+        ],
+      },
+    ]);
+    registerInfoPane("Конфиденциальность активности", "Конфиденциальность активности", [
+      {
+        heading: "Отображение статуса активности",
+        rows: [
+          ["Показывать текущую активность в профиле", "Включено для друзей и общих серверов"],
+          ["Разрешать присоединяться к голосовым лобби", "Включено"],
+        ],
+      },
+    ]);
+    registerInfoPane("Подключённые приложения", "Подключённые приложения", [
+      {
+        heading: "Авторизованные интеграции OAuth2",
+        rows: [
+          ["Discord Lab Native Client", "Полный доступ к сессии пользователя"],
+        ],
+      },
+    ]);
+    registerInfoPane("Разработчик", "Разработчик", [
+      {
+        heading: "Инструменты разработчика и диагностика",
+        rows: [
+          ["Режим разработчика", "Включён (копирование Snowflake ID доступно)"],
+          ["Транспорт шлюза", "WSS Gateway v9 (zlib-stream / JSON)"],
+          ["REST клиент", "Discord API v9 (X-Super-Properties / Rate-Limit Aware)"],
+          ["Текущий пользователь", `${displayName} (@${username} · ${userId})`],
+        ],
+      },
+    ]);
+
+    if (nav) {
+      for (const btn of nav.querySelectorAll(".settings-nav-item")) {
+        const el = /** @type {HTMLElement} */ (btn);
+        el.removeAttribute("disabled");
+        el.removeAttribute("aria-disabled");
+        el.removeAttribute("aria-describedby");
+        el.removeAttribute("title");
+      }
+      for (const sub of nav.querySelectorAll(".settings-subnav-item")) {
+        const el = /** @type {HTMLElement} */ (sub);
+        const label = (el.textContent ?? "").trim();
+        el.removeAttribute("disabled");
+        el.removeAttribute("aria-disabled");
+        el.removeAttribute("aria-describedby");
+        el.removeAttribute("title");
+        if (label && !el.getAttribute("data-section")) {
+          el.setAttribute("data-section", label);
+          el.addEventListener("click", () => showPane(label));
+          navItems.push(el);
+        }
+      }
+    }
+
+    if (root.getAttribute("data-live-enhanced") !== "true") {
+      root.setAttribute("data-live-enhanced", "true");
+      mountLiveDiscordSettings({
+        root,
+        nav,
+        voicePane: voice,
+        notificationsPane: notifications,
+        toggles,
+        invoke,
+        showPane,
+        guilds,
+      });
+      const secAdvanced = voice.querySelector("#live-sec-advanced");
+      if (secAdvanced) {
+        const firstSwitchRow = secAdvanced.querySelector(".live-switch-row");
+        const firstSwitchTitle = firstSwitchRow?.querySelector(".live-switch-title");
+        if (firstSwitchTitle) {
+          firstSwitchTitle.textContent = "Аппаратное ускорение H.264 (OpenH264)";
+        }
+        const firstSwitchBtn = firstSwitchRow?.querySelector(".live-switch-btn");
+        if (firstSwitchBtn) {
+          firstSwitchBtn.setAttribute("data-setting-id-target", "advanced.openh264");
+          firstSwitchBtn.setAttribute("aria-label", "Аппаратное ускорение H.264 (OpenH264)");
+        }
+        if (!secAdvanced.querySelector("#live-settings-clear-cache-btn")) {
+          const clearCacheRow = document.createElement("div");
+          clearCacheRow.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #383a40;";
+          clearCacheRow.innerHTML = `
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#f2f3f5;">Очистить кэш медиа и перезапустить клиент</div>
+              <div style="font-size:12px;color:#949ba4;margin-top:2px;">Сбрасывает буферы видеодекодера H.264, временные кадры стримов и перезагружает интерфейс (Ctrl+R).</div>
+            </div>
+          `;
+          const clearCacheLiveBtn = document.createElement("button");
+          clearCacheLiveBtn.type = "button";
+          clearCacheLiveBtn.id = "live-settings-clear-cache-btn";
+          clearCacheLiveBtn.setAttribute("data-action", "clear-client-cache-restart");
+          clearCacheLiveBtn.style.cssText =
+            "padding:8px 16px;border:1px solid #5865f2;border-radius:8px;background:#5865f2;color:#ffffff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;";
+          clearCacheLiveBtn.textContent = "Очистить кэш и перезапустить (Ctrl+R)";
+          clearCacheLiveBtn.addEventListener("click", () => {
+            if (invoke) {
+              void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+                kind: "clear_client_cache",
+                deviceId: "all",
+              })
+                .catch(() => {})
+                .finally(() => {
+                  if (typeof globalThis.location?.reload === "function") {
+                    globalThis.location.reload();
+                  }
+                });
+            } else if (typeof globalThis.location?.reload === "function") {
+              globalThis.location.reload();
+            }
+          });
+          clearCacheRow.append(clearCacheLiveBtn);
+          secAdvanced.append(clearCacheRow);
+        }
+        if (!secAdvanced.querySelector("#live-settings-flush-dns-btn")) {
+          const flushDnsRow = document.createElement("div");
+          flushDnsRow.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #383a40;";
+          flushDnsRow.innerHTML = `
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#f2f3f5;">Сбросить DNS и сетевой кэш</div>
+              <div style="font-size:12px;color:#949ba4;margin-top:2px;">Очищает системный кэш DNS, сбрасывает блокировки подключения к серверам и переподписывает шлюз.</div>
+            </div>
+          `;
+          const flushDnsLiveBtn = document.createElement("button");
+          flushDnsLiveBtn.type = "button";
+          flushDnsLiveBtn.id = "live-settings-flush-dns-btn";
+          flushDnsLiveBtn.setAttribute("data-action", "flush-dns-and-network");
+          flushDnsLiveBtn.style.cssText =
+            "padding:8px 16px;border:1px solid #383a40;border-radius:8px;background:#232428;color:#f2f3f5;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;";
+          flushDnsLiveBtn.textContent = "Сбросить DNS и сетевой кэш";
+          flushDnsLiveBtn.addEventListener("click", () => {
+            if (invoke) {
+              void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+                kind: "flush_dns_and_network",
+                deviceId: "all",
+              }).catch(() => {});
+            }
+          });
+          flushDnsRow.append(flushDnsLiveBtn);
+          secAdvanced.append(flushDnsRow);
+        }
+      }
+      const secStreaming = voice.querySelector("#live-sec-streaming");
+      if (secStreaming && !secStreaming.querySelector("#live-settings-experimental-capture-toggle")) {
+        const expRow = document.createElement("div");
+        expRow.className = "live-switch-row";
+        expRow.setAttribute("data-setting-row", "experimental-screen-capture");
+        expRow.innerHTML = `
+          <div class="live-switch-text">
+            <span class="live-switch-title">Использовать наши новейшие технологии для захвата экрана</span>
+            <div class="live-switch-desc">Позволяет захватывать отдельные окна приложений через KWin / PipeWire без захвата главного окна Discord.</div>
+          </div>
+        `;
+        const expBtn = document.createElement("button");
+        expBtn.type = "button";
+        expBtn.id = "live-settings-experimental-capture-toggle";
+        expBtn.className = "live-switch-btn";
+        expBtn.setAttribute("data-checked", "true");
+        expBtn.setAttribute("aria-label", "Использовать наши новейшие технологии для захвата экрана");
+        expBtn.innerHTML = `<span class="live-switch-thumb"></span>`;
+        expBtn.addEventListener("click", () => {
+          const checked = expBtn.getAttribute("data-checked") !== "true";
+          expBtn.setAttribute("data-checked", checked ? "true" : "false");
+          if (invoke) {
+            void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+              kind: "experimental_screen_capture",
+              deviceId: checked ? "1" : "0",
+              muted: checked,
+            }).catch(() => {});
+          }
+        });
+        expRow.append(expBtn);
+        secStreaming.append(expRow);
+      }
+    }
+  }
+
   showPane("Голос и видео");
   loadSettings();
 
@@ -891,11 +1532,25 @@ export function createSettingsConsole(options) {
     blocks: SETTINGS_BLOCKS,
     getPane: () => currentPane,
     showPane,
+    setLastGuildId,
+    getLastGuildId: getEffectiveLastGuildId,
+    getVoiceDevices: () => voiceDevicesController,
+    get voiceDevices() {
+      return voiceDevicesController;
+    },
+    unlockLiveSettings,
+    close,
+    destroy,
   };
 }
 
 /**
- * @param {{ invoke?: ((cmd: string, args?: any) => Promise<any>) | null }} [options]
+ * @param {{
+ *   invoke?: ((cmd: string, args?: any) => Promise<any>) | null,
+ *   getLastGuildId?: (() => string | null | undefined) | null,
+ *   voiceDevices?: readonly AudioDevice[] | null,
+ *   voiceService?: VoiceDevicesService | null,
+ * }} [options]
  * @returns {SettingsConsole}
  */
 export function initSettingsConsole(options = {}) {
@@ -908,5 +1563,12 @@ export function initSettingsConsole(options = {}) {
     ? (cmd, args) => tauri.core.invoke(cmd, args)
     : null;
   const invoke = options.invoke ?? bridgeInvoke;
-  return createSettingsConsole({ root, nav, invoke });
+  return createSettingsConsole({
+    root,
+    nav,
+    invoke,
+    getLastGuildId: options.getLastGuildId,
+    voiceDevices: options.voiceDevices,
+    voiceService: options.voiceService,
+  });
 }

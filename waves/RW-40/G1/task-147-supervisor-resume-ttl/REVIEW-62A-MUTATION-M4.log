@@ -1,0 +1,29 @@
+EXIT=101
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.61s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+
+running 5 tests
+test gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session ... FAILED
+test gateway::supervisor::tests::resume_ttl_preserves_session_up_to_180s_and_resets_to_identify_after_180s ... ok
+test gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify ... ok
+test gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff ... ok
+test gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 ... ok
+
+failures:
+
+---- gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session stdout ----
+
+thread 'gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session' (1624436) panicked at crates/discord-core/src/gateway/supervisor.rs:1564:9:
+assertion `left == right` failed
+  left: Ok([131, 116, 0, 0, 0, 2, 109, 0, 0, 0, 2, 111, 112, 97, 3, 109, 0, 0, 0, 1, 100, 116, 0, 0, 0, 4, 109, 0, 0, 0, 6, 115, 116, 97, 116, 117, 115, 109, 0, 0, 0, 6, 111, 110, 108, 105, 110, 101, 109, 0, 0, 0, 5, 115, 105, 110, 99, 101, 97, 0, 109, 0, 0, 0, 10, 97, 99, 116, 105, 118, 105, 116, 105, 101, 115, 108, 0, 0, 0, 0, 106, 109, 0, 0, 0, 3, 97, 102, 107, 100, 0, 5, 102, 97, 108, 115, 101])
+ right: Err(NotReady { op: 3 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p discord-core --lib`

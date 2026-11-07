@@ -1,0 +1,192 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved imports `discord_core::dispatch::RoutedStreamDispatch`, `discord_core::dispatch::StreamDispatchKind`, `discord_core::dispatch::route_stream_dispatch`, `discord_core::dispatch::route_stream_dispatch_with_diagnostics`
+  --> crates/discord-core/tests/dispatch_types.rs:20:19
+   |
+20 |     DispatchKind, RoutedStreamDispatch, StreamDispatchKind, route_dispatch, route_stream_dispatch,
+   |                   ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^                  ^^^^^^^^^^^^^^^^^^^^^ no `route_stream_dispatch` in `dispatch`
+   |                   |                     |
+   |                   |                     no `StreamDispatchKind` in `dispatch`
+   |                   no `RoutedStreamDispatch` in `dispatch`
+21 |     route_stream_dispatch_with_diagnostics,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `route_stream_dispatch_with_diagnostics` in `dispatch`
+   |
+help: a similar name exists in the module
+   |
+20 -     DispatchKind, RoutedStreamDispatch, StreamDispatchKind, route_dispatch, route_stream_dispatch,
+20 +     DispatchKind, RoutedStreamDispatch, DispatchKind, route_dispatch, route_stream_dispatch,
+   |
+help: a similar name exists in the module
+   |
+20 -     DispatchKind, RoutedStreamDispatch, StreamDispatchKind, route_dispatch, route_stream_dispatch,
+20 +     DispatchKind, RoutedStreamDispatch, StreamDispatchKind, route_dispatch, route_dispatch,
+   |
+
+error[E0599]: no variant, associated function, or constant named `STREAM_NAMES` found for enum `DispatchKind` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:168:30
+    |
+168 | ...sert_eq!(DispatchKind::STREAM_NAMES, oracle_stream_names.as_slice());
+    |                           ^^^^^^^^^^^^ variant, associated function, or constant not found in `DispatchKind`
+
+error[E0599]: no variant, associated function, or constant named `is_stream_name` found for enum `DispatchKind` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:185:31
+    |
+185 |         assert!(DispatchKind::is_stream_name(kind.as_str()));
+    |                               ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `DispatchKind`
+    |
+note: if you're trying to build a new `DispatchKind`, consider using `DispatchKind::from_name` which returns `Option<DispatchKind>`
+   --> crates/discord-core/src/dispatch.rs:87:5
+    |
+ 87 |     pub fn from_name(name: &str) -> Option<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `is_stream_name` found for enum `DispatchKind` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:195:32
+    |
+195 |         assert!(!DispatchKind::is_stream_name(kind.as_str()));
+    |                                ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `DispatchKind`
+    |
+note: if you're trying to build a new `DispatchKind`, consider using `DispatchKind::from_name` which returns `Option<DispatchKind>`
+   --> crates/discord-core/src/dispatch.rs:87:5
+    |
+ 87 |     pub fn from_name(name: &str) -> Option<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant, associated function, or constant named `is_stream_name` found for enum `DispatchKind` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:212:32
+    |
+212 |         assert!(!DispatchKind::is_stream_name(invalid));
+    |                                ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `DispatchKind`
+    |
+note: if you're trying to build a new `DispatchKind`, consider using `DispatchKind::from_name` which returns `Option<DispatchKind>`
+   --> crates/discord-core/src/dispatch.rs:87:5
+    |
+ 87 |     pub fn from_name(name: &str) -> Option<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `is_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:256:33
+    |
+256 |                 assert!(!routed.is_stream());
+    |                                 ^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_known` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:257:32
+    |
+257 |                 assert!(routed.is_known());
+    |                                ^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `stream_kind` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:258:35
+    |
+258 |                 assert_eq!(routed.stream_kind(), None);
+    |                                   ^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `parse_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:259:35
+    |
+259 |                 assert_eq!(routed.parse_stream(), None);
+    |                                   ^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:260:35
+    |
+260 |                 assert_eq!(routed.to_stream_action(), None);
+    |                                   ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:278:28
+    |
+278 | ...   assert!(routed.is_stream(), "{id}: должен определяться как STREAM...
+    |                      ^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_known` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:280:24
+    |
+280 |                 routed.is_known(),
+    |                        ^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `stream_kind` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:283:31
+    |
+283 |             assert_eq!(routed.stream_kind(), Some(expected_kind));
+    |                               ^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `parse_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:287:36
+    |
+287 |             let via_event = routed.parse_stream();
+    |                                    ^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:310:31
+    |
+310 | ...(routed.to_stream_action(), Some(Ok(expected_action.clone())));
+    |            ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:402:24
+    |
+402 | ...   assert!(routed.is_stream(), "{id}: должен распознаваться как STRE...
+    |                      ^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_known` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:403:24
+    |
+403 | ...   assert!(routed.is_known(), "{id}: битый STREAM_* — известный тип");
+    |                      ^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `parse_stream_with_diagnostics` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:407:14
+    |
+406 |           let res_event = routed
+    |  _________________________-
+407 | |             .parse_stream_with_diagnostics(&mut diag_event)
+    | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+    | |_____________|
+    |
+
+error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:421:28
+    |
+421 |             assert!(routed.to_stream_action().unwrap().is_err());
+    |                            ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:462:25
+    |
+462 |         assert!(!routed.is_stream());
+    |                         ^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `is_known` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:463:25
+    |
+463 |         assert!(!routed.is_known());
+    |                         ^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `stream_kind` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:464:27
+    |
+464 |         assert_eq!(routed.stream_kind(), None);
+    |                           ^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `parse_stream` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:465:27
+    |
+465 |         assert_eq!(routed.parse_stream(), None);
+    |                           ^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:466:27
+    |
+466 |         assert_eq!(routed.to_stream_action(), None);
+    |                           ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+   --> crates/discord-core/tests/dispatch_types.rs:574:34
+    |
+574 |                     match routed.to_stream_action() {
+    |                                  ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "dispatch_types") due to 25 previous errors

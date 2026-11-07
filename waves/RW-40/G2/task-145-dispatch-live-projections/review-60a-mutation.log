@@ -1,0 +1,47 @@
+Original md5: 67c6dda6480a4dc8c25db1ecd9d1c1b1
+
+=== M1 (MESSAGE_CREATE: messageCount increment disabled) ===
+exit=1 killed=True
+✖ B18: MESSAGE_CREATE — добавление/обновление сообщения в канале и инкремент счётчика (0.54215ms)
+✖ B19: MESSAGE_UPDATE — обновление контента, edited_timestamp и вложений сообщения (0.18688ms)
+✖ L-02-UI: проекции dispatch (B) (24.296794ms)
+✖ failing tests:
+✖ B18: MESSAGE_CREATE — добавление/обновление сообщения в канале и инкремент счётчика (0.54215ms)
+✖ B19: MESSAGE_UPDATE — обновление контента, edited_timestamp и вложений сообщения (0.18688ms)
+
+=== M2 (MESSAGE_UPDATE: editedTimestamp and edited flag not updated) ===
+exit=1 killed=True
+✖ B19: MESSAGE_UPDATE — обновление контента, edited_timestamp и вложений сообщения (0.570699ms)
+✖ L-02-UI: проекции dispatch (B) (23.928364ms)
+✖ failing tests:
+✖ B19: MESSAGE_UPDATE — обновление контента, edited_timestamp и вложений сообщения (0.570699ms)
+
+=== M3 (MESSAGE_ACK: unread not reset to false) ===
+exit=1 killed=True
+✖ B20: MESSAGE_ACK — сброс unread и mention для channel_id до message_id (0.530519ms)
+✖ L-02-UI: проекции dispatch (B) (24.490335ms)
+✖ failing tests:
+✖ B20: MESSAGE_ACK — сброс unread и mention для channel_id до message_id (0.530519ms)
+
+=== M4 (TYPING_START: MESSAGE_CREATE does not clear author typing) ===
+exit=1 killed=True
+✖ B21: TYPING_START — запись активного тайпинга user_id в channel_id с timestamp и сброс при MESSAGE_CREATE (0.51493ms)
+✖ L-02-UI: проекции dispatch (B) (25.566784ms)
+✖ failing tests:
+✖ B21: TYPING_START — запись активного тайпинга user_id в channel_id с timestamp и сброс при MESSAGE_CREATE (0.51493ms)
+
+=== M5 (VOICE_STATE_UPDATE: leave voice nilish channel_id not normalized to null) ===
+exit=1 killed=True
+✖ B22: VOICE_STATE_UPDATE и VOICE_SERVER_UPDATE — обновление голоса/стрима и endpoint без секретов (0.54184ms)
+✖ L-02-UI: проекции dispatch (B) (23.858715ms)
+✖ failing tests:
+✖ B22: VOICE_STATE_UPDATE и VOICE_SERVER_UPDATE — обновление голоса/стрима и endpoint без секретов (0.54184ms)
+
+=== M6 (THREAD_LIST_SYNC: duplicate check disabled) ===
+exit=1 killed=True
+✖ B23: THREAD_LIST_SYNC — синхронизация списка тредов гильдии по фикстурам 004/007/020 (1.001999ms)
+✖ L-02-UI: проекции dispatch (B) (25.088634ms)
+✖ failing tests:
+✖ B23: THREAD_LIST_SYNC — синхронизация списка тредов гильдии по фикстурам 004/007/020 (1.001999ms)
+
+Restored md5: 67c6dda6480a4dc8c25db1ecd9d1c1b1

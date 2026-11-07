@@ -89,6 +89,24 @@ function expectedMonogram(name) {
 }
 
 /**
+ * `UiSettings` в форме `settings_store.rs` (G-01b): `lastGuildId` — camelCase и
+ * опционален. Остальные поля — валидные значения вне дефолтов, чтобы сохранение
+ * с рейла нельзя было сделать «пустой заготовкой» и потерять настройки (форма
+ * строгая: `deny_unknown_fields`, без полей Rust вернёт ошибку разбора).
+ * @param {string | null} [lastGuildId] `null` — ключа в файле нет (не «выбора не было»).
+ */
+function settingsPayload(lastGuildId = null) {
+  return {
+    version: 1,
+    toggles: { "voice.qos_priority": true },
+    density: "compact",
+    theme: "light",
+    locale: "en",
+    ...(lastGuildId === null ? {} : { lastGuildId }),
+  };
+}
+
+/**
  * `app.js` в шиме: вход уже пройден (`auth_status` → ready), ответы `ready()`
  * задаёт тест — так проверяется именно рейл, без окна и сети.
  * @param {(cmd: string, args: any) => any} handler
@@ -123,7 +141,7 @@ function api(app) {
 function firstNode(app, selector) {
   const node = app.document.querySelector(selector);
   assert.ok(node, `нет ${selector}`);
-  return node;
+  return /** @type {ShimElement} */ (node);
 }
 
 /**
@@ -310,5 +328,329 @@ describe("G-01: рейл серверов из ready()", () => {
     } finally {
       app.dispose();
     }
+  });
+});
+
+describe("G-01b: последний сервер из settings_load восстанавливается и сохраняется", () => {
+  /**
+   * Boot с сохранёнными настройками: `settings_load` отдаёт `UiSettings`
+   * (G-01b ACCEPT), `ready()` — READY fixture.
+   * @param {Record<string, any>} settings
+   * @returns {Promise<GuiDom>}
+   */
+  function bootWithSettings(settings) {
+    return loadApp({
+      invokeHandler: (cmd) => {
+        if (cmd === "auth_status") {
+          return { status: "ready", stored: true, user: { id: "42", username: "tester" } };
+        }
+        if (cmd === "settings_load") return settings;
+        if (cmd === "ready") return readyPayload();
+        return undefined;
+      },
+    });
+  }
+
+  /**
+   * @param {GuiDom} app
+   * @param {string} id
+   * @returns {ShimElement[]}
+   */
+  function markedCurrent(app, id) {
+    return tiles(app).filter(
+      (node) => node.getAttribute("data-guild-id") === id && node.getAttribute("aria-current") === "true",
+    );
+  }
+
+  it("boot: выбирается гильдия с id == lastGuildId из settings_load", async () => {
+    const stored = GUILDS[3]?.id ?? "";
+    assert.notEqual(stored, "", "фикстура READY без четвёртой гильдии");
+    const app = await bootWithSettings(settingsPayload(stored));
+    try {
+      assert.ok(app.callsOf("settings_load").length > 0, "settings_load не прочитан на boot");
+      assert.equal(api(app).rail.selectedId, stored, "выбран не последний сервер из настроек");
+      assert.equal(markedCurrent(app, stored).length, 1, "у восстановленной гильдии нет aria-current");
+      assert.equal(
+        tiles(app).filter((node) => node.getAttribute("aria-current") === "true").length,
+        1,
+        "выбранных плиток не одна",
+      );
+      assert.equal(
+        firstNode(app, ".tree-guild").textContent,
+        GUILDS[3]?.name,
+        "заголовок дерева не следует за восстановленной гильдией",
+      );
+      assert.deepEqual(
+        app.callsOf("channels").map((call) => call.args?.guildId),
+        [stored],
+        "каналы запрошены не для восстановленной гильдии",
+      );
+      assert.equal(app.callsOf("settings_save").length, 0, "восстановление выбора пишет настройки на boot");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("boot: lastGuildId вне READY или без поля → первая гильдия", async () => {
+    const missing = await bootWithSettings(settingsPayload("999999999999999999"));
+    try {
+      assert.equal(api(missing).rail.selectedId, GUILDS[0]?.id, "чужой lastGuildId не откатился на первую гильдию");
+      assert.equal(markedCurrent(missing, GUILDS[0]?.id ?? "").length, 1, "первая гильдия не помечена текущей");
+      assert.equal(missing.callsOf("channels")[0]?.args?.guildId, GUILDS[0]?.id, "каналы не первой гильдии");
+    } finally {
+      missing.dispose();
+    }
+    const absent = await bootWithSettings(settingsPayload());
+    try {
+      assert.equal(api(absent).rail.selectedId, GUILDS[0]?.id, "без lastGuildId выбрана не первая гильдия");
+    } finally {
+      absent.dispose();
+    }
+  });
+
+  it("клик по плитке сохраняет lastGuildId, не теряя остальные настройки", async () => {
+    const app = await bootWithSettings(settingsPayload());
+    const target = GUILDS[2]?.id ?? "";
+    try {
+      assert.equal(app.callsOf("settings_save").length, 0, "settings_save вызван до клика");
+      const tile = tiles(app)[2];
+      assert.ok(tile, "нет третьей плитки");
+      tile.click();
+      await app.settle(6);
+
+      const saves = app.callsOf("settings_save");
+      assert.equal(saves.length, 1, "клик по гильдии не дал ровно один settings_save");
+      /** @type {Record<string, any>} */
+      const saved = saves[0]?.args?.settings ?? {};
+      assert.equal(saved.lastGuildId, target, "lastGuildId не обновлён кликом");
+      // Сохранение идёт целым `UiSettings`, а не заготовкой: поля файла не теряются.
+      assert.equal(saved.version, 1, "version потерян при сохранении с рейла");
+      assert.deepEqual(saved.toggles, { "voice.qos_priority": true }, "тумблеры потеряны при сохранении с рейла");
+      assert.equal(saved.density, "compact", "density потерян при сохранении с рейла");
+      assert.equal(saved.theme, "light", "theme потерян при сохранении с рейла");
+      assert.equal(saved.locale, "en", "locale потерян при сохранении с рейла");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её", async () => {
+    let currentStore = settingsPayload();
+    /** @returns {Promise<GuiDom>} */
+    function bootInstance() {
+      return loadApp({
+        invokeHandler: (cmd, args) => {
+          if (cmd === "auth_status") {
+            return { status: "ready", stored: true, user: { id: "42", username: "tester" } };
+          }
+          if (cmd === "settings_load") return currentStore;
+          if (cmd === "settings_save") {
+            currentStore = args?.settings;
+            return undefined;
+          }
+          if (cmd === "ready") return readyPayload();
+          return undefined;
+        },
+      });
+    }
+
+    const app1 = await bootInstance();
+    const target = GUILDS[2]?.id ?? "";
+    assert.notEqual(target, "", "фикстура READY без третьей гильдии");
+
+    try {
+      const tile = tiles(app1)[2];
+      assert.ok(tile, "нет третьей плитки");
+      tile.click();
+      await app1.settle(6);
+
+      assert.equal(currentStore.lastGuildId, target, "клик по гильдии не сохранил target lastGuildId");
+
+      // Переключаем тумблер в настройках
+      const toggle = firstNode(app1, 'input[data-setting-id="voice.qos_priority"]');
+      toggle.click();
+      toggle.emit("change");
+      app1.flushTimers();
+      await app1.settle(2);
+
+      const saves = app1.callsOf("settings_save");
+      assert.ok(saves.length >= 2, "нет settings_save от изменения настроек");
+      const lastSave = saves[saves.length - 1]?.args?.settings ?? {};
+      assert.equal(lastSave.lastGuildId, target, "переключение тумблера стёрло lastGuildId");
+      assert.equal(currentStore.lastGuildId, target, "хранилище настроек потеряло lastGuildId после toggle");
+    } finally {
+      app1.dispose();
+    }
+
+    // Повторный boot выбирает сохранённую гильдию
+    const app2 = await bootInstance();
+    try {
+      assert.equal(api(app2).rail.selectedId, target, "повторный boot открыл не сохранённую гильдию");
+      assert.equal(markedCurrent(app2, target).length, 1, "у сохранённой гильдии нет aria-current после повторного boot");
+    } finally {
+      app2.dispose();
+    }
+  });
+
+  it("быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B", async () => {
+    let currentStore = settingsPayload();
+    /** @type {(val?: any) => void} */
+    let resolveFirstLoad = () => {};
+    const firstLoadDeferred = new Promise((resolve) => {
+      resolveFirstLoad = resolve;
+    });
+    let loadCount = 0;
+
+    const app = await loadApp({
+      invokeHandler: (cmd, args) => {
+        if (cmd === "auth_status") {
+          return { status: "ready", stored: true, user: { id: "42", username: "tester" } };
+        }
+        if (cmd === "ready") return readyPayload();
+        if (cmd === "settings_load") {
+          loadCount++;
+          // Первый вызов settings_load — на boot приложения.
+          // Второй вызов settings_load — при клике на сервер A.
+          if (loadCount === 2) {
+            return firstLoadDeferred.then(() => currentStore);
+          }
+          return currentStore;
+        }
+        if (cmd === "settings_save") {
+          currentStore = args?.settings;
+          return undefined;
+        }
+        return undefined;
+      },
+    });
+
+    try {
+      const allTiles = tiles(app);
+      const targetA = GUILDS[1]?.id ?? "";
+      const targetB = GUILDS[2]?.id ?? "";
+      assert.ok(targetA && targetB, "нет гильдий A и B");
+      const tileA = allTiles[1];
+      const tileB = allTiles[2];
+      assert.ok(tileA && tileB, "нет плиток A и B");
+
+      // Клик по плитке A — её settings_load задерживается в firstLoadDeferred
+      tileA.click();
+
+      // Быстрый клик по плитке B до завершения загрузки A
+      tileB.click();
+      await app.settle(6);
+
+      // Разрешаем отложенный settings_load первого клика
+      resolveFirstLoad();
+      await app.settle(6);
+
+      // В хранилище настроек должен сохраниться последний выбор B, а не устаревший A
+      assert.equal(
+        currentStore.lastGuildId,
+        targetB,
+        `гонка при быстрых кликах A -> B: сохранён ${currentStore.lastGuildId}, ожидался последний выбор ${targetB}`
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("быстрые клики серверов A -> B с задержкой завершения settings_save от A сохраняют итоговый выбор B", async () => {
+    let currentStore = settingsPayload();
+    /** @type {(val?: any) => void} */
+    let resolveFirstSave = () => {};
+    const firstSaveDeferred = new Promise((resolve) => {
+      resolveFirstSave = resolve;
+    });
+    let saveCount = 0;
+    /** @type {string[]} */
+    const saveEvents = [];
+
+    const app = await loadApp({
+      invokeHandler: (cmd, args) => {
+        if (cmd === "auth_status") {
+          return { status: "ready", stored: true, user: { id: "42", username: "tester" } };
+        }
+        if (cmd === "ready") return readyPayload();
+        if (cmd === "settings_load") {
+          return currentStore;
+        }
+        if (cmd === "settings_save") {
+          saveCount++;
+          const targetId = args?.settings?.lastGuildId;
+          saveEvents.push(`start:${targetId}`);
+          if (saveCount === 1) {
+            return firstSaveDeferred.then(() => {
+              currentStore = args?.settings;
+              saveEvents.push(`finish:${targetId}`);
+            });
+          }
+          currentStore = args?.settings;
+          saveEvents.push(`finish:${targetId}`);
+          return undefined;
+        }
+        return undefined;
+      },
+    });
+
+    try {
+      const allTiles = tiles(app);
+      const targetA = GUILDS[1]?.id ?? "";
+      const targetB = GUILDS[2]?.id ?? "";
+      assert.ok(targetA && targetB, "нет гильдий A и B");
+      const tileA = allTiles[1];
+      const tileB = allTiles[2];
+      assert.ok(tileA && tileB, "нет плиток A и B");
+
+      // 1. Клик по плитке A — settings_load выполняется, settings_save от A начинается и ждёт firstSaveDeferred
+      tileA.click();
+      await app.settle(6);
+      assert.equal(saveCount, 1, "settings_save для A не начался");
+      assert.deepEqual(saveEvents, [`start:${targetA}`], "A должен только начать сохранение");
+
+      // 2. Клик по плитке B до завершения сохранения A
+      tileB.click();
+      await app.settle(6);
+
+      // 3. Разрешаем отложенное завершение settings_save от A
+      resolveFirstSave();
+      await app.settle(6);
+
+      // Итоговый store должен содержать выбор B, а устаревший save от A не должен завершаться после B
+      assert.equal(
+        currentStore.lastGuildId,
+        targetB,
+        `гонка при отложенном settings_save от A: сохранён ${currentStore.lastGuildId}, ожидался последний выбор ${targetB}`
+      );
+      assert.deepEqual(
+        saveEvents,
+        [`start:${targetA}`, `finish:${targetA}`, `start:${targetB}`, `finish:${targetB}`],
+        `нарушен порядок очереди сохранения: ${saveEvents.join(" -> ")}`
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("STUB-10 / STUB-05: currentApp() экспортирует рабочие контроллеры pinsThreads и inviteModal", async () => {
+    const app = await bootWithSettings(settingsPayload());
+    try {
+      const current = api(app);
+      assert.ok(current.pinsThreads, "pinsThreads не экспортирован в currentApp()");
+      assert.equal(typeof current.pinsThreads.openPins, "function", "pinsThreads.openPins не функция");
+      assert.equal(typeof current.pinsThreads.openThreads, "function", "pinsThreads.openThreads не функция");
+      assert.ok(current.inviteModal, "inviteModal не экспортирован в currentApp()");
+      assert.equal(typeof current.inviteModal.open, "function", "inviteModal.open не функция");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("PINS-THREADS-SPEC §1–§3: server-menu.css содержит поповер-правила .header-dropdown-panel, .pins-panel, .threads-panel", () => {
+    const cssText = readFileSync(fileURLToPath(new URL("../../rust/gui-spike/ui/components/server-menu.css", import.meta.url)), "utf8");
+    assert.match(cssText, /\.header-dropdown-panel\s*\{[^}]*position:\s*absolute/, "нет position: absolute");
+    assert.match(cssText, /\.header-dropdown-panel\s*\{[^}]*z-index:\s*var\(--z-popover\)/, "нет z-index: var(--z-popover)");
+    assert.match(cssText, /\.pins-panel\s*\{[^}]*width:\s*360px/, "нет ширины pins 360px");
+    assert.match(cssText, /\.threads-panel\s*\{[^}]*width:\s*380px/, "нет ширины threads 380px");
   });
 });

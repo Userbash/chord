@@ -1,0 +1,41 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 5 tests
+test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds ... FAILED
+test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes ... FAILED
+test dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes ... FAILED
+test dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing ... ok
+
+failures:
+
+---- dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds stdout ----
+
+thread 'dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds' (1619881) panicked at crates/discord-core/src/dispatch.rs:1293:13:
+assertion `left == right` failed: from_name должен находить MESSAGE_DELETE_BULK
+  left: None
+ right: Some(MessageDeleteBulk)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes stdout ----
+
+thread 'dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes' (1619883) panicked at crates/discord-core/src/dispatch.rs:1440:14:
+MESSAGE_DELETE_BULK должен маршрутизироваться
+
+---- dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes stdout ----
+
+thread 'dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes' (1619884) panicked at crates/discord-core/src/dispatch.rs:1684:9:
+assertion failed: matches!(route_typed_dispatch_json(empty_bulk_json),
+    Err(DispatchParseError::EmptyBulkIds { event: "MESSAGE_DELETE_BULK" }))
+
+
+failures:
+    dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds
+    dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes
+    dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-core --lib`

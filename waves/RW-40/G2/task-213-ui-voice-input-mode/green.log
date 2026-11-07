@@ -1,0 +1,32 @@
+▶ VOICE_INPUT_MODES
+  ✔ содержит ровно два замороженных режима (0.55877ms)
+✔ VOICE_INPUT_MODES (1.061879ms)
+▶ clampVadThresholdDb
+  ✔ округляет конечные числа до целого внутри −100..0 (0.13257ms)
+  ✔ зажимает выход за границы (0.07073ms)
+  ✔ возвращает −60 на нечислах и отсутствии значения (0.07017ms)
+✔ clampVadThresholdDb (0.40924ms)
+▶ clampPttReleaseDelayMs
+  ✔ округляет конечные числа до целого внутри 0..2000 (0.16722ms)
+  ✔ зажимает выход за границы (0.07518ms)
+  ✔ возвращает 200 на нечислах и отсутствии значения (0.07733ms)
+✔ clampPttReleaseDelayMs (0.45606ms)
+▶ isVoiceTransmitting
+  ✔ muted/deafened всегда запрещают передачу (0.16202ms)
+  ✔ PUSH_TO_TALK передаёт только при нажатой кнопке (0.083ms)
+  ✔ VOICE_ACTIVITY сравнивает уровень с клампленым порогом (0.11677ms)
+  ✔ VOICE_ACTIVITY: нечисловой уровень не передаёт, порог по умолчанию −60 (0.08189ms)
+  ✔ неизвестный режим ведёт себя как VOICE_ACTIVITY (0.39589ms)
+✔ isVoiceTransmitting (1.00488ms)
+▶ formatVoiceInputSummaryRu
+  ✔ описывает режим рации с клампленой задержкой (0.10892ms)
+  ✔ описывает активацию по голосу с клампленым порогом (0.05311ms)
+✔ formatVoiceInputSummaryRu (0.22398ms)
+ℹ tests 14
+ℹ suites 5
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.982714

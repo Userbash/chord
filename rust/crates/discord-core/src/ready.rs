@@ -126,6 +126,7 @@ impl ReadySummary {
 fn array_len(value: &EtfValue) -> Option<usize> {
     match value {
         EtfValue::List(items) | EtfValue::Tuple(items) => Some(items.len()),
+        EtfValue::Nil => Some(0),
         _ => None,
     }
 }

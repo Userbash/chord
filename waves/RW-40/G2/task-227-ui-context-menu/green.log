@@ -1,0 +1,24 @@
+▶ buildContextMenuItems
+  ✔ формирует базовые пункты для чужого сообщения без прав модерации (0.753592ms)
+  ✔ добавляет edit и delete (danger: true) для собственного сообщения без прав модерации (0.12203ms)
+  ✔ добавляет pin и delete для модератора на чужом сообщении и учитывает флаг isPinned (0.122451ms)
+  ✔ формирует пункты меню канала с учётом флага isMuted (0.11846ms)
+  ✔ формирует пункты меню пользователя и возвращает пустой массив для неизвестного типа (0.09684ms)
+✔ buildContextMenuItems (1.930875ms)
+▶ clampMenuCoordinates
+  ✔ сохраняет координаты внутри доступной области экрана (0.15486ms)
+  ✔ ограничивает координаты по нижней/правой границе с отступом 8px и не допускает отрицательных значений (0.116071ms)
+✔ clampMenuCoordinates (0.400081ms)
+▶ createContextMenuController
+  ✔ рендерит [data-context-menu] с role='menu', открывает меню с нужными пунктами и помечает опасные пункты data-danger='true' (0.898042ms)
+  ✔ поддерживает циклическую навигацию moveFocus(delta), клавиши ArrowDown/ArrowUp/Home/End и активацию через activateFocusedItem() (0.363981ms)
+  ✔ активирует пункт по клику и клавише Enter, закрывает меню по Escape и close() (0.639182ms)
+✔ createContextMenuController (2.070285ms)
+ℹ tests 10
+ℹ suites 3
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.103268

@@ -1,0 +1,267 @@
+# 172A mutation logs (base md5 25231dfa4b572e1cf8ae89a261d73d9b)
+
+## baseline targeted run
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.72796ms)
+✔ BAN_DELETE_OPTIONS_RU (1.30418ms)
+▶ filterAuditEntries
+  ✔ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.251821ms)
+  ✔ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.15167ms)
+✔ filterAuditEntries (0.530731ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (0.9939ms)
+  ✔ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.72658ms)
+  ✔ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.19454ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.2218ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.301321ms)
+✔ createModerationPanelController (2.687211ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.154627
+
+## M1
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.65099ms)
+✔ BAN_DELETE_OPTIONS_RU (1.212481ms)
+▶ filterAuditEntries
+  ✔ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.28847ms)
+  ✔ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.15435ms)
+✔ filterAuditEntries (0.57394ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (0.98299ms)
+  ✖ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (1.088371ms)
+  ✔ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.18503ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.22251ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.29811ms)
+✖ createModerationPanelController (3.051341ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.740939
+
+✖ failing tests:
+
+test at tests/unit/moderation-panel.test.mjs:410:3
+✖ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (1.088371ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:437:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+## M2
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.65044ms)
+✔ BAN_DELETE_OPTIONS_RU (1.209861ms)
+▶ filterAuditEntries
+  ✔ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.25101ms)
+  ✔ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.15205ms)
+✔ filterAuditEntries (0.53811ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (0.96657ms)
+  ✖ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.84267ms)
+  ✔ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.19084ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.22695ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.29771ms)
+✖ createModerationPanelController (3.118271ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.779228
+
+✖ failing tests:
+
+test at tests/unit/moderation-panel.test.mjs:410:3
+✖ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.84267ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:453:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+## M3
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.647631ms)
+✔ BAN_DELETE_OPTIONS_RU (1.215561ms)
+▶ filterAuditEntries
+  ✔ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.24156ms)
+  ✖ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.75077ms)
+✖ filterAuditEntries (1.14596ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (1.280611ms)
+  ✔ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.36795ms)
+  ✔ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.18875ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.21814ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.29601ms)
+✔ createModerationPanelController (2.602431ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.048078
+
+✖ failing tests:
+
+test at tests/unit/moderation-panel.test.mjs:329:3
+✖ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.75077ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'a-2'
+  - ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:336:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'a-2' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+## M4
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.574041ms)
+✔ BAN_DELETE_OPTIONS_RU (1.079171ms)
+▶ filterAuditEntries
+  ✖ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.48764ms)
+  ✔ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.13369ms)
+✖ filterAuditEntries (0.75257ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (0.8464ms)
+  ✔ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.631541ms)
+  ✔ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.16349ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.1884ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.25461ms)
+✔ createModerationPanelController (2.303061ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.339167
+
+✖ failing tests:
+
+test at tests/unit/moderation-panel.test.mjs:307:3
+✖ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.48764ms)
+  AssertionError [ERR_ASSERTION]: элементы должны клонироваться
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:326:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { id: 'a-1', actionType: 22, actorName: 'AdminFox', targetName: 'SpamBot99', reason: 'Рассылка фишинговых ссылок' },
+    expected: { id: 'a-1', actionType: 22, actorName: 'AdminFox', targetName: 'SpamBot99', reason: 'Рассылка фишинговых ссылок' },
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+## M5
+▶ BAN_DELETE_OPTIONS_RU
+  ✔ T-257-01: экспортирует замороженный справочник опций удаления сообщений при бане на русском (0.56749ms)
+✔ BAN_DELETE_OPTIONS_RU (1.058501ms)
+▶ filterAuditEntries
+  ✔ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.21482ms)
+  ✔ T-257-03: выполняет регистронезависимый поиск подстроки по actorName, targetName и reason и комбинирует с actionType (0.13358ms)
+✔ filterAuditEntries (0.46557ms)
+▶ createModerationPanelController
+  ✔ T-257-04: рендерит регион [data-moderation-panel] с ARIA-атрибутами, форму бана, список банов и журнал аудита (0.84186ms)
+  ✔ T-257-05: валидирует форму бана (Snowflake 1..20 цифр > 0 и reason <= 512 символов) и вызывает onBanMember (0.40633ms)
+  ✖ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.48253ms)
+  ✔ T-257-07: фильтрует список записей журнала аудита при вводе текста в [data-mod-audit-search] (0.198021ms)
+  ✔ T-257-08: поддерживает setState, getState (без мутации состояния) и destroy (0.25696ms)
+✖ createModerationPanelController (2.772561ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.545997
+
+✖ failing tests:
+
+test at tests/unit/moderation-panel.test.mjs:480:3
+✖ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.48253ms)
+  AssertionError [ERR_ASSERTION]: должна быть кнопка разбана для первого пользователя
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:494:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

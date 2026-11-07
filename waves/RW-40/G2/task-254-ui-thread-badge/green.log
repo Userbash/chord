@@ -1,0 +1,21 @@
+✔ THREAD_ARCHIVE_DURATIONS_RU: frozen and matches reference RU labels (4.433023ms)
+✔ normalizeArchiveDurationMinutes: allowed values pass through as Number (0.128621ms)
+✔ normalizeArchiveDurationMinutes: unknown/invalid defaults to 1440 (0.09173ms)
+✔ formatUnreadCountBadge: zero and empty inputs render empty string (0.09758ms)
+✔ formatUnreadCountBadge: 1..99 renders the number (0.08614ms)
+✔ formatUnreadCountBadge: above 99 collapses to 99+ (0.06682ms)
+✔ formatUnreadCountBadge: truncates floats and clamps negatives to zero (0.06525ms)
+✔ formatThreadStatusSummaryRu: empty thread falls back to defaults (0.13092ms)
+✔ formatThreadStatusSummaryRu: blank name falls back, real name is trimmed (0.10386ms)
+✔ formatThreadStatusSummaryRu: archive label follows normalized duration (0.14051ms)
+✔ formatThreadStatusSummaryRu: locked wins over archived, active is the default (0.09555ms)
+✔ formatThreadStatusSummaryRu: message count label is sanitized (0.08266ms)
+✔ formatThreadStatusSummaryRu: full example (0.079591ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.394902

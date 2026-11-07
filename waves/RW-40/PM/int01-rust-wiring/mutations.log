@@ -1,0 +1,197 @@
+=== Baseline MD5 ===
+b2af030ca24749a6e4d278b5f1106a1f  rust/gui-spike/src/lib.rs
+c192e36f7c3bc68637169f45cb53b203  rust/gui-spike/src/main.rs
+564bb6d670b3346a126c49d26ba1eb94  rust/gui-spike/tests/ipc_wiring_contract.rs
+f365261d5c7322594bb7370a8e213b38  rust/crates/discord-voice/src/lib.rs
+
+=== MUT-1: lib.rs::list_channel_threads hardcodes archived=false ===
+baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=194e631b634ab7ecbe488c617a37326a
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.54s
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... FAILED
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+failures:
+
+---- ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag stdout ----
+
+thread 'ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag' (489811) panicked at tests/ipc_wiring_contract.rs:579:5:
+assertion `left == right` failed
+  left: [Get("/channels/1014537851418980375/threads/active")]
+ right: [Get("/channels/1014537851418980375/threads/archived/public")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+mut1_exit=101
+restored_md5=b2af030ca24749a6e4d278b5f1106a1f
+
+=== MUT-2: lib.rs::pin_channel_message delegates to unpin_channel_message ===
+baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=c9d4f7a70c05ae1fb3214a95eee35c28
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.57s
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... FAILED
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+failures:
+
+---- ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag stdout ----
+
+thread 'ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag' (490475) panicked at tests/ipc_wiring_contract.rs:501:5:
+assertion `left == right` failed
+  left: [Delete("/channels/1014537851418980375/pins/1293192721237938187"), Delete("/channels/1014537851418980375/pins/1293192721237938187")]
+ right: [Put("/channels/1014537851418980375/pins/1293192721237938187", []), Delete("/channels/1014537851418980375/pins/1293192721237938187")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+mut2_exit=101
+restored_md5=b2af030ca24749a6e4d278b5f1106a1f
+
+=== MUT-3: lib.rs::request_upload_slots passes empty slice &[] instead of files ===
+baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=fd5cf45a2c967d2766e613149be26153
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.56s
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... FAILED
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+failures:
+
+---- ipc_wrapper_request_upload_slots_delegates_and_enforces_contract stdout ----
+
+thread 'ipc_wrapper_request_upload_slots_delegates_and_enforces_contract' (491191) panicked at tests/ipc_wiring_contract.rs:291:72:
+upload slots: InvalidArg
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ipc_wrapper_request_upload_slots_delegates_and_enforces_contract
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+mut3_exit=101
+restored_md5=b2af030ca24749a6e4d278b5f1106a1f
+
+=== MUT-4: lib.rs::create_channel_invite ignores params and passes default() ===
+baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=6a8790be2eaf7785ac613a567647a793
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.57s
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... FAILED
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+
+failures:
+
+---- ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables stdout ----
+
+thread 'ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables' (491923) panicked at tests/ipc_wiring_contract.rs:397:5:
+assertion `left == right` failed
+  left: Object {"max_age": Number(86400), "max_uses": Number(0), "temporary": Bool(false)}
+ right: Object {"flags": Number(1), "max_age": Number(1800), "max_uses": Number(5), "temporary": Bool(true)}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+mut4_exit=101
+restored_md5=b2af030ca24749a6e4d278b5f1106a1f
+
+=== MUT-5: main.rs omits list_channel_pins from tauri::generate_handler! ===
+baseline_md5=c192e36f7c3bc68637169f45cb53b203 mutant_md5=47a0ce2957e625a36f06169703c54cc0
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: function `list_channel_pins` is never used
+   --> src/main.rs:534:10
+    |
+534 | async fn list_channel_pins(
+    |          ^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.24s
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... FAILED
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+
+failures:
+
+---- tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or stdout ----
+
+thread 'tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or' (492611) panicked at tests/ipc_wiring_contract.rs:656:9:
+assertion `left == right` failed: list_channel_pins должен быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+mut5_exit=101
+restored_md5=c192e36f7c3bc68637169f45cb53b203
+
+=== Final Restored MD5 & Post-Mutation Green Verification ===
+b2af030ca24749a6e4d278b5f1106a1f  rust/gui-spike/src/lib.rs
+c192e36f7c3bc68637169f45cb53b203  rust/gui-spike/src/main.rs
+564bb6d670b3346a126c49d26ba1eb94  rust/gui-spike/tests/ipc_wiring_contract.rs
+f365261d5c7322594bb7370a8e213b38  rust/crates/discord-voice/src/lib.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.01s
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+final_green_exit=0

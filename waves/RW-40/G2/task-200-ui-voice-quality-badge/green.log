@@ -1,0 +1,18 @@
+✔ classifyRtcConnectionQuality: unknown for missing/negative values (1.232442ms)
+✔ classifyRtcConnectionQuality: good for low ping and low loss (0.117369ms)
+✔ classifyRtcConnectionQuality: average in the middle band (0.09185ms)
+✔ classifyRtcConnectionQuality: poor outside the bands (0.08747ms)
+✔ formatAudioBitrateRu: rounds kbps inside the clamp window (0.121649ms)
+✔ formatAudioBitrateRu: clamps to 8..512 kbps (0.089889ms)
+✔ formatAudioBitrateRu: non-finite input falls back to the lower clamp (0.06965ms)
+✔ formatStreamBadgeRu: resolution buckets (0.11236ms)
+✔ formatStreamBadgeRu: fps buckets (0.100879ms)
+✔ formatStreamBadgeRu: composed badge and russian label (0.157669ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.952619

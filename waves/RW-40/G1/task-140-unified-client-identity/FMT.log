@@ -1,0 +1,53 @@
+Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/identify.rs:429:
+         );
+         assert_eq!(properties.browser_user_agent, sp.browser_user_agent);
+         assert_eq!(properties.browser_version, sp.browser_version);
+[31m-        assert_eq!(properties.client_build_number, u64::from(sp.client_build_number));
+(B[m[32m+        assert_eq!(
+(B[m[32m+            properties.client_build_number,
+(B[m[32m+            u64::from(sp.client_build_number)
+(B[m[32m+        );
+(B[m         assert_eq!(properties.client_app_state, sp.client_app_state);
+         assert_eq!(
+             properties.launch_signature, sp.launch_signature,
+Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/identify.rs:485:
+             );
+         }
+         assert_eq!(
+[31m-            properties.get("client_build_number").and_then(EtfValue::as_int),
+(B[m[32m+            properties
+(B[m[32m+                .get("client_build_number")
+(B[m[32m+                .and_then(EtfValue::as_int),
+(B[m             Some(i64::from(sp.client_build_number))
+         );
+         assert_eq!(
+Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/rest/identity.rs:414:
+             self
+         }
+ 
+[31m-        fn lookup(
+(B[m[31m-            table: &[(&'static str, &'static str)],
+(B[m[31m-            name: &str,
+(B[m[31m-        ) -> Option<String> {
+(B[m[32m+        fn lookup(table: &[(&'static str, &'static str)], name: &str) -> Option<String> {
+(B[m             table
+                 .iter()
+                 .find(|(key, _)| *key == name)
+Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/rest/identity.rs:485:
+             3,
+             "ровно три UUID: client_launch_id, launch_signature, client_heartbeat_session_id"
+         );
+[31m-        assert_eq!(
+(B[m[31m-            sp.client_launch_id,
+(B[m[31m-            "00010203-0405-4607-8809-0a0b0c0d0e0f"
+(B[m[31m-        );
+(B[m[31m-        assert_eq!(
+(B[m[31m-            sp.launch_signature,
+(B[m[31m-            "10111213-1415-4617-9819-1a1b1c1d1e1f"
+(B[m[31m-        );
+(B[m[32m+        assert_eq!(sp.client_launch_id, "00010203-0405-4607-8809-0a0b0c0d0e0f");
+(B[m[32m+        assert_eq!(sp.launch_signature, "10111213-1415-4617-9819-1a1b1c1d1e1f");
+(B[m         assert_eq!(
+             sp.client_heartbeat_session_id,
+             "20212223-2425-4627-a829-2a2b2c2d2e2f"
+EXIT=1

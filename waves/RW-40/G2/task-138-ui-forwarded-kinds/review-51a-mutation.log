@@ -1,0 +1,49 @@
+# Review 51A — mutation log (task-138, dispatch-model.js)
+# команда: node --test tests/unit/dispatch_ui.test.mjs; исходник восстановлен (md5 b4de6d0e36ab2fc590617ad5fe33d826)
+
+M1: удалён один элемент FORWARDED_KINDS (TYPING_START)
+  exit=1 убита=да pass=41 fail=4
+    - A2: FORWARDED_KINDS — 21 имя DispatchKind::as_str + MESSAGE_REACTION_REMOVE
+    - A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром
+    - L-02-UI: контракт dispatch
+    - C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят
+    - C14: снапшот содержит dispatch без payload/секретов; живые счётчики в stats
+    - L-02-UI: интеграция dispatch → DOM
+
+M2: FORWARDED_KINDS откачен к старым 6 именам
+  exit=1 убита=да pass=41 fail=4
+    - A2: FORWARDED_KINDS — 21 имя DispatchKind::as_str + MESSAGE_REACTION_REMOVE
+    - A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром
+    - L-02-UI: контракт dispatch
+    - C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят
+    - C14: снапшот содержит dispatch без payload/секретов; живые счётчики в stats
+    - L-02-UI: интеграция dispatch → DOM
+
+M3: возврат старого сбоя: массивный d снова reason=data
+  exit=1 убита=да pass=43 fail=2
+    - A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром
+    - A3: конверт — только {kind,data}; seq принимается, если есть, и не выдумывается
+    - L-02-UI: контракт dispatch
+
+M4: подмена в default-ветке: accepted-без-проекции в ignored вместо skipped
+  exit=1 убита=да pass=42 fail=3
+    - A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром
+    - L-02-UI: контракт dispatch
+    - C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят
+    - C14: снапшот содержит dispatch без payload/секретов; живые счётчики в stats
+    - L-02-UI: интеграция dispatch → DOM
+
+M5: обратная подмена: kind вне списка в skipped вместо ignored
+  exit=1 убита=да pass=43 fail=2
+    - B14: неизвестный kind — ignored, изменений нет
+    - L-02-UI: проекции dispatch
+    - C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят
+    - L-02-UI: интеграция dispatch → DOM
+
+M6: откат switch к default: projectReaction (исходный баг карточки)
+  exit=1 убита=да pass=42 fail=3
+    - A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром
+    - C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят
+    - C14: снапшот содержит dispatch без payload/секретов; живые счётчики в stats
+
+Итого: 6/6 мутаций убиты.

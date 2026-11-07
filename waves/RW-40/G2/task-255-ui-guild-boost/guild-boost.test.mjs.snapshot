@@ -1,0 +1,85 @@
+// @ts-check
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  BOOST_TIER_THRESHOLDS,
+  BOOST_TIER_PERKS_RU,
+  resolveBoostTierFromCount,
+  formatBoostProgressSummaryRu
+} from "../../rust/gui-spike/ui/features/guild-boost.js";
+
+test("BOOST_TIER_THRESHOLDS: frozen и содержит пороги 2/7/14", () => {
+  assert.equal(Object.isFrozen(BOOST_TIER_THRESHOLDS), true);
+  assert.deepEqual({ ...BOOST_TIER_THRESHOLDS }, { TIER_1: 2, TIER_2: 7, TIER_3: 14 });
+});
+
+test("BOOST_TIER_PERKS_RU: 4 уровня, вложенные объекты заморожены", () => {
+  assert.equal(Object.isFrozen(BOOST_TIER_PERKS_RU), true);
+  assert.deepEqual(Object.keys(BOOST_TIER_PERKS_RU), ["0", "1", "2", "3"]);
+  for (const tier of [0, 1, 2, 3]) {
+    const perks = BOOST_TIER_PERKS_RU[tier];
+    assert.equal(Object.isFrozen(perks), true, `perks ${tier} frozen`);
+  }
+  assert.deepEqual({ ...BOOST_TIER_PERKS_RU[0] }, { emojiSlots: 50, maxUploadMb: 25, maxBitrateKbps: 96 });
+  assert.deepEqual({ ...BOOST_TIER_PERKS_RU[1] }, { emojiSlots: 100, maxUploadMb: 25, maxBitrateKbps: 128 });
+  assert.deepEqual({ ...BOOST_TIER_PERKS_RU[2] }, { emojiSlots: 150, maxUploadMb: 50, maxBitrateKbps: 256 });
+  assert.deepEqual({ ...BOOST_TIER_PERKS_RU[3] }, { emojiSlots: 250, maxUploadMb: 100, maxBitrateKbps: 384 });
+});
+
+test("resolveBoostTierFromCount: границы уровней", () => {
+  assert.equal(resolveBoostTierFromCount(0), 0);
+  assert.equal(resolveBoostTierFromCount(1), 0);
+  assert.equal(resolveBoostTierFromCount(2), 1);
+  assert.equal(resolveBoostTierFromCount(6), 1);
+  assert.equal(resolveBoostTierFromCount(7), 2);
+  assert.equal(resolveBoostTierFromCount(13), 2);
+  assert.equal(resolveBoostTierFromCount(14), 3);
+  assert.equal(resolveBoostTierFromCount(1000), 3);
+});
+
+test("resolveBoostTierFromCount: негативные, дробные и мусорные значения", () => {
+  assert.equal(resolveBoostTierFromCount(-5), 0);
+  assert.equal(resolveBoostTierFromCount(2.9), 1);
+  assert.equal(resolveBoostTierFromCount(6.99), 1);
+  assert.equal(resolveBoostTierFromCount(NaN), 0);
+  assert.equal(resolveBoostTierFromCount(undefined), 0);
+  assert.equal(resolveBoostTierFromCount(null), 0);
+  assert.equal(resolveBoostTierFromCount("7"), 2);
+  assert.equal(resolveBoostTierFromCount("abc"), 0);
+});
+
+test("formatBoostProgressSummaryRu: уровень 0", () => {
+  const summary = formatBoostProgressSummaryRu(0);
+  assert.equal(summary.tier, 0);
+  assert.equal(summary.tierLabel, "Без уровня");
+  assert.equal(summary.boostsRemaining, 2);
+  assert.equal(summary.perks, BOOST_TIER_PERKS_RU[0]);
+});
+
+test("formatBoostProgressSummaryRu: остаток бустов до следующего уровня", () => {
+  assert.equal(formatBoostProgressSummaryRu(1).boostsRemaining, 1);
+  assert.equal(formatBoostProgressSummaryRu(2).boostsRemaining, 5);
+  assert.equal(formatBoostProgressSummaryRu(2).tierLabel, "Уровень 1");
+  assert.equal(formatBoostProgressSummaryRu(6).boostsRemaining, 1);
+  assert.equal(formatBoostProgressSummaryRu(7).boostsRemaining, 7);
+  assert.equal(formatBoostProgressSummaryRu(7).tierLabel, "Уровень 2");
+  assert.equal(formatBoostProgressSummaryRu(13).boostsRemaining, 1);
+});
+
+test("formatBoostProgressSummaryRu: максимальный уровень, остаток и перки", () => {
+  const summary = formatBoostProgressSummaryRu(14);
+  assert.equal(summary.tier, 3);
+  assert.equal(summary.tierLabel, "Уровень 3");
+  assert.equal(summary.boostsRemaining, 0);
+  assert.equal(summary.perks, BOOST_TIER_PERKS_RU[3]);
+  assert.equal(formatBoostProgressSummaryRu(999).boostsRemaining, 0);
+});
+
+test("formatBoostProgressSummaryRu: нормализация отрицательных и мусорных входов", () => {
+  const summary = formatBoostProgressSummaryRu(-3);
+  assert.equal(summary.tier, 0);
+  assert.equal(summary.boostsRemaining, 2);
+  assert.equal(formatBoostProgressSummaryRu(NaN).tier, 0);
+  assert.equal(formatBoostProgressSummaryRu(undefined).boostsRemaining, 2);
+});

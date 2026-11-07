@@ -12,6 +12,7 @@
 
 use discord_codec::etf::{EtfError, EtfValue};
 
+use crate::rest::identity::ClientIdentity;
 use crate::rest::super_properties::SuperProperties;
 
 /// capabilities активного клиента (без обфускации приватных каналов) — из бандла.
@@ -24,7 +25,7 @@ pub const CAPABILITIES_CHANNEL_OBFUSCATION: u64 = 1_767_421;
 const GATEWAY_CONNECT_COLD_START: &str = "COLD_START";
 
 /// Супер-свойства клиента плюс поля идентификации (см. `handleIdentify` в бандле и ТЗ).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IdentifyProperties {
     /// ОС: у веб-клиента `getOs()` отображает `linux` → `"Linux"`.
     pub os: String,
@@ -46,6 +47,8 @@ pub struct IdentifyProperties {
     pub has_client_mods: bool,
     /// Идентификатор запуска клиента (у веб-клиента — UUID).
     pub client_launch_id: String,
+    /// UUID подписи запуска: в клиенте — то же значение, что уходит в `X-Super-Properties`.
+    pub launch_signature: String,
     /// User-Agent браузерного движка (у веб-клиента — Electron).
     pub browser_user_agent: String,
     /// Версия браузерного движка.
@@ -64,37 +67,27 @@ pub struct IdentifyProperties {
 
 impl IdentifyProperties {
     /// Дефолты нашего клиента (Linux, `"Discord Client"`, stable, …) — по ТЗ RW-05.
+    ///
+    /// Строятся из [`ClientIdentity::rw_client`]: те же значения уходят и в
+    /// `X-Super-Properties`, поэтому дефолтный IDENTIFY не расходится с REST.
+    #[must_use]
     pub fn for_rw_client() -> Self {
-        let version = env!("CARGO_PKG_VERSION");
-        Self {
-            os: "Linux".to_string(),
-            browser: "Discord Client".to_string(),
-            release_channel: "stable".to_string(),
-            client_version: version.to_string(),
-            os_version: "unknown".to_string(),
-            os_arch: std::env::consts::ARCH.to_string(),
-            app_arch: std::env::consts::ARCH.to_string(),
-            system_locale: "en-US".to_string(),
-            has_client_mods: false,
-            client_launch_id: "00000000-0000-4000-8000-000000000000".to_string(),
-            browser_user_agent: format!("discord-lab-rs/{version}"),
-            browser_version: version.to_string(),
-            // Бандл: `client_build_number: parseInt("641004")`.
-            client_build_number: 641_004,
-            client_app_state: "focused".to_string(),
-            is_fast_connect: false,
-            // Модуль 469177: первый коннект (`r=true`) → "COLD_START".
-            gateway_connect_reasons: GATEWAY_CONNECT_COLD_START.to_string(),
-            installation_id: None,
-        }
+        Self::from_client_identity(&ClientIdentity::rw_client())
+    }
+
+    /// IDENTIFY-вид единой идентичности [`ClientIdentity`].
+    #[must_use]
+    pub fn from_client_identity(identity: &ClientIdentity) -> Self {
+        Self::from_super_properties(identity.super_properties())
     }
 
     /// Единый источник свойств: IDENTIFY берёт те же значения, что и `X-Super-Properties`.
     ///
-    /// Супер-свойства содержат 22 поля REST-заголовка, из них 14 пересекаются с IDENTIFY;
-    /// `client_build_number` приводится `u32 → u64`. Поля IDENTIFY, которых в супер-свойствах
-    /// нет, — константы нашего клиента: `is_fast_connect = false`,
-    /// `gateway_connect_reasons = "COLD_START"`, `installation_id = None`.
+    /// Супер-свойства содержат 22 поля REST-заголовка, из них 15 пересекаются с IDENTIFY
+    /// (включая `launch_signature`); `client_build_number` приводится `u32 → u64`.
+    /// Поля IDENTIFY, которых в супер-свойствах нет, — константы нашего клиента:
+    /// `is_fast_connect = false`, `gateway_connect_reasons = "COLD_START"`,
+    /// `installation_id = None`.
     #[must_use]
     pub fn from_super_properties(properties: &SuperProperties) -> Self {
         Self {
@@ -108,6 +101,7 @@ impl IdentifyProperties {
             system_locale: properties.system_locale.clone(),
             has_client_mods: properties.has_client_mods,
             client_launch_id: properties.client_launch_id.clone(),
+            launch_signature: properties.launch_signature.clone(),
             browser_user_agent: properties.browser_user_agent.clone(),
             browser_version: properties.browser_version.clone(),
             client_build_number: u64::from(properties.client_build_number),
@@ -116,6 +110,14 @@ impl IdentifyProperties {
             gateway_connect_reasons: GATEWAY_CONNECT_COLD_START.to_string(),
             installation_id: None,
         }
+    }
+}
+
+impl ClientIdentity {
+    /// Свойства OP2 IDENTIFY из той же идентичности, что уходит в `X-Super-Properties`.
+    #[must_use]
+    pub fn to_identify_properties(&self) -> IdentifyProperties {
+        IdentifyProperties::from_client_identity(self)
     }
 }
 
@@ -248,6 +250,10 @@ fn properties_value(p: &IdentifyProperties) -> EtfValue {
             EtfValue::Str(p.client_launch_id.clone()),
         ),
         (
+            key("launch_signature"),
+            EtfValue::Str(p.launch_signature.clone()),
+        ),
+        (
             key("browser_user_agent"),
             EtfValue::Str(p.browser_user_agent.clone()),
         ),
@@ -352,4 +358,158 @@ fn self_check(bytes: Vec<u8>) -> Result<Vec<u8>, IdentifyError> {
         ));
     }
     Ok(bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    //! Единая идентичность: IDENTIFY и `X-Super-Properties` одной сессии не расходятся.
+    //!
+    //! Оракул — код веб-клиента (`handleIdentify`): `properties` собираются как
+    //! `{...getSuperProperties(), client_app_state, is_fast_connect, gateway_connect_reasons,
+    //! installation_id?}`. Поэтому все общие поля, включая `launch_signature`, обязаны
+    //! приходить из одного [`ClientIdentity`], а не собираться вторым независимым путём.
+
+    use super::*;
+    use discord_codec::etf::decode;
+
+    /// Супер-свойства с различимыми значениями во всех 22 полях: любая подмена поля видна.
+    fn distinct_super_properties() -> SuperProperties {
+        SuperProperties {
+            os: "Linux".to_string(),
+            browser: "Discord Client".to_string(),
+            release_channel: "stable".to_string(),
+            client_version: "1.0.162".to_string(),
+            os_version: "6.17.0-lab".to_string(),
+            os_arch: "x64".to_string(),
+            app_arch: "arm64".to_string(),
+            system_locale: "ru".to_string(),
+            has_client_mods: false,
+            client_launch_id: "11111111-2222-4333-8444-555555555555".to_string(),
+            browser_user_agent: "Mozilla/5.0 (X11; Linux x86_64) discord/1.0.162".to_string(),
+            browser_version: "42.11.12".to_string(),
+            window_manager: "KDE".to_string(),
+            distro: "\"Arch Linux\"".to_string(),
+            runtime_environment: "native".to_string(),
+            display_server: "wayland".to_string(),
+            client_build_number: 641_004,
+            native_build_number: 0,
+            client_event_source: None,
+            launch_signature: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee".to_string(),
+            client_heartbeat_session_id: "ffffffff-0000-4111-8222-333333333333".to_string(),
+            client_app_state: "focused".to_string(),
+        }
+    }
+
+    fn params(identity: &ClientIdentity) -> IdentifyParams {
+        IdentifyParams {
+            token: "TEST_TOKEN".to_string(),
+            capabilities: CAPABILITIES_ACTIVE,
+            properties: identity.to_identify_properties(),
+            presence: None,
+            compress: false,
+            client_state_guild_versions: Vec::new(),
+            qos_token: qos_token_client_provided(false),
+        }
+    }
+
+    /// Общие поля IDENTIFY и супер-свойств сравниваются по значению — без исключений.
+    fn assert_shared_fields(properties: &IdentifyProperties, sp: &SuperProperties) {
+        assert_eq!(properties.os, sp.os);
+        assert_eq!(properties.browser, sp.browser);
+        assert_eq!(properties.release_channel, sp.release_channel);
+        assert_eq!(properties.client_version, sp.client_version);
+        assert_eq!(properties.os_version, sp.os_version);
+        assert_eq!(properties.os_arch, sp.os_arch);
+        assert_eq!(properties.app_arch, sp.app_arch);
+        assert_eq!(properties.system_locale, sp.system_locale);
+        assert_eq!(properties.has_client_mods, sp.has_client_mods);
+        assert_eq!(
+            properties.client_launch_id, sp.client_launch_id,
+            "client_launch_id: один запуск — одна идентичность"
+        );
+        assert_eq!(properties.browser_user_agent, sp.browser_user_agent);
+        assert_eq!(properties.browser_version, sp.browser_version);
+        assert_eq!(
+            properties.client_build_number,
+            u64::from(sp.client_build_number)
+        );
+        assert_eq!(properties.client_app_state, sp.client_app_state);
+        assert_eq!(
+            properties.launch_signature, sp.launch_signature,
+            "launch_signature уходит и в OP2, и в X-Super-Properties"
+        );
+    }
+
+    #[test]
+    fn client_identity_drives_identify_properties() {
+        let sp = distinct_super_properties();
+        let identity = ClientIdentity::new(sp.clone());
+
+        let properties = identity.to_identify_properties();
+        assert_shared_fields(&properties, &sp);
+        assert_eq!(
+            IdentifyProperties::from_client_identity(&identity),
+            properties,
+            "оба входа дают один и тот же набор свойств"
+        );
+    }
+
+    #[test]
+    fn identify_wire_matches_super_properties_byte_for_byte() {
+        let sp = distinct_super_properties();
+        let identity = ClientIdentity::new(sp.clone());
+        let bytes = build_identify(&params(&identity)).expect("IDENTIFY собирается");
+        let (value, consumed) = decode(&bytes).expect("ETERM разбирается");
+        assert_eq!(consumed, bytes.len());
+        let properties = value
+            .get("properties")
+            .expect("properties в payload IDENTIFY");
+
+        let string_fields = [
+            ("os", &sp.os),
+            ("browser", &sp.browser),
+            ("release_channel", &sp.release_channel),
+            ("client_version", &sp.client_version),
+            ("os_version", &sp.os_version),
+            ("os_arch", &sp.os_arch),
+            ("app_arch", &sp.app_arch),
+            ("system_locale", &sp.system_locale),
+            ("client_launch_id", &sp.client_launch_id),
+            ("browser_user_agent", &sp.browser_user_agent),
+            ("browser_version", &sp.browser_version),
+            ("launch_signature", &sp.launch_signature),
+            ("client_app_state", &sp.client_app_state),
+        ];
+        for (key, expected) in string_fields {
+            assert_eq!(
+                properties.get(key).and_then(EtfValue::as_str),
+                Some(expected.as_str()),
+                "поле {key} в OP2 IDENTIFY обязано совпадать с X-Super-Properties"
+            );
+        }
+        assert_eq!(
+            properties
+                .get("client_build_number")
+                .and_then(EtfValue::as_int),
+            Some(i64::from(sp.client_build_number))
+        );
+        assert_eq!(
+            properties.get("has_client_mods"),
+            Some(&EtfValue::Atom("false".to_string()))
+        );
+    }
+
+    #[test]
+    fn rw_client_identity_matches_identify_defaults() {
+        let identity = ClientIdentity::rw_client();
+        let sp = identity.super_properties();
+        let properties = IdentifyProperties::for_rw_client();
+
+        assert_shared_fields(&properties, sp);
+        assert_eq!(
+            properties,
+            identity.to_identify_properties(),
+            "дефолтный клиент тоже обязан иметь один отпечаток"
+        );
+    }
 }

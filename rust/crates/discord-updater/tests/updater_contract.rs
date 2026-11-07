@@ -24,6 +24,12 @@ use discord_updater::manifest::{
 use discord_updater::plan::{
     PlanError, PlanStep, UpdatePlan, apply_local_steps, plan_update, rollback,
 };
+use discord_updater::{
+    DEFAULT_UPDATE_BACKOFF_MAX_MS, DEFAULT_UPDATE_ENDPOINT, LinuxPackageFormat,
+    NEW_UPDATE_ENDPOINT, ReleaseChannel, SCHEDULED_UPDATE_BACKOFF_MS, ScheduledUpdateBackoff,
+    SplashUpdateState, build_linux_download_url, build_linux_feed_url, build_modules_base_url,
+    should_disable_updater,
+};
 use ring::signature::{Ed25519KeyPair, KeyPair};
 
 /// Seed для ключей подписи в тестах (детерминированный, не случайный).
@@ -898,4 +904,270 @@ fn rollback_rejects_corrupted_backup_k() {
         "corrupted-bytes",
         "backup не тронут"
     );
+}
+
+// ---------------------------------------------------------------------------
+// BE-P3-07 (task-179): эндпоинты автообновления, расписание backoff и
+// состояния сплэш-экрана. Оракул — `/home/sanya/re-deep/main-arch.md` §5:
+// `app #19192 @3231` (эндпоинты), `app #55405 @26169` (disableUpdater),
+// `app #53006 @97270..@99200` (сплэш-автомат и backoff), `app #2278`/`#47924`
+// (Linux: `download/{channel}?platform=linux&format=`, feed, `modules/{channel}`).
+// ---------------------------------------------------------------------------
+
+#[test]
+fn updater_endpoint_constants_k() {
+    assert_eq!(NEW_UPDATE_ENDPOINT, "https://updates.discord.com/");
+    assert_eq!(DEFAULT_UPDATE_ENDPOINT, "https://discord.com/api");
+    assert_eq!(DEFAULT_UPDATE_BACKOFF_MAX_MS, 30_000);
+    assert_eq!(
+        SCHEDULED_UPDATE_BACKOFF_MS,
+        [
+            2_000, 3_000, 3_000, 4_000, 5_000, 7_000, 10_000, 12_000, 15_000
+        ],
+        "ScheduledBackoff([2e3,3e3,3e3,4e3,5e3,7e3,1e4,12e3,15e3], !0)"
+    );
+}
+
+#[test]
+fn release_channel_as_str_k() {
+    assert_eq!(ReleaseChannel::Stable.as_str(), "stable");
+    assert_eq!(ReleaseChannel::Ptb.as_str(), "ptb");
+    assert_eq!(ReleaseChannel::Canary.as_str(), "canary");
+    assert_eq!(ReleaseChannel::Development.as_str(), "development");
+}
+
+#[test]
+fn should_disable_updater_k() {
+    // app #55405 @26169:
+    // disableUpdater || ("development" === releaseChannel && (standaloneModules || localModulesRoot))
+    let channels = [
+        ReleaseChannel::Stable,
+        ReleaseChannel::Ptb,
+        ReleaseChannel::Canary,
+        ReleaseChannel::Development,
+    ];
+    for channel in channels {
+        assert!(
+            should_disable_updater(channel, true, false),
+            "{channel:?}: явный disableUpdater всегда отключает апдейтер"
+        );
+        assert!(
+            should_disable_updater(channel, true, true),
+            "{channel:?}: явный disableUpdater всегда отключает апдейтер"
+        );
+    }
+    assert!(
+        should_disable_updater(ReleaseChannel::Development, false, true),
+        "development + standalone/local modules ⇒ апдейтер отключён"
+    );
+    assert!(
+        !should_disable_updater(ReleaseChannel::Development, false, false),
+        "development без standalone/local modules ⇒ апдейтер работает"
+    );
+    assert!(!should_disable_updater(ReleaseChannel::Stable, false, true));
+    assert!(!should_disable_updater(ReleaseChannel::Ptb, false, true));
+    assert!(!should_disable_updater(ReleaseChannel::Canary, false, true));
+}
+
+#[test]
+fn linux_package_format_query_value_k() {
+    assert_eq!(LinuxPackageFormat::Deb.as_query_value(), "deb");
+    assert_eq!(LinuxPackageFormat::TarGz.as_query_value(), "tar.gz");
+}
+
+#[test]
+fn linux_download_url_k() {
+    // splashScreenPreload.js: LINUX_DOWNLOAD_URL_BASE =
+    // "https://discord.com/api/download/<channel>?platform=linux&format="
+    assert_eq!(
+        build_linux_download_url(ReleaseChannel::Stable, LinuxPackageFormat::Deb),
+        "https://discord.com/api/download/stable?platform=linux&format=deb"
+    );
+    assert_eq!(
+        build_linux_download_url(ReleaseChannel::Canary, LinuxPackageFormat::TarGz),
+        "https://discord.com/api/download/canary?platform=linux&format=tar.gz"
+    );
+    assert_eq!(
+        build_linux_download_url(ReleaseChannel::Ptb, LinuxPackageFormat::Deb),
+        "https://discord.com/api/download/ptb?platform=linux&format=deb"
+    );
+}
+
+#[test]
+fn linux_feed_url_k() {
+    // app #47924 @62552: feedURL = <endpoint>/updates/<channel>?platform=linux&version=<cur>
+    let current = Version::parse("1.0.9035").expect("версия");
+    assert_eq!(
+        build_linux_feed_url(DEFAULT_UPDATE_ENDPOINT, ReleaseChannel::Stable, &current)
+            .expect("feed собирается"),
+        "https://discord.com/api/updates/stable?platform=linux&version=1.0.9035"
+    );
+
+    // Хвостовой слэш и пробелы по краям не дают двойного разделителя.
+    assert_eq!(
+        build_linux_feed_url(
+            "  https://updates.discord.com/  ",
+            ReleaseChannel::Development,
+            &current
+        )
+        .expect("feed собирается"),
+        "https://updates.discord.com/updates/development?platform=linux&version=1.0.9035"
+    );
+
+    // Pre-release суффикс в version-параметр не попадает: только major.minor.patch.
+    let pre = Version::parse("1.2.3-beta.1").expect("версия");
+    assert_eq!(
+        build_linux_feed_url(DEFAULT_UPDATE_ENDPOINT, ReleaseChannel::Ptb, &pre)
+            .expect("feed собирается"),
+        "https://discord.com/api/updates/ptb?platform=linux&version=1.2.3"
+    );
+}
+
+#[test]
+fn url_builders_reject_bad_endpoint_k() {
+    let current = Version::parse("1.0.0").expect("версия");
+    let bad_endpoints = [
+        "",
+        "   ",
+        "updates.discord.com",
+        "ftp://updates.discord.com",
+        "https://",
+        "https:///",
+        "https://a b",
+    ];
+    for bad in bad_endpoints {
+        let err = build_linux_feed_url(bad, ReleaseChannel::Stable, &current)
+            .expect_err("невалидный эндпоинт должен быть отвергнут");
+        assert!(
+            matches!(err, ManifestError::InvalidEndpoint { .. }),
+            "{bad:?}: ожидался InvalidEndpoint, получено {err:?}"
+        );
+
+        let err = build_modules_base_url(bad, ReleaseChannel::Stable)
+            .expect_err("невалидный эндпоинт должен быть отвергнут");
+        assert!(
+            matches!(err, ManifestError::InvalidEndpoint { .. }),
+            "{bad:?}: ожидался InvalidEndpoint, получено {err:?}"
+        );
+    }
+}
+
+#[test]
+fn modules_base_url_k() {
+    // app #47924 @61321: remoteBaseURL = <endpoint>/modules/<channel>
+    assert_eq!(
+        build_modules_base_url("https://updates.discord.com/", ReleaseChannel::Canary)
+            .expect("modules собирается"),
+        "https://updates.discord.com/modules/canary"
+    );
+    assert_eq!(
+        build_modules_base_url(DEFAULT_UPDATE_ENDPOINT, ReleaseChannel::Stable)
+            .expect("modules собирается"),
+        "https://discord.com/api/modules/stable"
+    );
+    assert_eq!(
+        build_modules_base_url("https://discord.com/api///", ReleaseChannel::Ptb)
+            .expect("modules собирается"),
+        "https://discord.com/api/modules/ptb"
+    );
+}
+
+#[test]
+fn scheduled_backoff_sequence_k() {
+    let mut backoff = ScheduledUpdateBackoff::new();
+    let delays: Vec<u64> = (0..11).map(|_| backoff.next_delay_ms()).collect();
+    assert_eq!(
+        delays,
+        vec![
+            2_000, 3_000, 3_000, 4_000, 5_000, 7_000, 10_000, 12_000, 15_000, 15_000, 15_000
+        ],
+        "шаг по массиву с clamp на последнем значении"
+    );
+
+    backoff.succeed();
+    assert_eq!(
+        backoff.next_delay_ms(),
+        2_000,
+        "succeed() сбрасывает счётчик неудач"
+    );
+}
+
+#[test]
+fn scheduled_backoff_clamps_to_max_k() {
+    // updateBackoffMaxMs = DESKTOP_TTI_UPDATE_BACKOFF_MAX_MS (по умолчанию 3e4).
+    let mut backoff = ScheduledUpdateBackoff::default();
+    for _ in 0..SCHEDULED_UPDATE_BACKOFF_MS.len() + 2 {
+        assert!(
+            backoff.next_delay_ms() <= DEFAULT_UPDATE_BACKOFF_MAX_MS,
+            "задержка не превышает updateBackoffMaxMs"
+        );
+    }
+
+    let mut tight = ScheduledUpdateBackoff::with_max_ms(2_500);
+    assert_eq!(tight.next_delay_ms(), 2_000);
+    assert_eq!(tight.next_delay_ms(), 2_500, "задержка усекается по max_ms");
+    assert_eq!(tight.next_delay_ms(), 2_500, "усечение повторяется");
+
+    assert_eq!(
+        ScheduledUpdateBackoff::with_max_ms(0).next_delay_ms(),
+        0,
+        "max_ms = 0 ⇒ повторов без задержки"
+    );
+}
+
+#[test]
+fn scheduled_backoff_retry_seconds_k() {
+    // app #53006 @98275: splashState.seconds = Math.round(delayMs / 1e3)
+    let mut backoff = ScheduledUpdateBackoff::new();
+    let seconds: Vec<u32> = (0..10).map(|_| backoff.retry_seconds()).collect();
+    assert_eq!(seconds, vec![2, 3, 3, 4, 5, 7, 10, 12, 15, 15]);
+
+    // Math.round(2500 / 1000) = 3 — проверка округления, а не усечения.
+    let mut tight = ScheduledUpdateBackoff::with_max_ms(2_500);
+    assert_eq!(tight.retry_seconds(), 2);
+    assert_eq!(tight.retry_seconds(), 3, "Math.round(2500 / 1000) = 3");
+
+    tight.succeed();
+    assert_eq!(tight.retry_seconds(), 2, "succeed() сбрасывает расписание");
+}
+
+#[test]
+fn splash_update_state_event_names_k() {
+    // app/bundle.js #53006 updateSplashState(...) + splashScreenPreload.js.
+    assert_eq!(
+        SplashUpdateState::CheckingForUpdates.event_name(),
+        "checking-for-updates"
+    );
+    assert_eq!(
+        SplashUpdateState::DownloadingUpdates.event_name(),
+        "downloading-updates"
+    );
+    assert_eq!(
+        SplashUpdateState::InstallingUpdates.event_name(),
+        "installing-updates"
+    );
+    assert_eq!(
+        SplashUpdateState::UpdateFailure { seconds: 30 }.event_name(),
+        "update-failure"
+    );
+    assert_eq!(
+        SplashUpdateState::UpdateManually {
+            latest_version: "1.0.9035".to_string()
+        }
+        .event_name(),
+        "update-manually"
+    );
+    assert_eq!(SplashUpdateState::Launching.event_name(), "launching");
+
+    // Payload-состояния обязаны сохранять значение: сплэш показывает таймер и версию.
+    match (SplashUpdateState::UpdateFailure { seconds: 7 }) {
+        SplashUpdateState::UpdateFailure { seconds } => assert_eq!(seconds, 7),
+        other => panic!("ожидался UpdateFailure, получено {other:?}"),
+    }
+    match (SplashUpdateState::UpdateManually {
+        latest_version: "2.0.0".to_string(),
+    }) {
+        SplashUpdateState::UpdateManually { latest_version } => assert_eq!(latest_version, "2.0.0"),
+        other => panic!("ожидался UpdateManually, получено {other:?}"),
+    }
 }

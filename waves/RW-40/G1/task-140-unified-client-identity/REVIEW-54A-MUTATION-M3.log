@@ -1,0 +1,53 @@
+# M3: to_identify_properties ignores the identity and returns for_rw_client()
+# file: rust/crates/discord-core/src/identify.rs
+# exit: 101
+
+$ cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+
+
+running 8 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test tests::gateway_constants_match_capture ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... ok
+test identify::tests::client_identity_drives_identify_properties ... FAILED
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... FAILED
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... FAILED
+
+failures:
+
+---- identify::tests::client_identity_drives_identify_properties stdout ----
+
+thread 'identify::tests::client_identity_drives_identify_properties' (1487521) panicked at crates/discord-core/src/identify.rs:420:9:
+assertion `left == right` failed
+  left: "0.1.0"
+ right: "1.0.162"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- identify::tests::identify_wire_matches_super_properties_byte_for_byte stdout ----
+
+thread 'identify::tests::identify_wire_matches_super_properties_byte_for_byte' (1487522) panicked at crates/discord-core/src/identify.rs:484:13:
+assertion `left == right` failed: поле client_version в OP2 IDENTIFY обязано совпадать с X-Super-Properties
+  left: Some("0.1.0")
+ right: Some("1.0.162")
+
+---- rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids stdout ----
+
+thread 'rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids' (1487526) panicked at crates/discord-core/src/rest/identity.rs:493:9:
+assertion `left == right` failed
+  left: "31e3235a-5275-45fc-b1d2-5e580595c8f6"
+ right: "00010203-0405-4607-8809-0a0b0c0d0e0f"
+
+
+failures:
+    identify::tests::client_identity_drives_identify_properties
+    identify::tests::identify_wire_matches_super_properties_byte_for_byte
+    rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids
+
+test result: FAILED. 5 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.98s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+error: test failed, to rerun pass `-p discord-core --lib`

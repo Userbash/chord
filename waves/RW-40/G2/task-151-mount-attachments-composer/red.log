@@ -1,0 +1,191 @@
+▶ M-11 UI: контроллер очереди вложений createAttachmentsController
+  ✔ экспортирует константы лимитов (10 файлов, 25 МБ = 26 214 400 байт) и SPOILER_ хелперы (0.391001ms)
+  ✔ рендерит полку #attachment-shelf над #composer-input и управляет spoiler, alt text и удалением (1.600321ms)
+  ✔ соблюдает лимиты: не более 10 файлов и <= 25 МБ на каждый файл (0.588871ms)
+  ✔ uploadAll() вызывает upload_attachments и возвращает нормализованный массив метаданных (0.891951ms)
+✔ M-11 UI: контроллер очереди вложений createAttachmentsController (4.091344ms)
+▶ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js
+  ✖ composer.js экспортирует createMessageComposer и mountComposerAttachments (0.62416ms)
+  ✖ кнопка #composer-attach-btn (file input), drag-and-drop и paste добавляют файлы в createAttachmentsController (лимит 10 файлов, <= 25 МБ) (0.18486ms)
+  ✖ рендерит полку #attachment-shelf над #composer-input с карточками, переключателем SPOILER_, alt text и кнопкой удаления (0.15698ms)
+  ✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.212091ms)
+  ✖ позволяет отправить сообщение с пустым текстом, если в очереди есть хотя бы 1 вложение, и блокирует пустую отправку без вложений (0.19211ms)
+  ✖ очищает полку вложений и отписывает обработчики при вызове destroy() (0.15779ms)
+  ✖ отправка по клавише Enter (без Shift) и сохранение очереди при ошибке upload_attachments (0.17587ms)
+✖ FE-P0-05 / task-151: интеграция createAttachmentsController в composer.js (1.993131ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 4
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 54.540912
+
+✖ failing tests:
+
+test at tests/unit/attachments-ui.test.mjs:276:3
+✖ composer.js экспортирует createMessageComposer и mountComposerAttachments (0.62416ms)
+  AssertionError [ERR_ASSERTION]: composer.js должен экспортировать createMessageComposer
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:277:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-ui.test.mjs:289:3
+✖ кнопка #composer-attach-btn (file input), drag-and-drop и paste добавляют файлы в createAttachmentsController (лимит 10 файлов, <= 25 МБ) (0.18486ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:290:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-ui.test.mjs:360:3
+✖ рендерит полку #attachment-shelf над #composer-input с карточками, переключателем SPOILER_, alt text и кнопкой удаления (0.15698ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:361:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-ui.test.mjs:416:3
+✖ при отправке сообщения вызывает uploadAll() -> upload_attachments и передаёт метаданные attachments вместе с текстом (0.212091ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:417:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-ui.test.mjs:496:3
+✖ позволяет отправить сообщение с пустым текстом, если в очереди есть хотя бы 1 вложение, и блокирует пустую отправку без вложений (0.19211ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:497:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-ui.test.mjs:554:3
+✖ очищает полку вложений и отписывает обработчики при вызове destroy() (0.15779ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:555:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-ui.test.mjs:586:3
+✖ отправка по клавише Enter (без Shift) и сохранение очереди при ошибке upload_attachments (0.17587ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer/tests/unit/attachments-ui.test.mjs:587:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

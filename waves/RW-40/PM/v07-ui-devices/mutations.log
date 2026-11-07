@@ -1,0 +1,62 @@
+# V-07-UI-VOICE-DEVICES: мутационное тестирование
+
+Файл: `rust/gui-spike/ui/features/voice-devices-settings.js`
+Baseline MD5: `5fda00c8c063f9726fc1ab31ac13ef99`
+Тест: `node --test tests/unit/voice-devices-settings.test.mjs` (17 тестов)
+
+## MUT-1: effectiveMute игнорирует selfDeaf (user_mute вместо user_mute || self_deaf)
+
+- Замена: `return userMute || selfDeaf;` → `return userMute;`
+- MD5 мутанта: `3d21de0f742f070753cc3ea33750b941`
+- Exit code: `1`
+- Убившие тесты: `effectiveMute = userMute || selfDeaf, deafen не трогает userMute`
+- Первая ошибка: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:`
+- Вердикт: **KILLED**
+- Restore MD5: `5fda00c8c063f9726fc1ab31ac13ef99` (совпадает)
+
+## MUT-2: hot-plug откатывается на первый элемент вместо isDefault === true
+
+- Замена: `const fallback = list.find((device) => device.isDefault) ?? list[0] ?? null;` → `const fallback = list[0] ?? null;`
+- MD5 мутанта: `c43f6ee5aaa9123cae12a439f8a46610`
+- Exit code: `1`
+- Убившие тесты: `начальное состояние: default-устройства и громкости из оракула`, `нельзя выбрать устройство чужого типа или неизвестное`, `hot-plug сохраняет присутствующее устройство и не вызывает select`, `hot-plug: откат на isDefault === true, уведомление DeviceFallback`
+- Первая ошибка: `AssertionError [ERR_ASSERTION]: выбран default-микрофон, а не первый в списке`
+- Вердикт: **KILLED**
+- Restore MD5: `5fda00c8c063f9726fc1ab31ac13ef99` (совпадает)
+
+## MUT-3: громкость вывода клампится по MAX_INPUT_VOLUME (100) вместо MAX_OUTPUT_VOLUME (200)
+
+- Замена: `outputVolume = clampInt(percent, MIN_VOLUME, MAX_OUTPUT_VOLUME, outputVolume);` → `outputVolume = clampInt(percent, MIN_VOLUME, MAX_INPUT_VOLUME, outputVolume);`
+- MD5 мутанта: `150486a98b4c5c8c838e7a29db3ea5b7`
+- Exit code: `1`
+- Убившие тесты: `громкость вывода клампится в 0..200 по оракулу aUJ062`
+- Первая ошибка: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:`
+- Вердикт: **KILLED**
+- Restore MD5: `5fda00c8c063f9726fc1ab31ac13ef99` (совпадает)
+
+## MUT-4: hot-plug не уведомляет колбэк и DOM (события только возвращаются)
+
+- Замена: `for (const event of events) announceEvent(event, previousDevices);` → `for (const event of events) void event;`
+- MD5 мутанта: `aac941b79bce6efee8f890820ebd0db1`
+- Exit code: `1`
+- Убившие тесты: `hot-plug: откат на isDefault === true, уведомление DeviceFallback`, `hot-plug без устройств: NoDeviceAvailable, пустой disabled-список`
+- Первая ошибка: `AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:`
+- Вердикт: **KILLED**
+- Restore MD5: `5fda00c8c063f9726fc1ab31ac13ef99` (совпадает)
+
+## MUT-5: aria-checked микрофона выводится из effectiveMute, а не из userMute
+
+- Замена: `userMuteToggle.setAttribute("aria-checked", userMute ? "true" : "false");` → `userMuteToggle.setAttribute("aria-checked", effectiveMute() ? "true" : "false");`
+- MD5 мутанта: `6e4308f958983edceb55d4ae7a6cdb71`
+- Exit code: `1`
+- Убившие тесты: `effectiveMute = userMute || selfDeaf, deafen не трогает userMute`
+- Первая ошибка: `AssertionError [ERR_ASSERTION]: deafen не снимает aria-checked микрофона (VOICE.md §2.4 п.3)`
+- Вердикт: **KILLED**
+- Restore MD5: `5fda00c8c063f9726fc1ab31ac13ef99` (совпадает)
+
+## Restore: контрольный прогон
+
+- MD5: `5fda00c8c063f9726fc1ab31ac13ef99`
+- Exit code: `0`
+- Результат: 17 passed; 0 failed
+- Вердикт: **GREEN**

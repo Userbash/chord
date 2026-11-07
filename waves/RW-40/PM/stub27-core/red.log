@@ -1,0 +1,72 @@
+   Compiling libc v0.2.191
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling proc-macro2 v1.0.107
+   Compiling cfg-if v1.0.5
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling zeroize v1.9.1
+   Compiling typenum v1.20.1
+   Compiling untrusted v0.9.0
+   Compiling rand_core v0.10.1
+   Compiling rustls v0.23.46
+   Compiling cpufeatures v0.3.1
+   Compiling getrandom v0.4.3
+   Compiling pkg-config v0.3.34
+   Compiling bytes v1.12.1
+   Compiling httparse v1.10.1
+   Compiling const-oid v0.10.2
+   Compiling pin-project-lite v0.2.17
+   Compiling thiserror v2.0.21
+   Compiling subtle v2.6.1
+   Compiling rustls-pki-types v1.15.1
+   Compiling once_cell v1.21.4
+   Compiling chacha20 v0.10.2
+   Compiling itoa v1.0.18
+   Compiling futures-sink v0.3.34
+   Compiling futures-core v0.3.34
+   Compiling zstd-safe v8.2.0
+   Compiling log v0.4.34
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling data-encoding v2.11.1
+   Compiling twox-hash v2.1.5
+   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling futures-util v0.3.34
+   Compiling ruzstd v0.9.1
+   Compiling webpki-roots v1.0.9
+   Compiling webpki-roots v0.26.11
+   Compiling http v1.5.0
+   Compiling syn v3.0.9
+   Compiling hybrid-array v0.4.15
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling jobserver v0.1.35
+   Compiling getrandom v0.2.17
+   Compiling mio v1.2.4
+   Compiling socket2 v0.6.5
+   Compiling rand v0.10.3
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling cc v1.9.0
+   Compiling digest v0.11.3
+   Compiling sha1 v0.11.0
+   Compiling ring v0.17.14
+   Compiling zstd-sys v2.1.2+zstd.1.5.7
+   Compiling tokio-macros v2.7.2
+   Compiling thiserror-impl v2.0.21
+   Compiling tokio v1.53.3
+   Compiling rustls-webpki v0.103.15
+   Compiling zstd v0.14.3
+   Compiling tungstenite v0.30.0
+   Compiling tokio-rustls v0.26.6
+   Compiling tokio-tungstenite v0.30.0
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::stream`
+  --> crates/discord-core/tests/stream_gateway_contract.rs:14:19
+   |
+14 | use discord_core::stream::{
+   |                   ^^^^^^ could not find `stream` in `discord_core`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (test "stream_gateway_contract") due to 1 previous error
+EXIT_CODE=101

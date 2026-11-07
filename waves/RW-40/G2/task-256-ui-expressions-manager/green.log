@@ -1,0 +1,25 @@
+▶ EXPRESSION_MANAGER_TABS_RU
+  ✔ экспортирует замороженный список вкладок «Эмодзи» и «Стикеры» (0.57161ms)
+✔ EXPRESSION_MANAGER_TABS_RU (1.07692ms)
+▶ isValidCustomEmojiName
+  ✔ возвращает true для строк длиной 2..=32 после trim из символов [A-Za-z0-9_] (0.13657ms)
+  ✔ возвращает false для строк короче 2 или длиннее 32 символов после trim, недопустимых символов и не-строк (0.12331ms)
+✔ isValidCustomEmojiName (0.36914ms)
+▶ filterCustomExpressions
+  ✔ фильтрует по регистронезависимой подстроке name и сортирует по name localeCompare('ru') asc с tie-break по id asc без мутации входа (4.1073ms)
+  ✔ сортирует русские имена через localeCompare('ru') при пустом запросе и безопасно обрабатывает невалидный вход (0.10891ms)
+✔ filterCustomExpressions (4.32226ms)
+▶ createExpressionsManagerController
+  ✔ рендерит регион [data-expressions-manager], вкладки, счётчик слотов, отсортированные элементы и форму загрузки (1.12605ms)
+  ✔ переключает вкладки по клику и вызывает onDeleteExpression(activeTab, id) при удалении (0.38666ms)
+  ✔ вызывает onUploadEmoji({ name, imageDataUri }) только при валидном имени и data:image/ URI (0.20897ms)
+  ✔ поддерживает setState, getState (без мутации внутреннего состояния) и destroy (0.21238ms)
+✔ createExpressionsManagerController (2.10742ms)
+ℹ tests 9
+ℹ suites 4
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.9361

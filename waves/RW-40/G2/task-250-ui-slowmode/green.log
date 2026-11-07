@@ -1,0 +1,24 @@
+✔ MAX_SLOWMODE_SECONDS = 21600 (6h) (0.5332ms)
+✔ SLOWMODE_PRESETS_SECONDS is frozen preset ladder (0.47458ms)
+✔ clampSlowmodeSeconds clamps into [0, 21600] (0.08934ms)
+✔ clampSlowmodeSeconds defaults non-finite input to 0 (0.06958ms)
+✔ clampSlowmodeSeconds truncates to integer (0.0738ms)
+✔ formatSlowmodeIntervalRu: zero means disabled (0.07542ms)
+✔ formatSlowmodeIntervalRu: seconds below a minute (0.06727ms)
+✔ formatSlowmodeIntervalRu: minutes below an hour (0.06364ms)
+✔ formatSlowmodeIntervalRu: hours from one hour up (0.07305ms)
+✔ computeSlowmodeRemainingSeconds: zero when slowmode disabled (0.13297ms)
+✔ computeSlowmodeRemainingSeconds: zero when bypassed (0.068691ms)
+✔ computeSlowmodeRemainingSeconds: zero without valid last message timestamp (0.05468ms)
+✔ computeSlowmodeRemainingSeconds counts down from last message (0.05206ms)
+✔ computeSlowmodeRemainingSeconds never returns negative (0.04352ms)
+✔ computeSlowmodeRemainingSeconds: clamps rate limit and treats now as 0 when invalid (0.04526ms)
+✔ computeSlowmodeRemainingSeconds: last message in the future clamps elapsed to 0 (0.04705ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33.978525

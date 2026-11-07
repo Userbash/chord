@@ -1,0 +1,317 @@
+=== BASELINE MD5 BEFORE MUTATIONS ===
+75f50c624ab5a6b21a67281235f4b289  rust/gui-spike/src/attachments.rs
+bc38ac5943b929e7a620ef911cb208a5  rust/gui-spike/src/lib.rs
+8a71f311bf0ab47ff24450eaf389b2d4  rust/gui-spike/src/main.rs
+77157aadf4267ded8c225d8891c71a9f  rust/gui-spike/tests/attachments_contract.rs
+
+=== M1: Remove id: Option<String> from #[tauri::command] async fn attachments_upload_put in src/main.rs ===
+667a66e9436e73ccb3a2c4e171b0c185  rust/gui-spike/src/main.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.60s
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 10 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... FAILED
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes stdout ----
+
+thread 'wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes' (588907) panicked at src/main.rs:1517:9:
+assertion `left == right` failed: параметры #[tauri::command] async fn attachments_upload_put должны включать `id: Option<String>`
+  left: [("payload", "payload"), ("slot_id", "slotId"), ("channel_id", "channelId"), ("upload_url", "uploadUrl"), ("content_type", "contentType"), ("data", "data"), ("bytes", "bytes")]
+ right: [("payload", "payload"), ("slot_id", "slotId"), ("id", "id"), ("channel_id", "channelId"), ("upload_url", "uploadUrl"), ("content_type", "contentType"), ("data", "data"), ("bytes", "bytes")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+M1_EXIT_CODE=101
+
+=== M2: Replace args.slot_id.or(args.id) with args.slot_id in execute_attachments_upload_put (src/main.rs) ===
+0c75b381f9bdeaeea53e53a42fc5609f  rust/gui-spike/src/main.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.96s
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 10 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... FAILED
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes stdout ----
+
+thread 'wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes' (589247) panicked at src/main.rs:1580:9:
+assertion `left == right` failed
+  left: Ok(())
+ right: Err(InvalidArg)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+M2_EXIT_CODE=101
+
+=== M3: Replace self.slot_id.or(self.id) with self.slot_id in UploadPutCommandArgs::into_input (src/attachments.rs) ===
+cb8b87a01572d53579d4886e773a33f4  rust/gui-spike/src/attachments.rs
+8a71f311bf0ab47ff24450eaf389b2d4  rust/gui-spike/src/main.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.96s
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 23 tests
+test guild_boost_tier_limits_match_re_oracle ... ok
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test oracle_constants_match_re ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test api_impl_matches_free_function ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test maps_429_with_retry_after_header ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test maps_other_transport_and_http_failures ... ok
+test posts_exact_upload_slot_request ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put ... FAILED
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test rejects_malformed_upload_slot_response ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+
+failures:
+
+---- tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put stdout ----
+
+thread 'tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put' (590263) panicked at tests/attachments_contract.rs:1247:5:
+assertion `left == right` failed: slot_id.or(id) обязан сохранять id из плоского putPayload
+  left: None
+ right: Some("slot-1")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put
+
+test result: FAILED. 22 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contract`
+M3_EXIT_CODE=101
+
+=== M4: Drop data/bytes extraction in UploadPutCommandArgs::from_tauri_ipc (src/attachments.rs) ===
+b9dfc6e6d64013000acb52c37a9f0831  rust/gui-spike/src/attachments.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.92s
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 10 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... FAILED
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes stdout ----
+
+thread 'wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes' (591640) panicked at src/main.rs:1540:9:
+assertion `left == right` failed
+  left: UploadPutCommandArgs { payload: None, slot_id: None, id: Some("slot-1"), channel_id: Some("123456789012345678"), upload_url: Some("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123"), content_type: Some("image/png"), data: None, bytes: None }
+ right: UploadPutCommandArgs { payload: None, slot_id: None, id: Some("slot-1"), channel_id: Some("123456789012345678"), upload_url: Some("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123"), content_type: Some("image/png"), data: Some(UploadBytes([137, 80])), bytes: Some(UploadBytes([137, 80])) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+M4_EXIT_CODE=101
+
+=== M5: Replace (&input.content_type, input.payload_bytes()) with ("", &[0]) in execute_attachments_upload_put (src/main.rs) ===
+75f50c624ab5a6b21a67281235f4b289  rust/gui-spike/src/attachments.rs
+80aab2c79285bbf14f40c87d9eebb089  rust/gui-spike/src/main.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 10 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... FAILED
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes stdout ----
+
+thread 'wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes' (592593) panicked at src/main.rs:1550:9:
+assertion `left == right` failed
+  left: [("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123", "application/octet-stream", [0])]
+ right: [("https://discord-attachments-uploads-prd.storage.googleapis.com/upload-1?sig=abc123", "image/png", [137, 80])]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+M5_EXIT_CODE=101
+
+=== RESTORED MD5 AFTER ALL 5 MUTATIONS ===
+75f50c624ab5a6b21a67281235f4b289  rust/gui-spike/src/attachments.rs
+bc38ac5943b929e7a620ef911cb208a5  rust/gui-spike/src/lib.rs
+8a71f311bf0ab47ff24450eaf389b2d4  rust/gui-spike/src/main.rs
+77157aadf4267ded8c225d8891c71a9f  rust/gui-spike/tests/attachments_contract.rs
+
+=== POST-MUTATION GREEN VERIFICATION ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.41s
+     Running unittests src/lib.rs (/tmp/target-int01/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 10 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
+
+running 23 tests
+test guild_boost_tier_limits_match_re_oracle ... ok
+test builds_message_attachments_in_spec_order ... ok
+test builder_rejects_mismatched_slots_and_specs ... ok
+test oracle_constants_match_re ... ok
+test maps_413_and_40005_to_entity_too_large ... ok
+test api_impl_matches_free_function ... ok
+test parses_slots_and_keeps_only_oracle_fields ... ok
+test real_client_requires_token_and_sends_nothing ... ok
+test posts_exact_upload_slot_request ... ok
+test maps_429_with_retry_after_header ... ok
+test maps_other_transport_and_http_failures ... ok
+test rejects_empty_or_broken_file_lists_before_io ... ok
+test rejects_oversized_file_locally_with_entity_too_large ... ok
+test rejects_unsafe_channel_id_before_any_io ... ok
+test maps_put_status_codes_413_429_5xx_and_network_errors ... ok
+test upload_put_input_deserializes_uint8array_and_vec_and_validates_ipc_payload ... ok
+test rejects_malformed_upload_slot_response ... ok
+test uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204 ... ok
+test tauri_main_registers_and_wires_attachments_upload_put_command ... ok
+test tauri_command_extracts_flat_composer_put_payload_with_id_and_uint8array_into_http_put ... ok
+test channel_id_allowlist_matches_messages_module ... ok
+test enforces_exact_upload_size_boundaries_for_each_guild_boost_tier ... ok
+test rejects_invalid_or_insecure_upload_url_and_empty_bytes_before_io ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 5 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE_CARGO_TEST=0
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (0.967054ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.186661ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.164041ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.12573ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.114941ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.172878ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (3.962094ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (3.285892ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (2.468989ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (8.60385ms)
+✔ ipc-path: текущий код спайка (18.606947ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.474682ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (0.840743ms)
+  ✔ capability окна ограничена core:default (0.328511ms)
+✔ ipc-path: файловые плагины не подключены (1.781136ms)
+ℹ tests 12
+ℹ suites 3
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.240797
+EXIT_CODE_IPC_PATH=0
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.57s
+EXIT_CODE_CLIPPY=0
+EXIT_CODE_RUSTFMT=0

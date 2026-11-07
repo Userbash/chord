@@ -1,0 +1,19 @@
+✔ EVENT_ENTITY_LABELS_RU is frozen and maps known entity types (4.022283ms)
+✔ EVENT_STATUS_LABELS_RU is frozen and maps known statuses (0.090659ms)
+✔ formatEventSummaryRu builds full summary for an active event (0.502618ms)
+✔ formatEventSummaryRu falls back for empty input (0.09803ms)
+✔ formatEventSummaryRu falls back for unknown codes (0.095489ms)
+✔ formatEventSummaryRu clamps negative and non-numeric userCount (0.08863ms)
+✔ formatEventSummaryRu is not active for non-running statuses (0.076939ms)
+✔ toggleEventRsvpState joins when not interested (0.0945ms)
+✔ toggleEventRsvpState leaves when already interested (0.096849ms)
+✔ toggleEventRsvpState clamps at zero (0.131139ms)
+✔ toggleEventRsvpState coerces garbage input (0.10384ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.981991

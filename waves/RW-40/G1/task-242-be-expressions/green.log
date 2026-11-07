@@ -1,0 +1,15 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-242-be-expressions/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running tests/expressions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/expressions_contract-c97b4bebf3cbdcc7)
+
+running 7 tests
+test build_guild_emojis_route_formats_collection_and_item_routes_and_validates_snowflakes ... ok
+test expressions_constants_match_discord_contract ... ok
+test create_guild_emoji_request_serde_roundtrip ... ok
+test validate_emoji_name_accepts_valid_trimmed_ascii_alphanumeric_and_underscore_names ... ok
+test validate_emoji_name_rejects_short_long_non_ascii_and_invalid_punctuation ... ok
+test validate_create_guild_emoji_enforces_byte_len_and_supported_image_data_uris ... ok
+test validate_create_guild_emoji_validates_name_and_role_snowflakes ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

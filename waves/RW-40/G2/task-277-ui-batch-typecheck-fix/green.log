@@ -1,0 +1,27 @@
+# GREEN — task-277 (FE-FIX-02) G2 Frontend Pass 2
+# HEAD: 355be21  node: v26.13.0  tsc: Version 7.0.2
+# commit: не делался (запрещено ТЗ)
+
+## Шаг 3.1: npx tsc -p tsconfig.json --noEmit | grep -E '<7 файлов>' -> ожидается 0 строк
+$ npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E 'thread-badge|chat-helpers-bridge|slowmode\.test|event-banner\.test|guild-boost\.test|poll-card\.test' | wc -l
+0
+
+## Шаг 3.2: node --test <6 файлов тестов>
+$ node --test tests/unit/thread-badge.test.mjs tests/unit/chat-helpers-bridge.test.mjs tests/unit/slowmode.test.mjs tests/unit/event-banner.test.mjs tests/unit/guild-boost.test.mjs tests/unit/poll-card.test.mjs
+✔ formatThreadStatusSummaryRu: archive label follows normalized duration (0.12298ms)
+✔ formatThreadStatusSummaryRu: locked wins over archived, active is the default (0.11666ms)
+✔ formatThreadStatusSummaryRu: message count label is sanitized (0.07854ms)
+✔ formatThreadStatusSummaryRu: full example (0.0726ms)
+ℹ tests 68
+ℹ suites 3
+ℹ pass 68
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.669211
+
+## Примечание: остальные ошибки tsc в прогоне (170 строк) относятся к файлам вне Write-Scope
+# (profile-modal, svg-icons, appearance-settings, channel-tree, locale-switcher, inbox, embed-formatter, ...)
+$ npx tsc -p tsconfig.json --noEmit 2>&1 | cut -d'(' -f1 | sort -u | grep -c .
+

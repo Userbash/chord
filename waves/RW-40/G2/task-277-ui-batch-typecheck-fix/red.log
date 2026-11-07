@@ -1,0 +1,10 @@
+rust/gui-spike/ui/features/thread-badge.js(75,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+tests/unit/chat-helpers-bridge.test.mjs(94,66): error TS2322: Type 'number' is not assignable to type 'boolean | undefined'.
+tests/unit/chat-helpers-bridge.test.mjs(94,77): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+tests/unit/event-banner.test.mjs(61,39): error TS2322: Type 'string' is not assignable to type 'number'.
+tests/unit/guild-boost.test.mjs(21,19): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type 'Readonly<Record<0 | 1 | 2 | 3, Readonly<{ emojiSlots: number; maxUploadMb: number; maxBitrateKbps: number; }>>>'.
+tests/unit/poll-card.test.mjs(442,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/slowmode.test.mjs(87,52): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'number'.
+tests/unit/slowmode.test.mjs(108,58): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'number'.
+tests/unit/thread-badge.test.mjs(75,46): error TS2322: Type 'number' is not assignable to type 'string'.
+tests/unit/thread-badge.test.mjs(100,46): error TS2322: Type 'string' is not assignable to type 'number'.

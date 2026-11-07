@@ -1,0 +1,17 @@
+
+> discord-function-lab@0.1.0 gate:worker
+> node scripts/gate.mjs --scope worker
+
+
+✔ typecheck — 0.3 с
+✔ ui-tsc — 0.3 с
+✔ meta — 0.1 с (тесты 102: pass 102, fail 0, skip 0)
+✔ unit — 2.9 с (тесты 934: pass 934, fail 0, skip 0)
+✔ spike-rust — 20.7 с
+✔ workspace-rust — 10.1 с (тесты 1158: pass 1146, fail 0, skip 12)
+✔ smoke — 15.4 с (тесты 22: pass 22, fail 0, skip 0)
+
+Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-30T16-39-13-422Z.json
+⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
+Вердикт: passed
+Приёмка: н/д (worker-гейт)

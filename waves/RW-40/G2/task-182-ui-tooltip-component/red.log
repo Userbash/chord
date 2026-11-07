@@ -1,0 +1,346 @@
+▶ FE-P2-01: константы и каталог подсказок
+  ✖ задержка показа — 400 мс из ТЗ, а не произвольное число (0.866452ms)
+  ✖ каталог заморожен: ≥12 иконок, непустые уникальные подписи (0.18557ms)
+  ✖ подписи совпадают с ТЗ, а 12 из 13 — с каталогом клиента (0.592382ms)
+✖ FE-P2-01: константы и каталог подсказок (2.301595ms)
+▶ FE-P2-01: общий элемент подсказки
+  ✖ один #discord-tooltip в body: role=tooltip, классы клиента, скрыт по умолчанию (0.260821ms)
+  ✖ второй контроллер переиспользует элемент, а не создаёт дубль (0.1321ms)
+  ✖ mouseenter показывает через 400 мс: текст, data-open, placement, aria-describedby (0.11043ms)
+✖ FE-P2-01: общий элемент подсказки (0.672972ms)
+▶ FE-P2-01: отмена и скрытие
+  ✖ mouseleave на 200 мс отменяет запланированный показ (0.172221ms)
+  ✖ mouseleave после показа скрывает сразу и снимает aria-describedby (0.11032ms)
+  ✖ click скрывает подсказку (0.09232ms)
+  ✖ Escape скрывает сразу; прочие клавиши — нет (0.118511ms)
+  ✖ Escape без активной подсказки не падает и не трогает состояние (0.08024ms)
+  ✖ клавиатура: focusin показывает после задержки, focusout скрывает (0.06937ms)
+✖ FE-P2-01: отмена и скрытие (0.861612ms)
+▶ FE-P2-01: миграция raw title
+  ✖ title переносится в data-tooltip и удаляется из DOM (нативная подсказка не дублирует) (0.116441ms)
+  ✖ data-tooltip приоритетнее title, title тоже снимается (0.09749ms)
+  ✖ data-placement цели прокидывается в элемент подсказки (0.08414ms)
+  ✖ attach(root) привязывает несколько целей; показ второй снимает aria-describedby с первой (0.08526ms)
+  ✖ showFor(target) показывает сразу, без ожидания таймера (0.06972ms)
+✖ FE-P2-01: миграция raw title (0.583432ms)
+▶ FE-P2-01: destroy
+  ✖ снимает таймеры, слушатели и возвращает исходные title (0.10231ms)
+  ✖ после destroy attach ничего не привязывает (0.06383ms)
+✖ FE-P2-01: destroy (0.22957ms)
+▶ FE-P2-01: стили примитива в primitives.css
+  ✖ есть .tooltip/.tooltip_c36707, hidden скрыт, visible не перехватывает мышь (0.206291ms)
+✖ FE-P2-01: стили примитива в primitives.css (0.252221ms)
+ℹ tests 20
+ℹ suites 6
+ℹ pass 0
+ℹ fail 20
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.378912
+
+✖ failing tests:
+
+test at tests/unit/tooltip.test.mjs:165:3
+✖ задержка показа — 400 мс из ТЗ, а не произвольное число (0.866452ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 400
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:166:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/tooltip.test.mjs:169:3
+✖ каталог заморожен: ≥12 иконок, непустые уникальные подписи (0.18557ms)
+  AssertionError [ERR_ASSERTION]: иконок 0 < 12
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:172:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/tooltip.test.mjs:181:3
+✖ подписи совпадают с ТЗ, а 12 из 13 — с каталогом клиента (0.592382ms)
+  AssertionError [ERR_ASSERTION]: подпись mute разошлась с ТЗ
+  + actual - expected
+  
+  + undefined
+  - 'Заглушить'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:183:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'Заглушить',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/tooltip.test.mjs:209:3
+✖ один #discord-tooltip в body: role=tooltip, классы клиента, скрыт по умолчанию (0.260821ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:211:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+
+test at tests/unit/tooltip.test.mjs:221:3
+✖ второй контроллер переиспользует элемент, а не создаёт дубль (0.1321ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:223:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+
+test at tests/unit/tooltip.test.mjs:228:3
+✖ mouseenter показывает через 400 мс: текст, data-open, placement, aria-describedby (0.11043ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:230:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:255:3
+✖ mouseleave на 200 мс отменяет запланированный показ (0.172221ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:257:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+
+test at tests/unit/tooltip.test.mjs:273:3
+✖ mouseleave после показа скрывает сразу и снимает aria-describedby (0.11032ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:275:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+
+test at tests/unit/tooltip.test.mjs:291:3
+✖ click скрывает подсказку (0.09232ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:293:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:304:3
+✖ Escape скрывает сразу; прочие клавиши — нет (0.118511ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:306:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:322:3
+✖ Escape без активной подсказки не падает и не трогает состояние (0.08024ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:324:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:332:3
+✖ клавиатура: focusin показывает после задержки, focusout скрывает (0.06937ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:334:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:355:3
+✖ title переносится в data-tooltip и удаляется из DOM (нативная подсказка не дублирует) (0.116441ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:357:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+
+test at tests/unit/tooltip.test.mjs:369:3
+✖ data-tooltip приоритетнее title, title тоже снимается (0.09749ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:371:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+
+test at tests/unit/tooltip.test.mjs:381:3
+✖ data-placement цели прокидывается в элемент подсказки (0.08414ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:383:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:391:3
+✖ attach(root) привязывает несколько целей; показ второй снимает aria-describedby с первой (0.08526ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:393:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:408:3
+✖ showFor(target) показывает сразу, без ожидания таймера (0.06972ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:410:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/tooltip.test.mjs:426:3
+✖ снимает таймеры, слушатели и возвращает исходные title (0.10231ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:428:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+
+test at tests/unit/tooltip.test.mjs:445:3
+✖ после destroy attach ничего не привязывает (0.06383ms)
+  Error: createTooltipController: red-фаза, реализации нет
+      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:447:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+
+test at tests/unit/tooltip.test.mjs:461:3
+✖ есть .tooltip/.tooltip_c36707, hidden скрыт, visible не перехватывает мышь (0.206291ms)
+  AssertionError [ERR_ASSERTION]: нет правила .tooltip
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:462:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '/* =============================================================================\n * primitives.css — сброс, типографика, утилиты и атомарные контролы.\n * Источник значений — только tokens.css (var(--...)); «магических» чисел нет.\n * Ни внешних ассетов, ни шрифтовых подключений, ни картинок.\n * ========================================================================== */\n\n*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}\n\nhtml,\nbody {\n  height: 100%;\n  margin: 0;\n  overflow: hidden;\n}\n\nhtml {\n  color-scheme: dark;\n  background: var(--bg-app);\n}\n\nbody {\n  background: var(--bg-app);\n  color: var(--text);\n  font-family: var(--font-sans);\n  font-size: var(--font-size-ui);\n  font-weight: var(--font-weight-normal);\n  line-height: var(--line-height-ui);\n  -webkit-font-smoothing: antialiased;\n}\n\nh1,\nh2,\nh3,\np {\n  margin: 0;\n}\n\nul {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n}\n\nbutton,\ninput,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n:focus-visible {\n  outline: var(--focus-ring-width) solid var(--focus-ring);\n  outline-offset: var(--focus-ring-offset);\n}\n\n[hidden] {\n  display: none !important;\n}\n\n/* ---------------------------------------------------------------------------\n * Прокрутка: тонкие полосы на цветах из tokens.css.\n * ------------------------------------------------------------------------ */\n::-webkit-scrollbar {\n  width: var(--scrollbar-size);\n  height: var(--scrollbar-size);\n}\n\n::-webkit-scrollbar-track {\n  background: var(--scrollbar-track);\n}\n\n::-webkit-scrollbar-thumb {\n  border-radius: var(--radius-round);\n  background: var(--scrollbar-thumb);\n}\n\n/* ---------------------------------------------------------------------------\n * Утилиты\n * ------------------------------------------------------------------------ */\n.visually-hidden {\n  position: absolute;\n  width: var(--space-1);\n  height: var(--space-1);\n  margin: calc(-1 * var(--space-1));\n  padding: 0;\n  overflow: hidden;\n  clip-path: inset(50%);\n  border: 0;\n  white-space: nowrap;\n}\n\n/* ---------------------------------------------------------------------------\n * Виртуализованный список: скролл только у контейнера, строки — в .sizer.\n * ------------------------------------------------------------------------ */\n.list {\n  position: relative;\n  flex: 1;\n  min-height: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n  contain: strict;\n  outline: none;\n  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);\n  scrollbar-width: thin;\n}\n\n.list:focus-visible {\n  box-shadow: inset 0 0 0 var(--focus-ring-width) var(--focus-ring);\n}\n\n.sizer {\n  position: relative;\n}\n\n/* Скелетон строки на время загрузки страницы (ADR-1). */\n.row[data-state="placeholder"],\n.member[data-state="placeholder"],\n.placeholder {\n  border-radius: var(--radius-xs);\n  background: var(--surface-1);\n  opacity: var(--state-disabled-opacity);\n}\n\n/* Пустое и ошибочное состояния — оверлей в родителе списка, не ребёнок. */\n.empty-state,\n.error-state {\n  position: absolute;\n  inset: 0;\n  display: grid;\n  place-items: center;\n  padding: var(--space-6);\n  background: var(--bg-chat);\n  font-size: var(--font-size-ui);\n  text-align: center;\n}\n\n.empty-state {\n  color: var(--text-muted);\n}\n\n.error-state {\n  color: var(--danger-text);\n}\n\n/* ---------------------------------------------------------------------------\n * Иконочная кнопка (шапки, тулбары, композер).\n * ------------------------------------------------------------------------ */\n.icon-btn {\n  display: grid;\n  flex: 0 0 auto;\n  place-items: center;\n  width: var(--btn-height);\n  height: var(--btn-height);\n  padding: 0;\n  border: 0;\n  border-radius: var(--radius-xs);\n  background: transparent;\n  color: var(--text-subtle);\n  font-size: var(--icon-size);\n  line-height: 1;\n  transition:\n    background var(--motion-fast) var(--ease-out),\n    color var(--motion-fast) var(--ease-out);\n}\n\n.icon-btn:hover {\n  background: var(--state-hover);\n  color: var(--text-strong);\n}\n\n.icon-btn:active {\n  background: var(--state-active);\n}\n\n.icon-btn[aria-pressed="true"] {\n  background: var(--state-selected);\n  color: var(--text-strong);\n}\n\n.icon-btn[aria-disabled="true"] {\n  cursor: not-allowed;\n  opacity: var(--state-disabled-opacity);\n}\n\n.icon-btn[aria-expanded="true"] {\n  color: var(--text-strong);\n}\n\n/* ---------------------------------------------------------------------------\n * Бейджи ролей/статусов\n * ------------------------------------------------------------------------ */\n.badge {\n  display: inline-grid;\n  flex: 0 0 auto;\n  place-items: center;\n  height: var(--badge-h);\n  padding: 0 var(--badge-pad-x);\n  border-radius: var(--badge-radius);\n  background: var(--badge-secondary-bg);\n  color: var(--text-subtle);\n  font-size: var(--font-size-caption);\n  font-weight: var(--font-weight-semibold);\n  letter-spacing: var(--letter-spacing-caps);\n  line-height: 1;\n  text-transform: uppercase;\n}\n\n.badge--bot {\n  background: var(--accent);\n  color: var(--text-on-accent);\n}\n\n.badge--role {\n  font-weight: var(--font-weight-medium);\n  letter-spacing: var(--letter-spacing-normal);\n}\n\n/* ---------------------------------------------------------------------------\n * Аватар: цвет задаётся строкой через --avatar-hue, буквы — инициалы.\n * ------------------------------------------------------------------------ */\n.avatar {\n  position: relative;\n  display: inline-grid;\n  flex: 0 0 auto;\n  place-items: center;\n  width: var(--avatar-md);\n  height: var(--avatar-md);\n  border-radius: var(--radius-round);\n  background: hsl(var(--avatar-hue), var(--avatar-s), var(--avatar-l));\n  color: var(--avatar-fg);\n  font-size: var(--font-size-caption);\n  font-weight: var(--font-weight-bold);\n  line-height: 1;\n  text-transform: uppercase;\n  user-select: none;\n}\n\n.avatar--xs {\n  width: var(--avatar-xs);\n  height: var(--avatar-xs);\n}\n\n.avatar--sm {\n  width: var(--avatar-sm);\n  height: var(--avatar-sm);\n}\n\n.avatar--md {\n  width: var(--avatar-md);\n  height: var(--avatar-md);\n}\n\n.avatar--lg {\n  width: var(--avatar-lg);\n  height: var(--avatar-lg);\n  font-size: var(--font-size-ui);\n}\n\n.status-dot {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n  width: var(--space-5);\n  height: var(--space-5);\n  border: var(--menu-border) solid var(--bg-chat);\n  border-radius: var(--radius-round);\n  background: var(--status-offline);\n}\n\n.status-dot[data-status="online"] {\n  background: var(--status-online);\n}\n\n.status-dot[data-status="idle"] {\n  background: var(--status-idle);\n}\n\n.status-dot[data-status="dnd"] {\n  background: var(--status-dnd);\n}\n\n.status-dot[data-status="offline"] {\n  background: var(--status-offline);\n}\n\n.status-dot[data-status="streaming"] {\n  background: var(--status-streaming);\n}\n\n/* ---------------------------------------------------------------------------\n * Поиск: <search class="search-field"><input class="search-input">\n * ------------------------------------------------------------------------ */\n.search-field {\n  display: flex;\n  flex: 1;\n  align-items: center;\n  min-width: 0;\n}\n\n.search-input {\n  width: 100%;\n  height: var(--search-height);\n  min-width: 0;\n  padding: 0 var(--space-5);\n  border: var(--menu-border) solid transparent;\n  border-radius: var(--search-radius);\n  background: var(--surface-input);\n  color: var(--text);\n  font-size: var(--font-size-ui);\n  line-height: var(--line-height-ui);\n}\n\n.search-input::placeholder {\n  color: var(--text-muted);\n}\n\n.search-input:focus-visible {\n  border-color: var(--focus-ring);\n  outline-offset: calc(-1 * var(--focus-ring-width));\n}\n\n.search-input::-webkit-search-cancel-button {\n  appearance: none;\n}\n',
+    expected: /\.tooltip\s*\{/,
+    operator: 'match',
+    diff: 'simple'
+  }

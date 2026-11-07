@@ -1,0 +1,41 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
++   'rust/gui-spike/ui/features/dm-friends.js',
++   'rust/gui-spike/ui/features/notifications.js',
+    'rust/gui-spike/ui/features/reactions.js',
+    'rust/gui-spike/ui/features/search-overlay.js',
+    'rust/gui-spike/ui/features/search.js',
++   'rust/gui-spike/ui/features/voice-devices-settings.js'
+  ]
+
+    at file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/[eval1]:13:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:226:26
+    at async ModuleLoader.executeModuleJob (node:internal/modules/esm/loader:223:20)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'rust/gui-spike/ui/features/dm-friends.js',
+    'rust/gui-spike/ui/features/notifications.js',
+    'rust/gui-spike/ui/features/reactions.js',
+    'rust/gui-spike/ui/features/search-overlay.js',
+    'rust/gui-spike/ui/features/search.js',
+    'rust/gui-spike/ui/features/voice-devices-settings.js'
+  ],
+  expected: [
+    'rust/gui-spike/ui/features/reactions.js',
+    'rust/gui-spike/ui/features/search-overlay.js',
+    'rust/gui-spike/ui/features/search.js'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.13.0

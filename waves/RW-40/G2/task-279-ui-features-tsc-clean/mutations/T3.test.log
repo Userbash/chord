@@ -1,0 +1,22 @@
+✔ MAX_INVITE_EMBEDS равен 3 (3.916721ms)
+✔ extractInviteCodes: все поддерживаемые формы ссылок (0.48122ms)
+✔ extractInviteCodes: три формы в одном тексте дают три кода по порядку (0.1807ms)
+✔ extractInviteCodes: дедупликация с сохранением порядка первого вхождения (0.08317ms)
+✔ extractInviteCodes: ограничение MAX_INVITE_EMBEDS (0.08198ms)
+✔ extractInviteCodes: код из [A-Za-z0-9-]{2,32}, минимум 2 символа (0.06833ms)
+✔ extractInviteCodes: пустой/невалидный ввод даёт пустой массив (0.07533ms)
+✔ formatInviteSummaryRu: недействительное приглашение (null) (0.10949ms)
+✔ formatInviteSummaryRu: истёкшее приглашение (0.09546ms)
+✔ formatInviteSummaryRu: валидное приглашение, не вступил (0.13231ms)
+✔ formatInviteSummaryRu: уже участник -> кнопка «Перейти» (0.07924ms)
+✔ formatInviteSummaryRu: fallback имени и нормализация чисел (0.06423ms)
+✔ formatInviteSummaryRu: отсутствующие счётчики дают 0 (0.05704ms)
+✔ formatInviteSummaryRu: нечисловые счётчики дают 0 (0.05028ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33.801147

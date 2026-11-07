@@ -1,0 +1,22 @@
+✔ константы лимитов совпадают с лимитами Discord (4.010474ms)
+✔ ATTACHMENT_CATEGORIES заморожен и содержит 4 категории (0.555168ms)
+✔ classifyAttachmentMime: префиксы image/video/audio, остальное document (0.12008ms)
+✔ formatAttachmentSizeRu: байты (< 1024) (0.108309ms)
+✔ formatAttachmentSizeRu: килобайты (< 1 МиБ) (0.09587ms)
+✔ formatAttachmentSizeRu: мегабайты (>= 1 МиБ) (0.081599ms)
+✔ validateAttachmentsBatch: пустой список — ошибка (0.09828ms)
+✔ validateAttachmentsBatch: больше 10 файлов — ошибка даже при малых размерах (0.096869ms)
+✔ validateAttachmentsBatch: ровно 10 файлов допустимо, totalBytes суммируется (0.11308ms)
+✔ validateAttachmentsBatch: нулевой размер — ошибка (0.114549ms)
+✔ validateAttachmentsBatch: отрицательный размер — ошибка (0.07411ms)
+✔ validateAttachmentsBatch: превышение стандартного лимита 25 МиБ и граница ровно 25 МиБ (0.077309ms)
+✔ validateAttachmentsBatch: явный maxBytes перекрывает стандартный лимит (0.07092ms)
+✔ validateAttachmentsBatch: порядок проверок — сначала количество, затем размеры (0.07309ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.901328

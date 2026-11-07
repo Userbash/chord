@@ -1,0 +1,116 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.37509ms)
+✔ test-impact: docs → docs-sync (0.9038ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.1315ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.54337ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (0.81281ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.28798ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.104761ms)
+✔ test-impact: rust/crates/discord-core (0.506971ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.12704ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.21056ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.13927ms)
+✔ test-impact: src/cli (0.20119ms)
+▶ test-impact v2: точечный граф новых UI-модулей
+  ✔ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.23788ms)
+  ✔ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.25058ms)
+  ✔ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.10688ms)
+  ✔ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.07649ms)
+  ✔ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.05775ms)
+  ✔ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.05711ms)
+  ✔ каждый ключ — реальный layout ui/features/<mod>.js (0.04789ms)
+  ✔ таблица согласована с диском: модуль либо есть, либо запланирован (0.21523ms)
+  ✔ после интеграции смежных карточек инвариант остаётся зелёным (0.13464ms)
+  ✔ фантомный ключ и плоский путь ловятся инвариантом, а не снимком (0.14387ms)
+  ✔ фантомный плоский путь ui/<mod>.js не получает точечное правило (0.140351ms)
+  ✔ профильные тесты таблицы либо в tests/unit, либо помечены запланированными (0.1665ms)
+  ✔ features/chat.js расширен профилем вложений и общими контрактами (0.15972ms)
+  ✔ search.js и search-overlay.js дают одинаковый целевой набор (0.11214ms)
+  ✔ несколько новых модулей объединяются без потери профильных тестов (0.16544ms)
+✔ test-impact v2: точечный граф новых UI-модулей (2.398881ms)
+▶ test-impact v2: правила модулей интеграции оболочки
+  ✔ features/shell-controllers-registry.js → shell-controllers-registry.test.mjs + общие UI-контракты (0.19589ms)
+  ✖ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.80088ms)
+  ✔ features/composer-popovers-bridge.js → composer-popovers-bridge.test.mjs + общие UI-контракты (0.10686ms)
+  ✔ features/app-shell-wiring.js → app-shell-wiring.test.mjs + общие UI-контракты (0.07567ms)
+✖ test-impact v2: правила модулей интеграции оболочки (1.32909ms)
+▶ test-impact v2: точечный граф Rust BFF
+  ✔ src/attachments.rs → attachments_contract + ipc_contract (0.174421ms)
+  ✔ src/auth.rs → auth_contract + ipc_contract (0.04832ms)
+  ✔ src/core_bridge.rs → core_bridge + ipc_contract (0.0494ms)
+  ✔ src/data.rs → data_contract + ipc_contract (0.04639ms)
+  ✔ src/dm_friends.rs → dm_friends_contract + ipc_contract (0.06161ms)
+  ✔ src/guilds.rs → guilds_contract + ipc_contract (0.05162ms)
+  ✔ src/invites.rs → invites_contract + ipc_contract (0.03904ms)
+  ✔ src/messages.rs → messages_contract + ipc_contract (0.03627ms)
+  ✔ src/net.rs → net_contract + ipc_contract (0.03743ms)
+  ✔ src/notifications.rs → notifications_contract + ipc_contract (0.04519ms)
+  ✔ src/pins_threads.rs → pins_threads_contract + ipc_contract (0.03822ms)
+  ✔ src/reactions.rs → reactions_contract + ipc_contract (0.04343ms)
+  ✔ src/rest_failure.rs → rest_failure_contract + ipc_contract (0.0434ms)
+  ✔ src/search.rs → search_contract + ipc_contract (0.06656ms)
+  ✔ src/settings_store.rs → settings_contract + ipc_contract (0.0394ms)
+  ✔ src/typing.rs → typing_contract + ipc_contract (0.03489ms)
+  ✔ src/voice_devices.rs → voice_devices_contract + ipc_contract (0.03393ms)
+  ✔ каждый таргет контракта существует в rust/gui-spike/tests (0.16995ms)
+  ✔ каждый pub mod из lib.rs покрыт правилом (0.51262ms)
+  ✔ lib.rs и main.rs дают полный прогон крейта, а не отдельный таргет (0.08481ms)
+  ✔ новый src/<mod>.rs без правила не теряет контракты — полный прогон (0.05392ms)
+✔ test-impact v2: точечный граф Rust BFF (2.268791ms)
+▶ test-impact v2: safety net общих файлов
+  ✔ package.json → полный прогон T2 (0.1094ms)
+  ✔ scripts/test-impact.mjs → полный прогон T2 (0.04586ms)
+  ✔ rust/gui-spike/Cargo.toml → полный прогон T2 (0.03296ms)
+  ✔ rust/gui-spike/src/lib.rs → полный прогон T2 (0.0312ms)
+  ✔ rust/gui-spike/src/main.rs → полный прогон T2 (0.03723ms)
+  ✔ rust/gui-spike/ui/app.js → полный прогон T2 (0.05257ms)
+  ✔ обычный модуль не получает release-набор (0.07035ms)
+✔ test-impact v2: safety net общих файлов (0.485901ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный путь переключает полный прогон §5.2.3 (0.1005ms)
+  ✔ --full даёт tier T2 и offline release-набор (14.998407ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (14.509206ms)
+✔ test-impact: fallback и tier (29.713583ms)
+ℹ tests 57
+ℹ suites 10
+ℹ pass 56
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 78.546196
+
+✖ failing tests:
+
+test at tests/unit/test-impact.test.mjs:451:5
+✖ features/chat-helpers-bridge.js → chat-helpers-bridge.test.mjs + общие UI-контракты (0.80088ms)
+  AssertionError [ERR_ASSERTION]: chat-helpers-bridge.js: ожидался профильный тест первым и только общие контракты, получено node --test tests/unit/app-shell-wiring.test.mjs | node --test tests/unit/gui-spike-dom.test.mjs | node --test tests/unit/gui-spike-features.test.mjs
+  + actual - expected
+  
+    [
+  +   'node --test tests/unit/app-shell-wiring.test.mjs',
+  -   'node --test tests/unit/chat-helpers-bridge.test.mjs',
+      'node --test tests/unit/gui-spike-dom.test.mjs',
+      'node --test tests/unit/gui-spike-features.test.mjs'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/tests/unit/test-impact.test.mjs:457:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'node --test tests/unit/app-shell-wiring.test.mjs', 'node --test tests/unit/gui-spike-dom.test.mjs', 'node --test tests/unit/gui-spike-features.test.mjs' ],
+    expected: [ 'node --test tests/unit/chat-helpers-bridge.test.mjs', 'node --test tests/unit/gui-spike-dom.test.mjs', 'node --test tests/unit/gui-spike-features.test.mjs' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

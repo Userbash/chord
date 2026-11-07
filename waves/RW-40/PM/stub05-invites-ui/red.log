@@ -1,0 +1,240 @@
+▶ G-03-UI: нормализация кода приглашения (SM-23)
+  ✔ ссылки discord.gg/invite, хвостовой слэш, пробелы и query — один и тот же код (1.390601ms)
+  ✔ пустое, короткое, длинное и недопустимые символы → "" (запрос не уходит) (0.229872ms)
+✔ G-03-UI: нормализация кода приглашения (SM-23) (2.260207ms)
+▶ G-03-UI: диалог join (#join-server-dialog)
+  ✔ в index.html нет фальшивой разметки: только host, содержимое собирает JS (0.282932ms)
+  ✔ «+» в рейле: aria-label/haspopup, открывает диалог, фокус в поле (SM-20, SM-21) (36.833086ms)
+  ✔ пустое поле: submit disabled; ввод включает; Enter = один resolve (SM-22, SM-39) (25.233357ms)
+  ✔ неверный формат: aria-invalid, resolve не вызван (SM-24) (11.124687ms)
+  ✔ resolve 2xx → preview с name/счётчиками из ответа, accept ещё не вызван (SM-27) (11.751461ms)
+  ✔ один IPC на submit: двойной клик и 3 клика = 1 resolve; pending не закрывается Esc (SM-25, SM-26, SM-36) (13.539666ms)
+  ✔ accept: только известный code, 2xx → рейл и канал обновлены, статус успеха (SM-29) (13.493666ms)
+  ✔ resolve 404: видимая ошибка, preview скрыт, код сохранён, accept не вызван (SM-28) (11.261158ms)
+  ✔ accept 403: «Недостаточно прав», без success-текста и без новой плитки (SM-30/31) (10.330541ms)
+  ✔ 401: видимая ошибка сессии, диалог открыт, успеха нет (11.255087ms)
+  ✔ 429: data-retry-after, submit disabled, затем снова enabled (SM-32) (10.833014ms)
+  ✔ accept 2xx без guildId: ошибка, рейл не мутируется (нет фальшивого успеха) (11.883633ms)
+  ✔ «Отмена»/Esc: закрытие, фокус на «+», форма сброшена (SM-38) (14.323212ms)
+  ✔ нет новых команд и токена в коде: только resolve_invite/accept_invite (0.271012ms)
+✔ G-03-UI: диалог join (#join-server-dialog) (183.109337ms)
+▶ G-03a-UI: «Открыть сервер» в preview (lurker, D-76)
+  ✔ кнопка появляется только с preview и шлёт ровно {guildId} (27.243013ms)
+  ✔ 204 → entered и статус «Сервер открыт для просмотра», без плитки и членства (9.848047ms)
+  ✔ один IPC на клик: тройной клик в entering = 1 join_guild, после entered повтор игнорируется (9.167821ms)
+  ✔ 403: видимая ошибка «Нет доступа», повтор — только упавший join_guild (10.441671ms)
+  ✔ 429: data-retry-after на кнопке, затем снова один клик = один join_guild (10.544542ms)
+  ✔ 401 и сеть: видимая ошибка, без успеха и без плитки (21.961891ms)
+  ✔ потоки разделены: после 204 accept работает отдельно и только он добавляет плитку (8.497776ms)
+  ✔ в исходнике нет сети/токена: команда join_guild, аргумент — только guildId (0.211161ms)
+✔ G-03a-UI: «Открыть сервер» в preview (lurker, D-76) (98.207656ms)
+▶ STUB-05-UI / G-06: модалка создания приглашения (#invite-create-modal)
+  ✖ константы и экспорт: VALID_INVITE_MAX_AGES, VALID_INVITE_MAX_USES, INVITE_FLAG_IS_GUEST (0.409163ms)
+  ✖ прогрессивное создание DOM и a11y: #invite-create-modal и элементы формы (0.220862ms)
+  ✖ аккордеон настроек переключает aria-expanded и hidden (0.155361ms)
+  ✖ open() запускает генерацию с дефолтными параметрами и переводит состояние в populated (0.178341ms)
+  ✖ генерация новой ссылки с изменёнными max_age, max_uses, temporary и guest флагом (0.178021ms)
+  ✖ копирование ссылки: успех через navigator.clipboard.writeText с подтверждением (0.185091ms)
+  ✖ копирование ссылки: честная ошибка при reject промиса clipboard (без ложного успеха) (0.158361ms)
+  ✖ копирование ссылки: честная ошибка при отсутствии clipboard API (без ложного успеха) (0.156782ms)
+  ✖ обработка ошибки 429: retry_after_ms, обратный отсчёт и блокировка кнопки генерации (0.212751ms)
+  ✖ обработка ошибки 403 Forbidden: блокировка интерфейса создания (0.164821ms)
+  ✖ закрытие по Escape, клику на backdrop и кнопке закрытия с возвратом фокуса на триггер (0.176201ms)
+✖ STUB-05-UI / G-06: модалка создания приглашения (#invite-create-modal) (2.452189ms)
+ℹ tests 35
+ℹ suites 4
+ℹ pass 24
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 331.04713
+
+✖ failing tests:
+
+test at tests/unit/join-server.test.mjs:779:3
+✖ константы и экспорт: VALID_INVITE_MAX_AGES, VALID_INVITE_MAX_USES, INVITE_FLAG_IS_GUEST (0.409163ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:796:3
+✖ прогрессивное создание DOM и a11y: #invite-create-modal и элементы формы (0.220862ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:850:3
+✖ аккордеон настроек переключает aria-expanded и hidden (0.155361ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:877:3
+✖ open() запускает генерацию с дефолтными параметрами и переводит состояние в populated (0.178341ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:924:3
+✖ генерация новой ссылки с изменёнными max_age, max_uses, temporary и guest флагом (0.178021ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:986:3
+✖ копирование ссылки: успех через navigator.clipboard.writeText с подтверждением (0.185091ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:1029:3
+✖ копирование ссылки: честная ошибка при reject промиса clipboard (без ложного успеха) (0.158361ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:1066:3
+✖ копирование ссылки: честная ошибка при отсутствии clipboard API (без ложного успеха) (0.156782ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:1097:3
+✖ обработка ошибки 429: retry_after_ms, обратный отсчёт и блокировка кнопки генерации (0.212751ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:1144:3
+✖ обработка ошибки 403 Forbidden: блокировка интерфейса создания (0.164821ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }
+
+test at tests/unit/join-server.test.mjs:1186:3
+✖ закрытие по Escape, клику на backdrop и кнопке закрытия с возвратом фокуса на триггер (0.176201ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js' imported from /home/sanya/orca/project/tests/unit/join-server.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/invite-modal.js'
+  }

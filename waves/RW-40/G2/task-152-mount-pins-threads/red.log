@@ -1,0 +1,140 @@
+▶ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels
+  ✔ прогрессивно создаёт #chat-pins-panel и #chat-threads-panel и переключает их взаимно исключающе (2.030823ms)
+✔ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels (2.518603ms)
+▶ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)
+  ✖ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (0.610111ms)
+  ✖ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.150521ms)
+  ✖ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (0.19965ms)
+  ✖ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (0.20015ms)
+  ✖ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.134591ms)
+✖ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts) (1.508323ms)
+ℹ tests 6
+ℹ suites 2
+ℹ pass 1
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.484734
+
+✖ failing tests:
+
+test at tests/unit/pins-threads.test.mjs:98:3
+✖ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (0.610111ms)
+  AssertionError [ERR_ASSERTION]: mountPinsThreadsDom должна быть экспортирована
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:99:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/pins-threads.test.mjs:148:3
+✖ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.150521ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:149:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/pins-threads.test.mjs:181:3
+✖ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (0.19965ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:182:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/pins-threads.test.mjs:284:3
+✖ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (0.20015ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:285:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/pins-threads.test.mjs:403:3
+✖ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.134591ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:404:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

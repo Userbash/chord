@@ -1,0 +1,7 @@
+$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --lib -- -D warnings
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.21s
+exit=0
+
+$ rustfmt --edition 2021 --check rust/gui-spike/src/reactions.rs rust/gui-spike/tests/reactions_contract.rs
+exit=0

@@ -1,0 +1,75 @@
+=== MUTATION TESTING: TASK-113 / N1-07 DM & FRIENDS UI ===
+Target: rust/gui-spike/ui/features/dm-friends.js
+Baseline MD5: 7a5ccad73ac97ed3d9992644a3161621
+
+--- MUT-1-sort-private-channels-ascending ---
+Description: sortPrivateChannels сортирует по возрастанию last_message_id вместо убывания (1a T-N107-SORT-01)
+Mutant MD5: e70f5448dda27ce9e9ba84660479605b
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ T-N107-SORT-01: сортирует 17 private_channels из 002-READY.json по BigInt(last_message_id ?? 0) по убыванию и разрешает имена/аватары из 146 READY.users (1.677847ms)
+    ✖ отображает типы 1 (DM) и 3 (Group DM с числом участников, кастомным именем и fallback через запятую, плюс приоритет PINNED=2) (0.387552ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a) (3.345674ms)
+    ✖ T-N107-DM-GET-01 & Home Navigation: переключает guildId='@me' по клику на #home-rail-btn без вызовов GET /users/@me/channels, рендерит дерево ЛС и восстанавливает шапку гильдии при возврате (3.606314ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (16.133484ms)
+  ✖ failing tests:
+Restored MD5: 7a5ccad73ac97ed3d9992644a3161621 (match=true)
+
+--- MUT-2-pending-count-ignores-spam-ignored ---
+Description: classifyRelationships считает pendingCount без вычитания spamCount и pendingIgnoredCount (1b RE @9318383)
+Mutant MD5: 7ab72459cb540741aa70634398b860b4
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ фильтрует типы 1=Friend, 2=Blocked, 3=Incoming, 4=Outgoing по вкладкам Online / All / Pending / Blocked / Add Friend и считает pendingCount по формуле RE @9318383 (0.726463ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b) (1.992148ms)
+  ✖ failing tests:
+  ✖ фильтрует типы 1=Friend, 2=Blocked, 3=Incoming, 4=Outgoing по вкладкам Online / All / Pending / Blocked / Add Friend и считает pendingCount по формуле RE @9318383 (0.726463ms)
+    AssertionError [ERR_ASSERTION]: pendingCount = max(3 - 1 - 1, 0) = 1
+Restored MD5: 7a5ccad73ac97ed3d9992644a3161621 (match=true)
+
+--- MUT-3-pomelo-discriminator-zero ---
+Description: parseFriendRequestInput подставляет discriminator: 0 вместо null для Pomelo username без # (1c T-N107-FRIEND-ADD-01)
+Mutant MD5: f759c3f453b14a4230115d59988f6a47
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (1.753727ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (15.13536ms)
+  ✖ failing tests:
+  ✖ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (1.753727ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+Restored MD5: 7a5ccad73ac97ed3d9992644a3161621 (match=true)
+
+--- MUT-4-ignore-80013-stranger-dialog ---
+Description: acceptFriendRequest игнорирует код 80013 (RELATIONSHIP_INVALID_NO_CONFIRMATION) и не открывает #stranger-confirm-dialog (1c T-N107-FRIEND-PUT-01)
+Mutant MD5: 4fcc1f8fd5cf662c6798a4cfd4b58151
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (2.323799ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (15.794723ms)
+  ✖ failing tests:
+  ✖ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (2.323799ms)
+    AssertionError [ERR_ASSERTION]: при коде 80013 должен открыться #stranger-confirm-dialog
+Restored MD5: 7a5ccad73ac97ed3d9992644a3161621 (match=true)
+
+--- MUT-5-group-dm-limit-10-instead-of-9 ---
+Description: MAX_GROUP_DM_RECIPIENTS ослаблен с 9 до 10 друзей (11 участников вместо потолка 10 с @me, 1c T-N107-GDM-MODAL-01)
+Mutant MD5: 0f2fc54934d49ebe4d8bc08237fc596c
+Exit Code: 1
+Verdict: KILLED
+Failure Summary:
+    ✖ T-N107-READY-01: константы и размеры коллекций 002-READY.json совпадают с RE-оракулом (0.808843ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a) (3.035392ms)
+    ✖ T-N107-GDM-MODAL-01 & T-N107-DM-POST-01: модалка Group DM ограничивает выбор до 9 друзей (10 участников с @me), отправляет POST /users/@me/channels с {recipients:[...]}, использует кэш для одиночного DM и обрабатывает 30004 (2.783921ms)
+  ✖ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (15.346482ms)
+  ✖ failing tests:
+  ✖ T-N107-READY-01: константы и размеры коллекций 002-READY.json совпадают с RE-оракулом (0.808843ms)
+Restored MD5: 7a5ccad73ac97ed3d9992644a3161621 (match=true)
+
+=== SUMMARY ===
+Killed: 5/5
+Final MD5: 7a5ccad73ac97ed3d9992644a3161621 (baseline=7a5ccad73ac97ed3d9992644a3161621, match=true)
+Post-restore test exit code: 0

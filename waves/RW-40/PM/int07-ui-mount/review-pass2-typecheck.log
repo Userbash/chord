@@ -1,0 +1,6 @@
+$ npm run typecheck
+
+> discord-function-lab@0.1.0 typecheck
+> tsc -p tsconfig.json && tsc -p tsconfig.agent.json
+
+EXIT_CODE=0

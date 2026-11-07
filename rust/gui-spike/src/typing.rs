@@ -15,7 +15,6 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::identity::{IdentityConfig, SystemSources};
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
 use discord_core::API_V9_BASE;
@@ -154,10 +153,16 @@ impl TypingTransport for ApiTypingTransport {
         body: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, TypingError>> + Send + 'a>> {
         Box::pin(async move {
-            self.0
-                .post(target, body)
-                .await
-                .map_err(|error| TypingError::from(RestFailure::from_api_error(&error)))
+            match self.0.post(target, body).await {
+                Ok(mut resp) => {
+                    if resp.status == 204 {
+                        resp.status = 200;
+                        resp.body.clear();
+                    }
+                    Ok(resp)
+                }
+                Err(error) => Err(TypingError::from(RestFailure::from_api_error(&error))),
+            }
         })
     }
 }
@@ -181,10 +186,14 @@ impl DiscordTyping {
         if token.trim().is_empty() {
             return Err(TypingError::Unauthorized);
         }
-        let identity =
-            discord_core::rest::identity::build(&SystemSources, &IdentityConfig::default());
-        let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
-            .map_err(|_| TypingError::InvalidArg)?;
+        let identity_ctx = crate::auth::IdentityContext::detect();
+        let auth = ApiAuth::from_token(
+            token,
+            &identity_ctx.super_properties,
+            &identity_ctx.locale,
+            &identity_ctx.timezone,
+        )
+        .map_err(|_| TypingError::InvalidArg)?;
         let client = ApiClient::new(ApiConfig {
             base: API_V9_BASE.to_string(),
             auth,

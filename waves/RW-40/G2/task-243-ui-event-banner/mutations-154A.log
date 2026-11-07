@@ -1,0 +1,13 @@
+# task-243 mutation run 5/5 (REVIEW-154A)
+
+original md5: 235ec0e4c33062b2c8928a99fc9defd3
+restored md5: 235ec0e4c33062b2c8928a99fc9defd3
+byte-identical restore: True
+baseline after restore: exit=0
+killed: 5/5
+
+M1 entity fallback text: exit=1 KILLED ℹ fail 2
+M2 isActive status: exit=1 KILLED ℹ fail 4
+M3 count truncation: exit=1 KILLED ℹ fail 1
+M4 title trim: exit=1 KILLED ℹ fail 1
+M5 rsvp delta: exit=1 KILLED ℹ fail 4

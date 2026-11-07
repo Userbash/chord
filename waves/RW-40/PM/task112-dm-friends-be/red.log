@@ -1,0 +1,48 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.75s
+     Running tests/dm_friends_contract.rs (target/debug/deps/dm_friends_contract-a6b95d0d0a5c72b0)
+
+running 5 tests
+
+thread 'error_display_and_debug_never_leak_token_or_sensitive_headers' (830157) panicked at tests/dm_friends_contract.rs:993:5:
+Debug DiscordDmFriends не должен содержать секретный токен: DiscordDmFriends { token: "mfa.super_secret_token_task112_do_not_leak_987654321" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'ready_relationships_parsing_and_tabs_filtering_contract' (830159) panicked at tests/dm_friends_contract.rs:358:5:
+assertion `left == right` failed: в 002-READY.json ровно 60 записей в d.relationships[]
+  left: 0
+ right: 60
+
+thread 'rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract' (830161) panicked at tests/dm_friends_contract.rs:762:5:
+assertion `left == right` failed
+  left: ""
+ right: "/users/@me/relationships/194374444821643266"
+test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... FAILED
+test ready_relationships_parsing_and_tabs_filtering_contract ... FAILED
+
+thread 'rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds' (830160) panicked at tests/dm_friends_contract.rs:529:5:
+assertion `left == right` failed
+  left: Err(InvalidResponse)
+ right: Err(MissingToken)
+test error_display_and_debug_never_leak_token_or_sensitive_headers ... FAILED
+test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... FAILED
+
+thread 'ready_private_channels_and_rest_static_oracle_parity' (830158) panicked at tests/dm_friends_contract.rs:194:5:
+assertion `left == right` failed: в 002-READY.json ровно 146 пользователей в d.users[]
+  left: 0
+ right: 146
+test ready_private_channels_and_rest_static_oracle_parity ... FAILED
+
+failures:
+
+failures:
+    error_display_and_debug_never_leak_token_or_sensitive_headers
+    ready_private_channels_and_rest_static_oracle_parity
+    ready_relationships_parsing_and_tabs_filtering_contract
+    rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds
+    rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test dm_friends_contract`
+EXIT=101

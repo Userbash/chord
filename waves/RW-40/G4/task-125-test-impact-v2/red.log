@@ -1,0 +1,192 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.398111ms)
+✔ test-impact: docs → docs-sync (0.906032ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.11562ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.459531ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (0.700401ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.30274ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.082961ms)
+✔ test-impact: rust/crates/discord-core (0.492431ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ даёт полный frontend-контракт и геометрию (0.16897ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.26269ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.485932ms)
+✔ test-impact: src/cli (0.578362ms)
+▶ test-impact v2: точечный граф новых UI-модулей
+  ✖ rust/gui-spike/ui/notifications.js → notifications-ui.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.486361ms)
+  ✖ rust/gui-spike/ui/voice-devices-settings.js → voice-devices-settings.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.09329ms)
+  ✖ rust/gui-spike/ui/dm-friends.js → dm-friends-ui.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.104421ms)
+  ✖ rust/gui-spike/ui/search.js → search-remote-real-index.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.06712ms)
+  ✖ rust/gui-spike/ui/search-overlay.js → search-remote-real-index.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.05863ms)
+  ✖ rust/gui-spike/ui/attachments-render.js → attachments-render.test.mjs + gui-spike-dom.test.mjs (0.04905ms)
+  ✖ rust/gui-spike/ui/chat-reactions.js → chat-reactions.test.mjs + gui-spike-dom.test.mjs (0.05491ms)
+  ✔ search.js и search-overlay.js дают одинаковый целевой набор (0.07353ms)
+  ✖ несколько новых модулей объединяются без потери профильных тестов (0.0951ms)
+✖ test-impact v2: точечный граф новых UI-модулей (1.296413ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный файл уходит в meta plan-sync (0.06968ms)
+  ✔ --full даёт tier T2 и offline release-набор (16.148897ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (15.517275ms)
+✔ test-impact: fallback и tier (31.856962ms)
+ℹ tests 19
+ℹ suites 7
+ℹ pass 11
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 76.237074
+
+✖ failing tests:
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/notifications.js → notifications-ui.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.486361ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/notifications.js: в плане нет tests/unit/notifications-ui.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/voice-devices-settings.js → voice-devices-settings.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.09329ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/voice-devices-settings.js: в плане нет tests/unit/voice-devices-settings.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/dm-friends.js → dm-friends-ui.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.104421ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/dm-friends.js: в плане нет tests/unit/dm-friends-ui.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/search.js → search-remote-real-index.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.06712ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/search.js: в плане нет tests/unit/search-remote-real-index.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/search-overlay.js → search-remote-real-index.test.mjs + gui-spike-dom.test.mjs + gui-spike-features.test.mjs (0.05863ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/search-overlay.js: в плане нет tests/unit/search-remote-real-index.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/attachments-render.js → attachments-render.test.mjs + gui-spike-dom.test.mjs (0.04905ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/attachments-render.js: в плане нет tests/unit/attachments-render.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:197:5
+✖ rust/gui-spike/ui/chat-reactions.js → chat-reactions.test.mjs + gui-spike-dom.test.mjs (0.05491ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/chat-reactions.js: в плане нет tests/unit/chat-reactions.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:201:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:231:3
+✖ несколько новых модулей объединяются без потери профильных тестов (0.0951ms)
+  AssertionError [ERR_ASSERTION]: объединённый план без notifications-ui.test.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:237:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

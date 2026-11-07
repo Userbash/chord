@@ -1,0 +1,25 @@
+# RED: task-284 Pass 2 — bff_domains_router (BffResolvedAction / resolve_bff_domain_action)
+# worktree: /home/sanya/orca/workspaces/project/bugfix-task-284-be-bff-router-pass2
+# HEAD: 886ec1e1bda4e638b685af0fc9e69ece8c26b52e (bugfix/task-284-be-bff-router-pass2)
+# date: Сб 31 окт 2026 14:44:03 CST
+# command: CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-284-be-bff-router-pass2/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::bff_domains_router::resolve_bff_domain_action`, `discord_gui_spike::bff_domains_router::BffResolvedAction`
+  --> tests/bff_domains_router_contract.rs:13:58
+   |
+13 |     dispatch_bff_domain_action, is_supported_bff_domain, resolve_bff_domain_action, BffDomainAction,
+   |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^ no `resolve_bff_domain_action` in `bff_domains_router`
+14 |     BffDomainRequest, BffResolvedAction, UpdateGuildOnboardingRequest, SUPPORTED_BFF_DOMAINS,
+   |                       ^^^^^^^^^^^^^^^^^ no `BffResolvedAction` in `bff_domains_router`
+   |
+help: a similar name exists in the module
+   |
+13 -     dispatch_bff_domain_action, is_supported_bff_domain, resolve_bff_domain_action, BffDomainAction,
+13 +     dispatch_bff_domain_action, is_supported_bff_domain, dispatch_bff_domain_action, BffDomainAction,
+   |
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "bff_domains_router_contract") due to 1 previous error
+
+# exit_code=101

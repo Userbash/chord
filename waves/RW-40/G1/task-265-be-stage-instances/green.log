@@ -1,0 +1,16 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-265-be-stage-instances/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.40s
+     Running tests/stage_instances_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/stage_instances_contract-d7fd507dd5896473)
+
+running 7 tests
+test stage_instances_constants_match_discord_contract ... ok
+test build_create_stage_instance_route_and_body_validates_and_trims_topic ... ok
+test build_update_self_stage_voice_state_route_and_body_validates_snowflakes_and_timestamp ... ok
+test validate_create_stage_instance_enforces_channel_id_snowflake ... ok
+test validate_create_stage_instance_enforces_guild_only_privacy_level ... ok
+test stage_instances_request_structs_serde_roundtrip ... ok
+test validate_create_stage_instance_enforces_trimmed_unicode_topic_bounds ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

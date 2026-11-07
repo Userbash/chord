@@ -1,0 +1,17 @@
+✔ CHANNEL_TYPES matches the Discord gateway enum and is frozen (1.072223ms)
+✔ isVoiceLikeChannel is true only for voice and stage-voice channels (0.09737ms)
+✔ buildGuildChannelTree separates categories and keeps an empty tree stable (0.143721ms)
+✔ categories are sorted by position then id and get both child lists (4.410779ms)
+✔ non-voice channels sort before voice-like ones, then by position, then by id (0.14129ms)
+✔ collapsed category hides read channels but keeps allChildren intact (0.12796ms)
+✔ collapsed category with no unread channels has an empty visible list (0.088541ms)
+✔ channels pointing at an unknown parent fall back to uncategorized (0.08845ms)
+✔ input array is not mutated (0.11005ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.94357

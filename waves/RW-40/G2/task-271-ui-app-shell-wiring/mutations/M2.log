@@ -1,0 +1,73 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.58731ms)
+✔ getState: до любых действий активных слоёв нет (0.34584ms)
+✖ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.724671ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.11959ms)
+✖ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.18296ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.10825ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.17543ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.282171ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.34008ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.20241ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.17046ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 9
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.401576
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:59:1
+✖ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.724671ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: 'role-editor',
+  +   activeModalLayer: 'threads-drawer'
+  -   activeModalLayer: null
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/app-shell-wiring.test.mjs:73:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: 'threads-drawer', activeAdminPanel: 'role-editor' },
+    expected: { activeModalLayer: null, activeAdminPanel: 'role-editor' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:94:1
+✖ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.18296ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: 'webhooks-editor',
+  +   activeModalLayer: 'inbox-popover'
+  -   activeModalLayer: null
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/app-shell-wiring.test.mjs:101:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: 'inbox-popover', activeAdminPanel: 'webhooks-editor' },
+    expected: { activeModalLayer: null, activeAdminPanel: 'webhooks-editor' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

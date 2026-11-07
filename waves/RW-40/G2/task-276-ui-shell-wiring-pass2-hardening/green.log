@@ -1,0 +1,70 @@
+# GREEN — task-276 G2 Pass 2, app-shell-wiring.js
+# дата: 2026-10-31T11:30:05+05:00
+# ветка: bugfix/task-276-ui-shell-wiring-pass2-hardening
+# HEAD:  3affd78f42a9fd2d1ce2a532d9a14981d235bb2a
+# node:  v26.13.0, tsc: Version 7.0.2
+
+## md5 (green)
+a4c9cb5ea7ddca62eddbdca5ab1788fa  rust/gui-spike/ui/features/app-shell-wiring.js
+5cca3ef80362b924786e92d9382d1baf  tests/unit/app-shell-wiring.test.mjs
+044b460c1852b37bee299b58ef12bc6e  rust/gui-spike/ui/tsconfig.json
+
+## 1. Целевой контракт (node --test tests/unit/app-shell-wiring.test.mjs)
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.69451ms)
+✔ getState: до любых действий активных слоёв нет (0.40755ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.24702ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.13722ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.13364ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.09258ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.20875ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.33388ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.29577ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.17757ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.1492ms)
+✔ openAdminPanel: невалидный id не снимает уже открытые модальные слои (0.11028ms)
+✔ openModalLayer: невалидный id не закрывает активную админ-панель (0.09429ms)
+✔ после destroy() мутаторы бросают Error и оверлеи не открываются (0.10705ms)
+✔ getState: снимок и вложенный activeModalStack заморожены (0.11326ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.090184
+exit=0
+
+## 2. Регрессия соседних модулей (shell-bridge, shell-controllers-registry, chat-helpers-bridge)
+ℹ tests 49
+ℹ suites 8
+ℹ pass 49
+ℹ fail 0
+ℹ skipped 0
+
+## 3. tsc UI-проекта (rust/gui-spike/ui/tsconfig.json --noEmit)
+rust/gui-spike/ui/features/thread-badge.js(75,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+exit=1
+# трактовка: единственная ошибка — ПРЕДСУЩЕСТВУЮЩАЯ транзитивная rust/gui-spike/ui/features/thread-badge.js(75,5) TS2322
+# (REVIEW-184A §4.4, QA-BUILD-003 P2-1). В rust/gui-spike/ui/features/app-shell-wiring.js ошибок 0. Закрывается в task-277.
+
+## 4. Программа tsc видит фасад (--listFiles | grep features)
+features/shell-bridge.js
+features/shell-controllers-registry.js
+features/chat-helpers-bridge.js
+features/app-shell-wiring.js
+
+## 5. Корневой tsc (tsconfig.json --noEmit) — контроль отсутствия новых диагностик
+exit=1
+errors_total=149 (baseline REVIEW-184A/QA-BUILD-003: 149)
+errors_в_app-shell-wiring=0
+
+## 6. Полный unit-прогон (node --test 'tests/unit/**/*.test.mjs')
+exit=1
+ℹ tests 1920
+ℹ suites 372
+ℹ pass 1918
+ℹ fail 2
+ℹ skipped 0
+# падения только предсуществующие (REVIEW-184A §4.3): tests/unit/dispatch_ui.test.mjs:264 (A2 FORWARDED_KINDS) и tests/unit/test-impact.test.mjs:494

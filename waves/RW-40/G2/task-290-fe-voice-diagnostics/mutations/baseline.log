@@ -1,0 +1,29 @@
+# TR-197A baseline 2026-10-31T07:06:10Z HEAD=70c0473
+## node --test tests/unit/voice-diagnostics.test.mjs
+  ✔ getState() возвращает копию: мутация результата не меняет контроллер (0.02909ms)
+  ✔ восстановление: после close() попап открывается снова с чистыми флагами (0.05ms)
+  ✔ совместимость: updateSnapshot отдаёт данные, пригодные для formatPopoutMetricsRu (0.05644ms)
+✔ createVoiceDiagnosticsController: updateSnapshot и наблюдаемость (0.38ms)
+ℹ tests 67
+ℹ suites 14
+ℹ pass 67
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.467285
+## tsc root
+tsc-root-exit=0
+## tsc ui
+tsc-ui-exit=0
+## plan-sync
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (0.91859ms)
+✔ plan-sync: §8 ↔ тестовые файлы ↔ модули (13.340527ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.155121

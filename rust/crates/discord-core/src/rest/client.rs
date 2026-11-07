@@ -8,6 +8,11 @@ use std::fmt;
 use std::time::Duration;
 
 use super::headers::AuthHeaderValues;
+pub use super::headers::{
+    ClientHeadersConfig, DEFAULT_LOCALE, HEADER_FINGERPRINT, HEADER_INSTALLATION_ID,
+    HEADER_ROUTING_KEY, HeaderConfig, OptionalHeaderConfig, RestHeadersConfig,
+    format_accept_language,
+};
 use super::http1::Http1Error;
 use super::rate_limit::{classify_failure, retry_delay, should_retry};
 use super::routes::HttpMethod;
@@ -165,6 +170,28 @@ impl ApiAuth {
             debug_options: DEBUG_OPTIONS_LIVE.to_string(),
             accept_language: locale.to_string(),
         })
+    }
+
+    /// Собрать auth-заголовки из токена со списком локалей и взвешенным `Accept-Language`
+    /// (BE-P2-02, task-165).
+    ///
+    /// Первой непустой локалью заполняется `X-Discord-Locale` (или [`DEFAULT_LOCALE`], если
+    /// список пуст), а `Accept-Language` форматируется через [`format_accept_language`].
+    pub fn from_token_with_locales(
+        token: &str,
+        super_properties: &SuperProperties,
+        locales: &[&str],
+        timezone: &str,
+    ) -> Result<Self, ApiAuthError> {
+        let clean: Vec<&str> = locales
+            .iter()
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .collect();
+        let primary_locale = clean.first().copied().unwrap_or(DEFAULT_LOCALE);
+        let mut auth = Self::from_token(token, super_properties, primary_locale, timezone)?;
+        auth.accept_language = format_accept_language(locales);
+        Ok(auth)
     }
 
     /// Скопировать значения из заимствованного набора [`AuthHeaderValues`].
@@ -343,6 +370,7 @@ pub struct ApiClient {
     auth: ApiAuth,
     http: HttpClientConfig,
     retry: ApiRetryPolicy,
+    headers: HeaderConfig,
 }
 
 impl ApiClient {
@@ -356,7 +384,54 @@ impl ApiClient {
             auth: config.auth,
             http: config.http,
             retry: config.retry,
+            headers: HeaderConfig::default(),
         })
+    }
+
+    /// Создать клиент с опциональной конфигурацией заголовков.
+    pub fn new_with_headers(config: ApiConfig, headers: HeaderConfig) -> Result<Self, ApiError> {
+        let mut client = Self::new(config)?;
+        client.headers = headers;
+        Ok(client)
+    }
+
+    /// Установить опциональную конфигурацию заголовков (builder-стиль).
+    #[must_use]
+    pub fn with_headers(mut self, headers: HeaderConfig) -> Self {
+        self.headers = headers;
+        self
+    }
+
+    /// Установить опциональный `X-Fingerprint` (builder-стиль).
+    #[must_use]
+    pub fn with_fingerprint(mut self, fingerprint: impl Into<String>) -> Self {
+        self.headers.fingerprint = Some(fingerprint.into());
+        self
+    }
+
+    /// Установить опциональный `X-Installation-ID` (builder-стиль).
+    #[must_use]
+    pub fn with_installation_id(mut self, installation_id: impl Into<String>) -> Self {
+        self.headers.installation_id = Some(installation_id.into());
+        self
+    }
+
+    /// Установить опциональный `X-Routing-Key` (builder-стиль).
+    #[must_use]
+    pub fn with_routing_key(mut self, routing_key: impl Into<String>) -> Self {
+        self.headers.routing_key = Some(routing_key.into());
+        self
+    }
+
+    /// Ссылка на текущую конфигурацию опциональных заголовков.
+    #[must_use]
+    pub fn headers(&self) -> &HeaderConfig {
+        &self.headers
+    }
+
+    /// Мутабельная ссылка на текущую конфигурацию опциональных заголовков.
+    pub fn headers_mut(&mut self) -> &mut HeaderConfig {
+        &mut self.headers
     }
 
     /// Выполнить запрос с auth-заголовками, защитой телеметрии и повторами.
@@ -506,6 +581,11 @@ impl ApiClient {
 
         let mut prepared = request.clone();
         for (name, value) in self.auth.pairs() {
+            if !has_header(&prepared.headers, name) {
+                prepared.headers.push((name.to_string(), value.to_string()));
+            }
+        }
+        for (name, value) in self.headers.extra_headers() {
             if !has_header(&prepared.headers, name) {
                 prepared.headers.push((name.to_string(), value.to_string()));
             }

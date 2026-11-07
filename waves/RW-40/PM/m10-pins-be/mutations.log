@@ -1,0 +1,56 @@
+baseline pins_threads.rs md5=839e78e1a62e585483076a329c9c0dbc
+baseline pins_threads_contract.rs md5=55c4f3344ba5f66c2600a59e9fd34ff0
+=== MUT-1-allow-dot-in-id-allowlist ===
+mutant pins_threads.rs md5=5a486c2ca0ca7cf3e6d884a2f80255e6
+exit=101
+test rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages ... FAILED
+thread 'rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages' (394547) panicked at tests/pins_threads_contract.rs:477:9:
+assertion `left == right` failed: list_channel_pins bad_channel="a.b"
+  left: Ok([])
+ right: Err(InvalidChannelId)
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored pins_threads.rs md5=839e78e1a62e585483076a329c9c0dbc (match=True)
+=== MUT-2-wrong-archived-threads-endpoint ===
+mutant pins_threads.rs md5=03ff2628572ccb22763d8d1b0ba1d335
+exit=101
+test list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries ... FAILED
+thread 'list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries' (395222) panicked at tests/pins_threads_contract.rs:420:5:
+assertion `left == right` failed
+  left: [Get("/channels/1014537851418980375/threads/active"), Get("/channels/1014537851418980375/threads/active")]
+ right: [Get("/channels/1014537851418980375/threads/archived/public"), Get("/channels/1014537851418980375/threads/archived/public")]
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored pins_threads.rs md5=839e78e1a62e585483076a329c9c0dbc (match=True)
+=== MUT-3-reject-204-on-pin-unpin-action ===
+mutant pins_threads.rs md5=a2b3410ec9fe2536b784e4521956c070
+exit=101
+test pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200 ... FAILED
+test rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages ... FAILED
+thread 'pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200' (395871) panicked at tests/pins_threads_contract.rs:302:9:
+assertion `left == right` failed: pin free fn HTTP 204
+  left: Err(InvalidResponse)
+ right: Ok(())
+thread 'rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages' (395872) panicked at tests/pins_threads_contract.rs:556:9:
+assertion `left == right` failed: allowlist channel_id должен совпадать с messages::send_message для "1014537851418980375"
+  left: true
+ right: false
+restored pins_threads.rs md5=839e78e1a62e585483076a329c9c0dbc (match=True)
+=== MUT-4-ignore-429-retry-after-ms ===
+mutant pins_threads.rs md5=0e3f1d6c57eb4a73f3f500e813299431
+exit=101
+test maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations ... FAILED
+thread 'maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations' (396520) panicked at tests/pins_threads_contract.rs:579:9:
+assertion `left == right` failed: list_channel_pins 429 retry-after=3
+  left: Err(RateLimited { retry_after_ms: 0 })
+ right: Err(RateLimited { retry_after_ms: 3000 })
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored pins_threads.rs md5=839e78e1a62e585483076a329c9c0dbc (match=True)
+=== MUT-5-return-invalid-channel-id-for-message-id ===
+mutant pins_threads.rs md5=bbaaecd9fad9b1aa4205d0b645438c11
+exit=101
+test rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages ... FAILED
+thread 'rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages' (397153) panicked at tests/pins_threads_contract.rs:510:9:
+assertion `left == right` failed: pin_channel_message bad_message=""
+  left: Err(InvalidChannelId)
+ right: Err(InvalidMessageId)
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored pins_threads.rs md5=839e78e1a62e585483076a329c9c0dbc (match=True)

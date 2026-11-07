@@ -1,0 +1,75 @@
+baseline md5: d5debf4cf1831c5a6e473fbedabfe447
+=== MUTANT M1 (ConnectionQuality::evaluate) ===
+--- diff ---
+519c519
+<         } else if ping_ms > PING_FINE_MAX_MS
+---
+>         } else if ping_ms >= PING_FINE_MAX_MS
+--- test rc=101 ---
+failures:
+failures:
+test result: FAILED. 35 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-voice --lib`
+    stats::tests::quality_fine_on_low_ping_and_loss
+--- rollback md5=d5debf4cf1831c5a6e473fbedabfe447 (OK) ---
+MUTANT M1: KILLED
+=== MUTANT M2 (PingHistory::push_ping) ===
+--- diff ---
+567c567
+<         while self.samples.len() > MAX_PING_HISTORY_LEN {
+---
+>         while self.samples.len() >= MAX_PING_HISTORY_LEN {
+--- test rc=101 ---
+failures:
+failures:
+test result: FAILED. 35 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-voice --lib`
+    stats::tests::history_holds_at_most_199_samples
+--- rollback md5=d5debf4cf1831c5a6e473fbedabfe447 (OK) ---
+MUTANT M2: KILLED
+=== MUTANT M3 (PingHistory::note_ping_timeout) ===
+--- diff ---
+590c590
+<         if b == a + 1 && c == b + 1 {
+---
+>         if b == a && c == b {
+--- test rc=101 ---
+failures:
+failures:
+test result: FAILED. 34 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-voice --lib`
+    stats::tests::clear_resets_samples_counters_and_timeout_history
+    stats::tests::three_consecutive_timeouts_record_4000_ms
+--- rollback md5=d5debf4cf1831c5a6e473fbedabfe447 (OK) ---
+MUTANT M3: KILLED
+=== MUTANT M4 (PingHistory::average_ping_ms) ===
+--- diff ---
+601c601
+<         let count = self.samples.len().min(PING_AVERAGE_WINDOW);
+---
+>         let count = self.samples.len();
+--- test rc=101 ---
+failures:
+failures:
+test result: FAILED. 35 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-voice --lib`
+    stats::tests::average_uses_first_twenty_samples_and_rounds
+--- rollback md5=d5debf4cf1831c5a6e473fbedabfe447 (OK) ---
+MUTANT M4: KILLED
+=== MUTANT M5 (compute_outbound_loss_rate_pct) ===
+--- diff ---
+651c651
+<     let total = delta_sent.saturating_add(delta_lost);
+---
+>     let total = delta_sent;
+--- test rc=101 ---
+failures:
+failures:
+test result: FAILED. 34 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p discord-voice --lib`
+    stats::tests::loss_rate_small_delta
+    stats::tests::loss_rate_uses_deltas
+--- rollback md5=d5debf4cf1831c5a6e473fbedabfe447 (OK) ---
+MUTANT M5: KILLED
+=== FINAL ===
+final md5=d5debf4cf1831c5a6e473fbedabfe447 (IDENTICAL)

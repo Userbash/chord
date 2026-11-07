@@ -1,0 +1,138 @@
+
+> discord-function-lab@0.1.0 gate:worker
+> node scripts/gate.mjs --scope worker
+
+
+✔ typecheck — 0.3 с
+✔ ui-tsc — 0.2 с
+✖ meta — 0.2 с (тесты 102: pass 101, fail 1, skip 0) [код выхода ≠ 0]
+     ✔ трассировка и строение описывают все группы (0.443ms)
+   ✔ rust-client-sync: план Rust-клиента цел и синхронен (14.270174ms)
+   ▶ TEST-POLICY: запрет ослабления тестов
+     ✔ политика существует и содержит обязательные разделы (0.672559ms)
+     ✔ в тестах нет .only, todo и пустых assert (9.23284ms)
+     ✔ скрипты не обходят хуки и проверки (0.587399ms)
+     ✔ гейт содержит обязательные фазы (0.21223ms)
+     ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.59412ms)
+   ✔ TEST-POLICY: запрет ослабления тестов (12.798745ms)
+   ▶ QA-M2-01: e2e-skip не является прохождением
+     ✔ failOnSkips превращает skip в провал фазы (пример, а не декларация) (0.471319ms)
+     ✔ без failOnSkips тот же skip не валит фазу (unit/smoke skip-aware) (0.17226ms)
+     ✔ нулевой pass — e2e_unmet даже без skip (0.14676ms)
+     ✔ выполненный набор без skip и fail проходит (0.188489ms)
+     ✔ вердикт при упавшей e2e-фазе — failed, а не passed_with_skips (0.25497ms)
+     ✔ live-фаза без среды — passed_with_unmet, не passed и не skip (0.13669ms)
+     ✔ Rust ignored не смешивается с e2e-skip (0.123449ms)
+     ✔ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.15745ms)
+     ✔ приёмка запрещена без fixture-доказательства и без live в qualify (0.1488ms)
+     ✔ fixture-набор e2e исключает live и объявлен с failOnSkips (0.20284ms)
+     ✔ live-фаза отдельная и только в qualify (0.197719ms)
+     ✔ оба результата повтора сохраняются в attempts[] (0.23891ms)
+   ✔ QA-M2-01: e2e-skip не является прохождением (2.963376ms)
+   ▶ waves-sync: журнал волн восстановим
+     ✔ README.md, STATE.md и db.jsonl на месте (3.379216ms)
+     ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (8.58996ms)
+     ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (1.379489ms)
+   ✔ waves-sync: журнал волн восстановим (14.339854ms)
+   ℹ tests 102
+   ℹ suites 17
+   ℹ pass 101
+   ℹ fail 1
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 159.727113
+   
+   ✖ failing tests:
+   
+   test at tests/meta/plan-sync.test.mjs:140:3
+   ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (3.046976ms)
+     AssertionError [ERR_ASSERTION]: тестовые файлы без строки в §8
+     + actual - expected
+     
+     + [
+     +   'tests/unit/voice-devices-settings.test.mjs'
+     + ]
+     - []
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+         at async Test.run (node:internal/test_runner/test:1409:7)
+         at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: [ 'tests/unit/voice-devices-settings.test.mjs' ],
+       expected: [],
+       operator: 'deepStrictEqual',
+       diff: 'simple'
+     }
+   
+✔ unit — 2.9 с (тесты 851: pass 851, fail 0, skip 0)
+✔ spike-rust — 18.8 с
+✔ workspace-rust — 15.7 с (тесты 1154: pass 1142, fail 0, skip 12)
+✖ smoke — 15.4 с (тесты 22: pass 21, fail 1, skip 0) [код выхода ≠ 0]
+   ✔ demangle (c++filt) (214.565513ms)
+   ▶ Tauri GUI live smoke
+     ✔ открывает окно и публикует проверяемый DOM-снимок (10212.332753ms)
+   ✔ Tauri GUI live smoke (10213.095523ms)
+   ▶ GUI window probe (AT-SPI + X11)
+     ✖ находит окно, элементы и снимает PNG (4209.245098ms)
+   ✖ GUI window probe (AT-SPI + X11) (4209.824207ms)
+   ▶ discord-lab hook
+     ✔ неизвестный pid → код 2 из-за недоступной Frida или attach-ошибки (54.901977ms)
+     ✔ ошибка подготовки каталога лога → код 2 без стека (35.359629ms)
+   ✔ discord-lab hook (91.096036ms)
+   ▶ discord-lab inventory
+     ✔ неизвестный pid → код 2 из-за недоступной Frida или пропущенной цели (40.185555ms)
+   ✔ discord-lab inventory (40.821483ms)
+   ▶ discord-lab pids
+     ✔ pids --all перечисляет процессы в формате '<pid>\t<name>' (45.480618ms)
+   ✔ discord-lab pids (46.090247ms)
+   ▶ discord-lab summarize
+     ✔ пишет <лог>.by-function.csv и печатает сводку (25.556791ms)
+     ✔ без аргументов и без logs/calls-*.jsonl (cwd) → код 1 с подсказкой (21.830136ms)
+     ✔ полный реальный voice-лог: stdout и CSV совпадают с независимым оракулом (39.786414ms)
+   ✔ discord-lab summarize (87.98975ms)
+   ℹ tests 22
+   ℹ suites 8
+   ℹ pass 21
+   ℹ fail 1
+   ℹ cancelled 0
+   ℹ skipped 0
+   ℹ todo 0
+   ℹ duration_ms 15354.991891
+   
+   ✖ failing tests:
+   
+   test at tests/smoke/gui-window.smoke.test.mjs:16:3
+   ✖ находит окно, элементы и снимает PNG (4209.245098ms)
+     AssertionError [ERR_ASSERTION]: 
+     (process:559214): atspi-WARNING **: 18:37:45.970: AT-SPI: Unable to open bus connection for application with pid 5728: Failed to connect to socket /run/user/1000/at-spi2-AY10X3/socket: No such file or directory
+     gui-window-probe: FAIL: AT-SPI: участников list item 3 < 10
+     
+     
+     1 !== 0
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-window.smoke.test.mjs:35:14)
+         at Test.runInAsyncScope (node:async_hooks:226:14)
+         at Test.run (node:internal/test_runner/test:1402:25)
+         at Test.start (node:internal/test_runner/test:1262:17)
+         at node:internal/test_runner/test:1903:71
+         at node:internal/per_context/primordials:505:82
+         at new Promise (<anonymous>)
+         at new SafePromise (node:internal/per_context/primordials:479:3)
+         at node:internal/per_context/primordials:505:9
+         at Array.map (<anonymous>) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: 1,
+       expected: 0,
+       operator: 'strictEqual',
+       diff: 'simple'
+     }
+   
+
+Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-30T13-37-49-761Z.json
+⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
+Вердикт: failed
+Приёмка: н/д (worker-гейт)
+EXIT_CODE=1

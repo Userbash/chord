@@ -1,0 +1,48 @@
+# Мутационные прогоны Review 89A — task-177 (BE-P3-01)
+#
+# Метод: мутация в rust/gui-spike/src/reactions.rs, прогон
+#   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test \
+#     --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract
+# восстановление файла из бэкапа (/tmp/opencode/mut177/reactions.rs.bak), сверка md5.
+# Итог после всех прогонов: 1cb0952e95d5c237add7b4b16332bcb2 (совпадает с REPORT.md).
+
+=== MUTATION: M1 non-empty body b"{}" in add_reaction_empty_body
+exit=101 killed=True compile_error=False
+  fail: test add_reaction_empty_body_sends_zero_byte_put_and_accepts_204 ... FAILED
+  fail: test add_reaction_empty_body_encodes_custom_emoji_and_validates_before_transport ... FAILED
+  fail: test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== MUTATION: M2 skip channel/message/emoji validation before put_empty_body
+exit=101 killed=True compile_error=False
+  fail: test add_reaction_empty_body_encodes_custom_emoji_and_validates_before_transport ... FAILED
+  fail: test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== MUTATION: M3 legacy add_reaction no longer sends b"{}"
+exit=101 killed=True compile_error=False
+  fail: test legacy_add_reaction_still_sends_json_body_for_backward_compatibility ... FAILED
+  fail: test discord_reaction_api_transport_handles_204_no_content_and_put_delete_routing ... FAILED
+  fail: test idempotent_toggle_helper_adds_when_inactive_and_removes_when_active ... FAILED
+  fail: test result: FAILED. 13 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== MUTATION: M4 custom/unicode emoji not percent-encoded in path
+exit=101 killed=True compile_error=False
+  fail: test custom_and_unicode_emoji_encoding_and_route_construction ... FAILED
+  fail: test add_reaction_empty_body_sends_zero_byte_put_and_accepts_204 ... FAILED
+  fail: test add_reaction_empty_body_encodes_custom_emoji_and_validates_before_transport ... FAILED
+  fail: test discord_reaction_api_transport_handles_204_no_content_and_put_delete_routing ... FAILED
+  fail: test result: FAILED. 12 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== MUTATION: M5 misclassify 429/403/404 in add_reaction_empty_body
+exit=101 killed=True compile_error=False
+  fail: test add_reaction_empty_body_handles_204_and_maps_429_403_404_401_5xx_network ... FAILED
+  fail: test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+restored: 1cb0952e95d5c237add7b4b16332bcb2  rust/gui-spike/src/reactions.rs
+
+# Итог: 5/5 killed, ни одна мутация не привела к ошибке компиляции.
+
+# Базовая линия до мутаций:
+#   lib: 17 passed; 0 failed
+#   reactions_contract: 16 passed; 0 failed
+#   clippy --test reactions_contract --lib -- -D warnings: exit=0, 0 warnings
+#   rustfmt --edition 2021 --check: exit=0

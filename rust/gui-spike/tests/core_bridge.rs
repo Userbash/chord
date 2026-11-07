@@ -269,6 +269,8 @@ fn non_numeric_id_is_parse_error_not_panic() {
         reply_to: None,
         mentions: Vec::new(),
         mention_everyone: false,
+        flags: None,
+        call: None,
     };
     let err = core_bridge::message_from_row(&row).expect_err("нечисловой id — ошибка");
     assert_eq!(err.kind(), "Parse", "{err}");

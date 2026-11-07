@@ -1,0 +1,173 @@
+# snapshot 2026-10-30T17:00:33+05:00
+# command: node --test tests/meta/*.test.mjs (repeat)
+▶ backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS
+  ✔ документы существуют: бэклог, два анализа, карта (5.969733ms)
+  ✔ волны R4/R5/R6/D присутствуют и карточек не меньше минимума (1.241041ms)
+  ✔ у каждой карточки уникальный ID и заполненные поля (≥ 6 колонок) (1.017419ms)
+  ✔ README.md и TASKS.md ссылаются на бэклог и анализы (0.608116ms)
+  ✔ docs/map.md содержит Mermaid-граф с референсами и бэклогом (0.436994ms)
+✔ backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS (10.332191ms)
+▶ QA-M2-04: CI browser-job (pinned Chromium, без live)
+  ✔ qa-browser job существует, ubuntu, ограничен по времени (4.001035ms)
+  ✔ Chromium закреплён по точной версии и проброшен в CHROME_BIN (0.563015ms)
+  ✔ preflight: отсутствие браузера — fail, а не skip (0.191422ms)
+  ✔ fixture-набор без live: live-* исключён, прогон последовательный (0.338873ms)
+  ✔ live/CDP не запускаются в qa-browser (0.349263ms)
+  ✔ artifacts `.gate` выгружаются всегда, даже при падении (0.793827ms)
+  ✔ live job вынесен отдельно и выключен по умолчанию (0.215342ms)
+  ✔ Node-версия job согласована с package.json engines (1.584194ms)
+  ✔ Rust-джобы не изменены по контракту (0.265632ms)
+  ✔ workflow остаётся read-only и не получает прав на запись (3.497261ms)
+✔ QA-M2-04: CI browser-job (pinned Chromium, без live) (13.101776ms)
+▶ DP-01: breakpoints SPEC §5.1
+  ✔ токены по ширинам: 311/256 → 240/240 → 240 → 200 (2.101629ms)
+  ✔ дефолт 1200–1599 — базовые токены, без media-переопределения (0.134271ms)
+  ✔ style.css: member panel скрыт на 960–1199, tree — на <720 (1.407013ms)
+  ✔ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.335063ms)
+  ✔ chat ≥ 520 на 960–1199 и отсутствие горизонтального скролла shell (0.511155ms)
+  ✔ aria/screen-switch: скрытие только CSS, aria-hidden — только на .screen (0.598266ms)
+✔ DP-01: breakpoints SPEC §5.1 (6.085963ms)
+▶ docs-sync: README ↔ команды CLI
+  ✔ каждая команда из HELP упомянута в README.md (4.034765ms)
+✔ docs-sync: README ↔ команды CLI (4.860193ms)
+▶ M2 e2e: обязательный browser-набор
+  ✔ реестр сценариев объявляет ровно 7 уникальных M2-сценариев (1.08737ms)
+  ✔ M2-01: Login → READY → rail — файл есть, сценарий помечен, skip-пути нет (0.392733ms)
+  ✔ M2-02: Канал → send/reply/edit/delete — файл есть, сценарий помечен, skip-пути нет (0.176441ms)
+  ✔ M2-03: Search remote error → no fallback — файл есть, сценарий помечен, skip-пути нет (0.128491ms)
+  ✔ M2-04: Join invite → preview → accept → rail — файл есть, сценарий помечен, skip-пути нет (0.162592ms)
+  ✔ M2-05: Settings density/theme → reload — файл есть, сценарий помечен, skip-пути нет (0.143791ms)
+  ✔ M2-06: Reconnect/offline → retry — файл есть, сценарий помечен, skip-пути нет (0.127741ms)
+  ✔ M2-07: Voice panel disabled/idle — файл есть, сценарий помечен, skip-пути нет (0.148631ms)
+  ✔ harness и fake-транспорт существуют, без skip-пути (0.300492ms)
+  ✔ нет браузера ⇒ InfraError (fail), а не skip (0.424674ms)
+  ✔ fake transport: ok/err/seq/byArg, журнал вызовов, persist настроек, события, audio (1.674824ms)
+  ✔ fake transport не содержит утечек секретов по умолчанию (0.160911ms)
+  ✔ гейт: skipped>0 в e2e — failed, а не зелёный pass (failOnSkips + minPass) (0.331953ms)
+  ✔ ui-сервер: настоящий index.html + инъекция fake-транспорта, app.js не переписан (33.726949ms)
+  ✔ все 7 файлов попадают в fixture-набор гейта (и live-* исключён) (0.203222ms)
+✔ M2 e2e: обязательный browser-набор (40.268917ms)
+▶ fixtures-tracked: tests/fixtures целиком попадает в git
+  ✔ каждый файл tests/fixtures отслеживается git (не скрыт .gitignore) (8.747587ms)
+✔ fixtures-tracked: tests/fixtures целиком попадает в git (9.601715ms)
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (1.505703ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.288342ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.260393ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.192302ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.191832ms)
+✔ ipc-path: синтетика (red-proof сканера) (3.43104ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (3.33259ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (4.472499ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (2.29509ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (15.80266ms)
+✔ ipc-path: текущий код спайка (26.274502ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.688556ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (0.877597ms)
+  ✔ capability окна ограничена core:default (0.196101ms)
+✔ ipc-path: файловые плагины не подключены (1.946407ms)
+▶ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча
+  ✔ в файле нет skip()-хелпера и его вызовов (0.769387ms)
+  ✔ ровно 12 #[test] и 12 #[ignore] с причиной live-keyring (1.12778ms)
+  ✔ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.287133ms)
+  ✔ в телах live-кейсов нет раннего return под видом skip (0.454994ms)
+  ✔ имена и число кейсов не изменились (0.393614ms)
+  ✔ пороги security-кейсов не ослаблены (0.719787ms)
+  ✔ live_guard различает not-enabled, tool-missing и service-unavailable (0.126511ms)
+✔ PLAT-02 T1: live keyring-кейсы помечены ignore, а не возвращаются молча (4.846373ms)
+▶ PLAT-02 T2: live-фаза гейта видима и не пропускается
+  ✔ фаза keyring-live объявлена и запускает ignored-набор cargo (0.454084ms)
+  ✔ live-флаг включается только фазой release/qualify (0.294612ms)
+  ✔ failOnSkips превращает skip в failed, а не в warning (0.308302ms)
+  ✔ cargoTestCounts по-прежнему считает ignored как skipped (0.500324ms)
+✔ PLAT-02 T2: live-фаза гейта видима и не пропускается (1.802826ms)
+▶ PLAT-02 T3: cargo подтверждает ignored-набор
+  ✔ в дефолтном прогоне 0 passed и 12 ignored (34.03091ms)
+  ✔ --list --ignored перечисляет ровно 12 кейсов k01…k12 (22.214476ms)
+✔ PLAT-02 T3: cargo подтверждает ignored-набор (56.375879ms)
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (6.932072ms)
+  ✖ каждая строка §8 указывает на существующий тест; токены встречаются в нём (7.205254ms)
+  ✔ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.123119ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (1.231701ms)
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.490583ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (20.026177ms)
+▶ rust-client-sync: план Rust-клиента цел и синхронен
+  ✔ пакет docs/rust-client на месте и непуст (4.121506ms)
+  ✔ индекс ссылается на все документы пакета (0.612525ms)
+  ✔ графы Mermaid есть; карта проекта получила слой 8 (0.589055ms)
+  ✔ каталог функций: ≥100 уникальных F-ID и все 14 групп (1.214741ms)
+  ✔ тест-план: ≥110 уникальных T-ID, все группы, манифест фикстур (0.460104ms)
+  ✔ тест-план: расширенные уровни L0–L7, приёмка и нефункциональный контур (0.373953ms)
+  ✔ mutation-ledger: сводка по волнам, классы мутантов и разбор survivors (0.328593ms)
+  ✔ security: модель угроз, границы доверия и чек-листы (0.293172ms)
+  ✔ план: сквозной контур качества Q-01…Q-14 (0.440964ms)
+  ✔ план: волны P0–P8, ≥60 карточек, уникальные ID (0.523585ms)
+  ✔ репозиторные доки ссылаются на план (живые ссылки) (0.576686ms)
+  ✔ RC-07: фикстуры и каркас на месте и согласованы (1.324342ms)
+  ✔ RC-08: отчёт верификации сырья — полный (0.420284ms)
+  ✔ трассировка и строение описывают все группы (0.417353ms)
+✔ rust-client-sync: план Rust-клиента цел и синхронен (13.117206ms)
+▶ TEST-POLICY: запрет ослабления тестов
+  ✔ политика существует и содержит обязательные разделы (0.700047ms)
+  ✔ в тестах нет .only, todo и пустых assert (9.081701ms)
+  ✔ скрипты не обходят хуки и проверки (0.522885ms)
+  ✔ гейт содержит обязательные фазы (0.171872ms)
+  ✔ гейт запускает Rust workspace целиком, а не только gui-spike (0.450714ms)
+✔ TEST-POLICY: запрет ослабления тестов (11.821705ms)
+▶ QA-M2-01: e2e-skip не является прохождением
+  ✔ failOnSkips превращает skip в провал фазы (пример, а не декларация) (0.340353ms)
+  ✔ без failOnSkips тот же skip не валит фазу (unit/smoke skip-aware) (0.100551ms)
+  ✔ нулевой pass — e2e_unmet даже без skip (0.111641ms)
+  ✔ выполненный набор без skip и fail проходит (0.160272ms)
+  ✔ вердикт при упавшей e2e-фазе — failed, а не passed_with_skips (0.254923ms)
+  ✔ live-фаза без среды — passed_with_unmet, не passed и не skip (0.129201ms)
+  ✔ Rust ignored не смешивается с e2e-skip (0.128372ms)
+  ✔ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.194561ms)
+  ✔ приёмка запрещена без fixture-доказательства и без live в qualify (0.150671ms)
+  ✔ fixture-набор e2e исключает live и объявлен с failOnSkips (0.198902ms)
+  ✔ live-фаза отдельная и только в qualify (0.194462ms)
+  ✔ оба результата повтора сохраняются в attempts[] (0.181552ms)
+✔ QA-M2-01: e2e-skip не является прохождением (2.608283ms)
+▶ waves-sync: журнал волн восстановим
+  ✔ README.md, STATE.md и db.jsonl на месте (5.939423ms)
+  ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (8.97751ms)
+  ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (1.06836ms)
+✔ waves-sync: журнал волн восстановим (16.905089ms)
+ℹ tests 102
+ℹ suites 17
+ℹ pass 101
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 116.754762
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:118:3
+✖ каждая строка §8 указывает на существующий тест; токены встречаются в нём (7.205254ms)
+  AssertionError [ERR_ASSERTION]: токены из §8 не встречаются в своих тестах
+  + actual - expected
+  
+  + [
+  +   'tests/unit/composer.test.mjs: `initComposer`',
+  +   'tests/unit/server-menu.test.mjs: `DISABLED_REASON_TEXT`',
+  +   'tests/unit/server-menu.test.mjs: `initActions`',
+  +   'tests/unit/server-menu.test.mjs: `leaveFailureText`'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:137:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/unit/composer.test.mjs: `initComposer`', 'tests/unit/server-menu.test.mjs: `DISABLED_REASON_TEXT`', 'tests/unit/server-menu.test.mjs: `initActions`', 'tests/unit/server-menu.test.mjs: `leaveFailureText`' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+EXIT=1

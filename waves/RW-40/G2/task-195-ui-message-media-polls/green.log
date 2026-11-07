@@ -1,0 +1,25 @@
+▶ isSafeAttachmentUrl
+  ✔ пропускает только https://, blob: и asset: URL (0.403338ms)
+  ✔ отклоняет javascript:, data:, http:// и пустые значения (0.088459ms)
+✔ isSafeAttachmentUrl (1.079203ms)
+▶ renderMessageAttachments
+  ✔ рендерит карточки с data-attachment-id, data-attachment-kind и русским размером через formatFileSizeRu (0.725495ms)
+  ✔ определяет data-attachment-kind по contentType при расширении общего вида (0.123909ms)
+  ✔ блокирует небезопасные javascript: и data: URL и не вызывает onDownload для них (0.613936ms)
+  ✔ выставляет data-spoiler="hidden", aria-expanded="false" и бейдж «СПОЙЛЕР» для spoiler=true и SPOILER_ файла, раскрывая по клику (0.222778ms)
+✔ renderMessageAttachments (1.863198ms)
+▶ createPollWidget
+  ✔ рендерит вопрос, варианты с голосами и процентами, подсветку лидера (data-leading="true") и футер истечения (0.492437ms)
+  ✔ при нуле голосов ни один вариант не помечается data-leading="true" (0.398928ms)
+  ✔ поддерживает одиночный выбор (single-select) и отправляет голос через кнопку «Голосовать» (0.260238ms)
+  ✔ поддерживает мультивыбор (multiselect) с учётом maxChoices (0.218008ms)
+  ✔ блокирует выбор и кнопку «Голосовать», когда опрос завершён (expired) (0.162479ms)
+✔ createPollWidget (1.729939ms)
+ℹ tests 11
+ℹ suites 3
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.930223

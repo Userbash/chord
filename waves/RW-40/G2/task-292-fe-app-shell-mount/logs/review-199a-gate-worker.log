@@ -1,0 +1,197 @@
+
+> discord-function-lab@0.1.0 gate:worker
+> node scripts/gate.mjs --scope worker
+
+
+✔ typecheck — 0.4 с
+✔ ui-tsc — 0.3 с
+✔ meta — 1.2 с (тесты 102: pass 102, fail 0, skip 0)
+✔ unit — 3.6 с (тесты 1941: pass 1941, fail 0, skip 0)
+✖ spike-rust — 13.0 с [код выхода ≠ 0]
+   
+   running 9 tests
+   test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+   test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+   test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+   test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+   test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+   test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+   test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+   test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+   test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+   
+   failures:
+   
+   ---- every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main stdout ----
+   
+   thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (320133) panicked at tests/ipc_wiring_contract.rs:1158:5:
+   assertion `left == right` failed: множество всех найденных UI IPC-команд (включая AUTH_COMMANDS, JOIN_COMMANDS, NET_COMMANDS, READY_COMMAND) должно быть равно ровно 38 командам: ["accept_invite", "ack_message", "attachments_upload_put", "attachments_upload_slots", "auth_login_password", "auth_login_token", "auth_logout", "auth_mfa", "auth_restore", "auth_sms", "auth_status", "channels", "create_invite", "delete_message", "edit_message", "join_guild", "leave_guild", "messages_page", "net_connect", "net_status", "pins_list", "process_metrics", "read_state", "ready", "reply_message", "report_bench", "report_ui_snapshot", "resolve_invite", "search_remote", "send_message", "send_typing", "settings_load", "settings_save", "spike_config", "threads_list", "update_channel_notification_override", "update_guild_notification_settings"]
+     left: 37
+    right: 38
+   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+   
+   
+   failures:
+       every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+   
+   test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+   
+        Locking 4 packages to highest compatible versions
+         Adding jobserver v0.1.35
+         Adding zstd v0.14.3
+         Adding zstd-safe v8.2.0
+         Adding zstd-sys v2.1.2+zstd.1.5.7
+      Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-codec)
+      Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-json)
+      Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-platform)
+      Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike)
+      Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-core)
+       Finished `test` profile [unoptimized + debuginfo] target(s) in 11.50s
+        Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-8e41e2cb7a33998a)
+        Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-2a4610afc01a6de0)
+        Running tests/attachments_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/attachments_contract-35c7c9ee145b1c19)
+        Running tests/auth_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/auth_contract-ace10aa74d40df94)
+        Running tests/automod_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/automod_contract-7a57d88bf2b31f5a)
+        Running tests/bff_domains_router_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/bff_domains_router_contract-a0bb4013842d4a36)
+        Running tests/channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/channels_contract-1cb6150dc05253ed)
+        Running tests/core_bridge.rs (/home/sanya/orca/project/rust/target/debug/deps/core_bridge-3c8655ad34ae7102)
+        Running tests/data_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/data_contract-e56b284fa6b33574)
+        Running tests/dm_channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_channels_contract-81d0af1c309c3b53)
+        Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-87fcbf08462ea532)
+        Running tests/expressions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/expressions_contract-edd6a2a9e37e4e00)
+        Running tests/forum_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/forum_contract-e0d93ef0ba52ee4e)
+        Running tests/guilds_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/guilds_contract-6606314a7310e605)
+        Running tests/history_before_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/history_before_contract-d4d92ca381f0403c)
+        Running tests/invites_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/invites_contract-64c7f15982b70679)
+        Running tests/ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_contract-49abb5db1a649cbc)
+        Running tests/ipc_ext_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_ext_contract-55ca11259d83c4dd)
+        Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-15e345211bf223ea)
+   error: test failed, to rerun pass `--test ipc_wiring_contract`
+   
+✖ workspace-rust — 4.9 с [код выхода ≠ 0]
+   307 |             assert_eq!(routed.to_stream_action(), Some(Ok(expected_action.clone())));
+       |                               ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `is_stream` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:394:20
+       |
+   394 |             routed.is_stream(),
+       |                    ^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `parse_stream_with_diagnostics` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:401:14
+       |
+   400 |           let res_event = routed
+       |  _________________________-
+   401 | |             .parse_stream_with_diagnostics(&mut diag_event)
+       | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+       | |_____________|
+       |
+   
+   error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:415:28
+       |
+   415 |             assert!(routed.to_stream_action().unwrap().is_err());
+       |                            ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `is_stream` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:467:25
+       |
+   467 |         assert!(!routed.is_stream());
+       |                         ^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `stream_kind` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:469:27
+       |
+   469 |         assert_eq!(routed.stream_kind(), None);
+       |                           ^^^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `parse_stream` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:470:27
+       |
+   470 |         assert_eq!(routed.parse_stream(), None);
+       |                           ^^^^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:471:27
+       |
+   471 |         assert_eq!(routed.to_stream_action(), None);
+       |                           ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+   
+   error[E0599]: no method named `to_stream_action` found for struct `DispatchEvent` in the current scope
+      --> crates/discord-core/tests/dispatch_types.rs:581:34
+       |
+   581 |                     match routed.to_stream_action() {
+       |                                  ^^^^^^^^^^^^^^^^ method not found in `DispatchEvent`
+   
+   Some errors have detailed explanations: E0432, E0599.
+   For more information about an error, try `rustc --explain E0432`.
+   error: could not compile `discord-core` (test "dispatch_types") due to 21 previous errors
+   warning: build failed, waiting for other jobs to finish...
+   
+✖ smoke — 1.0 с (тесты 22: pass 19, fail 2, skip 1) [код выхода ≠ 0]
+     ✔ без аргументов и без logs/calls-*.jsonl (cwd) → код 1 с подсказкой (19.97798ms)
+     ﹣ полный реальный voice-лог: stdout и CSV совпадают с независимым оракулом (0.41751ms) # отсутствует logs/calls-voice-28170.jsonl
+   ✔ discord-lab summarize (46.573354ms)
+   ℹ tests 22
+   ℹ suites 8
+   ℹ pass 19
+   ℹ fail 2
+   ℹ cancelled 0
+   ℹ skipped 1
+   ℹ todo 0
+   ℹ duration_ms 936.33598
+   
+   ✖ failing tests:
+   
+   test at tests/smoke/gui-spike.smoke.test.mjs:22:3
+   ✖ открывает окно и публикует проверяемый DOM-снимок (0.998151ms)
+     AssertionError [ERR_ASSERTION]: нет бинарника /home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/target/debug/discord-gui-spike: на дисплее smoke обязателен (cargo build)
+         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/smoke/gui-spike.smoke.test.mjs:30:14)
+         at Test.runInAsyncScope (node:async_hooks:226:14)
+         at Test.run (node:internal/test_runner/test:1402:25)
+         at Test.start (node:internal/test_runner/test:1262:17)
+         at node:internal/test_runner/test:1903:71
+         at node:internal/per_context/primordials:505:82
+         at new Promise (<anonymous>)
+         at new SafePromise (node:internal/per_context/primordials:479:3)
+         at node:internal/per_context/primordials:505:9
+         at Array.map (<anonymous>) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: undefined,
+       expected: undefined,
+       operator: 'fail',
+       diff: 'simple'
+     }
+   
+   test at tests/smoke/gui-window.smoke.test.mjs:16:3
+   ✖ находит окно, элементы и снимает PNG (76.99802ms)
+     AssertionError [ERR_ASSERTION]: gui-window-probe: FAIL: нет бинарника /home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/target/debug/discord-gui-spike (соберите: cargo build)
+     
+     
+     1 !== 0
+     
+         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/smoke/gui-window.smoke.test.mjs:35:14)
+         at Test.runInAsyncScope (node:async_hooks:226:14)
+         at Test.run (node:internal/test_runner/test:1402:25)
+         at Test.start (node:internal/test_runner/test:1262:17)
+         at node:internal/test_runner/test:1903:71
+         at node:internal/per_context/primordials:505:82
+         at new Promise (<anonymous>)
+         at new SafePromise (node:internal/per_context/primordials:479:3)
+         at node:internal/per_context/primordials:505:9
+         at Array.map (<anonymous>) {
+       generatedMessage: false,
+       code: 'ERR_ASSERTION',
+       actual: 1,
+       expected: 0,
+       operator: 'strictEqual',
+       diff: 'simple'
+     }
+   
+
+Отчёт гейта: /home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/.gate/worker-2026-10-31T07-20-45-799Z.json
+⚠ smoke: пропущено 1 тестов — пропуск прохождением не считается
+Вердикт: failed
+Приёмка: н/д (worker-гейт)

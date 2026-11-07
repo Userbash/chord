@@ -1,0 +1,114 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-157-state-reducer-deletes-channels/rust/crates/discord-core)
+warning: unused imports: `ChannelInfo` and `Message`
+  --> crates/discord-core/tests/state_contract.rs:13:5
+   |
+13 |     ChannelInfo, Event, EventPayload, Message, State, apply, apply_frame,
+   |     ^^^^^^^^^^^                       ^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `atom`
+  --> crates/discord-core/tests/state_contract.rs:15:30
+   |
+15 | use support::state_fixture::{atom, frame, int, list, map, text};
+   |                              ^^^^
+
+error[E0599]: no variant, associated function, or constant named `ChannelCreate` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/state_contract.rs:57:36
+   |
+57 |             payload: EventPayload::ChannelCreate(ChannelLifecycleDispatch {
+   |                                    ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `MessageDelete` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/state_contract.rs:79:36
+   |
+79 |             payload: EventPayload::MessageDelete(MessageDeleteDispatch {
+   |                                    ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+   |
+help: there is a variant with a similar name
+   |
+79 -             payload: EventPayload::MessageDelete(MessageDeleteDispatch {
+79 +             payload: EventPayload::MessageCreate(MessageDeleteDispatch {
+   |
+
+error[E0599]: no variant, associated function, or constant named `MessageDelete` found for enum `EventPayload` in the current scope
+  --> crates/discord-core/tests/state_contract.rs:96:36
+   |
+96 |             payload: EventPayload::MessageDelete(MessageDeleteDispatch {
+   |                                    ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+   |
+help: there is a variant with a similar name
+   |
+96 -             payload: EventPayload::MessageDelete(MessageDeleteDispatch {
+96 +             payload: EventPayload::MessageCreate(MessageDeleteDispatch {
+   |
+
+error[E0599]: no variant, associated function, or constant named `ChannelCreate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:117:36
+    |
+117 | ...yload: EventPayload::ChannelCreate(ChannelLifecycleDispatch {
+    |                         ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `MessageDeleteBulk` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:141:36
+    |
+141 | ...yload: EventPayload::MessageDeleteBulk(MessageDeleteBulkDispatch {
+    |                         ^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ChannelCreate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:169:36
+    |
+169 | ...yload: EventPayload::ChannelCreate(ChannelLifecycleDispatch {
+    |                         ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ChannelUpdate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:190:36
+    |
+190 | ...yload: EventPayload::ChannelUpdate(ChannelLifecycleDispatch {
+    |                         ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ChannelCreate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:216:36
+    |
+216 | ...yload: EventPayload::ChannelCreate(ChannelLifecycleDispatch {
+    |                         ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ChannelCreate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:252:40
+    |
+252 | ...yload: EventPayload::ChannelCreate(ChannelLifecycleDispatch {
+    |                         ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ChannelDelete` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:279:36
+    |
+279 | ...yload: EventPayload::ChannelDelete(ChannelLifecycleDispatch {
+    |                         ^^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ThreadCreate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:314:36
+    |
+314 |             payload: EventPayload::ThreadCreate(ThreadLifecycleDispatch {
+    |                                    ^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ThreadUpdate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:336:36
+    |
+336 |             payload: EventPayload::ThreadUpdate(ThreadLifecycleDispatch {
+    |                                    ^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ThreadCreate` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:364:36
+    |
+364 |             payload: EventPayload::ThreadCreate(ThreadLifecycleDispatch {
+    |                                    ^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+error[E0599]: no variant, associated function, or constant named `ThreadDelete` found for enum `EventPayload` in the current scope
+   --> crates/discord-core/tests/state_contract.rs:387:36
+    |
+387 |             payload: EventPayload::ThreadDelete(ThreadLifecycleDispatch {
+    |                                    ^^^^^^^^^^^^ variant, associated function, or constant not found in `EventPayload`
+
+For more information about this error, try `rustc --explain E0599`.
+warning: `discord-core` (test "state_contract") generated 2 warnings
+error: could not compile `discord-core` (test "state_contract") due to 14 previous errors; 2 warnings emitted

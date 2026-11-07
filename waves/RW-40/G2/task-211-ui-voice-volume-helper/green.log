@@ -1,0 +1,33 @@
+▶ voice-volume: константы
+  ✔ границы пользовательской и устройственной громкости (0.35579ms)
+✔ voice-volume: константы (0.9317ms)
+▶ voice-volume: clampUserVolume
+  ✔ пропускает значения внутри диапазона (0.15386ms)
+  ✔ обрезает выход за диапазон (0.07892ms)
+  ✔ округляет дробные значения до целого (0.07456ms)
+  ✔ нечисловые входы дают значение по умолчанию (0.13668ms)
+✔ voice-volume: clampUserVolume (0.638599ms)
+▶ voice-volume: clampDeviceVolume
+  ✔ пропускает и обрезает по 0..100 (0.1587ms)
+  ✔ округляет дробные значения (0.08436ms)
+  ✔ нечисловые входы дают 100 (0.10111ms)
+✔ voice-volume: clampDeviceVolume (0.50301ms)
+▶ voice-volume: computeAudioGainMultiplier
+  ✔ переводит проценты в множитель (0.12224ms)
+  ✔ обрезает и округляет вход (0.11693ms)
+  ✔ нечисловой вход трактуется как 100% (0.07861ms)
+  ✔ mute или deaf дают 0 (0.052649ms)
+✔ voice-volume: computeAudioGainMultiplier (0.498209ms)
+▶ voice-volume: formatVolumeLabelRu
+  ✔ обычный процент (0.11154ms)
+  ✔ mute даёт «Без звука» даже при ненулевом объёме (0.04389ms)
+  ✔ нечисловой вход как 100% (0.03397ms)
+✔ voice-volume: formatVolumeLabelRu (0.27075ms)
+ℹ tests 15
+ℹ suites 5
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.23893

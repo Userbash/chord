@@ -7,10 +7,28 @@
 //!
 //! Provenance and the 8-packet capture oracle: `waves/RW-26/research/RE-VOICE-STATS.md`.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 
 /// RTP clock rate for Opus (48 kHz).
 pub const OPUS_CLOCK_RATE: u32 = 48_000;
+
+/// Число моно-сэмплов в одном 20 мс кадре при 48 кГц (`Serein/crates/discord-voice/src/lib.rs:L23`).
+pub const PCM_FRAME_SAMPLES: usize = 960;
+
+/// Минимальный множитель громкости микшера (`0.0` = 0%).
+pub const MIN_MIXER_VOLUME: f32 = 0.0;
+
+/// Стандартный множитель громкости микшера (`1.0` = 100%).
+pub const DEFAULT_MIXER_VOLUME: f32 = 1.0;
+
+/// Максимальный множитель громкости микшера (`2.0` = 200%).
+pub const MAX_MIXER_VOLUME: f32 = 2.0;
+
+/// Максимальное число одновременно микшируемых участников (`Serein/crates/discord-voice/src/mixer.rs:L93`).
+pub const MAX_MIXER_PARTICIPANTS: usize = 64;
+
+/// Один 20 мс моно PCM-кадр при 48 кГц.
+pub type PcmFrame = [f32; PCM_FRAME_SAMPLES];
 
 /// Threshold used to detect 16-bit sequence wrap (RFC 3550 A.1).
 const SEQ_HALF: i32 = 32_768;
@@ -222,6 +240,292 @@ fn extend_sequence(sequence: u16, highest: u32) -> u32 {
     }
 }
 
+/// Мягкий лимитер `tanh` для предотвращения жёсткого клиппинга при одновременном разговоре
+/// нескольких участников и воспроизведении звука демонстрации экрана (`P1.4`).
+#[must_use]
+pub fn soft_limit_tanh(sample: f32) -> f32 {
+    if sample.is_nan() {
+        0.0
+    } else {
+        sample.tanh().clamp(-1.0, 1.0)
+    }
+}
+
+fn clamp_volume(volume: f32) -> f32 {
+    if volume.is_nan() {
+        DEFAULT_MIXER_VOLUME
+    } else {
+        volume.clamp(MIN_MIXER_VOLUME, MAX_MIXER_VOLUME)
+    }
+}
+
+/// Раздельный микшер громкости участников (`HashMap<u64, f32>`) и независимого регулятора
+/// громкости демонстрации экрана `stream_volume` (`0.0..=2.0`) с мягким лимитером `tanh`
+/// (`P1.4`, эталон `Serein/crates/discord-voice/src/mixer.rs:95-165`).
+#[derive(Debug, Clone)]
+pub struct StreamVoiceMixer {
+    participant_volumes: HashMap<u64, f32>,
+    stream_volume: f32,
+    ssrc_to_user: HashMap<u32, u64>,
+    participant_buffers: BTreeMap<u64, VecDeque<f32>>,
+    stream_buffer: VecDeque<f32>,
+    active_speakers: BTreeSet<u64>,
+}
+
+/// Псевдоним типа микшера по эталону `Serein`.
+pub type Mixer = StreamVoiceMixer;
+
+impl Default for StreamVoiceMixer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl StreamVoiceMixer {
+    /// Создаёт новый микшер с пустой картой индивидуальных громкостей и `stream_volume = 1.0`.
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            participant_volumes: HashMap::new(),
+            stream_volume: DEFAULT_MIXER_VOLUME,
+            ssrc_to_user: HashMap::new(),
+            participant_buffers: BTreeMap::new(),
+            stream_buffer: VecDeque::new(),
+            active_speakers: BTreeSet::new(),
+        }
+    }
+
+    /// Карта индивидуальных громкостей участников (`user_id -> 0.0..=2.0`).
+    #[must_use]
+    pub fn participant_volumes(&self) -> &HashMap<u64, f32> {
+        &self.participant_volumes
+    }
+
+    /// Возвращает текущий множитель громкости участника (`0.0..=2.0`, по умолчанию `1.0`).
+    #[must_use]
+    pub fn participant_volume(&self, user_id: u64) -> f32 {
+        self.participant_volumes
+            .get(&user_id)
+            .copied()
+            .unwrap_or(DEFAULT_MIXER_VOLUME)
+    }
+
+    /// Устанавливает индивидуальную громкость участника с клампом в `0.0..=2.0`.
+    /// Не затрагивает `stream_volume`.
+    pub fn set_participant_volume(&mut self, user_id: u64, volume: f32) -> f32 {
+        let clamped = clamp_volume(volume);
+        self.participant_volumes.insert(user_id, clamped);
+        clamped
+    }
+
+    /// Устанавливает индивидуальную громкость участника в процентах (`0..=200%`).
+    pub fn set_participant_volume_percent(&mut self, user_id: u64, percent: u16) -> f32 {
+        let multiplier = f32::from(percent.min(200)) / 100.0;
+        self.set_participant_volume(user_id, multiplier)
+    }
+
+    /// Независимая громкость звука демонстрации экрана (`0.0..=2.0`).
+    #[must_use]
+    pub fn stream_volume(&self) -> f32 {
+        self.stream_volume
+    }
+
+    /// Устанавливает независимую громкость демонстрации экрана с клампом в `0.0..=2.0`.
+    /// Не затрагивает громкости участников.
+    pub fn set_stream_volume(&mut self, volume: f32) -> f32 {
+        let clamped = clamp_volume(volume);
+        self.stream_volume = clamped;
+        clamped
+    }
+
+    /// Устанавливает громкость демонстрации экрана в процентах (`0..=200%`).
+    pub fn set_stream_volume_percent(&mut self, percent: u16) -> f32 {
+        let multiplier = f32::from(percent.min(200)) / 100.0;
+        self.set_stream_volume(multiplier)
+    }
+
+    /// Синхронизирует карту громкостей участников при перерисовке UI без сброса `stream_volume`.
+    pub fn sync_ui_participant_volumes(&mut self, volumes: &HashMap<u64, f32>) {
+        self.participant_volumes.clear();
+        for (&user_id, &vol) in volumes.iter().take(MAX_MIXER_PARTICIPANTS) {
+            self.participant_volumes.insert(user_id, clamp_volume(vol));
+        }
+    }
+
+    /// Регистрирует привязку SSRC к `user_id` (с защитой от коллизии SSRC между разными участниками,
+    /// по эталону `Serein/crates/discord-voice/src/mixer.rs:20-50`).
+    pub fn announce(&mut self, user_id: u64, ssrc: u32) -> Result<(), &'static str> {
+        if let Some(&existing_user) = self.ssrc_to_user.get(&ssrc)
+            && existing_user != user_id
+        {
+            return Err("Voice SSRC belongs to another participant");
+        }
+        if self.ssrc_to_user.get(&ssrc) == Some(&user_id)
+            && self.participant_buffers.contains_key(&user_id)
+        {
+            return Ok(());
+        }
+        self.ssrc_to_user.retain(|_, &mut u| u != user_id);
+        if !self.participant_buffers.contains_key(&user_id)
+            && self.participant_buffers.len() >= MAX_MIXER_PARTICIPANTS
+        {
+            return Err("Voice decoder budget exceeded");
+        }
+        self.ssrc_to_user.insert(ssrc, user_id);
+        self.participant_buffers.entry(user_id).or_default();
+        Ok(())
+    }
+
+    /// Удаляет участника и освобождает его буферы (сохраняя индивидуальные настройки громкости и `stream_volume`).
+    pub fn remove_participant(&mut self, user_id: u64) {
+        self.ssrc_to_user.retain(|_, &mut u| u != user_id);
+        self.participant_buffers.remove(&user_id);
+        self.active_speakers.remove(&user_id);
+    }
+
+    /// Находит `user_id` по `ssrc`.
+    #[must_use]
+    pub fn user_for_ssrc(&self, ssrc: u32) -> Option<u64> {
+        self.ssrc_to_user.get(&ssrc).copied()
+    }
+
+    /// Добавляет декодированные PCM-сэмплы участника в очередь микширования.
+    pub fn push_participant_pcm(&mut self, user_id: u64, samples: &[f32]) {
+        if !self.participant_buffers.contains_key(&user_id)
+            && self.participant_buffers.len() >= MAX_MIXER_PARTICIPANTS
+        {
+            return;
+        }
+        let buf = self.participant_buffers.entry(user_id).or_default();
+        let max_buffered = PCM_FRAME_SAMPLES * 6;
+        if buf.len().saturating_add(samples.len()) > max_buffered {
+            let drop_count = (buf.len() + samples.len()).saturating_sub(max_buffered);
+            buf.drain(..drop_count.min(buf.len()));
+        }
+        buf.extend(samples.iter().copied());
+    }
+
+    /// Добавляет декодированные PCM-сэмплы по `ssrc` (если `ssrc` зарегистрирован за участником).
+    pub fn push_ssrc_pcm(&mut self, ssrc: u32, samples: &[f32]) -> bool {
+        let Some(user_id) = self.user_for_ssrc(ssrc) else {
+            return false;
+        };
+        self.push_participant_pcm(user_id, samples);
+        true
+    }
+
+    /// Добавляет декодированные PCM-сэмплы потока демонстрации экрана (Go Live).
+    /// По эталону `Serein` (`stream_playout.rs`) удерживает не более 2 кадров (40 мс), чтобы не накапливать задержку.
+    pub fn push_stream_pcm(&mut self, samples: &[f32]) {
+        let max_stream_samples = PCM_FRAME_SAMPLES * 2;
+        if self.stream_buffer.len().saturating_add(samples.len()) > max_stream_samples {
+            let drop_count =
+                (self.stream_buffer.len() + samples.len()).saturating_sub(max_stream_samples);
+            self.stream_buffer
+                .drain(..drop_count.min(self.stream_buffer.len()));
+        }
+        self.stream_buffer.extend(samples.iter().copied());
+    }
+
+    /// Очищает очереди PCM-сэмплов без сброса настроек громкости `participant_volumes` и `stream_volume`.
+    pub fn clear(&mut self) {
+        for buf in self.participant_buffers.values_mut() {
+            buf.clear();
+        }
+        self.stream_buffer.clear();
+        self.active_speakers.clear();
+    }
+
+    /// Итератор по `user_id` участников, имевших ненулевую энергию сигнала в последнем кадре.
+    pub fn speaking(&self) -> impl Iterator<Item = u64> + '_ {
+        self.active_speakers.iter().copied()
+    }
+
+    /// Микширует один 20 мс кадр (`960` сэмплов) с текущими `participant_volumes` и `stream_volume`.
+    pub fn pop(&mut self) -> (Option<PcmFrame>, bool) {
+        let empty = HashMap::new();
+        self.pop_with_volumes(&empty, None)
+    }
+
+    /// Микширует один 20 мс кадр (`960` сэмплов) с переданными громкостями участников
+    /// (`HashMap<u64, f32>`) и независимой громкостью стрима (если `stream_volume_override == None`,
+    /// используется сохранённый `self.stream_volume`), применяя мягкий лимитер `tanh`.
+    pub fn pop_with_volumes(
+        &mut self,
+        volumes: &HashMap<u64, f32>,
+        stream_volume_override: Option<f32>,
+    ) -> (Option<PcmFrame>, bool) {
+        for (&user_id, &vol) in volumes.iter().take(MAX_MIXER_PARTICIPANTS) {
+            self.participant_volumes.insert(user_id, clamp_volume(vol));
+        }
+        if let Some(stream_vol) = stream_volume_override {
+            self.stream_volume = clamp_volume(stream_vol);
+        }
+
+        let mut output = [0.0_f32; PCM_FRAME_SAMPLES];
+        let mut active = false;
+        let mut heard = false;
+        self.active_speakers.clear();
+
+        for (&user_id, buf) in self
+            .participant_buffers
+            .iter_mut()
+            .take(MAX_MIXER_PARTICIPANTS)
+        {
+            if buf.is_empty() {
+                continue;
+            }
+            let gain = self
+                .participant_volumes
+                .get(&user_id)
+                .copied()
+                .map_or(DEFAULT_MIXER_VOLUME, clamp_volume);
+            let count = PCM_FRAME_SAMPLES.min(buf.len());
+            let mut energy = 0.0_f32;
+            for (idx, sample) in buf.drain(..count).enumerate() {
+                if sample.is_finite() {
+                    output[idx] += sample * gain;
+                    energy += sample * sample;
+                    if sample.abs() > 0.0 {
+                        heard = true;
+                    }
+                }
+            }
+            if count > 0 {
+                active = true;
+            }
+            if energy > 1e-6 {
+                self.active_speakers.insert(user_id);
+            }
+        }
+
+        if !self.stream_buffer.is_empty() {
+            let count = PCM_FRAME_SAMPLES.min(self.stream_buffer.len());
+            let stream_gain = clamp_volume(self.stream_volume);
+            for (idx, sample) in self.stream_buffer.drain(..count).enumerate() {
+                if stream_gain > 0.0 && sample.is_finite() {
+                    output[idx] += sample * stream_gain;
+                    if sample.abs() > 0.0 {
+                        heard = true;
+                    }
+                }
+            }
+            if count > 0 {
+                active = true;
+            }
+        }
+
+        if active {
+            for sample in &mut output {
+                *sample = soft_limit_tanh(*sample);
+            }
+            (Some(output), heard)
+        } else {
+            (None, false)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -231,5 +535,96 @@ mod tests {
         assert_eq!(extend_sequence(0, 65_535), 65_536);
         assert_eq!(extend_sequence(1, 65_536), 65_537);
         assert_eq!(extend_sequence(65_534, 65_535), 65_534);
+    }
+
+    #[test]
+    fn mixer_separates_participant_volumes_from_stream_volume_and_preserves_on_ui_rerender() {
+        let mut mixer = StreamVoiceMixer::new();
+        assert!((mixer.stream_volume() - 1.0).abs() < 1e-6);
+        assert!((mixer.participant_volume(101) - 1.0).abs() < 1e-6);
+
+        // Установка громкости демонстрации экрана (0.0..=2.0) не влияет на участников.
+        assert!((mixer.set_stream_volume(1.5) - 1.5).abs() < 1e-6);
+        assert!((mixer.stream_volume() - 1.5).abs() < 1e-6);
+        assert!((mixer.participant_volume(101) - 1.0).abs() < 1e-6);
+
+        // Клампинг граничных значений (0.0..=2.0 и 0..=200%).
+        assert!((mixer.set_stream_volume(3.5) - 2.0).abs() < 1e-6);
+        assert!((mixer.set_stream_volume(-0.5) - 0.0).abs() < 1e-6);
+        assert!((mixer.set_stream_volume_percent(125) - 1.25).abs() < 1e-6);
+
+        assert!((mixer.set_participant_volume(101, 0.5) - 0.5).abs() < 1e-6);
+        assert!((mixer.set_participant_volume(102, 2.5) - 2.0).abs() < 1e-6);
+        assert!((mixer.set_participant_volume_percent(103, 75) - 0.75).abs() < 1e-6);
+
+        // Перерисовка UI обновляет громкости участников, но НЕ сбрасывает stream_volume.
+        let mut ui_volumes = HashMap::new();
+        ui_volumes.insert(101, 0.8);
+        ui_volumes.insert(102, 1.2);
+        mixer.sync_ui_participant_volumes(&ui_volumes);
+        assert!((mixer.stream_volume() - 1.25).abs() < 1e-6);
+        assert!((mixer.participant_volume(101) - 0.8).abs() < 1e-6);
+        assert!((mixer.participant_volume(102) - 1.2).abs() < 1e-6);
+    }
+
+    #[test]
+    fn pop_with_volumes_mixes_participants_and_stream_independently_with_tanh_soft_limiter() {
+        let mut mixer = StreamVoiceMixer::new();
+        mixer.announce(1, 11).unwrap();
+        mixer.announce(2, 22).unwrap();
+        // Коллизия SSRC с другим пользователем отклоняется.
+        assert!(mixer.announce(3, 11).is_err());
+        assert_eq!(mixer.user_for_ssrc(11), Some(1));
+
+        mixer.set_stream_volume(0.5);
+        assert!(mixer.push_ssrc_pcm(11, &[0.4; PCM_FRAME_SAMPLES]));
+        assert!(mixer.push_ssrc_pcm(22, &[0.2; PCM_FRAME_SAMPLES]));
+        mixer.push_stream_pcm(&[0.6; PCM_FRAME_SAMPLES]);
+
+        let mut overrides = HashMap::new();
+        overrides.insert(1, 1.0); // 0.4 * 1.0 = 0.4
+        overrides.insert(2, 0.5); // 0.2 * 0.5 = 0.1
+        // Stream: 0.6 * 0.5 = 0.3 -> сумма до лимитера = 0.8 -> tanh(0.8)
+        let (frame, heard) = mixer.pop_with_volumes(&overrides, None);
+        let frame = frame.expect("mixed frame should be present");
+        assert!(heard);
+        let expected = 0.8_f32.tanh();
+        for sample in frame {
+            assert!(
+                (sample - expected).abs() < 1e-5,
+                "sample={sample}, expected={expected}"
+            );
+        }
+        assert_eq!(mixer.speaking().collect::<Vec<_>>(), vec![1, 2]);
+
+        // Изменение stream_volume в 0.0 заглушает только поток демки, голоса участников остаются.
+        mixer.set_stream_volume(0.0);
+        mixer.push_participant_pcm(1, &[0.4; PCM_FRAME_SAMPLES]);
+        mixer.push_stream_pcm(&[0.9; PCM_FRAME_SAMPLES]);
+        let (frame_muted_stream, _) = mixer.pop_with_volumes(&overrides, None);
+        let frame_muted_stream = frame_muted_stream.unwrap();
+        let expected_voice_only = 0.4_f32.tanh();
+        for sample in frame_muted_stream {
+            assert!((sample - expected_voice_only).abs() < 1e-5);
+        }
+
+        // Проверка мягкого лимитера tanh при перегрузке (сумма > 1.0 не даёт жёсткой ступеньки 1.0, но < 1.0).
+        mixer.set_stream_volume(2.0);
+        mixer.push_participant_pcm(1, &[0.9; PCM_FRAME_SAMPLES]);
+        mixer.push_participant_pcm(2, &[0.9; PCM_FRAME_SAMPLES]);
+        mixer.push_stream_pcm(&[0.9; PCM_FRAME_SAMPLES]);
+        let mut loud = HashMap::new();
+        loud.insert(1, 2.0);
+        loud.insert(2, 2.0);
+        let (overloaded, _) = mixer.pop_with_volumes(&loud, None);
+        let overloaded = overloaded.unwrap();
+        let raw_sum: f32 = 0.9 * 2.0 + 0.9 * 2.0 + 0.9 * 2.0;
+        let expected_tanh = raw_sum.tanh();
+        for sample in overloaded {
+            assert!((sample - expected_tanh).abs() < 1e-5);
+            assert!(sample <= 1.0 && sample > 0.99);
+        }
+        assert_eq!(soft_limit_tanh(f32::NAN), 0.0);
+        assert_eq!(soft_limit_tanh(f32::INFINITY), 1.0);
     }
 }

@@ -1,0 +1,79 @@
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✔ клик по каждому disabled-пункту ничего не меняет (36.502309ms)
+  ✔ Enter/Space на disabled-пункте — no-op (guard в самом обработчике) (23.691854ms)
+  ✔ capability=true не включает invite до G-06: disabled + not-implemented (11.462054ms)
+✔ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (72.424692ms)
+▶ G-05 D2: roving tabindex переезжает вместе с фокусом
+  ✔ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (12.724304ms)
+✔ G-05 D2: roving tabindex переезжает вместе с фокусом (12.863755ms)
+▶ G-05 D3: Esc и Tab не переключают экран
+  ✔ Esc из открытого меню на экране «Настройки» оставляет settings (10.881069ms)
+  ✔ Tab закрывает меню, фокус на opener, default не отменяется (9.531968ms)
+✔ G-05 D3: Esc и Tab не переключают экран (20.578378ms)
+▶ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола
+  ✔ клик по плитке гильдии закрывает меню, но фокус не на opener (10.526266ms)
+  ✔ клик по body закрывает меню и возвращает фокус на opener (9.75782ms)
+✔ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола (20.454237ms)
+▶ G-05 D4: копирование ID — успех только из resolved writeText
+  ✔ resolved writeText → «ID скопирован» тем же id, без утечки id в консоль (8.924033ms)
+  ✔ reject writeText → ошибка, ложного успеха нет (22.138981ms)
+  ✔ нет clipboard API → видимая ошибка, ложного успеха нет (8.330508ms)
+  ✔ пустой/битый id → «ID сервера неизвестен», writeText не вызывается (7.937984ms)
+✔ G-05 D4: копирование ID — успех только из resolved writeText (47.532818ms)
+▶ G-05 D6: причины disabled машиночитаемы и озвучиваемы
+  ✔ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (8.938963ms)
+  ✔ приоритет причин: owner > capability-unknown > not-implemented (10.406594ms)
+  ✔ один polite-статус #server-status и один hidden-узел причины на причину (9.919771ms)
+✔ G-05 D6: причины disabled машиночитаемы и озвучиваемы (29.41815ms)
+▶ G-05: #4 subtitle и #5 aria-checked — только из проекции
+  ✔ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (10.024802ms)
+  ✔ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (11.104201ms)
+  ✔ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (7.628982ms)
+✔ G-05: #4 subtitle и #5 aria-checked — только из проекции (28.948246ms)
+▶ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор
+  ✖ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (8.085406ms)
+✖ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (8.46051ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✔ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (13.991964ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (9.721649ms)
+✔ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (23.829495ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✔ false/true/absent → invite всегда disabled, без диалога и IPC (8.231637ms)
+✔ G-05 T-05-08: capability invite не выводится из ролей (8.316648ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✔ disabled-активация не пишет в #server-status; leave — ровно один статус (9.071944ms)
+✔ G-05 T-05-16: статус меню единственный (9.157045ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✔ меню: ширина/высота с клампом по viewport и прокрутка (0.366743ms)
+  ✔ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.177822ms)
+  ✔ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.289142ms)
+  ✔ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.211492ms)
+✔ G-05 D9/D5: геометрия CSS — статическая проверка контракта (1.183559ms)
+ℹ tests 27
+ℹ suites 12
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 327.239574
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:559:3
+✖ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (8.085406ms)
+  AssertionError [ERR_ASSERTION]: кнопка активна сразу после 429
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:576:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:560:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: null,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

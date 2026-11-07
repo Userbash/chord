@@ -1,0 +1,90 @@
+# MUTATIONS LOG: P-03-UI-TYPING-INDICATOR
+Модуль: rust/gui-spike/ui/features/typing-indicator.js
+Тестовый набор: tests/unit/gui-spike-dom.test.mjs
+
+## Мутация 1: Форматирование русского текста для 2 человек
+- Описание: замена `if (names.length === 2) return \`${names[0]} и \${names[1]} печатают…\`;` на разделитель с запятой `\`, \` вместо `\` и \`.
+- Диф:
+```diff
+-  if (names.length === 2) return `${names[0]} и ${names[1]} печатают…`;
++  if (names.length === 2) return `${names[0]}, ${names[1]} печатают…`;
+```
+- Результат: **CAUGHT**
+- Падение в тесте: `форматирование русского текста: 1, 2, 3 и >3 человек`
+```
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
++ 'Alice, Bob печатают…'
+- 'Alice и Bob печатают…'
+```
+
+## Мутация 2: Игнорирование собственного currentUserId
+- Описание: отключение проверки `if (currentUserId && userId === currentUserId) return false;` в `onTypingStart`.
+- Диф:
+```diff
+-  if (currentUserId && userId === currentUserId) return false;
++  // if (currentUserId && userId === currentUserId) return false;
+```
+- Результат: **CAUGHT**
+- Падение в тесте: `игнорирование собственного currentUserId`
+```
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+'active' !== 'idle'
+```
+
+## Мутация 3: Вытеснение самого старого канала при превышении лимита 5 каналов
+- Описание: отключение вытеснения `channels.delete(oldestChannelId)` при `channels.size >= maxChannels`.
+- Диф:
+```diff
+-      if (channels.size >= maxChannels) {
+-        const oldestChannelId = channels.keys().next().value;
+-        if (oldestChannelId !== undefined) {
+-          channels.delete(oldestChannelId);
+-        }
+-      }
++      /* eviction disabled */
+```
+- Результат: **CAUGHT**
+- Падение в тесте: `хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого)`
+```
+AssertionError [ERR_ASSERTION]: c1 должен быть вытеснен как самый старый
++ actual - expected
++ 'Alice печатает…'
+- ''
+```
+
+## Мутация 4: Валидация пустого/пробельного ввода в notifyInput
+- Описание: удаление guard-проверки `if (typeof text !== "string" || text.trim().length === 0) return { sent: false, reason: "empty" };`.
+- Диф:
+```diff
+-    if (typeof text !== "string" || text.trim().length === 0) {
+-      return { sent: false, reason: "empty" };
+-    }
++    /* empty check disabled */
+```
+- Результат: **CAUGHT**
+- Падение в тесте: `исходящий notifyInput: игнорирование пустого ввода и троттлинг TYPING_RESEND_MS`
+```
+AssertionError [ERR_ASSERTION]: пустой ввод не должен вызывать send_typing
+1 !== 0
+```
+
+## Мутация 5: Выставление data-state='slowmode' при ошибке 429 RateLimited
+- Описание: удаление `element?.setAttribute("data-state", "slowmode");` при обработке ошибки 429 в `notifyInput`.
+- Диф:
+```diff
+       if (isRateLimit) {
+         const retryAfterMs = Number(bag.retry_after_ms ?? bag.retryAfterMs ?? bag.retryAfter ?? 0) || resendMs;
+         blockedUntil = at + retryAfterMs;
+-        element?.setAttribute("data-state", "slowmode");
+         return { sent: false, reason: "slowmode", retryAfterMs, error };
+       }
+```
+- Результат: **CAUGHT**
+- Падение в тесте: `ошибка 429 RateLimited выставляет data-state='slowmode' и блокирует повторную отправку`
+```
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+'idle' !== 'slowmode'
+```
+
+ИТОГО: 5 мутаций из 5 пойманы (100% caught rate).

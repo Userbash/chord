@@ -1,0 +1,157 @@
+▶ GUI spike: настоящий app.js в DOM-шиме
+  ✔ лимит композера 2000, IPC payload не содержит токен/пароль (31.27438ms)
+  ✔ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (21.515095ms)
+  ✔ #auth-gate: новый id из index.html есть в шиме и не считается экраном (13.532242ms)
+  ✔ шапка чата: колокол между ветками и закреплёнными (VW-01, D-17) (5.606899ms)
+  ✔ подарок в композере: disabled-affordance в index.html и в шиме (P1 REVIEW-W39h) (6.001749ms)
+  ✔ четыре экрана: rail-btn делает себя active, заголовок меняется (6.50518ms)
+  ✔ чат: 100 000 строк, sizer = сумма оракульных высот, в DOM десятки строк, а не сотни тысяч (15.481005ms)
+  ✔ чат: top строки = префикс оракульных высот (26/48/+22), а не index*44 (8.095623ms)
+  ✔ участники: 24 229 строк, sizer = total*42, окно ≥10 и << total (6.20307ms)
+  ✔ скролл участников: окно меняется, старые строки удалены, DOM не растёт (6.04553ms)
+  ✔ скролл чата: окно меняется, старые строки удалены, DOM не растёт (6.710561ms)
+  ✔ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (7.052261ms)
+  ✔ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (4.797028ms)
+  ✔ эмодзи-сетка: listbox с option-ячейками и доступными именами (P1-2) (6.093099ms)
+  ✔ эмодзи-поиск фильтрует сетку, повторные рендеры не дублируют ячейки (8.866544ms)
+  ✔ настройки: 38 чекбоксов в 3 группах, состояния из дампа (SET-06/07/08) (4.834608ms)
+  ✔ клик по тумблеру меняет checked и не создаёт новых тумблеров (4.836307ms)
+  ✔ UI_SNAPSHOT: все поля контракта и actions=true (7.853473ms)
+  ✔ autobench=false: report_ui_snapshot один раз, report_bench не вызывается (4.241977ms)
+  ✔ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (4.434877ms)
+  ✔ нет дублей: строка чата всегда ровно с одним .author и одним .text (8.780894ms)
+  ✔ граничный скролл не бросает: верх, низ, за концом, отрицательный (5.85313ms)
+  ✔ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (6.838791ms)
+  ✔ скрытый экран рисует только overscan, показ экрана перерисовывает окно (4.728437ms)
+  ✔ при обычной работе нет console.error и предупреждений виртуализации (5.227249ms)
+✔ GUI spike: настоящий app.js в DOM-шиме (213.007832ms)
+▶ чат-вью P3-02: новые блоки не ломают инварианты списка
+  ✔ QuickSwitcher host и ресурсы доступны отдельно от четырёх frozen экранов (7.437022ms)
+  ✔ extras живут внутри .text, у строки по-прежнему ровно 2 ребёнка (8.743664ms)
+  ✔ D-13: unread-полоса 34 и блок группы участников 42 — из токенов, не литералов (9.877696ms)
+  ✔ окно данных не растёт от новых панелей: loadedRows ≤ 500, inFlight пуст (5.454079ms)
+✔ чат-вью P3-02: новые блоки не ломают инварианты списка (31.720121ms)
+▶ P-03-UI: контроллер индикатора набора и исходящего typing
+  ✔ константы TYPING_TTL_MS, TYPING_RESEND_MS и MAX_TYPING_CHANNELS экспортированы корректно (0.09672ms)
+  ✔ прогрессивное создание узла #chat-typing-indicator с нужными атрибутами и переиспользование (4.868608ms)
+  ✔ форматирование русского текста: 1, 2, 3 и >3 человек (4.744087ms)
+  ✔ игнорирование собственного currentUserId (5.824079ms)
+  ✔ автоматическое истечение через TYPING_TTL_MS и мгновенное снятие по onMessageCreated (4.365727ms)
+  ✔ хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого) (4.290967ms)
+  ✔ исходящий notifyInput: игнорирование пустого ввода и троттлинг TYPING_RESEND_MS (7.981503ms)
+  ✔ ошибка 429 RateLimited выставляет data-state='slowmode' и блокирует повторную отправку (4.185306ms)
+  ✔ прочие ошибки invoke выставляют data-state='error' (4.194797ms)
+✔ P-03-UI: контроллер индикатора набора и исходящего typing (40.839605ms)
+▶ FE-P0-04 (task-149): монтирование реакций в chat.js без нарушения DOM-инвариантов
+  ✖ chat.js монтирует reactions controller: клик по пилюле даёт класс .active, панель открывает #reaction-picker-popover (9 категорий), contextmenu открывает #reaction-users-modal (7.728773ms)
+✖ FE-P0-04 (task-149): монтирование реакций в chat.js без нарушения DOM-инвариантов (8.137503ms)
+▶ FE-P0-04 (task-149): интеграция createReactionsController и chat.js
+  ✖ экспортирует createReactionsController и 9 категорий пикера реакций (1.809183ms)
+  ✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (41.404166ms)
+  ✖ всплывающая панель действий (.message-action-toolbar / .msg-hover-toolbar): быстрые реакции, открытие 9-категорийного #reaction-picker-popover и ответ (11.353688ms)
+  ✖ открывает модалку «Кто поставил реакцию» (#reaction-users-modal, вкладки Обычные type=0 и Супер-реакции type=1) из контекстного меню пилюли реакции (7.869352ms)
+  ✖ корректно очищает обработчики, поповеры и модалки при перерисовке и destroy() (6.628631ms)
+✖ FE-P0-04 (task-149): интеграция createReactionsController и chat.js (70.092472ms)
+ℹ tests 44
+ℹ suites 5
+ℹ pass 38
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 344.173122
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-dom.test.mjs:1104:3
+✖ chat.js монтирует reactions controller: клик по пилюле даёт класс .active, панель открывает #reaction-picker-popover (9 категорий), contextmenu открывает #reaction-users-modal (7.728773ms)
+  AssertionError [ERR_ASSERTION]: клик по пилюле должен выставить класс .active
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/gui-spike-dom.test.mjs:1126:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/reactions-ui.test.mjs:50:3
+✖ экспортирует createReactionsController и 9 категорий пикера реакций (1.809183ms)
+  AssertionError [ERR_ASSERTION]: reactions.js должен экспортировать createReactionsController
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:52:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/reactions-ui.test.mjs:70:3
+✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (41.404166ms)
+  TypeError [Error]: reactionsMod.createReactionsController is not a function
+      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:83:41
+      at async withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:74:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/reactions-ui.test.mjs:176:3
+✖ всплывающая панель действий (.message-action-toolbar / .msg-hover-toolbar): быстрые реакции, открытие 9-категорийного #reaction-picker-popover и ответ (11.353688ms)
+  AssertionError [ERR_ASSERTION]: в DOM должна быть панель .message-action-toolbar / .msg-hover-toolbar
+      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:190:16
+      at async withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:177:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/reactions-ui.test.mjs:288:3
+✖ открывает модалку «Кто поставил реакцию» (#reaction-users-modal, вкладки Обычные type=0 и Супер-реакции type=1) из контекстного меню пилюли реакции (7.869352ms)
+  AssertionError [ERR_ASSERTION]: contextmenu на пилюле должен вызывать preventDefault()
+  
+  false !== true
+  
+      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:300:16
+      at async withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:292:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/reactions-ui.test.mjs:366:3
+✖ корректно очищает обработчики, поповеры и модалки при перерисовке и destroy() (6.628631ms)
+  TypeError [Error]: reactionsMod.createReactionsController is not a function
+      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:403:39
+      at withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:369:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

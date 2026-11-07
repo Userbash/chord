@@ -1,0 +1,28 @@
+▶ SETTINGS_TABS_RU и дефолтная конфигурация
+  ✔ содержит замороженный список из 5 разделов настроек с русскими подписями (0.70474ms)
+✔ SETTINGS_TABS_RU и дефолтная конфигурация (1.27715ms)
+▶ createSettingsModalController: open() и рендер диалога
+  ✔ open() рендерит полноэкранный диалог (role='dialog', aria-modal='true', data-settings-open='true'), боковую навигацию, активную панель, 'Закрыть (ESC)' и 'Выйти из аккаунта' (0.88667ms)
+  ✔ open(initialTab) открывает указанную валидную вкладку и откатывается на 'appearance' при невалидной (0.22798ms)
+✔ createSettingsModalController: open() и рендер диалога (1.24839ms)
+▶ createSettingsModalController: setTab(tabId)
+  ✔ переключает активную вкладку, обновляет aria-selected='true'|'false' и панель контента (0.75523ms)
+  ✔ игнорирует невалидные tabId без изменения активной вкладки и поддерживает клик по вкладке в сайдбаре (0.23296ms)
+✔ createSettingsModalController: setTab(tabId) (1.14581ms)
+▶ createSettingsModalController: updateSetting(key, value)
+  ✔ обновляет внутреннее состояние по всем ключам настроек и вызывает onUpdateConfig({ ...state }) с копией (0.32819ms)
+  ✔ синхронизирует DOM-контролы вкладок с updateSetting (0.2507ms)
+✔ createSettingsModalController: updateSetting(key, value) (0.82054ms)
+▶ createSettingsModalController: confirmLogout() и close()
+  ✔ confirmLogout() открывает диалог подтверждения 'Вы уверены, что хотите выйти?' и вызывает onLogout() только после подтверждения (0.27872ms)
+  ✔ close() и кнопка 'Закрыть (ESC)' удаляют модальное окно и вызывают onClose() (0.16889ms)
+  ✔ нажатие Escape на диалоге закрывает модальное окно, а невалидный containerEl бросает TypeError (0.34366ms)
+✔ createSettingsModalController: confirmLogout() и close() (0.91743ms)
+ℹ tests 10
+ℹ suites 5
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.273625

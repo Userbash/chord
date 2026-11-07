@@ -1,0 +1,25 @@
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.96557ms)
+✔ COMPOSER_POPOVER_LAYERS (1.645111ms)
+▶ resolveComposerDraftPopover
+  ✔ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.33691ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.19469ms)
+✔ resolveComposerDraftPopover (0.68154ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.40567ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.1483ms)
+  ✔ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (6.251034ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.15597ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.66217ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.332181ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.12807ms)
+  ✔ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.20712ms)
+✔ createComposerPopoversBridge (8.664036ms)
+ℹ tests 11
+ℹ suites 3
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.181482

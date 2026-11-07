@@ -1,0 +1,52 @@
+=== M-13 MUTATION TESTING LOG ===
+Baseline MD5 rust/gui-spike/ui/features/search.js: d43971eba87ff56d59a70c9d7ed2a0e2
+Baseline MD5 rust/gui-spike/ui/features/search-overlay.js: 0bcea1b4a328b0794ee371f090f12530
+
+--- M1: computeIndexingRetryDelayMs: Retry-After >= 0 вместо > 0 (0 не уходит в дефолт 5000ms) ---
+File: rust/gui-spike/ui/features/search.js
+Result: KILLED (exit code 1)
+    ✖ T-M13-202-02: HTTP 202 при Retry-After '0', '0.25' или без заголовка (и при IPC retry_after_ms) использует контрактную задержку / fallback 5000 мс (0.80559ms)
+  ✖ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (139.800379ms)
+  ✖ failing tests:
+  ✖ T-M13-202-02: HTTP 202 при Retry-After '0', '0.25' или без заголовка (и при IPC retry_after_ms) использует контрактную задержку / fallback 5000 мс (0.80559ms)
+    AssertionError [ERR_ASSERTION]: Retry-After: 0 не ушёл в дефолт 5000 мс
+
+--- M2: isAgeGatedSpacesRestricted: пропуск проверки ADULT_VERIFICATION_STATUSES [3, 4] ---
+File: rust/gui-spike/ui/features/search.js
+Result: KILLED (exit code 1)
+    ✖ T-M13-NSFW-04: при AGE_GATED_SPACES=1 и age_verification_status=2 (teen) didAgree=false даже при сохранённом согласии, режим underage (0.64298ms)
+  ✖ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (143.842162ms)
+  ✖ failing tests:
+  ✖ T-M13-NSFW-04: при AGE_GATED_SPACES=1 и age_verification_status=2 (teen) didAgree=false даже при сохранённом согласии, режим underage (0.64298ms)
+    AssertionError [ERR_ASSERTION]: не-взрослый при AGE_GATED_SPACES=1 не может пройти гейт даже с записью в сторе
+
+--- M3: searchDateBounds: before использует конец дня T23:59:59.999Z вместо начала дня T00:00:00.000Z ---
+File: rust/gui-spike/ui/features/search.js
+Result: KILLED (exit code 1)
+    ✖ T-M13-CHIPS-01..03: объектная форма searchDateBounds({ date, before, after }) и синхронизация чипов фильтров (1.217081ms)
+  ✖ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (139.119619ms)
+  ✖ failing tests:
+  ✖ T-M13-CHIPS-01..03: объектная форма searchDateBounds({ date, before, after }) и синхронизация чипов фильтров (1.217081ms)
+    AssertionError [ERR_ASSERTION]: searchDateBounds({ before, after }) вернул неверные границы snowflake
+
+--- M4: handleIndexingResponse: лимит повторов > 10 вместо > SEARCH_MAX_INDEXING_ATTEMPTS (5) ---
+File: rust/gui-spike/ui/features/search-overlay.js
+Result: KILLED (exit code 1)
+    ✖ T-M13-202-03: лимит 5 автоматических повторов (6 запросов 202 подряд) переводит баннер в exhausted с кнопкой повтора (14.756157ms)
+  ✖ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (145.137012ms)
+  ✖ failing tests:
+  ✖ T-M13-202-03: лимит 5 автоматических повторов (6 запросов 202 подряд) переводит баннер в exhausted с кнопкой повтора (14.756157ms)
+    AssertionError [ERR_ASSERTION]: после 5 повторов не должен создаваться новый таймер
+
+--- M5: fetchRemote: снятие блокировки потолка пагинации requestOffset > MAX_SEARCH_OFFSET (9975) ---
+File: rust/gui-spike/ui/features/search-overlay.js
+Result: KILLED (exit code 1)
+    ✖ T-M13-PAGE-01: потолок пагинации MAX_SEARCH_OFFSET = 9975 / MAX_SEARCH_PAGES = 400 блокирует переход далее 400 страницы с предупреждением E+2azY (31.298946ms)
+  ✖ M-13: HTTP 202 Indexing, NSFW Gating, Filter Chips & MAX_SEARCH_OFFSET=9975 (138.341328ms)
+  ✖ failing tests:
+  ✖ T-M13-PAGE-01: потолок пагинации MAX_SEARCH_OFFSET = 9975 / MAX_SEARCH_PAGES = 400 блокирует переход далее 400 страницы с предупреждением E+2azY (31.298946ms)
+    AssertionError [ERR_ASSERTION]: запрос с offset > 9975 не был заблокирован
+
+Restored MD5 rust/gui-spike/ui/features/search.js: d43971eba87ff56d59a70c9d7ed2a0e2 (match=true)
+Restored MD5 rust/gui-spike/ui/features/search-overlay.js: 0bcea1b4a328b0794ee371f090f12530 (match=true)
+Summary: 5/5 KILLED

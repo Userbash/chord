@@ -1,0 +1,43 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running tests/session_contract.rs (/tmp/target-g5-voice/debug/deps/session_contract-1e1736ef44e4fc78)
+
+running 16 tests
+test t_v01_04_heartbeat_uses_op8_interval_and_h_seq_and_cancels_ack_timer_on_op6 ... ok
+test t_v01_02_happy_path_reaches_connected_only_on_op4_and_never_leaks_key_in_effects ... ok
+test t_v01_03_ordering_invariants_op1_requires_discovery_and_op4_before_op2_fails ... ok
+test t_v01_05_zombie_missing_op6_triggers_close_4000_and_reconnecting ... ok
+test t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection ... FAILED
+test t_v01_09_leave_requested_closes_cleanly_and_rejects_subsequent_events ... ok
+test t_v01_12_privacy_debug_display_snapshot_and_effects_redact_all_secrets ... ok
+test t_v01_10_op4_with_sdp_fails_closed_without_applying_key_or_mode ... ok
+test t_v01_16_loopback_udp_discovery_integrates_with_session_op2_to_op1 ... ok
+test t_v01_06_hello_join_and_description_timeouts_close_session_with_typed_errors ... ok
+test t_v01_14_select_protocol_op1_wire_parity_with_experiments_and_rtc_connection_id ... ok
+test t_v01_08_reconnect_follows_0_2000_5000_backoff_for_3_attempts_and_resets_on_op4 ... ok
+test t_v01_11_duplicate_op2_is_idempotent_mismatched_ssrc_fails_and_duplicate_op4_errors ... ok
+test t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect ... FAILED
+test t_v01_01_opcode_map_types_op6_and_passes_unknown_ops_without_state_change ... ok
+test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_is_panic_free ... ok
+
+failures:
+
+---- t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection stdout ----
+
+thread 't_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection' (325718) panicked at crates/discord-voice/tests/session_contract.rs:1166:5:
+Oversize обязан сохранять эффекты реконнекта
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect stdout ----
+
+thread 't_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect' (325712) panicked at crates/discord-voice/tests/session_contract.rs:722:9:
+TransportFailed обязан сохранять эффекты реконнекта для вызывающей стороны
+
+
+failures:
+    t_v01_07_close_code_classification_1000_closes_while_4000_4801_and_none_reconnect
+    t_v01_13_time_cap_saturating_clock_and_max_frame_bytes_protection
+
+test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-voice --test session_contract`

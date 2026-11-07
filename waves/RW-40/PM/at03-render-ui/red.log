@@ -1,0 +1,277 @@
+▶ AT-03: рендер карточек вложений в сообщениях чата
+  ✖ T-AT03-01: фильтрует IS_THUMBNAIL=2, пропускает пустые/опросы и сохраняет инвариант 2 детей .row (.author, .text) (2.249695ms)
+  ✖ T-AT03-02: классифицирует inline-медиа строго по расширению filename (Rr), а файлы без расширения, .svg и .psd направляет в file-card (0.301021ms)
+  ✖ T-AT03-03: строит сетку Mosaic (1..5+), сохраняет aspect-ratio (computeSingleMediaBox) и рендерит бейджи GIF, ALT и IS_REMIX=4 (0.353991ms)
+  ✖ T-AT03-04: управляет состояниями Skeleton (loading -> loaded / error) и активирует blurhash строго при placeholder_version === 1 (0.24777ms)
+  ✖ T-AT03-05: рендерит спойлер-оверлей 'СПОЙЛЕР' (IS_SPOILER=8, префикс SPOILER_, harm-флаги) и раскрывает в два шага по клику/Enter/Space (0.293771ms)
+  ✖ T-AT03-06: открывает #attachment-lightbox по клику на раскрытое изображение, листает стрелками и закрывает по Escape с возвратом фокуса (0.3001ms)
+  ✖ T-AT03-07: рендерит видео-вложение (постер proxy_url?format=webp, длительность m:ss, контролы и forceExternal > 6016×3384) (0.270511ms)
+  ✖ T-AT03-08 & T-AT03-09: разделяет AUDIO и VOICE_MESSAGE по MessageFlags.IS_VOICE_MESSAGE=8192 и декодирует base64 waveform (0.267861ms)
+  ✖ T-AT03-10: классифицирует все 15 типов файлов classifyFile (TX) и форматирует размеры в Б / КБ / МБ / ГБ (0.29078ms)
+  ✖ T-AT03-11: блокирует опасные URL через safeHref, парсит первый сегмент content_type, экранирует XSS и обновляет истёкшие CDN-ссылки (0.36516ms)
+  ✖ T-AT03-12: chat.css содержит все селекторы AT-03 и использует исключительно токены из rust/gui-spike/ui/tokens.css (0.280721ms)
+✖ AT-03: рендер карточек вложений в сообщениях чата (6.170803ms)
+ℹ tests 11
+ℹ suites 1
+ℹ pass 0
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.262251
+
+✖ failing tests:
+
+test at tests/unit/attachments-render.test.mjs:137:3
+✖ T-AT03-01: фильтрует IS_THUMBNAIL=2, пропускает пустые/опросы и сохраняет инвариант 2 детей .row (.author, .text) (2.249695ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.message-attachments», найдено 0
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:175:31
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:138:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:277:3
+✖ T-AT03-02: классифицирует inline-медиа строго по расширению filename (Rr), а файлы без расширения, .svg и .psd направляет в file-card (0.301021ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.attachments-mosaic», найдено 0
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:321:22
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:278:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:358:3
+✖ T-AT03-03: строит сетку Mosaic (1..5+), сохраняет aspect-ratio (computeSingleMediaBox) и рендерит бейджи GIF, ALT и IS_REMIX=4 (0.353991ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.attachments-mosaic», найдено 0
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:384:24
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:359:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:430:3
+✖ T-AT03-04: управляет состояниями Skeleton (loading -> loaded / error) и активирует blurhash строго при placeholder_version === 1 (0.24777ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:468:14
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:431:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:501:3
+✖ T-AT03-05: рендерит спойлер-оверлей 'СПОЙЛЕР' (IS_SPOILER=8, префикс SPOILER_, harm-флаги) и раскрывает в два шага по клику/Enter/Space (0.293771ms)
+  AssertionError [ERR_ASSERTION]: ожидались 2 медиа-элемента со спойлерами
+  
+  0 !== 2
+  
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:546:14
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:502:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:602:3
+✖ T-AT03-06: открывает #attachment-lightbox по клику на раскрытое изображение, листает стрелками и закрывает по Escape с возвратом фокуса (0.3001ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:639:14
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:603:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:685:3
+✖ T-AT03-07: рендерит видео-вложение (постер proxy_url?format=webp, длительность m:ss, контролы и forceExternal > 6016×3384) (0.270511ms)
+  AssertionError [ERR_ASSERTION]: ожидались 2 карточки видео-вложений
+  
+  0 !== 2
+  
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:707:14
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:686:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:755:3
+✖ T-AT03-08 & T-AT03-09: разделяет AUDIO и VOICE_MESSAGE по MessageFlags.IS_VOICE_MESSAGE=8192 и декодирует base64 waveform (0.267861ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.attachment-audio-card», найдено 0
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:769:25
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:756:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:819:3
+✖ T-AT03-10: классифицирует все 15 типов файлов classifyFile (TX) и форматирует размеры в Б / КБ / МБ / ГБ (0.29078ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.attachment-file-card», найдено 0
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:829:20
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:820:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:874:3
+✖ T-AT03-11: блокирует опасные URL через safeHref, парсит первый сегмент content_type, экранирует XSS и обновляет истёкшие CDN-ссылки (0.36516ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.attachment-file-card», найдено 0
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:927:24
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:875:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/attachments-render.test.mjs:953:3
+✖ T-AT03-12: chat.css содержит все селекторы AT-03 и использует исключительно токены из rust/gui-spike/ui/tokens.css (0.280721ms)
+  AssertionError [ERR_ASSERTION]: в chat.css отсутствует обязательный селектор .message-attachments
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:977:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

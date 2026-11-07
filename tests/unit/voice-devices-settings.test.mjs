@@ -1,0 +1,974 @@
+// @ts-check
+/**
+ * V-07-UI-VOICE-DEVICES (RW-40): контроллер «Голос и видео» — red-first тесты.
+ *
+ * Оракул — не реализация, а принятые контракты:
+ * - `rust/crates/discord-voice/src/devices.rs`: `isDefault`-откат при hot-plug,
+ *   `DeviceFallback` / `NoDeviceAvailable`, `effective_mute = user_mute || self_deaf`,
+ *   `DEFAULT_VAD_THRESHOLD_DB`, `DEFAULT_*_VOLUME`, `MAX_*_VOLUME`, `threshold_db: i8`;
+ * - `waves/RW-40/DESIGN/VOICE.md` §2.4, §3.1–§3.5 (mute/deafen, устройства, hot-plug,
+ *   PTT, клампинг громкости, ARIA);
+ * - `waves/RW-40/DESIGN/voice-spec.json` (`devices.sliders`: `OX2Bnr` 0..=100 = 100,
+ *   `aUJ062` 0..=200 = 100; `copy`: подписи `hHMYbb`, `dl18zb`, `OX2Bnr`, `aUJ062`,
+ *   `tG4Np5`, `o+BJQR`, `GCNMM8`, `sWmtI6`, `hK51Yg`, `nWRdnl`).
+ *
+ * Среда: DOM-шим RW-38 (`tests/support/gui-dom-harness.mjs`), без `fetch`,
+ * `WebSocket`, `navigator.mediaDevices` и IPC — карточка изолированная.
+ */
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { ShimDocument } from "../support/gui-dom-harness.mjs";
+import { createVoiceDevicesSettings } from "../../rust/gui-spike/ui/features/voice-devices-settings.js";
+import * as voiceDevicesModule from "../../rust/gui-spike/ui/features/voice-devices-settings.js";
+import { createSettingsConsole } from "../../rust/gui-spike/ui/features/settings.js";
+
+/** @typedef {import("../support/gui-dom-harness.mjs").ShimElement} ShimElement */
+/** @typedef {ReturnType<typeof createVoiceDevicesSettings>} Controller */
+/** @typedef {{ id: string, label: string, kind: "input" | "output", isDefault: boolean }} DeviceRow */
+
+const root = new URL("../../", import.meta.url);
+/** @param {string} relPath */
+function resolveOracleFile(relPath) {
+  const localPath = fileURLToPath(new URL(relPath, root));
+  if (existsSync(localPath)) return localPath;
+  return `/home/sanya/orca/project/${relPath}`;
+}
+const spec = JSON.parse(readFileSync(resolveOracleFile("waves/RW-40/DESIGN/voice-spec.json"), "utf8"));
+const rustDevices = readFileSync(
+  resolveOracleFile("rust/crates/discord-voice/src/devices.rs"),
+  "utf8",
+);
+const moduleSource = readFileSync(
+  fileURLToPath(
+    new URL("rust/gui-spike/ui/features/voice-devices-settings.js", root),
+  ),
+  "utf8",
+);
+
+/** Текст `[D]` из `copy`-таблицы спеки (не из модуля). @param {string} key */
+function copyText(key) {
+  const row = spec.copy.find((/** @type {any} */ entry) => entry.key === key);
+  assert.ok(row, `в voice-spec.json нет строки ${key}`);
+  return /** @type {string} */ (row.text);
+}
+
+/** Ползунок `[D]` из `devices.sliders` спеки. @param {string} key */
+function slider(key) {
+  const row = spec.devices.sliders.find((/** @type {any} */ entry) => entry.key === key);
+  assert.ok(row, `в voice-spec.json нет ползунка ${key}`);
+  return /** @type {{ min: number, max: number, value: number, text: string }} */ (row);
+}
+
+/** Числовая константа из контракта Rust. @param {string} name */
+function rustConst(name) {
+  const match = rustDevices.match(new RegExp(`${name}\\s*:\\s*\\w+\\s*=\\s*(-?\\d+)`, "u"));
+  assert.ok(match, `в devices.rs нет константы ${name}`);
+  return Number(match[1]);
+}
+
+/** Базовая матрица устройств: default-устройства идут не первыми. @type {DeviceRow[]} */
+const SAMPLE_DEVICES = [
+  { id: "mic-usb", label: "Система: USB Microphone", kind: "input", isDefault: false },
+  { id: "mic-builtin", label: "Система: Built-in Microphone", kind: "input", isDefault: true },
+  { id: "spk-hdmi", label: "Система: HDMI Output", kind: "output", isDefault: false },
+  { id: "spk-headset", label: "Система: Headset Earphone", kind: "output", isDefault: true },
+];
+
+/**
+ * Записывающий фейковый сервис: только вызовы, без сети/медиа.
+ * @param {Record<string, (...args: any[]) => unknown>} [overrides]
+ */
+function makeService(overrides = {}) {
+  /** @type {Array<{ op: string, args: any[] }>} */
+  const calls = [];
+  /**
+   * @param {string} op
+   * @returns {(...args: any[]) => Promise<unknown>}
+   */
+  const method = (op) => (...args) => {
+    calls.push({ op, args });
+    return Promise.resolve();
+  };
+  return {
+    calls,
+    selectInput: method("selectInput"),
+    selectOutput: method("selectOutput"),
+    setInputVolume: method("setInputVolume"),
+    setOutputVolume: method("setOutputVolume"),
+    setInputMode: method("setInputMode"),
+    setUserMute: method("setUserMute"),
+    setSelfDeaf: method("setSelfDeaf"),
+    setPttKey: method("setPttKey"),
+    ...overrides,
+  };
+}
+
+/**
+ * Контроллер в чистом шим-документе.
+ * @param {{ devices?: DeviceRow[], service?: ReturnType<typeof makeService> }} [options]
+ */
+function makeController(options = {}) {
+  const doc = new ShimDocument();
+  const host = doc.createElement("section");
+  host.id = "voice-devices";
+  doc.body.append(host);
+  const service = options.service ?? makeService();
+  /** @type {any[]} */
+  const events = [];
+  const controller = createVoiceDevicesSettings({
+    host: /** @type {any} */ (host),
+    devices: options.devices ?? SAMPLE_DEVICES,
+    service,
+    onDeviceEvent: (event) => events.push(event),
+  });
+  return { doc, host, service, events, controller };
+}
+
+/** @param {ShimElement} host @param {string} id */
+function byId(host, id) {
+  const node = /** @type {ShimElement | null} */ (host.querySelector(`#${id}`));
+  assert.ok(node, `в контроллере нет #${id}`);
+  return node;
+}
+
+/** @param {ShimElement} node @param {string} name */
+function attr(node, name) {
+  return node.getAttribute(name);
+}
+
+/** @param {ShimElement} node @returns {boolean} */
+function hidden(node) {
+  return node.getAttribute("hidden") !== null;
+}
+
+/** @param {ShimElement} node */
+function ariaLabel(node) {
+  const label = node.getAttribute("aria-label") ?? "";
+  assert.ok(label.trim().length > 0, `у #${node.id} нет aria-label`);
+  return label;
+}
+
+/** Вызовы сервиса по имени операции. @param {ReturnType<typeof makeService>} service @param {string} op */
+function callsOf(service, op) {
+  return service.calls.filter((call) => call.op === op);
+}
+
+describe("V-07 UI: устройства и режим активации («Голос и видео»)", () => {
+  it("начальное состояние: default-устройства и громкости из оракула", () => {
+    const { host, events, controller } = makeController();
+    const state = controller.getState();
+
+    assert.equal(state.selectedInput, "mic-builtin", "выбран default-микрофон, а не первый в списке");
+    assert.equal(state.selectedOutput, "spk-headset", "выбран default-выход, а не первый в списке");
+
+    const inputSlider = slider("OX2Bnr");
+    const outputSlider = slider("aUJ062");
+    assert.equal(state.inputVolume, inputSlider.value);
+    assert.equal(state.outputVolume, outputSlider.value);
+    assert.equal(rustConst("DEFAULT_INPUT_VOLUME"), state.inputVolume);
+    assert.equal(rustConst("DEFAULT_OUTPUT_VOLUME"), state.outputVolume);
+
+    const input = byId(host, "voice-devices-input");
+    const output = byId(host, "voice-devices-output");
+    assert.equal(input.children.length, 2, "в списке микрофонов два устройства");
+    assert.equal(output.children.length, 2, "в списке вывода два устройства");
+    assert.equal(input.value, "mic-builtin");
+    assert.equal(output.value, "spk-headset");
+    assert.equal(ariaLabel(input), copyText("hHMYbb"));
+    assert.equal(ariaLabel(output), copyText("dl18zb"));
+
+    const inputVolume = byId(host, "voice-devices-input-volume");
+    const outputVolume = byId(host, "voice-devices-output-volume");
+    assert.equal(attr(inputVolume, "aria-valuemin"), String(inputSlider.min));
+    assert.equal(attr(inputVolume, "aria-valuemax"), String(inputSlider.max));
+    assert.equal(attr(inputVolume, "aria-valuenow"), String(inputSlider.value));
+    assert.equal(attr(outputVolume, "aria-valuemin"), String(outputSlider.min));
+    assert.equal(attr(outputVolume, "aria-valuemax"), String(outputSlider.max));
+    assert.equal(attr(outputVolume, "aria-valuenow"), String(outputSlider.value));
+    assert.equal(
+      byId(host, "voice-devices-input-volume-value").textContent,
+      `${inputSlider.value}%`,
+    );
+    assert.equal(
+      byId(host, "voice-devices-output-volume-value").textContent,
+      `${outputSlider.value}%`,
+    );
+
+    assert.deepEqual(events, [], "первичная инициализация не эмитит hot-plug событий");
+  });
+
+  it("длинное имя устройства: полный текст и title, без обрезки в DOM", () => {
+    const longLabel = `Система: ${"Very Long Audio Device Name ".repeat(6)}`;
+    const { host } = makeController({
+      devices: [{ id: "mic-long", label: longLabel, kind: "input", isDefault: true }],
+    });
+    const input = byId(host, "voice-devices-input");
+    const option = /** @type {ShimElement} */ (input.children[0]);
+    assert.equal(option.textContent, longLabel);
+    assert.equal(option.title, longLabel, "полное имя доступно через title (VOICE.md §3.1)");
+  });
+
+  it("явный выбор устройства: один вызов сервиса, состояние и select синхронны", () => {
+    const { host, service, controller } = makeController();
+    const input = byId(host, "voice-devices-input");
+    const output = byId(host, "voice-devices-output");
+
+    input.value = "mic-usb";
+    input.emit("change");
+    assert.equal(controller.getState().selectedInput, "mic-usb");
+    assert.deepEqual(callsOf(service, "selectInput").map((call) => call.args), [["mic-usb"]]);
+
+    output.value = "spk-hdmi";
+    output.emit("change");
+    assert.equal(controller.getState().selectedOutput, "spk-hdmi");
+    assert.deepEqual(callsOf(service, "selectOutput").map((call) => call.args), [["spk-hdmi"]]);
+  });
+
+  it("нельзя выбрать устройство чужого типа или неизвестное", () => {
+    const { host, service, controller } = makeController();
+    const input = byId(host, "voice-devices-input");
+
+    assert.equal(controller.selectInput("spk-hdmi"), false, "выход нельзя выбрать как микрофон");
+    assert.equal(controller.selectInput("mic-missing"), false, "неизвестный id отклоняется");
+    assert.equal(controller.getState().selectedInput, "mic-builtin");
+    assert.equal(input.value, "mic-builtin", "select не показывает отвергнутое значение");
+    assert.equal(callsOf(service, "selectInput").length, 0, "отклонённый выбор не уходит в сервис");
+
+    assert.equal(controller.selectOutput("mic-usb"), false);
+    assert.equal(controller.getState().selectedOutput, "spk-headset");
+    const notice = byId(host, "voice-devices-notice");
+    assert.equal(attr(notice, "role"), "alert");
+    assert.equal(hidden(notice), false, "отказ виден пользователю");
+  });
+
+  it("hot-plug сохраняет присутствующее устройство и не вызывает select", () => {
+    const { host, service, events, controller } = makeController();
+
+    events.length = 0;
+    controller.setDevices([
+      ...SAMPLE_DEVICES,
+      { id: "mic-new", label: "Система: New Microphone", kind: "input", isDefault: false },
+    ]);
+
+    assert.deepEqual(events, [], "present-устройство не даёт событий");
+    assert.equal(controller.getState().selectedInput, "mic-builtin");
+    assert.equal(callsOf(service, "selectInput").length, 0, "hot-plug не переключает устройство сам");
+    assert.equal(byId(host, "voice-devices-input").children.length, 3);
+  });
+
+  it("hot-plug: откат на isDefault === true, уведомление DeviceFallback", () => {
+    const { host, service, events, controller } = makeController({
+      devices: [
+        { id: "mic-usb", label: "Система: USB Microphone", kind: "input", isDefault: false },
+        { id: "spk-headset", label: "Система: Headset Earphone", kind: "output", isDefault: true },
+      ],
+    });
+    assert.equal(controller.getState().selectedInput, "mic-usb");
+
+    events.length = 0;
+    controller.setDevices([
+      { id: "mic-aux", label: "Система: Aux Microphone", kind: "input", isDefault: false },
+      { id: "mic-builtin", label: "Система: Built-in Microphone", kind: "input", isDefault: true },
+      { id: "spk-headset", label: "Система: Headset Earphone", kind: "output", isDefault: true },
+    ]);
+
+    assert.equal(
+      controller.getState().selectedInput,
+      "mic-builtin",
+      "откат идёт на default, даже если default не первый",
+    );
+    assert.deepEqual(events, [
+      {
+        type: "DeviceFallback",
+        kind: "input",
+        previousId: "mic-usb",
+        fallbackId: "mic-builtin",
+      },
+    ]);
+    assert.equal(byId(host, "voice-devices-input").value, "mic-builtin");
+    assert.equal(callsOf(service, "selectInput").length, 0);
+    const notice = byId(host, "voice-devices-notice");
+    assert.equal(attr(notice, "role"), "status");
+    assert.equal(hidden(notice), false);
+    assert.match(
+      notice.textContent ?? "",
+      /Built-in Microphone/u,
+      "уведомление называет устройство, на которое выполнен откат",
+    );
+  });
+
+  it("hot-plug без устройств: NoDeviceAvailable, пустой disabled-список", () => {
+    const { host, events, controller } = makeController({
+      devices: [{ id: "mic-usb", label: "Система: USB Microphone", kind: "input", isDefault: false }],
+    });
+    events.length = 0;
+    controller.setDevices([]);
+
+    assert.equal(controller.getState().selectedInput, null);
+    assert.equal(controller.getState().selectedOutput, null);
+    assert.equal(events.length, 2, "событие на каждое направление");
+    assert.deepEqual(events[0], {
+      type: "NoDeviceAvailable",
+      kind: "input",
+      previousId: "mic-usb",
+    });
+    assert.deepEqual(events[1], {
+      type: "NoDeviceAvailable",
+      kind: "output",
+      previousId: null,
+    });
+
+    const input = byId(host, "voice-devices-input");
+    assert.equal(attr(input, "aria-disabled"), "true");
+    const option = /** @type {ShimElement} */ (input.children[0]);
+    assert.equal(option.textContent, "Микрофон не выбран");
+    const notice = byId(host, "voice-devices-notice");
+    assert.equal(attr(notice, "role"), "alert");
+    assert.equal(hidden(notice), false);
+  });
+
+  it("громкость микрофона клампится в 0..100 и сервис получает кламп", () => {
+    const { host, service, controller } = makeController();
+    const range = byId(host, "voice-devices-input-volume");
+    const max = slider("OX2Bnr").max;
+
+    range.value = "250";
+    range.emit("input");
+    assert.equal(controller.getState().inputVolume, max, "250% микрофона → максимум оракула");
+    assert.equal(range.value, String(max), "ползунок показывает кламп");
+    assert.equal(attr(range, "aria-valuenow"), String(max));
+    assert.equal(byId(host, "voice-devices-input-volume-value").textContent, `${max}%`);
+    assert.deepEqual(callsOf(service, "setInputVolume").map((call) => call.args), [[max]]);
+
+    range.value = "-7";
+    range.emit("input");
+    assert.equal(controller.getState().inputVolume, 0);
+    assert.deepEqual(callsOf(service, "setInputVolume").map((call) => call.args), [[max], [0]]);
+  });
+
+  it("громкость вывода клампится в 0..200 по оракулу aUJ062", () => {
+    const { host, service, controller } = makeController();
+    const range = byId(host, "voice-devices-output-volume");
+    const oracle = slider("aUJ062");
+    assert.equal(oracle.max, rustConst("MAX_OUTPUT_VOLUME"));
+
+    range.value = "250";
+    range.emit("input");
+    assert.equal(controller.getState().outputVolume, oracle.max);
+    assert.equal(controller.getState().inputVolume, slider("OX2Bnr").value, "каналы независимы");
+    assert.equal(attr(range, "aria-valuemax"), String(oracle.max));
+    assert.equal(attr(range, "aria-valuenow"), String(oracle.max));
+    assert.equal(
+      byId(host, "voice-devices-output-volume-value").textContent,
+      `${oracle.max}%`,
+    );
+    assert.deepEqual(callsOf(service, "setOutputVolume").map((call) => call.args), [
+      [oracle.max],
+    ]);
+
+    range.value = "-1";
+    range.emit("input");
+    assert.equal(controller.getState().outputVolume, 0);
+
+    range.value = "150";
+    range.emit("input");
+    assert.equal(controller.getState().outputVolume, 150);
+  });
+
+  it("переключатель PTT меняет режим и показывает задержку", () => {
+    const { host, service, controller } = makeController();
+    const ptt = byId(host, "voice-devices-ptt");
+    const vadSettings = byId(host, "voice-devices-vad-settings");
+    const pttSettings = byId(host, "voice-devices-ptt-settings");
+    const delay = byId(host, "voice-devices-ptt-delay");
+    const threshold = rustConst("DEFAULT_VAD_THRESHOLD_DB");
+
+    assert.equal(controller.getState().inputMode.kind, "voice-activity");
+    assert.equal(controller.getState().vadThresholdDb, threshold);
+    assert.equal(attr(ptt, "aria-checked"), "false");
+    assert.equal(hidden(vadSettings), false);
+    assert.equal(hidden(pttSettings), true);
+
+    ptt.click();
+    const mode = controller.getState().inputMode;
+    assert.equal(attr(ptt, "aria-checked"), "true");
+    assert.equal(mode.kind, "push-to-talk");
+    assert.ok(mode.kind === "push-to-talk");
+    assert.equal(mode.releaseDelayMs, controller.getState().pttReleaseDelayMs);
+    assert.equal(mode.releaseDelayMs, Number(delay.value));
+    assert.ok(mode.releaseDelayMs >= 0 && mode.releaseDelayMs <= 2000);
+    assert.equal(hidden(vadSettings), true);
+    assert.equal(hidden(pttSettings), false);
+    assert.deepEqual(callsOf(service, "setInputMode").at(-1)?.args, [mode]);
+
+    ptt.click();
+    assert.equal(controller.getState().inputMode.kind, "voice-activity");
+    assert.equal(
+      controller.getState().vadThresholdDb,
+      threshold,
+      "порог VAD переживает переключение режима",
+    );
+    assert.equal(hidden(vadSettings), false);
+    assert.equal(hidden(pttSettings), true);
+  });
+
+  it("releaseDelayMs клампится в 0..2000 мс", () => {
+    const { host, service, controller } = makeController();
+    byId(host, "voice-devices-ptt").click();
+    const delay = byId(host, "voice-devices-ptt-delay");
+
+    delay.value = "5000";
+    delay.emit("input");
+    assert.equal(controller.getState().pttReleaseDelayMs, 2000);
+    assert.equal(delay.value, "2000");
+    assert.equal(attr(delay, "aria-valuenow"), "2000");
+    assert.equal(byId(host, "voice-devices-ptt-delay-value").textContent, "2000 мс");
+    assert.deepEqual(callsOf(service, "setInputMode").at(-1)?.args, [
+      { kind: "push-to-talk", releaseDelayMs: 2000 },
+    ]);
+
+    delay.value = "-30";
+    delay.emit("input");
+    assert.equal(controller.getState().pttReleaseDelayMs, 0);
+
+    delay.value = "1500";
+    delay.emit("input");
+    assert.equal(controller.getState().pttReleaseDelayMs, 1500);
+    assert.equal(attr(delay, "aria-valuenow"), "1500");
+  });
+
+  it("thresholdDb клампится по i8 (−128..127)", () => {
+    const { host, controller } = makeController();
+    const range = byId(host, "voice-devices-vad-threshold");
+
+    range.value = "-999";
+    range.emit("input");
+    assert.equal(controller.getState().vadThresholdDb, -128, "нижняя граница i8");
+    assert.equal(range.value, "-128");
+    assert.equal(byId(host, "voice-devices-vad-threshold-value").textContent, "-128 дБ");
+
+    range.value = "999";
+    range.emit("input");
+    assert.equal(controller.getState().vadThresholdDb, 127, "верхняя граница i8");
+    assert.equal(attr(range, "aria-valuenow"), "127");
+
+    controller.setInputMode({ kind: "voice-activity", thresholdDb: 300 });
+    const mode = controller.getState().inputMode;
+    assert.equal(mode.kind, "voice-activity");
+    assert.ok(mode.kind === "voice-activity");
+    assert.equal(mode.thresholdDb, 127);
+  });
+
+  it("захват клавиши PTT: Escape отменяет, модификатор игнорируется, Space назначается", () => {
+    const { host, service, controller } = makeController();
+    const keyButton = byId(host, "voice-devices-ptt-key");
+    assert.equal(keyButton.textContent, copyText("nWRdnl"));
+    assert.equal(ariaLabel(keyButton), copyText("o+BJQR"));
+    assert.equal(attr(keyButton, "data-capturing"), "false");
+
+    keyButton.click();
+    assert.equal(attr(keyButton, "data-capturing"), "true");
+    const escape = keyButton.dispatchEvent("keydown", { key: "Escape" });
+    assert.equal(escape.prevented, true);
+    assert.equal(attr(keyButton, "data-capturing"), "false");
+    assert.equal(controller.getState().pttKey, null);
+    assert.equal(keyButton.textContent, copyText("nWRdnl"));
+    assert.equal(callsOf(service, "setPttKey").length, 0, "отмена не меняет клавишу");
+
+    keyButton.click();
+    keyButton.dispatchEvent("keydown", { key: "Shift" });
+    assert.equal(attr(keyButton, "data-capturing"), "true", "модификатор не считается клавишей");
+    assert.equal(callsOf(service, "setPttKey").length, 0);
+
+    const space = keyButton.dispatchEvent("keydown", { key: " " });
+    assert.equal(space.prevented, true);
+    assert.equal(controller.getState().pttKey, " ");
+    assert.equal(attr(keyButton, "data-capturing"), "false");
+    assert.deepEqual(callsOf(service, "setPttKey").map((call) => call.args), [[" "]]);
+    assert.match(keyButton.textContent ?? "", /Пробел/u, "клавиша видна пользователю");
+  });
+
+  it("effectiveMute = userMute || selfDeaf, deafen не трогает userMute", () => {
+    const { host, service, controller } = makeController();
+    const mute = byId(host, "voice-devices-user-mute");
+    const deafen = byId(host, "voice-devices-self-deaf");
+    const effective = byId(host, "voice-devices-effective-mute");
+
+    assert.equal(controller.getState().effectiveMute, false);
+    assert.equal(attr(host, "data-effective-mute"), "false");
+    assert.equal(attr(effective, "data-effective-mute"), "false");
+    assert.equal(attr(mute, "aria-checked"), "false");
+    assert.equal(attr(deafen, "aria-checked"), "false");
+
+    mute.click();
+    assert.equal(controller.getState().userMute, true);
+    assert.equal(controller.getState().effectiveMute, true);
+    assert.equal(attr(mute, "aria-checked"), "true");
+    assert.deepEqual(callsOf(service, "setUserMute").map((call) => call.args), [[true]]);
+
+    mute.click();
+    assert.equal(controller.getState().userMute, false);
+    assert.deepEqual(callsOf(service, "setUserMute").map((call) => call.args), [
+      [true],
+      [false],
+    ]);
+
+    deafen.click();
+    assert.equal(controller.getState().selfDeaf, true);
+    assert.equal(controller.getState().userMute, false, "deafen не включает userMute");
+    assert.equal(controller.getState().effectiveMute, true);
+    assert.equal(
+      attr(mute, "aria-checked"),
+      "false",
+      "deafen не снимает aria-checked микрофона (VOICE.md §2.4 п.3)",
+    );
+    assert.equal(attr(deafen, "aria-checked"), "true");
+    assert.equal(attr(host, "data-effective-mute"), "true");
+    assert.equal(attr(effective, "data-effective-mute"), "true");
+
+    deafen.click();
+    assert.equal(controller.getState().selfDeaf, false);
+    assert.equal(controller.getState().effectiveMute, false, "после снятия deafen возвращается userMute");
+    assert.equal(attr(host, "data-effective-mute"), "false");
+
+    mute.click();
+    deafen.click();
+    deafen.click();
+    assert.equal(controller.getState().userMute, true, "userMute восстановлен после deafen");
+    assert.equal(controller.getState().effectiveMute, true);
+    assert.equal(attr(mute, "aria-checked"), "true");
+    assert.deepEqual(callsOf(service, "setSelfDeaf").map((call) => call.args), [
+      [true],
+      [false],
+      [true],
+      [false],
+    ]);
+  });
+
+  it("ARIA: русские подписи, роли, значения и live-регион", () => {
+    const { host } = makeController();
+    assert.equal(attr(host, "aria-label"), "Голос и видео");
+
+    assert.equal(ariaLabel(byId(host, "voice-devices-input")), copyText("hHMYbb"));
+    assert.equal(ariaLabel(byId(host, "voice-devices-output")), copyText("dl18zb"));
+    assert.equal(
+      ariaLabel(byId(host, "voice-devices-input-volume")),
+      copyText("OX2Bnr"),
+    );
+    assert.equal(
+      ariaLabel(byId(host, "voice-devices-output-volume")),
+      copyText("aUJ062"),
+    );
+    assert.equal(ariaLabel(byId(host, "voice-devices-ptt")), copyText("tG4Np5"));
+    assert.equal(ariaLabel(byId(host, "voice-devices-ptt-delay")), copyText("GCNMM8"));
+    assert.equal(ariaLabel(byId(host, "voice-devices-ptt-key")), copyText("o+BJQR"));
+    assert.equal(ariaLabel(byId(host, "voice-devices-user-mute")), copyText("sWmtI6"));
+    assert.equal(ariaLabel(byId(host, "voice-devices-self-deaf")), copyText("hK51Yg"));
+
+    for (const id of [
+      "voice-devices-input-volume",
+      "voice-devices-output-volume",
+      "voice-devices-vad-threshold",
+      "voice-devices-ptt-delay",
+    ]) {
+      const range = byId(host, id);
+      assert.equal(attr(range, "role"), "slider", `#${id}: role=slider`);
+      assert.equal(attr(range, "aria-orientation"), "horizontal");
+      assert.notEqual(attr(range, "aria-valuemin"), null);
+      assert.notEqual(attr(range, "aria-valuemax"), null);
+      assert.notEqual(attr(range, "aria-valuenow"), null);
+      assert.notEqual(attr(range, "aria-valuetext"), null);
+    }
+
+    for (const id of ["voice-devices-ptt", "voice-devices-user-mute", "voice-devices-self-deaf"]) {
+      const toggle = byId(host, id);
+      assert.equal(attr(toggle, "role"), "switch", `#${id}: role=switch`);
+      assert.match(attr(toggle, "aria-checked") ?? "", /^(?:true|false)$/u);
+    }
+
+    const notice = byId(host, "voice-devices-notice");
+    assert.match(attr(notice, "role") ?? "", /^(?:status|alert)$/u);
+    assert.notEqual(attr(notice, "aria-live"), null, "уведомление озвучивается скринридером");
+    assert.equal(attr(byId(host, "voice-devices-effective-mute"), "aria-live"), "polite");
+  });
+
+  it("ошибка сервиса показывается в alert, а не глотается", () => {
+    const service = makeService({
+      selectInput: () => {
+        throw new Error("boom");
+      },
+    });
+    const { host } = makeController({ service });
+    const input = byId(host, "voice-devices-input");
+    input.value = "mic-usb";
+    assert.doesNotThrow(() => input.emit("change"));
+    const notice = byId(host, "voice-devices-notice");
+    assert.equal(attr(notice, "role"), "alert");
+    assert.ok((notice.textContent ?? "").trim().length > 0);
+  });
+
+  it("приватность и запрет медиа-API: нет логов, сети и захвата", () => {
+    for (const needle of [
+      "console.",
+      "navigator.mediaDevices",
+      "getUserMedia",
+      "getDisplayMedia",
+      "startLocalAudioRecording",
+      "startRecordingRawSamples",
+      "setAecDump",
+      "setLoopback",
+      "fetch(",
+      "WebSocket",
+    ]) {
+      assert.equal(
+        moduleSource.includes(needle),
+        false,
+        `в контроллере не должно быть «${needle}» (VOICE.md §5)`,
+      );
+    }
+  });
+});
+
+/**
+ * Харнесс для тестирования интеграции `createSettingsConsole` (`settings.js`)
+ * с `createVoiceDevicesSettingsController` (`voice-devices-settings.js`).
+ * @param {{
+ *   voiceDevices?: Array<{ id: string, label: string, kind: "input" | "output" | "video", isDefault: boolean }>,
+ *   service?: ReturnType<typeof makeService>,
+ * }} [opts]
+ */
+function makeSettingsMountHarness(opts = {}) {
+  const doc = new ShimDocument();
+  const prevDoc = /** @type {any} */ (globalThis).document;
+  const prevWin = /** @type {any} */ (globalThis).window;
+  /** @type {any} */ (globalThis).document = doc;
+  /** @type {any} */ (globalThis).window = { document: doc };
+
+  const dialog = doc.createElement("div");
+  dialog.id = "settings-dialog";
+  const closeBtn = doc.createElement("button");
+  closeBtn.id = "settings-close-btn";
+  closeBtn.setAttribute("type", "button");
+  closeBtn.setAttribute("data-action", "settings-close");
+  const nav = doc.createElement("nav");
+  nav.id = "settings-nav";
+  const rootEl = doc.createElement("div");
+  rootEl.id = "settings";
+  dialog.append(closeBtn, nav, rootEl);
+  doc.body.append(dialog);
+
+  const service = opts.service ?? makeService({
+    selectVideo: (...args) => {
+      service.calls.push({ op: "selectVideo", args });
+      return Promise.resolve();
+    },
+    startMicTest: (...args) => {
+      service.calls.push({ op: "startMicTest", args });
+      return Promise.resolve();
+    },
+    stopMicTest: (...args) => {
+      service.calls.push({ op: "stopMicTest", args });
+      return Promise.resolve();
+    },
+  });
+
+  const defaultDevices = opts.voiceDevices ?? [
+    ...SAMPLE_DEVICES,
+    { id: "cam-usb", label: "USB HD Webcam", kind: "video", isDefault: false },
+    { id: "cam-builtin", label: "Integrated Camera", kind: "video", isDefault: true },
+  ];
+
+  const settings = createSettingsConsole(
+    /** @type {any} */ ({
+      root: /** @type {any} */ (rootEl),
+      nav: /** @type {any} */ (nav),
+      voiceDevices: defaultDevices,
+      voiceService: service,
+    }),
+  );
+
+  const cleanup = () => {
+    /** @type {any} */ (globalThis).document = prevDoc;
+    /** @type {any} */ (globalThis).window = prevWin;
+  };
+
+  return { doc, dialog, closeBtn, nav, rootEl, service, settings, cleanup };
+}
+
+describe("FE-P0-02 / task-144: монтирование createVoiceDevicesSettingsController в settings.js", () => {
+  it("экспортирует createVoiceDevicesSettingsController и монтирует его при открытии вкладки «Голос и видео» (voice / voice-video)", () => {
+    assert.equal(
+      typeof (/** @type {any} */ (voiceDevicesModule).createVoiceDevicesSettingsController),
+      "function",
+      "voice-devices-settings.js должен экспортировать createVoiceDevicesSettingsController",
+    );
+
+    const { rootEl, settings, cleanup } = makeSettingsMountHarness();
+    try {
+      const s = /** @type {any} */ (settings);
+      assert.equal(typeof s.getVoiceDevices, "function", "settings должен предоставлять getVoiceDevices()");
+      const controller = s.getVoiceDevices();
+      assert.ok(controller, "контроллер голоса должен быть смонтирован на стартовой вкладке «Голос и видео»");
+      assert.equal(controller.isDestroyed?.(), false, "контроллер активен на вкладке voice");
+
+      // Переключение через алиасы "voice" и "voice-video" сохраняет/монтирует контроллер
+      settings.showPane("appearance");
+      assert.equal(controller.isDestroyed?.(), true, "при уходе на Внешний вид контроллер уничтожается");
+      assert.equal(s.getVoiceDevices(), null);
+
+      settings.showPane("voice");
+      const afterVoice = s.getVoiceDevices();
+      assert.ok(afterVoice, "showPane('voice') должен смонтировать контроллер");
+      assert.equal(afterVoice.isDestroyed?.(), false);
+      assert.notEqual(afterVoice, controller, "монтируется свежий экземпляр контроллера");
+
+      settings.showPane("notifications");
+      assert.equal(afterVoice.isDestroyed?.(), true);
+
+      settings.showPane("voice-video");
+      const afterVoiceVideo = s.getVoiceDevices();
+      assert.ok(afterVoiceVideo, "showPane('voice-video') должен смонтировать контроллер");
+      assert.equal(afterVoiceVideo.isDestroyed?.(), false);
+      assert.equal(rootEl.getAttribute("data-active-pane"), "voice");
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("инициализирует списки устройств ввода, вывода и видео (input / output / video)", () => {
+    const { rootEl, service, settings, cleanup } = makeSettingsMountHarness();
+    try {
+      const controller = /** @type {any} */ (settings).getVoiceDevices();
+      assert.ok(controller, "контроллер должен быть смонтирован");
+
+      const inputSelect = byId(rootEl, "voice-devices-input");
+      const outputSelect = byId(rootEl, "voice-devices-output");
+      const videoSelect = byId(rootEl, "voice-devices-video");
+
+      assert.deepEqual(
+        inputSelect.querySelectorAll("option").map((o) => o.value),
+        ["mic-usb", "mic-builtin"],
+        "селект ввода содержит входные устройства",
+      );
+      assert.equal(inputSelect.value, "mic-builtin", "выбрано isDefault устройство ввода");
+
+      assert.deepEqual(
+        outputSelect.querySelectorAll("option").map((o) => o.value),
+        ["spk-hdmi", "spk-headset"],
+        "селект вывода содержит выходные устройства",
+      );
+      assert.equal(outputSelect.value, "spk-headset", "выбрано isDefault устройство вывода");
+
+      assert.deepEqual(
+        videoSelect.querySelectorAll("option").map((o) => o.value),
+        ["cam-usb", "cam-builtin"],
+        "селект видео содержит видеоустройства",
+      );
+      assert.equal(videoSelect.value, "cam-builtin", "выбрано isDefault видеоустройство");
+      assert.equal(controller.getState().selectedVideo, "cam-builtin");
+
+      // Смена видеоустройства через DOM
+      videoSelect.value = "cam-usb";
+      videoSelect.emit("change");
+      assert.equal(controller.getState().selectedVideo, "cam-usb");
+      assert.deepEqual(callsOf(service, "selectVideo").map((c) => c.args), [["cam-usb"]]);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("инициализирует ползунки громкости микрофона 0..100 и динамика 0..200 в панели настроек", () => {
+    const { rootEl, service, settings, cleanup } = makeSettingsMountHarness();
+    try {
+      const controller = /** @type {any} */ (settings).getVoiceDevices();
+      assert.ok(controller);
+
+      const inputRange = byId(rootEl, "voice-devices-input-volume");
+      const outputRange = byId(rootEl, "voice-devices-output-volume");
+
+      assert.equal(attr(inputRange, "min"), "0");
+      assert.equal(attr(inputRange, "max"), "100");
+      assert.equal(attr(inputRange, "aria-valuemin"), "0");
+      assert.equal(attr(inputRange, "aria-valuemax"), "100");
+      assert.equal(attr(inputRange, "aria-valuenow"), "100");
+
+      assert.equal(attr(outputRange, "min"), "0");
+      assert.equal(attr(outputRange, "max"), "200");
+      assert.equal(attr(outputRange, "aria-valuemin"), "0");
+      assert.equal(attr(outputRange, "aria-valuemax"), "200");
+      assert.equal(attr(outputRange, "aria-valuenow"), "100");
+
+      inputRange.value = "85";
+      inputRange.emit("input");
+      assert.equal(controller.getState().inputVolume, 85);
+      assert.equal(attr(inputRange, "aria-valuenow"), "85");
+
+      outputRange.value = "175";
+      outputRange.emit("input");
+      assert.equal(controller.getState().outputVolume, 175);
+      assert.equal(attr(outputRange, "aria-valuenow"), "175");
+
+      outputRange.value = "260";
+      outputRange.emit("input");
+      assert.equal(controller.getState().outputVolume, 200, "громкость вывода клампится к 200");
+      assert.deepEqual(
+        callsOf(service, "setOutputVolume").map((c) => c.args),
+        [[175], [200]],
+      );
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек", () => {
+    const { rootEl, service, settings, cleanup } = makeSettingsMountHarness();
+    try {
+      const controller = /** @type {any} */ (settings).getVoiceDevices();
+      assert.ok(controller);
+
+      const pttToggle = byId(rootEl, "voice-devices-ptt");
+      const vadSettings = byId(rootEl, "voice-devices-vad-settings");
+      const pttSettings = byId(rootEl, "voice-devices-ptt-settings");
+      const vadThreshold = byId(rootEl, "voice-devices-vad-threshold");
+
+      assert.equal(attr(vadSettings, "role"), "group");
+      assert.equal(attr(pttSettings, "role"), "group");
+      assert.equal(attr(vadThreshold, "role"), "slider");
+      assert.equal(attr(vadThreshold, "aria-valuemin"), "-100");
+      assert.equal(attr(vadThreshold, "aria-valuemax"), "0");
+      assert.equal(attr(vadThreshold, "aria-valuenow"), "-40");
+      assert.equal(attr(vadThreshold, "aria-valuetext"), "-40 дБ");
+
+      // Клампинг порога чувствительности в диапазон -100..0 дБ
+      vadThreshold.value = "-150";
+      vadThreshold.emit("input");
+      assert.equal(controller.getState().vadThresholdDb, -100);
+      assert.equal(attr(vadThreshold, "aria-valuenow"), "-100");
+      assert.equal(byId(rootEl, "voice-devices-vad-threshold-value").textContent, "-100 дБ");
+
+      vadThreshold.value = "15";
+      vadThreshold.emit("input");
+      assert.equal(controller.getState().vadThresholdDb, 0);
+      assert.equal(attr(vadThreshold, "aria-valuenow"), "0");
+      assert.equal(byId(rootEl, "voice-devices-vad-threshold-value").textContent, "0 дБ");
+
+      vadThreshold.value = "-55";
+      vadThreshold.emit("input");
+      assert.equal(controller.getState().vadThresholdDb, -55);
+
+      // Переключение в режим рации (PTT) и обратно в активацию по голосу (VAD)
+      assert.equal(hidden(vadSettings), false);
+      assert.equal(hidden(pttSettings), true);
+
+      pttToggle.click();
+      assert.equal(controller.getState().inputMode.kind, "push-to-talk");
+      assert.equal(attr(pttToggle, "aria-checked"), "true");
+      assert.equal(hidden(vadSettings), true);
+      assert.equal(hidden(pttSettings), false);
+      assert.equal(callsOf(service, "setInputMode").at(-1)?.args[0]?.kind, "push-to-talk");
+
+      pttToggle.click();
+      assert.equal(controller.getState().inputMode.kind, "voice-activity");
+      assert.equal(attr(pttToggle, "aria-checked"), "false");
+      assert.equal(hidden(vadSettings), false);
+      assert.equal(hidden(pttSettings), true);
+      assert.equal(controller.getState().vadThresholdDb, -55, "порог -55 дБ сохраняется после возврата в VAD");
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("проверка микрофона (mic test): старт/стоп кнопкой, индикатор уровня -100..0 дБ и авто-стоп при destroy()", () => {
+    const { rootEl, service, settings, cleanup } = makeSettingsMountHarness();
+    try {
+      const controller = /** @type {any} */ (settings).getVoiceDevices();
+      assert.ok(controller);
+
+      const micBox = byId(rootEl, "voice-devices-mic-test");
+      const micBtn = byId(rootEl, "voice-devices-mic-test-btn");
+      const micMeter = byId(rootEl, "voice-devices-mic-meter");
+      const micStatus = byId(rootEl, "voice-devices-mic-status");
+
+      assert.equal(attr(micBox, "role"), "group");
+      assert.equal(attr(micBtn, "aria-pressed"), "false");
+      assert.equal(attr(micMeter, "role"), "meter");
+      assert.equal(attr(micMeter, "aria-valuemin"), "-100");
+      assert.equal(attr(micMeter, "aria-valuemax"), "0");
+      assert.equal(attr(micMeter, "aria-valuenow"), "-100");
+      assert.equal(controller.getState().micTesting, false);
+
+      micBtn.click();
+      assert.equal(controller.getState().micTesting, true);
+      assert.equal(attr(micBtn, "aria-pressed"), "true");
+      assert.match(micBtn.textContent ?? "", /Остановить проверку/u);
+      assert.match(micStatus.textContent ?? "", /Проверка микрофона активна/u);
+      assert.equal(callsOf(service, "startMicTest").length, 1);
+
+      controller.setMicTestLevelDb(-32);
+      assert.equal(controller.getState().micTestLevelDb, -32);
+      assert.equal(attr(micMeter, "aria-valuenow"), "-32");
+      assert.equal(attr(micMeter, "aria-valuetext"), "-32 дБ");
+
+      micBtn.click();
+      assert.equal(controller.getState().micTesting, false);
+      assert.equal(attr(micBtn, "aria-pressed"), "false");
+      assert.equal(attr(micMeter, "aria-valuenow"), "-100");
+      assert.equal(callsOf(service, "stopMicTest").length, 1);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек", () => {
+    const { closeBtn, nav, service, settings, cleanup } = makeSettingsMountHarness();
+    try {
+      const s = /** @type {any} */ (settings);
+      const firstController = s.getVoiceDevices();
+      assert.ok(firstController);
+      firstController.startMicTest();
+      assert.equal(firstController.getState().micTesting, true);
+
+      // 1) Смена вкладки через навигацию («Внешний вид») вызывает destroy() и останавливает проверку микрофона
+      const appearanceBtn = nav
+        .querySelectorAll(".settings-nav-item")
+        .find((node) => node.getAttribute("data-section") === "Внешний вид");
+      assert.ok(appearanceBtn, "кнопка вкладки «Внешний вид» должна быть в навигации");
+      appearanceBtn.click();
+      assert.equal(firstController.isDestroyed(), true, "destroy() вызван при смене вкладки");
+      assert.equal(firstController.getState().micTesting, false, "проверка микрофона остановлена при destroy()");
+      assert.equal(callsOf(service, "stopMicTest").length, 1);
+      assert.equal(s.getVoiceDevices(), null);
+
+      // Возврат на «Голос и видео» через навигацию монтирует новый контроллер
+      const voiceBtn = nav
+        .querySelectorAll(".settings-nav-item")
+        .find((node) => node.getAttribute("data-section") === "Голос и видео");
+      assert.ok(voiceBtn, "кнопка вкладки «Голос и видео» должна быть в навигации");
+      voiceBtn.click();
+      const secondController = s.getVoiceDevices();
+      assert.ok(secondController, "контроллер снова смонтирован при возврате на вкладку");
+      assert.notEqual(secondController, firstController);
+      assert.equal(secondController.isDestroyed(), false);
+
+      // 2) Закрытие модалки настроек через s.close() вызывает destroy()
+      assert.equal(typeof s.close, "function", "settings должен поддерживать метод close()");
+      s.close();
+      assert.equal(secondController.isDestroyed(), true, "destroy() вызван при close() модалки настроек");
+      assert.equal(s.getVoiceDevices(), null);
+
+      // Повторное открытие вкладки «Голос и видео» и закрытие кнопкой [data-action="settings-close"]
+      settings.showPane("Голос и видео");
+      const thirdController = s.getVoiceDevices();
+      assert.ok(thirdController);
+      assert.equal(thirdController.isDestroyed(), false);
+
+      closeBtn.click();
+      assert.equal(thirdController.isDestroyed(), true, "destroy() вызван при клике по кнопке закрытия модалки");
+      assert.equal(s.getVoiceDevices(), null);
+    } finally {
+      cleanup();
+    }
+  });
+});

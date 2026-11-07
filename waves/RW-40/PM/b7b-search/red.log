@@ -1,0 +1,335 @@
+=== RED PASS 1: untouched src/search.rs ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0560]: struct `SearchParams` has no field named `author_id`
+   --> tests/search_contract.rs:273:9
+    |
+273 |         author_id: Some("42".into()),
+    |         ^^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `mentions`
+   --> tests/search_contract.rs:274:9
+    |
+274 |         mentions: Some("77".into()),
+    |         ^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `has`
+   --> tests/search_contract.rs:275:9
+    |
+275 |         has: Some("file".into()),
+    |         ^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `pinned`
+   --> tests/search_contract.rs:276:9
+    |
+276 |         pinned: Some(true),
+    |         ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `author_type`
+   --> tests/search_contract.rs:277:9
+    |
+277 |         author_type: Some("bot".into()),
+    |         ^^^^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `min_id`
+   --> tests/search_contract.rs:278:9
+    |
+278 |         min_id: Some(min_id.clone()),
+    |         ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `max_id`
+   --> tests/search_contract.rs:279:9
+    |
+279 |         max_id: Some(max_id.clone()),
+    |         ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `limit`
+   --> tests/search_contract.rs:282:9
+    |
+282 |         limit: Some(25),
+    |         ^^^^^ `SearchParams` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `SearchParams` has no field named `has`
+   --> tests/search_contract.rs:313:21
+    |
+313 |                     has: Some(token.into()),
+    |                     ^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `author_type`
+   --> tests/search_contract.rs:333:21
+    |
+333 |                     author_type: Some(author_type.into()),
+    |                     ^^^^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `pinned`
+   --> tests/search_contract.rs:334:21
+    |
+334 |                     pinned: Some(false),
+    |                     ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0609]: no field `author_id` on type `SearchParams`
+   --> tests/search_contract.rs:367:22
+    |
+367 |     assert_eq!(camel.author_id.as_deref(), Some("42"));
+    |                      ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0609]: no field `author_type` on type `SearchParams`
+   --> tests/search_contract.rs:368:22
+    |
+368 |     assert_eq!(camel.author_type.as_deref(), Some("user"));
+    |                      ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0609]: no field `min_id` on type `SearchParams`
+   --> tests/search_contract.rs:369:22
+    |
+369 |     assert_eq!(camel.min_id.as_deref(), Some("100"));
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0609]: no field `max_id` on type `SearchParams`
+   --> tests/search_contract.rs:370:22
+    |
+370 |     assert_eq!(camel.max_id.as_deref(), Some("200"));
+    |                      ^^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0609]: no field `limit` on type `SearchParams`
+   --> tests/search_contract.rs:371:22
+    |
+371 |     assert_eq!(camel.limit, Some(25));
+    |                      ^^^^^ unknown field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `limit`
+   --> tests/search_contract.rs:418:13
+    |
+418 |             limit: Some(0),
+    |             ^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `limit`
+   --> tests/search_contract.rs:422:13
+    |
+422 |             limit: Some(-5),
+    |             ^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `limit`
+   --> tests/search_contract.rs:426:13
+    |
+426 |             limit: Some(26),
+    |             ^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `has`
+   --> tests/search_contract.rs:430:13
+    |
+430 |             has: Some("exe".into()),
+    |             ^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `has`
+   --> tests/search_contract.rs:434:13
+    |
+434 |             has: Some("".into()),
+    |             ^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `author_type`
+   --> tests/search_contract.rs:438:13
+    |
+438 |             author_type: Some("admin".into()),
+    |             ^^^^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `author_type`
+   --> tests/search_contract.rs:442:13
+    |
+442 |             author_type: Some("".into()),
+    |             ^^^^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `author_id`
+   --> tests/search_contract.rs:446:13
+    |
+446 |             author_id: Some("   ".into()),
+    |             ^^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `mentions`
+   --> tests/search_contract.rs:450:13
+    |
+450 |             mentions: Some("".into()),
+    |             ^^^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `min_id`
+   --> tests/search_contract.rs:454:13
+    |
+454 |             min_id: Some("not-a-snowflake".into()),
+    |             ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `max_id`
+   --> tests/search_contract.rs:458:13
+    |
+458 |             max_id: Some("".into()),
+    |             ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `min_id`
+   --> tests/search_contract.rs:462:13
+    |
+462 |             min_id: Some("200".into()),
+    |             ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+error[E0560]: struct `SearchParams` has no field named `max_id`
+   --> tests/search_contract.rs:463:13
+    |
+463 |             max_id: Some("100".into()),
+    |             ^^^^^^ `SearchParams` does not have this field
+    |
+    = note: available fields are: `content`, `channel_id`, `sort_by`, `sort_order`, `offset`
+
+Some errors have detailed explanations: E0560, E0609.
+For more information about an error, try `rustc --explain E0560`.
+error: could not compile `discord-gui-spike` (test "search_contract") due to 29 previous errors
+warning: build failed, waiting for other jobs to finish...
+exit=101
+
+=== RED PASS 2: runtime assertion failures before execute() implementation ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.13s
+     Running tests/net_contract.rs (/tmp/target-g1-spike/debug/deps/net_contract-a61c1bda61eccf56)
+
+running 24 tests
+test connect_reads_token_and_reaches_ready ... ok
+test broken_payload_is_counted_instead_of_panicking ... ok
+test core_supervisor_config_wires_lifecycle_and_dispatch ... ok
+test close_policies_are_forwarded ... ok
+test dispatch_stats_report_core_source_available ... ok
+test disconnect_is_idempotent_and_reconnect_is_visible ... ok
+test dispatch_reaches_ui_channel_in_order_without_changing_status ... ok
+test etf_to_json_keeps_atoms_as_strings_and_handles_nil_and_numbers ... ok
+test duplicate_sequences_are_dropped_and_reconnect_does_not_replay ... ok
+test exact_token_and_nested_auth_tokens_are_redacted_and_counted ... ok
+test filtered_and_unknown_kinds_do_not_panic_and_are_not_forwarded ... ok
+test connect_and_disconnect_reset_sequence_dedup_before_ready ... ok
+test missing_token_is_a_typed_error ... ok
+test non_forwarded_kind_is_counted_as_filtered ... ok
+test members_chunk_is_forwarded_verbatim ... ok
+test reaction_kinds_use_wire_name_and_forward_data_as_is ... ok
+test presence_dispatch_is_forwarded_verbatim_in_kind_data_envelope ... ok
+test supervisor_events_map_to_gateway_contract ... ok
+test production_driver_disconnect_is_idempotent_without_connecting ... ok
+test status_never_contains_token ... ok
+test blocked_ui_channel_never_blocks_the_gateway_source ... ok
+test emit_error_is_counted_and_not_swallowed ... ok
+test members_list_update_keeps_counts_and_drops_nested_presence_session_ids ... ok
+test ready_payload_drops_session_secrets_and_keeps_data ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/search_contract.rs (/tmp/target-g1-spike/debug/deps/search_contract-ded35b0d1278dfc5)
+
+running 16 tests
+test maps_malformed_json_to_typed_error ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test maps_network_error_without_exposing_details ... ok
+test no_token_is_typed_before_network ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... FAILED
+test decodes_hits_and_deep_index_flag ... ok
+test debug_and_errors_do_not_expose_token ... ok
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... FAILED
+test storage_failure_is_typed_for_ui ... ok
+test sends_all_confirmed_re_filters_in_query ... FAILED
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test rejects_invalid_filter_values_before_transport ... FAILED
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test rejects_negative_offset_before_transport ... ok
+test rejects_empty_guild_id_before_transport ... ok
+
+failures:
+
+---- accepts_all_nine_confirmed_has_tokens_and_three_author_types stdout ----
+
+thread 'accepts_all_nine_confirmed_has_tokens_and_three_author_types' (245612) panicked at tests/search_contract.rs:320:9:
+assertion `left == right` failed
+  left: "/guilds/1/messages/search"
+ right: "/guilds/1/messages/search?has=link"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- deserializes_ipc_camel_case_snake_case_and_nested_query_payload stdout ----
+
+thread 'deserializes_ipc_camel_case_snake_case_and_nested_query_payload' (245615) panicked at tests/search_contract.rs:408:5:
+assertion `left == right` failed
+  left: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&sort_by=timestamp&sort_order=desc&offset=0"
+ right: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=image&has=video&pinned=true&author_type=bot&min_id=1559661262766080000&max_id=1560023650627579904&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+
+---- sends_all_confirmed_re_filters_in_query stdout ----
+
+thread 'sends_all_confirmed_re_filters_in_query' (245624) panicked at tests/search_contract.rs:290:5:
+assertion `left == right` failed
+  left: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&sort_by=timestamp&sort_order=desc&offset=0"
+ right: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=file&pinned=true&author_type=bot&min_id=1561891700736000000&max_id=1562254088597405696&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+
+---- rejects_invalid_filter_values_before_transport stdout ----
+
+thread 'rejects_invalid_filter_values_before_transport' (245622) panicked at tests/search_contract.rs:475:9:
+assertion `left == right` failed: для SearchParams { content: None, channel_id: None, author_id: None, mentions: None, has: None, pinned: None, author_type: None, min_id: None, max_id: None, sort_by: None, sort_order: None, limit: Some(0), offset: None }
+  left: InvalidResponse
+ right: InvalidArg
+
+
+failures:
+    accepts_all_nine_confirmed_has_tokens_and_three_author_types
+    deserializes_ipc_camel_case_snake_case_and_nested_query_payload
+    rejects_invalid_filter_values_before_transport
+    sends_all_confirmed_re_filters_in_query
+
+test result: FAILED. 12 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test search_contract`
+exit=101

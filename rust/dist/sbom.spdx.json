@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "discord-lab-rust-workspace",
-  "documentNamespace": "https://discord-lab.local/spdx/671b691c5c8454eb315cf17f7641b9a6bda02d1aa48954350e5798c3b903b3da",
+  "documentNamespace": "https://discord-lab.local/spdx/321689eb7a98ffa1b90115a6fdc80588df89437be1e9e7e935eada1bffd5a223",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -965,23 +965,6 @@
       ]
     },
     {
-      "name": "ruzstd",
-      "SPDXID": "SPDXRef-Package-ruzstd-0.9.1",
-      "versionInfo": "0.9.1",
-      "downloadLocation": "https://crates.io/api/v1/crates/ruzstd/0.9.1/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/ruzstd@0.9.1"
-        }
-      ]
-    },
-    {
       "name": "serde_core",
       "SPDXID": "SPDXRef-Package-serde-core-1.0.229",
       "versionInfo": "1.0.229",
@@ -1284,23 +1267,6 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:cargo/tungstenite@0.30.0"
-        }
-      ]
-    },
-    {
-      "name": "twox-hash",
-      "SPDXID": "SPDXRef-Package-twox-hash-2.1.5",
-      "versionInfo": "2.1.5",
-      "downloadLocation": "https://crates.io/api/v1/crates/twox-hash/2.1.5/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/twox-hash@2.1.5"
         }
       ]
     },
@@ -1722,12 +1688,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-core-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-discord-codec-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-codec-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-discord-core-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -1737,7 +1703,7 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-conformance-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -1748,11 +1714,6 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-Package-discord-media-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-DOCUMENT",
-      "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-perf-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -1777,7 +1738,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-discord-conformance-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-discord-perf-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-Package-block-buffer-0.10.4",
@@ -1877,12 +1843,57 @@
     {
       "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-codec-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-discord-core-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-i18n-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-media-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-platform-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-store-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-ui-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-updater-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-Package-discord-codec-0.1.0",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-ruzstd-0.9.1"
+      "relatedSpdxElement": "SPDXRef-Package-zstd-0.14.3"
     },
     {
       "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
@@ -1893,6 +1904,11 @@
       "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
@@ -1998,6 +2014,16 @@
       "spdxElementId": "SPDXRef-Package-discord-voice-0.1.0",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-voice-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-discord-voice-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
     },
     {
       "spdxElementId": "SPDXRef-Package-futures-util-0.3.34",
@@ -2213,11 +2239,6 @@
       "spdxElementId": "SPDXRef-Package-rustls-webpki-0.103.15",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-untrusted-0.9.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-ruzstd-0.9.1",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-twox-hash-2.1.5"
     },
     {
       "spdxElementId": "SPDXRef-Package-serde-1.0.229",

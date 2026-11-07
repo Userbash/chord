@@ -66,6 +66,7 @@ function unwrapEnvelope(value) {
  *   store?: import("./dispatch-model.js").DispatchStore,
  *   now?: () => number,
  *   dedupeSize?: number,
+ *   onDispatch?: (envelope: any) => void,
  * }} options
  */
 export function createDispatchBridge(options) {
@@ -126,9 +127,17 @@ export function createDispatchBridge(options) {
    */
   function handle(value) {
     stats.received += 1;
+    const envelope = unwrapEnvelope(value);
+    if (typeof options.onDispatch === "function") {
+      try {
+        options.onDispatch(envelope);
+      } catch {
+        // Исключение внешнего подписчика не роняет цикл диспатчей
+      }
+    }
     let result;
     try {
-      result = applyDispatch(store, unwrapEnvelope(value));
+      result = applyDispatch(store, envelope);
     } catch {
       stats.failed += 1;
       stats.lastErrorKind = "model";

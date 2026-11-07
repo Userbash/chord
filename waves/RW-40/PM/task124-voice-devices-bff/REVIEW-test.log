@@ -1,0 +1,24 @@
+$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_devices_contract
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.17s
+     Running tests/voice_devices_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_devices_contract-f39cb64f7e9376ba)
+
+running 14 tests
+test t02_device_catalog_enumeration_and_default_fallbacks ... ok
+test t03_long_device_labels_preserved_in_dom_options_and_redacted_in_debug ... ok
+test t07_hotplug_all_devices_removed_emits_no_device_available_and_disables_select ... ok
+test t06_hotplug_active_device_removal_falls_back_to_is_default_or_first_without_service_call ... ok
+test t04_explicit_device_selection_and_wrong_kind_not_found_empty_id_errors ... ok
+test t09_vad_threshold_working_range_minus100_to_0_and_sensitivity_mapping ... ok
+test t10_mode_switch_voice_activity_vs_push_to_talk_and_release_delay_0_to_2000_ms ... ok
+test t08_volume_clamping_0_to_100_input_and_0_to_200_output_and_channel_independence ... ok
+test t11_ptt_shortcut_capture_ignores_modifiers_cancels_on_escape_and_formats_space ... ok
+test t12_ptt_blocked_state_on_focus_loss_or_missing_global_shortcuts_portal ... ok
+test t13_mute_deafen_invariant_effective_mute_and_transmission_gating ... ok
+test t14_mic_test_consent_meter_states_and_service_error_alert_recovery ... ok
+test t05_hotplug_preserves_present_active_device_without_autoswitch ... ok
+test t01_initial_state_and_default_selection_ignores_list_order ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT=0

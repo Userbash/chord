@@ -183,3 +183,520 @@
 .typing-indicator-notice[hidden] {
   display: none;
 }
+
+/* =============================================================================
+ * RW-40 / B2b-ATTACH-UI: очередь вложений (#composer-attachments)
+ * ========================================================================== */
+
+/* Очередь: absolute над композером, высота в поток не входит. */
+.composer-attachments {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--space-1));
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-height: calc(var(--attach-chip-thumb, var(--icon-size-lg)) * 3 + var(--space-2) * 2);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.composer-attachments[hidden] {
+  display: none;
+}
+
+/* Чип: карточка на --surface-2 */
+.attachment-chip {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--attach-chip-thumb, var(--icon-size-lg)) minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: var(--space-1) var(--space-3);
+  width: var(--attach-chip-w, calc(var(--space-11) * 5));
+  max-width: 100%;
+  min-height: calc(var(--attach-chip-thumb, var(--icon-size-lg)) + var(--space-4) * 2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.attachment-thumb {
+  grid-row: 1;
+  width: var(--attach-chip-thumb, var(--icon-size-lg));
+  height: var(--attach-chip-thumb, var(--icon-size-lg));
+  border-radius: var(--radius-xs);
+  object-fit: cover;
+  background: var(--surface-3);
+}
+
+.attachment-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.attachment-name {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-size {
+  overflow: hidden;
+  color: var(--text-subtle);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-status {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-chip[data-state="ready"] .attachment-status {
+  color: var(--positive-text);
+}
+
+.attachment-error {
+  max-height: calc(var(--line-height-small) * 2);
+  overflow: hidden;
+  color: var(--danger-text);
+}
+
+.attachment-error[hidden],
+.attachment-status[hidden] {
+  display: none;
+}
+
+/* Прогресс: вторая строка под метаданными, на всю ширину, кроме превью. */
+.attachment-progress {
+  grid-row: 2;
+  grid-column: 2 / -1;
+  height: var(--progress-h, var(--space-1));
+  overflow: hidden;
+  border-radius: var(--radius-round);
+  background: var(--state-active);
+}
+
+.attachment-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--motion-fast) linear;
+}
+
+.attachment-chip[data-state="error-network"] .attachment-progress-fill {
+  background: var(--danger);
+}
+
+.attachment-actions {
+  display: flex;
+  gap: var(--space-2);
+  grid-row: 1;
+  grid-column: 3;
+  align-items: flex-start;
+}
+
+.attachment-action {
+  min-height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.attachment-action:hover {
+  background: var(--state-hover);
+}
+
+.attachment-action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.attachment-remove {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  padding: 0;
+  color: var(--text-muted);
+}
+
+.attachment-action[hidden] {
+  display: none;
+}
+
+/* Видимость статуса и прогресса по состояниям */
+.attachment-chip[data-state="idle"] .attachment-status,
+.attachment-chip[data-state^="error"] .attachment-status {
+  display: none;
+}
+
+.attachment-chip[data-state="idle"] .attachment-progress,
+.attachment-chip[data-state="ready"] .attachment-progress,
+.attachment-chip[data-state^="error"] .attachment-progress {
+  display: none;
+}
+
+/* Счётчик файлов в композере */
+.composer-attach-count {
+  flex: 0 0 auto;
+  order: 4;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.composer-attach-count[data-visible="false"] {
+  display: none;
+}
+
+.composer-attach-count[data-full="true"] {
+  color: var(--danger-text);
+}
+
+/* Недоступные кнопки композера */
+.composer-attach[aria-disabled="true"],
+.composer-gift[aria-disabled="true"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* Dropzone: подсветка композера при drag-over */
+.composer[data-drop="active"] {
+  outline: var(--focus-ring-width) dashed var(--accent);
+  outline-offset: calc(-1 * var(--focus-ring-offset));
+  background: var(--accent-soft);
+}
+
+/* =============================================================================
+ * RW-40 / STUB-12: Модалка подарка (#gift-modal)
+ * ========================================================================== */
+
+.gift-modal-card {
+  width: min(var(--modal-w-md), calc(100vw - var(--space-11)));
+  max-height: calc(100vh - var(--space-11) * 2);
+  overflow-y: auto;
+  background: var(--surface-2);
+}
+
+.gift-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.gift-close {
+  flex: 0 0 auto;
+}
+
+.gift-label {
+  color: var(--text-subtle);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.gift-recipient {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.gift-recipient-name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gift-plans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.gift-plan {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--btn-height-lg);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.gift-plan:hover {
+  background: var(--state-hover);
+}
+
+.gift-plan:focus-within {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-plan:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.gift-plan-name {
+  color: var(--text);
+  font-size: var(--font-size-ui);
+}
+
+.gift-plan-price {
+  margin-left: auto;
+  color: var(--text-subtle);
+  font-size: var(--font-size-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.gift-custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.gift-custom-input {
+  min-height: var(--space-12);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  resize: vertical;
+}
+
+.gift-custom-input::placeholder {
+  color: var(--text-muted);
+}
+
+.gift-counter {
+  align-self: flex-end;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.gift-catalog-status {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+}
+
+.gift-catalog-notice {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.gift-success {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.gift-success[hidden] {
+  display: none;
+}
+
+.gift-success-title {
+  margin: 0;
+  color: var(--positive-text);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+}
+
+.gift-success-code {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-ui);
+  overflow-wrap: anywhere;
+}
+
+.gift-copy {
+  align-self: flex-start;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-pad-x);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--btn-radius);
+  background: transparent;
+  color: var(--text-accent);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.gift-copy:hover {
+  background: var(--state-hover);
+}
+
+.gift-copy:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-modal-card[data-state="submitting"] .gift-close,
+.gift-modal-card[data-state="submitting"] #gift-submit,
+.gift-modal-card[data-state="submitting"] [data-action="gift-close"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+ * RW-40 / INT-02 (M-08): Форматирование Markdown, спойлеры и упоминания в чате
+ * ========================================================================== */
+
+.md-code {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.md-code-block {
+  margin: var(--space-2) var(--space-0);
+  padding: var(--space-3);
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+}
+
+.md-code-block .md-code {
+  padding: var(--space-0);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.md-quote {
+  margin: var(--space-1) var(--space-0);
+  padding: var(--space-1) var(--space-4);
+  border-left: var(--space-2) solid var(--accent);
+  border-radius: var(--space-0) var(--radius-xs) var(--radius-xs) var(--space-0);
+  background: transparent;
+  color: var(--text-subtle);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+.md-link {
+  color: var(--text-link);
+  text-decoration: underline;
+}
+
+.md-link:hover {
+  color: var(--text-accent);
+}
+
+.md-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.md-spoiler {
+  display: inline-block;
+  padding: var(--space-0) var(--space-1);
+  border-radius: var(--radius-xs);
+  transition: background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.md-spoiler:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.md-spoiler[data-spoiler="hidden"] {
+  background: var(--surface-3);
+  color: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.md-spoiler[data-spoiler="hidden"]:hover {
+  background: var(--surface-4);
+}
+
+.md-spoiler[data-spoiler="revealed"] {
+  background: var(--surface-sunken);
+  color: var(--text);
+  cursor: text;
+}
+
+.mention {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--accent-soft);
+  color: var(--text-accent);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.mention:hover {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.mention:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attachment-progress-fill,
+  .md-spoiler,
+  .mention {
+    transition: none;
+  }
+}
+

@@ -1,0 +1,96 @@
+▶ QA-M2-03: search_remote на реальном index.html (data-guild-id)
+  ✔ после ready шлёт ровно один search_remote с guildId из data-guild-id (29.364079ms)
+  ✔ STUB-14: передаёт все подтверждённые фильтры поиска в query (§2) (11.296092ms)
+  ✔ STUB-14: дата → min_id/max_id, has — массив токенов, сортировка asc (13.801406ms)
+  ✔ STUB-14: пустые фильтры не уходят в query (только content/limit/sort/offset) (6.327862ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: не найдено (404)
+  ✔ unauthorized/forbidden/notFound — видимая ошибка без локального fallback (20.532833ms)
+✔ QA-M2-03: search_remote на реальном index.html (data-guild-id) (82.117301ms)
+▶ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2)
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.619145ms)
+  ✖ P2: невалидные календарные даты отклоняются, валидные считаются по UTC (0.229943ms)
+  ✖ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (6.358673ms)
+✖ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (16.509883ms)
+ℹ tests 8
+ℹ suites 2
+ℹ pass 5
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 136.472867
+
+✖ failing tests:
+
+test at tests/unit/search-remote-real-index.test.mjs:345:3
+✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.619145ms)
+  AssertionError [ERR_ASSERTION]: локальный фильтр по числовому id отбросил совпавшее серверное сообщение
+  + actual - expected
+  
+  + []
+  - [
+  -   '9501'
+  - ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:387:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ '9501' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:402:3
+✖ P2: невалидные календарные даты отклоняются, валидные считаются по UTC (0.229943ms)
+  AssertionError [ERR_ASSERTION]: 2026-02-31 нормализована в март
+  + actual - expected
+  
+  + {
+  +   max_id: '1478542491643805696',
+  +   min_id: '1478180103782400000'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:403:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { min_id: '1478180103782400000', max_id: '1478542491643805696' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/search-remote-real-index.test.mjs:416:3
+✖ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (6.358673ms)
+  AssertionError [ERR_ASSERTION]: для даты 2026-02-31 ушёл серверный запрос
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:427:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

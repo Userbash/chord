@@ -1,0 +1,20 @@
+▶ INVITE_MAX_AGE_OPTIONS_RU, INVITE_MAX_USES_OPTIONS_RU и formatInviteUrl
+  ✔ экспортирует замороженные справочники сроков действия и лимитов использований на русском (0.678881ms)
+  ✔ formatInviteUrl обрезает пробелы и возвращает https://discord.gg/<code> либо пустую строку (0.08936ms)
+✔ INVITE_MAX_AGE_OPTIONS_RU, INVITE_MAX_USES_OPTIONS_RU и formatInviteUrl (1.414253ms)
+▶ createInviteModalController
+  ✔ open() рендерит диалог [data-invite-modal] с заголовком канала, ссылкой и списком друзей (1.590173ms)
+  ✔ клик по [data-invite-copy-btn] меняет текст на 'Скопировано!' и вызывает onCopyLink(url) (0.269881ms)
+  ✔ клик по [data-invite-friend-btn] переводит кнопку в disabled 'Отправлено' и вызывает onSendFriendInvite(userId) (0.236061ms)
+  ✔ setSearchQuery(q) и ввод в [data-invite-friend-search] фильтруют список друзей без потери статуса 'Отправлено' (0.487041ms)
+  ✔ панель настроек (maxAge, maxUses, temporary) и updateSettings синхронизируются с [data-invite-regenerate-btn] (0.573711ms)
+  ✔ close() удаляет модальное окно [data-invite-modal] из контейнера (0.199521ms)
+✔ createInviteModalController (3.607468ms)
+ℹ tests 8
+ℹ suites 2
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.016796

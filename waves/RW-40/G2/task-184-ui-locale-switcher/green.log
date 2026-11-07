@@ -1,0 +1,32 @@
+▶ реестр локалей
+  ✔ SUPPORTED_LOCALES заморожен и содержит ru-RU и en-US (0.681931ms)
+  ✔ LOCALE_STORAGE_KEY === discord.locale (0.07298ms)
+✔ реестр локалей (1.339412ms)
+▶ createLocaleSwitcher: инициализация
+  ✔ без storage берёт defaultLocale ru и синхронизирует атрибуты (0.200931ms)
+  ✔ читает сохранённую локаль из storage (0.12545ms)
+  ✔ невалидное значение в storage откатывается к defaultLocale (0.10816ms)
+  ✔ storage без метода getItem не ломает инициализацию (0.07546ms)
+✔ createLocaleSwitcher: инициализация (0.672161ms)
+▶ setLocale
+  ✔ меняет локаль, атрибуты и сохраняет в storage (0.178871ms)
+  ✔ неизвестный код → RangeError, локаль не меняется (0.24528ms)
+  ✔ невалидный defaultLocale откатывается к ru (0.08063ms)
+✔ setLocale (0.654511ms)
+▶ onChange
+  ✔ слушатель получает новый код (0.15993ms)
+  ✔ отписка прекращает уведомления (0.08601ms)
+✔ onChange (0.3245ms)
+▶ renderSelect
+  ✔ рендерит select с aria-label, data-role и двумя опциями (0.16461ms)
+  ✔ помечает текущую локаль выбранной (0.07489ms)
+  ✔ change на select вызывает setLocale (0.10148ms)
+✔ renderSelect (0.747691ms)
+ℹ tests 14
+ℹ suites 5
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.204759

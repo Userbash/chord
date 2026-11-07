@@ -1,0 +1,180 @@
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/crates/discord-codec)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/gui-spike)
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/crates/discord-platform)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_gui_spike::reactions::REACTION_PUT_EMPTY_BODY`
+ --> tests/reactions_contract.rs:5:72
+  |
+5 |     DiscordReactionApi, ReactionApi, ReactionError, ReactionTransport, REACTION_PUT_EMPTY_BODY,
+  |                                                                        ^^^^^^^^^^^^^^^^^^^^^^^ no `REACTION_PUT_EMPTY_BODY` in `reactions`
+
+error[E0782]: expected a type, found a trait
+   --> tests/reactions_contract.rs:658:24
+    |
+658 |     let response = run(ReactionTransport::put_empty_body(&api, EMPTY_BODY_PATH))
+    |                        ^^^^^^^^^^^^^^^^^
+    |
+help: you can add the `dyn` keyword if you want a trait object
+    |
+658 |     let response = run(<dyn ReactionTransport>::put_empty_body(&api, EMPTY_BODY_PATH))
+    |                        ++++                  +
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:681:17
+    |
+681 |         run(api.add_reaction_empty_body(
+    |             ----^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+681 -         run(api.add_reaction_empty_body(
+681 +         run(api.add_reaction(
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:710:17
+    |
+710 |         run(api.add_reaction_empty_body(
+    |             ----^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+710 -         run(api.add_reaction_empty_body(
+710 +         run(api.add_reaction(
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:718:17
+    |
+718 |         run(api.add_reaction_empty_body(
+    |             ----^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+718 -         run(api.add_reaction_empty_body(
+718 +         run(api.add_reaction(
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:756:29
+    |
+756 |             run(guarded_api.add_reaction_empty_body(channel_id, message_id, emoji)),
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+756 -             run(guarded_api.add_reaction_empty_body(channel_id, message_id, emoji)),
+756 +             run(guarded_api.add_reaction(channel_id, message_id, emoji)),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:798:17
+    |
+798 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+798 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+798 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:803:17
+    |
+803 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+803 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+803 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:809:17
+    |
+809 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+809 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+809 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:815:17
+    |
+815 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+815 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+815 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:819:17
+    |
+819 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+819 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+819 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:823:17
+    |
+823 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+823 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+823 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:827:17
+    |
+827 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+827 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+827 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+error[E0599]: no method named `add_reaction_empty_body` found for struct `DiscordReactionApi` in the current scope
+   --> tests/reactions_contract.rs:831:17
+    |
+831 |         run(api.add_reaction_empty_body("110", "120", "👍")),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: there is a method `add_reaction` with a similar name
+    |
+831 -         run(api.add_reaction_empty_body("110", "120", "👍")),
+831 +         run(api.add_reaction("110", "120", "👍")),
+    |
+
+Some errors have detailed explanations: E0432, E0599, E0782.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "reactions_contract") due to 14 previous errors
+warning: build failed, waiting for other jobs to finish...

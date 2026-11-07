@@ -1,0 +1,99 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+
+running 33 tests
+test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::rejects_invalid_snowflakes_missing_fields_and_non_dispatch_envelopes ... ok
+test dispatch::tests::thread_create_update_delete_etf_and_json_typed_parsing ... ok
+test dispatch::tests::message_delete_and_bulk_etf_and_json_preserve_64bit_snowflakes ... ok
+test gateway::tests::encode_guild_subscriptions_bulk_chunked_empty_yields_empty_frames ... ok
+test gateway::tests::encode_guild_subscriptions_bulk_backward_compatible_with_single_frame ... ok
+test gateway::tests::guild_subscriptions_frame_matches_client_shape ... ok
+test gateway::tests::max_guild_subscriptions_frame_bytes_constant_matches_oracle ... ok
+test gateway::tests::guild_members_request_covers_query_and_user_ids_paths ... ok
+test gateway::tests::presence_update_frame_passes_activity_terms_and_afk ... ok
+test gateway::tests::presence_update_frame_bytes_match_wetf_layout ... ok
+test gateway::tests::op_codes_match_protocol_table ... ok
+test gateway::tests::user_ids_chunk_at_one_hundred ... ok
+test state::presence::tests::status_and_custom_activity_helpers ... ok
+test tests::gateway_constants_match_capture ... ok
+test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok
+test gateway::tests::voice_state_update_frame_matches_client_shape ... ok
+test identify::tests::client_identity_drives_identify_properties ... ok
+test identify::tests::rw_client_identity_matches_identify_defaults ... ok
+test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok
+test identify::tests::identify_wire_matches_super_properties_byte_for_byte ... ok
+test gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session ... ok
+test ws::tests::send_presence_update_sends_binary_etf_op3_frame ... ok
+test ws::tests::send_voice_state_update_sends_binary_etf_op4_join_and_leave ... ok
+test ws::tests::send_guild_subscriptions_bulk_sends_binary_etf_op37_frame ... ok
+test ws::tests::send_request_guild_members_chunks_user_ids_by_100_and_supports_query ... ok
+test gateway::supervisor::tests::resume_ttl_preserves_session_up_to_180s_and_resets_to_identify_after_180s ... ok
+test gateway::tests::encode_guild_subscriptions_bulk_chunked_splits_oversized_payloads_into_frames_le_15360 ... ok
+test gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify ... ok
+test gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff ... ok
+test gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 ... ok
+test ws::tests::outbound_guards_dead_session_and_flushes_queued_frames_after_hello ... ok
+test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_extended_kinds ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/rest_client.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_client-2a18cc6e66b1af6e)
+
+running 31 tests
+test api_auth_from_token_with_locales_sets_accept_language_and_discord_locale ... ok
+test debug_redacts_authorization ... ok
+test format_accept_language_qlist_spec_examples ... ok
+test from_token_builds_six_non_empty_headers ... ok
+test content_type_and_length_for_json_body ... ok
+test auth_headers_added_in_order ... ok
+test explicit_auth_header_is_not_duplicated ... ok
+test from_token_scheme_is_parameterized ... ok
+test invalid_base_rejected ... ok
+test from_token_debug_hides_token ... ok
+test post_once_returns_5xx_instead_of_retrying ... ok
+test post_once_returns_4xx_body_with_extra_headers_and_never_retries ... ok
+test optional_headers_sent_when_some_and_non_empty ... ok
+test post_classifies_client_error_like_execute ... ok
+test from_token_trims_token_and_rejects_empty_inputs ... ok
+test no_retry_for_401_and_404 ... ok
+test from_token_headers_reach_network ... ok
+test exhausted_429_returns_rate_limited ... ok
+test http_request_debug_redacts_authorization_and_cookie ... ok
+test telemetry_blocked_before_network ... ok
+test optional_headers_omitted_when_none_or_empty_or_whitespace ... ok
+test protocol_error_maps_to_transport_without_retry ... ok
+test optional_headers_builder_methods_and_post_once ... ok
+test post_sends_json_body_with_auth_headers_and_no_duplicate ... ok
+test telemetry_lookalike_reaches_server ... ok
+test retry_429_for_post ... ok
+test retry_5xx_only_for_idempotent ... ok
+test retry_429_then_success_with_delay ... ok
+test transport_read_timeout_is_retried_for_get ... ok
+test attempt_timeout_retries_idempotent_only ... ok
+test transport_read_timeout_is_not_retried_for_post ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/rest_retry.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_retry-7fd1e99ef9d42367)
+
+running 16 tests
+test is_idempotent_table ... ok
+test non_idempotent_single_attempt ... ok
+test test_retryable_server_statuses_parity ... ok
+test test_retry_delay_client_parity ... ok
+test test_rate_limit_info_limit_and_scope ... ok
+test test_parse_retry_after_or_default ... ok
+test test_should_retry_client_parity ... ok
+test stub_get_success_first_try ... ok
+test stub_close_is_transport_then_retry ... ok
+test idempotent_exhausts_and_clamps ... ok
+test idempotent_retries_to_success ... ok
+test attempt_once_maps_timeout ... ok
+test backoff_pause_between_attempts ... ok
+test stub_timeout_post_not_retried ... ok
+test stub_timeout_then_retry_wins ... ok
+test stub_all_timeout_exhausts ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+

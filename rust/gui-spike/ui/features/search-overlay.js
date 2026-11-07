@@ -11,15 +11,57 @@
  * Локальный скан загруженного окна (ADR-1, ≤500 строк) остаётся fallback'ом
  * только для демо/недоступной IPC-команды; ошибки `SearchError` (401/403/404,
  * прочие 4xx, 429, 5xx, сеть) — видимая ошибка, а не тихий локальный ответ.
- * Пять фильтров вне подтверждённых
- * серверных параметров применяются к уже загруженным результатам и честно
- * помечены «локально» (ATTACH-RE §1: точные REST-параметры — gap).
+ * STUB-14: все 7 фильтров разбираются и нормализуются в подтверждённые
+ * `queryKey` (`author_id`, `mentions`, `has`, `channel_id`, `pinned`,
+ * `author_type`, `min_id`/`max_id`, RE-DEEP-REA §2.3–2.4) и уходят в
+ * `params.query`; принятый backend B7a читает пока 5 полей, поэтому выдача
+ * дополнительно фильтруется локально и секции честно помечены «локально».
  *
  * Панель не модальная (SRCH-02): чат остаётся доступен, Esc/крестик закрывают.
  */
 import { byId, formatNumber } from "./dom.js";
 import { UIError, asUIError, reportError } from "./errors.js";
 import { HAS_OPTIONS, extrasFor } from "./rows.js";
+import {
+  ADULT_VERIFICATION_STATUSES,
+  AGE_GATED_SPACES,
+  GUILD_NSFW_AGREE_STORAGE_KEY,
+  MAX_SEARCH_OFFSET,
+  MAX_SEARCH_PAGES,
+  SEARCH_AUTHOR_TYPES,
+  SEARCH_DEFAULT_RETRY_AFTER_MS,
+  SEARCH_MAX_INDEXING_ATTEMPTS,
+  SEARCH_PAGE_SIZE,
+  applyIncludeNsfw,
+  buildSearchQuery,
+  computeIndexingRetryDelayMs,
+  didAgreeNsfwGuild,
+  formatHistoricalIndexedStatus,
+  formatMaxPagesWarning,
+  isAgeGatedSpacesRestricted,
+  isCalendarDate,
+  normalizeHasFilter,
+  parseSearchQueryTokens,
+  splitQueryValues,
+} from "./search.js";
+
+export {
+  ADULT_VERIFICATION_STATUSES,
+  AGE_GATED_SPACES,
+  GUILD_NSFW_AGREE_STORAGE_KEY,
+  MAX_SEARCH_OFFSET,
+  MAX_SEARCH_PAGES,
+  SEARCH_AUTHOR_TYPES,
+  SEARCH_DEFAULT_RETRY_AFTER_MS,
+  SEARCH_MAX_INDEXING_ATTEMPTS,
+  applyIncludeNsfw,
+  computeIndexingRetryDelayMs,
+  didAgreeNsfwGuild,
+  formatHistoricalIndexedStatus,
+  formatMaxPagesWarning,
+  isAgeGatedSpacesRestricted,
+  parseSearchQueryTokens,
+};
 
 /** R-10: 7 секций фильтров, порядок как в дампе. */
 export const SEARCH_SECTIONS = Object.freeze([
@@ -59,7 +101,11 @@ export const REMOTE_SORTS = Object.freeze({
   recent: { sortBy: "timestamp", sortOrder: "desc" },
 });
 
-/** B7b: секции, у которых нет подтверждённого REST-параметра. */
+/**
+ * STUB-14: фильтры, которые уже нормализуются в подтверждённые `queryKey`, но
+ * принятый backend B7a их пока не читает — применяются к серверной выдаче
+ * локально и честно помечены «локально» (RE-DEEP-REA §2.3).
+ */
 export const LOCAL_FILTER_KEYS = Object.freeze(["from", "has", "mentions", "date", "author", "pinned"]);
 
 /** `SearchError.kind` из `gui-spike/src/search.rs` (serde tag = kind). */
@@ -76,6 +122,29 @@ const SEARCH_ERROR_KINDS = Object.freeze([
   "storage",
   "invalidResponse",
 ]);
+
+/** Подписи чипов активных фильтров (SEARCH-202-NSFW-SPEC §5.3). */
+const CHIP_LABELS = Object.freeze({
+  from: "от",
+  in: "в",
+  has: "содержит",
+  mentions: "упоминание",
+  before: "до",
+  after: "после",
+  date: "дата",
+  author: "тип автора",
+  pinned: "закреплено",
+});
+
+/**
+ * Проверка ответа HTTP 202 / индексации сервера (SEARCH-202-NSFW-RE §1).
+ * @param {any} response
+ * @returns {boolean}
+ */
+function isIndexingResponse(response) {
+  if (!response || typeof response !== "object") return false;
+  return response.status === 202 || response.indexing === true || response.code === 110000;
+}
 
 /**
  * @typedef {{
@@ -101,15 +170,16 @@ function node(className, text = "") {
  * @returns {boolean}
  */
 function isIsoDate(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
+  // P2: `Date.parse` нормализует 2026-02-31 в март — нужна сверка компонентов.
+  return isCalendarDate(value);
 }
 
 /**
  * Сообщение, пришедшее с сервера (после нормализации `messages`).
  * @typedef {{
- *   key: string, id: string, author: string, text: string, timestamp: string,
- *   date: string, time: string, channel: string, pinned: boolean, bot: boolean,
- *   raw: any,
+ *   key: string, id: string, author: string, authorId: string, mentionIds: string[],
+ *   text: string, timestamp: string, date: string, time: string, channel: string,
+ *   pinned: boolean, bot: boolean, raw: any,
  * }} RemoteMessage
  */
 
@@ -220,11 +290,17 @@ function normalizeRemoteMessage(value) {
   const id = String(message.id ?? "");
   const timestamp = String(message.timestamp ?? "");
   const authorName = String(author.username ?? author.global_name ?? author.globalName ?? "автор");
+  const authorId = String(author.id ?? message.author_id ?? message.authorId ?? "");
+  const mentions = /** @type {any[]} */ (Array.isArray(message.mentions) ? message.mentions : []);
   const text = String(message.content ?? "");
   return {
     key: id !== "" ? id : `${timestamp}|${authorName}|${text}`,
     id,
     author: authorName,
+    authorId,
+    mentionIds: mentions
+      .map((mention) => String(mention?.id ?? mention ?? ""))
+      .filter((mentionId) => mentionId !== ""),
     text,
     timestamp,
     date: timestamp.slice(0, 10),
@@ -234,6 +310,25 @@ function normalizeRemoteMessage(value) {
     bot: author.bot === true,
     raw: message,
   };
+}
+
+/**
+ * P1: значение фильтра «От»/«Упоминания» — это имя или числовой snowflake.
+ * Сравнение только с отображаемым именем ложно отбрасывало серверное
+ * сообщение, уже отфильтрованное по `author_id`/`mentions` на сервере.
+ * @param {string} filter
+ * @param {string[]} ids
+ * @param {string[]} names
+ * @returns {boolean}
+ */
+function matchesFilterValue(filter, ids, names) {
+  const values = splitQueryValues(filter);
+  if (values.length === 0) return true;
+  return values.some((value) => {
+    if (ids.includes(value)) return true;
+    const needle = value.toLowerCase();
+    return names.some((name) => name.toLowerCase().includes(needle));
+  });
 }
 
 /**
@@ -272,6 +367,7 @@ export function createSearchOverlay(options) {
   panel.className = "search-overlay";
   panel.setAttribute("role", "search");
   panel.setAttribute("aria-label", "Поиск сообщений");
+  panel.setAttribute("aria-busy", "false");
   panel.setAttribute("data-open", "false");
   panel.setAttribute("aria-hidden", "true");
 
@@ -461,6 +557,101 @@ export function createSearchOverlay(options) {
     if (key === "Enter" || key === " ") target.click();
   });
 
+  /* ---------- M-13: полоса чипов активных фильтров ---------- */
+  const chipsBar = document.createElement("div");
+  chipsBar.className = "search-filter-chips";
+  chipsBar.setAttribute("role", "toolbar");
+  chipsBar.setAttribute("aria-label", "Активные фильтры поиска");
+  chipsBar.setAttribute("hidden", "");
+  const chipList = document.createElement("div");
+  chipList.className = "search-chip-list";
+  chipList.setAttribute("role", "list");
+  const chipsClearBtn = document.createElement("button");
+  chipsClearBtn.className = "search-chips-clear";
+  chipsClearBtn.setAttribute("type", "button");
+  chipsClearBtn.setAttribute("aria-label", "Сбросить все фильтры поиска");
+  chipsClearBtn.textContent = "Сбросить";
+  chipsBar.append(chipList, chipsClearBtn);
+
+  /* ---------- M-13: баннер индексации (HTTP 202 / deep historical) ---------- */
+  const indexingBanner = document.createElement("div");
+  indexingBanner.className = "search-indexing-banner";
+  indexingBanner.setAttribute("role", "status");
+  indexingBanner.setAttribute("aria-live", "polite");
+  indexingBanner.setAttribute("aria-atomic", "true");
+  indexingBanner.setAttribute("data-indexing-state", "idle");
+  indexingBanner.setAttribute("hidden", "");
+  const indexingHeader = document.createElement("div");
+  indexingHeader.className = "search-indexing-header";
+  const indexingSpinner = document.createElement("span");
+  indexingSpinner.className = "search-indexing-spinner";
+  indexingSpinner.setAttribute("aria-hidden", "true");
+  const indexingTitle = document.createElement("span");
+  indexingTitle.className = "search-indexing-title";
+  indexingTitle.textContent = "Индексация";
+  const indexingBadge = document.createElement("span");
+  indexingBadge.className = "search-indexing-badge";
+  indexingBadge.textContent = `Попытка 1 из ${SEARCH_MAX_INDEXING_ATTEMPTS}`;
+  indexingHeader.append(indexingSpinner, indexingTitle, indexingBadge);
+  const indexingDetail = document.createElement("p");
+  indexingDetail.className = "search-indexing-detail";
+  indexingDetail.textContent = "";
+  const indexingProgress = document.createElement("div");
+  indexingProgress.className = "search-indexing-progress";
+  indexingProgress.setAttribute("role", "progressbar");
+  indexingProgress.setAttribute("aria-valuemin", "0");
+  indexingProgress.setAttribute("aria-valuemax", String(SEARCH_MAX_INDEXING_ATTEMPTS));
+  indexingProgress.setAttribute("aria-valuenow", "1");
+  indexingProgress.setAttribute("aria-valuetext", `Попытка 1 из ${SEARCH_MAX_INDEXING_ATTEMPTS}`);
+  const indexingProgressBar = document.createElement("span");
+  indexingProgressBar.className = "search-indexing-progress-bar";
+  indexingProgress.append(indexingProgressBar);
+  const indexingActions = document.createElement("div");
+  indexingActions.className = "search-indexing-actions";
+  indexingActions.setAttribute("hidden", "");
+  const indexingRetryBtn = document.createElement("button");
+  indexingRetryBtn.className = "search-indexing-retry-btn";
+  indexingRetryBtn.setAttribute("type", "button");
+  indexingRetryBtn.textContent = "Повторить запрос";
+  indexingActions.append(indexingRetryBtn);
+  indexingBanner.append(indexingHeader, indexingDetail, indexingProgress, indexingActions);
+
+  /* ---------- M-13: баннер NSFW 18+ гейта ---------- */
+  const nsfwBanner = document.createElement("div");
+  nsfwBanner.className = "search-nsfw-banner search-nsfw-gate";
+  nsfwBanner.setAttribute("role", "region");
+  nsfwBanner.setAttribute("aria-label", "Предупреждение о возрастном ограничении 18+");
+  nsfwBanner.setAttribute("aria-live", "polite");
+  nsfwBanner.setAttribute("aria-atomic", "true");
+  nsfwBanner.setAttribute("data-nsfw-mode", "prompt");
+  nsfwBanner.setAttribute("hidden", "");
+  const nsfwHeader = document.createElement("div");
+  nsfwHeader.className = "search-nsfw-header";
+  const nsfwBadge = document.createElement("span");
+  nsfwBadge.className = "search-nsfw-badge";
+  nsfwBadge.setAttribute("aria-hidden", "true");
+  nsfwBadge.textContent = "18+";
+  const nsfwTitle = document.createElement("h3");
+  nsfwTitle.className = "search-nsfw-title";
+  nsfwTitle.textContent = "Канал с возрастным ограничением";
+  nsfwHeader.append(nsfwBadge, nsfwTitle);
+  const nsfwDesc = document.createElement("p");
+  nsfwDesc.className = "search-nsfw-desc";
+  nsfwDesc.textContent =
+    "Пожалуйста, подтвердите, что вам исполнилось 18 лет и вы хотите просматривать контент для взрослых.";
+  const nsfwActions = document.createElement("div");
+  nsfwActions.className = "search-nsfw-actions";
+  const nsfwContinueBtn = document.createElement("button");
+  nsfwContinueBtn.className = "search-nsfw-btn search-nsfw-btn-continue";
+  nsfwContinueBtn.setAttribute("type", "button");
+  nsfwContinueBtn.textContent = "Продолжить";
+  const nsfwBackBtn = document.createElement("button");
+  nsfwBackBtn.className = "search-nsfw-btn search-nsfw-btn-back";
+  nsfwBackBtn.setAttribute("type", "button");
+  nsfwBackBtn.textContent = "Вернуться";
+  nsfwActions.append(nsfwContinueBtn, nsfwBackBtn);
+  nsfwBanner.append(nsfwHeader, nsfwDesc, nsfwActions);
+
   /* ---------- статус и результаты ---------- */
   const status = document.createElement("p");
   status.className = "search-status";
@@ -471,7 +662,17 @@ export function createSearchOverlay(options) {
   const results = document.createElement("div");
   results.className = "search-results";
 
-  panel.append(head, sections, sortBox, status, results, createFootnote());
+  panel.append(
+    head,
+    chipsBar,
+    sections,
+    sortBox,
+    indexingBanner,
+    nsfwBanner,
+    status,
+    results,
+    createFootnote(),
+  );
   container.append(panel);
 
   /** @returns {HTMLElement} */
@@ -492,7 +693,7 @@ export function createSearchOverlay(options) {
   /** @type {number[]} */
   let lastMatches = [];
 
-  /* ---------- B7b: сетевое состояние ---------- */
+  /* ---------- B7b + M-13: сетевое состояние ---------- */
   /** `unknown` — команда ещё не проверена; `available`/`unavailable` — после ответа. */
   /** @type {"unknown" | "available" | "unavailable"} */
   let remoteState = invoke !== null ? "unknown" : "unavailable";
@@ -510,19 +711,581 @@ export function createSearchOverlay(options) {
   let remoteTotal = 0;
   /** Сколько серверных записей уже пропущено (offset следующей страницы). */
   let remoteOffset = 0;
+  let lastRequestOffset = 0;
   let remoteExhausted = false;
   let deepIndex = false;
+  let documentsIndexed = 0;
+  let indexingAttempts = 0;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let indexingPollId = null;
   /** Незавершённые запросы (для `whenIdle()` в тестах/диагностике). */
   let inflight = 0;
   /** @type {Array<() => void>} */
   let idleWaiters = [];
 
+  /**
+   * M-13: Контекст NSFW и `GuildNSFWAgreeStore` (с fallback в память).
+   * @type {{
+   *   guild?: any,
+   *   user?: any,
+   *   regionalFeatureConfig?: any,
+   *   channels?: Array<{ id: string, name?: string, nsfw?: boolean }>,
+   *   currentChannel?: { id?: string, channelId?: string, nsfw?: boolean } | string | null,
+   *   channel?: { id?: string, channelId?: string, nsfw?: boolean } | string | null,
+   *   agreedStore?: Record<string, boolean>,
+   * }}
+   */
+  let nsfwContext = {};
+  /** @type {Record<string, boolean>} */
+  const memoryNsfwAgreed = {};
+
+  function cancelIndexingPoll() {
+    if (indexingPollId !== null) {
+      clearTimeout(indexingPollId);
+      indexingPollId = null;
+    }
+  }
+
+  function hideIndexingBanner() {
+    indexingBanner.setAttribute("hidden", "");
+    indexingBanner.setAttribute("data-indexing-state", "idle");
+    indexingActions.setAttribute("hidden", "");
+  }
+
+  /** @returns {Storage | null} */
+  function getBrowserLocalStorage() {
+    // Браузер/WebView: штатный путь — `window.localStorage` (getter сам решает,
+    // доступно ли хранилище в privacy mode).
+    try {
+      if (typeof globalThis.window !== "undefined" && globalThis.window) {
+        const viaWindow = globalThis.window.localStorage;
+        if (viaWindow) return viaWindow;
+      }
+    } catch {
+      // Доступ к window.localStorage запрещён — пробуем descriptor ниже.
+    }
+    try {
+      const desc = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+      if (!desc) return null;
+      // Обычное data-свойство (полифилл/тест/старый WebView).
+      if ("value" in desc) return /** @type {Storage | null} */ (desc.value ?? null);
+      if (typeof desc.get !== "function") return null;
+      // Встроенный getter Node без `--localstorage-file` только эмитит
+      // ExperimentalWarning и отдаёт undefined — не трогаем его. Эмуляция
+      // accessor'а в тестах и браузерный getter проходят дальше.
+      if (isNodeBuiltinStorageGetter(desc.get)) return null;
+      // Accessor `get`/`set` (браузер, WebView, эмуляция): читаем через `get`.
+      return /** @type {Storage | null} */ (desc.get.call(globalThis) ?? null);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Встроенный getter `globalThis.localStorage` в Node (native code) без
+   * `window`: вызывать его бессмысленно и шумно.
+   * @param {() => any} getter
+   * @returns {boolean}
+   */
+  function isNodeBuiltinStorageGetter(getter) {
+    const nodeProcess = /** @type {any} */ (globalThis).process;
+    if (!nodeProcess || !nodeProcess.versions?.node) return false;
+    if (typeof globalThis.window !== "undefined") return false;
+    return /\[native code\]/.test(Function.prototype.toString.call(getter));
+  }
+
+  /** @returns {Record<string, boolean>} */
+  function readPersistedNsfwStore() {
+    if (nsfwContext.agreedStore && typeof nsfwContext.agreedStore === "object") {
+      return nsfwContext.agreedStore;
+    }
+    try {
+      const raw = getBrowserLocalStorage()?.getItem(GUILD_NSFW_AGREE_STORAGE_KEY);
+      if (typeof raw === "string" && raw !== "") {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") return parsed;
+      }
+    } catch {
+      // Best-effort: при недоступном localStorage используется memoryNsfwAgreed.
+    }
+    return memoryNsfwAgreed;
+  }
+
+  /** @param {string} guildId */
+  function recordNsfwAgreement(guildId) {
+    if (!guildId) return;
+    memoryNsfwAgreed[guildId] = true;
+    if (nsfwContext.agreedStore && typeof nsfwContext.agreedStore === "object") {
+      nsfwContext.agreedStore[guildId] = true;
+    }
+    try {
+      const next = { ...readPersistedNsfwStore(), [guildId]: true };
+      getBrowserLocalStorage()?.setItem(GUILD_NSFW_AGREE_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Best-effort: уже записано в memoryNsfwAgreed / nsfwContext.agreedStore.
+    }
+  }
+
+  /** @returns {boolean} */
+  function currentDidAgreeNsfw() {
+    const guildId = currentGuildId();
+    if (!guildId) return false;
+    return didAgreeNsfwGuild(
+      guildObjectFor(guildId),
+      nsfwContext.user,
+      readPersistedNsfwStore(),
+      nsfwContext.regionalFeatureConfig,
+    );
+  }
+
+  /** id текущей гильдии: выбранная в рейле, иначе контекст `setNsfwContext`. */
+  function currentGuildId() {
+    return readGuildId() || String(nsfwContext.guild?.id ?? "");
+  }
+
+  /**
+   * Гильдия для `didAgreeNsfwGuild` с id, совпадающим с ключом стора:
+   * запись и чтение согласия обязаны использовать один и тот же id.
+   * @param {string} guildId
+   * @returns {any}
+   */
+  function guildObjectFor(guildId) {
+    return nsfwContext.guild && typeof nsfwContext.guild === "object"
+      ? { ...nsfwContext.guild, id: String(guildId) }
+      : { id: String(guildId) };
+  }
+
+  /**
+   * Является ли целевой канал фильтра `in` возрастным (18+).
+   * @param {string} channelValue
+   * @returns {boolean}
+   */
+  function isChannelNsfw(channelValue) {
+    const target = String(channelValue ?? "").trim();
+    if (target === "") return false;
+    if (Array.isArray(nsfwContext.channels)) {
+      const match = nsfwContext.channels.find(
+        (ch) => String(ch?.id ?? "") === target || String(ch?.name ?? "") === target,
+      );
+      if (match && match.nsfw === true) return true;
+    }
+    const domChannel = document.querySelector(
+      `[data-channel-id="${target}"][data-nsfw="true"], [data-channel="${target}"][data-nsfw="true"]`,
+    );
+    return domChannel !== null;
+  }
+
+  /**
+   * Текущий открытый канал чата помечен 18+ (`nsfw === true`).
+   * @returns {boolean}
+   */
+  function currentChannelIsNsfw() {
+    const current = nsfwContext.currentChannel ?? nsfwContext.channel;
+    if (current && typeof current === "object" && current.nsfw === true) return true;
+    const id = typeof current === "string"
+      ? current
+      : String(current?.id ?? current?.channelId ?? "");
+    return id !== "" && isChannelNsfw(id);
+  }
+
+  /**
+   * Режим NSFW-баннера: `underage` при возрастном ограничении не-взрослого, иначе `prompt`.
+   * @returns {"prompt" | "underage"}
+   */
+  function resolveNsfwGateMode() {
+    const guildId = currentGuildId();
+    if (nsfwContext.user?.nsfwAllowed === false || nsfwContext.user?.nsfw_allowed === false) {
+      return "underage";
+    }
+    if (isAgeGatedSpacesRestricted(nsfwContext.user, nsfwContext.regionalFeatureConfig)) {
+      return "underage";
+    }
+    return "prompt";
+  }
+
+  /**
+   * §4.3: заголовок баннера зависит от триггера — `xi46lg` для гильдии,
+   * `ZmwvDc` для канала.
+   * @param {"prompt" | "underage"} gateMode
+   * @param {"channel" | "guild"} [source]
+   */
+  function showNsfwGate(gateMode, source = "channel") {
+    const firstOpen = nsfwBanner.hasAttribute("hidden");
+    nsfwBanner.removeAttribute("hidden");
+    nsfwBanner.setAttribute("data-nsfw-mode", gateMode);
+    if (gateMode === "underage") {
+      nsfwTitle.textContent =
+        "К сожалению, вы ещё слишком молоды для просмотра этого канала с возрастным ограничением";
+      nsfwDesc.textContent =
+        "Для просмотра каналов с возрастными ограничениями в Discord вам должно быть не менее 18 лет. Ознакомьтесь с нашей полезной статьёй о подтверждении возраста.";
+      nsfwContinueBtn.setAttribute("hidden", "");
+      nsfwBackBtn.removeAttribute("hidden");
+      // §7.1: фокус — только при открытии баннера и не из поля ввода.
+      if (firstOpen && document.activeElement !== input) nsfwBackBtn.focus();
+    } else {
+      nsfwTitle.textContent = source === "guild"
+        ? "Сервер с возрастным ограничением"
+        : "Канал с возрастным ограничением";
+      nsfwDesc.textContent =
+        "В этом канале содержится контент для взрослых с возрастными ограничениями. Хотите продолжить?";
+      nsfwContinueBtn.removeAttribute("hidden");
+      nsfwBackBtn.removeAttribute("hidden");
+      if (firstOpen && document.activeElement !== input) nsfwContinueBtn.focus();
+    }
+  }
+
+  function hideNsfwGate() {
+    nsfwBanner.setAttribute("hidden", "");
+  }
+
+  /**
+   * §4.2 (B): общегильдийский поиск без согласия. Сообщения из 18+ каналов
+   * исключаются из выдачи, а над результатами показывается баннер `prompt`.
+   * Сетевой запрос при этом уходит без `include_nsfw`.
+   * @param {boolean} hasNsfwMatches
+   */
+  function syncGuildNsfwHint(hasNsfwMatches) {
+    if (!hasNsfwMatches || currentDidAgreeNsfw()) return;
+    const parsed = parseSearchQueryTokens(query);
+    const inlineIn = parsed.chips.find((c) => c.key === "in" && !c.negated)?.value ?? "";
+    if (filters.in !== "" || inlineIn !== "") return;
+    showNsfwGate("prompt", "guild");
+  }
+
+  nsfwContinueBtn.addEventListener("click", () => {
+    recordNsfwAgreement(currentGuildId());
+    hideNsfwGate();
+    refresh();
+  });
+
+  nsfwBackBtn.addEventListener("click", () => {
+    hideNsfwGate();
+    const inControl = field("in");
+    if (inControl && typeof inControl.value === "string") {
+      inControl.value = "";
+    }
+    filters.in = "";
+    cancelIndexingPoll();
+    indexingAttempts = 0;
+    results.replaceChildren();
+    status.textContent = "";
+    status.setAttribute("data-state", "ok");
+    // §4.3: если сам открытый канал 18+, возврат закрывает панель (безопасный
+    // поиск невозможен в NSFW-канале); иначе фокус — в поле запроса.
+    if (currentChannelIsNsfw()) {
+      close(true);
+      return;
+    }
+    /** @type {any} */ (input)?.focus?.();
+  });
+
+  indexingRetryBtn.addEventListener("click", () => {
+    cancelIndexingPoll();
+    indexingAttempts = 0;
+    void fetchRemote(false, false);
+  });
+
+  /** §2.1/§5.3: канонический префикс токена для `data-chip-remove`. */
+  const CHIP_PREFIXES = Object.freeze({
+    from: "from:",
+    in: "in:",
+    has: "has:",
+    mentions: "mentions:",
+    before: "before:",
+    after: "after:",
+    on: "on:",
+    date: "on:",
+    authorType: "authorType:",
+    author: "authorType:",
+    pinned: "pinned:",
+  });
+
+  /**
+   * Контрол `.search-sections`, соответствующий чипу (§5.1): у `before`/`after`
+   * отдельного контрола нет, `on:`/`день:` живут в секции «Дата».
+   * @param {string} chipKey
+   * @returns {string | null}
+   */
+  function controlKeyForChip(chipKey) {
+    if (chipKey === "on" || chipKey === "date") return "date";
+    if (chipKey === "before" || chipKey === "after") return null;
+    if (chipKey === "authorType" || chipKey === "author") return "author";
+    return chipKey;
+  }
+
+  /**
+   * §5.3.1: инлайн-токены заполняют ещё пустые контролы `.search-sections`
+   * (двусторонняя синхронизация). Введённые пользователем значения не
+   * перетираются.
+   * @param {{ chips: Array<{ key: string, value: string, negated: boolean }> }} parsed
+   */
+  function syncInlineTokensToControls(parsed) {
+    /** @type {Map<string, string[]>} */
+    const values = new Map();
+    for (const chip of parsed.chips) {
+      const controlKey = controlKeyForChip(chip.key);
+      if (controlKey === null) continue;
+      const list = values.get(controlKey) ?? [];
+      const token = `${chip.negated ? "-" : ""}${chip.value}`;
+      if (!list.includes(token)) list.push(token);
+      values.set(controlKey, list);
+    }
+    for (const [controlKey, list] of values) {
+      const control = field(controlKey);
+      if (!control || list.length === 0) continue;
+      if (controlKey === "pinned") {
+        if (list.includes("true")) {
+          control.setAttribute("aria-checked", "true");
+          control.textContent = "Вкл";
+        }
+        continue;
+      }
+      if (controlKey === "author") {
+        const canonical = list[list.length - 1]?.replace(/^-/, "") ?? "";
+        const label = Object.entries(SEARCH_AUTHOR_TYPES).find(([, value]) => value === canonical)?.[0];
+        const current = typeof control.value === "string" ? control.value : "";
+        if (label && (current === "" || current === "Любой")) control.value = label;
+        continue;
+      }
+      const current = typeof control.value === "string" ? control.value.trim() : "";
+      if (current === "") control.value = list.join(" ");
+    }
+  }
+
+  /**
+   * §5.3.2: удаление чипа чистит и контрол, и инлайн-токен, чтобы фильтр не
+   * «воскрес» из синхронизированного значения.
+   * @param {string} controlKey
+   * @param {string} value
+   * @param {boolean} negated
+   */
+  function clearControlValue(controlKey, value, negated) {
+    const control = field(controlKey);
+    if (!control) return;
+    if (controlKey === "pinned") {
+      control.setAttribute("aria-checked", "false");
+      control.textContent = "Выкл";
+      return;
+    }
+    if (controlKey === "author") {
+      if (typeof control.value === "string") control.value = "Любой";
+      return;
+    }
+    if (typeof control.value !== "string") return;
+    const wanted = `${negated ? "-" : ""}${value}`;
+    // Значение может содержать пробел (`from:"Alex Mercer"`), поэтому режем по
+    // границам токена, а не split(/\s+/).
+    control.value = stripControlValue(control.value, wanted);
+    if (negated) control.value = stripControlValue(control.value, value);
+  }
+
+  /**
+   * @param {string} text
+   * @param {string} value
+   * @returns {string}
+   */
+  function stripControlValue(text, value) {
+    if (value === "") return text.trim();
+    const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return text
+      .replace(new RegExp(`(^|[\\s,])${escaped}(?=[\\s,]|$)`, "g"), " ")
+      .replace(/[\s,]+/g, " ")
+      .trim();
+  }
+
+  /** @param {string} raw @param {string} token */
+  function removeQueryToken(raw, token) {
+    return String(raw ?? "").split(token).join("").replace(/\s+/g, " ").trim();
+  }
+
+  /** §7.2: кольцо фокуса по кнопкам чипов и «Сбросить». @returns {HTMLElement[]} */
+  function chipFocusTargets() {
+    return [
+      .../** @type {HTMLElement[]} */ ([...chipList.querySelectorAll(".search-chip-remove")]),
+      chipsClearBtn,
+    ];
+  }
+
+  /**
+   * @param {HTMLElement | null} from
+   * @param {number} delta
+   */
+  function moveChipFocus(from, delta) {
+    const targets = chipFocusTargets();
+    const index = targets.indexOf(/** @type {HTMLElement} */ (from));
+    if (index < 0 || targets.length === 0) return;
+    const next = targets[(index + delta + targets.length) % targets.length];
+    /** @type {any} */ (next)?.focus?.();
+  }
+
+  /**
+   * §7.2: Backspace/Delete удаляет чип и уводит фокус на соседний, а если чипов
+   * не осталось — в поле запроса.
+   * @param {number} index
+   * @param {() => void} remove
+   */
+  function removeChipWithFocus(index, remove) {
+    remove();
+    const remaining = /** @type {HTMLElement[]} */ ([...chipList.querySelectorAll(".search-chip-remove")]);
+    if (remaining.length === 0) {
+      /** @type {any} */ (input)?.focus?.();
+      return;
+    }
+    const target = remaining[Math.min(index, remaining.length - 1)];
+    /** @type {any} */ (target)?.focus?.();
+  }
+
+  /**
+   * M-13: Сбор и рендеринг чипов активных фильтров (инлайн-токены + контролы).
+   */
+  function syncFilterChips() {
+    const parsed = parseSearchQueryTokens(query);
+    /**
+     * @type {Array<{
+     *   key: string,
+     *   value: string,
+     *   negated: boolean,
+     *   raw?: string,
+     *   source: "inline" | "control",
+     * }>}
+     */
+    const active = parsed.chips.map((chip) => ({
+      key: chip.key,
+      value: chip.value,
+      negated: chip.negated,
+      raw: chip.rawToken,
+      source: "inline",
+    }));
+
+    const addControlChip = (/** @type {string} */ key, /** @type {string} */ val, negated = false) => {
+      if (val === "") return;
+      if (active.some((c) => c.key === key && c.value === val && c.negated === negated)) return;
+      active.push({ key, value: val, negated, source: "control" });
+    };
+
+    for (const val of splitQueryValues(filters.from)) addControlChip("from", val);
+    for (const val of splitQueryValues(filters.in)) addControlChip("in", val);
+    for (const val of splitQueryValues(filters.has)) {
+      const neg = val.startsWith("-");
+      addControlChip("has", neg ? val.slice(1) : val, neg);
+    }
+    for (const val of splitQueryValues(filters.mentions)) addControlChip("mentions", val);
+    if (filters.date !== "") addControlChip("date", filters.date);
+    if (filters.author !== "" && filters.author !== "Любой") addControlChip("author", filters.author);
+    if (filters.pinned) addControlChip("pinned", "true");
+
+    if (active.length === 0) {
+      chipList.replaceChildren();
+      chipsBar.setAttribute("hidden", "");
+      return;
+    }
+
+    chipsBar.removeAttribute("hidden");
+    /** @type {HTMLElement[]} */
+    const chipNodes = [];
+    active.forEach((chip, index) => {
+      const item = document.createElement("span");
+      item.className = "search-chip";
+      item.setAttribute("role", "listitem");
+      item.setAttribute("data-chip-key", chip.key);
+      item.setAttribute("data-chip-value", chip.value);
+      item.setAttribute("data-chip-negated", chip.negated ? "true" : "false");
+
+      const labelText = /** @type {Record<string, string>} */ (CHIP_LABELS)[chip.key] ?? chip.key;
+      const prefix = /** @type {Record<string, string>} */ (CHIP_PREFIXES)[chip.key] ?? `${chip.key}:`;
+      const tokenLabel = `${chip.negated ? "-" : ""}${prefix}${chip.value}`;
+      // §2.1: span.search-chip-prefix / span.search-chip-value.
+      const keySpan = node("search-chip-prefix", `${chip.negated ? "−" : ""}${labelText}:`);
+      const valSpan = node("search-chip-value", chip.value);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "search-chip-remove";
+      removeBtn.setAttribute("type", "button");
+      removeBtn.setAttribute("data-chip-remove", tokenLabel);
+      removeBtn.setAttribute("aria-label", `Удалить фильтр ${labelText}: ${chip.value}`);
+      removeBtn.textContent = "✕";
+
+      const remove = () => {
+        if (chip.source === "inline" && chip.raw) {
+          query = removeQueryToken(query, chip.raw);
+          input.value = query;
+          if (header) header.value = query;
+        }
+        const controlKey = controlKeyForChip(chip.key);
+        if (controlKey !== null) clearControlValue(controlKey, chip.value, chip.negated);
+        reset();
+      };
+
+      removeBtn.addEventListener("click", () => removeChipWithFocus(index, remove));
+      removeBtn.addEventListener("keydown", (event) => {
+        const key = "key" in event ? String(event.key) : "";
+        if (key === "Backspace" || key === "Delete") {
+          removeChipWithFocus(index, remove);
+          return;
+        }
+        if (key === "ArrowLeft") {
+          event.preventDefault();
+          moveChipFocus(removeBtn, -1);
+          return;
+        }
+        if (key === "ArrowRight") {
+          event.preventDefault();
+          moveChipFocus(removeBtn, 1);
+        }
+      });
+
+      item.append(keySpan, valSpan, removeBtn);
+      chipNodes.push(item);
+    });
+    chipList.replaceChildren(...chipNodes);
+  }
+
+  chipsClearBtn.addEventListener("click", () => {
+    const parsed = parseSearchQueryTokens(query);
+    query = parsed.freeText;
+    input.value = query;
+    if (header) header.value = query;
+    for (const [key, ctrl] of controls.entries()) {
+      if (key === "pinned") {
+        ctrl.setAttribute("aria-checked", "false");
+        ctrl.textContent = "Выкл";
+      } else if (key === "author") {
+        /** @type {any} */ (ctrl).value = "Любой";
+      } else {
+        /** @type {any} */ (ctrl).value = "";
+      }
+    }
+    reset();
+    // §5.3.3: фокус возвращается в поле запроса.
+    /** @type {any} */ (input)?.focus?.();
+  });
+
+  chipsClearBtn.addEventListener("keydown", (event) => {
+    const key = "key" in event ? String(event.key) : "";
+    if (key !== "ArrowLeft" && key !== "ArrowRight") return;
+    event.preventDefault();
+    moveChipFocus(chipsClearBtn, key === "ArrowLeft" ? -1 : 1);
+  });
+
+  // §7.2: Backspace в позиции 0 уводит фокус на последний чип.
+  input.addEventListener("keydown", (event) => {
+    const key = "key" in event ? String(event.key) : "";
+    if (key !== "Backspace") return;
+    if (Number(input.selectionStart ?? 0) !== 0 || Number(input.selectionEnd ?? 0) !== 0) return;
+    const removes = /** @type {HTMLElement[]} */ ([...chipList.querySelectorAll(".search-chip-remove")]);
+    if (removes.length === 0) return;
+    event.preventDefault();
+    /** @type {any} */ (removes[removes.length - 1])?.focus?.();
+  });
+
   function beginRequest() {
     inflight += 1;
+    panel.setAttribute("aria-busy", "true");
   }
 
   function endRequest() {
     inflight = Math.max(0, inflight - 1);
+    panel.setAttribute("aria-busy", inflight > 0 || indexingPollId !== null ? "true" : "false");
     if (inflight > 0) return;
     const waiters = idleWaiters;
     idleWaiters = [];
@@ -541,20 +1304,37 @@ export function createSearchOverlay(options) {
   const canRemote = () => remoteState !== "unavailable" && invoke !== null && readGuildId() !== "";
 
   /**
-   * B7b: только подтверждённые ATTACH-RE §1 параметры. Имя канала UI пока не
-   * умеет превращать в snowflake (в дампе нет каталога id) — уходит как есть;
-   * числовой id работает штатно, произвольный текст вернёт видимую ошибку.
+   * B7b + STUB-14 + M-13: подтверждённые параметры поиска. Принятый backend B7a
+   * (`search.rs`) читает `content`/`channelId`/`sortBy`/`sortOrder`/`offset`;
+   * полный набор queryKey из RE-DEEP-REA §2.3–2.4 уходит в `params.query`.
    * @param {number} offset
-   * @returns {{ content: string, channelId?: string, sortBy: string, sortOrder: string, offset: number }}
+   * @returns {{
+   *   content: string, channelId?: string, sortBy: string, sortOrder: string,
+   *   offset: number, query: Record<string, unknown>,
+   * }}
    */
   function buildRemoteParams(offset) {
     const sort = REMOTE_SORTS[sortKey] ?? { sortBy: "timestamp", sortOrder: "desc" };
-    /** @type {{ content: string, channelId?: string, sortBy: string, sortOrder: string, offset: number }} */
-    const params = {
+    const parsed = parseSearchQueryTokens(query);
+    const didAgree = currentDidAgreeNsfw();
+    const builtQuery = buildSearchQuery(filters, /** @type {any} */ ({
       content: query.trim(),
       sortBy: sort.sortBy,
       sortOrder: sort.sortOrder,
       offset,
+      includeNsfw: didAgree,
+      attempts: indexingAttempts > 0 ? indexingAttempts : undefined,
+    }));
+    /** @type {{
+     *   content: string, channelId?: string, sortBy: string, sortOrder: string,
+     *   offset: number, query: Record<string, unknown>,
+     * }} */
+    const params = {
+      content: parsed.freeText !== "" ? parsed.freeText : query.trim(),
+      sortBy: sort.sortBy,
+      sortOrder: sort.sortOrder,
+      offset,
+      query: builtQuery,
     };
     if (filters.in !== "") params.channelId = filters.in;
     return params;
@@ -624,28 +1404,74 @@ export function createSearchOverlay(options) {
   }
 
   /**
-   * «Содержит» для серверного сообщения: работаем только с приложенными
-   * полями (embeds/attachments/reactions); нет данных — честный false.
+   * STUB-14: «Содержит» для серверного сообщения по подтверждённым токенам
+   * §2.3 (`link/embed/poll/snapshot/file/video/image/sound/sticker`).
+   * Работаем только с приложенными полями; нет данных — честный false.
    * @param {string} has
    * @param {RemoteMessage} message
    * @returns {boolean}
    */
   function remoteHasContent(has, message) {
-    const target = has.toLowerCase();
-    if (target === "") return true;
+    if (has.trim() === "") return true;
+    const tokens = normalizeHasFilter(has);
+    if (tokens.length === 0) return false;
     const raw = /** @type {any} */ (message.raw ?? {});
-    const embeds = /** @type {any[]} */ (Array.isArray(raw.embeds) ? raw.embeds : []);
-    const attachments = /** @type {any[]} */ (Array.isArray(raw.attachments) ? raw.attachments : []);
-    const reactions = /** @type {any[]} */ (Array.isArray(raw.reactions) ? raw.reactions : []);
-    if (target === "ссылка") {
-      return embeds.length > 0 || attachments.some((item) => typeof item?.url === "string");
+    return tokens.every((token) => remoteHasToken(token, raw));
+  }
+
+  /**
+   * @param {string} token подтверждённое значение `has` (§2.3)
+   * @param {any} raw серверное сообщение
+   * @returns {boolean}
+   */
+  function remoteHasToken(token, raw) {
+    const embeds = /** @type {any[]} */ (Array.isArray(raw?.embeds) ? raw.embeds : []);
+    const attachments = /** @type {any[]} */ (
+      Array.isArray(raw?.attachments) ? raw.attachments : []
+    );
+    const stickers = /** @type {any[]} */ (
+      Array.isArray(raw?.sticker_items)
+        ? raw.sticker_items
+        : Array.isArray(raw?.stickerItems)
+          ? raw.stickerItems
+          : Array.isArray(raw?.stickers)
+            ? raw.stickers
+            : []
+    );
+    const snapshots = /** @type {any[]} */ (
+      Array.isArray(raw?.message_snapshots)
+        ? raw.message_snapshots
+        : Array.isArray(raw?.messageSnapshots)
+          ? raw.messageSnapshots
+          : []
+    );
+    const contentTypes = attachments.map((/** @type {any} */ item) =>
+      String(item?.content_type ?? "")
+    );
+    const embedTypes = embeds.map((/** @type {any} */ item) => String(item?.type ?? ""));
+    switch (token) {
+      case "link":
+        return embeds.length > 0
+          || attachments.some((/** @type {any} */ item) => typeof item?.url === "string");
+      case "embed":
+        return embeds.length > 0;
+      case "poll":
+        return raw.poll !== undefined && raw.poll !== null;
+      case "snapshot":
+        return snapshots.length > 0;
+      case "file":
+        return attachments.length > 0;
+      case "video":
+        return contentTypes.some((type) => type.startsWith("video/")) || embedTypes.includes("video");
+      case "image":
+        return contentTypes.some((type) => type.startsWith("image/")) || embedTypes.includes("image");
+      case "sound":
+        return contentTypes.some((type) => type.startsWith("audio/")) || embedTypes.includes("audio");
+      case "sticker":
+        return stickers.length > 0;
+      default:
+        return false;
     }
-    if (target === "картинка") {
-      return embeds.some((item) => String(item?.type ?? "") === "image")
-        || attachments.some((item) => String(item?.content_type ?? "").startsWith("image/"));
-    }
-    if (target === "эмодзи") return reactions.length > 0;
-    return false;
   }
 
   /**
@@ -655,10 +1481,15 @@ export function createSearchOverlay(options) {
    * @returns {RemoteMessage[]}
    */
   function applyRemoteFilters(list) {
+    const agreed = currentDidAgreeNsfw();
     return list.filter((message) => {
-      const author = message.author.toLowerCase();
-      if (filters.from && !author.includes(filters.from.toLowerCase())) return false;
-      if (filters.mentions && !author.includes(filters.mentions.toLowerCase())) return false;
+      // §4.2 (B): без согласия сообщения из 18+ каналов не показываются.
+      if (!agreed && isChannelNsfw(message.channel)) return false;
+      // P1: числовой id сверяется с author.id/mentions[].id, имя — с именем.
+      if (!matchesFilterValue(filters.from, message.authorId !== "" ? [message.authorId] : [], [message.author])) {
+        return false;
+      }
+      if (!matchesFilterValue(filters.mentions, message.mentionIds, [message.author])) return false;
       if (filters.date && message.date !== filters.date) return false;
       if (!remoteHasContent(filters.has, message)) return false;
       if (filters.author === "Человек" && message.bot) return false;
@@ -769,6 +1600,11 @@ export function createSearchOverlay(options) {
     const where = message.channel !== "" ? `канал ${message.channel}` : "сервер";
     button.setAttribute("aria-label", `Серверный результат: ${message.author}, ${message.date}`);
     const head = node("search-result-head", `${message.author} · ${where} · ${message.date} ${message.time}`.trim());
+    const isNsfwMessage = message.raw?.nsfw === true || isChannelNsfw(message.channel);
+    if (isNsfwMessage) {
+      const badge = node("search-result-nsfw-badge", "18+");
+      head.append(badge);
+    }
     const snippet = message.text.length > 120 ? `${message.text.slice(0, 117)}…` : message.text;
     const body = node("search-result-text", snippet);
     button.append(head, body);
@@ -798,6 +1634,8 @@ export function createSearchOverlay(options) {
   /** Новый запрос/фильтр начинает выдачу с первого среза (SRCH-15). */
   function reset() {
     slice = SEARCH_SLICE;
+    cancelIndexingPoll();
+    indexingAttempts = 0;
     return refresh();
   }
 
@@ -809,6 +1647,7 @@ export function createSearchOverlay(options) {
 
   /** Локальный скан загруженного окна (ADR-1) — fallback и пустой запрос. */
   function renderLocal() {
+    hideIndexingBanner();
     const { indices, loadedRows } = scan();
     lastMatches = sorted(indices);
     const shown = lastMatches.slice(0, slice);
@@ -846,7 +1685,8 @@ export function createSearchOverlay(options) {
     /** @type {HTMLElement[]} */
     const nodes = visible.map(remoteResultItem);
     const remaining = Math.max(0, remoteTotal - remoteMessages.length);
-    if (!remoteExhausted && remaining > 0) {
+    const ceilingReached = lastRequestOffset >= MAX_SEARCH_OFFSET || remoteOffset > MAX_SEARCH_OFFSET;
+    if (!remoteExhausted && !ceilingReached && remaining > 0) {
       const more = document.createElement("button");
       more.className = "search-more";
       more.setAttribute("type", "button");
@@ -864,6 +1704,23 @@ export function createSearchOverlay(options) {
       ));
     }
     results.replaceChildren(...nodes);
+
+    if (deepIndex) {
+      indexingBanner.removeAttribute("hidden");
+      indexingBanner.setAttribute("data-indexing-state", "historical");
+      indexingTitle.textContent = "Индексация";
+      indexingBadge.textContent = "Архив";
+      indexingDetail.textContent = formatHistoricalIndexedStatus(documentsIndexed);
+      indexingProgress.setAttribute("aria-valuenow", String(SEARCH_MAX_INDEXING_ATTEMPTS));
+      indexingProgress.setAttribute("aria-valuetext", `Архивная индексация: ${documentsIndexed}`);
+      indexingActions.setAttribute("hidden", "");
+    } else {
+      hideIndexingBanner();
+    }
+
+    // §4.2 (B): баннер над общегильдийской выдачей при найденных NSFW-каналах.
+    syncGuildNsfwHint(remoteMessages.some((message) => isChannelNsfw(message.channel)));
+
     if (remoteMessages.length === 0 && remoteTotal === 0) {
       setStatus("на сервере ничего не найдено");
       return;
@@ -876,6 +1733,9 @@ export function createSearchOverlay(options) {
       parts.push(`после локальных фильтров ${formatNumber(visible.length)}`);
     }
     if (deepIndex) parts.push("индекс ещё строится");
+    if (ceilingReached) {
+      parts.push(formatMaxPagesWarning(MAX_SEARCH_PAGES));
+    }
     setStatus(parts.join(" · "));
   }
 
@@ -886,6 +1746,7 @@ export function createSearchOverlay(options) {
    * @param {any} error
    */
   function renderRemoteError(error) {
+    hideIndexingBanner();
     const text = remoteErrorText(error);
     const reported = new UIError("ACTION_FAILED", `поиск: ${text}`);
     reportError(reported.code, reported);
@@ -895,28 +1756,93 @@ export function createSearchOverlay(options) {
   }
 
   /**
+   * Отрисовка состояния HTTP 202 (индексация / исчерпание 5 попыток).
+   * @param {any} response
+   * @param {boolean} append
+   */
+  function handleIndexingResponse(response, append) {
+    indexingAttempts += 1;
+    if (indexingAttempts > SEARCH_MAX_INDEXING_ATTEMPTS) {
+      cancelIndexingPoll();
+      indexingBanner.removeAttribute("hidden");
+      indexingBanner.setAttribute("data-indexing-state", "exhausted");
+      indexingTitle.textContent = "Индексация занимает больше времени";
+      const label = `${SEARCH_MAX_INDEXING_ATTEMPTS} из ${SEARCH_MAX_INDEXING_ATTEMPTS} попыток`;
+      indexingBadge.textContent = label;
+      indexingDetail.textContent =
+        "Нам нужно проиндексировать этот сервер перед поиском. Дайте нам минуточку.";
+      indexingProgress.setAttribute("aria-valuenow", String(SEARCH_MAX_INDEXING_ATTEMPTS));
+      indexingProgress.setAttribute("aria-valuetext", label);
+      indexingActions.removeAttribute("hidden");
+      setStatus("Индексация занимает больше времени", "ok");
+      return;
+    }
+
+    const delayMs = computeIndexingRetryDelayMs(response);
+    const delaySec = Math.max(1, Math.round(delayMs / 1000));
+    const attemptLabel = `Попытка ${indexingAttempts} из ${SEARCH_MAX_INDEXING_ATTEMPTS}`;
+    indexingBanner.removeAttribute("hidden");
+    indexingBanner.setAttribute("data-indexing-state", "indexing");
+    indexingTitle.textContent = "Индексация";
+    indexingBadge.textContent = attemptLabel;
+    // SEARCH-202-NSFW-RE §1.3: тело 202 игнорируется; выводится строка AXPbZr + задержка из Retry-After.
+    indexingDetail.textContent =
+      `Нам нужно проиндексировать этот сервер перед поиском. Дайте нам минуточку. Повтор через ${delaySec} с…`;
+    indexingProgress.setAttribute("aria-valuenow", String(indexingAttempts));
+    indexingProgress.setAttribute("aria-valuetext", attemptLabel);
+    indexingActions.setAttribute("hidden", "");
+    setStatus("Индексация сервера…", "loading");
+
+    cancelIndexingPoll();
+    indexingPollId = setTimeout(() => {
+      indexingPollId = null;
+      void fetchRemote(append, true);
+    }, delayMs);
+  }
+
+  /**
    * @param {boolean} append true — следующая страница по offset
+   * @param {boolean} [isRetry] true — автоматический повтор по HTTP 202
+   * @param {number} [explicitOffset] явный offset страницы (≤ MAX_SEARCH_OFFSET = 9975)
    * @returns {Promise<void>}
    */
-  async function fetchRemote(append) {
+  async function fetchRemote(append, isRetry = false, explicitOffset = undefined) {
     // Снимок на запрос: выбранный сервер не меняется посреди страницы.
     const guildId = readGuildId();
     if (invoke === null || guildId === "") return;
     if (append && (remoteLoading || remoteExhausted)) return;
+
+    const requestOffset = explicitOffset !== undefined
+      ? explicitOffset
+      : append
+        ? remoteOffset
+        : 0;
+    if (requestOffset < 0 || requestOffset > MAX_SEARCH_OFFSET) {
+      lastRequestOffset = MAX_SEARCH_OFFSET;
+      renderRemote();
+      return;
+    }
+
+    if (!isRetry) {
+      cancelIndexingPoll();
+      indexingAttempts = 0;
+    }
     const previous = remoteMessages.length;
-    const requestOffset = append ? remoteOffset : 0;
-    if (!append) {
+    if (!append && !isRetry && explicitOffset === undefined) {
       remoteMessages = [];
       remoteIds = new Set();
       remoteTotal = 0;
       remoteOffset = 0;
+      lastRequestOffset = 0;
       remoteExhausted = false;
       deepIndex = false;
+      documentsIndexed = 0;
     }
+    lastRequestOffset = requestOffset;
     const seq = ++requestSeq;
     remoteLoading = true;
     beginRequest();
-    renderLoading(append);
+    renderLoading(append || explicitOffset !== undefined);
     try {
       const response = await invoke("search_remote", {
         guildId,
@@ -926,6 +1852,12 @@ export function createSearchOverlay(options) {
       if (seq !== requestSeq) return;
       remoteState = "available";
       mode = "remote";
+      if (isIndexingResponse(response)) {
+        handleIndexingResponse(response, append);
+        return;
+      }
+      cancelIndexingPoll();
+      indexingAttempts = 0;
       const raw = flattenServerMessages(response?.messages);
       for (const value of raw) {
         const message = normalizeRemoteMessage(value);
@@ -938,13 +1870,18 @@ export function createSearchOverlay(options) {
         ? Math.max(remoteMessages.length, Math.max(0, total))
         : remoteMessages.length;
       deepIndex = response?.doing_deep_historical_index === true;
+      const indexedCount = Number(response?.documents_indexed);
+      documentsIndexed = Number.isFinite(indexedCount) && indexedCount >= 0 ? indexedCount : 0;
       remoteOffset = requestOffset + raw.length;
-      if (raw.length === 0 || remoteTotal <= remoteMessages.length) remoteExhausted = true;
+      if (raw.length === 0 || remoteTotal <= remoteMessages.length || requestOffset >= MAX_SEARCH_OFFSET) {
+        remoteExhausted = true;
+      }
       // Страница целиком из дублей: следующий offset не даст нового.
       if (append && remoteMessages.length === previous) remoteExhausted = true;
       renderRemote();
     } catch (error) {
       if (seq !== requestSeq) return;
+      cancelIndexingPoll();
       if (isSearchError(error)) {
         renderRemoteError(error);
       } else {
@@ -967,9 +1904,31 @@ export function createSearchOverlay(options) {
   function refresh() {
     try {
       readControls();
+      // §5.3.1: двусторонняя синхронизация — инлайн-токены заполняют пустые
+      // контролы `.search-sections`, затем значения читаются обратно.
+      syncInlineTokensToControls(parseSearchQueryTokens(query));
+      readControls();
+      syncFilterChips();
       if (filters.date && !isIsoDate(filters.date)) {
         throw new UIError("ACTION_FAILED", `дата «${filters.date}» не в формате ГГГГ-ММ-ДД`);
       }
+      // M-13 NSFW Gate (§4.2): фильтр «В» на 18+ канал, NSFW-гильдия
+      // (`nsfw_level ∈ {1, 3}`) или сам открытый канал 18+ — до согласия
+      // показываем баннер и очищаем выдачу.
+      const parsed = parseSearchQueryTokens(query);
+      const inlineIn = parsed.chips.find((c) => c.key === "in" && !c.negated)?.value ?? "";
+      const targetIn = filters.in !== "" ? filters.in : inlineIn;
+      const guildNsfw = [1, 3].includes(Number(nsfwContext.guild?.nsfw_level ?? nsfwContext.guild?.nsfwLevel));
+      const channelNsfw = currentChannelIsNsfw();
+      const channelTarget = targetIn !== "" && isChannelNsfw(targetIn);
+      if ((channelTarget || guildNsfw || channelNsfw) && !currentDidAgreeNsfw()) {
+        cancelIndexingPoll();
+        results.replaceChildren();
+        showNsfwGate(resolveNsfwGateMode(), channelTarget || channelNsfw ? "channel" : "guild");
+        return lastMatches;
+      }
+      hideNsfwGate();
+
       if (hasRemoteCriteria() && canRemote()) {
         mode = "remote";
         void fetchRemote(false);
@@ -977,6 +1936,7 @@ export function createSearchOverlay(options) {
       }
       // Пустой запрос — локальный обзор окна; непустой здесь означает, что
       // сетевой команды нет/она недоступна (fallback с видимой пометкой).
+      cancelIndexingPoll();
       requestSeq += 1;
       remoteLoading = false;
       mode = "local";
@@ -1007,6 +1967,7 @@ export function createSearchOverlay(options) {
 
   /** @param {boolean} [returnFocus] */
   function close(returnFocus = false) {
+    cancelIndexingPoll();
     panel.setAttribute("data-open", "false");
     panel.setAttribute("aria-hidden", "true");
     setMenu(false);
@@ -1021,6 +1982,8 @@ export function createSearchOverlay(options) {
   input.addEventListener("input", () => {
     query = input.value;
     slice = SEARCH_SLICE;
+    cancelIndexingPoll();
+    indexingAttempts = 0;
     show();
   });
   closeButton.addEventListener("click", () => close(true));
@@ -1030,6 +1993,8 @@ export function createSearchOverlay(options) {
       query = header.value;
       input.value = header.value;
       slice = SEARCH_SLICE;
+      cancelIndexingPoll();
+      indexingAttempts = 0;
       show();
     });
   }
@@ -1050,18 +2015,52 @@ export function createSearchOverlay(options) {
       query = value;
       input.value = value;
       if (header) header.value = value;
+      cancelIndexingPoll();
+      indexingAttempts = 0;
       return refresh();
     },
     /**
-     * Программный фильтр (диагностика/тесты): та же валидация, что у полей.
+     * M-13: Установка контекста NSFW для гейта 18+ (`didAgreeNsfwGuild`).
+     * @param {{
+     *   guild?: any,
+     *   user?: any,
+     *   regionalFeatureConfig?: any,
+     *   channels?: Array<{ id: string, name?: string, nsfw?: boolean }>,
+     *   agreedStore?: Record<string, boolean>,
+     * }} context
+     */
+    setNsfwContext(context) {
+      nsfwContext = context && typeof context === "object" ? context : {};
+    },
+    /**
+     * M-13: Загрузка результатов по явному `offset` с проверкой потолка `MAX_SEARCH_OFFSET = 9975`.
+     * @param {number} offset
+     * @returns {Promise<void>}
+     */
+    loadAtOffset(offset) {
+      return fetchRemote(false, false, offset);
+    },
+    /**
+     * Программный фильтр (диагностика/тесты): значения пишутся в контролы,
+     * затем та же валидация и тот же разбор, что у пользовательского ввода.
      * @param {Partial<Filters>} patch
      */
     applyFilter(patch) {
       if (patch.date !== undefined && patch.date !== "" && !isIsoDate(patch.date)) {
         throw new UIError("ACTION_FAILED", `дата «${patch.date}» не в формате ГГГГ-ММ-ДД`);
       }
-      const dateField = field("date");
-      if (patch.date !== undefined && dateField) dateField.value = patch.date;
+      for (const [key, value] of Object.entries(patch)) {
+        if (value === undefined) continue;
+        const control = field(key);
+        if (!control) continue;
+        if (key === "pinned") {
+          const on = value === true;
+          control.setAttribute("aria-checked", on ? "true" : "false");
+          control.textContent = on ? "Вкл" : "Выкл";
+          continue;
+        }
+        if (typeof control.value === "string") control.value = String(value);
+      }
       return refresh();
     },
     /** Открыть панель (фокус — в поле запроса). @param {boolean} [returnFocus] */

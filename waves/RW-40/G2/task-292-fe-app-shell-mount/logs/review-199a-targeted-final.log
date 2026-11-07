@@ -1,0 +1,45 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.64808ms)
+✔ getState: до любых действий активных слоёв нет (0.36286ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.21723ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.11445ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.40949ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.09424ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.17819ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.280501ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.26711ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.16135ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.13318ms)
+✔ openAdminPanel: невалидный id не снимает уже открытые модальные слои (0.10194ms)
+✔ openModalLayer: невалидный id не закрывает активную админ-панель (0.07717ms)
+✔ после destroy() мутаторы бросают Error и оверлеи не открываются (0.09404ms)
+✔ getState: снимок и вложенный activeModalStack заморожены (0.1211ms)
+✔ app.js: импортирует createAppShellWiring и createComposerPopoversBridge из ./features (3.053652ms)
+✔ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (0.98089ms)
+✔ app.js: реэкспортирует createAppShellWiring и createComposerPopoversBridge вместе с прежними фабриками (0.427231ms)
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.825861ms)
+✔ COMPOSER_POPOVER_LAYERS (1.381701ms)
+▶ resolveComposerDraftPopover
+  ✔ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.24754ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.14628ms)
+✔ resolveComposerDraftPopover (0.51198ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.31745ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.10984ms)
+  ✔ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.240413ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.13515ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.14781ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.24919ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.12871ms)
+  ✔ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.19131ms)
+  ✔ getFilteredSlashCommands отдаёт глубокую копию options и не мутирует состояние моста (0.12421ms)
+  ✔ selectSlashCommand с пустым именем команды возвращает null и не вызывает колбэк выбора (0.09884ms)
+✔ createComposerPopoversBridge (6.438013ms)
+ℹ tests 31
+ℹ suites 3
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.827785

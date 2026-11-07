@@ -1,0 +1,54 @@
+error[E0432]: unresolved import `discord_voice::udp::SRTCP_EMPTY_RR_LEN`
+   --> crates/discord-voice/tests/media_contract.rs:610:30
+    |
+610 | ...::udp::{SRTCP_EMPTY_RR_LEN, empty_srtcp_receiver_report};
+    |            ^^^^^^^^^^^^^^^^^^ no `SRTCP_EMPTY_RR_LEN` in `udp`
+
+error[E0432]: unresolved import `discord_voice::udp::SRTCP_EMPTY_RR_LEN`
+   --> crates/discord-voice/tests/media_contract.rs:644:59
+    |
+644 | ...hedule, SRTCP_EMPTY_RR_LEN, UdpMediaSocket,
+    |            ^^^^^^^^^^^^^^^^^^ no `SRTCP_EMPTY_RR_LEN` in `udp`
+
+error[E0599]: no method named `rotate_if_due_srtcp` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/media_contract.rs:687:10
+    |
+686 |       let early = client
+    |  _________________-
+687 | |         .rotate_if_due_srtcp(60_079, &mut schedule, tag, &mut packet_...
+    | |_________-^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `rotate_if_due_srtcp` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/media_contract.rs:695:10
+    |
+694 |       let action = client
+    |  __________________-
+695 | |         .rotate_if_due_srtcp(60_080, &mut schedule, tag, &mut packet_...
+    | |_________-^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `rotate_if_due_srtcp` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/media_contract.rs:727:10
+    |
+726 |       let repeated = client
+    |  ____________________-
+727 | |         .rotate_if_due_srtcp(60_080, &mut schedule, tag, &mut packet_...
+    | |_________-^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `rotate_if_due_srtcp` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/media_contract.rs:787:10
+    |
+786 |       let action1 = client
+    |  ___________________-
+787 | |         .rotate_if_due_srtcp(60_090, &mut schedule, tag, &mut counter)
+    | |_________-^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `rotate_if_due_srtcp` found for struct `UdpMediaSocket` in the current scope
+   --> crates/discord-voice/tests/media_contract.rs:804:10
+    |
+803 |       let action2 = client
+    |  ___________________-
+804 | |         .rotate_if_due_srtcp(120_170, &mut schedule, tag, &mut counter)
+    | |_________-^^^^^^^^^^^^^^^^^^^
+
+Some errors have detailed explanations: E0432, E0599.
+error: could not compile `discord-voice` (test "media_contract") due to 7 previous errors

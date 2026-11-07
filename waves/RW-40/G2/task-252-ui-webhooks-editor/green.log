@@ -1,0 +1,25 @@
+▶ WEBHOOK_TYPE_LABELS_RU
+  ✔ содержит русские метки для типов 1, 2, 3 и заморожен (0.713771ms)
+✔ WEBHOOK_TYPE_LABELS_RU (1.218081ms)
+▶ isValidWebhookName
+  ✔ принимает имена длиной 1..=80 символов после trim и разрешает подстроку clyde в более длинном имени (0.11477ms)
+  ✔ отклоняет пустые строки, строки длиннее 80 символов, точное имя clyde и подстроку discord без учёта регистра (0.086551ms)
+✔ isValidWebhookName (0.301201ms)
+▶ maskWebhookTokenUrl
+  ✔ маскирует токен в URL вида /api/webhooks/<id>/<token> и /api/v9/webhooks/<id>/<token> (0.19033ms)
+  ✔ возвращает пустую строку для нестроковых и пустых значений (0.0765ms)
+✔ maskWebhookTokenUrl (0.37605ms)
+▶ createWebhooksEditorController
+  ✔ рендерит регион [data-webhooks-editor] и список вебхуков с именами, метками типов и замаскированными URL (1.126151ms)
+  ✔ вызывает onCopyWebhookUrl(id, url) и onDeleteWebhook(id) по клику на кнопки копирования и удаления (0.25558ms)
+  ✔ валидирует имя при создании вебхука: выставляет [data-webhook-error] на невалидном имени и вызывает onCreateWebhook(trimmedName) на валидном (0.18175ms)
+  ✔ поддерживает setState, getState и destroy (0.21438ms)
+✔ createWebhooksEditorController (1.953871ms)
+ℹ tests 9
+ℹ suites 4
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.456448

@@ -1,0 +1,476 @@
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✖ клик по каждому disabled-пункту ничего не меняет (27.039263ms)
+  ✔ Enter/Space на disabled-пункте — no-op (guard в самом обработчике) (8.809222ms)
+  ✖ capability=true не включает invite до G-06: disabled + not-implemented (10.63793ms)
+✖ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (47.301165ms)
+▶ G-05 D2: roving tabindex переезжает вместе с фокусом
+  ✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (6.091021ms)
+✖ G-05 D2: roving tabindex переезжает вместе с фокусом (6.283036ms)
+▶ G-05 D3: Esc и Tab не переключают экран
+  ✔ Esc из открытого меню на экране «Настройки» оставляет settings (5.450714ms)
+  ✖ Tab закрывает меню, фокус на opener, default не отменяется (5.751512ms)
+✖ G-05 D3: Esc и Tab не переключают экран (11.4016ms)
+▶ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола
+  ✖ клик по плитке гильдии закрывает меню, но фокус не на opener (6.940213ms)
+  ✔ клик по body закрывает меню и возвращает фокус на opener (7.240991ms)
+✖ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола (14.336917ms)
+▶ G-05 D4: копирование ID — успех только из resolved writeText
+  ✔ resolved writeText → «ID скопирован» тем же id, без утечки id в консоль (4.760745ms)
+  ✖ reject writeText → ошибка, ложного успеха нет (5.844504ms)
+  ✖ нет clipboard API → видимая ошибка, ложного успеха нет (4.398176ms)
+  ✔ пустой/битый id → «ID сервера неизвестен», writeText не вызывается (5.090214ms)
+✖ G-05 D4: копирование ID — успех только из resolved writeText (20.306875ms)
+▶ G-05 D6: причины disabled машиночитаемы и озвучиваемы
+  ✖ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (8.618847ms)
+  ✖ приоритет причин: owner > capability-unknown > not-implemented (4.900549ms)
+  ✖ один polite-статус #server-status и один hidden-узел причины на причину (5.080283ms)
+✖ G-05 D6: причины disabled машиночитаемы и озвучиваемы (18.798135ms)
+▶ G-05: #4 subtitle и #5 aria-checked — только из проекции
+  ✖ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (8.703679ms)
+  ✖ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (4.706404ms)
+  ✖ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (4.209071ms)
+✖ G-05: #4 subtitle и #5 aria-checked — только из проекции (17.795159ms)
+▶ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор
+  ✖ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (7.787215ms)
+✖ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (7.947699ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✖ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (9.628154ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (4.856328ms)
+✖ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (14.593944ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✖ false/true/absent → invite всегда disabled, без диалога и IPC (4.611121ms)
+✖ G-05 T-05-08: capability invite не выводится из ролей (4.746185ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✖ disabled-активация не пишет в #server-status; leave — ровно один статус (4.305794ms)
+✖ G-05 T-05-16: статус меню единственный (4.414436ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✖ меню: ширина/высота с клампом по viewport и прокрутка (0.300578ms)
+  ✖ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.146213ms)
+  ✖ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.171014ms)
+  ✖ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.134354ms)
+✖ G-05 D9/D5: геометрия CSS — статическая проверка контракта (0.845232ms)
+ℹ tests 27
+ℹ suites 12
+ℹ pass 6
+ℹ fail 21
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 207.786264
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:171:3
+✖ клик по каждому disabled-пункту ничего не меняет (27.039263ms)
+  AssertionError [ERR_ASSERTION]: disabled-пункт открыл диалог выхода
+  
+  '' !== null
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:186:16
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:172:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:213:3
+✖ capability=true не включает invite до G-06: disabled + not-implemented (10.63793ms)
+  AssertionError [ERR_ASSERTION]: invite включён без диалога G-06
+  
+  null !== 'true'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:219:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:214:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'true',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:234:3
+✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (6.091021ms)
+  AssertionError [ERR_ASSERTION]: tabindex «Покинуть сервер» = 0
+  
+  '0' !== '-1'
+  
+      at check (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:243:18)
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:257:7
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:235:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '-1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:291:3
+✖ Tab закрывает меню, фокус на opener, default не отменяется (5.751512ms)
+  AssertionError [ERR_ASSERTION]: Tab из меню отменил default (меню не modal)
+  
+  true !== false
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:296:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:292:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:306:3
+✖ клик по плитке гильдии закрывает меню, но фокус не на opener (6.940213ms)
+  AssertionError [ERR_ASSERTION]: клик по контролу не закрыл меню
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:313:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:307:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: null,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:360:3
+✖ reject writeText → ошибка, ложного успеха нет (5.844504ms)
+  AssertionError [ERR_ASSERTION]: статус при reject: «ID сервера скопирован»
+  + actual - expected
+  
+  + 'ID сервера скопирован'
+  - 'Не удалось скопировать ID'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:369:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:361:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'ID сервера скопирован',
+    expected: 'Не удалось скопировать ID',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:374:3
+✖ нет clipboard API → видимая ошибка, ложного успеха нет (4.398176ms)
+  AssertionError [ERR_ASSERTION]: статус без clipboard: «ID сервера скопирован»
+  + actual - expected
+  
+  + 'ID сервера скопирован'
+  - 'Не удалось скопировать ID'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:382:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:375:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'ID сервера скопирован',
+    expected: 'Не удалось скопировать ID',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:408:3
+✖ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (8.618847ms)
+  AssertionError [ERR_ASSERTION]: причина «null» вне §2.3 п.5
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:417:16
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:409:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:436:3
+✖ приоритет причин: owner > capability-unknown > not-implemented (4.900549ms)
+  AssertionError [ERR_ASSERTION]: invite без capability не capability-unknown
+  + actual - expected
+  
+  + null
+  - 'capability-unknown'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:439:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:437:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'capability-unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:461:3
+✖ один polite-статус #server-status и один hidden-узел причины на причину (5.080283ms)
+  AssertionError [ERR_ASSERTION]: регионов role=status 5, а не 1
+  
+  5 !== 1
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:465:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:462:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:479:3
+✖ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (8.703679ms)
+  AssertionError [ERR_ASSERTION]: subtitle отрендерен без данных
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:486:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:480:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: null,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:497:3
+✖ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (4.706404ms)
+  AssertionError [ERR_ASSERTION]: aria-checked не следует за проекцией
+  
+  'false' !== 'true'
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:514:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:498:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'false',
+    expected: 'true',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:522:3
+✖ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (4.209071ms)
+  AssertionError [ERR_ASSERTION]: у #5 нет визуального чекбокса
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:526:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:523:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:540:3
+✖ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (7.787215ms)
+  AssertionError [ERR_ASSERTION]: кнопка активна сразу после 429
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:557:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:541:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: null,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:587:3
+✖ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (9.628154ms)
+  AssertionError [ERR_ASSERTION]: kind=client ушёл в «результат неизвестен»
+  
+  true !== false
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:593:16
+      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:588:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:623:3
+✖ false/true/absent → invite всегда disabled, без диалога и IPC (4.611121ms)
+  AssertionError [ERR_ASSERTION]: capability=null: invite выдал статус
+  + actual - expected
+  
+  + 'Приглашения на сервер недоступны в спайке'
+  - ''
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:637:16
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:624:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Приглашения на сервер недоступны в спайке',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:651:3
+✖ disabled-активация не пишет в #server-status; leave — ровно один статус (4.305794ms)
+  AssertionError [ERR_ASSERTION]: disabled-пункт написал статус
+  + actual - expected
+  
+  + 'Приглашения на сервер недоступны в спайке'
+  - ''
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:657:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:652:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Приглашения на сервер недоступны в спайке',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:684:3
+✖ меню: ширина/высота с клампом по viewport и прокрутка (0.300578ms)
+  AssertionError [ERR_ASSERTION]: нет клампа ширины
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:686:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n  position: fixed;\n  z-index: var(--z-popover);\n  display: flex;\n  flex-direction: column;\n  width: 288px; /* [M] G-05: 288.8 CSS в дампе; токена нет */\n  max-height: 480px;\n  overflow-y: auto;\n  padding: var(--menu-pad);\n  border: 1px solid var(--border-subtle);\n  border-radius: var(--menu-radius);\n  background: var(--surface-3);\n  box-shadow: var(--shadow-popover);\n  color: var(--text-strong);\n  font-size: var(--font-size-ui);\n  line-height: var(--line-height-ui);\n',
+    expected: /width:\s*min\(288px,\s*calc\(100vw - 16px\)\)/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:693:3
+✖ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.146213ms)
+  AssertionError [ERR_ASSERTION]: вертикальный отступ разделителя не --space-4
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:695:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n  flex: 0 0 auto;\n  height: 1px;\n  margin: var(--space-3) calc(var(--menu-pad) * -1);\n  background: var(--divider);\n',
+    expected: /margin-block:\s*var\(--space-4\)/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:700:3
+✖ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.171014ms)
+  AssertionError [ERR_ASSERTION]: в CSS нет правила .menu-item.has-subtitle
+      at block (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:680:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:703:22)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:713:3
+✖ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.134354ms)
+  AssertionError [ERR_ASSERTION]: у .dialog нет max-height (D5)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:715:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n  display: flex;\n  flex-direction: column;\n  gap: var(--space-6);\n  width: min(var(--modal-w-sm), calc(100vw - 48px));\n  padding: var(--modal-pad-y) var(--modal-pad-x);\n  border-radius: var(--radius-md);\n  background: var(--surface-2);\n  box-shadow: var(--shadow-popover);\n  color: var(--text);\n',
+    expected: /max-height:\s*calc\(100vh - 48px\)/,
+    operator: 'match',
+    diff: 'simple'
+  }

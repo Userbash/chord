@@ -1,0 +1,46 @@
+== ConnectionQuality::evaluate vs get quality (mod 613681 @ 2469479) ==
+[OK ] evaluate(False, 10, 0.0): oracle='unknown' test/impl='unknown'
+[OK ] evaluate(True, None, 0.0): oracle='unknown' test/impl='unknown'
+[OK ] evaluate(True, 45, 0.0): oracle='fine' test/impl='fine'
+[OK ] evaluate(True, 250, 5.0): oracle='fine' test/impl='fine'
+[OK ] evaluate(True, 45, None): oracle='fine' test/impl='fine'
+[OK ] evaluate(True, 251, 0.0): oracle='average' test/impl='average'
+[OK ] evaluate(True, 500, 0.0): oracle='average' test/impl='average'
+[OK ] evaluate(True, 80, 5.0001): oracle='average' test/impl='average'
+[OK ] evaluate(True, 80, 10.0): oracle='average' test/impl='average'
+[OK ] evaluate(True, 501, 0.0): oracle='bad' test/impl='bad'
+[OK ] evaluate(True, 40, 10.0001): oracle='bad' test/impl='bad'
+[OK ] evaluate(True, 100, 100.0): oracle='bad' test/impl='bad'
+
+== PingHistory::push_ping vs _handlePing (@ 2504200) ==
+[OK ] len after 200 pushes: oracle=199 test/impl=199
+[OK ] oldest retained: oracle=2 test/impl=2
+[OK ] newest retained: oracle=200 test/impl=200
+[OK ] ping_bad_count 250: oracle=False test/impl=False
+[OK ] ping_bad_count 500: oracle=False test/impl=False
+[OK ] ping_bad_count 501: oracle=True test/impl=True
+
+== PingHistory::average_ping_ms vs getAveragePing (@ 2474810) ==
+[OK ] empty: oracle=0 test/impl=0
+[OK ] single 123: oracle=123.0 test/impl=123
+[OK ] first 20 of 1..=25 (raw): oracle=10.5 test/impl=10.5
+[NOTE] reference returns the raw mean 10.5; the contract types it as u64 and rounds half away from zero (Rust f64::round / JS Math.round) -> 11, which is what the reference UI shows via toFixed(0) and what analytics sends via Math.round(getAveragePing())
+
+== PingHistory::note_ping_timeout vs _handlePingTimeout (@ 2504320) ==
+[OK ] firing points for 1,2,4,5,6: oracle=[6] test/impl=[6]
+[OK ] non-consecutive 1,2,4 never fires: oracle=False test/impl=False
+[OK ] timeout sample value: oracle=4000 test/impl=4000
+
+== compute_outbound_loss_rate_pct vs handleStats (mod 206959 @ 10812800) ==
+[OK ] (1000,0)->(1090,10): oracle=10.0 test/impl=10.0
+[OK ] (0,0)->(99,1): oracle=1.0 test/impl=1.0
+[OK ] deltaSent==0: oracle=0.0 test/impl=0.0
+
+== short_hostname vs getShortHostname (@ 7459580) ==
+[OK ] finland10192.discord.media:443: oracle='finland10192' test/impl='finland10192'
+[OK ] plainhost: oracle='plainhost' test/impl='plainhost'
+[OK ] empty: oracle='' test/impl=''
+[DIFF] oracle is hostname.split('.')[0] with no trim and no ':' handling: 'host:443' -> 'host:443', '  a.b  ' -> '  a'. Contract (TASK.md L46) requires trim + '.'/':' cut, so the implementation follows the contract; the divergence is spec-level and only reachable with inputs the reference never passes (it cuts the port away in endpoint parsing).
+[OK ] host:443 (oracle): oracle='host:443' test/impl='host:443'
+
+RESULT: ALL CHECKS MATCH

@@ -1,0 +1,350 @@
+Baseline file: rust/gui-spike/src/main.rs
+Baseline MD5: 24bb37a8f233213ba7c59dc7b9fb1b22
+========================================================================
+
+[MUT-1] Удаление регистрации константной UI-команды auth_status (AUTH_COMMANDS.status, P2-1) из tauri::generate_handler![...]
+Mutant MD5: 82adf8a5b2c74cacf73efafbe74f2f7e
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+warning: function `auth_status` is never used
+   --> src/main.rs:967:10
+    |
+967 | async fn auth_status(
+    |          ^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike" test) generated 1 warning (1 duplicate)
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.29s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
+
+running 12 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-46f8193065e72d2d)
+
+running 9 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (757288) panicked at tests/ipc_wiring_contract.rs:1143:13:
+UI-команда `auth_status` из `ui/features/auth.js` не зарегистрирована в generate_handler! main.rs
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+
+failures:
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
+------------------------------------------------------------------------
+
+[MUT-2] Удаление регистрации константной UI-команды resolve_invite (JOIN_COMMANDS.resolve, P2-1) из tauri::generate_handler![...]
+Mutant MD5: 613fff086e213f8aada06a1db5d43e2c
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+warning: function `resolve_invite` is never used
+   --> src/main.rs:442:10
+    |
+442 | async fn resolve_invite(
+    |          ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike" test) generated 1 warning (1 duplicate)
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.18s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
+
+running 12 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-46f8193065e72d2d)
+
+running 9 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (757949) panicked at tests/ipc_wiring_contract.rs:1143:13:
+UI-команда `resolve_invite` из `ui/features/join-server.js` не зарегистрирована в generate_handler! main.rs
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+
+failures:
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
+------------------------------------------------------------------------
+
+[MUT-3] Возврат тихого fallback .into_values().next() в ChannelOverrideInput::into_patch вместо Err(NotificationError::InvalidChannelId) при чужом channel_id (P2-2)
+Mutant MD5: 5d011a2bd0eb1da7471dd53b2caae4df
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.29s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
+
+running 12 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+
+thread 'wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input' (758591) panicked at src/main.rs:2078:9:
+assertion `left == right` failed
+  left: Ok(ChannelNotificationOverridePatch { message_notifications: Some(0), muted: Some(true), mute_config: None, flags: None, collapsed: None })
+ right: Err(InvalidChannelId)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... FAILED
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+failures:
+    wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
+------------------------------------------------------------------------
+
+[MUT-4] Игнорирование полей r#override и override_field в ChannelOverrideInput::resolve (P2-3)
+Mutant MD5: 4d8f526bb63d3c4c8e302d2ba6841a0f
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.80s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
+
+running 12 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+
+thread 'wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input' (759209) panicked at src/main.rs:2110:9:
+assertion `left == right` failed
+  left: Ok(ChannelNotificationOverridePatch { message_notifications: None, muted: None, mute_config: None, flags: None, collapsed: None })
+ right: Ok(ChannelNotificationOverridePatch { message_notifications: Some(0), muted: Some(true), mute_config: None, flags: None, collapsed: None })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... FAILED
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+failures:
+    wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
+------------------------------------------------------------------------
+
+[MUT-5] Подмена делегата discord_gui_spike::update_channel_notification_override в update_channel_notification_override
+Mutant MD5: 1f5cd60bdbb25f58d258ffa0a1cde967
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.05s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
+
+running 12 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-46f8193065e72d2d)
+
+running 9 tests
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (759897) panicked at test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... tests/ipc_wiring_contract.rs:ok1330
+:5:
+update_channel_notification_override делегирует в discord_gui_spike::update_channel_notification_override: async fn update_channel_notification_override(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    guild_id: String,
+    channel_id: String,
+    r#override: Option<ChannelNotificationOverridePatch>,
+    override_field: Option<ChannelNotificationOverridePatch>,
+    override_patch: Option<ChannelNotificationOverridePatch>,
+    patch: Option<ChannelOverrideInput>,
+    payload: Option<ChannelOverrideInput>,
+) -> Result<serde_json::Value, NotificationError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<NotificationError, _>(
+        move || backend.token(),
+        || NotificationError::Storage,
+        || NotificationError::MissingToken,
+    )
+    .await?;
+    let api = DiscordNotifications::new(&token)?;
+    let resolved = ChannelOverrideInput::resolve(
+        &channel_id,
+        r#override,
+        override_field,
+        override_patch,
+        patch,
+        payload,
+    )?;
+    let _ = (&api, &token, &guild_id, &channel_id, &resolved);
+    Ok(serde_json::json!({}))
+}
+
+// ---------------------------------------------------------------------------
+// RW-39/NET-C2: авторизация. Вся логика — в `discord_gui_spike::auth`, здесь
+// только Tauri-обёртки. `Keyring` — `!Send` и может ждать D-Bus, поэтому каждая
+// команда уходит в `spawn_blocking`: UI-поток и async-runtime не блокируются.
+// ---------------------------------------------------------------------------
+
+/// Блокирующая операция — вне async-runtime (keyring, файл настроек).
+async fn blocking<T, F>(work: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce() -> T + Send + 'static,
+{
+    tokio::task::spawn_blocking(work)
+        .await
+        .map_err(|error| format!("блокирующая операция не завершилась: {error}"))
+}
+
+/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+failures:
+
+failures:
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
+------------------------------------------------------------------------
+
+[FINAL RESTORE VERIFICATION]
+Baseline MD5: 24bb37a8f233213ba7c59dc7b9fb1b22
+Current MD5:  24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.09s
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
+
+running 12 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-46f8193065e72d2d)
+
+running 9 tests
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+FINAL_GREEN_EXIT_CODE=0

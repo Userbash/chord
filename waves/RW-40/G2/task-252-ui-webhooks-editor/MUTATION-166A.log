@@ -1,0 +1,12 @@
+== baseline ==
+d36b437e62317a54fd4b7f9c7cea64d5  rust/gui-spike/ui/features/webhooks-editor.js
+baseline exit=0
+== M1 KILLED rc=1 
+== M2 KILLED rc=1 
+== M3 KILLED rc=1 
+== M4 KILLED rc=1 
+== M5 KILLED rc=1 
+== restored ==
+d36b437e62317a54fd4b7f9c7cea64d5  rust/gui-spike/ui/features/webhooks-editor.js
+byte-identical: yes
+== mutations killed: 5/5 ==

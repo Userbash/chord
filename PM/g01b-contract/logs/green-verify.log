@@ -1,0 +1,31 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.03s
+     Running tests/settings_contract.rs (target/debug/deps/settings_contract-ca21e140544a2161)
+
+running 23 tests
+test atomic_save_leaves_no_temp_files ... ok
+test errors_are_typed_and_serialize_with_kind ... ok
+test last_guild_id_defaults_to_none_and_stays_out_of_canonical_file ... ok
+test incompatible_version_is_typed_invalid ... ok
+test legacy_file_without_last_guild_id_migrates_to_none ... ok
+test corrupt_json_is_typed_parse_error ... ok
+test defaults_follow_shipped_ui_contract ... ok
+test invalid_density_theme_and_locale_are_typed_invalid ... ok
+test save_creates_missing_parent_directories ... ok
+test settings_path_prefers_env_and_defaults_to_repo_local ... ok
+test missing_file_yields_defaults_without_creating_anything ... ok
+test validate_rejects_non_snowflake_last_guild_id ... ok
+test serialized_defaults_are_canonical_and_hold_no_secrets ... ok
+test store_from_env_uses_dl_settings_path ... ok
+test last_guild_id_roundtrips_as_camel_case_ipc_field ... ok
+test save_then_load_roundtrip_is_lossless ... ok
+test unknown_fields_are_rejected_and_values_not_echoed ... ok
+test save_drops_non_snowflake_last_guild_id_without_failing ... ok
+test oversize_file_is_rejected_before_parsing ... ok
+test non_snowflake_last_guild_id_normalizes_to_none ... ok
+test tauri_commands_are_registered_and_carry_no_tokens ... ok
+test save_rejects_bad_toggles_and_incompatible_version ... ok
+test save_rejects_more_than_size_limit_without_touching_disk ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

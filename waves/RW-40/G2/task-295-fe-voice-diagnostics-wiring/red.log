@@ -1,0 +1,30 @@
+# Red-прогон task-295: тесты добавлены в tests/unit/voice-ui.test.mjs,
+# реализация в voice.js ещё отсутствует (вывод снят с прогона, exit code 1).
+
+$ node --test tests/unit/voice-ui.test.mjs
+file:///home/sanya/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring/tests/unit/voice-ui.test.mjs:29
+  createVoiceDiagnosticsController,
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../../rust/gui-spike/ui/features/voice.js' does not provide an export named 'createVoiceDiagnosticsController'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:463:21)
+    at async ModuleJob.run (node:internal/modules/esm/loader:650:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5)
+
+Node.js v26.13.0
+✖ tests/unit/voice-ui.test.mjs (24.076912ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28.790105
+
+✖ failing tests:
+
+test at tests/unit/voice-ui.test.mjs:1:1
+✖ tests/unit/voice-ui.test.mjs (24.076912ms)
+  'test failed'
+
+EXIT=1

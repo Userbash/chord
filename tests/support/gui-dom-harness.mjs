@@ -29,6 +29,11 @@
 import { setImmediate as tickImmediate } from "node:timers/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+const REAL_SET_TIMEOUT = globalThis.setTimeout;
+const REAL_CLEAR_TIMEOUT = globalThis.clearTimeout;
+const REAL_SET_INTERVAL = globalThis.setInterval;
+const REAL_CLEAR_INTERVAL = globalThis.clearInterval;
+
 /**
  * Запись вызова IPC из фронтенда.
  * @typedef {{ cmd: string, args: any }} InvokeCall
@@ -112,6 +117,24 @@ export class StyleDecl {
       .filter(([, value]) => value !== "")
       .map(([name, value]) => `${name}: ${value}`)
       .join("; ");
+  }
+
+  /** @param {string} raw */
+  set cssText(raw) {
+    const bag = /** @type {Record<string, string>} */ (/** @type {unknown} */ (this));
+    for (const key of Object.keys(bag)) {
+      bag[key] = "";
+    }
+    for (const part of String(raw ?? "").split(";")) {
+      const colonIdx = part.indexOf(":");
+      if (colonIdx <= 0) continue;
+      const prop = part
+        .slice(0, colonIdx)
+        .trim()
+        .replace(/-([a-z])/g, (_, ch) => ch.toUpperCase());
+      const val = part.slice(colonIdx + 1).trim();
+      if (prop) bag[prop] = val;
+    }
   }
 }
 
@@ -311,9 +334,66 @@ export class ShimElement {
     return child;
   }
 
+  /**
+   * Вставка перед узлом-ориентиром: та же семантика, что у `Node.insertBefore`
+   * (если ориентир не найден — добавление в конец).
+   * @param {ShimElement} child
+   * @param {ShimElement | null} reference
+   * @returns {ShimElement}
+   */
+  insertBefore(child, reference) {
+    const index = reference ? this.children.indexOf(reference) : -1;
+    if (index < 0) return this.appendChild(child);
+    child.parentNode = this;
+    this.children.splice(index, 0, child);
+    return child;
+  }
+
   /** @param {...ShimElement} nodes */
   append(...nodes) {
     for (const node of nodes) this.appendChild(node);
+  }
+
+  /** @param {...ShimElement} nodes */
+  prepend(...nodes) {
+    for (let i = nodes.length - 1; i >= 0; i -= 1) {
+      const node = nodes[i];
+      if (!node || typeof node !== "object" || !("parentNode" in node)) continue;
+      if (node.parentNode) node.remove();
+      node.parentNode = this;
+      this.children.unshift(node);
+    }
+  }
+
+  /** @param {...ShimElement} nodes */
+  after(...nodes) {
+    const parent = this.parentNode;
+    if (!parent) return;
+    /** @type {ShimElement} */
+    let ref = this;
+    for (const node of nodes) {
+      if (!node || typeof node !== "object" || !("parentNode" in node)) continue;
+      if (node.parentNode) node.remove();
+      const idx = parent.children.indexOf(ref);
+      node.parentNode = parent;
+      if (idx >= 0) {
+        parent.children.splice(idx + 1, 0, node);
+      } else {
+        parent.children.push(node);
+      }
+      ref = node;
+    }
+  }
+
+  /** @param {...ShimElement} nodes */
+  before(...nodes) {
+    const parent = this.parentNode;
+    if (!parent) return;
+    for (const node of nodes) {
+      if (!node || typeof node !== "object" || !("parentNode" in node)) continue;
+      if (node.parentNode) node.remove();
+      parent.insertBefore(node, this);
+    }
   }
 
   /** @param {...ShimElement} nodes */
@@ -372,14 +452,20 @@ export class ShimElement {
       preventDefault() {
         event.prevented = true;
       },
-      stopPropagation() {},
-      stopImmediatePropagation() { /** @type {any} */ (event).immediateStopped = true; },
+      stopPropagation() { /** @type {any} */ (event).stopped = true; },
+      stopImmediatePropagation() { /** @type {any} */ (event).immediateStopped = true; /** @type {any} */ (event).stopped = true; },
       ...init,
     };
-    // Слушатели читаются из копии: добавление/снятие в обработчике не ломает обход.
-    for (const listener of [...(this.listeners.get(type) ?? [])]) {
-      listener(event);
-      if (/** @type {any} */ (event).immediateStopped) break;
+    /** @type {ShimElement | null} */
+    let current = this;
+    while (current) {
+      event.currentTarget = current;
+      for (const listener of [...(current.listeners.get(type) ?? [])]) {
+        listener(event);
+        if (/** @type {any} */ (event).immediateStopped) break;
+      }
+      if (/** @type {any} */ (event).stopped) break;
+      current = current.parentNode;
     }
     return event;
   }
@@ -416,11 +502,6 @@ export class ShimElement {
    */
   querySelectorAll(selector) {
     return querySelectorAllFrom(this, selector, false);
-  }
-
-  /** @param {string} selector @returns {boolean} */
-  matches(selector) {
-    return parseSelector(selector).some((group) => matchesGroup(this, group));
   }
 
   /**
@@ -502,6 +583,35 @@ export class ShimElement {
   /** @returns {number} */
   get childElementCount() {
     return this.children.length;
+  }
+
+  /**
+   * @param {string} selector
+   * @returns {boolean}
+   */
+  matches(selector) {
+    if (String(selector).includes(":hover")) return false;
+    const groups = parseSelector(selector);
+    return groups.some((group) => matchesGroup(this, group));
+  }
+
+  /**
+   * @param {string} selector
+   * @returns {ShimElement | null}
+   */
+  closest(selector) {
+    /** @type {ShimElement | null} */
+    let cur = this;
+    while (cur) {
+      if (cur.matches(selector)) return cur;
+      cur = cur.parentNode;
+    }
+    return null;
+  }
+
+  /** @returns {{ left: number, top: number, right: number, bottom: number, width: number, height: number }} */
+  getBoundingClientRect() {
+    return { left: 100, top: 100, right: 300, bottom: 200, width: 200, height: 100 };
   }
 }
 
@@ -589,6 +699,23 @@ export class ShimDocument {
    */
   querySelectorAll(selector) {
     return querySelectorAllFrom(this.documentElement, selector, true);
+  }
+
+  /**
+   * @param {string} type
+   * @param {(event: ShimEvent) => void} listener
+   * @param {any} [options]
+   */
+  addEventListener(type, listener, options) {
+    this.documentElement.addEventListener(type, listener, options);
+  }
+
+  /**
+   * @param {string} type
+   * @param {(event: ShimEvent) => void} listener
+   */
+  removeEventListener(type, listener) {
+    this.documentElement.removeEventListener(type, listener);
   }
 }
 
@@ -802,9 +929,21 @@ function buildDom(doc) {
   rail.className = "rail";
   rail.setAttribute("role", "navigation");
   rail.setAttribute("aria-label", "Серверы и экраны");
-  const brand = text("div", "brand", "DL");
-  brand.title = "discord-lab";
-  brand.setAttribute("aria-hidden", "true");
+  const brand = doc.createElement("button");
+  brand.id = "home-rail-btn";
+  brand.className = "brand home-rail-btn";
+  brand.setAttribute("type", "button");
+  brand.setAttribute("data-guild-id", "@me");
+  brand.title = "Личные сообщения и Друзья";
+  brand.setAttribute("aria-label", "Личные сообщения и Друзья");
+  brand.setAttribute("aria-current", "false");
+  brand.setAttribute("tabindex", "-1");
+  const brandMonogram = text("span", "brand-monogram", "DL");
+  brandMonogram.setAttribute("aria-hidden", "true");
+  const brandBadge = text("span", "guild-mention-badge", "0");
+  brandBadge.setAttribute("aria-hidden", "true");
+  brandBadge.setAttribute("hidden", "");
+  brand.append(brandMonogram, brandBadge);
   rail.append(brand);
   /** @type {Array<[string, string, string]>} */
   const guilds = [
@@ -821,6 +960,12 @@ function buildDom(doc) {
     button.textContent = mark;
     rail.append(button);
   }
+  const guildList = doc.createElement("div");
+  guildList.id = "guild-list";
+  guildList.className = "guild-list";
+  guildList.setAttribute("role", "navigation");
+  guildList.setAttribute("aria-label", "Серверы");
+  rail.append(guildList);
   rail.append(make("div", "rail-sep"));
 
   /** @type {Array<[string, string, string]>} */
@@ -853,13 +998,15 @@ function buildDom(doc) {
   /**
    * @param {string} groupTitle
    * @param {Array<[string, string, boolean]>} channels
+   * @param {string} [listId]
    * @returns {ShimElement}
    */
-  const channelGroup = (groupTitle, channels) => {
+  const channelGroup = (groupTitle, channels, listId = "") => {
     const section = make("section", "channel-group");
     const heading = make("h3", "channel-group-title");
     heading.append(text("button", "group-toggle", groupTitle));
     const list = doc.createElement("ul");
+    if (listId) list.id = listId;
     list.className = "channel-list";
     list.setAttribute("role", "list");
     for (const [icon, name, unread] of channels) {
@@ -875,12 +1022,22 @@ function buildDom(doc) {
     section.append(heading, list);
     return section;
   };
+  const dmChannelList = doc.createElement("ul");
+  dmChannelList.id = "dm-channel-list";
+  dmChannelList.className = "channel-list dm-channel-list";
+  dmChannelList.setAttribute("role", "list");
+  dmChannelList.setAttribute("hidden", "");
   treeScroll.append(
-    channelGroup("НОВОСТИ", [
-      ["#", "новости", false],
-      ["#", "объявления", true],
-    ]),
+    channelGroup(
+      "НОВОСТИ",
+      [
+        ["#", "новости", false],
+        ["#", "объявления", true],
+      ],
+      "channel-list",
+    ),
     channelGroup("ГОЛОСОВЫЕ КАНАЛЫ", [["🔊", "Пекарня", false]]),
+    dmChannelList,
   );
   // V-08: host голосовой панели — содержимое собирает features/voice.js,
   // как #auth-gate у features/auth.js (шим не разбирает рантайм-разметку).
@@ -1082,7 +1239,13 @@ function buildDom(doc) {
   settingsShell.append(settingsHead, settingsBody);
   settingsScreen.append(settingsShell);
 
-  content.append(chatHeader, chatScreen, emojiScreen, membersScreen, settingsScreen);
+  const friendsView = make("section", "friends-view");
+  friendsView.id = "friends-view";
+  friendsView.setAttribute("role", "region");
+  friendsView.setAttribute("aria-label", "Друзья");
+  friendsView.setAttribute("hidden", "");
+
+  content.append(chatHeader, chatScreen, emojiScreen, membersScreen, settingsScreen, friendsView);
 
   const quickSwitcher = make("div", "quick-switcher");
   quickSwitcher.id = "quick-switcher";
@@ -1110,11 +1273,21 @@ function buildDom(doc) {
   quickPanel.append(quickInput, quickResults, quickEmpty, quickHint);
   quickSwitcher.append(quickPanel);
 
+  const groupDmDialog = make("div", "dialog-backdrop");
+  groupDmDialog.id = "group-dm-dialog";
+  groupDmDialog.setAttribute("role", "presentation");
+  groupDmDialog.setAttribute("hidden", "");
+
+  const strangerConfirmDialog = make("div", "dialog-backdrop");
+  strangerConfirmDialog.id = "stranger-confirm-dialog";
+  strangerConfirmDialog.setAttribute("role", "presentation");
+  strangerConfirmDialog.setAttribute("hidden", "");
+
   const workspace = make("div", "workspace");
   workspace.append(tree, content);
   const shell = make("div", "shell");
   shell.append(rail, workspace);
-  doc.body.append(topbar, shell, quickSwitcher);
+  doc.body.append(topbar, shell, quickSwitcher, groupDmDialog, strangerConfirmDialog);
   return doc.body;
 }
 
@@ -1204,6 +1377,7 @@ export class GuiDom {
       case "report_bench":
       case "window_ready":
       case "settings_save":
+      case "ack_channel_message":
         return null;
       case "settings_load":
         // RW-40/B8b: дефолты `UiSettings::default` (settings_store.rs).
@@ -1380,6 +1554,11 @@ export class GuiDom {
     this.observers.clear();
     console.error = this.realError;
     console.warn = this.realWarn;
+    const globals = /** @type {Record<string, any>} */ (/** @type {unknown} */ (globalThis));
+    globals.setTimeout = REAL_SET_TIMEOUT;
+    globals.clearTimeout = REAL_CLEAR_TIMEOUT;
+    globals.setInterval = REAL_SET_INTERVAL;
+    globals.clearInterval = REAL_CLEAR_INTERVAL;
     if (activeEnv === this) activeEnv = null;
   }
 }

@@ -646,6 +646,51 @@ describe("auth-гейт: captcha только интерактивная (LOGIN-
     );
   });
 
+  it("kind=captcha: captcha_rqtoken из Rust LoginView сохраняется в adapter context и retry", async () => {
+    /** @type {any} */
+    let captured = null;
+    const rustCaptchaView = {
+      kind: "captcha",
+      sitekey: "a9b5fb07-92ff-493f-86fe-352a2803b3df",
+      service: "hcaptcha",
+      captcha_rqtoken: "rq-rust-snake-case",
+      captcha_session_id: "session-rust-999",
+      captcha_rqdata: "rqdata-rust-888",
+      should_serve_invisible: false,
+      user_flow: "login",
+    };
+
+    await withAuth(
+      {
+        password: (/** @type {any} */ args) => (args.captcha_key ? VIEW_READY : rustCaptchaView),
+      },
+      async ({ env, authCalls }) => {
+        const fake = (/** @type {ShimElement} */ _container, /** @type {any} */ ctx) => {
+          captured = ctx;
+        };
+        /** @type {any} */ (env.window).__AUTH_CAPTCHA__ = { mount: fake };
+        loginWithPassword(env, "user@example.test", PASSWORD);
+        click(env, "auth-submit");
+        await env.settle(4);
+
+        assert.equal(captured?.rqtoken, "rq-rust-snake-case", "captcha_rqtoken из Rust LoginView потерян");
+        captured.onToken("solved-hcaptcha-token");
+        click(env, "auth-captcha-continue");
+        await env.settle(4);
+
+        const calls = authCalls.filter((call) => call.cmd === "auth_login_password");
+        assert.deepEqual(calls[1]?.args, {
+          login: "user@example.test",
+          password: PASSWORD,
+          captcha_key: "solved-hcaptcha-token",
+          captcha_rqtoken: "rq-rust-snake-case",
+          captcha_session_id: "session-rust-999",
+          captcha_rqdata: "rqdata-rust-888",
+        });
+      },
+    );
+  });
+
   it("без adapter: placeholder и честный disabled, никаких обходов и вызовов", async () => {
     await withAuth({ password: VIEW_CAPTCHA }, async ({ env, authCalls }) => {
       loginWithPassword(env, "user@example.test", PASSWORD);

@@ -1,0 +1,378 @@
+BASELINE MD5: 55356f6ee740d224c1339d70fc08ec1d  rust/gui-spike/ui/features/members.js
+
+=================================================================
+Running M1: rowRole = 'button' instead of 'listitem' (AT-SPI listitem regression)
+▶ STUB-16 / MB-03: member profile popover
+  ✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (39.612454ms)
+  ✔ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (16.661095ms)
+  ✔ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (12.686905ms)
+  ✔ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.994647ms)
+  ✔ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (13.732301ms)
+  ✔ клавиатурная активация по Enter и Space открывает поповер (13.66045ms)
+  ✔ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (11.168917ms)
+  ✔ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (13.131367ms)
+  ✔ закрытие открытого поповера при смене канала (30.262516ms)
+  ✔ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.341892ms)
+✖ STUB-16 / MB-03: member profile popover (163.476879ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 207.614116
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:292:3
+✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (39.612454ms)
+  AssertionError [ERR_ASSERTION]: строка #member-list .member обязана сохранять role=listitem для AT-SPI
+  + actual - expected
+  
+  + 'button'
+  - 'listitem'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:306:16
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'button',
+    expected: 'listitem',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+EXIT_CODE=1 -> KILLED
+
+=================================================================
+Running M2: inner trigger role='none' instead of role='button' (SPEC 4.1 trigger button inside row)
+▶ STUB-16 / MB-03: member profile popover
+  ✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (39.410012ms)
+  ✔ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (16.364794ms)
+  ✔ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (13.102777ms)
+  ✔ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (11.820971ms)
+  ✔ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (13.72516ms)
+  ✔ клавиатурная активация по Enter и Space открывает поповер (13.75916ms)
+  ✔ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (11.187497ms)
+  ✔ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (13.54475ms)
+  ✔ закрытие открытого поповера при смене канала (30.765418ms)
+  ✔ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.360432ms)
+✖ STUB-16 / MB-03: member profile popover (165.269827ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 211.788776
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:292:3
+✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (39.410012ms)
+  AssertionError [ERR_ASSERTION]: внутри строки участника .member должна быть кнопка-триггер [role="button"] (SPEC §4.1)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:314:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+EXIT_CODE=1 -> KILLED
+
+=================================================================
+Running M3: popover.id = 'wrong-popover-id' instead of 'user-profile-popover'
+▶ STUB-16 / MB-03: member profile popover
+  ✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (38.168466ms)
+  ✖ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (13.169888ms)
+  ✖ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (11.552959ms)
+  ✖ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.336963ms)
+  ✖ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (11.224067ms)
+  ✖ клавиатурная активация по Enter и Space открывает поповер (11.58588ms)
+  ✖ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (9.619399ms)
+  ✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (10.928246ms)
+  ✖ закрытие открытого поповера при смене канала (27.168799ms)
+  ✔ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.411622ms)
+✖ STUB-16 / MB-03: member profile popover (145.275315ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 1
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.532492
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:292:3
+✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (38.168466ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:326:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:343:3
+✖ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (13.169888ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:356:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:344:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:371:3
+✖ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (11.552959ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:383:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:372:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:397:3
+✖ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.336963ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:409:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:398:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:422:3
+✖ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (11.224067ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:434:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:423:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:447:3
+✖ клавиатурная активация по Enter и Space открывает поповер (11.58588ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:459:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:448:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:474:3
+✖ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (9.619399ms)
+  AssertionError [ERR_ASSERTION]: id поповера должен быть user-profile-popover
+  + actual - expected
+  
+  + 'wrong-popover-id'
+  - 'user-profile-popover'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:482:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:479:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'wrong-popover-id',
+    expected: 'user-profile-popover',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:510:3
+✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (10.928246ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:522:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:511:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-regressions.test.mjs:535:3
+✖ закрытие открытого поповера при смене канала (27.168799ms)
+  AssertionError [ERR_ASSERTION]: нет #user-profile-popover
+      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:547:23
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:536:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+EXIT_CODE=1 -> KILLED
+
+=================================================================
+Running M4: omit name skeletons in loading state
+▶ STUB-16 / MB-03: member profile popover
+  ✔ прогрессивное создание DOM-узла #user-profile-popover при активации строки (37.946535ms)
+  ✔ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (13.361408ms)
+  ✔ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (11.896672ms)
+  ✔ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.298663ms)
+  ✔ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (12.154262ms)
+  ✔ клавиатурная активация по Enter и Space открывает поповер (12.370204ms)
+  ✖ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (9.74875ms)
+  ✔ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (11.815051ms)
+  ✔ закрытие открытого поповера при смене канала (27.080639ms)
+  ✔ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.311402ms)
+✖ STUB-16 / MB-03: member profile popover (148.067299ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.768083
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:474:3
+✖ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (9.74875ms)
+  AssertionError [ERR_ASSERTION]: в loading state должно быть 2 name skeleton блока
+  
+  0 !== 2
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:491:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:479:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+EXIT_CODE=1 -> KILLED
+
+=================================================================
+Running M5: disable closeMemberProfilePopover on body[data-active-screen] change
+▶ STUB-16 / MB-03: member profile popover
+  ✔ прогрессивное создание DOM-узла #user-profile-popover при активации строки (36.638218ms)
+  ✔ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (13.185908ms)
+  ✔ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (11.469229ms)
+  ✔ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (9.890681ms)
+  ✔ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (12.398664ms)
+  ✔ клавиатурная активация по Enter и Space открывает поповер (11.970711ms)
+  ✔ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (9.8746ms)
+  ✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (12.256402ms)
+  ✔ закрытие открытого поповера при смене канала (27.049608ms)
+  ✔ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.310041ms)
+✖ STUB-16 / MB-03: member profile popover (146.129239ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 187.293811
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:510:3
+✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (12.256402ms)
+  AssertionError [ERR_ASSERTION]: поповер не закрылся при смене data-active-screen
+  
+  false !== true
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:530:14
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:511:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+EXIT_CODE=1 -> KILLED
+
+=================================================================
+RESTORED MD5: 55356f6ee740d224c1339d70fc08ec1d  rust/gui-spike/ui/features/members.js
+SUMMARY: 5/5 KILLED, MD5 RESTORED (55356f6ee740d224c1339d70fc08ec1d)

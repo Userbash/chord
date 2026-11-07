@@ -851,3 +851,310 @@ describe("чат-вью P3-02: новые блоки не ломают инва�
     });
   });
 });
+
+describe("P-03-UI: контроллер индикатора набора и исходящего typing", async () => {
+  const typingMod = await import("../../rust/gui-spike/ui/features/typing-indicator.js");
+  const createTypingController = /** @type {any} */ (typingMod).createTypingController;
+  const TYPING_TTL_MS = typingMod.TYPING_TTL_MS;
+  const TYPING_RESEND_MS = typingMod.TYPING_RESEND_MS;
+  const MAX_TYPING_CHANNELS = /** @type {any} */ (typingMod).MAX_TYPING_CHANNELS;
+
+  it("константы TYPING_TTL_MS, TYPING_RESEND_MS и MAX_TYPING_CHANNELS экспортированы корректно", () => {
+    assert.equal(typeof createTypingController, "function", "createTypingController должен быть функцией");
+    assert.equal(TYPING_TTL_MS, 10_000, "TYPING_TTL_MS должен быть 10 000 мс");
+    assert.equal(TYPING_RESEND_MS, 8_000, "TYPING_RESEND_MS должен быть 8 000 мс");
+    assert.equal(MAX_TYPING_CHANNELS, 5, "MAX_TYPING_CHANNELS должен быть 5");
+  });
+
+  it("прогрессивное создание узла #chat-typing-indicator с нужными атрибутами и переиспользование", async () => {
+    await withApp(async (app) => {
+      // 1. Узла изначально нет — создаётся прогрессивно
+      const controller = createTypingController({
+        currentUserId: "u-self",
+      });
+      const node = app.document.getElementById("chat-typing-indicator");
+      assert.ok(node, "узел #chat-typing-indicator должен быть создан");
+      assert.equal(node.getAttribute("role"), "status");
+      assert.equal(node.getAttribute("aria-live"), "polite");
+      assert.equal(node.getAttribute("data-state"), "idle");
+      assert.equal(node.textContent, "");
+
+      // 2. Идемпотентность/переиспользование — повторный вызов не дублирует узел
+      const controller2 = createTypingController({
+        currentUserId: "u-self",
+      });
+      assert.equal(controller2.element, node, "должен переиспользоваться существующий узел");
+      const allNodes = app.document.querySelectorAll("#chat-typing-indicator");
+      assert.equal(allNodes.length, 1, "узел #chat-typing-indicator не должен дублироваться");
+      controller.dispose?.();
+      controller2.dispose?.();
+    });
+  });
+
+  it("форматирование русского текста: 1, 2, 3 и >3 человек", async () => {
+    await withApp(async (app) => {
+      const controller = createTypingController({
+        currentUserId: "u-self",
+        channelId: "c1",
+      });
+      const node = controller.element;
+
+      // 1 чел. -> 'X печатает…'
+      controller.onTypingStart({ channelId: "c1", userId: "u1", username: "Alice", now: 1000 });
+      assert.equal(node.getAttribute("data-state"), "active");
+      assert.equal(node.textContent, "Alice печатает…");
+
+      // 2 чел. -> 'X и Y печатают…'
+      controller.onTypingStart({ channelId: "c1", userId: "u2", username: "Bob", now: 1000 });
+      assert.equal(node.getAttribute("data-state"), "active");
+      assert.equal(node.textContent, "Alice и Bob печатают…");
+
+      // 3 чел. -> 'X, Y и Z печатают…'
+      controller.onTypingStart({ channelId: "c1", userId: "u3", username: "Charlie", now: 1000 });
+      assert.equal(node.getAttribute("data-state"), "active");
+      assert.equal(node.textContent, "Alice, Bob и Charlie печатают…");
+
+      // >3 чел. -> 'Несколько человек печатают…'
+      controller.onTypingStart({ channelId: "c1", userId: "u4", username: "Dave", now: 1000 });
+      assert.equal(node.getAttribute("data-state"), "active");
+      assert.equal(node.textContent, "Несколько человек печатают…");
+      controller.dispose?.();
+    });
+  });
+
+  it("игнорирование собственного currentUserId", async () => {
+    await withApp(async (app) => {
+      const controller = createTypingController({
+        currentUserId: "my-self-id",
+        channelId: "c1",
+      });
+      const node = controller.element;
+
+      controller.onTypingStart({ channelId: "c1", userId: "my-self-id", username: "Me", now: 1000 });
+      assert.equal(node.getAttribute("data-state"), "idle");
+      assert.equal(node.textContent, "");
+
+      controller.onTypingStart({ channelId: "c1", userId: "u1", username: "Alice", now: 1000 });
+      assert.equal(node.getAttribute("data-state"), "active");
+      assert.equal(node.textContent, "Alice печатает…");
+      controller.dispose?.();
+    });
+  });
+
+  it("автоматическое истечение через TYPING_TTL_MS и мгновенное снятие по onMessageCreated", async () => {
+    await withApp(async (app) => {
+      let currentTime = 10_000;
+      const controller = createTypingController({
+        currentUserId: "u-self",
+        channelId: "c1",
+        now: () => currentTime,
+      });
+      const node = controller.element;
+
+      // Пользователи Alice и Bob начали печатать в 10_000
+      controller.onTypingStart({ channelId: "c1", userId: "u1", username: "Alice", now: 10_000 });
+      controller.onTypingStart({ channelId: "c1", userId: "u2", username: "Bob", now: 10_000 });
+      assert.equal(node.textContent, "Alice и Bob печатают…");
+
+      // Мгновенное снятие по onMessageCreated для Alice
+      controller.onMessageCreated({ channelId: "c1", authorId: "u1" });
+      assert.equal(node.textContent, "Bob печатает…");
+      assert.equal(node.getAttribute("data-state"), "active");
+
+      // В 19_999 (TTL 10_000) Bob ещё печатает
+      currentTime = 19_999;
+      controller.sweep?.(currentTime);
+      assert.equal(node.textContent, "Bob печатает…");
+
+      // В 20_000 истекает Bob -> data-state="idle", пустой текст
+      currentTime = 20_000;
+      controller.sweep?.(currentTime);
+      assert.equal(node.getAttribute("data-state"), "idle");
+      assert.equal(node.textContent, "");
+      controller.dispose?.();
+    });
+  });
+
+  it("хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого)", async () => {
+    await withApp(async (app) => {
+      const controller = createTypingController({
+        currentUserId: "u-self",
+        channelId: "c1",
+      });
+
+      // Заполняем 5 каналов
+      controller.onTypingStart({ channelId: "c1", userId: "u1", username: "Alice", now: 1000 });
+      controller.onTypingStart({ channelId: "c2", userId: "u2", username: "Bob", now: 2000 });
+      controller.onTypingStart({ channelId: "c3", userId: "u3", username: "Charlie", now: 3000 });
+      controller.onTypingStart({ channelId: "c4", userId: "u4", username: "Dave", now: 4000 });
+      controller.onTypingStart({ channelId: "c5", userId: "u5", username: "Eve", now: 5000 });
+
+      assert.equal(controller.getTypingText("c1"), "Alice печатает…");
+      assert.equal(controller.getTypingText("c5"), "Eve печатает…");
+
+      // Добавляем 6-й канал -> самый старый c1 вытесняется
+      controller.onTypingStart({ channelId: "c6", userId: "u6", username: "Frank", now: 6000 });
+      assert.equal(controller.getTypingText("c1"), "", "c1 должен быть вытеснен как самый старый");
+      assert.equal(controller.getTypingText("c2"), "Bob печатает…");
+      assert.equal(controller.getTypingText("c6"), "Frank печатает…");
+
+      controller.setChannel("c6");
+      assert.equal(controller.element.textContent, "Frank печатает…");
+      controller.dispose?.();
+    });
+  });
+
+  it("исходящий notifyInput: игнорирование пустого ввода и троттлинг TYPING_RESEND_MS", async () => {
+    await withApp(async (app) => {
+      /** @type {Array<{ cmd: string, args: any }>} */
+      const calls = [];
+      const controller = createTypingController({
+        currentUserId: "u-self",
+        channelId: "c1",
+        /**
+         * @param {string} cmd
+         * @param {any} [args]
+         */
+        invoke: async (cmd, args) => {
+          calls.push({ cmd, args });
+          return null;
+        },
+      });
+
+      // Пустой/пробельный ввод — invoke не вызывается
+      await controller.notifyInput("c1", "", 1000);
+      await controller.notifyInput("c1", "   ", 1000);
+      assert.equal(calls.length, 0, "пустой ввод не должен вызывать send_typing");
+
+      // Первый непустой ввод — invoke вызывается
+      await controller.notifyInput("c1", "Привет", 1000);
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0]?.cmd, "send_typing");
+      assert.deepEqual(calls[0]?.args, { channelId: "c1" });
+
+      // Повторный ввод внутри TYPING_RESEND_MS (8 000 мс) — троттлинг
+      await controller.notifyInput("c1", "Привет снова", 5000);
+      assert.equal(calls.length, 1, "повторный ввод до истечения 8000 мс должен быть затроттлен");
+
+      // Ввод после 8000 мс — invoke вызывается
+      await controller.notifyInput("c1", "Новый ввод", 9001);
+      assert.equal(calls.length, 2, "ввод после 8000 мс должен отправить send_typing");
+
+      // Другой канал отправляется независимо
+      await controller.notifyInput("c2", "Сообщение в c2", 9001);
+      assert.equal(calls.length, 3, "другой канал не должен блокироваться троттлингом первого");
+      assert.deepEqual(calls[2]?.args, { channelId: "c2" });
+      controller.dispose?.();
+    });
+  });
+
+  it("ошибка 429 RateLimited выставляет data-state='slowmode' и блокирует повторную отправку", async () => {
+    await withApp(async (app) => {
+      let failWith429 = true;
+      let invokeCount = 0;
+      const controller = createTypingController({
+        currentUserId: "u-self",
+        channelId: "c1",
+        invoke: async () => {
+          invokeCount++;
+          if (failWith429) {
+            throw { status: 429, kind: "RateLimited", retry_after_ms: 4000 };
+          }
+          return null;
+        },
+      });
+      const node = controller.element;
+
+      // Первый ввод падает с 429 RateLimited
+      await controller.notifyInput("c1", "Тест", 1000);
+      assert.equal(invokeCount, 1);
+      assert.equal(node.getAttribute("data-state"), "slowmode");
+
+      // Ввод во время блокировки (1000 + 4000 = 5000) — блокируется
+      await controller.notifyInput("c1", "Тест 2", 3000);
+      assert.equal(invokeCount, 1, "отправка должна быть заблокирована во время slowmode");
+
+      // После истечения retry_after_ms (например, 5001) отправка разблокирована
+      failWith429 = false;
+      await controller.notifyInput("c1", "Тест 3", 5001);
+      assert.equal(invokeCount, 2, "отправка должна выполниться после retry_after_ms");
+      controller.dispose?.();
+    });
+  });
+
+  it("прочие ошибки invoke выставляют data-state='error'", async () => {
+    await withApp(async (app) => {
+      const controller = createTypingController({
+        currentUserId: "u-self",
+        channelId: "c1",
+        invoke: async () => {
+          throw new Error("Сетевой сбой");
+        },
+      });
+      const node = controller.element;
+
+      await controller.notifyInput("c1", "Тест", 1000);
+      assert.equal(node.getAttribute("data-state"), "error");
+      controller.dispose?.();
+    });
+  });
+});
+
+describe("FE-P0-04 (task-149): монтирование реакций в chat.js без нарушения DOM-инвариантов", () => {
+  it("chat.js монтирует reactions controller: клик по пилюле даёт класс .active, панель открывает #reaction-picker-popover (9 категорий), contextmenu открывает #reaction-users-modal", async () => {
+    const reactionsMod = await import("../../rust/gui-spike/ui/features/reactions.js");
+    reactionsMod.resetReactions?.();
+    const app = await loadApp({
+      invokeHandler: (cmd) => {
+        if (cmd === "toggle_reaction") return null;
+        if (cmd === "get_reaction_users") {
+          return [{ id: "u-1", username: "sasha", global_name: "Sasha" }];
+        }
+        return undefined;
+      },
+    });
+    try {
+      const list = byId(app, "chat-list");
+      await scrollList(app, list, 0);
+
+      const row = one(app, '#chat-list .row[data-index="26"]');
+      assert.equal(row.children.length, 2, "у строки чата всегда ровно 2 ребёнка (.author и .text)");
+
+      const pill = one(app, '#chat-list .row[data-index="26"] .reaction[data-emoji="✅"]');
+      assert.equal(pill.classList.contains("active"), false);
+      pill.click();
+      assert.equal(pill.classList.contains("active"), true, "клик по пилюле должен выставить класс .active");
+      assert.equal(pill.querySelector(".reaction-count")?.textContent, "2");
+
+      // Hover-панель имеет селектор .message-action-toolbar / .msg-hover-toolbar и открывает #reaction-picker-popover
+      list.dispatchEvent("mouseover", { target: row });
+      const toolbar = one(app, ".message-action-toolbar");
+      assert.equal(toolbar.classList.contains("msg-hover-toolbar"), true);
+      const openPickerBtn = one(app, '.message-action-toolbar [data-command="add-reaction"]');
+      openPickerBtn.click();
+
+      const popover = byId(app, "reaction-picker-popover");
+      assert.equal(popover.getAttribute("role"), "dialog");
+      assert.equal(popover.querySelectorAll('#reaction-picker-tabs [role="tab"]').length, 9);
+
+      // Закрываем пикер по кнопке закрытия — lazy destroy возвращает число .tab к 10
+      one(app, '[data-action="reaction-picker-close"]').click();
+      assert.equal(app.document.getElementById("reaction-picker-popover"), null);
+      assert.equal(all(app, ".tab").length, EMOJI_CATEGORIES);
+
+      // Контекстное меню на пилюле открывает #reaction-users-modal с вкладками type=0 и type=1
+      pill.dispatchEvent("contextmenu");
+      const modal = byId(app, "reaction-users-modal");
+      assert.equal(modal.getAttribute("role"), "dialog");
+      assert.ok(modal.querySelector('[role="tab"][data-reaction-type="0"]'));
+      assert.ok(modal.querySelector('[role="tab"][data-reaction-type="1"]'));
+      one(app, '[data-action="reaction-users-close"]').click();
+      assert.equal(app.document.getElementById("reaction-users-modal"), null);
+    } finally {
+      reactionsMod.resetReactions?.();
+      app.dispose();
+    }
+  });
+});
+
+

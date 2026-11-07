@@ -179,6 +179,28 @@ function readStatePayload() {
   }));
 }
 
+/**
+ * `read_state`-запись канала в форме `m07-be3` (`badgeCount`/`lastAckedId`/
+ * `readStateType` — аддитивные badge-поля READY). Курсор по умолчанию — из
+ * READY-записи канала-оракула, поэтому ожидания не расходятся с артефактом.
+ * @param {Record<string, any>} [overrides]
+ * @returns {any}
+ */
+function channelReadState(overrides = {}) {
+  return {
+    channelId: CHANNEL,
+    flags: Number(READY_ENTRY.flags),
+    lastMessageId: String(READY_ENTRY.last_message_id),
+    lastPinTimestamp: String(READY_ENTRY.last_pin_timestamp),
+    lastViewed: Number(READY_ENTRY.last_viewed),
+    mentionCount: Number(READY_ENTRY.mention_count ?? 0),
+    badgeCount: null,
+    lastAckedId: null,
+    readStateType: null,
+    ...overrides,
+  };
+}
+
 /** `ready()` в форме `data.rs ReadyPayload` (для рейла и заголовков). */
 function readyPayload() {
   return {
@@ -473,6 +495,130 @@ describe("M-07-UI: read-state/ack в реальном канале", () => {
       assert.equal(band.getAttribute("data-cleared"), "true", "сброс не помечен");
       assert.equal(band.getAttribute("data-mentions"), null, "счётчик упоминаний остался после сброса");
       assert.equal(tile.classList.contains("is-unread"), false, "точка непрочитанного осталась в дереве");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("badgeCount > 0 при mentionCount = 0 → бейдж непрочитанных, flags канала в dataset", async () => {
+    /** @type {(value: any) => void} */
+    let resolveAck = () => {};
+    const pendingAck = new Promise((resolve) => { resolveAck = resolve; });
+    // Оракул бейджа — READY/`m07-be3`: `badge_count > 0` — бейдж (CODE-STANDARD
+    // RW-17), `mention_count = 0` — упоминаний нет, но непрочитанное есть.
+    const { app } = await loadReadStateApp({
+      readState: [channelReadState({ mentionCount: 0, badgeCount: 7, flags: 1 })],
+      ack: () => pendingAck,
+    });
+    try {
+      await selectGuild(app, GUILD);
+      const tile = channelTile(app, CHANNEL);
+      tile.classList.add("is-unread");
+      tile.click();
+      await app.settle(12);
+
+      const band = unreadBand(app);
+      assert.equal(band.getAttribute("data-source"), "read-state", "полоса не из read_state");
+      assert.equal(band.hasAttribute("hidden"), false, "бейдж непрочитанных скрыт");
+      assert.equal(band.getAttribute("data-badges"), "7", "badgeCount не показан");
+      assert.equal(band.getAttribute("data-mentions"), null, "badgeCount подменён упоминаниями");
+      assert.match(band.textContent, /7/, "в полосе нет счётчика непрочитанных");
+      assert.match(band.textContent, /непрочитан/, "бейдж непрочитанных не назван");
+      assert.equal(band.getAttribute("data-flags"), "1", "flags READY не сохранён в полосе");
+      assert.equal(tile.getAttribute("data-read-flags"), "1", "flags не сохранён в данных канала");
+
+      // Успешный ack — бейдж гаснет, flags канала остаются как пришли из READY.
+      resolveAck(null);
+      await app.settle(8);
+      assert.ok(band.hasAttribute("hidden"), "бейдж не сброшен после ack");
+      assert.equal(band.getAttribute("data-badges"), null, "счётчик непрочитанных остался после ack");
+      assert.equal(band.getAttribute("data-cleared"), "true", "сброс не помечен");
+      assert.equal(tile.classList.contains("is-unread"), false, "точка непрочитанного осталась");
+      assert.equal(tile.getAttribute("data-read-flags"), "1", "flags канала стёрты после ack");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("mentionCount null, badgeCount > 0 → бейдж без ack; flags = 0 сохраняется как значение", async () => {
+    // badge-запись канала без курсора: `mentionCount` отсутствует (`null`), но
+    // `badgeCount` есть — это непрочитанное, а не ноль и не упоминания.
+    const { app } = await loadReadStateApp({
+      readState: [channelReadState({ mentionCount: null, badgeCount: 3, flags: 0, lastViewed: null })],
+    });
+    try {
+      await openChannelByClick(app);
+      assert.equal(app.callsOf("ack_message").length, 0, "ack без числового lastViewed — выдумка");
+      const band = unreadBand(app);
+      assert.equal(band.getAttribute("data-source"), "read-state", "полоса не из read_state");
+      assert.equal(band.hasAttribute("hidden"), false, "бейдж непрочитанных скрыт");
+      assert.equal(band.getAttribute("data-badges"), "3", "badgeCount не показан");
+      assert.equal(band.getAttribute("data-mentions"), null, "null превращён в упоминания");
+      assert.match(band.textContent, /3/, "в полосе нет счётчика непрочитанных");
+      assert.match(band.textContent, /непрочитан/, "бейдж непрочитанных не назван");
+      assert.equal(band.getAttribute("data-flags"), "0", "flags = 0 потерян (это значение, не null)");
+      assert.equal(channelTile(app, CHANNEL).getAttribute("data-read-flags"), "0", "flags канала = 0 потерян");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("согласованность: упоминания приоритетнее, badgeCount сохраняется отдельно", async () => {
+    /** @type {(value: any) => void} */
+    let resolveAck = () => {};
+    const pendingAck = new Promise((resolve) => { resolveAck = resolve; });
+    const { app } = await loadReadStateApp({
+      readState: [channelReadState({ mentionCount: 5, badgeCount: 9 })],
+      ack: () => pendingAck,
+    });
+    try {
+      await openChannelByClick(app);
+      const band = unreadBand(app);
+      assert.equal(band.getAttribute("data-mentions"), "5", "mentionCount не из READY");
+      assert.equal(band.getAttribute("data-badges"), "9", "badgeCount потерян рядом с упоминаниями");
+      assert.match(band.textContent, /5/, "в полосе нет счётчика упоминаний");
+      assert.match(band.textContent, /упоминани/, "упоминания переименованы в непрочитанное");
+      assert.doesNotMatch(band.textContent, /9/, "badgeCount подменил счётчик упоминаний");
+      resolveAck(null);
+      await app.settle(8);
+      assert.ok(band.hasAttribute("hidden"), "полоса не сброшена после ack");
+      assert.equal(band.getAttribute("data-badges"), null, "badgeCount остался после ack");
+      assert.equal(band.getAttribute("data-mentions"), null, "mentionCount остался после ack");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("badgeCount меньше mentionCount не занижает упоминания", async () => {
+    const { app } = await loadReadStateApp({
+      readState: [channelReadState({ mentionCount: 5, badgeCount: 3 })],
+      ack: () => new Promise(() => {}),
+    });
+    try {
+      await openChannelByClick(app);
+      const band = unreadBand(app);
+      assert.equal(band.getAttribute("data-mentions"), "5", "упоминания занижены badgeCount");
+      assert.equal(band.getAttribute("data-badges"), "3", "badgeCount не сохранён как значение");
+      assert.match(band.textContent, /5/, "в полосе нет честного счётчика упоминаний");
+      assert.match(band.textContent, /упоминани/, "упоминания подменены бейджем");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("badgeCount = 0 — значение, а не бейдж (RW-17): полоса скрыта, 0 не выдуман", async () => {
+    const { app } = await loadReadStateApp({
+      readState: [channelReadState({ mentionCount: 0, badgeCount: 0, lastViewed: null })],
+    });
+    try {
+      await openChannelByClick(app);
+      const band = unreadBand(app);
+      assert.equal(band.getAttribute("data-source"), "read-state", "полоса не из read_state");
+      assert.ok(band.hasAttribute("hidden"), "badgeCount = 0 показан как бейдж");
+      assert.equal(band.getAttribute("data-badges"), null, "badgeCount = 0 превращён в бейдж");
+      assert.equal(band.getAttribute("data-mentions"), null, "badgeCount = 0 превращён в упоминания");
+      assert.doesNotMatch(band.textContent, /\b0\b/, "0 выдуман в тексте полосы");
+      assert.equal(band.getAttribute("data-flags"), "1", "flags READY не сохранён");
     } finally {
       app.dispose();
     }

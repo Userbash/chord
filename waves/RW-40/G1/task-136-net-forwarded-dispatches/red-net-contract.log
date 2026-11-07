@@ -1,0 +1,59 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/net_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/net_contract-c9bde46a5fae9c21)
+
+running 27 tests
+test close_policies_are_forwarded ... ok
+test broken_payload_is_counted_instead_of_panicking ... ok
+test connect_reads_token_and_reaches_ready ... ok
+test exact_token_and_nested_auth_tokens_are_redacted_and_counted ... ok
+test etf_to_json_keeps_atoms_as_strings_and_handles_nil_and_numbers ... ok
+test forwarded_dispatches_cover_every_core_kind_and_the_raw_reaction_remove ... FAILED
+test filtered_and_unknown_kinds_do_not_panic_and_are_not_forwarded ... ok
+test missing_token_is_a_typed_error ... ok
+test core_supervisor_config_wires_lifecycle_and_dispatch ... ok
+test duplicate_sequences_are_dropped_and_reconnect_does_not_replay ... ok
+test disconnect_is_idempotent_and_reconnect_is_visible ... ok
+test dispatch_reaches_ui_channel_in_order_without_changing_status ... ok
+test every_core_dispatch_kind_reaches_the_kind_data_envelope ... FAILED
+test dispatch_stats_report_core_source_available ... ok
+test non_forwarded_kind_is_counted_as_filtered ... ok
+test production_driver_disconnect_is_idempotent_without_connecting ... ok
+test reaction_kinds_use_wire_name_and_forward_data_as_is ... ok
+test members_chunk_is_forwarded_verbatim ... ok
+test status_never_contains_token ... ok
+test supervisor_events_map_to_gateway_contract ... ok
+test presence_dispatch_is_forwarded_verbatim_in_kind_data_envelope ... ok
+test wire_names_outside_the_core_router_are_filtered ... ok
+test blocked_ui_channel_never_blocks_the_gateway_source ... ok
+test emit_error_is_counted_and_not_swallowed ... ok
+test members_list_update_keeps_counts_and_drops_nested_presence_session_ids ... ok
+test ready_payload_drops_session_secrets_and_keeps_data ... ok
+test all_core_kinds_reach_the_ui_channel_in_order ... FAILED
+
+failures:
+
+---- forwarded_dispatches_cover_every_core_kind_and_the_raw_reaction_remove stdout ----
+
+thread 'forwarded_dispatches_cover_every_core_kind_and_the_raw_reaction_remove' (1296533) panicked at tests/net_contract.rs:620:9:
+канонический тип ядра CHANNEL_INFO не форвардится
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- every_core_dispatch_kind_reaches_the_kind_data_envelope stdout ----
+
+thread 'every_core_dispatch_kind_reaches_the_kind_data_envelope' (1296530) panicked at tests/net_contract.rs:652:32:
+CHANNEL_INFO: канонический тип обязан форвардиться
+
+---- all_core_kinds_reach_the_ui_channel_in_order stdout ----
+
+thread 'all_core_kinds_reach_the_ui_channel_in_order' (1296515) panicked at tests/net_contract.rs:240:17:
+таймаут UI-канала: 5
+
+
+failures:
+    all_core_kinds_reach_the_ui_channel_in_order
+    every_core_dispatch_kind_reaches_the_kind_data_envelope
+    forwarded_dispatches_cover_every_core_kind_and_the_raw_reaction_remove
+
+test result: FAILED. 24 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.00s
+
+error: test failed, to rerun pass `--test net_contract`

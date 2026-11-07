@@ -1,0 +1,83 @@
+# MUTANT M3: submitQuickDm: инверсия guard пустого текста (text.length !== 0)
+# file: rust/gui-spike/ui/features/profile-modal.js
+# mutant md5: 004268cc7152113d23cc77e762d2ae6a
+# exit: 1
+# verdict: KILLED
+# command: node --test tests/unit/profile-modal.test.mjs tests/unit/appearance-settings.test.mjs
+
+▶ appearance-settings: константы
+  ✔ T-185-01: наборы шагов и ключ хранилища зафиксированы и заморожены (0.64771ms)
+✔ appearance-settings: константы (1.21148ms)
+▶ appearance-settings: состояние по умолчанию
+  ✔ T-185-02: без storage контроллер стартует с дефолтами (0.32115ms)
+  ✔ T-185-03: create применяет значения к documentElement сразу (0.12781ms)
+✔ appearance-settings: состояние по умолчанию (0.57546ms)
+▶ appearance-settings: гидратация
+  ✔ T-185-04: валидный JSON из storage восстанавливает все 4 контрола (0.245411ms)
+  ✔ T-185-05: невалидные поля в JSON отбрасываются по одному, остальные применяются (0.45154ms)
+  ✔ T-185-06: битый JSON и мусор в storage не ломают контроллер (0.14398ms)
+  ✔ T-185-07: падение storage.getItem не мешает старту с дефолтами (0.13577ms)
+✔ appearance-settings: гидратация (1.174291ms)
+▶ appearance-settings: сеттеры и валидация
+  ✔ T-185-08: setTheme применяет тему и пишет JSON в storage (0.18655ms)
+  ✔ T-185-09: setTheme отвергает чужое значение без мутации и записи в storage (0.12174ms)
+  ✔ T-185-10: setFontScale принимает только шаги и пишет проценты в CSS-переменную (0.20417ms)
+  ✔ T-185-11: setGroupSpacing принимает 0 и остальные шаги, отвергая прочие (0.14082ms)
+  ✔ T-185-12: setReducedMotion принимает строго boolean (0.11081ms)
+✔ appearance-settings: сеттеры и валидация (0.93024ms)
+▶ appearance-settings: getState и resetDefaults
+  ✔ T-185-13: getState отдаёт копию, внешняя мутация не меняет контроллер (0.13254ms)
+  ✔ T-185-14: resetDefaults возвращает дефолты, применяет их и перезаписывает storage (0.12763ms)
+  ✔ T-185-15: падение storage.setItem не отменяет применение к DOM (0.08826ms)
+✔ appearance-settings: getState и resetDefaults (0.43345ms)
+▶ STATUS_LABELS_RU
+  ✔ заморожен и содержит русские подписи для online, idle, dnd, offline (0.629311ms)
+✔ STATUS_LABELS_RU (1.192461ms)
+▶ createProfileModalController: openPopout
+  ✔ рендерит компактную карточку data-profile-mode='popout' с именем, юзернеймом, местоимениями, статусом и био (0.88891ms)
+  ✔ корректно отображает все 4 статуса из STATUS_LABELS_RU и фоллбэчит неизвестный в offline (0.35266ms)
+  ✔ рендерит пилюли ролей с data-role-id и цветом роли (0.46027ms)
+  ✔ вызывает onSaveNote(userId, noteText) при изменении поля личной заметки (0.21785ms)
+  ✖ рендерит быстрый инпут ЛС с placeholder 'Написать @' + username и вызывает onSendQuickMessage только для непустого текста (0.63057ms)
+✖ createProfileModalController: openPopout (2.81935ms)
+▶ createProfileModalController: openFullModal и setTab
+  ✔ рендерит диалог полного профиля (role='dialog', aria-modal='true', data-profile-mode='modal') с 3 вкладками и счётчиками (0.40735ms)
+  ✔ setTab('mutual_guilds') и setTab('mutual_friends') переключают активную вкладку и рендерят списки (0.22847ms)
+  ✔ рендерит русские пустые состояния 'Нет общих серверов' и 'Нет общих друзей' при пустых списках (0.16506ms)
+  ✔ клик по кнопке вкладки переключает вкладку, а невалидный setTab возвращает false (0.18439ms)
+✔ createProfileModalController: openFullModal и setTab (1.18235ms)
+▶ createProfileModalController: переключение режимов и close()
+  ✔ openFullModal заменяет открытый popout, а close() полностью удаляет карточку/модалку из контейнера (0.24124ms)
+  ✔ поддерживает поле about как синоним bio, скрывает пустые местоимения и отвергает невалидный containerEl (0.274661ms)
+✔ createProfileModalController: переключение режимов и close() (0.601141ms)
+ℹ tests 27
+ℹ suites 9
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.450659
+
+✖ failing tests:
+
+test at tests/unit/profile-modal.test.mjs:425:3
+✖ рендерит быстрый инпут ЛС с placeholder 'Написать @' + username и вызывает onSendQuickMessage только для непустого текста (0.63057ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-280-unit-tsc-fix-batch1/tests/unit/profile-modal.test.mjs:445:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

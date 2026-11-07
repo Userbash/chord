@@ -1,0 +1,80 @@
+# Журнал мутационного тестирования (Pass 3 Mutation Evidence)
+- **Файл:** `rust/gui-spike/ui/features/composer.js`
+- **Базовый md5:** `9d77bde5a644aa7f2ca4f6c99f76aadb`
+
+### Мутация M1-DROP-QUEUE-FILE-REF
+
+- **Описание:** Потеря ссылки на исходный объект File в элементе очереди в addFiles (file: null вместо file: f)
+- **Хеш мутанта (md5):** `483edc6d5b8fd25f28316b37998737e9`
+- **Команда:** `node --test tests/unit/composer.test.mjs`
+- **Код выхода:** `1`
+- **Статус:** `CAUGHT`
+- **Ключевой упавший тест:** `addFiles сохраняет ссылку на исходный File и его байты (bytes/data) в элементе очереди`
+- **Все пойманные тесты (4):**
+  - `addFiles сохраняет ссылку на исходный File и его байты (bytes/data) в элементе очереди`
+  - `вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename`
+  - `поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put')`
+  - `передаёт экземпляр File и прочитанные байты в attachments_upload_put, сохраняя их при повторе после сбоя`
+- **Хеш восстановления (md5):** `9d77bde5a644aa7f2ca4f6c99f76aadb` (совпадает с базовым)
+
+### Мутация M2-DROP-PUT-BYTES
+
+- **Описание:** Вызов attachments_upload_put / uploadPut в startUpload без байтов файла (bytes: null, data: null)
+- **Хеш мутанта (md5):** `631e5e06f613a50819a739779b11ba1e`
+- **Команда:** `node --test tests/unit/composer.test.mjs`
+- **Код выхода:** `1`
+- **Статус:** `CAUGHT`
+- **Ключевой упавший тест:** `вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename`
+- **Все пойманные тесты (3):**
+  - `вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename`
+  - `поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put')`
+  - `передаёт экземпляр File и прочитанные байты в attachments_upload_put, сохраняя их при повторе после сбоя`
+- **Хеш восстановления (md5):** `9d77bde5a644aa7f2ca4f6c99f76aadb` (совпадает с базовым)
+
+### Мутация M3-SKIP-FILE-ARRAYBUFFER
+
+- **Описание:** Отключение чтения байтов из File.arrayBuffer() в extractFileBytes
+- **Хеш мутанта (md5):** `afbb1a674feb53e67d2484677a90c4d9`
+- **Команда:** `node --test tests/unit/composer.test.mjs`
+- **Код выхода:** `1`
+- **Статус:** `CAUGHT`
+- **Ключевой упавший тест:** `addFiles сохраняет ссылку на исходный File и его байты (bytes/data) в элементе очереди`
+- **Все пойманные тесты (3):**
+  - `addFiles сохраняет ссылку на исходный File и его байты (bytes/data) в элементе очереди`
+  - `поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put')`
+  - `передаёт экземпляр File и прочитанные байты в attachments_upload_put, сохраняя их при повторе после сбоя`
+- **Хеш восстановления (md5):** `9d77bde5a644aa7f2ca4f6c99f76aadb` (совпадает с базовым)
+
+### Мутация M4-SKIP-PUT
+
+- **Описание:** Пропуск вызова invoke attachments_upload_put / options.uploadPut перед переводом чипа в ready
+- **Хеш мутанта (md5):** `f569ef906e166706c7d23c96bc46aeee`
+- **Команда:** `node --test tests/unit/composer.test.mjs`
+- **Код выхода:** `1`
+- **Статус:** `CAUGHT`
+- **Ключевой упавший тест:** `вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename`
+- **Все пойманные тесты (6):**
+  - `вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename`
+  - `поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put')`
+  - `передаёт экземпляр File и прочитанные байты в attachments_upload_put, сохраняя их при повторе после сбоя`
+  - `ошибка PUT (413) переводит чип в error-413 и блокирует отправку сообщения`
+  - `ошибка PUT (429) переводит чип в error-429 и блокирует отправку сообщения`
+  - `сетевая ошибка PUT переводит чип в error-network и блокирует отправку сообщения`
+- **Хеш восстановления (md5):** `9d77bde5a644aa7f2ca4f6c99f76aadb` (совпадает с базовым)
+
+### Мутация M5-NO-BLOCK-SEND-ON-ERROR
+
+- **Описание:** Разрешение отправки сообщения при attachState === "error" в onKeydown
+- **Хеш мутанта (md5):** `4f16bc925a425605bde3256887ac6be0`
+- **Команда:** `node --test tests/unit/composer.test.mjs`
+- **Код выхода:** `1`
+- **Статус:** `CAUGHT`
+- **Ключевой упавший тест:** `ошибка PUT (413) переводит чип в error-413 и блокирует отправку сообщения`
+- **Все пойманные тесты (5):**
+  - `ошибка PUT (413) переводит чип в error-413 и блокирует отправку сообщения`
+  - `ошибка PUT (429) переводит чип в error-429 и блокирует отправку сообщения`
+  - `сетевая ошибка PUT переводит чип в error-network и блокирует отправку сообщения`
+  - `отсутствие слота или upload_filename не синтезирует fallback и переводит чип в ошибку`
+  - `отправка сообщения блокируется при наличии ошибок вложения`
+- **Хеш восстановления (md5):** `9d77bde5a644aa7f2ca4f6c99f76aadb` (совпадает с базовым)
+

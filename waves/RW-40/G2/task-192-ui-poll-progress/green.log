@@ -1,0 +1,30 @@
+▶ computePollResults
+  ✔ counts total votes and percentages (0.851101ms)
+  ✔ rounds percentages to the nearest integer (0.10769ms)
+  ✔ marks every answer tied at the max count as leading (0.113311ms)
+  ✔ returns zero percentages and no leaders when nobody voted (0.1344ms)
+  ✔ keeps answers with no matching count entry at zero (0.11569ms)
+  ✔ handles empty answers (0.11872ms)
+✔ computePollResults (2.191873ms)
+▶ formatPollExpiryRu
+  ✔ reports finished poll for missing or invalid expiry (0.184651ms)
+  ✔ reports less than a minute (0.08981ms)
+  ✔ reports minutes rounded up (0.10021ms)
+  ✔ reports hours rounded up (0.1134ms)
+  ✔ reports days rounded up (0.07807ms)
+✔ formatPollExpiryRu (0.770582ms)
+▶ togglePollAnswerSelection
+  ✔ behaves as a radio when multiselect is disabled (0.14989ms)
+  ✔ adds and removes answers when multiselect is enabled (0.40155ms)
+  ✔ refuses new answers once maxChoices is reached (0.10161ms)
+  ✔ still allows removing an answer at maxChoices (0.06042ms)
+  ✔ does not mutate the input array (0.05963ms)
+✔ togglePollAnswerSelection (0.906281ms)
+ℹ tests 16
+ℹ suites 3
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.528854

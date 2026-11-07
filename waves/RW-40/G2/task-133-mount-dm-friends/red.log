@@ -1,0 +1,407 @@
+▶ gui-spike features: интеракции W39d
+  ✔ QuickSwitcher открывается по Ctrl/Cmd+K, фильтрует, перемещает выбор и переключает канал/экран (64.111493ms)
+  ✔ QuickSwitcher показывает пустое состояние и ловит Tab внутри диалога (16.443878ms)
+  ✔ композер отправляет Enter, сохраняет Shift+Enter и не отправляет пустое (12.213012ms)
+  ✔ optimistic строка получает error и ручной retry переводит её в sent (12.590482ms)
+  ✔ ошибка отправки не затирает набранный поверх черновик, пустое поле — возвращает текст (13.588854ms)
+  ✔ 401/429 показывают классовое сообщение и не делают автоповтор (13.640984ms)
+  ✔ body[data-active-screen] + aria-current на 4 экранах (12.904953ms)
+  ✔ шапка чата: 4 icon-btn — ветки, колокол, закреплённые, участники (VW-01, D-17) (13.585074ms)
+  ✔ эмодзи: плоский listbox (role=option, без .emoji-row) и 10 вкладок-глифов (36.267884ms)
+  ✔ эмодзи: стрелки двигают aria-selected и roving tabindex (11.096089ms)
+  ✔ эмодзи-поиск: глобальный по всем категориям, вкладка только листает (EMO-16) (15.611398ms)
+  ✔ настройки: 18 разделов навигации, 3 доступных, остальные disabled (SET-01, D-17) (13.411453ms)
+  ✔ настройки ST-01: профиль и 4 развёрнутых подпункта «Учётной записи» из оракула (14.497975ms)
+  ✔ настройки ST-01: «Выйти» → auth_logout без токена, результат видим (14.537475ms)
+  ✔ настройки ST-01: ошибка logout видима, кнопка снова доступна (10.921679ms)
+  ✔ настройки ST-01: клавиатура, aria-current и причина disabled-раздела (13.351033ms)
+  ✔ настройки: «Голос и видео» — 38 тумблеров (12+22+4), 10 блоков, состояния из дампа (11.07491ms)
+  ✔ панель участников: ≤50 строк из model.js, высота 42, data-window=preview (12.024201ms)
+  ✔ клавиши: Alt+1…4, Escape, Tab-trap верхнего слоя (10.829829ms)
+  ✔ data-action: mute/deafen, emoji/emoji-close, settings/settings-close (12.937833ms)
+  ✔ клавиши §11: Ctrl+F/Ctrl+Shift+F, Ctrl+U, PageUp/PageDown, Shift+Esc (30.220723ms)
+  ✔ счётчики live (polite), FPS/p95 — не live (12.710492ms)
+  ✔ штатная работа без console.error/warn (весь сценарий) (13.694185ms)
+✔ gui-spike features: интеракции W39d (393.779002ms)
+▶ чат-вью P3-02: сообщения и extras строки
+  ✔ group start/continuation, day divider, reply-quote, reactions, embeds, edited (12.784582ms)
+  ✔ embeds: link-карточка и image-заглушка (без сети) (10.661579ms)
+  ✔ link-embed: в href только http(s), javascript: не становится ссылкой (P0) (11.14486ms)
+  ✔ unread-полоса 34 (D-13) — вне #chat-list, с честным счётчиком (9.835517ms)
+[ACTION_FAILED] сеть недоступна
+  ✔ hover-панель: 15 пунктов R-16, без мёртвых кнопок, реакция и reply работают (11.20971ms)
+[ACTION_FAILED] сессия истекла
+  ✔ hover-панель: быстрая реакция уходит в IPC один раз и откатывается при 401 (13.616274ms)
+[ACTION_FAILED] Не удалось изменить сообщение
+  ✔ B4b: edit сохраняет через IPC, оптимистично меняет текст и откатывает ошибку (11.44178ms)
+  ✔ B4b: повторный submit edit не отправляет второй edit_message до ответа (14.019505ms)
+[ACTION_FAILED] gui-dom-harness: неизвестная IPC-команда «delete_message»
+[ACTION_FAILED] Не удалось удалить сообщение
+  ✔ B4b: delete требует подтверждение и возвращает строку при ошибке (11.56046ms)
+  ✔ B4b: удалённая строка не возвращается из PageStore после выгрузки и не оставляет пустого места (16.186518ms)
+[ACTION_FAILED] gui-dom-harness: неизвестная IPC-команда «reply_message»
+  ✔ B4b: reply отправляет reply_message с replyTo и отменяется Escape (12.877753ms)
+✔ чат-вью P3-02: сообщения и extras строки (135.756618ms)
+[ACTION_FAILED] сеть недоступна
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+▶ B3b: UI реакций
+  ✔ отправляет toggle_reaction и оптимистично меняет счётчик/aria-pressed (10.418759ms)
+[ACTION_FAILED] сессия истекла
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при 401 (11.180429ms)
+[ACTION_FAILED] ограничение частоты; повтор через 250 мс
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при 429 (12.560172ms)
+[ACTION_FAILED] сеть недоступна
+[IPC_FAILED] Cannot read properties of null (reading 'rss_kib')
+[IPC_FAILED] Cannot read properties of null (reading 'autobench')
+  ✔ откатывает optimistic состояние при сеть (10.770619ms)
+  ✔ двойной клик до ответа делает один запрос и не оставляет pending (12.898533ms)
+  ✔ неизвестная или пустая реакция не вызывает IPC и показывает подсказку (10.323938ms)
+✔ B3b: UI реакций (68.3741ms)
+▶ чат-вью P3-02: композер
+  ✔ empty → typing → empty, счётчик с 1800, лимит 2000 (11.071939ms)
+  ✔ вставка эмодзи в позицию курсора; лимит 2000 и disabled не ломаются (10.195268ms)
+  ✔ disabled: aria-disabled, поле в DOM, attach — affordance с подсказкой (9.956377ms)
+  ✔ gift: явная заглушка Phase 3 — disabled-affordance, клик без ACTION_FAILED (P1) (11.160079ms)
+  ✔ Ctrl+E открывает пикер, Escape возвращает чат и не ломает черновик (9.654787ms)
+✔ чат-вью P3-02: композер (52.225792ms)
+▶ чат-вью P3-02: участники — 6 групп (D-13)
+  ✔ панель чата: 6 групп, заголовок 42, счётчики = строкам группы (11.999692ms)
+  ✔ экран участников: чипы 6 групп, roving tabindex, клик выбирает строку группы (10.305308ms)
+  ✔ поиск участников по загруженному окну: честный счётчик (11.72776ms)
+✔ чат-вью P3-02: участники — 6 групп (D-13) (34.16684ms)
+▶ чат-вью P3-02: search overlay
+  ✔ 7 секций, 5 input, сортировка из 3 пунктов, честный статус (9.845058ms)
+(node:1409968) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✔ фильтр по запросу и сортировка меняют выдачу; счётчик остаётся оконным (11.947921ms)
+  ✔ «Самое актуальное» — закреплённые выше, затем свежие; порядок ≠ «По новизне» (P2) (25.954275ms)
+  ✔ переход к сообщению: оверлей закрыт, список прокручен, строка подсвечена (34.717081ms)
+[ACTION_FAILED] дата «2026-99-99» не в формате ГГГГ-ММ-ДД
+[ACTION_FAILED] дата «2026-99-99» не в формате ГГГГ-ММ-ДД
+  ✔ ошибка фильтра — UIError в статусе, без падения оверлея (10.83568ms)
+  ✔ Esc и крестик закрывают оверлей; состояние не теряется (10.373398ms)
+✔ чат-вью P3-02: search overlay (103.921443ms)
+▶ B7b: сетевой поиск (search_remote)
+  ✔ зовёт search_remote с guildId и подтверждёнными params; рисует total_results (13.897484ms)
+  ✔ offset-пагинация: вторая страница без дублей, offset растёт (13.606814ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+  ✔ 401 — видимая ошибка, локального fallback нет (13.982675ms)
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: сеть недоступна
+[ACTION_FAILED] поиск: сеть недоступна
+  ✔ 429 и сеть — разные видимые сообщения, без fallback (21.257827ms)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: нет доступа (403)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: не найдено (404)
+[ACTION_FAILED] поиск: ошибка запроса (400)
+[ACTION_FAILED] поиск: ошибка запроса (400)
+[ACTION_FAILED] поиск: ошибка запроса (422)
+[ACTION_FAILED] поиск: ошибка запроса (422)
+[ACTION_FAILED] поиск: ошибка сервера (503)
+[ACTION_FAILED] поиск: ошибка сервера (503)
+[ACTION_FAILED] поиск: ошибка сервера (5xx)
+[ACTION_FAILED] поиск: ошибка сервера (5xx)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: слишком много запросов (429), повтор через 1500 мс
+[ACTION_FAILED] поиск: сеть недоступна
+[ACTION_FAILED] поиск: сеть недоступна
+  ✔ G1-01: forbidden/notFound/client/server — видимая ошибка без fallback и свои тексты (97.563802ms)
+[ACTION_FAILED] поиск: хранилище токена недоступно
+[ACTION_FAILED] поиск: хранилище токена недоступно
+  ✔ SEC-02: storage — видимая ошибка хранилища, не сеть и без fallback (10.555658ms)
+  ✔ loading: до ответа сервера видно состояние загрузки, потом результаты (12.452082ms)
+  ✔ пустой ответ сервера — empty-состояние при total_results=0 (10.270538ms)
+  ✔ 7 фильтров: content/channel/sort — сервер, остальные честно «локально» (11.958871ms)
+  ✔ локальные фильтры применяются к серверной выдаче и не уходят в params (13.422814ms)
+  ✔ IPC-команды нет (демо) — локальный fallback с видимой пометкой (11.50182ms)
+✔ B7b: сетевой поиск (search_remote) (230.867985ms)
+▶ настройки: гидратация и сохранение (B8b)
+  ✔ settings_load на старте: тумблеры по id, density/theme/locale и lang (9.969578ms)
+  ✔ change: один settings_save после debounce, только белый список и без секретов (11.222679ms)
+  ✔ битые/чужие значения → дефолты cozy/dark/ru, без падения и без save (9.291137ms)
+  ✔ settings_load упал → дефолты и отсутствие молчаливого падения (9.381516ms)
+  ✔ debounce: несколько изменений (тумблер+density+theme) → один save с финальными значениями (11.26096ms)
+  ✔ ошибка settings_save видна, состояние не откатывается (9.367437ms)
+  ✔ id тумблеров стабильные ASCII; старый формат по индексу мигрируется без падения (11.47961ms)
+✔ настройки: гидратация и сохранение (B8b) (72.198607ms)
+▶ G2 (RW-40): P1 — reply, error-overlay, auth focus-trap
+  ✔ G2-01: набор текста не отменяет reply, отменяют Escape и крестик (9.205746ms)
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+[ACTION_FAILED] поиск: сессия истекла (401) — войдите заново
+  ✔ G2-02: error-overlay закрывается, снимается успехом и не выходит за .content (12.460912ms)
+  ✔ G2-04: Tab заперт в auth-gate, Escape не уводит фокус в aria-hidden shell (12.026031ms)
+✔ G2 (RW-40): P1 — reply, error-overlay, auth focus-trap (33.829639ms)
+▶ G-05: поповер меню сервера (10 пунктов, роли, клавиатура)
+  ✔ open: aria-haspopup/expanded, role=menu, 10 пунктов в порядке D1 (10.321528ms)
+  ✔ keyboard: ↑/↓/Home/End, Escape закрывает и возвращает фокус, клик вне тоже (12.097731ms)
+  ✔ owner: leave disabled, подтверждение не открывается и IPC не уходит (9.915677ms)
+✔ G-05: поповер меню сервера (10 пунктов, роли, клавиатура) (32.476176ms)
+▶ G-04: подтверждение выхода, leave_guild и видимые ошибки
+  ✔ открытие confirm: alertdialog, безопасный фокус, отмена без IPC (12.463471ms)
+  ✔ 2xx: один invoke(«leave_guild», {guildId, lurking}), удаление плитки, выбор предыдущей (10.566729ms)
+  ✔ lurking берётся из явного состояния плитки, а не хардкодится (11.52953ms)
+  ✔ двойной клик по «Покинуть сервер» даёт ровно один IPC (10.150988ms)
+  ✔ 401: видимая ошибка, диалог и плитка остаются (11.31647ms)
+  ✔ 403: «Недостаточно прав», плитка на месте; 429: обратный отсчёт в тексте (9.859477ms)
+  ✔ нет мёртвых обработчиков: все data-action меню/диалога отрабатывают без ACTION_FAILED (12.048502ms)
+✔ G-04: подтверждение выхода, leave_guild и видимые ошибки (78.156827ms)
+▶ D-04: переменная высота строк в живом списке
+  ✔ высоты строк чата 26/48/+22, .text по тексту/переносам (не 44-трек) (9.806087ms)
+  ✔ renderChatRow считает высоту из текста, а не из строки/трека (10.823589ms)
+  ✔ data-row-height моделей D-04 и отсутствие старых треков в коде (9.506957ms)
+  ✔ scrollToIndex/якорь: строка встаёт на свой top из prefix-sum (12.762012ms)
+  ✔ tombstone уменьшает totalHeight на высоту удалённой строки и не оставляет дыру (10.531939ms)
+  ✔ участники: строка 42, шаг 43 (RE, JPEG ±1), панель и список (12.028091ms)
+  ✔ tokens.css: D-04 значения на месте, треки RW-38 помечены legacy (0.308011ms)
+✔ D-04: переменная высота строк в живом списке (65.980686ms)
+▶ L-01 (RW-40): видимый reconnect/offline state
+  ✔ ready скрыт; connecting/reconnecting — «Переподключение…», retry только в offline (9.745557ms)
+  ✔ offline/error: «Нет соединения» + «Повторить»; retry — ровно один net_connect, без авто-цикла (9.772567ms)
+  ✔ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (12.332052ms)
+  ✔ dispose останавливает поллинг net_status, refresh после dispose — no-op (9.934207ms)
+  ✔ без auth ready нет поллинга net_status (гейт не пройден) (12.117831ms)
+  ✔ скрытое окно не опрашивает статус, после возврата поллинг продолжается (10.902029ms)
+  ✔ фокус не крадётся появлением баннера и возвращается в чат при ready (10.315628ms)
+  ✔ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.444681ms)
+✔ L-01 (RW-40): видимый reconnect/offline state (75.777603ms)
+▶ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js
+  ✔ aria-disabled контролы уведомлений на старте не выполняют действия мышью и клавиатурой (12.578942ms)
+  ✔ монтирует createVoiceDevicesSettings в предварительном режиме: состояние в памяти, без незарегистрированных IPC (11.5581ms)
+  ✔ P2-3: тумблеры модалки уведомлений живут на .notif-toggle и не раздувают инвариант 38 (11.578741ms)
+  ✔ P2-1: панель голосовых устройств видна только на вкладке voice (9.203366ms)
+  ✔ P2-5 (Pass 3): видимость voice-панели следует и за программной сменой вкладки (9.236816ms)
+  ✔ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (19.024373ms)
+  ✔ P2-6: пустой рейл не выдумывает гильдию и не шлёт уведомления в IPC (10.533408ms)
+  ✔ P2-5: contextmenu при закрытой модалке её не открывает; Escape возвращает фокус (13.993575ms)
+✔ INT-07-UI-APP-MOUNT: контроллеры голосовых устройств и уведомлений в app.js (97.967812ms)
+▶ INT-07: UI invoke ⊆ generate_handler!
+  ✔ каждая литеральная invoke-команда из rust/gui-spike/ui зарегистрирована в main.rs (4.536198ms)
+  ✔ предварительная voice-секция не вызывает voice IPC, которого нет в Rust (0.426551ms)
+  ✔ видимая пометка предварительного режима есть и в статической разметке index.html (0.07489ms)
+✔ INT-07: UI invoke ⊆ generate_handler! (5.113979ms)
+▶ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html
+  ✖ 1. В index.html и DOM смонтированы все 5 обязательных хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog, #stranger-confirm-dialog) (0.522661ms)
+  ✖ 2. Клик по #home-rail-btn включает режим Home (@me), скрывает серверные каналы, показывает #dm-channel-list и #friends-view и сохраняет lastGuildId='@me' (11.49814ms)
+  ✖ 3. Возврат из Home на гильдию восстанавливает дерево каналов гильдии, скрывает #friends-view и сохраняет id гильдии (12.134981ms)
+  ✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (10.299028ms)
+  ✖ 5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load (11.957691ms)
+  ✖ 6. Проброс users, relationships и private_channels из ready() рендерит список ЛС и счётчики друзей (10.073737ms)
+  ✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (10.048878ms)
+  ✖ 8. Клик по пункту 'Друзья' (#dm-nav-friends) после открытия ЛС возвращает центральную область на #friends-view (12.035601ms)
+  ✖ 9. Переключение вкладок #friends-view ('Все', 'Ожидание', 'Добавить в друзья') и фильтрация поиском (9.927057ms)
+  ✖ 10. Вкладка 'Добавить в друзья' отправляет запрос и нормализует ошибки Discord на русском языке (11.944281ms)
+  ✖ 11. Диалог создания группового ЛС (#group-dm-dialog) и диалог подтверждения незнакомца (#stranger-confirm-dialog, код 80013) работают из смонтированного контроллера (10.070878ms)
+  ✖ 12. Клавиатурная активация #home-rail-btn (Enter/Space) и отсутствие console.error/warn (11.569151ms)
+✖ FE-P0-01 / task-133: монтирование Home / ЛС / друзей в app.js и index.html (122.477905ms)
+ℹ tests 123
+ℹ suites 16
+ℹ pass 111
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1679.65954
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-features.test.mjs:4314:3
+✖ 1. В index.html и DOM смонтированы все 5 обязательных хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog, #stranger-confirm-dialog) (0.522661ms)
+  AssertionError [ERR_ASSERTION]: в index.html отсутствует обязательный хост #home-rail-btn
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4323:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '<!doctype html>\n<html lang="ru" data-density="cozy">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <meta name="color-scheme" content="dark" />\n    <title>DL — discord-lab (P3-01)</title>\n    <!-- W39c2: токены вендорятся в ui/tokens.css (D-05), а не в components/. -->\n    <link rel="stylesheet" href="tokens.css" />\n    <link rel="stylesheet" href="components/primitives.css" />\n    <link rel="stylesheet" href="style.css" />\n    <link rel="stylesheet" href="components/rail.css" />\n    <link rel="stylesheet" href="components/tree.css" />\n    <link rel="stylesheet" href="components/chat.css" />\n    <link rel="stylesheet" href="components/emoji.css" />\n    <link rel="stylesheet" href="components/members.css" />\n    <link rel="stylesheet" href="components/settings.css" />\n    <link rel="stylesheet" href="components/server-menu.css" />\n    <link rel="stylesheet" href="components/net-status.css" />\n    <link rel="stylesheet" href="components/voice.css" />\n    <!-- INT-07 (P2-3): тумблеры модалки уведомлений получают собственные классы\n         `.notif-toggle` / `.notif-toggle-input` (узкий инвариант 38 `.toggle` в\n         `#settings`), поэтому стили строки и трека продублированы здесь дословно\n         по `components/settings.css` — иначе в модалке остаются голые чекбоксы. -->\n    <style>\n      .notif-toggle {\n        position: relative;\n        display: flex;\n        gap: var(--space-6);\n        align-items: center;\n        justify-content: space-between;\n        min-height: var(--space-11);\n        max-width: var(--layout-content-max-w);\n        padding: var(--space-2) 0;\n        border-bottom: var(--menu-border) solid var(--divider);\n        cursor: pointer;\n      }\n      .notif-toggle-input {\n        position: absolute;\n        width: var(--menu-border);\n        height: var(--menu-border);\n        margin: 0;\n        opacity: 0;\n        pointer-events: none;\n      }\n      .notif-toggle-input:checked + .toggle-track {\n        background: var(--accent);\n      }\n      .notif-toggle-input:checked + .toggle-track .toggle-thumb {\n        background: var(--text-on-accent);\n        transform: translateX(\n          calc(var(--switch-w) - var(--switch-thumb) - (var(--switch-h) - var(--switch-thumb)))\n        );\n      }\n      .notif-toggle-input:focus-visible + .toggle-track {\n        box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring);\n      }\n      .notif-toggle:hover .toggle-track {\n        background: var(--surface-4);\n      }\n      .notif-toggle:hover .notif-toggle-input:checked + .toggle-track {\n        background: var(--accent-hover);\n      }\n      /* INT-07 / P1-1 (Pass 3): секция «Голос и видео» предварительная — голосовых\n         IPC-команд в Rust ещё нет. Пометка видна всегда, а не только при ошибке. */\n      .voice-devices-preliminary-block {\n        display: flex;\n        flex-direction: column;\n        gap: var(--space-3);\n        align-items: flex-start;\n        margin-bottom: var(--space-4);\n      }\n      .voice-devices-preliminary {\n        margin: 0;\n        padding: var(--space-2) var(--space-3);\n        border-radius: var(--radius-sm);\n        background: var(--surface-3);\n        color: var(--text-muted);\n        font-size: var(--font-size-small);\n        line-height: var(--line-height-small);\n      }\n      .voice-devices-expand {\n        height: var(--btn-height-sm);\n        padding: 0 var(--btn-pad-x);\n        border: 0;\n        border-radius: var(--btn-radius);\n        background: var(--accent);\n        color: var(--text-on-accent);\n        font-size: var(--font-size-small);\n        cursor: pointer;\n      }\n      .voice-devices-expand:hover {\n        background: var(--accent-hover);\n      }\n      .voice-devices-expand:focus-visible {\n        box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring);\n      }\n    </style>\n  </head>\n  <body data-active-screen="chat">\n    <!-- 1. Строка заголовка: 32px, на всю ширину (RE topbar_h=32). -->\n    <header class="topbar" role="banner">\n      <div class="screen-title" role="heading" aria-level="2" aria-live="polite">Чат · 100 000 сообщений</div>\n      <div class="metrics" aria-live="polite">\n        <span>FPS <b id="m-fps">—</b></span>\n        <span>p95 кадра <b id="m-p95">—</b></span>\n        <span>RAM <b id="m-rss">—</b></span>\n        <span>потоки <b id="m-threads">—</b></span>\n        <button id="bench" class="bench" type="button">Замер 5 с</button>\n      </div>\n    </header>\n\n    <div class="shell">\n      <!-- 2. Рейл 64px: бренд DL, гильдии, разделитель, 4 кнопки экранов. -->\n      <aside id="guild-rail" class="rail" role="navigation" aria-label="Серверы и экраны">\n        <div class="brand" title="discord-lab" aria-hidden="true">DL</div>\n        <!-- G-01 (RW-40): плитки серверов собирает app.js из `ready()` (READY fixture,\n             7 гильдий). Статичных заглушек data-guild="1|2|3" больше нет: имена и\n             id берутся только из payload, иконка-хеш CDN в URL не склеивается. -->\n        <div class="rail-sep" role="separator" aria-hidden="true"></div>\n        <button class="rail-btn active" type="button" data-screen="chat" title="Чат 100k" aria-label="Чат" aria-current="page">💬</button>\n        <button class="rail-btn" type="button" data-screen="emoji" title="Эмодзи-пикер" aria-label="Эмодзи">😀</button>\n        <button class="rail-btn" type="button" data-screen="members" title="Участники 24k" aria-label="Участники">👥</button>\n        <button class="rail-btn" type="button" data-screen="settings" title="Настройки" aria-label="Настройки">⚙️</button>\n      </aside>\n\n      <div class="workspace">\n        <!-- 3. Дерево каналов 240px. C-02 (RW-40): разметка ниже — стартовый\n             плейсхолдер до `channels({guildId})`; после выбора гильдии дерево\n             пересобирает app.js: группы по типам (0/5 открывают чат, 2/4/15 —\n             с видимой причиной), `data-channel-id` — реальный snowflake. -->\n        <aside id="channel-tree" class="tree" role="navigation" aria-label="Каналы сервера" data-state="idle" aria-busy="false">\n          <header class="tree-header">\n            <h2 class="tree-guild">ITSKIDON PC BOOST</h2>\n            <button class="icon-btn" type="button" data-action="guild-menu" aria-label="Меню сервера" aria-haspopup="menu" aria-expanded="false">…</button>\n          </header>\n          <nav class="tree-scroll" aria-label="Список каналов">\n            <section class="channel-group">\n              <h3 class="channel-group-title">\n                <button class="group-toggle" type="button" aria-expanded="true">НОВОСТИ</button>\n              </h3>\n              <ul class="channel-list" role="list">\n                <li><button class="channel-item" type="button" aria-current="page"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">новости</span></button></li>\n                <li><button class="channel-item is-unread" type="button"><span class="channel-icon" aria-hidden="true">#</span><span class="channel-name">объявления</span></button></li>\n              </ul>\n            </section>\n            <section class="channel-group">\n              <h3 class="channel-group-title">\n                <button class="group-toggle" type="button" aria-expanded="true">ГОЛОСОВЫЕ КАНАЛЫ</button>\n              </h3>\n              <ul class="channel-list" role="list">\n                <li><button class="channel-item" type="button"><span class="channel-icon" aria-hidden="true">🔊</span><span class="channel-name">Пекарня</span></button></li>\n              </ul>\n            </section>\n          </nav>\n          <!-- V-08: голосовая панель. Содержимое (12 состояний, участники,\n               ping, mute/deafen) собирает features/voice.js — один код-путь с\n               DOM-шимом тестов. В сборке нет voice-сервиса, поэтому панель\n               disabled и вход заблокирован (G6-REPORT §3.7); состояния\n               «подключено» без сессии не имитируются. -->\n          <section id="voice-panel" class="voice-panel" aria-label="Голосовая связь"\n                   data-state="disabled" aria-disabled="true"\n                   data-self-mute="false" data-self-deaf="false" data-ptt="idle"></section>\n          <!-- 4. Строка пользователя 56px. -->\n          <footer id="user-bar" class="user-bar">\n            <button class="user-profile" type="button" data-action="profile" aria-label="Профиль: ShadowByte, невидимый">\n              <span class="avatar avatar--sm" aria-hidden="true">SB</span>\n              <span class="user-meta"><span class="user-name">ShadowByte</span><span class="user-status">Невидимый</span></span>\n            </button>\n            <div class="user-actions">\n              <button class="icon-btn" type="button" data-action="mute" aria-label="Выключить микрофон" aria-pressed="false">🎙</button>\n              <button class="icon-btn" type="button" data-action="deafen" aria-label="Выключить звук" aria-pressed="false">🎧</button>\n              <button class="icon-btn" type="button" data-action="settings" aria-label="Настройки пользователя">⚙</button>\n            </div>\n          </footer>\n        </aside>\n\n        <main class="content">\n          <!-- 5. Шапка чата 49px (только экран chat). -->\n          <header id="chat-header" class="chat-header">\n            <button class="icon-btn" type="button" data-action="toggle-tree" aria-label="Свернуть каналы" aria-expanded="true">☰</button>\n            <h1 class="chat-title"><span class="hash" aria-hidden="true">#</span><span class="chat-title-text">новости</span></h1>\n            <div class="chat-actions">\n              <button class="icon-btn" type="button" data-action="threads" aria-label="Ветки">🧵</button>\n              <button class="icon-btn" type="button" data-action="inbox" aria-label="Уведомления" aria-disabled="true" title="Уведомления (Phase 3)">🔔</button>\n              <button class="icon-btn" type="button" data-action="pins" aria-label="Закреплённые сообщения">📌</button>\n            '... 8801 more characters,
+    expected: /id="home-rail-btn"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4347:3
+✖ 2. Клик по #home-rail-btn включает режим Home (@me), скрывает серверные каналы, показывает #dm-channel-list и #friends-view и сохраняет lastGuildId='@me' (11.49814ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4365:23)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4395:3
+✖ 3. Возврат из Home на гильдию восстанавливает дерево каналов гильдии, скрывает #friends-view и сохраняет id гильдии (12.134981ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4413:23)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4444:3
+✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (10.299028ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4459:23)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4470:3
+✖ 5. Восстановление режима Home (@me) при старте через флаг homeMode: true в settings_load (11.957691ms)
+  AssertionError [ERR_ASSERTION]: режим Home не восстановился из homeMode: true
+  
+  null !== 'home'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4485:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'home',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4496:3
+✖ 6. Проброс users, relationships и private_channels из ready() рендерит список ЛС и счётчики друзей (10.073737ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4508:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4534:3
+✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (10.048878ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4561:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4584:3
+✖ 8. Клик по пункту 'Друзья' (#dm-nav-friends) после открытия ЛС возвращает центральную область на #friends-view (12.035601ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4596:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4620:3
+✖ 9. Переключение вкладок #friends-view ('Все', 'Ожидание', 'Добавить в друзья') и фильтрация поиском (9.927057ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4632:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4666:3
+✖ 10. Вкладка 'Добавить в друзья' отправляет запрос и нормализует ошибки Discord на русском языке (11.944281ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4678:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4712:3
+✖ 11. Диалог создания группового ЛС (#group-dm-dialog) и диалог подтверждения незнакомца (#stranger-confirm-dialog, код 80013) работают из смонтированного контроллера (10.070878ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4724:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-features.test.mjs:4790:3
+✖ 12. Клавиатурная активация #home-rail-btn (Enter/Space) и отсутствие console.error/warn (11.569151ms)
+  AssertionError [ERR_ASSERTION]: нет #home-rail-btn
+      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4802:23)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

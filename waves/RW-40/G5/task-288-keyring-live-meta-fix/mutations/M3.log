@@ -1,0 +1,27 @@
+diff:
+--- /tmp/opencode/mut-backup/keyring.rs.orig	2026-10-31 12:01:53.973298010 +0500
++++ rust/crates/discord-platform/src/keyring.rs	2026-10-31 12:01:54.351184631 +0500
+@@ -222,7 +222,7 @@
+     }
+     let payload = match trimmed.strip_prefix(ENCRYPTED_TOKEN_PREFIX) {
+         Some(rest) => rest.trim(),
+-        None => return Err(SafeStorageMigrationError::InvalidBase64),
++        None => return Err(SafeStorageMigrationError::EmptyPayload),
+     };
+     if payload.is_empty() {
+         return Err(SafeStorageMigrationError::EmptyPayload);
+assertion `left == right` failed
+  left: Err(EmptyPayload)
+ right: Err(InvalidBase64)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    k16_extract_safe_storage_ciphertext_rejects_invalid_base64
+
+test result: FAILED. 12 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-platform --test safe_storage_contract`
+M3 EXIT=101
+restore-ok src=934bfb9f9cefd76fb67640c07909c68c test=4e08fb1900a103f974ea97863c60bb7d
+M3 KILLED

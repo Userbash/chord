@@ -1,0 +1,24 @@
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+M1|MAX_WELCOME_CHANNELS 5 -> 6|pre=18ba4d9a9404c5979b814363ed1e8de2|mut=d2a7609a2b09dd92fa74eecff1c3baa8|exit=1|KILLED|
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+M2|isValidWelcomeDescription upper bound <= -> <|pre=18ba4d9a9404c5979b814363ed1e8de2|mut=d58017f6e3b658c2f58d0d2b4cf2955f|exit=1|KILLED|
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+M3|areRequiredPromptsSatisfied required check matchedCount < 1 -> < 0|pre=18ba4d9a9404c5979b814363ed1e8de2|mut=51874b4b15456b549f8217a9f6c474dd|exit=1|KILLED|
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+M4|singleSelect drops previous prompt selection|pre=18ba4d9a9404c5979b814363ed1e8de2|mut=382d389d94cbbc5af6a39e716c4fa823|exit=1|KILLED|
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+M5|complete button error guard negated (if (!satisfied) -> if (false))|pre=18ba4d9a9404c5979b814363ed1e8de2|mut=fd5a1f841838f8d27800f340bb32bcba|exit=1|KILLED|
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
+=== FINAL ===
+18ba4d9a9404c5979b814363ed1e8de2  /home/sanya/orca/workspaces/project/feature-task-262-ui-onboarding-wizard/rust/gui-spike/ui/features/onboarding-wizard.js

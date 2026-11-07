@@ -1,0 +1,37 @@
+Baseline MD5:
+  rust/gui-spike/ui/features/reactions.js: aa45fe323a0844ed4f675ffe42b0307d
+  rust/gui-spike/ui/features/chat.js: 55b467842ef33af9d8bfeb8547ce6c9f
+
+=== M1: Отключение переключения класса .active на пилюле при клике (requestReaction + syncPillDom) (rust/gui-spike/ui/features/reactions.js) -> KILLED (exit=1) ===
+  ✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (36.504294ms)
+✖ FE-P0-04 (task-149): интеграция createReactionsController и chat.js (64.941418ms)
+✖ failing tests:
+✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (36.504294ms)
+
+=== M2: Инверсия флага burst (type=0 вместо type=1 при супер-реакции) (rust/gui-spike/ui/features/reactions.js) -> KILLED (exit=1) ===
+  ✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (36.793783ms)
+✖ FE-P0-04 (task-149): интеграция createReactionsController и chat.js (66.898601ms)
+✖ failing tests:
+✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (36.793783ms)
+
+=== M3: Отключение lazy-destroy #reaction-picker-popover в closePicker (rust/gui-spike/ui/features/reactions.js) -> KILLED (exit=1) ===
+✖ tests/unit/reactions-ui.test.mjs (9995.649761ms)
+✖ failing tests:
+✖ tests/unit/reactions-ui.test.mjs (9995.649761ms)
+
+=== M4: Поломка переключения вкладки Супер-реакции (type=1) в #reaction-users-modal (rust/gui-spike/ui/features/reactions.js) -> KILLED (exit=1) ===
+  ✖ открывает модалку «Кто поставил реакцию» (#reaction-users-modal, вкладки Обычные type=0 и Супер-реакции type=1) из контекстного меню пилюли реакции (8.412508ms)
+✖ FE-P0-04 (task-149): интеграция createReactionsController и chat.js (85.036347ms)
+✖ failing tests:
+✖ открывает модалку «Кто поставил реакцию» (#reaction-users-modal, вкладки Обычные type=0 и Супер-реакции type=1) из контекстного меню пилюли реакции (8.412508ms)
+
+=== M5: Отключение монтирования createReactionsController в createChatScreen (chat.js) (rust/gui-spike/ui/features/chat.js) -> KILLED (exit=1) ===
+  ✖ всплывающая панель действий (.message-action-toolbar / .msg-hover-toolbar): быстрые реакции, открытие 9-категорийного #reaction-picker-popover и ответ (11.83854ms)
+  ✖ открывает модалку «Кто поставил реакцию» (#reaction-users-modal, вкладки Обычные type=0 и Супер-реакции type=1) из контекстного меню пилюли реакции (8.060287ms)
+✖ FE-P0-04 (task-149): интеграция createReactionsController и chat.js (67.978971ms)
+✖ failing tests:
+
+Restored MD5:
+  rust/gui-spike/ui/features/reactions.js: aa45fe323a0844ed4f675ffe42b0307d (match=true)
+  rust/gui-spike/ui/features/chat.js: 55b467842ef33af9d8bfeb8547ce6c9f (match=true)
+Summary: 5/5 mutants KILLED.

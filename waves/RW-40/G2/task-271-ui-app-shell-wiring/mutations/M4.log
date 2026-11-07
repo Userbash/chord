@@ -1,0 +1,44 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.58857ms)
+✔ getState: до любых действий активных слоёв нет (0.36307ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.20254ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.11307ms)
+✔ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.10787ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.0796ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.17552ms)
+✖ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.558381ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.60059ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.447401ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.18664ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.253276
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:164:1
+✖ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.558381ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'ack:guild_admin-expressions-manager-approve'
+  - 'ack:guild_admin:expressions-manager:approve'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/app-shell-wiring.test.mjs:170:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'ack:guild_admin-expressions-manager-approve',
+    expected: 'ack:guild_admin:expressions-manager:approve',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

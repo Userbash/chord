@@ -1,0 +1,14 @@
+$ node --test tests/unit/dispatch_ui.test.mjs
+  ✔ C15: пустой READY очищает рейл (полный снапшот), без reload-IPC (14.053716ms)
+  ✔ C15b: первый пустой READY после boot очищает рейл от ready() IPC (14.660034ms)
+  ✔ C16: ready() self ID — string точно, unsafe integer отвергнут (без String()) (12.421047ms)
+✔ L-02-UI: интеграция dispatch → DOM (C1–C14) (251.211907ms)
+ℹ tests 43
+ℹ suites 4
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 331.62148
+exit=0

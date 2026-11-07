@@ -28,6 +28,7 @@ import { createSearchOverlay, SEARCH_SECTIONS, selectedGuildId } from "./feature
 import { createQuickSwitcher } from "./features/quick-switcher.js";
 import { createVoicePanel, createVoiceStore } from "./features/voice.js";
 import { createJoinServer } from "./features/join-server.js";
+import { createCreateGuildController } from "./features/create-guild.js";
 import { createTypingIndicator, createTypingSender } from "./features/typing-indicator.js";
 import { asSnowflake, createDispatchStore } from "./features/dispatch-model.js";
 import { createDispatchView } from "./features/dispatch-view.js";
@@ -242,6 +243,21 @@ import {
   shouldShowVerificationCodeForChannel,
 } from "./features/voice-diagnostics.js";
 import { computeFloatingPosition } from "./features/floating-popover.js";
+import {
+  LURKER_PERMISSIONS_MASK,
+  evaluateChannelAccessDto,
+  createTypedCommands,
+} from "./bindings.js";
+import {
+  mountReactiveVoiceRtcPanel,
+  resolveVoiceCallPhaseView,
+  renderVoiceRtcPhaseDom,
+} from "./modules/voice-rtc-panel.js";
+import {
+  applyVoiceStateUpdateEvent,
+  isConfirmedVoiceStateRecord,
+  syncServerAccessBannersAndComposerDom,
+} from "./modules/channel-tree-view.js";
 
 /**
  * Устройства ввода/вывода по умолчанию для секции «Голос и видео» (V-07 / INT-07).
@@ -3201,7 +3217,10 @@ function boot() {
       if (typeof closeLiveVoicePopouts === "function") {
         closeLiveVoicePopouts();
       }
-      const isLiveDesktop = isLiveSession() && !(/** @type {any} */ (globalThis).__QA__);
+      const isLiveDesktop =
+        isLiveSession() &&
+        Boolean(/** @type {any} */ (globalThis).__SPIKE_SNAPSHOT_DONE__) &&
+        !(/** @type {any} */ (globalThis).__QA__);
       if (isLiveDesktop && (name === "emoji" || name === "members")) {
         router.switchScreen("chat");
         if (name === "emoji" && typeof openLiveComposerEmojiPickerRef === "function") {
@@ -3348,7 +3367,12 @@ function boot() {
   const invoke = async (cmd, args) => {
     const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
     const callerChain = isLiveSession() ? captureCallerChain() : [];
-    const effectiveCmd = isLiveSession() && cmd === "ack_channel_message" ? "ack_message" : cmd;
+    const effectiveCmd =
+      isLiveSession() && cmd === "ack_channel_message"
+        ? "ack_message"
+        : cmd === "set_system_audio_device"
+          ? "voice_set_audio_device"
+          : cmd;
     const effectiveArgs =
       isLiveSession() && cmd === "ack_channel_message"
         ? {
@@ -3367,7 +3391,8 @@ function boot() {
         (effectiveArgs?.kind === "ui_telemetry" ||
           effectiveArgs?.kind === "remote_stream_frame" ||
           effectiveArgs?.kind === "screen_preview" ||
-          effectiveArgs?.kind === "voice_states_sync")
+          effectiveArgs?.kind === "voice_states_sync" ||
+          effectiveArgs?.kind === "dm_friends_sync")
       );
     try {
       const result = await tauri.core.invoke(effectiveCmd, effectiveArgs);
@@ -3553,58 +3578,11 @@ function boot() {
       }
       return { module: "ui/app.js", handler: "globalShellHandler" };
     };
-    let lastMouseLogAt = 0;
-    let lastMouseX = -1;
-    let lastMouseY = -1;
-    let lastHoveredKey = "";
-    document.addEventListener(
-      "mousemove",
-      (ev) => {
-        if (!isLiveSession()) return;
-        const now = Date.now();
-        if (now - lastMouseLogAt < 250) return;
-        const mse = /** @type {MouseEvent} */ (ev);
-        const x = Math.round(mse.clientX || 0);
-        const y = Math.round(mse.clientY || 0);
-        const rawTarget = /** @type {Element | null} */ (
-          mse.target && typeof (/** @type {any} */ (mse.target)).closest === "function"
-            ? mse.target
-            : null
-        );
-        const actionable =
-          rawTarget?.closest(
-            "button, [role='button'], [role='menuitem'], [role='treeitem'], [role='tab'], [role='switch'], a, input, select, textarea, .tree-voice-user, .tree-item, .msg, .member-row",
-          ) ?? rawTarget;
-        const hoverKey = `${actionable?.tagName || ""}:${actionable?.id || ""}:${String(actionable?.textContent || "").trim().slice(0, 32)}`;
-        const dist = Math.hypot(x - lastMouseX, y - lastMouseY);
-        if (dist < 18 && hoverKey === lastHoveredKey) return;
-        lastMouseLogAt = now;
-        lastMouseX = x;
-        lastMouseY = y;
-        lastHoveredKey = hoverKey;
-        const info = resolveFeatureHandler(actionable);
-        emitLiveTelemetry({
-          type: "mouse_move",
-          x,
-          y,
-          module: info.module,
-          handler: info.handler,
-          tag: actionable?.tagName?.toLowerCase() || "",
-          id: actionable?.id || "",
-          className: typeof actionable?.className === "string" ? actionable.className.slice(0, 80) : "",
-          text: String(actionable?.textContent || "")
-            .replace(/\s+/g, " ")
-            .trim()
-            .slice(0, 60),
-        });
-      },
-      true,
-    );
     for (const evtName of ["click", "contextmenu", "dblclick", "change"]) {
       document.addEventListener(
         evtName,
         (ev) => {
-          if (!isLiveSession()) return;
+          if (!isLiveSession() || !ev.isTrusted) return;
           const mse = /** @type {MouseEvent} */ (ev);
           const rawTarget = /** @type {Element | null} */ (
             mse.target && typeof (/** @type {any} */ (mse.target)).closest === "function"
@@ -3673,7 +3651,10 @@ function boot() {
         });
       });
     }
-    if (typeof setInterval === "function" && !("node" in (globalThis.process?.versions ?? {}))) {
+    if (
+      typeof setInterval === "function" &&
+      !("node" in (/** @type {any} */ (globalThis).process?.versions ?? {}))
+    ) {
       setInterval(() => {
         if (!isLiveSession()) return;
         const screenTitle = document.querySelector("#screen-chat .screen-title");
@@ -3939,7 +3920,7 @@ function boot() {
    */
   function syncVoiceMuteStateWithBackend() {
     if (!isLiveSession()) return;
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const isCurrAfk = Boolean(
       activeVoiceConnection &&
         isChannelAfk(activeVoiceConnection.guildId, activeVoiceConnection.channelId, activeVoiceConnection.channelName),
@@ -4197,6 +4178,18 @@ function boot() {
     }
   }
 
+  function retryActiveVoiceConnection() {
+    if (!activeVoiceConnection) return;
+    connectToLiveVoiceChannel(
+      String(activeVoiceConnection.guildId || ""),
+      String(activeVoiceConnection.guildName || "Сервер"),
+      {
+        id: String(activeVoiceConnection.channelId || ""),
+        name: String(activeVoiceConnection.channelName || activeVoiceConnection.channelId || ""),
+      },
+    );
+  }
+
   /**
    * Подключается к реальному голосовому каналу Discord (Gateway OP 4 + RTC WebSocket + UDP IP Discovery).
    * Автоматически отключает микрофон при входе в AFK-комнату (`afkChannelId` или название с `AFK`).
@@ -4207,15 +4200,49 @@ function boot() {
   function connectToLiveVoiceChannel(targetGuildId, targetGuildName, channel) {
     const vsGuildKey = targetGuildId || "@me";
     if (isLiveSession() && targetGuildId && targetGuildId !== "@me") {
+      const gObj = liveGuildsById.get(cleanDiscordStr(targetGuildId));
+      const isLurker =
+        gObj?.lurker === true || gObj?.isMember === false || gObj?.is_member === false;
+      if (isLurker) {
+        syncServerAccessBannersAndComposerDom({
+          doc: document,
+          guild: gObj,
+          channel: { ...channel, type: 2 },
+          currentUserId: String(liveSelfUser?.id || ""),
+        });
+        showVoiceToastNotice(
+          "Режим предпросмотра сервера (вы не участник) — вступите на сервер, чтобы подключаться к голосовым каналам",
+        );
+        return;
+      }
+      if (gObj?.pending === true) {
+        syncServerAccessBannersAndComposerDom({
+          doc: document,
+          guild: gObj,
+          channel: { ...channel, type: 2 },
+          currentUserId: String(liveSelfUser?.id || ""),
+        });
+        showVoiceToastNotice(
+          "Примите правила сервера (Membership Screening), чтобы подключаться к голосовым каналам",
+        );
+        return;
+      }
       const effPerms = computeEffectiveChannelPermissions(targetGuildId, channel, tree?.channels);
       const PERM_VIEW_AND_CONNECT = (1n << 10n) | (1n << 20n);
       if (effPerms !== null && (effPerms & PERM_VIEW_AND_CONNECT) !== PERM_VIEW_AND_CONNECT) {
-        surface(
-          new UIError(
-            "ACTION_FAILED",
-            "У вашей роли нет прав для подключения к этому голосовому каналу",
-          ),
-        );
+        syncServerAccessBannersAndComposerDom({
+          doc: document,
+          guild: gObj,
+          channel: {
+            ...channel,
+            type: 2,
+            permission_overwrites: [
+              { id: String(targetGuildId), type: 0, allow: "0", deny: String(1n << 20n) },
+            ],
+          },
+          currentUserId: String(liveSelfUser?.id || ""),
+        });
+        showVoiceToastNotice("У вашей роли нет прав для подключения к этому голосовому каналу");
         return;
       }
     }
@@ -4233,36 +4260,16 @@ function boot() {
     if (existingList.length === 0) {
       liveVoiceChannelStartEpochMs.set(`${normalizeVoiceGuildKey(targetGuildId)}:${channel.id}`, nowMs);
     }
-    const selfId = String(liveSelfUser?.id || "384299970632876032");
+    const selfId = String(liveSelfUser?.id || "");
+    // V5: Не добавляем оптимистичный/фантомный аватар до прихода подтверждённого VOICE_STATE_UPDATE.
+    // Очищаем только старую запись локального пользователя, если он переключается из другого канала.
     for (const [gid, arr] of liveVoiceStatesByGuild.entries()) {
-      const filtered = arr.filter((v) => String(v?.user_id ?? v?.userId ?? "") !== selfId);
-      if (gid === vsGuildKey || gid === targetGuildId) {
-        filtered.push({
-          guild_id: vsGuildKey,
-          channel_id: channel.id,
-          user_id: selfId,
-          self_mute: effectiveMute,
-          self_deaf: selfVoicePrefs.deafened,
-          self_stream: false,
-          mute: isAfkRoom,
-          deaf: false,
-        });
-      }
+      const filtered = arr.filter(
+        (v) =>
+          String(v?.user_id ?? v?.userId ?? "") !== selfId ||
+          (gid === vsGuildKey && String(v?.channel_id ?? v?.channelId ?? "") === channel.id && isConfirmedVoiceStateRecord(v)),
+      );
       liveVoiceStatesByGuild.set(gid, filtered);
-    }
-    if (!liveVoiceStatesByGuild.has(vsGuildKey)) {
-      liveVoiceStatesByGuild.set(vsGuildKey, [
-        {
-          guild_id: vsGuildKey,
-          channel_id: channel.id,
-          user_id: selfId,
-          self_mute: effectiveMute,
-          self_deaf: selfVoicePrefs.deafened,
-          self_stream: false,
-          mute: isAfkRoom,
-          deaf: false,
-        },
-      ]);
     }
     activeVoiceConnection = {
       guildId: targetGuildId,
@@ -4278,8 +4285,22 @@ function boot() {
     };
     liveRtcStatus = {
       ...liveRtcStatus,
-      state: "connecting",
+      phase: "signaling",
+      state: "signaling",
+      error: null,
     };
+    globalAppReactiveStore.activeVoiceConnection.value = /** @type {any} */ ({
+      guildId: String(targetGuildId || "@me"),
+      channelId: String(channel.id || ""),
+      channelName: String(channel.name || channel.id),
+      phase: "signaling",
+      state: "signaling",
+      error: null,
+      selfMute: effectiveMute,
+      selfDeaf: Boolean(selfVoicePrefs.deafened),
+      selfVideo: false,
+      selfStream: false,
+    });
     playVoiceUiSound("join");
     renderLiveVoicePanel();
     tree.refreshView();
@@ -4293,16 +4314,64 @@ function boot() {
         .then((snap) => {
           if (snap && typeof snap === "object") {
             liveRtcStatus = snap;
+            if (activeVoiceConnection) {
+              globalAppReactiveStore.activeVoiceConnection.value = /** @type {any} */ ({
+                guildId: String(activeVoiceConnection.guildId || "@me"),
+                channelId: String(activeVoiceConnection.channelId || ""),
+                channelName: String(activeVoiceConnection.channelName || ""),
+                phase: snap.phase ?? snap.state ?? "signaling",
+                state: snap.state ?? "signaling",
+                error: snap.error ?? snap.reason ?? null,
+                selfMute: Boolean(activeVoiceConnection.muted),
+                selfDeaf: Boolean(activeVoiceConnection.deafened),
+                selfVideo: Boolean(activeVoiceConnection.cameraOn),
+                selfStream: Boolean(activeVoiceConnection.screenShareOn),
+              });
+            }
             updateLiveRtcDomInPlace();
           }
         })
         .catch((err) => {
-          disconnectFromLiveVoiceChannel();
           const msg =
             typeof err === "string"
               ? err
               : String(err?.message || "Не удалось подключиться к голосовому каналу (отказано в доступе)");
-          surface(new UIError("ACTION_FAILED", msg));
+          const errPhase = /timeout|таймаут/i.test(msg) ? "timeout" : "error";
+          applyVoiceStateUpdateEvent(liveVoiceStatesByGuild, {
+            guild_id: vsGuildKey,
+            channel_id: channel.id,
+            user_id: selfId,
+            phase: errPhase,
+            error: msg,
+          });
+          stopRtcStatusPolling();
+          liveRtcStatus = {
+            ...liveRtcStatus,
+            phase: errPhase,
+            state: errPhase,
+            error: msg,
+          };
+          if (activeVoiceConnection) {
+            globalAppReactiveStore.activeVoiceConnection.value = /** @type {any} */ ({
+              guildId: String(activeVoiceConnection.guildId || "@me"),
+              channelId: String(activeVoiceConnection.channelId || ""),
+              channelName: String(activeVoiceConnection.channelName || ""),
+              phase: errPhase,
+              state: errPhase,
+              error: msg,
+              selfMute: Boolean(activeVoiceConnection.muted),
+              selfDeaf: Boolean(activeVoiceConnection.deafened),
+              selfVideo: Boolean(activeVoiceConnection.cameraOn),
+              selfStream: Boolean(activeVoiceConnection.screenShareOn),
+            });
+          }
+          tree.refreshView();
+          updateLiveRtcDomInPlace();
+          if (isLiveSession()) {
+            showVoiceToastNotice(msg);
+          } else {
+            surface(new UIError("ACTION_FAILED", msg));
+          }
         });
       void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
         kind: "input",
@@ -4322,7 +4391,7 @@ function boot() {
 
   function disconnectFromLiveVoiceChannel() {
     const prevGuildId = activeVoiceConnection?.guildId ?? null;
-    const selfId = String(liveSelfUser?.id || "384299970632876032");
+    const selfId = String(liveSelfUser?.id || "");
     for (const [gid, arr] of liveVoiceStatesByGuild.entries()) {
       liveVoiceStatesByGuild.set(
         gid,
@@ -4805,9 +4874,10 @@ function boot() {
         : (liveVoiceStatesByGuild.get(targetGuildId) ?? []);
     /** @type {Map<string, any>} */
     const byUser = new Map();
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const channelIsAfk = isChannelAfk(targetGuildId, targetChannelId);
     for (const vs of rawList) {
+      if (!isConfirmedVoiceStateRecord(vs)) continue;
       const cid = cleanDiscordStr(String(vs?.channel_id ?? vs?.channelId ?? ""));
       const uid = cleanDiscordStr(String(vs?.user_id ?? vs?.userId ?? ""));
       if (!uid || !cid || cid !== targetChannelId) continue;
@@ -4859,13 +4929,13 @@ function boot() {
           ? cleanDiscordStr(liveSelfUser?.globalName) ||
             cleanDiscordStr(liveSelfUser?.global_name) ||
             cleanDiscordStr(liveSelfUser?.username) ||
-            "ShadowByte"
+            "Пользователь"
           : `Участник ${uid.slice(-4)}`);
       const clanTag =
         cleanDiscordStr(u?.clan?.tag) ||
         cleanDiscordStr(u?.primary_guild?.tag) ||
         cleanDiscordStr(member?.user?.clan?.tag) ||
-        (uid === "1053636211211771964" ? "CODE" : "");
+        "";
       const avatarHash =
         cleanDiscordStr(member?.avatar) ||
         cleanDiscordStr(u?.avatar) ||
@@ -4902,33 +4972,8 @@ function boot() {
       const resolvedClanTag =
         clanTag ||
         liveMemberClanTagByUser.get(uid) ||
-        (uid === "376733887780487168" ? "VOID" : "");
-      const gameActivity =
-        uid === "289091818442719242" || /KOT_BAYUN|КОТ_БАЮН/i.test(baseName)
-          ? {
-              title: "Borderlands®4",
-              details: "Сирена, уровень 53",
-              elapsed: "24:18",
-              party: "Петля Почитателя (2 из 4)",
-              iconKind: "borderlands",
-            }
-          : uid === "274956633409585157" || /Карлсон/i.test(baseName)
-            ? {
-                title: "Borderlands®4",
-                details: "Гравитар, уровень 48",
-                elapsed: "36:06",
-                party: "Петля Почитателя (2 из 4)",
-                iconKind: "borderlands",
-              }
-            : uid === "682514367828459526" || /Vitaly95/i.test(baseName)
-              ? {
-                  title: "Assassin's Creed Shadows",
-                  details: "Исследование мира",
-                  elapsed: "52:14",
-                  party: "",
-                  iconKind: "ac",
-                }
-              : null;
+        "";
+      const gameActivity = null;
       byUser.set(uid, {
         userId: uid,
         guildId: targetGuildId,
@@ -4951,10 +4996,12 @@ function boot() {
         speaking,
         gameActivity,
         roles: roleInfo.roles.length > 0 ? roleInfo.roles : rawRoles,
-        joinedAt: cleanDiscordStr(member?.joined_at) || "17 окт. 2025 г.",
+        joinedAt: cleanDiscordStr(member?.joined_at) || "",
       });
     }
+    const existingSelf = byUser.get(selfId);
     if (
+      existingSelf &&
       activeVoiceConnection &&
       normalizeVoiceGuildKey(activeVoiceConnection.guildId) === normGuildKey &&
       activeVoiceConnection.channelId === targetChannelId
@@ -4964,12 +5011,11 @@ function boot() {
         cleanDiscordStr(liveSelfUser?.globalName) ||
         cleanDiscordStr(liveSelfUser?.global_name) ||
         cleanDiscordStr(liveSelfUser?.username) ||
-        "ShadowByte";
+        "Пользователь";
       const selfAvatarHash = cleanDiscordStr(liveSelfUser?.avatar);
       const selfAvatar = selfAvatarHash
         ? `https://cdn.discordapp.com/avatars/${selfId}/${selfAvatarHash}.png?size=64`
         : null;
-      const existingSelf = byUser.get(selfId);
       const selfOverride = livePerUserVoiceState.get(selfId);
       const serverMute = channelIsAfk || Boolean(selfOverride?.serverMute ?? existingSelf?.serverMute ?? false);
       const serverDeaf = Boolean(selfOverride?.serverDeaf ?? existingSelf?.serverDeaf ?? false);
@@ -4987,7 +5033,7 @@ function boot() {
         guildId: targetGuildId,
         channelId: targetChannelId,
         displayName: selfName,
-        username: cleanDiscordStr(liveSelfUser?.username) || "pharos12510",
+        username: cleanDiscordStr(liveSelfUser?.username) || "user",
         clanTag: existingSelf?.clanTag || "",
         avatarUrl: selfAvatar || existingSelf?.avatarUrl || null,
         roleColor: selfRoleInfo.colorHex ?? existingSelf?.roleColor ?? null,
@@ -5025,15 +5071,20 @@ function boot() {
     if (!gId || !channel || typeof channel !== "object") return null;
     const guildObj = liveGuildsById.get(gId);
     if (!guildObj || typeof guildObj !== "object") return null;
+    const isLurker =
+      guildObj.lurker === true || guildObj.isMember === false || guildObj.is_member === false;
+    const isPending = guildObj.pending === true;
     const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const ownerId = cleanDiscordStr(String(guildObj.ownerId ?? guildObj.owner_id ?? ""));
-    if (selfId && ownerId && ownerId === selfId) {
+    if (!isLurker && selfId && ownerId && ownerId === selfId) {
       return ~0n;
     }
     const guildRoles = Array.isArray(guildObj.roles) ? guildObj.roles : [];
     const guildPermsStr = cleanDiscordStr(String(guildObj.permissions ?? ""));
-    if (guildRoles.length === 0 && !guildPermsStr) return null;
-    const myRoles = selfId ? resolveUserRoleInfo(gId, selfId).roles : [];
+    if (guildRoles.length === 0 && !guildPermsStr) {
+      return isLurker ? LURKER_PERMISSIONS_MASK : null;
+    }
+    const myRoles = !isLurker && selfId ? resolveUserRoleInfo(gId, selfId).roles : [];
     const roleSet = new Set([gId, ...myRoles.map(String)]);
     let basePerms = 0n;
     if (guildPermsStr) {
@@ -5050,7 +5101,7 @@ function boot() {
       }
     }
     const ADMINISTRATOR = 1n << 3n;
-    if ((basePerms & ADMINISTRATOR) !== 0n) {
+    if (!isLurker && (basePerms & ADMINISTRATOR) !== 0n) {
       return ~0n;
     }
     /**
@@ -5105,6 +5156,9 @@ function boot() {
     const ownOw = channel.permissionOverwrites ?? channel.permission_overwrites ?? [];
     if (Array.isArray(ownOw) && ownOw.length > 0) {
       effective = applyOverwrites(effective, ownOw);
+    }
+    if (isLurker || isPending) {
+      effective &= LURKER_PERMISSIONS_MASK;
     }
     return effective;
   }
@@ -5194,7 +5248,7 @@ function boot() {
     const cId = cleanDiscordStr(String(chObj?.id ?? channelOrId ?? ""));
     if (!gId || !cId) return true;
     if (isChannelAfk(gId, cId)) return false;
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const vList = liveVoiceStatesByGuild.get(gId) ?? [];
     const myVs = vList.find((v) => String(v?.user_id ?? v?.userId ?? "") === selfId);
     if (myVs && isTruthyVoiceFlag(myVs.suppress)) return false;
@@ -5220,7 +5274,7 @@ function boot() {
     const cId = cleanDiscordStr(String(chObj?.id ?? channelOrId ?? ""));
     if (!gId || !cId) return true;
     if (isChannelAfk(gId, cId)) return false;
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const vList = liveVoiceStatesByGuild.get(gId) ?? [];
     const myVs = vList.find((v) => String(v?.user_id ?? v?.userId ?? "") === selfId);
     if (myVs && (isTruthyVoiceFlag(myVs.mute) || isTruthyVoiceFlag(myVs.suppress))) return false;
@@ -5428,7 +5482,7 @@ function boot() {
     listWrap.style.cssText =
       "max-height:310px;overflow-y:auto;padding:0 12px 8px;display:flex;flex-direction:column;gap:2px;";
 
-    const selfId = String(liveSelfUser?.id || "384299970632876032");
+    const selfId = String(liveSelfUser?.id || "");
     /** @type {Array<{ id: string, displayName: string, username: string, avatarUrl: string | null }>} */
     const candidates = [];
     const seenIds = new Set([selfId]);
@@ -5511,22 +5565,6 @@ function boot() {
           const disp = String(u?.global_name || u?.globalName || u?.displayName || u?.username || uid);
           const uname = String(u?.username || disp).replace(/^@/, "");
           pushCandidate(uid, disp, uname, u?.avatar || null);
-        }
-        const defaultInviteFriends = [
-          { id: "427021093568765952", displayName: "SKID", username: ".kirumi" },
-          { id: "1053636211211771964", displayName: "revqair", username: "revqair" },
-          { id: "612000112233445566", displayName: "DXVSI", username: "dxvsi" },
-          { id: "612000112233445567", displayName: "ДраКс-Иван", username: "dpakc" },
-          { id: "612000112233445568", displayName: "Roman Pony", username: "romanpony" },
-          { id: "612000112233445569", displayName: "СЕРЫЙ КАРДИНАЛ", username: "zxzmrxzxz" },
-          { id: "612000112233445570", displayName: "Krymski", username: "krymskij" },
-          { id: "612000112233445571", displayName: "Azneks", username: "ewov" },
-          { id: "612000112233445572", displayName: "RinkooRoge", username: "rinkooroge" },
-          { id: "612000112233445573", displayName: "Elifian", username: "elifian" },
-        ];
-        for (const f of defaultInviteFriends) {
-          const known = liveUsersById.get(f.id);
-          pushCandidate(f.id, f.displayName, f.username, known?.avatar || null);
         }
       }
     };
@@ -6226,15 +6264,18 @@ function boot() {
       addMenuItem(
         connectedToTargetChannel
           ? "📺 Смотреть трансляцию"
-          : "📺 Смотреть трансляцию (подключитесь к каналу)",
+          : "📺 Подключиться и смотреть трансляцию",
         {
           rightBadge: "В ЭФИРЕ",
           onClick: () => {
             closeSubmenu();
             menu.remove();
-            if (!connectedToTargetChannel) {
-              showVoiceToastNotice("Сначала подключитесь к голосовому каналу, чтобы смотреть трансляцию");
-              return;
+            if (!connectedToTargetChannel && targetChId) {
+              connectToLiveVoiceChannel(
+                targetGuildId,
+                currentGuildInfo().name || "Сервер",
+                { id: targetChId, name: channel?.name || "Голосовой канал" },
+              );
             }
             openLiveStreamStageViewer(participant, channel);
           },
@@ -7073,10 +7114,10 @@ function boot() {
     const body = document.createElement("div");
     body.style.cssText = "padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;";
     const disp = String(
-      liveSelfUser?.globalName || liveSelfUser?.global_name || liveSelfUser?.username || "ShadowByte",
+      liveSelfUser?.globalName || liveSelfUser?.global_name || liveSelfUser?.username || "Пользователь",
     );
-    const uname = String(liveSelfUser?.username || "pharos12510");
-    const uid = String(liveSelfUser?.id || "384299970632876032");
+    const uname = String(liveSelfUser?.username || "user");
+    const uid = String(liveSelfUser?.id || "");
     const nameBlock = document.createElement("div");
     nameBlock.style.cssText = "display:flex;flex-direction:column;gap:2px;";
     const dispLine = document.createElement("div");
@@ -7132,7 +7173,7 @@ function boot() {
           uStatusNode.textContent = st.label;
         }
         syncUserBarVoiceButtons();
-        const selfUid = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+        const selfUid = cleanDiscordStr(String(liveSelfUser?.id || ""));
         const effectiveSt = st.key === "invisible" ? "offline" : st.key;
         for (const r of document.querySelectorAll(`.member-row[data-user-id="${selfUid}"]`)) {
           r.setAttribute("data-status", effectiveSt);
@@ -7221,11 +7262,11 @@ function boot() {
     closeBtn.addEventListener("click", () => backdrop.remove());
     head.append(title, closeBtn);
 
-    const host = liveRtcStatus?.shortHostname || liveRtcStatus?.endpoint || "c-fra18-233f52bd";
-    const ep = liveRtcStatus?.endpoint || `${host}.discord.media:443`;
-    const lastPing = typeof liveRtcStatus?.lastPingMs === "number" ? `${liveRtcStatus.lastPingMs} мс` : "41 мс";
-    const avgPing = typeof liveRtcStatus?.averagePingMs === "number" ? `${liveRtcStatus.averagePingMs} мс` : lastPing;
-    const ssrc = liveRtcStatus?.ssrc || 48291;
+    const host = liveRtcStatus?.shortHostname || liveRtcStatus?.endpoint || "—";
+    const ep = liveRtcStatus?.endpoint || "—";
+    const lastPing = typeof liveRtcStatus?.lastPingMs === "number" && liveRtcStatus.lastPingMs > 0 ? `${liveRtcStatus.lastPingMs} мс` : "—";
+    const avgPing = typeof liveRtcStatus?.averagePingMs === "number" && liveRtcStatus.averagePingMs > 0 ? `${liveRtcStatus.averagePingMs} мс` : lastPing;
+    const ssrc = liveRtcStatus?.ssrc || "—";
     const mode = liveRtcStatus?.encryptionMode || liveRtcStatus?.mode || "aead_aes256_gcm_rtpsize";
     const proto = liveRtcStatus?.protocol || "udp";
     const gpuVendor = liveRtcStatus?.gpuVendor || "GPU";
@@ -7874,7 +7915,7 @@ function boot() {
    */
   function openLiveStreamStageViewer(participant, channel) {
     document.getElementById("live-stream-stage-viewer")?.remove();
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const rawGid = cleanDiscordStr(
       String(participant?.guildId ?? activeVoiceConnection?.guildId ?? rail.selectedId ?? selectedGuildId() ?? ""),
     );
@@ -7887,12 +7928,16 @@ function boot() {
 
     if (
       isLiveSession() &&
+      cId &&
       (!activeVoiceConnection ||
         activeVoiceConnection.channelId !== cId ||
         (gId && normalizeVoiceGuildKey(activeVoiceConnection.guildId) !== normGid))
     ) {
-      showVoiceToastNotice("Сначала подключитесь к голосовому каналу, чтобы смотреть трансляцию");
-      return;
+      connectToLiveVoiceChannel(
+        gId,
+        currentGuildInfo().name || "Сервер",
+        { id: cId, name: channel?.name || "Голосовой канал" },
+      );
     }
 
     if (isLiveSession() && streamKey) {
@@ -9369,10 +9414,10 @@ function boot() {
       if ((/** @type {HTMLElement} */ (ev.target)).closest("button")) return;
       openLiveStreamStageViewer(
         {
-          userId: String(liveSelfUser?.id || "384299970632876032"),
+          userId: String(liveSelfUser?.id || ""),
           guildId: conn.guildId,
           channelId: conn.channelId,
-          displayName: cleanDiscordStr(liveSelfUser?.globalName || liveSelfUser?.username) || "ShadowByte",
+          displayName: cleanDiscordStr(liveSelfUser?.globalName || liveSelfUser?.username) || "Пользователь",
           streaming: true,
         },
         { id: conn.channelId, name: conn.channelName || "Стрим" },
@@ -9420,7 +9465,7 @@ function boot() {
     const selfName = document.createElement("span");
     selfName.style.cssText =
       "padding:2px 8px;border-radius:4px;background:rgba(17,18,20,0.75);color:#f2f3f5;font-size:12px;font-weight:700;";
-    selfName.textContent = cleanDiscordStr(liveSelfUser?.globalName || liveSelfUser?.username) || "ShadowByte";
+    selfName.textContent = cleanDiscordStr(liveSelfUser?.globalName || liveSelfUser?.username) || "Пользователь";
 
     const stopBtn = document.createElement("button");
     stopBtn.type = "button";
@@ -9430,7 +9475,7 @@ function boot() {
     stopBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>`;
     stopBtn.addEventListener("click", () => {
       conn.screenShareOn = false;
-      const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+      const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
         const gList = liveVoiceStatesByGuild.get(gk) ?? [];
         for (const v of gList) {
@@ -9463,7 +9508,7 @@ function boot() {
     if (!activeVoiceConnection) return;
     if (activeVoiceConnection.screenShareOn && !forceOpenConfig) {
       activeVoiceConnection.screenShareOn = false;
-      const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+      const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([
         activeVoiceConnection.guildId,
         normalizeVoiceGuildKey(activeVoiceConnection.guildId),
@@ -9523,7 +9568,7 @@ function boot() {
       conn.streamSourceLabel = picked.label || "Окно, экран или приложение";
       conn.streamResolution = conn.resolution || "720p";
       conn.streamFps = Number(conn.fps || 60);
-      const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+      const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
         const gList = liveVoiceStatesByGuild.get(gk) ?? [];
         for (const v of gList) {
@@ -9540,8 +9585,19 @@ function boot() {
         deviceId: (picked.tab || appCaptureKind) + ":" + picked.id + ":" + (picked.label || ""),
       }).catch(() => {});
       syncVoiceMuteStateWithBackend();
+      requestLiveScreenPreviewFrame();
       renderLiveVoicePanel();
       tree.refreshView();
+      openLiveStreamStageViewer(
+        {
+          userId: selfId,
+          guildId: conn.guildId,
+          channelId: conn.channelId,
+          displayName: cleanDiscordStr(liveSelfUser?.globalName || liveSelfUser?.username) || "Вы",
+          streaming: true,
+        },
+        { id: conn.channelId, name: conn.channelName || "Стрим" },
+      );
       emitLiveTelemetry({
         type: "voice_screenshare_start",
         source: picked.id,
@@ -9812,13 +9868,28 @@ function boot() {
     }
     const badge = document.getElementById("live-voice-status-badge");
     const rttPill = document.getElementById("live-voice-rtt-pill");
-    const st = String(liveRtcStatus?.state || "connected");
-    const isErr = st === "error" || st.startsWith("error");
+    const phaseView = resolveVoiceCallPhaseView(liveRtcStatus);
+    const st = String(liveRtcStatus?.state || "signaling");
+    const isErr =
+      phaseView.isError ||
+      phaseView.phase === "timeout" ||
+      phaseView.phase === "error" ||
+      st === "error" ||
+      st === "timeout" ||
+      st.startsWith("error");
+    const isDisconnected = !isErr && (phaseView.phase === "disconnected" || st === "disconnected");
     const isConnecting =
-      st === "connecting" || st === "reconnecting" || (isLiveSession() && st === "signaling");
+      !isErr &&
+      (phaseView.phase === "signaling" ||
+        phaseView.phase === "negotiating" ||
+        st === "connecting" ||
+        st === "reconnecting" ||
+        isDisconnected ||
+        (isLiveSession() && !phaseView.isConnected));
     const rawLast = liveRtcStatus?.lastPingMs;
     const rawAvg = liveRtcStatus?.averagePingMs;
-    const effectiveLast = typeof rawLast === "number" && rawLast > 0 ? rawLast : 41;
+    const hasMeasuredPing = typeof rawLast === "number" && rawLast > 0;
+    const effectiveLast = hasMeasuredPing ? rawLast : 0;
     const effectiveAvg = typeof rawAvg === "number" && rawAvg > 0 ? rawAvg : effectiveLast;
     const pingColor =
       isErr || effectiveLast > 800
@@ -9826,12 +9897,20 @@ function boot() {
         : isConnecting || effectiveLast > 350
           ? "#f0b232"
           : "#23a55a";
+    if (voiceHost && activeVoiceConnection) {
+      renderVoiceRtcPhaseDom(voiceHost, liveRtcStatus, {
+        doc: document,
+        onRetry: retryActiveVoiceConnection,
+      });
+    }
     if (badge && badge.getAttribute("data-hovered") !== "true") {
-      const nextBadgeText = isErr
-        ? "Нет сигнала RTC (переподключение…)"
-        : isConnecting
-          ? "Подключение к RTC…"
-          : "Голосовая связь подключена";
+      const nextBadgeText =
+        phaseView.label ||
+        (isErr
+          ? "Нет сигнала RTC (переподключение…)"
+          : isConnecting
+            ? "Ожидание ответа сервера Discord..."
+            : "Голосовая связь установлена • DAVE E2EE");
       if (badge.textContent !== nextBadgeText) badge.textContent = nextBadgeText;
       if (badge.style.color !== pingColor) badge.style.color = pingColor;
     }
@@ -9840,24 +9919,28 @@ function boot() {
       sigIcon.style.color = pingColor;
     }
     if (rttPill) {
-      const nextRttText = isConnecting && (!rawLast || rawLast <= 0) ? "RTC…" : `${effectiveLast} мс`;
+      const nextRttText = isErr
+        ? "—"
+        : isConnecting && !hasMeasuredPing
+          ? "RTC…"
+          : `${effectiveLast} мс`;
       if (rttPill.textContent !== nextRttText) rttPill.textContent = nextRttText;
       if (rttPill.style.color !== pingColor) rttPill.style.color = pingColor;
     }
     const popTitle = document.getElementById("live-rtc-popout-title");
     if (popTitle) {
       popTitle.textContent = isErr
-        ? "Ошибка RTC соединения"
+        ? phaseView.label || "Ошибка RTC соединения"
         : isConnecting
-          ? "Подключение к RTC…"
+          ? phaseView.label || "Подключение к RTC…"
           : "Голосовая связь подключена";
       popTitle.style.color = pingColor;
     }
     const popStats = document.getElementById("live-rtc-popout-stats");
     if (popStats) {
-      const host = liveRtcStatus?.shortHostname || liveRtcStatus?.endpoint || "c-fra18-233f52bd";
-      const avgTxt = `${effectiveAvg} мс`;
-      const lastTxt = `${effectiveLast} мс`;
+      const host = liveRtcStatus?.shortHostname || liveRtcStatus?.endpoint || "—";
+      const avgTxt = hasMeasuredPing ? `${effectiveAvg} мс` : "—";
+      const lastTxt = hasMeasuredPing ? `${effectiveLast} мс` : "—";
       const lossTxt = `${Number(liveRtcStatus?.packetLossPct ?? liveRtcStatus?.packetLossPercent ?? 0).toFixed(1)}%`;
       popStats.innerHTML = `
         <div style="font-weight:700;color:#f2f3f5;font-size:14px;margin-bottom:2px;">${host}</div>
@@ -9908,7 +9991,7 @@ function boot() {
     // Обновляем зелёное кольцо вокруг аватарки говорящего (`data-voice-avatar-uid`),
     // таймеры активных голосовых каналов (`data-voice-timer-cid`) и 30-секундную кнопку
     // «Пригласить в голосовой чат» (`data-alone-invite-cid`), когда пользователь сидит один.
-    const selfId = String(liveSelfUser?.id || "384299970632876032");
+    const selfId = String(liveSelfUser?.id || "");
     const currentGid =
       activeVoiceConnection?.guildId ||
       currentGuildInfo().id ||
@@ -10163,7 +10246,7 @@ function boot() {
       cleanDiscordStr(document.querySelector(".chat-header .chat-title")?.textContent) ||
       activeVoiceConnection?.channelName ||
       "Звонок";
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const displayParticipants = [...participants];
     if (isConnectedHere && displayParticipants.length === 1 && displayParticipants[0]?.userId === selfId) {
       const pcs = dmFriendsController?.getPrivateChannels?.() ?? [];
@@ -10537,8 +10620,9 @@ function boot() {
       return;
     }
     const conn = activeVoiceConnection;
+    const initPhase = resolveVoiceCallPhaseView(liveRtcStatus ?? "signaling");
     voiceHost.style.display = "";
-    voiceHost.setAttribute("data-state", "connected");
+    voiceHost.setAttribute("data-state", initPhase.phase);
     voiceHost.replaceChildren();
     const wrap = document.createElement("div");
     wrap.style.cssText = "display:flex;flex-direction:column;gap:10px;width:100%;padding:2px 0;";
@@ -10554,7 +10638,7 @@ function boot() {
     const sigIcon = document.createElement("span");
     sigIcon.setAttribute("data-voice-signal-icon", "true");
     sigIcon.style.cssText =
-      "width:32px;height:32px;border-radius:8px;background:rgba(35,165,90,0.14);border:1px solid rgba(35,165,90,0.24);color:#23a55a;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;";
+      `width:32px;height:32px;border-radius:8px;background:rgba(35,165,90,0.14);border:1px solid rgba(35,165,90,0.24);color:${initPhase.statusColor};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;`;
     sigIcon.innerHTML = SVG_SIGNAL_BARS;
 
     const statusCol = document.createElement("div");
@@ -10564,9 +10648,16 @@ function boot() {
     const badge = document.createElement("span");
     badge.id = "live-voice-status-badge";
     badge.style.cssText =
-      "font-size:13px;font-weight:700;color:#23a55a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;";
-    badge.textContent = "Голосовая связь подключена";
+      `font-size:13px;font-weight:700;color:${initPhase.statusColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;`;
+    badge.textContent = initPhase.label || "Ожидание ответа сервера Discord...";
     badgeRow.append(badge);
+
+    const connStatus = document.createElement("div");
+    connStatus.id = "live-rtc-conn-status";
+    connStatus.setAttribute("data-voice-phase-label", "true");
+    connStatus.style.cssText =
+      "display:none;font-size:11px;font-weight:600;color:#f0b232;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;";
+    connStatus.textContent = initPhase.label;
 
     const sub = document.createElement("div");
     sub.style.cssText =
@@ -10584,7 +10675,7 @@ function boot() {
       sub.style.textDecoration = "none";
       sub.style.color = "#949ba4";
     });
-    statusCol.append(badgeRow, sub);
+    statusCol.append(badgeRow, connStatus, sub);
     statusBtn.append(sigIcon, statusCol);
 
     statusBtn.addEventListener("mouseenter", () => {
@@ -10777,7 +10868,7 @@ function boot() {
       });
       stopStreamBtn.addEventListener("click", () => {
         conn.screenShareOn = false;
-        const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+        const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
         for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
           const gList = liveVoiceStatesByGuild.get(gk) ?? [];
           for (const v of gList) {
@@ -10966,39 +11057,7 @@ function boot() {
       });
       filterBar.append(filterLabel, filterToggle);
       panelNode.append(filterBar);
-      if (targetGuildId === "274093052673392641") {
-        const actWrap = document.createElement("div");
-        actWrap.className = "member-activity-cards-section";
-        actWrap.style.cssText = "margin:4px 8px 12px 8px;display:flex;flex-direction:column;gap:6px;";
-        const actHead = document.createElement("div");
-        actHead.style.cssText =
-          "display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:#949ba4;padding:2px 2px;";
-        actHead.innerHTML = `<span>Активность — 4</span><span style="font-size:12px;opacity:0.8;">⚙️</span>`;
-        actWrap.append(actHead);
-        const makeActCard = (/** @type {string} */ authorName, /** @type {string} */ colorHex, /** @type {string} */ gameTitle, /** @type {string} */ subText, /** @type {string} */ iconBg) => {
-          const card = document.createElement("div");
-          card.style.cssText =
-            "background:#1e1f22;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;";
-          const left = document.createElement("div");
-          left.style.cssText = "min-width:0;flex:1;display:flex;flex-direction:column;gap:2px;";
-          left.innerHTML = `
-            <div style="font-size:12px;font-weight:700;color:${colorHex};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${authorName}</div>
-            <div style="font-size:13px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${gameTitle}</div>
-            <div style="font-size:11px;color:#949ba4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${subText}</div>
-          `;
-          const right = document.createElement("div");
-          right.style.cssText = `width:36px;height:36px;border-radius:8px;background:${iconBg};display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;`;
-          right.textContent = "🎮";
-          card.append(left, right);
-          return card;
-        };
-        actWrap.append(
-          makeActCard("ДраКс-Иван", "#ff0000", "BeamNG.drive", "🎮 3 д. назад · 🔥 Популярное", "linear-gradient(135deg,#ea580c,#9a3412)"),
-          makeActCard("Карлсон", "#ff0000", "Borderlands®4", "🎮 36:06 · Гравитар, ур. 48", "linear-gradient(135deg,#d97706,#78350f)"),
-        );
-        panelNode.append(actWrap);
-      }
-      const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+      const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const m of items) {
         const uid = cleanDiscordStr(String(m?.id ?? m?.userId ?? ""));
         const isSelf = uid && uid === selfId;
@@ -11236,6 +11295,7 @@ function boot() {
    * Подтягивает актуальные `voiceStates` из backend за `< 0.1 мс` без сериализации 20 МБ `READY` и без блокирующих HTTP-запросов.
    */
   let syncTickCounter = 0;
+  let lastDmFriendsSyncAt = 0;
   let lastSyncedGuildIdsSig = "";
   const lastGuildChannelCountById = new Map();
   /**
@@ -11335,40 +11395,21 @@ function boot() {
             );
           }
         }
-        if (activeVoiceConnection?.channelId) {
-          const selfId = String(liveSelfUser?.id || "384299970632876032");
-          const activeKey = activeVoiceConnection.guildId || "@me";
-          const curArr = [...(liveVoiceStatesByGuild.get(activeKey) ?? [])];
-          if (!curArr.some((v) => String(v?.user_id ?? v?.userId ?? "") === selfId)) {
-            curArr.push({
-              guild_id: activeKey,
-              channel_id: activeVoiceConnection.channelId,
-              user_id: selfId,
-              self_mute: Boolean(activeVoiceConnection.muted),
-              self_deaf: Boolean(activeVoiceConnection.deafened),
-              self_stream: Boolean(activeVoiceConnection.screenShareOn),
-              self_video: Boolean(activeVoiceConnection.cameraOn),
-              mute: false,
-              deaf: false,
-            });
-            liveVoiceStatesByGuild.set(activeKey, curArr);
-            parts.push(
-              `${activeKey}:${selfId}:${activeVoiceConnection.channelId}:${activeVoiceConnection.muted}:${activeVoiceConnection.deafened}:${activeVoiceConnection.screenShareOn}`,
-            );
-          }
-        }
         nextDigest = parts.join("|");
         globalAppReactiveStore.applyLivePushPayload({
           voiceConnection: activeVoiceConnection
-            ? {
+            ? /** @type {any} */ ({
                 guildId: String(activeVoiceConnection.guildId || "@me"),
                 channelId: String(activeVoiceConnection.channelId || ""),
                 channelName: String(activeVoiceConnection.channelName || ""),
+                phase: liveRtcStatus?.phase ?? liveRtcStatus?.state ?? "signaling",
+                state: liveRtcStatus?.state ?? "signaling",
+                error: liveRtcStatus?.error ?? liveRtcStatus?.reason ?? null,
                 selfMute: Boolean(activeVoiceConnection.muted),
                 selfDeaf: Boolean(activeVoiceConnection.deafened),
                 selfVideo: Boolean(activeVoiceConnection.cameraOn),
                 selfStream: Boolean(activeVoiceConnection.screenShareOn),
-              }
+              })
             : null,
           voiceStates: Object.fromEntries(liveVoiceStatesByGuild.entries()),
         });
@@ -11380,10 +11421,12 @@ function boot() {
         renderLiveDmCallStage();
         updateLiveRtcDomInPlace();
       }
-      if (!document.getElementById("live-stream-stage-viewer")) {
+      const nowDmSync = Date.now();
+      if (!document.getElementById("live-stream-stage-viewer") && nowDmSync - lastDmFriendsSyncAt >= 60000) {
+        lastDmFriendsSyncAt = nowDmSync;
         const dmSync = await invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
           kind: "dm_friends_sync",
-          deviceId: syncTickCounter % 4 === 0 ? "refresh_rest" : "poll",
+          deviceId: "poll",
         });
         if (dmSync && typeof dmSync === "object" && dmSync.ok !== false) {
           if (Array.isArray(dmSync.users)) {
@@ -11602,9 +11645,29 @@ function boot() {
       const curGid = cleanDiscordStr(String(rail.selectedId || selectedGuildId() || ""));
       if (!isDm && curGid && curGid !== "@me" && target && typeof target === "object") {
         const guildObj = liveGuildsById.get(curGid);
+        const isLurkerGuild =
+          guildObj?.lurker === true ||
+          guildObj?.isMember === false ||
+          guildObj?.is_member === false;
         const isPendingRules = guildObj?.pending === true;
         const effPerms = computeEffectiveChannelPermissions(curGid, target, tree?.channels);
-        if (effPerms !== null) {
+        if (isLurkerGuild) {
+          channelForPolicy = {
+            ...target,
+            canSendMessages: false,
+            readOnly: true,
+            permissionDeniedReason:
+              "Режим предпросмотра сервера (вы не участник) — вступите на сервер, чтобы отправлять сообщения и ставить реакции.",
+          };
+        } else if (isPendingRules) {
+          channelForPolicy = {
+            ...target,
+            canSendMessages: false,
+            readOnly: true,
+            permissionDeniedReason:
+              "Примите правила сервера в Discord, чтобы отправлять сообщения.",
+          };
+        } else if (effPerms !== null) {
           const PERM_SEND_MESSAGES = 1n << 11n;
           const canSend = (effPerms & PERM_SEND_MESSAGES) !== 0n;
           if (!canSend) {
@@ -11614,23 +11677,7 @@ function boot() {
               readOnly: true,
               permissionDeniedReason: "У вас нет прав на отправку сообщений в этом канале.",
             };
-          } else if (isPendingRules) {
-            channelForPolicy = {
-              ...target,
-              canSendMessages: false,
-              readOnly: true,
-              permissionDeniedReason:
-                "Примите правила сервера в Discord, чтобы отправлять сообщения.",
-            };
           }
-        } else if (isPendingRules) {
-          channelForPolicy = {
-            ...target,
-            canSendMessages: false,
-            readOnly: true,
-            permissionDeniedReason:
-              "Примите правила сервера в Discord, чтобы отправлять сообщения.",
-          };
         }
       }
       const policy = evaluateClientChannelPolicy({
@@ -11639,8 +11686,131 @@ function boot() {
       });
       composerRef?.applyChannelPolicy?.(policy);
       const compInput = /** @type {HTMLTextAreaElement | null} */ (byId("composer-input"));
-      if (compInput && !compInput.disabled && target?.name) {
-        compInput.placeholder = isDm ? `Написать @${target.name}` : `Написать в #${target.name}`;
+      if (compInput) {
+        if (compInput.disabled && channelForPolicy?.permissionDeniedReason) {
+          compInput.placeholder = channelForPolicy.permissionDeniedReason;
+        } else if (!compInput.disabled && target?.name) {
+          compInput.placeholder = isDm ? `Написать @${target.name}` : `Написать в #${target.name}`;
+        }
+      }
+      if (isLiveSession()) {
+        const existingBanner = byId("guild-preview-join-banner");
+        const existingPendingBanner = byId("guild-pending-screening-banner");
+        const existingReadOnlyBanner = byId("channel-readonly-access-banner");
+        const guildObjNow = !isDm && curGid && curGid !== "@me" ? liveGuildsById.get(curGid) : null;
+        const showPreviewBanner =
+          Boolean(guildObjNow) &&
+          (guildObjNow.lurker === true ||
+            guildObjNow.isMember === false ||
+            guildObjNow.is_member === false);
+        const showPendingBanner = !showPreviewBanner && Boolean(guildObjNow?.pending === true);
+        const showReadOnlyBanner =
+          !showPreviewBanner &&
+          !showPendingBanner &&
+          Boolean(guildObjNow) &&
+          channelForPolicy?.canSendMessages === false;
+        const compForm = byId("composer");
+        if (!showPreviewBanner) {
+          existingBanner?.remove();
+        } else if (compForm && compForm.parentElement) {
+          existingPendingBanner?.remove();
+          existingReadOnlyBanner?.remove();
+          const banner = existingBanner || document.createElement("div");
+          banner.id = "guild-preview-join-banner";
+          banner.setAttribute("data-access-banner", "lurker");
+          banner.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(88,101,242,0.18);border:1px solid rgba(88,101,242,0.45);color:var(--text-normal,#f2f3f5);font-size:13px;";
+          banner.textContent = "";
+          const label = document.createElement("span");
+          label.textContent =
+            "Вы просматриваете этот сервер в режиме предпросмотра. Вступите на сервер, чтобы писать в чат и заходить в голосовые каналы.";
+          const actions = document.createElement("div");
+          actions.style.cssText = "display:flex;gap:8px;flex-shrink:0;";
+          const joinBtn = document.createElement("button");
+          joinBtn.type = "button";
+          joinBtn.className = "btn-primary";
+          joinBtn.style.cssText =
+            "padding:6px 12px;border-radius:4px;border:none;background:#5865f2;color:#fff;font-weight:600;cursor:pointer;";
+          joinBtn.textContent = "Присоединиться к серверу";
+          joinBtn.addEventListener("click", () => {
+            joinBtn.disabled = true;
+            joinBtn.textContent = "Вход на сервер…";
+            void invoke("join_guild", { guildId: curGid })
+              .then(() =>
+                invoke("voice_set_audio_device", {
+                  kind: "dm_friends_sync",
+                  deviceId: "",
+                }),
+              )
+              .then((syncSnap) => {
+                const gAfter = Array.isArray(syncSnap?.guilds)
+                  ? syncSnap.guilds.find((/** @type {any} */ g) => String(g?.id ?? "") === curGid)
+                  : null;
+                if (gAfter && gAfter.lurker !== true && gAfter.isMember !== false) {
+                  guildObjNow.lurker = false;
+                  guildObjNow.isMember = true;
+                  guildObjNow.is_member = true;
+                  if (Array.isArray(gAfter.myRoles)) {
+                    guildObjNow.myRoles = gAfter.myRoles;
+                    guildObjNow.my_roles = gAfter.myRoles;
+                  }
+                  banner.remove();
+                  showVoiceToastNotice("Вы успешно вступили на сервер!");
+                  void chat.openChannel(target);
+                } else {
+                  joinBtn.disabled = false;
+                  joinBtn.textContent = "Присоединиться к серверу";
+                  const addSrvBtn = /** @type {HTMLElement | null} */ (
+                    document.querySelector('#guild-rail [data-action="add-server"]')
+                  );
+                  addSrvBtn?.click();
+                  showVoiceToastNotice(
+                    "Discord требует подтверждение входа по коду приглашения (или капчу в браузере)",
+                  );
+                }
+              })
+              .catch((err) => {
+                joinBtn.disabled = false;
+                joinBtn.textContent = "Присоединиться к серверу";
+                showVoiceToastNotice(
+                  String(err?.message || "Не удалось вступить на сервер — попробуйте по коду приглашения"),
+                );
+              });
+          });
+          actions.appendChild(joinBtn);
+          banner.append(label, actions);
+          if (!existingBanner) {
+            compForm.parentElement.insertBefore(banner, compForm);
+          }
+        }
+        if (!showPendingBanner) {
+          existingPendingBanner?.remove();
+        } else if (compForm && compForm.parentElement) {
+          existingReadOnlyBanner?.remove();
+          const pendingBanner = existingPendingBanner || document.createElement("div");
+          pendingBanner.id = "guild-pending-screening-banner";
+          pendingBanner.setAttribute("data-access-banner", "pending");
+          pendingBanner.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(240,178,50,0.16);border:1px solid rgba(240,178,50,0.45);color:var(--text-normal,#f2f3f5);font-size:13px;";
+          pendingBanner.textContent =
+            "Примите правила сервера в Discord, чтобы отправлять сообщения и подключаться к голосовым каналам.";
+          if (!existingPendingBanner) {
+            compForm.parentElement.insertBefore(pendingBanner, compForm);
+          }
+        }
+        if (!showReadOnlyBanner) {
+          existingReadOnlyBanner?.remove();
+        } else if (compForm && compForm.parentElement) {
+          const roBanner = existingReadOnlyBanner || document.createElement("div");
+          roBanner.id = "channel-readonly-access-banner";
+          roBanner.setAttribute("data-access-banner", "missing-send-messages");
+          roBanner.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(242,63,67,0.14);border:1px solid rgba(242,63,67,0.4);color:var(--text-normal,#f2f3f5);font-size:12px;";
+          roBanner.textContent = "У вас нет прав на отправку сообщений в этом канале.";
+          if (!existingReadOnlyBanner) {
+            compForm.parentElement.insertBefore(roBanner, compForm);
+          }
+        }
       }
       refreshLiveChatAuthorsInDom();
     }
@@ -11920,7 +12090,7 @@ function boot() {
           const uNameNode = document.querySelector("#user-bar .user-name");
           const uStatusNode = document.querySelector("#user-bar .user-status");
           const uAvatarNode = /** @type {HTMLElement | null} */ (document.querySelector("#user-bar .avatar"));
-          const disp = String(liveSelfUser.globalName || liveSelfUser.global_name || liveSelfUser.username || "ShadowByte");
+          const disp = String(liveSelfUser.globalName || liveSelfUser.global_name || liveSelfUser.username || "Пользователь");
           if (uNameNode) uNameNode.textContent = disp;
           if (uStatusNode) {
             uStatusNode.textContent = liveSelfUser.username ? `В сети · @${liveSelfUser.username}` : "В сети";
@@ -11989,7 +12159,7 @@ function boot() {
             if (!document.getElementById("live-voice-user-context-menu")) {
               void refreshLiveReadyVoiceAndUsers();
             }
-          }, 3000);
+          }, 8000);
         }
         net.stop();
         const netBanner = byId("net-status");
@@ -12123,6 +12293,19 @@ function boot() {
   });
 
   /**
+   * STUB-03: модалка создания сервера (#create-guild-dialog).
+   */
+  const createGuildModal = createCreateGuildController({
+    invoke,
+    onCreated: (guild) => {
+      if (guild && guild.id) {
+        handleAcceptedInviteGuild(guild);
+      }
+    },
+    onOpenJoin: (opener) => join.open(opener),
+  });
+
+  /**
    * STUB-05 / G-06: модалка создания приглашения (#invite-create-modal).
    */
   const inviteModal = createInviteModal({
@@ -12223,7 +12406,7 @@ function boot() {
       const uId = cleanDiscordStr(ev.userId || "");
       if (!gId || !uId) return;
       const cleanCid = cleanDiscordStr(ev.channelId);
-      const selfId = cleanDiscordStr(String(liveSelfUser?.id || "384299970632876032"));
+      const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       const list = [...(liveVoiceStatesByGuild.get(gId) ?? [])];
       const idx = list.findIndex((item) => String(item?.user_id ?? item?.userId ?? "") === uId);
       const prevEntry = idx >= 0 ? list[idx] : null;
@@ -12323,11 +12506,29 @@ function boot() {
     onVoiceServerChange: (ev) => {
       if (!isLiveSession()) return;
       if (ev.endpoint) {
+        const curPhase = String(liveRtcStatus?.phase ?? liveRtcStatus?.state ?? "signaling");
+        const nextPhase = curPhase === "connected" ? "connected" : "negotiating";
         liveRtcStatus = {
           ...liveRtcStatus,
+          phase: nextPhase,
+          state: nextPhase,
           endpoint: ev.endpoint,
           shortHostname: String(ev.endpoint).split(".")[0] || ev.endpoint,
         };
+        if (activeVoiceConnection) {
+          globalAppReactiveStore.activeVoiceConnection.value = /** @type {any} */ ({
+            guildId: String(activeVoiceConnection.guildId || "@me"),
+            channelId: String(activeVoiceConnection.channelId || ""),
+            channelName: String(activeVoiceConnection.channelName || ""),
+            phase: nextPhase,
+            state: nextPhase,
+            error: null,
+            selfMute: Boolean(activeVoiceConnection.muted),
+            selfDeaf: Boolean(activeVoiceConnection.deafened),
+            selfVideo: Boolean(activeVoiceConnection.cameraOn),
+            selfStream: Boolean(activeVoiceConnection.screenShareOn),
+          });
+        }
         updateLiveRtcDomInPlace();
       }
     },
@@ -12336,10 +12537,45 @@ function boot() {
     listen: resolveDispatchListen(window),
     view: dispatchView,
     store: createDispatchStore(),
+    onDispatch: (envelope) => {
+      if (!envelope || typeof envelope !== "object") return;
+      const kind = envelope.kind;
+      const data = envelope.data;
+      if (kind === "RELATIONSHIP_ADD" || kind === "RELATIONSHIP_REMOVE" || kind === "RELATIONSHIP_UPDATE") {
+        dmFriendsController?.handleGatewayEvent?.({ type: kind, d: data });
+      } else if (kind === "GUILD_CREATE") {
+        if (data && typeof data === "object") {
+          hydrateGuildMembersAndRoles(data);
+          if (data.id) {
+            syncLiveGuildRailFromSnapshot([data]);
+          }
+        }
+      } else if (kind === "GUILD_DELETE") {
+        if (data?.id) {
+          const rail = document.querySelector("#server-rail, #guild-rail");
+          const tile = rail?.querySelector(`[data-guild-id="${data.id}"]`);
+          tile?.remove();
+        }
+      }
+    },
   });
 
-  // Реакции идут через тот же `invoke`: один путь IPC и один сброс ошибки.
-  configureReactionTransport(invoke, (error) => surface(error));  lists.set("chat", chat.list);
+  // Реакции идут через тот же `invoke`: в live-сессии ошибка прав (403) показывается тостом, не перекрывая весь чат.
+  const typedCommands = createTypedCommands(invoke);
+  void typedCommands;
+  mountReactiveVoiceRtcPanel({
+    store: globalAppReactiveStore,
+    doc: document,
+    onRetry: retryActiveVoiceConnection,
+  });
+  configureReactionTransport(invoke, (error) => {
+    if (isLiveSession()) {
+      showVoiceToastNotice(String(error?.message || "Не удалось изменить реакцию"));
+      return;
+    }
+    surface(error);
+  });
+  lists.set("chat", chat.list);
 
   // Композер: состояние empty/typing/disabled, лимит 2000 (K-10), reply.
   const composerForm = byId("composer");
@@ -12518,7 +12754,8 @@ function boot() {
     if (!isLiveSession()) return;
     openSelfProfileStatusPopover();
   });
-  if (isLiveSession() && !(/** @type {any} */ (globalThis).__QA__)) {
+  const cleanupSpikeBenchmarkArtifacts = () => {
+    if (!isLiveSession() || (/** @type {any} */ (globalThis).__QA__)) return;
     // В живом режиме приложения скрываем синтетические кнопки спайк-бенчмарка
     // ("Чат 100k", "Эмодзи-пикер", "Участники 24k", дубликат "Настройки" в рейле серверов),
     // метрики бенчмарка в верхней полосе и очищаем тестовые списки (100k фейковых сообщений и 24k фейковых пользователей).
@@ -12566,24 +12803,27 @@ function boot() {
         /* best-effort очистка спайк-списка 100k сообщений до выбора реального канала */
       }
     }
+  };
+
+  if (isLiveSession() && !(/** @type {any} */ (globalThis).__QA__)) {
     const composerEmojiBtn = /** @type {HTMLElement | null} */ (
-      document.querySelector('#composer [data-action="emoji"]')
+    document.querySelector('#composer [data-action="emoji"]')
+  );
+  if (composerEmojiBtn) {
+    composerEmojiBtn.addEventListener(
+      "click",
+      (ev) => {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        if (document.getElementById("live-emoji-picker-popout")) {
+          document.getElementById("live-emoji-picker-popout")?.remove();
+          return;
+        }
+        openLiveComposerEmojiPicker(composerEmojiBtn);
+      },
+      true,
     );
-    if (composerEmojiBtn) {
-      composerEmojiBtn.addEventListener(
-        "click",
-        (ev) => {
-          ev.preventDefault();
-          ev.stopImmediatePropagation();
-          if (document.getElementById("live-emoji-picker-popout")) {
-            document.getElementById("live-emoji-picker-popout")?.remove();
-            return;
-          }
-          openLiveComposerEmojiPicker(composerEmojiBtn);
-        },
-        true,
-      );
-    }
+  }
     document.addEventListener(
       "keydown",
       (ev) => {
@@ -12629,6 +12869,7 @@ function boot() {
       }
     });
   }
+  let lastManualDmSyncAt = 0;
   document.body?.addEventListener?.("click", (ev) => {
     const target = ev.target instanceof Element ? ev.target : null;
     if (!target || typeof target.closest !== "function") return;
@@ -12638,26 +12879,30 @@ function boot() {
         "#friends-tablist, #dm-nav-friends, #friends-section-heading, #friends-section-count, #home-rail-btn",
       )
     ) {
-      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-        kind: "dm_friends_sync",
-        deviceId: "force",
-      })
-        .then((dmSync) => {
-          if (dmSync && typeof dmSync === "object" && dmSync.ok !== false) {
-            if (Array.isArray(dmSync.users)) {
-              for (const u of dmSync.users) {
-                if (u?.id) liveUsersById.set(String(u.id), u);
-              }
-            }
-            dmFriendsController?.syncLiveState?.({
-              relationships: dmSync.relationships,
-              privateChannels: dmSync.privateChannels,
-              users: dmSync.users,
-              presences: dmSync.presences,
-            });
-          }
+      const now = Date.now();
+      if (now - lastManualDmSyncAt >= 30000) {
+        lastManualDmSyncAt = now;
+        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+          kind: "dm_friends_sync",
+          deviceId: "force",
         })
-        .catch(() => {});
+          .then((dmSync) => {
+            if (dmSync && typeof dmSync === "object" && dmSync.ok !== false) {
+              if (Array.isArray(dmSync.users)) {
+                for (const u of dmSync.users) {
+                  if (u?.id) liveUsersById.set(String(u.id), u);
+                }
+              }
+              dmFriendsController?.syncLiveState?.({
+                relationships: dmSync.relationships,
+                privateChannels: dmSync.privateChannels,
+                users: dmSync.users,
+                presences: dmSync.presences,
+              });
+            }
+          })
+          .catch(() => {});
+      }
     }
     if (
       target.closest(
@@ -15007,6 +15252,9 @@ function boot() {
       void dispatch?.start();
       // G-01: список серверов — из READY; без входа грузить нечего.
       void rail.load();
+      try {
+        cleanupSpikeBenchmarkArtifacts();
+      } catch {}
     },
   });
   // Выход из аккаунта возвращает гейт: опрос ядра прекращается до следующего ready.
@@ -15221,6 +15469,7 @@ function boot() {
     guildModals,
     shellWiring,
     composerPopoversBridge,
+    cleanupSpikeBenchmarkArtifacts,
   };
 }
 
@@ -15277,6 +15526,10 @@ async function reportUiSnapshot() {
   const actions = { screenClicks: 0, categoryClicks: false, toggleClick: false, listScroll: false };
   let chatRenderedRows = 0;
   let memberRenderedRows = 0;
+  if (Boolean(/** @type {any} */ (globalThis).__LIVE_SESSION_ACTIVE__)) {
+    /** @type {any} */ (globalThis).__SPIKE_SNAPSHOT_DONE__ = true;
+    return;
+  }
   try {
     for (const button of document.querySelectorAll(".rail-btn")) {
       /** @type {HTMLElement} */ (button).click();
@@ -15304,6 +15557,8 @@ async function reportUiSnapshot() {
     // Меряем участников, когда экран показан и получил высоту (P1-1).
     router.switchScreen("members");
     await nextFrame();
+    await nextFrame();
+    members?.list?.paint?.();
     memberRenderedRows = document.querySelectorAll("#member-list .member").length;
     router.switchScreen("chat");
   } catch (error) {
@@ -15334,11 +15589,15 @@ async function reportUiSnapshot() {
     // L-02-UI: наблюдаемость live-канала без payload/секретов (PLAN §6).
     dispatch: app?.dispatch?.stats ?? { source: "absent" },
   };
-  tauri.core.invoke("report_ui_snapshot", { payload: JSON.stringify(snapshot) }).catch(
-    (/** @type {unknown} */ error) => {
-      surface(error, "IPC_FAILED");
-    },
-  );
+  try {
+    await tauri.core.invoke("report_ui_snapshot", { payload: JSON.stringify(snapshot) });
+  } catch (error) {
+    surface(error, "IPC_FAILED");
+  } finally {
+    try {
+      /** @type {any} */ (app)?.cleanupSpikeBenchmarkArtifacts?.();
+    } catch {}
+  }
 }
 
 reportUiSnapshot().catch((/** @type {unknown} */ error) => {

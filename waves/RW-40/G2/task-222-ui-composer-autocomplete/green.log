@@ -1,0 +1,20 @@
+▶ composer-autocomplete: константы и detectAutocompleteTrigger
+  ✔ экспортирует замороженный AUTOCOMPLETE_KINDS и лимит AUTOCOMPLETE_MAX_SUGGESTIONS = 10 (0.746713ms)
+  ✔ распознаёт триггер слэш-команды только в начале строки по /^\/([a-z0-9_-]*)$/i (0.316002ms)
+  ✔ распознаёт триггеры @user и #channel в начале строки или после пробельного символа (0.139261ms)
+  ✔ возвращает null для email/anchor внутри слова, после пробела или при невалидном вводе (0.0821ms)
+✔ composer-autocomplete: константы и detectAutocompleteTrigger (2.011979ms)
+▶ composer-autocomplete: createComposerAutocompleteController DOM и навигация
+  ✔ рендерит listbox [data-composer-autocomplete] с заголовками КОМАНДЫ / УЧАСТНИКИ И РОЛИ / ТЕКСТОВЫЕ КАНАЛЫ (0.930654ms)
+  ✔ ограничивает число опций до AUTOCOMPLETE_MAX_SUGGESTIONS (10) и поддерживает циклическую навигацию moveSelection(delta) (0.645473ms)
+  ✔ confirmSelection() заменяет токен на <@id>, <#id> или '/command ', вызывает onInsertReplacement и закрывает список (0.245061ms)
+  ✔ поддерживает выбор опции кликом мыши и закрытие через close() или при отсутствии совпадений (0.219181ms)
+✔ composer-autocomplete: createComposerAutocompleteController DOM и навигация (2.24615ms)
+ℹ tests 8
+ℹ suites 2
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.375333

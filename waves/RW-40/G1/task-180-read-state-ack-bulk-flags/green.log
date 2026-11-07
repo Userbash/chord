@@ -1,0 +1,62 @@
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.38s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-87ae1e8774eefa6b)
+
+running 17 tests
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::custom_emoji_and_invalid_inputs_are_validated ... ok
+test reactions::tests::decode_429_extracts_retry_after_from_json_and_headers ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok
+test search::tests::retry_after_body_parses_float_seconds_when_header_absent ... ok
+test search::tests::retry_after_header_parses_positive_integer_seconds_with_5000ms_fallback ... ok
+test search::tests::uuid_v4_generation_matches_rfc4122_shape ... ok
+test settings_store::tests::normalize_accepts_home_guild_id_and_snowflakes_only ... ok
+test settings_store::tests::patch_updates_home_mode_and_last_guild_id ... ok
+test settings_store::tests::validate_accepts_home_guild_id_and_rejects_other_strings ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/messages_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/messages_contract-bfbdd569e060ca22)
+
+running 25 tests
+test ack_bulk_constants_match_the_rest_static_oracle ... ok
+test ack_bulk_entry_deserializes_with_and_without_read_state_type ... ok
+test ack_message_delegates_counter_and_nullable_token_verbatim ... ok
+test ack_message_with_options_default_sends_exactly_token_and_last_viewed ... ok
+test ack_message_with_options_sends_optionals_only_when_set_and_keeps_zero ... ok
+test ack_message_preserves_typed_errors ... ok
+test ack_message_with_options_rejects_invalid_ids_before_transport ... ok
+test ack_messages_bulk_posts_oracle_body_to_bulk_path ... ok
+test ack_messages_bulk_rejects_any_invalid_entry_id_before_transport ... ok
+test ack_messages_bulk_maps_http_statuses_to_typed_errors ... ok
+test message_actions_delegate_to_expected_paths_and_payloads ... ok
+test ack_message_with_options_maps_http_statuses_to_typed_errors ... ok
+test send_message_delegates_and_returns_receipt ... ok
+test send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound ... ok
+test message_actions_reject_invalid_ids_and_content_before_io ... ok
+test send_message_preserves_typed_http_errors ... ok
+test send_message_rejects_content_over_2000_before_sender ... ok
+test send_message_rejects_empty_or_whitespace_content_before_sender ... ok
+test send_message_rejects_path_traversal_in_channel_id_before_sender ... ok
+test tauri_registers_message_action_commands ... ok
+test actions_preserve_http_errors_and_debug_hides_token ... ok
+test sender_debug_does_not_reveal_token ... ok
+test sender_rejects_path_traversal_channel_id_before_http ... ok
+test ack_messages_bulk_rejects_empty_and_over_limit_before_transport ... ok
+test tauri_registers_send_message_command ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

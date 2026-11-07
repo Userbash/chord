@@ -1,0 +1,304 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-142-ws-outbound-wiring/rust/crates/discord-core)
+error[E0432]: unresolved imports `super::GuildSubscriptionsBulk`, `super::OutboundGuildSubscription`, `super::PresenceUpdate`, `super::RequestGuildMembers`, `super::VoiceStateUpdateOut`, `super::send_guild_subscriptions_bulk`, `super::send_presence_update`, `super::send_request_guild_members`, `super::send_voice_state_update`
+   --> crates/discord-core/src/ws.rs:828:22
+    |
+828 | ...   GatewayPipe, GuildSubscriptionsBulk, OutboundGuildSubscription, PresenceUpdate,
+    |                    ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^ no `PresenceUpdate` in `ws`
+    |                    |                       |
+    |                    |                       no `OutboundGuildSubscription` in `ws`
+    |                    no `GuildSubscriptionsBulk` in `ws`
+829 | ...   RequestGuildMembers, RunOutcome, TransportError, VoiceStateUpdateOut, connect_and_...
+    |       ^^^^^^^^^^^^^^^^^^^                              ^^^^^^^^^^^^^^^^^^^ no `VoiceStateUpdateOut` in `ws`
+    |       |
+    |       no `RequestGuildMembers` in `ws`
+830 | ...   send_guild_subscriptions_bulk, send_presence_update, send_request_guild_members,
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^ no `send_request_guild_members` in `ws`
+    |       |                              |
+    |       |                              no `send_presence_update` in `ws`
+    |       no `send_guild_subscriptions_bulk` in `ws`
+831 | ...   send_voice_state_update,
+    |       ^^^^^^^^^^^^^^^^^^^^^^^ no `send_voice_state_update` in `ws`
+    |
+    = help: consider importing this struct instead:
+            crate::gateway::OutboundGuildSubscription
+    = help: consider importing one of these items instead:
+            crate::DispatchKind::PresenceUpdate
+            crate::PresenceUpdate
+            crate::state::EventPayload::PresenceUpdate
+
+error[E0599]: no method named `send_presence_update` found for struct `GatewayPipe` in the current scope
+   --> crates/discord-core/src/ws.rs:909:14
+    |
+203 | pub struct GatewayPipe {
+    | ---------------------- method `send_presence_update` not found for this struct
+...
+909 |         pipe.send_presence_update(&mut client_ws, &online)
+    |              ^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+   --> crates/discord-core/src/ws.rs:933:25
+    |
+203 | pub struct GatewayPipe {
+    | ---------------------- method `frames_sent` not found for this struct
+...
+933 |         assert_eq!(pipe.frames_sent(), 1);
+    |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `bytes_sent` found for struct `GatewayPipe` in the current scope
+   --> crates/discord-core/src/ws.rs:934:25
+    |
+203 | pub struct GatewayPipe {
+    | ---------------------- method `bytes_sent` not found for this struct
+...
+934 |         assert_eq!(pipe.bytes_sent(), raw.len() as u64);
+    |                         ^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_voice_state_update` found for struct `GatewayPipe` in the current scope
+   --> crates/discord-core/src/ws.rs:984:14
+    |
+203 | pub struct GatewayPipe {
+    | ---------------------- method `send_voice_state_update` not found for this struct
+...
+984 |         pipe.send_voice_state_update(&mut client_ws, &join)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1020:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1020 |         assert_eq!(pipe.frames_sent(), 1);
+     |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `bytes_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1021:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `bytes_sent` not found for this struct
+...
+1021 |         assert_eq!(pipe.bytes_sent(), raw_join.len() as u64);
+     |                         ^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_request_guild_members` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1071:14
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `send_request_guild_members` not found for this struct
+...
+1070 |           let sent_empty = pipe
+     |  __________________________-
+1071 | |             .send_request_guild_members(&mut client_ws, &empty_req)
+     | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_____________|
+     |
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1075:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1075 |         assert_eq!(pipe.frames_sent(), 0);
+     |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_request_guild_members` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1088:14
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `send_request_guild_members` not found for this struct
+...
+1087 |           let sent_100 = pipe
+     |  ________________________-
+1088 | |             .send_request_guild_members(&mut client_ws, &req_100)
+     | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_____________|
+     |
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1092:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1092 |         assert_eq!(pipe.frames_sent(), 1);
+     |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_request_guild_members` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1115:14
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `send_request_guild_members` not found for this struct
+...
+1114 |           let sent_101 = pipe
+     |  ________________________-
+1115 | |             .send_request_guild_members(&mut client_ws, &req_101)
+     | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_____________|
+     |
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1119:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1119 |         assert_eq!(pipe.frames_sent(), 3);
+     |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_request_guild_members` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1207:14
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `send_request_guild_members` not found for this struct
+...
+1206 |           let sent_query = pipe
+     |  __________________________-
+1207 | |             .send_request_guild_members(&mut client_ws, &query_req)
+     | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_____________|
+     |
+
+error[E0599]: no method named `send_guild_subscriptions_bulk` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1253:14
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `send_guild_subscriptions_bulk` not found for this struct
+...
+1253 |         pipe.send_guild_subscriptions_bulk(&mut client_ws, &subscripti...
+     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1259:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1259 |         assert_eq!(pipe.frames_sent(), 1);
+     |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `bytes_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1260:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `bytes_sent` not found for this struct
+...
+1260 |         assert_eq!(pipe.bytes_sent(), raw.len() as u64);
+     |                         ^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_presence_update` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1342:18
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `send_presence_update` not found for this struct
+...
+1341 | /             dead_pipe
+1342 | |                 .send_presence_update(&mut client_ws, &presence)
+     | |                 -^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_________________|
+     |
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1346:30
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1346 |         assert_eq!(dead_pipe.frames_sent(), 0);
+     |                              ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `send_presence_update` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1353:18
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `send_presence_update` not found for this struct
+...
+1352 | /             live_pipe
+1353 | |                 .send_presence_update(&mut client_ws, &presence)
+     | |                 -^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_________________|
+     |
+
+error[E0599]: no method named `queue_presence_update` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1419:14
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `queue_presence_update` not found for this struct
+...
+1419 |         pipe.queue_presence_update(&presence).expect("queue op3");
+     |              ^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `queue_voice_state_update` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1420:14
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `queue_voice_state_update` not found for this struct
+...
+1420 |         pipe.queue_voice_state_update(&VoiceStateUpdateOut {
+     |         -----^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `queue_request_guild_members` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1430:14
+     |
+ 203 |   pub struct GatewayPipe {
+     |   ---------------------- method `queue_request_guild_members` not found for this struct
+...
+1429 |           let queued_chunks = pipe
+     |  _____________________________-
+1430 | |             .queue_request_guild_members(&RequestGuildMembers {
+     | |             -^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+     | |_____________|
+     |
+
+error[E0599]: no method named `queue_guild_subscriptions_bulk` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1452:14
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `queue_guild_subscriptions_bulk` not found for this struct
+...
+1452 |         pipe.queue_guild_subscriptions_bulk(&subs)
+     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `GatewayPipe`
+
+error[E0599]: no method named `pending_outbound_frames` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1454:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `pending_outbound_frames` not found for this struct
+...
+1454 |         assert_eq!(pipe.pending_outbound_frames(), 5);
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a method `pending_bytes` with a similar name
+     |
+1454 -         assert_eq!(pipe.pending_outbound_frames(), 5);
+1454 +         assert_eq!(pipe.pending_bytes(), 5);
+     |
+
+error[E0599]: no method named `pending_outbound_frames` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1461:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `pending_outbound_frames` not found for this struct
+...
+1461 |         assert_eq!(pipe.pending_outbound_frames(), 0);
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a method `pending_bytes` with a similar name
+     |
+1461 -         assert_eq!(pipe.pending_outbound_frames(), 0);
+1461 +         assert_eq!(pipe.pending_bytes(), 0);
+     |
+
+error[E0599]: no method named `frames_sent` found for struct `GatewayPipe` in the current scope
+    --> crates/discord-core/src/ws.rs:1462:25
+     |
+ 203 | pub struct GatewayPipe {
+     | ---------------------- method `frames_sent` not found for this struct
+...
+1462 |         assert_eq!(pipe.frames_sent(), 5);
+     |                         ^^^^^^^^^^^ method not found in `GatewayPipe`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (lib test) due to 27 previous errors
+EXIT_CODE=101

@@ -1,0 +1,12 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::dm_friends`
+  --> tests/dm_friends_contract.rs:17:24
+   |
+17 | use discord_gui_spike::dm_friends::{
+   |                        ^^^^^^^^^^ could not find `dm_friends` in `discord_gui_spike`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "dm_friends_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

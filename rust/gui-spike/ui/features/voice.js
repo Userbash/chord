@@ -23,7 +23,15 @@ import { UIError } from "./errors.js";
  * @typedef {"idle" | "loading" | "connecting" | "connected" | "reconnecting" | "empty" | "error" | "no-permission" | "ptt-required" | "device-missing" | "server-mute" | "disabled"} VoiceState
  * @typedef {"idle" | "held" | "blocked"} PttState
  * @typedef {"none" | "self" | "server"} ParticipantMute
- * @typedef {{ id: string, name: string, self: boolean, speaking: boolean | number, mute: ParticipantMute }} VoiceParticipant
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   self: boolean,
+ *   speaking: boolean | number,
+ *   mute: ParticipantMute,
+ *   isStream?: boolean,
+ *   stream?: { paused?: boolean } | null,
+ * }} VoiceParticipant
  * @typedef {{
  *   state: VoiceState,
  *   guildId: string,
@@ -35,6 +43,8 @@ import { UIError } from "./errors.js";
  *   selfDeaf: boolean,
  *   serverMute: boolean,
  *   ptt: PttState,
+ *   ageGated?: boolean,
+ *   focusedTileId?: string | null,
  * }} VoiceSnapshot
  * @typedef {{
  *   join: (channelId: string) => Promise<unknown>,
@@ -43,6 +53,14 @@ import { UIError } from "./errors.js";
  *   setSelfMute?: (mute: boolean) => Promise<unknown>,
  *   setSelfDeaf?: (deaf: boolean) => Promise<unknown>,
  *   enablePtt?: () => Promise<unknown>,
+ *   voice_stream_create?: (options?: unknown) => Promise<unknown>,
+ *   voice_stream_delete?: (options?: unknown) => Promise<unknown>,
+ *   voice_stream_watch?: (streamKeyOrUserId: string) => Promise<unknown>,
+ *   voice_stream_set_paused?: (paused: boolean) => Promise<unknown>,
+ *   onStartStream?: (options?: unknown) => Promise<unknown>,
+ *   onStopStream?: () => Promise<unknown>,
+ *   onWatchStream?: (streamKeyOrUserId: string) => Promise<unknown>,
+ *   onPauseStream?: (paused: boolean) => Promise<unknown>,
  * }} VoiceService
  */
 
@@ -172,6 +190,8 @@ export function createVoiceStore(initial = {}) {
     selfDeaf: false,
     serverMute: false,
     ptt: "idle",
+    ageGated: false,
+    focusedTileId: null,
   });
   /** @type {Set<(snapshot: VoiceSnapshot) => void>} */
   const listeners = new Set();
@@ -195,7 +215,11 @@ export function createVoiceStore(initial = {}) {
     const speaking = typeof bag.speaking === "number" || typeof bag.speaking === "boolean"
       ? bag.speaking
       : false;
-    return { id, name, self: bag.self === true, speaking, mute };
+    const isStream = bag.isStream === true || bag.selfStream === true;
+    const stream = bag.stream && typeof bag.stream === "object"
+      ? /** @type {{ paused?: boolean }} */ (bag.stream)
+      : (isStream ? { paused: bag.paused === true } : null);
+    return { id, name, self: bag.self === true, speaking, mute, isStream, stream };
   }
 
   /** @param {VoiceSnapshot} next */
@@ -230,6 +254,8 @@ export function createVoiceStore(initial = {}) {
     if (typeof patch.selfMute === "boolean") next.selfMute = patch.selfMute;
     if (typeof patch.selfDeaf === "boolean") next.selfDeaf = patch.selfDeaf;
     if (typeof patch.serverMute === "boolean") next.serverMute = patch.serverMute;
+    if (typeof patch.ageGated === "boolean") next.ageGated = patch.ageGated;
+    if ("focusedTileId" in patch) next.focusedTileId = patch.focusedTileId ?? null;
     if (Array.isArray(patch.participants)) {
       next.participants = Object.freeze(patch.participants.map(parseParticipant));
     }
@@ -264,7 +290,18 @@ export function createVoiceStore(initial = {}) {
 /**
  * Панель. `service === null` → `disabled` (текущая сборка); fake store + fake
  * service дают все 12 состояний.
- * @param {{ host: HTMLElement, store: ReturnType<typeof createVoiceStore>, service?: VoiceService | null }} options
+ * @param {{
+ *   host: HTMLElement,
+ *   stageHost?: HTMLElement,
+ *   modalHost?: HTMLElement,
+ *   store: ReturnType<typeof createVoiceStore>,
+ *   service?: VoiceService | null,
+ *   onStartStream?: (params: { resolution: string, fps: number, tab: string }) => void | Promise<unknown>,
+ *   onWatchStream?: (userId: string) => void | Promise<unknown>,
+ *   onPauseStream?: (paused: boolean) => void | Promise<unknown>,
+ *   onStopStream?: () => void | Promise<unknown>,
+ *   onConfirmAge?: () => void | Promise<unknown>,
+ * }} options
  */
 export function createVoicePanel(options) {
   const host = options.host;
@@ -695,16 +732,615 @@ export function createVoicePanel(options) {
   const unsubscribe = store.subscribe(render);
   render();
 
+  /** @type {ReturnType<typeof createVoiceStageGrid> | null} */
+  let stage = null;
+  /** @type {ReturnType<typeof createGoLiveModal> | null} */
+  let modal = null;
+
+  if (options.stageHost) {
+    stage = createVoiceStageGrid({
+      host: options.stageHost,
+      store,
+      service,
+      onWatchStream: options.onWatchStream,
+      onPauseStream: options.onPauseStream,
+      onStopStream: options.onStopStream,
+      onConfirmAge: options.onConfirmAge,
+    });
+    modal = createGoLiveModal({
+      host: options.modalHost ?? options.stageHost,
+      service,
+      onStartStream: options.onStartStream,
+    });
+  }
+
   return {
     host,
     store,
+    stage,
+    modal,
+    get stageGrid() {
+      return stage?.grid ?? null;
+    },
+    get stageFocused() {
+      return stage?.focusedArea ?? null;
+    },
+    get ageGatedOverlay() {
+      return stage?.overlay ?? null;
+    },
+    get goLiveModal() {
+      return modal?.element ?? null;
+    },
     get state() {
       return host.getAttribute("data-state") ?? "";
+    },
+    openGoLiveModal() {
+      modal?.open();
+    },
+    closeGoLiveModal() {
+      modal?.close();
+    },
+    watchStream(/** @type {string} */ userId) {
+      stage?.watchStream(userId);
+    },
+    setStreamPaused(/** @type {boolean} */ p) {
+      stage?.setPaused(p);
+    },
+    stopStream() {
+      stage?.stopStream();
+    },
+    confirmAgeGated() {
+      stage?.confirmAge();
     },
     render,
     dispose() {
       unsubscribe();
       host.replaceChildren();
+      stage?.dispose();
+      modal?.dispose();
+    },
+  };
+}
+
+/**
+ * Сетка видеоплиток сцены голосового канала (V-08 / FE-P1-02).
+ * Поддерживает плитки участников, speaking-рамку .is-speaking,
+ * Go Live стрим-плитки с бейджем 'В ЭФИРЕ', переключение фокуса (#voice-stage-focused)
+ * и оверлей возрастного ограничения (#voice-age-gated-overlay).
+ *
+ * @param {{
+ *   host: HTMLElement,
+ *   store: ReturnType<typeof createVoiceStore>,
+ *   service?: VoiceService | null,
+ *   onWatchStream?: (userId: string) => void | Promise<unknown>,
+ *   onPauseStream?: (paused: boolean) => void | Promise<unknown>,
+ *   onStopStream?: () => void | Promise<unknown>,
+ *   onConfirmAge?: () => void | Promise<unknown>,
+ * }} options
+ */
+export function createVoiceStageGrid(options) {
+  const host = options.host;
+  const store = options.store;
+  const service = options.service ?? null;
+  if (!host) throw new UIError("ELEMENT_MISSING", "voice: нет host-элемента для stage");
+  if (!store) throw new UIError("ELEMENT_MISSING", "voice: нет store");
+  const doc = /** @type {Document} */ (host.ownerDocument);
+
+  /** @param {string} tag @param {string} [className] @param {string} [text] @returns {HTMLElement} */
+  function el(tag, className = "", text = "") {
+    const node = doc.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  // Контролы панели активной трансляции
+  const stageBar = el("header", "stream-stage-bar");
+  stageBar.id = "stream-stage-bar";
+  stageBar.setAttribute("role", "toolbar");
+  stageBar.setAttribute("aria-label", "Панель активной трансляции");
+
+  const stageMeta = el("div", "stream-stage-meta");
+  const liveBadge = el("span", "stream-live-badge badge-live");
+  liveBadge.id = "stream-live-badge";
+  liveBadge.setAttribute("data-state", "live");
+  const liveDot = el("span", "stream-live-dot");
+  liveDot.setAttribute("aria-hidden", "true");
+  const liveText = el("span", "badge-text", "В ЭФИРЕ");
+  liveBadge.append(liveDot, liveText);
+  stageMeta.append(liveBadge);
+
+  const stageControls = el("div", "stream-stage-controls");
+  stageControls.setAttribute("role", "group");
+  stageControls.setAttribute("aria-label", "Управление своим стримом");
+
+  const pauseBtn = el("button", "stream-btn stream-btn--secondary", "Приостановить стрим");
+  pauseBtn.id = "stream-pause-btn";
+  pauseBtn.setAttribute("type", "button");
+  pauseBtn.setAttribute("data-stream-action", "pause");
+  pauseBtn.setAttribute("aria-pressed", "false");
+  pauseBtn.setAttribute("aria-label", "Приостановить стрим");
+
+  const stopBtn = el("button", "stream-btn stream-btn--danger", "Прекратить стрим");
+  stopBtn.id = "stream-stop-btn";
+  stopBtn.setAttribute("type", "button");
+  stopBtn.setAttribute("data-stream-action", "stop");
+  stopBtn.setAttribute("aria-label", "Прекратить стрим");
+
+  stageControls.append(pauseBtn, stopBtn);
+  stageBar.append(stageMeta, stageControls);
+
+  // Контейнер фокусного режима
+  const focusedArea = el("div", "voice-stage-focused");
+  focusedArea.id = "voice-stage-focused";
+  focusedArea.setAttribute("hidden", "");
+  focusedArea.setAttribute("data-focused", "false");
+
+  // Сетка видеоплиток
+  const grid = el("div", "voice-stage-grid");
+  grid.id = "voice-stage-grid";
+  grid.setAttribute("role", "list");
+  grid.setAttribute("aria-label", "Сетка видеоплиток");
+  grid.setAttribute("data-blocked", "false");
+
+  // Оверлей возрастного ограничения
+  const overlay = el("div", "voice-age-gated-overlay");
+  overlay.id = "voice-age-gated-overlay";
+  overlay.setAttribute("role", "region");
+  overlay.setAttribute("aria-label", "Возрастное ограничение");
+  overlay.setAttribute("hidden", "");
+
+  const overlayContent = el("div", "voice-age-gated-content");
+  const overlayTitle = el("h3", "voice-age-gated-title", "Возрастное ограничение");
+  const overlayText = el("p", "voice-age-gated-text", "Этот контент предназначен для совершеннолетних пользователей (18+).");
+  const confirmBtn = el("button", "stream-btn stream-btn--primary", "Мне есть 18 лет");
+  confirmBtn.id = "voice-age-gated-confirm-btn";
+  confirmBtn.setAttribute("type", "button");
+  confirmBtn.setAttribute("data-action", "confirm-age");
+
+  overlayContent.append(overlayTitle, overlayText, confirmBtn);
+  overlay.append(overlayContent);
+
+  host.replaceChildren(stageBar, focusedArea, grid, overlay);
+
+  let focusedUserId = /** @type {string | null} */ (null);
+  let isPaused = false;
+  let ageConfirmed = false;
+
+  /** @param {boolean} paused */
+  function updatePauseState(paused) {
+    isPaused = paused;
+    pauseBtn.setAttribute("aria-pressed", isPaused ? "true" : "false");
+    pauseBtn.textContent = isPaused ? "Возобновить стрим" : "Приостановить стрим";
+    pauseBtn.setAttribute("aria-label", isPaused ? "Возобновить стрим" : "Приостановить стрим");
+  }
+
+  pauseBtn.addEventListener("click", () => {
+    const next = !isPaused;
+    updatePauseState(next);
+    void service?.voice_stream_set_paused?.(next);
+    void options.onPauseStream?.(next);
+  });
+
+  stopBtn.addEventListener("click", () => {
+    void service?.voice_stream_delete?.();
+    void options.onStopStream?.();
+  });
+
+  confirmBtn.addEventListener("click", () => {
+    ageConfirmed = true;
+    overlay.setAttribute("hidden", "");
+    overlay.setAttribute("data-confirmed", "true");
+    grid.setAttribute("data-blocked", "false");
+    void options.onConfirmAge?.();
+  });
+
+  /** @param {string | null} userId */
+  function setFocused(userId) {
+    focusedUserId = userId;
+    const snapshot = store.get();
+    if (focusedUserId) {
+      focusedArea.removeAttribute("hidden");
+      focusedArea.setAttribute("data-focused", "true");
+      focusedArea.setAttribute("data-focused-user-id", focusedUserId);
+      const participant = snapshot.participants.find((p) => p.id === focusedUserId);
+      const name = participant?.name ?? focusedUserId;
+      focusedArea.replaceChildren();
+      const card = el("div", "voice-focused-card");
+      const title = el("h3", "voice-focused-title", `Фокус: ${name}`);
+      const unfocusBtn = el("button", "stream-btn stream-btn--secondary", "Свернуть");
+      unfocusBtn.setAttribute("type", "button");
+      unfocusBtn.addEventListener("click", () => setFocused(null));
+      card.append(title, unfocusBtn);
+      focusedArea.append(card);
+    } else {
+      focusedArea.setAttribute("hidden", "");
+      focusedArea.setAttribute("data-focused", "false");
+      focusedArea.removeAttribute("data-focused-user-id");
+      focusedArea.replaceChildren();
+    }
+    // Обновляем классы плиток
+    for (const tile of grid.querySelectorAll(".voice-tile")) {
+      const tileUserId = tile.getAttribute("data-user-id");
+      const isFocused = tileUserId === focusedUserId;
+      if (isFocused) {
+        tile.classList.add("is-focused");
+        tile.setAttribute("aria-pressed", "true");
+      } else {
+        tile.classList.remove("is-focused");
+        tile.setAttribute("aria-pressed", "false");
+      }
+    }
+  }
+
+  function render() {
+    const snapshot = store.get();
+
+    // Возрастное ограничение
+    const isAgeGated = Boolean(snapshot.ageGated) && !ageConfirmed;
+    if (isAgeGated) {
+      overlay.removeAttribute("hidden");
+      grid.setAttribute("data-blocked", "true");
+    } else {
+      overlay.setAttribute("hidden", "");
+      grid.setAttribute("data-blocked", "false");
+    }
+
+    // Рендер плиток
+    /** @type {HTMLElement[]} */
+    const tiles = [];
+    for (const person of snapshot.participants) {
+      const isSpeaking = speakingFlag(person.speaking);
+      const hasStream = Boolean(person.isStream || person.stream);
+      const tile = el("article", "voice-tile");
+      tile.id = `voice-tile-${person.id}`;
+      tile.setAttribute("role", "listitem");
+      tile.setAttribute("data-user-id", person.id);
+      tile.setAttribute("data-speaking", isSpeaking ? "true" : "false");
+
+      if (isSpeaking) tile.classList.add("is-speaking");
+      else tile.classList.remove("is-speaking");
+
+      if (hasStream) {
+        tile.classList.add("is-stream");
+        tile.setAttribute("data-is-stream", "true");
+      }
+
+      if (focusedUserId === person.id) {
+        tile.classList.add("is-focused");
+        tile.setAttribute("aria-pressed", "true");
+      } else {
+        tile.classList.remove("is-focused");
+        tile.setAttribute("aria-pressed", "false");
+      }
+
+      const avatar = el("span", "voice-tile-avatar", person.self ? "SB" : person.name.slice(0, 2).toUpperCase());
+      avatar.setAttribute("aria-hidden", "true");
+      const name = el("span", "voice-tile-name", person.name);
+      tile.append(avatar, name);
+
+      if (hasStream) {
+        const tileBadge = el("span", "stream-live-badge badge-live");
+        tileBadge.id = "stream-live-badge";
+        tileBadge.setAttribute("data-state", "live");
+        const dot = el("span", "stream-live-dot");
+        dot.setAttribute("aria-hidden", "true");
+        const text = el("span", "badge-text", "В ЭФИРЕ");
+        tileBadge.append(dot, text);
+
+        const watchBtn = el("button", "stream-watch-btn stream-btn stream-btn--primary", "Смотреть стрим");
+        watchBtn.setAttribute("type", "button");
+        watchBtn.setAttribute("data-stream-action", "watch");
+        watchBtn.setAttribute("aria-label", `Смотреть стрим: ${person.name}`);
+        watchBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          void service?.voice_stream_watch?.(person.id);
+          void options.onWatchStream?.(person.id);
+        });
+
+        tile.append(tileBadge, watchBtn);
+      }
+
+      tile.addEventListener("click", () => {
+        if (focusedUserId === person.id) {
+          setFocused(null);
+        } else {
+          setFocused(person.id);
+        }
+      });
+
+      tiles.push(tile);
+    }
+    grid.replaceChildren(...tiles);
+  }
+
+  const unsubscribe = store.subscribe(render);
+  render();
+
+  return {
+    host,
+    grid,
+    focusedArea,
+    overlay,
+    pauseBtn,
+    stopBtn,
+    setFocused,
+    setPaused: updatePauseState,
+    watchStream(/** @type {string} */ userId) {
+      void service?.voice_stream_watch?.(userId);
+      void options.onWatchStream?.(userId);
+    },
+    stopStream() {
+      void service?.voice_stream_delete?.();
+      void options.onStopStream?.();
+    },
+    confirmAge() {
+      ageConfirmed = true;
+      overlay.setAttribute("hidden", "");
+      overlay.setAttribute("data-confirmed", "true");
+      grid.setAttribute("data-blocked", "false");
+      void options.onConfirmAge?.();
+    },
+    render,
+    dispose() {
+      unsubscribe();
+      host.replaceChildren();
+    },
+  };
+}
+
+/**
+ * Модалка запуска стрима Go Live (#go-live-modal).
+ *
+ * @param {{
+ *   host: HTMLElement,
+ *   service?: VoiceService | null,
+ *   onStartStream?: (params: { resolution: string, fps: number, tab: string }) => void | Promise<unknown>,
+ *   onClose?: () => void,
+ * }} options
+ */
+export function createGoLiveModal(options) {
+  const host = options.host;
+  const service = options.service ?? null;
+  if (!host) throw new UIError("ELEMENT_MISSING", "voice: нет host-элемента для модалки");
+  const doc = /** @type {Document} */ (host.ownerDocument);
+
+  /** @param {string} tag @param {string} [className] @param {string} [text] @returns {HTMLElement} */
+  function el(tag, className = "", text = "") {
+    const node = doc.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  let currentTab = "applications";
+  let currentResolution = "720p";
+  let currentFps = 30;
+
+  const modal = el("div", "go-live-modal");
+  modal.id = "go-live-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "go-live-modal-title");
+
+  const card = el("div", "go-live-modal-card");
+  const header = el("header", "go-live-modal-header");
+  const title = el("h2", "go-live-modal-title", "Прямой эфир");
+  title.id = "go-live-modal-title";
+  const closeBtn = el("button", "go-live-close-btn", "✕");
+  closeBtn.id = "go-live-close-btn";
+  closeBtn.setAttribute("type", "button");
+  closeBtn.setAttribute("aria-label", "Закрыть");
+  header.append(title, closeBtn);
+
+  const tabs = el("div", "go-live-tabs");
+  tabs.setAttribute("role", "tablist");
+  tabs.setAttribute("aria-label", "Источник трансляции");
+
+  const tabApps = el("button", "go-live-tab is-active", "Приложения");
+  tabApps.id = "go-live-tab-apps";
+  tabApps.setAttribute("type", "button");
+  tabApps.setAttribute("role", "tab");
+  tabApps.setAttribute("aria-selected", "true");
+  tabApps.setAttribute("data-tab", "applications");
+
+  const tabScreens = el("button", "go-live-tab", "Экраны");
+  tabScreens.id = "go-live-tab-screens";
+  tabScreens.setAttribute("type", "button");
+  tabScreens.setAttribute("role", "tab");
+  tabScreens.setAttribute("aria-selected", "false");
+  tabScreens.setAttribute("data-tab", "screens");
+
+  tabs.append(tabApps, tabScreens);
+
+  const settingsSection = el("div", "go-live-settings-section");
+
+  const resGroup = el("div", "go-live-setting-group");
+  resGroup.setAttribute("role", "radiogroup");
+  resGroup.setAttribute("aria-label", "Разрешение");
+  const resLabel = el("span", "go-live-setting-label", "Разрешение:");
+  resGroup.append(resLabel);
+
+  /** @type {HTMLElement[]} */
+  const resBtns = [];
+  for (const r of ["720p", "1080p", "1440p"]) {
+    const btn = el("button", "go-live-resolution-btn", r);
+    btn.setAttribute("type", "button");
+    btn.setAttribute("role", "radio");
+    btn.setAttribute("data-resolution", r);
+    btn.setAttribute("aria-checked", r === currentResolution ? "true" : "false");
+    if (r === currentResolution) btn.classList.add("is-active");
+    btn.addEventListener("click", () => {
+      currentResolution = r;
+      for (const b of resBtns) {
+        const active = b.getAttribute("data-resolution") === currentResolution;
+        b.setAttribute("aria-checked", active ? "true" : "false");
+        if (active) b.classList.add("is-active");
+        else b.classList.remove("is-active");
+      }
+    });
+    resBtns.push(btn);
+    resGroup.append(btn);
+  }
+
+  const fpsGroup = el("div", "go-live-setting-group");
+  fpsGroup.setAttribute("role", "radiogroup");
+  fpsGroup.setAttribute("aria-label", "Частота кадров");
+  const fpsLabel = el("span", "go-live-setting-label", "Частота кадров:");
+  fpsGroup.append(fpsLabel);
+
+  /** @type {HTMLElement[]} */
+  const fpsBtns = [];
+  for (const f of [30, 60]) {
+    const btn = el("button", "go-live-fps-btn", String(f));
+    btn.setAttribute("type", "button");
+    btn.setAttribute("role", "radio");
+    btn.setAttribute("data-fps", String(f));
+    btn.setAttribute("aria-checked", f === currentFps ? "true" : "false");
+    if (f === currentFps) btn.classList.add("is-active");
+    btn.addEventListener("click", () => {
+      currentFps = f;
+      for (const b of fpsBtns) {
+        const active = b.getAttribute("data-fps") === String(currentFps);
+        b.setAttribute("aria-checked", active ? "true" : "false");
+        if (active) b.classList.add("is-active");
+        else b.classList.remove("is-active");
+      }
+    });
+    fpsBtns.push(btn);
+    fpsGroup.append(btn);
+  }
+
+  settingsSection.append(resGroup, fpsGroup);
+
+  const footer = el("footer", "go-live-modal-footer");
+  const cancelBtn = el("button", "stream-btn stream-btn--secondary", "Отмена");
+  cancelBtn.id = "go-live-cancel-btn";
+  cancelBtn.setAttribute("type", "button");
+  const submitBtn = el("button", "stream-btn stream-btn--primary go-live-submit-btn", "Прямой эфир");
+  submitBtn.id = "go-live-submit-btn";
+  submitBtn.setAttribute("type", "button");
+  footer.append(cancelBtn, submitBtn);
+
+  card.append(header, tabs, settingsSection, footer);
+  modal.append(card);
+  host.append(modal);
+
+  function closeModal() {
+    modal.setAttribute("hidden", "");
+    options.onClose?.();
+  }
+
+  function openModal() {
+    modal.removeAttribute("hidden");
+  }
+
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  tabApps.addEventListener("click", () => {
+    currentTab = "applications";
+    tabApps.setAttribute("aria-selected", "true");
+    tabApps.classList.add("is-active");
+    tabScreens.setAttribute("aria-selected", "false");
+    tabScreens.classList.remove("is-active");
+  });
+
+  tabScreens.addEventListener("click", () => {
+    currentTab = "screens";
+    tabScreens.setAttribute("aria-selected", "true");
+    tabScreens.classList.add("is-active");
+    tabApps.setAttribute("aria-selected", "false");
+    tabApps.classList.remove("is-active");
+  });
+
+  submitBtn.addEventListener("click", () => {
+    const params = { resolution: currentResolution, fps: currentFps, tab: currentTab };
+    void service?.voice_stream_create?.(params);
+    void service?.onStartStream?.(params);
+    void options.onStartStream?.(params);
+    closeModal();
+  });
+
+  return {
+    element: modal,
+    getResolution() {
+      return currentResolution;
+    },
+    setResolution(/** @type {string} */ r) {
+      currentResolution = r;
+      for (const b of resBtns) {
+        const active = b.getAttribute("data-resolution") === currentResolution;
+        b.setAttribute("aria-checked", active ? "true" : "false");
+        if (active) b.classList.add("is-active");
+        else b.classList.remove("is-active");
+      }
+    },
+    getFps() {
+      return currentFps;
+    },
+    setFps(/** @type {number} */ f) {
+      currentFps = f;
+      for (const b of fpsBtns) {
+        const active = b.getAttribute("data-fps") === String(currentFps);
+        b.setAttribute("aria-checked", active ? "true" : "false");
+        if (active) b.classList.add("is-active");
+        else b.classList.remove("is-active");
+      }
+    },
+    getTab() {
+      return currentTab;
+    },
+    open: openModal,
+    close: closeModal,
+    dispose() {
+      modal.remove();
+    },
+  };
+}
+
+/**
+ * Контроллер стрима (stage grid + launch modal).
+ *
+ * @param {{
+ *   stageHost: HTMLElement,
+ *   modalHost?: HTMLElement,
+ *   store: ReturnType<typeof createVoiceStore>,
+ *   service?: VoiceService | null,
+ *   onStartStream?: (params: { resolution: string, fps: number, tab: string }) => void | Promise<unknown>,
+ *   onWatchStream?: (userId: string) => void | Promise<unknown>,
+ *   onPauseStream?: (paused: boolean) => void | Promise<unknown>,
+ *   onStopStream?: () => void | Promise<unknown>,
+ *   onConfirmAge?: () => void | Promise<unknown>,
+ * }} options
+ */
+export function createVoiceStreamController(options) {
+  const stage = createVoiceStageGrid({
+    host: options.stageHost,
+    store: options.store,
+    service: options.service,
+    onWatchStream: options.onWatchStream,
+    onPauseStream: options.onPauseStream,
+    onStopStream: options.onStopStream,
+    onConfirmAge: options.onConfirmAge,
+  });
+  const modal = createGoLiveModal({
+    host: options.modalHost ?? options.stageHost,
+    service: options.service,
+    onStartStream: options.onStartStream,
+  });
+  return {
+    stage,
+    modal,
+    openGoLiveModal() {
+      modal.open();
+    },
+    closeGoLiveModal() {
+      modal.close();
+    },
+    dispose() {
+      stage.dispose();
+      modal.dispose();
     },
   };
 }

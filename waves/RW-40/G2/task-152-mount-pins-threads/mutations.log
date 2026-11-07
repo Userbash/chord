@@ -1,0 +1,200 @@
+=== MUTATION 1: disable mutual exclusion in openThreads (keep pinsOpen unchanged) ===
+▶ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels
+  ✔ прогрессивно создаёт #chat-pins-panel и #chat-threads-panel и переключает их взаимно исключающе (2.229903ms)
+✔ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels (2.785113ms)
+▶ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)
+  ✖ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (1.916433ms)
+  ✔ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.38145ms)
+  ✔ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (1.493632ms)
+  ✔ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (1.111631ms)
+  ✖ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.482261ms)
+✖ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts) (5.666317ms)
+ℹ tests 6
+ℹ suites 2
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50.437767
+
+✖ failing tests:
+
+test at tests/unit/pins-threads.test.mjs:106:3
+✖ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (1.916433ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'true' !== 'false'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:145:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'true',
+    expected: 'false',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/pins-threads.test.mjs:417:3
+✖ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.482261ms)
+  AssertionError [ERR_ASSERTION]: #pins-popover закрыт по Escape
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:437:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+MUTATION_1_EXIT=1
+=== MUTATION 2: skip confirmation in unpinBtn click ===
+▶ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels
+  ✔ прогрессивно создаёт #chat-pins-panel и #chat-threads-panel и переключает их взаимно исключающе (2.237712ms)
+✔ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels (2.796033ms)
+▶ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)
+  ✔ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (1.477662ms)
+  ✔ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.35973ms)
+  ✖ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (1.664602ms)
+  ✔ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (1.287021ms)
+  ✔ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.444051ms)
+✖ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts) (5.506637ms)
+ℹ tests 6
+ℹ suites 2
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.249266
+
+✖ failing tests:
+
+test at tests/unit/pins-threads.test.mjs:189:3
+✖ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (1.664602ms)
+  AssertionError [ERR_ASSERTION]: без подтверждения unpinMessage не должен вызываться
+  + actual - expected
+  
+  + [
+  +   'm-101'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:242:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'm-101' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+MUTATION_2_EXIT=1
+=== MUTATION 3: relax THREAD_NAME_MAX_LEN to 200 ===
+▶ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels
+  ✔ прогрессивно создаёт #chat-pins-panel и #chat-threads-panel и переключает их взаимно исключающе (2.213622ms)
+✔ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels (2.766223ms)
+▶ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)
+  ✔ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (1.466942ms)
+  ✔ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.35984ms)
+  ✔ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (1.713672ms)
+  ✖ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (1.294852ms)
+  ✔ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (0.51406ms)
+✖ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts) (5.628446ms)
+ℹ tests 6
+ℹ suites 2
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.384125
+
+✖ failing tests:
+
+test at tests/unit/pins-threads.test.mjs:292:3
+✖ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (1.294852ms)
+  AssertionError [ERR_ASSERTION]: название > 100 символов не должно вызывать createThread
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:383:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+MUTATION_3_EXIT=1
+=== MUTATION 4: no-op destroy() in mountPinsThreadsDom ===
+▶ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels
+  ✔ прогрессивно создаёт #chat-pins-panel и #chat-threads-panel и переключает их взаимно исключающе (2.218172ms)
+✔ STUB-10 (M-10 и M-11): базовый контроллер createPinsThreadsPanels (2.770844ms)
+▶ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)
+  ✔ привязывается к существующим кнопкам #btn-TogglePins и #btn-ToggleThreads, синхронизирует aria-expanded и переключает #pins-popover (role='dialog') и #threads-sidebar (1.475021ms)
+  ✔ динамически создаёт #btn-TogglePins и #btn-ToggleThreads при их отсутствии в шапке канала (0.358751ms)
+  ✔ рендерит список закреплённых сообщений в #pins-popover (автор, текст, 'Перейти', 'Открепить' с подтверждением -> unpinMessage) и пустое состояние (1.519982ms)
+  ✔ рендерит вкладки Активные / Архивные ветки в #threads-sidebar, форму создания новой ветки (1..100 символов, auto_archive_duration -> createThread) и переход внутрь ветки (1.054261ms)
+  ✖ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (1.036071ms)
+✖ FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts) (5.722986ms)
+ℹ tests 6
+ℹ suites 2
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.290124
+
+✖ failing tests:
+
+test at tests/unit/pins-threads.test.mjs:417:3
+✖ закрывает поповер пинов и панель веток по Escape и полностью очищает слушатели через destroy() (1.036071ms)
+  AssertionError [ERR_ASSERTION]: после destroy() клик по #btn-TogglePins не открывает поповер
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads/tests/unit/pins-threads.test.mjs:455:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+MUTATION_4_EXIT=1

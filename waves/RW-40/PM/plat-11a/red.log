@@ -1,0 +1,74 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
+
+running 14 tests
+test ack_message_delegates_counter_and_nullable_token_verbatim ... ok
+test message_actions_delegate_to_expected_paths_and_payloads ... ok
+test send_message_delegates_and_returns_receipt ... ok
+test ack_message_preserves_typed_errors ... ok
+test send_message_rejects_content_over_2000_before_sender ... ok
+test message_actions_reject_invalid_ids_and_content_before_io ... ok
+test send_message_rejects_empty_or_whitespace_content_before_sender ... ok
+test send_message_preserves_typed_http_errors ... ok
+test send_message_rejects_path_traversal_in_channel_id_before_sender ... FAILED
+test send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound ... FAILED
+test tauri_registers_send_message_command ... ok
+test sender_debug_does_not_reveal_token ... ok
+test actions_preserve_http_errors_and_debug_hides_token ... ok
+test tauri_registers_message_action_commands ... ok
+
+failures:
+
+---- send_message_rejects_path_traversal_in_channel_id_before_sender stdout ----
+
+thread 'send_message_rejects_path_traversal_in_channel_id_before_sender' (142929) panicked at tests/messages_contract.rs:128:9:
+assertion `left == right` failed: id="../../users/@me"
+  left: Ok(MessageReceipt { id: "m1", channel_id: "c1", content: "hello", nonce: "n1" })
+ right: Err(InvalidArg)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound stdout ----
+
+thread 'send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound' (142924) panicked at tests/messages_contract.rs:161:9:
+assertion `left == right` failed: id="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  left: Ok(MessageReceipt { id: "m1", channel_id: "c1", content: "hello", nonce: "n1" })
+ right: Err(InvalidArg)
+
+
+failures:
+    send_message_accepts_safe_channel_ids_and_enforces_64_byte_bound
+    send_message_rejects_path_traversal_in_channel_id_before_sender
+
+test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test messages_contract`
+
+=== exit=101 ===
+
+=== additional red-proof: sender-level guard on HEAD source ===
+source: git show HEAD:rust/gui-spike/src/messages.rs (md5 8da412cf1a629ac03636d61c5e58be3d)
+command: cargo test --offline --test messages_contract sender_rejects_path_traversal_channel_id_before_http
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.65s
+     Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
+
+running 1 test
+test sender_rejects_path_traversal_channel_id_before_http ... FAILED
+
+failures:
+
+---- sender_rejects_path_traversal_channel_id_before_http stdout ----
+
+thread 'sender_rejects_path_traversal_channel_id_before_http' (152850) panicked at /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/tcp/stream.rs:167:18:
+A Tokio 1.x context was found, but IO is disabled. Call `enable_io` on the runtime builder to enable IO.
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    sender_rejects_path_traversal_channel_id_before_http
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--test messages_contract`
+=== exit=101 ===

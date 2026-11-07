@@ -1,0 +1,46 @@
+=== GREEN: cargo test --offline -p discord-gui-spike --test search_contract -- --nocapture ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.46s
+     Running tests/search_contract.rs (target/debug/deps/search_contract-c5836221419f214a)
+
+running 23 tests
+test enforces_max_search_offset_9975_and_rejects_above_ceiling_before_transport ... ok
+test decodes_hits_and_deep_index_flag ... ok
+test no_token_is_typed_before_network ... ok
+test maps_network_error_without_exposing_details ... ok
+test decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test debug_and_errors_do_not_expose_token ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... ok
+test maps_malformed_json_to_typed_error ... ok
+test rejects_empty_guild_id_before_transport ... ok
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... ok
+test rejects_negative_offset_before_transport ... ok
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... ok
+test storage_failure_is_typed_for_ui ... ok
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... ok
+test sends_all_confirmed_re_filters_in_query ... ok
+test rejects_invalid_filter_values_before_transport ... ok
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... ok
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+exit=0
+
+=== GREEN: cargo test --offline -p discord-gui-spike --lib search -- --nocapture ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-97c354e3033ff0e8)
+
+running 2 tests
+test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok
+test search::tests::retry_after_header_parses_positive_integer_seconds_with_5000ms_fallback ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+exit=0

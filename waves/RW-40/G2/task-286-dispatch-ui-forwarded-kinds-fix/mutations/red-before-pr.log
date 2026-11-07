@@ -1,0 +1,13 @@
+# red-before-195A: версия dispatch-model.js из HEAD e2d9ae1 (md5 67c6dda6480a4dc8c25db1ecd9d1c1b1)
+2026-10-31T06:56:32Z
+$ node --test tests/unit/dispatch_ui.test.mjs
+✖ L-02-UI: контракт dispatch (A1–A3) (4.801863ms)
+✖ L-02-UI: проекции dispatch (B) (26.661682ms)
+ℹ tests 58
+ℹ pass 56
+ℹ fail 2
+✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (0.81018ms)
+  AssertionError [ERR_ASSERTION]: в UI не 30 kind
+✖ B14b: 8 расширенных событий приняты моделью — skipped, не ignored (0.15849ms)
+  AssertionError [ERR_ASSERTION]: MESSAGE_DELETE форвардится бэкендом, но отбрасывается UI
+restored md5=9c7439d1db386a89fbd2347a95a207a2

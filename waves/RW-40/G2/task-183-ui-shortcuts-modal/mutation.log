@@ -1,0 +1,514 @@
+=== M1 key m->n (toggle_mute) ===
+▶ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний
+  ✔ содержит ровно 8 шорткатов в порядке Discord (0.594101ms)
+  ✖ фиксирует combo/key/модификаторы/русскую подпись каждого шортката (0.545971ms)
+  ✔ замораживает массив и записи, у каждой есть непустая категория (0.09825ms)
+✖ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний (1.833504ms)
+▶ matchShortcut: сопоставление события с таблицей
+  ✖ находит каждый шорткат по его сочетанию (0.349431ms)
+  ✔ сравнивает буквы без учёта регистра (K и k) (0.08223ms)
+  ✔ требует точного совпадения модификаторов (0.10051ms)
+  ✔ не реагирует на незарегистрированные клавиши (0.083991ms)
+  ✖ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.33827ms)
+  ✔ вне полей ввода Ctrl+F и Ctrl+P доступны (0.142941ms)
+  ✔ распознаёт contentEditable по свойству isContentEditable (0.11327ms)
+✖ matchShortcut: сопоставление события с таблицей (1.828684ms)
+▶ createShortcutsController: доступная модалка и глобальные клавиши
+  ✔ рендерит #shortcuts-help-modal в doc.body с ARIA-контрактом (0.675212ms)
+  ✔ перечисляет все 8 шорткатов с kbd-бейджами и подписями (0.2556ms)
+  ✔ содержит кнопку закрытия [data-action=close-shortcuts-help] (0.152761ms)
+  ✔ Ctrl+/ открывает и повторным нажатием закрывает справку (0.27585ms)
+  ✔ Escape закрывает открытую справку и возвращает фокус прежнему элементу (0.233131ms)
+  ✔ кнопка закрытия закрывает модалку и возвращает фокус (0.19905ms)
+  ✔ вызывает handlers[id] и отменяет дефолт для зарегистрированного шортката (0.154891ms)
+  ✔ Escape при закрытой справке уходит в handlers.mark_channel_read (0.15787ms)
+  ✔ Escape при открытой справке закрывает её и не дергает обработчик (0.14438ms)
+  ✔ без обработчика шорткат всё равно отменяет дефолт браузера (0.155301ms)
+  ✔ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.14244ms)
+  ✔ openHelpModal/closeHelpModal идемпотентны (0.293341ms)
+  ✔ destroy снимает слушатель и удаляет модалку из документа (0.1804ms)
+  ✔ глобальный слушатель вешается на body, а не на документ (0.09884ms)
+✔ createShortcutsController: доступная модалка и глобальные клавиши (3.437117ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 21
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.685744
+
+✖ failing tests:
+
+test at tests/unit/shortcuts.test.mjs:153:3
+✖ фиксирует combo/key/модификаторы/русскую подпись каждого шортката (0.545971ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'n' !== 'm'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:159:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'n',
+    expected: 'm',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:178:3
+✖ находит каждый шорткат по его сочетанию (0.349431ms)
+  AssertionError [ERR_ASSERTION]: Ctrl+Shift+M не сопоставлен
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:187:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:212:3
+✖ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.33827ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'toggle_mute'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:224:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'toggle_mute',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1 (1=KILLED, 0=SURVIVED)
+
+=== M2 drop editable guard ===
+▶ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний
+  ✔ содержит ровно 8 шорткатов в порядке Discord (0.602871ms)
+  ✔ фиксирует combo/key/модификаторы/русскую подпись каждого шортката (0.13006ms)
+  ✔ замораживает массив и записи, у каждой есть непустая категория (0.408491ms)
+✔ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний (1.889024ms)
+▶ matchShortcut: сопоставление события с таблицей
+  ✔ находит каждый шорткат по его сочетанию (0.247511ms)
+  ✔ сравнивает буквы без учёта регистра (K и k) (0.08479ms)
+  ✔ требует точного совпадения модификаторов (0.0885ms)
+  ✔ не реагирует на незарегистрированные клавиши (0.068741ms)
+  ✖ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.867172ms)
+  ✔ вне полей ввода Ctrl+F и Ctrl+P доступны (0.12961ms)
+  ✖ распознаёт contentEditable по свойству isContentEditable (0.21386ms)
+✖ matchShortcut: сопоставление события с таблицей (1.981925ms)
+▶ createShortcutsController: доступная модалка и глобальные клавиши
+  ✔ рендерит #shortcuts-help-modal в doc.body с ARIA-контрактом (0.697221ms)
+  ✔ перечисляет все 8 шорткатов с kbd-бейджами и подписями (0.248271ms)
+  ✔ содержит кнопку закрытия [data-action=close-shortcuts-help] (0.16423ms)
+  ✔ Ctrl+/ открывает и повторным нажатием закрывает справку (0.285141ms)
+  ✔ Escape закрывает открытую справку и возвращает фокус прежнему элементу (0.2815ms)
+  ✔ кнопка закрытия закрывает модалку и возвращает фокус (0.185161ms)
+  ✔ вызывает handlers[id] и отменяет дефолт для зарегистрированного шортката (0.16703ms)
+  ✔ Escape при закрытой справке уходит в handlers.mark_channel_read (0.148751ms)
+  ✔ Escape при открытой справке закрывает её и не дергает обработчик (0.14699ms)
+  ✔ без обработчика шорткат всё равно отменяет дефолт браузера (0.13821ms)
+  ✖ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.228911ms)
+  ✔ openHelpModal/closeHelpModal идемпотентны (0.11263ms)
+  ✔ destroy снимает слушатель и удаляет модалку из документа (0.1935ms)
+  ✔ глобальный слушатель вешается на body, а не на документ (0.11176ms)
+✖ createShortcutsController: доступная модалка и глобальные клавиши (3.589527ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 21
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.153012
+
+✖ failing tests:
+
+test at tests/unit/shortcuts.test.mjs:212:3
+✖ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.867172ms)
+  AssertionError [ERR_ASSERTION]: Ctrl+F не должен перехватываться в поле ввода
+  + actual - expected
+  
+  + {
+  +   altKey: false,
+  +   category: 'Навигация',
+  +   combo: 'Ctrl+F',
+  +   ctrlKey: true,
+  +   id: 'search_channel',
+  +   key: 'f',
+  +   labelRu: 'Поиск в канале',
+  +   shiftKey: false
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:229:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { id: 'search_channel', combo: 'Ctrl+F', key: 'f', ctrlKey: true, shiftKey: false, altKey: false, labelRu: 'Поиск в канале', category: 'Навигация' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:246:3
+✖ распознаёт contentEditable по свойству isContentEditable (0.21386ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   altKey: false,
+  +   category: 'Навигация',
+  +   combo: 'Ctrl+F',
+  +   ctrlKey: true,
+  +   id: 'search_channel',
+  +   key: 'f',
+  +   labelRu: 'Поиск в канале',
+  +   shiftKey: false
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:250:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: 'search_channel', combo: 'Ctrl+F', key: 'f', ctrlKey: true, shiftKey: false, altKey: false, labelRu: 'Поиск в канале', category: 'Навигация' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:382:3
+✖ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.228911ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:388:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1 (1=KILLED, 0=SURVIVED)
+
+=== M3 drop preventDefault for handlers ===
+▶ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний
+  ✔ содержит ровно 8 шорткатов в порядке Discord (0.594131ms)
+  ✔ фиксирует combo/key/модификаторы/русскую подпись каждого шортката (0.136891ms)
+  ✔ замораживает массив и записи, у каждой есть непустая категория (0.09091ms)
+✔ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний (1.394263ms)
+▶ matchShortcut: сопоставление события с таблицей
+  ✔ находит каждый шорткат по его сочетанию (0.256391ms)
+  ✔ сравнивает буквы без учёта регистра (K и k) (0.0917ms)
+  ✔ требует точного совпадения модификаторов (0.07669ms)
+  ✔ не реагирует на незарегистрированные клавиши (0.0665ms)
+  ✔ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.289221ms)
+  ✔ вне полей ввода Ctrl+F и Ctrl+P доступны (0.13897ms)
+  ✔ распознаёт contentEditable по свойству isContentEditable (0.115921ms)
+✔ matchShortcut: сопоставление события с таблицей (1.291563ms)
+▶ createShortcutsController: доступная модалка и глобальные клавиши
+  ✔ рендерит #shortcuts-help-modal в doc.body с ARIA-контрактом (0.683051ms)
+  ✔ перечисляет все 8 шорткатов с kbd-бейджами и подписями (0.248601ms)
+  ✔ содержит кнопку закрытия [data-action=close-shortcuts-help] (0.16244ms)
+  ✔ Ctrl+/ открывает и повторным нажатием закрывает справку (0.275571ms)
+  ✔ Escape закрывает открытую справку и возвращает фокус прежнему элементу (0.18144ms)
+  ✔ кнопка закрытия закрывает модалку и возвращает фокус (0.190731ms)
+  ✖ вызывает handlers[id] и отменяет дефолт для зарегистрированного шортката (0.558151ms)
+  ✖ Escape при закрытой справке уходит в handlers.mark_channel_read (0.232201ms)
+  ✔ Escape при открытой справке закрывает её и не дергает обработчик (0.15386ms)
+  ✖ без обработчика шорткат всё равно отменяет дефолт браузера (0.205491ms)
+  ✖ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.18906ms)
+  ✔ openHelpModal/closeHelpModal идемпотентны (0.279311ms)
+  ✔ destroy снимает слушатель и удаляет модалку из документа (0.18458ms)
+  ✔ глобальный слушатель вешается на body, а не на документ (0.09178ms)
+✖ createShortcutsController: доступная модалка и глобальные клавиши (4.085268ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 20
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.148383
+
+✖ failing tests:
+
+test at tests/unit/shortcuts.test.mjs:345:3
+✖ вызывает handlers[id] и отменяет дефолт для зарегистрированного шортката (0.558151ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:355:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:359:3
+✖ Escape при закрытой справке уходит в handlers.mark_channel_read (0.232201ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:364:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:376:3
+✖ без обработчика шорткат всё равно отменяет дефолт браузера (0.205491ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:379:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:382:3
+✖ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.18906ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:391:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1 (1=KILLED, 0=SURVIVED)
+
+=== M4 destroy keeps listener ===
+▶ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний
+  ✔ содержит ровно 8 шорткатов в порядке Discord (0.608891ms)
+  ✔ фиксирует combo/key/модификаторы/русскую подпись каждого шортката (0.12768ms)
+  ✔ замораживает массив и записи, у каждой есть непустая категория (0.08809ms)
+✔ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний (1.387852ms)
+▶ matchShortcut: сопоставление события с таблицей
+  ✔ находит каждый шорткат по его сочетанию (0.588251ms)
+  ✔ сравнивает буквы без учёта регистра (K и k) (0.08847ms)
+  ✔ требует точного совпадения модификаторов (0.08189ms)
+  ✔ не реагирует на незарегистрированные клавиши (0.066981ms)
+  ✔ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.29125ms)
+  ✔ вне полей ввода Ctrl+F и Ctrl+P доступны (2.301565ms)
+  ✔ распознаёт contentEditable по свойству isContentEditable (0.14057ms)
+✔ matchShortcut: сопоставление события с таблицей (3.822768ms)
+▶ createShortcutsController: доступная модалка и глобальные клавиши
+  ✔ рендерит #shortcuts-help-modal в doc.body с ARIA-контрактом (0.691491ms)
+  ✔ перечисляет все 8 шорткатов с kbd-бейджами и подписями (0.267371ms)
+  ✔ содержит кнопку закрытия [data-action=close-shortcuts-help] (0.16006ms)
+  ✔ Ctrl+/ открывает и повторным нажатием закрывает справку (0.342081ms)
+  ✔ Escape закрывает открытую справку и возвращает фокус прежнему элементу (0.223101ms)
+  ✔ кнопка закрытия закрывает модалку и возвращает фокус (0.22594ms)
+  ✔ вызывает handlers[id] и отменяет дефолт для зарегистрированного шортката (0.16702ms)
+  ✔ Escape при закрытой справке уходит в handlers.mark_channel_read (0.157351ms)
+  ✔ Escape при открытой справке закрывает её и не дергает обработчик (0.14823ms)
+  ✔ без обработчика шорткат всё равно отменяет дефолт браузера (0.15359ms)
+  ✔ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.14943ms)
+  ✔ openHelpModal/closeHelpModal идемпотентны (0.2733ms)
+  ✖ destroy снимает слушатель и удаляет модалку из документа (0.602061ms)
+  ✔ глобальный слушатель вешается на body, а не на документ (0.11326ms)
+✖ createShortcutsController: доступная модалка и глобальные клавиши (4.031068ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 23
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.83154
+
+✖ failing tests:
+
+test at tests/unit/shortcuts.test.mjs:406:3
+✖ destroy снимает слушатель и удаляет модалку из документа (0.602061ms)
+  AssertionError [ERR_ASSERTION]: после destroy хоткей не должен перехватываться
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:415:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1 (1=KILLED, 0=SURVIVED)
+
+=== M5 Escape ignores open modal ===
+▶ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний
+  ✔ содержит ровно 8 шорткатов в порядке Discord (0.591951ms)
+  ✔ фиксирует combo/key/модификаторы/русскую подпись каждого шортката (0.134121ms)
+  ✔ замораживает массив и записи, у каждой есть непустая категория (0.449741ms)
+✔ DISCORD_SHORTCUTS: каноническая таблица из 8 сочетаний (1.763214ms)
+▶ matchShortcut: сопоставление события с таблицей
+  ✔ находит каждый шорткат по его сочетанию (0.25017ms)
+  ✔ сравнивает буквы без учёта регистра (K и k) (0.09432ms)
+  ✔ требует точного совпадения модификаторов (0.08249ms)
+  ✔ не реагирует на незарегистрированные клавиши (0.06848ms)
+  ✔ в полях ввода пропускает только Ctrl-шорткаты из списка и Escape (0.291221ms)
+  ✔ вне полей ввода Ctrl+F и Ctrl+P доступны (0.13683ms)
+  ✔ распознаёт contentEditable по свойству isContentEditable (0.11735ms)
+✔ matchShortcut: сопоставление события с таблицей (1.293623ms)
+▶ createShortcutsController: доступная модалка и глобальные клавиши
+  ✔ рендерит #shortcuts-help-modal в doc.body с ARIA-контрактом (0.677811ms)
+  ✔ перечисляет все 8 шорткатов с kbd-бейджами и подписями (0.247421ms)
+  ✔ содержит кнопку закрытия [data-action=close-shortcuts-help] (0.16409ms)
+  ✔ Ctrl+/ открывает и повторным нажатием закрывает справку (0.279461ms)
+  ✖ Escape закрывает открытую справку и возвращает фокус прежнему элементу (0.589711ms)
+  ✔ кнопка закрытия закрывает модалку и возвращает фокус (0.194711ms)
+  ✔ вызывает handlers[id] и отменяет дефолт для зарегистрированного шортката (0.1583ms)
+  ✔ Escape при закрытой справке уходит в handlers.mark_channel_read (0.16009ms)
+  ✖ Escape при открытой справке закрывает её и не дергает обработчик (0.223901ms)
+  ✔ без обработчика шорткат всё равно отменяет дефолт браузера (0.14564ms)
+  ✔ игнорирует Ctrl+F в поле ввода, но Ctrl+K обрабатывает (0.13668ms)
+  ✔ openHelpModal/closeHelpModal идемпотентны (0.304931ms)
+  ✔ destroy снимает слушатель и удаляет модалку из документа (0.196601ms)
+  ✔ глобальный слушатель вешается на body, а не на документ (0.09379ms)
+✖ createShortcutsController: доступная модалка и глобальные клавиши (3.906328ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 22
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.117413
+
+✖ failing tests:
+
+test at tests/unit/shortcuts.test.mjs:311:3
+✖ Escape закрывает открытую справку и возвращает фокус прежнему элементу (0.589711ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:325:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/shortcuts.test.mjs:367:3
+✖ Escape при открытой справке закрывает её и не дергает обработчик (0.223901ms)
+  AssertionError [ERR_ASSERTION]: Escape должен закрывать модалку, а не помечать канал прочитанным
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:372:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit=1 (1=KILLED, 0=SURVIVED)
+

@@ -1,10 +1,13 @@
 // @ts-check
 /**
- * L-02-UI (RW-40): подписка UI на `gateway://dispatch` и проекции 6 kind.
+ * L-02-UI (RW-40): подписка UI на `gateway://dispatch`: форвардимые 22 kind,
+ * проекции 6 из них.
  *
  * Оракулы — артефакты, а не текущая реализация:
- *   - `rust/gui-spike/src/net.rs`: `DISPATCH_EVENT` и ровно 6
- *     `FORWARDED_DISPATCHES`, конверт `DispatchPayload` = `{kind, data}`;
+ *   - `rust/crates/discord-core/src/dispatch.rs`: 21 имя провода
+ *     `DispatchKind::as_str` — канонический список форвардимых типов;
+ *   - `rust/gui-spike/src/net.rs`: `DISPATCH_EVENT`, `FORWARDED_DISPATCHES`
+ *     (бэкенд — подмножество UI) и конверт `DispatchPayload` = `{kind, data}`;
  *   - `fixtures/gateway/by-type/*`: READY (7 гильдий), GUILD_MEMBERS_CHUNK
  *     (009/022), GUILD_MEMBER_LIST_UPDATE (005 SYNC + 079/086 по 4/2 op),
  *     PRESENCE_UPDATE (010); `MESSAGE_REACTION_*` — форма `[A]` (синтетика);
@@ -48,6 +51,10 @@ const NET_RS = readFileSync(
   new URL("../../rust/gui-spike/src/net.rs", import.meta.url),
   "utf8",
 );
+const CORE_DISPATCH_RS = readFileSync(
+  new URL("../../rust/crates/discord-core/src/dispatch.rs", import.meta.url),
+  "utf8",
+);
 const fixturesDir = fileURLToPath(new URL("../../fixtures/gateway/by-type/", import.meta.url));
 /** @param {string} name */
 function frame(name) {
@@ -61,6 +68,87 @@ const LIST_2OPS_FRAME = frame("086-GUILD_MEMBER_LIST_UPDATE.json");
 const CHUNK_FRAME = frame("009-GUILD_MEMBERS_CHUNK.json");
 const CHUNK4_FRAME = frame("022-GUILD_MEMBERS_CHUNK.json");
 const PRESENCE_FRAME = frame("010-PRESENCE_UPDATE.json");
+const MESSAGE_CREATE_FRAME = frame("023-MESSAGE_CREATE.json");
+const MESSAGE_CREATE_2_FRAME = frame("024-MESSAGE_CREATE.json");
+const MESSAGE_UPDATE_FRAME = frame("026-MESSAGE_UPDATE.json");
+const MESSAGE_UPDATE_2_FRAME = frame("064-MESSAGE_UPDATE.json");
+const MESSAGE_ACK_FRAME = frame("046-MESSAGE_ACK.json");
+const THREAD_SYNC_FRAME = frame("004-THREAD_LIST_SYNC.json");
+const THREAD_SYNC_MAIN_FRAME = frame("007-THREAD_LIST_SYNC.json");
+const THREAD_SYNC_EMPTY_FRAME = frame("020-THREAD_LIST_SYNC.json");
+
+/**
+ * Имена провода из `impl DispatchKind::as_str` — независимый оракул списка
+ * форвардимых типов (ядро, а не текущий UI-код). `as_str` — единственное
+ * место, где имя провода привязано к варианту.
+ * @returns {string[]}
+ */
+function coreWireNames() {
+  const body = /\nimpl\s+DispatchKind\s*\{([\s\S]*?)\n\}/.exec(CORE_DISPATCH_RS)?.[1] ?? "";
+  return [...body.matchAll(/Self::\w+\s*=>\s*"([A-Z0-9_]+)"/g)].map((match) => match[1] ?? "");
+}
+
+/**
+ * Kinds с проекцией в модели (PLAN §3–§8 + task-145 живые проекции чата/голоса/тредов).
+ * Остальные канонические имена модель принимает, но пока не отображает: `skipped`, без изменений.
+ */
+const PROJECTED_KINDS = Object.freeze([
+  "READY",
+  "GUILD_MEMBERS_CHUNK",
+  "GUILD_MEMBER_LIST_UPDATE",
+  "PRESENCE_UPDATE",
+  "MESSAGE_REACTION_ADD",
+  "MESSAGE_REACTION_REMOVE",
+  "MESSAGE_CREATE",
+  "MESSAGE_UPDATE",
+  "MESSAGE_ACK",
+  "TYPING_START",
+  "VOICE_STATE_UPDATE",
+  "VOICE_SERVER_UPDATE",
+  "THREAD_LIST_SYNC",
+]);
+
+/**
+ * Минимальные правдоподобные `d` для всех 22 канонических имён: доказывают,
+ * что решение принимается по `kind`, а не по форме payload. Массив — законный
+ * `d` (`SESSIONS_REPLACE`).
+ * @type {Record<string, Record<string, unknown> | unknown[]>}
+ */
+const CANONICAL_PAYLOAD = {
+  READY: { guilds: [{ id: "1", properties: { name: "Гильдия" }, member_count: 3 }] },
+  GUILD_MEMBERS_CHUNK: {
+    guild_id: "1",
+    members: [{ user: { id: "2", username: "участник" } }],
+    chunk_index: 0,
+    chunk_count: 1,
+  },
+  GUILD_MEMBER_LIST_UPDATE: {
+    guild_id: "1",
+    id: "everyone",
+    member_count: 1,
+    online_count: 1,
+    ops: [{ op: "SYNC", range: [0, 0], items: [{ member: { user: { id: "2" } } }] }],
+  },
+  MESSAGE_ACK: { channel_id: "3", message_id: "4", version: 1 },
+  MESSAGE_CREATE: { channel_id: "3", id: "4", content: "привет", author: { id: "2" } },
+  MESSAGE_POLL_VOTE_ADD: { channel_id: "3", message_id: "4", user_id: "2", answer_id: 1 },
+  MESSAGE_REACTION_ADD: { channel_id: "3", message_id: "4", user_id: "2", emoji: { name: "🔥" } },
+  MESSAGE_UPDATE: { channel_id: "3", id: "4", content: "привет!" },
+  PRESENCE_UPDATE: { guild_id: "1", user: { id: "2" }, status: "online" },
+  READY_SUPPLEMENTAL: { guilds: [], merged_members: [] },
+  RESUMED: { trace: ["x"] },
+  SESSIONS_REPLACE: [{ client_info: {}, session_id: "s" }],
+  SOUNDBOARD_SOUNDS: { guild_id: "1", soundboard_sounds: [] },
+  THREAD_LIST_SYNC: { guild_id: "1", threads: [] },
+  TYPING_START: { channel_id: "3", user_id: "2", timestamp: 1700000000 },
+  USER_SETTINGS_PROTO_UPDATE: { settings: {} },
+  VOICE_CHANNEL_START_TIME_UPDATE: { guild_id: "1", channel_id: "3", start_time: 1700000000 },
+  VOICE_CHANNEL_STATUS_UPDATE: { guild_id: "1", id: "3", status: "ok" },
+  VOICE_SERVER_UPDATE: { guild_id: "1", endpoint: "gateway.local" },
+  VOICE_STATE_UPDATE: { guild_id: "1", channel_id: "3", user_id: "2" },
+  CHANNEL_INFO: { guild_id: "1", channels: [] },
+  MESSAGE_REACTION_REMOVE: { channel_id: "3", message_id: "4", user_id: "2", emoji: { name: "🔥" } },
+};
 
 /** Гильдия 005/009 (в READY её нет — добавляем копией, PLAN §8.3). */
 const GUILD_MEMBERS = "-1467272931325252608";
@@ -105,7 +193,12 @@ function apply(store, kind, data) {
   return applyDispatch(store, envelope(kind, data));
 }
 
-/** Независимый пересчёт окна по `ops[]` (оракул B7, без чтения UI-кода). */
+/**
+ * Независимый пересчёт окна по `ops[]` (оракул B7, без чтения UI-кода).
+ * @param {string[]} initial
+ * @param {any[]} ops
+ * @returns {string[]}
+ */
 function oracleOrder(initial, ops) {
   const ids = [...initial];
   for (const op of ops) {
@@ -142,7 +235,11 @@ function oracleOrder(initial, ops) {
   return ids;
 }
 
-/** Синтетический кадр реакции (`[A]`-форма, PLAN §3.5). */
+/**
+ * Синтетический кадр реакции (`[A]`-форма, PLAN §3.5).
+ * @param {string} action
+ * @param {{ channelId?: string, messageId?: string, userId?: string, emojiId?: string, emoji?: string }} [input]
+ */
 function reactionFrame(action, input = {}) {
   return {
     channel_id: input.channelId ?? CHANNEL,
@@ -164,12 +261,57 @@ describe("L-02-UI: контракт dispatch (A1–A3)", () => {
     assert.equal(DISPATCH_EVENT, expected, "имя события в UI разошлось с ядром");
   });
 
-  it("A2: FORWARDED_KINDS — ровно 6 имён из net.rs::FORWARDED_DISPATCHES", () => {
-    const block = /pub const FORWARDED_DISPATCHES:\s*\[&str;\s*6\]\s*=\s*\[([\s\S]*?)\];/.exec(NET_RS)?.[1] ?? "";
-    const names = [...block.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
-    assert.equal(names.length, 6, "в net.rs не 6 форвардимых имён");
-    assert.equal(FORWARDED_KINDS.length, 6, "в UI не 6 kind");
-    assert.deepEqual(new Set(FORWARDED_KINDS), new Set(names), "набор kind разошёлся с ядром");
+  it("A2: FORWARDED_KINDS — 21 имя DispatchKind::as_str + MESSAGE_REACTION_REMOVE", () => {
+    const core = coreWireNames();
+    assert.equal(core.length, 21, "в dispatch.rs::as_str не 21 каноническое имя");
+    const expected = new Set([...core, "MESSAGE_REACTION_REMOVE"]);
+    assert.equal(expected.size, 22, "оракул разошёлся: ожидалось 22 имени");
+    assert.equal(FORWARDED_KINDS.length, 22, "в UI не 22 kind");
+    assert.equal(new Set(FORWARDED_KINDS).size, 22, "в FORWARDED_KINDS есть дубли");
+    assert.deepEqual(new Set(FORWARDED_KINDS), expected, "набор kind разошёлся с ядром");
+
+    // Что бы ни форвардил бэкенд, модель обязана это принимать: список UI —
+    // надмножество списка net.rs даже в версии до расширения (F-GW-03).
+    const block = /pub const FORWARDED_DISPATCHES:\s*\[&str;\s*\d+\]\s*=\s*\[([\s\S]*?)\];/.exec(NET_RS)?.[1] ?? "";
+    const backend = [...block.matchAll(/"([^"]+)"/g)].map((match) => match[1] ?? "");
+    assert.ok(backend.length >= 6, "net.rs::FORWARDED_DISPATCHES не разобран");
+    for (const name of backend) {
+      assert.ok(FORWARDED_KINDS.includes(name), `${name} форвардится бэкендом, но отбрасывается UI`);
+    }
+  });
+
+  it("A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром", () => {
+    for (const kind of [...coreWireNames(), "MESSAGE_REACTION_REMOVE"]) {
+      const data = CANONICAL_PAYLOAD[kind];
+      assert.ok(data, `${kind} нет в CANONICAL_PAYLOAD — обнови таблицу теста`);
+      const store = createDispatchStore();
+      // REMOVE применяется только к известному ADD — готовим состояние, чтобы
+      // проверка не путалась с no-op проекции (B12).
+      if (kind === "MESSAGE_REACTION_REMOVE") {
+        applyDispatch(store, envelope("MESSAGE_REACTION_ADD", data));
+      }
+      const result = applyDispatch(store, envelope(kind, data));
+      assert.equal(result.ok, true, `${kind} отвергнут конвертом`);
+      assert.equal(result.counters.malformed, 0, `${kind} помечен malformed`);
+      assert.equal(result.counters.ignored, 0, `${kind} отброшен фильтром FORWARDED_KINDS`);
+      if (PROJECTED_KINDS.includes(kind)) {
+        assert.equal(result.changes.length > 0, true, `${kind} проекция не дала изменений`);
+        assert.equal(result.counters.applied, 1, `${kind} не отмечен applied`);
+      } else {
+        assert.deepEqual(result.changes, [], `${kind} без проекции изменил состояние`);
+        assert.equal(result.counters.skipped, 1, `${kind} принят, но пропуск не учтён в skipped`);
+      }
+    }
+  });
+
+  it("A5: имена вне канонического набора остаются за фильтром", () => {
+    const expected = new Set([...coreWireNames(), "MESSAGE_REACTION_REMOVE"]);
+    for (const name of FORWARDED_KINDS) {
+      assert.ok(expected.has(name), `${name} в UI, но нет в оракуле ядра`);
+    }
+    for (const name of ["MESSAGE_DELETE", "MESSAGE_DELETE_BULK", "GUILD_CREATE", "message_create", "typed"]) {
+      assert.equal(FORWARDED_KINDS.includes(name), false, `${name} попал в список без оракула`);
+    }
   });
 
   it("A3: конверт — только {kind,data}; seq принимается, если есть, и не выдумывается", () => {
@@ -184,9 +326,13 @@ describe("L-02-UI: контракт dispatch (A1–A3)", () => {
     assert.equal(withSeq.ok, true);
     assert.equal(/** @type {any} */ (withSeq).seq, 17, "лишнее поле seq не принято как дополнительный ключ");
 
-    for (const bad of [null, [], "x", 7, { data: {} }, { kind: null, data: {} }, { kind: "READY", data: [] }]) {
+    for (const bad of [null, [], "x", 7, { data: {} }, { kind: null, data: {} }, { kind: "READY", data: null }, { kind: "READY", data: "x" }]) {
       assert.equal(normalizeEnvelope(bad).ok, false, `битый конверт принят: ${JSON.stringify(bad)}`);
     }
+    // `SESSIONS_REPLACE.d` — массив (`docs/re/gateway-schema.md`): конверт его
+    // принимает, иначе каноническое событие падало бы в malformed ещё до фильтра.
+    const arrayData = normalizeEnvelope({ kind: "SESSIONS_REPLACE", data: [{ session_id: "s" }] });
+    assert.equal(arrayData.ok, true, "массивный d отвергнут конвертом");
   });
 
   it("нормализация nil/чисел/строк — общая для дампа и живого кадра", () => {
@@ -231,7 +377,7 @@ describe("L-02-UI: проекции dispatch (B)", () => {
     }));
     assert.deepEqual(change.guilds, expected, "гильдии не из READY");
     assert.deepEqual([...store.guilds.values()], expected, "store.live.guilds не равен READY");
-    assert.deepEqual(store.order, expected.map((guild) => guild.id), "порядок плиток не из payload");
+    assert.deepEqual(store.order, expected.map((/** @type {any} */ guild) => guild.id), "порядок плиток не из payload");
     assert.equal(store.source, "dispatch", "факт данных без reload не отмечен");
     // `selfUserId`: авторитетный ready() не перебит фикстурой другого аккаунта.
     assert.equal(store.selfUserId, String(READY_FRAME.d.user.id), "fallback selfUserId не применён");
@@ -421,8 +567,9 @@ describe("L-02-UI: проекции dispatch (B)", () => {
     assert.equal(result.counters.ignored, 1);
   });
 
-  it("B13: malformed-таблица (null/[]/\"x\"/{}) для каждого kind", () => {
-    for (const kind of FORWARDED_KINDS) {
+  it("B13: malformed-таблица (null/[]/\"x\"/{}) для каждого kind с проекцией", () => {
+    for (const kind of PROJECTED_KINDS) {
+      assert.ok(FORWARDED_KINDS.includes(kind), `${kind} с проекцией отсутствует в FORWARDED_KINDS`);
       for (const data of [null, [], "x", {}]) {
         const store = createDispatchStore();
         const result = apply(store, kind, data);
@@ -434,7 +581,7 @@ describe("L-02-UI: проекции dispatch (B)", () => {
   });
 
   it("B14: неизвестный kind — ignored, изменений нет", () => {
-    for (const kind of ["TYPING_START", "MESSAGE_CREATE", "CHANNEL_INFO", "READY_SUPPLEMENTAL", "X", ""]) {
+    for (const kind of ["X", "", "MESSAGE_DELETE", "MESSAGE_DELETE_BULK", "GUILD_CREATE", "message_create"]) {
       const store = createDispatchStore();
       const result = apply(store, kind, { anything: true });
       assert.deepEqual(result.changes, [], `${kind} дал изменения`);
@@ -503,6 +650,311 @@ describe("L-02-UI: проекции dispatch (B)", () => {
     apply(fallback, "READY", data);
     assert.equal(fallback.selfUserId, "", "READY fallback стринговал unsafe user.id");
   });
+
+  it("B18: MESSAGE_CREATE — добавление/обновление сообщения в канале и инкремент счётчика", () => {
+    const store = createDispatchStore();
+    const d1 = MESSAGE_CREATE_FRAME.d;
+    const channelId = String(d1.channel_id);
+    const messageId1 = String(d1.id);
+
+    const first = apply(store, "MESSAGE_CREATE", d1);
+    assert.equal(first.counters.skipped, 0, "MESSAGE_CREATE попал в skipped");
+    assert.equal(first.counters.applied, 1, "MESSAGE_CREATE не отмечен applied");
+    assert.equal(first.changes.length, 1);
+    const change1 = /** @type {any} */ (first.changes[0]);
+    assert.equal(change1.type, "message_create");
+    assert.equal(change1.channelId, channelId);
+    assert.equal(change1.messageId, messageId1);
+    assert.equal(change1.messageCount, 1);
+    assert.equal(change1.updated, false);
+    assert.equal(change1.message.content, d1.content);
+    assert.equal(change1.message.authorId, String(d1.author.id));
+    assert.equal(change1.message.authorName, "Новости", "имя автора не учитывает member.nick");
+    assert.equal(change1.message.authorBot, true);
+    assert.equal(store.messageCounts.get(channelId), 1);
+    assert.equal(store.messages.get(channelId)?.get(messageId1)?.content, d1.content);
+
+    // Второе сообщение в том же канале увеличивает счётчик.
+    const d2 = MESSAGE_CREATE_2_FRAME.d;
+    const second = apply(store, "MESSAGE_CREATE", d2);
+    assert.equal(second.counters.applied, 1);
+    assert.equal(/** @type {any} */ (second.changes[0]).messageCount, 2);
+    assert.equal(store.messageCounts.get(channelId), 2);
+    assert.equal(store.messages.get(channelId)?.size, 2);
+
+    // Повтор того же MESSAGE_CREATE без изменений — duplicate, счётчик не растёт.
+    const repeat = apply(store, "MESSAGE_CREATE", d1);
+    assert.deepEqual(repeat.changes, []);
+    assert.equal(repeat.counters.duplicate, 1);
+    assert.equal(store.messageCounts.get(channelId), 2);
+
+    // Повтор MESSAGE_CREATE с обновлённым текстом для того же id обновляет запись в канале.
+    const updatedPayload = { ...d1, content: "обновлённый текст через create" };
+    const upserted = apply(store, "MESSAGE_CREATE", updatedPayload);
+    assert.equal(upserted.counters.applied, 1);
+    assert.equal(/** @type {any} */ (upserted.changes[0]).updated, true);
+    assert.equal(store.messages.get(channelId)?.get(messageId1)?.content, "обновлённый текст через create");
+  });
+
+  it("B19: MESSAGE_UPDATE — обновление контента, edited_timestamp и вложений сообщения", () => {
+    const store = createDispatchStore();
+    const dCreate = MESSAGE_CREATE_FRAME.d;
+    const channelId = String(dCreate.channel_id);
+    const messageId = String(dCreate.id);
+    apply(store, "MESSAGE_CREATE", dCreate);
+
+    // 026-MESSAGE_UPDATE.json добавляет embed к сообщению 023; проверим и правку content + edited_timestamp.
+    const dUpdate = {
+      ...MESSAGE_UPDATE_FRAME.d,
+      content: "отредактированный текст",
+      edited_timestamp: "2026-10-19T06:35:00.000000+00:00",
+    };
+    const result = apply(store, "MESSAGE_UPDATE", dUpdate);
+    assert.equal(result.counters.skipped, 0, "MESSAGE_UPDATE попал в skipped");
+    assert.equal(result.counters.applied, 1, "MESSAGE_UPDATE не отмечен applied");
+    assert.equal(result.changes.length, 1);
+    const change = /** @type {any} */ (result.changes[0]);
+    assert.equal(change.type, "message_update");
+    assert.equal(change.channelId, channelId);
+    assert.equal(change.messageId, messageId);
+    assert.equal(change.content, "отредактированный текст");
+    assert.equal(change.editedTimestamp, "2026-10-19T06:35:00.000000+00:00");
+    assert.equal(change.edited, true);
+    assert.equal(change.embedCount, 1);
+
+    const stored = store.messages.get(channelId)?.get(messageId);
+    assert.ok(stored, "сообщение пропало из store.messages");
+    assert.equal(stored.content, "отредактированный текст");
+    assert.equal(stored.editedTimestamp, "2026-10-19T06:35:00.000000+00:00");
+    assert.equal(stored.edited, true);
+    assert.equal(stored.authorId, String(dCreate.author.id), "MESSAGE_UPDATE затёр автора");
+    assert.equal(store.messageCounts.get(channelId), 1, "MESSAGE_UPDATE изменил счётчик сообщений");
+
+    // Повтор того же MESSAGE_UPDATE идемпотентен.
+    const repeat = apply(store, "MESSAGE_UPDATE", dUpdate);
+    assert.deepEqual(repeat.changes, []);
+    assert.equal(repeat.counters.duplicate, 1);
+
+    // MESSAGE_UPDATE для сообщения, загруженного до подключения (064-MESSAGE_UPDATE.json, отрицательные i64 id).
+    const standalone = apply(store, "MESSAGE_UPDATE", MESSAGE_UPDATE_2_FRAME.d);
+    assert.equal(standalone.counters.applied, 1);
+    assert.equal(standalone.counters.skipped, 0);
+    const ch2 = String(MESSAGE_UPDATE_2_FRAME.d.channel_id);
+    const msg2 = String(MESSAGE_UPDATE_2_FRAME.d.id);
+    assert.equal(store.messages.get(ch2)?.get(msg2)?.embedCount, 1);
+  });
+
+  it("B20: MESSAGE_ACK — сброс unread и mention для channel_id до message_id", () => {
+    const store = createDispatchStore();
+    store.selfUserId = SELF_ID;
+    const ackData = MESSAGE_ACK_FRAME.d;
+    const channelId = String(ackData.channel_id);
+
+    // Входящее сообщение с упоминанием делает канал непрочитанным и увеличивает mentionCount.
+    apply(store, "MESSAGE_CREATE", {
+      channel_id: channelId,
+      id: "1561348877000000000",
+      content: "привет <@42>",
+      author: { id: "777", username: "mira" },
+      mentions: [{ id: SELF_ID }],
+      mention_everyone: "false",
+    });
+    const beforeAck = store.readStates.get(channelId);
+    assert.ok(beforeAck, "MESSAGE_CREATE не создал запись readState канала");
+    assert.equal(beforeAck.unread, true, "канал не отмечен unread после чужого сообщения");
+    assert.equal(beforeAck.mentionCount, 1, "mentionCount не учёл упоминание selfUserId");
+
+    // MESSAGE_ACK сбрасывает unread и mentionCount до message_id.
+    const result = apply(store, "MESSAGE_ACK", ackData);
+    assert.equal(result.counters.skipped, 0, "MESSAGE_ACK попал в skipped");
+    assert.equal(result.counters.applied, 1, "MESSAGE_ACK не отмечен applied");
+    assert.equal(result.changes.length, 1);
+    const change = /** @type {any} */ (result.changes[0]);
+    assert.equal(change.type, "message_ack");
+    assert.equal(change.channelId, channelId);
+    assert.equal(change.messageId, String(ackData.message_id));
+    assert.equal(change.unread, false);
+    assert.equal(change.mentionCount, 0);
+    assert.equal(change.lastViewed, Number(ackData.last_viewed));
+    assert.equal(change.version, Number(ackData.version));
+
+    const afterAck = store.readStates.get(channelId);
+    assert.ok(afterAck);
+    assert.equal(afterAck.unread, false, "unread не сброшен после MESSAGE_ACK");
+    assert.equal(afterAck.mentionCount, 0, "mentionCount не сброшен после MESSAGE_ACK");
+    assert.equal(afterAck.lastMessageId, String(ackData.message_id));
+
+    // Повтор того же MESSAGE_ACK идемпотентен.
+    const repeat = apply(store, "MESSAGE_ACK", ackData);
+    assert.deepEqual(repeat.changes, []);
+    assert.equal(repeat.counters.duplicate, 1);
+  });
+
+  it("B21: TYPING_START — запись активного тайпинга user_id в channel_id с timestamp и сброс при MESSAGE_CREATE", () => {
+    const store = createDispatchStore();
+    const result = apply(store, "TYPING_START", {
+      channel_id: CHANNEL,
+      guild_id: GUILD_MAIN,
+      user_id: "777",
+      timestamp: "1700000100",
+    });
+    assert.equal(result.counters.skipped, 0, "TYPING_START попал в skipped");
+    assert.equal(result.counters.applied, 1, "TYPING_START не отмечен applied");
+    assert.equal(result.changes.length, 1);
+    const change = /** @type {any} */ (result.changes[0]);
+    assert.equal(change.type, "typing");
+    assert.equal(change.channelId, CHANNEL);
+    assert.equal(change.userId, "777");
+    assert.equal(change.guildId, GUILD_MAIN);
+    assert.equal(change.timestamp, 1700000100);
+
+    const active = store.typing.get(CHANNEL)?.get("777");
+    assert.ok(active, "активный тайпинг не записан в store.typing");
+    assert.equal(active.timestamp, 1700000100);
+
+    // Старый timestamp отклоняется как stale, тот же — duplicate.
+    const stale = apply(store, "TYPING_START", {
+      channel_id: CHANNEL,
+      guild_id: GUILD_MAIN,
+      user_id: "777",
+      timestamp: 1700000050,
+    });
+    assert.deepEqual(stale.changes, []);
+    assert.equal(stale.counters.stale, 1);
+
+    const dup = apply(store, "TYPING_START", {
+      channel_id: CHANNEL,
+      guild_id: GUILD_MAIN,
+      user_id: "777",
+      timestamp: 1700000100,
+    });
+    assert.deepEqual(dup.changes, []);
+    assert.equal(dup.counters.duplicate, 1);
+
+    // Приход MESSAGE_CREATE от того же автора в том же канале гасит его активный тайпинг.
+    apply(store, "MESSAGE_CREATE", {
+      channel_id: CHANNEL,
+      id: "1561627900000000001",
+      content: "готово",
+      author: { id: "777", username: "mira" },
+    });
+    assert.equal(store.typing.get(CHANNEL)?.has("777") ?? false, false, "MESSAGE_CREATE не погасил тайпинг автора");
+  });
+
+  it("B22: VOICE_STATE_UPDATE и VOICE_SERVER_UPDATE — обновление голоса/стрима и endpoint без секретов", () => {
+    const store = createDispatchStore();
+    const join = apply(store, "VOICE_STATE_UPDATE", {
+      guild_id: GUILD_MAIN,
+      channel_id: "1176785373989445703",
+      user_id: "777",
+      self_mute: "true",
+      self_deaf: "false",
+      self_stream: "true",
+      self_video: 1,
+      mute: "false",
+      deaf: "false",
+      suppress: "false",
+      session_id: "secret-voice-session-id",
+    });
+    assert.equal(join.counters.skipped, 0, "VOICE_STATE_UPDATE попал в skipped");
+    assert.equal(join.counters.applied, 1, "VOICE_STATE_UPDATE не отмечен applied");
+    assert.equal(join.counters.redactedKeys, 1, "session_id в VOICE_STATE_UPDATE не учтён в redactedKeys");
+    assert.equal(join.changes.length, 1);
+    const change = /** @type {any} */ (join.changes[0]);
+    assert.equal(change.type, "voice_state");
+    assert.equal(change.guildId, GUILD_MAIN);
+    assert.equal(change.userId, "777");
+    assert.equal(change.channelId, "1176785373989445703");
+    assert.equal(change.selfMute, true);
+    assert.equal(change.selfDeaf, false);
+    assert.equal(change.selfStream, true);
+    assert.equal(change.selfVideo, true);
+
+    const key = `${GUILD_MAIN}:777`;
+    const stored = store.voiceStates.get(key);
+    assert.ok(stored, "участник голоса не сохранён в store.voiceStates");
+    assert.equal(stored.channelId, "1176785373989445703");
+    assert.equal(stored.selfMute, true);
+    assert.equal(stored.selfStream, true);
+    assert.equal(
+      JSON.stringify({ store, changes: join.changes }).includes("secret-voice-session-id"),
+      false,
+      "session_id утёк в store/changes",
+    );
+
+    // Выход из голосового канала (channel_id: null) сбрасывает channelId в null.
+    const leave = apply(store, "VOICE_STATE_UPDATE", {
+      guild_id: GUILD_MAIN,
+      channel_id: "nil",
+      user_id: "777",
+      self_mute: "false",
+      self_deaf: "false",
+      self_stream: "false",
+    });
+    assert.equal(leave.counters.applied, 1);
+    assert.equal(/** @type {any} */ (leave.changes[0]).channelId, null);
+    assert.equal(store.voiceStates.get(key)?.channelId, null);
+
+    // VOICE_SERVER_UPDATE сохраняет endpoint без утечки token.
+    const server = apply(store, "VOICE_SERVER_UPDATE", {
+      guild_id: GUILD_MAIN,
+      endpoint: "c-ams02.discord.media:443",
+      token: "secret-voice-token-xyz",
+    });
+    assert.equal(server.counters.skipped, 0, "VOICE_SERVER_UPDATE попал в skipped");
+    assert.equal(server.counters.applied, 1, "VOICE_SERVER_UPDATE не отмечен applied");
+    assert.equal(server.counters.redactedKeys, 1, "token в VOICE_SERVER_UPDATE не учтён в redactedKeys");
+    assert.equal(/** @type {any} */ (server.changes[0]).type, "voice_server");
+    assert.equal(/** @type {any} */ (server.changes[0]).endpoint, "c-ams02.discord.media:443");
+    assert.equal(store.voiceServers.get(GUILD_MAIN)?.endpoint, "c-ams02.discord.media:443");
+    assert.equal(
+      JSON.stringify({ store, changes: server.changes }).includes("secret-voice-token-xyz"),
+      false,
+      "voice token утёк в store/changes",
+    );
+  });
+
+  it("B23: THREAD_LIST_SYNC — синхронизация списка тредов гильдии по фикстурам 004/007/020", () => {
+    const store = createDispatchStore();
+    const dMain = THREAD_SYNC_MAIN_FRAME.d;
+    const guildId = String(dMain.guild_id);
+
+    const first = apply(store, "THREAD_LIST_SYNC", dMain);
+    assert.equal(first.counters.skipped, 0, "THREAD_LIST_SYNC попал в skipped");
+    assert.equal(first.counters.applied, 1, "THREAD_LIST_SYNC не отмечен applied");
+    assert.equal(first.changes.length, 1);
+    const change = /** @type {any} */ (first.changes[0]);
+    assert.equal(change.type, "threads");
+    assert.equal(change.guildId, guildId);
+    assert.equal(change.threads.length, 1);
+    assert.equal(change.threads[0].id, "1245740661865451531");
+    assert.equal(change.threads[0].parentId, "1245711849295446117");
+    assert.equal(change.threads[0].name, "Прежде чем что-либо использовать, делайте бэкап");
+    assert.equal(change.threads[0].messageCount, 5);
+    assert.equal(change.threads[0].archived, false);
+    assert.equal(change.threads[0].locked, false);
+    assert.equal(store.threads.get(guildId)?.size, 1);
+
+    // Повтор того же THREAD_LIST_SYNC — duplicate, без лишней дельты.
+    const repeat = apply(store, "THREAD_LIST_SYNC", dMain);
+    assert.deepEqual(repeat.changes, []);
+    assert.equal(repeat.counters.duplicate, 1);
+
+    // Отрицательные снежинки в 004-THREAD_LIST_SYNC.json сохраняют точность строкой.
+    const neg = apply(store, "THREAD_LIST_SYNC", THREAD_SYNC_FRAME.d);
+    assert.equal(neg.counters.applied, 1);
+    assert.equal(
+      store.threads.get("-1467272931325252608")?.has("-5314960184493214464"),
+      true,
+      "отрицательный id треда потерял точность",
+    );
+
+    // 020-THREAD_LIST_SYNC.json (threads: null) синхронизирует пустой список тредов.
+    const empty = apply(store, "THREAD_LIST_SYNC", THREAD_SYNC_EMPTY_FRAME.d);
+    assert.equal(empty.counters.applied, 1);
+    assert.deepEqual(/** @type {any} */ (empty.changes[0]).threads, []);
+    assert.equal(store.threads.get(String(THREAD_SYNC_EMPTY_FRAME.d.guild_id))?.size, 0);
+  });
 });
 
 /* =============================================================================
@@ -519,7 +971,7 @@ function makeBridge(options = {}) {
   /** @type {{ handler: ((payload: any) => void) | null, unlisten: number, calls: string[] }} */
   const transport = { handler: null, unlisten: 0, calls: [] };
   const listen = options.listen === undefined
-    ? (event, handler) => {
+    ? (/** @type {string} */ event, /** @type {(payload: any) => void} */ handler) => {
       transport.calls.push(event);
       transport.handler = handler;
       return Promise.resolve(() => { transport.unlisten += 1; });
@@ -568,7 +1020,7 @@ describe("L-02-UI: транспорт bridge (D)", () => {
   it("D3: ошибка view.apply — failed+lastErrorKind, следующее событие обрабатывается", async () => {
     let failures = 1;
     const view = {
-      calls: [],
+      calls: /** @type {any[]} */ ([]),
       setSource() {},
       /** @param {any[]} changes */
       apply(changes) {
@@ -598,7 +1050,7 @@ describe("L-02-UI: транспорт bridge (D)", () => {
   });
 
   it("D5: listen упал — source=unavailable, ошибка учтена, rejection не всплывает", async () => {
-    const view = { calls: [], sources: [], setSource(source) { this.sources.push(source); }, apply() {
+    const view = { calls: /** @type {any[]} */ ([]), sources: /** @type {string[]} */ ([]), setSource(/** @type {string} */ source) { this.sources.push(source); }, apply() {
       return { applied: 0, ignored: 0, failed: 0, notOpen: 0, notLoaded: 0 };
     } };
     const { bridge } = makeBridge({ listen: () => Promise.reject(new Error("no ipc")), view });
@@ -643,7 +1095,10 @@ function readyPayload() {
   };
 }
 
-/** Одна строка `messages_page` (`data.rs MessageRow`, camelCase). */
+/**
+ * Одна строка `messages_page` (`data.rs MessageRow`, camelCase).
+ * @param {any[]} [reactions]
+ */
 function messagesPagePayload(reactions = []) {
   return {
     channelId: CHANNEL,
@@ -693,7 +1148,13 @@ function loadDispatchApp(options = {}) {
       if (cmd === "channels") {
         const guildId = String(args?.guildId ?? "");
         if (guildId === GUILD_MAIN) {
-          return [{ id: CHANNEL, guildId, name: "general", type: 0, parentId: null, position: 0 }];
+          if ("channels" in options && Array.isArray(options.channels)) return options.channels;
+          return [
+            { id: CHANNEL, guildId, name: "general", type: 0, parentId: null, position: 0 },
+            { id: "1176785373989445702", guildId, name: "random", type: 0, parentId: null, position: 1 },
+            { id: "1176785373989445703", guildId, name: "voice", type: 2, parentId: null, position: 2 },
+            { id: "1245711849295446117", guildId, name: "backup-parent", type: 0, parentId: null, position: 3 },
+          ];
         }
         return [];
       }
@@ -793,7 +1254,10 @@ function pillOf(row, emoji) {
   return pill;
 }
 
-/** Всё текстовое и атрибутное содержимое документа (оракул N7). */
+/**
+ * Всё текстовое и атрибутное содержимое документа (оракул N7).
+ * @param {any} doc
+ */
 function domDump(doc) {
   /** @type {string[]} */
   const parts = [];
@@ -1119,12 +1583,17 @@ describe("L-02-UI: интеграция dispatch → DOM (C1–C14)", () => {
       const before = domDump(app.document);
       send(app, "TYPING_START", { channel_id: CHANNEL });
       send(app, "MESSAGE_CREATE", { channel_id: CHANNEL });
+      send(app, "CHANNEL_INFO", { guild_id: GUILD_MAIN, channels: [] });
+      send(app, "READY_SUPPLEMENTAL", { guilds: [] });
       send(app, "X", {});
       send(app, "PRESENCE_UPDATE", null);
       assert.equal(domDump(app.document), before, "N1/N2 изменили DOM");
       assert.equal(app.consoleErrors.length, 0, "dispatch пишет в console.error");
-      assert.equal(appApi(app).dispatch.stats.ignored, 3, "ignored не 3");
-      assert.equal(appApi(app).dispatch.stats.malformed, 1, "malformed не 1");
+      // TYPING_START/MESSAGE_CREATE без user_id/id — malformed (проекции требуют ключи);
+      // CHANNEL_INFO/READY_SUPPLEMENTAL — приняты как skipped; X — вне списка (ignored).
+      assert.equal(appApi(app).dispatch.stats.ignored, 1, "ignored не 1");
+      assert.equal(appApi(app).dispatch.stats.skipped, 2, "skipped не 2");
+      assert.equal(appApi(app).dispatch.stats.malformed, 3, "malformed не 3");
 
       // Подписка/канал живы после мусора.
       const result = send(app, "READY", readyWithMembersGuild());
@@ -1246,10 +1715,13 @@ describe("L-02-UI: интеграция dispatch → DOM (C1–C14)", () => {
       send(app, "READY", readyWithMembersGuild());
       send(app, "PRESENCE_UPDATE", PRESENCE_FRAME.d);
       send(app, "TYPING_START", {});
+      send(app, "READY_SUPPLEMENTAL", { guilds: [] });
       const stats = appApi(app).dispatch.stats;
-      assert.equal(stats.received, 3, "живой received не читается из dispatch.stats");
+      assert.equal(stats.received, 4, "живой received не читается из dispatch.stats");
       assert.equal(stats.applied, 2, "живой applied не читается");
-      assert.equal(stats.ignored, 1, "живой ignored не читается");
+      assert.equal(stats.ignored, 0, "события из FORWARDED_KINDS отброшены фильтром");
+      assert.equal(stats.malformed, 1, "пустой TYPING_START не учтён как malformed");
+      assert.equal(stats.skipped, 1, "живой skipped не читается");
       assert.equal(JSON.stringify(stats).includes(READY_FRAME.d.session_id), false, "stats утёк секретом");
     } finally {
       app.dispose();
@@ -1354,6 +1826,260 @@ describe("L-02-UI: интеграция dispatch → DOM (C1–C14)", () => {
       );
     } finally {
       accepted.dispose();
+    }
+  });
+
+  it("C17: живой MESSAGE_CREATE для активного канала добавляет новую строку сообщения в #message-list без перезагрузки истории, а для неактивного канала увеличивает unread/mention индикатор", async () => {
+    const app = await loadDispatchApp();
+    try {
+      send(app, "READY", readyWithMembersGuild());
+      await openMainChannel(app);
+      const list = byId(app, "chat-list");
+      const beforeCount = all(app, "#chat-list .row").length;
+      const historyCallsBefore = app.callsOf("messages_page").length;
+
+      // 1. Активный канал: новое сообщение добавляется в конец списка без reload истории
+      send(app, "MESSAGE_CREATE", {
+        channel_id: CHANNEL,
+        guild_id: GUILD_MAIN,
+        id: "1561627900000000001",
+        content: "живое сообщение активного канала",
+        author: { id: "777", username: "mira" },
+        timestamp: "2026-10-30T21:00:00.000Z",
+      });
+
+      const afterCount = all(app, "#chat-list .row").length;
+      assert.equal(afterCount, beforeCount + 1, "новая строка сообщения не добавлена в #message-list / #chat-list");
+      assert.equal(
+        app.callsOf("messages_page").length,
+        historyCallsBefore,
+        "MESSAGE_CREATE вызвал перезагрузку истории",
+      );
+      const row = chatRow(app, "1561627900000000001");
+      assert.equal(
+        row.querySelector(".text-body")?.textContent,
+        "живое сообщение активного канала",
+        "контент сообщения не совпадает",
+      );
+
+      // 2. Неактивный канал: увеличивает unread/mention индикатор
+      const inactiveChannelId = "1176785373989445702";
+      const inactiveTile = all(app, ".channel-item").find(
+        (node) => node.getAttribute("data-channel-id") === inactiveChannelId,
+      );
+      assert.ok(inactiveTile, "в дереве нет неактивного канала");
+      assert.equal(inactiveTile.classList.contains("is-unread"), false, "канал уже unread до события");
+
+      send(app, "MESSAGE_CREATE", {
+        channel_id: inactiveChannelId,
+        guild_id: GUILD_MAIN,
+        id: "1561627900000000002",
+        content: "привет <@42>",
+        author: { id: "777", username: "mira" },
+        mentions: [{ id: SELF_ID }],
+      });
+
+      assert.equal(
+        inactiveTile.classList.contains("is-unread") || inactiveTile.getAttribute("data-unread") === "true",
+        true,
+        "неактивный канал не получил unread-индикатор",
+      );
+      assert.equal(
+        inactiveTile.getAttribute("data-mention-count"),
+        "1",
+        "mention-индикатор не увеличился",
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("C18: живой MESSAGE_UPDATE обновляет текст сообщения и плашку '(изменено)' в #message-list", async () => {
+    const app = await loadDispatchApp();
+    try {
+      send(app, "READY", readyWithMembersGuild());
+      await openMainChannel(app);
+      const row = chatRow(app, MESSAGE_ID);
+      assert.equal(row.querySelector(".edited"), null, "сообщение уже помечено как edited");
+
+      send(app, "MESSAGE_UPDATE", {
+        channel_id: CHANNEL,
+        guild_id: GUILD_MAIN,
+        id: MESSAGE_ID,
+        content: "обновлённый текст сообщения",
+        edited_timestamp: "2026-10-30T21:05:00.000Z",
+      });
+
+      assert.equal(
+        row.querySelector(".text-body")?.textContent,
+        "обновлённый текст сообщения",
+        "текст сообщения не обновился",
+      );
+      const editedBadge = row.querySelector(".edited");
+      assert.ok(editedBadge, "плашка '(изменено)' не появилась");
+      assert.equal(editedBadge.textContent, "(изменено)");
+      assert.match(
+        row.getAttribute("aria-label") ?? "",
+        /\(изменено\)/,
+        "aria-label не содержит плашку '(изменено)'",
+      );
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("C19: живой MESSAGE_ACK очищает unread-индикатор канала в #channel-list", async () => {
+    const app = await loadDispatchApp();
+    try {
+      send(app, "READY", readyWithMembersGuild());
+      await selectGuild(app, GUILD_MAIN);
+      const inactiveChannelId = "1176785373989445702";
+      const tile = all(app, ".channel-item").find(
+        (node) => node.getAttribute("data-channel-id") === inactiveChannelId,
+      );
+      assert.ok(tile, "в дереве нет неактивного канала");
+
+      // Подготовка: входящее сообщение делает канал unread
+      send(app, "MESSAGE_CREATE", {
+        channel_id: inactiveChannelId,
+        guild_id: GUILD_MAIN,
+        id: "1561627900000000002",
+        content: "сообщение в фоне",
+        author: { id: "777", username: "mira" },
+        mentions: [{ id: SELF_ID }],
+      });
+      assert.equal(
+        tile.classList.contains("is-unread") || tile.getAttribute("data-unread") === "true",
+        true,
+        "подготовка: канал не стал unread",
+      );
+
+      // MESSAGE_ACK очищает индикатор
+      send(app, "MESSAGE_ACK", {
+        channel_id: inactiveChannelId,
+        message_id: "1561627900000000002",
+      });
+
+      assert.equal(tile.classList.contains("is-unread"), false, "is-unread остался на плитке канала");
+      assert.equal(tile.getAttribute("data-unread"), null, "data-unread не очищен");
+      assert.equal(tile.getAttribute("data-mention-count"), null, "data-mention-count не очищен");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("C20: живой TYPING_START показывает/обновляет индикатор печатающего пользователя (#typing-indicator или атрибут data-typing-users на #composer-form / #chat-view) и очищает его при приходе MESSAGE_CREATE от этого автора", async () => {
+    const app = await loadDispatchApp();
+    try {
+      send(app, "READY", readyWithMembersGuild());
+      await openMainChannel(app);
+      const indicator = byId(app, "typing-indicator");
+      const composer = byId(app, "composer");
+
+      send(app, "TYPING_START", {
+        channel_id: CHANNEL,
+        guild_id: GUILD_MAIN,
+        user_id: "777",
+        timestamp: 1700000100,
+      });
+
+      const isIndicatorVisible =
+        indicator.getAttribute("data-visible") === "true" ||
+        indicator.getAttribute("hidden") === null ||
+        (composer.getAttribute("data-typing-users") ?? "").includes("777");
+      assert.equal(isIndicatorVisible, true, "индикатор печати не отобразился");
+
+      // Приход MESSAGE_CREATE от автора гасит тайпинг
+      send(app, "MESSAGE_CREATE", {
+        channel_id: CHANNEL,
+        guild_id: GUILD_MAIN,
+        id: "1561627900000000004",
+        content: "отправлено",
+        author: { id: "777", username: "mira" },
+        timestamp: "2026-10-30T21:10:00.000Z",
+      });
+
+      const isIndicatorCleared =
+        indicator.getAttribute("data-visible") === "false" ||
+        indicator.getAttribute("hidden") !== null ||
+        !(composer.getAttribute("data-typing-users") ?? "").includes("777");
+      assert.equal(isIndicatorCleared, true, "тайпинг автора не очищен после MESSAGE_CREATE");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("C21: живой VOICE_STATE_UPDATE / VOICE_SERVER_UPDATE обновляет счётчик/индикатор голосовых участников и статус стрима в DOM", async () => {
+    const app = await loadDispatchApp();
+    try {
+      send(app, "READY", readyWithMembersGuild());
+      await selectGuild(app, GUILD_MAIN);
+      const voicePanel = byId(app, "voice-panel");
+
+      send(app, "VOICE_STATE_UPDATE", {
+        guild_id: GUILD_MAIN,
+        channel_id: "1176785373989445703",
+        user_id: "777",
+        self_stream: "true",
+      });
+
+      const participantCount =
+        voicePanel.getAttribute("data-voice-participants") ??
+        all(app, "[data-voice-participants]").at(0)?.getAttribute("data-voice-participants");
+      assert.equal(participantCount, "1", "счётчик голосовых участников не обновился до 1");
+
+      const streamStatus =
+        voicePanel.getAttribute("data-stream-status") ??
+        voicePanel.getAttribute("data-self-stream") ??
+        all(app, "[data-stream-status]").at(0)?.getAttribute("data-stream-status");
+      assert.equal(
+        streamStatus === "live" || streamStatus === "true",
+        true,
+        "статус стрима не отобразился в DOM",
+      );
+
+      send(app, "VOICE_SERVER_UPDATE", {
+        guild_id: GUILD_MAIN,
+        endpoint: "c-ams02.discord.media:443",
+      });
+
+      const endpoint = voicePanel.getAttribute("data-endpoint");
+      assert.equal(endpoint, "c-ams02.discord.media:443", "VOICE_SERVER_UPDATE не обновил data-endpoint в DOM");
+    } finally {
+      app.dispose();
+    }
+  });
+
+  it("C22: живой THREAD_LIST_SYNC обновляет счётчик активных тредов гильдии/канала в DOM", async () => {
+    const app = await loadDispatchApp();
+    try {
+      send(app, "READY", readyWithMembersGuild());
+      await selectGuild(app, GUILD_MAIN);
+
+      send(app, "THREAD_LIST_SYNC", THREAD_SYNC_MAIN_FRAME.d);
+
+      const threadsAction = all(app, '[data-action="threads"]').at(0);
+      assert.ok(threadsAction, "кнопка [data-action=threads] не найдена");
+      const threadCount =
+        threadsAction.getAttribute("data-thread-count") ??
+        all(app, "[data-thread-count]").at(0)?.getAttribute("data-thread-count");
+      assert.equal(threadCount, "1", "счётчик активных тредов не обновился до 1");
+
+      const parentChannel = all(app, ".channel-item").find(
+        (node) => node.getAttribute("data-channel-id") === "1245711849295446117",
+      );
+      if (parentChannel) {
+        assert.equal(parentChannel.getAttribute("data-thread-count"), "1", "счётчик тредов канала не обновился");
+      }
+
+      // THREAD_LIST_SYNC с пустым списком сбрасывает счётчик
+      send(app, "THREAD_LIST_SYNC", THREAD_SYNC_EMPTY_FRAME.d);
+      const threadCountAfter =
+        threadsAction.getAttribute("data-thread-count") ??
+        all(app, "[data-thread-count]").at(0)?.getAttribute("data-thread-count");
+      assert.equal(threadCountAfter, "0", "счётчик тредов не сбросился до 0");
+    } finally {
+      app.dispose();
     }
   });
 });

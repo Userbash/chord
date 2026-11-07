@@ -1,0 +1,65 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.94s
+     Running tests/pins_threads_contract.rs (/tmp/target-g1-pins/debug/deps/pins_threads_contract-5fe6d5921f88b1f1)
+
+running 6 tests
+test rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages ... FAILED
+test pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200 ... FAILED
+test list_channel_pins_gets_pins_endpoint_and_parses_pinned_messages ... FAILED
+test maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations ... FAILED
+test list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries ... FAILED
+test rejects_malformed_200_payloads_and_protects_token_in_debug ... FAILED
+
+failures:
+
+---- rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages stdout ----
+
+thread 'rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages' (382436) panicked at tests/pins_threads_contract.rs:473:9:
+assertion `left == right` failed: list_channel_pins bad_channel=""
+  left: Err(Network)
+ right: Err(InvalidChannelId)
+
+---- pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200 stdout ----
+
+thread 'pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200' (382435) panicked at tests/pins_threads_contract.rs:302:9:
+assertion `left == right` failed: pin free fn HTTP 204
+  left: Err(Network)
+ right: Ok(())
+
+---- list_channel_pins_gets_pins_endpoint_and_parses_pinned_messages stdout ----
+
+thread 'list_channel_pins_gets_pins_endpoint_and_parses_pinned_messages' (382432) panicked at tests/pins_threads_contract.rs:250:63:
+list_channel_pins free fn: Network
+
+---- maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations stdout ----
+
+thread 'maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations' (382434) panicked at tests/pins_threads_contract.rs:575:9:
+assertion `left == right` failed: list_channel_pins 429 retry-after=3
+  left: Err(Network)
+ right: Err(RateLimited { retry_after_ms: 3000 })
+
+---- list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries stdout ----
+
+thread 'list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries' (382433) panicked at tests/pins_threads_contract.rs:355:10:
+list_channel_threads active: Network
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rejects_malformed_200_payloads_and_protects_token_in_debug stdout ----
+
+thread 'rejects_malformed_200_payloads_and_protects_token_in_debug' (382437) panicked at tests/pins_threads_contract.rs:679:9:
+assertion `left == right` failed: bad_pins=[]
+  left: Err(Network)
+ right: Err(InvalidResponse)
+
+
+failures:
+    list_channel_pins_gets_pins_endpoint_and_parses_pinned_messages
+    list_channel_threads_routes_active_and_archived_public_and_parses_thread_summaries
+    maps_429_retry_after_ms_and_401_403_404_errors_across_all_operations
+    pin_and_unpin_channel_message_use_put_and_delete_on_pins_endpoint_and_accept_204_or_200
+    rejects_invalid_channel_id_and_message_id_before_any_transport_call_in_parity_with_messages
+    rejects_malformed_200_payloads_and_protects_token_in_debug
+
+test result: FAILED. 0 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test pins_threads_contract`

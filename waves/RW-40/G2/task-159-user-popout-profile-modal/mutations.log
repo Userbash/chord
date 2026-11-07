@@ -1,0 +1,58 @@
+=== Mutation 1: M1: aria-modal="false" -> aria-modal="true" on popout ===
+Status: KILLED
+▶ FE-P1-04 (task-159): createUserPopoutController
+  ✔ 01. инициализируется и возвращает публичный API контроллера (1.64708ms)
+  ✖ 02. открывает компактный поповер #user-popout с правильными ARIA-атрибутами (0.87249ms)
+  ✔ 03. отображает аватар, имя, username/тег и индикатор статуса (0.50051ms)
+  ✔ 04. отображает бейдж БОТ только когда bot=true (0.44055ms)
+  ✔ 05. отображает кастомный статус и текущую активность (0.20361ms)
+  ✔ 06. отображает список ролей .user-popout-roles с цветными точками (0.
+
+=== Mutation 2: M2: notesStore disabled ===
+Status: KILLED
+▶ FE-P1-04 (task-159): createUserPopoutController
+  ✔ 01. инициализируется и возвращает публичный API контроллера (1.54158ms)
+  ✔ 02. открывает компактный поповер #user-popout с правильными ARIA-атрибутами (0.42486ms)
+  ✔ 03. отображает аватар, имя, username/тег и индикатор статуса (0.49961ms)
+  ✔ 04. отображает бейдж БОТ только когда bot=true (0.3287ms)
+  ✔ 05. отображает кастомный статус и текущую активность (0.20052ms)
+  ✔ 06. отображает список ролей .user-popout-roles с цветными точками (0.2
+
+=== Mutation 3: M3: ignore Enter in dm input ===
+Status: KILLED
+▶ FE-P1-04 (task-159): createUserPopoutController
+  ✔ 01. инициализируется и возвращает публичный API контроллера (1.52957ms)
+  ✔ 02. открывает компактный поповер #user-popout с правильными ARIA-атрибутами (0.4255ms)
+  ✔ 03. отображает аватар, имя, username/тег и индикатор статуса (0.50217ms)
+  ✔ 04. отображает бейдж БОТ только когда bot=true (0.33241ms)
+  ✔ 05. отображает кастомный статус и текущую активность (0.19853ms)
+  ✔ 06. отображает список ролей .user-popout-roles с цветными точками (0.3
+
+=== Mutation 4: M4: switchTab no-op ===
+Status: KILLED
+▶ FE-P1-04 (task-159): createUserPopoutController
+  ✔ 01. инициализируется и возвращает публичный API контроллера (1.5634ms)
+  ✔ 02. открывает компактный поповер #user-popout с правильными ARIA-атрибутами (0.42492ms)
+  ✔ 03. отображает аватар, имя, username/тег и индикатор статуса (0.49836ms)
+  ✔ 04. отображает бейдж БОТ только когда bot=true (0.33333ms)
+  ✔ 05. отображает кастомный статус и текущую активность (0.21209ms)
+  ✔ 06. отображает список ролей .user-popout-roles с цветными точками (0.2
+
+=== Mutation 5: M5: focus return disabled on closeProfileModal ===
+Status: KILLED
+✖ tests/unit/user-popout.test.mjs (4050.99776ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4056.990611
+
+✖ failing tests:
+
+test at tests/unit/user-popout.test.mjs:1:1
+✖ tests/unit/user-popout.test.mjs (4050.99776ms)
+  'test failed'
+

@@ -1,0 +1,98 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+error[E0432]: unresolved imports `discord_gui_spike::invites::create_channel_invite`, `discord_gui_spike::invites::CreateInviteParams`, `discord_gui_spike::invites::CreatedInvite`, `discord_gui_spike::invites::INVITE_FLAG_IS_GUEST`, `discord_gui_spike::invites::VALID_INVITE_MAX_AGES`, `discord_gui_spike::invites::VALID_INVITE_MAX_USES`
+  --> tests/invites_contract.rs:26:20
+   |
+26 |     accept_invite, create_channel_invite, resolve_invite, AcceptRequest, AcceptedInvite,
+   |                    ^^^^^^^^^^^^^^^^^^^^^ no `create_channel_invite` in `invites`
+27 |     CreateInviteParams, CreatedInvite, DiscordInvites, InviteError, InvitePreview, In...
+   |     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^ no `CreatedInvite` in `invites`
+   |     |
+   |     no `CreateInviteParams` in `invites`
+28 |     InvitesApi, INVITE_FLAG_IS_GUEST, VALID_INVITE_MAX_AGES, VALID_INVITE_MAX_USES,
+   |                 ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^ no `VALID_INVITE_MAX_USES` in `invites`
+   |                 |                     |
+   |                 |                     no `VALID_INVITE_MAX_AGES` in `invites`
+   |                 no `INVITE_FLAG_IS_GUEST` in `invites`
+   |
+help: a similar name exists in the module
+   |
+27 -     CreateInviteParams, CreatedInvite, DiscordInvites, InviteError, InvitePreview, InviteTransport,
+27 +     CreateInviteParams, AcceptedInvite, DiscordInvites, InviteError, InvitePreview, InviteTransport,
+   |
+
+error[E0599]: no method named `create_invite` found for struct `DiscordInvites` in the current scope
+   --> tests/invites_contract.rs:958:20
+    |
+958 | ...   run(client.create_invite(CREATE_CHANNEL_ID, &guest_params)).expec...
+    |                  ^^^^^^^^^^^^^ method not found in `DiscordInvites`
+
+error[E0599]: no variant, associated function, or constant named `InvalidRequest` found for enum `InviteError` in the current scope
+    --> tests/invites_contract.rs:1063:30
+     |
+1063 |             Err(InviteError::InvalidRequest),
+     |                              ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `InviteError`
+
+error[E0599]: no method named `create_invite` found for struct `DiscordInvites` in the current scope
+    --> tests/invites_contract.rs:1067:24
+     |
+1067 |             run(client.create_invite(bad_channel, &params)),
+     |                        ^^^^^^^^^^^^^ method not found in `DiscordInvites`
+
+error[E0599]: no variant, associated function, or constant named `InvalidRequest` found for enum `InviteError` in the current scope
+    --> tests/invites_contract.rs:1068:30
+     |
+1068 |             Err(InviteError::InvalidRequest),
+     |                              ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `InviteError`
+
+error[E0599]: no variant, associated function, or constant named `InvalidRequest` found for enum `InviteError` in the current scope
+    --> tests/invites_contract.rs:1111:30
+     |
+1111 |             Err(InviteError::InvalidRequest),
+     |                              ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `InviteError`
+
+error[E0599]: no method named `create_invite` found for struct `DiscordInvites` in the current scope
+    --> tests/invites_contract.rs:1115:24
+     |
+1115 |             run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+     |                        ^^^^^^^^^^^^^ method not found in `DiscordInvites`
+
+error[E0599]: no variant, associated function, or constant named `InvalidRequest` found for enum `InviteError` in the current scope
+    --> tests/invites_contract.rs:1116:30
+     |
+1116 |             Err(InviteError::InvalidRequest),
+     |                              ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `InviteError`
+
+error[E0599]: no variant, associated function, or constant named `InvalidRequest` found for enum `InviteError` in the current scope
+    --> tests/invites_contract.rs:1128:30
+     |
+1128 |             Err(InviteError::InvalidRequest),
+     |                              ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `InviteError`
+
+error[E0599]: no method named `create_invite` found for struct `DiscordInvites` in the current scope
+    --> tests/invites_contract.rs:1132:24
+     |
+1132 |             run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+     |                        ^^^^^^^^^^^^^ method not found in `DiscordInvites`
+
+error[E0599]: no variant, associated function, or constant named `InvalidRequest` found for enum `InviteError` in the current scope
+    --> tests/invites_contract.rs:1133:30
+     |
+1133 |             Err(InviteError::InvalidRequest),
+     |                              ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `InviteError`
+
+error[E0599]: no method named `create_invite` found for struct `DiscordInvites` in the current scope
+    --> tests/invites_contract.rs:1157:24
+     |
+1157 |             run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+     |                        ^^^^^^^^^^^^^ method not found in `DiscordInvites`
+
+error[E0599]: no method named `create_invite` found for struct `DiscordInvites` in the current scope
+    --> tests/invites_contract.rs:1201:24
+     |
+1201 |             run(client.create_invite(CREATE_CHANNEL_ID, &params)),
+     |                        ^^^^^^^^^^^^^ method not found in `DiscordInvites`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "invites_contract") due to 13 previous errors
+warning: build failed, waiting for other jobs to finish...

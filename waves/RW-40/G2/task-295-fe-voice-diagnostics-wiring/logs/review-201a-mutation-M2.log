@@ -1,0 +1,54 @@
+▶ V-08 voice: контракт разметки и сборки
+  ✔ 12 состояний и их порядок совпадают со спекой; тексты — из copy (0.83583ms)
+  ✔ index.html содержит host панели (id/класс/disabled) и подключает voice.css (0.24739ms)
+  ✔ в сборке без voice-сервиса панель disabled, а не «подключено» (94.78763ms)
+  ✔ клик join без backend не даёт фейкового успеха и пишет причину в live-регион (20.730311ms)
+  ✔ user-bar mute/deafen сохраняют прежний aria-pressed, панель их не подменяет (18.50708ms)
+✔ V-08 voice: контракт разметки и сборки (136.019862ms)
+▶ V-08 voice: 12 состояний на fake store
+  ✔ idle: data-state, статус, aria-busy/alert (0.51903ms)
+  ✔ loading: data-state, статус, aria-busy/alert (0.19944ms)
+  ✔ connecting: data-state, статус, aria-busy/alert (0.16231ms)
+  ✔ connected: data-state, статус, aria-busy/alert (0.267001ms)
+  ✔ reconnecting: data-state, статус, aria-busy/alert (0.18599ms)
+  ✔ empty: data-state, статус, aria-busy/alert (0.15037ms)
+  ✔ error: data-state, статус, aria-busy/alert (0.1984ms)
+  ✔ no-permission: data-state, статус, aria-busy/alert (0.11831ms)
+  ✔ ptt-required: data-state, статус, aria-busy/alert (0.12154ms)
+  ✔ device-missing: data-state, статус, aria-busy/alert (0.1087ms)
+  ✔ server-mute: data-state, статус, aria-busy/alert (0.10601ms)
+  ✔ disabled: data-state, статус, aria-busy/alert (0.09406ms)
+  ✔ состояние вне контракта не применяется (0.15895ms)
+  ✔ idle: блок связи скрыт, строка пользователя видна, join активен (0.14122ms)
+  ✔ connected: канал, ping 93 ms, участники, leave (0.31202ms)
+  ✔ ping: quality по порогам спеки, без значения — aria-disabled (0.18067ms)
+  ✔ empty: строка wM2WTM с role=status, participants пуст (0.15892ms)
+  ✔ error: ровно один join на клик, фокус уходит на «Переподключиться» (2.302321ms)
+  ✔ повтор после ошибки: второй клик в pending не шлёт второй join (0.29232ms)
+  ✔ leave: 1 вызов, состояние меняется только по событию store (0.41286ms)
+  ✔ no-permission: 0 вызовов сервиса, reconnect отсутствует (0.261601ms)
+  ✔ ptt-required: NYklhr + «Перейти на режим рации» (0.32512ms)
+  ✔ device-missing: bgn75v + MA+OZh, разговор не рвётся (0.18992ms)
+  ✔ server-mute: mute aria-disabled, клик не меняет aria-checked и не зовёт сервис (0.35371ms)
+✔ V-08 voice: 12 состояний на fake store (7.987384ms)
+▶ V-08 voice: участники и speaking
+  ✔ своя строка первая, data-self/data-mute и tjtv3P в aria-label (0.26269ms)
+  ✔ speaking: bool и число > 0, только у своего пользователя (0.259061ms)
+  ✔ без op5 ни у кого нет data-speaking=true (0.1594ms)
+  ✔ 7 участников → 6 строк + «Ещё 1» (0.26268ms)
+  ✔ чужой mute: data-mute=server и текст в aria-label (0.15017ms)
+✖ tests/unit/voice-ui.test.mjs (17715.370772ms)
+ℹ tests 35
+ℹ suites 2
+ℹ pass 34
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17720.215675
+
+✖ failing tests:
+
+test at tests/unit/voice-ui.test.mjs:1:1
+✖ tests/unit/voice-ui.test.mjs (17715.370772ms)
+  'test failed'

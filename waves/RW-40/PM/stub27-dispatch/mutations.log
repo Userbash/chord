@@ -1,0 +1,36 @@
+baseline: src=528597e9f5aa4b894982cbd3f5cbda38 test=af859f628901986aa523b01ea1c507b1
+baseline targeted (CARGO_TARGET_DIR=/tmp/target-g1-disp2 cargo test --offline -p discord-core --test dispatch_types): test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=0
+
+== M1 Размытие непересечения 21 канонического типа R7 и STREAM_*: DispatchKind::from_name принимает STREAM_CREATE
+   mutant md5=4d729ad502a72f6d4cb8e90615b5b20e
+   KILLED | test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: t01_canonical_21_dispatch_kinds_preserved_and_disjoint_from_stream_kinds, t02_route_dispatch_bridges_all_21_fixture_inbound_vectors_to_stream_parse_dispatch
+   restore md5=528597e9f5aa4b894982cbd3f5cbda38 (совпал)
+
+== M2 Потеря маршрута STREAM_DELETE в StreamDispatchKind::from_name
+   mutant md5=e206e4075cd55c9f1cfce28b16e7349c
+   KILLED | test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: t01_canonical_21_dispatch_kinds_preserved_and_disjoint_from_stream_kinds, t02_route_dispatch_bridges_all_21_fixture_inbound_vectors_to_stream_parse_dispatch, t03_negative_and_malformed_stream_dispatches_via_router
+   restore md5=528597e9f5aa4b894982cbd3f5cbda38 (совпал)
+
+== M3 Отключение проверки op == 0 в route_dispatch (пропуск не-op0 кадров op 18..=22, 10, 11)
+   mutant md5=26cd6b2705101f61e4ca56cafba79af1
+   KILLED | test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: t03_negative_and_malformed_stream_dispatches_via_router
+   restore md5=528597e9f5aa4b894982cbd3f5cbda38 (совпал)
+
+== M4 Нарушение инварианта §3.3 в DispatchEvent::is_known (STREAM_* трактуется как неизвестное событие)
+   mutant md5=029aafd6547db53d7ea72d929cb48d59
+   KILLED | test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: t02_route_dispatch_bridges_all_21_fixture_inbound_vectors_to_stream_parse_dispatch, t03_negative_and_malformed_stream_dispatches_via_router
+   restore md5=528597e9f5aa4b894982cbd3f5cbda38 (совпал)
+
+== M5 Игнорирование диагностических счётчиков StreamDiagnostics в parse_stream_with_diagnostics
+   mutant md5=7b4c8a0af1168fbecf6544c335cc7131
+   KILLED | test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: t03_negative_and_malformed_stream_dispatches_via_router
+   restore md5=528597e9f5aa4b894982cbd3f5cbda38 (совпал)
+
+post-restore targeted: test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=0
+финал: src=528597e9f5aa4b894982cbd3f5cbda38 test=af859f628901986aa523b01ea1c507b1 | совпадает с baseline: True
+мутаций убито: 5/5

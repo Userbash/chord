@@ -1,0 +1,94 @@
+# Mutation run — G-01b-UI-SETTINGS-MUTATIONS pass 3 (RW-40, INT-03-UI-APP-PANELS-MODALS)
+
+Repository: /home/sanya/orca/project
+Target test: tests/unit/guild-rail.test.mjs
+Mutation targets: rust/gui-spike/ui/app.js, rust/gui-spike/ui/components/server-menu.css
+Node: v26.13.0
+
+## Baseline
+md5 app.js: 4d46b018bbca23fe08be08bae1ac1a32
+md5 server-menu.css: 08c5c3cb71d59df18e90a72787f0fe8a
+md5 guild-rail.test.mjs: a1907d0e8820f346743b56b63fdfaaa6
+exit code: 0
+summary: ℹ tests 15 | ℹ pass 15 | ℹ fail 0 | ℹ skipped 0
+
+## M1 — Снятие проверки токена поколения (latestGuildId) после асинхронного settings_load
+file: rust/gui-spike/ui/app.js
+md5 до: 4d46b018bbca23fe08be08bae1ac1a32
+md5 мутанта: 85537d38eb89961e46ffc85b5dbf6abd
+patch (удаление проверки актуальности id после settings_load):
+  -     const raw = await invoke("settings_load");
+  -     if (latestGuildId !== id) return;
+  -     preferredGuildId = id;
+  +     const raw = await invoke("settings_load");
+  +     // mutant 1: drop latestGuildId check
+  +     preferredGuildId = id;
+exit code: 1
+summary: ℹ tests 15 | ℹ pass 14 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B
+md5 после восстановления: 4d46b018bbca23fe08be08bae1ac1a32 (OK, совпал)
+verdict: KILLED
+
+## M2 — Инвертирование проверки токена поколения (latestGuildId) перед сохранением
+file: rust/gui-spike/ui/app.js
+md5 до: 4d46b018bbca23fe08be08bae1ac1a32
+md5 мутанта: fe32eb1321649df9d18c54e1ffa94be4
+patch (инверсия условия проверки):
+  -     if (latestGuildId !== id) return;
+  +     if (latestGuildId === id) return;
+exit code: 1
+summary: ℹ tests 15 | ℹ pass 12 | ℹ fail 3 | ℹ skipped 0
+failed tests:
+  ✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B
+md5 после восстановления: 4d46b018bbca23fe08be08bae1ac1a32 (OK, совпал)
+verdict: KILLED
+
+## M3 — Искажение payload: запись пустого lastGuildId вместо выбранного id
+file: rust/gui-spike/ui/app.js
+md5 до: 4d46b018bbca23fe08be08bae1ac1a32
+md5 мутанта: 28abd0266e7236661c8606dccd844f7f
+patch (замена id на пустую строку в settings_save):
+  -     await invoke("settings_save", { settings: { ...normalizeSettings(raw), lastGuildId: id } });
+  +     await invoke("settings_save", { settings: { ...normalizeSettings(raw), lastGuildId: "" } });
+exit code: 1
+summary: ℹ tests 15 | ℹ pass 12 | ℹ fail 3 | ℹ skipped 0
+failed tests:
+  ✖ клик по плитке сохраняет lastGuildId, не теряя остальные настройки
+  ✖ выбор гильдии -> переключение настройки -> settings_save сохраняет lastGuildId -> повторный boot выбирает её
+  ✖ быстрые клики серверов A -> B с задержкой первого settings_load/settings_save гарантированно сохраняют последний выбор B
+md5 после восстановления: 4d46b018bbca23fe08be08bae1ac1a32 (OK, совпал)
+verdict: KILLED
+
+## M4 — Потеря экспорта pinsThreads из currentApp()
+file: rust/gui-spike/ui/app.js
+md5 до: 4d46b018bbca23fe08be08bae1ac1a32
+md5 мутанта: 1dda9a6a00bf575bc734160c817abe1a
+patch (замена геттера pinsThreads на null):
+  -     get pinsThreads() {
+  -       return getPinsThreads();
+  -     },
+  +     // mutant 4: drop pinsThreads export
+  +     pinsThreads: null,
+exit code: 1
+summary: ℹ tests 15 | ℹ pass 14 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ STUB-10 / STUB-05: currentApp() экспортирует рабочие контроллеры pinsThreads и inviteModal
+md5 после восстановления: 4d46b018bbca23fe08be08bae1ac1a32 (OK, совпал)
+verdict: KILLED
+
+## M5 — Нарушение z-index поповера .header-dropdown-panel в server-menu.css
+file: rust/gui-spike/ui/components/server-menu.css
+md5 до: 08c5c3cb71d59df18e90a72787f0fe8a
+md5 мутанта: 2f32a9b0b3e4a7c2c2949bb4d5979596
+patch (замена z-index: var(--z-popover) на литерал z-index: 10):
+  -     z-index: var(--z-popover);
+  +     z-index: 10;
+exit code: 1
+summary: ℹ tests 15 | ℹ pass 14 | ℹ fail 1 | ℹ skipped 0
+failed tests:
+  ✖ PINS-THREADS-SPEC §1–§3: server-menu.css содержит поповер-правила .header-dropdown-panel, .pins-panel, .threads-panel
+md5 после восстановления: 08c5c3cb71d59df18e90a72787f0fe8a (OK, совпал)
+verdict: KILLED

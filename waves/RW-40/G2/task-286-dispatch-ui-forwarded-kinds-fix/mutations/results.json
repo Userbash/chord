@@ -1,0 +1,45 @@
+{
+  "review": "REVIEW-195A",
+  "task": "task-286 / FE-FIX-08 / PR-166",
+  "reviewer": "DeepSeek (TR-195A)",
+  "date": "2026-10-31",
+  "baseline": {
+    "command": "node --test tests/unit/dispatch_ui.test.mjs",
+    "tests": 58,
+    "pass": 58,
+    "fail": 0,
+    "skipped": 0,
+    "tsc": "npx tsc -p tsconfig.json --noEmit",
+    "tsc_exit": 0,
+    "regression_slice": { "tests": 458, "pass": 458, "fail": 0 }
+  },
+  "file_md5": {
+    "rust/gui-spike/ui/features/dispatch-model.js": "9c7439d1db386a89fbd2347a95a207a2",
+    "tests/unit/dispatch_ui.test.mjs": "ac92c85adfbf146d812921a176a19ced"
+  },
+  "red_before_pr": {
+    "dispatch_model_head_md5": "67c6dda6480a4dc8c25db1ecd9d1c1b1",
+    "result": "58 tests / 56 pass / 2 fail",
+    "killed_by": [
+      "A2 (в UI не 30 kind)",
+      "B14b (MESSAGE_DELETE форвардится бэкендом, но отбрасывается UI)"
+    ],
+    "head_test_plus_head_model": "57 tests / 56 pass / 1 fail (A2: CHANNEL_CREATE форвардится бэкендом, но отбрасывается UI) — совпадает с red.log 1/2"
+  },
+  "mutations_mandatory": [
+    { "id": "M1", "mutation": "удалён CHANNEL_CREATE из FORWARDED_KINDS", "verdict": "killed", "fail": 2, "killed_by": ["A2", "B14b"] },
+    { "id": "M2", "mutation": "MESSAGE_DELETE -> MESSAGE_DELETE_EXTRA (ложное имя провода)", "verdict": "killed", "fail": 4, "killed_by": ["A2", "A5", "B14", "B14b"] },
+    { "id": "M3", "mutation": "удалён MESSAGE_REACTION_REMOVE (raw kind)", "verdict": "killed", "fail": 6, "killed_by": ["A2", "A4", "B11", "B13", "C5-C7", "C5b"] },
+    { "id": "M4", "mutation": "дубль TYPING_START (31 запись, 30 уникальных)", "verdict": "killed", "fail": 1, "killed_by": ["A2"] },
+    { "id": "M5", "mutation": "THREAD_CREATE -> THREAD_CREATED (опечатка)", "verdict": "killed", "fail": 3, "killed_by": ["A2", "A5", "B14b"] }
+  ],
+  "mutations_total": "5/5 killed (100%)",
+  "probes": [
+    { "id": "P1", "mutation": "порядок: MESSAGE_REACTION_REMOVE перенесён в начало (те же 30 имён)", "verdict": "survived", "fail": 0, "note": "P3 — A2 сравнивает Set, порядок не запинен; комментарий кода обещает порядок net.rs" },
+    { "id": "P2", "mutation": "фильтр обойдён: if (!FORWARDED.has(kind)) -> if (false && ...)", "verdict": "killed", "fail": 2, "killed_by": ["B14", "C10"] }
+  ],
+  "restore_check": "md5 после каждой мутации 9c7439d1db386a89fbd2347a95a207a2 (dispatch-model.js), ac92c85adfbf146d812921a176a19ced (dispatch_ui.test.mjs)",
+  "verdict": "APPROVED",
+  "p0": 0,
+  "p1": 0
+}

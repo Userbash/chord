@@ -1,0 +1,13 @@
+# red: 2026-10-31T00:31:23+05:00
+# git HEAD: b8183f5
+# command: CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
+error[E0432]: unresolved import `discord_gui_spike::profile`
+  --> tests/profile_contract.rs:27:24
+   |
+27 | use discord_gui_spike::profile::{
+   |                        ^^^^^^^ could not find `profile` in `discord_gui_spike`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "profile_contract") due to 1 previous error
+# exit: 101

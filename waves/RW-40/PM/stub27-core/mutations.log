@@ -1,0 +1,202 @@
+=== MUTATION 1: unavailable:true -> Ended instead of Reconnecting (T-STREAM-09) ===
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_07_redacted_debug_display_and_snapshot ... ok
+test t_stream_11_12_13_hypotheses_and_diagnostics ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... ok
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_06_negative_stream_key_vectors ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... FAILED
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+failures:
+
+---- t_stream_09_to_16_and_21_reducer_scenarios_replay stdout ----
+
+thread 't_stream_09_to_16_and_21_reducer_scenarios_replay' (258478) panicked at crates/discord-core/tests/stream_gateway_contract.rs:708:25:
+assertion `left == right` failed: R-05-unavailable-reconnect шаг 1: неверная фаза
+  left: "ended"
+ right: "reconnecting"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_stream_09_to_16_and_21_reducer_scenarios_replay
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test stream_gateway_contract`
+M1_EXIT_CODE=101
+
+=== MUTATION 2: H-PAUSE incoming None resets paused to false (T-STREAM-12) ===
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_07_redacted_debug_display_and_snapshot ... ok
+test t_stream_11_12_13_hypotheses_and_diagnostics ... FAILED
+test t_stream_06_negative_stream_key_vectors ... ok
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... ok
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+failures:
+
+---- t_stream_11_12_13_hypotheses_and_diagnostics stdout ----
+
+thread 't_stream_11_12_13_hypotheses_and_diagnostics' (258982) panicked at crates/discord-core/tests/stream_gateway_contract.rs:851:5:
+assertion `left == right` failed
+  left: Active
+ right: Paused
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_stream_11_12_13_hypotheses_and_diagnostics
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test stream_gateway_contract`
+M2_EXIT_CODE=101
+
+=== MUTATION 3: D-27-5 viewer_ids:[] normalized to None (T-STREAM-08) ===
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_07_redacted_debug_display_and_snapshot ... ok
+test t_stream_11_12_13_hypotheses_and_diagnostics ... ok
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... FAILED
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_06_negative_stream_key_vectors ... ok
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... ok
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+failures:
+
+---- t_stream_08_inbound_dispatches_match_fixtures stdout ----
+
+thread 't_stream_08_inbound_dispatches_match_fixtures' (260806) panicked at crates/discord-core/tests/stream_gateway_contract.rs:517:17:
+assertion `left == right` failed: D-27-5 viewer_ids для in-create-empty-viewers
+  left: None
+ right: Some([])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_stream_08_inbound_dispatches_match_fixtures
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test stream_gateway_contract`
+M3_EXIT_CODE=101
+
+=== MUTATION 4: D-27-4 StreamSecret Debug leaks raw token (T-STREAM-07) ===
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_11_12_13_hypotheses_and_diagnostics ... ok
+test t_stream_07_redacted_debug_display_and_snapshot ... FAILED
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_06_negative_stream_key_vectors ... ok
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... ok
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+failures:
+
+---- t_stream_07_redacted_debug_display_and_snapshot stdout ----
+
+thread 't_stream_07_redacted_debug_display_and_snapshot' (261354) panicked at crates/discord-core/tests/stream_gateway_contract.rs:415:5:
+assertion failed: !format!("{secret:?}").contains(secret_raw)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_stream_07_redacted_debug_display_and_snapshot
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test stream_gateway_contract`
+M4_EXIT_CODE=101
+
+=== MUTATION 5: StreamKey::parse allows leading zero (T-STREAM-06) ===
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_07_redacted_debug_display_and_snapshot ... ok
+test t_stream_11_12_13_hypotheses_and_diagnostics ... ok
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_06_negative_stream_key_vectors ... FAILED
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... ok
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... ok
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+failures:
+
+---- t_stream_06_negative_stream_key_vectors stdout ----
+
+thread 't_stream_06_negative_stream_key_vectors' (264571) panicked at crates/discord-core/tests/stream_gateway_contract.rs:373:45:
+called `Result::unwrap_err()` on an `Ok` value: StreamKey { kind: Guild, guild_id: "<redacted>", channel_id: 100000000000000002, owner_id: 100000000000000003 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_stream_06_negative_stream_key_vectors
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-core --test stream_gateway_contract`
+M5_EXIT_CODE=101
+
+=== POST-MUTATION RESTORE VERIFICATION ===
+   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
+
+running 11 tests
+test t_stream_07_redacted_debug_display_and_snapshot ... ok
+test t_stream_11_12_13_hypotheses_and_diagnostics ... ok
+test t_stream_06_negative_stream_key_vectors ... ok
+test t_stream_05_stream_key_roundtrip_and_canonical_form ... ok
+test t_stream_01_opcode_table_and_gateway_isolation ... ok
+test t_stream_02_03_04_outbound_commands_match_fixtures ... ok
+test t_stream_17_18_negative_command_and_inbound_vectors ... ok
+test t_stream_09_to_16_and_21_reducer_scenarios_replay ... ok
+test t_stream_08_inbound_dispatches_match_fixtures ... ok
+test t_stream_00_anchors_match_contract_and_oracle_bundle ... ok
+test t_stream_19_20_22_etf_prefixes_idempotency_and_layer_boundary ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+RESTORE_EXIT_CODE=0

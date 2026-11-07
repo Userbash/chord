@@ -1,0 +1,186 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-161-voice-select-protocol-rtx/rust/crates/discord-voice)
+error[E0432]: unresolved import `discord_voice::default_client_codecs`
+ --> crates/discord-voice/tests/signaling.rs:4:24
+  |
+4 |     VoiceServerUpdate, default_client_codecs, parse_frame, select_region,
+  |                        ^^^^^^^^^^^^^^^^^^^^^ no `default_client_codecs` in the root
+
+error[E0560]: struct `Codec` has no field named `rtx_payload_type`
+   --> crates/discord-voice/tests/signaling.rs:320:17
+    |
+320 |                 rtx_payload_type: None,
+    |                 ^^^^^^^^^^^^^^^^ `Codec` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Codec` has no field named `encode`
+   --> crates/discord-voice/tests/signaling.rs:321:17
+    |
+321 |                 encode: None,
+    |                 ^^^^^^ `Codec` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Codec` has no field named `decode`
+   --> crates/discord-voice/tests/signaling.rs:322:17
+    |
+322 |                 decode: None,
+    |                 ^^^^^^ `Codec` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Codec` has no field named `rtx_payload_type`
+   --> crates/discord-voice/tests/signaling.rs:329:17
+    |
+329 |                 rtx_payload_type: None,
+    |                 ^^^^^^^^^^^^^^^^ `Codec` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Codec` has no field named `encode`
+   --> crates/discord-voice/tests/signaling.rs:330:17
+    |
+330 |                 encode: None,
+    |                 ^^^^^^ `Codec` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `Codec` has no field named `decode`
+   --> crates/discord-voice/tests/signaling.rs:331:17
+    |
+331 |                 decode: None,
+    |                 ^^^^^^ `Codec` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `discord_voice::SelectProtocol` has no field named `experiments`
+   --> crates/discord-voice/tests/signaling.rs:334:9
+    |
+334 |         experiments: Vec::new(),
+    |         ^^^^^^^^^^^ `discord_voice::SelectProtocol` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0560]: struct `discord_voice::SelectProtocol` has no field named `rtc_connection_id`
+   --> crates/discord-voice/tests/signaling.rs:335:9
+    |
+335 |         rtc_connection_id: None,
+    |         ^^^^^^^^^^^^^^^^^ `discord_voice::SelectProtocol` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0609]: no field `rtc_connection_id` on type `discord_voice::SelectProtocol`
+   --> crates/discord-voice/tests/signaling.rs:480:16
+    |
+480 |         select.rtc_connection_id.as_deref(),
+    |                ^^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `protocol`, `address`, `port`, `mode`, `codecs`
+
+error[E0609]: no field `experiments` on type `discord_voice::SelectProtocol`
+   --> crates/discord-voice/tests/signaling.rs:483:23
+    |
+483 |     assert_eq!(select.experiments, vec!["fixed_keyframe_interval".to_st...
+    |                       ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `protocol`, `address`, `port`, `mode`, `codecs`
+
+error[E0599]: no method named `to_frame_json` found for struct `discord_voice::SelectProtocol` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:486:29
+    |
+486 |     let wire_frame = select.to_frame_json();
+    |                             ^^^^^^^^^^^^^
+    |
+help: there is a method `to_json` with a similar name
+    |
+486 -     let wire_frame = select.to_frame_json();
+486 +     let wire_frame = select.to_json();
+    |
+
+error[E0609]: no field `rtc_connection_id` on type `discord_voice::SelectProtocol`
+   --> crates/discord-voice/tests/signaling.rs:549:23
+    |
+549 |     assert_eq!(select.rtc_connection_id, None);
+    |                       ^^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `protocol`, `address`, `port`, `mode`, `codecs`
+
+error[E0609]: no field `experiments` on type `discord_voice::SelectProtocol`
+   --> crates/discord-voice/tests/signaling.rs:550:20
+    |
+550 |     assert!(select.experiments.is_empty());
+    |                    ^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `protocol`, `address`, `port`, `mode`, `codecs`
+
+error[E0609]: no field `rtx_payload_type` on type `Codec`
+   --> crates/discord-voice/tests/signaling.rs:552:33
+    |
+552 |     assert_eq!(select.codecs[0].rtx_payload_type, None);
+    |                                 ^^^^^^^^^^^^^^^^ unknown field
+    |
+help: a field with a similar name exists
+    |
+552 -     assert_eq!(select.codecs[0].rtx_payload_type, None);
+552 +     assert_eq!(select.codecs[0].payload_type, None);
+    |
+
+error[E0609]: no field `encode` on type `Codec`
+   --> crates/discord-voice/tests/signaling.rs:553:33
+    |
+553 |     assert_eq!(select.codecs[0].encode, None);
+    |                                 ^^^^^^ unknown field
+    |
+    = note: available fields are: `name`, `kind`, `priority`, `payload_type`
+
+error[E0609]: no field `decode` on type `Codec`
+   --> crates/discord-voice/tests/signaling.rs:554:33
+    |
+554 |     assert_eq!(select.codecs[0].decode, None);
+    |                                 ^^^^^^ unknown field
+    |
+    = note: available fields are: `name`, `kind`, `priority`, `payload_type`
+
+error[E0609]: no field `rtx_payload_type` on type `Codec`
+   --> crates/discord-voice/tests/signaling.rs:555:33
+    |
+555 |     assert_eq!(select.codecs[1].rtx_payload_type, None);
+    |                                 ^^^^^^^^^^^^^^^^ unknown field
+    |
+help: a field with a similar name exists
+    |
+555 -     assert_eq!(select.codecs[1].rtx_payload_type, None);
+555 +     assert_eq!(select.codecs[1].payload_type, None);
+    |
+
+error[E0609]: no field `encode` on type `Codec`
+   --> crates/discord-voice/tests/signaling.rs:556:33
+    |
+556 |     assert_eq!(select.codecs[1].encode, None);
+    |                                 ^^^^^^ unknown field
+    |
+    = note: available fields are: `name`, `kind`, `priority`, `payload_type`
+
+error[E0609]: no field `decode` on type `Codec`
+   --> crates/discord-voice/tests/signaling.rs:557:33
+    |
+557 |     assert_eq!(select.codecs[1].decode, None);
+    |                                 ^^^^^^ unknown field
+    |
+    = note: available fields are: `name`, `kind`, `priority`, `payload_type`
+
+error[E0599]: no method named `to_frame_json` found for struct `discord_voice::SelectProtocol` in the current scope
+   --> crates/discord-voice/tests/signaling.rs:559:23
+    |
+559 |     let wire = select.to_frame_json();
+    |                       ^^^^^^^^^^^^^
+    |
+help: there is a method `to_json` with a similar name
+    |
+559 -     let wire = select.to_frame_json();
+559 +     let wire = select.to_json();
+    |
+
+Some errors have detailed explanations: E0432, E0560, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "signaling") due to 21 previous errors

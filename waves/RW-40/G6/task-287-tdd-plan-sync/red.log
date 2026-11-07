@@ -1,0 +1,149 @@
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (5.828393ms)
+  ✔ каждая строка §8 указывает на существующий тест; токены встречаются в нём (3.276212ms)
+  ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (3.227741ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (1.293381ms)
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.0987ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (15.581897ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.782351
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:140:3
+✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (3.227741ms)
+  AssertionError [ERR_ASSERTION]: тестовые файлы без строки в §8
+  + actual - expected
+  
+  + [
+  +   'tests/unit/app-shell-wiring.test.mjs',
+  +   'tests/unit/appearance-settings.test.mjs',
+  +   'tests/unit/attachment-helper.test.mjs',
+  +   'tests/unit/attachment-validator.test.mjs',
+  +   'tests/unit/attachments-ui.test.mjs',
+  +   'tests/unit/audit-log.test.mjs',
+  +   'tests/unit/automod-editor.test.mjs',
+  +   'tests/unit/channel-gate.test.mjs',
+  +   'tests/unit/channel-tree.test.mjs',
+  +   'tests/unit/chat-helpers-bridge.test.mjs',
+  +   'tests/unit/composer-autocomplete.test.mjs',
+  +   'tests/unit/composer-popovers-bridge.test.mjs',
+  +   'tests/unit/context-menu.test.mjs',
+  +   'tests/unit/embed-formatter.test.mjs',
+  +   'tests/unit/event-banner.test.mjs',
+  +   'tests/unit/events-modal.test.mjs',
+  +   'tests/unit/expression-picker.test.mjs',
+  +   'tests/unit/expressions-manager.test.mjs',
+  +   'tests/unit/forum-filter.test.mjs',
+  +   'tests/unit/forum-view.test.mjs',
+  +   'tests/unit/friends-home.test.mjs',
+  +   'tests/unit/guild-boost.test.mjs',
+  +   'tests/unit/guild-folders.test.mjs',
+  +   'tests/unit/guild-modals.test.mjs',
+  +   'tests/unit/i18n.test.mjs',
+  +   'tests/unit/inbox.test.mjs',
+  +   'tests/unit/invite-modal.test.mjs',
+  +   'tests/unit/invite-parser.test.mjs',
+  +   'tests/unit/keybinds.test.mjs',
+  +   'tests/unit/locale-switcher.test.mjs',
+  +   'tests/unit/markdown-helper.test.mjs',
+  +   'tests/unit/member-list.test.mjs',
+  +   'tests/unit/members-subscriptions.test.mjs',
+  +   'tests/unit/message-actions.test.mjs',
+  +   'tests/unit/message-media-polls.test.mjs',
+  +   'tests/unit/moderation-panel.test.mjs',
+  +   'tests/unit/notifications.test.mjs',
+  +   'tests/unit/onboarding-wizard.test.mjs',
+  +   'tests/unit/pins-threads.test.mjs',
+  +   'tests/unit/plural-format.test.mjs',
+  +   'tests/unit/poll-card.test.mjs',
+  +   'tests/unit/poll-progress.test.mjs',
+  +   'tests/unit/presence-activity.test.mjs',
+  +   'tests/unit/profile-modal.test.mjs',
+  +   'tests/unit/quick-switcher.test.mjs',
+  +   'tests/unit/reactions-ui.test.mjs',
+  +   'tests/unit/role-editor.test.mjs',
+  +   'tests/unit/role-permissions.test.mjs',
+  +   'tests/unit/search-panel.test.mjs',
+  +   'tests/unit/settings-modal.test.mjs',
+  +   'tests/unit/shell-bridge.test.mjs',
+  +   'tests/unit/shell-controllers-registry.test.mjs',
+  +   'tests/unit/shortcuts.test.mjs',
+  +   'tests/unit/slash-command-picker.test.mjs',
+  +   'tests/unit/slowmode.test.mjs',
+  +   'tests/unit/soundboard-picker.test.mjs',
+  +   'tests/unit/stage-channel.test.mjs',
+  +   'tests/unit/stage-request-queue.test.mjs',
+  +   'tests/unit/svg-icons.test.mjs',
+  +   'tests/unit/thread-badge.test.mjs',
+  +   'tests/unit/threads-drawer.test.mjs',
+  +   'tests/unit/token-map.test.mjs',
+  +   'tests/unit/tooltip.test.mjs',
+  +   'tests/unit/typing-indicator.test.mjs',
+  +   'tests/unit/unread-bar.test.mjs',
+  +   'tests/unit/user-popout.test.mjs',
+  +   'tests/unit/voice-grid.test.mjs',
+  +   'tests/unit/voice-input-mode.test.mjs',
+  +   'tests/unit/voice-quality.test.mjs',
+  +   'tests/unit/voice-sound-effects.test.mjs',
+  +   'tests/unit/voice-stage-ui.test.mjs',
+  +   'tests/unit/voice-volume.test.mjs',
+  +   'tests/unit/voice_ui.test.mjs',
+  +   'tests/unit/webhooks-editor.test.mjs'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/docs-task-287-tdd-plan-sync/tests/meta/plan-sync.test.mjs:148:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [
+      'tests/unit/app-shell-wiring.test.mjs',      'tests/unit/appearance-settings.test.mjs',
+      'tests/unit/attachment-helper.test.mjs',     'tests/unit/attachment-validator.test.mjs',
+      'tests/unit/attachments-ui.test.mjs',        'tests/unit/audit-log.test.mjs',
+      'tests/unit/automod-editor.test.mjs',        'tests/unit/channel-gate.test.mjs',
+      'tests/unit/channel-tree.test.mjs',          'tests/unit/chat-helpers-bridge.test.mjs',
+      'tests/unit/composer-autocomplete.test.mjs', 'tests/unit/composer-popovers-bridge.test.mjs',
+      'tests/unit/context-menu.test.mjs',          'tests/unit/embed-formatter.test.mjs',
+      'tests/unit/event-banner.test.mjs',          'tests/unit/events-modal.test.mjs',
+      'tests/unit/expression-picker.test.mjs',     'tests/unit/expressions-manager.test.mjs',
+      'tests/unit/forum-filter.test.mjs',          'tests/unit/forum-view.test.mjs',
+      'tests/unit/friends-home.test.mjs',          'tests/unit/guild-boost.test.mjs',
+      'tests/unit/guild-folders.test.mjs',         'tests/unit/guild-modals.test.mjs',
+      'tests/unit/i18n.test.mjs',                  'tests/unit/inbox.test.mjs',
+      'tests/unit/invite-modal.test.mjs',          'tests/unit/invite-parser.test.mjs',
+      'tests/unit/keybinds.test.mjs',              'tests/unit/locale-switcher.test.mjs',
+      'tests/unit/markdown-helper.test.mjs',       'tests/unit/member-list.test.mjs',
+      'tests/unit/members-subscriptions.test.mjs', 'tests/unit/message-actions.test.mjs',
+      'tests/unit/message-media-polls.test.mjs',   'tests/unit/moderation-panel.test.mjs',
+      'tests/unit/notifications.test.mjs',         'tests/unit/onboarding-wizard.test.mjs',
+      'tests/unit/pins-threads.test.mjs',          'tests/unit/plural-format.test.mjs',
+      'tests/unit/poll-card.test.mjs',             'tests/unit/poll-progress.test.mjs',
+      'tests/unit/presence-activity.test.mjs',     'tests/unit/profile-modal.test.mjs',
+      'tests/unit/quick-switcher.test.mjs',        'tests/unit/reactions-ui.test.mjs',
+      'tests/unit/role-editor.test.mjs',           'tests/unit/role-permissions.test.mjs',
+      'tests/unit/search-panel.test.mjs',          'tests/unit/settings-modal.test.mjs',
+      'tests/unit/shell-bridge.test.mjs',          'tests/unit/shell-controllers-registry.test.mjs',
+      'tests/unit/shortcuts.test.mjs',             'tests/unit/slash-command-picker.test.mjs',
+      'tests/unit/slowmode.test.mjs',              'tests/unit/soundboard-picker.test.mjs',
+      'tests/unit/stage-channel.test.mjs',         'tests/unit/stage-request-queue.test.mjs',
+      'tests/unit/svg-icons.test.mjs',             'tests/unit/thread-badge.test.mjs',
+      'tests/unit/threads-drawer.test.mjs',        'tests/unit/token-map.test.mjs',
+      'tests/unit/tooltip.test.mjs',               'tests/unit/typing-indicator.test.mjs',
+      'tests/unit/unread-bar.test.mjs',            'tests/unit/user-popout.test.mjs',
+      'tests/unit/voice-grid.test.mjs',            'tests/unit/voice-input-mode.test.mjs',
+      'tests/unit/voice-quality.test.mjs',         'tests/unit/voice-sound-effects.test.mjs',
+      'tests/unit/voice-stage-ui.test.mjs',        'tests/unit/voice-volume.test.mjs',
+      'tests/unit/voice_ui.test.mjs',              'tests/unit/webhooks-editor.test.mjs'
+    ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

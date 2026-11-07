@@ -1,0 +1,23 @@
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-223-be-dm-channels/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.28s
+     Running tests/dm_channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_channels_contract-f4ea95970b0a2259)
+
+running 8 tests
+test build_create_dm_body_propagates_validation_errors ... ok
+test build_group_dm_recipient_route_returns_canonical_path_and_validates_inputs ... ok
+test build_create_dm_body_returns_recipient_id_for_single_and_recipients_for_group ... ok
+test dm_channels_constants_match_discord_contract ... ok
+test create_dm_request_serde_roundtrip ... ok
+test validate_create_dm_request_checks_canonical_positive_u64_snowflakes ... ok
+test validate_create_dm_request_rejects_duplicate_recipients ... ok
+test validate_create_dm_request_enforces_recipient_count_bounds ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

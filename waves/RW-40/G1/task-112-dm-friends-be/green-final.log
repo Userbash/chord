@@ -1,0 +1,44 @@
+# GREEN-FINAL (после фикса Review 40A, P2-2)
+# Дата: 2026-10-30T21:01:26+05:00
+# MD5 src/dm_friends.rs: 6e74f81b47b9579bb0f863889c453479
+# MD5 tests/dm_friends_contract.rs: 920b11eef5ef5de7bebf715a9846f5ad
+
+## 1. CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract --test ipc_wiring_contract
+    Blocking waiting for file lock on build directory
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.77s
+     Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-a6b95d0d0a5c72b0)
+
+running 6 tests
+test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
+test rest_error_responses_preserve_discord_code_on_403_and_404 ... ok
+test rest_relationships_put_delete_post_pomelo_and_stranger_80013_contract ... ok
+test rest_create_dm_and_group_dm_validates_snowflakes_and_recipients_bounds ... ok
+test ready_relationships_parsing_and_tabs_filtering_contract ... ok
+test ready_private_channels_and_rest_static_oracle_parity ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-84ba0c800473fb28)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+TEST_EXIT=0
+
+## 2. cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test dm_friends_contract -- -D warnings
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.87s
+CLIPPY_EXIT=0
+
+## 3. rustfmt --edition 2021 --check rust/gui-spike/src/dm_friends.rs rust/gui-spike/tests/dm_friends_contract.rs
+FMT_EXIT=0

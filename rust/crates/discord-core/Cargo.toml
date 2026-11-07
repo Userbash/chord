@@ -9,7 +9,8 @@ description = "Шлюз Discord, REST v9, сессии и реконнект"
 discord-codec = { workspace = true }
 # Production-разбор JSON-ответов REST (`GET /users/@me`): строгий парсер без serde.
 discord-json = { workspace = true }
-tokio = { workspace = true }
+discord-voice = { path = "../discord-voice" }
+tokio = { workspace = true, features = ["sync"] }
 tokio-tungstenite = { workspace = true }
 rustls = { workspace = true }
 tokio-rustls = { workspace = true }

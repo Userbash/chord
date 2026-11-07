@@ -1,0 +1,171 @@
+================ M1 drop CHANNEL_CREATE (extended kind removed) ================
+--- diff vs clean ---
+@@ -29,7 +29,6 @@
+  */
+ export const FORWARDED_KINDS = Object.freeze([
+   "CHANNEL_INFO",
+-  "CHANNEL_CREATE",
+   "CHANNEL_UPDATE",
+   "CHANNEL_DELETE",
+   "GUILD_MEMBERS_CHUNK",
+ℹ fail 2
+ℹ pass 56
+ℹ tests 58
+failing assertions:
+  ✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (0.903061ms)
+  ✖ B14b: 8 расширенных событий приняты моделью — skipped, не ignored (0.14764ms)
+  ✖ L-02-UI: контракт dispatch (A1–A3) (4.992422ms)
+  ✖ L-02-UI: проекции dispatch (B) (23.829571ms)
+    AssertionError [ERR_ASSERTION]: CHANNEL_CREATE форвардится бэкендом, но отбрасывается UI
+    AssertionError [ERR_ASSERTION]: в UI не 30 kind
+VERDICT: KILLED (fail=2)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+================ M2 MESSAGE_DELETE -> MESSAGE_DELETE_EXTRA (false wire name) ================
+--- diff vs clean ---
+@@ -36,7 +36,7 @@
+   "GUILD_MEMBER_LIST_UPDATE",
+   "MESSAGE_ACK",
+   "MESSAGE_CREATE",
+-  "MESSAGE_DELETE",
++  "MESSAGE_DELETE_EXTRA",
+   "MESSAGE_DELETE_BULK",
+   "MESSAGE_POLL_VOTE_ADD",
+   "MESSAGE_REACTION_ADD",
+ℹ fail 4
+ℹ pass 54
+ℹ tests 58
+failing assertions:
+  ✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (1.457221ms)
+  ✖ A5: имена вне канонического набора остаются за фильтром (0.14925ms)
+  ✖ B14b: 8 расширенных событий приняты моделью — skipped, не ignored (0.11374ms)
+  ✖ B14: неизвестный kind — ignored, изменений нет (0.18565ms)
+  ✖ L-02-UI: контракт dispatch (A1–A3) (4.593873ms)
+  ✖ L-02-UI: проекции dispatch (B) (24.977692ms)
+    AssertionError [ERR_ASSERTION]: MESSAGE_DELETE_EXTRA в UI, но нет в оракуле ядра
+    AssertionError [ERR_ASSERTION]: MESSAGE_DELETE_EXTRA не ignored
+    AssertionError [ERR_ASSERTION]: MESSAGE_DELETE форвардится бэкендом, но отбрасывается UI
+    AssertionError [ERR_ASSERTION]: набор kind разошёлся с ядром
+VERDICT: KILLED (fail=4)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+================ M3 drop MESSAGE_REACTION_REMOVE (raw kind removed) ================
+--- diff vs clean ---
+@@ -57,7 +57,6 @@
+   "VOICE_CHANNEL_STATUS_UPDATE",
+   "VOICE_SERVER_UPDATE",
+   "VOICE_STATE_UPDATE",
+-  "MESSAGE_REACTION_REMOVE",
+ ]);
+ 
+ /** Статусы присутствия из `[L]`-кадров; всё остальное — `unknown` (не offline). */
+ℹ fail 6
+ℹ pass 52
+ℹ tests 58
+failing assertions:
+  ✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (0.72167ms)
+  ✖ A4: каждое из 22 канонических событий доходит до модели и не отбрасывается фильтром (1.662211ms)
+  ✖ B11: REACTION ADD/REMOVE — ±1, me по selfUserId, повтор ADD — no-op (0.157131ms)
+  ✖ B13: malformed-таблица (null/[]/"x"/{}) для каждого kind с проекцией (0.1809ms)
+  ✖ C5b: live-реакция прибавляется к базовому счётчику messages_page (25.623023ms)
+  ✖ C5–C7: реакции — ADD чужой/себя, REMOVE до нуля удаляет пилюлю (25.780862ms)
+  ✖ L-02-UI: интеграция dispatch → DOM (C1–C14) (699.647795ms)
+  ✖ L-02-UI: контракт dispatch (A1–A3) (4.079131ms)
+  ✖ L-02-UI: проекции dispatch (B) (24.915562ms)
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    AssertionError [ERR_ASSERTION]: MESSAGE_REACTION_REMOVE отброшен фильтром FORWARDED_KINDS
+    AssertionError [ERR_ASSERTION]: MESSAGE_REACTION_REMOVE с проекцией отсутствует в FORWARDED_KINDS
+    AssertionError [ERR_ASSERTION]: REMOVE не вернул базу
+    AssertionError [ERR_ASSERTION]: в UI не 30 kind
+VERDICT: KILLED (fail=6)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+================ M4 duplicate TYPING_START (31 entries, 30 unique) ================
+--- diff vs clean ---
+@@ -52,6 +52,7 @@
+   "THREAD_DELETE",
+   "THREAD_LIST_SYNC",
+   "TYPING_START",
++  "TYPING_START",
+   "USER_SETTINGS_PROTO_UPDATE",
+   "VOICE_CHANNEL_START_TIME_UPDATE",
+   "VOICE_CHANNEL_STATUS_UPDATE",
+ℹ fail 1
+ℹ pass 57
+ℹ tests 58
+failing assertions:
+  ✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (0.72506ms)
+  ✖ L-02-UI: контракт dispatch (A1–A3) (4.084021ms)
+    AssertionError [ERR_ASSERTION]: в UI не 30 kind
+VERDICT: KILLED (fail=1)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+================ M5 THREAD_CREATE -> THREAD_CREATED (typo) ================
+--- diff vs clean ---
+@@ -47,7 +47,7 @@
+   "RESUMED",
+   "SESSIONS_REPLACE",
+   "SOUNDBOARD_SOUNDS",
+-  "THREAD_CREATE",
++  "THREAD_CREATED",
+   "THREAD_UPDATE",
+   "THREAD_DELETE",
+   "THREAD_LIST_SYNC",
+ℹ fail 3
+ℹ pass 55
+ℹ tests 58
+failing assertions:
+  ✖ A2: FORWARDED_KINDS — 21 DispatchKind::as_str + 8 расширенных + MESSAGE_REACTION_REMOVE (1.29608ms)
+  ✖ A5: имена вне канонического набора остаются за фильтром (0.15703ms)
+  ✖ B14b: 8 расширенных событий приняты моделью — skipped, не ignored (0.14706ms)
+  ✖ L-02-UI: контракт dispatch (A1–A3) (4.477892ms)
+  ✖ L-02-UI: проекции dispatch (B) (23.070681ms)
+    AssertionError [ERR_ASSERTION]: THREAD_CREATED в UI, но нет в оракуле ядра
+    AssertionError [ERR_ASSERTION]: THREAD_CREATE форвардится бэкендом, но отбрасывается UI
+    AssertionError [ERR_ASSERTION]: набор kind разошёлся с ядром
+VERDICT: KILLED (fail=3)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+================ P1 probe: order change, same 30 names ================
+--- diff vs clean ---
+@@ -28,6 +28,7 @@
+  * как `skipped`, без изменений состояния.
+  */
+ export const FORWARDED_KINDS = Object.freeze([
++  "MESSAGE_REACTION_REMOVE",
+   "CHANNEL_INFO",
+   "CHANNEL_CREATE",
+   "CHANNEL_UPDATE",
+@@ -57,7 +58,6 @@
+   "VOICE_CHANNEL_STATUS_UPDATE",
+   "VOICE_SERVER_UPDATE",
+   "VOICE_STATE_UPDATE",
+-  "MESSAGE_REACTION_REMOVE",
+ ]);
+ 
+ /** Статусы присутствия из `[L]`-кадров; всё остальное — `unknown` (не offline). */
+ℹ fail 0
+ℹ pass 58
+ℹ tests 58
+failing assertions:
+VERDICT: SURVIVED (fail=0)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+================ P2 probe: filter bypass (!FORWARDED.has -> false) ================
+--- diff vs clean ---
+@@ -1457,7 +1457,7 @@
+ 
+   /** @type {DispatchChange[]} */
+   let changes = [];
+-  if (!FORWARDED.has(kind)) {
++  if (false && !FORWARDED.has(kind)) {
+     // N1: не форвардим и не шумим — ignored, без throw и console.
+     counters.ignored += 1;
+     return { ok: true, kind, changes, counters };
+ℹ fail 2
+ℹ pass 56
+ℹ tests 58
+failing assertions:
+  ✖ B14: неизвестный kind — ignored, изменений нет (0.48291ms)
+  ✖ C10: N1/N2 — неизвестный kind и malformed не меняют DOM и не шумят (44.992931ms)
+  ✖ L-02-UI: интеграция dispatch → DOM (C1–C14) (671.638362ms)
+  ✖ L-02-UI: проекции dispatch (B) (23.322082ms)
+    AssertionError [ERR_ASSERTION]: ignored не 1
+    AssertionError [ERR_ASSERTION]: X не ignored
+VERDICT: KILLED (fail=2)
+restored md5=9c7439d1db386a89fbd2347a95a207a2
+FINAL md5=9c7439d1db386a89fbd2347a95a207a2

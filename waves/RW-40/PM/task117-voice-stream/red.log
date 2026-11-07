@@ -1,0 +1,371 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+error[E0425]: cannot find type `VoiceSession` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1400:48
+     |
+1400 | fn connect_fixture_guild_session(session: &mut VoiceSession) {
+     |                                                ^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1450:33
+     |
+1450 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1468:33
+     |
+1468 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `AppliedDeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1481:9
+     |
+1481 |         AppliedDeviceSelection {
+     |         ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1502:33
+     |
+1502 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1517:33
+     |
+1517 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1532:33
+     |
+1532 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1552:33
+     |
+1552 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1575:33
+     |
+1575 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1595:33
+     |
+1595 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1609:33
+     |
+1609 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1626:33
+     |
+1626 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `DeviceSelection` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1646:33
+     |
+1646 |         .apply_device_selection(DeviceSelection {
+     |                                 ^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find type `StreamGatewayCommand` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1811:40
+     |
+1811 | ...r = |cmd: &StreamGatewayCommand, vector_id: &str| {
+     |               ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `VoiceSession` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1444:23
+     |
+1444 |     let mut session = VoiceSession::new(default_config());
+     |                       ^^^^^^^^^^^^ use of undeclared type `VoiceSession`
+
+error[E0599]: no variant, associated function, or constant named `SessionNotEstablished` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1460:39
+     |
+1460 |     assert_eq!(pre_err, SessionError::SessionNotEstablished);
+     |                                       ^^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant named `VolumeOutOfRange` found for enum `discord_voice::session::SessionError`
+    --> crates/discord-voice/tests/session_contract.rs:1544:23
+     |
+1544 |         SessionError::VolumeOutOfRange {
+     |                       ^^^^^^^^^^^^^^^^ variant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant named `VolumeOutOfRange` found for enum `discord_voice::session::SessionError`
+    --> crates/discord-voice/tests/session_contract.rs:1564:23
+     |
+1564 |         SessionError::VolumeOutOfRange {
+     |                       ^^^^^^^^^^^^^^^^ variant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant, associated function, or constant named `DeviceSelection` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1638:23
+     |
+1638 |         SessionError::DeviceSelection(DeviceSelectError::WrongKind {
+     |                       ^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant, associated function, or constant named `DeviceSelection` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1658:23
+     |
+1658 |         SessionError::DeviceSelection(DeviceSelectError::EmptyId)
+     |                       ^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0433]: cannot find type `StreamGatewayOp` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1717:25
+     |
+1717 | ...op = StreamGatewayOp::from_code(*code).expect("valid stream gateway...
+     |         ^^^^^^^^^^^^^^^ use of undeclared type `StreamGatewayOp`
+
+error[E0433]: cannot find type `StreamGatewayOp` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1723:16
+     |
+1723 |     assert_eq!(StreamGatewayOp::from_code(17), None);
+     |                ^^^^^^^^^^^^^^^ use of undeclared type `StreamGatewayOp`
+
+error[E0433]: cannot find type `StreamGatewayOp` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1724:16
+     |
+1724 |     assert_eq!(StreamGatewayOp::from_code(23), None);
+     |                ^^^^^^^^^^^^^^^ use of undeclared type `StreamGatewayOp`
+
+error[E0433]: cannot find type `VoiceSession` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1728:23
+     |
+1728 |     let mut session = VoiceSession::new(SessionConfig {
+     |                       ^^^^^^^^^^^^ use of undeclared type `VoiceSession`
+
+error[E0599]: no variant, associated function, or constant named `StreamNotEstablished` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1738:27
+     |
+1738 |         Err(SessionError::StreamNotEstablished)
+     |                           ^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant, associated function, or constant named `StreamNotEstablished` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1743:27
+     |
+1743 |         Err(SessionError::StreamNotEstablished)
+     |                           ^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant, associated function, or constant named `StreamNotEstablished` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1747:27
+     |
+1747 |         Err(SessionError::StreamNotEstablished)
+     |                           ^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant, associated function, or constant named `StreamNotEstablished` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1751:27
+     |
+1751 |         Err(SessionError::StreamNotEstablished)
+     |                           ^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0599]: no variant, associated function, or constant named `StreamNotEstablished` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1755:27
+     |
+1755 |         Err(SessionError::StreamNotEstablished)
+     |                           ^^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0433]: cannot find type `StreamKind` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1769:32
+     |
+1769 |     assert_eq!(bound_key.kind, StreamKind::Guild);
+     |                                ^^^^^^^^^^ use of undeclared type `StreamKind`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1780:14
+     |
+1780 |         Some(StreamLifecyclePhase::Connecting)
+     |              ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1861:45
+     |
+1861 | ...ream_phase(), Some(StreamLifecyclePhase::Ended));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0599]: no variant, associated function, or constant named `NoActiveStream` found for enum `discord_voice::session::SessionError` in the current scope
+    --> crates/discord-voice/tests/session_contract.rs:1862:63
+     |
+1862 | ...), Err(SessionError::NoActiveStream));
+     |                         ^^^^^^^^^^^^^^ variant, associated function, or constant not found in `discord_voice::session::SessionError`
+
+error[E0433]: cannot find type `VoiceSession` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1901:23
+     |
+1901 |     let mut session = VoiceSession::new(SessionConfig {
+     |                       ^^^^^^^^^^^^ use of undeclared type `VoiceSession`
+
+error[E0433]: cannot find type `StreamKey` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1917:41
+     |
+1917 |         session.active_stream_key().map(StreamKey::to_wire),
+     |                                         ^^^^^^^^^ use of undeclared type `StreamKey`
+     |
+help: a struct with a similar name exists
+     |
+1917 -         session.active_stream_key().map(StreamKey::to_wire),
+1917 +         session.active_stream_key().map(StreamSpec::to_wire),
+     |
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1920:45
+     |
+1920 | ...ream_phase(), Some(StreamLifecyclePhase::Active));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1940:45
+     |
+1940 | ...ream_phase(), Some(StreamLifecyclePhase::Active));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1964:45
+     |
+1964 | ...ream_phase(), Some(StreamLifecyclePhase::Paused));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1974:45
+     |
+1974 | ...ream_phase(), Some(StreamLifecyclePhase::Paused));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1982:14
+     |
+1982 |         Some(StreamLifecyclePhase::Reconnecting)
+     |              ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamKey` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1990:21
+     |
+1990 |         stream_key: StreamKey::parse(
+     |                     ^^^^^^^^^ use of undeclared type `StreamKey`
+     |
+help: a struct with a similar name exists
+     |
+1990 -         stream_key: StreamKey::parse(
+1990 +         stream_key: StreamSpec::parse(
+     |
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2001:45
+     |
+2001 | ...ream_phase(), Some(StreamLifecyclePhase::Failed));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2007:14
+     |
+2007 |         Some(StreamLifecyclePhase::Failed),
+     |              ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2016:45
+     |
+2016 | ...ream_phase(), Some(StreamLifecyclePhase::Ended));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2025:45
+     |
+2025 | ...ream_phase(), Some(StreamLifecyclePhase::Ended));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamKey` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2027:21
+     |
+2027 |         stream_key: StreamKey::parse(
+     |                     ^^^^^^^^^ use of undeclared type `StreamKey`
+     |
+help: a struct with a similar name exists
+     |
+2027 -         stream_key: StreamKey::parse(
+2027 +         stream_key: StreamSpec::parse(
+     |
+
+error[E0433]: cannot find type `StreamLifecyclePhase` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2037:45
+     |
+2037 | ...ream_phase(), Some(StreamLifecyclePhase::Ended));
+     |                       ^^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamLifecyclePhase`
+
+error[E0433]: cannot find type `StreamDeleteReason` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2040:15
+     |
+2040 |         Some(&StreamDeleteReason::Unknown(
+     |               ^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamDeleteReason`
+
+error[E0433]: cannot find type `StreamKey` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2061:19
+     |
+2061 |         let err = StreamKey::parse(raw)
+     |                   ^^^^^^^^^ use of undeclared type `StreamKey`
+     |
+help: a struct with a similar name exists
+     |
+2061 -         let err = StreamKey::parse(raw)
+2061 +         let err = StreamSpec::parse(raw)
+     |
+
+error[E0433]: cannot find type `StreamSessionEffect` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2026:31
+     |
+2026 |     assert!(effects.contains(&StreamSessionEffect::NotifyViewerFull {
+     |                               ^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamSessionEffect`
+     |
+help: an enum with a similar name exists
+     |
+2026 -     assert!(effects.contains(&StreamSessionEffect::NotifyViewerFull {
+2026 +     assert!(effects.contains(&SessionEffect::NotifyViewerFull {
+     |
+
+error[E0433]: cannot find type `StreamSessionEffect` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1944:9
+     |
+1944 |         StreamSessionEffect::OpenStreamRtc {
+     |         ^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamSessionEffect`
+     |
+help: an enum with a similar name exists
+     |
+1944 -         StreamSessionEffect::OpenStreamRtc {
+1944 +         SessionEffect::OpenStreamRtc {
+     |
+
+error[E0433]: cannot find type `StreamSessionEffect` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:2017:31
+     |
+2017 |     assert!(effects.contains(&StreamSessionEffect::ShowSafetyRateLimit {
+     |                               ^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamSessionEffect`
+     |
+help: an enum with a similar name exists
+     |
+2017 -     assert!(effects.contains(&StreamSessionEffect::ShowSafetyRateLimit {
+2017 +     assert!(effects.contains(&SessionEffect::ShowSafetyRateLimit {
+     |
+
+error[E0433]: cannot find type `StreamSessionEffect` in this scope
+    --> crates/discord-voice/tests/session_contract.rs:1989:31
+     |
+1989 |     assert!(effects.contains(&StreamSessionEffect::CloseStreamRtc {
+     |                               ^^^^^^^^^^^^^^^^^^^ use of undeclared type `StreamSessionEffect`
+     |
+help: an enum with a similar name exists
+     |
+1989 -     assert!(effects.contains(&StreamSessionEffect::CloseStreamRtc {
+1989 +     assert!(effects.contains(&SessionEffect::CloseStreamRtc {
+     |
+
+Some errors have detailed explanations: E0422, E0425, E0433, E0599.
+For more information about an error, try `rustc --explain E0422`.
+error: could not compile `discord-voice` (test "session_contract") due to 53 previous errors

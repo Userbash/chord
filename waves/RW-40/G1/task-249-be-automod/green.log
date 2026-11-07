@@ -1,0 +1,16 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-249-be-automod/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.27s
+     Running tests/automod_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/automod_contract-f826691fb5023723)
+
+running 7 tests
+test automod_constants_match_discord_contract ... ok
+test build_guild_automod_route_formats_collection_and_item_routes_and_validates_snowflakes ... ok
+test validate_automod_rule_request_enforces_name_bounds_and_event_type ... ok
+test validate_automod_rule_request_validates_action_types_and_timeout_duration ... ok
+test validate_automod_rule_request_validates_mention_spam_spam_preset_and_unknown_triggers ... ok
+test upsert_automod_rule_request_serde_roundtrip ... ok
+test validate_automod_rule_request_validates_keyword_trigger_bounds ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

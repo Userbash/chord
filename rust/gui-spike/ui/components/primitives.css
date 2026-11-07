@@ -331,3 +331,34 @@ button {
 .search-input::-webkit-search-cancel-button {
   appearance: none;
 }
+
+/* ---------------------------------------------------------------------------
+ * Tooltip (FE-P2-01): один общий слой на все иконки вместо сырых `title`.
+ * Классы — из клиента (`frontend-d03.md` §5 п.7: `tooltip_c36707`), значения —
+ * только токены `tokens.css`. Координаты не задаются: их выставляет слой,
+ * который владеет геометрией иконки; `data-placement` — контракт для него.
+ * ------------------------------------------------------------------------ */
+.tooltip,
+.tooltip_c36707 {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  max-width: var(--layout-tree-w);
+  padding: var(--tooltip-pad-y) var(--tooltip-pad-x);
+  border-radius: var(--tooltip-radius);
+  background: var(--surface-4);
+  box-shadow: var(--shadow-popover);
+  color: var(--text-strong);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-small);
+  overflow-wrap: anywhere;
+  /* `tooltipDisablePointerEvents_c36707`: подсказка не забирает hover у иконки. */
+  pointer-events: none;
+}
+
+/* Скрытое состояние: явно, независимо от сброса `[hidden]` выше. */
+.tooltip[hidden],
+.tooltip_c36707[hidden] {
+  display: none;
+}
+

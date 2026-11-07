@@ -1,0 +1,28 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/notifications_contract.rs (target/debug/deps/notifications_contract-7f28062dd294d7f1)
+
+running 4 tests
+test cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy ... ok
+test guild_and_channel_patch_builders_and_validators_enforce_re_contract ... ok
+test transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch_payloads ... ok
+test oracle_ready_and_rest_static_parity_for_user_guild_settings ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.47s

@@ -1,0 +1,110 @@
+# Task 1 mutation run — STUB-14-UI-SEARCH-FIX
+
+Repository: /home/sanya/orca/project
+Target test: tests/unit/search-remote-real-index.test.mjs
+Node: v26.13.0
+
+Baseline files:
+  b5c5c3e6538fa0f6c24c45c3ac1c36a0  rust/gui-spike/ui/features/search.js
+  860e9237a00e4eacd66e343bbeb5ab45  rust/gui-spike/ui/features/search-overlay.js
+  b2692ff1bb6b0fb107e998ac2f5b2c2d  tests/unit/search-remote-real-index.test.mjs
+
+## M1 — isCalendarDate: без обратной сверки UTC-компонентов (старое поведение regex + Date.parse)
+file: rust/gui-spike/ui/features/search.js
+md5 до:      b5c5c3e6538fa0f6c24c45c3ac1c36a0
+md5 мутанта: b53819e7dddfdb6926df341a770b4db7
+patch:
+  -   if (Number.isNaN(parsed.getTime())) return false;
+  -   return parsed.getUTCFullYear() === year
+  -     && parsed.getUTCMonth() + 1 === month
+  -     && parsed.getUTCDate() === day;
+  +   if (Number.isNaN(parsed.getTime())) return false;
+  +   return true;
+exit code: 1
+summary: ℹ tests 8 | ℹ suites 2 | ℹ pass 6 | ℹ fail 2 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+failed tests:
+  ✖ P2: невалидные календарные даты отклоняются, валидные считаются по UTC (0.80597ms)
+  ✖ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (11.049003ms)
+  ✖ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (22.312244ms)
+  ✖ failing tests:
+  ✖ P2: невалидные календарные даты отклоняются, валидные считаются по UTC (0.80597ms)
+  ✖ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (11.049003ms)
+md5 после восстановления: b5c5c3e6538fa0f6c24c45c3ac1c36a0 (OK, совпал)
+verdict: KILLED
+
+## M2 — isIsoDate: только regex без календарной проверки (2026-02-31 проходит)
+file: rust/gui-spike/ui/features/search-overlay.js
+md5 до:      860e9237a00e4eacd66e343bbeb5ab45
+md5 мутанта: 7c9f1db36e3a8a42259227f17e222483
+patch:
+  -   // P2: `Date.parse` нормализует 2026-02-31 в март — нужна сверка компонентов.
+  -   return isCalendarDate(value);
+  +   return /^\d{4}-\d{2}-\d{2}$/.test(value);
+exit code: 1
+summary: ℹ tests 8 | ℹ suites 2 | ℹ pass 7 | ℹ fail 1 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+failed tests:
+  ✖ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (10.761437ms)
+  ✖ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (21.364015ms)
+  ✖ failing tests:
+  ✖ P2: оверлей не шлёт запрос с min_id/max_id для невалидной даты (10.761437ms)
+md5 после восстановления: 860e9237a00e4eacd66e343bbeb5ab45 (OK, совпал)
+verdict: KILLED
+
+## M3 — matchesFilterValue: сравнение только с отображаемым именем, без authorId/mentionIds
+file: rust/gui-spike/ui/features/search-overlay.js
+md5 до:      860e9237a00e4eacd66e343bbeb5ab45
+md5 мутанта: bfbab43786b0cb2d2f694c6dd3535b75
+patch:
+  -   return values.some((value) => {
+  -     if (ids.includes(value)) return true;
+  -     const needle = value.toLowerCase();
+  +   return values.some((value) => {
+  +     const needle = value.toLowerCase();
+exit code: 1
+summary: ℹ tests 8 | ℹ suites 2 | ℹ pass 7 | ℹ fail 1 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+failed tests:
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.340213ms)
+  ✖ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (19.307509ms)
+  ✖ failing tests:
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.340213ms)
+md5 после восстановления: 860e9237a00e4eacd66e343bbeb5ab45 (OK, совпал)
+verdict: KILLED
+
+## M4 — normalizeRemoteMessage: authorId не заполняется из author.id
+file: rust/gui-spike/ui/features/search-overlay.js
+md5 до:      860e9237a00e4eacd66e343bbeb5ab45
+md5 мутанта: 4e0ea7a1b7e455b562554094be91bbc4
+patch:
+  -   const authorId = String(author.id ?? message.author_id ?? message.authorId ?? "");
+  +   const authorId = "";
+exit code: 1
+summary: ℹ tests 8 | ℹ suites 2 | ℹ pass 7 | ℹ fail 1 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+failed tests:
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.240314ms)
+  ✖ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (19.327339ms)
+  ✖ failing tests:
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.240314ms)
+md5 после восстановления: 860e9237a00e4eacd66e343bbeb5ab45 (OK, совпал)
+verdict: KILLED
+
+## M5 — buildSearchQuery: фильтр mentions не попадает в query
+file: rust/gui-spike/ui/features/search.js
+md5 до:      b5c5c3e6538fa0f6c24c45c3ac1c36a0
+md5 мутанта: 081851319161282ac5f320ee4676dfa3
+patch:
+  -   const mentions = splitQueryValues(filters.mentions);
+  -   if (mentions.length > 0) query.mentions = mentions;
+exit code: 1
+summary: ℹ tests 8 | ℹ suites 2 | ℹ pass 6 | ℹ fail 2 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+failed tests:
+  ✖ STUB-14: передаёт все подтверждённые фильтры поиска в query (§2) (29.048287ms)
+  ✖ QA-M2-03: search_remote на реальном index.html (data-guild-id) (114.312471ms)
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.986275ms)
+  ✖ STUB-14-UI-SEARCH-FIX: числовые id и календарные даты (REVIEW P1/P2) (20.04696ms)
+  ✖ failing tests:
+  ✖ STUB-14: передаёт все подтверждённые фильтры поиска в query (§2) (29.048287ms)
+  ✖ P1: числовые author_id/mentions не отбрасывают совпавшее серверное сообщение (9.986275ms)
+md5 после восстановления: b5c5c3e6538fa0f6c24c45c3ac1c36a0 (OK, совпал)
+verdict: KILLED
+
+Итого: killed 5/5

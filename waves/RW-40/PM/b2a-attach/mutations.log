@@ -1,0 +1,41 @@
+baseline: src=c2e1062287d334a397901a7ebe90b3a3 test=cdc8cbd9dd91323ad97a84ef4acfa962
+baseline targeted: test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=0
+
+== M1 allowlist пропускает точку (a.b не режется)
+   mutant md5=120748f0d981927eb98aefd8ed02eaff
+   KILLED | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: channel_id_allowlist_matches_messages_module
+   restore md5=c2e1062287d334a397901a7ebe90b3a3 (совпал)
+
+== M2 граница размера: >= вместо >
+   mutant md5=9cb21b5d97ba5b4cfeb15f06005d395d
+   KILLED | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: rejects_oversized_file_locally_with_entity_too_large
+   restore md5=c2e1062287d334a397901a7ebe90b3a3 (совпал)
+
+== M3 429 без retry-after
+   mutant md5=1b8a5a78e7f515f9cd90e969e0768f9c
+   KILLED | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: maps_429_with_retry_after_header
+   restore md5=c2e1062287d334a397901a7ebe90b3a3 (совпал)
+
+== M4 тело: ключ file_size переименован в size
+   mutant md5=b495b0c53ab0014b70403257ef8fd43e
+   KILLED | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: posts_exact_upload_slot_request
+   restore md5=c2e1062287d334a397901a7ebe90b3a3 (совпал)
+
+== M5 40005 больше не маппится в EntityTooLarge
+   mutant md5=83faa53fffc498d65856db9a95724d3f
+   KILLED | test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: maps_413_and_40005_to_entity_too_large
+   restore md5=c2e1062287d334a397901a7ebe90b3a3 (совпал)
+
+== M6 пары слот/файл по индексу, а не по id
+   mutant md5=915ffe8f94285cb3200330d17245cdac
+   KILLED | test result: FAILED. 13 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: builder_rejects_mismatched_slots_and_specs, builds_message_attachments_in_spec_order
+   restore md5=c2e1062287d334a397901a7ebe90b3a3 (совпал)
+
+финал: src=c2e1062287d334a397901a7ebe90b3a3 test=cdc8cbd9dd91323ad97a84ef4acfa962 | совпадает с baseline: True
+мутаций убито: 6/6

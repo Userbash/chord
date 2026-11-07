@@ -1,0 +1,29 @@
+baseline: src=3377d6dcd0850da6b92dbaac3a6c7dac test=45d107db41d4c1f443de8596b1196e49
+baseline targeted: test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=0
+
+== M1 None/Tier1 возвращает 10 MiB (0xa0_0000) вместо базового пола 20 MiB (Math.max(0x1400000, tierLimit))
+   mutant md5=6c8aeb22e0d7530ddd8325ae74843674
+   KILLED | test result: FAILED. 14 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, guild_boost_tier_limits_match_re_oracle, rejects_oversized_file_locally_with_entity_too_large
+   restore md5=3377d6dcd0850da6b92dbaac3a6c7dac (совпал)
+
+== M2 Tier2 возвращает базовый лимит 20 MiB вместо 50 MiB
+   mutant md5=02cda1732100e40623002317ca8d05e6
+   KILLED | test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, guild_boost_tier_limits_match_re_oracle
+   restore md5=3377d6dcd0850da6b92dbaac3a6c7dac (совпал)
+
+== M3 Tier3 возвращает лимит Tier2 (50 MiB) вместо 100 MiB
+   mutant md5=e176a6552549808677acb378c14ee34a
+   KILLED | test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, guild_boost_tier_limits_match_re_oracle
+   restore md5=3377d6dcd0850da6b92dbaac3a6c7dac (совпал)
+
+== M4 Граница размера в validate_files: >= вместо > (режет точный размер 20/50/100 MiB)
+   mutant md5=ab153d43735e6d2a7f2e5298861d2c31
+   KILLED | test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s | exit=101
+   упали: enforces_exact_upload_size_boundaries_for_each_guild_boost_tier, rejects_oversized_file_locally_with_entity_too_large
+   restore md5=3377d6dcd0850da6b92dbaac3a6c7dac (совпал)
+
+финал: src=3377d6dcd0850da6b92dbaac3a6c7dac test=45d107db41d4c1f443de8596b1196e49 | совпадает с baseline: True
+мутаций убито: 4/4

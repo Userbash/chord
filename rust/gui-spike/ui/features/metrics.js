@@ -39,7 +39,10 @@ function frameLoop(now) {
   requestAnimationFrame(frameLoop);
 }
 
+let metricsInFlight = false;
+
 async function pollProcessMetrics() {
+  if (metricsInFlight) return;
   const tauri = /** @type {any} */ (window).__TAURI__;
   const rss = byId("m-rss");
   const threads = byId("m-threads");
@@ -48,6 +51,7 @@ async function pollProcessMetrics() {
     if (threads) threads.textContent = "n/a";
     return;
   }
+  metricsInFlight = true;
   try {
     const metrics = await tauri.core.invoke("process_metrics");
     if (rss) rss.textContent = `${Math.round(metrics.rss_kib / 1024)} МБ`;
@@ -55,6 +59,8 @@ async function pollProcessMetrics() {
   } catch (error) {
     if (rss) rss.textContent = "err";
     reportError("IPC_FAILED", error);
+  } finally {
+    metricsInFlight = false;
   }
 }
 

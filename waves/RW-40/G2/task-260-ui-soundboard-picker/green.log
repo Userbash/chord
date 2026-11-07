@@ -1,0 +1,28 @@
+▶ soundboard-picker: константы контракта
+  ✔ T-260-01: экспортирует точные значения MIN_SOUNDBOARD_NAME_CHARS, MAX_SOUNDBOARD_NAME_CHARS и MAX_SOUNDBOARD_BYTES (0.350621ms)
+✔ soundboard-picker: константы контракта (0.911591ms)
+▶ soundboard-picker: isValidSoundboardName
+  ✔ T-260-02: проверяет тип string и длину name.trim() в диапазоне 2..=32 символов (0.13078ms)
+✔ soundboard-picker: isValidSoundboardName (0.21662ms)
+▶ soundboard-picker: clampSoundboardVolume
+  ✔ T-260-03: ограничивает громкость диапазоном 0..1 и возвращает 1 для нечисловых или NaN значений (0.11843ms)
+✔ soundboard-picker: clampSoundboardVolume (0.20386ms)
+▶ soundboard-picker: filterSoundboardSounds
+  ✔ T-260-04: при пустом запросе возвращает доступные звуки (available !== false), сортируя по name (ru) и tie-break по String(soundId) без мутации входа (5.298063ms)
+  ✔ T-260-05: фильтрует по регистронезависимой подстроке name и отбрасывает недоступные (available === false) (0.17566ms)
+✔ soundboard-picker: filterSoundboardSounds (5.604033ms)
+▶ soundboard-picker: createSoundboardPickerController
+  ✔ T-260-06: рендерит диалог [data-soundboard-picker], поиск, громкость, кнопки звуков и форму загрузки (1.08716ms)
+  ✔ T-260-07: клик по [data-soundboard-play] вызывает onPlaySound(soundId, currentVolume) с учётом ползунка громкости (0.383511ms)
+  ✔ T-260-08: ввод в [data-soundboard-search] фильтрует список кнопок [data-soundboard-play] (0.22081ms)
+  ✔ T-260-09: форма загрузки валидирует имя и data:audio/ URI, выставляет [data-soundboard-error] при ошибке и вызывает onUploadSound при успехе (0.36706ms)
+  ✔ T-260-10: поддерживает setState(patch), защищённый от мутаций getState() и destroy() (0.27458ms)
+✔ soundboard-picker: createSoundboardPickerController (2.543401ms)
+ℹ tests 10
+ℹ suites 5
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.792034

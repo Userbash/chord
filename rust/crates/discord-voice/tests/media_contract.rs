@@ -604,3 +604,223 @@ fn m13_jitter_handles_wraparound_and_capacity_one() {
         (0, 0, 0, 1)
     );
 }
+
+#[test]
+fn m14_srtcp_empty_rr_exact_byte_layout_oracle_28b() {
+    use discord_voice::udp::{SRTCP_EMPTY_RR_LEN, empty_srtcp_receiver_report};
+
+    let ssrc = 0x0000_23f8; // 9208 из оракула s3
+    let tag = [
+        0x4c, 0x43, 0x9e, 0x13, 0x57, 0xc7, 0xd7, 0xe3, 0x85, 0xee, 0x66, 0xd1, 0x20, 0x58, 0xbf,
+        0xe0,
+    ];
+    let trailer_counter = 0x8000_0016; // 0x80000000 | 22
+
+    let packet = empty_srtcp_receiver_report(ssrc, tag, trailer_counter);
+    assert_eq!(packet.len(), SRTCP_EMPTY_RR_LEN);
+    assert_eq!(
+        packet.len(),
+        28,
+        "ровно 28 байт по спецификации RE/voice-deep.json"
+    );
+
+    // 8B RTCP header: V=2, P=0, RC=0 (0x80), PT=201 (0xc9), len=1 (0x00, 0x01), ssrc (4B BE)
+    assert_eq!(&packet[0..4], &[0x80, 0xc9, 0x00, 0x01]);
+    assert_eq!(&packet[4..8], &ssrc.to_be_bytes());
+
+    // 16B AEAD tag
+    assert_eq!(&packet[8..24], &tag);
+
+    // 4B LE SRTCP index with E-bit (0x80000016 in LE = [0x16, 0x00, 0x00, 0x80])
+    assert_eq!(&packet[24..28], &[0x16, 0x00, 0x00, 0x80]);
+
+    // Проверка E-bit (старший бит трейлера = 1)
+    assert_ne!(packet[27] & 0x80, 0, "E-bit (bit 31) обязан быть выставлен");
+}
+
+#[test]
+fn m15_udp_socket_rotation_due_at_60080ms_sends_discovery_and_28b_srtcp_rr() {
+    use discord_voice::udp::{
+        DISCOVERY_LEN, DiscoveryPacket, RotationSchedule, SRTCP_EMPTY_RR_LEN, UdpMediaSocket,
+    };
+
+    let server = match std::net::UdpSocket::bind("127.0.0.1:0") {
+        Ok(socket) => socket,
+        Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => {
+            eprintln!("skip: loopback UDP unavailable: {err}");
+            return;
+        }
+        Err(err) => panic!("server bind failed: {err}"),
+    };
+    let server_addr = server.local_addr().unwrap();
+
+    let server_handle = std::thread::spawn(move || {
+        let mut packets = Vec::new();
+        let mut buf = [0u8; 128];
+        // 1 initial discovery + 1 rotated discovery + 1 rotated 28B SRTCP RR
+        for _ in 0..3 {
+            let (size, peer) = server.recv_from(&mut buf).unwrap();
+            packets.push((buf[..size].to_vec(), peer));
+            if size == DISCOVERY_LEN {
+                server.send_to(&buf[..size], peer).unwrap();
+            }
+        }
+        packets
+    });
+
+    let mut client = match UdpMediaSocket::bind("127.0.0.1:0") {
+        Ok(client) => client,
+        Err(err) => {
+            eprintln!("skip: loopback UDP client bind: {err}");
+            return;
+        }
+    };
+    client.send_discovery(server_addr, 9208).unwrap();
+    let initial_addr = client.local_addr().unwrap();
+
+    let mut schedule = RotationSchedule::new(0);
+    let tag = [0xabu8; 16];
+    let mut packet_counter = 100u32;
+
+    // До наступления 60 080 мс ротация не срабатывает, счётчик не инкрементируется
+    let early = client
+        .rotate_if_due_srtcp(60_079, &mut schedule, tag, &mut packet_counter)
+        .unwrap();
+    assert!(early.is_none());
+    assert_eq!(packet_counter, 100);
+    assert_eq!(client.local_addr().unwrap(), initial_addr);
+
+    // Ровно в 60 080 мс — ротация
+    let action = client
+        .rotate_if_due_srtcp(60_080, &mut schedule, tag, &mut packet_counter)
+        .unwrap()
+        .expect("rotation must be due at 60_080 ms");
+
+    // Проверяем инкремент сквозного счётчика пакетов (100 -> 101)
+    assert_eq!(packet_counter, 101, "счётчик пакетов инкрементирован");
+
+    // Проверяем сформированные стартовые пакеты: 74B Discovery + 28B SRTCP RR
+    assert_eq!(action.discovery.len(), DISCOVERY_LEN);
+    assert_eq!(action.empty_rr.len(), SRTCP_EMPTY_RR_LEN);
+    assert_eq!(action.empty_rr.len(), 28);
+
+    // Discovery содержит актуальный порт нового сокета
+    let new_addr = client.local_addr().unwrap();
+    assert_ne!(new_addr.port(), initial_addr.port());
+    assert_eq!(
+        DiscoveryPacket::parse(&action.discovery),
+        Ok(DiscoveryPacket::Request {
+            ssrc: 9208,
+            port: new_addr.port(),
+        })
+    );
+
+    // 28B SRTCP RR содержит заголовок RTCP, SSRC, tag и счётчик 100 с E-bit
+    assert_eq!(&action.empty_rr[0..4], &[0x80, 0xc9, 0x00, 0x01]);
+    assert_eq!(&action.empty_rr[4..8], &9208u32.to_be_bytes());
+    assert_eq!(&action.empty_rr[8..24], &tag);
+    let expected_trailer = (0x8000_0000u32 | 100).to_le_bytes();
+    assert_eq!(&action.empty_rr[24..28], &expected_trailer);
+
+    // Повторный вызов в ту же миллисекунду не триггерит повторную ротацию
+    let repeated = client
+        .rotate_if_due_srtcp(60_080, &mut schedule, tag, &mut packet_counter)
+        .unwrap();
+    assert!(repeated.is_none());
+    assert_eq!(packet_counter, 101);
+
+    // Сервер получил discovery + 28B RR от нового порта
+    let packets = server_handle.join().unwrap();
+    assert_eq!(packets.len(), 3);
+    assert_eq!(packets[0].0.len(), 74);
+    assert_eq!(packets[0].1, initial_addr);
+
+    assert_eq!(packets[1].0.len(), 74);
+    assert_eq!(packets[1].1, new_addr);
+
+    assert_eq!(packets[2].0.len(), 28);
+    assert_eq!(packets[2].1, new_addr);
+    assert_eq!(packets[2].0, action.empty_rr.to_vec());
+}
+
+#[test]
+fn m16_udp_socket_rotation_closes_old_socket_and_increments_shared_counter() {
+    use discord_voice::udp::{DISCOVERY_LEN, RotationSchedule, UdpMediaSocket};
+
+    let server = match std::net::UdpSocket::bind("127.0.0.1:0") {
+        Ok(socket) => socket,
+        Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => {
+            eprintln!("skip: loopback UDP unavailable: {err}");
+            return;
+        }
+        Err(err) => panic!("server bind failed: {err}"),
+    };
+    let server_addr = server.local_addr().unwrap();
+
+    let server_handle = std::thread::spawn(move || {
+        let mut buf = [0u8; 128];
+        // 1 initial discovery + 2 x (discovery + 28B RR) for two rotations = 5 packets
+        for _ in 0..5 {
+            let (size, peer) = server.recv_from(&mut buf).unwrap();
+            if size == DISCOVERY_LEN {
+                server.send_to(&buf[..size], peer).unwrap();
+            }
+        }
+    });
+
+    let mut client = match UdpMediaSocket::bind("127.0.0.1:0") {
+        Ok(client) => client,
+        Err(err) => {
+            eprintln!("skip: loopback UDP client bind: {err}");
+            return;
+        }
+    };
+    client.send_discovery(server_addr, 9208).unwrap();
+    let old_addr = client.local_addr().unwrap();
+
+    let mut schedule = RotationSchedule::new(10);
+    let tag = [0x55u8; 16];
+    let mut counter = 42u32;
+
+    // Ротация #1 на 60_090 мс (10 + 60_080)
+    let action1 = client
+        .rotate_if_due_srtcp(60_090, &mut schedule, tag, &mut counter)
+        .unwrap()
+        .expect("rotation #1 due");
+
+    assert_eq!(counter, 43, "счётчик увеличился с 42 до 43");
+    let intermediate_addr = client.local_addr().unwrap();
+    assert_ne!(intermediate_addr.port(), old_addr.port());
+
+    // КРИТИЧЕСКИЙ ТЕСТ: старый сокет закрыт, его локальный адрес и порт освобождены
+    let old_bind_probe = std::net::UdpSocket::bind(old_addr);
+    assert!(
+        old_bind_probe.is_ok(),
+        "старый сокет закрыт, перепривязка к old_addr успешна"
+    );
+
+    // Ротация #2 на 120_170 мс (10 + 2 * 60_080) — продолжение сквозного счётчика
+    let action2 = client
+        .rotate_if_due_srtcp(120_170, &mut schedule, tag, &mut counter)
+        .unwrap()
+        .expect("rotation #2 due");
+
+    assert_eq!(counter, 44, "счётчик увеличился с 43 до 44");
+    let final_addr = client.local_addr().unwrap();
+    assert_ne!(final_addr.port(), intermediate_addr.port());
+
+    // Трейлер первого RR имел counter=42, трейлер второго counter=43
+    let trailer1 = u32::from_le_bytes(action1.empty_rr[24..28].try_into().unwrap());
+    let trailer2 = u32::from_le_bytes(action2.empty_rr[24..28].try_into().unwrap());
+    assert_eq!(trailer1, 0x8000_0000 | 42);
+    assert_eq!(trailer2, 0x8000_0000 | 43);
+
+    // Старый intermediate_addr также закрыт
+    let inter_probe = std::net::UdpSocket::bind(intermediate_addr);
+    assert!(
+        inter_probe.is_ok(),
+        "промежуточный сокет закрыт, его порт освобождён"
+    );
+
+    server_handle.join().unwrap();
+}

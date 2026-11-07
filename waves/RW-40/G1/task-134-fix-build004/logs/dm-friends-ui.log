@@ -1,0 +1,35 @@
+▶ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a)
+  ✔ T-N107-READY-01: константы и размеры коллекций 002-READY.json совпадают с RE-оракулом (0.918887ms)
+  ✔ T-N107-SORT-01: сортирует 17 private_channels из 002-READY.json по BigInt(last_message_id ?? 0) по убыванию и разрешает имена/аватары из 146 READY.users (1.256738ms)
+  ✔ отображает типы 1 (DM) и 3 (Group DM с числом участников, кастомным именем и fallback через запятую, плюс приоритет PINNED=2) (0.294852ms)
+✔ TASK-113 / N1-07 DM & Friends UI: оракул 002-READY.json, сортировка ЛС и Group DM (1a) (3.098201ms)
+▶ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b)
+  ✔ T-N107-READY-01 & T-N107-TABS-01: классифицирует 60 relationships из 002-READY.json (18 друзей type=1, 42 блокировки type=2) (3.072551ms)
+  ✔ фильтрует типы 1=Friend, 2=Blocked, 3=Incoming, 4=Outgoing по вкладкам Online / All / Pending / Blocked / Add Friend и считает pendingCount по формуле RE @9318383 (0.967487ms)
+✔ TASK-113 / N1-07 DM & Friends UI: классификация и фильтрация 60 relationships по типам 1..4 и вкладкам (1b) (4.1767ms)
+▶ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c)
+  ✔ T-N107-DM-GET-01 & Home Navigation: переключает guildId='@me' по клику на #home-rail-btn без вызовов GET /users/@me/channels, рендерит дерево ЛС и восстанавливает шапку гильдии при возврате (4.145009ms)
+  ✔ T-N107-A11Y-01: вкладки друзей реализуют WAI-ARIA роли tablist/tab/tabpanel и циклический roving tabindex по ArrowRight/ArrowLeft/Home/End (3.289683ms)
+  ✔ T-N107-FRIEND-ADD-01 & T-N107-FRIEND-PUT-01: форма Add Friend отправляет Pomelo username с discriminator:null, классический тег с числом и обрабатывает код 80013 через #stranger-confirm-dialog (2.927571ms)
+  ✔ T-N107-GDM-MODAL-01 & T-N107-DM-POST-01: модалка Group DM ограничивает выбор до 9 друзей (10 участников с @me), отправляет POST /users/@me/channels с {recipients:[...]}, использует кэш для одиночного DM и обрабатывает 30004 (4.673262ms)
+  ✔ T-N107-GDM-SHELL-01, T-N107-NOTE-01 & T-N107-DISPATCH-01: поддерживает group-dm-shell (201 vs 200), валидацию note_user_id и 7 Gateway-диспатчей (1.806963ms)
+✔ TASK-113 / N1-07 DM & Friends UI: переключение Home/Friends (guildId='@me'), дерево ЛС и WAI-ARIA вкладки (1c) (17.072658ms)
+▶ TASK-113 P1/P2: монтирование рейла, 429, ошибки DELETE/PUT, focus trap и детерминированная сортировка (2)
+  ✔ T-N107-DM-MOUNT-01: вставляет #home-rail-btn через insertBefore/remove на HTMLCollection без indexOf/splice и getter-only parentNode (0.318852ms)
+  ✔ T-N107-RATE-01: 429 с retry_after_ms показывает сообщение, запускает посекундный отсчёт и снова включает кнопку (0.947457ms)
+  ✔ T-N107-RATE-02: 429 в модалке Group DM выводит отсчёт в #group-dm-error и не закрывает модалку (0.830685ms)
+  ✔ T-N107-FRIEND-ERR-01: отказ DELETE/PUT в remove/block/ignore/clear/note/close показывает текст ошибки и не роняет promise (0.959856ms)
+  ✔ T-N107-A11Y-02: focus trap циклит Tab/Shift+Tab, Escape закрывает модалку, возвращает фокус и не меняет экран (1.142238ms)
+  ✔ T-N107-A11Y-03: закрытие ЛС возвращает фокус на соседний канал в #dm-channel-list (1.012407ms)
+  ✔ T-N107-GDM-SORT-01: имя группы не зависит от порядка recipients, id сортируются детерминированно, type сохраняется (0.124881ms)
+  ✔ T-N107-READY-02: повторный READY полностью заменяет private_channels и relationships (0.142961ms)
+  ✔ T-N107-FRIEND-DEL-01: одиночный DELETE и массовая очистка pending уходят на /users/@me/relationships (0.737655ms)
+✔ TASK-113 P1/P2: монтирование рейла, 429, ошибки DELETE/PUT, focus trap и детерминированная сортировка (2) (6.439755ms)
+ℹ tests 19
+ℹ suites 4
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 79.804524

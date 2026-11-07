@@ -473,6 +473,22 @@ pub enum EventPayload {
     VoiceChannelStatus(VoiceChannelStatus),
     /// TYPING_START.
     TypingStart(TypingStart),
+    /// MESSAGE_DELETE.
+    MessageDelete(crate::dispatch::MessageDeleteDispatch),
+    /// MESSAGE_DELETE_BULK.
+    MessageDeleteBulk(crate::dispatch::MessageDeleteBulkDispatch),
+    /// CHANNEL_CREATE.
+    ChannelCreate(crate::dispatch::ChannelLifecycleDispatch),
+    /// CHANNEL_UPDATE.
+    ChannelUpdate(crate::dispatch::ChannelLifecycleDispatch),
+    /// CHANNEL_DELETE.
+    ChannelDelete(crate::dispatch::ChannelLifecycleDispatch),
+    /// THREAD_CREATE.
+    ThreadCreate(crate::dispatch::ThreadLifecycleDispatch),
+    /// THREAD_UPDATE.
+    ThreadUpdate(crate::dispatch::ThreadLifecycleDispatch),
+    /// THREAD_DELETE.
+    ThreadDelete(crate::dispatch::ThreadLifecycleDispatch),
     /// Известный тип, не входящий в P2-02.
     Unsupported(DispatchKind),
     /// Неизвестный `t`.
@@ -481,6 +497,15 @@ pub enum EventPayload {
         name: String,
     },
 }
+
+/// Алиас [`crate::dispatch::MessageDeleteDispatch`] для событий жизненного цикла (task-157).
+pub type MessageDeleteEvent = crate::dispatch::MessageDeleteDispatch;
+/// Алиас [`crate::dispatch::MessageDeleteBulkDispatch`] для событий жизненного цикла (task-157).
+pub type MessageDeleteBulkEvent = crate::dispatch::MessageDeleteBulkDispatch;
+/// Алиас [`crate::dispatch::ChannelLifecycleDispatch`] для событий жизненного цикла (task-157).
+pub type ChannelEvent = crate::dispatch::ChannelLifecycleDispatch;
+/// Алиас [`crate::dispatch::ThreadLifecycleDispatch`] для событий жизненного цикла (task-157).
+pub type ThreadEvent = crate::dispatch::ThreadLifecycleDispatch;
 
 impl Event {
     /// Событие из уже маршрутизированного dispatch.
@@ -582,12 +607,45 @@ impl Event {
                 (EventPayload::TypingStart(start), diagnostics)
             }
             Some(kind) => (EventPayload::Unsupported(kind), StateDiagnostics::default()),
-            None => (
-                EventPayload::Unknown {
-                    name: dispatch.name.clone(),
-                },
-                StateDiagnostics::default(),
-            ),
+            None => {
+                if let Some(result) = dispatch.parse_typed() {
+                    let typed = result?;
+                    let payload = match typed {
+                        crate::dispatch::TypedDispatch::MessageDelete(ev) => {
+                            EventPayload::MessageDelete(ev)
+                        }
+                        crate::dispatch::TypedDispatch::MessageDeleteBulk(ev) => {
+                            EventPayload::MessageDeleteBulk(ev)
+                        }
+                        crate::dispatch::TypedDispatch::ChannelCreate(ev) => {
+                            EventPayload::ChannelCreate(ev)
+                        }
+                        crate::dispatch::TypedDispatch::ChannelUpdate(ev) => {
+                            EventPayload::ChannelUpdate(ev)
+                        }
+                        crate::dispatch::TypedDispatch::ChannelDelete(ev) => {
+                            EventPayload::ChannelDelete(ev)
+                        }
+                        crate::dispatch::TypedDispatch::ThreadCreate(ev) => {
+                            EventPayload::ThreadCreate(ev)
+                        }
+                        crate::dispatch::TypedDispatch::ThreadUpdate(ev) => {
+                            EventPayload::ThreadUpdate(ev)
+                        }
+                        crate::dispatch::TypedDispatch::ThreadDelete(ev) => {
+                            EventPayload::ThreadDelete(ev)
+                        }
+                    };
+                    (payload, StateDiagnostics::default())
+                } else {
+                    (
+                        EventPayload::Unknown {
+                            name: dispatch.name.clone(),
+                        },
+                        StateDiagnostics::default(),
+                    )
+                }
+            }
         };
         Ok(Self {
             seq,
@@ -665,6 +723,48 @@ impl std::error::Error for EventError {}
 impl From<ReadyError> for EventError {
     fn from(error: ReadyError) -> Self {
         Self::Ready(error)
+    }
+}
+
+impl From<crate::dispatch::DispatchParseError> for EventError {
+    fn from(error: crate::dispatch::DispatchParseError) -> Self {
+        match error {
+            crate::dispatch::DispatchParseError::MissingField { event, field } => {
+                EventError::Missing {
+                    path: format!("{event}.{field}"),
+                }
+            }
+            crate::dispatch::DispatchParseError::InvalidFieldType {
+                field,
+                expected,
+                found,
+                ..
+            } => EventError::WrongType {
+                path: field,
+                expected,
+                found,
+            },
+            crate::dispatch::DispatchParseError::InvalidSnowflake { field, value, .. } => {
+                EventError::InvalidId { path: field, value }
+            }
+            crate::dispatch::DispatchParseError::InvalidEnvelope { reason } => {
+                EventError::WrongType {
+                    path: "d".to_string(),
+                    expected: "map",
+                    found: reason,
+                }
+            }
+            crate::dispatch::DispatchParseError::EmptyBulkIds { event } => EventError::WrongType {
+                path: format!("{event}.ids"),
+                expected: "non-empty list",
+                found: "empty list",
+            },
+            crate::dispatch::DispatchParseError::InvalidJson(_) => EventError::WrongType {
+                path: "json".to_string(),
+                expected: "valid json",
+                found: "syntax error",
+            },
+        }
     }
 }
 

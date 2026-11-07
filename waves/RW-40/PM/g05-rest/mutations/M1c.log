@@ -1,0 +1,122 @@
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✖ клик по каждому disabled-пункту ничего не меняет (35.804233ms)
+  ✔ Enter/Space на disabled-пункте — no-op (guard в самом обработчике) (26.064523ms)
+  ✖ capability=true не включает invite до G-06: disabled + not-implemented (11.282752ms)
+✖ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (73.999996ms)
+▶ G-05 D2: roving tabindex переезжает вместе с фокусом
+  ✔ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (12.791485ms)
+✔ G-05 D2: roving tabindex переезжает вместе с фокусом (12.929946ms)
+▶ G-05 D3: Esc и Tab не переключают экран
+  ✔ Esc из открытого меню на экране «Настройки» оставляет settings (11.368303ms)
+  ✔ Tab закрывает меню, фокус на opener, default не отменяется (10.570376ms)
+✔ G-05 D3: Esc и Tab не переключают экран (22.119261ms)
+▶ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола
+  ✔ клик по плитке гильдии закрывает меню, но фокус не на opener (11.207882ms)
+  ✔ клик по body закрывает меню и возвращает фокус на opener (10.164274ms)
+✔ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола (21.587828ms)
+▶ G-05 D4: копирование ID — успех только из resolved writeText
+  ✔ resolved writeText → «ID скопирован» тем же id, без утечки id в консоль (9.147005ms)
+  ✔ reject writeText → ошибка, ложного успеха нет (21.8765ms)
+  ✔ нет clipboard API → видимая ошибка, ложного успеха нет (8.59668ms)
+  ✔ пустой/битый id → «ID сервера неизвестен», writeText не вызывается (8.58782ms)
+✔ G-05 D4: копирование ID — успех только из resolved writeText (48.425017ms)
+▶ G-05 D6: причины disabled машиночитаемы и озвучиваемы
+  ✔ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (8.770792ms)
+  ✔ приоритет причин: owner > capability-unknown > not-implemented (9.944602ms)
+  ✔ один polite-статус #server-status и один hidden-узел причины на причину (8.385379ms)
+✔ G-05 D6: причины disabled машиночитаемы и озвучиваемы (27.246703ms)
+▶ G-05: #4 subtitle и #5 aria-checked — только из проекции
+  ✔ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (9.348267ms)
+  ✔ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (10.521437ms)
+  ✔ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (7.908035ms)
+✔ G-05: #4 subtitle и #5 aria-checked — только из проекции (27.911759ms)
+▶ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор
+  ✔ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (10.210454ms)
+✔ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (10.293375ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✔ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (10.690948ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (8.834362ms)
+✔ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (19.632581ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✖ false/true/absent → invite всегда disabled, без диалога и IPC (7.526992ms)
+✖ G-05 T-05-08: capability invite не выводится из ролей (7.690663ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✔ disabled-активация не пишет в #server-status; leave — ровно один статус (8.412648ms)
+✔ G-05 T-05-16: статус меню единственный (8.48052ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✔ меню: ширина/высота с клампом по viewport и прокрутка (0.286032ms)
+  ✔ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.136112ms)
+  ✔ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.204441ms)
+  ✔ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.154181ms)
+✔ G-05 D9/D5: геометрия CSS — статическая проверка контракта (0.872757ms)
+ℹ tests 27
+ℹ suites 12
+ℹ pass 24
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 322.161631
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:183:3
+✖ клик по каждому disabled-пункту ничего не меняет (35.804233ms)
+  AssertionError [ERR_ASSERTION]: disabled-пункт закрыл меню
+  
+  '' !== null
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:197:16
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:184:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:225:3
+✖ capability=true не включает invite до G-06: disabled + not-implemented (11.282752ms)
+  AssertionError [ERR_ASSERTION]: invite закрыл меню без диалога
+  
+  '' !== null
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:239:14
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:226:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/server-menu.test.mjs:642:3
+✖ false/true/absent → invite всегда disabled, без диалога и IPC (7.526992ms)
+  AssertionError [ERR_ASSERTION]: invite закрыл меню
+  
+  '' !== null
+  
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:661:16
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:643:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

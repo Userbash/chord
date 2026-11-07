@@ -1,0 +1,41 @@
+# mutant M1: op3: PRESENCE_UPDATE_OP 3 -> 13
+# exit=101
+
+
+running 7 tests
+test gateway::tests::op_codes_match_protocol_table ... ok
+test gateway::tests::presence_update_frame_bytes_match_wetf_layout ... FAILED
+test gateway::tests::guild_members_request_covers_query_and_user_ids_paths ... ok
+test gateway::tests::guild_subscriptions_frame_matches_client_shape ... ok
+test gateway::tests::presence_update_frame_passes_activity_terms_and_afk ... FAILED
+test gateway::tests::user_ids_chunk_at_one_hundred ... ok
+test gateway::tests::voice_state_update_frame_matches_client_shape ... ok
+
+failures:
+
+---- gateway::tests::presence_update_frame_bytes_match_wetf_layout stdout ----
+
+thread 'gateway::tests::presence_update_frame_bytes_match_wetf_layout' (1466180) panicked at crates/discord-core/src/gateway.rs:767:9:
+assertion `left == right` failed
+  left: "8374000000026d000000026f70610d6d000000016474000000046d000000067374617475736d000000066f6e6c696e656d0000000573696e636561006d0000000a616374697669746965736c000000006a6d0000000361666b64000566616c7365"
+ right: "8374000000026d000000026f7061036d000000016474000000046d000000067374617475736d000000066f6e6c696e656d0000000573696e636561006d0000000a616374697669746965736c000000006a6d0000000361666b64000566616c7365"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- gateway::tests::presence_update_frame_passes_activity_terms_and_afk stdout ----
+
+thread 'gateway::tests::presence_update_frame_passes_activity_terms_and_afk' (1466181) panicked at crates/discord-core/src/gateway.rs:788:9:
+assertion `left == right` failed
+  left: Some(13)
+ right: Some(3)
+
+
+failures:
+    gateway::tests::presence_update_frame_bytes_match_wetf_layout
+    gateway::tests::presence_update_frame_passes_activity_terms_and_afk
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.87s
+     Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+error: test failed, to rerun pass `-p discord-core --lib`

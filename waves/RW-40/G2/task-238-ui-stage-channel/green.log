@@ -1,0 +1,22 @@
+▶ STAGE_ROLES
+  ✔ содержит роли speaker, audience, requesting и заморожен (0.579533ms)
+✔ STAGE_ROLES (1.095996ms)
+▶ partitionStageParticipants
+  ✔ разбивает участников на speakers, requesting и audience с сортировкой по русскому алфавиту (5.98907ms)
+  ✔ неизвестные роли по умолчанию попадают в audience и входной массив не мутируется (0.147121ms)
+✔ partitionStageParticipants (6.250001ms)
+▶ createStageChannelController
+  ✔ рендерит регион Трибуна, тему, секции со счётчиками и элементы участников (0.945515ms)
+  ✔ показывает «Трибуна без темы», если тема не передана или пустая (0.558863ms)
+  ✔ рендерит кнопки модератора и вызывает onApproveSpeaker и onMoveToAudience (0.327912ms)
+  ✔ переключает поднятую руку текущего пользователя (aria-pressed и onToggleHand) и обрабатывает выход (0.330422ms)
+  ✔ поддерживает setState, getState и destroy (0.190311ms)
+✔ createStageChannelController (2.593343ms)
+ℹ tests 8
+ℹ suites 3
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.474185

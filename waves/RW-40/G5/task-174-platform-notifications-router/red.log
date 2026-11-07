@@ -1,0 +1,22 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-174-platform-notifications-router/rust/crates/discord-platform)
+error[E0432]: unresolved imports `discord_platform::notifications::Event`, `discord_platform::notifications::IncomingMessageNotification`, `discord_platform::notifications::NotificationDispatchDecision`, `discord_platform::notifications::NotificationRouter`, `discord_platform::notifications::redact_secrets`
+  --> crates/discord-platform/tests/notifications_contract.rs:16:5
+   |
+16 |     Event, Hints, IncomingMessageNotification, Notification, NotificationDispatchDecision,
+   |     ^^^^^         ^^^^^^^^^^^^^^^^^^^^^^^^^^^                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `NotificationDispatchDecision` in `notifications`
+   |     |             |
+   |     |             no `IncomingMessageNotification` in `notifications`
+   |     no `Event` in `notifications`
+17 |     NotificationEvent, NotificationRouter, Notifier, Urgency, redact_secrets,
+   |                        ^^^^^^^^^^^^^^^^^^                     ^^^^^^^^^^^^^^ no `redact_secrets` in `notifications`
+   |                        |
+   |                        no `NotificationRouter` in `notifications`
+   |
+help: a similar name exists in the module
+   |
+17 -     NotificationEvent, NotificationRouter, Notifier, Urgency, redact_secrets,
+17 +     NotificationEvent, Notification, Notifier, Urgency, redact_secrets,
+   |
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-platform` (test "notifications_contract") due to 1 previous error

@@ -7,17 +7,30 @@
 
 ## 1. Данные
 
-`READY.read_state.entries[]` → IPC `read_state()` (camelCase, `m07-be2`):
+`READY.read_state.entries[]` → IPC `read_state()` (camelCase, 9 полей, `m07-be2` + `m07-be3`):
 
 ```
-{ channelId, flags, lastMessageId, lastPinTimestamp, lastViewed, mentionCount }
+{
+  channelId: string,
+  flags: number | null,
+  lastMessageId: string | null,
+  lastPinTimestamp: string | null,
+  lastViewed: number | null,
+  mentionCount: number | null,
+  badgeCount: number | null,
+  lastAckedId: string | null,
+  readStateType: number | null
+}
 ```
 
 - `lastViewed` — **счётчик** read-state (в фикстуре `4287`), не snowflake сообщения
   (`046-MESSAGE_ACK`: `last_viewed: 4310` при `message_id: 1561348877573947515`).
-- `mentionCount` — число упоминаний; `flags`, `lastViewed`, `mentionCount` могут быть
-  `null` (badge-записи `read_state_type: 2/4`). **`null` не превращается в 0**, UI не
-  выдумывает счётчик.
+- `mentionCount` — число упоминаний; `flags`, `lastViewed`, `mentionCount`, `badgeCount`,
+  `lastAckedId`, `readStateType` могут быть `null`. **`null` не превращается в 0**, UI не
+  выдумывает счётчик; при этом явный `badgeCount: 0` в READY сохраняется как число `0`.
+- `lastAckedId` передаётся строкой (snowflake без потери точности 64-битного целого).
+- `readStateType` (в фикстурах `2`, `4`) пробрасывается как `number | null`; его семантика
+  на стороне клиента не домысливается без отдельного RE-оракула.
 - UI сопоставляет запись по `channelId`; порядок READY не пересортировывается.
 - Записи без `lastViewed` (или badge-формы) не дают ack: курсора нет.
 
@@ -56,10 +69,23 @@ ack_message { channelId, messageId, lastViewed, token }
 ## 4. UI
 
 - Полоса `.chat-unread-divider` одна: в бенче — статичное «20+ новых» (D-13),
-  в реальном канале — `data-source="read-state"` и честный `mentionCount` из READY
-  (`data-mentions`). `mentionCount = 0`/`null` → полоса скрыта, число не выдумывается.
-- Успешный ack: полоса скрыта (`data-cleared="true"`, `data-mentions` снят), у плитки
-  канала снят `is-unread`. `Shift+Esc` **не** подменяет ack: read-state полоса гаснет
+  в реальном канале — `data-source="read-state"` и честные счётчики из READY:
+  - **приоритет упоминаний**: если `mentionCount > 0`, полоса показывает «N упоминаний»
+    (`data-mentions="N"`), при этом ненулевой `badgeCount > 0` сохраняется рядом в `data-badges`
+    и не подменяет/не занижает `mentionCount`;
+  - **бейдж непрочитанных при отсутствии упоминаний**: если `mentionCount == 0 | null`, но
+    `badgeCount > 0`, полоса показывает «N непрочитанных» (`data-badges="N"`, `data-mentions` снят);
+  - **`badgeCount = 0` — значение, но не бейдж** (`CODE-STANDARD.md` §RW-17): предикат показа —
+    строго `> 0`; при `mentionCount == 0 | null` и `badgeCount == 0 | null` полоса скрыта,
+    `data-mentions` и `data-badges` сняты, число не выдумывается;
+  - **`flags`**: числовое значение `flags` из `read_state()` записывается как есть (включая `0`)
+    в `data-flags` полосы `.chat-unread-divider` и `data-read-flags` плитки канала; при `flags: null`
+    оба атрибута снимаются;
+  - при переключении канала `prepareReadStateBand()` сбрасывает `data-mentions`, `data-badges` и
+    `data-flags`, исключая протечку состояния между каналами.
+- Успешный ack: полоса скрыта (`data-cleared="true"`, `data-mentions` и `data-badges` сняты),
+  у плитки канала снят `is-unread`, но серверные `flags` (`data-flags` / `data-read-flags`)
+  клиентом не переписываются. `Shift+Esc` **не** подменяет ack: read-state полоса гаснет
   только подтверждением сервера.
 - Ошибка ack: видимая заметка `.chat-ack-note[data-state="error"]` с `role="alert"` и
   `data-kind` (`Unauthorized|RateLimited|AckFailed|ReadState`), без оверлея и без
@@ -67,9 +93,11 @@ ack_message { channelId, messageId, lastViewed, token }
 
 ## 5. Остаток / границы
 
-- Unread **без** упоминаний из `read_state()` не выводится: в проекции нет числа
-  непрочитанных; `flags` не интерпретируется как «unread» без RE-оракула.
+- Состояние открытого канала из READY экспонируется в `ChatScreen.readState`
+  (`{flags, mentionCount, badgeCount} | null`); `flags` хранится в dataset без домысливания
+  битовой маски до отдельного RE-оракула (G-08/C-03).
 - Живой паритет (реальный Discord, MESSAGE_ACK в UI) не проверялся: окно/live не
   использовались. Пункт 3 помечен `[A]`.
-- Badge-записи (`read_state_type: 2/4`) остаются без ack и без счётчиков; отдельная
-  проекция `badgeCount`/`lastAckedId` — вне контракта (G1, при необходимости).
+- Non-channel badge-записи (`readStateType: 2/4`, `lastViewed: null`) остаются без ack
+  (курсора канала нет; `lastAckedId` не используется как курсор канала), а для записей канала
+  `badgeCount` и `flags` отображаются по правилам §4 (`m07-be3` + `m07-ui-badge`).

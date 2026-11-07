@@ -12,7 +12,10 @@
 //! `DISCORD_LAB_LIVE_NOTIFY=1`; уведомления наружу не отправляются.
 
 use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
-use discord_platform::notifications::{Hints, Notification, NotificationEvent, Notifier, Urgency};
+use discord_platform::notifications::{
+    redact_secrets, Event, Hints, IncomingMessageNotification, Notification,
+    NotificationDispatchDecision, NotificationEvent, NotificationRouter, Notifier, Urgency,
+};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
@@ -1646,4 +1649,346 @@ fn e07_hints_bytes_match_libgio_and_round_trip() {
             "{name}: round-trip a{{sv}}"
         );
     }
+}
+
+// =================================================================================
+// task-174 / BE-P2-14: NotificationRouter (DND, dedup, deep-link, secret redaction)
+// =================================================================================
+
+fn sample_incoming(msg_id: &str) -> IncomingMessageNotification {
+    IncomingMessageNotification {
+        message_id: msg_id.to_string(),
+        guild_id: Some("guild_42".to_string()),
+        channel_id: "chan_100".to_string(),
+        author_id: "user_bob".to_string(),
+        author_name: "Bob".to_string(),
+        content: "Hello @Alice!".to_string(),
+        mentions_self: true,
+        is_dm: false,
+    }
+}
+
+#[test]
+fn r01_router_suppresses_self_author() {
+    let mut router = NotificationRouter::new();
+    router.self_user_id = Some("user_me".to_string());
+
+    let mut msg = sample_incoming("msg_001");
+    msg.author_id = "user_me".to_string();
+
+    let decision = router.evaluate(&msg);
+    assert_eq!(decision, NotificationDispatchDecision::SuppressedSelfAuthor);
+
+    // Other author passes
+    msg.author_id = "user_other".to_string();
+    let decision = router.evaluate(&msg);
+    assert!(matches!(
+        decision,
+        NotificationDispatchDecision::Send { .. }
+    ));
+}
+
+#[test]
+fn r02_router_suppresses_dnd() {
+    let mut router = NotificationRouter::new();
+    router.dnd_enabled = true;
+
+    let msg = sample_incoming("msg_002");
+    let decision = router.evaluate(&msg);
+    assert_eq!(decision, NotificationDispatchDecision::SuppressedDnd);
+
+    // Disabled DND allows evaluate
+    router.dnd_enabled = false;
+    let decision = router.evaluate(&msg);
+    assert!(matches!(
+        decision,
+        NotificationDispatchDecision::Send { .. }
+    ));
+}
+
+#[test]
+fn r03_router_suppresses_active_channel_only_when_window_focused() {
+    let mut router = NotificationRouter::new();
+    router.active_channel_id = Some("chan_100".to_string());
+
+    let msg = sample_incoming("msg_003");
+
+    // Window NOT focused -> does NOT suppress even if channel matches
+    router.window_focused = false;
+    let decision = router.evaluate(&msg);
+    assert!(matches!(
+        decision,
+        NotificationDispatchDecision::Send { .. }
+    ));
+
+    // Window focused + active channel matches -> suppresses
+    let msg2 = sample_incoming("msg_003b");
+    router.window_focused = true;
+    let decision = router.evaluate(&msg2);
+    assert_eq!(
+        decision,
+        NotificationDispatchDecision::SuppressedActiveChannel
+    );
+
+    // Window focused + different channel -> does NOT suppress
+    let mut msg3 = sample_incoming("msg_003c");
+    msg3.channel_id = "chan_other".to_string();
+    let decision = router.evaluate(&msg3);
+    assert!(matches!(
+        decision,
+        NotificationDispatchDecision::Send { .. }
+    ));
+}
+
+#[test]
+fn r04_router_suppresses_when_not_mention_and_not_dm() {
+    let mut router = NotificationRouter::new();
+
+    let mut msg = sample_incoming("msg_004a");
+    msg.mentions_self = false;
+    msg.is_dm = false;
+
+    let decision = router.evaluate(&msg);
+    assert_eq!(
+        decision,
+        NotificationDispatchDecision::SuppressedNotMentionOrDm
+    );
+
+    // Mentions self -> passes
+    let mut msg_mention = sample_incoming("msg_004b");
+    msg_mention.mentions_self = true;
+    msg_mention.is_dm = false;
+    assert!(matches!(
+        router.evaluate(&msg_mention),
+        NotificationDispatchDecision::Send { .. }
+    ));
+
+    // DM without mention -> passes
+    let mut msg_dm = sample_incoming("msg_004c");
+    msg_dm.mentions_self = false;
+    msg_dm.is_dm = true;
+    assert!(matches!(
+        router.evaluate(&msg_dm),
+        NotificationDispatchDecision::Send { .. }
+    ));
+}
+
+#[test]
+fn r05_router_dedup_and_bounded_fifo_eviction() {
+    let mut router = NotificationRouter::with_capacity(3);
+
+    let msg1 = sample_incoming("msg_1");
+    let msg2 = sample_incoming("msg_2");
+    let msg3 = sample_incoming("msg_3");
+    let msg4 = sample_incoming("msg_4");
+
+    // First send succeeds
+    assert!(matches!(
+        router.evaluate(&msg1),
+        NotificationDispatchDecision::Send { .. }
+    ));
+
+    // Immediate duplicate is suppressed
+    assert_eq!(
+        router.evaluate(&msg1),
+        NotificationDispatchDecision::SuppressedDuplicate
+    );
+
+    // Push msg2 and msg3 -> queue has msg1, msg2, msg3
+    assert!(matches!(
+        router.evaluate(&msg2),
+        NotificationDispatchDecision::Send { .. }
+    ));
+    assert!(matches!(
+        router.evaluate(&msg3),
+        NotificationDispatchDecision::Send { .. }
+    ));
+
+    // Push msg4 -> FIFO capacity is 3, msg1 should be evicted
+    assert!(matches!(
+        router.evaluate(&msg4),
+        NotificationDispatchDecision::Send { .. }
+    ));
+
+    // msg1 was evicted, so it can be evaluated again
+    assert!(matches!(
+        router.evaluate(&msg1),
+        NotificationDispatchDecision::Send { .. }
+    ));
+
+    // msg2, msg3, msg4: msg2 was evicted by msg1!
+    assert!(matches!(
+        router.evaluate(&msg2),
+        NotificationDispatchDecision::Send { .. }
+    ));
+}
+
+#[test]
+fn r06_router_builds_notification_and_deep_links() {
+    let mut router = NotificationRouter::new();
+
+    // 1. Guild message
+    let guild_msg = IncomingMessageNotification {
+        message_id: "m_guild".to_string(),
+        guild_id: Some("guild_777".to_string()),
+        channel_id: "chan_888".to_string(),
+        author_id: "user_carol".to_string(),
+        author_name: "Carol".to_string(),
+        content: "Hey team!".to_string(),
+        mentions_self: true,
+        is_dm: false,
+    };
+    match router.evaluate(&guild_msg) {
+        NotificationDispatchDecision::Send {
+            notification,
+            deep_link_url,
+        } => {
+            assert_eq!(deep_link_url, "discord://-/channels/guild_777/chan_888");
+            assert_eq!(notification.summary, "Carol");
+            assert_eq!(notification.body, "Hey team!");
+            assert_eq!(notification.replaces_id, 0);
+            assert_eq!(
+                notification.actions,
+                vec![("default".to_string(), "Open".to_string())]
+            );
+        }
+        other => panic!("expected Send, got {other:?}"),
+    }
+
+    // 2. DM message
+    let dm_msg = IncomingMessageNotification {
+        message_id: "m_dm".to_string(),
+        guild_id: None,
+        channel_id: "dm_555".to_string(),
+        author_id: "user_dave".to_string(),
+        author_name: "Dave".to_string(),
+        content: "Direct message here".to_string(),
+        mentions_self: false,
+        is_dm: true,
+    };
+    match router.evaluate(&dm_msg) {
+        NotificationDispatchDecision::Send {
+            notification,
+            deep_link_url,
+        } => {
+            assert_eq!(deep_link_url, "discord://-/channels/@me/dm_555");
+            assert_eq!(notification.summary, "Dave");
+            assert_eq!(notification.body, "Direct message here");
+            assert_eq!(
+                notification.actions,
+                vec![("default".to_string(), "Open".to_string())]
+            );
+        }
+        other => panic!("expected Send, got {other:?}"),
+    }
+}
+
+#[test]
+fn r07_router_redacts_tokens_mfa_base64_bearer() {
+    let mut router = NotificationRouter::new();
+
+    let secret_mfa = "mfa.super_secret_token_123456789";
+    let secret_base64 = "MTIzNDU2Nzg5MDEyMzQ1Njc4.GaBcDe.fGhIjKlMnOpQrStUvWxYz012345";
+    let secret_bearer = "Bearer token_secret_value_999999";
+
+    let content =
+        format!("Check this: {secret_mfa} and {secret_base64} and also {secret_bearer} please.");
+
+    let msg = IncomingMessageNotification {
+        message_id: "m_secret".to_string(),
+        guild_id: None,
+        channel_id: "chan_dm".to_string(),
+        author_id: "user_eve".to_string(),
+        author_name: "Eve".to_string(),
+        content,
+        mentions_self: true,
+        is_dm: true,
+    };
+
+    match router.evaluate(&msg) {
+        NotificationDispatchDecision::Send { notification, .. } => {
+            assert!(
+                !notification.body.contains(secret_mfa),
+                "mfa secret leaked: {}",
+                notification.body
+            );
+            assert!(
+                !notification.body.contains(secret_base64),
+                "base64 token leaked: {}",
+                notification.body
+            );
+            assert!(
+                !notification.body.contains("token_secret_value_999999"),
+                "bearer token leaked: {}",
+                notification.body
+            );
+            assert!(
+                notification.body.contains("<redacted>"),
+                "no <redacted> in body: {}",
+                notification.body
+            );
+        }
+        other => panic!("expected Send, got {other:?}"),
+    }
+
+    // Direct redact_secrets tests
+    assert_eq!(redact_secrets("token: mfa.xxx"), "token: <redacted>");
+    assert_eq!(
+        redact_secrets("clean url: https://discord.com/channels/1/2"),
+        "clean url: https://discord.com/channels/1/2"
+    );
+}
+
+#[test]
+fn r08_router_register_sent_and_handle_event() {
+    let mut router = NotificationRouter::new();
+    let url = "discord://-/channels/@me/chan_42".to_string();
+
+    router.register_sent(101, url.clone());
+
+    // ActionInvoked / Action returns registered deep_link_url
+    let action_event = NotificationEvent::Action {
+        id: 101,
+        action: "default".to_string(),
+    };
+    assert_eq!(router.handle_event(&action_event), Some(url.clone()));
+
+    // Event alias + ActionInvoked variant also works
+    let action_invoked = Event::ActionInvoked {
+        id: 101,
+        action_key: "default".to_string(),
+    };
+    assert_eq!(router.handle_event(&action_invoked), Some(url));
+
+    // NotificationClosed removes the entry
+    let closed_event = NotificationEvent::Closed { id: 101, reason: 1 };
+    assert_eq!(router.handle_event(&closed_event), None);
+
+    // Subsequent action after close returns None
+    assert_eq!(router.handle_event(&action_event), None);
+
+    // NotificationClosed variant also works
+    router.register_sent(102, "discord://-/channels/1/2".to_string());
+    let closed_variant = Event::NotificationClosed { id: 102, reason: 2 };
+    assert_eq!(router.handle_event(&closed_variant), None);
+    assert_eq!(
+        router.handle_event(&NotificationEvent::Action {
+            id: 102,
+            action: "default".to_string(),
+        }),
+        None
+    );
+}
+
+#[test]
+fn r09_router_handle_event_unknown_id() {
+    let mut router = NotificationRouter::new();
+    let event = NotificationEvent::Action {
+        id: 999,
+        action: "default".to_string(),
+    };
+    assert_eq!(router.handle_event(&event), None);
+
+    let closed = NotificationEvent::Closed { id: 999, reason: 1 };
+    assert_eq!(router.handle_event(&closed), None);
 }

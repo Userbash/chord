@@ -1,0 +1,25 @@
+file:///home/sanya/orca/workspaces/project/feature-task-231-ui-invite-modal/tests/unit/invite-modal.test.mjs:11
+  INVITE_MAX_AGE_OPTIONS_RU,
+  ^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../../rust/gui-spike/ui/features/invite-modal.js' does not provide an export named 'INVITE_MAX_AGE_OPTIONS_RU'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:463:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:561:5)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5)
+
+Node.js v26.13.0
+✖ tests/unit/invite-modal.test.mjs (27.491459ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32.914021
+
+✖ failing tests:
+
+test at tests/unit/invite-modal.test.mjs:1:1
+✖ tests/unit/invite-modal.test.mjs (27.491459ms)
+  'test failed'

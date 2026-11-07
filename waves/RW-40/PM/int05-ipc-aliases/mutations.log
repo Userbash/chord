@@ -1,0 +1,490 @@
+=== Baseline MD5 ===
+a9b2c9164e121deb3497e5cfac195ad6  rust/gui-spike/src/main.rs
+2c6efc012048d839b26b95cffdc18edc  rust/gui-spike/tests/ipc_wiring_contract.rs
+
+=== MUT-1: main.rs::CreateInviteParamsInput::resolve ignores flat max_age ===
+baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=6e7e6792d0ab4fde03fa35d0281c52ec
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: unused variable: `max_age`
+   --> src/main.rs:685:9
+    |
+685 |         max_age: Option<u32>,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_age`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike" test) generated 1 warning (run `cargo fix --bin "discord-gui-spike" -p discord-gui-spike --tests` to apply 1 suggestion)
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.56s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... FAILED
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts' (636977) panicked at src/main.rs:1788:9:
+assertion `left == right` failed
+  left: CreateInviteParams { max_age: 86400, max_uses: 10, temporary: true, flags: Some(1) }
+ right: CreateInviteParams { max_age: 3600, max_uses: 10, temporary: true, flags: Some(1) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 1 target failed:
+    `-p discord-gui-spike --bin discord-gui-spike`
+mut-1_exit=101
+restored_md5=a9b2c9164e121deb3497e5cfac195ad6
+
+=== MUT-2: main.rs::From<UploadSlotSpecInput> zeroes file_size ===
+baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=3be1c5ef4713f67f8bf309a2671fc97e
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.49s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... FAILED
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts' (637646) panicked at src/main.rs:1844:9:
+assertion `left == right` failed
+  left: AttachmentFileSpec { filename: "avatar.png", file_size: 0, id: "loc-1", is_clip: false }
+ right: AttachmentFileSpec { filename: "avatar.png", file_size: 5000, id: "loc-1", is_clip: false }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 1 target failed:
+    `-p discord-gui-spike --bin discord-gui-spike`
+mut-2_exit=101
+restored_md5=a9b2c9164e121deb3497e5cfac195ad6
+
+=== MUT-3: main.rs::CreateInviteParamsInput::resolve drops flags ===
+baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=b42a59ab4a3d5e8d1fc5b490cb1612a5
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: unused variable: `flags`
+   --> src/main.rs:688:9
+    |
+688 |         flags: Option<u32>,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike" test) generated 1 warning (1 duplicate)
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning (run `cargo fix --bin "discord-gui-spike" -p discord-gui-spike` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.49s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... FAILED
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts' (638305) panicked at src/main.rs:1788:9:
+assertion `left == right` failed
+  left: CreateInviteParams { max_age: 3600, max_uses: 10, temporary: true, flags: None }
+ right: CreateInviteParams { max_age: 3600, max_uses: 10, temporary: true, flags: Some(1) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 1 target failed:
+    `-p discord-gui-spike --bin discord-gui-spike`
+mut-3_exit=101
+restored_md5=a9b2c9164e121deb3497e5cfac195ad6
+
+=== MUT-4: main.rs::threads_list defaults archived to true instead of false ===
+baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=178a8c87e5a23a4c2bd19da187d50132
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.48s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... FAILED
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts' (638904) panicked at src/main.rs:1781:9:
+assertion failed: threads_body.contains("discord_gui_spike::list_channel_threads(&api, &channel_id, archived.unwrap_or(false))")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... FAILED
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+failures:
+
+---- tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or stdout ----
+
+thread 'tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or' (638916) panicked at tests/ipc_wiring_contract.rs:949:5:
+threads_list делегирует в list_channel_threads с дефолтом archived=false: async fn threads_list(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    channel_id: String,
+    archived: Option<bool>,
+) -> Result<Vec<ThreadSummary>, PinsThreadsError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<PinsThreadsError, _>(
+        move || backend.token(),
+        || PinsThreadsError::Storage,
+        || PinsThreadsError::MissingToken,
+    )
+    .await?;
+    let api = DiscordPinsThreads::new(&token)?;
+    discord_gui_spike::list_channel_threads(&api, &channel_id, archived.unwrap_or(true)).await
+}
+
+// ---------------------------------------------------------------------------
+// RW-39/NET-C2: авторизация. Вся логика — в `discord_gui_spike::auth`, здесь
+// только Tauri-обёртки. `Keyring` — `!Send` и может ждать D-Bus, поэтому каждая
+// команда уходит в `spawn_blocking`: UI-поток и async-runtime не блокируются.
+// ---------------------------------------------------------------------------
+
+/// Блокирующая операция — вне async-runtime (keyring, файл настроек).
+async fn blocking<T, F>(work: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce() -> T + Send + 'static,
+{
+    tokio::task::spawn_blocking(work)
+        .await
+        .map_err(|error| format!("блокирующая операция не завершилась: {error}"))
+}
+
+/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+error: 2 targets failed:
+    `-p discord-gui-spike --bin discord-gui-spike`
+    `-p discord-gui-spike --test ipc_wiring_contract`
+mut-4_exit=101
+restored_md5=a9b2c9164e121deb3497e5cfac195ad6
+
+=== MUT-5: main.rs omits attachments_upload_slots from tauri::generate_handler! ===
+baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=490c35dee80a5df736f57b11cd6cc7d5
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: function `attachments_upload_slots` is never used
+   --> src/main.rs:758:10
+    |
+758 | async fn attachments_upload_slots(
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike" test) generated 1 warning (1 duplicate)
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.40s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... FAILED
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+failures:
+
+---- wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts stdout ----
+
+thread 'wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts' (639554) panicked at src/main.rs:1758:13:
+attachments_upload_slots не зарегистрирован в invoke_handler!
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+error: test failed, to rerun pass `-p discord-gui-spike --bin discord-gui-spike`
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... FAILED
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+
+failures:
+
+---- tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or stdout ----
+
+thread 'tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or' (639566) panicked at tests/ipc_wiring_contract.rs:851:9:
+assertion `left == right` failed: attachments_upload_slots должен быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main stdout ----
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (639560) panicked at tests/ipc_wiring_contract.rs:1009:13:
+UI-команда `attachments_upload_slots` из `ui/features/composer.js` не зарегистрирована в generate_handler! main.rs
+
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+    tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+error: 2 targets failed:
+    `-p discord-gui-spike --bin discord-gui-spike`
+    `-p discord-gui-spike --test ipc_wiring_contract`
+mut-5_exit=101
+restored_md5=a9b2c9164e121deb3497e5cfac195ad6
+
+=== Final Restored MD5 & Post-Mutation Green Verification ===
+a9b2c9164e121deb3497e5cfac195ad6  rust/gui-spike/src/main.rs
+2c6efc012048d839b26b95cffdc18edc  rust/gui-spike/tests/ipc_wiring_contract.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.40s
+     Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
+
+running 8 tests
+test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
+test attachments::tests::entity_too_large_code_reads_body_code ... ok
+test messages::tests::api_error_is_classified_by_the_shared_module ... ok
+test messages::tests::decode_actions_map_2xx_to_ok_and_other_statuses_to_typed_errors ... ok
+test reactions::tests::api_error_is_classified_by_the_shared_module ... ok
+test typing::tests::api_error_is_classified_by_the_shared_module ... ok
+test reactions::tests::decode_maps_2xx_to_ok_and_statuses_to_typed_errors ... ok
+test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
+
+running 11 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 7 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+final_green_exit=0

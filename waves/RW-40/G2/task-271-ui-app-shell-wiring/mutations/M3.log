@@ -1,0 +1,44 @@
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.596761ms)
+✔ getState: до любых действий активных слоёв нет (0.36367ms)
+✔ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.20562ms)
+✔ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.10648ms)
+✖ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.55558ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.090751ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.17748ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.28634ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.54861ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.1664ms)
+✔ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.130191ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.634806
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:94:1
+✖ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.55558ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - 'webhooks-editor'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/app-shell-wiring.test.mjs:107:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'webhooks-editor',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

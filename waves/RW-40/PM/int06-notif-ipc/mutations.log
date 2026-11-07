@@ -1,0 +1,322 @@
+Baseline file: rust/gui-spike/src/main.rs
+Baseline MD5: ae573539a9b8a8cc6e355c3975edaff0
+========================================================================
+
+[MUT-1] Удаление регистрации update_guild_notification_settings из tauri::generate_handler![...]
+Mutant MD5: 9f0ceede9031e92ed53ff1529581f5f2
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: function `update_guild_notification_settings` is never used
+   --> src/main.rs:863:10
+    |
+863 | async fn update_guild_notification_settings(
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.69s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (716104) panicked at tests/ipc_wiring_contract.rs:1122:9:
+assertion `left == right` failed: update_guild_notification_settings должен быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (716099) panicked at tests/ipc_wiring_contract.rs:1040:13:
+UI-команда `update_guild_notification_settings` из `ui/features/notifications.js` не зарегистрирована в generate_handler! main.rs
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+
+failures:
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
+------------------------------------------------------------------------
+
+[MUT-2] Удаление регистрации update_channel_notification_override из tauri::generate_handler![...]
+Mutant MD5: 97d70510e94493b12a6abbe193ba9cee
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+warning: enum `ChannelOverrideInput` is never used
+   --> src/main.rs:828:6
+    |
+828 | enum ChannelOverrideInput {
+    |      ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated items `into_patch` and `resolve` are never used
+   --> src/main.rs:836:8
+    |
+835 | impl ChannelOverrideInput {
+    | ------------------------- associated items in this implementation
+836 |     fn into_patch(self, channel_id: &str) -> ChannelNotificationOverrid...
+    |        ^^^^^^^^^^
+...
+848 |     fn resolve(
+    |        ^^^^^^^
+
+warning: function `update_channel_notification_override` is never used
+   --> src/main.rs:885:10
+    |
+885 | async fn update_channel_notification_override(
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `discord-gui-spike` (bin "discord-gui-spike") generated 3 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.47s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (716549) panicked at tests/ipc_wiring_contract.rs:1122:9:
+assertion `left == right` failed: update_channel_notification_override должен быть зарегистрирован в generate_handler! ровно один раз
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+
+thread 'every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main' (716544) panicked at tests/ipc_wiring_contract.rs:1040:13:
+UI-команда `update_channel_notification_override` из `ui/features/notifications.js` не зарегистрирована в generate_handler! main.rs
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... FAILED
+
+failures:
+
+failures:
+    every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
+------------------------------------------------------------------------
+
+[MUT-3] Удаление вызова token_or в update_guild_notification_settings
+Mutant MD5: ecd31872d3c561ed60e6f7614264731e
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.55s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (717007) panicked at tests/ipc_wiring_contract.rs:1141:9:
+update_guild_notification_settings: токен обязан читаться через единый helper token_or::<NotificationError, _>: async fn update_guild_notification_settings(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    guild_id: String,
+    patch: Option<GuildNotificationSettingsPatch>,
+    settings: Option<GuildNotificationSettingsPatch>,
+    payload: Option<GuildNotificationSettingsPatch>,
+) -> Result<serde_json::Value, NotificationError> {
+    let backend = Arc::clone(backend.inner());
+    let token = blocking(move || backend.token())
+        .await
+        .map_err(|_| NotificationError::Storage)?
+        .map_err(|_| NotificationError::Storage)?
+        .ok_or(NotificationError::MissingToken)?;
+    let api = DiscordNotifications::new(&token)?;
+    let resolved = patch.or(settings).or(payload).unwrap_or_default();
+    discord_gui_spike::update_guild_notification_settings(&api, &token, &guild_id, &resolved).await
+}
+
+/// Обновить переопределение уведомлений канала: `PATCH /users/@me/guilds/{guild_id}/settings`
+/// с картой `{"channel_overrides": {"<channel_id>": { ... }}}`.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+failures:
+
+failures:
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
+------------------------------------------------------------------------
+
+[MUT-4] Подмена делегата discord_gui_spike::update_guild_notification_settings в update_guild_notification_settings
+Mutant MD5: 98def869a74a2f6eebff8f1e38c2afc5
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.73s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (717468) panicked at tests/ipc_wiring_contract.rs:1182:5:
+update_guild_notification_settings делегирует в discord_gui_spike::update_guild_notification_settings: async fn update_guild_notification_settings(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    guild_id: String,
+    patch: Option<GuildNotificationSettingsPatch>,
+    settings: Option<GuildNotificationSettingsPatch>,
+    payload: Option<GuildNotificationSettingsPatch>,
+) -> Result<serde_json::Value, NotificationError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<NotificationError, _>(
+        move || backend.token(),
+        || NotificationError::Storage,
+        || NotificationError::MissingToken,
+    )
+    .await?;
+    let api = DiscordNotifications::new(&token)?;
+    let resolved = patch.or(settings).or(payload).unwrap_or_default();
+    let _ = (&api, &token, &guild_id, &resolved);
+    Ok(serde_json::json!({}))
+}
+
+/// Обновить переопределение уведомлений канала: `PATCH /users/@me/guilds/{guild_id}/settings`
+/// с картой `{"channel_overrides": {"<channel_id>": { ... }}}`.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+failures:
+
+failures:
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
+------------------------------------------------------------------------
+
+[MUT-5] Подмена делегата discord_gui_spike::update_channel_notification_override в update_channel_notification_override
+Mutant MD5: 59fe38656d478068f18a0c4c5a2c7cd7
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.94s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+
+thread 'notifications_ipc_commands_are_registered_and_delegate_to_lib' (717924) panicked at tests/ipc_wiring_contract.rs:1206:5:
+update_channel_notification_override делегирует в discord_gui_spike::update_channel_notification_override: async fn update_channel_notification_override(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    guild_id: String,
+    channel_id: String,
+    override_patch: Option<ChannelNotificationOverridePatch>,
+    patch: Option<ChannelOverrideInput>,
+    payload: Option<ChannelOverrideInput>,
+) -> Result<serde_json::Value, NotificationError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<NotificationError, _>(
+        move || backend.token(),
+        || NotificationError::Storage,
+        || NotificationError::MissingToken,
+    )
+    .await?;
+    let api = DiscordNotifications::new(&token)?;
+    let resolved = ChannelOverrideInput::resolve(&channel_id, override_patch, patch, payload);
+    let _ = (&api, &token, &guild_id, &channel_id, &resolved);
+    Ok(serde_json::json!({}))
+}
+
+// ---------------------------------------------------------------------------
+// RW-39/NET-C2: авторизация. Вся логика — в `discord_gui_spike::auth`, здесь
+// только Tauri-обёртки. `Keyring` — `!Send` и может ждать D-Bus, поэтому каждая
+// команда уходит в `spawn_blocking`: UI-поток и async-runtime не блокируются.
+// ---------------------------------------------------------------------------
+
+/// Блокирующая операция — вне async-runtime (keyring, файл настроек).
+async fn blocking<T, F>(work: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce() -> T + Send + 'static,
+{
+    tokio::task::spawn_blocking(work)
+        .await
+        .map_err(|error| format!("блокирующая операция не завершилась: {error}"))
+}
+
+/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... FAILED
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+failures:
+
+failures:
+    notifications_ipc_commands_are_registered_and_delegate_to_lib
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p discord-gui-spike --test ipc_wiring_contract`
+EXIT_CODE=101
+Status: KILLED (exit=101)
+Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
+------------------------------------------------------------------------
+
+Summary: 5/5 KILLED, 0 survived
+Final Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (baseline=ae573539a9b8a8cc6e355c3975edaff0, match=True)
+$ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.94s
+     Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
+
+running 8 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+FINAL_GREEN_EXIT_CODE=0

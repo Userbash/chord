@@ -1,0 +1,25 @@
+tests/unit/composer.test.mjs(36,5): error TS2740: Type 'ShimDocument' is missing the following properties from type 'Document': URL, activeViewTransition, alinkColor, all, and 252 more.
+tests/unit/composer.test.mjs(83,5): error TS2740: Type 'ShimElement' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 283 more.
+tests/unit/composer.test.mjs(118,24): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(163,18): error TS18047: 'queue' is possibly 'null'.
+tests/unit/composer.test.mjs(163,24): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(164,19): error TS18047: 'queue' is possibly 'null'.
+tests/unit/composer.test.mjs(168,18): error TS18048: 'chip' is possibly 'undefined'.
+tests/unit/composer.test.mjs(169,15): error TS18048: 'chip' is possibly 'undefined'.
+tests/unit/composer.test.mjs(170,18): error TS18048: 'chip' is possibly 'undefined'.
+tests/unit/composer.test.mjs(172,18): error TS18048: 'chip' is possibly 'undefined'.
+tests/unit/composer.test.mjs(174,18): error TS18048: 'chip' is possibly 'undefined'.
+tests/unit/composer.test.mjs(178,18): error TS18047: 'count' is possibly 'null'.
+tests/unit/composer.test.mjs(179,18): error TS18047: 'count' is possibly 'null'.
+tests/unit/composer.test.mjs(197,18): error TS18047: 'queue' is possibly 'null'.
+tests/unit/composer.test.mjs(235,18): error TS18048: 'eleventhChip' is possibly 'undefined'.
+tests/unit/composer.test.mjs(238,18): error TS18047: 'count' is possibly 'null'.
+tests/unit/composer.test.mjs(266,23): error TS2532: Object is possibly 'undefined'.
+tests/unit/composer.test.mjs(272,18): error TS2532: Object is possibly 'undefined'.
+tests/unit/composer.test.mjs(412,24): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(441,25): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(451,25): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(455,25): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(468,25): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tests/unit/composer.test.mjs(478,22): error TS2339: Property 'hidden' does not exist on type 'ShimElement'.
+tsc_root_exit=1

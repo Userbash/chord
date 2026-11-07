@@ -1,0 +1,28 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.38s
+     Running tests/invites_contract.rs (/tmp/target-g1-invites/debug/deps/invites_contract-9e6587723a59e904)
+
+running 20 tests
+test client_debug_does_not_reveal_token ... ok
+test invite_routes_are_s_catalog_extension_not_d02 ... ok
+test create_invite_posts_to_channel_invites_with_params_and_parses_created_invite ... ok
+test accept_posts_exactly_three_nullable_fields_without_context ... ok
+test accept_maps_response_to_typed_receipt ... ok
+test resolve_gets_invite_target_with_counts_and_expiration ... ok
+test empty_or_blank_token_is_missing_token ... ok
+test resolve_maps_wire_object_to_camel_case_preview ... ok
+test create_invite_oracle_constants_and_defaults_match_re ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test create_invite_maps_429_retry_after_and_403_401_errors ... ok
+test transport_failure_is_typed_network_error ... ok
+test tauri_invite_commands_read_bearer_through_token_or_without_logging ... ok
+test free_functions_normalize_and_delegate ... ok
+test create_invite_accepts_every_table_entry_for_max_age_and_max_uses ... ok
+test http_statuses_map_to_typed_errors ... ok
+test success_without_parsable_invite_object_is_invalid_response ... ok
+test create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network ... ok
+test codes_are_normalized_and_invalid_ones_never_reach_transport ... ok
+test create_invite_rejects_unsafe_channel_id_before_network ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

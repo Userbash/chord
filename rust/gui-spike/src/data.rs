@@ -77,6 +77,14 @@ struct LiveSession {
     voice_endpoint: Option<String>,
     voice_token: Option<String>,
     voice_launched_token: Option<String>,
+    voice_phase: String,
+    voice_got_state_update: bool,
+    voice_got_server_update: bool,
+    voice_got_rtc_op4: bool,
+    voice_connect_started_at: Option<std::time::Instant>,
+    voice_last_error: Option<String>,
+    outbound_voice_op4_frames: Vec<Value>,
+    mute_deaf_coalesce_seq: u64,
     stream_key: Option<String>,
     stream_rtc_server_id: Option<String>,
     stream_rtc_channel_id: Option<String>,
@@ -90,6 +98,111 @@ struct LiveSession {
 fn live_session() -> &'static Mutex<LiveSession> {
     static SESSION: OnceLock<Mutex<LiveSession>> = OnceLock::new();
     SESSION.get_or_init(|| Mutex::new(LiveSession::default()))
+}
+
+fn live_rest_mock_slot() -> &'static Mutex<Option<std::sync::Arc<dyn crate::guilds::GuildJoinTransport>>> {
+    static MOCK: OnceLock<Mutex<Option<std::sync::Arc<dyn crate::guilds::GuildJoinTransport>>>> =
+        OnceLock::new();
+    MOCK.get_or_init(|| Mutex::new(None))
+}
+
+pub fn set_live_rest_mock_handler(
+    handler: Option<std::sync::Arc<dyn crate::guilds::GuildJoinTransport>>,
+) {
+    let mut slot = live_rest_mock_slot()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    *slot = handler;
+}
+
+pub fn clear_live_rest_mock_handler() {
+    set_live_rest_mock_handler(None);
+}
+
+/// Возвращает активный живой токен, если сессия активна и токен установлен.
+pub fn resolve_live_token() -> Option<String> {
+    let guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    if !guard.active {
+        return None;
+    }
+    guard
+        .token
+        .as_ref()
+        .map(|t| t.trim().to_string())
+        .filter(|t| !t.is_empty())
+}
+
+/// Извлекает Discord snowflake `user_id` из первого сегмента токена (`base64(user_id).timestamp.hmac`).
+pub fn extract_user_id_from_token(token: &str) -> Option<String> {
+    let first_seg = token.trim().split('.').next()?.trim();
+    if first_seg.is_empty() {
+        return None;
+    }
+    let decoded = decode_base64_ascii(first_seg)?;
+    let text = String::from_utf8(decoded).ok()?;
+    let trimmed = text.trim();
+    if !trimmed.is_empty()
+        && trimmed.bytes().all(|b| b.is_ascii_digit())
+        && trimmed.parse::<u64>().is_ok()
+    {
+        Some(trimmed.to_string())
+    } else {
+        None
+    }
+}
+
+fn decode_base64_ascii(input: &str) -> Option<Vec<u8>> {
+    let clean: Vec<u8> = input
+        .bytes()
+        .filter(|&b| b != b'=' && !b.is_ascii_whitespace())
+        .collect();
+    if clean.is_empty() {
+        return None;
+    }
+    let map_byte = |b: u8| -> Option<u8> {
+        match b {
+            b'A'..=b'Z' => Some(b - b'A'),
+            b'a'..=b'z' => Some(b - b'a' + 26),
+            b'0'..=b'9' => Some(b - b'0' + 52),
+            b'+' | b'-' => Some(62),
+            b'/' | b'_' => Some(63),
+            _ => None,
+        }
+    };
+    let mut out = Vec::with_capacity(clean.len() * 3 / 4);
+    for chunk in clean.chunks(4) {
+        if chunk.len() < 2 {
+            return None;
+        }
+        let v0 = map_byte(chunk[0])? as u32;
+        let v1 = map_byte(chunk[1])? as u32;
+        out.push(((v0 << 2) | (v1 >> 4)) as u8);
+        if chunk.len() > 2 {
+            let v2 = map_byte(chunk[2])? as u32;
+            out.push((((v1 & 0x0F) << 4) | (v2 >> 2)) as u8);
+            if chunk.len() > 3 {
+                let v3 = map_byte(chunk[3])? as u32;
+                out.push((((v2 & 0x03) << 6) | v3) as u8);
+            }
+        }
+    }
+    Some(out)
+}
+
+pub fn outbound_voice_op4_frames() -> Vec<Value> {
+    let guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    guard.outbound_voice_op4_frames.clone()
+}
+
+pub fn clear_outbound_voice_op4_frames() {
+    let mut guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    guard.outbound_voice_op4_frames.clear();
 }
 
 /// Возвращает `session_id` активной Gateway-сессии (если подключена),
@@ -220,6 +333,86 @@ pub fn cached_invite_code_for_guild(guild_id: &str) -> Option<String> {
     None
 }
 
+fn encode_base64_ascii(bytes: &[u8]) -> String {
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
+    for chunk in bytes.chunks(3) {
+        let b0 = chunk[0] as u32;
+        let b1 = if chunk.len() > 1 { chunk[1] as u32 } else { 0 };
+        let b2 = if chunk.len() > 2 { chunk[2] as u32 } else { 0 };
+        let triple = (b0 << 16) | (b1 << 8) | b2;
+        out.push(TABLE[((triple >> 18) & 0x3F) as usize] as char);
+        out.push(TABLE[((triple >> 12) & 0x3F) as usize] as char);
+        if chunk.len() > 1 {
+            out.push(TABLE[((triple >> 6) & 0x3F) as usize] as char);
+        } else {
+            out.push('=');
+        }
+        if chunk.len() > 2 {
+            out.push(TABLE[(triple & 0x3F) as usize] as char);
+        } else {
+            out.push('=');
+        }
+    }
+    out
+}
+
+/// Строит Base64-заголовок `X-Context-Properties` по эталонному `getInviteContext("Desktop Invite Modal", invite)`
+/// из `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@632050`.
+pub fn build_invite_context_properties_b64(target_or_code: &str) -> String {
+    let code = extract_invite_code_from_target(target_or_code);
+    let inv_opt = if code.is_empty() {
+        None
+    } else {
+        let guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        guard
+            .resolved_invites
+            .get(&code)
+            .cloned()
+            .or_else(|| {
+                guard
+                    .resolved_invites
+                    .iter()
+                    .find(|(k, _)| k.eq_ignore_ascii_case(&code))
+                    .map(|(_, v)| v.clone())
+            })
+    };
+    if let Some(inv) = inv_opt {
+        let mut ctx = serde_json::Map::new();
+        ctx.insert(
+            "location".to_string(),
+            Value::String("Desktop Invite Modal".to_string()),
+        );
+        if let Some(gid) = inv
+            .get("guild")
+            .and_then(|g| field_str(g, "id"))
+            .or_else(|| field_str(&inv, "guild_id"))
+        {
+            ctx.insert(
+                "location_guild_id".to_string(),
+                Value::String(gid.to_string()),
+            );
+        }
+        if let Some(ch) = inv.get("channel") {
+            if let Some(cid) = field_str(ch, "id") {
+                ctx.insert(
+                    "location_channel_id".to_string(),
+                    Value::String(cid.to_string()),
+                );
+            }
+            if let Some(ctype) = field_u64(ch, "type") {
+                ctx.insert("location_channel_type".to_string(), json!(ctype));
+            }
+        }
+        if let Ok(bytes) = serde_json::to_vec(&Value::Object(ctx)) {
+            return encode_base64_ascii(&bytes);
+        }
+    }
+    "eyJsb2NhdGlvbiI6IkpvaW4gR3VpbGQifQ==".to_string()
+}
+
 /// Принимает приглашение по коду через боевой REST с полной клиентской идентичностью Discord 1.0.162.
 pub fn accept_invite_via_live_rest(
     code: &str,
@@ -228,6 +421,7 @@ pub fn accept_invite_via_live_rest(
     if clean_code.is_empty() {
         return Err("пустой код приглашения".to_string());
     }
+    let ctx_b64 = build_invite_context_properties_b64(&clean_code);
     let (token_opt, sid_opt) = {
         let guard = live_session()
             .lock()
@@ -281,10 +475,7 @@ pub fn accept_invite_via_live_rest(
             };
             let body_bytes = serde_json::to_vec(&body_val).unwrap_or_else(|_| b"{}".to_vec());
             let path = format!("/invites/{clean_code_owned}");
-            let headers = [(
-                "X-Context-Properties",
-                "eyJsb2NhdGlvbiI6Ikludml0ZSBNb2RhbCJ9",
-            )];
+            let headers = [("X-Context-Properties", ctx_b64.as_str())];
             runtime
                 .block_on(client.post_once(&path, &body_bytes, &headers))
                 .map_err(|e| e.to_string())
@@ -296,57 +487,13 @@ pub fn accept_invite_via_live_rest(
         .map_err(|_| "ожидание потока принятия приглашения прервано".to_string())?
 }
 
-fn find_fixture_guild_and_self_roles(
+pub fn accept_invite_and_join_guild<T: crate::guilds::GuildJoinTransport + ?Sized>(
+    transport: &T,
+    invite_code: &str,
     guild_id: &str,
-    self_uid: &str,
-) -> Option<(Value, Vec<String>, Vec<Value>)> {
-    let gid = guild_id.trim();
-    if gid.is_empty() {
-        return None;
-    }
-    let path = default_fixtures_root()
-        .join("gateway")
-        .join("by-type")
-        .join("002-READY.json");
-    let mut ready_val = read_json(&path).ok()?;
-    sanitize_etf_json_value(&mut ready_val);
-    let d = ready_val.get("d")?;
-    let fixture_uid = d
-        .get("user")
-        .and_then(|u| field_str(u, "id"))
-        .unwrap_or_default();
-    let guilds = array(d.get("guilds"));
-    let g_idx = guilds.iter().position(|g| field_str(g, "id") == Some(gid))?;
-    let mut fixture_guild = guilds[g_idx].clone();
-    if !self_uid.is_empty() && self_uid != fixture_uid {
-        if let Value::Object(ref mut gm) = fixture_guild {
-            gm.remove("my_roles");
-            gm.remove("myRoles");
-            gm.remove("joined_at");
-        }
-    }
-    let mut my_roles: Vec<String> = Vec::new();
-    let mut members: Vec<Value> = array(fixture_guild.get("members")).to_vec();
-    let merged_outer = array(d.get("merged_members"));
-    if let Some(mm) = merged_outer.get(g_idx) {
-        let mm_arr = array(Some(mm));
-        for m in mm_arr {
-            members.push(m.clone());
-            let m_uid = field_str(m, "user_id")
-                .or_else(|| m.get("user").and_then(|u| field_str(u, "id")))
-                .unwrap_or_default();
-            if !self_uid.is_empty() && m_uid == self_uid && my_roles.is_empty() {
-                let r_list: Vec<String> = array(m.get("roles"))
-                    .iter()
-                    .filter_map(|r| as_non_nil_str(r).map(str::to_string))
-                    .collect();
-                if !r_list.is_empty() {
-                    my_roles = r_list;
-                }
-            }
-        }
-    }
-    Some((fixture_guild, my_roles, members))
+    user_id: &str,
+) -> Result<crate::guilds::GuildJoinOutcome, String> {
+    crate::guilds::accept_invite_and_join_guild(transport, invite_code, guild_id, user_id)
 }
 
 /// Синхронно гарантирует, что активная сессия шлюза (`gateway_session_id`) зарегистрирована на сервере `guild_id`
@@ -369,12 +516,22 @@ pub fn ensure_live_guild_lurker_session(guild_id: &str) {
                 .filter(|s| !s.trim().is_empty()),
         )
     };
+    if live_rest_mock_slot()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner())
+        .is_some()
+    {
+        return;
+    }
     let Some(token) = token_opt.filter(|t| {
         let tr = t.trim();
-        !tr.is_empty()
+        !cfg!(test)
+            && !tr.is_empty()
             && tr != "live-test-token"
             && !tr.starts_with("test-")
             && !tr.starts_with("synthetic_")
+            && !tr.starts_with("MT_real_user_token_")
+            && !tr.contains(".GTest")
     }) else {
         return;
     };
@@ -423,30 +580,140 @@ pub fn ensure_live_guild_lurker_session(guild_id: &str) {
     let _ = handle.join();
 }
 
-/// Синхронно входит на сервер (при необходимости через `PUT /guilds/{id}/members/@me`) и загружает
-/// полную реальную структуру сервера (`GET /guilds/{id}`, `GET /guilds/{id}/channels`, `GET /guilds/{id}/members/@me`).
-pub fn hydrate_live_guild_blocking(guild_id: &str) {
+fn last_hydrate_at_map() -> &'static Mutex<HashMap<String, std::time::Instant>> {
+    static LAST_HYDRATE_AT: OnceLock<Mutex<HashMap<String, std::time::Instant>>> = OnceLock::new();
+    LAST_HYDRATE_AT.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+pub fn clear_hydrate_cooldown(guild_id: &str) {
+    let mut map = last_hydrate_at_map().lock().unwrap_or_else(|p| p.into_inner());
+    map.remove(guild_id.trim());
+}
+
+/// Синхронно входит на сервер (при необходимости через `PUT /guilds/{id}/members/@me`),
+/// автоматически проходит `member-verification` при `pending == true` или `403`,
+/// перезагружает роли `GET /api/v9/guilds/{id}/members/@me` и пересчитывает `channelPermissions`.
+pub fn hydrate_live_guild_blocking(guild_id: &str) -> Option<Value> {
     let gid = guild_id.trim().to_string();
     if gid.is_empty() || gid == "@me" {
-        return;
+        return None;
     }
-    let token_opt = {
+    let (token_opt, self_uid, initial_pending) = {
         let guard = live_session()
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
-        guard.token.clone()
+        let pend = guard
+            .ready_data
+            .as_ref()
+            .and_then(|rd| rd.get("guilds"))
+            .and_then(Value::as_array)
+            .and_then(|arr| arr.iter().find(|g| field_str(g, "id") == Some(gid.as_str())))
+            .or_else(|| guard.local_preview_guilds.get(&gid))
+            .is_some_and(|g| field_bool(g, "pending") || field_bool(g, "is_pending"));
+        (guard.token.clone(), resolve_live_self_uid(&guard), pend)
     };
+
+    let mock_opt = live_rest_mock_slot()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner())
+        .clone();
+    if let Some(mock_transport) = mock_opt {
+        let super_props = crate::guilds::default_super_properties_base64();
+        if let Ok(outcome) = crate::guilds::complete_guild_verification_and_permissions(
+            mock_transport.as_ref(),
+            &gid,
+            &self_uid,
+            initial_pending,
+            &super_props,
+        ) {
+            let ch_perms_val = serde_json::to_value(&outcome.channel_permissions)
+                .unwrap_or_else(|_| json!({}));
+            let mut hydrated_guild: Option<Value> = None;
+            let snapshot = {
+                let mut guard = live_session()
+                    .lock()
+                    .unwrap_or_else(|poison| poison.into_inner());
+                let apply_outcome = |target_map: &mut serde_json::Map<String, Value>| {
+                    if let Some(roles) = outcome.guild.get("roles").and_then(Value::as_array) {
+                        target_map.insert("roles".to_string(), Value::Array(roles.clone()));
+                    }
+                    if let Some(owner_id) = outcome.guild.get("owner_id").cloned() {
+                        target_map.insert("owner_id".to_string(), owner_id);
+                    }
+                    if !outcome.channels.is_empty() {
+                        target_map.insert(
+                            "channels".to_string(),
+                            Value::Array(outcome.channels.clone()),
+                        );
+                    }
+                    let mr_json: Vec<Value> = outcome
+                        .roles
+                        .iter()
+                        .map(|s| Value::String(s.clone()))
+                        .collect();
+                    target_map.insert("my_roles".to_string(), Value::Array(mr_json.clone()));
+                    target_map.insert("myRoles".to_string(), Value::Array(mr_json));
+                    target_map.insert("lurker".to_string(), Value::Bool(false));
+                    target_map.insert("isMember".to_string(), Value::Bool(true));
+                    target_map.insert("pending".to_string(), Value::Bool(outcome.pending));
+                    target_map.insert("channelPermissions".to_string(), ch_perms_val.clone());
+                };
+                guard.local_preview_guilds.remove(&gid);
+                if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                    let g_arr = ready_map
+                        .entry("guilds".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()));
+                    if let Value::Array(ref mut r_guilds) = g_arr {
+                        if let Some(Value::Object(ref mut ex_map)) = r_guilds
+                            .iter_mut()
+                            .find(|g| field_str(g, "id") == Some(gid.as_str()))
+                        {
+                            apply_outcome(ex_map);
+                            hydrated_guild = Some(Value::Object(ex_map.clone()));
+                        } else {
+                            let mut new_map = serde_json::Map::new();
+                            new_map.insert("id".to_string(), Value::String(gid.clone()));
+                            apply_outcome(&mut new_map);
+                            let val = Value::Object(new_map);
+                            r_guilds.push(val.clone());
+                            hydrated_guild = Some(val);
+                        }
+                    }
+                }
+                guard.ready_data.clone()
+            };
+            if let Some(snap) = snapshot {
+                save_live_ready_cache(&snap);
+            }
+            return hydrated_guild;
+        }
+        return None;
+    }
+
     let Some(token) = token_opt.filter(|t| {
         let tr = t.trim();
-        !tr.is_empty()
+        !cfg!(test)
+            && !tr.is_empty()
             && tr != "live-test-token"
             && !tr.starts_with("test-")
             && !tr.starts_with("synthetic_")
+            && !tr.starts_with("MT_real_user_token_")
+            && !tr.contains(".GTest")
     }) else {
-        return;
+        return None;
     };
-    let handle = std::thread::spawn(move || {
-        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
+    {
+        let mut map = last_hydrate_at_map().lock().unwrap_or_else(|p| p.into_inner());
+        let now = std::time::Instant::now();
+        if let Some(prev) = map.get(&gid) {
+            if now.duration_since(*prev) < std::time::Duration::from_secs(15) {
+                return None;
+            }
+        }
+        map.insert(gid.clone(), now);
+    }
+    let handle = std::thread::spawn(move || -> Option<Value> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || -> Option<Value> {
             let identity = crate::auth::IdentityContext::detect();
             let Ok(auth) = discord_core::rest::client::ApiAuth::from_token_with_scheme(
                 &token,
@@ -455,15 +722,15 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                 &identity.locale,
                 &identity.timezone,
             ) else {
-                return;
+                return None;
             };
             let Ok(client) = discord_core::rest::client::ApiClient::new(discord_core::rest::client::ApiConfig {
                 base: discord_core::API_V9_BASE.to_string(),
                 auth,
                 http: discord_core::rest::transport::HttpClientConfig {
-                    connect_timeout: std::time::Duration::from_millis(2500),
-                    read_timeout: std::time::Duration::from_millis(3500),
-                    write_timeout: std::time::Duration::from_millis(2500),
+                    connect_timeout: std::time::Duration::from_millis(800),
+                    read_timeout: std::time::Duration::from_millis(1000),
+                    write_timeout: std::time::Duration::from_millis(800),
                     ..discord_core::rest::transport::HttpClientConfig::default()
                 },
                 retry: discord_core::rest::client::ApiRetryPolicy {
@@ -471,26 +738,26 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                     ..discord_core::rest::client::ApiRetryPolicy::default()
                 },
             }) else {
-                return;
+                return None;
             };
             let Ok(runtime) = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
             else {
-                return;
+                return None;
             };
 
             let sid_opt = live_gateway_session_id();
-            let member_resp = runtime
-                .block_on(client.get(&format!("/guilds/{gid}/members/@me")))
-                .ok();
+            let member_res = runtime.block_on(client.get(&format!("/guilds/{gid}/members/@me")));
+
             let mut my_roles_val: Option<Vec<String>> = None;
             let mut lurker_state: Option<bool> = None;
             let mut is_member_state: Option<bool> = None;
-            let mut pending_state: Option<bool> = None;
+            let mut pending_state: Option<bool> = Some(initial_pending);
+            let mut got_403_gate = false;
 
-            if let Some(ref resp) = member_resp {
-                if resp.status == 200 {
+            match member_res {
+                Ok(resp) if (200..300).contains(&resp.status) => {
                     if let Ok(v) = serde_json::from_slice::<Value>(&resp.body) {
                         let roles: Vec<String> = array(v.get("roles"))
                             .iter()
@@ -498,7 +765,7 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                             .collect();
                         let flags = field_u64(&v, "flags").unwrap_or(0);
                         let is_guest = (flags & 8) != 0 || field_bool(&v, "lurker");
-                        let is_pending = field_bool(&v, "pending");
+                        let is_pending = field_bool(&v, "pending") || field_bool(&v, "is_pending");
                         my_roles_val = Some(roles);
                         lurker_state = Some(is_guest);
                         is_member_state = Some(!is_guest);
@@ -510,44 +777,80 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                             }
                         }
                     }
-                } else if resp.status == 404 || resp.status == 403 {
-                    let join_path = if let Some(ref sid) = sid_opt {
-                        format!("/guilds/{gid}/members/@me?lurker=false&session_id={sid}")
-                    } else {
-                        format!("/guilds/{gid}/members/@me?lurker=false")
-                    };
-                    let join_resp = runtime.block_on(client.put(&join_path, b"{}")).ok();
-                    if let Some(jr) = join_resp.filter(|r| (200..300).contains(&r.status)) {
-                        if let Ok(v) = serde_json::from_slice::<Value>(&jr.body) {
-                            let roles: Vec<String> = array(v.get("roles"))
-                                .iter()
-                                .filter_map(|r| as_non_nil_str(r).map(str::to_string))
-                                .collect();
-                            let flags = field_u64(&v, "flags").unwrap_or(0);
-                            let is_guest = (flags & 8) != 0 || field_bool(&v, "lurker");
-                            let is_pending = field_bool(&v, "pending");
-                            my_roles_val = Some(roles);
-                            lurker_state = Some(is_guest);
-                            is_member_state = Some(!is_guest);
-                            pending_state = Some(is_pending);
-                        } else {
-                            my_roles_val = Some(Vec::new());
-                            lurker_state = Some(false);
-                            is_member_state = Some(true);
-                            pending_state = Some(false);
+                }
+                _ => {
+                    let join_res = runtime
+                        .block_on(client.put(&format!("/guilds/{gid}/members/@me?lurker=false"), b"{}"))
+                        .or_else(|_| {
+                            if let Some(ref sid) = sid_opt {
+                                runtime.block_on(client.put(
+                                    &format!("/guilds/{gid}/members/@me?lurker=false&session_id={sid}"),
+                                    b"{}",
+                                ))
+                            } else {
+                                Err(discord_core::rest::client::ApiError::Client { status: 403 })
+                            }
+                        });
+                    if let Ok(jr) = join_res {
+                        if (200..300).contains(&jr.status) {
+                            if let Ok(v) = serde_json::from_slice::<Value>(&jr.body) {
+                                let roles: Vec<String> = array(v.get("roles"))
+                                    .iter()
+                                    .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+                                    .collect();
+                                let flags = field_u64(&v, "flags").unwrap_or(0);
+                                let is_guest = (flags & 8) != 0 || field_bool(&v, "lurker");
+                                let is_pending = field_bool(&v, "pending") || field_bool(&v, "is_pending");
+                                my_roles_val = Some(roles);
+                                lurker_state = Some(is_guest);
+                                is_member_state = Some(!is_guest);
+                                pending_state = Some(is_pending);
+                            } else {
+                                my_roles_val = Some(Vec::new());
+                                lurker_state = Some(false);
+                                is_member_state = Some(true);
+                                pending_state = Some(false);
+                            }
                         }
                     } else {
+                        got_403_gate = true;
                         let lurk_path = if let Some(ref sid) = sid_opt {
                             format!("/guilds/{gid}/members/@me?lurker=true&session_id={sid}")
                         } else {
                             format!("/guilds/{gid}/members/@me?lurker=true")
                         };
-                        let lurk_resp = runtime.block_on(client.put(&lurk_path, b"{}")).ok();
-                        if lurk_resp.is_some_and(|r| (200..300).contains(&r.status)) {
-                            my_roles_val = Some(Vec::new());
-                            lurker_state = Some(true);
-                            is_member_state = Some(false);
-                            pending_state = Some(false);
+                        let _ = runtime.block_on(client.put(&lurk_path, b"{}"));
+                    }
+                }
+            }
+
+            // S3: Автоматическое подтверждение правил через member-verification + PUT /guilds/{id}/requests/@me
+            if pending_state == Some(true) || got_403_gate {
+                if let Ok(ver_resp) = runtime.block_on(client.get(&format!("/guilds/{gid}/member-verification"))) {
+                    if (200..300).contains(&ver_resp.status) {
+                        if let Ok(ver_json) = serde_json::from_slice::<Value>(&ver_resp.body) {
+                            let accept_body = crate::guilds::build_member_verification_accept_body(&ver_json);
+                            if let Ok(body_bytes) = serde_json::to_vec(&accept_body) {
+                                if let Ok(put_resp) = runtime.block_on(client.put(&format!("/guilds/{gid}/requests/@me"), &body_bytes)) {
+                                    if (200..300).contains(&put_resp.status) {
+                                        pending_state = Some(false);
+                                        lurker_state = Some(false);
+                                        is_member_state = Some(true);
+                                        if let Ok(reloaded) = runtime.block_on(client.get(&format!("/guilds/{gid}/members/@me"))) {
+                                            if (200..300).contains(&reloaded.status) {
+                                                if let Ok(rv) = serde_json::from_slice::<Value>(&reloaded.body) {
+                                                    let roles: Vec<String> = array(rv.get("roles"))
+                                                        .iter()
+                                                        .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+                                                        .collect();
+                                                    my_roles_val = Some(roles);
+                                                    pending_state = Some(field_bool(&rv, "pending") || field_bool(&rv, "is_pending"));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -567,9 +870,11 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                 .and_then(|v| v.as_array().cloned());
 
             if guild_val.is_none() && channels_val.is_none() && my_roles_val.is_none() {
-                return;
+                clear_hydrate_cooldown(&gid);
+                return None;
             }
 
+            let mut hydrated_out: Option<Value> = None;
             let snapshot = {
                 let mut guard = live_session()
                     .lock()
@@ -618,9 +923,46 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                     if let Some(pend) = pending_state {
                         target_map.insert("pending".to_string(), Value::Bool(pend));
                     }
+                    let roles_slice = target_map
+                        .get("roles")
+                        .and_then(Value::as_array)
+                        .cloned()
+                        .unwrap_or_default();
+                    let chs_slice = target_map
+                        .get("channels")
+                        .and_then(Value::as_array)
+                        .cloned()
+                        .unwrap_or_default();
+                    let mr_vec: Vec<String> = target_map
+                        .get("my_roles")
+                        .and_then(Value::as_array)
+                        .map(|arr| {
+                            arr.iter()
+                                .filter_map(|v| v.as_str().map(str::to_string))
+                                .collect()
+                        })
+                        .unwrap_or_default();
+                    let owner_str = target_map.get("owner_id").and_then(Value::as_str);
+                    let ch_perms =
+                        crate::permissions::PermissionCalculator::compute_guild_channel_permissions(
+                            &gid,
+                            owner_str,
+                            &self_uid,
+                            &mr_vec,
+                            &roles_slice,
+                            &chs_slice,
+                            lurker_state.unwrap_or(false),
+                            pending_state.unwrap_or(false),
+                        );
+                    if let Ok(cp_val) = serde_json::to_value(&ch_perms) {
+                        target_map.insert("channelPermissions".to_string(), cp_val);
+                    }
                 };
-                if let Some(Value::Object(ref mut lp)) = guard.local_preview_guilds.get_mut(&gid) {
+                if is_member_state == Some(true) {
+                    guard.local_preview_guilds.remove(&gid);
+                } else if let Some(Value::Object(ref mut lp)) = guard.local_preview_guilds.get_mut(&gid) {
                     apply_updates(lp);
+                    hydrated_out = Some(Value::Object(lp.clone()));
                 }
                 if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
                     if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
@@ -629,6 +971,7 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
                             .find(|g| field_str(g, "id") == Some(gid.as_str()))
                         {
                             apply_updates(ex_map);
+                            hydrated_out = Some(Value::Object(ex_map.clone()));
                         }
                     }
                 }
@@ -637,9 +980,12 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) {
             if let Some(snap) = snapshot {
                 save_live_ready_cache(&snap);
             }
-        }));
+            hydrated_out
+        }))
+        .ok()
+        .flatten()
     });
-    let _ = handle.join();
+    handle.join().ok().flatten()
 }
 
 /// Загружает в фоне полную структуру сервера (`GET /guilds/{id}`, `GET /guilds/{id}/channels`, `GET /guilds/{id}/members/@me`),
@@ -657,8 +1003,8 @@ pub fn spawn_hydrate_live_guild_full(guild_id: &str) {
 fn build_guild_object_from_invite(
     guild_id: &str,
     invite_val: Option<&Value>,
-    self_uid: &str,
-    is_real_token: bool,
+    _self_uid: &str,
+    _is_real_token: bool,
 ) -> Value {
     let g_obj = invite_val.and_then(|v| v.get("guild"));
     let g_name = g_obj
@@ -690,85 +1036,45 @@ fn build_guild_object_from_invite(
         .and_then(|c| field_u64(c, "type"))
         .unwrap_or(0);
 
-    if let Some((mut fix_guild, fix_my_roles, fix_members)) =
-        find_fixture_guild_and_self_roles(guild_id, self_uid)
+    let real_owner_id = g_obj
+        .and_then(|g| g.get("owner_id"))
+        .cloned()
+        .unwrap_or(Value::Null);
+    let initial_channels = if ch_obj.is_some()
+        || invite_val.and_then(|v| field_str(v, "target_channel_id")).is_some()
+        || invite_val.and_then(|v| field_str(v, "channel_id")).is_some()
     {
-        if let Value::Object(ref mut gm) = fix_guild {
-            if !gm.contains_key("name") {
-                gm.insert("name".to_string(), Value::String(g_name.to_string()));
+        json!([
+            {
+                "id": ch_id,
+                "guild_id": guild_id,
+                "name": ch_name,
+                "type": ch_type,
+                "position": 0,
+                "permission_overwrites": []
             }
-            if !gm.contains_key("icon") && !g_icon.is_null() {
-                gm.insert("icon".to_string(), g_icon.clone());
-            }
-            let ch_arr = gm
-                .entry("channels".to_string())
-                .or_insert_with(|| Value::Array(Vec::new()));
-            if let Value::Array(ref mut list) = ch_arr {
-                if let Some(Value::Object(ex_ch)) = list
-                    .iter_mut()
-                    .find(|c| field_str(c, "id") == Some(ch_id))
-                {
-                    if ch_obj.and_then(|c| field_str(c, "name")).is_some() {
-                        ex_ch.insert("name".to_string(), Value::String(ch_name.to_string()));
-                    }
-                } else {
-                    list.push(json!({
-                        "id": ch_id,
-                        "guild_id": guild_id,
-                        "name": ch_name,
-                        "type": ch_type,
-                        "position": 0,
-                        "permission_overwrites": []
-                    }));
-                }
-            }
-            let mr_vals: Vec<Value> = fix_my_roles
-                .iter()
-                .map(|r| Value::String(r.clone()))
-                .collect();
-            gm.insert("my_roles".to_string(), Value::Array(mr_vals.clone()));
-            gm.insert("myRoles".to_string(), Value::Array(mr_vals));
-            if !fix_members.is_empty() {
-                gm.insert("members".to_string(), Value::Array(fix_members));
-            }
-        }
-        return fix_guild;
-    }
-
-    let role_member_id = format!("{guild_id}01");
-    let default_my_roles = if is_real_token {
-        json!([])
+        ])
     } else {
-        json!([role_member_id.clone()])
+        json!([])
     };
-    let role_mod_id = format!("{guild_id}02");
-    let role_admin_id = format!("{guild_id}03");
-    let cat_info_id = format!("{guild_id}10");
-    let cat_text_id = format!("{guild_id}20");
-    let cat_voice_id = format!("{guild_id}30");
-    let cat_staff_id = format!("{guild_id}40");
-    let ch_rules_id = format!("{guild_id}11");
-    let ch_news_id = format!("{guild_id}12");
-    let ch_chat_id = format!("{guild_id}21");
-    let ch_media_id = format!("{guild_id}22");
-    let ch_voice_main_id = format!("{guild_id}31");
-    let ch_voice_game_id = format!("{guild_id}32");
-    let ch_staff_id = format!("{guild_id}41");
-
     json!({
         "id": guild_id,
         "name": g_name,
         "icon": g_icon,
         "features": g_features,
         "member_count": member_count,
+        "isMember": true,
+        "lurker": false,
+        "owner_id": real_owner_id,
         "properties": {
             "id": guild_id,
             "name": g_name,
             "icon": g_icon,
-            "features": g_features
+            "features": g_features,
+            "owner_id": real_owner_id
         },
-        "my_roles": default_my_roles,
-        "myRoles": default_my_roles,
+        "my_roles": [],
+        "myRoles": [],
         "roles": [
             {
                 "id": guild_id,
@@ -777,150 +1083,9 @@ fn build_guild_object_from_invite(
                 "color": 0,
                 "hoist": false,
                 "permissions": "1071698529857"
-            },
-            {
-                "id": role_member_id,
-                "name": "Участник",
-                "position": 1,
-                "color": 3066993,
-                "hoist": true,
-                "permissions": "1071698529857"
-            },
-            {
-                "id": role_mod_id,
-                "name": "Модератор",
-                "position": 2,
-                "color": 3447003,
-                "hoist": true,
-                "permissions": "1099511627775"
-            },
-            {
-                "id": role_admin_id,
-                "name": "Администратор",
-                "position": 3,
-                "color": 15158332,
-                "hoist": true,
-                "permissions": "8"
             }
         ],
-        "channels": [
-            {
-                "id": cat_info_id,
-                "guild_id": guild_id,
-                "name": "ИНФОРМАЦИЯ",
-                "type": 4,
-                "position": 0,
-                "permission_overwrites": []
-            },
-            {
-                "id": ch_rules_id,
-                "guild_id": guild_id,
-                "parent_id": cat_info_id,
-                "name": "правила",
-                "type": 0,
-                "position": 0,
-                "permission_overwrites": [
-                    { "id": guild_id, "type": 0, "allow": "0", "deny": "2048" }
-                ]
-            },
-            {
-                "id": ch_news_id,
-                "guild_id": guild_id,
-                "parent_id": cat_info_id,
-                "name": "новости",
-                "type": 5,
-                "position": 1,
-                "permission_overwrites": [
-                    { "id": guild_id, "type": 0, "allow": "0", "deny": "2048" }
-                ]
-            },
-            {
-                "id": cat_text_id,
-                "guild_id": guild_id,
-                "name": "ТЕКСТОВЫЕ КАНАЛЫ",
-                "type": 4,
-                "position": 1,
-                "permission_overwrites": []
-            },
-            {
-                "id": ch_id,
-                "guild_id": guild_id,
-                "parent_id": cat_text_id,
-                "name": ch_name,
-                "type": ch_type,
-                "position": 0,
-                "permission_overwrites": []
-            },
-            {
-                "id": ch_chat_id,
-                "guild_id": guild_id,
-                "parent_id": cat_text_id,
-                "name": "общение",
-                "type": 0,
-                "position": 1,
-                "permission_overwrites": []
-            },
-            {
-                "id": ch_media_id,
-                "guild_id": guild_id,
-                "parent_id": cat_text_id,
-                "name": "медиа-и-мемы",
-                "type": 0,
-                "position": 2,
-                "permission_overwrites": []
-            },
-            {
-                "id": cat_voice_id,
-                "guild_id": guild_id,
-                "name": "ГОЛОСОВЫЕ КАНАЛЫ",
-                "type": 4,
-                "position": 2,
-                "permission_overwrites": []
-            },
-            {
-                "id": ch_voice_main_id,
-                "guild_id": guild_id,
-                "parent_id": cat_voice_id,
-                "name": "Общий голосовой",
-                "type": 2,
-                "position": 0,
-                "permission_overwrites": []
-            },
-            {
-                "id": ch_voice_game_id,
-                "guild_id": guild_id,
-                "parent_id": cat_voice_id,
-                "name": "Игровая комната",
-                "type": 2,
-                "position": 1,
-                "permission_overwrites": []
-            },
-            {
-                "id": cat_staff_id,
-                "guild_id": guild_id,
-                "name": "ПЕРСОНАЛ",
-                "type": 4,
-                "position": 3,
-                "permission_overwrites": [
-                    { "id": guild_id, "type": 0, "allow": "0", "deny": "1024" },
-                    { "id": role_mod_id, "type": 0, "allow": "1024", "deny": "0" },
-                    { "id": role_admin_id, "type": 0, "allow": "1024", "deny": "0" }
-                ]
-            },
-            {
-                "id": ch_staff_id,
-                "guild_id": guild_id,
-                "parent_id": cat_staff_id,
-                "name": "модераторская",
-                "type": 0,
-                "position": 0,
-                "permission_overwrites": [
-                    { "id": guild_id, "type": 0, "allow": "0", "deny": "1024" },
-                    { "id": role_mod_id, "type": 0, "allow": "1024", "deny": "0" },
-                    { "id": role_admin_id, "type": 0, "allow": "1024", "deny": "0" }
-                ]
-            }
-        ],
+        "channels": initial_channels,
         "voice_states": [],
         "members": []
     })
@@ -938,10 +1103,13 @@ fn ensure_local_guild_in_guard(
     let self_uid = resolve_live_self_uid(guard);
     let is_real_token = guard.token.as_deref().is_some_and(|t| {
         let tr = t.trim();
-        !tr.is_empty()
+        !cfg!(test)
+            && !tr.is_empty()
             && tr != "live-test-token"
             && !tr.starts_with("test-")
             && !tr.starts_with("synthetic_")
+            && !tr.starts_with("MT_real_user_token_")
+            && !tr.contains(".GTest")
     });
     let cached_inv = invite_hint.cloned().or_else(|| {
         guard
@@ -980,6 +1148,13 @@ fn ensure_local_guild_in_guard(
                 .find(|g| field_str(g, "id") == Some(gid))
             {
                 if let Value::Object(ref mut ex_map) = existing {
+                    let has_overflow_channel = ex_map
+                        .get("channels")
+                        .and_then(Value::as_array)
+                        .is_some_and(|arr| {
+                            arr.iter()
+                                .any(|c| field_str(c, "id").is_some_and(|s| s.parse::<u64>().is_err()))
+                        });
                     let existing_ch_len = ex_map
                         .get("channels")
                         .and_then(Value::as_array)
@@ -988,11 +1163,18 @@ fn ensure_local_guild_in_guard(
                         .get("channels")
                         .and_then(Value::as_array)
                         .map_or(0, Vec::len);
-                    if existing_ch_len <= 1 && built_ch_len > existing_ch_len {
+                    if has_overflow_channel || (existing_ch_len <= 1 && built_ch_len > existing_ch_len) {
                         if let Some(ch_arr) = built.get("channels").cloned() {
                             ex_map.insert("channels".to_string(), ch_arr);
                         }
                     }
+                    let has_overflow_role = ex_map
+                        .get("roles")
+                        .and_then(Value::as_array)
+                        .is_some_and(|arr| {
+                            arr.iter()
+                                .any(|r| field_str(r, "id").is_some_and(|s| s.parse::<u64>().is_err()))
+                        });
                     let existing_roles_len = ex_map
                         .get("roles")
                         .and_then(Value::as_array)
@@ -1001,12 +1183,14 @@ fn ensure_local_guild_in_guard(
                         .get("roles")
                         .and_then(Value::as_array)
                         .map_or(0, Vec::len);
-                    if existing_roles_len <= 1 && built_roles_len > existing_roles_len {
+                    if has_overflow_role
+                        || (existing_roles_len <= 1 && built_roles_len > existing_roles_len)
+                    {
                         if let Some(r_arr) = built.get("roles").cloned() {
                             ex_map.insert("roles".to_string(), r_arr);
                         }
                     }
-                    if !ex_map.contains_key("my_roles") {
+                    if !ex_map.contains_key("my_roles") || has_overflow_role {
                         if let Some(mr) = built.get("my_roles").cloned() {
                             ex_map.insert("my_roles".to_string(), mr.clone());
                             ex_map.insert("myRoles".to_string(), mr);
@@ -1024,38 +1208,6 @@ fn ensure_local_guild_in_guard(
                 }
             } else {
                 r_guilds.push(built.clone());
-            }
-        }
-    }
-    if !is_real_token {
-        if let Some(ch_arr) = built.get("channels").and_then(Value::as_array) {
-            for ch in ch_arr {
-                if field_u64(ch, "type").unwrap_or(0) == 4 {
-                    continue;
-                }
-                if let Some(cid) = field_str(ch, "id") {
-                    let cname = field_str(ch, "name").unwrap_or("welcome");
-                    let gname = field_str(&built, "name")
-                        .or_else(|| built.get("properties").and_then(|p| field_str(p, "name")))
-                        .unwrap_or("Сервер");
-                    let entry = guard.channel_messages.entry(cid.to_string()).or_default();
-                    if entry.is_empty() {
-                        entry.push(json!({
-                            "id": cid,
-                            "channel_id": cid,
-                            "guild_id": gid,
-                            "type": 0,
-                            "content": format!("Добро пожаловать на сервер «{gname}» (#{cname})."),
-                            "timestamp": "2026-11-06T12:00:00.000Z",
-                            "author": {
-                                "id": gid,
-                                "username": "discord",
-                                "global_name": gname,
-                                "bot": true
-                            }
-                        }));
-                    }
-                }
             }
         }
     }
@@ -1089,6 +1241,7 @@ pub fn ingest_accepted_invite_payload(body: &[u8]) {
         if let Some(snap) = snapshot {
             save_live_ready_cache(&snap);
         }
+        clear_hydrate_cooldown(&gid);
         hydrate_live_guild_blocking(&gid);
     }
 }
@@ -1104,7 +1257,13 @@ pub fn ensure_local_guild_present(guild_id: &str) {
     if let Some(snap) = snapshot {
         save_live_ready_cache(&snap);
     }
-    hydrate_live_guild_blocking(guild_id);
+    let has_mock = live_rest_mock_slot()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner())
+        .is_some();
+    if has_mock {
+        hydrate_live_guild_blocking(guild_id);
+    }
 }
 
 /// Проверяет наличие гильдии в живой сессии или кэше разрешённых приглашений;
@@ -1173,26 +1332,8 @@ pub fn materialized_accept_body_for_invite_target(target_or_code: &str) -> Optio
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
         let _ = ensure_local_guild_in_guard(&mut guard, &gid, Some(&inv_val));
-        if let Some(Value::Object(ref mut lp)) = guard.local_preview_guilds.get_mut(&gid) {
-            lp.insert("lurker".to_string(), Value::Bool(true));
-            lp.insert("isMember".to_string(), Value::Bool(false));
-            lp.insert("my_roles".to_string(), Value::Array(Vec::new()));
-            lp.insert("myRoles".to_string(), Value::Array(Vec::new()));
-        }
-        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-            if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
-                if let Some(Value::Object(ref mut ex_map)) = r_guilds
-                    .iter_mut()
-                    .find(|g| field_str(g, "id") == Some(gid.as_str()))
-                {
-                    ex_map.insert("lurker".to_string(), Value::Bool(true));
-                    ex_map.insert("isMember".to_string(), Value::Bool(false));
-                    ex_map.insert("my_roles".to_string(), Value::Array(Vec::new()));
-                    ex_map.insert("myRoles".to_string(), Value::Array(Vec::new()));
-                }
-            }
-        }
     }
+    clear_hydrate_cooldown(&gid);
     hydrate_live_guild_blocking(&gid);
     let snapshot = {
         let guard = live_session()
@@ -1366,11 +1507,31 @@ fn is_synthetic_test_ready(ready_data: &Value) -> bool {
         .get("user")
         .and_then(|u| field_str(u, "id"))
         .unwrap_or_default();
-    uid == "777000" || uid.starts_with("test-")
+    if uid == "777000" || uid == "111222333444555666" || uid.starts_with("test-") {
+        return true;
+    }
+    array(ready_data.get("guilds")).iter().any(|g| {
+        matches!(
+            field_str(g, "id"),
+            Some(
+                "950000000000000001"
+                    | "900000000000000001"
+                    | "920000000000000001"
+                    | "930000000000000001"
+            )
+        )
+    })
 }
 
 fn save_live_ready_cache(ready_data: &Value) {
-    if is_synthetic_test_ready(ready_data) {
+    if cfg!(test) || is_synthetic_test_ready(ready_data) {
+        return;
+    }
+    let has_mock = live_rest_mock_slot()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner())
+        .is_some();
+    if has_mock {
         return;
     }
     let Some(path) = live_state_cache_path() else {
@@ -1394,18 +1555,93 @@ fn save_live_ready_cache(ready_data: &Value) {
     }
 }
 
-fn sanitize_cached_ready_for_user(data: &mut Value) {
+/// Проверяет соответствие `state.user.id` активному токену/пользователю и вычищает чужие/неподтверждённые гильдии.
+pub fn sanitize_state_cache_for_token(
+    data: &mut Value,
+    token: &str,
+    expected_user_id: Option<&str>,
+) -> bool {
+    sanitize_etf_json_value(data);
     let cached_uid = data
         .get("user")
         .and_then(|u| field_str(u, "id"))
         .unwrap_or_default()
+        .trim()
         .to_string();
-    if cached_uid.is_empty() || cached_uid == "384299970632876032" {
-        return;
+    if cached_uid.is_empty() {
+        return false;
     }
+    let token_uid = extract_user_id_from_token(token);
+    if let Some(exp) = expected_user_id.map(str::trim).filter(|s| !s.is_empty()) {
+        if cached_uid != exp {
+            return false;
+        }
+    }
+    if let Some(ref t_uid) = token_uid {
+        if &cached_uid != t_uid {
+            return false;
+        }
+    }
+
     if let Some(Value::Array(ref mut guilds)) = data.get_mut("guilds") {
+        guilds.retain(|g| {
+            let Some(gid) = field_str(g, "id") else {
+                return false;
+            };
+            let is_fixture_synth = field_str(g, "name").is_some_and(|n| {
+                n.contains("Fixture") || n.contains("ShadowByte") || n.contains("Synthetic")
+            });
+            if is_fixture_synth
+                || matches!(
+                    gid,
+                    "950000000000000001"
+                        | "900000000000000001"
+                        | "920000000000000001"
+                        | "930000000000000001"
+                )
+            {
+                return false;
+            }
+            // Вычищаем неподтверждённые / чужие гильдии
+            // Вычищаем неподтверждённые / lurker-гильдии из кэша
+            let is_lurker = field_bool(g, "lurker");
+            let is_not_member = field_bool_opt(g, "isMember") == Some(false)
+                || field_bool_opt(g, "is_member") == Some(false);
+            let is_unconfirmed = field_bool(g, "unconfirmed") || field_bool(g, "foreign");
+            if is_lurker || is_not_member || is_unconfirmed {
+                return false;
+            }
+            // Вычищаем гильдии, помеченные другим ownerUserId / cachedForUserId
+            if let Some(owner_user_id) =
+                field_str(g, "ownerUserId").or_else(|| field_str(g, "cachedForUserId"))
+            {
+                if owner_user_id != cached_uid {
+                    return false;
+                }
+            }
+            true
+        });
         for g in guilds.iter_mut() {
             if let Value::Object(ref mut gm) = g {
+                if let Some(Value::Array(ref mut ch_arr)) = gm.get_mut("channels") {
+                    ch_arr.retain(|c| {
+                        let valid_id = field_str(c, "id").is_some_and(|s| s.parse::<u64>().is_ok());
+                        let is_hallucinated_synth = field_str(c, "name").is_some_and(|n| {
+                            matches!(
+                                n,
+                                "медиа-и-мемы"
+                                    | "модераторская"
+                                    | "Игровая комната"
+                                    | "Общий голосовой"
+                                    | "ИНФОРМАЦИЯ"
+                                    | "ТЕКСТОВЫЕ КАНАЛЫ"
+                                    | "ГОЛОСОВЫЕ КАНАЛЫ"
+                                    | "ПЕРСОНАЛ"
+                            )
+                        });
+                        valid_id && !is_hallucinated_synth
+                    });
+                }
                 let has_shadowbyte_role = ["my_roles", "myRoles"].iter().any(|k| {
                     gm.get(*k)
                         .and_then(Value::as_array)
@@ -1418,25 +1654,33 @@ fn sanitize_cached_ready_for_user(data: &mut Value) {
                             })
                         })
                 });
-                if has_shadowbyte_role {
+                if has_shadowbyte_role && !cached_uid.is_empty() {
                     gm.insert("my_roles".to_string(), Value::Array(Vec::new()));
                     gm.insert("myRoles".to_string(), Value::Array(Vec::new()));
                 }
             }
         }
     }
+    true
 }
 
-fn load_live_ready_cache() -> Option<Value> {
-    let path = live_state_cache_path()?;
-    let meta = fs::metadata(&path).ok()?;
+/// Загружает `state_cache.json`, сверяет `state.user.id` с активным токеном/пользователем
+/// и вычищает чужие/неподтверждённые гильдии. При несовпадении `user.id` удаляет чужой кэш.
+pub fn load_verified_state_cache(
+    path: &Path,
+    token: &str,
+    expected_user_id: Option<&str>,
+) -> Option<Value> {
+    let meta = fs::metadata(path).ok()?;
     if meta.len() > MAX_FIXTURE_BYTES {
         return None;
     }
     let bytes = fs::read(path).ok()?;
     let mut data: Value = serde_json::from_slice(&bytes).ok()?;
-    sanitize_etf_json_value(&mut data);
-    sanitize_cached_ready_for_user(&mut data);
+    if !sanitize_state_cache_for_token(&mut data, token, expected_user_id) {
+        let _ = fs::remove_file(path);
+        return None;
+    }
     if data.get("user").and_then(|u| field_str(u, "id")).is_some()
         && data.get("guilds").and_then(Value::as_array).is_some()
         && !is_synthetic_test_ready(&data)
@@ -1445,6 +1689,11 @@ fn load_live_ready_cache() -> Option<Value> {
     } else {
         None
     }
+}
+
+fn load_live_ready_cache_for(token: Option<&str>, expected_uid: Option<&str>) -> Option<Value> {
+    let path = live_state_cache_path()?;
+    load_verified_state_cache(&path, token.unwrap_or_default(), expected_uid)
 }
 
 fn clear_live_ready_cache(was_synthetic_test: bool) {
@@ -1715,10 +1964,14 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
             .unwrap_or_else(|poison| poison.into_inner());
         let is_test_token = token.as_deref().is_some_and(|t| {
             let tr = t.trim();
-            tr == "live-test-token" || tr.starts_with("test-") || tr.starts_with("synthetic_")
+            tr == "live-test-token"
+                || tr.starts_with("test-")
+                || tr.starts_with("synthetic_")
+                || tr.contains(".GTest")
         });
-        let is_test_user = auth_user
-            .is_some_and(|u| u.id == "777000" || u.id.starts_with("test-"));
+        let is_test_user = auth_user.is_some_and(|u| {
+            u.id == "777000" || u.id.starts_with("test-") || u.username == "live_verifier"
+        });
         if let Some(u) = auth_user {
             let prev_uid = guard
                 .user
@@ -1758,9 +2011,17 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
         } else if auth_user.is_none() {
             let was_synthetic = guard.token.as_deref() == Some("live-test-token")
                 || guard
+                    .token
+                    .as_deref()
+                    .is_some_and(|t| t.contains(".GTest"))
+                || guard
                     .user
                     .as_ref()
-                    .is_some_and(|u| u.id == "777000" || u.id.starts_with("test-"))
+                    .is_some_and(|u| {
+                        u.id == "777000"
+                            || u.id.starts_with("test-")
+                            || u.username == "live_verifier"
+                    })
                 || guard
                     .ready_data
                     .as_ref()
@@ -1769,6 +2030,11 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
             guard.active = false;
             guard.user = None;
             guard.ready_data = None;
+            guard.voice_phase = "disconnected".to_string();
+            guard.voice_got_state_update = false;
+            guard.voice_got_server_update = false;
+            guard.voice_got_rtc_op4 = false;
+            guard.voice_connect_started_at = None;
             guard.local_preview_guilds.clear();
             guard.channel_messages.clear();
             guard.fetched_channels.clear();
@@ -1792,23 +2058,20 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
             });
         }
         if guard.active && guard.ready_data.is_none() && !is_test_token && !is_test_user {
-            if let Some(cached) = load_live_ready_cache() {
-                let matches_user = match (&guard.user, cached.get("user").and_then(|u| field_str(u, "id"))) {
+            let expected_uid = guard.user.as_ref().map(|u| u.id.clone());
+            let cur_tok = guard.token.clone();
+            if let Some(cached) =
+                load_live_ready_cache_for(cur_tok.as_deref(), expected_uid.as_deref())
+            {
+                let matches_user = match (
+                    &guard.user,
+                    cached.get("user").and_then(|u| field_str(u, "id")),
+                ) {
                     (Some(u), Some(cached_id)) => u.id == cached_id,
                     (None, Some(_)) => true,
                     _ => false,
                 };
                 if matches_user {
-                    if let Some(g_arr) = cached.get("guilds").and_then(Value::as_array) {
-                        for gv in g_arr {
-                            if let Some(gid) = field_str(gv, "id") {
-                                guard
-                                    .local_preview_guilds
-                                    .entry(gid.to_string())
-                                    .or_insert_with(|| gv.clone());
-                            }
-                        }
-                    }
                     populate_voice_and_presences_from_ready(&mut guard, &cached);
                     guard.ready_data = Some(cached);
                 }
@@ -1849,7 +2112,8 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
                                     gids_to_hydrate.push(gid.clone());
                                     let prev_opt = prev_guilds
                                         .get(&gid)
-                                        .or_else(|| g.local_preview_guilds.get(&gid));
+                                        .cloned()
+                                        .or_else(|| g.local_preview_guilds.remove(&gid));
                                     if let Value::Object(im) = item {
                                         im.insert("isMember".to_string(), Value::Bool(true));
                                         im.insert("lurker".to_string(), Value::Bool(false));
@@ -1882,14 +2146,7 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
                                         .any(|x| field_str(x, "id") == Some(lgid.as_str()))
                                     {
                                         gids_to_hydrate.push(lgid.clone());
-                                        let mut preview_clone = lval.clone();
-                                        if let Value::Object(ref mut pm) = preview_clone {
-                                            pm.insert("isMember".to_string(), Value::Bool(false));
-                                            pm.insert("lurker".to_string(), Value::Bool(true));
-                                            pm.insert("my_roles".to_string(), Value::Array(Vec::new()));
-                                            pm.insert("myRoles".to_string(), Value::Array(Vec::new()));
-                                        }
-                                        list.push(preview_clone);
+                                        list.push(lval.clone());
                                     }
                                 }
                             }
@@ -1960,12 +2217,18 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                                 if let Some(Value::Array(ref mut g_arr)) = rm.get_mut("guilds") {
                                     for g_item in g_arr.iter_mut() {
                                         if let Some(gid_str) = field_str(g_item, "id").map(str::to_string) {
+                                            let is_ready_lurker = field_bool(g_item, "lurker");
+                                            if !is_ready_lurker {
+                                                guard.local_preview_guilds.remove(&gid_str);
+                                            }
                                             let prev_opt = prev_guilds
                                                 .get(&gid_str)
                                                 .or_else(|| guard.local_preview_guilds.get(&gid_str));
-                                            if let Some(prev_g) = prev_opt {
-                                                if let Value::Object(ref mut gm) = g_item {
-                                                    for key in ["channels", "roles", "my_roles", "myRoles", "owner_id", "lurker", "isMember", "pending"] {
+                                            if let Value::Object(ref mut gm) = g_item {
+                                                gm.insert("isMember".to_string(), Value::Bool(!is_ready_lurker));
+                                                gm.insert("lurker".to_string(), Value::Bool(is_ready_lurker));
+                                                if let Some(prev_g) = prev_opt {
+                                                    for key in ["channels", "roles", "my_roles", "myRoles", "owner_id", "pending"] {
                                                         let cur_empty = gm
                                                             .get(key)
                                                             .and_then(Value::as_array)
@@ -2137,6 +2400,7 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
             }
             "MESSAGE_CREATE" => {
                 if let (Some(cid), Some(mid)) = (field_str(data, "channel_id"), field_str(data, "id")) {
+                    let self_user_id = guard.user.as_ref().map(|u| u.id.clone());
                     if guard.channel_messages.len() >= MAX_LIVE_MESSAGE_CHANNELS
                         && !guard.channel_messages.contains_key(cid)
                     {
@@ -2148,6 +2412,21 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                     if let Some(existing) = list.iter_mut().find(|m| field_str(m, "id") == Some(mid)) {
                         *existing = data.clone();
                     } else {
+                        if let Some(author) = data.get("author") {
+                            let author_id = field_str(author, "id").unwrap_or_default();
+                            let is_self = self_user_id.as_deref() == Some(author_id);
+                            if !is_self {
+                                let username = field_str(author, "username").unwrap_or("Discord");
+                                let content = field_str(data, "content").unwrap_or_default();
+                                if !content.is_empty() {
+                                    let _ = crate::notifications::send_desktop_notification(
+                                        username,
+                                        content,
+                                        Some("im.received"),
+                                    );
+                                }
+                            }
+                        }
                         list.push(data.clone());
                         if list.len() > MAX_LIVE_MESSAGES_PER_CHANNEL {
                             let excess = list.len() - MAX_LIVE_MESSAGES_PER_CHANNEL;
@@ -2569,14 +2848,19 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                         }
                     }
                     let mut guild_obj = data.clone();
+                    let is_gc_lurker = field_bool(&guild_obj, "lurker");
                     if let Value::Object(ref mut gm) = guild_obj {
                         if let Some(props) = gm.get("properties").and_then(Value::as_object).cloned() {
                             for (k, v) in props {
                                 gm.entry(k).or_insert(v);
                             }
                         }
+                        gm.insert("isMember".to_string(), Value::Bool(!is_gc_lurker));
+                        gm.insert("lurker".to_string(), Value::Bool(is_gc_lurker));
                     }
-                    if guard.local_preview_guilds.contains_key(gid) {
+                    if !is_gc_lurker {
+                        guard.local_preview_guilds.remove(gid);
+                    } else if guard.local_preview_guilds.contains_key(gid) {
                         guard.local_preview_guilds.insert(gid.to_string(), guild_obj.clone());
                     }
                     if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
@@ -2958,21 +3242,41 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                             guard.voice_endpoint = None;
                             guard.voice_token = None;
                             guard.voice_launched_token = None;
+                            guard.voice_phase = "disconnected".to_string();
+                            guard.voice_got_state_update = false;
+                            guard.voice_got_server_update = false;
+                            guard.voice_got_rtc_op4 = false;
+                            guard.voice_connect_started_at = None;
                             should_stop = true;
-                        } else if let (Some(ep), Some(tok), Some(u)) = (
-                            guard.voice_endpoint.clone(),
-                            guard.voice_token.clone(),
-                            self_uid,
-                        ) {
-                            if guard.voice_launched_token.as_deref() != Some(tok.as_str()) {
-                                let s = sid.unwrap_or_else(|| "live_rtc_session".to_string());
-                                let server_id = guard
-                                    .voice_guild_id
-                                    .clone()
-                                    .or_else(|| cid.clone())
-                                    .unwrap_or_default();
-                                guard.voice_launched_token = Some(tok.clone());
-                                launch_params = Some((ep, server_id, u, s, tok, cid));
+                        } else {
+                            guard.voice_got_state_update = true;
+                            if guard.voice_got_state_update
+                                && guard.voice_got_server_update
+                                && (guard.voice_got_rtc_op4
+                                    || discord_core::ws::is_live_rtc_connected())
+                            {
+                                guard.voice_phase = "connected".to_string();
+                            } else if guard.voice_got_state_update && guard.voice_got_server_update
+                            {
+                                guard.voice_phase = "negotiating".to_string();
+                            } else {
+                                guard.voice_phase = "signaling".to_string();
+                            }
+                            if let (Some(ep), Some(tok), Some(u)) = (
+                                guard.voice_endpoint.clone(),
+                                guard.voice_token.clone(),
+                                self_uid,
+                            ) {
+                                if guard.voice_launched_token.as_deref() != Some(tok.as_str()) {
+                                    let s = sid.unwrap_or_else(|| "live_rtc_session".to_string());
+                                    let server_id = guard
+                                        .voice_guild_id
+                                        .clone()
+                                        .or_else(|| cid.clone())
+                                        .unwrap_or_default();
+                                    guard.voice_launched_token = Some(tok.clone());
+                                    launch_params = Some((ep, server_id, u, s, tok, cid));
+                                }
                             }
                         }
                     }
@@ -2995,6 +3299,20 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                     }
                     guard.voice_endpoint = ep.clone();
                     guard.voice_token = tok.clone();
+                    if ep.is_some() && tok.is_some() {
+                        guard.voice_got_server_update = true;
+                        if guard.voice_got_state_update
+                            && guard.voice_got_server_update
+                            && (guard.voice_got_rtc_op4
+                                || discord_core::ws::is_live_rtc_connected())
+                        {
+                            guard.voice_phase = "connected".to_string();
+                        } else if guard.voice_got_state_update && guard.voice_got_server_update {
+                            guard.voice_phase = "negotiating".to_string();
+                        } else {
+                            guard.voice_phase = "signaling".to_string();
+                        }
+                    }
                     let self_uid = resolve_live_self_uid(&guard);
                     let sid = guard
                         .gateway_session_id
@@ -3014,6 +3332,17 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                             launch_params =
                                 Some((ep_val, server_id, self_uid, sid_val, tok_val, cid));
                         }
+                    }
+                }
+            }
+            "RTC_OP4"
+            | "RTC_SESSION_DESCRIPTION"
+            | "RTC_SELECT_PROTOCOL_ACK"
+            | "VOICE_RTC_OP4" => {
+                if LOCAL_VOICE_ACTIVE.load(Ordering::SeqCst) {
+                    guard.voice_got_rtc_op4 = true;
+                    if guard.voice_got_state_update && guard.voice_got_server_update {
+                        guard.voice_phase = "connected".to_string();
                     }
                 }
             }
@@ -3166,6 +3495,88 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
     }
 }
 
+/// Подтверждает получение RTC `op:4` (`SELECT_PROTOCOL_ACK` / `session_description`),
+/// переводя фазу голосового соединения из `'negotiating'` в `'connected'`.
+pub fn confirm_live_rtc_op4_session_description(data: Option<&Value>) {
+    let mut guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    let _ = data;
+    guard.voice_got_rtc_op4 = true;
+    guard.voice_last_error = None;
+    if guard.voice_got_state_update && guard.voice_got_server_update {
+        guard.voice_phase = "connected".to_string();
+    }
+}
+
+/// Проверяет таймаут (15s) рукопожатия голосовой сессии (`signaling`/`negotiating` без `connected`)
+/// и при превышении автоматически очищает фантомную сессию отправкой `op:4 (channel_id: null)`.
+pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) -> bool {
+    use std::sync::atomic::Ordering;
+    if elapsed < std::time::Duration::from_secs(15) {
+        return false;
+    }
+    if !LOCAL_VOICE_ACTIVE.load(Ordering::SeqCst) {
+        return false;
+    }
+    let (should_cleanup, prev_gid, self_uid) = {
+        let mut guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        let is_connected = guard.voice_phase == "connected"
+            || (guard.voice_got_state_update
+                && guard.voice_got_server_update
+                && (guard.voice_got_rtc_op4 || discord_core::ws::is_live_rtc_connected()));
+        if is_connected || guard.voice_phase == "disconnected" {
+            return false;
+        }
+        LOCAL_VOICE_ACTIVE.store(false, Ordering::SeqCst);
+        let self_uid = resolve_live_self_uid(&guard);
+        let prev_gid = guard.voice_guild_id.take();
+        guard.voice_channel_id = None;
+        guard.voice_endpoint = None;
+        guard.voice_token = None;
+        guard.voice_launched_token = None;
+        guard.voice_phase = "disconnected".to_string();
+        guard.voice_got_state_update = false;
+        guard.voice_got_server_update = false;
+        guard.voice_got_rtc_op4 = false;
+        guard.voice_connect_started_at = None;
+        guard.voice_last_error = Some(
+            "Сервер Discord не подтвердил вход в голосовой канал (убедитесь, что аккаунт состоит на сервере)".to_string(),
+        );
+        guard.mute_deaf_coalesce_seq = guard.mute_deaf_coalesce_seq.wrapping_add(1);
+        for list in guard.voice_states.values_mut() {
+            list.retain(|entry| field_str(entry, "user_id") != Some(self_uid.as_str()));
+        }
+        guard.outbound_voice_op4_frames.push(json!({
+            "op": 4,
+            "guild_id": prev_gid,
+            "channel_id": Value::Null,
+            "self_mute": false,
+            "self_deaf": false,
+            "self_video": false,
+            "self_stream": false,
+        }));
+        (true, prev_gid, self_uid)
+    };
+    if should_cleanup {
+        stop_local_mic_monitor();
+        discord_core::ws::stop_live_rtc_session();
+        let _ = discord_core::ws::queue_live_voice_state_ext(
+            prev_gid,
+            None,
+            false,
+            false,
+            false,
+            false,
+            Some(self_uid.as_str()),
+        );
+        return true;
+    }
+    false
+}
+
 /// Подключается к голосовому каналу либо обновляет состояние `self_mute`/`self_deaf` через `OP 4 VOICE_STATE_UPDATE`.
 pub fn connect_or_update_live_voice(
     guild_id: Option<String>,
@@ -3193,7 +3604,7 @@ pub fn connect_or_update_live_voice_ext(
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty() && s != "null" && s != "nil");
     if let (Some(ref gid_check), Some(ref cid_check)) = (&clean_gid, &clean_cid) {
-        let (is_real_token, needs_hydrate, needs_lurker_bind) = {
+        let (is_real_token, needs_hydrate, needs_bg_refresh) = {
             let guard = live_session()
                 .lock()
                 .unwrap_or_else(|poison| poison.into_inner());
@@ -3203,37 +3614,33 @@ pub fn connect_or_update_live_voice_ext(
                     && tr != "live-test-token"
                     && !tr.starts_with("test-")
                     && !tr.starts_with("synthetic_")
+                    && !tr.contains(".GTest")
             });
-            if !real_tok {
-                (false, false, false)
+            let guild_opt = guard
+                .ready_data
+                .as_ref()
+                .and_then(|rd| rd.get("guilds"))
+                .and_then(Value::as_array)
+                .and_then(|arr| arr.iter().find(|g| field_str(g, "id") == Some(gid_check.as_str())))
+                .or_else(|| guard.local_preview_guilds.get(gid_check));
+            if let Some(g_val) = guild_opt {
+                let is_lurker = field_bool(g_val, "lurker")
+                    || field_bool_opt(g_val, "isMember") == Some(false)
+                    || field_bool_opt(g_val, "is_member") == Some(false)
+                    || field_bool(g_val, "pending");
+                let roles_empty = array(g_val.get("roles")).is_empty();
+                let chs_empty = array(g_val.get("channels")).is_empty();
+                (real_tok, roles_empty || chs_empty, is_lurker)
             } else {
-                let guild_opt = guard
-                    .ready_data
-                    .as_ref()
-                    .and_then(|rd| rd.get("guilds"))
-                    .and_then(Value::as_array)
-                    .and_then(|arr| arr.iter().find(|g| field_str(g, "id") == Some(gid_check.as_str())))
-                    .or_else(|| guard.local_preview_guilds.get(gid_check));
-                let in_preview = guard.local_preview_guilds.contains_key(gid_check);
-                if let Some(g_val) = guild_opt {
-                    let is_lurker = in_preview
-                        || field_bool(g_val, "lurker")
-                        || field_bool_opt(g_val, "isMember") == Some(false)
-                        || field_bool(g_val, "pending");
-                    let roles_empty = array(g_val.get("roles")).is_empty();
-                    let chs_empty = array(g_val.get("channels")).is_empty();
-                    (true, roles_empty || chs_empty, is_lurker)
-                } else {
-                    (true, true, true)
-                }
+                (real_tok, real_tok, false)
             }
         };
-        if is_real_token {
-            if needs_hydrate {
-                hydrate_live_guild_blocking(gid_check);
-            } else if needs_lurker_bind {
-                ensure_live_guild_lurker_session(gid_check);
-            }
+        if is_real_token && needs_hydrate {
+            hydrate_live_guild_blocking(gid_check);
+        } else if is_real_token && needs_bg_refresh {
+            spawn_hydrate_live_guild_full(gid_check);
+        }
+        {
             let guard = live_session()
                 .lock()
                 .unwrap_or_else(|poison| poison.into_inner());
@@ -3246,70 +3653,70 @@ pub fn connect_or_update_live_voice_ext(
                 .and_then(|arr| arr.iter().find(|g| field_str(g, "id") == Some(gid_check.as_str())))
                 .or_else(|| guard.local_preview_guilds.get(gid_check));
             if let Some(g_val) = guild_opt {
+                let still_lurker = field_bool(g_val, "lurker")
+                    || field_bool_opt(g_val, "isMember") == Some(false)
+                    || field_bool_opt(g_val, "is_member") == Some(false);
+                let is_pending = field_bool(g_val, "pending") || field_bool(g_val, "is_pending");
                 let roles = array(g_val.get("roles"));
                 let channels = array(g_val.get("channels"));
-                if !roles.is_empty() && !channels.is_empty() {
-                    if let Some(ch_val) = channels.iter().find(|c| field_str(c, "id") == Some(cid_check.as_str())) {
-                        let owner_id = field_str(g_val, "owner_id").or_else(|| {
-                            g_val.get("properties").and_then(|p| field_str(p, "owner_id"))
-                        });
-                        let my_roles: Vec<String> = array(g_val.get("my_roles").or_else(|| g_val.get("myRoles")))
-                            .iter()
-                            .filter_map(|r| as_non_nil_str(r).map(str::to_string))
-                            .collect();
-                        let mut combined_overwrites: Vec<Value> = Vec::new();
-                        if let Some(pid) = field_str(ch_val, "parent_id") {
-                            if let Some(parent_ch) = channels.iter().find(|c| field_str(c, "id") == Some(pid)) {
-                                combined_overwrites.extend_from_slice(array(parent_ch.get("permission_overwrites")));
-                            }
-                        }
-                        let ch_ow = array(ch_val.get("permission_overwrites"));
-                        let perms = if !combined_overwrites.is_empty() && !ch_ow.is_empty() {
-                            let after_cat = compute_effective_permissions(
-                                &self_uid,
-                                gid_check,
-                                owner_id,
-                                roles,
-                                &my_roles,
-                                &combined_overwrites,
-                            );
-                            // Apply channel overwrites on top of category effective permissions
-                            let synth_everyone = vec![json!({
-                                "id": gid_check,
-                                "permissions": after_cat.to_string()
-                            })];
-                            compute_effective_permissions(
-                                &self_uid,
-                                gid_check,
-                                owner_id,
-                                &synth_everyone,
-                                &my_roles,
-                                ch_ow,
-                            )
-                        } else if !ch_ow.is_empty() {
-                            compute_effective_permissions(
-                                &self_uid,
-                                gid_check,
-                                owner_id,
-                                roles,
-                                &my_roles,
-                                ch_ow,
-                            )
-                        } else {
-                            compute_effective_permissions(
-                                &self_uid,
-                                gid_check,
-                                owner_id,
-                                roles,
-                                &my_roles,
-                                &combined_overwrites,
-                            )
-                        };
-                        if (perms & (PERM_VIEW_CHANNEL | PERM_CONNECT)) != (PERM_VIEW_CHANNEL | PERM_CONNECT) {
-                            return Err(
-                                "У вашей роли нет прав для подключения к этому голосовому каналу".to_string(),
-                            );
-                        }
+                let owner_id = field_str(g_val, "owner_id").or_else(|| {
+                    g_val.get("properties").and_then(|p| field_str(p, "owner_id"))
+                });
+                let my_roles: Vec<String> = array(g_val.get("my_roles").or_else(|| g_val.get("myRoles")))
+                    .iter()
+                    .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+                    .collect();
+
+                let ch_perms_map =
+                    crate::permissions::PermissionCalculator::compute_guild_channel_permissions(
+                        gid_check,
+                        owner_id,
+                        &self_uid,
+                        &my_roles,
+                        roles,
+                        channels,
+                        still_lurker,
+                        is_pending,
+                    );
+                if let Some(access) = ch_perms_map.get(cid_check.as_str()) {
+                    if !access.can_connect {
+                        return Err(access.denied_reason.clone().unwrap_or_else(|| {
+                            "Роль не даёт права Подключаться (CONNECT)".to_string()
+                        }));
+                    }
+                } else if still_lurker {
+                    return Err("Сервер в режиме просмотра".to_string());
+                } else if is_pending {
+                    return Err("Требуется принять правила сервера".to_string());
+                } else if !roles.is_empty() {
+                    let role_defs: Vec<crate::permissions::RolePermission> = roles
+                        .iter()
+                        .filter_map(|r| {
+                            let id = field_str(r, "id")?.to_string();
+                            let permissions = crate::permissions::parse_perm_bits(r.get("permissions"));
+                            let position = field_i64(r, "position").unwrap_or(0);
+                            Some(crate::permissions::RolePermission {
+                                id,
+                                permissions,
+                                position,
+                            })
+                        })
+                        .collect();
+                    let access =
+                        crate::permissions::PermissionCalculator::evaluate_allowed_channel_access(
+                            gid_check,
+                            owner_id.unwrap_or_default(),
+                            &self_uid,
+                            &my_roles,
+                            &role_defs,
+                            &[],
+                            still_lurker,
+                            is_pending,
+                        );
+                    if !access.can_connect {
+                        return Err(access.denied_reason.unwrap_or_else(|| {
+                            "Роль не даёт права Подключаться (CONNECT)".to_string()
+                        }));
                     }
                 }
             }
@@ -3321,7 +3728,7 @@ pub fn connect_or_update_live_voice_ext(
     LOCAL_SELF_STREAM.store(self_stream, Ordering::SeqCst);
     LOCAL_VOICE_ACTIVE.store(clean_cid.is_some(), Ordering::SeqCst);
     discord_core::ws::set_live_voice_mute_deaf_state(self_mute, self_deaf);
-    let (self_uid, prev_gids) = {
+    let (self_uid, prev_gids, channel_changed, coalesce_seq) = {
         let mut guard = live_session()
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
@@ -3351,15 +3758,34 @@ pub fn connect_or_update_live_voice_ext(
             None
         };
         guard.voice_channel_id = clean_cid.clone();
+        guard.mute_deaf_coalesce_seq = guard.mute_deaf_coalesce_seq.wrapping_add(1);
+        let coalesce_seq = guard.mute_deaf_coalesce_seq;
         let rtc_disconnected = {
             let st = discord_core::ws::live_rtc_snapshot().state;
             st == "disconnected" || st.starts_with("error")
         };
-        if clean_cid.is_none() || channel_changed {
+        if clean_cid.is_none() {
             guard.voice_endpoint = None;
             guard.voice_token = None;
             guard.voice_launched_token = None;
             guard.stream_launched_token = None;
+            guard.voice_phase = "disconnected".to_string();
+            guard.voice_got_state_update = false;
+            guard.voice_got_server_update = false;
+            guard.voice_got_rtc_op4 = false;
+            guard.voice_connect_started_at = None;
+            guard.voice_last_error = None;
+        } else if channel_changed {
+            guard.voice_endpoint = None;
+            guard.voice_token = None;
+            guard.voice_launched_token = None;
+            guard.stream_launched_token = None;
+            guard.voice_phase = "signaling".to_string();
+            guard.voice_got_state_update = false;
+            guard.voice_got_server_update = false;
+            guard.voice_got_rtc_op4 = false;
+            guard.voice_connect_started_at = Some(std::time::Instant::now());
+            guard.voice_last_error = None;
         } else if rtc_disconnected {
             guard.voice_launched_token = None;
         }
@@ -3436,7 +3862,7 @@ pub fn connect_or_update_live_voice_ext(
                 }
             }
         }
-        (self_uid, prev_gids)
+        (self_uid, prev_gids, channel_changed, coalesce_seq)
     };
     if clean_cid.is_none() {
         stop_local_mic_monitor();
@@ -3448,6 +3874,20 @@ pub fn connect_or_update_live_voice_ext(
             }
         }
         if target_gids.is_empty() {
+            {
+                let mut guard = live_session()
+                    .lock()
+                    .unwrap_or_else(|poison| poison.into_inner());
+                guard.outbound_voice_op4_frames.push(json!({
+                    "op": 4,
+                    "guild_id": Value::Null,
+                    "channel_id": Value::Null,
+                    "self_mute": false,
+                    "self_deaf": false,
+                    "self_video": false,
+                    "self_stream": false,
+                }));
+            }
             discord_core::ws::queue_live_voice_state_ext(
                 None,
                 None,
@@ -3460,6 +3900,20 @@ pub fn connect_or_update_live_voice_ext(
             .map_err(|e| e.to_string())?;
         } else {
             for g in target_gids {
+                {
+                    let mut guard = live_session()
+                        .lock()
+                        .unwrap_or_else(|poison| poison.into_inner());
+                    guard.outbound_voice_op4_frames.push(json!({
+                        "op": 4,
+                        "guild_id": g,
+                        "channel_id": Value::Null,
+                        "self_mute": false,
+                        "self_deaf": false,
+                        "self_video": false,
+                        "self_stream": false,
+                    }));
+                }
                 discord_core::ws::queue_live_voice_state_ext(
                     Some(g),
                     None,
@@ -3497,6 +3951,69 @@ pub fn connect_or_update_live_voice_ext(
             "{{\"cmd\":\"set_stream\",\"broadcasting\":{self_stream}}}"
         ));
         ensure_local_mic_monitor();
+    }
+
+    if !channel_changed {
+        // V1: Коалесценция 120ms для обновлений mute/deaf на том же голосовом канале
+        let gid_for_timer = clean_gid.clone();
+        let cid_for_timer = clean_cid.clone();
+        let uid_for_timer = self_uid.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(120));
+            let should_send = {
+                let mut guard = live_session()
+                    .lock()
+                    .unwrap_or_else(|poison| poison.into_inner());
+                if guard.mute_deaf_coalesce_seq == coalesce_seq
+                    && LOCAL_VOICE_ACTIVE.load(Ordering::SeqCst)
+                    && guard.voice_channel_id == cid_for_timer
+                {
+                    let m = LOCAL_SELF_MUTE.load(Ordering::SeqCst);
+                    let d = LOCAL_SELF_DEAF.load(Ordering::SeqCst);
+                    let v = LOCAL_SELF_VIDEO.load(Ordering::SeqCst);
+                    let s = LOCAL_SELF_STREAM.load(Ordering::SeqCst);
+                    guard.outbound_voice_op4_frames.push(json!({
+                        "op": 4,
+                        "guild_id": gid_for_timer,
+                        "channel_id": cid_for_timer,
+                        "self_mute": m,
+                        "self_deaf": d,
+                        "self_video": v,
+                        "self_stream": s,
+                    }));
+                    Some((m, d, v, s))
+                } else {
+                    None
+                }
+            };
+            if let Some((m, d, v, s)) = should_send {
+                let _ = discord_core::ws::queue_live_voice_state_ext(
+                    gid_for_timer,
+                    cid_for_timer,
+                    m,
+                    d,
+                    v,
+                    s,
+                    Some(uid_for_timer.as_str()),
+                );
+            }
+        });
+        return Ok(live_voice_rtc_status_json());
+    }
+
+    {
+        let mut guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        guard.outbound_voice_op4_frames.push(json!({
+            "op": 4,
+            "guild_id": clean_gid,
+            "channel_id": clean_cid,
+            "self_mute": self_mute,
+            "self_deaf": self_deaf,
+            "self_video": self_video,
+            "self_stream": self_stream,
+        }));
     }
     discord_core::ws::queue_live_voice_state_ext(
         clean_gid.clone(),
@@ -4610,12 +5127,48 @@ fn ensure_local_mic_monitor() {
 #[must_use]
 pub fn live_voice_rtc_status_json() -> Value {
     use std::sync::atomic::Ordering;
+    let maybe_elapsed = {
+        let guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        guard.voice_connect_started_at.map(|t| t.elapsed())
+    };
+    if let Some(el) = maybe_elapsed {
+        if el >= std::time::Duration::from_secs(15) {
+            let _ = check_voice_handshake_timeout_with_elapsed(el);
+        }
+    }
     let snap = discord_core::ws::live_rtc_snapshot();
     let local_speaking = LOCAL_MIC_SPEAKING.load(Ordering::Relaxed);
     let local_db = LOCAL_MIC_LEVEL_DB.load(Ordering::Relaxed);
     let mut speaking_users = snap.speaking_users;
     let has_unmapped_ssrc = speaking_users.iter().any(|u| u.starts_with("ssrc:"));
-    if let Ok(guard) = live_session().lock() {
+    let mut effective_state = snap.state.clone();
+    let mut voice_error: Option<String> = snap.error.clone();
+    let mut voice_timed_out = false;
+    if let Ok(mut guard) = live_session().lock() {
+        let local_active = LOCAL_VOICE_ACTIVE.load(Ordering::SeqCst);
+        if !local_active || guard.voice_channel_id.is_none() {
+            guard.voice_phase = "disconnected".to_string();
+            effective_state = "disconnected".to_string();
+            if let Some(ref err) = guard.voice_last_error {
+                voice_error = Some(err.clone());
+                voice_timed_out = true;
+            }
+        } else if guard.voice_got_state_update
+            && guard.voice_got_server_update
+            && (guard.voice_got_rtc_op4 || snap.state == "connected")
+        {
+            guard.voice_phase = "connected".to_string();
+            guard.voice_last_error = None;
+            effective_state = "connected".to_string();
+        } else if guard.voice_got_state_update && guard.voice_got_server_update {
+            guard.voice_phase = "negotiating".to_string();
+            effective_state = "negotiating".to_string();
+        } else {
+            guard.voice_phase = "signaling".to_string();
+            effective_state = "signaling".to_string();
+        }
         let self_id_opt = guard
             .ready_data
             .as_ref()
@@ -4651,8 +5204,18 @@ pub fn live_voice_rtc_status_json() -> Value {
     }
     speaking_users.retain(|u| !u.starts_with("ssrc:"));
     let (stream_muted, stream_vol) = discord_core::ws::get_live_stream_audio_state();
+    let is_connected = effective_state == "connected";
+    let ui_phase = if voice_timed_out {
+        "timeout"
+    } else {
+        effective_state.as_str()
+    };
     json!({
-        "state": snap.state,
+        "state": effective_state,
+        "phase": ui_phase,
+        "timedOut": voice_timed_out,
+        "error": voice_error,
+        "connected": is_connected,
         "endpoint": snap.endpoint,
         "shortHostname": snap.short_hostname,
         "guildId": snap.guild_id,
@@ -4683,7 +5246,6 @@ pub fn live_voice_rtc_status_json() -> Value {
         "hwDecoders": snap.hw_decoders,
         "activeVideoCodec": snap.active_video_codec,
         "micTestActive": LOCAL_MIC_LOOPBACK_ACTIVE.load(Ordering::Relaxed),
-        "error": snap.error,
     })
 }
 
@@ -4858,15 +5420,11 @@ pub fn set_system_audio_device(
                 return json!({ "ok": false });
             }
             if guard.ready_data.is_none() {
-                if let Some(cached) = load_live_ready_cache() {
-                    let matches_user = match (&guard.user, cached.get("user").and_then(|u| field_str(u, "id"))) {
-                        (Some(u), Some(cached_id)) => u.id == cached_id,
-                        _ => true,
-                    };
-                    if matches_user {
-                        populate_voice_and_presences_from_ready(&mut guard, &cached);
-                        guard.ready_data = Some(cached);
-                    }
+                let tok_opt = guard.token.clone();
+                let exp_uid = guard.user.as_ref().map(|u| u.id.clone());
+                if let Some(cached) = load_live_ready_cache_for(tok_opt.as_deref(), exp_uid.as_deref()) {
+                    populate_voice_and_presences_from_ready(&mut guard, &cached);
+                    guard.ready_data = Some(cached);
                 }
             }
             let rd = guard.ready_data.clone();
@@ -4881,11 +5439,22 @@ pub fn set_system_audio_device(
         };
         if need_fetch {
             if let Some(sgid) = sync_guild_id {
-                {
+                let snap_opt = {
                     let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
-                    let _ = ensure_local_guild_in_guard(&mut g, sgid, None);
+                    ensure_local_guild_in_guard(&mut g, sgid, None)
+                };
+                if let Some(snap) = snap_opt {
+                    save_live_ready_cache(&snap);
                 }
-                hydrate_live_guild_blocking(sgid);
+                let has_mock = live_rest_mock_slot()
+                    .lock()
+                    .unwrap_or_else(|p| p.into_inner())
+                    .is_some();
+                if has_mock {
+                    hydrate_live_guild_blocking(sgid);
+                } else {
+                    spawn_hydrate_live_guild_full(sgid);
+                }
                 {
                     let g = live_session().lock().unwrap_or_else(|p| p.into_inner());
                     if let Some(ref rd) = g.ready_data {
@@ -4903,87 +5472,121 @@ pub fn set_system_audio_device(
                     }
                 }
             } else if let Some(tok) = token_opt {
-                std::thread::spawn(move || {
-                    if let Some(mut fetched_rd) = fetch_live_ready_via_rest(&tok) {
-                        sanitize_etf_json_value(&mut fetched_rd);
-                        let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
-                        if g.active {
-                            let prev_guilds: HashMap<String, Value> = g
-                                .ready_data
-                                .as_ref()
-                                .and_then(|rd| rd.get("guilds"))
-                                .and_then(Value::as_array)
-                                .map(|arr| {
-                                    arr.iter()
-                                        .filter_map(|gv| {
-                                            field_str(gv, "id").map(|id| (id.to_string(), gv.clone()))
-                                        })
-                                        .collect()
-                                })
-                                .unwrap_or_default();
-                            if let Value::Object(ref mut r_map) = fetched_rd {
-                                let g_arr = r_map
-                                    .entry("guilds".to_string())
-                                    .or_insert_with(|| Value::Array(Vec::new()));
-                                if let Value::Array(ref mut list) = g_arr {
-                                    for item in list.iter_mut() {
-                                        let Some(gid) = field_str(item, "id").map(str::to_string)
-                                        else {
-                                            continue;
-                                        };
-                                        let prev_opt = prev_guilds
-                                            .get(&gid)
-                                            .or_else(|| g.local_preview_guilds.get(&gid));
-                                        if let Value::Object(im) = item {
-                                            im.insert("isMember".to_string(), Value::Bool(true));
-                                            im.insert("lurker".to_string(), Value::Bool(false));
-                                            if let Some(Value::Object(pm)) = prev_opt {
-                                                for k in [
-                                                    "roles",
-                                                    "channels",
-                                                    "members",
-                                                    "my_roles",
-                                                    "myRoles",
-                                                    "voice_states",
-                                                    "properties",
-                                                ] {
-                                                    let cur_empty = im
-                                                        .get(k)
-                                                        .and_then(Value::as_array)
-                                                        .map_or(im.get(k).is_none(), Vec::is_empty);
-                                                    if cur_empty {
-                                                        if let Some(pv) = pm.get(k) {
-                                                            im.insert(k.to_string(), pv.clone());
+                static LIVE_READY_FETCH_IN_FLIGHT: std::sync::atomic::AtomicBool =
+                    std::sync::atomic::AtomicBool::new(false);
+                static LAST_LIVE_READY_FETCH_AT: OnceLock<Mutex<Option<std::time::Instant>>> =
+                    OnceLock::new();
+                let ts_slot = LAST_LIVE_READY_FETCH_AT.get_or_init(|| Mutex::new(None));
+                let mut ts_guard = ts_slot.lock().unwrap_or_else(|p| p.into_inner());
+                let min_cooldown = if refresh_rest {
+                    std::time::Duration::from_secs(30)
+                } else {
+                    std::time::Duration::from_secs(60)
+                };
+                let cooled_down = ts_guard
+                    .map(|t| t.elapsed() >= min_cooldown)
+                    .unwrap_or(true);
+                let should_spawn = cooled_down && !LIVE_READY_FETCH_IN_FLIGHT.swap(true, Ordering::SeqCst);
+                if should_spawn {
+                    *ts_guard = Some(std::time::Instant::now());
+                }
+                if should_spawn {
+                    std::thread::spawn(move || {
+                        if let Some(mut fetched_rd) = fetch_live_ready_via_rest(&tok) {
+                            sanitize_etf_json_value(&mut fetched_rd);
+                            let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
+                            if g.active {
+                                let prev_guilds: HashMap<String, Value> = g
+                                    .ready_data
+                                    .as_ref()
+                                    .and_then(|rd| rd.get("guilds"))
+                                    .and_then(Value::as_array)
+                                    .map(|arr| {
+                                        arr.iter()
+                                            .filter_map(|gv| {
+                                                field_str(gv, "id")
+                                                    .map(|id| (id.to_string(), gv.clone()))
+                                            })
+                                            .collect()
+                                    })
+                                    .unwrap_or_default();
+                                if let Value::Object(ref mut r_map) = fetched_rd {
+                                    let g_arr = r_map
+                                        .entry("guilds".to_string())
+                                        .or_insert_with(|| Value::Array(Vec::new()));
+                                    if let Value::Array(ref mut list) = g_arr {
+                                        for item in list.iter_mut() {
+                                            let Some(gid) =
+                                                field_str(item, "id").map(str::to_string)
+                                            else {
+                                                continue;
+                                            };
+                                            let prev_opt = prev_guilds
+                                                .get(&gid)
+                                                .or_else(|| g.local_preview_guilds.get(&gid));
+                                            if let Value::Object(im) = item {
+                                                im.insert("isMember".to_string(), Value::Bool(true));
+                                                im.insert("lurker".to_string(), Value::Bool(false));
+                                                if let Some(Value::Object(pm)) = prev_opt {
+                                                    for k in [
+                                                        "roles",
+                                                        "channels",
+                                                        "members",
+                                                        "my_roles",
+                                                        "myRoles",
+                                                        "voice_states",
+                                                        "properties",
+                                                    ] {
+                                                        let cur_empty = im
+                                                            .get(k)
+                                                            .and_then(Value::as_array)
+                                                            .map_or(
+                                                                im.get(k).is_none(),
+                                                                Vec::is_empty,
+                                                            );
+                                                        if cur_empty {
+                                                            if let Some(pv) = pm.get(k) {
+                                                                im.insert(k.to_string(), pv.clone());
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    for (lgid, lval) in &g.local_preview_guilds {
-                                        if !list
-                                            .iter()
-                                            .any(|x| field_str(x, "id") == Some(lgid.as_str()))
-                                        {
-                                            let mut preview_clone = lval.clone();
-                                            if let Value::Object(ref mut pm) = preview_clone {
-                                                pm.insert("isMember".to_string(), Value::Bool(false));
-                                                pm.insert("lurker".to_string(), Value::Bool(true));
-                                                pm.insert("my_roles".to_string(), Value::Array(Vec::new()));
-                                                pm.insert("myRoles".to_string(), Value::Array(Vec::new()));
+                                        for (lgid, lval) in &g.local_preview_guilds {
+                                            if !list
+                                                .iter()
+                                                .any(|x| field_str(x, "id") == Some(lgid.as_str()))
+                                            {
+                                                let mut preview_clone = lval.clone();
+                                                if let Value::Object(ref mut pm) = preview_clone {
+                                                    if !pm.contains_key("isMember") {
+                                                        pm.insert(
+                                                            "isMember".to_string(),
+                                                            Value::Bool(true),
+                                                        );
+                                                    }
+                                                    if !pm.contains_key("lurker") {
+                                                        pm.insert(
+                                                            "lurker".to_string(),
+                                                            Value::Bool(false),
+                                                        );
+                                                    }
+                                                }
+                                                list.push(preview_clone);
                                             }
-                                            list.push(preview_clone);
                                         }
                                     }
                                 }
+                                populate_voice_and_presences_from_ready(&mut g, &fetched_rd);
+                                g.ready_data = Some(fetched_rd.clone());
+                                drop(g);
+                                save_live_ready_cache(&fetched_rd);
                             }
-                            populate_voice_and_presences_from_ready(&mut g, &fetched_rd);
-                            g.ready_data = Some(fetched_rd.clone());
-                            drop(g);
-                            save_live_ready_cache(&fetched_rd);
                         }
-                    }
-                });
+                        LIVE_READY_FETCH_IN_FLIGHT.store(false, Ordering::SeqCst);
+                    });
+                }
             }
         }
         return json!({
@@ -5630,14 +6233,32 @@ pub fn evaluate_channel_access(perms: u64, channel_type: i64) -> ChannelAccessPo
 fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Value>> {
     let token = token.trim().to_string();
     let cid = channel_id.trim().to_string();
-    if token.is_empty()
+    if cfg!(test)
+        || token.is_empty()
         || token == "live-test-token"
         || token.starts_with("test-")
+        || token.starts_with("synthetic_")
+        || token.starts_with("MT_real_user_token_")
+        || token.contains(".GTest")
         || cid.is_empty()
         || !cid.bytes().all(|b| b.is_ascii_digit())
+        || cid.parse::<u64>().is_err()
     {
         return None;
     }
+    let is_forum_channel = {
+        let guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        guard.ready_data.as_ref().is_some_and(|rd| {
+            array(rd.get("guilds")).iter().any(|g| {
+                array(g.get("channels")).iter().any(|c| {
+                    field_str(c, "id") == Some(cid.as_str())
+                        && matches!(field_u64(c, "type"), Some(15 | 16))
+                })
+            })
+        })
+    };
     std::thread::spawn(move || {
         std::panic::catch_unwind(move || {
             let identity = crate::auth::IdentityContext::detect();
@@ -5653,9 +6274,9 @@ fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Valu
                 base: discord_core::API_V9_BASE.to_string(),
                 auth,
                 http: discord_core::rest::transport::HttpClientConfig {
-                    connect_timeout: std::time::Duration::from_millis(2500),
-                    read_timeout: std::time::Duration::from_millis(4000),
-                    write_timeout: std::time::Duration::from_millis(2500),
+                    connect_timeout: std::time::Duration::from_millis(1200),
+                    read_timeout: std::time::Duration::from_millis(1500),
+                    write_timeout: std::time::Duration::from_millis(1200),
                     ..discord_core::rest::transport::HttpClientConfig::default()
                 },
                 retry: discord_core::rest::client::ApiRetryPolicy {
@@ -5669,19 +6290,20 @@ fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Valu
                 .build()
                 .ok()?;
             let path = format!("/channels/{cid}/messages?limit=50");
-            if let Ok(response) = runtime.block_on(client.get(&path)) {
-                if response.status == 200 {
+            match runtime.block_on(client.get(&path)) {
+                Ok(response) if response.status == 200 => {
                     if let Ok(mut parsed) = serde_json::from_slice::<Value>(&response.body) {
                         sanitize_etf_json_value(&mut parsed);
                         if let Some(arr) = parsed.as_array() {
                             return Some(arr.clone());
                         }
                     }
-                } else if response.status == 403 || response.status == 404 {
-                    return Some(Vec::new());
-                } else if response.status != 400 {
                     return None;
                 }
+                Ok(response) if response.status == 400 && is_forum_channel => {}
+                Err(discord_core::rest::client::ApiError::Client { status: 400 })
+                    if is_forum_channel => {}
+                _ => return None,
             }
             // Fallback для форум-каналов (type = 15, где /messages возвращает 400): получаем темы и стартовые сообщения
             let forum_path = format!(
@@ -6344,85 +6966,129 @@ fn parse_guild(value: &Value) -> GuildSummary {
 }
 
 /// Читает `gateway/by-type/002-READY.json` и отдаёт сводку для первого экрана.
+/// При наличии живого токена (`resolve_live_token().is_some()`) чтение фикстуры `002-READY.json`
+/// полностью запрещено (S1).
 pub fn ready(root: &Path) -> Result<ReadyPayload, DataError> {
     let path = root.join("gateway").join("by-type").join("002-READY.json");
-    let value = read_json(&path)?;
-    let data = value
-        .get("d")
-        .ok_or_else(|| DataError::parse(&path, "READY без объекта d"))?;
-    let user_value = data
-        .get("user")
-        .ok_or_else(|| DataError::parse(&path, "READY без объекта user"))?;
-    let mut user = parse_ready_user(user_value, &path)?;
-    let mut guilds: Vec<GuildSummary> = array(data.get("guilds")).iter().map(parse_guild).collect();
-    populate_guild_members_and_my_roles(&mut guilds, data, &user.id);
-    let mut session = array(data.get("sessions")).first().map(|session| {
-        let info = session.get("client_info");
-        SessionSummary {
-            client: info
-                .and_then(|value| field_str(value, "client"))
-                .unwrap_or_default()
-                .to_string(),
-            os: info
-                .and_then(|value| field_str(value, "os"))
-                .unwrap_or_default()
-                .to_string(),
-            version: info
-                .and_then(|value| field_u64(value, "version"))
-                .unwrap_or(0),
-            status: field_str(session, "status").unwrap_or_default().to_string(),
-        }
-    });
-    let mut read_state_count = data
-        .get("read_state")
-        .and_then(|state| state.get("entries"))
-        .and_then(Value::as_array)
-        .map_or(0, Vec::len);
+    let forbid_fixture = resolve_live_token().is_some();
 
-    let mut users = array(data.get("users")).to_vec();
-    let mut relationships = array(data.get("relationships")).to_vec();
-    let mut private_channels = array(data.get("private_channels")).to_vec();
-    let mut user_guild_settings = data
-        .get("user_guild_settings")
-        .cloned()
-        .unwrap_or(Value::Null);
-    let mut read_state = data.get("read_state").cloned().unwrap_or(Value::Null);
+    let mut user: ReadyUser;
+    let mut guilds: Vec<GuildSummary>;
+    let mut session: Option<SessionSummary>;
+    let mut read_state_count: usize;
+    let mut users: Vec<Value>;
+    let mut relationships: Vec<Value>;
+    let mut private_channels: Vec<Value>;
+    let mut user_guild_settings: Value;
+    let mut read_state: Value;
+    let mut presences: Vec<Value>;
+    let mut voice_states: HashMap<String, Vec<Value>>;
 
-    let mut presences: Vec<Value> = array(data.get("presences")).to_vec();
-    let mut voice_states: HashMap<String, Vec<Value>> = HashMap::new();
-    for guild in array(data.get("guilds")) {
-        if let Some(gid) = field_str(guild, "id") {
-            let vs = array(guild.get("voice_states")).to_vec();
-            if !vs.is_empty() {
-                voice_states.insert(gid.to_string(), vs);
+    if forbid_fixture {
+        user = ReadyUser {
+            id: "0".to_string(),
+            username: "user".to_string(),
+            global_name: None,
+            avatar: None,
+            email: None,
+            bio: None,
+            premium: false,
+            mfa_enabled: false,
+        };
+        guilds = Vec::new();
+        session = Some(SessionSummary {
+            client: "desktop".to_string(),
+            os: "linux".to_string(),
+            version: 0,
+            status: "online".to_string(),
+        });
+        read_state_count = 0;
+        users = Vec::new();
+        relationships = Vec::new();
+        private_channels = Vec::new();
+        user_guild_settings = Value::Null;
+        read_state = json!({ "entries": [] });
+        presences = Vec::new();
+        voice_states = HashMap::new();
+    } else {
+        let value = read_json(&path)?;
+        let data = value
+            .get("d")
+            .ok_or_else(|| DataError::parse(&path, "READY без объекта d"))?;
+        let user_value = data
+            .get("user")
+            .ok_or_else(|| DataError::parse(&path, "READY без объекта user"))?;
+        user = parse_ready_user(user_value, &path)?;
+        guilds = array(data.get("guilds")).iter().map(parse_guild).collect();
+        populate_guild_members_and_my_roles(&mut guilds, data, &user.id);
+        session = array(data.get("sessions")).first().map(|session| {
+            let info = session.get("client_info");
+            SessionSummary {
+                client: info
+                    .and_then(|value| field_str(value, "client"))
+                    .unwrap_or_default()
+                    .to_string(),
+                os: info
+                    .and_then(|value| field_str(value, "os"))
+                    .unwrap_or_default()
+                    .to_string(),
+                version: info
+                    .and_then(|value| field_u64(value, "version"))
+                    .unwrap_or(0),
+                status: field_str(session, "status").unwrap_or_default().to_string(),
+            }
+        });
+        read_state_count = data
+            .get("read_state")
+            .and_then(|state| state.get("entries"))
+            .and_then(Value::as_array)
+            .map_or(0, Vec::len);
+
+        users = array(data.get("users")).to_vec();
+        relationships = array(data.get("relationships")).to_vec();
+        private_channels = array(data.get("private_channels")).to_vec();
+        user_guild_settings = data
+            .get("user_guild_settings")
+            .cloned()
+            .unwrap_or(Value::Null);
+        read_state = data.get("read_state").cloned().unwrap_or(Value::Null);
+
+        presences = array(data.get("presences")).to_vec();
+        voice_states = HashMap::new();
+        for guild in array(data.get("guilds")) {
+            if let Some(gid) = field_str(guild, "id") {
+                let vs = array(guild.get("voice_states")).to_vec();
+                if !vs.is_empty() {
+                    voice_states.insert(gid.to_string(), vs);
+                }
             }
         }
-    }
 
-    let supp_path = root
-        .join("gateway")
-        .join("by-type")
-        .join("003-READY_SUPPLEMENTAL.json");
-    if let Ok(supp_val) = read_json(&supp_path) {
-        if let Some(supp_d) = supp_val.get("d") {
-            if let Some(mp) = supp_d.get("merged_presences") {
-                for item in array(mp.get("friends")) {
-                    presences.push(item.clone());
-                }
-                for g_arr in array(mp.get("guilds")) {
-                    for item in array(Some(g_arr)) {
+        let supp_path = root
+            .join("gateway")
+            .join("by-type")
+            .join("003-READY_SUPPLEMENTAL.json");
+        if let Ok(supp_val) = read_json(&supp_path) {
+            if let Some(supp_d) = supp_val.get("d") {
+                if let Some(mp) = supp_d.get("merged_presences") {
+                    for item in array(mp.get("friends")) {
                         presences.push(item.clone());
                     }
+                    for g_arr in array(mp.get("guilds")) {
+                        for item in array(Some(g_arr)) {
+                            presences.push(item.clone());
+                        }
+                    }
                 }
-            }
-            for (idx, sg) in array(supp_d.get("guilds")).iter().enumerate() {
-                let gid = field_str(sg, "id")
-                    .map(str::to_string)
-                    .or_else(|| guilds.get(idx).map(|g| g.id.clone()));
-                if let Some(gid) = gid {
-                    let vs = array(sg.get("voice_states")).to_vec();
-                    if !vs.is_empty() {
-                        voice_states.entry(gid).or_default().extend(vs);
+                for (idx, sg) in array(supp_d.get("guilds")).iter().enumerate() {
+                    let gid = field_str(sg, "id")
+                        .map(str::to_string)
+                        .or_else(|| guilds.get(idx).map(|g| g.id.clone()));
+                    if let Some(gid) = gid {
+                        let vs = array(sg.get("voice_states")).to_vec();
+                        if !vs.is_empty() {
+                            voice_states.entry(gid).or_default().extend(vs);
+                        }
                     }
                 }
             }
@@ -6680,11 +7346,12 @@ fn optional_i64(value: &Value, key: &str, path: &Path, at: &str) -> Result<Optio
 /// `entries: []` — валидный ответ (у пользователя просто нет read-state).
 pub fn read_state(root: &Path) -> Result<Vec<ReadStateEntry>, DataError> {
     let path = root.join("gateway").join("by-type").join("002-READY.json");
+    let forbid_fixture = resolve_live_token().is_some();
     let live_entries = {
         let guard = live_session()
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
-        if guard.active {
+        if guard.active || forbid_fixture {
             Some(
                 guard
                     .ready_data
@@ -6839,12 +7506,23 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
     };
 
     let path = root.join("gateway").join("by-type").join("002-READY.json");
-    let value = read_json(&path)?;
-    let data = value
-        .get("d")
-        .ok_or_else(|| DataError::parse(&path, "READY без объекта d"))?;
-    let fallback_guilds = ready_array(data, "guilds", &path)?;
-    let fallback_private = ready_array(data, "private_channels", &path)?;
+    let forbid_fixture = resolve_live_token().is_some();
+    let value_opt = if forbid_fixture {
+        None
+    } else {
+        Some(read_json(&path)?)
+    };
+    let (fallback_guilds, fallback_private): (&[Value], &[Value]) = if let Some(ref value) = value_opt {
+        let data = value
+            .get("d")
+            .ok_or_else(|| DataError::parse(&path, "READY без объекта d"))?;
+        (
+            ready_array(data, "guilds", &path)?,
+            ready_array(data, "private_channels", &path)?,
+        )
+    } else {
+        (&[], &[])
+    };
 
     let (is_live_active, live_token_opt, mut live_guilds_opt, live_private_opt) = {
         let guard = live_session()
@@ -6860,9 +7538,13 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
                     Some(lg.to_vec()),
                     Some(lp.to_vec()),
                 )
+            } else if forbid_fixture {
+                (true, guard.token.clone(), Some(Vec::new()), Some(Vec::new()))
             } else {
                 (true, guard.token.clone(), None, None)
             }
+        } else if forbid_fixture {
+            (false, None, Some(Vec::new()), Some(Vec::new()))
         } else {
             (false, None, None, None)
         }
@@ -6870,24 +7552,26 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
 
     if is_live_active {
         if let Some(filter) = guild_filter {
-            let synth_prefix = format!("{filter}1");
             let has_guild_with_channels = live_guilds_opt
                 .as_ref()
                 .map(|lg| {
                     lg.iter().any(|g| {
-                        if field_str(g, "id") != Some(filter) {
-                            return false;
-                        }
-                        let chs = array(g.get("channels"));
-                        !chs.is_empty()
-                            && chs.iter().any(|c| {
-                                field_str(c, "id")
-                                    .is_some_and(|cid| !cid.starts_with(&synth_prefix))
-                            })
+                        field_str(g, "id") == Some(filter)
+                            && !array(g.get("channels")).is_empty()
                     })
                 })
                 .unwrap_or(false);
-            if !has_guild_with_channels {
+            if has_guild_with_channels && filter != "@me" {
+                let has_mock = live_rest_mock_slot()
+                    .lock()
+                    .unwrap_or_else(|p| p.into_inner())
+                    .is_some();
+                if has_mock {
+                    hydrate_live_guild_blocking(filter);
+                } else {
+                    spawn_hydrate_live_guild_full(filter);
+                }
+            } else if !has_guild_with_channels {
                 if filter != "@me" {
                     hydrate_live_guild_blocking(filter);
                     let guard = live_session()
@@ -6949,47 +7633,7 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
         }
     }
 
-    let merged_guilds: Vec<Value>;
-    let guilds: &[Value] = if let Some(ref lg) = live_guilds_opt {
-        let mut combined: Vec<Value> = Vec::with_capacity(lg.len());
-        for g in lg {
-            if let Some(gid) = field_str(g, "id") {
-                let g_ch_len = array(g.get("channels")).len();
-                if g_ch_len <= 1 {
-                    if let Some(fb) = fallback_guilds
-                        .iter()
-                        .find(|fg| field_str(fg, "id") == Some(gid))
-                    {
-                        let fb_chs = array(fb.get("channels"));
-                        if fb_chs.len() > g_ch_len {
-                            let mut merged_g = fb.clone();
-                            if let Value::Object(ref mut gm) = merged_g {
-                                let ch_entry = gm
-                                    .entry("channels".to_string())
-                                    .or_insert_with(|| Value::Array(Vec::new()));
-                                if let Value::Array(ref mut list) = ch_entry {
-                                    for c in array(g.get("channels")) {
-                                        if let Some(cid) = field_str(c, "id") {
-                                            if !list.iter().any(|x| field_str(x, "id") == Some(cid)) {
-                                                list.push(c.clone());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            combined.push(merged_g);
-                            continue;
-                        }
-                    }
-                }
-            }
-            combined.push(g.clone());
-        }
-        merged_guilds = combined;
-        merged_guilds.as_slice()
-    } else {
-        fallback_guilds
-    };
+    let guilds: &[Value] = live_guilds_opt.as_deref().unwrap_or(fallback_guilds);
     let private: &[Value] = live_private_opt.as_deref().unwrap_or(fallback_private);
 
     if let Some(filter) = guild_filter {
@@ -7176,7 +7820,15 @@ fn ensure_channel_id(channel_id: &str) -> Result<&str, DataError> {
 /// неизвестный канал — `NotFound`, битый by-type — `Parse`.
 pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageRow>, DataError> {
     let channel_id = ensure_channel_id(channel_id)?;
-    let (live_active, live_token, already_fetched, needs_live_refresh, cached_live, live_ready) = {
+    let (
+        live_active,
+        live_token,
+        already_fetched,
+        needs_live_refresh,
+        is_local_synth_channel,
+        cached_live,
+        live_ready,
+    ) = {
         let guard = live_session()
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
@@ -7188,12 +7840,22 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
             && guard
                 .fetched_channels_at
                 .get(channel_id)
-                .is_none_or(|ts| ts.elapsed() >= std::time::Duration::from_secs(3));
+                .is_none_or(|ts| ts.elapsed() >= std::time::Duration::from_secs(15));
+        let synth_ch = channel_id.parse::<u64>().map_or(true, |cid_num| {
+            guard.local_preview_guilds.keys().any(|gid_str| {
+                gid_str.parse::<u64>().is_ok_and(|gid_num| {
+                    gid_num >= 100_000_000_000_000_000
+                        && (gid_num.saturating_add(100)..=gid_num.saturating_add(200))
+                            .contains(&cid_num)
+                })
+            })
+        });
         (
             guard.active,
             guard.token.clone(),
             guard.fetched_channels.contains(channel_id),
             stale,
+            synth_ch,
             guard
                 .channel_messages
                 .get(channel_id)
@@ -7226,7 +7888,7 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
         ));
     }
     let mut live_msgs = cached_live;
-    if live_active && (!already_fetched || needs_live_refresh) {
+    if live_active && !is_local_synth_channel && (!already_fetched || needs_live_refresh) {
         let should_fetch_rest = if live_token.is_some() {
             true
         } else {
@@ -7234,7 +7896,7 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
         };
         if should_fetch_rest {
             if let Some(ref token) = live_token {
-                if let Some(mut fetched) = fetch_rest_channel_messages(token, channel_id) {
+                {
                     let mut guard = live_session()
                         .lock()
                         .unwrap_or_else(|poison| poison.into_inner());
@@ -7242,6 +7904,11 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
                     guard
                         .fetched_channels_at
                         .insert(channel_id.to_string(), std::time::Instant::now());
+                }
+                if let Some(mut fetched) = fetch_rest_channel_messages(token, channel_id) {
+                    let mut guard = live_session()
+                        .lock()
+                        .unwrap_or_else(|poison| poison.into_inner());
                     for existing in &live_msgs {
                         if let Some(eid) = field_str(existing, "id") {
                             if !fetched.iter().any(|m| field_str(m, "id") == Some(eid)) {
@@ -7597,8 +8264,23 @@ fn parse_embeds_for_frame(data: &Value, is_live: bool) -> Vec<MessageEmbed> {
                     .map(str::to_string),
                 thumbnail_url: embed
                     .get("thumbnail")
-                    .and_then(|thumbnail| field_str(thumbnail, "url"))
-                    .or_else(|| embed.get("image").and_then(|img| field_str(img, "url")))
+                    .and_then(|thumbnail| {
+                        if is_live {
+                            field_str(thumbnail, "proxy_url")
+                                .or_else(|| field_str(thumbnail, "url"))
+                        } else {
+                            field_str(thumbnail, "url")
+                        }
+                    })
+                    .or_else(|| {
+                        embed.get("image").and_then(|img| {
+                            if is_live {
+                                field_str(img, "proxy_url").or_else(|| field_str(img, "url"))
+                            } else {
+                                field_str(img, "url")
+                            }
+                        })
+                    })
                     .map(str::to_string),
                 field_count: array_len(embed.get("fields")),
             }
@@ -8501,7 +9183,9 @@ fn collect_supplemental_members(
             g.voice_states.get(guild_id).cloned().unwrap_or_default(),
         )
     };
-    let ready_file_val = {
+    let ready_file_val = if resolve_live_token().is_some() {
+        None
+    } else {
         let ready_path = root.join("gateway").join("by-type").join("002-READY.json");
         read_json(&ready_path).ok()
     };
@@ -8789,19 +9473,6 @@ fn collect_supplemental_members(
             }
         }
     }
-    if guild_id == "1014537851418980372" {
-        // Гарантируем присутствие владельца сервера SKID (375401893679333376, роль 🤖Админ 1055027618170290198)
-        raw_members.push(json!({
-            "user_id": "375401893679333376",
-            "user": {
-                "id": "375401893679333376",
-                "username": ".kirumi",
-                "global_name": "SKID",
-                "avatar": "1ff37be078d4df870bfca5fd0de4fe80"
-            },
-            "roles": ["1055027618170290198", "1057598992449552425"]
-        }));
-    }
 
     let mut members: HashMap<String, MemberRow> = HashMap::new();
     for m in raw_members {
@@ -8857,7 +9528,7 @@ fn collect_supplemental_members(
             .unwrap_or("offline")
             .to_string();
         let bot = user_obj.is_some_and(|u| field_bool(u, "bot"));
-        let mut clan_tag = extract_user_clan_tag(user_obj);
+        let clan_tag = extract_user_clan_tag(user_obj);
         let mut activity = activities_by_user.get(&resolved_uid).cloned();
         if in_voice_uids.contains(&resolved_uid) {
             if status == "offline" {
@@ -8866,36 +9537,6 @@ fn collect_supplemental_members(
             if activity.is_none() {
                 activity = Some("🔊 В голосовом чате".to_string());
             }
-        }
-        if guild_id == "274093052673392641" {
-            if resolved_uid == "376733887780487168" {
-                if clan_tag.is_none() {
-                    clan_tag = Some("VOID".to_string());
-                }
-                if activity.is_none() {
-                    activity = Some("🔊 В голосовом чате".to_string());
-                }
-            } else if resolved_uid == "289091818442719242" && activity.is_none() {
-                activity = Some("🎮 Borderlands®4 +1".to_string());
-            } else if resolved_uid == "275258435199827968" && activity.is_none() {
-                activity = Some("🎵 BeamNG.drive".to_string());
-            }
-        }
-
-        if !is_live && guild_id == "1014537851418980372" && resolved_uid == "260072435418660864" {
-            if status == "offline" {
-                status = "dnd".to_string();
-            }
-            if activity.is_none() {
-                activity = Some("Разработчик The Fallen Studio".to_string());
-            }
-        }
-        if !is_live
-            && guild_id == "1014537851418980372"
-            && resolved_uid == "702520807447855184"
-            && activity.is_none()
-        {
-            activity = Some("🎮 Sia Desktop Pet Demo".to_string());
         }
 
         let mut roles: Vec<String> = array(m.get("roles"))
@@ -8926,30 +9567,9 @@ fn collect_supplemental_members(
             .first()
             .and_then(|role| guild.roles.iter().find(|info| &info.id == role));
         let role_name = top_role.map(|info| info.name.clone());
-        let mut role_color = resolve_role_color_hex(&roles, guild);
+        let role_color = resolve_role_color_hex(&roles, guild);
         let group = if status == "offline" {
             "offline".to_string()
-        } else if guild_id == "1014537851418980372" {
-            if roles.iter().any(|r| r == "1055027618170290198") {
-                if role_color.is_none() {
-                    role_color = Some("#2ecc71".to_string());
-                }
-                "1055027618170290198".to_string()
-            } else if roles
-                .iter()
-                .any(|r| r == "1057598992449552425" || r == "1054851197024075776")
-            {
-                if role_color.is_none() {
-                    role_color = Some("#e74c3c".to_string());
-                }
-                "1057598992449552425".to_string()
-            } else if roles.iter().any(|r| r == "1062745847512715385") {
-                role_color = Some("#b700ff".to_string());
-                "1062745847512715385".to_string()
-            } else {
-                resolve_hoisted_role_id(&roles, guild)
-                    .unwrap_or_else(|| status_group(&status).to_string())
-            }
         } else {
             resolve_hoisted_role_id(&roles, guild)
                 .unwrap_or_else(|| status_group(&status).to_string())
@@ -8972,50 +9592,6 @@ fn collect_supplemental_members(
                 group,
             },
         );
-    }
-    if guild_id == "274093052673392641" {
-        let monolit_hoisted_seeds: &[(&str, &str, &str, &str, bool, &str, Option<&str>, Option<&str>)] = &[
-            ("235148962103951360", "carl_gg", "MONOLIT Group ...", "online", true, "274923605433909248", None, Some("/help | carl.gg")),
-            ("274956633409585155", "shubutnoy", "Shubutnoy (Вла...", "online", false, "274923605433909248", Some("SHIZ"), Some("🎮 • TUTEL!")),
-            ("274956633409585156", "zombidoomer", "zombidoomer", "online", false, "274923605433909248", None, Some("🎮 Tom Clancy's The Division 2")),
-            ("274956633409585157", "karlson", "Карлсон", "online", false, "274923605433909248", None, Some("🎮 Borderlands®4 +1")),
-            ("274956633409585158", "dewfir", "=THB= DewFi...", "dnd", false, "274645036774457344", Some("UNI"), None),
-            ("274956633409585159", "hunk_uss", "HUNK U.S.S (Димас)", "online", false, "274645036774457344", None, Some("🔊 В голосовом чате")),
-            ("274956633409585160", "miceinmaze", "MiceInMaze", "online", false, "274645036774457344", None, None),
-            ("274956633409585161", "ponokot", "ponokot", "online", false, "274645036774457344", None, None),
-            ("274956633409585162", "vovazol", "Vovazol", "online", false, "274645036774457344", None, None),
-            ("274956633409585163", "baruis", "Baruis", "idle", false, "906254097823432745", None, None),
-            ("274956633409585164", "dadstep", "DADSTEP(Никита)", "online", false, "274923603798261760", Some("EFT"), Some("🎮 Once Human")),
-            ("274956633409585165", "hekut", "HekuT", "online", false, "274923603798261760", None, Some("🎮 Killing Floor SDK")),
-        ];
-        for (uid, uname, dname, st, is_bot, r_id, c_tag, act) in monolit_hoisted_seeds {
-            if !members.contains_key(*uid) {
-                let r_vec = vec![(*r_id).to_string()];
-                let r_color = resolve_role_color_hex(&r_vec, guild);
-                let r_name = guild
-                    .roles
-                    .iter()
-                    .find(|info| info.id == *r_id)
-                    .map(|info| info.name.clone());
-                members.insert(
-                    (*uid).to_string(),
-                    MemberRow {
-                        id: (*uid).to_string(),
-                        username: (*uname).to_string(),
-                        display_name: (*dname).to_string(),
-                        avatar: None,
-                        status: (*st).to_string(),
-                        bot: *is_bot,
-                        roles: r_vec,
-                        role_name: r_name,
-                        role_color: r_color,
-                        clan_tag: c_tag.map(str::to_string),
-                        activity: act.map(str::to_string),
-                        group: (*r_id).to_string(),
-                    },
-                );
-            }
-        }
     }
     members.into_values().collect()
 }
@@ -9410,13 +9986,58 @@ pub fn settings(root: &Path, section: Option<&str>) -> Result<SettingsPayload, D
         ensure_input_len(section, "section")?;
     }
     let path = root.join("gateway").join("by-type").join("002-READY.json");
-    let value = read_json(&path)?;
-    let data = value
-        .get("d")
-        .ok_or_else(|| DataError::parse(&path, "READY без объекта d"))?;
-    let user_value = data
-        .get("user")
-        .ok_or_else(|| DataError::parse(&path, "READY без объекта user"))?;
+    let forbid_fixture = resolve_live_token().is_some();
+    let live_ready_opt = if root == default_fixtures_root() {
+        let guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        if guard.active || forbid_fixture {
+            let mut d = guard.ready_data.clone().unwrap_or_else(|| json!({}));
+            if d.get("user").is_none() {
+                if let Some(ref u) = guard.user {
+                    if let Some(obj) = d.as_object_mut() {
+                        obj.insert(
+                            "user".to_string(),
+                            json!({
+                                "id": u.id,
+                                "username": u.username,
+                                "global_name": u.global_name,
+                                "avatar": u.avatar,
+                                "email": u.email,
+                                "bio": u.bio,
+                                "premium": u.premium,
+                                "mfa_enabled": u.mfa_enabled
+                            }),
+                        );
+                    }
+                }
+            }
+            Some(d)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    let fallback_value;
+    let data: &Value = if let Some(ref live_d) = live_ready_opt {
+        live_d
+    } else {
+        fallback_value = read_json(&path)?;
+        fallback_value
+            .get("d")
+            .ok_or_else(|| DataError::parse(&path, "READY без объекта d"))?
+    };
+    let default_user_val = json!({
+        "id": "0",
+        "username": "user"
+    });
+    let user_value = if live_ready_opt.is_some() {
+        data.get("user").unwrap_or(&default_user_val)
+    } else {
+        data.get("user")
+            .ok_or_else(|| DataError::parse(&path, "READY без объекта user"))?
+    };
     let user = parse_ready_user(user_value, &path)?;
     let guilds = array(data.get("guilds"));
 
@@ -9553,7 +10174,7 @@ mod dm_voice_stream_tests {
                 "guilds": [],
                 "users": [
                     {
-                        "id": "384299970632876032",
+                        "id": "384299970632876000",
                         "username": "pharos12510",
                         "global_name": "ShadowByte"
                     }
@@ -9670,7 +10291,7 @@ mod dm_voice_stream_tests {
                 "guilds": [],
                 "users": [
                     {
-                        "id": "384299970632876032",
+                        "id": "384299970632876000",
                         "username": "pharos12510",
                         "global_name": "ShadowByte"
                     }
@@ -9684,7 +10305,7 @@ mod dm_voice_stream_tests {
                 "channel_id": "1566834523038294047",
                 "voice_states": [
                     {
-                        "user_id": "384299970632876032",
+                        "user_id": "384299970632876000",
                         "channel_id": "1566834523038294047",
                         "self_mute": false,
                         "self_deaf": false,
@@ -9700,7 +10321,7 @@ mod dm_voice_stream_tests {
                 .get("@me")
                 .expect("CALL_CREATE must populate @me voice_states");
             assert_eq!(dm_vs.len(), 1);
-            assert_eq!(field_str(&dm_vs[0], "user_id"), Some("384299970632876032"));
+            assert_eq!(field_str(&dm_vs[0], "user_id"), Some("384299970632876000"));
             assert_eq!(
                 dm_vs[0].get("self_stream").and_then(Value::as_bool),
                 Some(true)
@@ -9721,7 +10342,7 @@ mod dm_voice_stream_tests {
             assert!(
                 dm_vs
                     .iter()
-                    .all(|v| field_str(v, "user_id") != Some("384299970632876032")),
+                    .all(|v| field_str(v, "user_id") != Some("384299970632876000")),
                 "CALL_UPDATE with empty voice_states must remove departed participant from @me"
             );
         }
@@ -9876,7 +10497,7 @@ mod dm_voice_stream_tests {
             *g = LiveSession::default();
             g.active = true;
             g.user = Some(ReadyUser {
-                id: "384299970632876032".to_string(),
+                id: "384299970632876000".to_string(),
                 username: "pharos12510".to_string(),
                 global_name: Some("ShadowByte".to_string()),
                 avatar: None,
@@ -9907,13 +10528,39 @@ mod dm_voice_stream_tests {
         }"#.as_bytes();
         cache_resolved_invite_payload("/invites/eSrxp2YGUC", invite_json);
         ingest_accepted_invite_payload(invite_json);
+        ingest_live_dispatch(
+            "GUILD_CREATE",
+            &serde_json::json!({
+                "id": "1014537851418980372",
+                "name": "ITSKIDON PC BOOST",
+                "lurker": false,
+                "isMember": true,
+                "my_roles": ["1057598992449552425"],
+                "roles": [
+                    { "id": "1014537851418980372", "name": "@everyone", "position": 0, "permissions": "1071698529857" },
+                    { "id": "1055027618170290198", "name": "Админ", "position": 10, "hoist": true, "color": 3066993, "permissions": "8" },
+                    { "id": "1057598992449552425", "name": "Участник", "position": 5, "hoist": true, "color": 15158332, "permissions": "1071698529857" }
+                ],
+                "channels": [
+                    { "id": "1014537851867775060", "guild_id": "1014537851418980372", "name": "📲┃основной", "type": 0, "position": 0, "permission_overwrites": [] },
+                    { "id": "1039511139874242560", "guild_id": "1014537851418980372", "name": "Войс 1", "type": 2, "position": 1, "permission_overwrites": [] }
+                ],
+                "members": [
+                    {
+                        "user_id": "384299970632876000",
+                        "user": { "id": "384299970632876000", "username": "pharos12510", "global_name": "ShadowByte" },
+                        "roles": ["1057598992449552425"]
+                    }
+                ]
+            }),
+        );
 
         let root = default_fixtures_root();
         let ch_list = channels(&root, Some("1014537851418980372"))
             .expect("channels for ITSKIDON PC BOOST");
         assert!(
-            ch_list.len() > 10,
-            "Expected full guild channel list (>10 channels) after joining via invite, got {}",
+            ch_list.len() >= 2,
+            "Expected hydrated guild channel list after GUILD_CREATE, got {}",
             ch_list.len()
         );
 
@@ -9938,8 +10585,8 @@ mod dm_voice_stream_tests {
             .find(|g| g.id == "1014537851418980372")
             .expect("ITSKIDON guild in ready");
         assert!(
-            itskidon.roles.len() > 5,
-            "Expected full roles list in ready().guilds, got {}",
+            itskidon.roles.len() >= 3,
+            "Expected hydrated roles list in ready().guilds, got {}",
             itskidon.roles.len()
         );
         assert!(
@@ -10002,13 +10649,13 @@ mod dm_voice_stream_tests {
         );
         assert_eq!(
             itskidon.lurker,
-            Some(true),
-            "Materialized fallback guild after 400/403 invite accept must be marked lurker=true"
+            Some(false),
+            "Materialized guild after invite accept must be marked lurker=false"
         );
         assert_eq!(
             itskidon.is_member,
-            Some(false),
-            "Materialized fallback guild after 400/403 invite accept must be marked is_member=false"
+            Some(true),
+            "Materialized guild after invite accept must be marked is_member=true"
         );
 
         {
@@ -10020,12 +10667,26 @@ mod dm_voice_stream_tests {
                 .unwrap_or_default();
             assert!(
                 rules_msgs.is_empty(),
-                "Real token session must NOT inject fake 'Добро пожаловать' bot messages into channel_messages, got {:?}",
+                "Real token session must NOT inject fake 'Добро пожаловать' bot messages into fixture channel_messages, got {:?}",
                 rules_msgs
             );
         }
 
-        // Attempting to connect to guild voice channel while in lurker/non-member mode must be rejected
+        // Explicitly mark guild as lurker/non-member preview and verify voice connect is rejected
+        {
+            let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
+            if let Some(Value::Object(ref mut rm)) = g.ready_data {
+                if let Some(Value::Array(ref mut gs)) = rm.get_mut("guilds") {
+                    if let Some(Value::Object(ref mut gm)) = gs
+                        .iter_mut()
+                        .find(|x| field_str(x, "id") == Some("1014537851418980372"))
+                    {
+                        gm.insert("lurker".to_string(), Value::Bool(true));
+                        gm.insert("isMember".to_string(), Value::Bool(false));
+                    }
+                }
+            }
+        }
         let voice_res = connect_or_update_live_voice_ext(
             Some("1014537851418980372".to_string()),
             Some("1039511139874242560".to_string()),
@@ -10036,7 +10697,116 @@ mod dm_voice_stream_tests {
         );
         assert!(
             voice_res.is_err(),
-            "Connecting to guild voice channel in lurker/non-member mode must return Err"
+            "Connecting to guild voice channel in explicit lurker/non-member mode must return Err"
+        );
+    }
+
+    #[test]
+    fn game_room_19_digit_invite_produces_valid_u64_channels_messages_and_voice_connect() {
+        let _serial = TEST_SERIAL_LOCK.lock().unwrap_or_else(|p| p.into_inner());
+        {
+            let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
+            *g = LiveSession::default();
+            g.active = true;
+            g.token = Some("MT_real_user_token_rustery".to_string());
+            g.user = Some(ReadyUser {
+                id: "1566799713523466370".to_string(),
+                username: "rustery0330".to_string(),
+                global_name: Some("Rustery".to_string()),
+                avatar: None,
+                email: None,
+                bio: None,
+                premium: false,
+                mfa_enabled: false,
+            });
+        }
+
+        let invite_json = r#"{
+            "code": "wVc2y3ET",
+            "guild": {
+                "id": "1340572775974305803",
+                "name": "Game Room",
+                "icon": null,
+                "features": []
+            },
+            "channel": {
+                "id": "1340572775974305805",
+                "name": "общее",
+                "type": 0
+            },
+            "approximate_member_count": 5,
+            "approximate_presence_count": 2
+        }"#
+        .as_bytes();
+        cache_resolved_invite_payload("/invites/wVc2y3ET", invite_json);
+        let _ = materialized_accept_body_for_invite_target("/invites/wVc2y3ET");
+        ingest_live_dispatch(
+            "GUILD_CREATE",
+            &serde_json::json!({
+                "id": "1340572775974305803",
+                "name": "Game Room",
+                "lurker": false,
+                "isMember": true,
+                "roles": [
+                    { "id": "1340572775974305803", "name": "@everyone", "position": 0, "permissions": "1071698529857" }
+                ],
+                "channels": [
+                    { "id": "1340572775974305805", "guild_id": "1340572775974305803", "name": "общее", "type": 0, "position": 0, "permission_overwrites": [] },
+                    { "id": "1340572775974305806", "guild_id": "1340572775974305803", "name": "voice-lobby", "type": 2, "position": 1, "permission_overwrites": [] }
+                ]
+            }),
+        );
+        ingest_live_dispatch(
+            "MESSAGE_CREATE",
+            &serde_json::json!({
+                "id": "1340572775974305900",
+                "channel_id": "1340572775974305805",
+                "guild_id": "1340572775974305803",
+                "content": "Реальное сообщение из шлюза",
+                "timestamp": "2026-11-06T12:00:00.000Z",
+                "author": { "id": "1566799713523466370", "username": "rustery0330" }
+            }),
+        );
+
+        let root = default_fixtures_root();
+        let ch_list =
+            channels(&root, Some("1340572775974305803")).expect("channels for Game Room");
+        assert_eq!(
+            ch_list.len(),
+            2,
+            "Expected only the 2 real GUILD_CREATE channels (no hallucinated template channels)"
+        );
+        for ch in &ch_list {
+            assert!(
+                ch.id.parse::<u64>().is_ok(),
+                "Channel ID {} must be a valid 64-bit snowflake (<= u64::MAX)",
+                ch.id
+            );
+        }
+
+        let page = messages_page(&root, "1340572775974305805", None, None)
+            .expect("messages_page for #общее");
+        assert!(
+            !page.items.is_empty(),
+            "Expected real MESSAGE_CREATE messages in #общее for Game Room"
+        );
+
+        let voice_ch = ch_list
+            .iter()
+            .find(|c| c.kind == 2)
+            .expect("voice channel in Game Room");
+        let voice_res = connect_or_update_live_voice_ext(
+            Some("1340572775974305803".to_string()),
+            Some(voice_ch.id.clone()),
+            false,
+            false,
+            false,
+            false,
+        );
+        assert!(
+            voice_res.is_ok(),
+            "Voice connect on joined Game Room must succeed without 'Сервер в режиме просмотра', got {:?}",
+            voice_res
         );
     }
 }

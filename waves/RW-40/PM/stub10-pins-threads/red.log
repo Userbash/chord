@@ -1,0 +1,89 @@
+▶ C-02-PAGE: первая страница
+  ✔ открытие канала — position=latest, limit=100, без cursor/before/token (39.895489ms)
+✔ C-02-PAGE: первая страница (40.557514ms)
+▶ C-02-PAGE: nextCursor / hasMore / дедуп
+  ✔ скролл к краю грузит следующую страницу, дедуп по id, hasMore=false останавливает (58.86055ms)
+  ✔ позиция и якорный узел сохраняются при подгрузке (15.264652ms)
+  ✔ cursor без новых строк и тот же nextCursor не крутит запросы (14.574916ms)
+✔ C-02-PAGE: nextCursor / hasMore / дедуп (88.971291ms)
+▶ C-02-PAGE: ошибки подгрузки видны
+  ✔ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (13.848551ms)
+  ✔ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (13.414738ms)
+✔ C-02-PAGE: ошибки подгрузки видны (27.45863ms)
+▶ C-02-PAGE: границы окна
+  ✔ бенч-режим не грузит историю: CHAT_ROWS=100_000 остаётся (10.516194ms)
+  ✔ окно истории не растёт сверх 500 строк (loaded_rows_limit) (23.410477ms)
+✔ C-02-PAGE: границы окна (34.137712ms)
+▶ C-02-UI-OLDER: открытие на последнем сообщении
+  ✔ хвост канала: position=latest, нижний подвал end, верхняя полоса idle (15.860917ms)
+✔ C-02-UI-OLDER: открытие на последнем сообщении (15.990057ms)
+▶ C-02-UI-OLDER: скролл вверх (before/olderCursor)
+  ✔ before=olderCursor, prepend с дедупом, scrollTop сохранён, hasOlder=false — стоп (12.988603ms)
+  ✔ направления не смешиваются: nextCursor older-страницы не подменяет forward (18.78505ms)
+✔ C-02-UI-OLDER: скролл вверх (before/olderCursor) (31.929526ms)
+▶ C-02-UI-OLDER: ошибки подгрузки вверх
+  ✔ ошибка 404: alert сверху, строки целы, retry догружает (28.76412ms)
+  ✔ ошибка 401: alert сверху, строки целы, retry догружает (11.455481ms)
+✔ C-02-UI-OLDER: ошибки подгрузки вверх (40.363302ms)
+▶ C-02-UI-OLDER: границы окна
+  ✔ окно истории не растёт сверх 500 строк при подгрузке вверх (25.660145ms)
+✔ C-02-UI-OLDER: границы окна (25.784216ms)
+▶ STUB-10-PINS-THREADS-PANELS-UI: M-10 (pins) и M-11 (threads) выпадающие панели
+  ✖ прогрессивное создание #chat-pins-panel и #chat-threads-panel с корректными ролями и ARIA-атрибутами (12.192978ms)
+  ✖ взаимное исключение: открытие панели пинов автоматически закрывает панель веток и наоборот (10.352243ms)
+  ✖ панель пинов: 4 состояния (loading со скелетонами, empty, error с role='alert' и populated с переходом jump) (8.952842ms)
+  ✖ панель веток: 4 состояния (loading, empty, error, populated), переход к ветке и фильтрация поиска (12.378309ms)
+  ✖ закрытие по Escape, клику вне панели и кнопкам закрытия с возвратом фокуса на триггер (8.77438ms)
+✖ STUB-10-PINS-THREADS-PANELS-UI: M-10 (pins) и M-11 (threads) выпадающие панели (52.946793ms)
+ℹ tests 19
+ℹ suites 9
+ℹ pass 14
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 409.447309
+
+✖ failing tests:
+
+test at tests/unit/channel-paging.test.mjs:930:3
+✖ прогрессивное создание #chat-pins-panel и #chat-threads-panel с корректными ролями и ARIA-атрибутами (12.192978ms)
+  Error: createPinsThreadsPanels: not implemented
+      at createPinsThreadsPanels (file:///home/sanya/orca/project/rust/gui-spike/ui/features/pins-threads.js:13:9)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:941:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/channel-paging.test.mjs:984:3
+✖ взаимное исключение: открытие панели пинов автоматически закрывает панель веток и наоборот (10.352243ms)
+  Error: createPinsThreadsPanels: not implemented
+      at createPinsThreadsPanels (file:///home/sanya/orca/project/rust/gui-spike/ui/features/pins-threads.js:13:9)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:989:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/channel-paging.test.mjs:1024:3
+✖ панель пинов: 4 состояния (loading со скелетонами, empty, error с role='alert' и populated с переходом jump) (8.952842ms)
+  Error: createPinsThreadsPanels: not implemented
+      at createPinsThreadsPanels (file:///home/sanya/orca/project/rust/gui-spike/ui/features/pins-threads.js:13:9)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1033:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/channel-paging.test.mjs:1094:3
+✖ панель веток: 4 состояния (loading, empty, error, populated), переход к ветке и фильтрация поиска (12.378309ms)
+  Error: createPinsThreadsPanels: not implemented
+      at createPinsThreadsPanels (file:///home/sanya/orca/project/rust/gui-spike/ui/features/pins-threads.js:13:9)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1103:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/unit/channel-paging.test.mjs:1183:3
+✖ закрытие по Escape, клику вне панели и кнопкам закрытия с возвратом фокуса на триггер (8.77438ms)
+  Error: createPinsThreadsPanels: not implemented
+      at createPinsThreadsPanels (file:///home/sanya/orca/project/rust/gui-spike/ui/features/pins-threads.js:13:9)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1188:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

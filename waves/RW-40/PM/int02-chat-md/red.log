@@ -1,0 +1,191 @@
+▶ PageStore: конструктор
+  ✔ сохраняет параметры и считает общее число страниц (пустой стор) (1.376349ms)
+  ✔ отвергает невалидный totalRows (только целое > 0) (0.502699ms)
+  ✔ отвергает невалидные pageSize и maxPages (0.49572ms)
+  ✔ требует объект опций и функцию fetchPage (0.194879ms)
+  ✔ допускает одну строку в единственной странице (0.594479ms)
+✔ PageStore: конструктор (4.330264ms)
+▶ PageStore: пустой стор и getRow
+  ✔ до загрузки getRow → undefined, fetchPage не вызывался (3.388026ms)
+  ✔ getRow вне [0,totalRows) → undefined без исключения (0.35446ms)
+  ✔ первая страница: строки 0 и 99 доступны, 100 — ещё нет (0.25333ms)
+  ✔ последняя страница неполная: 250 строк → 50 в третьей странице (0.23764ms)
+✔ PageStore: пустой стор и getRow (4.585325ms)
+▶ PageStore: ensureRange
+  ✔ кламплит границы и ничего не грузит вне данных (0.3922ms)
+  ✔ идемпотентен: повторные вызовы не перезагружают страницы (0.19012ms)
+  ✔ конкурентные вызовы: одна загрузка на страницу (10.105807ms)
+  ✔ ошибка fetchPage пробрасывается и не кэшируется навсегда (0.379329ms)
+  ✔ не-массив из fetchPage → TypeError (0.17739ms)
+  ✔ диапазон шире maxPages → RangeError, ничего не грузит (0.13515ms)
+  ✔ короткая не-последняя страница → RangeError (иначе дыра в окне навсегда) (0.31814ms)
+  ✔ последняя страница вернула 0 строк при capacity>0 → RangeError (симметрично R1) (0.380429ms)
+  ✔ последняя (неполная) страница остаётся допустимой (0.15924ms)
+  ✔ перегрузка страницы (capacity+1) → RangeError для любой страницы (m09) (0.34093ms)
+  ✔ невалидные аргументы → TypeError, пустой диапазон — no-op (0.13367ms)
+✔ PageStore: ensureRange (13.189533ms)
+▶ PageStore: LRU-эвикция и бюджет
+  ✔ вытесняет страницу, к которой дольше не обращались (0.22237ms)
+  ✔ текущий диапазон не эвиктит сам себя (ровно на бюджете) (0.13283ms)
+  ✔ конкурентный ensureRange не эвиктит запиненную страницу (m07) (71.263152ms)
+  ✔ getRow обновляет LRU: прочитанная страница выживает (0.381379ms)
+  ✔ loadedRows ≤ pageSize*maxPages при обходе всего стора (0.34297ms)
+  ✔ stats после загрузки двух страниц (0.133979ms)
+✔ PageStore: LRU-эвикция и бюджет (72.75476ms)
+▶ D-04: высоты строк — RE-оракул layout.json
+  ✔ ROW_HEIGHTS совпадает с RE: 26 / 48 / +22 / member 42 (2.328757ms)
+  ✔ messageHeight = 26/48 + 22×перенос на всём периоде (константы 44 нет) (5.504914ms)
+  ✔ литеральные пары «индекс → высота» из оракула (44 их не проходит) (0.149889ms)
+  ✔ HeightIndex: prefix-sum, обратный indexAt и totalHeight (20.233115ms)
+  ✔ HeightIndex не хранит смещения на все строки: prefix = period + 1 (0.3459ms)
+  ✔ HeightIndex отклоняет непериодичные высоты (видимая ошибка, а не тихая геометрия) (0.16427ms)
+  ✔ участники: 42 на строку, total = rows × 42, indexAt кратен 42 (1.117079ms)
+✔ D-04: высоты строк — RE-оракул layout.json (30.199113ms)
+▶ M-08: markdown и упоминания — безопасный рендер сообщений
+  ✔ parseMessageMarkdown: форматы становятся токенами, DOM не требуется (0.933289ms)
+  ✔ сырой HTML остаётся текстом: <script>, <img onerror> не создают узлов (0.875719ms)
+  ✔ ссылки: http(s) получают rel=noopener noreferrer и target=_blank (0.459349ms)
+  ✔ опасные схемы не становятся ссылкой (0.34547ms)
+  ✔ код: markdown и упоминания внутри не парсятся (0.576249ms)
+  ✔ спойлер: data-spoiler=hidden, клик/Enter/Space раскрывают (0.371199ms)
+  ✔ цитата > quote → blockquote, остальной текст не съеден (0.1467ms)
+  ✔ упоминания: пользователи, каналы, роли из context (0.25556ms)
+  ✔ @everyone и @here — только целым словом (1.246968ms)
+  ✔ неизвестные id → fallback, битые упоминания остаются текстом (0.17831ms)
+  ✔ данные context не инжектят HTML (0.15492ms)
+  ✔ жирный/курсив/зачёркнутый рендерятся элементами (0.13354ms)
+  ✔ ссылка с форматированием: anchor содержит strong, href проверен (0.15311ms)
+  ✔ пустой текст не создаёт узлов, нестроковый вход → TypeError (0.11521ms)
+  ✔ рендер не использует innerHTML/outerHTML/insertAdjacentHTML (0.21982ms)
+✔ M-08: markdown и упоминания — безопасный рендер сообщений (7.000881ms)
+▶ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css
+  ✖ renderChatRow: рендерит markdown внутри .text-body и сохраняет контракт строки (§7.1) (1.508398ms)
+  ✖ renderChatRow: блоки кода, цитаты, спойлеры и упоминания в строке чата (0.31008ms)
+  ✖ renderChatRow: блокирует XSS и опасные схемы ссылок в строке чата при активном markdown (0.24572ms)
+  ✖ renderChannelMessage: рендерит markdown, спойлеры и упоминания в реальном канале без потери атрибутов (0.629879ms)
+  ✖ composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb (0.32806ms)
+✖ INT-02: интеграция renderMessageMarkdown в строки чата и стили composer.css (3.242506ms)
+ℹ tests 53
+ℹ suites 7
+ℹ pass 48
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.197135
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-model.test.mjs:897:3
+✖ renderChatRow: рендерит markdown внутри .text-body и сохраняет контракт строки (§7.1) (1.508398ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «strong.md-bold»
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:922:20
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:898:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-model.test.mjs:939:3
+✖ renderChatRow: блоки кода, цитаты, спойлеры и упоминания в строке чата (0.31008ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «.md-spoiler»
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:954:23
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:940:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-model.test.mjs:984:3
+✖ renderChatRow: блокирует XSS и опасные схемы ссылок в строке чата при активном markdown (0.24572ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «strong.md-bold»
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:994:20
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:985:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-model.test.mjs:1003:3
+✖ renderChannelMessage: рендерит markdown, спойлеры и упоминания в реальном канале без потери атрибутов (0.629879ms)
+  AssertionError [ERR_ASSERTION]: ожидался ровно один элемент «strong.md-bold»
+  
+  0 !== 1
+  
+      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:1041:20
+      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:1004:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/gui-spike-model.test.mjs:1055:3
+✖ composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb (0.32806ms)
+  AssertionError [ERR_ASSERTION]: в composer.css должен быть селектор .md-code
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:1065:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '/* =============================================================================\n * composer.css — композер 56px (--layout-composer-h), поле 40 (--input-height).\n * ========================================================================== */\n\n.composer {\n  display: flex;\n  flex: 0 0 auto;\n  gap: var(--space-2);\n  align-items: center;\n  height: var(--layout-composer-h);\n  margin: 0 var(--chat-pad-x) var(--space-5);\n  padding: 0 var(--space-2);\n  border-radius: var(--composer-radius);\n  background: var(--surface-sunken);\n}\n\n.composer-input {\n  flex: 1;\n  min-width: 0;\n  height: var(--input-height);\n  max-height: var(--input-height);\n  padding: var(--space-2) var(--space-3);\n  border: 0;\n  background: transparent;\n  color: var(--text);\n  font-family: inherit;\n  font-size: var(--font-size-body);\n  line-height: var(--line-height-body);\n  resize: none;\n}\n\n.composer-input::placeholder {\n  color: var(--text-muted);\n}\n\n.composer-input:focus-visible {\n  outline-offset: calc(-1 * var(--focus-ring-width));\n}\n\n.composer-attach {\n  font-size: var(--icon-size-lg);\n}\n\n/* =============================================================================\n * P3-02 (W39h): состояния композера (CMP-05…CMP-15) — аддитивно к базовым 56px.\n * Поле и кнопки остаются в DOM в любом состоянии (§9: disabled не удаляет).\n * ========================================================================== */\n\n/* Счётчик символов (CMP-06): появляется с 1800, краснеет на лимите (K-10). */\n.composer-counter {\n  flex: 0 0 auto;\n  order: 5;\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  font-variant-numeric: tabular-nums;\n  line-height: var(--line-height-small);\n}\n\n.composer-counter[data-visible="false"] {\n  display: none;\n}\n\n.composer-counter[data-exceeded="true"] {\n  color: var(--danger-text);\n}\n\n/* Чип «ответ на» (ответ из hover-панели, MSG-27…30). */\n.composer-reply {\n  position: absolute;\n  bottom: calc(100% + var(--space-2));\n  left: var(--chat-pad-x);\n  display: none;\n  gap: var(--space-2);\n  align-items: center;\n  max-width: 60%;\n  padding: var(--space-1) var(--space-3);\n  border-left: 2px solid var(--accent);\n  border-radius: var(--radius-xs);\n  background: var(--surface-2);\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n}\n\n.composer-reply[data-visible="true"] {\n  display: flex;\n}\n\n.composer-reply-text {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.composer-reply-cancel {\n  flex: 0 0 auto;\n  width: var(--icon-size);\n  height: var(--icon-size);\n  border: 0;\n  border-radius: var(--radius-xs);\n  background: transparent;\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n}\n\n/* Композер — контейнер для absolute-чипа ответа. */\n.composer {\n  position: relative;\n}\n\n/* CMP-07: disabled — поле в DOM и фокусируемо, ввод не проходит. */\n.composer[data-state="disabled"] .composer-input {\n  color: var(--text-muted);\n  cursor: not-allowed;\n}\n\n.composer[data-state="disabled"] .icon-btn,\n.composer[data-limit="exceeded"] .icon-btn {\n  opacity: var(--state-disabled-opacity);\n}\n\n/* CMP-14: focus-within на контейнере (ring не двигает раскладку). */\n.composer:focus-within {\n  outline: var(--focus-ring-width) solid var(--focus-ring);\n  outline-offset: var(--focus-ring-offset);\n}\n\n/* CMP-08: стиль ошибки (логика — вне Phase 2). */\n.composer[data-state="error"] .composer-input {\n  color: var(--danger-text);\n}\n\n.chat-sent-messages { flex: 0 0 auto; }\n.local-message { min-height: var(--line-height-message); }\n.local-message[data-message-status="pending"] { opacity: .65; }\n.local-message[data-message-status="error"] { color: var(--danger-text); }\n.message-error { margin-left: var(--space-2); }\n\n/* =============================================================================\n * P-03-UI (G6 §3.6): «Печатает…» над композером.\n * Живёт внутри `.composer` (position: relative), поэтому не двигает раскладку\n * (56px composer и высота списка не меняются). Пустой регион скрыт атрибутом\n * hidden, а не нулевой высотой: AT не должен видеть фантомный live-region.\n * ========================================================================== */\n\n.typing-indicator {\n  position: absolute;\n  bottom: calc(100% + var(--space-1));\n  left: var(--chat-pad-x);\n  display: none;\n  flex-direction: column;\n  gap: 0;\n  max-width: 60%;\n  padding: 0 var(--space-2);\n  color: var(--text-muted);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n  pointer-events: none;\n}\n\n.typing-indicator[data-visible="true"] {\n  display: flex;\n}\n\n.typing-indicator[hidden] {\n  display: none;\n}\n\n/* Чип ответа тоже висит над композером — индикатор встаёт над ним. */\n.composer[data-reply="true"] .typing-indicator {\n  bottom: calc(100% + var(--space-2) + var(--line-height-small) + var(--space-2));\n}\n\n.typing-indicator-text:empty {\n  display: none;\n}\n\n/* Slowmode/401/429: текст ошибки, без иконок и без нового live-региона. */\n.typing-indicator-notice {\n  color: var(--danger-text);\n}\n\n.typing-indicator-notice[hidden] {\n  display: none;\n}\n\n/* =============================================================================\n * RW-40 / B2b-ATTACH-UI: очередь вложений (#composer-attachments)\n * ========================================================================== */\n\n/* Очередь: absolute над композером, высота в поток не входит. */\n.composer-attachments {\n  position: absolute;\n  right: 0;\n  bottom: calc(100% + var(--space-1));\n  left: 0;\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--space-2);\n  max-height: calc(var(--attach-chip-thumb, var(--icon-size-lg)) * 3 + var(--space-2) * 2);\n  overflow-y: auto;\n  scrollbar-width: thin;\n}\n\n.composer-attachments[hidden] {\n  display: none;\n}\n\n/* Чип: карточка на --surface-2 */\n.attachment-chip {\n  position: relative;\n  display: grid;\n  grid-template-columns: var(--attach-chip-thumb, var(--icon-size-lg)) minmax(0, 1fr) auto;\n  grid-template-rows: auto auto;\n  gap: var(--space-1) var(--space-3);\n  width: var(--attach-chip-w, calc(var(--space-11) * 5));\n  max-width: 100%;\n  min-height: calc(var(--attach-chip-thumb, var(--icon-size-lg)) + var(--space-4) * 2);\n  padding: var(--space-4);\n  border: 1px solid var(--border-subtle);\n  border-radius: var(--radius-sm);\n  background: var(--surface-2);\n  color: var(--text);\n  font-size: var(--font-size-small);\n  line-height: var(--line-height-small);\n}\n\n.attachment-thumb {\n  grid-row: 1;\n  width: var(--attach-chip-thumb, var(--icon-size-lg));\n  height: var(--attach-chip-thumb, var(--icon-size-lg));\n  border-radius: var(--radius-xs);\n  object-fit: cover;\n  background: var(--surface-3);\n}\n\n.attachment-meta {\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n}\n\n.attachment-name {\n  overflow: hidden;\n  color: var(--text);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.attachment-size {\n  overflow: hidden;\n  color: var(--text-subtle);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.attachment-status {\n  overflow: hidden;\n  color: var(--text-muted);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.attachment-chip[data-state="ready"] .attachment-status {\n  color: var(--positive-text);\n}\n\n.attachment-error {\n  max-height: calc(var(--line-height-small) * 2);\n  overflow: hidden;\n  color: var(--danger-text);\n}\n\n.attachment-error[hidden],\n.attachment-status[hidden] {\n  display: none;\n}\n\n/* Прогресс: вторая строка под метаданными, на всю ширину, кроме превью. */\n.attachment-progress {\n  grid-row: 2;\n  grid-column: 2 / -1;\n  height: var(--progress-h, var(--space-1));\n  overflow: hidden;\n  border-radius: var(--radius-round);\n  background: var(--state-active);\n}\n\n.attachment-progress-fill {\n  height: 100%;\n  border-radius: inherit;\n  background: var(--accent);\n  transition: width var(--motion-fast) linear;\n}\n\n.attachment-chip[data-state="error-network"] .attachment-progress-fill {\n  background: var(--danger);\n}\n\n.attachment-actions {\n  display: flex;\n  gap: var(--space-2);\n  grid-row: 1;\n  grid-column: 3;\n  align-items: flex-start;\n}\n\n.attachment-action {\n  min-height: var(--btn-height-sm);\n  padding: 0 var(--space-3);\n  border: 0;\n  border-radius: var(--radius-xs);\n  background: transparent;\n  color: var(--text-accent);\n  font: inherit;\n  cursor: pointer;\n}\n\n.attachment-action:hover {\n  background: var(--state-hover);\n}\n\n.attachment-action:focus-visible {\n  outline: var(--focus-ring-width) solid var(--focus-ring);\n  outline-offset: var(--focus-ring-offset);\n}\n\n.attachment-remove {\n  width: var(--icon-size);\n  height: var(--icon-size);\n  padding: 0;\n  color: var(--text-muted);\n}\n\n.attachment-action[hidden] {\n  display: none;\n}\n\n/* Видимость статуса и прогресса по состояниям */\n.attachment-chip[data-state="idle"] .attachment-status,\n.attachment-chip[data-state^="error"] .attachment-status {\n  display: none;\n}\n\n.attachment-chip[data-state="idle"] .attachment-progress,\n.attachment-chip[data-state="ready"] .attachment-progress,\n.attachment-chip[data-state^="error"] .attachment-progress {\n  display: none;\n}\n\n/* Счётчик файлов в композере */\n.composer-attach-count {\n  flex: 0 0 auto;\n  order: 4;\n  color: var(--text-muted);\n  font-size: var(--font-size-caption);\n  font-variant-numeric: tabular-nums;\n}\n\n.composer-attach-count[data-visible="false"] {\n  display: none;\n}\n\n.composer-attach-count[data-full="true"] {\n  color: var(--danger-text);\n}\n\n/* Недоступные кнопки композера */\n.composer-attach[aria-disabled="true"],\n.composer-gift[aria-disabled="true"] {\n  opacity: var(--state-disabled-opacity);\n  cursor: not-allowed;\n}\n\n/* Dropzone: подсветка композера при drag-over */\n.composer[data-drop="active"] {\n  outline: var(--focus-ring-width) dashed var(--accent);\n  outline-offset: calc(-1 * var(--focus-ring-offset));\n  background: var(--accent-soft);\n}\n\n/* =============================================================================\n * RW-40 / STUB-12: Модалка подарка (#gift-modal)\n * ========================================================================== */\n\n.gift-modal-card {\n  width: min(var(--modal-w-m'... 4074 more characters,
+    expected: /\.md-code\s*\{/,
+    operator: 'match',
+    diff: 'simple'
+  }

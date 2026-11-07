@@ -21,6 +21,7 @@ pub mod rest;
 pub mod resume;
 pub mod settings;
 pub mod state;
+pub mod stream;
 pub mod ws;
 
 /// Ре-экспорт кодека: потребителям и интеграционным тестам `discord-core` не нужна

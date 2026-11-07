@@ -1,0 +1,734 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.479596ms)
+✔ test-impact: docs → docs-sync (1.037523ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.118061ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.487546ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (1.161415ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.235602ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.082521ms)
+✔ test-impact: rust/crates/discord-core (0.416145ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✖ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.877752ms)
+✖ test-impact: rust/gui-spike/ui/app.js (1.070833ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.336024ms)
+✔ test-impact: src/cli (0.446296ms)
+▶ test-impact v2: точечный граф новых UI-модулей
+  ✖ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.402985ms)
+  ✖ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.165002ms)
+  ✖ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.143532ms)
+  ✖ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.090511ms)
+  ✖ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.071591ms)
+  ✖ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.076681ms)
+  ✔ каждый ключ — реальный layout ui/features/<mod>.js (0.077431ms)
+  ✔ таблица согласована с диском: модуль либо есть, либо запланирован (0.248423ms)
+  ✔ после интеграции смежных карточек инвариант остаётся зелёным (0.138612ms)
+  ✔ фантомный ключ и плоский путь ловятся инвариантом, а не снимком (0.173673ms)
+  ✔ фантомный плоский путь ui/<mod>.js не получает точечное правило (0.120381ms)
+  ✔ профильные тесты таблицы либо в tests/unit, либо помечены запланированными (0.191582ms)
+  ✔ features/chat.js расширен профилем вложений и общими контрактами (0.188272ms)
+  ✔ search.js и search-overlay.js дают одинаковый целевой набор (0.093991ms)
+  ✖ несколько новых модулей объединяются без потери профильных тестов (0.179782ms)
+✖ test-impact v2: точечный граф новых UI-модулей (2.802345ms)
+▶ test-impact v2: точечный граф Rust BFF
+  ✖ src/auth.rs → auth_contract + ipc_contract (0.569847ms)
+  ✖ src/core_bridge.rs → core_bridge + ipc_contract (0.180383ms)
+  ✖ src/data.rs → data_contract + ipc_contract (0.164952ms)
+  ✖ src/guilds.rs → guilds_contract + ipc_contract (0.131632ms)
+  ✖ src/invites.rs → invites_contract + ipc_contract (0.139992ms)
+  ✖ src/messages.rs → messages_contract + ipc_contract (0.122702ms)
+  ✖ src/net.rs → net_contract + ipc_contract (0.110672ms)
+  ✖ src/reactions.rs → reactions_contract + ipc_contract (0.110371ms)
+  ✖ src/rest_failure.rs → rest_failure_contract + ipc_contract (0.105792ms)
+  ✖ src/search.rs → search_contract + ipc_contract (0.108171ms)
+  ✖ src/settings_store.rs → settings_contract + ipc_contract (0.118461ms)
+  ✖ src/typing.rs → typing_contract + ipc_contract (0.105952ms)
+  ✔ каждый таргет контракта существует в rust/gui-spike/tests (0.250703ms)
+  ✖ каждый pub mod из lib.rs покрыт правилом (0.273174ms)
+  ✔ lib.rs и main.rs дают полный прогон крейта, а не отдельный таргет (0.123952ms)
+  ✔ новый src/<mod>.rs без правила не теряет контракты — полный прогон (0.085531ms)
+✖ test-impact v2: точечный граф Rust BFF (3.13724ms)
+▶ test-impact v2: safety net общих файлов
+  ✖ package.json → полный прогон T2 (0.221173ms)
+  ✖ scripts/test-impact.mjs → полный прогон T2 (0.093421ms)
+  ✖ rust/gui-spike/Cargo.toml → полный прогон T2 (0.089391ms)
+  ✖ rust/gui-spike/src/lib.rs → полный прогон T2 (0.087482ms)
+  ✖ rust/gui-spike/src/main.rs → полный прогон T2 (0.177612ms)
+  ✖ rust/gui-spike/ui/app.js → полный прогон T2 (0.110222ms)
+  ✔ обычный модуль не получает release-набор (0.083071ms)
+✖ test-impact v2: safety net общих файлов (1.057564ms)
+▶ test-impact: fallback и tier
+  ✖ неизвестный путь переключает полный прогон §5.2.3 (0.151342ms)
+  ✔ --full даёт tier T2 и offline release-набор (26.069019ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (19.656618ms)
+✖ test-impact: fallback и tier (46.07118ms)
+ℹ tests 48
+ℹ suites 9
+ℹ pass 20
+ℹ fail 28
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114.696304
+
+✖ failing tests:
+
+test at tests/unit/test-impact.test.mjs:110:3
+✖ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.877752ms)
+  AssertionError [ERR_ASSERTION]: app.js — общий файл из §5.2.3
+  + actual - expected
+  
+  + 'T1 (batch)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:112:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T1 (batch)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:272:5
+✖ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.402985ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/notifications.js: ожидались только тесты таблицы, лежащие на диске (2), получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:272:5
+✖ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.165002ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/voice-devices-settings.js: ожидались только тесты таблицы, лежащие на диске (2), получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:272:5
+✖ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.143532ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/dm-friends.js: ожидались только тесты таблицы, лежащие на диске (2), получено node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:272:5
+✖ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.090511ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/search.js: в плане нет tests/unit/search-remote-real-index.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:272:5
+✖ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.071591ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/search-overlay.js: в плане нет tests/unit/search-remote-real-index.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:272:5
+✖ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.076681ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/reactions.js: в плане нет tests/unit/chat-reactions.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:419:3
+✖ несколько новых модулей объединяются без потери профильных тестов (0.179782ms)
+  AssertionError [ERR_ASSERTION]: объединённый план без chat-reactions.test.mjs
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:430:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/auth.rs → auth_contract + ipc_contract (0.569847ms)
+  AssertionError [ERR_ASSERTION]: src/auth.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test auth_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test auth_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/core_bridge.rs → core_bridge + ipc_contract (0.180383ms)
+  AssertionError [ERR_ASSERTION]: src/core_bridge.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test core_bridge --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test core_bridge --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/data.rs → data_contract + ipc_contract (0.164952ms)
+  AssertionError [ERR_ASSERTION]: src/data.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test data_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test data_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/guilds.rs → guilds_contract + ipc_contract (0.131632ms)
+  AssertionError [ERR_ASSERTION]: src/guilds.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test guilds_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test guilds_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/invites.rs → invites_contract + ipc_contract (0.139992ms)
+  AssertionError [ERR_ASSERTION]: src/invites.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test invites_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test invites_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/messages.rs → messages_contract + ipc_contract (0.122702ms)
+  AssertionError [ERR_ASSERTION]: src/messages.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test messages_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test messages_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/net.rs → net_contract + ipc_contract (0.110672ms)
+  AssertionError [ERR_ASSERTION]: src/net.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test net_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test net_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/reactions.rs → reactions_contract + ipc_contract (0.110371ms)
+  AssertionError [ERR_ASSERTION]: src/reactions.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/rest_failure.rs → rest_failure_contract + ipc_contract (0.105792ms)
+  AssertionError [ERR_ASSERTION]: src/rest_failure.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test rest_failure_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test rest_failure_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/search.rs → search_contract + ipc_contract (0.108171ms)
+  AssertionError [ERR_ASSERTION]: src/search.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test search_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test search_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/settings_store.rs → settings_contract + ipc_contract (0.118461ms)
+  AssertionError [ERR_ASSERTION]: src/settings_store.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test settings_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test settings_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:465:5
+✖ src/typing.rs → typing_contract + ipc_contract (0.105952ms)
+  AssertionError [ERR_ASSERTION]: src/typing.rs: ожидался только контрактный таргет, без полного прогона крейта
+  + actual - expected
+  
+    [
+  +   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml'
+  -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test typing_contract --test ipc_contract'
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml' ],
+    expected: [ 'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test typing_contract --test ipc_contract' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:489:3
+✖ каждый pub mod из lib.rs покрыт правилом (0.273174ms)
+  AssertionError [ERR_ASSERTION]: lib.rs: pub mod auth без таргета --test auth_contract: npm run typecheck | cargo test --offline --manifest-path rust/gui-spike/Cargo.toml
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:499:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:538:5
+✖ package.json → полный прогон T2 (0.221173ms)
+  AssertionError [ERR_ASSERTION]: package.json: safety net должен давать T2
+  + actual - expected
+  
+  + 'T0 (targeted)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T0 (targeted)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:538:5
+✖ scripts/test-impact.mjs → полный прогон T2 (0.093421ms)
+  AssertionError [ERR_ASSERTION]: scripts/test-impact.mjs: safety net должен давать T2
+  + actual - expected
+  
+  + 'T0 (targeted)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T0 (targeted)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:538:5
+✖ rust/gui-spike/Cargo.toml → полный прогон T2 (0.089391ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/Cargo.toml: safety net должен давать T2
+  + actual - expected
+  
+  + 'T0 (targeted)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T0 (targeted)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:538:5
+✖ rust/gui-spike/src/lib.rs → полный прогон T2 (0.087482ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/src/lib.rs: safety net должен давать T2
+  + actual - expected
+  
+  + 'T1 (batch)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T1 (batch)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:538:5
+✖ rust/gui-spike/src/main.rs → полный прогон T2 (0.177612ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/src/main.rs: safety net должен давать T2
+  + actual - expected
+  
+  + 'T1 (batch)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T1 (batch)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:538:5
+✖ rust/gui-spike/ui/app.js → полный прогон T2 (0.110222ms)
+  AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/app.js: safety net должен давать T2
+  + actual - expected
+  
+  + 'T1 (batch)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T1 (batch)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/test-impact.test.mjs:564:3
+✖ неизвестный путь переключает полный прогон §5.2.3 (0.151342ms)
+  AssertionError [ERR_ASSERTION]: неизвестный путь — режим all: true
+  + actual - expected
+  
+  + 'T0 (targeted)'
+  - 'T2 (release)'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:566:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'T0 (targeted)',
+    expected: 'T2 (release)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

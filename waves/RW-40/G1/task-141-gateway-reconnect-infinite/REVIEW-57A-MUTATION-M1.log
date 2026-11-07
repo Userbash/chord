@@ -1,0 +1,35 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-141-gateway-reconnect-infinite/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+
+running 3 tests
+test gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify ... FAILED
+test gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff ... FAILED
+test gateway::supervisor::tests::unlimited_reconnect_mode_holds_60s_ceiling_and_stops_immediately_on_4004 ... ok
+
+failures:
+
+---- gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify stdout ----
+
+thread 'gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify' (1558494) panicked at crates/discord-core/src/gateway/supervisor.rs:781:9:
+assertion `left == right` failed: после 4 неудачных RESUME (op=6) 5-я попытка обязана перейти на свежий IDENTIFY (op=2)
+  left: [Some(2), Some(6), Some(6), Some(6), Some(2), Some(2)]
+ right: [Some(2), Some(6), Some(6), Some(6), Some(6), Some(2)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff stdout ----
+
+thread 'gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff' (1558495) panicked at crates/discord-core/src/gateway/supervisor.rs:890:9:
+assertion `left == right` failed: 3 неудачи + успешный RESUMED не сбрасывают сессию; сброс только после 4 подряд неудач
+  left: [Some(2), Some(6), Some(6), Some(6), Some(2), Some(2), Some(2), Some(2), Some(2), Some(2)]
+ right: [Some(2), Some(6), Some(6), Some(6), Some(6), Some(6), Some(6), Some(6), Some(6), Some(2)]
+
+
+failures:
+    gateway::supervisor::tests::resets_session_after_four_failed_resumes_and_switches_to_fresh_identify
+    gateway::supervisor::tests::successful_resumed_resets_failure_streak_and_backoff
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p discord-core --lib`
+EXIT=101

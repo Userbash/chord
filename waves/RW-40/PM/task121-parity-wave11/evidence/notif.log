@@ -1,0 +1,33 @@
+▶ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json
+  ✔ MUTE_TIMER_PRESETS и перечисления совпадают с RE-оракулом и спецификацией (0.971312ms)
+  ✔ buildMuteConfig и evaluateMuteState: расчёт истечения таймера, бессрочный mute и строгий разбор ETF-строк (4.981291ms)
+  ✔ сверка парсера с реальным дампом 002-READY.json (58 гильдий, 1328 overrides, 3 истёкших mute) (0.613061ms)
+✔ N-05 UI Notifications: константы, пресеты таймера и оракул 002-READY.json (7.283596ms)
+▶ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний
+  ✔ resolveEffectiveNotifications: каскад канал (!=3) -> родительская категория (!=3) -> гильдия -> дефолт (0.638151ms)
+  ✔ allowNoMessages и матрица упоминаний (@user, @role, @everyone/@here): звук/desktop vs бейдж mention_count (0.407921ms)
+  ✔ битовые флаги UNREADS_*, двойная форма channel_overrides и фильтр видимых строк таблицы (0.429361ms)
+✔ N-05 UI Notifications: каскад разрешения, allowNoMessages и матрица бейджей упоминаний (1.711934ms)
+▶ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree
+  ✔ computeChannelIndicatorState и applyChannelIndicatorToDom: точка, бейдж 99+, mute и hide_muted_channels (1.262483ms)
+  ✔ computeGuildRailIndicatorState и applyGuildRailIndicatorToDom: левая пилюля и бейдж на плитке сервера (0.25163ms)
+✔ N-05 UI Notifications: индикаторы непрочитанного и бейджей в #guild-rail и #channel-tree (1.671304ms)
+▶ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu)
+  ✔ открывает модалку #guild-notif-modal, рендерит секции, радиогруппу .notif-level-list и баннер >= 2500 участников (2.260495ms)
+  ✔ тумблеры подавления (suppress_everyone, suppress_roles, notify_highlights 2/1) и отсутствие оптимистичной мутации до ответа IPC (0.988182ms)
+  ✔ таблица .notif-override-table: roving tabindex, навигация ArrowLeft/ArrowRight по радио, чекбокс mute и сброс override (2.214635ms)
+  ✔ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (1.668954ms)
+  ✔ focus trap внутри #guild-notif-modal: Tab и Shift+Tab циклически переключают фокус (NOTIFICATIONS-SPEC §5.2 п.4) (0.808672ms)
+  ✔ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.498061ms)
+  ✔ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.870872ms)
+  ✔ тумблер mute сервера, селект 6 окон длительности, DM (@me) маршрут и закрытие модалки по Escape с возвратом фокуса (0.620251ms)
+  ✔ добавление канала в таблицу через #notif-override-channel-select и обработка ошибок IPC (#guild-notif-error) (0.581891ms)
+✔ N-05 UI Notifications: контроллер createNotificationSettingsController (#guild-notif-modal и #channel-notif-menu) (10.839693ms)
+ℹ tests 17
+ℹ suites 4
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74.11929

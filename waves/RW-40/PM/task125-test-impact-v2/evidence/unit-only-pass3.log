@@ -1,0 +1,74 @@
+▶ test-impact: docs → docs-sync
+  ✔ docs-файл и каталог docs включают meta docs-sync (0.727075ms)
+✔ test-impact: docs → docs-sync (1.214249ms)
+▶ test-impact: rust/gui-spike/ui/features/join-server.js
+  ✔ выбирает join-server + features + typecheck (0.095591ms)
+  ✔ не запускает весь frontend и геометрию для одного feature (0.427713ms)
+✔ test-impact: rust/gui-spike/ui/features/join-server.js (0.626974ms)
+▶ test-impact: rust/crates/discord-core
+  ✔ каталог и файл крейта дают targeted cargo discord-core, а не workspace (0.235332ms)
+  ✔ прочий крейт остаётся workspace-прогоном (0.08091ms)
+✔ test-impact: rust/crates/discord-core (0.413113ms)
+▶ test-impact: rust/gui-spike/ui/app.js
+  ✔ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.142911ms)
+✔ test-impact: rust/gui-spike/ui/app.js (0.229331ms)
+▶ test-impact: src/cli
+  ✔ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.139421ms)
+✔ test-impact: src/cli (0.200141ms)
+▶ test-impact v2: точечный граф новых UI-модулей
+  ✔ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.257462ms)
+  ✔ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.084961ms)
+  ✔ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.098911ms)
+  ✔ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.07758ms)
+  ✔ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.063301ms)
+  ✔ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.06424ms)
+  ✔ каждый ключ — реальный layout ui/features/<mod>.js (0.05005ms)
+  ✔ таблица согласована с диском: модуль либо есть, либо запланирован (0.154851ms)
+  ✔ после интеграции смежных карточек инвариант остаётся зелёным (0.105751ms)
+  ✔ фантомный ключ и плоский путь ловятся инвариантом, а не снимком (0.110491ms)
+  ✔ фантомный плоский путь ui/<mod>.js не получает точечное правило (0.121471ms)
+  ✔ профильные тесты таблицы либо в tests/unit, либо помечены запланированными (0.130651ms)
+  ✔ features/chat.js расширен профилем вложений и общими контрактами (0.137101ms)
+  ✔ search.js и search-overlay.js дают одинаковый целевой набор (0.088091ms)
+  ✔ несколько новых модулей объединяются без потери профильных тестов (0.130341ms)
+✔ test-impact v2: точечный граф новых UI-модулей (1.948224ms)
+▶ test-impact v2: точечный граф Rust BFF
+  ✔ src/auth.rs → auth_contract + ipc_contract (0.175911ms)
+  ✔ src/core_bridge.rs → core_bridge + ipc_contract (0.05006ms)
+  ✔ src/data.rs → data_contract + ipc_contract (0.04268ms)
+  ✔ src/guilds.rs → guilds_contract + ipc_contract (0.045341ms)
+  ✔ src/invites.rs → invites_contract + ipc_contract (0.05057ms)
+  ✔ src/messages.rs → messages_contract + ipc_contract (0.042411ms)
+  ✔ src/net.rs → net_contract + ipc_contract (0.03966ms)
+  ✔ src/reactions.rs → reactions_contract + ipc_contract (0.05102ms)
+  ✔ src/rest_failure.rs → rest_failure_contract + ipc_contract (0.053231ms)
+  ✔ src/search.rs → search_contract + ipc_contract (0.04926ms)
+  ✔ src/settings_store.rs → settings_contract + ipc_contract (0.040581ms)
+  ✔ src/typing.rs → typing_contract + ipc_contract (0.03995ms)
+  ✔ каждый таргет контракта существует в rust/gui-spike/tests (0.158541ms)
+  ✔ каждый pub mod из lib.rs покрыт правилом (0.240432ms)
+  ✔ lib.rs и main.rs дают полный прогон крейта, а не отдельный таргет (0.092131ms)
+  ✔ новый src/<mod>.rs без правила не теряет контракты — полный прогон (0.06893ms)
+✔ test-impact v2: точечный граф Rust BFF (1.52643ms)
+▶ test-impact v2: safety net общих файлов
+  ✔ package.json → полный прогон T2 (0.117801ms)
+  ✔ scripts/test-impact.mjs → полный прогон T2 (0.05927ms)
+  ✔ rust/gui-spike/Cargo.toml → полный прогон T2 (0.04179ms)
+  ✔ rust/gui-spike/src/lib.rs → полный прогон T2 (0.0342ms)
+  ✔ rust/gui-spike/src/main.rs → полный прогон T2 (0.039ms)
+  ✔ rust/gui-spike/ui/app.js → полный прогон T2 (0.297712ms)
+  ✔ обычный модуль не получает release-набор (0.086901ms)
+✔ test-impact v2: safety net общих файлов (0.811985ms)
+▶ test-impact: fallback и tier
+  ✔ неизвестный путь переключает полный прогон §5.2.3 (0.102261ms)
+  ✔ --full даёт tier T2 и offline release-набор (17.396062ms)
+  ✔ флаги после --changed не считаются изменёнными файлами (15.85783ms)
+✔ test-impact: fallback и tier (33.484034ms)
+ℹ tests 48
+ℹ suites 9
+ℹ pass 48
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83.19167

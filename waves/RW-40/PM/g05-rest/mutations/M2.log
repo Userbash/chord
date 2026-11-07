@@ -1,0 +1,83 @@
+▶ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC)
+  ✔ клик по каждому disabled-пункту ничего не меняет (33.410414ms)
+  ✔ Enter/Space на disabled-пункте — no-op (guard в самом обработчике) (23.460952ms)
+  ✔ capability=true не включает invite до G-06: disabled + not-implemented (10.837189ms)
+✔ G-05 D1: disabled-пункт — no-op (ни статуса, ни закрытия, ни IPC) (68.38789ms)
+▶ G-05 D2: roving tabindex переезжает вместе с фокусом
+  ✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (12.671154ms)
+✖ G-05 D2: roving tabindex переезжает вместе с фокусом (13.091007ms)
+▶ G-05 D3: Esc и Tab не переключают экран
+  ✔ Esc из открытого меню на экране «Настройки» оставляет settings (11.270833ms)
+  ✔ Tab закрывает меню, фокус на opener, default не отменяется (11.05921ms)
+✔ G-05 D3: Esc и Tab не переключают экран (22.538014ms)
+▶ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола
+  ✔ клик по плитке гильдии закрывает меню, но фокус не на opener (10.873509ms)
+  ✔ клик по body закрывает меню и возвращает фокус на opener (9.526768ms)
+✔ G-05 D3: клик вне не крадёт фокус у фокусируемого контрола (20.584648ms)
+▶ G-05 D4: копирование ID — успех только из resolved writeText
+  ✔ resolved writeText → «ID скопирован» тем же id, без утечки id в консоль (8.341948ms)
+  ✔ reject writeText → ошибка, ложного успеха нет (22.751377ms)
+  ✔ нет clipboard API → видимая ошибка, ложного успеха нет (10.049362ms)
+  ✔ пустой/битый id → «ID сервера неизвестен», writeText не вызывается (8.848792ms)
+✔ G-05 D4: копирование ID — успех только из resolved writeText (50.244232ms)
+▶ G-05 D6: причины disabled машиночитаемы и озвучиваемы
+  ✔ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (9.769959ms)
+  ✔ приоритет причин: owner > capability-unknown > not-implemented (11.634825ms)
+  ✔ один polite-статус #server-status и один hidden-узел причины на причину (10.118653ms)
+✔ G-05 D6: причины disabled машиночитаемы и озвучиваемы (31.70536ms)
+▶ G-05: #4 subtitle и #5 aria-checked — только из проекции
+  ✔ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (9.913152ms)
+  ✔ aria-checked #5 из явного data-hide-muted-channels (строка, не truthy) (12.942236ms)
+  ✔ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (8.391619ms)
+✔ G-05: #4 subtitle и #5 aria-checked — только из проекции (31.412277ms)
+▶ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор
+  ✔ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (11.918097ms)
+✔ G-05 D7: 429 — обратный отсчёт, disabled, ровно один ручной повтор (12.012198ms)
+▶ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно»
+  ✔ client/storage/invalidArg/missingToken/invalidResponse — видимый отказ (11.041791ms)
+  ✔ timeout/неизвестный kind — «результат неизвестен», не успех (11.234362ms)
+✔ G-05 T-05-14: типизированные ошибки leave без ложного «неизвестно» (22.414074ms)
+▶ G-05 T-05-08: capability invite не выводится из ролей
+  ✔ false/true/absent → invite всегда disabled, без диалога и IPC (10.189174ms)
+✔ G-05 T-05-08: capability invite не выводится из ролей (10.296544ms)
+▶ G-05 T-05-16: статус меню единственный
+  ✔ disabled-активация не пишет в #server-status; leave — ровно один статус (8.682441ms)
+✔ G-05 T-05-16: статус меню единственный (8.760381ms)
+▶ G-05 D9/D5: геометрия CSS — статическая проверка контракта
+  ✔ меню: ширина/высота с клампом по viewport и прокрутка (0.270092ms)
+  ✔ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.140601ms)
+  ✔ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.289213ms)
+  ✔ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.161001ms)
+✔ G-05 D9/D5: геометрия CSS — статическая проверка контракта (0.967447ms)
+ℹ tests 27
+ℹ suites 12
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 330.775499
+
+✖ failing tests:
+
+test at tests/unit/server-menu.test.mjs:246:3
+✖ ↑/↓/Home/End: tabindex=0 ровно у сфокусированного enabled (12.671154ms)
+  AssertionError [ERR_ASSERTION]: tabindex «Покинуть сервер» = 0
+  
+  '0' !== '-1'
+  
+      at check (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:255:18)
+      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:269:7
+      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:247:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '-1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

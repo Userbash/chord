@@ -1,0 +1,33 @@
+$ node --test tests/unit/voice-diagnostics.test.mjs
+  ✔ getState() возвращает копию: мутация результата не меняет контроллер (0.02964ms)
+  ✔ восстановление: после close() попап открывается снова с чистыми флагами (0.04684ms)
+  ✔ совместимость: updateSnapshot отдаёт данные, пригодные для formatPopoutMetricsRu (0.05954ms)
+✔ createVoiceDiagnosticsController: updateSnapshot и наблюдаемость (0.36975ms)
+ℹ tests 67
+ℹ suites 14
+ℹ pass 67
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.562643
+UNIT_EXIT=0
+
+$ npx tsc -p tsconfig.json --noEmit
+TSC_ROOT_EXIT=0
+
+$ npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit
+TSC_UI_EXIT=0
+
+$ node --test tests/meta/plan-sync.test.mjs
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (0.89859ms)
+✔ plan-sync: §8 ↔ тестовые файлы ↔ модули (15.090697ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.06143
+PLAN_SYNC_EXIT=0

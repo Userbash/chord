@@ -1,0 +1,26 @@
+▶ slash-command-picker: константы и isValidSlashCommandName
+  ✔ экспортирует MAX_SLASH_COMMAND_NAME_CHARS = 32 и MAX_SLASH_COMMAND_OPTIONS = 25 (0.389981ms)
+  ✔ принимает имена длиной 1..=32 из [a-z0-9_-] после trim() (0.13272ms)
+  ✔ отклоняет пустые строки, длину > 32, заглавные буквы, спецсимволы и не-строки (0.12648ms)
+✔ slash-command-picker: константы и isValidSlashCommandName (1.288711ms)
+▶ slash-command-picker: parseSlashDraftInput
+  ✔ разбирает строку с '/' на commandName в нижнем регистре и rawArgs (0.53927ms)
+  ✔ возвращает null, если строка не начинается с '/' или после '/' пробел/пусто (0.09109ms)
+✔ slash-command-picker: parseSlashDraftInput (0.7662ms)
+▶ slash-command-picker: filterSlashCommands
+  ✔ фильтрует по префиксу и подстроке name/description с приоритетом префикса name и сортировкой localeCompare('en') (4.671022ms)
+  ✔ при одинаковом name сортирует по tie-break String(id) по возрастанию и не мутирует входной массив (0.19102ms)
+✔ slash-command-picker: filterSlashCommands (5.006592ms)
+▶ slash-command-picker: createSlashCommandPickerController
+  ✔ рендерит корневой [data-slash-picker] (role='listbox', aria-label='Команды приложений') и опции [data-slash-cmd-id] (1.2414ms)
+  ✔ поддерживает moveSelection(delta) с циклическим переходом, selectActive() и выбор кликом (0.387ms)
+  ✔ обновляет фильтрацию через setState(patch), возвращает защитную копию в getState() и очищает DOM при destroy() (0.241411ms)
+✔ slash-command-picker: createSlashCommandPickerController (2.002882ms)
+ℹ tests 10
+ℹ suites 4
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.929526

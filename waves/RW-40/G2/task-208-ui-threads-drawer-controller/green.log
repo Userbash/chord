@@ -1,0 +1,27 @@
+▶ AUTO_ARCHIVE_DURATIONS_RU — константный справочник автоархивации
+  ✔ содержит 4 замороженных срока автоархивации (60, 1440, 4320, 10080 минут) с русскими подписями (0.63776ms)
+✔ AUTO_ARCHIVE_DURATIONS_RU — константный справочник автоархивации (1.204499ms)
+▶ createThreadsDrawerController — вкладки, поиск и пустое состояние
+  ✔ рендерит вкладки «Активные ветки» ('active') и «Архивные ветки» ('archived'), поле поиска с placeholder «Поиск веток...» и список активных веток по умолчанию (1.226209ms)
+  ✔ переключение между вкладками «Активные ветки» и «Архивные ветки» фильтрует список веток (0.48685ms)
+  ✔ поиск по названию фильтрует ветки текущей вкладки и рендерит «Ветки не найдены» при отсутствии совпадений (0.33292ms)
+  ✔ рендерит пустое состояние «Ветки не найдены», если исходный список веток пуст (0.12464ms)
+✔ createThreadsDrawerController — вкладки, поиск и пустое состояние (2.683587ms)
+▶ createThreadsDrawerController — карточка ветки, вступление/выход и открытие split-pane
+  ✔ каждая ветка рендерит name, messageCount, метку автоархивации из AUTO_ARCHIVE_DURATIONS_RU и кнопку вступления/выхода (0.47161ms)
+  ✔ клик по кнопке вступления/выхода вызывает onToggleJoin(thread.id, !thread.joined), меняет подпись кнопки и не вызывает onOpenThread (0.654429ms)
+  ✔ клик по карточке ветки открывает split-pane ветки и вызывает onOpenThread(thread.id) (0.41822ms)
+✔ createThreadsDrawerController — карточка ветки, вступление/выход и открытие split-pane (1.727369ms)
+▶ createThreadsDrawerController — createThread валидация и создание
+  ✔ возвращает { ok: false, errorRu: 'Введите название ветки' } при пустом или пробельном имени и не вызывает onCreateThread (0.20472ms)
+  ✔ возвращает { ok: false, errorRu: 'Некорректный срок автоархивации' } при недопустимом autoArchiveDuration и не вызывает onCreateThread (0.178279ms)
+  ✔ по умолчанию использует autoArchiveDuration = 1440, принимает все допустимые значения (60|1440|4320|10080), вызывает onCreateThread и возвращает { ok: true } (0.18114ms)
+✔ createThreadsDrawerController — createThread валидация и создание (0.684909ms)
+ℹ tests 11
+ℹ suites 4
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.091203

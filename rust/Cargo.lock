@@ -129,14 +129,23 @@ dependencies = [
 name = "discord-app"
 version = "0.1.0"
 dependencies = [
+ "discord-codec",
  "discord-core",
+ "discord-i18n",
+ "discord-json",
+ "discord-media",
+ "discord-platform",
+ "discord-store",
+ "discord-ui",
+ "discord-updater",
+ "discord-voice",
 ]
 
 [[package]]
 name = "discord-codec"
 version = "0.1.0"
 dependencies = [
- "ruzstd",
+ "zstd",
 ]
 
 [[package]]
@@ -149,6 +158,7 @@ version = "0.1.0"
 dependencies = [
  "discord-codec",
  "discord-json",
+ "discord-voice",
  "futures-util",
  "httparse",
  "rustls",
@@ -218,6 +228,8 @@ name = "discord-voice"
 version = "0.1.0"
 dependencies = [
  "discord-json",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -468,15 +480,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ruzstd"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69e4ce4a039f42bf25920b95667e4d789e98749ab11bbb8d2c2936f788421bb5"
-dependencies = [
- "twox-hash",
-]
-
-[[package]]
 name = "serde"
 version = "1.0.229"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -669,12 +672,6 @@ dependencies = [
  "sha1",
  "thiserror",
 ]
-
-[[package]]
-name = "twox-hash"
-version = "2.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86a801b3cea342a06d468c8710662aa29e5e05e4f5c0d62f00bbb7f2ad7941c2"
 
 [[package]]
 name = "typenum"

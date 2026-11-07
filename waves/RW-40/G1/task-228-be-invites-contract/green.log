@@ -1,0 +1,43 @@
+    Blocking waiting for file lock on package cache
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.40s
+     Running tests/invites_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/invites_contract-c9620ad5d4b94d16)
+
+running 25 tests
+test be_p1_21_allowed_invite_constants_match_contract ... ok
+test be_p1_21_build_invite_resolve_route_formats_query_and_propagates_code_validation ... ok
+test be_p1_21_create_channel_invite_request_serde_roundtrip ... ok
+test be_p1_21_validate_invite_code_trims_and_enforces_2_to_32_ascii_alnum_dash_underscore ... ok
+test create_invite_oracle_constants_and_defaults_match_re ... ok
+test accept_maps_response_to_typed_receipt ... ok
+test accept_posts_exactly_three_nullable_fields_without_context ... ok
+test empty_or_blank_token_is_missing_token ... ok
+test client_debug_does_not_reveal_token ... ok
+test errors_serialize_with_camel_case_kind_only ... ok
+test invite_routes_are_s_catalog_extension_not_d02 ... ok
+test create_invite_posts_to_channel_invites_with_params_and_parses_created_invite ... ok
+test free_functions_normalize_and_delegate ... ok
+test resolve_maps_wire_object_to_camel_case_preview ... ok
+test create_invite_accepts_every_table_entry_for_max_age_and_max_uses ... ok
+test transport_failure_is_typed_network_error ... ok
+test create_invite_maps_429_retry_after_and_403_401_errors ... ok
+test http_statuses_map_to_typed_errors ... ok
+test tauri_invite_commands_read_bearer_through_token_or_without_logging ... ok
+test be_p1_21_build_create_channel_invite_route_and_body_validates_snowflake_and_tables ... ok
+test create_invite_rejects_unsafe_channel_id_before_network ... ok
+test codes_are_normalized_and_invalid_ones_never_reach_transport ... ok
+test create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network ... ok
+test success_without_parsable_invite_object_is_invalid_response ... ok
+test resolve_gets_invite_target_with_counts_and_expiration ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

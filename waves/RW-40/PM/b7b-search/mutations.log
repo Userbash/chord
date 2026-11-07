@@ -1,0 +1,72 @@
+baseline search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0
+baseline search_contract.rs md5=a02006481e7e97ab26667367be8ce902
+=== MUT-1-drop-limit-ceiling ===
+mutant search.rs md5=23ff6d65a77ae6a96b8802b05e2af979
+exit=101
+test rejects_invalid_filter_values_before_transport ... FAILED
+thread 'rejects_invalid_filter_values_before_transport' (253179) panicked at tests/search_contract.rs:475:9:
+assertion `left == right` failed: для SearchParams { content: None, channel_id: None, author_id: None, mentions: None, has: None, pinned: None, author_type: None, min_id: None, max_id: None, sort_by: None, sort_order: None, limit: Some(26), offset: None }
+  left: InvalidResponse
+ right: InvalidArg
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0 (match=True)
+=== MUT-2-drop-has-validation ===
+mutant search.rs md5=87f67f30fbb928c428f6cce766a3c01a
+exit=101
+test rejects_invalid_filter_values_before_transport ... FAILED
+thread 'rejects_invalid_filter_values_before_transport' (253983) panicked at tests/search_contract.rs:475:9:
+assertion `left == right` failed: для SearchParams { content: None, channel_id: None, author_id: None, mentions: None, has: Some("exe"), pinned: None, author_type: None, min_id: None, max_id: None, sort_by: None, sort_order: None, limit: None, offset: None }
+  left: InvalidResponse
+ right: InvalidArg
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0 (match=True)
+=== MUT-3-drop-author-type-validation ===
+mutant search.rs md5=04460624986849387176242043ac2167
+exit=101
+test rejects_invalid_filter_values_before_transport ... FAILED
+thread 'rejects_invalid_filter_values_before_transport' (254789) panicked at tests/search_contract.rs:475:9:
+assertion `left == right` failed: для SearchParams { content: None, channel_id: None, author_id: None, mentions: None, has: None, pinned: None, author_type: Some("admin"), min_id: None, max_id: None, sort_by: None, sort_order: None, limit: None, offset: None }
+  left: InvalidResponse
+ right: InvalidArg
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0 (match=True)
+=== MUT-4-drop-min-max-order-check ===
+mutant search.rs md5=972cbe5107addaa2743c7ee33902d654
+exit=101
+test rejects_invalid_filter_values_before_transport ... FAILED
+thread 'rejects_invalid_filter_values_before_transport' (255601) panicked at tests/search_contract.rs:475:9:
+assertion `left == right` failed: для SearchParams { content: None, channel_id: None, author_id: None, mentions: None, has: None, pinned: None, author_type: None, min_id: Some("200"), max_id: Some("100"), sort_by: None, sort_order: None, limit: None, offset: None }
+  left: InvalidResponse
+ right: InvalidArg
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0 (match=True)
+=== MUT-5-drop-pinned-param ===
+mutant search.rs md5=12376e3d3d987a887f2238b2f109ea26
+exit=101
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... FAILED
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... FAILED
+test sends_all_confirmed_re_filters_in_query ... FAILED
+thread 'deserializes_ipc_camel_case_snake_case_and_nested_query_payload' (256398) panicked at tests/search_contract.rs:408:5:
+assertion `left == right` failed
+  left: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=image&has=video&author_type=bot&min_id=1559661262766080000&max_id=1560023650627579904&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+ right: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=image&has=video&pinned=true&author_type=bot&min_id=1559661262766080000&max_id=1560023650627579904&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+thread 'accepts_all_nine_confirmed_has_tokens_and_three_author_types' (256395) panicked at tests/search_contract.rs:341:9:
+assertion `left == right` failed
+  left: "/guilds/1/messages/search?author_type=user"
+ right: "/guilds/1/messages/search?pinned=false&author_type=user"
+thread 'sends_all_confirmed_re_filters_in_query' (256407) panicked at tests/search_contract.rs:290:5:
+assertion `left == right` failed
+  left: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=file&author_type=bot&min_id=1561891700736000000&max_id=1562254088597405696&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+ right: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=file&pinned=true&author_type=bot&min_id=1561891700736000000&max_id=1562254088597405696&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+test result: FAILED. 13 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0 (match=True)
+=== MUT-6-drop-nested-query-fallback ===
+mutant search.rs md5=6a1679fa054ecfe9a5194503c5d43539
+exit=101
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... FAILED
+thread 'deserializes_ipc_camel_case_snake_case_and_nested_query_payload' (257222) panicked at tests/search_contract.rs:408:5:
+assertion `left == right` failed
+  left: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&sort_by=timestamp&sort_order=desc&offset=0"
+ right: "/guilds/1014537851418980372/messages/search?content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&channel_id=1163408591315812392&author_id=42&mentions=77&has=image&has=video&pinned=true&author_type=bot&min_id=1559661262766080000&max_id=1560023650627579904&sort_by=timestamp&sort_order=desc&limit=25&offset=0"
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+restored search.rs md5=6bae3ea23dfe31d1929fe3f7eb926fd0 (match=True)

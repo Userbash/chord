@@ -1,0 +1,49 @@
+baseline invite-modal.js md5=d3d96c622325715a437334af431f91f7
+baseline join-server.test.mjs md5=8b790b9178f40aeed91346e5984713f9
+=== MUT-1-default-max-age ===
+mutant invite-modal.js md5=8238236fa9830752b129e5ad1261f781
+exit=1
+  ✖ прогрессивное создание DOM и a11y: #invite-create-modal и элементы формы (11.843002ms)
+  ✖ open() запускает генерацию с дефолтными параметрами и переводит состояние в populated (8.860619ms)
+✖ STUB-05-UI / G-06: модалка создания приглашения (#invite-create-modal) (93.463737ms)
+✖ failing tests:
+✖ прогрессивное создание DOM и a11y: #invite-create-modal и элементы формы (11.843002ms)
+  AssertionError [ERR_ASSERTION]: дефолтный max_age должен быть 86400
+✖ open() запускает генерацию с дефолтными параметрами и переводит состояние в populated (8.860619ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+restored invite-modal.js md5=d3d96c622325715a437334af431f91f7 (match=true)
+=== MUT-2-guest-flag-null ===
+mutant invite-modal.js md5=2c24d99044bd9cf8ab74c94839dbccec
+exit=1
+  ✖ генерация новой ссылки с изменёнными max_age, max_uses, temporary и guest флагом (10.40592ms)
+✖ STUB-05-UI / G-06: модалка создания приглашения (#invite-create-modal) (94.716187ms)
+✖ failing tests:
+✖ генерация новой ссылки с изменёнными max_age, max_uses, temporary и guest флагом (10.40592ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+restored invite-modal.js md5=d3d96c622325715a437334af431f91f7 (match=true)
+=== MUT-3-false-success-on-clipboard-error ===
+mutant invite-modal.js md5=8a80937106c6644da4cf115b90e961b0
+exit=1
+  ✖ копирование ссылки: честная ошибка при reject промиса clipboard (без ложного успеха) (8.416136ms)
+✖ STUB-05-UI / G-06: модалка создания приглашения (#invite-create-modal) (95.349702ms)
+✖ failing tests:
+✖ копирование ссылки: честная ошибка при reject промиса clipboard (без ложного успеха) (8.416136ms)
+  AssertionError [ERR_ASSERTION]: нет ложного успеха
+restored invite-modal.js md5=d3d96c622325715a437334af431f91f7 (match=true)
+=== MUT-4-drop-429-cooling-disable ===
+mutant invite-modal.js md5=9f3e758f5933b4177e7376f5dcf76307
+exit=1
+  ✖ обработка ошибки 429: retry_after_ms, обратный отсчёт и блокировка кнопки генерации (8.452036ms)
+✖ STUB-05-UI / G-06: модалка создания приглашения (#invite-create-modal) (94.159722ms)
+✖ failing tests:
+✖ обработка ошибки 429: retry_after_ms, обратный отсчёт и блокировка кнопки генерации (8.452036ms)
+  AssertionError [ERR_ASSERTION]: кнопка генерации заблокирована
+restored invite-modal.js md5=d3d96c622325715a437334af431f91f7 (match=true)
+=== MUT-5-drop-escape-focus-restore ===
+mutant invite-modal.js md5=9b898899ab2b38aee018e7f614c73eed
+exit=1
+✖ tests/unit/join-server.test.mjs (19241.336284ms)
+✖ failing tests:
+✖ tests/unit/join-server.test.mjs (19241.336284ms)
+  'test failed'
+restored invite-modal.js md5=d3d96c622325715a437334af431f91f7 (match=true)

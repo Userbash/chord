@@ -1,0 +1,277 @@
+# RED — task-276 G2 Pass 2, app-shell-wiring.js
+# дата: 2026-10-31T11:26:54+05:00
+# ветка: bugfix/task-276-ui-shell-wiring-pass2-hardening
+# HEAD:  3affd78f42a9fd2d1ce2a532d9a14981d235bb2a
+# node:  v26.13.0
+# команда: node --test tests/unit/app-shell-wiring.test.mjs
+# md5 (red): tests/unit/app-shell-wiring.test.mjs = 5cca3ef80362b924786e92d9382d1baf
+# md5 (red): rust/gui-spike/ui/features/app-shell-wiring.js = 928cbb029bee1ae75ce4e80336a7a356
+
+--- Ожидание (новый контракт) ---
+1. openAdminPanel(<невалидный id>) бросает и НЕ снимает уже открытые модальные слои.
+2. openModalLayer(<невалидный id>) бросает и НЕ закрывает активную админ-панель.
+3. после destroy() openAdminPanel/openModalLayer/dispatchAdminAction бросают Error.
+4. getState() и state.activeModalStack заморожены (Object.isFrozen === true).
+
+--- Факт ---
+✔ createAppShellWiring: без options не бросает и экспортирует весь контрактный набор методов (0.744691ms)
+✖ getState: до любых действий активных слоёв нет (1.028071ms)
+✖ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.30856ms)
+✖ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.26726ms)
+✖ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.19388ms)
+✔ closeTopLayer: без активной панели закрывает верхний слой LIFO, на пустом состоянии — null (0.447571ms)
+✔ registerModalController: open/close вызываются фасадом, closeAdminPanel закрывает панель (0.33222ms)
+✔ dispatchAdminAction: уходит в onDispatchIpc как guild_admin:<panel>:<action> с payload (0.38664ms)
+✔ getChannelHeaderModel: делегирует buildChannelHeaderBadgesModel и formatChannelTopicTooltip (0.29667ms)
+✔ валидация идентификаторов делегируется реестрам shell-bridge и admin-роутера (0.18768ms)
+✖ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.20873ms)
+✖ openAdminPanel: невалидный id не снимает уже открытые модальные слои (0.19626ms)
+✖ openModalLayer: невалидный id не закрывает активную админ-панель (0.16178ms)
+✖ после destroy() мутаторы бросают Error и оверлеи не открываются (0.12694ms)
+✖ getState: снимок и вложенный activeModalStack заморожены (0.14606ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 6
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.485979
+
+✖ failing tests:
+
+test at tests/unit/app-shell-wiring.test.mjs:54:1
+✖ getState: до любых действий активных слоёв нет (1.028071ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: null,
+      activeModalLayer: null,
+  -   activeModalStack: []
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:56:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: null, activeAdminPanel: null },
+    expected: { activeModalLayer: null, activeAdminPanel: null, activeModalStack: [] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:63:1
+✖ openAdminPanel: закрывает уже открытые модальные слои и уведомляет о панели (0.30856ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: null,
+      activeModalLayer: 'threads-drawer',
+  -   activeModalStack: [
+  -     'settings-modal',
+  -     'threads-drawer'
+  -   ]
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:70:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: 'threads-drawer', activeAdminPanel: null },
+    expected: { activeModalLayer: 'threads-drawer', activeAdminPanel: null, activeModalStack: [ 'settings-modal', 'threads-drawer' ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:86:1
+✖ openModalLayer: закрывает активную админ-панель и уведомляет об этом (0.26726ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: null,
+      activeModalLayer: 'quick-switcher',
+  -   activeModalStack: [
+  -     'quick-switcher'
+  -   ]
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:96:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: 'quick-switcher', activeAdminPanel: null },
+    expected: { activeModalLayer: 'quick-switcher', activeAdminPanel: null, activeModalStack: [ 'quick-switcher' ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:104:1
+✖ closeTopLayer: при открытой админ-панели закрывает именно её, а не стек модалок (0.19388ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: 'webhooks-editor',
+      activeModalLayer: null,
+  -   activeModalStack: []
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:111:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: null, activeAdminPanel: 'webhooks-editor' },
+    expected: { activeModalLayer: null, activeAdminPanel: 'webhooks-editor', activeModalStack: [] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:225:1
+✖ destroy: закрывает панель и все слои, обнуляет состояние и идемпотентен (0.20873ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: null,
+      activeModalLayer: null,
+  -   activeModalStack: []
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:235:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: null, activeAdminPanel: null },
+    expected: { activeModalLayer: null, activeAdminPanel: null, activeModalStack: [] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:251:1
+✖ openAdminPanel: невалидный id не снимает уже открытые модальные слои (0.19626ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      activeAdminPanel: null,
+  +   activeModalLayer: null
+  -   activeModalLayer: 'threads-drawer',
+  -   activeModalStack: [
+  -     'settings-modal',
+  -     'threads-drawer'
+  -   ]
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:260:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: null, activeAdminPanel: null },
+    expected: { activeModalLayer: 'threads-drawer', activeAdminPanel: null, activeModalStack: [ 'settings-modal', 'threads-drawer' ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:267:1
+✖ openModalLayer: невалидный id не закрывает активную админ-панель (0.16178ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   activeAdminPanel: null,
+  -   activeAdminPanel: 'role-editor',
+      activeModalLayer: null,
+  -   activeModalStack: []
+    }
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:275:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { activeModalLayer: null, activeAdminPanel: null },
+    expected: { activeModalLayer: null, activeAdminPanel: 'role-editor', activeModalStack: [] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:282:1
+✖ после destroy() мутаторы бросают Error и оверлеи не открываются (0.12694ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception (Error).
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:287:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tests/unit/app-shell-wiring.test.mjs:299:1
+✖ getState: снимок и вложенный activeModalStack заморожены (0.14606ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - [
+  -   'inbox-popover',
+  -   'search-panel'
+  - ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:310:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [ 'inbox-popover', 'search-panel' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+exit=1

@@ -1,0 +1,23 @@
+    Updating crates.io index
+     Locking 4 packages to highest compatible versions
+      Adding jobserver v0.1.35
+      Adding zstd v0.14.3
+      Adding zstd-safe v8.2.0
+      Adding zstd-sys v2.1.2+zstd.1.5.7
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-205-be-voice-stage-ipc/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.34s
+     Running tests/voice_stage_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_stage_contract-3942c39bca74d7f7)
+
+running 8 tests
+test build_gateway_stream_create_op18_rejects_invalid_spec ... ok
+test build_gateway_stream_create_op18_produces_exact_oracle_payloads_for_guild_and_call ... ok
+test max_stage_visible_tiles_and_resolution_fps_helpers_match_spec ... ok
+test to_stream_key_builds_canonical_guild_and_call_keys ... ok
+test screen_share_spec_validate_rejects_invalid_snowflakes_and_empty_source_id ... ok
+test screen_share_spec_validate_accepts_valid_guild_and_call_specs_including_boundaries ... ok
+test build_gateway_stream_delete_op19_produces_exact_oracle_payloads_and_validates_stream_key ... ok
+test resolution_and_fps_serde_roundtrip ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

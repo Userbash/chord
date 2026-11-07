@@ -15,13 +15,40 @@ import { STATUS_LABELS } from "./members.js";
 /** Tauri-событие dispatch (`net::DISPATCH_EVENT`). */
 export const DISPATCH_EVENT = "gateway://dispatch";
 
-/** Единственные имена, которые L-02 форвардит (`net::FORWARDED_DISPATCHES`). */
+/**
+ * Все имена, которые бэкенд форвардит в UI: 21 каноническое имя ядра
+ * (`DispatchKind::ALL`, порядок как в `as_str`), 8 расширенных событий
+ * `ExtendedDispatchKind` (`MESSAGE_DELETE`, `MESSAGE_DELETE_BULK`,
+ * `CHANNEL_CREATE/UPDATE/DELETE`, `THREAD_CREATE/UPDATE/DELETE`) и
+ * `MESSAGE_REACTION_REMOVE` (в ядре raw, форвардится по имени провода —
+ * `CONTRACTS/dispatch.md` §5). Порядок и состав — как в
+ * `net::FORWARDED_DISPATCHES` (task-156): список UI обязан быть его
+ * надмножеством (F-GW-03), иначе живые удаления, каналы и треды отбрасываются
+ * фильтром модели. Проекций у расширенных событий пока нет — они принимаются
+ * как `skipped`, без изменений состояния.
+ */
 export const FORWARDED_KINDS = Object.freeze([
-  "READY",
+  "CHANNEL_INFO",
   "GUILD_MEMBERS_CHUNK",
   "GUILD_MEMBER_LIST_UPDATE",
-  "PRESENCE_UPDATE",
+  "MESSAGE_ACK",
+  "MESSAGE_CREATE",
+  "MESSAGE_POLL_VOTE_ADD",
   "MESSAGE_REACTION_ADD",
+  "MESSAGE_UPDATE",
+  "PRESENCE_UPDATE",
+  "READY",
+  "READY_SUPPLEMENTAL",
+  "RESUMED",
+  "SESSIONS_REPLACE",
+  "SOUNDBOARD_SOUNDS",
+  "THREAD_LIST_SYNC",
+  "TYPING_START",
+  "USER_SETTINGS_PROTO_UPDATE",
+  "VOICE_CHANNEL_START_TIME_UPDATE",
+  "VOICE_CHANNEL_STATUS_UPDATE",
+  "VOICE_SERVER_UPDATE",
+  "VOICE_STATE_UPDATE",
   "MESSAGE_REACTION_REMOVE",
 ]);
 
@@ -146,6 +173,70 @@ export function asRecord(value) {
  *   complete: boolean,
  * }} MemberList */
 /** @typedef {{
+ *   id: string,
+ *   channelId: string,
+ *   guildId: string,
+ *   authorId: string,
+ *   authorName: string,
+ *   authorAvatar: string | null,
+ *   authorBot: boolean,
+ *   content: string,
+ *   timestamp: string,
+ *   editedTimestamp: string | null,
+ *   edited: boolean,
+ *   pinned: boolean,
+ *   mentionEveryone: boolean,
+ *   mentions: string[],
+ *   embedCount: number,
+ *   attachmentCount: number,
+ *   attachments: Record<string, unknown>[],
+ *   embeds: Record<string, unknown>[],
+ * }} LiveMessage */
+/** @typedef {{
+ *   channelId: string,
+ *   lastMessageId: string,
+ *   unread: boolean,
+ *   mentionCount: number,
+ *   version: number | null,
+ *   lastViewed: number | null,
+ *   flags: number | null,
+ * }} LiveReadState */
+/** @typedef {{
+ *   channelId: string,
+ *   userId: string,
+ *   guildId: string,
+ *   timestamp: number,
+ * }} LiveTyping */
+/** @typedef {{
+ *   guildId: string,
+ *   userId: string,
+ *   channelId: string | null,
+ *   selfMute: boolean,
+ *   selfDeaf: boolean,
+ *   selfStream: boolean,
+ *   selfVideo: boolean,
+ *   mute: boolean,
+ *   deaf: boolean,
+ *   suppress: boolean,
+ * }} LiveVoiceState */
+/** @typedef {{
+ *   guildId: string,
+ *   endpoint: string | null,
+ * }} LiveVoiceServer */
+/** @typedef {{
+ *   id: string,
+ *   guildId: string,
+ *   parentId: string,
+ *   ownerId: string,
+ *   name: string,
+ *   type: number | null,
+ *   messageCount: number | null,
+ *   memberCount: number | null,
+ *   lastMessageId: string | null,
+ *   archived: boolean,
+ *   locked: boolean,
+ * }} LiveThread */
+/** @typedef {{
  *   guilds: Map<string, GuildSnapshot>,
  *   order: string[],
  *   selfUserId: string,
@@ -156,6 +247,13 @@ export function asRecord(value) {
  *   lists: Map<string, MemberList>,
  *   presences: Map<string, LivePresence>,
  *   reactions: Map<string, { users: Set<string>, anon: number }>,
+ *   messages: Map<string, Map<string, LiveMessage>>,
+ *   messageCounts: Map<string, number>,
+ *   readStates: Map<string, LiveReadState>,
+ *   typing: Map<string, Map<string, LiveTyping>>,
+ *   voiceStates: Map<string, LiveVoiceState>,
+ *   voiceServers: Map<string, LiveVoiceServer>,
+ *   threads: Map<string, Map<string, LiveThread>>,
  * }} DispatchStore */
 /** @typedef {{ userId: string, name: string, status: string, statusLabel: string, activity: string }} MemberRow */
 /** @typedef {{ type: "guilds", guilds: GuildSnapshot[], selfUserId: string }} GuildsChange */
@@ -185,8 +283,71 @@ export function asRecord(value) {
  *   me: boolean,
  *   removed: boolean,
  * }} ReactionChange */
-/** @typedef {GuildsChange | MembersChange | PresenceChange | ReactionChange} DispatchChange */
 /** @typedef {{
+ *   type: "message_create",
+ *   channelId: string,
+ *   messageId: string,
+ *   message: LiveMessage,
+ *   messageCount: number,
+ *   updated: boolean,
+ * }} MessageCreateChange */
+/** @typedef {{
+ *   type: "message_update",
+ *   channelId: string,
+ *   messageId: string,
+ *   content: string,
+ *   editedTimestamp: string | null,
+ *   edited: boolean,
+ *   pinned: boolean,
+ *   embedCount: number,
+ *   message: LiveMessage,
+ * }} MessageUpdateChange */
+/** @typedef {{
+ *   type: "message_ack",
+ *   channelId: string,
+ *   messageId: string,
+ *   unread: boolean,
+ *   mentionCount: number,
+ *   version: number | null,
+ *   lastViewed: number | null,
+ * }} MessageAckChange */
+/** @typedef {{
+ *   type: "typing",
+ *   channelId: string,
+ *   userId: string,
+ *   guildId: string,
+ *   timestamp: number,
+ * }} TypingChange */
+/** @typedef {{
+ *   type: "voice_state",
+ *   guildId: string,
+ *   userId: string,
+ *   channelId: string | null,
+ *   selfMute: boolean,
+ *   selfDeaf: boolean,
+ *   selfStream: boolean,
+ *   selfVideo: boolean,
+ *   mute: boolean,
+ *   deaf: boolean,
+ *   suppress: boolean,
+ * }} VoiceStateChange */
+/** @typedef {{
+ *   type: "voice_server",
+ *   guildId: string,
+ *   endpoint: string | null,
+ * }} VoiceServerChange */
+/** @typedef {{
+ *   type: "threads",
+ *   guildId: string,
+ *   threads: LiveThread[],
+ * }} ThreadsChange */
+/** @typedef {GuildsChange | MembersChange | PresenceChange | ReactionChange | MessageCreateChange | MessageUpdateChange | MessageAckChange | TypingChange | VoiceStateChange | VoiceServerChange | ThreadsChange} DispatchChange */
+/**
+ * Счётчики модели. `ignored` — `kind` вне `FORWARDED_KINDS` или no-op проекции
+ * (например, `REMOVE` реакции без предшествующего `ADD`); `skipped` — событие
+ * принято, но не применено (нет проекции в UI или элемент payload отброшен);
+ * `malformed` — конверт/данные не разобраны.
+ * @typedef {{
  *   applied: number,
  *   malformed: number,
  *   ignored: number,
@@ -237,7 +398,10 @@ export function normalizeEnvelope(value) {
   // Пустая строка — «неизвестный kind» (N1: ignored), а не битый конверт.
   if (kind === "" && typeof record.kind !== "string") return { ok: false, reason: "kind" };
   const data = record.data;
-  if (data === null || typeof data !== "object" || Array.isArray(data)) {
+  // `d` — произвольное JSON-значение: у `SESSIONS_REPLACE` это массив
+  // (`docs/re/gateway-schema.md`), поэтому массив — валидный конверт, а не
+  // битый `data`. Проекции сами требуют объект и считают malformed.
+  if (data === null || typeof data !== "object") {
     return { ok: false, reason: "data" };
   }
   /** @type {{ ok: true, kind: string, data: Record<string, unknown>, seq?: number }} */
@@ -261,6 +425,13 @@ export function createDispatchStore() {
     lists: new Map(),
     presences: new Map(),
     reactions: new Map(),
+    messages: new Map(),
+    messageCounts: new Map(),
+    readStates: new Map(),
+    typing: new Map(),
+    voiceStates: new Map(),
+    voiceServers: new Map(),
+    threads: new Map(),
   };
 }
 
@@ -823,6 +994,471 @@ export function projectReaction(store, kind, data, counters = emptyCounters()) {
   }];
 }
 
+/**
+ * MESSAGE_CREATE — добавление/обновление сообщения в канале, инкремент счётчика
+ * канала, сброс активного тайпинга автора и учёт unread/mentions.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectMessageCreate(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const channelId = asString(data.channel_id) || asString(data.channelId);
+  const messageId = asString(data.id) || asString(data.message_id) || asString(data.messageId);
+  if (channelId === "" || messageId === "") {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id) || asString(data.guildId);
+  const author = asRecord(data.author);
+  const member = asRecord(data.member);
+  const authorId = asString(author.id) || asString(data.author_id) || asString(data.authorId);
+  const authorName = asString(author.global_name)
+    || asString(member.nick)
+    || asString(author.username)
+    || authorId;
+  const authorAvatar = asString(author.avatar) || asString(member.avatar) || null;
+  const authorBot = asBool(author.bot);
+  const content = typeof data.content === "string"
+    ? (data.content === "nil" ? "" : data.content)
+    : asString(data.content);
+  const timestamp = asString(data.timestamp);
+  const rawEdited = asString(data.edited_timestamp) || asString(data.editedTimestamp);
+  const editedTimestamp = rawEdited !== "" ? rawEdited : null;
+  const edited = editedTimestamp !== null;
+  const pinned = asBool(data.pinned);
+  const mentionEveryone = asBool(data.mention_everyone ?? data.mentionEveryone);
+  const mentions = asArray(data.mentions)
+    .map((item) => asString(asRecord(item).id) || asString(item))
+    .filter((id) => id !== "");
+  const embeds = asArray(data.embeds)
+    .filter((e) => e !== null && typeof e === "object" && !Array.isArray(e))
+    .map((e) => /** @type {Record<string, unknown>} */ (e));
+  const attachments = asArray(data.attachments)
+    .filter((a) => a !== null && typeof a === "object" && !Array.isArray(a))
+    .map((a) => /** @type {Record<string, unknown>} */ (a));
+  const embedCount = embeds.length;
+  const attachmentCount = attachments.length;
+
+  /** @type {LiveMessage} */
+  const message = {
+    id: messageId,
+    channelId,
+    guildId,
+    authorId,
+    authorName,
+    authorAvatar,
+    authorBot,
+    content,
+    timestamp,
+    editedTimestamp,
+    edited,
+    pinned,
+    mentionEveryone,
+    mentions,
+    embedCount,
+    attachmentCount,
+    attachments,
+    embeds,
+  };
+
+  let channelMessages = store.messages.get(channelId);
+  if (!channelMessages) {
+    channelMessages = new Map();
+    store.messages.set(channelId, channelMessages);
+  }
+  const previous = channelMessages.get(messageId);
+  if (previous && JSON.stringify(previous) === JSON.stringify(message)) {
+    counters.duplicate += 1;
+    return [];
+  }
+  const updated = previous !== undefined;
+  channelMessages.set(messageId, message);
+  const previousCount = store.messageCounts.get(channelId) ?? 0;
+  const messageCount = updated ? previousCount : previousCount + 1;
+  store.messageCounts.set(channelId, messageCount);
+
+  if (authorId !== "") {
+    store.typing.get(channelId)?.delete(authorId);
+  }
+  if (!updated && (store.selfUserId === "" || authorId !== store.selfUserId)) {
+    const prevRead = store.readStates.get(channelId);
+    const mentionedSelf = mentionEveryone || (store.selfUserId !== "" && mentions.includes(store.selfUserId));
+    store.readStates.set(channelId, {
+      channelId,
+      lastMessageId: prevRead?.lastMessageId ?? "",
+      unread: true,
+      mentionCount: (prevRead?.mentionCount ?? 0) + (mentionedSelf ? 1 : 0),
+      version: prevRead?.version ?? null,
+      lastViewed: prevRead?.lastViewed ?? null,
+      flags: prevRead?.flags ?? null,
+    });
+  }
+
+  return [{
+    type: "message_create",
+    channelId,
+    messageId,
+    message,
+    messageCount,
+    updated,
+  }];
+}
+
+/**
+ * MESSAGE_UPDATE — обновление контента, `edited_timestamp` и вложений сообщения
+ * без увеличения счётчика сообщений канала.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectMessageUpdate(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const channelId = asString(data.channel_id) || asString(data.channelId);
+  const messageId = asString(data.id) || asString(data.message_id) || asString(data.messageId);
+  if (channelId === "" || messageId === "") {
+    counters.malformed += 1;
+    return [];
+  }
+  let channelMessages = store.messages.get(channelId);
+  if (!channelMessages) {
+    channelMessages = new Map();
+    store.messages.set(channelId, channelMessages);
+  }
+  const previous = channelMessages.get(messageId);
+  const guildId = asString(data.guild_id) || asString(data.guildId) || previous?.guildId || "";
+  const author = asRecord(data.author);
+  const member = asRecord(data.member);
+  const authorId = asString(author.id) || asString(data.author_id) || previous?.authorId || "";
+  const authorName = asString(author.global_name)
+    || asString(member.nick)
+    || asString(author.username)
+    || previous?.authorName
+    || authorId;
+  const authorAvatar = asString(author.avatar)
+    || asString(member.avatar)
+    || previous?.authorAvatar
+    || null;
+  const authorBot = "bot" in author ? asBool(author.bot) : (previous?.authorBot ?? false);
+  const content = ("content" in data && !nilish(data.content))
+    ? (typeof data.content === "string" ? data.content : asString(data.content))
+    : (previous?.content ?? "");
+  const timestamp = asString(data.timestamp) || previous?.timestamp || "";
+  const rawEdited = asString(data.edited_timestamp) || asString(data.editedTimestamp);
+  const editedTimestamp = rawEdited !== "" ? rawEdited : (previous?.editedTimestamp ?? null);
+  const edited = editedTimestamp !== null || (previous?.edited ?? false);
+  const pinned = ("pinned" in data && !nilish(data.pinned))
+    ? asBool(data.pinned)
+    : (previous?.pinned ?? false);
+  const mentionEveryone = ("mention_everyone" in data || "mentionEveryone" in data)
+    ? asBool(data.mention_everyone ?? data.mentionEveryone)
+    : (previous?.mentionEveryone ?? false);
+  const mentions = Array.isArray(data.mentions)
+    ? data.mentions.map((item) => asString(asRecord(item).id) || asString(item)).filter((id) => id !== "")
+    : (previous?.mentions ?? []);
+  const embeds = Array.isArray(data.embeds)
+    ? data.embeds
+      .filter((e) => e !== null && typeof e === "object" && !Array.isArray(e))
+      .map((e) => /** @type {Record<string, unknown>} */ (e))
+    : (previous?.embeds ?? []);
+  const attachments = Array.isArray(data.attachments)
+    ? data.attachments
+      .filter((a) => a !== null && typeof a === "object" && !Array.isArray(a))
+      .map((a) => /** @type {Record<string, unknown>} */ (a))
+    : (previous?.attachments ?? []);
+  const embedCount = Array.isArray(data.embeds) ? data.embeds.length : (previous?.embedCount ?? 0);
+  const attachmentCount = Array.isArray(data.attachments)
+    ? data.attachments.length
+    : (previous?.attachmentCount ?? 0);
+
+  /** @type {LiveMessage} */
+  const next = {
+    id: messageId,
+    channelId,
+    guildId,
+    authorId,
+    authorName,
+    authorAvatar,
+    authorBot,
+    content,
+    timestamp,
+    editedTimestamp,
+    edited,
+    pinned,
+    mentionEveryone,
+    mentions,
+    embedCount,
+    attachmentCount,
+    attachments,
+    embeds,
+  };
+  if (previous && JSON.stringify(previous) === JSON.stringify(next)) {
+    counters.duplicate += 1;
+    return [];
+  }
+  channelMessages.set(messageId, next);
+  return [{
+    type: "message_update",
+    channelId,
+    messageId,
+    content: next.content,
+    editedTimestamp: next.editedTimestamp,
+    edited: next.edited,
+    pinned: next.pinned,
+    embedCount: next.embedCount,
+    message: next,
+  }];
+}
+
+/**
+ * MESSAGE_ACK — сброс `unread` и `mentionCount` для `channel_id` до `message_id`.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectMessageAck(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const channelId = asString(data.channel_id) || asString(data.channelId);
+  const messageId = asString(data.message_id) || asString(data.messageId);
+  if (channelId === "" || messageId === "") {
+    counters.malformed += 1;
+    return [];
+  }
+  const manual = asBool(data.manual);
+  const rawMentions = asNumber(data.mention_count ?? data.mentionCount);
+  const mentionCount = manual && rawMentions !== null ? Math.max(0, Math.trunc(rawMentions)) : 0;
+  const previous = store.readStates.get(channelId);
+  const version = asNumber(data.version) ?? previous?.version ?? null;
+  const lastViewed = asNumber(data.last_viewed ?? data.lastViewed) ?? previous?.lastViewed ?? null;
+  const flags = asNumber(data.flags) ?? previous?.flags ?? null;
+
+  /** @type {LiveReadState} */
+  const next = {
+    channelId,
+    lastMessageId: messageId,
+    unread: false,
+    mentionCount,
+    version,
+    lastViewed,
+    flags,
+  };
+  if (previous && JSON.stringify(previous) === JSON.stringify(next)) {
+    counters.duplicate += 1;
+    return [];
+  }
+  store.readStates.set(channelId, next);
+  return [{
+    type: "message_ack",
+    channelId,
+    messageId,
+    unread: false,
+    mentionCount,
+    version,
+    lastViewed,
+  }];
+}
+
+/**
+ * TYPING_START — запись активного тайпинга `user_id` в `channel_id` с `timestamp`.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectTypingStart(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const channelId = asString(data.channel_id) || asString(data.channelId);
+  const userId = asString(data.user_id)
+    || asString(data.userId)
+    || asString(asRecord(asRecord(data.member).user).id);
+  const timestamp = asNumber(data.timestamp);
+  if (channelId === "" || userId === "" || timestamp === null) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id) || asString(data.guildId);
+  let channelTyping = store.typing.get(channelId);
+  if (!channelTyping) {
+    channelTyping = new Map();
+    store.typing.set(channelId, channelTyping);
+  }
+  const previous = channelTyping.get(userId);
+  if (previous && timestamp < previous.timestamp) {
+    counters.stale += 1;
+    return [];
+  }
+  if (previous && timestamp === previous.timestamp && guildId === previous.guildId) {
+    counters.duplicate += 1;
+    return [];
+  }
+  /** @type {LiveTyping} */
+  const entry = { channelId, userId, guildId, timestamp };
+  channelTyping.set(userId, entry);
+  return [{
+    type: "typing",
+    channelId,
+    userId,
+    guildId,
+    timestamp,
+  }];
+}
+
+/**
+ * VOICE_STATE_UPDATE — обновление `channel_id`/`self_mute`/`self_deaf`/`self_stream`
+ * участника голоса без сохранения `session_id`.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectVoiceState(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const userId = asString(data.user_id)
+    || asString(data.userId)
+    || asString(asRecord(asRecord(data.member).user).id);
+  const guildId = asString(data.guild_id) || asString(data.guildId);
+  const rawChannel = asString(data.channel_id) || asString(data.channelId);
+  const channelId = rawChannel !== "" ? rawChannel : null;
+  if (userId === "" || (guildId === "" && channelId === null && !("channel_id" in data) && !("channelId" in data))) {
+    counters.malformed += 1;
+    return [];
+  }
+  /** @type {LiveVoiceState} */
+  const next = {
+    guildId,
+    userId,
+    channelId,
+    selfMute: asBool(data.self_mute ?? data.selfMute),
+    selfDeaf: asBool(data.self_deaf ?? data.selfDeaf),
+    selfStream: asBool(data.self_stream ?? data.selfStream),
+    selfVideo: asBool(data.self_video ?? data.selfVideo),
+    mute: asBool(data.mute),
+    deaf: asBool(data.deaf),
+    suppress: asBool(data.suppress),
+  };
+  const key = `${guildId}:${userId}`;
+  const previous = store.voiceStates.get(key);
+  if (previous && JSON.stringify(previous) === JSON.stringify(next)) {
+    counters.duplicate += 1;
+    return [];
+  }
+  store.voiceStates.set(key, next);
+  return [{
+    type: "voice_state",
+    ...next,
+  }];
+}
+
+/**
+ * VOICE_SERVER_UPDATE — обновление RTC-endpoint гильдии без сохранения `token`.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectVoiceServer(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id) || asString(data.guildId);
+  if (guildId === "" || !("endpoint" in data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const rawEndpoint = asString(data.endpoint);
+  const endpoint = rawEndpoint !== "" ? rawEndpoint : null;
+  const previous = store.voiceServers.get(guildId);
+  if (previous && previous.endpoint === endpoint) {
+    counters.duplicate += 1;
+    return [];
+  }
+  store.voiceServers.set(guildId, { guildId, endpoint });
+  return [{
+    type: "voice_server",
+    guildId,
+    endpoint,
+  }];
+}
+
+/**
+ * THREAD_LIST_SYNC — синхронизация списка тредов гильдии.
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectThreadListSync(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id) || asString(data.guildId);
+  const validThreads = "threads" in data && (Array.isArray(data.threads) || nilish(data.threads));
+  if (guildId === "" || !validThreads) {
+    counters.malformed += 1;
+    return [];
+  }
+  /** @type {LiveThread[]} */
+  const threads = [];
+  for (const value of asArray(data.threads)) {
+    const record = asRecord(value);
+    const id = asString(record.id);
+    const name = asString(record.name);
+    if (id === "" || name === "") {
+      counters.skipped += 1;
+      continue;
+    }
+    const meta = asRecord(record.thread_metadata ?? record.threadMetadata);
+    const lastMsg = asString(record.last_message_id ?? record.lastMessageId);
+    threads.push({
+      id,
+      guildId: asString(record.guild_id ?? record.guildId) || guildId,
+      parentId: asString(record.parent_id ?? record.parentId),
+      ownerId: asString(record.owner_id ?? record.ownerId),
+      name,
+      type: asNumber(record.type),
+      messageCount: asNumber(record.message_count ?? record.messageCount),
+      memberCount: asNumber(record.member_count ?? record.memberCount),
+      lastMessageId: lastMsg !== "" ? lastMsg : null,
+      archived: asBool(meta.archived),
+      locked: asBool(meta.locked),
+    });
+  }
+  const previousMap = store.threads.get(guildId);
+  if (previousMap) {
+    const previousList = [...previousMap.values()];
+    if (JSON.stringify(previousList) === JSON.stringify(threads)) {
+      counters.duplicate += 1;
+      return [];
+    }
+  }
+  store.threads.set(guildId, new Map(threads.map((thread) => [thread.id, thread])));
+  return [{
+    type: "threads",
+    guildId,
+    threads,
+  }];
+}
+
 /* ---------- вход модели ---------- */
 
 /**
@@ -861,8 +1497,36 @@ export function applyDispatch(store, value, counters = emptyCounters()) {
     case "PRESENCE_UPDATE":
       changes = projectPresence(store, data, counters);
       break;
-    default:
+    case "MESSAGE_REACTION_ADD":
+    case "MESSAGE_REACTION_REMOVE":
       changes = projectReaction(store, kind, data, counters);
+      break;
+    case "MESSAGE_CREATE":
+      changes = projectMessageCreate(store, data, counters);
+      break;
+    case "MESSAGE_UPDATE":
+      changes = projectMessageUpdate(store, data, counters);
+      break;
+    case "MESSAGE_ACK":
+      changes = projectMessageAck(store, data, counters);
+      break;
+    case "TYPING_START":
+      changes = projectTypingStart(store, data, counters);
+      break;
+    case "VOICE_STATE_UPDATE":
+      changes = projectVoiceState(store, data, counters);
+      break;
+    case "VOICE_SERVER_UPDATE":
+      changes = projectVoiceServer(store, data, counters);
+      break;
+    case "THREAD_LIST_SYNC":
+      changes = projectThreadListSync(store, data, counters);
+      break;
+    default:
+      // Каноническое событие дошло до модели, но проекции в UI пока нет
+      // (CHANNEL_INFO, READY_SUPPLEMENTAL, RESUMED, SESSIONS_REPLACE, …):
+      // считаем skipped, чтобы приём был виден в dispatch.stats, а не молчал.
+      counters.skipped += 1;
       break;
   }
   counters.applied = changes.length > 0 ? 1 : 0;

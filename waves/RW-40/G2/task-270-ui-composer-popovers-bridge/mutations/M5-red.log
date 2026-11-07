@@ -1,0 +1,55 @@
+▶ COMPOSER_POPOVER_LAYERS
+  ✔ экспортирует замороженный канонический список из 4 слоёв поповеров композера (0.680271ms)
+✔ COMPOSER_POPOVER_LAYERS (1.167571ms)
+▶ resolveComposerDraftPopover
+  ✔ активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода (0.23572ms)
+  ✔ возвращает пустое состояние поповера для обычного текста, пустого слэша и нестроковых значений (0.14185ms)
+✔ resolveComposerDraftPopover (0.48548ms)
+▶ createComposerPopoversBridge
+  ✔ инициализирует безопасное состояние по умолчанию и возвращает замороженный снимок getState() (0.30064ms)
+  ✔ нормализует начальную громкость options.volume через clampSoundboardVolume (0.10961ms)
+  ✔ updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName (4.272273ms)
+  ✔ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.43935ms)
+  ✔ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.139351ms)
+  ✔ getFilteredSoundboardSounds фильтрует доступные звуки по запросу без мутации исходного массива (0.23302ms)
+  ✔ setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState() (0.11965ms)
+  ✖ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.77057ms)
+✖ createComposerPopoversBridge (6.689164ms)
+ℹ tests 11
+ℹ suites 3
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.928287
+
+✖ failing tests:
+
+test at tests/unit/composer-popovers-bridge.test.mjs:243:3
+✖ пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options (0.77057ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      {
+        soundId: 's-20',
+  +     volume: 1
+  -     volume: 0.45
+      }
+    ]
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:272:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { soundId: 's-20', volume: 1 } ],
+    expected: [ { soundId: 's-20', volume: 0.45 } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

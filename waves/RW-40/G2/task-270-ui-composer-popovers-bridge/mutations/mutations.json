@@ -1,0 +1,90 @@
+[
+  {
+    "id": "M1",
+    "file": "rust/gui-spike/ui/features/composer-popovers-bridge.js",
+    "from": "      commandName: parsed.commandName,",
+    "to": "      commandName: parsed.rawArgs,",
+    "expect": "resolveComposerDraftPopover: commandName подменён на rawArgs",
+    "mutatedMd5": "b9fd67ad2218a48351113ca3296c40f6",
+    "exitCode": 1,
+    "summary": "ℹ pass 9, ℹ fail 2",
+    "failing": [
+      "активирует slash-command-picker и извлекает commandName и rawArgs для валидного слэш-ввода",
+      "resolveComposerDraftPopover",
+      "updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName",
+      "createComposerPopoversBridge"
+    ],
+    "killed": true,
+    "restoredMd5": "0d5ae58d106cc500335195b82e1e2e77",
+    "restoredOk": true
+  },
+  {
+    "id": "M2",
+    "file": "rust/gui-spike/ui/features/composer-popovers-bridge.js",
+    "from": "    filteredSlashCommands = filterSlashCommands(commands, commandName ?? \"\");",
+    "to": "    filteredSlashCommands = filterSlashCommands(commands, \"\");",
+    "expect": "updateDraft: фильтр команд игнорирует commandName",
+    "mutatedMd5": "0436d52d9a9af1de05e823b8372ac3a2",
+    "exitCode": 1,
+    "summary": "ℹ pass 10, ℹ fail 1",
+    "failing": [
+      "updateDraft активирует slash-command-picker при слэш-префиксе и фильтрует команды по commandName",
+      "createComposerPopoversBridge"
+    ],
+    "killed": true,
+    "restoredMd5": "0d5ae58d106cc500335195b82e1e2e77",
+    "restoredOk": true
+  },
+  {
+    "id": "M3",
+    "file": "rust/gui-spike/ui/features/composer-popovers-bridge.js",
+    "from": "      !COMPOSER_POPOVER_LAYERS.includes(/** @type {ComposerPopoverLayerId} */ (popoverId))",
+    "to": "      COMPOSER_POPOVER_LAYERS.includes(/** @type {ComposerPopoverLayerId} */ (popoverId))",
+    "expect": "openPopover: инвертирован guard принадлежности к COMPOSER_POPOVER_LAYERS",
+    "mutatedMd5": "ece75909ef928db86f46cb1d2f4889db",
+    "exitCode": 1,
+    "summary": "ℹ pass 9, ℹ fail 2",
+    "failing": [
+      "openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover",
+      "openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние",
+      "createComposerPopoversBridge"
+    ],
+    "killed": true,
+    "restoredMd5": "0d5ae58d106cc500335195b82e1e2e77",
+    "restoredOk": true
+  },
+  {
+    "id": "M4",
+    "file": "rust/gui-spike/ui/features/composer-popovers-bridge.js",
+    "from": "    volume = clampSoundboardVolume(vol);",
+    "to": "    volume = vol;",
+    "expect": "setSoundboardVolume: громкость не нормализуется через clampSoundboardVolume",
+    "mutatedMd5": "2cb8bc1c8507b647e11e4b586ff166d1",
+    "exitCode": 1,
+    "summary": "ℹ pass 10, ℹ fail 1",
+    "failing": [
+      "setSoundboardVolume нормализует громкость через clampSoundboardVolume и обновляет getState()",
+      "createComposerPopoversBridge"
+    ],
+    "killed": true,
+    "restoredMd5": "0d5ae58d106cc500335195b82e1e2e77",
+    "restoredOk": true
+  },
+  {
+    "id": "M5",
+    "file": "rust/gui-spike/ui/features/composer-popovers-bridge.js",
+    "from": "      safeOptions.onPlaySoundboardSound(String(soundId), volume);",
+    "to": "      safeOptions.onPlaySoundboardSound(String(soundId), 1);",
+    "expect": "playSoundboardSound: в колбэк уходит 1 вместо нормализованной громкости",
+    "mutatedMd5": "af982596dcaf6d30ae7ad73ca36d6cda",
+    "exitCode": 1,
+    "summary": "ℹ pass 10, ℹ fail 1",
+    "failing": [
+      "пробрасывает выбор слэш-команды и воспроизведение звука саундборда в колбэки options",
+      "createComposerPopoversBridge"
+    ],
+    "killed": true,
+    "restoredMd5": "0d5ae58d106cc500335195b82e1e2e77",
+    "restoredOk": true
+  }
+]

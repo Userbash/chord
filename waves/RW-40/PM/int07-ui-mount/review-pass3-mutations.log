@@ -1,0 +1,33 @@
+=== Ревью 32C: независимое воспроизведение MUT-13 (guard «UI invoke ⊆ generate_handler!») ===
+Дата: 2026-10-30. Ветка rw40/int07-ui-app-mount, HEAD 4e24048.
+
+--- baseline ---
+$ md5sum rust/gui-spike/ui/app.js
+4c9a732185179f59c3bd2873de8ac971
+
+--- мутация: в mountVoiceDevices() добавлен invoke("set_input_device", { deviceId: "x" }) ---
+--- прогон ---
+$ node --test tests/unit/gui-spike-features.test.mjs
+EXIT=1
+✖ INT-07: UI invoke ⊆ generate_handler! (4.819746ms)
+  AssertionError [ERR_ASSERTION]: UI вызывает команды, которых нет в generate_handler!: set_input_device (app.js:1665)
+ℹ tests 111
+ℹ pass 109
+ℹ fail 2
+
+--- restore ---
+$ cp backup rust/gui-spike/ui/app.js && md5sum rust/gui-spike/ui/app.js
+4c9a732185179f59c3bd2873de8ac971   MATCH=True
+
+--- оракул guard'а против HEAD (независимый скрипт, тот же парсер) ---
+ui .js files: 32, distinct literal invokes: 23
+worktree handlers: 49, HEAD handlers: 36
+missing in WORKTREE: []
+missing in HEAD   : pins_list (app.js:1428), threads_list (app.js:1434),
+                    create_invite (features/invite-modal.js:370),
+                    update_guild_notification_settings (features/notifications.js:1547),
+                    update_channel_notification_override (features/notifications.js:1606)
+registered only in worktree: create_channel_invite, create_invite, request_upload_slots,
+  attachments_upload_slots, attachments_upload_put, list_channel_pins, pins_list,
+  pin_channel_message, unpin_channel_message, list_channel_threads, threads_list,
+  update_guild_notification_settings, update_channel_notification_override

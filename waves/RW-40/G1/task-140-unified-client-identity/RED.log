@@ -1,0 +1,55 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-json)
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+error[E0432]: unresolved import `crate::rest::identity::ClientIdentity`
+  --> crates/discord-core/src/identify.rs:15:5
+   |
+15 | use crate::rest::identity::ClientIdentity;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^--------------
+   |                            |
+   |                            no `ClientIdentity` in `rest::identity`
+
+error[E0609]: no field `launch_signature` on type `&identify::IdentifyProperties`
+   --> crates/discord-core/src/identify.rs:430:24
+    |
+430 |             properties.launch_signature, sp.launch_signature,
+    |                        ^^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `os`, `browser`, `release_channel`, `client_version`, `os_version` ... and 12 others
+
+error[E0599]: no associated function or constant named `from_client_identity` found for struct `identify::IdentifyProperties` in the current scope
+   --> crates/discord-core/src/identify.rs:443:33
+    |
+ 29 | pub struct IdentifyProperties {
+    | ----------------------------- associated function or constant `from_client_identity` not found for this struct
+...
+443 |             IdentifyProperties::from_client_identity(&identity),
+    |                                 ^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `identify::IdentifyProperties`
+    |
+note: if you're trying to build a new `identify::IdentifyProperties` consider using one of the following associated functions:
+      identify::IdentifyProperties::for_rw_client
+      identify::IdentifyProperties::from_super_properties
+   --> crates/discord-core/src/identify.rs:68:5
+    |
+ 68 |     pub fn for_rw_client() -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+100 |     pub fn from_super_properties(properties: &SuperProperties) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0433]: cannot find type `ClientIdentity` in this scope
+   --> crates/discord-core/src/rest/identity.rs:400:24
+    |
+400 |         let identity = ClientIdentity::build(&sources, &IdentityConfig::default());
+    |                        ^^^^^^^^^^^^^^ use of undeclared type `ClientIdentity`
+
+error[E0433]: cannot find type `ClientIdentity` in this scope
+   --> crates/discord-core/src/rest/identity.rs:438:24
+    |
+438 |         let identity = ClientIdentity::build(&sources(), &IdentityConfig::default());
+    |                        ^^^^^^^^^^^^^^ use of undeclared type `ClientIdentity`
+
+Some errors have detailed explanations: E0432, E0433, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-core` (lib test) due to 5 previous errors
+EXIT=101

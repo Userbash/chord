@@ -1,0 +1,29 @@
+## baseline: pass-3 selector, merged layout
+ℹ tests 48
+ℹ pass 48
+ℹ fail 0
+## mutation 1: unknown path -> старый meta-фоллбэк (P2-1)
+ℹ fail 1
+ℹ pass 47
+ℹ tests 48
+  ✖ неизвестный путь переключает полный прогон §5.2.3 (0.711595ms)
+## mutation 2: ui/app.js вне safety net (P2-2)
+ℹ fail 2
+ℹ pass 46
+ℹ tests 48
+  ✖ rust/gui-spike/ui/app.js → полный прогон T2 (0.119191ms)
+  ✖ общий UI-файл §5.2.3 → полный прогон T2 и геометрия (0.592035ms)
+## mutation 3: addTest без existsSync, layout ветки (P2-3)
+  ✖ features/chat.js расширен профилем вложений и общими контрактами (0.135301ms)
+ℹ fail 4
+ℹ pass 44
+ℹ tests 48
+  ✖ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.186521ms)
+  ✖ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.640135ms)
+  ✖ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.114371ms)
+## mutation 4: опечатка в ключе таблицы скрипта (P3-1)
+ℹ fail 2
+ℹ pass 46
+ℹ tests 48
+  ✖ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.627164ms)
+  ✖ несколько новых модулей объединяются без потери профильных тестов (0.157421ms)

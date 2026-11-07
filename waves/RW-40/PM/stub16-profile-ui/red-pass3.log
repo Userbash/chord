@@ -1,0 +1,97 @@
+▶ G2-03: пустое состояние QuickSwitcher соответствует выдаче
+  ✔ empty скрыт при опциях и виден только при нуле совпадений (41.752577ms)
+✔ G2-03: пустое состояние QuickSwitcher соответствует выдаче (42.423322ms)
+[ACTION_FAILED] Не удалось удалить сообщение
+[ACTION_FAILED] Не удалось удалить сообщение
+▶ G2-11: подтверждение удаления не липнет к следующей строке
+  ✔ смена строки и завершение onDelete снимают confirm (44.043863ms)
+✔ G2-11: подтверждение удаления не липнет к следующей строке (44.197163ms)
+▶ C-07: QuickSwitcher находит гильдии по data-guild-id
+  ✔ выбор гильдии в switcher не зависит от legacy data-guild (15.434342ms)
+✔ C-07: QuickSwitcher находит гильдии по data-guild-id (15.578283ms)
+▶ STUB-16 / MB-03: member profile popover
+  ✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (13.614991ms)
+  ✔ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (15.08092ms)
+  ✔ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (11.877729ms)
+  ✔ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (11.359245ms)
+  ✔ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (10.141637ms)
+  ✔ клавиатурная активация по Enter и Space открывает поповер (11.457926ms)
+  ✔ состояния поповера: loading, empty, error с avatar placeholder и name skeletons (11.144084ms)
+  ✔ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (13.53855ms)
+  ✔ закрытие открытого поповера при смене канала (10.113707ms)
+  ✔ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.299872ms)
+✖ STUB-16 / MB-03: member profile popover (109.165535ms)
+ℹ tests 13
+ℹ suites 4
+ℹ pass 12
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 254.044417
+
+✖ failing tests:
+
+test at tests/unit/gui-spike-regressions.test.mjs:292:3
+✖ прогрессивное создание DOM-узла #user-profile-popover при активации строки (13.614991ms)
+  AssertionError [ERR_ASSERTION]: строка #member-list .member обязана сохранять role=listitem для AT-SPI
+  + actual - expected
+  
+  + 'button'
+  - 'listitem'
+  
+      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:306:16
+      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'button',
+    expected: 'listitem',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+▶ GUI window probe (AT-SPI + X11)
+  ✖ находит окно, элементы и снимает PNG (4117.654475ms)
+✖ GUI window probe (AT-SPI + X11) (4118.28463ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4151.49518
+
+✖ failing tests:
+
+test at tests/smoke/gui-window.smoke.test.mjs:16:3
+✖ находит окно, элементы и снимает PNG (4117.654475ms)
+  AssertionError [ERR_ASSERTION]: 
+  (process:578338): atspi-WARNING **: 18:50:31.520: AT-SPI: Unable to open bus connection for application with pid 5728: Failed to connect to socket /run/user/1000/at-spi2-AY10X3/socket: No such file or directory
+  gui-window-probe: FAIL: AT-SPI: участников list item 3 < 10
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-window.smoke.test.mjs:35:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+EXIT_UNIT=1 EXIT_SMOKE=1

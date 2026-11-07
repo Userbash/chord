@@ -1,0 +1,157 @@
+▶ B2b-ATTACH-UI: константы и оракулы лимитов
+  ✔ лимиты совпадают с бэкендом B2a и RE (10 МиБ на файл, 10 файлов на сообщение) (0.428514ms)
+  ✔ formatBytes форматирует размеры в соответствии с §2.3 (неразрывный пробел, запятая) (0.11415ms)
+✔ B2b-ATTACH-UI: константы и оракулы лимитов (1.138509ms)
+▶ B2b-ATTACH-UI: progressive enhancement композера
+  ✔ идемпотентно достраивает узлы очереди, счётчика, скрытого input и live-region (1.400831ms)
+  ✔ клик по [data-action='attach'] триггерит click() на скрытом file input (0.330113ms)
+✔ B2b-ATTACH-UI: progressive enhancement композера (1.862225ms)
+▶ B2b-ATTACH-UI: очередь файлов и валидация лимитов
+  ✔ добавление валидного файла создаёт чип со статусом queued и обновляет счётчик (0.801447ms)
+  ✔ файл больше MAX_UPLOAD_FILE_BYTES получает состояние error-size/error-413 без сети (0.548834ms)
+  ✔ пустой файл 0 байт получает состояние error-empty/error-size без сети (0.397743ms)
+  ✔ превышение лимита 10 файлов помечает 11-й как error-limit и блокирует кнопку attach (1.103339ms)
+✔ B2b-ATTACH-UI: очередь файлов и валидация лимитов (3.074155ms)
+▶ B2b-ATTACH-UI: состояния чипов и прогресс
+  ✔ чип содержит progressbar с aria-valuenow и aria-valuetext (0.386803ms)
+  ✔ удаление чипа по кнопке attachment-remove убирает его из DOM и обновляет счётчик (0.552654ms)
+✔ B2b-ATTACH-UI: состояния чипов и прогресс (1.138829ms)
+▶ B2b-ATTACH-UI: транспорт слотов и отправка сообщения
+  ✖ вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename (0.996028ms)
+  ✖ поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put') (0.595485ms)
+  ✔ ошибка сервера 413 при выдаче слота переводит чип в error-413 (0.258872ms)
+  ✔ ошибка сервера 429 при выдаче слота переводит чип в error-429 (0.235312ms)
+  ✖ ошибка PUT (413) переводит чип в error-413 и блокирует отправку сообщения (0.379553ms)
+  ✖ ошибка PUT (429) переводит чип в error-429 и блокирует отправку сообщения (0.298002ms)
+  ✖ сетевая ошибка PUT переводит чип в error-network и блокирует отправку сообщения (0.575135ms)
+  ✖ отсутствие слота или upload_filename не синтезирует fallback и переводит чип в ошибку (0.307913ms)
+  ✔ отправка сообщения блокируется при наличии ошибок вложения (0.258462ms)
+  ✔ при отправке сообщения передаются uploaded_filename готовых вложений и очередь очищается (0.334953ms)
+✖ B2b-ATTACH-UI: транспорт слотов и отправка сообщения (4.542857ms)
+▶ STUB-12-GIFT-UI: модалка подарка #gift-modal
+  ✔ клик по [data-action='composer-gift'] открывает #gift-modal и выставляет aria-expanded='true' (0.327212ms)
+  ✔ отображает честный статус Nitro-каталога без фейковой оплаты (0.216682ms)
+  ✔ закрывается по Escape и возвращает фокус на кнопку подарка (0.252852ms)
+  ✔ закрывается по клику на backdrop (0.218821ms)
+  ✔ закрывается по кнопке закрытия [data-action='gift-close'] (0.221751ms)
+  ✔ клик при aria-disabled='true' не открывает модалку (0.160771ms)
+✔ STUB-12-GIFT-UI: модалка подарка #gift-modal (1.558322ms)
+ℹ tests 26
+ℹ suites 6
+ℹ pass 20
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.544889
+
+✖ failing tests:
+
+test at tests/unit/composer.test.mjs:280:3
+✖ вызов invoke('attachments_upload_slots') и последующий invoke('attachments_upload_put') переводит чип в uploading -> ready с подтверждённым uploaded_filename (0.996028ms)
+  AssertionError [ERR_ASSERTION]: должны быть вызваны attachments_upload_slots и attachments_upload_put
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:307:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:327:3
+✖ поддерживает кастомный options.uploadPut вместо invoke('attachments_upload_put') (0.595485ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:353:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:396:3
+✖ ошибка PUT (413) переводит чип в error-413 и блокирует отправку сообщения (0.379553ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'ready'
+  - 'error-413'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:425:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'ready',
+    expected: 'error-413',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:433:3
+✖ ошибка PUT (429) переводит чип в error-429 и блокирует отправку сообщения (0.298002ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'ready'
+  - 'error-429'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:462:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'ready',
+    expected: 'error-429',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:470:3
+✖ сетевая ошибка PUT переводит чип в error-network и блокирует отправку сообщения (0.575135ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'ready'
+  - 'error-network'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:498:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'ready',
+    expected: 'error-network',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/composer.test.mjs:506:3
+✖ отсутствие слота или upload_filename не синтезирует fallback и переводит чип в ошибку (0.307913ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  'ready'
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:523:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'ready',
+    expected: 'ready',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

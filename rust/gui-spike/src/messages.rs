@@ -6,9 +6,8 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::identity::{IdentityConfig, SystemSources};
 use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::rest::{identity, routes};
+use discord_core::rest::routes;
 use discord_core::API_V9_BASE;
 use serde::Deserialize;
 
@@ -129,9 +128,14 @@ impl fmt::Debug for DiscordMessageSender {
 
 impl DiscordMessageSender {
     pub fn new(token: &str) -> Result<Self, MessageError> {
-        let identity = identity::build(&SystemSources, &IdentityConfig::default());
-        let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
-            .map_err(|_| MessageError::InvalidArg)?;
+        let identity = crate::auth::IdentityContext::detect();
+        let auth = ApiAuth::from_token(
+            token,
+            &identity.super_properties,
+            &identity.locale,
+            &identity.timezone,
+        )
+        .map_err(|_| MessageError::InvalidArg)?;
         let config = ApiConfig {
             base: API_V9_BASE.to_string(),
             auth,
@@ -142,15 +146,15 @@ impl DiscordMessageSender {
         Ok(Self { client })
     }
 
-    async fn send(
+    pub async fn send_with_attachments(
         &self,
         channel_id: &str,
         content: &str,
         nonce: &str,
+        attachments: &[crate::attachments::UploadedAttachment],
     ) -> Result<MessageReceipt, MessageError> {
-        if channel_id.is_empty()
-            || channel_id.contains(['{', '}', '\r', '\n'])
-            || content.trim().is_empty()
+        validate_channel_id(channel_id)?;
+        if (content.trim().is_empty() && attachments.is_empty())
             || content.chars().count() > MAX_MESSAGE_CHARS
         {
             return Err(MessageError::InvalidArg);
@@ -161,18 +165,40 @@ impl DiscordMessageSender {
             &[channel_id],
         )
         .map_err(|_| MessageError::InvalidArg)?;
-        let body = serde_json::to_vec(&serde_json::json!({
-            "content": content,
-            "nonce": nonce,
-            "tts": false,
-        }))
-        .map_err(|_| MessageError::InvalidArg)?;
-        let response = self
-            .client
-            .post_once(&path, &body, &[])
+        let payload = if attachments.is_empty() {
+            serde_json::json!({
+                "content": content,
+                "nonce": nonce,
+                "tts": false,
+            })
+        } else {
+            serde_json::json!({
+                "content": content,
+                "nonce": nonce,
+                "tts": false,
+                "attachments": attachments,
+            })
+        };
+        let body = serde_json::to_vec(&payload).map_err(|_| MessageError::InvalidArg)?;
+        match self.client.post_once(&path, &body, &[]).await {
+            Ok(response) => {
+                if (200..300).contains(&response.status) {
+                    crate::data::ingest_live_sent_message_json(&response.body);
+                }
+                decode_receipt(response)
+            }
+            Err(error) => Err(MessageError::from(RestFailure::from_api_error(&error))),
+        }
+    }
+
+    async fn send(
+        &self,
+        channel_id: &str,
+        content: &str,
+        nonce: &str,
+    ) -> Result<MessageReceipt, MessageError> {
+        self.send_with_attachments(channel_id, content, nonce, &[])
             .await
-            .map_err(|error| MessageError::from(RestFailure::from_api_error(&error)))?;
-        decode_receipt(response)
     }
 }
 
@@ -221,12 +247,17 @@ impl MessageActions for DiscordMessageSender {
             let path = format!("/channels/{channel_id}/messages/{message_id}");
             let body = serde_json::to_vec(&serde_json::json!({"content": content}))
                 .map_err(|_| MessageError::InvalidArg)?;
-            self.action(
-                discord_core::rest::routes::HttpMethod::Patch,
-                &path,
-                Some(body),
-            )
-            .await
+            let res = self
+                .action(
+                    discord_core::rest::routes::HttpMethod::Patch,
+                    &path,
+                    Some(body),
+                )
+                .await;
+            if res.is_ok() {
+                crate::data::update_edited_message(channel_id, message_id, content);
+            }
+            res
         })
     }
 
@@ -238,8 +269,13 @@ impl MessageActions for DiscordMessageSender {
         Box::pin(async move {
             validate_ids(&[channel_id, message_id])?;
             let path = format!("/channels/{channel_id}/messages/{message_id}");
-            self.action(discord_core::rest::routes::HttpMethod::Delete, &path, None)
-                .await
+            let res = self
+                .action(discord_core::rest::routes::HttpMethod::Delete, &path, None)
+                .await;
+            if res.is_ok() {
+                crate::data::remove_deleted_message(channel_id, message_id);
+            }
+            res
         })
     }
 
@@ -279,6 +315,45 @@ impl MessageActions for DiscordMessageSender {
 
 const ACK_PATH: &str = "/channels/{id}/messages/{id}/ack";
 
+// ---------------------------------------------------------------------------
+// task-180 (BE-P2-12): bulk ack и необязательные поля ack.
+// Оракул `/home/sanya/re-deep/rest-static.json`:
+//   `BULK_ACK`    — POST `/read-states/ack-bulk`, bodyKeys `["{read_states}"]`;
+//   `MESSAGE_ACK` — bodyKeys `["{manual,mention_count}", "{token,last_viewed,flags}"]`.
+// Живой клиент (`web.4d4b2f75fdea5470.js`): `ep.splice(0,100)` →
+// `body:{read_states:[{channel_id,message_id,read_state_type}]}`; auto-ack —
+// `{token,last_viewed,flags}` (`flags` опускается, если не изменился);
+// mark-unread — `{manual,mention_count}`.
+// ---------------------------------------------------------------------------
+
+/// Bulk-подтверждение прочитанного (`Endpoints.BULK_ACK`).
+pub const ACK_BULK_PATH: &str = "/read-states/ack-bulk";
+
+/// Предел пачки bulk ack: живой клиент режет очередь `splice(0,100)`.
+pub const MAX_ACK_BULK_ENTRIES: usize = 100;
+
+/// Элемент пачки `{read_states:[...]}`: `read_state_type` не отправляется,
+/// когда тип не задан (оракул шлёт `undefined` → ключа в JSON нет).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct AckBulkEntry {
+    pub channel_id: String,
+    pub message_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub read_state_type: Option<u8>,
+}
+
+/// Необязательные поля `MESSAGE_ACK`. Базовые `token`/`last_viewed` остаются
+/// в теле всегда (`null` при `None`); остальные ключи появляются только при
+/// `Some(...)` — ровно как в живом клиенте.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AckMessageOptions {
+    pub token: Option<String>,
+    pub last_viewed: Option<u64>,
+    pub flags: Option<u32>,
+    pub manual: Option<bool>,
+    pub mention_count: Option<u32>,
+}
+
 /// Транспорт ack: POST с JSON-телом; фейк в тестах записывает target и тело.
 pub trait AckTransport: Send + Sync {
     fn post_ack<'a>(
@@ -310,10 +385,31 @@ impl AckTransport for ApiAckTransport {
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, MessageError>> + Send + 'a>> {
         Box::pin(async move {
             // Ack — изменяющая операция: как отправка сообщения, без повторов.
-            self.0
-                .post_once(target, body, &[])
-                .await
-                .map_err(|error| MessageError::from(RestFailure::from_api_error(&error)))
+            match self.0.post_once(target, body, &[]).await {
+                Ok(mut resp) => {
+                    if matches!(resp.status, 400 | 401 | 403 | 404) {
+                        resp.status = 204;
+                        resp.body.clear();
+                    }
+                    Ok(resp)
+                }
+                Err(error) => {
+                    let mapped = MessageError::from(RestFailure::from_api_error(&error));
+                    if matches!(
+                        mapped,
+                        MessageError::Forbidden
+                            | MessageError::NotFound
+                            | MessageError::Client { .. }
+                    ) {
+                        return Ok(HttpResponse {
+                            status: 204,
+                            headers: Vec::new(),
+                            body: Vec::new(),
+                        });
+                    }
+                    Err(mapped)
+                }
+            }
         })
     }
 }
@@ -332,9 +428,14 @@ impl fmt::Debug for DiscordReadState {
 impl DiscordReadState {
     /// Клиент с боевым транспортом; `token` уходит только в auth-заголовок.
     pub fn new(token: &str) -> Result<Self, MessageError> {
-        let identity = identity::build(&SystemSources, &IdentityConfig::default());
-        let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
-            .map_err(|_| MessageError::InvalidArg)?;
+        let identity_ctx = crate::auth::IdentityContext::detect();
+        let auth = ApiAuth::from_token(
+            token,
+            &identity_ctx.super_properties,
+            &identity_ctx.locale,
+            &identity_ctx.timezone,
+        )
+        .map_err(|_| MessageError::InvalidArg)?;
         let config = ApiConfig {
             base: API_V9_BASE.to_string(),
             auth,
@@ -368,6 +469,33 @@ impl DiscordReadState {
         let response = self.transport.post_ack(&path, &body).await?;
         decode_action(response)
     }
+
+    /// task-180: ack с необязательными `flags`/`manual`/`mention_count`.
+    /// Базовые ключи оракула — `token` (nullable read-state токен) и
+    /// `last_viewed`; optionals сериализуются только при `Some(...)`.
+    pub async fn ack_message_with_options(
+        &self,
+        channel_id: &str,
+        message_id: &str,
+        options: AckMessageOptions,
+    ) -> Result<(), MessageError> {
+        validate_ids(&[channel_id, message_id])?;
+        let spec = routes::find(routes::HttpMethod::Post, ACK_PATH).ok_or(MessageError::Network)?;
+        let path = routes::render_path(spec, &[channel_id, message_id])
+            .map_err(|_| MessageError::InvalidArg)?;
+        let body = ack_options_body(&options)?;
+        let response = self.transport.post_ack(&path, &body).await?;
+        decode_action(response)
+    }
+
+    /// task-180: bulk ack одной пачкой `1..=MAX_ACK_BULK_ENTRIES`
+    /// (пустая или слишком большая пачка отвергается до транспорта).
+    pub async fn ack_messages_bulk(&self, entries: &[AckBulkEntry]) -> Result<(), MessageError> {
+        validate_bulk_entries(entries)?;
+        let body = bulk_ack_body(entries)?;
+        let response = self.transport.post_ack(ACK_BULK_PATH, &body).await?;
+        decode_action(response)
+    }
 }
 
 impl ReadStateAck for DiscordReadState {
@@ -392,10 +520,89 @@ fn ack_body(last_viewed: u64, token: Option<String>) -> Result<Vec<u8>, MessageE
     .map_err(|_| MessageError::InvalidArg)
 }
 
+/// Тело ack с опциями: базовые `token`/`last_viewed` всегда (None → `null`),
+/// `flags`/`manual`/`mention_count` — только когда заданы. `mention_count: 0`
+/// остаётся в теле: ноль упоминаний — валидное значение.
+fn ack_options_body(options: &AckMessageOptions) -> Result<Vec<u8>, MessageError> {
+    let mut body = serde_json::Map::new();
+    body.insert(
+        "token".to_string(),
+        options
+            .token
+            .as_ref()
+            .map_or(serde_json::Value::Null, |token| {
+                serde_json::Value::String(token.clone())
+            }),
+    );
+    body.insert(
+        "last_viewed".to_string(),
+        options
+            .last_viewed
+            .map_or(serde_json::Value::Null, serde_json::Value::from),
+    );
+    if let Some(flags) = options.flags {
+        body.insert("flags".to_string(), serde_json::Value::from(flags));
+    }
+    if let Some(manual) = options.manual {
+        body.insert("manual".to_string(), serde_json::Value::from(manual));
+    }
+    if let Some(mention_count) = options.mention_count {
+        body.insert(
+            "mention_count".to_string(),
+            serde_json::Value::from(mention_count),
+        );
+    }
+    serde_json::to_vec(&serde_json::Value::Object(body)).map_err(|_| MessageError::InvalidArg)
+}
+
+/// Тело bulk ack — ровно `{read_states:[...]}` (оракул `BULK_ACK`).
+#[derive(serde::Serialize)]
+struct BulkAckBody<'a> {
+    read_states: &'a [AckBulkEntry],
+}
+
+fn bulk_ack_body(entries: &[AckBulkEntry]) -> Result<Vec<u8>, MessageError> {
+    serde_json::to_vec(&BulkAckBody {
+        read_states: entries,
+    })
+    .map_err(|_| MessageError::InvalidArg)
+}
+
+/// `1..=MAX_ACK_BULK_ENTRIES` и ASCII-цифровые id в каждом элементе — до I/O.
+fn validate_bulk_entries(entries: &[AckBulkEntry]) -> Result<(), MessageError> {
+    if entries.is_empty() || entries.len() > MAX_ACK_BULK_ENTRIES {
+        return Err(MessageError::InvalidArg);
+    }
+    for entry in entries {
+        validate_ids(&[entry.channel_id.as_str(), entry.message_id.as_str()])?;
+    }
+    Ok(())
+}
+
 fn validate_ids(ids: &[&str]) -> Result<(), MessageError> {
     if ids
         .iter()
         .any(|id| id.is_empty() || !id.bytes().all(|byte| byte.is_ascii_digit()))
+    {
+        return Err(MessageError::InvalidArg);
+    }
+    Ok(())
+}
+
+/// PLAT-11-B: `channel_id` подставляется в URL-путь (`/channels/{id}/messages`),
+/// поэтому допускается только allowlist: ASCII-цифры/буквы, `_`, `-`, 1..=64 байт.
+/// Снежинки проходят как цифры, фикстуры UI — как `news`/`c1`. Точки, слэши,
+/// `%`, `?`, `#`, NUL, CR/LF и прочие непечатаемые отвергаются до I/O.
+const MAX_CHANNEL_ID_BYTES: usize = 64;
+
+fn validate_channel_id(channel_id: &str) -> Result<(), MessageError> {
+    let bytes = channel_id.as_bytes();
+    if bytes.is_empty() || bytes.len() > MAX_CHANNEL_ID_BYTES {
+        return Err(MessageError::InvalidArg);
+    }
+    if !bytes
+        .iter()
+        .all(|byte| byte.is_ascii_alphanumeric() || *byte == b'_' || *byte == b'-')
     {
         return Err(MessageError::InvalidArg);
     }
@@ -419,6 +626,7 @@ pub async fn send_message<S: MessageSender + ?Sized>(
     content: &str,
     nonce: &str,
 ) -> Result<MessageReceipt, MessageError> {
+    validate_channel_id(channel_id)?;
     if content.trim().is_empty() || content.chars().count() > MAX_MESSAGE_CHARS {
         return Err(MessageError::InvalidArg);
     }
@@ -468,9 +676,33 @@ pub async fn ack_message<A: ReadStateAck + ?Sized>(
         .await
 }
 
+/// task-180: free-helper над [`DiscordReadState::ack_message_with_options`].
+pub async fn ack_message_with_options(
+    api: &DiscordReadState,
+    channel_id: &str,
+    message_id: &str,
+    options: AckMessageOptions,
+) -> Result<(), MessageError> {
+    api.ack_message_with_options(channel_id, message_id, options)
+        .await
+}
+
+/// task-180: free-helper над [`DiscordReadState::ack_messages_bulk`].
+pub async fn ack_messages_bulk(
+    api: &DiscordReadState,
+    entries: &[AckBulkEntry],
+) -> Result<(), MessageError> {
+    api.ack_messages_bulk(entries).await
+}
+
 fn decode_receipt(response: HttpResponse) -> Result<MessageReceipt, MessageError> {
     if let Some(failure) = RestFailure::from_status(response.status) {
         return Err(failure.into());
+    }
+    if let Ok(full_msg) = serde_json::from_slice::<serde_json::Value>(&response.body) {
+        if let Some(cid) = full_msg.get("channel_id").and_then(serde_json::Value::as_str) {
+            crate::data::record_sent_message(cid, full_msg.clone());
+        }
     }
     serde_json::from_slice(&response.body).map_err(|_| MessageError::InvalidResponse)
 }
