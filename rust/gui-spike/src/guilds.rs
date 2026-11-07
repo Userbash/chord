@@ -16,15 +16,21 @@
 //! Токен живёт только в auth-заголовке `ApiClient`; в ошибки и `Debug` не попадает.
 //! Сеть — только через [`GuildTransport`]; тесты подменяют транспорт фейком.
 
+use std::collections::BTreeMap;
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, OnceLock};
 
+use discord_core::API_V9_BASE;
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use discord_core::rest::guilds::{
+    CreatedGuild, DISCORD_LOCALE_RU, GUILDS_PATH, GuildCreateChannelSpec,
+    GuildCreateRequest as CoreGuildCreateRequest, GuildCreateRestError,
+    parse_guild_create_response, validate_guild_name, validate_icon_data_uri,
+};
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
-use discord_core::API_V9_BASE;
 use serde::{Deserialize, Serialize};
 
 use crate::rest_failure::RestFailure;
@@ -229,10 +235,147 @@ impl From<EnterGuildError> for LeaveGuildError {
     }
 }
 
+/// Описание начального канала или категории в запросе `POST /guilds` (TASK-611).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateGuildChannelInput {
+    /// Временный идентификатор для привязки дочерних каналов к категории через `parent_id`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// Название канала или категории (`1..=100` символов).
+    pub name: String,
+    /// Числовой тип канала (`0` — текстовый, `2` — голосовой, `4` — категория).
+    #[serde(rename = "type")]
+    pub kind: u8,
+    /// Идентификатор родительской категории.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_id: Option<String>,
+    /// Позиция канала при сортировке.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub position: Option<i64>,
+}
+
+/// Полный запрос создания сервера `POST /api/v9/guilds` (TASK-611).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateGuildRequest {
+    /// Название сервера (`1..=100` символов).
+    pub name: String,
+    /// Опциональная иконка в формате base64 DataURI (`data:image/...;base64,...`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+    /// Начальные категории и каналы сервера.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub channels: Vec<CreateGuildChannelInput>,
+    /// Битовая маска флагов системного канала (`system_channel_flags`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub system_channel_flags: Option<u32>,
+    /// Опциональный код шаблона гильдии.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guild_template_code: Option<String>,
+}
+
+impl CreateGuildRequest {
+    fn to_core_request(&self) -> CoreGuildCreateRequest {
+        CoreGuildCreateRequest {
+            name: self.name.clone(),
+            icon: self.icon.clone(),
+            channels: self
+                .channels
+                .iter()
+                .map(|ch| GuildCreateChannelSpec {
+                    id: ch.id.clone(),
+                    name: ch.name.clone(),
+                    kind: ch.kind,
+                    parent_id: ch.parent_id.clone(),
+                    position: ch.position,
+                })
+                .collect(),
+            system_channel_flags: self.system_channel_flags,
+            guild_template_code: self.guild_template_code.clone(),
+        }
+    }
+}
+
+/// Полный результат создания сервера (`201 Created`, TASK-611) с каналами и ролями.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateGuildFullOutcome {
+    /// Snowflake ID созданного сервера.
+    pub id: String,
+    /// Название созданного сервера.
+    pub name: String,
+    /// Хеш иконки сервера.
+    #[serde(default)]
+    pub icon: Option<String>,
+    /// Snowflake ID владельца сервера.
+    #[serde(default)]
+    pub owner_id: Option<String>,
+    /// Snowflake ID системного канала.
+    #[serde(default)]
+    pub system_channel_id: Option<String>,
+    /// Битовая маска флагов системного канала (`system_channel_flags`).
+    #[serde(default)]
+    pub system_channel_flags: u32,
+    /// Начальные каналы и категории созданного сервера.
+    #[serde(default)]
+    pub channels: Vec<serde_json::Value>,
+    /// Начальные роли созданного сервера.
+    #[serde(default)]
+    pub roles: Vec<serde_json::Value>,
+}
+
+static LOCAL_CREATED_GUILDS: OnceLock<Mutex<BTreeMap<String, CreatedGuild>>> = OnceLock::new();
+
+fn created_guilds_store() -> &'static Mutex<BTreeMap<String, CreatedGuild>> {
+    LOCAL_CREATED_GUILDS.get_or_init(|| Mutex::new(BTreeMap::new()))
+}
+
+/// Получить снимок созданной гильдии (включая распарсенные каналы и роли) из локального состояния.
+#[must_use]
+pub fn local_created_guild_snapshot(guild_id: &str) -> Option<CreatedGuild> {
+    let guard = created_guilds_store()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    guard.get(guild_id.trim()).cloned()
+}
+
+/// Очистить локальный кэш созданных серверов (для изоляции контрактных тестов).
+pub fn clear_local_created_guilds() {
+    let mut guard = created_guilds_store()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    guard.clear();
+}
+
+fn integrate_created_guild_into_local_state(created: &CreatedGuild, raw_body: &[u8]) {
+    {
+        let mut guard = created_guilds_store()
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        guard.insert(created.id.clone(), created.clone());
+    }
+    if let Ok(guild_val) = serde_json::from_slice::<serde_json::Value>(raw_body) {
+        let mut wrapper = serde_json::Map::new();
+        if let Some(first_ch) = guild_val
+            .get("channels")
+            .and_then(serde_json::Value::as_array)
+            .and_then(|arr| {
+                arr.iter()
+                    .find(|c| c.get("type").and_then(serde_json::Value::as_u64) != Some(4))
+            })
+        {
+            wrapper.insert("channel".to_string(), first_ch.clone());
+        }
+        wrapper.insert("guild".to_string(), guild_val);
+        if let Ok(wrapped_bytes) = serde_json::to_vec(&serde_json::Value::Object(wrapper)) {
+            crate::data::ingest_accepted_invite_payload(&wrapped_bytes);
+            crate::data::ensure_local_guild_present(&created.id);
+        }
+    }
+}
+
 /// Полезная нагрузка для создания нового сервера (`POST /guilds`, STUB-03).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CreateGuildPayload {
-    /// Название создаваемого сервера (2..100 символов).
+    /// Название создаваемого сервера (1..=100 символов).
     pub name: String,
     /// Иконка сервера в формате Data URI (`data:image/png;base64,...`) или None.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -263,30 +406,28 @@ pub struct CreateGuildOutcome {
     pub channels: Vec<serde_json::Value>,
 }
 
-/// Ошибка создания сервера (`POST /guilds`, STUB-03).
+/// Ошибка создания сервера (`POST /guilds`, STUB-03 / TASK-611).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum CreateGuildError {
-    /// Некорректные параметры (имя пустое или длиннее 100 символов).
+    /// Некорректные параметры (имя пустое или длиннее 100 символов, невалидный DataURI иконки).
     InvalidArg,
     /// Нет сохранённого токена.
     MissingToken,
+    /// 400 (`MAXIMUM_GUILDS = 30005` / `30001`): достигнут лимит серверов пользователя.
+    MaximumGuilds { code: u32 },
+    /// 403 (`NO_VERIFIED_PHONE`): требуется подтверждённый номер телефона на аккаунте.
+    NoVerifiedPhone,
     /// 401: сессия истекла.
     Unauthorized,
-    /// 403: достигнут лимит создания серверов (максимум 100).
+    /// 403: создание сервера запрещено.
     Forbidden,
     /// 429: ограничение частоты.
-    RateLimited {
-        retry_after_ms: u64,
-    },
+    RateLimited { retry_after_ms: u64 },
     /// Прочие 4xx.
-    Client {
-        status: u16,
-    },
+    Client { status: u16 },
     /// 5xx: ошибка сервера Discord.
-    Server {
-        status: u16,
-    },
+    Server { status: u16 },
     /// Сеть недоступна.
     Network,
     /// Хранилище токена недоступно.
@@ -298,10 +439,23 @@ pub enum CreateGuildError {
 impl fmt::Display for CreateGuildError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidArg => formatter.write_str("некорректное имя сервера (требуется 2..100 символов)"),
+            Self::InvalidArg => formatter.write_str(
+                "некорректные параметры создания сервера (требуется имя 1..=100 символов)",
+            ),
             Self::MissingToken => formatter.write_str("нет сохранённого токена"),
+            Self::MaximumGuilds { code } => {
+                write!(
+                    formatter,
+                    "достигнут лимит серверов пользователя (MAXIMUM_GUILDS {code})"
+                )
+            }
+            Self::NoVerifiedPhone => formatter.write_str(
+                "требуется подтверждённый номер телефона на аккаунте (NO_VERIFIED_PHONE)",
+            ),
             Self::Unauthorized => formatter.write_str("сессия истекла"),
-            Self::Forbidden => formatter.write_str("создание сервера запрещено (достигнут лимит в 100 серверов)"),
+            Self::Forbidden => {
+                formatter.write_str("создание сервера запрещено (достигнут лимит в 100 серверов)")
+            }
             Self::RateLimited { retry_after_ms } => {
                 write!(
                     formatter,
@@ -320,6 +474,29 @@ impl fmt::Display for CreateGuildError {
 }
 
 impl std::error::Error for CreateGuildError {}
+
+impl From<GuildCreateRestError> for CreateGuildError {
+    fn from(error: GuildCreateRestError) -> Self {
+        match error {
+            GuildCreateRestError::InvalidName
+            | GuildCreateRestError::InvalidIcon
+            | GuildCreateRestError::InvalidChannel
+            | GuildCreateRestError::Header(_) => Self::InvalidArg,
+            GuildCreateRestError::MaximumGuilds { code, .. } => Self::MaximumGuilds {
+                code: u32::try_from(code).unwrap_or(30005),
+            },
+            GuildCreateRestError::NoVerifiedPhone { .. } => Self::NoVerifiedPhone,
+            GuildCreateRestError::Unauthorized => Self::Unauthorized,
+            GuildCreateRestError::Forbidden { .. } => Self::Forbidden,
+            GuildCreateRestError::RateLimited { retry_after_ms } => {
+                Self::RateLimited { retry_after_ms }
+            }
+            GuildCreateRestError::Client { status, .. } => Self::Client { status },
+            GuildCreateRestError::Server { status } => Self::Server { status },
+            GuildCreateRestError::InvalidResponse(_) => Self::InvalidResponse,
+        }
+    }
+}
 
 impl From<RestFailure> for CreateGuildError {
     fn from(failure: RestFailure) -> Self {
@@ -453,8 +630,10 @@ impl GuildTransport for ApiGuildTransport {
                 }
             }
             if !gid.is_empty() {
-                if let Ok(join_resp) =
-                    self.0.put(&format!("/guilds/{gid}/members/@me?lurker=false"), body).await
+                if let Ok(join_resp) = self
+                    .0
+                    .put(&format!("/guilds/{gid}/members/@me?lurker=false"), body)
+                    .await
                 {
                     if (200..300).contains(&join_resp.status) {
                         if !join_resp.body.is_empty() {
@@ -560,14 +739,12 @@ impl GuildTransport for ApiGuildTransport {
         body: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, CreateGuildError>> + Send + 'a>> {
         Box::pin(async move {
-            let request = HttpRequest::new(HttpMethod::Post, target).body(body.to_vec());
-            match self.0.execute(&request).await {
-                Ok(resp) => {
-                    if (200..300).contains(&resp.status) && !resp.body.is_empty() {
-                        crate::data::ingest_accepted_invite_payload(&resp.body);
-                    }
-                    Ok(resp)
-                }
+            let headers = [
+                ("X-Discord-Locale", DISCORD_LOCALE_RU),
+                ("Accept-Language", DISCORD_LOCALE_RU),
+            ];
+            match self.0.post_once(target, body, &headers).await {
+                Ok(resp) => Ok(resp),
                 Err(error) => {
                     let mapped = CreateGuildError::from(RestFailure::from_api_error(&error));
                     Err(mapped)
@@ -600,7 +777,7 @@ impl DiscordGuilds {
         let auth = ApiAuth::from_token(
             token,
             &identity_ctx.super_properties,
-            &identity_ctx.locale,
+            DISCORD_LOCALE_RU,
             &identity_ctx.timezone,
         )
         .map_err(|_| EnterGuildError::InvalidArg)?;
@@ -624,6 +801,14 @@ impl DiscordGuilds {
         Ok(Self {
             transport: Arc::new(ApiGuildTransport(client)),
         })
+    }
+
+    /// Создать экземпляр `DiscordGuilds` поверх уже сконфигурированного [`ApiClient`].
+    #[must_use]
+    pub fn from_api_client(client: Arc<ApiClient>) -> Self {
+        Self {
+            transport: Arc::new(ApiGuildTransport((*client).clone())),
+        }
     }
 
     #[doc(hidden)]
@@ -655,22 +840,34 @@ impl DiscordGuilds {
         &self,
         payload: CreateGuildPayload,
     ) -> Result<CreateGuildOutcome, CreateGuildError> {
-        let trimmed_name = payload.name.trim();
-        if trimmed_name.is_empty() || trimmed_name.chars().count() > 100 {
-            return Err(CreateGuildError::InvalidArg);
+        validate_guild_name(&payload.name).map_err(CreateGuildError::from)?;
+        if let Some(icon) = &payload.icon {
+            validate_icon_data_uri(icon).map_err(CreateGuildError::from)?;
         }
         let body = serde_json::to_vec(&payload).map_err(|_| CreateGuildError::InvalidArg)?;
-        let response = self.transport.post("/guilds", &body).await?;
-        if !(200..300).contains(&response.status) {
-            return Err(CreateGuildError::Client {
-                status: response.status,
-            });
-        }
-        if response.body.is_empty() {
-            return Err(CreateGuildError::InvalidResponse);
-        }
-        let outcome: CreateGuildOutcome =
-            serde_json::from_slice(&response.body).map_err(|_| CreateGuildError::InvalidResponse)?;
+        let response = self.transport.post(GUILDS_PATH, &body).await?;
+        let created = parse_guild_create_response(&response).map_err(CreateGuildError::from)?;
+        integrate_created_guild_into_local_state(&created, &response.body);
+        let outcome: CreateGuildOutcome = serde_json::from_slice(&response.body)
+            .map_err(|_| CreateGuildError::InvalidResponse)?;
+        Ok(outcome)
+    }
+
+    async fn execute_create_full(
+        &self,
+        request: CreateGuildRequest,
+    ) -> Result<CreateGuildFullOutcome, CreateGuildError> {
+        let core_req = request.to_core_request();
+        let body_json = core_req.to_json_body().map_err(CreateGuildError::from)?;
+        let response = self
+            .transport
+            .post(GUILDS_PATH, body_json.as_bytes())
+            .await?;
+        let created = parse_guild_create_response(&response).map_err(CreateGuildError::from)?;
+        integrate_created_guild_into_local_state(&created, &response.body);
+        let mut outcome: CreateGuildFullOutcome = serde_json::from_slice(&response.body)
+            .map_err(|_| CreateGuildError::InvalidResponse)?;
+        outcome.system_channel_flags = created.system_channel_flags;
         Ok(outcome)
     }
 
@@ -680,6 +877,14 @@ impl DiscordGuilds {
         payload: CreateGuildPayload,
     ) -> Result<CreateGuildOutcome, CreateGuildError> {
         self.execute_create(payload).await
+    }
+
+    /// Создание нового сервера с полным набором полей (`channels`, `system_channel_flags`, роли, TASK-611).
+    pub async fn create_guild_full(
+        &self,
+        request: CreateGuildRequest,
+    ) -> Result<CreateGuildFullOutcome, CreateGuildError> {
+        self.execute_create_full(request).await
     }
 }
 
@@ -706,21 +911,34 @@ impl GuildCreation for DiscordGuilds {
     fn create_guild<'a>(
         &'a self,
         payload: CreateGuildPayload,
-    ) -> Pin<Box<dyn Future<Output = Result<CreateGuildOutcome, CreateGuildError>> + Send + 'a>> {
+    ) -> Pin<Box<dyn Future<Output = Result<CreateGuildOutcome, CreateGuildError>> + Send + 'a>>
+    {
         Box::pin(self.execute_create(payload))
     }
 }
 
-/// Создание сервера: `POST /guilds` с валидацией имени (2..100) и полезной нагрузкой.
+/// Создание сервера: `POST /guilds` с валидацией имени (1..=100) и полезной нагрузкой.
 pub async fn create_guild<G: GuildCreation + ?Sized>(
     guilds: &G,
     payload: CreateGuildPayload,
 ) -> Result<CreateGuildOutcome, CreateGuildError> {
-    let trimmed_name = payload.name.trim();
-    if trimmed_name.is_empty() || trimmed_name.chars().count() > 100 {
-        return Err(CreateGuildError::InvalidArg);
+    validate_guild_name(&payload.name).map_err(CreateGuildError::from)?;
+    if let Some(icon) = &payload.icon {
+        validate_icon_data_uri(icon).map_err(CreateGuildError::from)?;
     }
     guilds.create_guild(payload).await
+}
+
+/// Создание сервера с полным набором параметров (`POST /api/v9/guilds`, TASK-611).
+pub async fn create_guild_full(
+    guilds: &DiscordGuilds,
+    request: CreateGuildRequest,
+) -> Result<CreateGuildFullOutcome, CreateGuildError> {
+    request
+        .to_core_request()
+        .validate()
+        .map_err(CreateGuildError::from)?;
+    guilds.create_guild_full(request).await
 }
 
 /// Вход в сервер из preview/lurker; валидация — до обращения к сети.
@@ -831,7 +1049,9 @@ pub fn is_fixture_ready_forbidden(path: &std::path::Path) -> bool {
 /// Безопасное чтение JSON-фикстуры с блокировкой `002-READY.json` при живом токене.
 pub fn read_guild_fixture_json(path: &std::path::Path) -> Result<serde_json::Value, String> {
     if is_fixture_ready_forbidden(path) {
-        return Err("Чтение фикстуры 002-READY.json запрещено при наличии живого токена".to_string());
+        return Err(
+            "Чтение фикстуры 002-READY.json запрещено при наличии живого токена".to_string(),
+        );
     }
     let raw = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
     serde_json::from_str(&raw).map_err(|e| e.to_string())
@@ -897,7 +1117,9 @@ pub fn build_member_verification_accept_body(
 }
 
 pub fn default_super_properties_base64() -> String {
-    crate::auth::IdentityContext::detect().super_properties.to_base64()
+    crate::auth::IdentityContext::detect()
+        .super_properties
+        .to_base64()
 }
 
 /// Выполняет полный цикл S3 при вступлении на сервер по инвайту или при наличии `pending == true` / `403`:
@@ -938,17 +1160,15 @@ pub fn accept_invite_and_join_guild<T: GuildJoinTransport + ?Sized>(
         .get("member")
         .and_then(|m| m.get("pending").or_else(|| m.get("is_pending")))
         .and_then(|v| v.as_bool())
-        .or_else(|| {
-            join_resp
-                .body
-                .get("pending")
-                .and_then(|v| v.as_bool())
-        })
+        .or_else(|| join_resp.body.get("pending").and_then(|v| v.as_bool()))
         .unwrap_or(false);
     let is_verification_403 = join_resp.status == 403;
 
     if join_resp.status >= 400 && !is_verification_403 {
-        return Err(format!("Ошибка принятия инвайта: HTTP {}", join_resp.status));
+        return Err(format!(
+            "Ошибка принятия инвайта: HTTP {}",
+            join_resp.status
+        ));
     }
 
     complete_guild_verification_and_permissions(
