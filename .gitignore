@@ -40,3 +40,4 @@ waves/**/*.zst
 # Python caches
 __pycache__/
 *.pyc
+rust/dist/discord-gui-spike
