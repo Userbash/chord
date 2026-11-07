@@ -49,6 +49,11 @@ use discord_gui_spike::typing::{self, DiscordTyping, TypingCooldowns, TypingErro
 use discord_gui_spike::{
     parse_process_metrics, validate_bench_payload, validate_ui_snapshot, ProcessMetrics,
 };
+pub mod gifts;
+use gifts::{
+    CreateGiftCodeRequest, DiscordGifts, EntitlementQuery, EntitlementRecord, GiftCodeRecord,
+    GiftError, GiftRedeemRequest, GiftResolveOptions, NitroGiftPlan, RedeemedGiftOutcome,
+};
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
 
@@ -1365,10 +1370,7 @@ async fn voice_set_audio_device(
         return Ok(serde_json::json!({ "ok": true }));
     }
     let vol = volume_pct.or(volume_percent);
-    blocking(move || {
-        data::set_system_audio_device(&kind, device_id.as_deref(), vol, muted)
-    })
-    .await
+    blocking(move || data::set_system_audio_device(&kind, device_id.as_deref(), vol, muted)).await
 }
 
 #[tauri::command]
@@ -1467,6 +1469,189 @@ async fn voice_stream_set_paused(
         "paused": paused,
         "payload": op22
     }))
+}
+
+// ---------------------------------------------------------------------------
+// RW-40 / TASK-626 (`G1 Backend`): Nitro Gifts & Entitlements IPC-команды.
+// Bearer читается только из backend/keyring через `token_or`, без передачи из UI.
+// ---------------------------------------------------------------------------
+
+/// Превью подарочного кода: `GET /entitlements/gift-codes/{code}`.
+#[tauri::command]
+async fn resolve_gift_code(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    code: String,
+    with_application: Option<bool>,
+    with_subscription_plan: Option<bool>,
+) -> Result<GiftCodeRecord, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    let opts = GiftResolveOptions {
+        with_application: with_application.unwrap_or(true),
+        with_subscription_plan: with_subscription_plan.unwrap_or(true),
+    };
+    gifts::resolve_gift_code(&api, &code, opts).await
+}
+
+/// Создать подарочный код: `POST /users/@me/entitlements/gift-codes`.
+#[tauri::command]
+async fn create_gift_code(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    sku_id: String,
+    subscription_plan_id: Option<String>,
+    gift_style: Option<u8>,
+    custom_message: Option<String>,
+) -> Result<GiftCodeRecord, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    let req = CreateGiftCodeRequest {
+        sku_id,
+        subscription_plan_id,
+        gift_style,
+        custom_message,
+    };
+    gifts::create_gift_code(&api, &req).await
+}
+
+/// Список подарочных кодов пользователя: `GET /users/@me/entitlements/gift-codes`.
+#[tauri::command]
+async fn fetch_user_gift_codes(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    sku_id: Option<String>,
+    subscription_plan_id: Option<String>,
+) -> Result<Vec<GiftCodeRecord>, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    gifts::fetch_user_gift_codes(&api, sku_id.as_deref(), subscription_plan_id.as_deref()).await
+}
+
+/// Отозвать (удалить) подарочный код: `DELETE /users/@me/entitlements/gift-codes/{code}`.
+#[tauri::command]
+async fn revoke_gift_code(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    code: String,
+) -> Result<(), GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    gifts::revoke_gift_code(&api, &code).await
+}
+
+/// Активировать подарочный код: `POST /entitlements/gift-codes/{code}/redeem`.
+#[tauri::command]
+async fn redeem_gift_code(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    code: String,
+    channel_id: Option<String>,
+    payment_source_id: Option<String>,
+    gateway_checkout_context: Option<serde_json::Value>,
+) -> Result<RedeemedGiftOutcome, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    let req = GiftRedeemRequest {
+        channel_id,
+        payment_source_id,
+        gateway_checkout_context,
+    };
+    gifts::redeem_gift_code(&api, &code, &req).await
+}
+
+/// Энтайтлменты текущего пользователя: `GET /users/@me/entitlements`.
+#[tauri::command]
+async fn fetch_user_entitlements(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    with_sku: Option<bool>,
+    with_application: Option<bool>,
+    entitlement_type: Option<u8>,
+    exclude_ended: Option<bool>,
+) -> Result<Vec<EntitlementRecord>, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    let query = EntitlementQuery {
+        with_sku: with_sku.unwrap_or(false),
+        with_application: with_application.unwrap_or(false),
+        entitlement_type,
+        exclude_ended: exclude_ended.unwrap_or(true),
+    };
+    gifts::fetch_user_entitlements(&api, &query).await
+}
+
+/// Энтайтлменты пользователя для приложения (по умолчанию Nitro `521842831262875670`):
+/// `GET /users/@me/applications/{application_id}/entitlements`.
+#[tauri::command]
+async fn fetch_application_entitlements(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    application_id: Option<String>,
+    exclude_consumed: Option<bool>,
+) -> Result<Vec<EntitlementRecord>, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    let app_id = application_id.unwrap_or_else(|| gifts::NITRO_APPLICATION_ID.to_string());
+    gifts::fetch_application_entitlements(&api, &app_id, exclude_consumed.unwrap_or(true)).await
+}
+
+/// Подарочный инвентарь энтайтлментов пользователя: `GET /users/@me/entitlements/gifts`.
+#[tauri::command]
+async fn fetch_giftable_entitlements(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    country_code: Option<String>,
+) -> Result<Vec<EntitlementRecord>, GiftError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<GiftError, _>(
+        move || backend.token(),
+        || GiftError::Storage,
+        || GiftError::MissingToken,
+    )
+    .await?;
+    let api = DiscordGifts::new(&token)?;
+    gifts::fetch_giftable_entitlements(&api, country_code.as_deref()).await
+}
+
+/// Каталог планов подписки Nitro и бустов сервера для модалки подарков (`#gift-modal`).
+#[tauri::command]
+fn list_nitro_gift_plans() -> Vec<NitroGiftPlan> {
+    gifts::list_nitro_gift_plans()
 }
 
 const SYSTEM_TRAY_PY: &str = r#"
@@ -1708,7 +1893,16 @@ fn main() {
             voice_stream_start,
             voice_stream_stop,
             voice_stream_watch,
-            voice_stream_set_paused
+            voice_stream_set_paused,
+            resolve_gift_code,
+            create_gift_code,
+            fetch_user_gift_codes,
+            revoke_gift_code,
+            redeem_gift_code,
+            fetch_user_entitlements,
+            fetch_application_entitlements,
+            fetch_giftable_entitlements,
+            list_nitro_gift_plans
         ])
         .run(tauri::generate_context!())
         .expect("не удалось запустить Tauri-спайк");
@@ -1872,7 +2066,7 @@ mod wiring_tests {
         &rest[..end]
     }
 
-    const TOKEN_COMMANDS: [&str; 25] = [
+    const TOKEN_COMMANDS: [&str; 33] = [
         "search_remote",
         "send_message",
         "edit_message",
@@ -1898,6 +2092,14 @@ mod wiring_tests {
         "threads_list",
         "update_guild_notification_settings",
         "update_channel_notification_override",
+        "resolve_gift_code",
+        "create_gift_code",
+        "fetch_user_gift_codes",
+        "revoke_gift_code",
+        "redeem_gift_code",
+        "fetch_user_entitlements",
+        "fetch_application_entitlements",
+        "fetch_giftable_entitlements",
     ];
 
     /// G1-02: копий блока «blocking + два map_err + ok_or» больше нет — у каждой

@@ -1,0 +1,55 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.84s
+     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-31f0c4fd17354b6c)
+
+running 13 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+
+running 13 tests
+test create_gift_code_posts_canonical_payload_and_parses_gift_record ... ok
+test extract_gift_codes_from_text_normalizes_and_caps_at_three ... ok
+test re_constants_match_discord_bundle_oracles ... ok
+test create_gift_code_validates_snowflakes_gift_style_and_custom_message_before_network ... ok
+test fetch_user_gift_codes_and_revoke_gift_code_match_module_869038 ... ok
+test resolve_gift_style_follows_attachment_spec_and_module_45938 ... ok
+test fetch_entitlements_routes_match_d02_live_captures_and_module_339048 ... ok
+test boundary_validation_and_token_redaction ... ok
+test resolve_gift_code_normalizes_url_or_code_and_builds_query ... ok
+test redeem_gift_code_posts_three_nullable_fields_and_parses_entitlement ... ok
+test nitro_gift_plans_catalog_matches_module_202541 ... ok
+test gift_error_classification_covers_all_discord_codes_and_http_statuses ... ok
+test tauri_main_registers_and_wires_all_gift_and_entitlement_ipc_commands ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-de8e8a764d18eba9)
+
+running 9 tests
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
