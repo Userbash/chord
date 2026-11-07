@@ -1,0 +1,327 @@
+/* =============================================================================
+ * TASK-612 (G2 Frontend): Визард шаблонов создания сервера (#create-guild-dialog)
+ *
+ * RE-оракул:
+ * - /home/sanya/re-deep/frontend-d03.md §5.5 (CreateGuildModal: --modal-w-sm: 442px,
+ *   --modal-pad-x: 24px, --modal-pad-y: 16px, role="dialog", focus trap).
+ * - /home/sanya/re-deep/decoded/496925fc1facf986_0 (модуль 356343: загрузчик иконки).
+ * - 100% дизайн-токенов из rust/gui-spike/ui/tokens.css (без сырых цветов).
+ * ========================================================================== */
+
+#create-guild-dialog.modal {
+  position: fixed;
+  inset: var(--space-0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  font-family: var(--font-sans);
+}
+
+#create-guild-dialog[hidden] {
+  display: none;
+}
+
+#create-guild-dialog .modal-backdrop {
+  position: absolute;
+  inset: var(--space-0);
+  background: var(--bg-app);
+  opacity: 0.72;
+}
+
+.create-guild-box {
+  position: relative;
+  width: var(--modal-w-sm);
+  max-width: 92vw;
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+  border: 1px solid var(--border-subtle);
+  padding: var(--modal-pad-x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  z-index: var(--z-base);
+}
+
+.create-guild-box .modal-close {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  width: var(--btn-height);
+  height: var(--btn-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-muted);
+  border: 0;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.create-guild-box .modal-close:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.create-guild-box .modal-close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.create-guild-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.create-guild-title {
+  margin: var(--space-0);
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-display);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-strong);
+}
+
+.create-guild-subtitle {
+  margin: var(--space-0);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  color: var(--text-muted);
+}
+
+.create-guild-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.template-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-strong);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.template-card:hover {
+  background: var(--surface-4);
+  border-color: var(--border-strong);
+}
+
+.template-card:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.template-icon {
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-title);
+  flex-shrink: 0;
+}
+
+.template-label {
+  flex: 1;
+}
+
+.template-arrow {
+  font-size: var(--font-size-title);
+  color: var(--text-muted);
+}
+
+.create-guild-icon-uploader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.create-guild-icon-preview {
+  position: relative;
+  width: var(--space-13);
+  height: var(--space-13);
+  border-radius: var(--radius-round);
+  border: 2px dashed var(--border-strong);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.create-guild-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-round);
+}
+
+.create-guild-icon-placeholder {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.create-guild-icon-input {
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}
+
+.create-guild-icon-clear {
+  height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-5);
+  background: transparent;
+  color: var(--danger-text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.create-guild-icon-clear:hover {
+  background: var(--state-hover);
+}
+
+.create-guild-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.create-guild-form .form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-caps);
+  color: var(--text-subtle);
+}
+
+.create-guild-input {
+  width: 100%;
+  height: var(--input-height);
+  padding: var(--space-0) var(--space-5);
+  background: var(--surface-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-strong);
+  font-size: var(--font-size-body);
+  box-sizing: border-box;
+}
+
+.create-guild-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--accent);
+}
+
+.create-guild-form .form-error {
+  margin: var(--space-0);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--danger-text);
+}
+
+.create-guild-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--divider);
+}
+
+.create-guild-submit {
+  height: var(--btn-height-lg);
+  padding: var(--space-0) var(--btn-pad-x);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: 0;
+  border-radius: var(--btn-radius);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.create-guild-submit:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.create-guild-submit:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.create-guild-back {
+  height: var(--btn-height-lg);
+  padding: var(--space-0) var(--space-5);
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  border-radius: var(--btn-radius);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.create-guild-back:hover {
+  text-decoration: underline;
+}
+
+.create-guild-join-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  font-size: var(--font-size-ui);
+  color: var(--text-muted);
+}
+
+.switch-to-join-btn {
+  width: 100%;
+  height: var(--btn-height-lg);
+  padding: var(--space-0) var(--btn-pad-x);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--btn-radius);
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.switch-to-join-btn:hover {
+  background: var(--surface-4);
+}

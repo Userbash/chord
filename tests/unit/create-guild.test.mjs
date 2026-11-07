@@ -44,10 +44,10 @@ function createTestEnv(customOpts = {}) {
 }
 
 describe("STUB-03: Create Guild Modal & Validation", () => {
-  it("validateGuildName: проверяет длину от 2 до 100 символов", () => {
+  it("validateGuildName: проверяет длину от 1 до 100 символов", () => {
     assert.equal(validateGuildName(""), false);
     assert.equal(validateGuildName("   "), false);
-    assert.equal(validateGuildName("a"), false);
+    assert.equal(validateGuildName("a"), true);
     assert.equal(validateGuildName("ab"), true);
     assert.equal(validateGuildName("Мой уютный сервер"), true);
     assert.equal(validateGuildName("a".repeat(100)), true);

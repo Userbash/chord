@@ -382,6 +382,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/notifications-ui.test.mjs` | — | `MUTE_TIMER_PRESETS`, `MESSAGE_NOTIFICATION_LEVELS`, `NOTIFY_HIGHLIGHTS` |
 | `tests/unit/join-server.test.mjs` | — | `join-server`, `resolve_invite`, `accept_invite` |
 | `tests/unit/create-guild.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | STUB-03, `create_guild`, `create-guild-dialog` |
+| `tests/unit/create-guild-wizard.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | `CREATE_GUILD_TEMPLATES`, `validateGuildIconDataUri`, `createCreateGuildWizard` |
 | `tests/unit/read-state-ui.test.mjs` | — | `read_state`, `ack_message`, `chat-unread-divider` |
 | `tests/unit/chat-reactions.test.mjs` | — | `toggle_reaction`, `messageId`, `reaction` |
 | `tests/unit/typing-ui.test.mjs` | — | `typing-indicator`, `send_typing`, `TYPING_RESEND_MS` |
