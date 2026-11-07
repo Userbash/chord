@@ -1,0 +1,157 @@
+/* =============================================================================
+ * TASK-620 (G2 Frontend): Стили унифицированных контекстных меню сообщений
+ * и пользователей (ПКМ), включая слайдер громкости и клавиатурный фокус.
+ *
+ * RE-оракул:
+ * - /home/sanya/re-deep/frontend-d03.md §5 п.3–4 (menu_c1e9c4, role="menu",
+ *   role="menuitem", colorDanger, separator_c1e9c4, CONTEXT_MENU_OPEN/CLOSE);
+ * - /home/sanya/re-deep/ui/01-msg-menu-items.json, 01-msg-menu.html;
+ * - rust/gui-spike/ui/tokens.css (100% привязка к дизайн-токенам без сырых цветов).
+ * ========================================================================== */
+
+.context-menu,
+[data-context-menu] {
+  position: fixed;
+  z-index: var(--z-popover, 10040);
+  min-width: var(--menu-min-w, 188px);
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 2px);
+  padding: var(--menu-pad, 8px);
+  border: var(--menu-border, 1px) solid var(--border-subtle, rgba(151, 151, 159, 0.12));
+  border-radius: var(--menu-radius, var(--radius-sm, 4px));
+  background: var(--surface-2, #242429);
+  color: var(--text, #efeff1);
+  box-shadow: var(--shadow-popover, 0 8px 16px rgba(0, 0, 0, 0.24));
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  font-size: var(--font-size-ui, 13px);
+  line-height: var(--line-height-ui, 16px);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.context-menu[data-open="false"],
+.context-menu[hidden],
+[data-context-menu][data-open="false"],
+[data-context-menu][hidden] {
+  display: none !important;
+}
+
+/* --- Пункты меню --- */
+
+.context-menu-item,
+[data-context-item] {
+  width: 100%;
+  min-height: var(--row-menu-item, 32px);
+  padding: var(--space-1, 4px) var(--space-3, 8px);
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  color: var(--text, #efeff1);
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  font-size: var(--font-size-ui, 13px);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 8px);
+  text-align: left;
+  box-sizing: border-box;
+  transition: background 80ms ease, color 80ms ease;
+  outline: none;
+}
+
+.context-menu-item:hover,
+.context-menu-item:focus,
+.context-menu-item[data-focused="true"],
+[data-context-item]:hover,
+[data-context-item]:focus,
+[data-context-item][data-focused="true"] {
+  background: var(--accent, #5865f2);
+  color: var(--text-on-accent, #ffffff);
+}
+
+/* Опасные пункты (Удалить, Заблокировать, Выгнать) */
+
+.context-menu-item[data-danger="true"],
+[data-context-item][data-danger="true"] {
+  color: var(--danger-text, #ff9a9e);
+}
+
+.context-menu-item[data-danger="true"]:hover,
+.context-menu-item[data-danger="true"]:focus,
+.context-menu-item[data-danger="true"][data-focused="true"],
+[data-context-item][data-danger="true"]:hover,
+[data-context-item][data-danger="true"]:focus,
+[data-context-item][data-danger="true"][data-focused="true"] {
+  background: var(--danger-fill, #cf3a3f);
+  color: var(--text-on-danger, #ffffff);
+}
+
+/* Разделитель секций */
+
+.context-menu-separator,
+[data-context-separator] {
+  height: 1px;
+  background: var(--border-subtle, rgba(151, 151, 159, 0.12));
+  margin: var(--space-1, 2px) var(--space-2, 4px);
+  flex-shrink: 0;
+}
+
+/* --- Слайдер громкости (0..200%) --- */
+
+.context-menu-volume-wrap,
+[data-context-item="user-volume"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 4px);
+  padding: var(--space-2, 6px) var(--space-3, 8px);
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.context-menu-volume-wrap:hover,
+.context-menu-volume-wrap:focus-within,
+.context-menu-volume-wrap[data-focused="true"],
+[data-context-item="user-volume"]:hover,
+[data-context-item="user-volume"]:focus-within,
+[data-context-item="user-volume"][data-focused="true"] {
+  background: var(--surface-3, #28282d);
+}
+
+.context-menu-volume-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 8px);
+  font-size: var(--font-size-ui, 13px);
+  font-weight: 500;
+  color: var(--text, #efeff1);
+}
+
+.context-menu-volume-value,
+[data-volume-value] {
+  font-size: var(--font-size-ui, 13px);
+  color: var(--text-muted, #96979e);
+  font-variant-numeric: tabular-nums;
+}
+
+.context-menu-slider,
+[data-volume-slider] {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--surface-sunken, #222327);
+  accent-color: var(--accent, #5865f2);
+  cursor: pointer;
+  outline: none;
+}
+
+.context-menu-slider:focus,
+[data-volume-slider]:focus {
+  outline: 2px solid var(--accent, #5865f2);
+  outline-offset: 1px;
+}

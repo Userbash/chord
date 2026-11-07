@@ -1,0 +1,12 @@
+=== MUTATION TEST RUN for TASK-620: Context Menu Actions ===
+M1_message_unified: KILLED (exit=1, expected: unified menu items with reply/edit/copy-text/copy-id/delete, actual: legacy items)
+M2_user_mute_label: KILLED (exit=1, expected: 'Включить звук' on isMuted: true, actual: 'Заглушить')
+M3_volume_clamp: KILLED (exit=1, expected: 200, actual: 250)
+M4_outside_click: KILLED (exit=1, expected: false, actual: true)
+M5_contextmenu_prevent_default: KILLED (exit=1, expected: false, actual: true)
+
+Mutations: 5/5 KILLED (100% kill rate, 0 survivors).
+Baseline restored and verified by md5sum:
+b780a292d01413ed1ae39c5b31b5f3f2  rust/gui-spike/ui/features/context-menu.js
+f18187827859747d35408e964892ae84  tests/unit/context-menu.test.mjs
+f83e4b15e89f4d3c7c856d575147a5f4  rust/gui-spike/ui/styles/context-menu.css
