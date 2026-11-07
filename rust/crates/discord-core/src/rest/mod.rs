@@ -9,6 +9,7 @@
 pub mod ack;
 pub mod base64;
 pub mod client;
+pub mod guilds;
 pub mod headers;
 pub mod http1;
 pub mod identity;
