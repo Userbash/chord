@@ -298,6 +298,12 @@ impl VideoFrame {
         (self.width.div_ceil(2), self.height.div_ceil(2))
     }
 
+    /// Возвращает заимствованное zero-copy представление плоскостей кадра [`BorrowedFrameView`].
+    #[must_use]
+    pub fn as_borrowed_view(&self, sequence: u64, is_fresh: bool) -> BorrowedFrameView<'_> {
+        BorrowedFrameView::from_frame(self, sequence, is_fresh)
+    }
+
     pub fn to_rgba(&self) -> Option<(u32, u32, Vec<u8>)> {
         if !self.is_valid() {
             return None;
@@ -333,84 +339,10 @@ impl VideoFrame {
     }
 }
 
-/// Атомарный слот последнего кадра `Arc<Mutex<Option<VideoFrame>>>` без накопления очереди и задержки
-/// (по образцу `Serein/apps/desktop/src/watch.rs`).
-#[derive(Clone, Default)]
-pub struct LatestFrameSlot {
-    slot: Arc<Mutex<Option<VideoFrame>>>,
-    fresh: Arc<AtomicBool>,
-    stored_frames: Arc<AtomicU64>,
-    overwritten_frames: Arc<AtomicU64>,
-    rejected_frames: Arc<AtomicU64>,
-}
-
-impl LatestFrameSlot {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Возвращает ссылку на внутренний атомарный слот `Arc<Mutex<Option<VideoFrame>>>`.
-    pub fn inner(&self) -> &Arc<Mutex<Option<VideoFrame>>> {
-        &self.slot
-    }
-
-    /// Заменяет последний кадр на месте с переиспользованием буфера памяти (как `watch.rs::store_frame`).
-    pub fn store_frame(&self, frame: VideoFrame) -> bool {
-        if !frame.is_valid() {
-            self.rejected_frames.fetch_add(1, Ordering::Relaxed);
-            return false;
-        }
-        let Ok(mut guard) = self.slot.lock() else {
-            self.rejected_frames.fetch_add(1, Ordering::Relaxed);
-            return false;
-        };
-        let len = frame.data.len();
-        let mut data = guard.take().map(|old| old.data).unwrap_or_default();
-        if data.capacity() > 1024 * 1024 && data.capacity() > len.saturating_mul(4) {
-            // Освобождаем буфер от прежнего высокого разрешения, сохраняя переиспользование при обычном ресайзе.
-            data = Vec::new();
-        }
-        data.clear();
-        data.reserve_exact(len);
-        data.extend_from_slice(&frame.data);
-        *guard = Some(VideoFrame { data, ..frame });
-        if self.fresh.swap(true, Ordering::AcqRel) {
-            self.overwritten_frames.fetch_add(1, Ordering::Relaxed);
-        }
-        self.stored_frames.fetch_add(1, Ordering::Relaxed);
-        true
-    }
-
-    /// Неблокирующий опрос последнего свежего кадра для рендера (возвращает `Some` только один раз на каждый новый кадр).
-    pub fn poll_latest(&self) -> Option<VideoFrame> {
-        let guard = self.slot.try_lock().ok()?;
-        let frame = guard.as_ref()?;
-        if !self.fresh.swap(false, Ordering::AcqRel) {
-            return None;
-        }
-        Some(frame.clone())
-    }
-
-    /// Опрос последнего кадра с проверкой бюджета 60 FPS / 16 мс (`FRAME_BUDGET_60FPS`).
-    pub fn poll_latest_60fps(&self, elapsed: Duration) -> Option<VideoFrame> {
-        if elapsed < FRAME_BUDGET_60FPS {
-            return None;
-        }
-        self.poll_latest()
-    }
-
-    pub fn stored_frames(&self) -> u64 {
-        self.stored_frames.load(Ordering::Acquire)
-    }
-
-    pub fn overwritten_frames(&self) -> u64 {
-        self.overwritten_frames.load(Ordering::Acquire)
-    }
-
-    pub fn rejected_frames(&self) -> u64 {
-        self.rejected_frames.load(Ordering::Acquire)
-    }
-}
+pub mod buffer;
+pub mod capture;
+pub use buffer::{BorrowedFrameView, LatestFrameMetrics, LatestFrameSlot};
+pub use capture::{DesktopBackend, DesktopSource, DesktopSourceType, PixelFormat, ScreenCapturer};
 
 /// Очередь захвата -> кодирования на базе ограниченного `sync_channel(2)` с неблокирующим `try_send`
 /// (по образцу `Serein/crates/discord-voice/src/screen.rs`).
@@ -1109,9 +1041,6 @@ impl WgslVideoShaderDescriptor {
         })
     }
 }
-
-pub mod capture;
-pub use capture::{DesktopBackend, DesktopSource, DesktopSourceType, PixelFormat, ScreenCapturer};
 
 #[cfg(test)]
 mod tests {

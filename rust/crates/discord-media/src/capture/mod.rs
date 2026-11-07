@@ -346,6 +346,17 @@ impl ScreenCapturer {
         frame.to_video_frame(output_format, timestamp_us)
     }
 
+    /// Конвертирует буфер кадра PipeWire (`SpaBuffer`) и записывает напрямую в [`crate::LatestFrameSlot`].
+    pub fn capture_portal_frame_into_slot(
+        &self,
+        frame: &PipeWireFrameBuffer<'_>,
+        output_format: PixelLayout,
+        timestamp_us: u64,
+        slot: &crate::LatestFrameSlot,
+    ) -> Result<u64, CaptureError> {
+        frame.capture_into_slot(slot, output_format, timestamp_us)
+    }
+
     /// Захватывает окно X11 из сегмента разделяемой памяти MIT-SHM.
     pub fn capture_x11_shm_window(
         &self,
@@ -365,6 +376,34 @@ impl ScreenCapturer {
         shm_buf.capture_window(shm_data, output_format, timestamp_us)
     }
 
+    /// Захватывает окно X11 из сегмента разделяемой памяти MIT-SHM напрямую в [`crate::LatestFrameSlot`].
+    pub fn capture_x11_shm_window_into_slot(
+        &self,
+        window: &X11WindowMetadata,
+        shm_data: &[u8],
+        bytes_per_line: usize,
+        output_format: PixelLayout,
+        timestamp_us: u64,
+        slot: &crate::LatestFrameSlot,
+    ) -> Result<u64, CaptureError> {
+        if !window.is_capturable() {
+            slot.record_rejected_frame();
+            return Err(CaptureError::InvalidDimensions {
+                width: window.width,
+                height: window.height,
+            });
+        }
+        let shm_buf = match X11ShmPixelBuffer::new(window.width, window.height, bytes_per_line, 24)
+        {
+            Ok(buf) => buf,
+            Err(err) => {
+                slot.record_rejected_frame();
+                return Err(err);
+            }
+        };
+        shm_buf.capture_window_into_slot(shm_data, output_format, timestamp_us, slot)
+    }
+
     /// Захватывает прямоугольник монитора X11 из сегмента разделяемой памяти root-окна.
     #[allow(clippy::too_many_arguments)]
     pub fn capture_x11_shm_monitor(
@@ -379,6 +418,35 @@ impl ScreenCapturer {
     ) -> Result<VideoFrame, CaptureError> {
         let shm_buf = X11ShmPixelBuffer::new(root_width, root_height, bytes_per_line, 24)?;
         shm_buf.capture_monitor_rect(monitor, root_shm_data, output_format, timestamp_us)
+    }
+
+    /// Захватывает прямоугольник монитора X11 из сегмента разделяемой памяти root-окна напрямую в [`crate::LatestFrameSlot`].
+    #[allow(clippy::too_many_arguments)]
+    pub fn capture_x11_shm_monitor_into_slot(
+        &self,
+        monitor: &X11MonitorGeometry,
+        root_width: u32,
+        root_height: u32,
+        root_shm_data: &[u8],
+        bytes_per_line: usize,
+        output_format: PixelLayout,
+        timestamp_us: u64,
+        slot: &crate::LatestFrameSlot,
+    ) -> Result<u64, CaptureError> {
+        let shm_buf = match X11ShmPixelBuffer::new(root_width, root_height, bytes_per_line, 24) {
+            Ok(buf) => buf,
+            Err(err) => {
+                slot.record_rejected_frame();
+                return Err(err);
+            }
+        };
+        shm_buf.capture_monitor_rect_into_slot(
+            monitor,
+            root_shm_data,
+            output_format,
+            timestamp_us,
+            slot,
+        )
     }
 
     /// Захватывает одиночный видеокадр для заданного источника и разрешения.
@@ -417,5 +485,48 @@ impl ScreenCapturer {
         }
 
         Ok(VideoFrame::new(width, height, PixelLayout::I420, data).with_timestamp_us(timestamp_us))
+    }
+
+    /// Захватывает одиночный видеокадр (`I420`) напрямую в [`crate::LatestFrameSlot`] с переиспользованием буфера.
+    pub fn capture_frame_into_slot(
+        &self,
+        source_id: &str,
+        width: u32,
+        height: u32,
+        timestamp_us: u64,
+        slot: &crate::LatestFrameSlot,
+    ) -> Result<u64, &'static str> {
+        if width == 0
+            || height == 0
+            || width > MAX_CAPTURE_DIMENSION
+            || height > MAX_CAPTURE_DIMENSION
+        {
+            slot.record_rejected_frame();
+            return Err("Разрешение кадра должно быть в пределах 1..=8192");
+        }
+        if source_id.trim().is_empty() {
+            slot.record_rejected_frame();
+            return Err("source_id не может быть пустым");
+        }
+        let luma_len = (width as usize)
+            .checked_mul(height as usize)
+            .ok_or("Переполнение размера luma")?;
+        let shift = ((timestamp_us / 16_666) % 256) as u8;
+        let color = crate::ColorSpace::untagged(height, false);
+        slot.store_with_reused_buffer(
+            width,
+            height,
+            PixelLayout::I420,
+            color,
+            0,
+            timestamp_us,
+            |buf| {
+                for (i, byte) in buf[..luma_len].iter_mut().enumerate() {
+                    *byte = ((i % 256) as u8).wrapping_add(shift);
+                }
+                buf[luma_len..].fill(128u8);
+                Ok(())
+            },
+        )
     }
 }
