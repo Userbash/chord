@@ -1,0 +1,7 @@
+baseline md5 (rust/gui-spike/ui/features/create-guild.js): 8c625b60085954bf0f251ff7803cfb76
+M1_name_min_length_boundary (MIN_GUILD_NAME_CHARS = 1 -> MIN_GUILD_NAME_CHARS = 2): KILLED (exit=1)
+M2_name_trim_omitted (normalizeGuildName(name): name.trim() -> name): KILLED (exit=1)
+M3_icon_data_uri_validation_bypass (validateGuildIconDataUri: if (!match) return false -> if (!match) return true): KILLED (exit=1)
+M4_a11y_arrow_down_direction (ArrowDown moves idx + 1 -> idx): KILLED (exit=1)
+M5_a11y_escape_close_omitted (Escape key handler omits close()): KILLED (exit=1)
+restored md5 (rust/gui-spike/ui/features/create-guild.js): 8c625b60085954bf0f251ff7803cfb76 (match=true)
