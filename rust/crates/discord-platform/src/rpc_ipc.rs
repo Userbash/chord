@@ -9,8 +9,10 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
+use std::fs;
 use std::io::{Read, Write};
-use std::os::unix::net::UnixStream;
+use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
+use std::os::unix::net::{UnixDatagram, UnixListener, UnixStream};
 use std::path::{Path, PathBuf};
 
 /// Длина бинарного заголовка фрейма Discord IPC (`[opcode: u32 LE][length: u32 LE]`).
@@ -21,6 +23,9 @@ pub const MAX_IPC_FRAME_BYTES: usize = 16 * 1024;
 
 /// Максимальный индекс слота `discord-ipc-0..9`.
 pub const MAX_IPC_SLOT: u8 = 9;
+
+/// Количество стандартных слотов локального IPC-сокета Discord (`discord-ipc-0..9`).
+pub const IPC_SLOT_COUNT: usize = 10;
 
 /// Поддерживаемая версия протокола Discord RPC (`v = 1`).
 pub const RPC_PROTOCOL_VERSION: u64 = 1;
@@ -33,6 +38,33 @@ pub const MAX_RPC_TEXT_LEN: usize = 128;
 
 /// Максимальная длина ключа ассета Rich Presence (`Serein/crates/discord-protocol/src/rpc.rs:L10`).
 pub const MAX_RPC_ASSET_KEY_LEN: usize = 1024;
+
+/// Максимальное число одновременных клиентских RPC-сессий (`Serein/apps/desktop/src/game_activity.rs`).
+pub const MAX_RPC_CLIENTS: usize = 8;
+
+/// Максимальное число экземпляров именованного канала Windows (`8` активных клиентов + `1` слушатель).
+pub const WINDOWS_PIPE_MAX_INSTANCES: u32 = 9;
+
+/// Префикс имени файла Unix domain socket (`discord-ipc-0..9`).
+pub const UNIX_SOCKET_PREFIX: &str = "discord-ipc-";
+
+/// Префикс пути именованного канала Windows (`\\.\pipe\discord-ipc-0..9`).
+pub const WINDOWS_PIPE_PREFIX: &str = r"\\.\pipe\discord-ipc-";
+
+/// Права доступа к файлу Unix-сокета (`0o600`, только владелец процесса).
+pub const RPC_SOCKET_MODE: u32 = 0o600;
+
+/// Очередь `listen(fd, 511)` по RE-трассе `/home/sanya/re-deep/voice/strace-renderer-s3.log:14744`.
+pub const RPC_LISTEN_BACKLOG: i32 = 511;
+
+/// Максимальная длина инвайт-кода в команде `INVITE_BROWSER` (`Serein/crates/discord-protocol/src/rpc.rs:L12`).
+pub const MAX_INVITE_CODE_LEN: usize = 64;
+
+/// Код ошибки Discord RPC для неподдерживаемой команды или невалидного payload (`4000`).
+pub const RPC_ERROR_CODE_INVALID_PAYLOAD: u32 = 4000;
+
+/// Порог перевода legacy-таймстемпов RPC из секунд в миллисекунды (`< 10_000_000_000`).
+pub const LEGACY_TIMESTAMP_SECONDS_CUTOFF: u64 = 10_000_000_000;
 
 /// Коды операций бинарного протокола Discord Local RPC IPC (`u32 LE`).
 #[repr(u32)]
@@ -110,6 +142,14 @@ pub enum RpcIpcError {
     InvalidField(&'static str),
     /// Клиент ещё не подключён к сокету.
     NotConnected,
+    /// Рабочая команда получена до завершения начального рукопожатия (`Handshake`).
+    HandshakeRequired,
+    /// Все 10 стандартных слотов `discord-ipc-0..9` заняты живыми слушателями.
+    AllSlotsBusy,
+    /// Каталог размещения IPC-сокета имеет небезопасные права доступа или владельца.
+    UnsafeDirectory(String),
+    /// Подключившийся процесс принадлежит другому пользователю ОС (`SO_PEERCRED`).
+    UnauthorizedPeer { peer_uid: u32, expected_uid: u32 },
     /// Ошибка ввода-вывода Unix-сокета.
     IoError(String),
 }
@@ -137,6 +177,22 @@ impl fmt::Display for RpcIpcError {
             Self::MissingField(field) => write!(f, "отсутствует обязательное поле RPC: {field}"),
             Self::InvalidField(field) => write!(f, "некорректное поле RPC: {field}"),
             Self::NotConnected => f.write_str("клиент DiscordRpcClient не подключён к сокету"),
+            Self::HandshakeRequired => {
+                f.write_str("требуется начальное рукопожатие Handshake перед отправкой команд RPC")
+            }
+            Self::AllSlotsBusy => {
+                f.write_str("все 10 слотов discord-ipc-0..9 заняты активными слушателями")
+            }
+            Self::UnsafeDirectory(dir) => {
+                write!(f, "небезопасные права доступа к каталогу IPC: {dir}")
+            }
+            Self::UnauthorizedPeer {
+                peer_uid,
+                expected_uid,
+            } => write!(
+                f,
+                "отклонено подключение IPC от чужого UID {peer_uid} (ожидался {expected_uid})"
+            ),
             Self::IoError(msg) => write!(f, "ошибка ввода-вывода IPC: {msg}"),
         }
     }
@@ -155,6 +211,29 @@ impl RpcTimestamps {
     #[must_use]
     pub const fn new(start: Option<u64>, end: Option<u64>) -> Self {
         Self { start, end }
+    }
+
+    /// Переводит legacy-таймстемпы RPC из секунд (`< 10_000_000_000`) в миллисекунды Gateway
+    /// (по эталону `Serein/crates/discord-protocol/src/rpc.rs:L215-L227`).
+    #[must_use]
+    pub const fn normalized_millis(&self) -> Self {
+        const fn norm(val: u64) -> u64 {
+            if val > 0 && val < LEGACY_TIMESTAMP_SECONDS_CUTOFF {
+                val.saturating_mul(1000)
+            } else {
+                val
+            }
+        }
+        Self {
+            start: match self.start {
+                Some(s) => Some(norm(s)),
+                None => None,
+            },
+            end: match self.end {
+                Some(e) => Some(norm(e)),
+                None => None,
+            },
+        }
     }
 }
 
@@ -694,6 +773,123 @@ impl SetActivityPayload {
     }
 }
 
+/// Проверяет, что инвайт-код в `INVITE_BROWSER` состоит только из безопасных символов Discord
+/// (`1..=64` байт, ASCII alphanumeric, `-` или `_`; по эталону `Serein/crates/discord-protocol/src/rpc.rs:L346`).
+#[must_use]
+pub fn is_valid_invite_code(code: &str) -> bool {
+    !code.is_empty()
+        && code.len() <= MAX_INVITE_CODE_LEN
+        && code
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+}
+
+/// Полезная нагрузка команды `INVITE_BROWSER`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InviteBrowserPayload {
+    pub code: String,
+    pub nonce: String,
+}
+
+impl InviteBrowserPayload {
+    #[must_use]
+    pub fn new(code: impl Into<String>, nonce: impl Into<String>) -> Self {
+        Self {
+            code: code.into(),
+            nonce: nonce.into(),
+        }
+    }
+
+    /// Сериализует команду `INVITE_BROWSER` в JSON-строку протокола Discord RPC.
+    #[must_use]
+    pub fn to_json(&self) -> String {
+        let mut args = BTreeMap::new();
+        args.insert("code".to_owned(), JsonVal::Str(self.code.clone()));
+        let mut root = BTreeMap::new();
+        root.insert("cmd".to_owned(), JsonVal::Str("INVITE_BROWSER".to_owned()));
+        root.insert("args".to_owned(), JsonVal::Obj(args));
+        root.insert("nonce".to_owned(), JsonVal::Str(self.nonce.clone()));
+        JsonVal::Obj(root).to_json_string()
+    }
+
+    /// Декодирует JSON-команду `INVITE_BROWSER`.
+    pub fn from_json(raw: &str) -> Result<Self, RpcIpcError> {
+        let val = parse_json(raw)?;
+        Self::from_json_value(&val)
+    }
+
+    fn from_json_value(val: &JsonVal) -> Result<Self, RpcIpcError> {
+        let obj = val
+            .as_obj()
+            .ok_or_else(|| RpcIpcError::InvalidJson("root must be object".to_owned()))?;
+        let cmd = obj
+            .get("cmd")
+            .and_then(JsonVal::as_str)
+            .ok_or(RpcIpcError::MissingField("cmd"))?;
+        if cmd != "INVITE_BROWSER" {
+            return Err(RpcIpcError::InvalidField("cmd"));
+        }
+        let nonce = obj
+            .get("nonce")
+            .and_then(JsonVal::as_str)
+            .ok_or(RpcIpcError::MissingField("nonce"))?;
+        if nonce.is_empty() || nonce.len() > MAX_RPC_TEXT_LEN || nonce.chars().any(char::is_control)
+        {
+            return Err(RpcIpcError::InvalidField("nonce"));
+        }
+        let args = obj
+            .get("args")
+            .and_then(JsonVal::as_obj)
+            .ok_or(RpcIpcError::MissingField("args"))?;
+        let code = args
+            .get("code")
+            .and_then(JsonVal::as_str)
+            .ok_or(RpcIpcError::MissingField("code"))?;
+        if !is_valid_invite_code(code) {
+            return Err(RpcIpcError::InvalidField("code"));
+        }
+        Ok(Self {
+            code: code.to_owned(),
+            nonce: nonce.to_owned(),
+        })
+    }
+}
+
+/// Локально поддерживаемые RPC-команды Discord IPC (`SET_ACTIVITY` и `INVITE_BROWSER`).
+#[allow(clippy::large_enum_variant)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RpcCommand {
+    SetActivity(SetActivityPayload),
+    InviteBrowser(InviteBrowserPayload),
+}
+
+impl RpcCommand {
+    /// Декодирует входящую JSON-команду фрейма `RpcOpCode::Frame`.
+    pub fn from_json(raw: &str) -> Result<Self, RpcIpcError> {
+        if raw.len() > MAX_IPC_FRAME_BYTES {
+            return Err(RpcIpcError::FrameTooLarge {
+                length: raw.len(),
+                max: MAX_IPC_FRAME_BYTES,
+            });
+        }
+        let val = parse_json(raw)?;
+        let obj = val
+            .as_obj()
+            .ok_or_else(|| RpcIpcError::InvalidJson("root must be object".to_owned()))?;
+        let cmd = obj
+            .get("cmd")
+            .and_then(JsonVal::as_str)
+            .ok_or(RpcIpcError::MissingField("cmd"))?;
+        match cmd {
+            "SET_ACTIVITY" => SetActivityPayload::from_json_value(&val).map(Self::SetActivity),
+            "INVITE_BROWSER" => {
+                InviteBrowserPayload::from_json_value(&val).map(Self::InviteBrowser)
+            }
+            _ => Err(RpcIpcError::InvalidField("cmd")),
+        }
+    }
+}
+
 /// Раскодированный фрейм Discord Local RPC IPC.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IpcFrame {
@@ -779,15 +975,138 @@ pub fn resolve_ipc_socket_path_from_env(
     Ok(PathBuf::from(base_dir).join(format!("discord-ipc-{slot}")))
 }
 
+/// Формирует путь к именованному каналу Windows `\\.\pipe\discord-ipc-<slot>` (`slot` в `0..=9`).
+pub fn resolve_windows_named_pipe_path(slot: u8) -> Result<String, RpcIpcError> {
+    if slot > MAX_IPC_SLOT {
+        return Err(RpcIpcError::InvalidSlot(slot));
+    }
+    Ok(format!("{WINDOWS_PIPE_PREFIX}{slot}"))
+}
+
+/// Извлекает индекс слота `0..=9` из пути Unix-сокета, имени файла `discord-ipc-<slot>` или
+/// Windows named pipe `\\.\pipe\discord-ipc-<slot>`.
+pub fn parse_ipc_slot(path_or_name: &str) -> Result<u8, RpcIpcError> {
+    let digits = if let Some(rest) = path_or_name.strip_prefix(WINDOWS_PIPE_PREFIX) {
+        rest
+    } else {
+        let base_name = path_or_name
+            .rsplit(['/', '\\'])
+            .next()
+            .unwrap_or(path_or_name);
+        base_name
+            .strip_prefix(UNIX_SOCKET_PREFIX)
+            .ok_or(RpcIpcError::InvalidField("slot"))?
+    };
+
+    if digits.is_empty()
+        || !digits.bytes().all(|b| b.is_ascii_digit())
+        || (digits.len() > 1 && digits.starts_with('0'))
+    {
+        return Err(RpcIpcError::InvalidField("slot"));
+    }
+
+    let slot = digits
+        .parse::<u8>()
+        .map_err(|_| RpcIpcError::InvalidField("slot"))?;
+    if slot > MAX_IPC_SLOT {
+        return Err(RpcIpcError::InvalidSlot(slot));
+    }
+    Ok(slot)
+}
+
+/// Строит SDDL-строку дескриптора безопасности Windows DACL (`D:P(A;;GA;;;{sid})`),
+/// разрешающую доступ к `\\.\pipe\discord-ipc-0..9` только текущему пользователю
+/// (`Serein/crates/platform/src/game_activity.rs:L137`).
+pub fn format_windows_sddl_for_sid(sid: &str) -> Result<String, RpcIpcError> {
+    let Some(rest) = sid.strip_prefix("S-1-") else {
+        return Err(RpcIpcError::InvalidField("sid"));
+    };
+    if sid.len() < 6
+        || sid.len() > 184
+        || rest.is_empty()
+        || rest.starts_with('-')
+        || rest.ends_with('-')
+        || rest.contains("--")
+        || !rest.contains('-')
+        || !rest.bytes().all(|b| b.is_ascii_digit() || b == b'-')
+    {
+        return Err(RpcIpcError::InvalidField("sid"));
+    }
+    Ok(format!("D:P(A;;GA;;;{sid})"))
+}
+
+/// Конфигурация серверного именованного канала Windows `\\.\pipe\discord-ipc-<slot>`
+/// (`Serein/crates/platform/src/game_activity.rs:L173-L183`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WindowsNamedPipeConfig {
+    pub pipe_name: String,
+    pub slot: u8,
+    pub sddl_dacl: String,
+    pub first_pipe_instance: bool,
+    pub reject_remote_clients: bool,
+    pub max_instances: u32,
+    pub in_buffer_size: u32,
+    pub out_buffer_size: u32,
+}
+
+impl WindowsNamedPipeConfig {
+    /// Создаёт проверенную конфигурацию именованного канала Windows для слота `0..=9` и SID владельца.
+    pub fn for_slot(slot: u8, sid: &str, first_pipe_instance: bool) -> Result<Self, RpcIpcError> {
+        let pipe_name = resolve_windows_named_pipe_path(slot)?;
+        let sddl_dacl = format_windows_sddl_for_sid(sid)?;
+        Ok(Self {
+            pipe_name,
+            slot,
+            sddl_dacl,
+            first_pipe_instance,
+            reject_remote_clients: true,
+            max_instances: WINDOWS_PIPE_MAX_INSTANCES,
+            in_buffer_size: MAX_IPC_FRAME_BYTES as u32,
+            out_buffer_size: MAX_IPC_FRAME_BYTES as u32,
+        })
+    }
+}
+
+/// Кроссплатформенный дескриптор конечной точки `discord-ipc-0..9` (Unix domain socket или Windows named pipe).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IpcEndpoint {
+    UnixSocket { slot: u8, path: PathBuf },
+    WindowsNamedPipe { slot: u8, pipe_name: String },
+}
+
+impl IpcEndpoint {
+    /// Формирует Unix-сокет конечную точку для слота `0..=9` по заданному окружению.
+    pub fn unix_from_env(slot: u8, env_vars: &[(&str, &str)]) -> Result<Self, RpcIpcError> {
+        let path = resolve_ipc_socket_path_from_env(slot, env_vars)?;
+        Ok(Self::UnixSocket { slot, path })
+    }
+
+    /// Формирует Windows named pipe конечную точку `\\.\pipe\discord-ipc-<slot>` для слота `0..=9`.
+    pub fn windows(slot: u8) -> Result<Self, RpcIpcError> {
+        let pipe_name = resolve_windows_named_pipe_path(slot)?;
+        Ok(Self::WindowsNamedPipe { slot, pipe_name })
+    }
+
+    /// Возвращает номер слота `0..=9`.
+    #[must_use]
+    pub const fn slot(&self) -> u8 {
+        match self {
+            Self::UnixSocket { slot, .. } | Self::WindowsNamedPipe { slot, .. } => *slot,
+        }
+    }
+}
+
 /// Результат серверной обработки одного входящего фрейма `handle_ipc_frame`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RpcServerResponse {
-    /// Ответный IPC-фрейм для отправки клиенту (`READY`, `SET_ACTIVITY` ACK, `Pong`).
+    /// Ответный IPC-фрейм для отправки клиенту (`READY`, `SET_ACTIVITY` ACK, `INVITE_BROWSER` ACK, `ERROR`, `Pong`).
     pub reply_frame: Option<IpcFrame>,
     /// Распарсенная активность из `SET_ACTIVITY` для публикации в Gateway Op 3 `PresenceUpdate`.
     pub activity: Option<RpcActivity>,
     /// Сериализованный JSON-пакет Gateway Op 3 `PresenceUpdate`, если состояние присутствия изменилось.
     pub gateway_presence_update_json: Option<String>,
+    /// Код приглашения из команды `INVITE_BROWSER`, если была получена команда открытия инвайта.
+    pub invite_code: Option<String>,
     /// Флаг завершения соединения (`RpcOpCode::Close`).
     pub closed: bool,
 }
@@ -795,6 +1114,7 @@ pub struct RpcServerResponse {
 /// Серверный обработчик входящего IPC-фрейма:
 /// - На `Handshake` (`v=1`) возвращает `DISPATCH` `READY`;
 /// - На `Frame` `SET_ACTIVITY` возвращает ACK-фрейм и распарсенную [`RpcActivity`] вместе с JSON для Gateway Op 3 `PresenceUpdate`;
+/// - На `Frame` `INVITE_BROWSER` возвращает ACK-фрейм и проверенный код приглашения `invite_code`;
 /// - На `Ping` отвечает `Pong`;
 /// - На `Close` помечает сессию закрытой.
 pub fn handle_ipc_frame(frame: &IpcFrame) -> Result<RpcServerResponse, RpcIpcError> {
@@ -806,28 +1126,8 @@ pub fn handle_ipc_frame(frame: &IpcFrame) -> Result<RpcServerResponse, RpcIpcErr
     }
     match frame.opcode {
         RpcOpCode::Handshake => {
-            let val = parse_json(&frame.payload)?;
-            let obj = val
-                .as_obj()
-                .ok_or_else(|| RpcIpcError::InvalidJson("handshake must be object".to_owned()))?;
-            let version = obj
-                .get("v")
-                .and_then(JsonVal::as_u64)
-                .ok_or(RpcIpcError::MissingField("v"))?;
-            if version != RPC_PROTOCOL_VERSION {
-                return Err(RpcIpcError::UnsupportedVersion(version));
-            }
-            let client_id = obj
-                .get("client_id")
-                .and_then(JsonVal::as_str)
-                .ok_or(RpcIpcError::MissingField("client_id"))?;
-            if client_id.trim().is_empty()
-                || client_id == "0"
-                || client_id.len() > 64
-                || client_id.chars().any(char::is_control)
-            {
-                return Err(RpcIpcError::InvalidField("client_id"));
-            }
+            let client_id = parse_handshake_client_id(&frame.payload)?;
+            let _ = client_id;
             let ready_payload = build_ready_dispatch_json();
             Ok(RpcServerResponse {
                 reply_frame: Some(IpcFrame {
@@ -836,23 +1136,39 @@ pub fn handle_ipc_frame(frame: &IpcFrame) -> Result<RpcServerResponse, RpcIpcErr
                 }),
                 activity: None,
                 gateway_presence_update_json: None,
+                invite_code: None,
                 closed: false,
             })
         }
-        RpcOpCode::Frame => {
-            let parsed = SetActivityPayload::from_json(&frame.payload)?;
-            let ack_payload = build_set_activity_ack_json(&parsed);
-            let op3_json = build_gateway_presence_update_json(parsed.activity.as_ref());
-            Ok(RpcServerResponse {
-                reply_frame: Some(IpcFrame {
-                    opcode: RpcOpCode::Frame,
-                    payload: ack_payload,
-                }),
-                activity: parsed.activity,
-                gateway_presence_update_json: Some(op3_json),
-                closed: false,
-            })
-        }
+        RpcOpCode::Frame => match RpcCommand::from_json(&frame.payload)? {
+            RpcCommand::SetActivity(parsed) => {
+                let ack_payload = build_set_activity_ack_json(&parsed);
+                let op3_json = build_gateway_presence_update_json(parsed.activity.as_ref());
+                Ok(RpcServerResponse {
+                    reply_frame: Some(IpcFrame {
+                        opcode: RpcOpCode::Frame,
+                        payload: ack_payload,
+                    }),
+                    activity: parsed.activity,
+                    gateway_presence_update_json: Some(op3_json),
+                    invite_code: None,
+                    closed: false,
+                })
+            }
+            RpcCommand::InviteBrowser(inv) => {
+                let ack_payload = build_invite_browser_ack_json(&inv);
+                Ok(RpcServerResponse {
+                    reply_frame: Some(IpcFrame {
+                        opcode: RpcOpCode::Frame,
+                        payload: ack_payload,
+                    }),
+                    activity: None,
+                    gateway_presence_update_json: None,
+                    invite_code: Some(inv.code),
+                    closed: false,
+                })
+            }
+        },
         RpcOpCode::Ping => Ok(RpcServerResponse {
             reply_frame: Some(IpcFrame {
                 opcode: RpcOpCode::Pong,
@@ -860,21 +1176,50 @@ pub fn handle_ipc_frame(frame: &IpcFrame) -> Result<RpcServerResponse, RpcIpcErr
             }),
             activity: None,
             gateway_presence_update_json: None,
+            invite_code: None,
             closed: false,
         }),
         RpcOpCode::Pong => Ok(RpcServerResponse {
             reply_frame: None,
             activity: None,
             gateway_presence_update_json: None,
+            invite_code: None,
             closed: false,
         }),
         RpcOpCode::Close => Ok(RpcServerResponse {
             reply_frame: None,
             activity: None,
             gateway_presence_update_json: Some(build_gateway_presence_update_json(None)),
+            invite_code: None,
             closed: true,
         }),
     }
+}
+
+fn parse_handshake_client_id(raw_payload: &str) -> Result<String, RpcIpcError> {
+    let val = parse_json(raw_payload)?;
+    let obj = val
+        .as_obj()
+        .ok_or_else(|| RpcIpcError::InvalidJson("handshake must be object".to_owned()))?;
+    let version = obj
+        .get("v")
+        .and_then(JsonVal::as_u64)
+        .ok_or(RpcIpcError::MissingField("v"))?;
+    if version != RPC_PROTOCOL_VERSION {
+        return Err(RpcIpcError::UnsupportedVersion(version));
+    }
+    let client_id = obj
+        .get("client_id")
+        .and_then(JsonVal::as_str)
+        .ok_or(RpcIpcError::MissingField("client_id"))?;
+    if client_id.trim().is_empty()
+        || client_id == "0"
+        || client_id.len() > 64
+        || client_id.chars().any(char::is_control)
+    {
+        return Err(RpcIpcError::InvalidField("client_id"));
+    }
+    Ok(client_id.to_owned())
 }
 
 fn build_ready_dispatch_json() -> String {
@@ -897,7 +1242,495 @@ fn build_set_activity_ack_json(cmd: &SetActivityPayload) -> String {
     JsonVal::Obj(root).to_json_string()
 }
 
+fn build_invite_browser_ack_json(inv: &InviteBrowserPayload) -> String {
+    let mut data = BTreeMap::new();
+    data.insert("code".to_owned(), JsonVal::Str(inv.code.clone()));
+    let mut root = BTreeMap::new();
+    root.insert("cmd".to_owned(), JsonVal::Str("INVITE_BROWSER".to_owned()));
+    root.insert("data".to_owned(), JsonVal::Obj(data));
+    root.insert("evt".to_owned(), JsonVal::Null);
+    root.insert("nonce".to_owned(), JsonVal::Str(inv.nonce.clone()));
+    JsonVal::Obj(root).to_json_string()
+}
+
+/// Строит JSON-ответ ошибки Discord RPC (`evt: "ERROR"`, `data: {"code": 4000, "message": ...}`).
+#[must_use]
+pub fn build_rpc_error_json(cmd: &str, nonce: Option<&str>, code: u32, message: &str) -> String {
+    let safe_cmd = if !cmd.is_empty()
+        && cmd.len() <= 64
+        && cmd.bytes().all(|b| b.is_ascii_uppercase() || b == b'_')
+    {
+        cmd
+    } else {
+        "SET_ACTIVITY"
+    };
+    let safe_nonce = nonce.filter(|n| {
+        !n.is_empty() && n.len() <= MAX_RPC_TEXT_LEN && !n.chars().any(char::is_control)
+    });
+
+    let mut data = BTreeMap::new();
+    data.insert("code".to_owned(), JsonVal::Uint(u64::from(code)));
+    data.insert("message".to_owned(), JsonVal::Str(message.to_owned()));
+
+    let mut root = BTreeMap::new();
+    root.insert("cmd".to_owned(), JsonVal::Str(safe_cmd.to_owned()));
+    root.insert("data".to_owned(), JsonVal::Obj(data));
+    root.insert("evt".to_owned(), JsonVal::Str("ERROR".to_owned()));
+    match safe_nonce {
+        Some(n) => root.insert("nonce".to_owned(), JsonVal::Str(n.to_owned())),
+        None => root.insert("nonce".to_owned(), JsonVal::Null),
+    };
+    JsonVal::Obj(root).to_json_string()
+}
+
+/// Строит ответный фрейм `ERROR` (`code: 4000`) с сохранением корреляции `cmd` и `nonce`
+/// из произвольного входящего JSON-запроса (`Serein/crates/discord-protocol/src/rpc.rs:L394-L419`).
+#[must_use]
+pub fn build_rpc_error_frame_for_payload(raw_payload: &str) -> IpcFrame {
+    let parsed = if raw_payload.len() <= MAX_IPC_FRAME_BYTES {
+        parse_json(raw_payload).ok()
+    } else {
+        None
+    };
+    let obj = parsed.as_ref().and_then(JsonVal::as_obj);
+    let cmd = obj
+        .and_then(|o| o.get("cmd"))
+        .and_then(JsonVal::as_str)
+        .unwrap_or("SET_ACTIVITY");
+    let nonce = obj.and_then(|o| o.get("nonce")).and_then(JsonVal::as_str);
+    IpcFrame {
+        opcode: RpcOpCode::Frame,
+        payload: build_rpc_error_json(
+            cmd,
+            nonce,
+            RPC_ERROR_CODE_INVALID_PAYLOAD,
+            "Unsupported or invalid activity payload",
+        ),
+    }
+}
+
+/// Псевдоним типа локального слушателя IPC-сокета Discord (`discord-ipc-0..9`).
+pub type RpcIpcListener = DiscordRpcListener;
+
+/// Локальный серверный слушатель Unix domain socket `discord-ipc-0..9`
+/// (с защитой прав `0o600`, проверкой `SO_PEERCRED`, очисткой мёртвых сокетов `remove_stale`
+/// и проверкой `(device, inode)` при удалении в `Drop`).
+#[derive(Debug)]
+pub struct DiscordRpcListener {
+    listener: UnixListener,
+    path: PathBuf,
+    slot: Option<u8>,
+    device: u64,
+    inode: u64,
+    uid: u32,
+}
+
+impl DiscordRpcListener {
+    /// Привязывается к первому свободному слоту `discord-ipc-0..9` в системном каталоге
+    /// (`XDG_RUNTIME_DIR`, `TMPDIR`, `TMP`, `TEMP`, либо `/tmp`).
+    pub fn bind() -> Result<Self, RpcIpcError> {
+        let sock0 = resolve_ipc_socket_path(0)?;
+        let base_dir = sock0.parent().unwrap_or_else(|| Path::new("/tmp"));
+        Self::bind_in_dir(base_dir)
+    }
+
+    /// Перебирает слоты `discord-ipc-0..9` в каталоге `base_dir` и привязывается к первому свободному.
+    /// Живые сокеты никогда не перезаписываются; осиротевшие сокеты текущего UID очищаются автоматически.
+    pub fn bind_in_dir(base_dir: &Path) -> Result<Self, RpcIpcError> {
+        let uid = effective_uid();
+        validate_ipc_dir_permissions(base_dir, uid)?;
+        for slot in 0..=MAX_IPC_SLOT {
+            match Self::bind_slot_in_dir(base_dir, slot) {
+                Ok(listener) => return Ok(listener),
+                Err(RpcIpcError::UnsafeDirectory(dir)) => {
+                    return Err(RpcIpcError::UnsafeDirectory(dir));
+                }
+                Err(_) => continue,
+            }
+        }
+        Err(RpcIpcError::AllSlotsBusy)
+    }
+
+    /// Привязывает конкретный слот `discord-ipc-<slot>` (`0..=9`) внутри каталога `base_dir`.
+    pub fn bind_slot_in_dir(base_dir: &Path, slot: u8) -> Result<Self, RpcIpcError> {
+        if slot > MAX_IPC_SLOT {
+            return Err(RpcIpcError::InvalidSlot(slot));
+        }
+        let path = base_dir.join(format!("{UNIX_SOCKET_PREFIX}{slot}"));
+        Self::bind_path_with_slot(&path, Some(slot))
+    }
+
+    /// Привязывает слушатель к произвольному пути Unix-сокета.
+    pub fn bind_path(path: &Path) -> Result<Self, RpcIpcError> {
+        let slot = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .and_then(|s| parse_ipc_slot(s).ok());
+        Self::bind_path_with_slot(path, slot)
+    }
+
+    fn bind_path_with_slot(path: &Path, slot: Option<u8>) -> Result<Self, RpcIpcError> {
+        let uid = effective_uid();
+        let parent = path
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .ok_or_else(|| RpcIpcError::UnsafeDirectory(path.display().to_string()))?;
+        validate_ipc_dir_permissions(parent, uid)?;
+
+        let listener = match UnixListener::bind(path) {
+            Err(err)
+                if err.kind() == std::io::ErrorKind::AddrInUse
+                    && remove_stale_socket(path, uid) =>
+            {
+                UnixListener::bind(path).map_err(|e| RpcIpcError::IoError(e.to_string()))?
+            }
+            Ok(l) => l,
+            Err(err) => return Err(RpcIpcError::IoError(err.to_string())),
+        };
+
+        let meta = fs::symlink_metadata(path).map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+        let owned = Self {
+            listener,
+            path: path.to_path_buf(),
+            slot,
+            device: meta.dev(),
+            inode: meta.ino(),
+            uid,
+        };
+        fs::set_permissions(path, fs::Permissions::from_mode(RPC_SOCKET_MODE))
+            .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+        Ok(owned)
+    }
+
+    /// Возвращает путь к привязанному сокету.
+    #[must_use]
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// Возвращает индекс слота `0..=9`, если сокет привязан к стандартному слоту `discord-ipc-0..9`.
+    #[must_use]
+    pub const fn slot(&self) -> Option<u8> {
+        self.slot
+    }
+
+    /// Возвращает эффективный UID владельца слушателя.
+    #[must_use]
+    pub const fn uid(&self) -> u32 {
+        self.uid
+    }
+
+    /// Возвращает идентификатор устройства (`st_dev`) созданного файла сокета.
+    #[must_use]
+    pub const fn device(&self) -> u64 {
+        self.device
+    }
+
+    /// Возвращает номер inode (`st_ino`) созданного файла сокета.
+    #[must_use]
+    pub const fn inode(&self) -> u64 {
+        self.inode
+    }
+
+    /// Форматирует строку запуска сервера по эталону RE `/home/sanya/re-deep/discord-run3.log:64`.
+    #[must_use]
+    pub fn format_startup_log(&self) -> String {
+        format!("[RPCServer:IPC] Starting on {}", self.path.display())
+    }
+
+    /// Переключает неблокирующий режим сокета.
+    pub fn set_nonblocking(&self, nonblocking: bool) -> Result<(), RpcIpcError> {
+        self.listener
+            .set_nonblocking(nonblocking)
+            .map_err(|e| RpcIpcError::IoError(e.to_string()))
+    }
+
+    /// Принимает входящее соединение и проверяет, что `SO_PEERCRED` UID совпадает с владельцем слушателя.
+    pub fn accept(&self) -> Result<UnixStream, RpcIpcError> {
+        self.accept_checked_with_expected_uid(self.uid)
+    }
+
+    /// Принимает входящее соединение и сверяет `SO_PEERCRED` UID с явно переданным `expected_uid`.
+    pub fn accept_checked_with_expected_uid(
+        &self,
+        expected_uid: u32,
+    ) -> Result<UnixStream, RpcIpcError> {
+        let (stream, _) = self
+            .listener
+            .accept()
+            .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+        let actual_uid = peer_uid(&stream)?;
+        if actual_uid != expected_uid {
+            return Err(RpcIpcError::UnauthorizedPeer {
+                peer_uid: actual_uid,
+                expected_uid,
+            });
+        }
+        Ok(stream)
+    }
+}
+
+impl Drop for DiscordRpcListener {
+    fn drop(&mut self) {
+        if let Ok(meta) = fs::symlink_metadata(&self.path)
+            && meta.file_type().is_socket()
+            && meta.dev() == self.device
+            && meta.ino() == self.inode
+        {
+            let _ = fs::remove_file(&self.path);
+        }
+    }
+}
+
+fn validate_ipc_dir_permissions(dir: &Path, uid: u32) -> Result<(), RpcIpcError> {
+    let meta = fs::symlink_metadata(dir).map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+    let trusted_owner = meta.uid() == uid || meta.uid() == 0;
+    let world_writable_without_sticky = (meta.mode() & 0o002 != 0) && (meta.mode() & 0o1000 == 0);
+    if !meta.is_dir() || !trusted_owner || world_writable_without_sticky {
+        return Err(RpcIpcError::UnsafeDirectory(dir.display().to_string()));
+    }
+    Ok(())
+}
+
+fn remove_stale_socket(path: &Path, uid: u32) -> bool {
+    let Ok(meta) = fs::symlink_metadata(path) else {
+        return false;
+    };
+    if !meta.file_type().is_socket() || meta.uid() != uid {
+        return false;
+    }
+    // Датаграммный зонд не попадает в очередь accept живого потокового слушателя,
+    // но возвращает ConnectionRefused, если процесс-слушатель завершился.
+    let is_dead = UnixDatagram::unbound()
+        .and_then(|probe| probe.connect(path))
+        .is_err_and(|err| err.kind() == std::io::ErrorKind::ConnectionRefused);
+    is_dead && fs::remove_file(path).is_ok()
+}
+
+#[allow(unsafe_code)]
+fn effective_uid() -> u32 {
+    // SAFETY: POSIX geteuid не принимает аргументов и всегда возвращает эффективный UID процесса.
+    unsafe { libc::geteuid() }
+}
+
+#[allow(unsafe_code)]
+fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
+    use std::os::fd::AsRawFd;
+    let mut cred = libc::ucred {
+        pid: 0,
+        uid: u32::MAX,
+        gid: u32::MAX,
+    };
+    let mut len = std::mem::size_of::<libc::ucred>() as libc::socklen_t;
+    // SAFETY: getsockopt с SOL_SOCKET/SO_PEERCRED заполняет выровненную структуру libc::ucred.
+    let rc = unsafe {
+        libc::getsockopt(
+            stream.as_raw_fd(),
+            libc::SOL_SOCKET,
+            libc::SO_PEERCRED,
+            (&raw mut cred).cast::<libc::c_void>(),
+            &raw mut len,
+        )
+    };
+    if rc != 0 || len as usize != std::mem::size_of::<libc::ucred>() {
+        return Err(RpcIpcError::IoError(
+            std::io::Error::last_os_error().to_string(),
+        ));
+    }
+    Ok(cred.uid)
+}
+
+/// Серверная машина состояний одной клиентской RPC IPC-сессии (`serve_ipc` в `Serein`).
+#[derive(Debug, Clone, Default)]
+pub struct RpcIpcSession {
+    handshaked: bool,
+    client_id: Option<String>,
+    current_activity: Option<RpcActivity>,
+    invites: Vec<String>,
+    closed: bool,
+}
+
+impl RpcIpcSession {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub const fn is_handshaked(&self) -> bool {
+        self.handshaked
+    }
+
+    #[must_use]
+    pub fn client_id(&self) -> Option<&str> {
+        self.client_id.as_deref()
+    }
+
+    #[must_use]
+    pub fn current_activity(&self) -> Option<&RpcActivity> {
+        self.current_activity.as_ref()
+    }
+
+    #[must_use]
+    pub fn invites(&self) -> &[String] {
+        &self.invites
+    }
+
+    #[must_use]
+    pub const fn is_closed(&self) -> bool {
+        self.closed
+    }
+
+    /// Обрабатывает один входящий фрейм с учётом состояния рукопожатия сессии.
+    pub fn process_frame(&mut self, frame: &IpcFrame) -> Result<RpcServerResponse, RpcIpcError> {
+        if self.closed {
+            return Err(RpcIpcError::NotConnected);
+        }
+        if !self.handshaked {
+            if frame.opcode != RpcOpCode::Handshake {
+                return Err(RpcIpcError::HandshakeRequired);
+            }
+            let client_id = parse_handshake_client_id(&frame.payload)?;
+            let resp = handle_ipc_frame(frame)?;
+            self.handshaked = true;
+            self.client_id = Some(client_id);
+            return Ok(resp);
+        }
+
+        match frame.opcode {
+            RpcOpCode::Handshake => Err(RpcIpcError::InvalidField("opcode")),
+            RpcOpCode::Frame => match handle_ipc_frame(frame) {
+                Ok(resp) => {
+                    if let Some(ref code) = resp.invite_code {
+                        self.invites.push(code.clone());
+                    } else {
+                        self.current_activity = resp.activity.clone();
+                    }
+                    Ok(resp)
+                }
+                Err(_) => Ok(RpcServerResponse {
+                    reply_frame: Some(build_rpc_error_frame_for_payload(&frame.payload)),
+                    activity: None,
+                    gateway_presence_update_json: None,
+                    invite_code: None,
+                    closed: false,
+                }),
+            },
+            RpcOpCode::Ping | RpcOpCode::Pong => handle_ipc_frame(frame),
+            RpcOpCode::Close => {
+                let resp = handle_ipc_frame(frame)?;
+                self.current_activity = None;
+                self.closed = true;
+                Ok(resp)
+            }
+        }
+    }
+
+    /// Обслуживает поток `UnixStream` от `Handshake` до `Close` или закрытия сокета клиентом.
+    pub fn serve_stream(
+        &mut self,
+        stream: &mut UnixStream,
+    ) -> Result<Vec<RpcServerResponse>, RpcIpcError> {
+        let mut responses = Vec::new();
+        loop {
+            let frame = match DiscordRpcClient::read_frame(stream) {
+                Ok(f) => f,
+                Err(RpcIpcError::IoError(_)) if self.handshaked => {
+                    self.current_activity = None;
+                    self.closed = true;
+                    break;
+                }
+                Err(err) => return Err(err),
+            };
+            let resp = self.process_frame(&frame)?;
+            if let Some(ref reply) = resp.reply_frame {
+                DiscordRpcClient::write_frame(stream, reply.opcode, &reply.payload)?;
+            }
+            let closed = resp.closed;
+            responses.push(resp);
+            if closed {
+                break;
+            }
+        }
+        Ok(responses)
+    }
+}
+
+/// Реестр до `MAX_RPC_CLIENTS` (`8`) одновременных клиентских RPC-сессий с выбором
+/// самой свежей опубликованной активности (`Serein/apps/desktop/src/game_activity.rs:L274-L384`).
+#[derive(Debug, Clone)]
+pub struct RpcMultiClientRegistry {
+    slots: [bool; MAX_RPC_CLIENTS],
+    values: [Option<(u64, RpcActivity)>; MAX_RPC_CLIENTS],
+    seq: u64,
+}
+
+impl Default for RpcMultiClientRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl RpcMultiClientRegistry {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            slots: [false; MAX_RPC_CLIENTS],
+            values: std::array::from_fn(|_| None),
+            seq: 0,
+        }
+    }
+
+    /// Выделяет первый свободный слот клиента (`0..8`), либо возвращает `None`, если все 8 заняты.
+    pub fn claim_slot(&mut self) -> Option<usize> {
+        let idx = self.slots.iter().position(|used| !*used)?;
+        self.slots[idx] = true;
+        self.values[idx] = None;
+        Some(idx)
+    }
+
+    /// Освобождает слот клиента и очищает его опубликованную активность.
+    pub fn release_slot(&mut self, slot: usize) {
+        if slot < MAX_RPC_CLIENTS {
+            self.slots[slot] = false;
+            self.values[slot] = None;
+        }
+    }
+
+    /// Обновляет активность клиента в слоте `slot` и возвращает текущую приоритетную активность.
+    pub fn update_slot_activity(
+        &mut self,
+        slot: usize,
+        activity: Option<RpcActivity>,
+    ) -> Result<Option<RpcActivity>, RpcIpcError> {
+        if slot >= MAX_RPC_CLIENTS || !self.slots[slot] {
+            return Err(RpcIpcError::InvalidSlot(slot as u8));
+        }
+        self.seq = self.seq.saturating_add(1);
+        let stamp = self.seq;
+        self.values[slot] = activity.map(|act| (stamp, act));
+        Ok(self.active_activity().cloned())
+    }
+
+    /// Возвращает самую свежую непустую активность среди всех подключённых клиентов.
+    #[must_use]
+    pub fn active_activity(&self) -> Option<&RpcActivity> {
+        self.values
+            .iter()
+            .flatten()
+            .max_by_key(|(stamp, _)| *stamp)
+            .map(|(_, act)| act)
+    }
+
+    /// Строит JSON-пакет Gateway Op 3 `PresenceUpdate` для текущей приоритетной активности.
+    #[must_use]
+    pub fn active_gateway_presence_json(&self) -> String {
+        build_gateway_presence_update_json(self.active_activity())
+    }
+}
+
 /// Клиент локального IPC-сокета Discord (`rust-discord-activity` совместимый).
+#[derive(Debug)]
 pub struct DiscordRpcClient {
     client_id: String,
     is_connected: bool,
@@ -937,6 +1770,20 @@ impl DiscordRpcClient {
         self.is_connected
     }
 
+    /// Перебирает слоты `discord-ipc-0..9` в указанном каталоге `base_dir`, подключается к первому
+    /// доступному слушателю и выполняет `Handshake`.
+    pub fn connect_in_dir(&mut self, base_dir: &Path) -> Result<(u8, IpcFrame), RpcIpcError> {
+        let mut last_err = RpcIpcError::NotConnected;
+        for slot in 0..=MAX_IPC_SLOT {
+            let path = base_dir.join(format!("{UNIX_SOCKET_PREFIX}{slot}"));
+            match self.connect_to_path(&path) {
+                Ok(ready) => return Ok((slot, ready)),
+                Err(err) => last_err = err,
+            }
+        }
+        Err(last_err)
+    }
+
     /// Подключается к стандартному слоту `discord-ipc-<slot>` и выполняет `Handshake`.
     pub fn connect_slot(&mut self, slot: u8) -> Result<IpcFrame, RpcIpcError> {
         let path = resolve_ipc_socket_path(slot)?;
@@ -973,6 +1820,29 @@ impl DiscordRpcClient {
     pub fn send_activity(&mut self, payload: &SetActivityPayload) -> Result<IpcFrame, RpcIpcError> {
         let json = payload.to_json();
         self.send_and_recv(RpcOpCode::Frame, &json)
+    }
+
+    /// Отправляет команду `INVITE_BROWSER` (`OpCode = 1`) и читает ответ сервера.
+    pub fn send_invite_browser(
+        &mut self,
+        payload: &InviteBrowserPayload,
+    ) -> Result<IpcFrame, RpcIpcError> {
+        let json = payload.to_json();
+        self.send_and_recv(RpcOpCode::Frame, &json)
+    }
+
+    /// Отправляет `Ping` (`OpCode = 3`) и читает ответный `Pong` (`OpCode = 4`).
+    pub fn ping(&mut self, payload: &str) -> Result<IpcFrame, RpcIpcError> {
+        self.send_and_recv(RpcOpCode::Ping, payload)
+    }
+
+    /// Отправляет фрейм закрытия `Close` (`OpCode = 2`) и закрывает клиентский сокет.
+    pub fn close(&mut self, payload: &str) -> Result<(), RpcIpcError> {
+        let sock = self.socket.as_mut().ok_or(RpcIpcError::NotConnected)?;
+        let res = Self::write_frame(sock, RpcOpCode::Close, payload);
+        self.is_connected = false;
+        self.socket = None;
+        res.map(|_| ())
     }
 
     /// Отправляет фрейм и синхронно ждёт ответного фрейма.
