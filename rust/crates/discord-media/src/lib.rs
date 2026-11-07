@@ -274,6 +274,18 @@ impl VideoFrame {
             && self.layout.byte_len(self.width, self.height) == Some(self.data.len())
     }
 
+    pub const fn format(&self) -> PixelLayout {
+        self.layout
+    }
+
+    pub fn validate(&self) -> Result<(), &'static str> {
+        if self.is_valid() {
+            Ok(())
+        } else {
+            Err("Некорректные размеры, поворот или длина буфера VideoFrame")
+        }
+    }
+
     pub fn display_size(&self) -> (u32, u32) {
         if matches!(self.rotation, 90 | 270) {
             (self.height, self.width)
@@ -1098,177 +1110,8 @@ impl WgslVideoShaderDescriptor {
     }
 }
 
-/// Тип источника захвата рабочего стола.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DesktopSourceType {
-    /// Полный монитор / экран.
-    Screen,
-    /// Окно конкретного приложения.
-    Window,
-}
-
-/// Источник видеозахвата рабочего стола (экран или окно приложения).
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct DesktopSource {
-    pub id: String,
-    pub name: String,
-    pub source_type: DesktopSourceType,
-    pub is_primary: bool,
-}
-
-/// Бэкенд захвата видеопотока ОС.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DesktopBackend {
-    /// PipeWire Desktop Portal (`org.freedesktop.portal.ScreenCast`, Wayland / X11).
-    PipeWirePortal,
-    /// X11 SHM захват экрана (`DISPLAY`).
-    X11Shm,
-    /// Синтетический генератор тестовых кадров (fallback при отсутствии графического сервера).
-    SyntheticFallback,
-}
-
-impl DesktopBackend {
-    /// Возвращает каноническое имя бэкенда захвата.
-    #[must_use]
-    pub const fn name(&self) -> &'static str {
-        match self {
-            Self::PipeWirePortal => "PipeWirePortal",
-            Self::X11Shm => "X11Shm",
-            Self::SyntheticFallback => "SyntheticFallback",
-        }
-    }
-}
-
-/// Захватчик экрана и окон для Go Live (демонстрации экрана) с поддержкой PipeWire Portal и X11 SHM.
-#[derive(Clone, Debug)]
-pub struct ScreenCapturer {
-    backend: DesktopBackend,
-}
-
-impl Default for ScreenCapturer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ScreenCapturer {
-    /// Создаёт экземпляр захватчика с автоматическим определением доступного графического окружения.
-    pub fn new() -> Self {
-        Self {
-            backend: Self::detect_backend(),
-        }
-    }
-
-    /// Определяет активный графический бэкенд на основе переменных окружения ОС.
-    pub fn detect_backend() -> DesktopBackend {
-        if std::env::var_os("WAYLAND_DISPLAY").is_some()
-            || std::env::var("XDG_CURRENT_DESKTOP")
-                .map(|d| {
-                    let u = d.to_ascii_uppercase();
-                    u.contains("GNOME") || u.contains("KDE") || u.contains("SWAY") || u.contains("WAYFIRE")
-                })
-                .unwrap_or(false)
-        {
-            DesktopBackend::PipeWirePortal
-        } else if std::env::var_os("DISPLAY").is_some() {
-            DesktopBackend::X11Shm
-        } else {
-            DesktopBackend::SyntheticFallback
-        }
-    }
-
-    /// Возвращает используемый бэкенд захвата.
-    pub fn backend(&self) -> DesktopBackend {
-        self.backend
-    }
-
-    /// Перечисляет доступные источники захвата (экраны и окна) с учётом текущего бэкенда.
-    pub fn enumerate_sources(&self) -> Vec<DesktopSource> {
-        let mut sources = Vec::new();
-        match self.backend {
-            DesktopBackend::PipeWirePortal => {
-                sources.push(DesktopSource {
-                    id: "screen:portal:0".to_string(),
-                    name: "Основной экран (PipeWire Desktop Portal)".to_string(),
-                    source_type: DesktopSourceType::Screen,
-                    is_primary: true,
-                });
-                sources.push(DesktopSource {
-                    id: "window:portal:active".to_string(),
-                    name: "Активное окно (Portal ScreenCast)".to_string(),
-                    source_type: DesktopSourceType::Window,
-                    is_primary: false,
-                });
-            }
-            DesktopBackend::X11Shm => {
-                sources.push(DesktopSource {
-                    id: "screen:0:0".to_string(),
-                    name: "Основной монитор (X11 SHM)".to_string(),
-                    source_type: DesktopSourceType::Screen,
-                    is_primary: true,
-                });
-                sources.push(DesktopSource {
-                    id: "window:x11:root".to_string(),
-                    name: "Корневое окно X11".to_string(),
-                    source_type: DesktopSourceType::Window,
-                    is_primary: false,
-                });
-            }
-            DesktopBackend::SyntheticFallback => {
-                sources.push(DesktopSource {
-                    id: "screen:synthetic:0".to_string(),
-                    name: "Виртуальный экран (Synthetic Fallback)".to_string(),
-                    source_type: DesktopSourceType::Screen,
-                    is_primary: true,
-                });
-                sources.push(DesktopSource {
-                    id: "window:synthetic:demo".to_string(),
-                    name: "Демо-окно".to_string(),
-                    source_type: DesktopSourceType::Window,
-                    is_primary: false,
-                });
-            }
-        }
-        sources
-    }
-
-    /// Захватывает одиночный видеокадр для заданного источника и разрешения.
-    /// Формирует валидный буфер `VideoFrame` (I420 планарный) с таймстемпом.
-    pub fn capture_frame(
-        &self,
-        source_id: &str,
-        width: u32,
-        height: u32,
-        timestamp_us: u64,
-    ) -> Result<VideoFrame, &'static str> {
-        if width == 0 || height == 0 {
-            return Err("Разрешение кадра должно быть больше нуля");
-        }
-        if source_id.is_empty() {
-            return Err("source_id не может быть пустым");
-        }
-        let w = width as usize;
-        let h = height as usize;
-        let luma_len = w.checked_mul(h).ok_or("Переполнение размера luma")?;
-        let cw = w.div_ceil(2);
-        let ch = h.div_ceil(2);
-        let chroma_len = cw.checked_mul(ch).ok_or("Переполнение размера chroma")?;
-        let total_len = luma_len
-            .checked_add(chroma_len.checked_mul(2).ok_or("Переполнение chroma")?)
-            .ok_or("Переполнение total_len")?;
-
-        let mut data = vec![128u8; total_len];
-        // Генерируем тестовый шаблон яркости Y: градиент + временная метка для отслеживания кадров
-        let shift = ((timestamp_us / 16_666) % 256) as u8;
-        for (i, byte) in data[..luma_len].iter_mut().enumerate() {
-            *byte = ((i % 256) as u8).wrapping_add(shift);
-        }
-
-        let mut frame = VideoFrame::new(width, height, PixelLayout::I420, data);
-        frame = frame.with_timestamp_us(timestamp_us);
-        Ok(frame)
-    }
-}
+pub mod capture;
+pub use capture::{DesktopBackend, DesktopSource, DesktopSourceType, PixelFormat, ScreenCapturer};
 
 #[cfg(test)]
 mod tests {
@@ -1672,8 +1515,14 @@ mod tests {
     fn screen_capturer_backend_detection_and_frame_pipeline() {
         let capturer = ScreenCapturer::new();
         let sources = capturer.enumerate_sources();
-        assert!(!sources.is_empty(), "Capturer must report at least 1 screen source");
-        let primary = sources.iter().find(|s| s.is_primary).expect("Primary source");
+        assert!(
+            !sources.is_empty(),
+            "Capturer must report at least 1 screen source"
+        );
+        let primary = sources
+            .iter()
+            .find(|s| s.is_primary)
+            .expect("Primary source");
         assert_eq!(primary.source_type, DesktopSourceType::Screen);
 
         let frame = capturer

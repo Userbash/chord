@@ -298,7 +298,7 @@ impl Connection {
         ))
     }
 
-    fn call_typed_with_fds(
+    pub(crate) fn call_typed_with_fds(
         &mut self,
         destination: &str,
         path: &str,
