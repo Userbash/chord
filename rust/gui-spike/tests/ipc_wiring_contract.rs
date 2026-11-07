@@ -830,7 +830,7 @@ const UI_IPC_COMMAND_CONSTANTS: [&str; 4] = [
     "READY_COMMAND",
 ];
 
-const ALL_43_UI_IPC_COMMANDS: [&str; 43] = [
+const ALL_47_UI_IPC_COMMANDS: [&str; 47] = [
     "accept_invite",
     "ack_message",
     "attachments_upload_put",
@@ -843,11 +843,13 @@ const ALL_43_UI_IPC_COMMANDS: [&str; 43] = [
     "auth_sms",
     "auth_status",
     "channels",
+    "create_gift_code",
     "create_invite",
     "delete_message",
     "edit_message",
     "join_guild",
     "leave_guild",
+    "list_nitro_gift_plans",
     "members_page",
     "messages_page",
     "net_connect",
@@ -856,9 +858,11 @@ const ALL_43_UI_IPC_COMMANDS: [&str; 43] = [
     "process_metrics",
     "read_state",
     "ready",
+    "redeem_gift_code",
     "reply_message",
     "report_bench",
     "report_ui_snapshot",
+    "resolve_gift_code",
     "resolve_invite",
     "search_remote",
     "send_message",
@@ -1162,16 +1166,16 @@ fn every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main() {
     seen_ui_commands.sort();
     assert_eq!(
         seen_ui_commands.len(),
-        ALL_43_UI_IPC_COMMANDS.len(),
+        ALL_47_UI_IPC_COMMANDS.len(),
         "множество всех найденных UI IPC-команд (включая AUTH_COMMANDS, JOIN_COMMANDS, NET_COMMANDS, READY_COMMAND) должно быть равно ровно {} командам: {seen_ui_commands:?}",
-        ALL_43_UI_IPC_COMMANDS.len()
+        ALL_47_UI_IPC_COMMANDS.len()
     );
     let seen_refs: Vec<&str> = seen_ui_commands.iter().map(String::as_str).collect();
     assert_eq!(
         seen_refs.as_slice(),
-        &ALL_43_UI_IPC_COMMANDS,
+        &ALL_47_UI_IPC_COMMANDS,
         "множество найденных в ui/**/*.js IPC-команд должно точно совпадать с каноническим списком из {} команд",
-        ALL_43_UI_IPC_COMMANDS.len()
+        ALL_47_UI_IPC_COMMANDS.len()
     );
 
     for required in F1_UI_IPC_ALIASES
