@@ -1,0 +1,69 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+error[E0432]: unresolved imports `discord_voice::ptt::AudioModeType`, `discord_voice::ptt::DEFAULT_NO_AUDIO_INPUT_SILENCE_FRAMES`, `discord_voice::ptt::DEFAULT_NO_AUDIO_INPUT_THRESHOLD_DB`, `discord_voice::ptt::DEFAULT_PTT_RELEASE_DELAY_MS`, `discord_voice::ptt::ENGINE_DEFAULT_PTT_RELEASE_DELAY_MS`, `discord_voice::ptt::HardwareKeybindAction`, `discord_voice::ptt::HardwarePttKeybindHandler`, `discord_voice::ptt::InputDeviceId`, `discord_voice::ptt::InputDeviceType`, `discord_voice::ptt::KEYBIND_CAPTURE_TIMEOUT_MS`, `discord_voice::ptt::KeybindError`, `discord_voice::ptt::KeybindEventOptions`, `discord_voice::ptt::KeybindFiredEvent`, `discord_voice::ptt::LINUX_FORBIDDEN_SINGLE_KEY_RANGES`, `discord_voice::ptt::LINUX_LEFT_MOUSE_BUTTON_CODE`, `discord_voice::ptt::MAX_KEYBIND_COMBO_LEN`, `discord_voice::ptt::MAX_PTT_RELEASE_DELAY_MS`, `discord_voice::ptt::MIN_PTT_RELEASE_DELAY_MS`, `discord_voice::ptt::MicCaptureState`, `discord_voice::ptt::MicStateMachine`, `discord_voice::ptt::PttAccessStatus`, `discord_voice::ptt::PttActivationState`, `discord_voice::ptt::PttKeyState`, `discord_voice::ptt::ScanCodeCombo`, `discord_voice::ptt::ScanCodeEntry`
+  --> crates/discord-voice/tests/ptt_contract.rs:21:5
+   |
+21 |     AudioModeType, DEFAULT_NO_AUDIO_INPUT_SILENCE_FRAMES, DEFAULT_NO_AUDIO_INPUT_THRESHOLD_DB,
+   |     ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `DEFAULT_NO_AUDIO_INPUT_THRESHOLD_DB` in `ptt`
+   |     |              |
+   |     |              no `DEFAULT_NO_AUDIO_INPUT_SILENCE_FRAMES` in `ptt`
+   |     no `AudioModeType` in `ptt`
+22 |     DEFAULT_PTT_RELEASE_DELAY_MS, ENGINE_DEFAULT_PTT_RELEASE_DELAY_MS, HardwareKeybindAction,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^ no `HardwareKeybindAction` in `ptt`
+   |     |                             |
+   |     |                             no `ENGINE_DEFAULT_PTT_RELEASE_DELAY_MS` in `ptt`
+   |     no `DEFAULT_PTT_RELEASE_DELAY_MS` in `ptt`
+23 |     HardwarePttKeybindHandler, InputDeviceId, InputDeviceType, KEYBIND_CAPTURE_TIMEOUT_MS,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^ no `KEYBIND_CAPTURE_TIMEOUT_MS` in `ptt`
+   |     |                          |              |
+   |     |                          |              no `InputDeviceType` in `ptt`
+   |     |                          no `InputDeviceId` in `ptt`
+   |     no `HardwarePttKeybindHandler` in `ptt`
+24 |     KeybindError, KeybindEventOptions, KeybindFiredEvent, LINUX_FORBIDDEN_SINGLE_KEY_RANGES,
+   |     ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+25 |     LINUX_LEFT_MOUSE_BUTTON_CODE, MAX_KEYBIND_COMBO_LEN, MAX_PTT_RELEASE_DELAY_MS,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+26 |     MIN_PTT_RELEASE_DELAY_MS, MicCaptureState, MicStateMachine, PttAccessStatus,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^
+27 |     PttActivationState, PttKeyState, ScanCodeCombo, ScanCodeEntry,
+   |     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+error[E0432]: unresolved imports `discord_voice::noise::AGC_KRISP_VAD_THRESHOLD`, `discord_voice::noise::CPU_OVERUSE_CONSECUTIVE_FRAMES_LIMIT`, `discord_voice::noise::DEFAULT_KRISP_SUPPRESSION_DB`, `discord_voice::noise::DEFAULT_KRISP_VAD_THRESHOLD`, `discord_voice::noise::DEFAULT_RNNOISE_SUPPRESSION_DB`, `discord_voice::noise::DEFAULT_SUPPRESSION_LEVEL`, `discord_voice::noise::DEFAULT_VAD_LEADING_FRAMES`, `discord_voice::noise::DEFAULT_VAD_THRESHOLD_DB`, `discord_voice::noise::DEFAULT_VAD_TRAILING_FRAMES`, `discord_voice::noise::KRISP_MODEL_BVC_PRO_V3`, `discord_voice::noise::KRISP_MODEL_LITE_V1`, `discord_voice::noise::KRISP_MODEL_MED_V7`, `discord_voice::noise::KRISP_MODEL_NB_V2`, `discord_voice::noise::KRISP_MODEL_VAD_V2`, `discord_voice::noise::KrispModelTier`, `discord_voice::noise::MAX_CPU_PROCESS_TIME_US_PER_20MS`, `discord_voice::noise::MAX_NOISE_SUPPRESSION_DB`, `discord_voice::noise::MAX_SAMPLE_RATE_MISMATCH_PERCENT`, `discord_voice::noise::MAX_SUPPRESSION_LEVEL`, `discord_voice::noise::MAX_VAD_HANGOVER_FRAMES`, `discord_voice::noise::MAX_VAD_THRESHOLD_DB`, `discord_voice::noise::MIN_NOISE_SUPPRESSION_DB`, `discord_voice::noise::MIN_SUPPRESSION_LEVEL`, `discord_voice::noise::MIN_VAD_THRESHOLD_DB`, `discord_voice::noise::NoiseBand`, `discord_voice::noise::NoiseCancellerState`, `discord_voice::noise::NoiseSuppressionConfig`, `discord_voice::noise::NoiseSuppressionError`, `discord_voice::noise::NoiseSuppressionPipeline`, `discord_voice::noise::SUPPORTED_FRAME_DURATIONS_MS`, `discord_voice::noise::SUPPORTED_SAMPLE_RATES_HZ`, `discord_voice::noise::SuppressionBackend`, `discord_voice::noise::attenuate_pcm_s16_in_place`, `discord_voice::noise::classify_noise_band`, `discord_voice::noise::compute_frame_rms_dbfs`
+  --> crates/discord-voice/tests/noise_contract.rs:25:5
+   |
+25 |     AGC_KRISP_VAD_THRESHOLD, CPU_OVERUSE_CONSECUTIVE_FRAMES_LIMIT, DEFAULT_KRISP_SUPPRESSION_DB,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `DEFAULT_KRISP_SUPPRESSION_DB` in `noise`
+   |     |                        |
+   |     |                        no `CPU_OVERUSE_CONSECUTIVE_FRAMES_LIMIT` in `noise`
+   |     no `AGC_KRISP_VAD_THRESHOLD` in `noise`
+26 |     DEFAULT_KRISP_VAD_THRESHOLD, DEFAULT_RNNOISE_SUPPRESSION_DB, DEFAULT_SUPPRESSION_LEVEL,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^ no `DEFAULT_SUPPRESSION_LEVEL` in `noise`
+   |     |                            |
+   |     |                            no `DEFAULT_RNNOISE_SUPPRESSION_DB` in `noise`
+   |     no `DEFAULT_KRISP_VAD_THRESHOLD` in `noise`
+27 |     DEFAULT_VAD_LEADING_FRAMES, DEFAULT_VAD_THRESHOLD_DB, DEFAULT_VAD_TRAILING_FRAMES,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `DEFAULT_VAD_TRAILING_FRAMES` in `noise`
+   |     |                           |
+   |     |                           no `DEFAULT_VAD_THRESHOLD_DB` in `noise`
+   |     no `DEFAULT_VAD_LEADING_FRAMES` in `noise`
+28 |     KRISP_MODEL_BVC_PRO_V3, KRISP_MODEL_LITE_V1, KRISP_MODEL_MED_V7, KRISP_MODEL_NB_V2,
+   |     ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^
+   |     |
+   |     no `KRISP_MODEL_BVC_PRO_V3` in `noise`
+29 |     KRISP_MODEL_VAD_V2, KrispModelTier, MAX_CPU_PROCESS_TIME_US_PER_20MS, MAX_NOISE_SUPPRESSION_DB,
+   |     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+30 |     MAX_SAMPLE_RATE_MISMATCH_PERCENT, MAX_SUPPRESSION_LEVEL, MAX_VAD_HANGOVER_FRAMES,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^
+31 |     MAX_VAD_THRESHOLD_DB, MIN_NOISE_SUPPRESSION_DB, MIN_SUPPRESSION_LEVEL, MIN_VAD_THRESHOLD_DB,
+   |     ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^
+32 |     NoiseBand, NoiseCancellerState, NoiseSuppressionConfig, NoiseSuppressionError,
+   |     ^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+33 |     NoiseSuppressionPipeline, SUPPORTED_FRAME_DURATIONS_MS, SUPPORTED_SAMPLE_RATES_HZ,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+34 |     SuppressionBackend, attenuate_pcm_s16_in_place, classify_noise_band, compute_frame_rms_dbfs,
+   |     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "ptt_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `discord-voice` (test "noise_contract") due to 1 previous error

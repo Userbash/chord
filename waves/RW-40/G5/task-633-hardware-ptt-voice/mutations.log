@@ -1,0 +1,168 @@
+=== Baseline MD5 (rust/crates/discord-voice/src/ptt.rs): 976860bd3f7da6d7300b8f03d6fb93b7 ===
+=== Baseline MD5 (rust/crates/discord-voice/src/noise.rs): 3faeb35b4ce047559ee7d807fa27a5e5 ===
+--- M1: PttKeyState::activation_state boundary elapsed <= delay -> elapsed < delay ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+
+running 5 tests
+test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
+test t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags ... FAILED
+test t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input ... ok
+test t_ptt_03_linux_scancode_validation_and_device_id_oracle ... ok
+test t_ptt_04_hardware_keybind_handler_focus_portal_and_combo_matching ... ok
+
+failures:
+
+---- t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags stdout ----
+
+thread 't_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags' (992554) panicked at crates/discord-voice/tests/ptt_contract.rs:158:5:
+assertion `left == right` failed
+  left: Inactive
+ right: ReleaseHangover { remaining_ms: 0 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test ptt_contract`
+Result M1: KILLED
+--- M2: PttKeyState::speaking_flags omit PRIORITY bitflag when priority_speaker_allowed ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+warning: unused variable: `priority_speaker_allowed`
+   --> crates/discord-voice/src/ptt.rs:461:47
+    |
+461 | ...lf, now_ms: u64, priority_speaker_allowed: bool) -> SpeakingFlags {
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_priority_speaker_allowed`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+
+running 5 tests
+test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
+test t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags ... FAILED
+test t_ptt_03_linux_scancode_validation_and_device_id_oracle ... ok
+test t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input ... FAILED
+test t_ptt_04_hardware_keybind_handler_focus_portal_and_combo_matching ... ok
+
+failures:
+
+---- t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags stdout ----
+
+thread 't_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags' (992849) panicked at crates/discord-voice/tests/ptt_contract.rs:131:5:
+assertion `left == right` failed: при разрешённом Priority Speaker должен выставляться бит PRIORITY (1 | 4 = 5)
+  left: SpeakingFlags(1)
+ right: SpeakingFlags(5)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input stdout ----
+
+thread 't_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input' (992852) panicked at crates/discord-voice/tests/ptt_contract.rs:446:5:
+assertion `left == right` failed
+  left: Speaking
+ right: PrioritySpeaking
+
+
+failures:
+    t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags
+    t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test ptt_contract`
+Result M2: KILLED
+--- M3: MicStateMachine::evaluate_frame bypass is_effectively_muted() check ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+
+running 5 tests
+test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
+test t_ptt_02_ptt_key_state_release_delay_boundaries_and_priority_flags ... ok
+test t_ptt_04_hardware_keybind_handler_focus_portal_and_combo_matching ... ok
+test t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input ... FAILED
+test t_ptt_03_linux_scancode_validation_and_device_id_oracle ... ok
+
+failures:
+
+---- t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input stdout ----
+
+thread 't_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input' (993148) panicked at crates/discord-voice/tests/ptt_contract.rs:497:5:
+assertion `left == right` failed
+  left: Speaking
+ right: SpeakingWhileMuted
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_ptt_05_mic_state_machine_mute_deafen_speaking_while_muted_and_no_input
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test ptt_contract`
+Result M3: KILLED
+--- M4: NoiseSuppressionPipeline::process_frame VAD leading_streak >= -> > ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/noise_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
+
+running 4 tests
+test t_noise_01_constants_and_krisp_model_tier_oracle ... ok
+test t_noise_02_lifecycle_state_machine_and_error_oracles ... ok
+test t_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating ... FAILED
+test t_noise_04_skip_when_muted_cpu_overuse_fallback_and_session_stats_json ... ok
+
+failures:
+
+---- t_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating stdout ----
+
+thread 't_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating' (993432) panicked at crates/discord-voice/tests/noise_contract.rs:234:5:
+на 2-м кадре речи гейт обязан открыться
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test noise_contract`
+Result M4: KILLED
+--- M5: attenuate_pcm_s16_in_place disable dB gain calculation ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/noise_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
+
+running 4 tests
+test t_noise_01_constants_and_krisp_model_tier_oracle ... ok
+test t_noise_02_lifecycle_state_machine_and_error_oracles ... ok
+test t_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating ... FAILED
+test t_noise_04_skip_when_muted_cpu_overuse_fallback_and_session_stats_json ... ok
+
+failures:
+
+---- t_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating stdout ----
+
+thread 't_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating' (993719) panicked at crates/discord-voice/tests/noise_contract.rs:190:5:
+assertion `left == right` failed
+  left: 10000
+ right: 1000
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t_noise_03_pcm_attenuation_in_db_and_vad_hangover_gating
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test noise_contract`
+Result M5: KILLED
+=== Restored MD5 (rust/crates/discord-voice/src/ptt.rs): 976860bd3f7da6d7300b8f03d6fb93b7 (matches baseline: true) ===
+=== Restored MD5 (rust/crates/discord-voice/src/noise.rs): 3faeb35b4ce047559ee7d807fa27a5e5 (matches baseline: true) ===
+Summary: 5/5 mutations killed (100%).
