@@ -407,6 +407,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/e2e/m2-settings-reload.e2e.test.mjs` | — | `openApp`, `m2FixtureData` |
 | `tests/e2e/m2-reconnect.e2e.test.mjs` | — | `NET_STATUSES`, `NET_TEXT`, `net_connect`, `openApp` |
 | `tests/e2e/m2-voice-idle.e2e.test.mjs` | — | `VOICE_TEXT`, `disabled`, `openApp` |
+| `tests/e2e/e2e-build006.test.mjs` | — | `openApp`, `captcha-modal`, `create-guild-dialog`, `stream-viewer`, `search-popover`, `context-menu`, `advanced-settings`, `resolve_gift_code` |
 | `tests/unit/composer.test.mjs` | `rust/gui-spike/ui/features/composer.js` | `ATTACH_LIMITS`, `ATTACH_TEXT`, `GIFT_TEXT`, `createComposer`, `formatBytes` |
 | `tests/unit/server-menu.test.mjs` | `rust/gui-spike/ui/features/actions.js` | `MENU_LABELS`, `REASONS`, `loadApp` |
 | `tests/unit/account-dynamic-sync.test.mjs` | — | — |

@@ -1,0 +1,18 @@
+
+> discord-function-lab@0.1.0 gate:worker
+> node scripts/gate.mjs --scope worker
+
+
+✔ typecheck — 0.6 с
+✔ ui-tsc — 0.4 с
+✔ meta — 0.2 с (тесты 118: pass 118, fail 0, skip 0)
+✔ unit — 6.9 с (тесты 1901: pass 1901, fail 0, skip 0)
+✔ spike-rust — 38.1 с
+✔ workspace-rust — 26.0 с (тесты 1402: pass 1390, fail 0, skip 12)
+✔ smoke — 1.1 с (тесты 22: pass 19, fail 0, skip 3)
+
+Отчёт гейта: /home/sanya/orca/workspaces/project/task-630-qa-e2e-regression/.gate/worker-2026-11-07T14-57-13-931Z.json
+⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
+⚠ smoke: пропущено 3 тестов — пропуск прохождением не считается
+Вердикт: passed_with_skips
+Приёмка: н/д (worker-гейт)
