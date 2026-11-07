@@ -1,0 +1,20 @@
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+error[E0433]: cannot find `rtp` in `discord_voice`
+  --> crates/discord-voice/tests/rtp_video_contract.rs:11:20
+   |
+11 | use discord_voice::rtp::video::{
+   |                    ^^^ could not find `rtp` in `discord_voice`
+
+error[E0432]: unresolved imports `discord_voice::dave::DAVE_MARKER_BYTES`, `discord_voice::dave::DAVE_PROTOCOL_VERSION_V1`, `discord_voice::dave::DaveMlsEngine`, `discord_voice::dave::has_dave_magic_marker`
+ --> crates/discord-voice/tests/rtp_video_contract.rs:5:5
+  |
+5 |     DAVE_MARKER_BYTES, DAVE_PROTOCOL_VERSION_V1, DaveMlsEngine, StreamKey, has_dave_magic_marker,
+  |     ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^             ^^^^^^^^^^^^^^^^^^^^^ no `has_dave_magic_marker` in `dave`
+  |     |                  |                         |
+  |     |                  |                         no `DaveMlsEngine` in `dave`
+  |     |                  no `DAVE_PROTOCOL_VERSION_V1` in `dave`
+  |     no `DAVE_MARKER_BYTES` in `dave`
+
+Some errors have detailed explanations: E0432, E0433.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-voice` (test "rtp_video_contract") due to 2 previous errors

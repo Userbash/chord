@@ -18,6 +18,7 @@ pub mod reception;
 pub mod reconnect;
 pub mod regions;
 pub mod rtcp;
+pub mod rtp;
 pub mod session;
 pub mod srtp;
 pub mod stats;
@@ -1286,7 +1287,9 @@ impl VoiceCallStateMachine {
         if let Some(ref gid) = guild_id
             && gid.trim().is_empty()
         {
-            return Err(VoiceError::invalid("guild_id must not be empty when present"));
+            return Err(VoiceError::invalid(
+                "guild_id must not be empty when present",
+            ));
         }
         let effective_muted = muted || deafened;
         self.state = VoiceCallState::Signaling;
@@ -1350,7 +1353,9 @@ impl VoiceCallStateMachine {
         }
 
         if update.session_id.trim().is_empty() {
-            return Err(VoiceError::invalid("VOICE_STATE_UPDATE session_id is empty"));
+            return Err(VoiceError::invalid(
+                "VOICE_STATE_UPDATE session_id is empty",
+            ));
         }
 
         if self.session_id.as_deref() != Some(update.session_id.as_str()) {
@@ -1440,12 +1445,7 @@ impl VoiceCallStateMachine {
     ///
     /// Если с момента последней отправки прошло `>= 120ms`, немедленно возвращает JSON Gateway `op:4`.
     /// Иначе планирует `state_deadline_ms` и возвращает `None` до вызова `flush_state`.
-    pub fn set_mute_deaf(
-        &mut self,
-        muted: bool,
-        deafened: bool,
-        now_ms: u64,
-    ) -> Option<String> {
+    pub fn set_mute_deaf(&mut self, muted: bool, deafened: bool, now_ms: u64) -> Option<String> {
         let effective_muted = muted || deafened;
         self.muted = effective_muted;
         self.deafened = deafened;
@@ -1477,7 +1477,10 @@ impl VoiceCallStateMachine {
 
     /// Отправляет отложенное коалесцированное обновление `self_mute` / `self_deaf`, если наступил `state_deadline_ms`.
     pub fn flush_state(&mut self, now_ms: u64) -> Option<String> {
-        if self.state_deadline_ms.is_none_or(|deadline| now_ms < deadline) {
+        if self
+            .state_deadline_ms
+            .is_none_or(|deadline| now_ms < deadline)
+        {
             return None;
         }
         if matches!(self.state, VoiceCallState::Idle | VoiceCallState::Departing)
@@ -1534,8 +1537,7 @@ impl VoiceCallStateMachine {
         if matches!(self.state, VoiceCallState::Idle | VoiceCallState::Departing) {
             return None;
         }
-        let leave_json =
-            encode_gateway_voice_state_op4(self.guild_id.as_deref(), None, true, true);
+        let leave_json = encode_gateway_voice_state_op4(self.guild_id.as_deref(), None, true, true);
         self.state = VoiceCallState::Departing;
         self.session_confirmed = false;
         self.channel_id = None;

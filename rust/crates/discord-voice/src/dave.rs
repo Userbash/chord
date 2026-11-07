@@ -985,3 +985,99 @@ impl SecureFramesStateUpdate {
         last_update != Some(self)
     }
 }
+
+pub use crate::srtp::{
+    DAVE_MARKER_BYTES, DaveFrameCipher, DaveMediaCipher, DaveMlsEngine, DaveStrippedRtpPacket,
+    DaveTransitionOutcome,
+};
+
+/// Длина тега аутентификации AES-256-GCM внутреннего слоя DAVE MLS v1 (16 байт).
+pub const DAVE_GCM_TAG_LEN: usize = 16;
+
+/// Актуальная версия сквозного протокола шифрования медиакадров DAVE MLS (`v1`).
+pub const DAVE_PROTOCOL_VERSION_V1: u8 = 1;
+
+/// Проверяет, содержит ли полезная нагрузка RTP-пакета (после снятия внешнего слоя SRTP)
+/// валидный трейлер сквозного шифрования DAVE MLS v1:
+/// `[...][16B gcm_tag][leb128(truncated_nonce)][supplemental_size: u8][0xFA, 0xFA]`.
+#[must_use]
+pub fn has_dave_magic_marker(decrypted_srtp_payload: &[u8]) -> bool {
+    let len = decrypted_srtp_payload.len();
+    if len < DAVE_GCM_TAG_LEN + 4 {
+        return false;
+    }
+    if decrypted_srtp_payload[len - 2..] != DAVE_MARKER_BYTES {
+        return false;
+    }
+    let supplemental_size = usize::from(decrypted_srtp_payload[len - 3]);
+    supplemental_size >= DAVE_GCM_TAG_LEN + 4 && supplemental_size <= len
+}
+
+impl DaveMlsEngine {
+    /// Двухслойно шифрует пакетную последовательность RTP-видеопакетов (`VideoRtpPacket`)
+    /// сквозным шифром эпохи DAVE MLS v1 (`0xFAFA`) и транспортным SRTP (`_rtpsize`).
+    pub fn encrypt_video_rtp_packets(
+        &mut self,
+        packets: &[crate::rtp::video::VideoRtpPacket],
+    ) -> Result<Vec<Vec<u8>>, crate::srtp::SrtpError> {
+        let mut out = Vec::with_capacity(packets.len());
+        for pkt in packets {
+            out.push(self.encrypt_rtp_packet(&pkt.raw)?);
+        }
+        Ok(out)
+    }
+
+    /// Двухслойно расшифровывает входящий видеопакет SRTP + DAVE MLS v1 (`0xFAFA`),
+    /// проверяет защиту от повтора (`NonceReuse`) и снимает расширение `0xBEDE`.
+    pub fn decrypt_video_rtp_packet(
+        &mut self,
+        wire_packet: &[u8],
+    ) -> Result<DaveStrippedRtpPacket, crate::srtp::SrtpError> {
+        self.decrypt_rtp_stripping_bede(wire_packet)
+    }
+
+    /// Пакетизирует видеокадр H.264 Annex-B (Single NALU, STAP-A, FU-A для `> 1200` байт)
+    /// и шифрует все полученные RTP-пакеты двухслойным конвейером DAVE MLS v1 + SRTP.
+    pub fn packetize_and_encrypt_h264(
+        &mut self,
+        packetizer: &mut crate::rtp::video::RtpVideoPacketizer,
+        annex_b_frame: &[u8],
+        timestamp_delta: u32,
+        ext: Option<&[u8]>,
+    ) -> Result<Vec<Vec<u8>>, crate::rtp::video::VideoRtpError> {
+        let rtp_packets = packetizer.packetize_h264_frame(annex_b_frame, timestamp_delta, ext)?;
+        let encrypted = self.encrypt_video_rtp_packets(&rtp_packets)?;
+        Ok(encrypted)
+    }
+
+    /// Пакетизирует срез OBU видеокадра AV1 (`W=1..3/0`, `Z/Y` фрагментация для `> 1200` байт)
+    /// и шифрует все полученные RTP-пакеты двухслойным конвейером DAVE MLS v1 + SRTP.
+    pub fn packetize_and_encrypt_av1(
+        &mut self,
+        packetizer: &mut crate::rtp::video::RtpVideoPacketizer,
+        av1_obus: &[&[u8]],
+        timestamp_delta: u32,
+        ext: Option<&[u8]>,
+    ) -> Result<Vec<Vec<u8>>, crate::rtp::video::VideoRtpError> {
+        let rtp_packets = packetizer.packetize_av1_obus(av1_obus, timestamp_delta, ext)?;
+        let encrypted = self.encrypt_video_rtp_packets(&rtp_packets)?;
+        Ok(encrypted)
+    }
+
+    /// Расшифровывает двухслойный видеопакет (SRTP + DAVE MLS v1 `0xFAFA`), снимает расширение `0xBEDE`
+    /// и подаёт открытый RTP-видеопакет в сборщик [`crate::media::rtp::VideoFrameAssembler`].
+    /// Возвращает `Ok(Some(frame))`, когда пакет с `marker = true` завершает сборку кадра.
+    pub fn decrypt_and_assemble_video_packet(
+        &mut self,
+        assembler: &mut crate::media::rtp::VideoFrameAssembler,
+        wire_packet: &[u8],
+    ) -> Result<Option<Vec<u8>>, crate::srtp::SrtpError> {
+        let stripped = self.decrypt_video_rtp_packet(wire_packet)?;
+        Ok(assembler.push(
+            stripped.sequence,
+            stripped.timestamp,
+            stripped.marker,
+            &stripped.payload,
+        ))
+    }
+}

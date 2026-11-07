@@ -1,0 +1,196 @@
+=== INITIAL MD5 ===
+a859d6b8427a51fece7bf1866e0ce289  rust/crates/discord-voice/src/rtp/video.rs
+baec8e28981e824e9a01b2b1cb09944e  rust/crates/discord-voice/src/dave.rs
+--- M1: H.264 FU-A boundary > 1200 mutated to >= 1200 ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running tests/rtp_video_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
+
+running 8 tests
+test h264_rtx_packet_generation_and_restoration ... ok
+test av1_single_multi_w2_w3_w0_and_fragmented_obu_roundtrip ... ok
+test gateway_streaming_opcodes_18_to_22_and_stream_key_contract ... ok
+test h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary ... FAILED
+test h264_three_byte_start_codes_stap_a_flush_and_av1_w3_multi_byte_leb128 ... ok
+test h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler ... ok
+test negative_and_boundary_cases_are_rejected_with_typed_errors ... ok
+test dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 ... ok
+
+failures:
+
+---- h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary stdout ----
+
+thread 'h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary' (669502) panicked at crates/discord-voice/tests/rtp_video_contract.rs:128:5:
+assertion `left == right` failed
+  left: 2
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p discord-voice --test rtp_video_contract`
+M1: KILLED
+--- M2: H.264 FU-A End bit (0x40) omitted on final fragment ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+warning: unused variable: `is_end`
+   --> crates/discord-voice/src/rtp/video.rs:411:13
+    |
+411 |         let is_end = offset + take == body.len();
+    |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_is_end`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/rtp_video_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
+
+running 8 tests
+test h264_rtx_packet_generation_and_restoration ... ok
+test av1_single_multi_w2_w3_w0_and_fragmented_obu_roundtrip ... ok
+test gateway_streaming_opcodes_18_to_22_and_stream_key_contract ... ok
+test h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary ... FAILED
+test h264_three_byte_start_codes_stap_a_flush_and_av1_w3_multi_byte_leb128 ... ok
+test h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler ... FAILED
+test negative_and_boundary_cases_are_rejected_with_typed_errors ... ok
+test dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 ... FAILED
+
+failures:
+
+---- h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary stdout ----
+
+thread 'h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary' (669812) panicked at crates/discord-voice/tests/rtp_video_contract.rs:170:5:
+assertion `left == right` failed
+  left: 5
+ right: 69
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler stdout ----
+
+thread 'h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler' (669813) panicked at crates/discord-voice/tests/rtp_video_contract.rs:236:5:
+assertion `left == right` failed
+  left: 5
+ right: 69
+
+---- dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 stdout ----
+
+thread 'dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1' (669809) panicked at crates/discord-voice/tests/rtp_video_contract.rs:454:36:
+complete H.264 frame
+
+
+failures:
+    dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1
+    h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary
+    h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler
+
+test result: FAILED. 5 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-voice --test rtp_video_contract`
+M2: KILLED
+--- M3: H.264 STAP-A length prefix mutated from BE to LE ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/rtp_video_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
+
+running 8 tests
+test h264_rtx_packet_generation_and_restoration ... ok
+test av1_single_multi_w2_w3_w0_and_fragmented_obu_roundtrip ... ok
+test gateway_streaming_opcodes_18_to_22_and_stream_key_contract ... ok
+test h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary ... ok
+test h264_three_byte_start_codes_stap_a_flush_and_av1_w3_multi_byte_leb128 ... ok
+test h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler ... FAILED
+test negative_and_boundary_cases_are_rejected_with_typed_errors ... ok
+test dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 ... FAILED
+
+failures:
+
+---- h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler stdout ----
+
+thread 'h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler' (670166) panicked at crates/discord-voice/tests/rtp_video_contract.rs:255:33:
+final packet with marker=true must emit frame
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 stdout ----
+
+thread 'dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1' (670162) panicked at crates/discord-voice/tests/rtp_video_contract.rs:454:36:
+complete H.264 frame
+
+
+failures:
+    dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1
+    h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p discord-voice --test rtp_video_contract`
+M3: KILLED
+--- M4: AV1 OBU Z-bit continuation flag zeroed on fragmented OBU ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+error: expected identifier, found `0`
+  --> crates/discord-voice/src/rtp/video.rs:89:11
+   |
+89 | pub const 0: u8 = 0x80;
+   |           ^ expected identifier
+
+error: could not compile `discord-voice` (lib) due to 1 previous error
+M4: KILLED
+--- M5: DAVE MLS v1 0xFAFA magic marker check inverted ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/rtp_video_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
+
+running 8 tests
+test h264_rtx_packet_generation_and_restoration ... ok
+test gateway_streaming_opcodes_18_to_22_and_stream_key_contract ... ok
+test av1_single_multi_w2_w3_w0_and_fragmented_obu_roundtrip ... ok
+test h264_three_byte_start_codes_stap_a_flush_and_av1_w3_multi_byte_leb128 ... ok
+test h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary ... ok
+test negative_and_boundary_cases_are_rejected_with_typed_errors ... FAILED
+test h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler ... ok
+test dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 ... FAILED
+
+failures:
+
+---- negative_and_boundary_cases_are_rejected_with_typed_errors stdout ----
+
+thread 'negative_and_boundary_cases_are_rejected_with_typed_errors' (670559) panicked at crates/discord-voice/tests/rtp_video_contract.rs:638:5:
+assertion failed: has_dave_magic_marker(&fake_dave)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 stdout ----
+
+thread 'dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1' (670553) panicked at crates/discord-voice/tests/rtp_video_contract.rs:482:9:
+assertion failed: has_dave_magic_marker(inner_parsed.payload)
+
+
+failures:
+    dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1
+    negative_and_boundary_cases_are_rejected_with_typed_errors
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p discord-voice --test rtp_video_contract`
+M5: KILLED
+=== FINAL MD5 ===
+a859d6b8427a51fece7bf1866e0ce289  rust/crates/discord-voice/src/rtp/video.rs
+baec8e28981e824e9a01b2b1cb09944e  rust/crates/discord-voice/src/dave.rs
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-615-rtp-video-dave/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/rtp_video_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
+
+running 8 tests
+test h264_rtx_packet_generation_and_restoration ... ok
+test av1_single_multi_w2_w3_w0_and_fragmented_obu_roundtrip ... ok
+test gateway_streaming_opcodes_18_to_22_and_stream_key_contract ... ok
+test h264_single_nalu_and_exact_1200_vs_1201_fu_a_boundary ... ok
+test h264_three_byte_start_codes_stap_a_flush_and_av1_w3_multi_byte_leb128 ... ok
+test h264_stap_a_and_multi_fragment_fu_a_roundtrip_with_video_frame_assembler ... ok
+test negative_and_boundary_cases_are_rejected_with_typed_errors ... ok
+test dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+=== POST-RESTORE GREEN VERIFIED ===
