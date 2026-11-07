@@ -35,6 +35,8 @@ import { createDispatchView } from "./features/dispatch-view.js";
 import { createDispatchBridge, resolveDispatchListen } from "./features/dispatch-bridge.js";
 import { createPinsThreadsPanels } from "./features/pins-threads.js";
 import { createInviteModal } from "./features/invite-modal.js";
+import { createGiftModal } from "./features/gift-modal.js";
+import { createQrAuthModal } from "./features/qr-auth-modal.js";
 import { createVoiceDevicesSettings } from "./features/voice-devices-settings.js";
 import {
   applyChannelIndicatorToDom,
@@ -831,7 +833,7 @@ function createGuildRail(options) {
       if (typeof event.preventDefault === "function") event.preventDefault();
       onGuildContextMenu(id, tile);
     });
-    if (typeof globalThis.Image === "function" && !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__)) {
+    if (typeof globalThis.Image === "function") {
       tile.setAttribute("draggable", "true");
       tile.style.cssText =
         "width:46px;height:46px;min-width:46px;min-height:46px;margin:0 auto;border-radius:15px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;box-sizing:border-box;flex-shrink:0;transition:border-radius 0.15s ease,transform 0.12s ease;";
@@ -899,7 +901,7 @@ function createGuildRail(options) {
    */
   function applyGuildIcon(tile, id) {
     const icon = guildIcons.get(id);
-    if (!icon || typeof globalThis.Image !== "function" || /** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__) {
+    if (!icon || typeof globalThis.Image !== "function") {
       return;
     }
     const url = `https://cdn.discordapp.com/icons/${id}/${icon}.png?size=96`;
@@ -1280,7 +1282,7 @@ function channelTreeFailureText(error) {
 function createChannelTree(options) {
   const { invoke } = options;
   const isLiveSession = () =>
-    typeof globalThis.Image === "function" && !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__);
+    typeof globalThis.Image === "function";
   const VOICE_SET_AUDIO_DEVICE_IPC_CMD = ["voice", "set", "audio", "device"].join("_");
   const VOICE_AUDIO_DEVICES_IPC_CMD = ["voice", "audio", "devices"].join("_");
   const VOICE_RTC_STATUS_IPC_CMD = ["voice", "rtc", "status"].join("_");
@@ -3211,7 +3213,7 @@ function boot() {
   /** @type {((anchorEl?: HTMLElement | null) => void) | null} */
   let openLiveComposerEmojiPickerRef = null;
   const isLiveSession = () =>
-    typeof globalThis.Image === "function" && !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__);
+    typeof globalThis.Image === "function";
   const router = createScreenRouter({
     onShow: (name) => {
       if (typeof closeLiveVoicePopouts === "function") {
@@ -3219,6 +3221,7 @@ function boot() {
       }
       const isLiveDesktop =
         isLiveSession() &&
+        !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__) &&
         Boolean(/** @type {any} */ (globalThis).__SPIKE_SNAPSHOT_DONE__) &&
         !(/** @type {any} */ (globalThis).__QA__);
       if (isLiveDesktop && (name === "emoji" || name === "members")) {
@@ -12863,7 +12866,7 @@ function boot() {
     openSelfProfileStatusPopover();
   });
   const cleanupSpikeBenchmarkArtifacts = () => {
-    if (!isLiveSession() || (/** @type {any} */ (globalThis).__QA__)) return;
+    if (!isLiveSession() || Boolean((/** @type {any} */ (globalThis)).__SPIKE_AUTH_DISABLED__) || (/** @type {any} */ (globalThis).__QA__)) return;
     // В живом режиме приложения скрываем синтетические кнопки спайк-бенчмарка
     // ("Чат 100k", "Эмодзи-пикер", "Участники 24k", дубликат "Настройки" в рейле серверов),
     // метрики бенчмарка в верхней полосе и очищаем тестовые списки (100k фейковых сообщений и 24k фейковых пользователей).
@@ -12903,13 +12906,34 @@ function boot() {
     } catch {
       /* best-effort очистка спайк-списка участников */
     }
-    if (!chat.channelId) {
-      try {
-        /** @type {any} */ (chat.list)?.setSource?.({ totalRows: 0, renderRow: () => {} });
-        byId("message-list")?.replaceChildren();
-      } catch {
-        /* best-effort очистка спайк-списка 100k сообщений до выбора реального канала */
-      }
+    const notice = document.querySelector(".chat-notice");
+    if (notice instanceof HTMLElement) {
+      notice.style.display = "none";
+      notice.setAttribute("hidden", "");
+    }
+    const giftBtn = document.querySelector('[data-action="gift"]');
+    if (giftBtn instanceof HTMLElement) {
+      giftBtn.removeAttribute("aria-disabled");
+      giftBtn.removeAttribute("disabled");
+      giftBtn.setAttribute("title", "Отправить подарок Nitro");
+    }
+    const inboxBtn = document.querySelector('[data-action="inbox"]');
+    if (inboxBtn instanceof HTMLElement) {
+      inboxBtn.removeAttribute("aria-disabled");
+      inboxBtn.removeAttribute("disabled");
+      inboxBtn.setAttribute("title", "Уведомления и почта");
+    }
+    const hint = document.getElementById("composer-hint");
+    if (hint instanceof HTMLElement) {
+      hint.textContent = "";
+    }
+    const prelimBlock = document.getElementById("voice-devices-preliminary-block");
+    if (prelimBlock instanceof HTMLElement) {
+      prelimBlock.style.display = "none";
+    }
+    const voiceDevices = document.getElementById("voice-devices");
+    if (voiceDevices instanceof HTMLElement) {
+      voiceDevices.removeAttribute("hidden");
     }
   };
 
@@ -15546,7 +15570,29 @@ function boot() {
     }),
   );
 
+  const giftModal = createGiftModal({
+    document,
+    container: document.body,
+    triggerButton: /** @type {HTMLElement | null} */ (
+      document.querySelector('[data-action="composer-gift"]') || document.querySelector('[data-action="gift"]')
+    ),
+    invoke: (cmd, args) => /** @type {Promise<any>} */ (invoke(cmd, args)),
+  });
+
+  const qrAuthModal = createQrAuthModal({
+    document,
+    container: document.body,
+    triggerButton: /** @type {HTMLElement | null} */ (
+      document.querySelector('[data-action="open-qr-auth-modal"]') ||
+      document.getElementById("auth-qr-code") ||
+      document.getElementById("auth-qr")
+    ),
+    invoke: (cmd, args) => /** @type {Promise<any>} */ (invoke(cmd, args)),
+  });
+
   return {
+    giftModal,
+    qrAuthModal,
     router,
     chat,
     tree,

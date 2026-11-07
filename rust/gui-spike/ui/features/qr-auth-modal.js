@@ -998,7 +998,7 @@ export function createQrAuthModal(options = {}) {
       return Promise.resolve(false);
     }
 
-    if (false && !ipConfirmed) {
+    if (!ipConfirmed) {
       showError(QR_AUTH_TEXT.ipConfirmRequired);
       return Promise.resolve(false);
     }
