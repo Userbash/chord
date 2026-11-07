@@ -373,6 +373,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/dm-friends-ui.test.mjs` | `rust/gui-spike/ui/features/dm-friends.js` | `createDmFriendsController`, `DM_FRIENDS_ENDPOINTS`, `FRIENDS_TABS`, `applyDmFriendsDispatch`, `sortPrivateChannels` |
 | `tests/meta/test-policy.test.mjs` | — | `TEST-POLICY`, `--no-verify`, `gate.mjs` |
 | `tests/meta/design-breakpoints.test.mjs` | — | мета: адаптив shell 1600/1200/960/720 (`--layout-tree-w`, `--layout-tree-min-w`, `#member-panel`, `channel-tree`) |
+| `tests/meta/design-tokens-contrast.test.mjs` | — | мета: Design Tokens V2 и контраст WCAG 2.2 (`WCAG 2.2`, `design-tokens-v2.md`, `DESIGN-TOKENS-V2.md`, `contrastRatio`, `relativeLuminance`, `Midnight`) |
 | `tests/unit/gui-spike-regressions.test.mjs` | — | `quick-switcher`, `quick-switcher-empty`, `msg-toolbar`, `delete_message` |
 | `tests/unit/channel-switch.test.mjs` | — | `channels`, `messages_page`, `channel-item`, `chat-title-text`, `G6-D-01` |
 | `tests/unit/guild-rail.test.mjs` | — | `ready`, `guild-rail`, `data-guild-id` |
