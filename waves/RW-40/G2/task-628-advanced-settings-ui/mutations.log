@@ -1,0 +1,9 @@
+=== Mutation Testing: TASK-628 (advanced-settings.js) ===
+Baseline MD5: 7235afbbb097300c18d5372fb4bb67ab
+M1 KILLED: hasBuiltInConflict forced to false
+M2 KILLED: MAX_SOUNDBOARD_VOLUME_PERCENT mutated 100 -> 200
+M3 KILLED: resolveEntranceSoundForGuild global fallback disabled
+M4 KILLED: validateClipsStorageLocation path traversal guard disabled
+M5 KILLED: removeKeybind managed keybind guard removed
+Restored MD5: 7235afbbb097300c18d5372fb4bb67ab
+Result: 5/5 mutations KILLED (100%)

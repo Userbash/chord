@@ -1,0 +1,388 @@
+/* =============================================================================
+ * TASK-628 (G2 Frontend): Стили расширенных настроек (Advanced Settings UI):
+ * Горячие клавиши (Keybinds), Звуковая панель (Soundboard) и Видеонарезки (Clips).
+ *
+ * RE-оракул:
+ * - /home/sanya/re-deep/decoded/d8b0ffc3255e8113_0 (Keybinds, Soundboard, Clips);
+ * - /home/sanya/re-deep/decoded/e2135c73a7dbde68_0 (@2363 Keybind Recorder);
+ * - /home/sanya/re-deep/ui8/23-settings-voice.json;
+ * - rust/gui-spike/ui/tokens.css (100% привязка к дизайн-токенам без сырых цветов).
+ * ========================================================================== */
+
+.advanced-settings,
+[data-advanced-settings] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: var(--layout-content-max-w);
+  padding: var(--modal-pad-y) var(--modal-pad-x);
+  background: var(--bg-chat);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  box-sizing: border-box;
+}
+
+.advanced-settings[hidden],
+[data-advanced-settings][hidden] {
+  display: none;
+}
+
+/* ---------- Навигация вкладок (Keybinds / Soundboard / Clips) ---------- */
+
+.advanced-settings-tabs,
+[data-advanced-tabs] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--menu-border) solid var(--border-subtle);
+}
+
+.advanced-settings-tab,
+[data-advanced-tab] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--settings-nav-item-h);
+  padding: var(--space-0) var(--space-5);
+  border: var(--menu-border) solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.advanced-settings-tab:hover,
+[data-advanced-tab]:hover {
+  background: var(--state-hover);
+  color: var(--text);
+}
+
+.advanced-settings-tab[aria-selected="true"],
+[data-advanced-tab][aria-selected="true"] {
+  background: var(--state-selected-strong);
+  border-color: var(--border);
+  color: var(--text-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+.advanced-settings-tab:focus-visible,
+[data-advanced-tab]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ---------- Панели секций ---------- */
+
+.advanced-settings-section,
+[data-advanced-section] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.advanced-settings-section[hidden],
+[data-advanced-section][hidden] {
+  display: none;
+}
+
+.advanced-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.advanced-settings-title {
+  margin: var(--space-0);
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-strong);
+}
+
+.advanced-settings-subtitle {
+  margin: var(--space-0);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  color: var(--text-muted);
+}
+
+/* ---------- Уведомления и предупреждения ---------- */
+
+.advanced-settings-notice,
+[data-keybinds-notice] {
+  padding: var(--space-4) var(--space-5);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-subtle);
+  font-size: var(--font-size-ui);
+}
+
+.advanced-settings-warning,
+[data-clips-hardware-warning],
+[data-keybind-conflict] {
+  padding: var(--space-4) var(--space-5);
+  border: var(--menu-border) solid var(--warning);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--warning);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+}
+
+.advanced-settings-error,
+[data-soundboard-error] {
+  color: var(--danger-text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ---------- 1. Горячие клавиши (Keybinds) ---------- */
+
+.keybinds-empty,
+[data-keybinds-empty] {
+  padding: var(--space-6);
+  border: var(--menu-border) dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.keybinds-list,
+[data-keybinds-list] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.keybind-row,
+[data-keybind-row] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.keybind-row-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.keybind-combo-badge,
+[data-keybind-combo] {
+  display: inline-flex;
+  align-items: center;
+  height: var(--btn-height);
+  padding: var(--space-0) var(--space-4);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+}
+
+.keybind-record-btn,
+[data-keybind-record-btn] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--btn-height);
+  padding: var(--space-0) var(--btn-pad-x);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--btn-radius);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.keybind-record-btn[data-recording="true"],
+[data-keybind-record-btn][data-recording="true"] {
+  background: var(--danger-fill);
+  border-color: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+.keybind-description {
+  margin: var(--space-0);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--text-muted);
+}
+
+.default-keybinds-list,
+[data-default-keybinds-list] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  list-style: none;
+  margin: var(--space-0);
+}
+
+/* ---------- 2. Звуковая панель (Soundboard) ---------- */
+
+.soundboard-volume-row,
+.clips-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.soundboard-slider,
+[data-soundboard-volume-slider],
+[data-clips-bitrate-slider] {
+  width: 100%;
+  max-width: var(--modal-w-sm);
+  height: var(--slider-track-h);
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.soundboard-entrance-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.soundboard-sound-item,
+[data-entrance-sound-option] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--btn-height);
+  padding: var(--space-0) var(--space-4);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--font-size-ui);
+  cursor: pointer;
+}
+
+.soundboard-sound-item[aria-pressed="true"],
+[data-entrance-sound-option][aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text-accent);
+}
+
+/* ---------- 3. Видеонарезки (Clips) и общие контролы ---------- */
+
+.advanced-switch,
+[data-clips-enabled-switch],
+[data-clips-voice-switch],
+[data-clips-reminders-switch],
+[data-keybind-toggle] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--switch-w);
+  height: var(--switch-h);
+  padding: var(--space-0) var(--space-3);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-round);
+  background: var(--surface-3);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.advanced-switch[aria-checked="true"],
+[data-clips-enabled-switch][aria-checked="true"],
+[data-clips-voice-switch][aria-checked="true"],
+[data-clips-reminders-switch][aria-checked="true"],
+[data-keybind-toggle][aria-checked="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.advanced-select,
+.advanced-input {
+  height: var(--btn-height);
+  padding: var(--space-0) var(--space-4);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: var(--font-size-ui);
+}
+
+.advanced-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--btn-height);
+  padding: var(--space-0) var(--btn-pad-x);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--btn-radius);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.advanced-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.advanced-btn--danger {
+  background: var(--danger-fill);
+  border-color: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+.advanced-select[disabled],
+.advanced-input[disabled],
+.advanced-btn[disabled],
+.advanced-switch[disabled],
+[data-clips-bitrate-slider][disabled] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
