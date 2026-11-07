@@ -1,0 +1,24 @@
+▶ TASK-634: Константы RE-оракула Remote Auth v2 и чистые функции валидации
+  ✔ экспортирует канонические константы модулей 52423 (QR_CHUNK), 4d2a64cb5df5fc4e_0 и TASK-629 (0.671329ms)
+  ✔ parseQrAuthUrl, verifyFingerprintMatch и formatFingerprintDigest разбирают QR-ссылки и сверяют отпечаток SPKI (0.62453ms)
+  ✔ validateDeviceIpAddress и formatDeviceClientInfo валидируют IPv4/IPv6 и форматируют ОС, браузер и локацию (0.346419ms)
+  ✔ evaluateQrSecurityIndicator вычисляет уровень безопасности verified / warning / danger (0.15734ms)
+  ✔ parseRemoteAuthUserPayload, isValidSnowflake, clampSessionTimeoutMs и classifyQrAuthError обрабатывают граничные случаи (0.269199ms)
+✔ TASK-634: Константы RE-оракула Remote Auth v2 и чистые функции валидации (2.718876ms)
+▶ TASK-634: Интерактивный контроллер модалки #qr-auth-modal, машина состояний и A11y
+  ✔ проходит цикл pending -> confirming -> approved, отображает fingerprint/ОС/браузер/IP/город и требует подтверждения IP (1.781767ms)
+  ✔ выполняет отмену входа («Отклонить» -> rejected), истечение таймера сессии (expired) и блокировку MITM (0.492969ms)
+  ✔ блокирует подтверждение при MITM-несовпадении отпечатка и поддерживает фокус-ловушку Tab/Enter/Escape и ошибки 429/403/400/network (0.57777ms)
+✔ TASK-634: Интерактивный контроллер модалки #qr-auth-modal, машина состояний и A11y (3.020386ms)
+▶ TASK-634: Контракт стилей qr-auth-modal.css и безопасность кода
+  ✔ CSS-файл styles/qr-auth-modal.css использует только токены из tokens.css без сырых цветов, :has() и !important (0.867559ms)
+  ✔ код qr-auth-modal.js не вызывает запрещённые нативные/медиа API и не пишет в console (0.27997ms)
+✔ TASK-634: Контракт стилей qr-auth-modal.css и безопасность кода (1.252838ms)
+ℹ tests 10
+ℹ suites 3
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.939551

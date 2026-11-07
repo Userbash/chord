@@ -462,6 +462,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/poll-progress.test.mjs` | — | — |
 | `tests/unit/presence-activity.test.mjs` | — | — |
 | `tests/unit/profile-modal.test.mjs` | — | — |
+| `tests/unit/qr-auth-modal.test.mjs` | `rust/gui-spike/ui/features/qr-auth-modal.js` | `createQrAuthModal`, `parseQrAuthUrl`, `evaluateQrSecurityIndicator`, `classifyQrAuthError` |
 | `tests/unit/quick-switcher.test.mjs` | — | — |
 | `tests/unit/reactions-ui.test.mjs` | — | — |
 | `tests/unit/reactive-store.test.mjs` | — | — |
