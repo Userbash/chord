@@ -353,7 +353,10 @@ impl InviteTransport for ApiInviteTransport {
                         }
                         return Ok(response);
                     }
-                    if is_invite_accept && !matches!(response.status, 200..=299 | 401 | 404 | 429) {
+                    if is_invite_accept
+                        && !crate::data::is_live_active()
+                        && !matches!(response.status, 200..=299 | 401 | 404 | 429)
+                    {
                         if let Some(fallback_body) =
                             crate::data::materialized_accept_body_for_invite_target(target)
                         {
@@ -384,6 +387,7 @@ impl InviteTransport for ApiInviteTransport {
                 Err(error) => {
                     let mapped = InviteError::from(RestFailure::from_api_error(&error));
                     if is_invite_accept
+                        && !crate::data::is_live_active()
                         && !matches!(
                             mapped,
                             InviteError::Unauthorized

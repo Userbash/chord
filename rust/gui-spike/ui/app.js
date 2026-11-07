@@ -11890,6 +11890,29 @@ function boot() {
             compForm.parentElement.insertBefore(roBanner, compForm);
           }
         }
+        const compInputEl = /** @type {HTMLTextAreaElement | HTMLInputElement | null} */ (
+          document.getElementById("composer-input")
+        );
+        if (compInputEl) {
+          if (showPreviewBanner) {
+            compInputEl.disabled = true;
+            compInputEl.placeholder =
+              "Режим предпросмотра (только чтение). Вступите на сервер, чтобы писать в чат.";
+          } else if (showPendingBanner) {
+            compInputEl.disabled = true;
+            compInputEl.placeholder =
+              "Примите правила сервера в Discord для отправки сообщений.";
+          } else if (showReadOnlyBanner) {
+            compInputEl.disabled = true;
+            compInputEl.placeholder =
+              "У вас нет прав на отправку сообщений в этом канале.";
+          } else if (!channelForPolicy?.permissionDeniedReason) {
+            compInputEl.disabled = false;
+            compInputEl.placeholder = isDm
+              ? `Написать @${target?.name || ""}`
+              : `Написать в #${target?.name || ""}`;
+          }
+        }
       }
       refreshLiveChatAuthorsInDom();
     }
@@ -12086,6 +12109,8 @@ function boot() {
   let hydrateDmFriendsFromReady = () => {};
   /** @type {ReturnType<typeof createNotificationsController> | null} */
   let notificationsRef = null;
+  /** @type {ReturnType<typeof createCreateGuildController> | null} */
+  let createGuildModal = null;
 
   const rail = createGuildRail({
     invoke,
@@ -12108,7 +12133,7 @@ function boot() {
       void rememberGuild(id);
     },
     resolvePreferred: () => settingsLoaded.then(() => preferredGuildId),
-    // G-03: «+» открывает модалку join-by-invite.
+    // G-03 / STUB-03: «+» открывает модалку join-by-invite с переходом в создание сервера.
     onAddServer: (opener) => join.open(opener),
     onEnterHome: () => {
       if (isLiveSession() && document.body?.dataset) {
@@ -12146,6 +12171,7 @@ function boot() {
             if (mpNode) mpNode.replaceChildren();
             const moNode = byId("member-online");
             if (moNode) moNode.textContent = "0";
+            rail.selectHome("restore", false);
           } else if (
             preferredGuildId !== HOME_GUILD_ID &&
             !payload.guilds.some((/** @type {any} */ g) => String(g?.id ?? "") === String(preferredGuildId))
@@ -12354,29 +12380,18 @@ function boot() {
         }
       }
       if (isLiveSession() && cmd === "accept_invite") {
-        try {
-          return await invoke(cmd, args);
-        } catch (err) {
-          const fallbackGid = String(join?.preview?.guildId ?? "").trim();
-          if (fallbackGid) {
-            return {
-              guildId: fallbackGid,
-              targetChannelId: join?.preview?.channelId ?? null,
-              targetMessageId: null,
-            };
-          }
-          throw err;
-        }
+        return await invoke(cmd, args);
       }
       return invoke(cmd, args);
     },
     onAccepted: handleAcceptedInviteGuild,
+    onOpenCreate: (opener) => createGuildModal?.open(opener),
   });
 
   /**
    * STUB-03: модалка создания сервера (#create-guild-dialog).
    */
-  const createGuildModal = createCreateGuildController({
+  createGuildModal = createCreateGuildController({
     invoke,
     onCreated: (guild) => {
       if (guild && guild.id) {

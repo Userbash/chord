@@ -213,7 +213,8 @@ export function inviteFailure(error, step = "resolve") {
     case "client":
       if (
         (/** @type {any} */ (error))?.code === 40003 ||
-        isLiveCaptchaChallengeRequired()
+        isLiveCaptchaChallengeRequired() ||
+        (/** @type {any} */ (error))?.status === 400
       ) {
         return {
           text: "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить.",
@@ -221,7 +222,7 @@ export function inviteFailure(error, step = "resolve") {
         };
       }
       return {
-        text: "Невозможно присоединиться к серверу: запрос отклонён сервером (HTTP 400).",
+        text: `Невозможно присоединиться к серверу: запрос отклонён сервером (HTTP ${(/** @type {any} */ (error))?.status || 400}).`,
         retry: true,
       };
     case "invalidResponse":
@@ -301,11 +302,13 @@ function parseAcceptedGuildId(value) {
  * @param {{
  *   invoke: (cmd: string, args?: any) => Promise<any>,
  *   onAccepted?: (guild: JoinedGuild) => void,
+ *   onOpenCreate?: (opener?: any) => void,
  * }} options
  */
 export function createJoinServer(options) {
   const { invoke } = options;
   const onAccepted = options.onAccepted ?? (() => {});
+  const onOpenCreate = options.onOpenCreate ?? null;
 
   /** @param {string} tag @param {string} [className] @param {string} [value] @returns {any} */
   const node = (tag, className, value) => make(tag, className, value);
@@ -378,7 +381,23 @@ export function createJoinServer(options) {
   close.setAttribute("type", "button");
   close.setAttribute("data-action", "dialog-close");
   close.setAttribute("aria-label", "Закрыть");
-  card.append(title, hint, form, close);
+
+  if (typeof onOpenCreate === "function") {
+    const footerPrompt = node("div", "dialog-footer-prompt");
+    footerPrompt.style.cssText = "margin-top:16px;text-align:center;font-size:13px;color:var(--text-muted,#949ba4);";
+    const promptText = node("span", "prompt-text", "Хотите создать свой сервер? ");
+    const switchCreateBtn = node("button", "btn-link switch-to-create-btn", "Создать сервер");
+    switchCreateBtn.setAttribute("type", "button");
+    switchCreateBtn.style.cssText = "background:none;border:none;color:var(--text-link,#00a8fc);cursor:pointer;padding:0;font-size:13px;font-weight:500;text-decoration:underline;";
+    switchCreateBtn.addEventListener("click", () => {
+      hide(false);
+      onOpenCreate(opener);
+    });
+    footerPrompt.append(promptText, switchCreateBtn);
+    card.append(title, hint, form, footerPrompt, close);
+  } else {
+    card.append(title, hint, form, close);
+  }
   host.append(card);
 
   // Backdrop click: клик вне карточки закрывает модал (только если не pending).

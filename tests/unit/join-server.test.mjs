@@ -568,6 +568,26 @@ describe("G-03-UI: диалог join (#join-server-dialog)", () => {
     }
   });
 
+  it("STUB-03 / STUB-05: ссылка 'Создать сервер' переключает на создание сервера", async () => {
+    const app = await loadJoinApp(() => undefined);
+    try {
+      openDialog(app);
+      const switchBtn = firstNode(app, ".switch-to-create-btn");
+      assert.ok(switchBtn, "кнопка переключения на создание сервера найдена");
+      assert.equal(dialogOpen(app), true, "диалог инвайтов открыт");
+
+      switchBtn.click();
+      await app.settle(2);
+
+      assert.equal(dialogOpen(app), false, "модалка инвайтов закрыта после перехода");
+      const createDialog = firstNode(app, "#create-guild-dialog");
+      assert.ok(createDialog, "модалка создания сервера смонтирована");
+      assert.equal(createDialog.getAttribute("hidden"), null, "модалка создания сервера открыта");
+    } finally {
+      app.dispose();
+    }
+  });
+
   it("нет новых команд и токена в коде: только resolve_invite/accept_invite", () => {
     assert.equal(/\bfetch\s*\(|localStorage|sessionStorage/.test(source), false, "UI ходит в сеть/хранилище мимо IPC");
     assert.match(source, /resolve_invite/, "нет команды resolve_invite");
