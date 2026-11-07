@@ -529,12 +529,16 @@ async fn resolve_invite(
 /// Все три поля тела nullable и передаются как пришли (без подстановок):
 /// `session_id`, `invite_instance_id`, `received_installation_id`.
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 async fn accept_invite(
     backend: tauri::State<'_, Arc<AuthBackend>>,
     code: String,
     session_id: Option<String>,
     invite_instance_id: Option<String>,
     received_installation_id: Option<String>,
+    captcha_key: Option<String>,
+    captcha_rqtoken: Option<String>,
+    captcha_session_id: Option<String>,
 ) -> Result<AcceptedInvite, InviteError> {
     let backend = Arc::clone(backend.inner());
     let token = token_or::<InviteError, _>(
@@ -547,14 +551,31 @@ async fn accept_invite(
     let effective_session_id = session_id
         .filter(|s| !s.trim().is_empty())
         .or_else(data::current_gateway_session_id);
-    invites::accept_invite(
-        &api,
-        &code,
-        effective_session_id.as_deref(),
-        invite_instance_id.as_deref(),
-        received_installation_id.as_deref(),
-    )
-    .await
+    if let Some(key) = captcha_key.filter(|s| !s.trim().is_empty()) {
+        let solution = invites::CaptchaSolution {
+            captcha_key: key,
+            captcha_rqtoken: captcha_rqtoken.filter(|s| !s.trim().is_empty()),
+            captcha_session_id: captcha_session_id.filter(|s| !s.trim().is_empty()),
+        };
+        invites::accept_invite_with_captcha(
+            &api,
+            &code,
+            effective_session_id.as_deref(),
+            invite_instance_id.as_deref(),
+            received_installation_id.as_deref(),
+            &solution,
+        )
+        .await
+    } else {
+        invites::accept_invite(
+            &api,
+            &code,
+            effective_session_id.as_deref(),
+            invite_instance_id.as_deref(),
+            received_installation_id.as_deref(),
+        )
+        .await
+    }
 }
 
 /// Создать приглашение для канала: `POST /channels/{channel_id}/invites`.

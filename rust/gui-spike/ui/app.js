@@ -3380,7 +3380,14 @@ function boot() {
             messageId: String(args?.messageId ?? args?.message_id ?? "1"),
             lastViewed: Number(args?.lastViewed ?? args?.last_viewed ?? 1),
           }
-        : args;
+        : isLiveSession() && cmd === "accept_invite" && args && typeof args === "object" && "captcha_key" in args
+          ? {
+              ...args,
+              captchaKey: args.captcha_key,
+              ...(args.captcha_rqtoken ? { captchaRqtoken: args.captcha_rqtoken } : {}),
+              ...(args.captcha_session_id ? { captchaSessionId: args.captcha_session_id } : {}),
+            }
+          : args;
     const shouldLogIpc =
       isLiveSession() &&
       effectiveCmd !== "process_metrics" &&
@@ -3550,6 +3557,12 @@ function boot() {
         return {
           module: "ui/features/join-server.js + rust/gui-spike/src/{invites,guilds,data}.rs",
           handler: "createJoinServer (submitNow / enterStep / cancel)",
+        };
+      }
+      if (el.closest("#captcha-modal")) {
+        return {
+          module: "ui/features/captcha-modal.js + rust/gui-spike/src/invites.rs",
+          handler: "createCaptchaModal (submit / solveWithToken / close)",
         };
       }
       if (el.closest("#guild-leave-dialog") || el.closest("#guild-invite-dialog") || el.closest("#server-menu")) {

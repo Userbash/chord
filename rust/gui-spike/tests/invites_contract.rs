@@ -1502,3 +1502,106 @@ fn accept_decodes_nested_guild_and_channel_when_top_level_guild_id_is_absent() {
         Some("274093052673392642")
     );
 }
+
+#[test]
+fn accept_maps_http_400_hcaptcha_challenge_to_captcha_required_error() {
+    let challenge_body = br#"{
+        "code": 40003,
+        "captcha_key": ["You need to update your app to join this server."],
+        "captcha_sitekey": "a9b5fb07-92ff-493f-86fe-352a2803b3df",
+        "captcha_service": "hcaptcha",
+        "captcha_rqdata": "rqdata_payload_610",
+        "captcha_rqtoken": "rqtoken_payload_610",
+        "captcha_session_id": "sess_payload_610"
+    }"#;
+    let transport = FakeTransport::with_body(400, challenge_body);
+    let client = api(&transport);
+    let err = run(accept_invite(&client, CODE, None, None, None)).expect_err(
+        "HTTP 400 с hCaptcha-челленджем должен возвращать InviteError::CaptchaRequired",
+    );
+
+    assert_eq!(
+        err,
+        InviteError::CaptchaRequired {
+            code: 40003,
+            captcha_service: "hcaptcha".to_string(),
+            captcha_sitekey: "a9b5fb07-92ff-493f-86fe-352a2803b3df".to_string(),
+            captcha_rqdata: Some("rqdata_payload_610".to_string()),
+            captcha_rqtoken: Some("rqtoken_payload_610".to_string()),
+            captcha_session_id: Some("sess_payload_610".to_string()),
+        }
+    );
+
+    let serialized = serde_json::to_value(&err).expect("сериализация CaptchaRequired");
+    assert_eq!(serialized["kind"], "captchaRequired");
+    assert_eq!(serialized["code"], 40003);
+    assert_eq!(serialized["captcha_service"], "hcaptcha");
+    assert_eq!(
+        serialized["captcha_sitekey"],
+        "a9b5fb07-92ff-493f-86fe-352a2803b3df"
+    );
+    assert_eq!(serialized["captcha_rqdata"], "rqdata_payload_610");
+    assert_eq!(serialized["captcha_rqtoken"], "rqtoken_payload_610");
+    assert_eq!(serialized["captcha_session_id"], "sess_payload_610");
+}
+
+#[test]
+fn accept_invite_with_captcha_sends_captcha_key_and_decodes_accepted_guild() {
+    use discord_gui_spike::invites::{accept_invite_with_captcha, CaptchaSolution};
+
+    let transport = FakeTransport::with_body(200, ACCEPT_BODY);
+    let client = api(&transport);
+    let solution = CaptchaSolution {
+        captcha_key: "P1_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.solution_610".to_string(),
+        captcha_rqtoken: Some("rqtoken_payload_610".to_string()),
+        captcha_session_id: Some("sess_payload_610".to_string()),
+    };
+
+    let accepted = run(accept_invite_with_captcha(
+        &client,
+        CODE,
+        Some("sess_gw_1"),
+        None,
+        None,
+        &solution,
+    ))
+    .expect("повторный вызов accept_invite_with_captcha с токеном решения должен пройти");
+
+    assert_eq!(accepted.guild_id, "111111111111111111");
+    let posts = transport.posts();
+    assert_eq!(posts.len(), 1);
+    assert_eq!(posts[0].0, format!("/invites/{CODE}"));
+
+    let sent_json: serde_json::Value =
+        serde_json::from_slice(&posts[0].1).expect("JSON тело POST /invites/{code}");
+    assert_eq!(
+        sent_json["captcha_key"],
+        "P1_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.solution_610"
+    );
+    assert_eq!(sent_json["captcha_rqtoken"], "rqtoken_payload_610");
+    assert_eq!(sent_json["captcha_session_id"], "sess_payload_610");
+    assert_eq!(sent_json["session_id"], "sess_gw_1");
+
+    // Пустой captcha_key отклоняется до обращения к сети
+    let empty_solution = CaptchaSolution {
+        captcha_key: "   ".to_string(),
+        captcha_rqtoken: None,
+        captcha_session_id: None,
+    };
+    assert_eq!(
+        run(accept_invite_with_captcha(
+            &client,
+            CODE,
+            None,
+            None,
+            None,
+            &empty_solution,
+        )),
+        Err(InviteError::InvalidArg)
+    );
+    assert_eq!(
+        transport.posts().len(),
+        1,
+        "пустой captcha_key не должен отправлять HTTP-запрос"
+    );
+}

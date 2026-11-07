@@ -84,6 +84,24 @@ pub enum InviteError {
         /// Задержка из ответа; 0 — если тело не разбиралось.
         retry_after_ms: u64,
     },
+    /// 400 (`code: 40003`): Discord запросил решение интерактивной Captcha (`hcaptcha`).
+    CaptchaRequired {
+        /// Код ошибки Discord (канонически `40003`).
+        code: u32,
+        /// Провайдер Captcha (`"hcaptcha"`).
+        captcha_service: String,
+        /// Публичный ключ сайта (`captcha_sitekey`).
+        captcha_sitekey: String,
+        /// Опциональные данные челленджа (`captcha_rqdata`).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        captcha_rqdata: Option<String>,
+        /// Опциональный токен подтверждения челленджа (`captcha_rqtoken`).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        captcha_rqtoken: Option<String>,
+        /// Опциональный идентификатор сессии Captcha (`captcha_session_id`).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        captcha_session_id: Option<String>,
+    },
     /// Прочие 4xx (кроме 401/403/404/429).
     Client {
         /// HTTP-статус.
@@ -117,6 +135,16 @@ impl fmt::Display for InviteError {
                 write!(
                     formatter,
                     "ограничение частоты; повтор через {retry_after_ms} мс"
+                )
+            }
+            Self::CaptchaRequired {
+                code,
+                captcha_service,
+                ..
+            } => {
+                write!(
+                    formatter,
+                    "требуется решение Captcha ({captcha_service}, код {code})"
                 )
             }
             Self::Client { status } => write!(formatter, "запрос отклонён (HTTP {status})"),
@@ -219,6 +247,19 @@ pub struct AcceptRequest {
     pub received_installation_id: Option<String>,
 }
 
+/// TASK-610: решение интерактивной hCaptcha (`captcha_key`) для повторного вызова `POST /invites/{code}`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CaptchaSolution {
+    /// Токен решения Captcha (`captcha_key`), полученный от виджета hCaptcha.
+    pub captcha_key: String,
+    /// Опциональный `captcha_rqtoken` из исходного 400-челленджа.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captcha_rqtoken: Option<String>,
+    /// Опциональный `captcha_session_id` из исходного 400-челленджа.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captcha_session_id: Option<String>,
+}
+
 /// STUB-05: параметры создания приглашения на канал (`POST /channels/{channel_id}/invites`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -275,6 +316,16 @@ pub trait InvitesApi: Send + Sync {
         code: &'a str,
         request: &'a AcceptRequest,
     ) -> Pin<Box<dyn Future<Output = Result<AcceptedInvite, InviteError>> + Send + 'a>>;
+
+    /// Вступить по коду с nullable-полями тела и решением Captcha (`captcha_key`).
+    fn accept_with_captcha<'a>(
+        &'a self,
+        code: &'a str,
+        request: &'a AcceptRequest,
+        _captcha: &'a CaptchaSolution,
+    ) -> Pin<Box<dyn Future<Output = Result<AcceptedInvite, InviteError>> + Send + 'a>> {
+        self.accept(code, request)
+    }
 }
 
 /// Транспорт invite: GET без тела, POST с JSON-телом. Фейк фиксирует target/тело.
@@ -325,6 +376,9 @@ impl InviteTransport for ApiInviteTransport {
             } else {
                 String::new()
             };
+            let mut captcha_key_hdr: Option<String> = None;
+            let mut captcha_rqtoken_hdr: Option<String> = None;
+            let mut captcha_session_hdr: Option<String> = None;
             if is_invite_accept {
                 // В реальном Discord API v9 (`[D] 4d2a64cb5df5fc4e_0@635659`) `undefined`-поля
                 // (`invite_instance_id`, `received_installation_id`) опускаются при сериализации,
@@ -333,6 +387,30 @@ impl InviteTransport for ApiInviteTransport {
                 if let Ok(serde_json::Value::Object(mut map)) =
                     serde_json::from_slice::<serde_json::Value>(body)
                 {
+                    if let Some(k) = map
+                        .get("captcha_key")
+                        .and_then(|v| v.as_str())
+                        .map(str::trim)
+                        .filter(|s| !s.is_empty())
+                    {
+                        captcha_key_hdr = Some(k.to_string());
+                    }
+                    if let Some(t) = map
+                        .get("captcha_rqtoken")
+                        .and_then(|v| v.as_str())
+                        .map(str::trim)
+                        .filter(|s| !s.is_empty())
+                    {
+                        captcha_rqtoken_hdr = Some(t.to_string());
+                    }
+                    if let Some(s) = map
+                        .get("captcha_session_id")
+                        .and_then(|v| v.as_str())
+                        .map(str::trim)
+                        .filter(|s| !s.is_empty())
+                    {
+                        captcha_session_hdr = Some(s.to_string());
+                    }
                     map.retain(|_, v| !v.is_null());
                     if !map.contains_key("session_id") {
                         if let Some(sid) = crate::data::live_gateway_session_id() {
@@ -344,8 +422,21 @@ impl InviteTransport for ApiInviteTransport {
                     }
                 }
                 extra_headers.push(("X-Context-Properties", ctx_b64.as_str()));
+                if let Some(ref k) = captcha_key_hdr {
+                    extra_headers.push(("X-Captcha-Key", k.as_str()));
+                }
+                if let Some(ref t) = captcha_rqtoken_hdr {
+                    extra_headers.push(("X-Captcha-Rqtoken", t.as_str()));
+                }
+                if let Some(ref s) = captcha_session_hdr {
+                    extra_headers.push(("X-Captcha-Session-Id", s.as_str()));
+                }
             }
-            match self.0.post_once(target, &effective_body, &extra_headers).await {
+            match self
+                .0
+                .post_once(target, &effective_body, &extra_headers)
+                .await
+            {
                 Ok(response) => {
                     if (200..300).contains(&response.status) {
                         if is_invite_accept {
@@ -356,6 +447,7 @@ impl InviteTransport for ApiInviteTransport {
                     if is_invite_accept
                         && !crate::data::is_live_active()
                         && !matches!(response.status, 200..=299 | 401 | 404 | 429)
+                        && parse_captcha_challenge(&response.body).is_none()
                     {
                         if let Some(fallback_body) =
                             crate::data::materialized_accept_body_for_invite_target(target)
@@ -515,6 +607,21 @@ impl DiscordInvites {
         let response = self.transport.post(&path, &body).await?;
         decode_accept(&response)
     }
+
+    async fn execute_accept_with_captcha(
+        &self,
+        code: &str,
+        request: &AcceptRequest,
+        captcha: &CaptchaSolution,
+    ) -> Result<AcceptedInvite, InviteError> {
+        let code = normalize_code(code)?;
+        let route =
+            routes::find(HttpMethod::Post, routes::INVITE_PATH).ok_or(InviteError::Network)?;
+        let path = routes::render_path(route, &[&code]).map_err(|_| InviteError::InvalidArg)?;
+        let body = accept_body_with_captcha(request, captcha)?;
+        let response = self.transport.post(&path, &body).await?;
+        decode_accept(&response)
+    }
 }
 
 impl InvitesApi for DiscordInvites {
@@ -531,6 +638,15 @@ impl InvitesApi for DiscordInvites {
         request: &'a AcceptRequest,
     ) -> Pin<Box<dyn Future<Output = Result<AcceptedInvite, InviteError>> + Send + 'a>> {
         Box::pin(self.execute_accept(code, request))
+    }
+
+    fn accept_with_captcha<'a>(
+        &'a self,
+        code: &'a str,
+        request: &'a AcceptRequest,
+        captcha: &'a CaptchaSolution,
+    ) -> Pin<Box<dyn Future<Output = Result<AcceptedInvite, InviteError>> + Send + 'a>> {
+        Box::pin(self.execute_accept_with_captcha(code, request, captcha))
     }
 }
 
@@ -595,6 +711,27 @@ pub async fn accept_invite<A: InvitesApi + ?Sized>(
     api.accept(&code, &request).await
 }
 
+/// TASK-610: повторный вызов `accept_invite` с токеном решения hCaptcha (`captcha_key`).
+pub async fn accept_invite_with_captcha<A: InvitesApi + ?Sized>(
+    api: &A,
+    code: &str,
+    session_id: Option<&str>,
+    invite_instance_id: Option<&str>,
+    received_installation_id: Option<&str>,
+    captcha: &CaptchaSolution,
+) -> Result<AcceptedInvite, InviteError> {
+    if captcha.captcha_key.trim().is_empty() {
+        return Err(InviteError::InvalidArg);
+    }
+    let code = normalize_code(code)?;
+    let request = AcceptRequest {
+        session_id: session_id.map(str::to_string),
+        invite_instance_id: invite_instance_id.map(str::to_string),
+        received_installation_id: received_installation_id.map(str::to_string),
+    };
+    api.accept_with_captcha(&code, &request, captcha).await
+}
+
 /// Нормализация введённого кода (`G6 §3.3`): trim, снять query/fragment и хвостовой
 /// `/`, взять последний сегмент (`…/invite/<code>`), допустимые символы —
 /// `[A-Za-z0-9-]`, длина 2…32.
@@ -632,6 +769,91 @@ fn accept_body(request: &AcceptRequest) -> Result<Vec<u8>, InviteError> {
         received_installation_id: request.received_installation_id.as_deref(),
     })
     .map_err(|_| InviteError::InvalidResponse)
+}
+
+#[derive(Serialize)]
+struct AcceptWithCaptchaBody<'a> {
+    session_id: Option<&'a str>,
+    invite_instance_id: Option<&'a str>,
+    received_installation_id: Option<&'a str>,
+    captcha_key: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    captcha_rqtoken: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    captcha_session_id: Option<&'a str>,
+}
+
+fn accept_body_with_captcha(
+    request: &AcceptRequest,
+    captcha: &CaptchaSolution,
+) -> Result<Vec<u8>, InviteError> {
+    let key = captcha.captcha_key.trim();
+    if key.is_empty() {
+        return Err(InviteError::InvalidArg);
+    }
+    serde_json::to_vec(&AcceptWithCaptchaBody {
+        session_id: request.session_id.as_deref(),
+        invite_instance_id: request.invite_instance_id.as_deref(),
+        received_installation_id: request.received_installation_id.as_deref(),
+        captcha_key: key,
+        captcha_rqtoken: captcha
+            .captcha_rqtoken
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty()),
+        captcha_session_id: captcha
+            .captcha_session_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty()),
+    })
+    .map_err(|_| InviteError::InvalidResponse)
+}
+
+#[derive(Deserialize)]
+struct WireCaptchaChallenge {
+    #[serde(default)]
+    code: Option<u32>,
+    #[serde(default)]
+    captcha_sitekey: Option<String>,
+    #[serde(default)]
+    captcha_service: Option<String>,
+    #[serde(default)]
+    captcha_rqdata: Option<String>,
+    #[serde(default)]
+    captcha_rqtoken: Option<String>,
+    #[serde(default)]
+    captcha_session_id: Option<String>,
+}
+
+fn parse_captcha_challenge(body: &[u8]) -> Option<InviteError> {
+    if body.iter().all(|byte| byte.is_ascii_whitespace()) {
+        return None;
+    }
+    let raw: WireCaptchaChallenge = serde_json::from_slice(body).ok()?;
+    let sitekey = raw
+        .captcha_sitekey
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())?;
+    let service = raw
+        .captcha_service
+        .map(|s| s.trim().to_ascii_lowercase())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "hcaptcha".to_string());
+    if service != "hcaptcha" {
+        return None;
+    }
+    let code = raw.code.filter(|&c| c != 0).unwrap_or(40003);
+    let clean_opt =
+        |opt: Option<String>| opt.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+    Some(InviteError::CaptchaRequired {
+        code,
+        captcha_service: service,
+        captcha_sitekey: sitekey,
+        captcha_rqdata: clean_opt(raw.captcha_rqdata),
+        captcha_rqtoken: clean_opt(raw.captcha_rqtoken),
+        captcha_session_id: clean_opt(raw.captcha_session_id),
+    })
 }
 
 /// HTTP-статус → типизированный отказ. Любой 2xx допустим как «ответ пришёл», но
@@ -727,6 +949,11 @@ fn decode_preview(response: &HttpResponse) -> Result<InvitePreview, InviteError>
 }
 
 fn decode_accept(response: &HttpResponse) -> Result<AcceptedInvite, InviteError> {
+    if response.status == 400 {
+        if let Some(captcha_err) = parse_captcha_challenge(&response.body) {
+            return Err(captcha_err);
+        }
+    }
     ensure_success(response.status)?;
     let wire: WireAccept = parse_json(&response.body)?;
     let nested_guild_id = wire
