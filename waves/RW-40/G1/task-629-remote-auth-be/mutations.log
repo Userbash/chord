@@ -1,0 +1,38 @@
+=== MUTATION TESTING LOG (task-629-remote-auth-be) ===
+
+[M1] SPKI DER public exponent suffix mutated (65537 -> 65539)
+Status: KILLED (exit=101)
+test t01_constants_and_webcrypto_oracle_spki_fingerprint_and_oaep_decryption ... FAILED
+test t05_session_state_machine_and_user_payload_parsing ... FAILED
+test t08_rest_endpoints_ticket_exchange_mobile_scanner_and_redaction ... FAILED
+test t06_security_fingerprint_mismatch_heartbeat_timeout_cancel_and_backoff ... FAILED
+test t07_async_ws_handshake_driver_with_remote_auth_discord_gg ... FAILED
+test result: FAILED. 4 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.57s
+
+[M2] OAEP MGF1-SHA256 mask XOR flipped to OR in decrypt_oaep_sha256
+Status: KILLED (exit=101)
+test t05_session_state_machine_and_user_payload_parsing ... FAILED
+test t06_security_fingerprint_mismatch_heartbeat_timeout_cancel_and_backoff ... FAILED
+test t03_nonce_parsing_and_nonce_proof_computation ... FAILED
+test t01_constants_and_webcrypto_oracle_spki_fingerprint_and_oaep_decryption ... FAILED
+test t08_rest_endpoints_ticket_exchange_mobile_scanner_and_redaction ... FAILED
+test t07_async_ws_handshake_driver_with_remote_auth_discord_gg ... FAILED
+test t02_rsa_2048_generation_spki_roundtrip_and_oaep_boundaries ... FAILED
+test result: FAILED. 2 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+[M3] decrypt_nonce uses standard Base64 with padding instead of URL-safe no-pad
+Status: KILLED (exit=101)
+test t01_constants_and_webcrypto_oracle_spki_fingerprint_and_oaep_decryption ... FAILED
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.61s
+
+[M4] pending_remote_init fingerprint MITM check disabled
+Status: KILLED (exit=101)
+test t06_security_fingerprint_mismatch_heartbeat_timeout_cancel_and_backoff ... FAILED
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.62s
+
+[M5] pending_ticket avatar=="0" -> None mapping broken
+Status: KILLED (exit=101)
+test t05_session_state_machine_and_user_payload_parsing ... FAILED
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.58s
+
+SUMMARY: 5/5 mutations KILLED (100%)

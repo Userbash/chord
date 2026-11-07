@@ -1,0 +1,19 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-json)
+   Compiling discord-ui v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-ui)
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-codec)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/gui-spike)
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-platform)
+   Compiling discord-media v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-media)
+   Compiling discord-store v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-store)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-voice)
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-i18n)
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-updater)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/crates/discord-core)
+error: couldn't find file `tests/../src/remote_auth.rs`
+  --> tests/remote_auth_contract.rs:38:1
+   |
+38 | pub mod remote_auth;
+   | ^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `discord-gui-spike` (test "remote_auth_contract") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

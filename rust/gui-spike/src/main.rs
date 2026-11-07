@@ -54,6 +54,11 @@ use gifts::{
     CreateGiftCodeRequest, DiscordGifts, EntitlementQuery, EntitlementRecord, GiftCodeRecord,
     GiftError, GiftRedeemRequest, GiftResolveOptions, NitroGiftPlan, RedeemedGiftOutcome,
 };
+pub mod remote_auth;
+use remote_auth::{
+    DiscordRemoteAuthRest, RemoteAuthError, RemoteAuthFrameOutcome, RemoteAuthHandshakeToken,
+    RemoteAuthSessionSnapshot,
+};
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
 
@@ -1654,6 +1659,92 @@ fn list_nitro_gift_plans() -> Vec<NitroGiftPlan> {
     gifts::list_nitro_gift_plans()
 }
 
+// ---------------------------------------------------------------------------
+// RW-40 / TASK-629 (`G1 Backend`): Remote Auth v2 RSA-2048 & WebSocket IPC-команды.
+// ---------------------------------------------------------------------------
+
+/// Запускает новую сессию QR-входа Remote Auth v2: генерирует пару ключей RSA-OAEP-2048
+/// и возвращает снимок сессии с `encoded_public_key`, `fingerprint`, `qr_url` и кадром `init`.
+#[tauri::command]
+fn remote_auth_start_session(
+    endpoint: Option<String>,
+) -> Result<RemoteAuthSessionSnapshot, RemoteAuthError> {
+    remote_auth::ipc_start_session(endpoint.as_deref())
+}
+
+/// Обрабатывает входящий JSON-кадр WebSocket `wss://remote-auth.discord.gg/?v=2`
+/// (`hello`, `nonce_proof`, `pending_remote_init`, `pending_ticket`, `pending_login`, `cancel`, `heartbeat_ack`).
+#[tauri::command]
+fn remote_auth_process_frame(
+    frame_json: String,
+) -> Result<RemoteAuthFrameOutcome, RemoteAuthError> {
+    remote_auth::ipc_process_frame(&frame_json)
+}
+
+/// Выполняет тик таймера heartbeat активной сессии Remote Auth v2.
+#[tauri::command]
+fn remote_auth_heartbeat_tick() -> Result<RemoteAuthFrameOutcome, RemoteAuthError> {
+    remote_auth::ipc_heartbeat_tick()
+}
+
+/// Инициализирует подтверждение чужого QR-кода (`POST /users/@me/remote-auth`).
+#[tauri::command]
+async fn remote_auth_initialize(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    fingerprint: String,
+) -> Result<RemoteAuthHandshakeToken, RemoteAuthError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<RemoteAuthError, _>(
+        move || backend.token(),
+        || RemoteAuthError::Storage,
+        || RemoteAuthError::MissingToken,
+    )
+    .await?;
+    let api = DiscordRemoteAuthRest::new(&token)?;
+    remote_auth::remote_auth_initialize(&api, &fingerprint).await
+}
+
+/// Завершает подтверждение чужого QR-кода (`POST /users/@me/remote-auth/finish`).
+#[tauri::command]
+async fn remote_auth_finish(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    handshake_token: String,
+    temporary_token: Option<bool>,
+) -> Result<(), RemoteAuthError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<RemoteAuthError, _>(
+        move || backend.token(),
+        || RemoteAuthError::Storage,
+        || RemoteAuthError::MissingToken,
+    )
+    .await?;
+    let api = DiscordRemoteAuthRest::new(&token)?;
+    remote_auth::remote_auth_finish(&api, &handshake_token, temporary_token.unwrap_or(false)).await
+}
+
+/// Отменяет подтверждение чужого QR-кода (`POST /users/@me/remote-auth/cancel`).
+#[tauri::command]
+async fn remote_auth_cancel(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    handshake_token: String,
+) -> Result<(), RemoteAuthError> {
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<RemoteAuthError, _>(
+        move || backend.token(),
+        || RemoteAuthError::Storage,
+        || RemoteAuthError::MissingToken,
+    )
+    .await?;
+    let api = DiscordRemoteAuthRest::new(&token)?;
+    remote_auth::remote_auth_cancel(&api, &handshake_token).await
+}
+
+/// Отменяет и перезапускает сессию Remote Auth v2 с ротацией пары ключей RSA-2048.
+#[tauri::command]
+fn remote_auth_cancel_session() -> Result<RemoteAuthSessionSnapshot, RemoteAuthError> {
+    remote_auth::ipc_cancel_session()
+}
+
 const SYSTEM_TRAY_PY: &str = r#"
 import os, sys, signal
 import gi
@@ -1902,7 +1993,14 @@ fn main() {
             fetch_user_entitlements,
             fetch_application_entitlements,
             fetch_giftable_entitlements,
-            list_nitro_gift_plans
+            list_nitro_gift_plans,
+            remote_auth_start_session,
+            remote_auth_process_frame,
+            remote_auth_heartbeat_tick,
+            remote_auth_cancel_session,
+            remote_auth_initialize,
+            remote_auth_finish,
+            remote_auth_cancel
         ])
         .run(tauri::generate_context!())
         .expect("не удалось запустить Tauri-спайк");
@@ -2066,7 +2164,7 @@ mod wiring_tests {
         &rest[..end]
     }
 
-    const TOKEN_COMMANDS: [&str; 33] = [
+    const TOKEN_COMMANDS: [&str; 36] = [
         "search_remote",
         "send_message",
         "edit_message",
@@ -2100,6 +2198,9 @@ mod wiring_tests {
         "fetch_user_entitlements",
         "fetch_application_entitlements",
         "fetch_giftable_entitlements",
+        "remote_auth_initialize",
+        "remote_auth_finish",
+        "remote_auth_cancel",
     ];
 
     /// G1-02: копий блока «blocking + два map_err + ok_or» больше нет — у каждой

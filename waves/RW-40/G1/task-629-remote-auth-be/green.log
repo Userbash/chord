@@ -1,0 +1,77 @@
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.97s
+     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-a7b2d962798c0e91)
+
+running 13 tests
+test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
+test wiring_tests::dispatch_stats_command_is_read_only_without_token ... ok
+test wiring_tests::filters_payload_is_camel_case_and_maps_to_data_type ... ok
+test wiring_tests::dispatch_emitter_targets_gateway_event_without_logging ... ok
+test wiring_tests::invoke_handler_registers_all_bff_commands ... ok
+test wiring_tests::attachments_upload_put_command_extracts_flat_composer_payload_and_sends_put_bytes ... ok
+test wiring_tests::invoke_handler_registers_f1_ui_ipc_aliases_and_wires_payload_contracts ... ok
+test wiring_tests::token_or_preserves_domain_error_codes ... ok
+test wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains ... ok
+test wiring_tests::net_service_is_constructed_with_dispatch_emitter ... ok
+test wiring_tests::invoke_handler_registers_notifications_ipc_commands_and_resolves_channel_override_input ... ok
+test wiring_tests::every_network_command_reads_token_through_one_helper ... ok
+test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-0146c165794097d2)
+
+running 9 tests
+test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
+test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
+test ipc_wrapper_request_upload_slots_delegates_and_enforces_contract ... ok
+test ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets ... ok
+test ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag ... ok
+test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
+test tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or ... ok
+test notifications_ipc_commands_are_registered_and_delegate_to_lib ... ok
+test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/remote_auth_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/remote_auth_contract-c09bdcab40ba7f20)
+
+running 9 tests
+test t04_ws_url_resolution_and_protocol_version_validation ... ok
+test t09_main_rs_registers_remote_auth_ipc_commands ... ok
+test t08_rest_endpoints_ticket_exchange_mobile_scanner_and_redaction ... ok
+test t06_security_fingerprint_mismatch_heartbeat_timeout_cancel_and_backoff ... ok
+test t07_async_ws_handshake_driver_with_remote_auth_discord_gg ... ok
+test t05_session_state_machine_and_user_payload_parsing ... ok
+test t03_nonce_parsing_and_nonce_proof_computation ... ok
+test t01_constants_and_webcrypto_oracle_spki_fingerprint_and_oaep_decryption ... ok
+test t02_rsa_2048_generation_spki_roundtrip_and_oaep_boundaries ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s
+
+▶ ipc-path: синтетика (red-proof сканера)
+  ✔ команда с `path: String` — нарушение (иначе инвариант не защищён) (0.971843ms)
+  ✔ тип пути ловится и при нейтральном имени (`source: PathBuf`, `&Path`, `File`) (0.19276ms)
+  ✔ имена `root`/`dir`/`file_name` ловятся, `profile`/`cursor` — нет (0.179751ms)
+  ✔ комментарии и строковые литералы не считаются сигнатурой (0.12622ms)
+  ✔ атрибут с параметрами и generic-тип в аргументах разбираются (0.116251ms)
+✔ ipc-path: синтетика (red-proof сканера) (2.231066ms)
+▶ ipc-path: текущий код спайка
+  ✔ ни одна IPC-команда не принимает путь (9.955075ms)
+  ✔ мутация реального main.rs ловится (добавили `path: String`) (6.366406ms)
+  ✔ найденные команды совпадают с зарегистрированными в generate_handler! (5.658774ms)
+  ✔ остальные Rust-файлы спайка не объявляют path-команд (33.377675ms)
+✔ ipc-path: текущий код спайка (55.740721ms)
+▶ ipc-path: файловые плагины не подключены
+  ✔ Cargo.toml / Cargo.lock / tauri.conf.json не ссылаются на fs/dialog-плагины (0.605462ms)
+  ✔ исходники не вызывают tauri_plugin_fs / tauri_plugin_dialog (2.484036ms)
+  ✔ capability окна ограничена core:default (0.20816ms)
+✔ ipc-path: файловые плагины не подключены (3.460869ms)
+ℹ tests 12
+ℹ suites 3
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 97.554308
