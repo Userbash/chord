@@ -1,0 +1,259 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/task-625-deep-link-handler/rust/crates/discord-platform)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_platform-c5c656a7d2cc4967)
+
+running 18 tests
+test keyring::tests::k15_extract_safe_storage_ciphertext_rejects_empty_payload ... ok
+test keyring::tests::k20_migrator_skips_when_target_already_has_token ... ok
+test keyring::tests::k22_migrator_fails_on_decrypt_error ... ok
+test keyring::tests::k21_migrator_skips_non_safe_storage_token ... ok
+test keyring::tests::k13_safe_storage_prefix_and_detection ... ok
+test keyring::tests::k14_extract_safe_storage_ciphertext_decodes_base64 ... ok
+test keyring::tests::k18_migrator_happy_path_migrates_once ... ok
+test keyring::tests::k19_migrator_idempotent_no_reimport ... ok
+test keyring::tests::k24_migrator_propagates_keyring_storage_error ... ok
+test keyring::tests::k23_migrator_rejects_invalid_tokens ... ok
+test rpc_ipc::tests::resolve_ipc_socket_path_checks_env_priority_and_validates_slot ... ok
+test tests::legacy_channel_counts_match_re ... ok
+test deep_link::tests::classify_webview_navigation_allows_local_routes_and_trusted_domains_and_opens_external ... ok
+test rpc_ipc::tests::encode_and_decode_ipc_frame_roundtrip_and_bounds ... ok
+test keyring::tests::k26_migration_failure_paths_and_state_do_not_leak_secrets ... ok
+test keyring::tests::k16_extract_safe_storage_ciphertext_rejects_invalid_base64 ... ok
+test keyring::tests::k17_migration_errors_do_not_leak_secrets ... ok
+test rpc_ipc::tests::handle_ipc_frame_handshake_and_set_activity_and_client_stream_roundtrip ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/autostart_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/autostart_contract-23a3fbbd0af1f050)
+
+running 9 tests
+test a01_minimal_entry_matches_desktop_entry_shape ... ok
+test a02_hidden_disables_autostart_via_gnome_key ... ok
+test a03_exec_escapes_spaces_quotes_and_field_codes ... ok
+test a05_rejects_empty_and_control_fields ... ok
+test a04_exec_escapes_shell_reserved_and_empty_args ... ok
+test a06_autostart_path_is_xdg_autostart_file ... ok
+test a07_badge_pairs_are_stable_and_typed ... ok
+test a08_app_uri_is_unity_application_uri ... ok
+test a09_exec_quotes_xdg_reserved_characters ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/dbus_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dbus_contract-99c18c692882c751)
+
+running 23 tests
+test a01_parse_path_yields_path_and_no_abstract_name ... ok
+test a02_parse_abstract_keeps_raw_bytes_up_to_kernel_limit ... ok
+test a03_parse_skips_unsupported_and_invalid_entries ... ok
+test a06_connect_missing_abstract_returns_error_without_panic ... ok
+test f01_unix_fd_value_round_trips_through_per_message_index ... ok
+test n01_bus_address_parse_accepts_path_and_rejects_unsupported ... ok
+test f13_build_rejects_more_than_max_unix_fds ... ok
+test n07b_notifications_signatures_match_libdbus_golden ... ok
+test f11_duplicate_unix_fd_index_is_protocol_and_closes_fds ... ok
+test n14_parse_rejects_truncated_and_corrupt_messages_without_panic ... ok
+test n04_header_body_boundary_is_aligned_and_padded_with_zeroes ... ok
+test f06_control_truncation_is_protocol_and_closes_received_fds ... ok
+test f05_out_of_range_index_is_protocol_and_fds_are_closed ... ok
+test n03_marshal_round_trip_matches_libgio_bytes ... ok
+test n02b_external_auth_line_uses_hex_uid_from_proc_status ... ok
+test n05_parse_recovers_header_fields_and_body ... ok
+test q08_hints_dict_matches_libgio_bytes_and_round_trips ... ok
+test a07_path_branch_still_connects_to_path_bus ... ok
+test a04_connect_abstract_bus_yields_unique_name ... ok
+test f04_two_fds_in_one_reply_are_received_in_order_and_closed ... ok
+test a05_call_over_abstract_bus_returns_mock_reply ... ok
+test f09_call_with_fds_sends_two_pipe_fds_to_service ... ok
+test f07_plain_call_closes_fds_from_reply_and_reports_protocol ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/deep_link_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/deep_link_contract-a3d5464b52011441)
+
+running 25 tests
+test d01_app_settings_route ... ok
+test d02_empty_host_library_route ... ok
+test d04_oauth2_authorize_route ... ok
+test d03_login_one_time_token_is_redacted_in_debug ... ok
+test d05_channels_routes ... ok
+test d07_extract_deep_link_matches_re ... ok
+test d08_query_and_fragment_are_split_before_path ... ok
+test d09_scheme_and_host_case_insensitive_path_case_sensitive ... ok
+test d06_rejects_empty_scheme_length_and_controls ... ok
+test d11_authority_only_and_trailing_slash_paths ... ok
+test d10_unconfirmed_routes_are_unknown ... ok
+test d12_token_extraction_edges ... ok
+test d13_deep_link_debug_redacts_query_and_fragment ... ok
+test d14_disclip_protocol_parsing ... ok
+test d15_extract_url_from_args_oracle ... ok
+test d16_deep_link_queue_lifecycle ... ok
+test d17_main_window_path_routing_and_errors ... ok
+test d19_structured_channel_targets_and_snowflake_bounds ... ok
+test d23_protocol_registration_privileges_desktop_and_windows_registry ... ok
+test d20_oauth2_authorize_query_params_and_redirect_uri_security ... ok
+test d18_extended_re_routes_invite_gift_user_quest_handoff_connect ... ok
+test d22_webview_navigation_and_external_url_security_guard ... ok
+test d25_custom_protocol_handler_state_machine_and_metrics ... ok
+test d24_disclip_mp4_verification_and_range_serving_contract ... ok
+test d21_path_traversal_and_percent_encoded_injection_blocked ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/keyring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/keyring_contract-08983f2bacdcafa3)
+
+running 12 tests
+test k01_connect_to_default_collection ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k02_store_then_lookup_roundtrip_without_leak ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k03_lookup_missing_returns_none ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k04_clear_existing_then_lookup_none ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k05_overwrite_replaces_value ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k06_unicode_secret_roundtrip ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k07_secret_tool_reads_our_store ... ignored, live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool
+test k08_our_lookup_reads_secret_tool_store ... ignored, live-keyring: нужны DISCORD_LAB_KEYRING_LIVE=1, org.freedesktop.secrets и CLI secret-tool
+test k09_empty_key_is_invalid ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k10_nul_in_key_or_secret_is_error_without_panic ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k11_repeated_clear_returns_false ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+test k12_debug_does_not_print_secret_or_pointers ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
+
+test result: ok. 0 passed; 0 failed; 12 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/keyring_offline_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/keyring_offline_contract-1a1aae6ff347be32)
+
+running 3 tests
+test kr02_schema_name_is_frozen ... ok
+test kr01_validation_errors_carry_no_secret_value ... ok
+test kr03_secret_error_keeps_code_and_message_only ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/notifications_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/notifications_contract-17eb78e018ef6c1e)
+
+running 34 tests
+test e07_hints_bytes_match_libgio_and_round_trip ... ok
+test n08b_notify_requires_app_name_and_summary ... ok
+test n16_live_service_is_flag_gated_and_read_only ... ok
+test n12_action_and_close_signals_become_events ... ok
+test e05_key_order_is_frozen ... ok
+test n08_notify_returns_server_id_and_mock_sees_fields ... ok
+test e04_empty_new_strings_are_skipped ... ok
+test n02_auth_external_and_hello_yield_unique_name ... ok
+test e01_all_eight_hints_reach_mock_with_freedesktop_types ... ok
+test n11_error_reply_maps_to_remote_error ... ok
+test r01_router_suppresses_self_author ... ok
+test n15_repeated_close_and_closed_session_survive ... ok
+test r02_router_suppresses_dnd ... ok
+test r03_router_suppresses_active_channel_only_when_window_focused ... ok
+test r04_router_suppresses_when_not_mention_and_not_dm ... ok
+test e06_unicode_and_long_new_hints_are_delivered_without_panic ... ok
+test r05_router_dedup_and_bounded_fifo_eviction ... ok
+test r06_router_builds_notification_and_deep_links ... ok
+test r08_router_register_sent_and_handle_event ... ok
+test r07_router_redacts_tokens_mfa_base64_bearer ... ok
+test r09_router_handle_event_unknown_id ... ok
+test n10_close_notification_reaches_mock ... ok
+test n13_foreign_signals_are_skipped ... ok
+test n09_notify_actions_reach_mock_as_pairs ... ok
+test e03_transient_and_suppress_sound_are_bools_including_false ... ok
+test n07_capabilities_and_server_information_come_from_mock ... ok
+test e02_image_path_and_sound_name_are_string_variants ... ok
+test q05_all_hints_are_four_entries_in_frozen_order ... ok
+test q06_empty_category_and_desktop_entry_are_skipped ... ok
+test q07_unicode_and_long_values_are_delivered_without_panic ... ok
+test q02_urgency_is_byte_variant_with_contract_values ... ok
+test q01_notify_without_hints_sends_empty_dict ... ok
+test q04_desktop_entry_and_resident_have_string_and_bool_variants ... ok
+test q03_category_is_string_variant ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests/power_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/power_contract-62ad0570b6e8338f)
+
+running 16 tests
+test p01_idle_policy_boundaries ... ok
+test f10_live_logind_inhibit_is_flag_gated_and_skip_aware ... ok
+test p11_live_service_is_flag_gated_and_read_only ... ok
+test p12_missing_environment_is_skip_with_reason ... ok
+test p02_inhibit_returns_cookie_and_mock_sees_fields ... ok
+test f08_empty_why_is_protocol_and_never_reaches_bus ... ok
+test p05_idle_seconds_handles_unsupported_and_failing_services ... ok
+test p10_closed_connection_returns_error_without_panic ... ok
+test p07_foreign_signals_are_skipped ... ok
+test f03_drop_closes_inhibitor_fd_exactly_once ... ok
+test p09_inhibit_requires_app_name_and_reason ... ok
+test p06_prepare_for_sleep_maps_to_events ... ok
+test p04_is_active_reflects_mock_state ... ok
+test f02_inhibit_sleep_returns_fd_and_journals_arguments ... ok
+test p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error ... ok
+test p08_next_event_timeout_is_none ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running tests/rpc_ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rpc_ipc_contract-aee00fa7cce9be33)
+
+running 10 tests
+test rpc01_constants_and_cross_platform_endpoints_match_re_and_serein_oracles ... ok
+test rpc02_windows_named_pipe_config_and_sddl_dacl_validation ... ok
+test rpc06_security_directory_permissions_and_peer_uid_verification ... ok
+test rpc08_invite_browser_validation_and_legacy_timestamp_normalization ... ok
+test rpc09_multi_client_registry_tracks_8_slots_and_publishes_latest_activity ... ok
+test rpc05_stale_socket_recovery_and_owned_inode_cleanup_on_drop ... ok
+test rpc10_wire_framing_boundaries_and_validation_edges ... ok
+test rpc07_session_state_machine_and_error_frame_correlation ... ok
+test rpc03_listener_binds_slot_0_sets_mode_0600_and_serves_client_roundtrip ... ok
+test rpc04_slot_contention_auto_increments_0_to_9_and_reports_all_slots_busy ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/screencast_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/screencast_contract-605039f1e11fc553)
+
+running 6 tests
+test owned_pipewire_fd_rejects_negative_fd_and_closes_valid_fd_on_drop ... ok
+test screencast_options_validation_checks_tokens_and_source_types ... ok
+test parse_x11_display_spec_resolves_socket_path_and_rejects_malformed_displays ... ok
+test screencast_portal_constants_and_source_type_masks_match_freedesktop_spec ... ok
+test screencast_portal_parses_start_response_streams_and_restore_token ... ok
+test screencast_portal_wire_handshake_over_unix_socket_delivers_pipewire_fd ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/spellcheck_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/spellcheck_contract-5b6a747d9db08e8a)
+
+running 13 tests
+test h06_tokenize_ascii_offsets_and_punctuation ... ok
+test h07_tokenize_cyrillic_hyphen_apostrophe ... ok
+test h08_tokenize_skips_urls_emails_code_mentions_and_emoji ... ok
+test h13_not_send_sync_and_tokenize_never_panics ... ok
+test h09_empty_and_wordless_texts_are_empty ... ok
+test h05_add_and_remove_change_check ... ok
+test h03_check_rejects_unknown_words ... ok
+test h02_check_accepts_dictionary_words ... ok
+test h01_new_on_fixtures_is_ok ... ok
+test h10_broken_or_missing_dictionary_is_error ... ok
+test h12_nul_in_path_is_error_without_panic ... ok
+test h04_suggest_finds_hello_and_is_bounded ... ok
+test h11_drop_cycles_do_not_leak_or_crash ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/tray_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/tray_contract-910e46146cd5693b)
+
+running 10 tests
+test test_compute_tray_icon_state_priority ... ok
+test test_badge_unity_dbus_payload ... ok
+test test_minimize_to_tray_policy ... ok
+test test_format_badge_count_oracle ... ok
+test test_tray_controller_lifecycle_and_actions ... ok
+test test_tray_controller_backend_unavailable_resilience ... ok
+test test_tray_controller_voice_and_unread_events ... ok
+test test_tray_icon_state_mapping_and_oracle ... ok
+test test_tray_menu_structure_and_order ... ok
+test test_tray_menu_voice_state_updates ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests discord_platform
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
