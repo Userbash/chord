@@ -1,0 +1,26 @@
+▶ TASK-627: Константы RE-оракула, каталог планов Nitro и чистые функции подарков
+  ✔ экспортирует канонические константы модулей 202541, 45938 и 652215 (1.70938ms)
+  ✔ resolveGiftStyle и validateGiftCustomMessage соблюдают границу 200 символов и правило 1 vs 2 (0.3365ms)
+  ✔ normalizeGiftCode, extractGiftCodesFromText и formatGiftUrl соответствуют модулю 45938 (0.636051ms)
+  ✔ isValidSnowflake и validateGiftRecipient проверяют границы Snowflake и запрет подарка самому себе (0.1725ms)
+  ✔ formatGiftPlanPrice, formatGiftPlanLabelRu и buildCreateGiftPayload формируют честные данные без хардкода цен (0.25974ms)
+  ✔ classifyGiftError распознаёт HTTP 400/401/403/404/429/5xx и коды Discord 10038/50035/50050/50051/50054/50092/50095/50097 (0.25183ms)
+✔ TASK-627: Константы RE-оракула, каталог планов Nitro и чистые функции подарков (4.733801ms)
+▶ TASK-627: Интерактивный UI-контроллер модалки подарка (#gift-modal) и поток кастомизации
+  ✔ открывает #gift-modal по клику на триггер, загружает планы из list_nitro_gift_plans и управляет фокусом/Escape (1.94264ms)
+  ✔ кастомизирует стиль открытки, эмодзи-конфетти, звук и сообщение (<= 200 символов) и отправляет create_gift_code с защитой от двойного клика (0.8451ms)
+  ✔ обрабатывает ошибки 429 с обратным отсчётом, 403, 400 и сетевой сбой с повторной отправкой (0.530751ms)
+  ✔ поддерживает резолв и активацию (redeem) подарочного кода через IPC resolve_gift_code и redeem_gift_code (0.34818ms)
+✔ TASK-627: Интерактивный UI-контроллер модалки подарка (#gift-modal) и поток кастомизации (3.874231ms)
+▶ TASK-627: Контракт стилей gift-modal.css и безопасность кода
+  ✔ CSS-файл styles/gift-modal.css использует только токены из tokens.css без сырых цветов, :has() и !important (0.89769ms)
+  ✔ код gift-modal.js не вызывает запрещённые нативные/медиа API и не пишет в console (0.27294ms)
+✔ TASK-627: Контракт стилей gift-modal.css и безопасность кода (1.25435ms)
+ℹ tests 12
+ℹ suites 3
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.234752

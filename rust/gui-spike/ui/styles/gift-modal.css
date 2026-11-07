@@ -1,0 +1,376 @@
+/* =============================================================================
+ * TASK-627 (G2 Frontend): Стили модального окна выбора и кастомизации подарка Nitro
+ * (#gift-modal, rust/gui-spike/ui/styles/gift-modal.css).
+ *
+ * RE-оракулы:
+ * - waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md §4.6 (#gift-modal, .gift-modal-card);
+ * - /home/sanya/re-deep/decoded/3e8824f7eca8914f_0 (модули 968060, 274076, 354972, 650588);
+ * - rust/gui-spike/ui/tokens.css (100% привязка к дизайн-токенам без сырых цветов).
+ * ========================================================================== */
+
+.gift-modal-backdrop,
+#gift-modal {
+  z-index: var(--z-modal);
+}
+
+.gift-modal-backdrop[hidden],
+#gift-modal[hidden] {
+  display: none;
+}
+
+.gift-modal-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: min(var(--modal-w-md), calc(100vw - var(--space-11)));
+  max-height: calc(100vh - var(--space-11) * 2);
+  padding: var(--modal-pad-y) var(--modal-pad-x);
+  overflow-y: auto;
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  box-shadow: var(--shadow-popover);
+  box-sizing: border-box;
+}
+
+.gift-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.gift-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--btn-height);
+  min-height: var(--btn-height);
+  padding: var(--space-0) var(--space-2);
+  border: var(--menu-border) solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-subtle);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.gift-close:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}
+
+.gift-close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-label {
+  color: var(--text-subtle);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.gift-recipient {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.gift-recipient-name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Выбор тарифа / плана Nitro ---------- */
+
+.gift-plans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-0);
+  padding: var(--space-0);
+  border: var(--space-0);
+}
+
+.gift-plan {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--btn-height-lg);
+  padding: var(--space-0) var(--space-4);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.gift-plan:hover {
+  background: var(--state-hover);
+}
+
+.gift-plan:focus-within {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-plan[data-selected="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.gift-plan-name {
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+}
+
+.gift-plan-price {
+  margin-left: auto;
+  color: var(--text-subtle);
+  font-size: var(--font-size-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Кастомизация открытки, эмодзи-конфетти и звукового эффекта ---------- */
+
+.gift-style-picker,
+[data-gift-style-picker] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.gift-card-style-btn,
+[data-gift-card-style] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-3);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-1);
+  color: var(--text-subtle);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.gift-card-style-btn:hover,
+[data-gift-card-style]:hover {
+  background: var(--state-hover);
+  color: var(--text);
+}
+
+.gift-card-style-btn[aria-pressed="true"],
+[data-gift-card-style][aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+.gift-card-style-btn:focus-visible,
+[data-gift-card-style]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-effects-bar,
+[data-gift-effects-bar] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.gift-effect-btn,
+[data-gift-emoji-confetti],
+[data-gift-sound-effect] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--btn-height);
+  padding: var(--space-0) var(--space-4);
+  border: var(--menu-border) solid var(--border);
+  border-radius: var(--btn-radius);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.gift-effect-btn:hover,
+[data-gift-emoji-confetti]:hover,
+[data-gift-sound-effect]:hover {
+  background: var(--state-hover);
+}
+
+.gift-effect-btn:focus-visible,
+[data-gift-emoji-confetti]:focus-visible,
+[data-gift-sound-effect]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ---------- Сопроводительное сообщение к подарку (<= 200 символов) ---------- */
+
+.gift-custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.gift-custom-input {
+  min-height: var(--space-12);
+  padding: var(--space-2) var(--space-3);
+  border: var(--menu-border) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  resize: vertical;
+}
+
+.gift-custom-input::placeholder {
+  color: var(--text-muted);
+}
+
+.gift-custom-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-counter {
+  align-self: flex-end;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.gift-counter[data-exceeded="true"] {
+  color: var(--danger-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------- Уведомление каталога, ошибки и экран успеха ---------- */
+
+.gift-catalog-status {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+}
+
+.gift-catalog-notice {
+  margin: var(--space-0);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.gift-error,
+#gift-error {
+  margin: var(--space-0);
+  color: var(--danger-text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.gift-error[hidden],
+#gift-error[hidden] {
+  display: none;
+}
+
+.gift-success {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.gift-success[hidden] {
+  display: none;
+}
+
+.gift-success-title {
+  margin: var(--space-0);
+  color: var(--positive-text);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+}
+
+.gift-success-code {
+  margin: var(--space-0);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-ui);
+  overflow-wrap: anywhere;
+}
+
+.gift-copy {
+  align-self: flex-start;
+  min-height: var(--btn-height);
+  padding: var(--space-0) var(--btn-pad-x);
+  border: var(--menu-border) solid var(--border-strong);
+  border-radius: var(--btn-radius);
+  background: transparent;
+  color: var(--text-accent);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.gift-copy:hover {
+  background: var(--state-hover);
+}
+
+.gift-copy:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.gift-modal-card[data-state="submitting"] .gift-close,
+.gift-modal-card[data-state="submitting"] #gift-submit,
+.gift-modal-card[data-state="submitting"] [data-action="gift-close"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
