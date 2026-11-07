@@ -1,0 +1,17 @@
+▶ BUILD-005 / BUILD-006: Headless Browser E2E Regression Suite (реальный index.html)
+  ✔ TASK-610: интерактивное окно #captcha-modal перехватывает HTTP 400 (code 40003) и повторяет accept_invite с captcha_key (580.965216ms)
+  ✔ TASK-611 / TASK-612: визард создания сервера #create-guild-dialog (шаблоны, иконка base64, A11y, create_guild) (425.745147ms)
+  ✔ TASK-616 / TASK-623: плеер стрима stream-viewer, бейдж DAVE MLS E2EE и сворачивание в PiP при смене канала (402.144742ms)
+  ✔ TASK-617 / TASK-618: поисковый попап search-popover с 7 токенами-подсказками, подсветкой и переходом к сообщению (398.52766ms)
+  ✔ TASK-620: контекстное меню context-menu по ПКМ, слайдер громкости 0..200% и закрытие кликом вне меню (412.160014ms)
+  ✔ TASK-626: Nitro Gifts & Entitlements IPC (list_nitro_gift_plans, resolve_gift_code, create_gift_code, redeem_gift_code) (392.682899ms)
+  ✔ TASK-628: расширенные настройки advanced-settings (Keybinds, Soundboard, Clips) и сохранение в storage (419.280596ms)
+✔ BUILD-005 / BUILD-006: Headless Browser E2E Regression Suite (реальный index.html) (3032.565144ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3084.643067

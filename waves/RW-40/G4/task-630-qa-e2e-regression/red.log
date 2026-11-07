@@ -1,0 +1,60 @@
+▶ plan-sync: §8 ↔ тестовые файлы ↔ модули
+  ✔ таблица §8 разбирается и не пуста (5.726851ms)
+  ✖ каждая строка §8 указывает на существующий тест; токены встречаются в нём (5.7622ms)
+  ✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.68336ms)
+  ✔ модули из §8 существуют; каждый src/**/*.mjs приписан к строке (1.17334ms)
+  ✔ строки с одним src-модулем: токены покрывают все экспортируемые функции (1.09639ms)
+✖ plan-sync: §8 ↔ тестовые файлы ↔ модули (17.621031ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.398263
+
+✖ failing tests:
+
+test at tests/meta/plan-sync.test.mjs:118:3
+✖ каждая строка §8 указывает на существующий тест; токены встречаются в нём (5.7622ms)
+  AssertionError [ERR_ASSERTION]: §8 ссылается на несуществующие тестовые файлы
+  + actual - expected
+  
+  + [
+  +   'tests/e2e/e2e-build006.test.mjs'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-630-qa-e2e-regression/tests/meta/plan-sync.test.mjs:136:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/e2e/e2e-build006.test.mjs' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/meta/plan-sync.test.mjs:140:3
+✖ каждый тестовый файл (unit/meta/smoke/e2e) описан в §8 ровно один раз (2.68336ms)
+  AssertionError [ERR_ASSERTION]: §8 описывает файлы, которых нет
+  + actual - expected
+  
+  + [
+  +   'tests/e2e/e2e-build006.test.mjs'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-630-qa-e2e-regression/tests/meta/plan-sync.test.mjs:149:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/e2e/e2e-build006.test.mjs' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+Could not find 'tests/e2e/e2e-build006.test.mjs'
