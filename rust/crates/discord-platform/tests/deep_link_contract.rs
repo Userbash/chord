@@ -9,9 +9,16 @@
 //! - `discord://channels/...` и `discord://-/channels/...` — форма навигации каналов.
 
 use discord_platform::deep_link::{
-    DISCORD_CLIP_PROTOCOL, DeepLink, DeepLinkError, DeepLinkQueue, MAX_DEEP_LINK_LEN,
-    MainWindowPath, MainWindowPathError, Route, extract_deep_link, extract_url_from_args,
-    main_window_path, parse_deep_link, route,
+    BLOCKED_URL_PROTOCOLS, ChannelTarget, CustomProtocolHandler, DISCORD_CLIP_PROTOCOL,
+    DISCORD_CLIP_UUID_BYTES, DISCORD_CLIP_UUID_HEX, DeepLink, DeepLinkError, DeepLinkQueue,
+    DiscordMp4ErrorReason, MAX_DEEP_LINK_LEN, MAX_INVITE_CODE_LEN, MainWindowPath,
+    MainWindowPathError, NavigationDecision, OAuth2AuthorizeError, OAuth2AuthorizeParams,
+    ProtocolPrivilegeSpec, Route, before_ready_protocol_registration, check_url_origin_matches,
+    classify_webview_navigation, desktop_protocol_handler_entry, extract_deep_link,
+    extract_url_from_args, main_window_path, mimeapps_scheme_entries, parse_channel_target,
+    parse_deep_link, parse_oauth2_authorize_params, route, serve_disclip_request,
+    should_open_external_url, verify_discord_mp4_bytes, verify_discord_mp4_file,
+    windows_protocol_registry_commands,
 };
 
 fn parse(raw: &str) -> DeepLink<'_> {
@@ -639,4 +646,630 @@ fn d17_main_window_path_routing_and_errors() {
         main_window_path(""),
         Err(MainWindowPathError::InvalidUrl(DeepLinkError::Empty))
     );
+}
+
+#[test]
+fn d18_extended_re_routes_invite_gift_user_quest_handoff_connect() {
+    assert_eq!(MAX_INVITE_CODE_LEN, 64);
+
+    // 1. Invite routes (`BVt.INVITE` = `/invite/${code}`)
+    for raw in [
+        "discord://invite/rust-lang",
+        "discord://-/invite/rust-lang",
+        "discord:///invite/rust-lang",
+        "discord://invites/rust-lang",
+        "discord://-/invites/rust-lang/",
+    ] {
+        let link = parse(raw);
+        assert_eq!(
+            route(&link),
+            Route::Invite {
+                code: "rust-lang".to_owned()
+            },
+            "{raw}"
+        );
+        assert_eq!(
+            main_window_path(raw),
+            Ok(MainWindowPath {
+                path: "/invite/rust-lang".to_owned(),
+                query: None,
+            }),
+            "{raw}"
+        );
+    }
+
+    // Boundary: 64-char invite code is valid, 65-char is Unknown
+    let code_64 = "a".repeat(MAX_INVITE_CODE_LEN);
+    let url_64 = format!("discord://invite/{code_64}");
+    assert_eq!(route(&parse(&url_64)), Route::Invite { code: code_64 });
+    let url_65 = format!("discord://invite/{}", "a".repeat(MAX_INVITE_CODE_LEN + 1));
+    assert_eq!(route(&parse(&url_65)), Route::Unknown);
+
+    // 2. Gift code routes (`BVt.GIFT_CODE` = `/gifts/${code}`, `BVt.APP_WITH_GIFT_CODE` = `/app/gifts/${code}`)
+    for raw in [
+        "discord://gifts/nitro-2026_abc",
+        "discord://-/gifts/nitro-2026_abc",
+        "discord:///gifts/nitro-2026_abc",
+        "discord://app/gifts/nitro-2026_abc",
+    ] {
+        let link = parse(raw);
+        assert_eq!(
+            route(&link),
+            Route::GiftCode {
+                code: "nitro-2026_abc".to_owned()
+            },
+            "{raw}"
+        );
+        assert_eq!(
+            main_window_path(raw),
+            Ok(MainWindowPath {
+                path: "/gifts/nitro-2026_abc".to_owned(),
+                query: None,
+            }),
+            "{raw}"
+        );
+    }
+
+    // 3. User profile routes (`BVt.USERS` = `/users/${id}`)
+    let max_snowflake = u64::MAX.to_string();
+    let user_url = format!("discord://users/{max_snowflake}");
+    assert_eq!(
+        route(&parse(&user_url)),
+        Route::UserProfile {
+            user_id: max_snowflake.clone()
+        }
+    );
+    assert_eq!(
+        main_window_path(&user_url),
+        Ok(MainWindowPath {
+            path: format!("/users/{max_snowflake}"),
+            query: None,
+        })
+    );
+    assert_eq!(
+        route(&parse("discord://-/users/@me")),
+        Route::UserProfile {
+            user_id: "@me".to_owned()
+        }
+    );
+    assert_eq!(
+        route(&parse("discord://users/0")),
+        Route::Unknown,
+        "Snowflake 0 недопустим для профиля пользователя"
+    );
+    assert_eq!(
+        route(&parse("discord://users/not-a-snowflake")),
+        Route::Unknown
+    );
+
+    // 4. Quests (`BVt.QUESTS` = `/quests/${id}`)
+    assert_eq!(
+        route(&parse("discord://quests/quest_99")),
+        Route::Quest {
+            quest_id: "quest_99".to_owned()
+        }
+    );
+    assert_eq!(
+        main_window_path("discord://-/quests/quest_99"),
+        Ok(MainWindowPath {
+            path: "/quests/quest_99".to_owned(),
+            query: None,
+        })
+    );
+
+    // 5. Login handoff (`BVt.LOGIN_HANDOFF` = `/login/handoff`) & Connect authorize (`/connect/authorize`)
+    assert_eq!(
+        route(&parse("discord://login/handoff?handoff_token=secret123")),
+        Route::LoginHandoff
+    );
+    assert_eq!(
+        main_window_path("discord://login/handoff?handoff_token=secret123"),
+        Ok(MainWindowPath {
+            path: "/login/handoff".to_owned(),
+            query: Some("handoff_token=secret123".to_owned()),
+        })
+    );
+    assert_eq!(
+        route(&parse("discord://connect/authorize?client_id=1")),
+        Route::ConnectAuthorize
+    );
+    assert_eq!(
+        main_window_path("discord://-/connect/authorize?client_id=1"),
+        Ok(MainWindowPath {
+            path: "/connect/authorize".to_owned(),
+            query: Some("client_id=1".to_owned()),
+        })
+    );
+}
+
+#[test]
+fn d19_structured_channel_targets_and_snowflake_bounds() {
+    assert_eq!(
+        parse_channel_target("/channels/@me"),
+        Some(ChannelTarget::DirectMessagesHome)
+    );
+    assert_eq!(
+        parse_channel_target("/channels/@me/123456789012345678"),
+        Some(ChannelTarget::DirectMessage {
+            channel_id: 123_456_789_012_345_678,
+            message_id: None,
+        })
+    );
+    assert_eq!(
+        parse_channel_target("/channels/@me/123456789012345678/987654321098765432"),
+        Some(ChannelTarget::DirectMessage {
+            channel_id: 123_456_789_012_345_678,
+            message_id: Some(987_654_321_098_765_432),
+        })
+    );
+    assert_eq!(
+        parse_channel_target("/channels/1"),
+        Some(ChannelTarget::GuildChannel {
+            guild_id: 1,
+            channel_id: None,
+            message_id: None,
+        })
+    );
+    assert_eq!(
+        parse_channel_target(&format!("/channels/{}/{}", u64::MAX, u64::MAX - 1)),
+        Some(ChannelTarget::GuildChannel {
+            guild_id: u64::MAX,
+            channel_id: Some(u64::MAX - 1),
+            message_id: None,
+        })
+    );
+    assert_eq!(
+        parse_channel_target("/channels/100/200/300"),
+        Some(ChannelTarget::GuildChannel {
+            guild_id: 100,
+            channel_id: Some(200),
+            message_id: Some(300),
+        })
+    );
+    assert_eq!(
+        parse_channel_target("/channels/100/200/threads/300/400"),
+        Some(ChannelTarget::GuildThread {
+            guild_id: 100,
+            channel_id: 200,
+            thread_id: 300,
+            message_id: Some(400),
+        })
+    );
+
+    // Invalid / boundary Snowflakes (0, overflow > u64::MAX, leading plus, extra segments)
+    for invalid in [
+        "/channels/0",
+        "/channels/100/0",
+        "/channels/100/200/0",
+        "/channels/@me/0",
+        "/channels/18446744073709551616",
+        "/channels/+100/200",
+        "/channels/100/200/300/400",
+        "/channels/100/200/threads/0",
+        "/other/100/200",
+    ] {
+        assert_eq!(parse_channel_target(invalid), None, "{invalid}");
+    }
+}
+
+#[test]
+fn d20_oauth2_authorize_query_params_and_redirect_uri_security() {
+    // Matches `Kk["/oauth2/authorize"]` in `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`
+    let link = parse(
+        "discord://action/oauth2/authorize?client_id=123456789&scope=identify%20guilds+connections&redirect_uri=https%3A%2F%2Fexample.com%2Fcb&response_type=code&state=secret-state-99&nonce=secret-nonce-88&code_challenge=xyz_challenge&code_challenge_method=S256",
+    );
+    let params = parse_oauth2_authorize_params(link.query).expect("valid oauth2 params");
+    assert_eq!(
+        params,
+        OAuth2AuthorizeParams {
+            client_id: 123_456_789,
+            scopes: vec![
+                "identify".to_owned(),
+                "guilds".to_owned(),
+                "connections".to_owned()
+            ],
+            redirect_uri: "https://example.com/cb".to_owned(),
+            response_type: "code".to_owned(),
+            state: Some("secret-state-99".to_owned()),
+            nonce: Some("secret-nonce-88".to_owned()),
+            code_challenge: Some("xyz_challenge".to_owned()),
+            code_challenge_method: Some("S256".to_owned()),
+        }
+    );
+
+    // Debug must redact `state` and `nonce`
+    let dbg = format!("{params:?}");
+    assert!(!dbg.contains("secret-state-99"), "state leaked: {dbg}");
+    assert!(!dbg.contains("secret-nonce-88"), "nonce leaked: {dbg}");
+    assert!(dbg.contains("<redacted>"), "missing redaction: {dbg}");
+
+    // Dangerous redirect_uri schemes and missing required params must fail
+    assert_eq!(
+        parse_oauth2_authorize_params(Some(
+            "client_id=123&scope=identify&redirect_uri=javascript%3Aalert(1)&response_type=code"
+        )),
+        Err(OAuth2AuthorizeError::UnsafeRedirectUri)
+    );
+    assert_eq!(
+        parse_oauth2_authorize_params(Some(
+            "client_id=123&scope=identify&redirect_uri=http%3A%2F%2Fevil.example.com%2Fcb&response_type=code"
+        )),
+        Err(OAuth2AuthorizeError::UnsafeRedirectUri)
+    );
+    assert_eq!(
+        parse_oauth2_authorize_params(Some(
+            "client_id=0&scope=identify&redirect_uri=https%3A%2F%2Fexample.com%2Fcb&response_type=code"
+        )),
+        Err(OAuth2AuthorizeError::InvalidClientId)
+    );
+    assert_eq!(
+        parse_oauth2_authorize_params(Some(
+            "client_id=123&scope=&redirect_uri=https%3A%2F%2Fexample.com%2Fcb&response_type=code"
+        )),
+        Err(OAuth2AuthorizeError::MissingScope)
+    );
+    assert_eq!(
+        parse_oauth2_authorize_params(None),
+        Err(OAuth2AuthorizeError::MissingQuery)
+    );
+}
+
+#[test]
+fn d21_path_traversal_and_percent_encoded_injection_blocked() {
+    for malicious in [
+        "discord://-/channels/1/../../evil",
+        "discord://channels/../../etc/passwd",
+        "discord://-/channels/1/%2e%2e/evil",
+        "discord://-/channels/1/%2E%2E/evil",
+        "discord://-/channels/1/..%2fevil",
+        "discord://-/channels/1\\..\\evil",
+        "discord://app/settings/..",
+        "discord://app/settings/.",
+        "discord://app/settings/%2e%2e",
+        "discord://settings/..",
+        "discord:///library/../launch",
+        "discord:///library/%2e%2e/launch",
+        "discord://guilds/../123",
+        "discord://guilds/123/..",
+        "disclip://..",
+        "disclip://.",
+        "disclip://%2e%2e",
+        "disclip:///../secret.mp4",
+        "discord://clips/..",
+        "discord://clips/%2e%2e",
+        "discord://clips/clip%00.mp4",
+        "discord://invite/..",
+        "discord://gifts/..",
+    ] {
+        let link = parse(malicious);
+        assert_eq!(
+            route(&link),
+            Route::Unknown,
+            "path traversal должен блокироваться в route: {malicious}"
+        );
+        assert!(
+            matches!(
+                main_window_path(malicious),
+                Err(MainWindowPathError::UnknownRoute(_))
+            ),
+            "main_window_path должен отвергать traversal: {malicious}"
+        );
+        assert_eq!(
+            classify_webview_navigation(malicious),
+            NavigationDecision::Block,
+            "classify_webview_navigation должен блокировать traversal: {malicious}"
+        );
+    }
+}
+
+#[test]
+fn d22_webview_navigation_and_external_url_security_guard() {
+    // Verify BLOCKED_URL_PROTOCOLS oracle from `asar-extract/core/bundle.js` #1331
+    for proto in [
+        "file:",
+        "javascript:",
+        "vbscript:",
+        "data:",
+        "about:",
+        "chrome:",
+        "ms-cxh:",
+        "ms-cxh-full:",
+        "ms-word:",
+        "shell:",
+        "ms-msdt:",
+        "search-ms:",
+        "ms-officecmd:",
+        "ms-appinstaller:",
+    ] {
+        assert!(
+            BLOCKED_URL_PROTOCOLS.contains(&proto),
+            "отсутствует в BLOCKED_URL_PROTOCOLS: {proto}"
+        );
+        let test_url = format!("{proto}//test");
+        assert!(
+            !should_open_external_url(&test_url),
+            "should_open_external_url должен блокировать {test_url}"
+        );
+    }
+
+    // 1-letter schemes (e.g. Windows drive paths `C:\Windows\System32\cmd.exe`) must be blocked
+    assert!(!should_open_external_url("c:/windows/system32/cmd.exe"));
+    assert!(!should_open_external_url("C:\\Windows\\System32\\cmd.exe"));
+    assert!(!should_open_external_url("https://user:pass@example.com/"));
+    assert!(should_open_external_url(
+        "https://discord.com/acknowledgements"
+    ));
+    assert!(should_open_external_url("mailto:support@discord.com"));
+
+    // Origin matching (`securityUtils.checkUrlOriginMatches`)
+    assert!(check_url_origin_matches(
+        "https://discord.com/channels/@me",
+        "https://DISCORD.COM/app"
+    ));
+    assert!(check_url_origin_matches(
+        "https://discord.com:443/app",
+        "https://discord.com/login"
+    ));
+    assert!(!check_url_origin_matches(
+        "http://discord.com/app",
+        "https://discord.com/app"
+    ));
+    assert!(!check_url_origin_matches(
+        "https://ptb.discord.com/app",
+        "https://discord.com/app"
+    ));
+
+    // WebView navigation classification
+    assert!(classify_webview_navigation("discord://-/channels/1/2").is_internal());
+    assert!(classify_webview_navigation("https://discord.com/app").is_internal());
+    assert!(classify_webview_navigation("https://example.com/docs").should_open_external());
+    assert_eq!(
+        classify_webview_navigation("http://discord.com/app"),
+        NavigationDecision::Block
+    );
+}
+
+#[test]
+fn d23_protocol_registration_privileges_desktop_and_windows_registry() {
+    // 1. `beforeReadyProtocolRegistration` (`m-app-46312.txt`)
+    let schemes = before_ready_protocol_registration();
+    assert_eq!(
+        schemes,
+        vec![ProtocolPrivilegeSpec {
+            scheme: "disclip",
+            standard: true,
+            secure: true,
+            cors_enabled: true,
+            support_fetch_api: true,
+            stream: true,
+        }]
+    );
+
+    // 2. XDG `.desktop` protocol handler & `mimeapps.list`
+    let desktop =
+        desktop_protocol_handler_entry("Discord", "/usr/bin/discord-gui-spike").expect("desktop");
+    assert!(desktop.contains("[Desktop Entry]\n"));
+    assert!(desktop.contains("Exec=/usr/bin/discord-gui-spike --url -- %u\n"));
+    assert!(desktop.contains("MimeType=x-scheme-handler/discord;x-scheme-handler/disclip;\n"));
+    assert!(desktop.contains("NoDisplay=true\n"));
+    assert!(desktop.contains("Terminal=false\n"));
+
+    let mimeapps = mimeapps_scheme_entries("discord-lab.desktop").expect("mimeapps");
+    assert_eq!(
+        mimeapps,
+        vec![
+            (
+                "x-scheme-handler/discord".to_owned(),
+                "discord-lab.desktop".to_owned()
+            ),
+            (
+                "x-scheme-handler/disclip".to_owned(),
+                "discord-lab.desktop".to_owned()
+            ),
+        ]
+    );
+
+    // 3. Windows Squirrel registry commands (`m-app-27251.txt` `installProtocol`)
+    let reg_cmds = windows_protocol_registry_commands(
+        "Discord",
+        r"C:\Users\sanya\AppData\Local\Discord\app-1.0.162\Discord.exe",
+    )
+    .expect("windows registry commands");
+    assert_eq!(reg_cmds.len(), 4);
+    assert_eq!(
+        reg_cmds[0],
+        vec![
+            r"HKCU\Software\Classes\Discord".to_owned(),
+            "/ve".to_owned(),
+            "/d".to_owned(),
+            "URL:Discord Protocol".to_owned(),
+        ]
+    );
+    assert_eq!(
+        reg_cmds[3],
+        vec![
+            r"HKCU\Software\Classes\Discord\shell\open\command".to_owned(),
+            "/ve".to_owned(),
+            "/d".to_owned(),
+            r#""C:\Users\sanya\AppData\Local\Discord\app-1.0.162\Discord.exe" --url -- "%1""#
+                .to_owned(),
+        ]
+    );
+
+    // Reject control characters or quotes injection in protocol/executable path
+    assert!(desktop_protocol_handler_entry("Discord\nEvil=1", "/usr/bin/discord").is_err());
+    assert!(windows_protocol_registry_commands("Discord", "C:\\bad\"path\\Discord.exe").is_err());
+    assert!(windows_protocol_registry_commands("bad/proto", "C:\\Discord.exe").is_err());
+}
+
+#[test]
+fn d24_disclip_mp4_verification_and_range_serving_contract() {
+    // Oracle: `m-core-7635.txt` (`DISCORD_UUID = "a1c8529933464db888f083f57a75a5ef"`)
+    assert_eq!(DISCORD_CLIP_UUID_HEX, "a1c8529933464db888f083f57a75a5ef");
+    assert_eq!(
+        DISCORD_CLIP_UUID_BYTES,
+        [
+            0xa1, 0xc8, 0x52, 0x99, 0x33, 0x46, 0x4d, 0xb8, 0x88, 0xf0, 0x83, 0xf5, 0x7a, 0x75,
+            0xa5, 0xef
+        ]
+    );
+
+    // Build a valid minimal Discord MP4 buffer:
+    // Box 1: [size=16 (0x00000010), b"ftyp", b"isom", 0, 0, 0, 0]
+    // Box 2: [size=28 (0x0000001c), b"uuid", DISCORD_CLIP_UUID_BYTES (16B), b"META"]
+    let mut valid_mp4 = Vec::new();
+    valid_mp4.extend_from_slice(&16u32.to_be_bytes());
+    valid_mp4.extend_from_slice(b"ftypisom\x00\x00\x00\x00");
+    valid_mp4.extend_from_slice(&28u32.to_be_bytes());
+    valid_mp4.extend_from_slice(b"uuid");
+    valid_mp4.extend_from_slice(&DISCORD_CLIP_UUID_BYTES);
+    valid_mp4.extend_from_slice(b"META");
+
+    assert_eq!(verify_discord_mp4_bytes("clip.mp4", &valid_mp4), Ok(()));
+    assert_eq!(
+        verify_discord_mp4_bytes("clip.mkv", &valid_mp4),
+        Err(DiscordMp4ErrorReason::NotMp4Extension)
+    );
+    assert_eq!(
+        DiscordMp4ErrorReason::NotMp4Extension.as_re_str(),
+        "not-mp4-extension"
+    );
+
+    // Corrupt signature
+    let mut bad_sig = valid_mp4.clone();
+    bad_sig[4..12].copy_from_slice(b"ftypmp42");
+    assert_eq!(
+        verify_discord_mp4_bytes("clip.mp4", &bad_sig),
+        Err(DiscordMp4ErrorReason::NotMp4Signature)
+    );
+    assert_eq!(
+        DiscordMp4ErrorReason::NotMp4Signature.as_re_str(),
+        "not-mp4-signature"
+    );
+
+    // Missing Discord UUID box
+    let no_uuid = valid_mp4[..16].to_vec();
+    assert_eq!(
+        verify_discord_mp4_bytes("clip.mp4", &no_uuid),
+        Err(DiscordMp4ErrorReason::NoDiscordUuidBox)
+    );
+    assert_eq!(
+        DiscordMp4ErrorReason::NoDiscordUuidBox.as_re_str(),
+        "no-discord-uuid-box"
+    );
+
+    // Malformed box size (size = 4 < 8)
+    let mut bad_box = valid_mp4[..16].to_vec();
+    bad_box.extend_from_slice(&4u32.to_be_bytes());
+    bad_box.extend_from_slice(b"uuid");
+    assert_eq!(
+        verify_discord_mp4_bytes("clip.mp4", &bad_box),
+        Err(DiscordMp4ErrorReason::MalformedBox)
+    );
+    assert_eq!(
+        DiscordMp4ErrorReason::MalformedBox.as_re_str(),
+        "malformed-box"
+    );
+
+    // File + HTTP Range serving contract (`200`, `206`, `416`, `404` on traversal)
+    let temp_dir = std::env::temp_dir().join(format!("dlab-clips-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&temp_dir);
+    std::fs::create_dir_all(&temp_dir).expect("create clips temp dir");
+    let clip_path = temp_dir.join("highlight.mp4");
+    std::fs::write(&clip_path, &valid_mp4).expect("write valid mp4");
+
+    assert!(verify_discord_mp4_file(&temp_dir, &clip_path).is_ok());
+
+    // 200 OK full response
+    let resp_200 = serve_disclip_request(&temp_dir, "disclip://clips/highlight.mp4", None);
+    assert_eq!(resp_200.status, 200);
+    assert_eq!(resp_200.content_type, "video/mp4");
+    assert_eq!(resp_200.accept_ranges.as_deref(), Some("bytes"));
+    assert_eq!(resp_200.content_length, Some(valid_mp4.len()));
+    assert_eq!(resp_200.body, valid_mp4);
+
+    // 206 Partial Content (`Range: bytes=4-11` -> b"ftypisom")
+    let resp_206 = serve_disclip_request(
+        &temp_dir,
+        "disclip://clips/highlight.mp4",
+        Some("bytes=4-11"),
+    );
+    assert_eq!(resp_206.status, 206);
+    assert_eq!(
+        resp_206.content_range.as_deref(),
+        Some(format!("bytes 4-11/{}", valid_mp4.len()).as_str())
+    );
+    assert_eq!(resp_206.content_length, Some(8));
+    assert_eq!(resp_206.body, b"ftypisom");
+
+    // 416 Range Not Satisfiable
+    let resp_416 = serve_disclip_request(
+        &temp_dir,
+        "disclip://clips/highlight.mp4",
+        Some("bytes=999-1000"),
+    );
+    assert_eq!(resp_416.status, 416);
+    assert_eq!(
+        resp_416.content_range.as_deref(),
+        Some(format!("bytes */{}", valid_mp4.len()).as_str())
+    );
+    assert!(resp_416.body.is_empty());
+
+    // 404 on path traversal attempt
+    let resp_traversal =
+        serve_disclip_request(&temp_dir, "disclip://clips/..%2fhighlight.mp4", None);
+    assert_eq!(resp_traversal.status, 404);
+
+    let _ = std::fs::remove_dir_all(&temp_dir);
+}
+
+#[test]
+fn d25_custom_protocol_handler_state_machine_and_metrics() {
+    let mut handler = CustomProtocolHandler::with_capacity(4);
+    assert!(!handler.is_window_ready());
+    assert_eq!(handler.accepted_count(), 0);
+    assert_eq!(handler.queued_count(), 0);
+    assert_eq!(handler.blocked_count(), 0);
+
+    // 1. Pre-ready valid deep links are queued
+    assert_eq!(
+        handler.handle_open_url("discord://invite/rust-lang"),
+        Ok(None)
+    );
+    assert_eq!(
+        handler.handle_open_url("discord://-/channels/100/200"),
+        Ok(None)
+    );
+    assert_eq!(handler.queued_count(), 2);
+    assert_eq!(handler.accepted_count(), 0);
+
+    // 2. Malicious or invalid URL increments blocked_count
+    assert!(handler.handle_open_url("javascript:alert(1)").is_err());
+    assert!(
+        handler
+            .handle_open_url("discord://-/channels/1/../../evil")
+            .is_err()
+    );
+    assert_eq!(handler.blocked_count(), 2);
+
+    // 3. Mark window ready and drain queued paths
+    let drained = handler.mark_window_ready_and_drain();
+    assert!(handler.is_window_ready());
+    assert_eq!(drained.len(), 2);
+    assert_eq!(drained[0].path(), "/invite/rust-lang");
+    assert_eq!(drained[1].path(), "/channels/100/200");
+    assert_eq!(handler.accepted_count(), 2);
+
+    // 4. Post-ready valid deep link is dispatched immediately
+    let immediate = handler
+        .handle_open_url("discord://gifts/nitro-boost")
+        .expect("valid gift deep link");
+    assert_eq!(
+        immediate,
+        Some(MainWindowPath {
+            path: "/gifts/nitro-boost".to_owned(),
+            query: None,
+        })
+    );
+    assert_eq!(handler.accepted_count(), 3);
 }

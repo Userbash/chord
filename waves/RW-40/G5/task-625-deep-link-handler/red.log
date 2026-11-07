@@ -1,0 +1,87 @@
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/task-625-deep-link-handler/rust/crates/discord-platform)
+error[E0432]: unresolved imports `discord_platform::deep_link::BLOCKED_URL_PROTOCOLS`, `discord_platform::deep_link::ChannelTarget`, `discord_platform::deep_link::CustomProtocolHandler`, `discord_platform::deep_link::DISCORD_CLIP_UUID_BYTES`, `discord_platform::deep_link::DISCORD_CLIP_UUID_HEX`, `discord_platform::deep_link::DiscordMp4ErrorReason`, `discord_platform::deep_link::MAX_INVITE_CODE_LEN`, `discord_platform::deep_link::OAuth2AuthorizeError`, `discord_platform::deep_link::OAuth2AuthorizeParams`, `discord_platform::deep_link::ProtocolPrivilegeSpec`, `discord_platform::deep_link::before_ready_protocol_registration`, `discord_platform::deep_link::check_url_origin_matches`, `discord_platform::deep_link::desktop_protocol_handler_entry`, `discord_platform::deep_link::mimeapps_scheme_entries`, `discord_platform::deep_link::parse_channel_target`, `discord_platform::deep_link::parse_oauth2_authorize_params`, `discord_platform::deep_link::serve_disclip_request`, `discord_platform::deep_link::should_open_external_url`, `discord_platform::deep_link::verify_discord_mp4_bytes`, `discord_platform::deep_link::verify_discord_mp4_file`, `discord_platform::deep_link::windows_protocol_registry_commands`
+  --> crates/discord-platform/tests/deep_link_contract.rs:12:5
+   |
+12 |     BLOCKED_URL_PROTOCOLS, ChannelTarget, CustomProtocolHandler, DISCORD_CLIP_PROTOCOL,
+   |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^ no `CustomProtocolHandler` in `deep_link`
+   |     |                      |
+   |     |                      no `ChannelTarget` in `deep_link`
+   |     no `BLOCKED_URL_PROTOCOLS` in `deep_link`
+13 |     DISCORD_CLIP_UUID_BYTES, DISCORD_CLIP_UUID_HEX, DeepLink, DeepLinkError, DeepLinkQueue,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^ no `DISCORD_CLIP_UUID_HEX` in `deep_link`
+   |     |
+   |     no `DISCORD_CLIP_UUID_BYTES` in `deep_link`
+14 |     DiscordMp4ErrorReason, MAX_DEEP_LINK_LEN, MAX_INVITE_CODE_LEN, MainWindowPath,
+   |     ^^^^^^^^^^^^^^^^^^^^^                     ^^^^^^^^^^^^^^^^^^^ no `MAX_INVITE_CODE_LEN` in `deep_link`
+   |     |
+   |     no `DiscordMp4ErrorReason` in `deep_link`
+15 |     MainWindowPathError, NavigationDecision, OAuth2AuthorizeError, OAuth2AuthorizeParams,
+   |                                              ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^ no `OAuth2AuthorizeParams` in `deep_link`
+   |                                              |
+   |                                              no `OAuth2AuthorizeError` in `deep_link`
+16 |     ProtocolPrivilegeSpec, Route, before_ready_protocol_registration, check_url_origin_matches,
+   |     ^^^^^^^^^^^^^^^^^^^^^         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+   |     |
+   |     no `ProtocolPrivilegeSpec` in `deep_link`
+17 |     classify_webview_navigation, desktop_protocol_handler_entry, extract_deep_link,
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 |     extract_url_from_args, main_window_path, mimeapps_scheme_entries, parse_channel_target,
+   |                                              ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^
+19 |     parse_deep_link, parse_oauth2_authorize_params, route, serve_disclip_request,
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^         ^^^^^^^^^^^^^^^^^^^^^
+20 |     should_open_external_url, verify_discord_mp4_bytes, verify_discord_mp4_file,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^
+21 |     windows_protocol_registry_commands,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no variant named `Invite` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:666:20
+    |
+666 |             Route::Invite {
+    |                    ^^^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `Invite` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:684:47
+    |
+684 |     assert_eq!(route(&parse(&url_64)), Route::Invite { code: code_64 });
+    |                                               ^^^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `GiftCode` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:698:20
+    |
+698 |             Route::GiftCode {
+    |                    ^^^^^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `UserProfile` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:718:16
+    |
+718 |         Route::UserProfile {
+    |                ^^^^^^^^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `UserProfile` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:731:16
+    |
+731 |         Route::UserProfile {
+    |                ^^^^^^^^^^^ variant not found in `Route`
+
+error[E0599]: no variant named `Quest` found for enum `Route`
+   --> crates/discord-platform/tests/deep_link_contract.rs:748:16
+    |
+748 |         Route::Quest {
+    |                ^^^^^ variant not found in `Route`
+
+error[E0599]: no variant, associated function, or constant named `LoginHandoff` found for enum `Route` in the current scope
+   --> crates/discord-platform/tests/deep_link_contract.rs:763:16
+    |
+763 |         Route::LoginHandoff
+    |                ^^^^^^^^^^^^ variant, associated function, or constant not found in `Route`
+
+error[E0599]: no variant, associated function, or constant named `ConnectAuthorize` found for enum `Route` in the current scope
+   --> crates/discord-platform/tests/deep_link_contract.rs:774:16
+    |
+774 |         Route::ConnectAuthorize
+    |                ^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `Route`
+
+Some errors have detailed explanations: E0432, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-platform` (test "deep_link_contract") due to 9 previous errors

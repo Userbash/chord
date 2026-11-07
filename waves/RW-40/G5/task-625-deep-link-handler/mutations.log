@@ -1,0 +1,10 @@
+Baseline MD5 (rust/crates/discord-platform/src/deep_link.rs): bf568e50cfc408fc26ecb3676f928cdf
+
+[KILLED] M1: MAX_INVITE_CODE_LEN: 64 -> 63 (boundary check) -> test d18_extended_re_routes_invite_gift_user_quest_handoff_connect ... FAILED
+[KILLED] M2: is_safe_segment: disable ".." path traversal check -> test d21_path_traversal_and_percent_encoded_injection_blocked ... FAILED
+[KILLED] M3: OAuth2AuthorizeParams::Debug: leak state instead of <redacted> -> test d20_oauth2_authorize_query_params_and_redirect_uri_security ... FAILED
+[KILLED] M4: DISCORD_CLIP_UUID_BYTES: corrupt first byte 0xa1 -> 0xa0 -> test d24_disclip_mp4_verification_and_range_serving_contract ... FAILED
+[KILLED] M5: CustomProtocolHandler::handle_open_url: skip blocked_count increment on Err -> test d25_custom_protocol_handler_state_machine_and_metrics ... FAILED
+
+Summary: 5/5 mutations killed.
+Restored MD5: bf568e50cfc408fc26ecb3676f928cdf (matches baseline: true)
