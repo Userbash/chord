@@ -1,0 +1,9 @@
+=== Mutation Testing: TASK-627 (gift-modal.js) ===
+Baseline MD5: 095bb5b314bf57fc15d5862eb0556aee
+M1 KILLED: MAX_GIFT_CUSTOM_MESSAGE_CHARS mutated 200 -> 250
+M2 KILLED: resolveGiftStyle ignores emoji/sound extras (hasExtras forced to false)
+M3 KILLED: extractGiftCodesFromText cap mutated from MAX_EXTRACTED_GIFT_CODES (3) to 5
+M4 KILLED: validateGiftRecipient self-gifting guard disabled
+M5 KILLED: close() submitting lock guard disabled
+Restored MD5: 095bb5b314bf57fc15d5862eb0556aee
+Result: 5/5 mutations KILLED (100%)

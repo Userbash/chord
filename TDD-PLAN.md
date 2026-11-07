@@ -430,6 +430,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/forum-filter.test.mjs` | — | — |
 | `tests/unit/forum-view.test.mjs` | — | — |
 | `tests/unit/friends-home.test.mjs` | — | — |
+| `tests/unit/gift-modal.test.mjs` | `rust/gui-spike/ui/features/gift-modal.js` | `createGiftModal`, `resolveGiftStyle`, `extractGiftCodesFromText`, `classifyGiftError` |
 | `tests/unit/guild-folders.test.mjs` | — | — |
 | `tests/unit/guild-modals.test.mjs` | — | — |
 | `tests/unit/i18n.test.mjs` | — | — |
