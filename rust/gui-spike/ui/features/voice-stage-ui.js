@@ -31,6 +31,8 @@ export const SCREEN_SHARE_FPS_OPTIONS = Object.freeze(/** @type {const} */ ([30,
  *   name?: string,
  *   title?: string,
  *   kind?: 'screen' | 'window' | string,
+ *   source_type?: 'screen' | 'window' | string,
+ *   is_primary?: boolean,
  * }} ScreenShareSource
  *
  * @typedef {{
@@ -42,9 +44,11 @@ export const SCREEN_SHARE_FPS_OPTIONS = Object.freeze(/** @type {const} */ ([30,
  *
  * @typedef {{
  *   sources?: ReadonlyArray<ScreenShareSource>,
+ *   loadSources?: () => Promise<ReadonlyArray<ScreenShareSource>>,
  *   defaultResolution?: ScreenShareResolution | string,
  *   defaultFps?: ScreenShareFps | number,
  *   defaultShareAudio?: boolean,
+ *   defaultCategory?: 'all' | 'screens' | 'windows' | string,
  * }} ScreenSharePickerOptions
  *
  * @typedef {{
@@ -295,8 +299,8 @@ export function createVoiceStageController(containerEl, options = {}) {
       activeDialogEl.remove();
     }
 
-    const rawSources = Array.isArray(pickerOptions.sources) ? pickerOptions.sources : [];
-    const sources = rawSources.filter((s) => s && typeof s.id === 'string' && s.id.length > 0);
+    const rawSources = Array.isArray(pickerOptions.sources) ? [...pickerOptions.sources] : [];
+    let sources = rawSources.filter((s) => s && typeof s.id === 'string' && s.id.length > 0);
 
     let selectedSourceId = sources[0]?.id ?? '';
     /** @type {ScreenShareResolution} */
@@ -304,6 +308,11 @@ export function createVoiceStageController(containerEl, options = {}) {
     /** @type {ScreenShareFps} */
     let selectedFps = normalizeFps(pickerOptions.defaultFps ?? 60);
     let shareAudio = Boolean(pickerOptions.defaultShareAudio ?? false);
+    /** @type {'all' | 'screens' | 'windows'} */
+    let activeCategory =
+      pickerOptions.defaultCategory === 'screens' || pickerOptions.defaultCategory === 'windows'
+        ? pickerOptions.defaultCategory
+        : 'all';
 
     const dialog = doc.createElement('div');
     dialog.setAttribute('role', 'dialog');
@@ -316,24 +325,66 @@ export function createVoiceStageController(containerEl, options = {}) {
     titleEl.textContent = 'Демонстрация экрана';
     dialog.appendChild(titleEl);
 
+    // Вкладки категорий: Все, Экраны, Окна
+    const categoryGroup = doc.createElement('div');
+    categoryGroup.setAttribute('data-category-tabs', '');
+    /** @type {Map<'all' | 'screens' | 'windows', any>} */
+    const categoryButtons = new Map();
+
+    const categories = [
+      { id: /** @type {const} */ ('all'), label: 'Все' },
+      { id: /** @type {const} */ ('screens'), label: 'Экраны' },
+      { id: /** @type {const} */ ('windows'), label: 'Окна' },
+    ];
+
+    for (const cat of categories) {
+      const btn = doc.createElement('button');
+      btn.setAttribute('type', 'button');
+      btn.setAttribute('data-category-tab', cat.id);
+      btn.textContent = cat.label;
+      btn.addEventListener('click', () => {
+        activeCategory = cat.id;
+        renderSourcesList();
+        syncPickerState();
+      });
+      categoryButtons.set(cat.id, btn);
+      categoryGroup.appendChild(btn);
+    }
+    dialog.appendChild(categoryGroup);
+
     const sourcesGroup = doc.createElement('div');
     sourcesGroup.setAttribute('data-sources-list', '');
+    dialog.appendChild(sourcesGroup);
+
     /** @type {Map<string, any>} */
     const sourceButtons = new Map();
 
-    for (const source of sources) {
-      const btn = doc.createElement('button');
-      btn.setAttribute('type', 'button');
-      btn.setAttribute('data-source-id', source.id);
-      btn.textContent = source.name ?? source.title ?? source.id;
-      btn.addEventListener('click', () => {
-        selectedSourceId = source.id;
-        syncPickerState();
+    function renderSourcesList() {
+      sourceButtons.clear();
+      const filteredSources = sources.filter((s) => {
+        if (activeCategory === 'all') return true;
+        const kind = String(s.kind || s.source_type || '').toLowerCase();
+        const isScreen = kind === 'screen' || kind === 'screens' || s.id.startsWith('screen:');
+        return activeCategory === 'screens' ? isScreen : !isScreen;
       });
-      sourceButtons.set(source.id, btn);
-      sourcesGroup.appendChild(btn);
+
+      const buttons = [];
+      for (const source of filteredSources) {
+        const btn = doc.createElement('button');
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('data-source-id', source.id);
+        btn.textContent = source.name ?? source.title ?? source.id;
+        btn.addEventListener('click', () => {
+          selectedSourceId = source.id;
+          syncPickerState();
+        });
+        sourceButtons.set(source.id, btn);
+        buttons.push(btn);
+      }
+      replaceElementChildren(sourcesGroup, buttons);
     }
-    dialog.appendChild(sourcesGroup);
+
+    renderSourcesList();
 
     const resolutionGroup = doc.createElement('div');
     resolutionGroup.setAttribute('data-resolution-group', '');
@@ -426,6 +477,11 @@ export function createVoiceStageController(containerEl, options = {}) {
     dialog.appendChild(submitBtn);
 
     function syncPickerState() {
+      for (const [cat, btn] of categoryButtons.entries()) {
+        const isSelected = cat === activeCategory;
+        btn.setAttribute('data-selected', isSelected ? 'true' : 'false');
+        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      }
       for (const [id, btn] of sourceButtons.entries()) {
         const isSelected = id === selectedSourceId;
         btn.setAttribute('data-selected', isSelected ? 'true' : 'false');
@@ -447,12 +503,56 @@ export function createVoiceStageController(containerEl, options = {}) {
       setButtonDisabled(submitBtn, !selectedSourceId);
     }
 
+    /** @type {Promise<any> | null} */
+    let loadPromise = null;
+    if (typeof pickerOptions.loadSources === 'function') {
+      loadPromise = pickerOptions
+        .loadSources()
+        .then((loaded) => {
+          if (Array.isArray(loaded)) {
+            sources = loaded.filter((s) => s && typeof s.id === 'string' && s.id.length > 0);
+            if (!selectedSourceId && sources.length > 0) {
+              selectedSourceId = sources[0].id;
+            }
+            renderSourcesList();
+            syncPickerState();
+          }
+          return loaded;
+        })
+        .catch(() => []);
+    } else if (!pickerOptions.sources && typeof globalThis !== 'undefined') {
+      const tauri = /** @type {any} */ (globalThis).__TAURI__;
+      const tauriInvoke = tauri?.core?.invoke ?? tauri?.invoke;
+      if (typeof tauriInvoke === 'function') {
+        loadPromise = tauriInvoke('voice_desktop_sources')
+          .then((/** @type {any} */ res) => {
+            if (res && Array.isArray(res.sources)) {
+              sources = res.sources.map((/** @type {any} */ s) => ({
+                id: String(s.id),
+                name: String(s.name || s.id),
+                kind: s.source_type,
+                source_type: s.source_type,
+                is_primary: Boolean(s.is_primary),
+              }));
+              if (!selectedSourceId && sources.length > 0) {
+                selectedSourceId = sources[0].id;
+              }
+              renderSourcesList();
+              syncPickerState();
+            }
+            return sources;
+          })
+          .catch(() => []);
+      }
+    }
+
     syncPickerState();
     containerEl.appendChild(dialog);
     activeDialogEl = dialog;
 
     return {
       element: dialog,
+      loadPromise,
       /** @returns {StartStreamPayload} */
       getState() {
         return {

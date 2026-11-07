@@ -9248,6 +9248,62 @@ function boot() {
       { id: "win_dolphin", label: "Видеофайлы — Dolphin", icon: "📁", tab: /** @type {const} */ ("windows") },
     ];
 
+    void invoke("voice_desktop_sources")
+      .then((res) => {
+        if (res && Array.isArray(res.sources) && res.sources.length > 0) {
+          const screens = res.sources.filter(
+            (/** @type {any} */ s) =>
+              s.sourceType === "screen" ||
+              s.source_type === "screen" ||
+              String(s.id).startsWith("screen:"),
+          );
+          const windows = res.sources.filter(
+            (/** @type {any} */ s) =>
+              s.sourceType === "window" ||
+              s.source_type === "window" ||
+              String(s.id).startsWith("window:"),
+          );
+          if (screens.length > 0) {
+            screenItems.length = 0;
+            for (const s of screens) {
+              screenItems.push({
+                id: String(s.id),
+                label: String(s.name || s.id),
+                tab: /** @type {const} */ ("screens"),
+              });
+            }
+          }
+          if (windows.length > 0) {
+            windowItems.length = 0;
+            for (const w of windows) {
+              const wid = String(w.id || "").trim();
+              const wlabel = String(w.name || wid).trim();
+              if (!wid || !wlabel) continue;
+              const lower = wlabel.toLowerCase();
+              const icon = lower.includes("orca")
+                ? "🦦"
+                : lower.includes("dolphin")
+                  ? "📁"
+                  : lower.includes("firefox") || lower.includes("brave") || lower.includes("chrom")
+                    ? "🌐"
+                    : lower.includes("discord")
+                      ? "🎮"
+                      : "🪟";
+              windowItems.push({
+                id: wid,
+                label: wlabel,
+                icon,
+                tab: /** @type {const} */ ("windows"),
+              });
+            }
+          }
+          if (document.body.contains(backdrop)) {
+            renderPortalBody();
+          }
+        }
+      })
+      .catch(() => {});
+
     void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
       kind: "list_capture_windows",
       deviceId: "all",
@@ -9486,6 +9542,10 @@ function boot() {
         }
       }
       playVoiceUiSound("stream_off");
+      void invoke("voice_stream_stop", {
+        stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+        streamKey: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+      }).catch(() => {});
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
       tree.refreshView();
@@ -9522,6 +9582,10 @@ function boot() {
         }
       }
       playVoiceUiSound("stream_off");
+      void invoke("voice_stream_stop", {
+        stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+        streamKey: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+      }).catch(() => {});
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
       tree.refreshView();
@@ -9580,6 +9644,20 @@ function boot() {
       }
       cleanupModal();
       playVoiceUiSound("stream_on");
+      void invoke("voice_stream_start", {
+        spec: {
+          guild_id: conn.guildId || null,
+          guildId: conn.guildId || null,
+          channel_id: conn.channelId || "default",
+          channelId: conn.channelId || "default",
+          source_id: picked.id,
+          sourceId: picked.id,
+          resolution: conn.streamResolution || "720p",
+          fps: Number(conn.streamFps || 60),
+          share_audio: conn.streamAudio !== false,
+          shareAudio: conn.streamAudio !== false,
+        },
+      }).catch(() => {});
       void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
         kind: "set_capture_source",
         deviceId: (picked.tab || appCaptureKind) + ":" + picked.id + ":" + (picked.label || ""),

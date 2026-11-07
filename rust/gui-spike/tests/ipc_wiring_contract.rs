@@ -830,7 +830,7 @@ const UI_IPC_COMMAND_CONSTANTS: [&str; 4] = [
     "READY_COMMAND",
 ];
 
-const ALL_40_UI_IPC_COMMANDS: [&str; 40] = [
+const ALL_43_UI_IPC_COMMANDS: [&str; 43] = [
     "accept_invite",
     "ack_message",
     "attachments_upload_put",
@@ -870,7 +870,10 @@ const ALL_40_UI_IPC_COMMANDS: [&str; 40] = [
     "toggle_reaction",
     "update_channel_notification_override",
     "update_guild_notification_settings",
+    "voice_desktop_sources",
     "voice_set_audio_device",
+    "voice_stream_start",
+    "voice_stream_stop",
 ];
 
 fn is_valid_ipc_command_name(cmd: &str) -> bool {
@@ -1159,16 +1162,16 @@ fn every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main() {
     seen_ui_commands.sort();
     assert_eq!(
         seen_ui_commands.len(),
-        ALL_40_UI_IPC_COMMANDS.len(),
+        ALL_43_UI_IPC_COMMANDS.len(),
         "множество всех найденных UI IPC-команд (включая AUTH_COMMANDS, JOIN_COMMANDS, NET_COMMANDS, READY_COMMAND) должно быть равно ровно {} командам: {seen_ui_commands:?}",
-        ALL_40_UI_IPC_COMMANDS.len()
+        ALL_43_UI_IPC_COMMANDS.len()
     );
     let seen_refs: Vec<&str> = seen_ui_commands.iter().map(String::as_str).collect();
     assert_eq!(
         seen_refs.as_slice(),
-        &ALL_40_UI_IPC_COMMANDS,
+        &ALL_43_UI_IPC_COMMANDS,
         "множество найденных в ui/**/*.js IPC-команд должно точно совпадать с каноническим списком из {} команд",
-        ALL_40_UI_IPC_COMMANDS.len()
+        ALL_43_UI_IPC_COMMANDS.len()
     );
 
     for required in F1_UI_IPC_ALIASES

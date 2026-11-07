@@ -7,7 +7,9 @@
 //! - `rust/gui-spike/ui/features/voice-grid.js` (`MAX_VISIBLE_VOICE_TILES = 25`);
 //! - `rust/gui-spike/ui/features/voice-stage-ui.js`.
 
-use serde::{Deserialize, Serialize};
+use core::fmt;
+use serde::de::{self, Visitor};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{json, Value};
 
 /// Максимум одновременно видимых плиток в голосовой сцене (сетка до `5x5`).
@@ -66,14 +68,66 @@ impl StreamResolution {
 }
 
 /// Частота кадров демонстрации экрана (`30` или `60` FPS).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 pub enum StreamFps {
     /// `30` кадров в секунду.
-    #[serde(rename = "30", alias = "Fps30", alias = "fps30")]
+    #[serde(rename = "30")]
     Fps30,
     /// `60` кадров в секунду.
-    #[serde(rename = "60", alias = "Fps60", alias = "fps60")]
+    #[serde(rename = "60")]
     Fps60,
+}
+
+impl<'de> Deserialize<'de> for StreamFps {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct FpsVisitor;
+
+        impl<'de> Visitor<'de> for FpsVisitor {
+            type Value = StreamFps;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                formatter.write_str("целое число 30 или 60, либо строка '30', '60', 'Fps30', 'Fps60'")
+            }
+
+            fn visit_i64<E>(self, value: i64) -> Result<StreamFps, E>
+            where
+                E: de::Error,
+            {
+                match value {
+                    30 => Ok(StreamFps::Fps30),
+                    60 => Ok(StreamFps::Fps60),
+                    other => Err(E::custom(format!("неподдерживаемое значение FPS: {other}"))),
+                }
+            }
+
+            fn visit_u64<E>(self, value: u64) -> Result<StreamFps, E>
+            where
+                E: de::Error,
+            {
+                match value {
+                    30 => Ok(StreamFps::Fps30),
+                    60 => Ok(StreamFps::Fps60),
+                    other => Err(E::custom(format!("неподдерживаемое значение FPS: {other}"))),
+                }
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<StreamFps, E>
+            where
+                E: de::Error,
+            {
+                match value {
+                    "30" | "Fps30" | "fps30" => Ok(StreamFps::Fps30),
+                    "60" | "Fps60" | "fps60" => Ok(StreamFps::Fps60),
+                    other => Err(E::custom(format!("неподдерживаемая строка FPS: {other}"))),
+                }
+            }
+        }
+
+        deserializer.deserialize_any(FpsVisitor)
+    }
 }
 
 impl StreamFps {
@@ -97,16 +151,20 @@ impl StreamFps {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScreenShareSpec {
     /// Snowflake ID сервера (`Some` для голосового канала сервера, `None` для звонка/ЛС).
+    #[serde(default, alias = "guildId")]
     pub guild_id: Option<String>,
     /// Snowflake ID голосового канала.
+    #[serde(alias = "channelId")]
     pub channel_id: String,
     /// Идентификатор источника захвата экрана или окна ОС (например, `"screen:0:0"`).
+    #[serde(alias = "sourceId")]
     pub source_id: String,
     /// Выбранное разрешение видеопотока.
     pub resolution: StreamResolution,
     /// Выбранная частота кадров.
     pub fps: StreamFps,
     /// Флаг трансляции системного звука.
+    #[serde(default, alias = "shareAudio")]
     pub share_audio: bool,
 }
 
@@ -216,6 +274,49 @@ pub fn build_gateway_stream_delete_op19(stream_key: &str) -> Result<Value, Strin
         "op": 19,
         "d": {
             "stream_key": stream_key
+        }
+    }))
+}
+
+/// Строит полный JSON-кадр шлюза для `op 20 STREAM_WATCH` (`A-OPCODES`, `A-SENDERS`).
+///
+/// Формат: `{"op": 20, "d": {"stream_key": "<stream_key>"}}`.
+pub fn build_gateway_stream_watch_op20(stream_key: &str) -> Result<Value, String> {
+    validate_stream_key(stream_key)?;
+    Ok(json!({
+        "op": 20,
+        "d": {
+            "stream_key": stream_key
+        }
+    }))
+}
+
+/// Строит полный JSON-кадр шлюза для `op 21 STREAM_PING` (`A-OPCODES`, `A-SENDERS`, `A-PING-CALLSITE`).
+///
+/// Формат: `{"op": 21, "d": {"stream_key": "<stream_key>"}}`.
+pub fn build_gateway_stream_ping_op21(stream_key: &str) -> Result<Value, String> {
+    validate_stream_key(stream_key)?;
+    Ok(json!({
+        "op": 21,
+        "d": {
+            "stream_key": stream_key
+        }
+    }))
+}
+
+/// Строит полный JSON-кадр шлюза для `op 22 STREAM_SET_PAUSED` (`A-OPCODES`, `A-SENDERS`, `A-PAUSE-UI`).
+///
+/// Формат: `{"op": 22, "d": {"stream_key": "<stream_key>", "paused": <paused>}}`.
+pub fn build_gateway_stream_set_paused_op22(
+    stream_key: &str,
+    paused: bool,
+) -> Result<Value, String> {
+    validate_stream_key(stream_key)?;
+    Ok(json!({
+        "op": 22,
+        "d": {
+            "stream_key": stream_key,
+            "paused": paused
         }
     }))
 }

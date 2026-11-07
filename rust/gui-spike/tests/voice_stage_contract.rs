@@ -16,8 +16,10 @@
 //!      (`{"op": 19, "d": {"stream_key": "guild:..."|"call:..."}}`) со строгой валидацией сегментов `stream_key` (`A-KEY-PARSE`).
 
 use discord_gui_spike::voice_stage::{
-    build_gateway_stream_create_op18, build_gateway_stream_delete_op19, ScreenShareSpec, StreamFps,
-    StreamResolution, MAX_STAGE_VISIBLE_TILES,
+    build_gateway_stream_create_op18, build_gateway_stream_delete_op19,
+    build_gateway_stream_ping_op21, build_gateway_stream_set_paused_op22,
+    build_gateway_stream_watch_op20, ScreenShareSpec, StreamFps, StreamResolution,
+    MAX_STAGE_VISIBLE_TILES,
 };
 use serde_json::json;
 
@@ -70,6 +72,41 @@ fn resolution_and_fps_serde_roundtrip() {
         let decoded: StreamFps = serde_json::from_value(encoded).expect("deserialize StreamFps");
         assert_eq!(decoded, fps);
     }
+
+    // Проверяем десериализацию FPS из чисел (30, 60) и строк ("30", "60", "Fps30", "Fps60")
+    assert_eq!(
+        serde_json::from_value::<StreamFps>(serde_json::json!(30)).unwrap(),
+        StreamFps::Fps30
+    );
+    assert_eq!(
+        serde_json::from_value::<StreamFps>(serde_json::json!(60)).unwrap(),
+        StreamFps::Fps60
+    );
+    assert_eq!(
+        serde_json::from_value::<StreamFps>(serde_json::json!("30")).unwrap(),
+        StreamFps::Fps30
+    );
+    assert_eq!(
+        serde_json::from_value::<StreamFps>(serde_json::json!("60")).unwrap(),
+        StreamFps::Fps60
+    );
+
+    // Проверяем десериализацию ScreenShareSpec из camelCase JSON (фронтенд-контракт)
+    let json_camel = serde_json::json!({
+        "guildId": "111222333444555666",
+        "channelId": "222333444555666777",
+        "sourceId": "screen:0",
+        "resolution": "1080p",
+        "fps": 60,
+        "shareAudio": true
+    });
+    let decoded_camel: ScreenShareSpec = serde_json::from_value(json_camel).unwrap();
+    assert_eq!(decoded_camel.guild_id.as_deref(), Some("111222333444555666"));
+    assert_eq!(decoded_camel.channel_id, "222333444555666777");
+    assert_eq!(decoded_camel.source_id, "screen:0");
+    assert_eq!(decoded_camel.resolution, StreamResolution::P1080);
+    assert_eq!(decoded_camel.fps, StreamFps::Fps60);
+    assert!(decoded_camel.share_audio);
 }
 
 // ---------------------------------------------------------------------------
@@ -325,4 +362,73 @@ fn build_gateway_stream_delete_op19_produces_exact_oracle_payloads_and_validates
             "stream_key={bad_key:?} must be rejected"
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// 5. Построители Gateway opcodes 20, 21, 22 (STREAM_WATCH, STREAM_PING, STREAM_SET_PAUSED)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn build_gateway_stream_watch_op20_produces_exact_oracle_payload_and_validates_key() {
+    let key = "guild:100000000000000001:100000000000000002:100000000000000003";
+    let watch = build_gateway_stream_watch_op20(key).expect("valid op20 payload");
+    assert_eq!(
+        watch,
+        json!({
+            "op": 20,
+            "d": {
+                "stream_key": key
+            }
+        })
+    );
+
+    assert!(build_gateway_stream_watch_op20("invalid:key").is_err());
+    assert!(build_gateway_stream_watch_op20("").is_err());
+}
+
+#[test]
+fn build_gateway_stream_ping_op21_produces_exact_oracle_payload_and_validates_key() {
+    let key = "call:100000000000000002:100000000000000003";
+    let ping = build_gateway_stream_ping_op21(key).expect("valid op21 payload");
+    assert_eq!(
+        ping,
+        json!({
+            "op": 21,
+            "d": {
+                "stream_key": key
+            }
+        })
+    );
+
+    assert!(build_gateway_stream_ping_op21("bad_key").is_err());
+}
+
+#[test]
+fn build_gateway_stream_set_paused_op22_produces_exact_oracle_payload_and_validates_key() {
+    let key = "guild:100000000000000001:100000000000000002:100000000000000003";
+    let paused = build_gateway_stream_set_paused_op22(key, true).expect("valid op22 payload");
+    assert_eq!(
+        paused,
+        json!({
+            "op": 22,
+            "d": {
+                "stream_key": key,
+                "paused": true
+            }
+        })
+    );
+
+    let resumed = build_gateway_stream_set_paused_op22(key, false).expect("valid op22 payload");
+    assert_eq!(
+        resumed,
+        json!({
+            "op": 22,
+            "d": {
+                "stream_key": key,
+                "paused": false
+            }
+        })
+    );
+
+    assert!(build_gateway_stream_set_paused_op22("", true).is_err());
 }

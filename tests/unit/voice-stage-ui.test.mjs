@@ -507,4 +507,134 @@ describe('createVoiceStageController: openScreenSharePicker', () => {
     submitBtn.click();
     assert.equal(startedStreams.length, 0);
   });
+
+  it('поддерживает переключение вкладок категорий (все, экраны, окна) для фильтрации источников', () => {
+    const container = makeContainer();
+    const stage = createVoiceStageController(container);
+
+    stage.openScreenSharePicker({
+      sources: [
+        { id: 'screen:0', name: 'Экран 1', kind: 'screen' },
+        { id: 'screen:1', name: 'Экран 2', kind: 'screen' },
+        { id: 'window:42', name: 'Терминал', kind: 'window' },
+      ],
+    });
+
+    const dialog = container.querySelector('[role="dialog"]');
+    assert.ok(dialog);
+
+    const tabScreens = dialog.querySelector('[data-category-tab="screens"]');
+    const tabWindows = dialog.querySelector('[data-category-tab="windows"]');
+    const tabAll = dialog.querySelector('[data-category-tab="all"]');
+    assert.ok(tabScreens, 'Вкладка экранов должна существовать');
+    assert.ok(tabWindows, 'Вкладка окон должна существовать');
+    assert.ok(tabAll, 'Вкладка "Все" должна существовать');
+
+    // По умолчанию показаны все 3 источника
+    let visibleSources = dialog.querySelectorAll('[data-source-id]');
+    assert.equal(visibleSources.length, 3);
+
+    // Кликаем вкладку "Экраны"
+    tabScreens.click();
+    visibleSources = dialog.querySelectorAll('[data-source-id]');
+    assert.equal(visibleSources.length, 2);
+    assert.ok(dialog.querySelector('[data-source-id="screen:0"]'));
+    assert.ok(dialog.querySelector('[data-source-id="screen:1"]'));
+    assert.equal(dialog.querySelector('[data-source-id="window:42"]'), null);
+
+    // Кликаем вкладку "Окна"
+    tabWindows.click();
+    visibleSources = dialog.querySelectorAll('[data-source-id]');
+    assert.equal(visibleSources.length, 1);
+    assert.ok(dialog.querySelector('[data-source-id="window:42"]'));
+
+    // Возвращаемся во вкладку "Все"
+    tabAll.click();
+    visibleSources = dialog.querySelectorAll('[data-source-id]');
+    assert.equal(visibleSources.length, 3);
+  });
+
+  it('поддерживает асинхронную загрузку источников через loadSources', async () => {
+    const container = makeContainer();
+    /** @type {any[]} */
+    const startedStreams = [];
+    const stage = createVoiceStageController(container, {
+      onStartStream: (payload) => startedStreams.push(payload),
+    });
+
+    const picker = stage.openScreenSharePicker({
+      loadSources: async () => [
+        { id: 'screen:pipewire', name: 'PipeWire Desktop', kind: 'screen' },
+        { id: 'window:pipewire', name: 'PipeWire Window', kind: 'window' },
+      ],
+    });
+
+    const dialog = container.querySelector('[role="dialog"]');
+    assert.ok(dialog);
+
+    // Ждём завершения промиса загрузки источников
+    if (picker.loadPromise) {
+      await picker.loadPromise;
+    }
+
+    const sources = dialog.querySelectorAll('[data-source-id]');
+    assert.equal(sources.length, 2);
+    assert.ok(dialog.querySelector('[data-source-id="screen:pipewire"]'));
+
+    const submitBtn = dialog.querySelector('[data-action="start-stream"]');
+    assert.ok(submitBtn);
+    assert.equal(submitBtn.disabled, false);
+    submitBtn.click();
+
+    assert.equal(startedStreams.length, 1);
+    assert.equal(startedStreams[0]?.sourceId, 'screen:pipewire');
+  });
+
+  it('автоматически запрашивает источники из Tauri IPC voice_desktop_sources при отсутствии явных источников', async () => {
+    const container = makeContainer();
+    /** @type {any[]} */
+    const ipcCalls = [];
+    const origTauri = /** @type {any} */ (globalThis).__TAURI__;
+    /** @type {any} */ (globalThis).__TAURI__ = {
+      core: {
+        /**
+         * @param {string} cmd
+         * @param {any} [args]
+         */
+        invoke: async (cmd, args) => {
+          ipcCalls.push({ cmd, args });
+          if (cmd === 'voice_desktop_sources') {
+            return {
+              backend: 'PipeWirePortal',
+              sources: [
+                { id: 'screen:0', name: 'Основной экран DP-1', source_type: 'screen', is_primary: true },
+                { id: 'window:101', name: 'Discord Dev', source_type: 'window', is_primary: false },
+              ],
+            };
+          }
+          return null;
+        },
+      },
+    };
+
+    try {
+      const stage = createVoiceStageController(container);
+      const picker = stage.openScreenSharePicker();
+      if (picker.loadPromise) {
+        await picker.loadPromise;
+      }
+
+      assert.equal(ipcCalls.length, 1);
+      assert.equal(ipcCalls[0].cmd, 'voice_desktop_sources');
+
+      const dialog = container.querySelector('[role="dialog"]');
+      assert.ok(dialog);
+      const sources = dialog.querySelectorAll('[data-source-id]');
+      assert.equal(sources.length, 2);
+      assert.ok(dialog.querySelector('[data-source-id="screen:0"]'));
+      assert.ok(dialog.querySelector('[data-source-id="window:101"]'));
+    } finally {
+      /** @type {any} */ (globalThis).__TAURI__ = origTauri;
+    }
+  });
 });

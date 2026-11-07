@@ -1350,6 +1350,104 @@ async fn voice_set_audio_device(
     .await
 }
 
+#[tauri::command]
+async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
+    blocking(|| {
+        let capturer = discord_media::ScreenCapturer::new();
+        let sources = capturer.enumerate_sources();
+        let json_sources: Vec<_> = sources
+            .into_iter()
+            .map(|s| {
+                let st = match s.source_type {
+                    discord_media::DesktopSourceType::Screen => "screen",
+                    discord_media::DesktopSourceType::Window => "window",
+                };
+                serde_json::json!({
+                    "id": s.id,
+                    "name": s.name,
+                    "sourceType": st,
+                    "source_type": st,
+                    "isPrimary": s.is_primary,
+                    "is_primary": s.is_primary,
+                })
+            })
+            .collect();
+        Ok(serde_json::json!({
+            "backend": capturer.backend().name(),
+            "sources": json_sources
+        }))
+    })
+    .await?
+}
+
+#[tauri::command]
+async fn voice_stream_start(
+    spec: discord_gui_spike::voice_stage::ScreenShareSpec,
+) -> Result<serde_json::Value, String> {
+    spec.validate()?;
+    let op18 = discord_gui_spike::voice_stage::build_gateway_stream_create_op18(&spec)?;
+    let stream_key = spec.to_stream_key("me");
+    println!("[IPC-TRACE] voice_stream_start: stream_key={stream_key}");
+    Ok(serde_json::json!({
+        "ok": true,
+        "streamKey": stream_key,
+        "payload": op18
+    }))
+}
+
+#[tauri::command]
+async fn voice_stream_stop(
+    stream_key: Option<String>,
+    #[allow(non_snake_case)] streamKey: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let key = stream_key
+        .or(streamKey)
+        .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
+    let op19 = discord_gui_spike::voice_stage::build_gateway_stream_delete_op19(&key)?;
+    println!("[IPC-TRACE] voice_stream_stop: stream_key={key}");
+    Ok(serde_json::json!({
+        "ok": true,
+        "streamKey": key,
+        "payload": op19
+    }))
+}
+
+#[tauri::command]
+async fn voice_stream_watch(
+    stream_key: Option<String>,
+    #[allow(non_snake_case)] streamKey: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let key = stream_key
+        .or(streamKey)
+        .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
+    let op20 = discord_gui_spike::voice_stage::build_gateway_stream_watch_op20(&key)?;
+    println!("[IPC-TRACE] voice_stream_watch: stream_key={key}");
+    Ok(serde_json::json!({
+        "ok": true,
+        "streamKey": key,
+        "payload": op20
+    }))
+}
+
+#[tauri::command]
+async fn voice_stream_set_paused(
+    stream_key: Option<String>,
+    #[allow(non_snake_case)] streamKey: Option<String>,
+    paused: bool,
+) -> Result<serde_json::Value, String> {
+    let key = stream_key
+        .or(streamKey)
+        .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
+    let op22 = discord_gui_spike::voice_stage::build_gateway_stream_set_paused_op22(&key, paused)?;
+    println!("[IPC-TRACE] voice_stream_set_paused: stream_key={key} paused={paused}");
+    Ok(serde_json::json!({
+        "ok": true,
+        "streamKey": key,
+        "paused": paused,
+        "payload": op22
+    }))
+}
+
 const SYSTEM_TRAY_PY: &str = r#"
 import os, sys, signal
 import gi
@@ -1584,7 +1682,12 @@ fn main() {
             voice_disconnect,
             voice_rtc_status,
             voice_audio_devices,
-            voice_set_audio_device
+            voice_set_audio_device,
+            voice_desktop_sources,
+            voice_stream_start,
+            voice_stream_stop,
+            voice_stream_watch,
+            voice_stream_set_paused
         ])
         .run(tauri::generate_context!())
         .expect("не удалось запустить Tauri-спайк");
