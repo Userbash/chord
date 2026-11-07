@@ -22,6 +22,7 @@
  * Тексты — из §5.1 (`[D]`), коды ошибок — из §3.1 (`[A]`, live не наблюдался).
  */
 import { byId, formatNumber, make } from "./dom.js";
+import { createCaptchaModal, extractCaptchaChallenge } from "./captcha-modal.js";
 
 /** Команды, принятые backend (`rust/gui-spike/src/main.rs`, D-116/D-76). */
 export const JOIN_COMMANDS = Object.freeze({
@@ -661,6 +662,35 @@ export function createJoinServer(options) {
     }
   }
 
+  /**
+   * Завершает успешный accept_invite (первичный или после решения hCaptcha).
+   * @param {{ code: string, guildId: string, guildName: string }} data
+   * @param {unknown} raw
+   */
+  function completeAccept(data, raw) {
+    const guildId = parseAcceptedGuildId(raw);
+    if (guildId === "") throw /** @type {any} */ ({ kind: "invalidResponse" });
+    const guild = { id: guildId, name: data.guildName };
+    // Успех подтверждён только 2xx с guild_id: диалог закрывается, рейл/канал
+    // обновляет вызывающая сторона (`rail.addGuild` → `channels(guildId)`).
+    hide(false);
+    setPhase("accepted");
+    statusRegion.textContent = JOIN_TEXT.success(guild.name);
+    onAccepted(guild);
+  }
+
+  const captchaModal = createCaptchaModal({
+    invoke,
+    onSolved(raw) {
+      if (disposed || !current) return;
+      try {
+        completeAccept(current, raw);
+      } catch (failure) {
+        showFailure(failure, "accept");
+      }
+    },
+  });
+
   /** Шаг B: `POST /invites/{code}` → членство (§2.3 п.4–5). */
   async function acceptStep() {
     const data = current;
@@ -680,18 +710,18 @@ export function createJoinServer(options) {
         ),
       ]);
       if (disposed) return;
-      const guildId = parseAcceptedGuildId(raw);
-      if (guildId === "") throw /** @type {any} */ ({ kind: "invalidResponse" });
-      const guild = { id: guildId, name: data.guildName };
-      // Успех подтверждён только 2xx с guild_id: диалог закрывается, рейл/канал
-      // обновляет вызывающая сторона (`rail.addGuild` → `channels(guildId)`).
-      hide(false);
-      setPhase("accepted");
-      statusRegion.textContent = JOIN_TEXT.success(guild.name);
-      onAccepted(guild);
+      completeAccept(data, raw);
     } catch (failure) {
       if (disposed) return;
       showFailure(failure, "accept");
+      const challenge = extractCaptchaChallenge(failure);
+      if (challenge) {
+        captchaModal.open({
+          ...challenge,
+          code: data.code,
+          guildName: data.guildName,
+        });
+      }
     } finally {
       pending = false;
       syncSubmit();
@@ -804,10 +834,12 @@ export function createJoinServer(options) {
     get card() { return card; },
     get preview() { return current; },
     get opener() { return opener; },
+    get captchaModal() { return captchaModal; },
     dispose() {
       disposed = true;
       if (cooldownTimer !== null) clearTimeout(cooldownTimer);
       cooldownTimer = null;
+      captchaModal.dispose();
       hide(false);
     },
   };

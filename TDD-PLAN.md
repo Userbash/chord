@@ -415,6 +415,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/audit-log.test.mjs` | — | — |
 | `tests/unit/automod-editor.test.mjs` | — | — |
 | `tests/unit/bindings-permissions.test.mjs` | — | — |
+| `tests/unit/captcha-modal.test.mjs` | `rust/gui-spike/ui/features/captcha-modal.js` | `createCaptchaModal`, `extractCaptchaChallenge`, `captcha-modal` |
 | `tests/unit/channel-gate.test.mjs` | — | — |
 | `tests/unit/channel-tree.test.mjs` | — | — |
 | `tests/unit/composer-autocomplete.test.mjs` | — | — |
