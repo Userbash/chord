@@ -322,6 +322,11 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 - В этом репозитории — документы, `tests/meta/rust-client-sync.test.mjs`, фикстуры (`fixtures/`)
   и каркас (`rust/`); полные артефакты — лаборатория `/home/sanya/re-deep/` (`TEST-PLAN.md` §2).
   Карточки — `TASKS.md` §RC.
+- Голосовой ввод и шумоподавление (`TASK-633`, `discord-voice`): аппаратный обработчик Push-to-Talk,
+  приоритетный голос (`SpeakingFlags::PRIORITY`), задержка отпускания `0..=2000` мс и автомат
+  состояния микрофона (`rust/crates/discord-voice/src/ptt.rs`, `rust/crates/discord-voice/tests/ptt_contract.rs`),
+  а также конвейер шумоподавления Krisp / RNNoise / WebRTC NS и VAD-гейтинг в дБ
+  (`rust/crates/discord-voice/src/noise.rs`, `rust/crates/discord-voice/tests/noise_contract.rs`).
 
 ## 8. Матрица тестов: тест ↔ модуль ↔ экспорты
 

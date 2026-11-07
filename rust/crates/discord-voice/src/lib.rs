@@ -14,6 +14,8 @@ pub mod crypto;
 pub mod dave;
 pub mod devices;
 pub mod media;
+pub mod noise;
+pub mod ptt;
 pub mod reception;
 pub mod reconnect;
 pub mod regions;
@@ -24,6 +26,16 @@ pub mod srtp;
 pub mod stats;
 pub mod udp;
 
+pub use noise::{
+    KrispModelTier, NoiseBand, NoiseCancellationStats, NoiseCancellerState, NoiseSuppressionConfig,
+    NoiseSuppressionError, NoiseSuppressionPipeline, SuppressionBackend, VadGateResult,
+};
+pub use ptt::{
+    AudioModeType, HardwareKeybindAction, HardwarePttKeybindHandler, InputDeviceId,
+    InputDeviceType, KeybindError, KeybindEventOptions, KeybindFiredEvent, MicCaptureState,
+    MicFrameOutput, MicStateMachine, PttAccessStatus, PttActivationState, PttKeyState,
+    ScanCodeCombo, ScanCodeEntry,
+};
 pub use session::VoiceHeartbeatAck as HeartbeatAck;
 pub use session::{
     DecryptedRtcpCompound, DecryptedRtpPacket, DiscoveryResponse, Speaking, SpeakingFlags,
