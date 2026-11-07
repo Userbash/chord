@@ -9,6 +9,9 @@ import assert from "node:assert/strict";
 
 import {
   buildContextMenuItems,
+  buildMessageContextMenuItems,
+  buildUserContextMenuItems,
+  bindContextMenuTrigger,
   clampMenuCoordinates,
   createContextMenuController,
 } from "../../rust/gui-spike/ui/features/context-menu.js";
@@ -147,6 +150,34 @@ class FakeElement {
 
   /**
    * @param {string} type
+   * @param {(event: any) => void} listener
+   */
+  removeEventListener(type, listener) {
+    const list = this._listeners.get(type);
+    if (list) {
+      this._listeners.set(
+        type,
+        list.filter((l) => l !== listener),
+      );
+    }
+  }
+
+  /**
+   * @param {FakeElement} other
+   * @returns {boolean}
+   */
+  contains(other) {
+    /** @type {FakeElement | null} */
+    let cur = other;
+    while (cur) {
+      if (cur === this) return true;
+      cur = cur.parentNode;
+    }
+    return false;
+  }
+
+  /**
+   * @param {string} type
    * @param {Record<string, any>} [extra]
    * @returns {boolean}
    */
@@ -224,6 +255,31 @@ class FakeDocument {
    */
   createElement(tagName) {
     return new FakeElement(tagName, this);
+  }
+
+  /**
+   * @param {string} type
+   * @param {(event: any) => void} listener
+   */
+  addEventListener(type, listener) {
+    this.body.addEventListener(type, listener);
+  }
+
+  /**
+   * @param {string} type
+   * @param {(event: any) => void} listener
+   */
+  removeEventListener(type, listener) {
+    this.body.removeEventListener(type, listener);
+  }
+
+  /**
+   * @param {string} type
+   * @param {Record<string, any>} [extra]
+   * @returns {boolean}
+   */
+  dispatchEvent(type, extra = {}) {
+    return this.body.dispatchEvent(type, extra);
   }
 }
 
@@ -611,6 +667,249 @@ describe("createContextMenuController", () => {
       targetId: "x",
     });
     assert.equal(invalidOpened, false);
+    assert.equal(controller.isOpen(), false);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * TASK-620: Унифицированные меню сообщений и пользователей (ПКМ)
+ * ------------------------------------------------------------------ */
+
+describe("TASK-620: buildMessageContextMenuItems & buildUserContextMenuItems", () => {
+  it("buildMessageContextMenuItems формирует унифицированный набор пунктов для своего сообщения", () => {
+    const items = buildMessageContextMenuItems({
+      isOwnMessage: true,
+    });
+    assert.deepEqual(items, [
+      { id: "reply", label: "Ответить", danger: false },
+      { id: "edit", label: "Редактировать", danger: false },
+      { id: "copy-text", label: "Скопировать текст", danger: false },
+      { id: "copy-id", label: "Скопировать ID", danger: false },
+      { id: "delete", label: "Удалить", danger: true },
+    ]);
+  });
+
+  it("buildMessageContextMenuItems исключает edit и delete для чужого сообщения без прав", () => {
+    const items = buildMessageContextMenuItems({
+      isOwnMessage: false,
+      canDelete: false,
+      canManageMessages: false,
+    });
+    assert.deepEqual(items, [
+      { id: "reply", label: "Ответить", danger: false },
+      { id: "copy-text", label: "Скопировать текст", danger: false },
+      { id: "copy-id", label: "Скопировать ID", danger: false },
+    ]);
+  });
+
+  it("buildMessageContextMenuItems включает delete для модератора на чужом сообщении", () => {
+    const items = buildMessageContextMenuItems({
+      isOwnMessage: false,
+      canDelete: true,
+    });
+    assert.deepEqual(items, [
+      { id: "reply", label: "Ответить", danger: false },
+      { id: "copy-text", label: "Скопировать текст", danger: false },
+      { id: "copy-id", label: "Скопировать ID", danger: false },
+      { id: "delete", label: "Удалить", danger: true },
+    ]);
+  });
+
+  it("buildUserContextMenuItems формирует Профиль, Упомянуть, Написать в ЛС, Заглушить, Громкость (0..200%), Скопировать ID", () => {
+    const items = buildUserContextMenuItems({
+      isMuted: false,
+      volume: 100,
+    });
+    assert.deepEqual(items, [
+      { id: "profile", label: "Профиль", danger: false },
+      { id: "mention-user", label: "Упомянуть", danger: false },
+      { id: "message-user", label: "Написать в ЛС", danger: false },
+      { id: "mute-user", label: "Заглушить", danger: false },
+      {
+        id: "user-volume",
+        label: "Громкость",
+        danger: false,
+        type: "slider",
+        min: 0,
+        max: 200,
+        value: 100,
+      },
+      { id: "copy-id", label: "Скопировать ID", danger: false },
+    ]);
+  });
+
+  it("buildUserContextMenuItems переключает подпись Заглушить на Включить звук при isMuted: true", () => {
+    const items = buildUserContextMenuItems({
+      isMuted: true,
+      volume: 150,
+    });
+    const muteItem = items.find((i) => i.id === "mute-user");
+    assert.equal(muteItem?.label, "Включить звук");
+
+    const volItem = items.find((i) => i.id === "user-volume");
+    assert.equal(volItem?.value, 150);
+  });
+});
+
+describe("TASK-620: createContextMenuController: volume slider, programmatic volume & outside click", () => {
+  it("рендерит слайдер громкости 0..200% с подписью процента и реагирует на изменение input", () => {
+    const doc = new FakeDocument();
+    const container = doc.createElement("div");
+    doc.body.appendChild(container);
+    /** @type {number[]} */
+    const volumeChanges = [];
+
+    const controller = createContextMenuController({
+      container,
+      onVolumeChange: (vol) => volumeChanges.push(vol),
+    });
+
+    controller.open({
+      x: 50,
+      y: 50,
+      targetType: "user",
+      targetId: "user-1",
+      unified: true,
+      volume: 80,
+    });
+
+    const menuEl = /** @type {FakeElement} */ (
+      container.querySelector("[data-context-menu]")
+    );
+    const sliderWrap = menuEl.querySelector('[data-context-item="user-volume"]');
+    assert.ok(sliderWrap, "контейнер слайдера громкости должен быть отрендерен");
+    if (!sliderWrap) throw new Error("missing sliderWrap");
+
+    const sliderInput = /** @type {FakeElement} */ (
+      sliderWrap.querySelector('[data-volume-slider][role="slider"]')
+    );
+    assert.ok(sliderInput, "инпут слайдера громкости должен существовать");
+    assert.equal(sliderInput.getAttribute("min"), "0");
+    assert.equal(sliderInput.getAttribute("max"), "200");
+    assert.equal(sliderInput.getAttribute("aria-valuenow"), "80");
+
+    const valueDisplay = sliderWrap.querySelector("[data-volume-value]");
+    assert.equal(valueDisplay?.textContent, "80%");
+
+    // Изменение громкости через слайдер
+    /** @type {any} */ (sliderInput).value = "140";
+    sliderInput.dispatchEvent("input");
+    assert.equal(valueDisplay?.textContent, "140%");
+    assert.equal(sliderInput.getAttribute("aria-valuenow"), "140");
+    assert.deepEqual(volumeChanges, [140]);
+  });
+
+  it("поддерживает программные методы setVolume и getVolume с ограничением 0..200%", () => {
+    const doc = new FakeDocument();
+    const container = doc.createElement("div");
+    doc.body.appendChild(container);
+    /** @type {number[]} */
+    const volumeChanges = [];
+
+    const controller = createContextMenuController({
+      container,
+      onVolumeChange: (vol) => volumeChanges.push(vol),
+    });
+
+    controller.open({
+      x: 50,
+      y: 50,
+      targetType: "user",
+      targetId: "user-1",
+      unified: true,
+      volume: 100,
+    });
+
+    assert.equal(controller.getVolume(), 100);
+    controller.setVolume(175);
+    assert.equal(controller.getVolume(), 175);
+    assert.deepEqual(volumeChanges, [175]);
+
+    // Проверка зажимания в диапазон 0..200
+    controller.setVolume(250);
+    assert.equal(controller.getVolume(), 200);
+
+    controller.setVolume(-30);
+    assert.equal(controller.getVolume(), 0);
+  });
+
+  it("закрывает меню по клику вне меню (outside click)", () => {
+    const doc = new FakeDocument();
+    const container = doc.createElement("div");
+    const outsideEl = doc.createElement("button");
+    doc.body.appendChild(container);
+    doc.body.appendChild(outsideEl);
+
+    const controller = createContextMenuController({ container });
+    controller.open({
+      x: 100,
+      y: 100,
+      targetType: "message",
+      targetId: "m-1",
+      unified: true,
+    });
+
+    assert.equal(controller.isOpen(), true);
+
+    const menuEl = /** @type {FakeElement} */ (
+      container.querySelector("[data-context-menu]")
+    );
+
+    // Клик внутри меню — меню остаётся открытым
+    menuEl.dispatchEvent("click");
+    assert.equal(controller.isOpen(), true);
+
+    // Клик снаружи меню (по outsideEl или doc.body) закрывает меню
+    outsideEl.dispatchEvent("click");
+    assert.equal(controller.isOpen(), false);
+    assert.equal(menuEl.hidden, true);
+  });
+});
+
+describe("TASK-620: bindContextMenuTrigger (ПКМ)", () => {
+  it("привязывает contextmenu к целевому элементу, предотвращает default и открывает меню", () => {
+    const doc = new FakeDocument();
+    const container = doc.createElement("div");
+    const targetMsgEl = doc.createElement("div");
+    targetMsgEl.setAttribute("data-message-id", "msg-999");
+    doc.body.appendChild(container);
+    doc.body.appendChild(targetMsgEl);
+
+    const controller = createContextMenuController({ container });
+    let triggerCount = 0;
+
+    const unbind = bindContextMenuTrigger(targetMsgEl, controller, () => {
+      triggerCount += 1;
+      return {
+        targetType: "message",
+        targetId: "msg-999",
+        unified: true,
+        isOwnMessage: true,
+      };
+    });
+
+    assert.equal(controller.isOpen(), false);
+
+    // Вызываем правый клик (contextmenu)
+    const allowed = targetMsgEl.dispatchEvent("contextmenu", {
+      clientX: 320,
+      clientY: 240,
+    });
+
+    assert.equal(allowed, false, "contextmenu должен быть preventDefault");
+    assert.equal(triggerCount, 1);
+    assert.equal(controller.isOpen(), true);
+
+    const menuEl = /** @type {FakeElement} */ (
+      container.querySelector("[data-context-menu]")
+    );
+    assert.equal(menuEl.getAttribute("data-target-id"), "msg-999");
+    assert.equal(menuEl.getAttribute("data-target-type"), "message");
+
+    // Отвязка обработчика
+    unbind();
+    controller.close();
+    targetMsgEl.dispatchEvent("contextmenu", { clientX: 320, clientY: 240 });
     assert.equal(controller.isOpen(), false);
   });
 });

@@ -1,0 +1,39 @@
+▶ buildContextMenuItems
+  ✔ формирует базовые пункты для чужого сообщения без прав модерации (0.944509ms)
+  ✔ добавляет edit и delete (danger: true) для собственного сообщения без прав модерации (0.132049ms)
+  ✔ добавляет pin и delete для модератора на чужом сообщении и учитывает флаг isPinned (0.11128ms)
+  ✔ формирует пункты меню канала с учётом флага isMuted (0.08839ms)
+  ✔ формирует пункты меню пользователя и возвращает пустой массив для неизвестного типа (0.09114ms)
+✔ buildContextMenuItems (2.521007ms)
+▶ clampMenuCoordinates
+  ✔ сохраняет координаты внутри доступной области экрана (0.14271ms)
+  ✔ ограничивает координаты по нижней/правой границе с отступом 8px и не допускает отрицательных значений (0.759759ms)
+✔ clampMenuCoordinates (1.017258ms)
+▶ createContextMenuController
+  ✔ рендерит [data-context-menu] с role='menu', открывает меню с нужными пунктами и помечает опасные пункты data-danger='true' (0.885809ms)
+  ✔ поддерживает циклическую навигацию moveFocus(delta), клавиши ArrowDown/ArrowUp/Home/End и активацию через activateFocusedItem() (0.352899ms)
+  ✔ активирует пункт по клику и клавише Enter, закрывает меню по Escape и close() (0.25635ms)
+✔ createContextMenuController (1.632948ms)
+▶ TASK-620: buildMessageContextMenuItems & buildUserContextMenuItems
+  ✔ buildMessageContextMenuItems формирует унифицированный набор пунктов для своего сообщения (0.12272ms)
+  ✔ buildMessageContextMenuItems исключает edit и delete для чужого сообщения без прав (0.069549ms)
+  ✔ buildMessageContextMenuItems включает delete для модератора на чужом сообщении (0.06645ms)
+  ✔ buildUserContextMenuItems формирует Профиль, Упомянуть, Написать в ЛС, Заглушить, Громкость (0..200%), Скопировать ID (0.10538ms)
+  ✔ buildUserContextMenuItems переключает подпись Заглушить на Включить звук при isMuted: true (0.07225ms)
+✔ TASK-620: buildMessageContextMenuItems & buildUserContextMenuItems (0.541039ms)
+▶ TASK-620: createContextMenuController: volume slider, programmatic volume & outside click
+  ✔ рендерит слайдер громкости 0..200% с подписью процента и реагирует на изменение input (0.2065ms)
+  ✔ поддерживает программные методы setVolume и getVolume с ограничением 0..200% (0.148499ms)
+  ✔ закрывает меню по клику вне меню (outside click) (0.12475ms)
+✔ TASK-620: createContextMenuController: volume slider, programmatic volume & outside click (0.553299ms)
+▶ TASK-620: bindContextMenuTrigger (ПКМ)
+  ✔ привязывает contextmenu к целевому элементу, предотвращает default и открывает меню (0.18181ms)
+✔ TASK-620: bindContextMenuTrigger (ПКМ) (0.22186ms)
+ℹ tests 19
+ℹ suites 6
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.717452

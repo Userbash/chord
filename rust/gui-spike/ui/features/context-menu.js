@@ -1,11 +1,11 @@
 // @ts-check
 /**
- * T-227 (FE-P1-23 / RW-40 / G2): контроллер контекстного меню и клавиатурной
- * навигации для сообщений, каналов и пользователей (`context-menu.js`).
+ * T-227 (FE-P1-23 / RW-40 / G2) & TASK-620: унифицированный контроллер контекстного
+ * меню и клавиатурной навигации для сообщений, каналов и пользователей (`context-menu.js`).
  *
  * RE-оракулы:
  * - `/home/sanya/re-deep/frontend-d03.md` (§5 п.3–4 Menu / ContextMenu:
- *   `menu_c1e9c4`, `role="menu"`, `role="menuitem"`, `colorDanger`,
+ *   `menu_c1e9c4`, `role="menu"`, `role="menuitem"`, `colorDanger`, `separator_c1e9c4`,
  *   `CONTEXT_MENU_OPEN` / `CONTEXT_MENU_CLOSE`);
  * - `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `01-msg-menu.html`.
  *
@@ -51,6 +51,11 @@ const DEFAULT_VIEWPORT_HEIGHT_PX = 720;
  * @property {string} id
  * @property {string} label
  * @property {boolean} danger
+ * @property {"item" | "slider" | "separator"} [type]
+ * @property {number} [min]
+ * @property {number} [max]
+ * @property {number} [value]
+ * @property {number} [step]
  */
 
 /**
@@ -60,6 +65,17 @@ const DEFAULT_VIEWPORT_HEIGHT_PX = 720;
  * @property {boolean} [isPinned]
  * @property {boolean} [isMuted]
  * @property {boolean} [canManageMessages]
+ * @property {boolean} [canEdit]
+ * @property {boolean} [canDelete]
+ * @property {boolean} [canMention]
+ * @property {number} [volume]
+ * @property {boolean} [hasVoice]
+ * @property {boolean} [unified]
+ * @property {string} [editLabel]
+ * @property {string} [deleteLabel]
+ * @property {string} [copyIdLabel]
+ * @property {string} [messageLabel]
+ * @property {string} [mentionLabel]
  */
 
 /**
@@ -86,6 +102,12 @@ const DEFAULT_VIEWPORT_HEIGHT_PX = 720;
  * @property {boolean} [isPinned]
  * @property {boolean} [isMuted]
  * @property {boolean} [canManageMessages]
+ * @property {boolean} [canEdit]
+ * @property {boolean} [canDelete]
+ * @property {boolean} [canMention]
+ * @property {number} [volume]
+ * @property {boolean} [hasVoice]
+ * @property {boolean} [unified]
  */
 
 /**
@@ -96,12 +118,14 @@ const DEFAULT_VIEWPORT_HEIGHT_PX = 720;
  * @property {boolean} danger
  * @property {ContextMenuTargetType} targetType
  * @property {string} targetId
+ * @property {number} [volume]
  */
 
 /**
  * @typedef {object} ContextMenuControllerOptions
  * @property {any} container
  * @property {(payload: ContextMenuSelectionPayload) => void} [onSelectAction]
+ * @property {(volume: number) => void} [onVolumeChange]
  */
 
 /**
@@ -113,12 +137,44 @@ const DEFAULT_VIEWPORT_HEIGHT_PX = 720;
 export function buildContextMenuItems(options) {
   const opts = options && typeof options === "object" ? options : /** @type {BuildContextMenuItemsOptions} */ ({});
   const targetType = opts.targetType;
-  const isOwnMessage = Boolean(opts.isOwnMessage);
+  const isOwnMessage = opts.isOwnMessage;
   const isPinned = Boolean(opts.isPinned);
   const isMuted = Boolean(opts.isMuted);
   const canManageMessages = Boolean(opts.canManageMessages);
 
   if (targetType === "message") {
+    if (opts.unified) {
+      /** @type {ContextMenuItem[]} */
+      const items = [
+        { id: "reply", label: "Ответить", danger: false },
+      ];
+      if (isOwnMessage || opts.canEdit || (isOwnMessage === undefined && opts.canEdit === undefined)) {
+        items.push({
+          id: "edit",
+          label: opts.editLabel ?? "Редактировать",
+          danger: false,
+        });
+      }
+      items.push({
+        id: "copy-text",
+        label: "Скопировать текст",
+        danger: false,
+      });
+      items.push({
+        id: "copy-id",
+        label: opts.copyIdLabel ?? "Скопировать ID",
+        danger: false,
+      });
+      if (isOwnMessage || canManageMessages || opts.canDelete || (isOwnMessage === undefined && opts.canDelete === undefined)) {
+        items.push({
+          id: "delete",
+          label: opts.deleteLabel ?? "Удалить",
+          danger: true,
+        });
+      }
+      return items;
+    }
+
     /** @type {ContextMenuItem[]} */
     const items = [
       { id: "reply", label: "Ответить", danger: false },
@@ -131,14 +187,14 @@ export function buildContextMenuItems(options) {
         danger: false,
       });
     }
-    if (isOwnMessage) {
+    if (Boolean(isOwnMessage)) {
       items.push({
         id: "edit",
         label: "Изменить сообщение",
         danger: false,
       });
     }
-    if (isOwnMessage || canManageMessages) {
+    if (Boolean(isOwnMessage) || canManageMessages) {
       items.push({
         id: "delete",
         label: "Удалить сообщение",
@@ -166,6 +222,30 @@ export function buildContextMenuItems(options) {
   }
 
   if (targetType === "user") {
+    if (opts.unified || opts.canMention !== undefined || opts.volume !== undefined || opts.hasVoice) {
+      const vol = typeof opts.volume === "number" && Number.isFinite(opts.volume) ? opts.volume : 100;
+      return [
+        { id: "profile", label: "Профиль", danger: false },
+        { id: "mention-user", label: opts.mentionLabel ?? "Упомянуть", danger: false },
+        { id: "message-user", label: opts.messageLabel ?? "Написать в ЛС", danger: false },
+        {
+          id: "mute-user",
+          label: isMuted ? "Включить звук" : "Заглушить",
+          danger: false,
+        },
+        {
+          id: "user-volume",
+          label: "Громкость",
+          danger: false,
+          type: "slider",
+          min: 0,
+          max: 200,
+          value: vol,
+        },
+        { id: "copy-id", label: opts.copyIdLabel ?? "Скопировать ID", danger: false },
+      ];
+    }
+
     return [
       { id: "profile", label: "Профиль", danger: false },
       { id: "message-user", label: "Написать сообщение", danger: false },
@@ -174,6 +254,34 @@ export function buildContextMenuItems(options) {
   }
 
   return [];
+}
+
+/**
+ * Формирует унифицированное контекстное меню для сообщения (TASK-620).
+ *
+ * @param {Omit<BuildContextMenuItemsOptions, "targetType">} [options]
+ * @returns {ContextMenuItem[]}
+ */
+export function buildMessageContextMenuItems(options = {}) {
+  return buildContextMenuItems({
+    targetType: "message",
+    unified: true,
+    ...options,
+  });
+}
+
+/**
+ * Формирует унифицированное контекстное меню для пользователя (TASK-620).
+ *
+ * @param {Omit<BuildContextMenuItemsOptions, "targetType">} [options]
+ * @returns {ContextMenuItem[]}
+ */
+export function buildUserContextMenuItems(options = {}) {
+  return buildContextMenuItems({
+    targetType: "user",
+    unified: true,
+    ...options,
+  });
 }
 
 /**
@@ -215,10 +323,30 @@ export function clampMenuCoordinates(input) {
 }
 
 /**
+ * Проверяет, содержится ли дочерний узел внутри родительского элемента (DOM / FakeElement).
+ *
+ * @param {any} parent
+ * @param {any} child
+ * @returns {boolean}
+ */
+function containsElement(parent, child) {
+  if (!parent || !child) return false;
+  if (typeof parent.contains === "function") {
+    return Boolean(parent.contains(child));
+  }
+  let cur = child;
+  while (cur) {
+    if (cur === parent) return true;
+    cur = cur.parentNode;
+  }
+  return false;
+}
+
+/**
  * Возвращает фабрику DOM-элементов из контейнера или глобального документа.
  *
  * @param {any} containerEl
- * @returns {{ createElement: (tag: string) => any }}
+ * @returns {{ createElement: (tag: string) => any, addEventListener?: any, removeEventListener?: any, body?: any }}
  */
 function resolveDocument(containerEl) {
   if (!containerEl || typeof containerEl !== "object") {
@@ -260,7 +388,8 @@ function replaceElementChildren(parentEl, nodes) {
 }
 
 /**
- * Создаёт контроллер контекстного меню с поддержкой клавиатурной навигации.
+ * Создаёт контроллер контекстного меню с поддержкой клавиатурной навигации,
+ * слайдера громкости и закрытия по клику вне меню.
  *
  * @param {ContextMenuControllerOptions} options
  */
@@ -270,6 +399,8 @@ export function createContextMenuController(options) {
   const doc = resolveDocument(container);
   const onSelectAction =
     typeof opts.onSelectAction === "function" ? opts.onSelectAction : null;
+  const onVolumeChange =
+    typeof opts.onVolumeChange === "function" ? opts.onVolumeChange : null;
 
   /** @type {ContextMenuItem[]} */
   let currentItems = [];
@@ -280,6 +411,8 @@ export function createContextMenuController(options) {
   let currentTargetId = "";
   let focusedIndex = -1;
   let openState = false;
+  let activeVolume = 100;
+  let outsideListenerAttached = false;
 
   const menuEl = doc.createElement("div");
   menuEl.setAttribute("data-context-menu", "");
@@ -289,6 +422,46 @@ export function createContextMenuController(options) {
   menuEl.setAttribute("data-open", "false");
   menuEl.setAttribute("aria-hidden", "true");
   menuEl.setAttribute("hidden", "");
+
+  /**
+   * Закрывает меню при клике вне его пределов.
+   *
+   * @param {any} ev
+   */
+  function handleOutsideClick(ev) {
+    if (!openState) return;
+    const target = ev?.target;
+    if (target && containsElement(menuEl, target)) {
+      return;
+    }
+    close();
+  }
+
+  function attachOutsideListener() {
+    if (outsideListenerAttached) return;
+    const eventRoot = doc && typeof doc.addEventListener === "function"
+      ? doc
+      : doc?.body && typeof doc.body.addEventListener === "function"
+        ? doc.body
+        : container;
+    if (eventRoot && typeof eventRoot.addEventListener === "function") {
+      eventRoot.addEventListener("click", handleOutsideClick);
+      outsideListenerAttached = true;
+    }
+  }
+
+  function detachOutsideListener() {
+    if (!outsideListenerAttached) return;
+    const eventRoot = doc && typeof doc.removeEventListener === "function"
+      ? doc
+      : doc?.body && typeof doc.body.removeEventListener === "function"
+        ? doc.body
+        : container;
+    if (eventRoot && typeof eventRoot.removeEventListener === "function") {
+      eventRoot.removeEventListener("click", handleOutsideClick);
+    }
+    outsideListenerAttached = false;
+  }
 
   /**
    * Синхронизирует DOM-атрибуты фокуса на пунктах меню и переводит фокус на активный элемент.
@@ -333,6 +506,7 @@ export function createContextMenuController(options) {
    * Закрывает контекстное меню и очищает список пунктов.
    */
   function close() {
+    detachOutsideListener();
     openState = false;
     currentItems = [];
     itemElements = [];
@@ -369,6 +543,7 @@ export function createContextMenuController(options) {
       danger: item.danger,
       targetType: currentTargetType,
       targetId: currentTargetId,
+      volume: item.id === "user-volume" ? activeVolume : undefined,
     };
     close();
     if (onSelectAction) {
@@ -384,6 +559,39 @@ export function createContextMenuController(options) {
    */
   function activateFocusedItem() {
     return selectItemAt(focusedIndex);
+  }
+
+  /**
+   * Программно устанавливает уровень громкости пользователя (0..200%).
+   *
+   * @param {number} volume
+   * @returns {number}
+   */
+  function setVolume(volume) {
+    const num = typeof volume === "number" && Number.isFinite(volume) ? volume : 100;
+    activeVolume = Math.max(0, Math.min(200, Math.round(num)));
+    const sliderInput = menuEl.querySelector("[data-volume-slider]");
+    if (sliderInput) {
+      /** @type {any} */ (sliderInput).value = String(activeVolume);
+      sliderInput.setAttribute("aria-valuenow", String(activeVolume));
+    }
+    const valDisplay = menuEl.querySelector("[data-volume-value]");
+    if (valDisplay) {
+      valDisplay.textContent = `${activeVolume}%`;
+    }
+    if (onVolumeChange) {
+      onVolumeChange(activeVolume);
+    }
+    return activeVolume;
+  }
+
+  /**
+   * Возвращает текущий уровень громкости пользователя.
+   *
+   * @returns {number}
+   */
+  function getVolume() {
+    return activeVolume;
   }
 
   /**
@@ -403,6 +611,12 @@ export function createContextMenuController(options) {
       isPinned: cfg.isPinned,
       isMuted: cfg.isMuted,
       canManageMessages: cfg.canManageMessages,
+      canEdit: cfg.canEdit,
+      canDelete: cfg.canDelete,
+      canMention: cfg.canMention,
+      volume: cfg.volume,
+      hasVoice: cfg.hasVoice,
+      unified: cfg.unified,
     });
     if (builtItems.length === 0) {
       close();
@@ -421,9 +635,71 @@ export function createContextMenuController(options) {
     currentItems = builtItems;
     currentTargetType = cfg.targetType;
     currentTargetId = cfg.targetId !== undefined && cfg.targetId !== null ? String(cfg.targetId) : "";
+    activeVolume = typeof cfg.volume === "number" && Number.isFinite(cfg.volume)
+      ? Math.max(0, Math.min(200, cfg.volume))
+      : 100;
     openState = true;
 
     itemElements = currentItems.map((item, idx) => {
+      if (item.type === "slider" || item.id === "user-volume") {
+        const wrap = doc.createElement("div");
+        wrap.setAttribute("data-context-item", item.id);
+        wrap.setAttribute("data-action-id", item.id);
+        wrap.setAttribute("role", "presentation");
+        wrap.className = "context-menu-volume-wrap";
+
+        const header = doc.createElement("div");
+        header.className = "context-menu-volume-header";
+
+        const labelSpan = doc.createElement("span");
+        labelSpan.className = "context-menu-volume-label";
+        labelSpan.textContent = item.label;
+
+        const valSpan = doc.createElement("span");
+        valSpan.className = "context-menu-volume-value";
+        valSpan.setAttribute("data-volume-value", "");
+        valSpan.textContent = `${activeVolume}%`;
+
+        header.appendChild(labelSpan);
+        header.appendChild(valSpan);
+
+        const slider = doc.createElement("input");
+        slider.type = "range";
+        slider.setAttribute("type", "range");
+        slider.setAttribute("min", String(item.min ?? 0));
+        slider.setAttribute("max", String(item.max ?? 200));
+        slider.setAttribute("value", String(activeVolume));
+        slider.value = String(activeVolume);
+        slider.setAttribute("role", "slider");
+        slider.setAttribute("aria-label", item.label);
+        slider.setAttribute("aria-valuemin", String(item.min ?? 0));
+        slider.setAttribute("aria-valuemax", String(item.max ?? 200));
+        slider.setAttribute("aria-valuenow", String(activeVolume));
+        slider.setAttribute("data-volume-slider", "");
+        slider.className = "context-menu-slider";
+
+        const handleVolumeUpdate = (/** @type {any} */ event) => {
+          if (event && typeof event.stopPropagation === "function") {
+            event.stopPropagation();
+          }
+          const num = Number(slider.value);
+          const clamped = Math.max(0, Math.min(200, Number.isFinite(num) ? num : 100));
+          activeVolume = clamped;
+          valSpan.textContent = `${clamped}%`;
+          slider.setAttribute("aria-valuenow", String(clamped));
+          if (onVolumeChange) {
+            onVolumeChange(clamped);
+          }
+        };
+
+        slider.addEventListener("input", handleVolumeUpdate);
+        slider.addEventListener("change", handleVolumeUpdate);
+
+        wrap.appendChild(header);
+        wrap.appendChild(slider);
+        return wrap;
+      }
+
       const btn = doc.createElement("button");
       btn.setAttribute("type", "button");
       btn.setAttribute("role", "menuitem");
@@ -454,6 +730,7 @@ export function createContextMenuController(options) {
     menuEl.setAttribute("style", `left: ${coords.x}px; top: ${coords.y}px;`);
 
     applyFocusAt(0);
+    attachOutsideListener();
     return true;
   }
 
@@ -488,7 +765,67 @@ export function createContextMenuController(options) {
     moveFocus,
     activateFocusedItem,
     close,
+    setVolume,
+    getVolume,
     isOpen: () => openState,
     getFocusedIndex: () => focusedIndex,
+  };
+}
+
+/**
+ * @callback ContextMenuTriggerResolver
+ * @param {any} event
+ * @returns {OpenContextMenuOptions}
+ */
+
+/**
+ * Привязывает обработчик контекстного меню (ПКМ) к элементу.
+ *
+ * @param {any} element
+ * @param {ReturnType<typeof createContextMenuController>} controller
+ * @param {ContextMenuTriggerResolver | OpenContextMenuOptions} resolverOrOptions
+ * @returns {() => void} Функция отписки (unbind)
+ */
+export function bindContextMenuTrigger(element, controller, resolverOrOptions) {
+  if (!element || typeof element.addEventListener !== "function") {
+    throw new TypeError("Element must be a valid DOM object with addEventListener");
+  }
+  if (!controller || typeof controller.open !== "function") {
+    throw new TypeError("Controller must provide an open method");
+  }
+
+  const handler = (/** @type {any} */ event) => {
+    if (event && typeof event.preventDefault === "function") {
+      event.preventDefault();
+    }
+    if (event && typeof event.stopPropagation === "function") {
+      event.stopPropagation();
+    }
+    const resolved =
+      typeof resolverOrOptions === "function"
+        ? resolverOrOptions(event)
+        : resolverOrOptions;
+    const clientX =
+      event && typeof event.clientX === "number" && Number.isFinite(event.clientX)
+        ? event.clientX
+        : 0;
+    const clientY =
+      event && typeof event.clientY === "number" && Number.isFinite(event.clientY)
+        ? event.clientY
+        : 0;
+
+    controller.open({
+      x: clientX,
+      y: clientY,
+      ...resolved,
+    });
+  };
+
+  element.addEventListener("contextmenu", handler);
+
+  return function unbind() {
+    if (typeof element.removeEventListener === "function") {
+      element.removeEventListener("contextmenu", handler);
+    }
   };
 }
