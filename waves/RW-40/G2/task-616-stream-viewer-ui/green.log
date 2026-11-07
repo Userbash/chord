@@ -1,0 +1,46 @@
+▶ TASK-616: Константы и утилиты управления масштабированием и звуком стрима
+  ✔ STREAM_VIEWER_MODES фиксирует 4 канонических режима отображения (0.61464ms)
+  ✔ STREAM_VIEWER_ZOOM_LIMITS задаёт минимальный 100% и максимальный 500% зум (0.10656ms)
+  ✔ clampStreamZoomScale надёжно ограничивает масштаб диапазоном 1.0..5.0 (0.08897ms)
+  ✔ formatStreamVolumeLabel форматирует процент громкости и статус ВЫКЛ при mute (0.08499ms)
+✔ TASK-616: Константы и утилиты управления масштабированием и звуком стрима (1.497638ms)
+▶ TASK-616: DOM-контракт сцены просмотра чужого стрима (#stream-viewer-overlay)
+  ✔ рендерит #stream-viewer-overlay с каноническими атрибутами, тулбаром и кнопками (0.865199ms)
+  ✔ openViewer активирует оверлей, инициирует watchStream и выставляет параметры стримера (0.451449ms)
+  ✔ клик по кнопке 'Выйти из просмотра' вызывает onLeaveWatch и закрывает просмотр (0.23415ms)
+✔ TASK-616: DOM-контракт сцены просмотра чужого стрима (#stream-viewer-overlay) (2.067857ms)
+▶ TASK-616: Режим Picture-in-Picture (PiP) и интеграция с DOCUMENT_PIP_TRIGGER
+  ✔ переключение в режим PiP скрывает overlay и монтирует плавающий мини-плеер #stream-viewer-pip (0.634239ms)
+  ✔ DOCUMENT_PIP_TRIGGER_ID (__document_pip_trigger) инициирует переключение PiP через OS IPC (0.23015ms)
+  ✔ закрытие мини-плеера PiP прекращает просмотр стрима и вызывает onLeaveWatch (0.253709ms)
+✔ TASK-616: Режим Picture-in-Picture (PiP) и интеграция с DOCUMENT_PIP_TRIGGER (1.327708ms)
+▶ TASK-616: Управление звуком и масштабированием стрима (Zoom & Audio)
+  ✔ синхронизирует громкость и mute между stage viewer и PiP плеером (0.31182ms)
+  ✔ зум-контролы корректно масштабируют холст в пределах 100%..500% (0.20919ms)
+  ✔ полноэкранный режим открывает #stream-fullscreen и закрывается по кнопке или Escape (0.222519ms)
+✔ TASK-616: Управление звуком и масштабированием стрима (Zoom & Audio) (0.834289ms)
+▶ TASK-616: Клавиатурные сокращения и доступность WAI-ARIA
+  ✔ клавиши P (PiP), F (Fullscreen), M (Mute), Escape управляют просмотром стрима (0.23097ms)
+✔ TASK-616: Клавиатурные сокращения и доступность WAI-ARIA (0.28893ms)
+▶ TASK-616: Безопасность и CSS-контракт (T-STREAM-UI-OBS-01)
+  ✔ скрывает конфиденциальные токены и секреты из DOM и текстовых атрибутов (0.423019ms)
+  ✔ CSS-файл styles/stream-viewer.css оформлен строго через tokens.css без сырых цветов и !important (0.612619ms)
+✔ TASK-616: Безопасность и CSS-контракт (T-STREAM-UI-OBS-01) (1.098188ms)
+▶ TASK-616: Контролы видеопотока (Play/Pause, Mute/Unmute, Fullscreen, Toggle PiP)
+  ✔ рендерит плеер с кнопками Play/Pause, Mute/Unmute, Fullscreen и Toggle PiP (1.141058ms)
+  ✔ кнопка Play/Pause переключает паузу и вызывает voice_stream_set_paused (0.473799ms)
+✔ TASK-616: Контролы видеопотока (Play/Pause, Mute/Unmute, Fullscreen, Toggle PiP) (2.179607ms)
+▶ TASK-616: Режим PiP при переключении каналов и навигации
+  ✔ onChannelSwitch автоматически сворачивает просмотр стрима в PiP при переходе в другой канал (0.661369ms)
+✔ TASK-616: Режим PiP при переключении каналов и навигации (0.744939ms)
+▶ TASK-616: Бейдж качества/FPS и статус DAVE MLS шифрования
+  ✔ рендерит бейдж качества/FPS (720p 60 FPS) и статус сквозного шифрования DAVE MLS (0.19935ms)
+✔ TASK-616: Бейдж качества/FPS и статус DAVE MLS шифрования (0.27307ms)
+ℹ tests 20
+ℹ suites 9
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.629267

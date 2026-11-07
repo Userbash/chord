@@ -1,0 +1,6 @@
+M1_pip_mode_switch: KILLED (exit=1, test 'переключение в режим PiP скрывает overlay и монтирует плавающий мини-плеер #stream-viewer-pip')
+M2_document_pip_trigger: KILLED (exit=1, test 'DOCUMENT_PIP_TRIGGER_ID (__document_pip_trigger) инициирует переключение PiP через OS IPC')
+M3_leave_watch_callback: KILLED (exit=1, test 'клик по кнопке "Выйти из просмотра" вызывает onLeaveWatch и закрывает просмотр')
+M4_volume_mute_sync: KILLED (exit=1, test 'синхронизирует громкость и mute между stage viewer и PiP плеером')
+M5_zoom_clamp: KILLED (exit=1, test 'clampStreamZoomScale надёжно ограничивает масштаб диапазоном 1.0..5.0')
+TOTAL: 5/5 KILLED (100%), 0 SURVIVORS

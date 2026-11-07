@@ -11,6 +11,14 @@ import {
   MAX_VISIBLE_VOICE_TILES,
 } from './voice-grid.js';
 
+export {
+  STREAM_VIEWER_MODES,
+  STREAM_VIEWER_ZOOM_LIMITS,
+  clampStreamZoomScale,
+  formatStreamVolumeLabel,
+  createStreamViewerController,
+} from './stream-viewer-ui.js';
+
 /** Допустимые разрешения демонстрации экрана. */
 export const SCREEN_SHARE_RESOLUTIONS = Object.freeze(
   /** @type {const} */ (['720p', '1080p', '1440p']),

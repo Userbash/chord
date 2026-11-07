@@ -1,0 +1,394 @@
+/* =============================================================================
+ * stream-viewer.css — Стили UI просмотра чужого стрима и режима Picture-in-Picture
+ * TASK-616 / RW-40 (G2 Frontend).
+ * 100% token-binding: все значения берутся из tokens.css без сырых цветов.
+ * ========================================================================== */
+
+/* ---------- 1. Кнопки управления просмотром стрима ---------- */
+
+.stream-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--btn-height);
+  min-width: var(--btn-height);
+  padding: var(--space-0) var(--space-4);
+  border: var(--menu-border) solid transparent;
+  border-radius: var(--radius-xs);
+  font-family: inherit;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-ui);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  transition: background var(--motion-fast) var(--ease-out),
+              border-color var(--motion-fast) var(--ease-out),
+              color var(--motion-fast) var(--ease-out);
+}
+
+.stream-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.stream-btn--primary:hover:not([aria-disabled="true"]):not([disabled]) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.stream-btn--primary:active:not([aria-disabled="true"]):not([disabled]) {
+  background: var(--accent-active);
+  border-color: var(--accent-active);
+}
+
+.stream-btn--secondary {
+  background: var(--surface-2);
+  border-color: var(--border-subtle);
+  color: var(--text-strong);
+}
+
+.stream-btn--secondary:hover:not([aria-disabled="true"]):not([disabled]) {
+  background: var(--surface-3);
+  border-color: var(--border);
+}
+
+.stream-btn--secondary[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text-accent);
+}
+
+.stream-btn--danger {
+  background: var(--danger-fill);
+  border-color: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+.stream-btn--danger:hover:not([aria-disabled="true"]):not([disabled]) {
+  background: var(--danger-fill-hover);
+  border-color: var(--danger-fill-hover);
+}
+
+.stream-btn[aria-disabled="true"],
+.stream-btn[disabled],
+.stream-btn[aria-busy="true"] {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.stream-btn[hidden] {
+  display: none;
+}
+
+/* ---------- 2. Оверлей просмотра трансляции (#stream-viewer-overlay) ---------- */
+
+.stream-viewer-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--menu-border) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--text);
+}
+
+.stream-viewer-overlay[hidden] {
+  display: none;
+}
+
+.stream-viewer-canvas {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: var(--space-6);
+  border: var(--menu-border) solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--bg-app);
+  color: var(--text-strong);
+  overflow: hidden;
+}
+
+.stream-viewer-canvas-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.stream-viewer-status-banner {
+  margin: var(--space-0);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-ui);
+  text-align: center;
+}
+
+.stream-viewer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--btn-height);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+}
+
+.stream-viewer-streamer-info,
+.stream-viewer-buttons,
+.stream-viewer-audio-group,
+.stream-viewer-zoom-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stream-viewer-streamer-name {
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+}
+
+.stream-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-caption);
+  text-transform: uppercase;
+}
+
+.stream-live-dot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-round);
+  background: var(--text-on-danger);
+}
+
+.stream-quality-badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--positive);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.stream-encryption-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--positive);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+}
+
+.stream-encryption-badge[data-encrypted="false"] {
+  color: var(--text-muted);
+}
+
+.stream-volume-slider {
+  width: var(--space-13);
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.stream-volume-label {
+  min-width: var(--space-9);
+  text-align: right;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 3. Плавающее окно Picture-in-Picture (#stream-viewer-pip) ---------- */
+
+.stream-viewer-pip {
+  position: fixed;
+  z-index: var(--z-modal);
+  right: var(--space-8);
+  bottom: var(--space-12);
+  width: var(--modal-w-sm);
+  max-width: var(--layout-content-max-w);
+  display: flex;
+  flex-direction: column;
+  border: var(--menu-border) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+  contain: paint;
+  transition: transform var(--motion-base) var(--ease-out),
+              opacity var(--motion-base) var(--ease-out);
+}
+
+.stream-viewer-pip[hidden] {
+  display: none;
+}
+
+.stream-pip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-2);
+  border-bottom: var(--menu-border) solid var(--border-subtle);
+}
+
+.stream-pip-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow: hidden;
+}
+
+.stream-pip-title {
+  color: var(--text-strong);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stream-pip-channel {
+  padding: var(--space-0) var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  white-space: nowrap;
+}
+
+.stream-pip-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.stream-pip-viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-app);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.stream-pip-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.stream-pip-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-2);
+  border-top: var(--menu-border) solid var(--border-subtle);
+}
+
+.stream-pip-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ---------- 4. Полноэкранный режим (#stream-fullscreen) ---------- */
+
+.stream-fullscreen {
+  position: fixed;
+  z-index: var(--z-modal);
+  inset: var(--space-0);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--bg-app);
+  color: var(--text-strong);
+}
+
+.stream-fullscreen[hidden] {
+  display: none;
+}
+
+.stream-fullscreen-viewport {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-8);
+  background: var(--bg-app);
+  overflow: hidden;
+}
+
+.stream-fullscreen-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--btn-height);
+  padding: var(--space-4);
+  border-top: var(--menu-border) solid var(--border-subtle);
+  background: var(--surface-1);
+  transition: opacity var(--motion-base) var(--ease-out);
+}
+
+.stream-fullscreen-title {
+  color: var(--text-strong);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+}
+
+.stream-fullscreen-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ---------- 5. Редуцированное движение ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-btn,
+  .stream-viewer-pip,
+  .stream-fullscreen-bar {
+    transition: none;
+  }
+}

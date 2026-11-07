@@ -462,6 +462,8 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/shortcuts.test.mjs` | — | — |
 | `tests/unit/slowmode.test.mjs` | — | — |
 | `tests/unit/stage-channel.test.mjs` | — | — |
+| `tests/unit/stream-viewer.test.mjs` | — | — |
+| `tests/unit/stream-viewer-ui.test.mjs` | — | — |
 | `tests/unit/svg-icons.test.mjs` | — | — |
 | `tests/unit/threads-drawer.test.mjs` | — | — |
 | `tests/unit/token-map.test.mjs` | — | — |
