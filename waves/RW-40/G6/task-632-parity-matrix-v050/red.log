@@ -1,0 +1,49 @@
+▶ TASK-632: матрица паритета v0.5.0 и релизные ноты
+  ✖ документы MERGE-READINESS-V0.5.0.md и RELEASE-NOTES-V0.5.0.md существуют и непусты (6.225708ms)
+  ✖ матрица содержит все 8 обязательных доменов, сводку §9 и вердикт готовности §10 (1.092682ms)
+  ✖ строки матрицы имеют уникальные ID, валидные статусы, оракулы /home/sanya/re-deep/ и живые пути файлов (0.961431ms)
+  ✖ сводная таблица §9 точно сходится с количеством строк и статусов по всем 8 доменам (0.356241ms)
+  ✖ матрица и RELEASE-NOTES-V0.5.0.md покрывают все ключевые оракулы /home/sanya/re-deep/ и фичи Спринтов 1–13 (0.38853ms)
+✖ TASK-632: матрица паритета v0.5.0 и релизные ноты (10.083274ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.200833
+
+✖ failing tests:
+
+test at tests/meta/parity-matrix.test.mjs:225:3
+✖ документы MERGE-READINESS-V0.5.0.md и RELEASE-NOTES-V0.5.0.md существуют и непусты (6.225708ms)
+  AssertionError [ERR_ASSERTION]: waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md: файл отсутствует
+      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/tests/meta/parity-matrix.test.mjs:228:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/meta/parity-matrix.test.mjs:233:3
+✖ матрица содержит все 8 обязательных доменов, сводку §9 и вердикт готовности §10 (1.092682ms)
+  [Error: ENOENT: no such file or directory, open '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md'] { errno: -2, code: 'ENOENT', syscall: 'open', path: '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md' }
+
+test at tests/meta/parity-matrix.test.mjs:251:3
+✖ строки матрицы имеют уникальные ID, валидные статусы, оракулы /home/sanya/re-deep/ и живые пути файлов (0.961431ms)
+  [Error: ENOENT: no such file or directory, open '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md'] { errno: -2, code: 'ENOENT', syscall: 'open', path: '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md' }
+
+test at tests/meta/parity-matrix.test.mjs:311:3
+✖ сводная таблица §9 точно сходится с количеством строк и статусов по всем 8 доменам (0.356241ms)
+  [Error: ENOENT: no such file or directory, open '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md'] { errno: -2, code: 'ENOENT', syscall: 'open', path: '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md' }
+
+test at tests/meta/parity-matrix.test.mjs:322:3
+✖ матрица и RELEASE-NOTES-V0.5.0.md покрывают все ключевые оракулы /home/sanya/re-deep/ и фичи Спринтов 1–13 (0.38853ms)
+  [Error: ENOENT: no such file or directory, open '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md'] { errno: -2, code: 'ENOENT', syscall: 'open', path: '/home/sanya/orca/workspaces/project/task-632-parity-matrix-v050/waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md' }
