@@ -12,6 +12,7 @@ pub mod deep_link;
 pub mod keyring;
 pub mod notifications;
 pub mod power;
+pub mod rpc_ipc;
 pub mod screencast;
 pub mod spellcheck;
 pub mod tray;
@@ -43,5 +44,3 @@ mod tests {
         assert_eq!(super::NOTIFICATION_CHANNELS, 7);
     }
 }
-
-pub mod rpc_ipc;
