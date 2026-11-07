@@ -1,14 +1,16 @@
 //! Серверный поиск сообщений в гильдии через подтверждённый REST-маршрут.
 
+use std::collections::VecDeque;
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
 use discord_core::rest::identity::SystemSources;
 use discord_core::rest::routes::{self, HttpMethod};
+use discord_core::rest::search::compute_429_exponential_backoff_ms;
 use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
 use discord_core::API_V9_BASE;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -30,6 +32,12 @@ pub const MAX_SEARCH_202_RETRIES: u32 = 5;
 
 /// Максимальное число повторов индексации (алиас `MAX_SEARCH_202_RETRIES`).
 pub const MAX_INDEXING_RETRIES: u32 = MAX_SEARCH_202_RETRIES;
+
+/// Максимальное число повторов при `HTTP 429 Too Many Requests` с экспоненциальным бэкоффом (TASK-617).
+pub const MAX_SEARCH_429_RETRIES: u32 = 3;
+
+/// Ёмкость BFF LRU-кэша недавних поисковых запросов (TASK-617).
+pub const MAX_SEARCH_CACHE_ENTRIES: usize = 64;
 
 /// Задержка повтора при HTTP 202 по умолчанию (`SEARCH-202-NSFW-RE.md` §5.2: 5000 мс).
 pub const DEFAULT_SEARCH_202_RETRY_AFTER_MS: u64 = 5000;
@@ -159,9 +167,138 @@ pub struct SearchParams {
     pub search_session_id: Option<String>,
     /// Идентификатор поискового запроса (UUID v4 на запрос, переиспользуется при пагинации, `SEARCH-202-NSFW-RE.md` §2.5).
     pub search_query_id: Option<String>,
+    /// Фильтр по домену ссылок (`link_hostname`, TASK-617).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link_hostname: Option<Vec<String>>,
+    /// Фильтр по расширению вложений (`attachment_extension`, TASK-617).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attachment_extension: Option<Vec<String>>,
+    /// Фильтр по имени файла вложения (`attachment_filename`, TASK-617).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attachment_filename: Option<Vec<String>>,
 }
 
 impl SearchParams {
+    /// Разобрать сырую поисковую строку с инлайн-токенами (`from:`, `mentions:`, `has:`, `in:`,
+    /// `before:`, `after:`, `pinned:`, `author_type:`, `link_hostname:`, `attachment_extension:`,
+    /// `attachment_filename:`) и вернуть нормализованные [`SearchParams`] (TASK-617).
+    #[must_use]
+    pub fn from_raw_query(raw_query: &str) -> Self {
+        let mut params = Self {
+            content: Some(raw_query.to_string()),
+            ..Self::default()
+        };
+        params.normalize_in_place();
+        params
+    }
+
+    /// Вернуть копию [`SearchParams`] с извлечёнными из `content` инлайн-фасетами
+    /// и нормализованными списками фильтров.
+    #[must_use]
+    pub fn normalized(&self) -> Self {
+        let mut copy = self.clone();
+        copy.normalize_in_place();
+        copy
+    }
+
+    /// Извлечь инлайн-токены из `content` и нормализовать поля на месте.
+    pub fn normalize_in_place(&mut self) {
+        let mut author_ids = split_csv_owned(self.author_id.as_deref());
+        let mut mentions = split_csv_owned(self.mentions.as_deref());
+        let mut has_list = split_csv_owned(self.has.as_deref());
+        let mut channel_ids = split_csv_owned(self.channel_id.as_deref());
+        let mut link_hosts = self.link_hostname.take().unwrap_or_default();
+        let mut att_exts = self.attachment_extension.take().unwrap_or_default();
+        let mut att_names = self.attachment_filename.take().unwrap_or_default();
+
+        if let Some(raw_content) = self.content.take() {
+            let mut free_words = Vec::new();
+            for token in raw_content.split_whitespace() {
+                if let Some((raw_key, raw_val)) = token.split_once(':') {
+                    let key = raw_key.to_ascii_lowercase();
+                    let val = raw_val.trim();
+                    if val.is_empty() {
+                        free_words.push(token.to_string());
+                        continue;
+                    }
+                    match key.as_str() {
+                        "from" | "author_id" => push_unique(&mut author_ids, val.to_string()),
+                        "mentions" => push_unique(&mut mentions, val.to_string()),
+                        "has" => push_unique(&mut has_list, val.to_ascii_lowercase()),
+                        "in" | "channel_id" => push_unique(&mut channel_ids, val.to_string()),
+                        "before" | "max_id" => self.max_id = Some(val.to_string()),
+                        "after" | "min_id" => self.min_id = Some(val.to_string()),
+                        "pinned" => match val.to_ascii_lowercase().as_str() {
+                            "true" => self.pinned = Some(true),
+                            "false" => self.pinned = Some(false),
+                            _ => free_words.push(token.to_string()),
+                        },
+                        "author_type" => self.author_type = Some(val.to_ascii_lowercase()),
+                        "link_hostname" | "site" => {
+                            push_unique(&mut link_hosts, val.to_ascii_lowercase());
+                        }
+                        "attachment_extension" | "ext" => {
+                            let cleaned = val.trim_start_matches('.').to_ascii_lowercase();
+                            if !cleaned.is_empty() {
+                                push_unique(&mut att_exts, cleaned);
+                            }
+                        }
+                        "attachment_filename" | "filename" => {
+                            push_unique(&mut att_names, val.to_string());
+                        }
+                        _ => free_words.push(token.to_string()),
+                    }
+                } else {
+                    free_words.push(token.to_string());
+                }
+            }
+            let joined = free_words.join(" ");
+            if !joined.is_empty() {
+                self.content = Some(joined);
+            }
+        }
+
+        if !author_ids.is_empty() {
+            self.author_id = Some(author_ids.join(","));
+        }
+        if !mentions.is_empty() {
+            self.mentions = Some(mentions.join(","));
+        }
+        if !has_list.is_empty() {
+            self.has = Some(has_list.join(","));
+        }
+        if !channel_ids.is_empty() {
+            self.channel_id = Some(channel_ids.join(","));
+        }
+        if !link_hosts.is_empty() {
+            for h in &mut link_hosts {
+                *h = h.trim().to_ascii_lowercase();
+            }
+            self.link_hostname = Some(link_hosts);
+        }
+        if !att_exts.is_empty() {
+            for ext in &mut att_exts {
+                *ext = ext.trim().trim_start_matches('.').to_ascii_lowercase();
+            }
+            self.attachment_extension = Some(att_exts);
+        }
+        if !att_names.is_empty() {
+            for name in &mut att_names {
+                *name = name.trim().to_string();
+            }
+            self.attachment_filename = Some(att_names);
+        }
+    }
+
+    /// Построить канонический ключ кэша (без транзиентных `search_session_id`, `search_query_id`, `attempts`).
+    #[must_use]
+    pub fn canonical_cache_key(&self) -> String {
+        let mut norm = self.normalized();
+        norm.search_session_id = None;
+        norm.search_query_id = None;
+        norm.attempts = None;
+        serde_json::to_string(&norm).unwrap_or_default()
+    }
     /// Генерирует `search_session_id` и `search_query_id` (UUID v4), если они отсутствуют.
     pub fn ensure_session_ids(&mut self) {
         if self.search_session_id.is_none() {
@@ -242,6 +379,31 @@ impl StringOrVec {
             }
         }
     }
+
+    fn into_vec(self) -> Option<Vec<String>> {
+        match self {
+            Self::One(value) => {
+                let trimmed = value.trim();
+                if trimmed.is_empty() {
+                    None
+                } else {
+                    Some(vec![trimmed.to_string()])
+                }
+            }
+            Self::Many(values) => {
+                let cleaned: Vec<String> = values
+                    .into_iter()
+                    .map(|v| v.trim().to_string())
+                    .filter(|v| !v.is_empty())
+                    .collect();
+                if cleaned.is_empty() {
+                    None
+                } else {
+                    Some(cleaned)
+                }
+            }
+        }
+    }
 }
 
 #[derive(Default, Deserialize)]
@@ -274,6 +436,12 @@ struct RawSearchFields {
     search_session_id: Option<String>,
     #[serde(alias = "search_query_id")]
     search_query_id: Option<String>,
+    #[serde(alias = "link_hostname")]
+    link_hostname: Option<StringOrVec>,
+    #[serde(alias = "attachment_extension")]
+    attachment_extension: Option<StringOrVec>,
+    #[serde(alias = "attachment_filename")]
+    attachment_filename: Option<StringOrVec>,
 }
 
 #[derive(Default, Deserialize)]
@@ -325,7 +493,59 @@ impl<'de> Deserialize<'de> for SearchParams {
             attempts: raw.top.attempts.or(nested.attempts),
             search_session_id: raw.top.search_session_id.or(nested.search_session_id),
             search_query_id: raw.top.search_query_id.or(nested.search_query_id),
+            link_hostname: raw
+                .top
+                .link_hostname
+                .and_then(StringOrVec::into_vec)
+                .or_else(|| nested.link_hostname.and_then(StringOrVec::into_vec)),
+            attachment_extension: raw
+                .top
+                .attachment_extension
+                .and_then(StringOrVec::into_vec)
+                .or_else(|| nested.attachment_extension.and_then(StringOrVec::into_vec)),
+            attachment_filename: raw
+                .top
+                .attachment_filename
+                .and_then(StringOrVec::into_vec)
+                .or_else(|| nested.attachment_filename.and_then(StringOrVec::into_vec)),
         })
+    }
+}
+
+/// Структурированное сообщение внутри контекстной группы поисковой выдачи (TASK-617).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchHitMessage {
+    pub id: String,
+    pub channel_id: String,
+    pub author_id: Option<String>,
+    pub author_username: Option<String>,
+    pub content: String,
+    pub timestamp: String,
+    pub hit: bool,
+    pub pinned: bool,
+    pub attachments_count: usize,
+    pub embeds_count: usize,
+}
+
+/// Контекстная группа сообщений из вложенного массива `messages[i]` ответа `200 OK` (TASK-617).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchHitGroup {
+    pub messages: Vec<SearchHitMessage>,
+}
+
+impl SearchHitGroup {
+    /// Возвращает целевое сообщение с `hit == true` (или единственное сообщение в группе).
+    #[must_use]
+    pub fn primary_hit(&self) -> Option<&SearchHitMessage> {
+        if let Some(hit) = self.messages.iter().find(|m| m.hit) {
+            return Some(hit);
+        }
+        if self.messages.len() == 1 {
+            return self.messages.first();
+        }
+        None
     }
 }
 
@@ -351,6 +571,43 @@ pub struct SearchResponse {
         skip_serializing_if = "Option::is_none"
     )]
     pub retry_after_ms: Option<u64>,
+}
+
+impl SearchResponse {
+    /// Разобрать вложенный массив `messages` (`Vec<Vec<Message>>` или плоский `Vec<Message>`)
+    /// в типизированные контекстные группы [`SearchHitGroup`] (TASK-617).
+    #[must_use]
+    pub fn hit_groups(&self) -> Vec<SearchHitGroup> {
+        let mut groups = Vec::with_capacity(self.messages.len());
+        for entry in &self.messages {
+            if let Some(arr) = entry.as_array() {
+                let mut msgs = Vec::with_capacity(arr.len());
+                for item in arr {
+                    if let Some(m) = parse_hit_message_value(item) {
+                        msgs.push(m);
+                    }
+                }
+                if !msgs.is_empty() {
+                    groups.push(SearchHitGroup { messages: msgs });
+                }
+            } else if let Some(mut single) = parse_hit_message_value(entry) {
+                single.hit = true;
+                groups.push(SearchHitGroup {
+                    messages: vec![single],
+                });
+            }
+        }
+        groups
+    }
+
+    /// Извлечь список главных совпадений (`hit == true`) из всех контекстных групп.
+    #[must_use]
+    pub fn primary_hits(&self) -> Vec<SearchHitMessage> {
+        self.hit_groups()
+            .into_iter()
+            .filter_map(|g| g.primary_hit().cloned())
+            .collect()
+    }
 }
 
 /// Ошибки поиска без утечки токена или тела запроса.
@@ -470,9 +727,10 @@ impl SearchTransport for ApiSearchTransport {
     }
 }
 
-/// Реализация поиска через `discord-core` REST-клиент.
+/// Реализация поиска через `discord-core` REST-клиент с LRU-кэшем недавних ответов.
 pub struct DiscordSearch {
     transport: Arc<dyn SearchTransport>,
+    cache: Mutex<VecDeque<(String, String, SearchResponse)>>,
 }
 
 impl fmt::Debug for DiscordSearch {
@@ -512,43 +770,129 @@ impl DiscordSearch {
         .map_err(|_| SearchError::Network)?;
         Ok(Self {
             transport: Arc::new(ApiSearchTransport(client)),
+            cache: Mutex::new(VecDeque::new()),
         })
     }
 
     #[doc(hidden)]
     pub fn with_transport(transport: Arc<dyn SearchTransport>) -> Self {
-        Self { transport }
+        Self {
+            transport,
+            cache: Mutex::new(VecDeque::new()),
+        }
     }
 
-    /// Выполняет поиск с автоматическим retry-циклом при `HTTP 202 Accepted`
-    /// (до `MAX_SEARCH_202_RETRIES = 5` повторов с пробросом `attempts = Some(1..=5)`).
+    /// Текущее число записей в BFF-кэше недавних поисковых результатов.
+    #[must_use]
+    pub fn cache_len(&self) -> usize {
+        self.cache.lock().map_or(0, |guard| guard.len())
+    }
+
+    /// Очистить кэш результатов поиска для заданной гильдии.
+    pub fn invalidate_guild_cache(&self, guild_id: &str) {
+        let trimmed = guild_id.trim();
+        if let Ok(mut guard) = self.cache.lock() {
+            guard.retain(|(gid, _, _)| gid != trimmed);
+        }
+    }
+
+    /// Полностью очистить BFF-кэш результатов поиска.
+    pub fn clear_cache(&self) {
+        if let Ok(mut guard) = self.cache.lock() {
+            guard.clear();
+        }
+    }
+
+    /// Выполнить поиск с использованием LRU-кэша для подтверждённых ответов `200 OK`
+    /// (`!indexing && !doing_deep_historical_index`). Ответы `202 Accepted` и ошибки не кэшируются.
+    pub async fn search_cached(
+        &self,
+        guild_id: &str,
+        params: &SearchParams,
+    ) -> Result<SearchResponse, SearchError> {
+        let normalized = params.normalized();
+        let gid = guild_id.trim().to_string();
+        let key = normalized.canonical_cache_key();
+
+        if let Ok(mut guard) = self.cache.lock() {
+            if let Some(pos) = guard
+                .iter()
+                .position(|(cached_gid, cached_key, _)| cached_gid == &gid && cached_key == &key)
+            {
+                if let Some(entry) = guard.remove(pos) {
+                    let response = entry.2.clone();
+                    guard.push_back(entry);
+                    return Ok(response);
+                }
+            }
+        }
+
+        let response = self.execute(guild_id, &normalized).await?;
+        if !response.indexing && !response.doing_deep_historical_index {
+            if let Ok(mut guard) = self.cache.lock() {
+                if let Some(pos) = guard.iter().position(|(cached_gid, cached_key, _)| {
+                    cached_gid == &gid && cached_key == &key
+                }) {
+                    guard.remove(pos);
+                } else if guard.len() >= MAX_SEARCH_CACHE_ENTRIES {
+                    guard.pop_front();
+                }
+                guard.push_back((gid, key, response.clone()));
+            }
+        }
+        Ok(response)
+    }
+
+    /// Выполняет поиск с автоматическим retry-циклом:
+    /// - при `HTTP 202 Accepted`: до `MAX_SEARCH_202_RETRIES = 5` повторов с пробросом `attempts = Some(1..=5)`;
+    /// - при `HTTP 429 Too Many Requests`: до `MAX_SEARCH_429_RETRIES = 3` повторов с экспоненциальным бэкоффом.
     pub async fn execute_with_retry<P: std::borrow::Borrow<SearchParams>>(
         &self,
         guild_id: &str,
         params: P,
     ) -> Result<SearchResponse, SearchError> {
         let mut attempt_params = params.borrow().clone();
-        let mut retries = 0u32;
+        let mut retries_202 = 0u32;
+        let mut retries_429 = 0u32;
         loop {
-            let response = self.execute(guild_id, &attempt_params).await?;
-            if response.indexing {
-                let retry_after_ms = response
-                    .retry_after_ms
-                    .unwrap_or(DEFAULT_SEARCH_202_RETRY_AFTER_MS);
-                if retries >= MAX_SEARCH_202_RETRIES {
-                    return Err(SearchError::Indexing {
-                        retry_after_ms,
-                        attempts: retries,
-                    });
+            match self.execute(guild_id, &attempt_params).await {
+                Ok(response) => {
+                    if response.indexing {
+                        let retry_after_ms = response
+                            .retry_after_ms
+                            .unwrap_or(DEFAULT_SEARCH_202_RETRY_AFTER_MS);
+                        if retries_202 >= MAX_SEARCH_202_RETRIES {
+                            return Err(SearchError::Indexing {
+                                retry_after_ms,
+                                attempts: retries_202,
+                            });
+                        }
+                        retries_202 += 1;
+                        attempt_params.attempts = Some(retries_202);
+                        self.transport
+                            .sleep(Duration::from_millis(retry_after_ms))
+                            .await;
+                        continue;
+                    }
+                    return Ok(response);
                 }
-                retries += 1;
-                attempt_params.attempts = Some(retries);
-                self.transport
-                    .sleep(Duration::from_millis(retry_after_ms))
-                    .await;
-                continue;
+                Err(SearchError::RateLimited { retry_after_ms }) => {
+                    if retries_429 >= MAX_SEARCH_429_RETRIES {
+                        return Err(SearchError::RateLimited { retry_after_ms });
+                    }
+                    let base_ms = if retry_after_ms > 0 {
+                        retry_after_ms
+                    } else {
+                        1000
+                    };
+                    let backoff_ms = compute_429_exponential_backoff_ms(base_ms, retries_429);
+                    retries_429 += 1;
+                    self.transport
+                        .sleep(Duration::from_millis(backoff_ms))
+                        .await;
+                }
+                Err(other_err) => return Err(other_err),
             }
-            return Ok(response);
         }
     }
 
@@ -640,6 +984,33 @@ impl DiscordSearch {
         if let Some(max_id) = params.max_id.as_deref() {
             query.push(format!("max_id={}", percent_encode(max_id)));
         }
+        if let Some(hosts) = params.link_hostname.as_ref() {
+            for host in hosts {
+                let trimmed = host.trim();
+                if trimmed.is_empty() {
+                    return Err(SearchError::InvalidArg);
+                }
+                query.push(format!("link_hostname={}", percent_encode(trimmed)));
+            }
+        }
+        if let Some(exts) = params.attachment_extension.as_ref() {
+            for ext in exts {
+                let cleaned = ext.trim().trim_start_matches('.');
+                if cleaned.is_empty() {
+                    return Err(SearchError::InvalidArg);
+                }
+                query.push(format!("attachment_extension={}", percent_encode(cleaned)));
+            }
+        }
+        if let Some(names) = params.attachment_filename.as_ref() {
+            for name in names {
+                let trimmed = name.trim();
+                if trimmed.is_empty() {
+                    return Err(SearchError::InvalidArg);
+                }
+                query.push(format!("attachment_filename={}", percent_encode(trimmed)));
+            }
+        }
         for (name, value) in [
             ("sort_by", params.sort_by.as_deref()),
             ("sort_order", params.sort_order.as_deref()),
@@ -689,6 +1060,11 @@ impl DiscordSearch {
                 retry_after_ms: Some(retry_after_ms),
             });
         }
+        if response.status == 429 {
+            let retry_after_ms =
+                parse_429_retry_after_ms(&response.headers, &response.body).unwrap_or(0);
+            return Err(SearchError::RateLimited { retry_after_ms });
+        }
         if let Some(failure) = RestFailure::from_status(response.status) {
             return Err(failure.into());
         }
@@ -732,6 +1108,101 @@ fn parse_retry_after_ms(headers: &[(String, String)], body: &[u8]) -> u64 {
         }
     }
     DEFAULT_SEARCH_202_RETRY_AFTER_MS
+}
+
+fn parse_429_retry_after_ms(headers: &[(String, String)], body: &[u8]) -> Option<u64> {
+    if let Ok(Value::Object(map)) = serde_json::from_slice::<Value>(body) {
+        if let Some(val) = map.get("retry_after") {
+            let secs_opt = val
+                .as_f64()
+                .or_else(|| val.as_str().and_then(|s| s.trim().parse::<f64>().ok()));
+            if let Some(secs) = secs_opt {
+                if secs.is_finite() && secs > 0.0 {
+                    return Some((secs * 1000.0).round() as u64);
+                }
+            }
+        }
+    }
+    if let Some((_, value)) = headers
+        .iter()
+        .find(|(name, _)| name.eq_ignore_ascii_case("retry-after"))
+    {
+        if let Ok(secs) = value.trim().parse::<f64>() {
+            if secs.is_finite() && secs > 0.0 {
+                return Some((secs * 1000.0).round() as u64);
+            }
+        }
+    }
+    None
+}
+
+fn parse_hit_message_value(value: &Value) -> Option<SearchHitMessage> {
+    let obj = value.as_object()?;
+    let id = obj.get("id")?.as_str()?.to_string();
+    let channel_id = obj
+        .get("channel_id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    let author_obj = obj.get("author").and_then(Value::as_object);
+    let author_id = author_obj
+        .and_then(|a| a.get("id"))
+        .and_then(Value::as_str)
+        .map(str::to_string);
+    let author_username = author_obj
+        .and_then(|a| a.get("username"))
+        .and_then(Value::as_str)
+        .map(str::to_string);
+    let content = obj
+        .get("content")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    let timestamp = obj
+        .get("timestamp")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    let hit = obj.get("hit").and_then(Value::as_bool).unwrap_or(false);
+    let pinned = obj.get("pinned").and_then(Value::as_bool).unwrap_or(false);
+    let attachments_count = obj
+        .get("attachments")
+        .and_then(Value::as_array)
+        .map_or(0, Vec::len);
+    let embeds_count = obj
+        .get("embeds")
+        .and_then(Value::as_array)
+        .map_or(0, Vec::len);
+
+    Some(SearchHitMessage {
+        id,
+        channel_id,
+        author_id,
+        author_username,
+        content,
+        timestamp,
+        hit,
+        pinned,
+        attachments_count,
+        embeds_count,
+    })
+}
+
+fn split_csv_owned(raw: Option<&str>) -> Vec<String> {
+    let Some(s) = raw else {
+        return Vec::new();
+    };
+    s.split(',')
+        .map(str::trim)
+        .filter(|item| !item.is_empty())
+        .map(str::to_string)
+        .collect()
+}
+
+fn push_unique(vec: &mut Vec<String>, item: String) {
+    if !item.is_empty() && !vec.contains(&item) {
+        vec.push(item);
+    }
 }
 
 fn split_non_empty_list(value: Option<&str>) -> Result<Vec<&str>, SearchError> {

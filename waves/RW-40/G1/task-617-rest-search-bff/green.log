@@ -1,0 +1,66 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.68s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-5cd0374147882a35)
+
+running 2 tests
+test rest::search::tests::computes_exponential_backoff_capped_at_30s ... ok
+test rest::search::tests::parses_inline_tokens_and_builds_canonical_guild_endpoint ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 34 filtered out; finished in 0.00s
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.78s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 35 tests
+test deterministic_uuid_v4_oracle_shape ... ok
+test decodes_hits_and_deep_index_flag ... ok
+test decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted ... ok
+test enforces_max_search_offset_9975_and_rejects_above_ceiling_before_transport ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test maps_network_error_without_exposing_details ... ok
+test maps_malformed_json_to_typed_error ... ok
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... ok
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... ok
+test rejects_negative_offset_before_transport ... ok
+test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... ok
+test parses_retry_after_from_json_body_on_http_202_when_header_is_absent ... ok
+test debug_and_errors_do_not_expose_token ... ok
+test rejects_invalid_session_and_query_ids_before_transport ... ok
+test rejects_empty_guild_id_before_transport ... ok
+test rejects_invalid_filter_values_before_transport ... ok
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... ok
+test reuses_search_session_id_and_query_id_on_pagination_and_refreshes_query_id_on_new_query ... ok
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test returns_typed_indexing_error_after_5_retries_with_json_body_retry_after ... ok
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... ok
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... ok
+test retries_http_202_using_retry_after_from_json_body_and_preserves_session_ids ... ok
+test no_token_is_typed_before_network ... ok
+test storage_failure_is_typed_for_ui ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test serializes_search_session_id_and_search_query_id_in_query_string ... ok
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... ok
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... ok
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
+test sends_all_confirmed_re_filters_in_query ... ok
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... ok
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.10s
+     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-eb641c80cda3fe3f)
+
+running 4 tests
+test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok
+test search::tests::retry_after_header_parses_positive_integer_seconds_with_5000ms_fallback ... ok
+test search::tests::retry_after_body_parses_float_seconds_when_header_absent ... ok
+test search::tests::uuid_v4_generation_matches_rfc4122_shape ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.00s
+
