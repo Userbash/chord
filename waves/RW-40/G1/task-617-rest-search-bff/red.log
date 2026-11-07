@@ -1,0 +1,197 @@
+   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-json)
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-codec)
+   Compiling discord-ui v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-ui)
+   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-platform)
+   Compiling discord-store v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-store)
+   Compiling discord-media v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-media)
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-voice)
+   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-updater)
+   Compiling discord-i18n v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-i18n)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+error[E0432]: unresolved import `discord_core::rest::search`
+    --> tests/search_contract.rs:1366:29
+     |
+1366 |     use discord_core::rest::search::{
+     |                             ^^^^^^ could not find `search` in `rest`
+
+error[E0432]: unresolved import `discord_core::rest::search`
+    --> tests/search_contract.rs:1502:29
+     |
+1502 |     use discord_core::rest::search::{
+     |                             ^^^^^^ could not find `search` in `rest`
+
+error[E0432]: unresolved import `discord_gui_spike::search::MAX_SEARCH_429_RETRIES`
+    --> tests/search_contract.rs:1700:9
+     |
+1700 |     use discord_gui_spike::search::MAX_SEARCH_429_RETRIES;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^----------------------
+     |                                    |
+     |                                    no `MAX_SEARCH_429_RETRIES` in `search`
+     |
+help: a similar name exists in the module
+     |
+1700 -     use discord_gui_spike::search::MAX_SEARCH_429_RETRIES;
+1700 +     use discord_gui_spike::search::MAX_SEARCH_202_RETRIES;
+     |
+
+error[E0603]: enum `HttpMethod` is private
+    --> tests/search_contract.rs:1365:36
+     |
+1365 |     use discord_core::rest::http1::HttpMethod;
+     |                                    ^^^^^^^^^^ private enum
+     |
+note: the enum `HttpMethod` is defined here
+    --> /home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/http1.rs:8:5
+     |
+   8 | use super::routes::HttpMethod;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+help: import `HttpMethod` directly
+     |
+1365 -     use discord_core::rest::http1::HttpMethod;
+1365 +     use discord_core::rest::routes::HttpMethod;
+     |
+
+error[E0599]: no associated function or constant named `default_linux_desktop` found for struct `SuperProperties` in the current scope
+    --> tests/search_contract.rs:1401:31
+     |
+1401 |     let sp = SuperProperties::default_linux_desktop();
+     |                               ^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `SuperProperties`
+     |
+note: if you're trying to build a new `SuperProperties` consider using one of the following associated functions:
+      SuperProperties::from_json
+      SuperProperties::from_base64
+    --> /home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/super_properties.rs:113:5
+     |
+ 113 |     pub fn from_json(text: &str) -> Result<Self, SuperPropertiesError> {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 125 |     pub fn from_base64(text: &str) -> Result<Self, SuperPropertiesError> {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no associated function or constant named `from_raw_query` found for struct `SearchParams` in the current scope
+    --> tests/search_contract.rs:1641:32
+     |
+1641 |     let params = SearchParams::from_raw_query(raw_query);
+     |                                ^^^^^^^^^^^^^^ associated function or constant not found in `SearchParams`
+
+error[E0599]: no method named `hit_groups` found for struct `SearchResponse` in the current scope
+    --> tests/search_contract.rs:1682:27
+     |
+1682 |     let groups = response.hit_groups();
+     |                           ^^^^^^^^^^ method not found in `SearchResponse`
+
+error[E0599]: no method named `primary_hits` found for struct `SearchResponse` in the current scope
+    --> tests/search_contract.rs:1685:28
+     |
+1685 |     let primary = response.primary_hits();
+     |                            ^^^^^^^^^^^^ method not found in `SearchResponse`
+
+error[E0599]: no associated function or constant named `from_raw_query` found for struct `SearchParams` in the current scope
+    --> tests/search_contract.rs:1772:28
+     |
+1772 |     let p1 = SearchParams::from_raw_query("from:42 has:image кэш");
+     |                            ^^^^^^^^^^^^^^ associated function or constant not found in `SearchParams`
+
+error[E0599]: no method named `search_cached` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1774:10
+     |
+1773 |       let r1 = search
+     |  ______________-
+1774 | |         .search_cached("1014537851418980372", &p1)
+     | |         -^^^^^^^^^^^^^ method not found in `DiscordSearch`
+     | |_________|
+     |
+
+error[E0599]: no method named `cache_len` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1778:23
+     |
+1778 |     assert_eq!(search.cache_len(), 1);
+     |                       ^^^^^^^^^ method not found in `DiscordSearch`
+
+error[E0599]: no associated function or constant named `from_raw_query` found for struct `SearchParams` in the current scope
+    --> tests/search_contract.rs:1782:32
+     |
+1782 | ...t p2 = SearchParams::from_raw_query("has:image from:42   кэш  ");
+     |                         ^^^^^^^^^^^^^^ associated function or constant not found in `SearchParams`
+
+error[E0599]: no method named `search_cached` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1785:10
+     |
+1784 |       let r2 = search
+     |  ______________-
+1785 | |         .search_cached("1014537851418980372", &p2)
+     | |         -^^^^^^^^^^^^^ method not found in `DiscordSearch`
+     | |_________|
+     |
+
+error[E0599]: no method named `invalidate_guild_cache` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1796:12
+     |
+1796 |     search.invalidate_guild_cache("1014537851418980372");
+     |            ^^^^^^^^^^^^^^^^^^^^^^ method not found in `DiscordSearch`
+
+error[E0599]: no method named `cache_len` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1797:23
+     |
+1797 |     assert_eq!(search.cache_len(), 0);
+     |                       ^^^^^^^^^ method not found in `DiscordSearch`
+
+error[E0599]: no method named `search_cached` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1799:10
+     |
+1798 |       let r3 = search
+     |  ______________-
+1799 | |         .search_cached("1014537851418980372", &p1)
+     | |         -^^^^^^^^^^^^^ method not found in `DiscordSearch`
+     | |_________|
+     |
+
+error[E0599]: no method named `search_cached` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1816:10
+     |
+1815 |       let env_202 = search_202
+     |  ___________________-
+1816 | |         .search_cached("1", &SearchParams::from_raw_query("индекс"))
+     | |         -^^^^^^^^^^^^^ method not found in `DiscordSearch`
+     | |_________|
+     |
+
+error[E0599]: no associated function or constant named `from_raw_query` found for struct `SearchParams` in the current scope
+    --> tests/search_contract.rs:1816:44
+     |
+1816 |         .search_cached("1", &SearchParams::from_raw_query("индекс"))
+     |                                            ^^^^^^^^^^^^^^ associated function or constant not found in `SearchParams`
+
+error[E0599]: no method named `cache_len` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1821:20
+     |
+1821 |         search_202.cache_len(),
+     |                    ^^^^^^^^^ method not found in `DiscordSearch`
+
+error[E0599]: no method named `search_cached` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1827:10
+     |
+1826 |       let after_202 = search_202
+     |  _____________________-
+1827 | |         .search_cached("1", &SearchParams::from_raw_query("индекс"))
+     | |         -^^^^^^^^^^^^^ method not found in `DiscordSearch`
+     | |_________|
+     |
+
+error[E0599]: no associated function or constant named `from_raw_query` found for struct `SearchParams` in the current scope
+    --> tests/search_contract.rs:1827:44
+     |
+1827 |         .search_cached("1", &SearchParams::from_raw_query("индекс"))
+     |                                            ^^^^^^^^^^^^^^ associated function or constant not found in `SearchParams`
+
+error[E0599]: no method named `cache_len` found for struct `DiscordSearch` in the current scope
+    --> tests/search_contract.rs:1831:27
+     |
+1831 |     assert_eq!(search_202.cache_len(), 1);
+     |                           ^^^^^^^^^ method not found in `DiscordSearch`
+
+Some errors have detailed explanations: E0432, E0599, E0603.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `discord-gui-spike` (test "search_contract") due to 22 previous errors
+warning: build failed, waiting for other jobs to finish...

@@ -17,6 +17,7 @@ pub mod rate_limit;
 pub mod resources;
 pub mod retry;
 pub mod routes;
+pub mod search;
 pub mod super_properties;
 pub mod telemetry;
 pub mod transport;

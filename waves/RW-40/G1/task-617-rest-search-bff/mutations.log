@@ -1,0 +1,219 @@
+=== M1: MAX_SEARCH_OFFSET 9975 -> 10000 in discord-core ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.81s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 5 tests
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... ok
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... ok
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... FAILED
+
+failures:
+
+---- task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers stdout ----
+
+thread 'task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers' (766094) panicked at tests/search_contract.rs:1469:5:
+assertion `left == right` failed
+  left: Ok(SearchQueryRequest { content: Some("ok"), channel_id: [], author_id: [], mentions: [], has: [], pinned: None, author_type: [], min_id: None, max_id: None, link_hostname: [], attachment_extension: [], attachment_filename: [], sort_by: None, sort_order: None, limit: None, offset: Some(9976), include_nsfw: None, search_session_id: None, search_query_id: None, attempts: None })
+ right: Err(OffsetOutOfRange { offset: 9976, max: 9975 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test search_contract`
+M1 KILLED
+=== M2: hit_message m.hit -> !m.hit in discord-core ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.78s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 5 tests
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... FAILED
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... ok
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... ok
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... ok
+
+failures:
+
+---- task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors stdout ----
+
+thread 'task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors' (767399) panicked at tests/search_contract.rs:1589:5:
+assertion `left == right` failed
+  left: "1001"
+ right: "1002"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test search_contract`
+M2 KILLED
+=== M3: compute_429_exponential_backoff_ms 1_u64 << shift -> 1_u64 in discord-core ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+warning: unused variable: `shift`
+   --> /home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/search.rs:804:9
+    |
+804 |     let shift = attempt.min(10);
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_shift`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.73s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 5 tests
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... FAILED
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... FAILED
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... ok
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... ok
+
+failures:
+
+---- task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors stdout ----
+
+thread 'task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors' (768722) panicked at tests/search_contract.rs:1633:5:
+assertion `left == right` failed
+  left: 1500
+ right: 3000
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget stdout ----
+
+thread 'task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget' (768720) panicked at tests/search_contract.rs:1725:5:
+assertion `left == right` failed: ожидался экспоненциальный бэкофф 500ms, 1000ms для повторных 429
+  left: [500, 500]
+ right: [500, 1000]
+
+
+failures:
+    task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget
+    task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test search_contract`
+M3 KILLED
+=== M4: MAX_SEARCH_429_RETRIES 3 -> 1 in gui-spike/src/search.rs ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.78s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 5 tests
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... FAILED
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... ok
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... ok
+
+failures:
+
+---- task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget stdout ----
+
+thread 'task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget' (770049) panicked at tests/search_contract.rs:1701:5:
+assertion `left == right` failed
+  left: 1
+ right: 3
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test search_contract`
+M4 KILLED
+=== M5: search_cached caches 202 indexing responses in gui-spike/src/search.rs ===
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.33s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 5 tests
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... FAILED
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... ok
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... ok
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+
+failures:
+
+---- task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate stdout ----
+
+thread 'task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate' (770791) panicked at tests/search_contract.rs:1820:5:
+assertion `left == right` failed: 202 Accepted не должен кэшироваться
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test search_contract`
+M5 KILLED
+=== RESTORED MD5 & FINAL GREEN CHECK ===
+1080c8583fd64c5af999e3927f2f1b81  rust/crates/discord-core/src/rest/search.rs
+a2a284ad5b9b7fc92650d4469c9b8240  rust/crates/discord-core/src/rest/mod.rs
+7480942682dcb45680c352b98f662b72  rust/gui-spike/src/search.rs
+fa945c92abb85caaaab6538c87af61ea  rust/gui-spike/tests/search_contract.rs
+   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.31s
+     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+
+running 35 tests
+test deterministic_uuid_v4_oracle_shape ... ok
+test debug_and_errors_do_not_expose_token ... ok
+test accepts_all_nine_confirmed_has_tokens_and_three_author_types ... ok
+test includes_nsfw_and_attempts_query_params_and_validates_attempts_range ... ok
+test enforces_max_search_offset_9975_and_rejects_above_ceiling_before_transport ... ok
+test decodes_hits_and_deep_index_flag ... ok
+test maps_401_and_429_to_typed_errors ... ok
+test decodes_documents_indexed_from_200_ok_and_defaults_to_zero_when_omitted ... ok
+test no_token_is_typed_before_network ... ok
+test maps_network_error_without_exposing_details ... ok
+test maps_malformed_json_to_typed_error ... ok
+test deserializes_ipc_camel_case_snake_case_and_nested_query_payload ... ok
+test maps_other_http_errors_to_typed_errors_without_body_leak ... ok
+test rejects_empty_guild_id_before_transport ... ok
+test parses_retry_after_from_json_body_on_http_202_when_header_is_absent ... ok
+test rejects_invalid_session_and_query_ids_before_transport ... ok
+test rejects_negative_offset_before_transport ... ok
+test rejects_invalid_filter_values_before_transport ... ok
+test returns_immediate_indexing_envelope_on_http_202_without_sleeping_or_reading_body ... ok
+test retries_http_202_using_retry_after_from_json_body_and_preserves_session_ids ... ok
+test reuses_search_session_id_and_query_id_on_pagination_and_refreshes_query_id_on_new_query ... ok
+test returns_typed_indexing_error_after_5_retries_with_json_body_retry_after ... ok
+test retries_http_202_with_retry_after_header_ignoring_202_body_and_returns_200_results ... ok
+test sends_all_confirmed_re_filters_in_query ... ok
+test returns_typed_indexing_error_when_all_5_retries_return_202 ... ok
+test storage_failure_is_typed_for_ui ... ok
+test sends_confirmed_query_and_decodes_empty_result ... ok
+test serializes_search_session_id_and_search_query_id_in_query_string ... ok
+test tauri_command_reads_token_from_backend_and_is_registered ... ok
+test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... ok
+test task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups ... ok
+test task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate ... ok
+test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
+test task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers ... ok
+test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+

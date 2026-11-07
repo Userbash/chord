@@ -1355,3 +1355,478 @@ fn deterministic_uuid_v4_oracle_shape() {
     assert_eq!(live.len(), 36);
     assert_eq!(&live[14..15], "4");
 }
+
+// ============================================================================
+// TASK-617: Полнотекстовый поиск по гильдии GET /guilds/{id}/messages/search (BFF + Core REST)
+// ============================================================================
+
+#[test]
+fn task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers() {
+    use discord_core::rest::routes::HttpMethod;
+    use discord_core::rest::search::{
+        build_channel_search_http_request, build_guild_search_http_request, SearchQueryRequest,
+        SearchRestError, SearchSortBy, SearchSortOrder, ALLOWED_AUTHOR_TYPES, ALLOWED_HAS_FACETS,
+    };
+    use discord_core::rest::super_properties::SuperProperties;
+
+    assert_eq!(
+        ALLOWED_HAS_FACETS,
+        &["link", "embed", "poll", "snapshot", "file", "video", "image", "sound", "sticker"]
+    );
+    assert_eq!(ALLOWED_AUTHOR_TYPES, &["user", "bot", "webhook"]);
+
+    let raw = "  from:111111111111111111 mentions:222222222222222222 has:Image has:-video in:333333333333333333 before:555555555555555555 after:444444444444444444 pinned:true author_type:User link_hostname:GitHub.com attachment_extension:.PNG attachment_filename:report.pdf   привет   мир  ";
+    let mut parsed = SearchQueryRequest::parse_and_normalize(raw).expect("parse inline facets");
+    assert_eq!(parsed.content.as_deref(), Some("привет мир"));
+    assert_eq!(parsed.author_id, vec!["111111111111111111"]);
+    assert_eq!(parsed.mentions, vec!["222222222222222222"]);
+    assert_eq!(parsed.has, vec!["image", "-video"]);
+    assert_eq!(parsed.channel_id, vec!["333333333333333333"]);
+    assert_eq!(parsed.min_id.as_deref(), Some("444444444444444444"));
+    assert_eq!(parsed.max_id.as_deref(), Some("555555555555555555"));
+    assert_eq!(parsed.pinned, Some(true));
+    assert_eq!(parsed.author_type, vec!["user"]);
+    assert_eq!(parsed.link_hostname, vec!["github.com"]);
+    assert_eq!(parsed.attachment_extension, vec!["png"]);
+    assert_eq!(parsed.attachment_filename, vec!["report.pdf"]);
+
+    parsed.sort_by = Some(SearchSortBy::Relevance);
+    parsed.sort_order = Some(SearchSortOrder::Desc);
+    parsed.limit = Some(25);
+    parsed.offset = Some(50);
+    parsed.include_nsfw = Some(true);
+
+    let sp = SuperProperties::default();
+    let http_req = build_guild_search_http_request(
+        "mfa.test_token_617",
+        &sp,
+        "Asia/Yekaterinburg",
+        "1014537851418980372",
+        &parsed,
+    )
+    .expect("build guild search HttpRequest");
+    assert_eq!(http_req.method, HttpMethod::Get);
+    assert!(
+        http_req
+            .target
+            .starts_with("/api/v9/guilds/1014537851418980372/messages/search?"),
+        "неожиданный путь: {}",
+        http_req.target
+    );
+    assert!(http_req
+        .target
+        .contains("content=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82%20%D0%BC%D0%B8%D1%80"));
+    assert!(http_req.target.contains("channel_id=333333333333333333"));
+    assert!(http_req.target.contains("author_id=111111111111111111"));
+    assert!(http_req.target.contains("mentions=222222222222222222"));
+    assert!(http_req.target.contains("has=image&has=-video"));
+    assert!(http_req.target.contains("pinned=true"));
+    assert!(http_req.target.contains("author_type=user"));
+    assert!(http_req.target.contains("min_id=444444444444444444"));
+    assert!(http_req.target.contains("max_id=555555555555555555"));
+    assert!(http_req.target.contains("link_hostname=github.com"));
+    assert!(http_req.target.contains("attachment_extension=png"));
+    assert!(http_req.target.contains("attachment_filename=report.pdf"));
+    assert!(http_req
+        .target
+        .contains("sort_by=relevance&sort_order=desc"));
+    assert!(http_req.target.contains("limit=25&offset=50"));
+    assert!(http_req.target.contains("include_nsfw=true"));
+
+    // Проверяем 6 обязательных заголовков Discord REST v9.
+    let header_names: Vec<&str> = http_req.headers.iter().map(|(k, _)| k.as_str()).collect();
+    for expected in [
+        "Authorization",
+        "X-Super-Properties",
+        "X-Discord-Locale",
+        "X-Discord-Timezone",
+        "X-Debug-Options",
+        "Accept-Language",
+    ] {
+        assert!(
+            header_names.contains(&expected),
+            "отсутствует заголовок {expected}"
+        );
+    }
+
+    let ch_req = build_channel_search_http_request(
+        "mfa.test_token_617",
+        &sp,
+        "Asia/Yekaterinburg",
+        "333333333333333333",
+        &parsed,
+    )
+    .expect("build channel search HttpRequest");
+    assert!(ch_req
+        .target
+        .starts_with("/api/v9/channels/333333333333333333/messages/search?"));
+
+    // Валидация пустого запроса и невалидных границ.
+    assert_eq!(
+        SearchQueryRequest::default().normalized(),
+        Err(SearchRestError::EmptyQuery)
+    );
+    assert_eq!(
+        SearchQueryRequest {
+            content: Some("ok".into()),
+            offset: Some(9976),
+            ..SearchQueryRequest::default()
+        }
+        .normalized(),
+        Err(SearchRestError::OffsetOutOfRange {
+            offset: 9976,
+            max: 9975
+        })
+    );
+    assert_eq!(
+        SearchQueryRequest {
+            content: Some("ok".into()),
+            limit: Some(26),
+            ..SearchQueryRequest::default()
+        }
+        .normalized(),
+        Err(SearchRestError::InvalidLimit { limit: 26 })
+    );
+    assert_eq!(
+        SearchQueryRequest {
+            has: vec!["executable".into()],
+            ..SearchQueryRequest::default()
+        }
+        .normalized(),
+        Err(SearchRestError::InvalidHasFacet("executable".into()))
+    );
+}
+
+#[test]
+fn task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors() {
+    use discord_core::rest::search::{
+        compute_429_exponential_backoff_ms, parse_search_http_response, SearchRestError,
+    };
+
+    let body_200 = r#"{
+        "analytics_id": "a1b2c3d4e5f6",
+        "total_results": 2,
+        "doing_deep_historical_index": false,
+        "documents_indexed": 4812,
+        "messages": [
+            [
+                {
+                    "id": "1001",
+                    "channel_id": "333333333333333333",
+                    "author": {"id": "7001", "username": "alice"},
+                    "content": "контекст до",
+                    "timestamp": "2026-10-20T12:00:00.000000+00:00",
+                    "pinned": false,
+                    "attachments": [],
+                    "embeds": []
+                },
+                {
+                    "id": "1002",
+                    "channel_id": "333333333333333333",
+                    "author": {"id": "7002", "username": "bob"},
+                    "content": "найденное сообщение #1",
+                    "timestamp": "2026-10-20T12:01:00.000000+00:00",
+                    "hit": true,
+                    "pinned": true,
+                    "attachments": [
+                        {
+                            "id": "9001",
+                            "filename": "report.pdf",
+                            "size": 2048,
+                            "url": "https://cdn.discordapp.com/attachments/333/9001/report.pdf",
+                            "content_type": "application/pdf"
+                        }
+                    ],
+                    "embeds": [{"type": "rich"}, {"type": "image"}]
+                },
+                {
+                    "id": "1003",
+                    "channel_id": "333333333333333333",
+                    "author": {"id": "7003", "username": "carol"},
+                    "content": "контекст после",
+                    "timestamp": "2026-10-20T12:02:00.000000+00:00",
+                    "pinned": false,
+                    "attachments": [],
+                    "embeds": []
+                }
+            ],
+            [
+                {
+                    "id": "2001",
+                    "channel_id": "444444444444444444",
+                    "author": {"id": "7004", "username": "dave"},
+                    "content": "найденное сообщение #2",
+                    "timestamp": "2026-10-20T12:05:00.000000+00:00",
+                    "hit": true,
+                    "pinned": false
+                }
+            ]
+        ]
+    }"#;
+
+    let res_200 = parse_search_http_response(&HttpResponse {
+        status: 200,
+        headers: Vec::new(),
+        body: body_200.as_bytes().to_vec(),
+    })
+    .expect("parse 200 OK nested messages[][]");
+
+    assert_eq!(res_200.analytics_id.as_deref(), Some("a1b2c3d4e5f6"));
+    assert_eq!(res_200.total_results, 2);
+    assert!(!res_200.doing_deep_historical_index);
+    assert_eq!(res_200.documents_indexed, 4812);
+    assert!(!res_200.indexing);
+    assert_eq!(res_200.retry_after_ms, None);
+    assert_eq!(res_200.groups.len(), 2);
+
+    let g0 = &res_200.groups[0];
+    assert_eq!(g0.messages.len(), 3);
+    assert_eq!(g0.context_before().len(), 1);
+    assert_eq!(g0.context_before()[0].id, "1001");
+    assert_eq!(g0.context_after().len(), 1);
+    assert_eq!(g0.context_after()[0].id, "1003");
+    let hit0 = g0.hit_message().expect("hit message in group 0");
+    assert_eq!(hit0.id, "1002");
+    assert_eq!(hit0.author_id.as_deref(), Some("7002"));
+    assert_eq!(hit0.author_username.as_deref(), Some("bob"));
+    assert!(hit0.hit);
+    assert!(hit0.pinned);
+    assert_eq!(hit0.attachments.len(), 1);
+    assert_eq!(hit0.attachments[0].filename, "report.pdf");
+    assert_eq!(hit0.attachments[0].size, 2048);
+    assert_eq!(hit0.embeds_count, 2);
+
+    let hits = res_200.hits();
+    assert_eq!(hits.len(), 2);
+    assert_eq!(hits[0].id, "1002");
+    assert_eq!(hits[1].id, "2001");
+
+    // 202 Accepted (indexing)
+    let res_202 = parse_search_http_response(&HttpResponse {
+        status: 202,
+        headers: vec![("Retry-After".into(), "2".into())],
+        body: br#"{"message":"Index not yet available","retry_after":2.0,"documents_indexed":310}"#
+            .to_vec(),
+    })
+    .expect("parse 202 Accepted");
+    assert!(res_202.indexing);
+    assert_eq!(res_202.retry_after_ms, Some(2000));
+    assert_eq!(res_202.documents_indexed, 310);
+    assert!(res_202.groups.is_empty());
+
+    // 429 Too Many Requests + экспоненциальный бэкофф
+    let err_429 = parse_search_http_response(&HttpResponse {
+        status: 429,
+        headers: Vec::new(),
+        body: br#"{"message":"You are being rate limited.","retry_after":1.5,"global":false}"#
+            .to_vec(),
+    })
+    .expect_err("429 must be RateLimited");
+    assert_eq!(
+        err_429,
+        SearchRestError::RateLimited {
+            retry_after_ms: 1500,
+            is_global: false,
+        }
+    );
+    assert_eq!(compute_429_exponential_backoff_ms(1500, 0), 1500);
+    assert_eq!(compute_429_exponential_backoff_ms(1500, 1), 3000);
+    assert_eq!(compute_429_exponential_backoff_ms(1500, 2), 6000);
+    assert_eq!(compute_429_exponential_backoff_ms(1500, 10), 30_000);
+}
+
+#[tokio::test]
+async fn task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_groups() {
+    let raw_query = "from:42 mentions:77 has:link has:file in:1163408591315812392 before:2000 after:1000 pinned:false author_type:bot link_hostname:discord.com attachment_extension:.RS attachment_filename:search.rs   полнотекстовый   поиск ";
+    let params = SearchParams::from_raw_query(raw_query);
+
+    assert_eq!(params.content.as_deref(), Some("полнотекстовый поиск"));
+    assert_eq!(params.author_id.as_deref(), Some("42"));
+    assert_eq!(params.mentions.as_deref(), Some("77"));
+    assert_eq!(params.has.as_deref(), Some("link,file"));
+    assert_eq!(params.channel_id.as_deref(), Some("1163408591315812392"));
+    assert_eq!(params.min_id.as_deref(), Some("1000"));
+    assert_eq!(params.max_id.as_deref(), Some("2000"));
+    assert_eq!(params.pinned, Some(false));
+    assert_eq!(params.author_type.as_deref(), Some("bot"));
+    assert_eq!(params.link_hostname, Some(vec!["discord.com".into()]));
+    assert_eq!(params.attachment_extension, Some(vec!["rs".into()]));
+    assert_eq!(params.attachment_filename, Some(vec!["search.rs".into()]));
+
+    let fake = Arc::new(FakeTransport::new(
+        200,
+        r#"{
+            "analytics_id": "bff_617",
+            "total_results": 1,
+            "doing_deep_historical_index": false,
+            "documents_indexed": 120,
+            "messages": [
+                [
+                    {"id": "500", "channel_id": "1163408591315812392", "content": "до", "author": {"id": "1", "username": "u1"}, "timestamp": "2026-10-20T00:00:00Z"},
+                    {"id": "501", "channel_id": "1163408591315812392", "content": "хит", "hit": true, "pinned": true, "author": {"id": "42", "username": "bot42"}, "timestamp": "2026-10-20T00:01:00Z", "attachments": [{"id": "a1", "filename": "search.rs", "size": 100}], "embeds": [{"type": "link"}]}
+                ]
+            ]
+        }"#,
+    ));
+    let search = DiscordSearch::with_transport(fake.clone());
+    let response = search
+        .search("1014537851418980372", &params)
+        .await
+        .expect("search with normalized facets");
+
+    let target = fake.target.lock().unwrap().clone().expect("target");
+    assert!(target.contains("link_hostname=discord.com"), "{target}");
+    assert!(target.contains("attachment_extension=rs"), "{target}");
+    assert!(target.contains("attachment_filename=search.rs"), "{target}");
+
+    let groups = response.hit_groups();
+    assert_eq!(groups.len(), 1);
+    assert_eq!(groups[0].messages.len(), 2);
+    let primary = response.primary_hits();
+    assert_eq!(primary.len(), 1);
+    assert_eq!(primary[0].id, "501");
+    assert_eq!(primary[0].author_id.as_deref(), Some("42"));
+    assert_eq!(primary[0].author_username.as_deref(), Some("bot42"));
+    assert_eq!(primary[0].content, "хит");
+    assert!(primary[0].hit);
+    assert!(primary[0].pinned);
+    assert_eq!(primary[0].attachments_count, 1);
+    assert_eq!(primary[0].embeds_count, 1);
+}
+
+#[tokio::test]
+async fn task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget()
+{
+    use discord_gui_spike::search::MAX_SEARCH_429_RETRIES;
+    assert_eq!(MAX_SEARCH_429_RETRIES, 3);
+
+    // Сценарий A: два ответа 429 подряд (база 500 мс -> 500 мс, затем 1000 мс), затем 200 OK.
+    let transport_ok = Arc::new(QueuedTransport::new(vec![
+        QueuedTransport::resp(429, &[], r#"{"retry_after":0.5}"#),
+        QueuedTransport::resp(429, &[], r#"{"retry_after":0.5}"#),
+        QueuedTransport::resp(
+            200,
+            &[],
+            r#"{"messages":[[{"id":"m429","content":"ok after 429","hit":true}]],"total_results":1,"doing_deep_historical_index":false}"#,
+        ),
+    ]));
+    let search_ok = DiscordSearch::with_transport(transport_ok.clone());
+    let res = search_ok
+        .execute_with_retry(
+            "1014537851418980372",
+            SearchParams {
+                content: Some("rate-limit".into()),
+                ..SearchParams::default()
+            },
+        )
+        .await
+        .expect("200 OK after two 429 retries");
+    assert_eq!(res.total_results, 1);
+    assert_eq!(
+        *transport_ok.sleeps_ms.lock().unwrap(),
+        vec![500, 1000],
+        "ожидался экспоненциальный бэкофф 500ms, 1000ms для повторных 429"
+    );
+    assert_eq!(transport_ok.targets.lock().unwrap().len(), 3);
+
+    // Сценарий B: исчерпание бюджета повторов 429 (1 начальный + 3 повтора = 4 ответа 429).
+    let transport_fail = Arc::new(QueuedTransport::new(vec![
+        QueuedTransport::resp(429, &[], r#"{"retry_after":1.0}"#),
+        QueuedTransport::resp(429, &[], r#"{"retry_after":1.0}"#),
+        QueuedTransport::resp(429, &[], r#"{"retry_after":1.0}"#),
+        QueuedTransport::resp(429, &[], r#"{"retry_after":1.0}"#),
+    ]));
+    let search_fail = DiscordSearch::with_transport(transport_fail.clone());
+    let err = search_fail
+        .execute_with_retry("1014537851418980372", SearchParams::default())
+        .await
+        .expect_err("must fail after exhausting 429 retry budget");
+    assert_eq!(
+        err,
+        SearchError::RateLimited {
+            retry_after_ms: 1000
+        }
+    );
+    assert_eq!(
+        *transport_fail.sleeps_ms.lock().unwrap(),
+        vec![1000, 2000, 4000]
+    );
+}
+
+#[tokio::test]
+async fn task_617_bff_caches_recent_200_search_results_and_bypasses_cache_on_202_or_invalidate() {
+    let transport = Arc::new(QueuedTransport::new(vec![
+        QueuedTransport::resp(
+            200,
+            &[],
+            r#"{"messages":[[{"id":"c1","content":"cached hit","hit":true}]],"total_results":1,"doing_deep_historical_index":false,"documents_indexed":500}"#,
+        ),
+        QueuedTransport::resp(
+            200,
+            &[],
+            r#"{"messages":[[{"id":"c2","content":"after invalidate","hit":true}]],"total_results":2,"doing_deep_historical_index":false,"documents_indexed":501}"#,
+        ),
+    ]));
+    let search = DiscordSearch::with_transport(transport.clone());
+
+    let p1 = SearchParams::from_raw_query("from:42 has:image кэш");
+    let r1 = search
+        .search_cached("1014537851418980372", &p1)
+        .await
+        .expect("first search populates cache");
+    assert_eq!(r1.total_results, 1);
+    assert_eq!(search.cache_len(), 1);
+    assert_eq!(transport.targets.lock().unwrap().len(), 1);
+
+    // Повторный запрос с другим порядком инлайн-токенов и новым search_query_id попадает в кэш.
+    let mut p2 = SearchParams::from_raw_query("has:image from:42   кэш  ");
+    p2.search_query_id = Some(deterministic_uuid_v4(999));
+    let r2 = search
+        .search_cached("1014537851418980372", &p2)
+        .await
+        .expect("second search hits cache");
+    assert_eq!(r2, r1);
+    assert_eq!(
+        transport.targets.lock().unwrap().len(),
+        1,
+        "попадание в кэш не должно вызывать транспорт повторно"
+    );
+
+    // Инвалидация кэша гильдии приводит к новому сетевому вызову.
+    search.invalidate_guild_cache("1014537851418980372");
+    assert_eq!(search.cache_len(), 0);
+    let r3 = search
+        .search_cached("1014537851418980372", &p1)
+        .await
+        .expect("third search after invalidation");
+    assert_eq!(r3.total_results, 2);
+    assert_eq!(transport.targets.lock().unwrap().len(), 2);
+
+    // Ответ 202 (indexing) НЕ кэшируется.
+    let transport_202 = Arc::new(QueuedTransport::new(vec![
+        QueuedTransport::resp(202, &[("Retry-After", "2")], "{}"),
+        QueuedTransport::resp(
+            200,
+            &[],
+            r#"{"messages":[],"total_results":7,"doing_deep_historical_index":false}"#,
+        ),
+    ]));
+    let search_202 = DiscordSearch::with_transport(transport_202.clone());
+    let env_202 = search_202
+        .search_cached("1", &SearchParams::from_raw_query("индекс"))
+        .await
+        .expect("202 response");
+    assert!(env_202.indexing);
+    assert_eq!(
+        search_202.cache_len(),
+        0,
+        "202 Accepted не должен кэшироваться"
+    );
+
+    let after_202 = search_202
+        .search_cached("1", &SearchParams::from_raw_query("индекс"))
+        .await
+        .expect("200 after uncached 202");
+    assert_eq!(after_202.total_results, 7);
+    assert_eq!(search_202.cache_len(), 1);
+}
