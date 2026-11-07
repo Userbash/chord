@@ -1,0 +1,248 @@
+=== Baseline MD5: d0f5f56ba528504152abbae89b9af5b9 ===
+--- M1: Boundary > DAVE_MAX_GENERATION_GAP -> >= DAVE_MAX_GENERATION_GAP ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-623-dave-mls-v2/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
+
+running 24 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test incoming_srtcp_k ... ok
+test rtp_version_k ... ok
+test short_packet_k ... ok
+test unsupported_mode_k ... ok
+test counter_overflow_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... ok
+test rtp_layout_k ... ok
+test rtp_roundtrip_k ... ok
+test rtp_tamper_k ... ok
+test srtcp_layout_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds ... FAILED
+test incoming_counter_non_monotonic_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test rtp_counter_shared_k ... ok
+test dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator ... ok
+
+failures:
+
+---- dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds stdout ----
+
+thread 'dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds' (828293) panicked at crates/discord-voice/tests/srtp_contract.rs:659:5:
+exact DAVE_MAX_GENERATION_GAP (250) must succeed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds
+
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+Result M1: KILLED
+--- M2: Forward secrecy delete_key skips cache removal ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-623-dave-mls-v2/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
+
+running 24 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test incoming_srtcp_k ... ok
+test rtp_version_k ... ok
+test counter_overflow_k ... ok
+test short_packet_k ... ok
+test rtp_layout_k ... ok
+test unsupported_mode_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... ok
+test rtp_tamper_k ... ok
+test rtp_roundtrip_k ... ok
+test srtcp_layout_k ... ok
+test non_rtpsize_mode_k ... ok
+test dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds ... FAILED
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator ... ok
+test rtp_counter_shared_k ... ok
+
+failures:
+
+---- dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds stdout ----
+
+thread 'dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds' (828618) panicked at crates/discord-voice/tests/srtp_contract.rs:634:5:
+assertion failed: !ratchet_a.delete_key(0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds
+
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+Result M2: KILLED
+--- M3: compute_wrapped_generation wrapping_sub -> saturating_sub ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-623-dave-mls-v2/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
+
+running 24 tests
+test crypto_error_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test mode_names_k ... ok
+test incoming_srtcp_k ... ok
+test rtp_version_k ... ok
+test short_packet_k ... ok
+test rtp_ext_len_k ... ok
+test counter_overflow_k ... ok
+test rtp_layout_k ... ok
+test rtp_tamper_k ... ok
+test srtcp_layout_k ... ok
+test unsupported_mode_k ... ok
+test rtp_roundtrip_k ... ok
+test srtcp_version_k ... ok
+test xchacha_rtpsize_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test srtcp_roundtrip_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator ... ok
+test rtp_counter_shared_k ... ok
+test dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds ... FAILED
+
+failures:
+
+---- dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds stdout ----
+
+thread 'dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds' (828945) panicked at crates/discord-voice/tests/srtp_contract.rs:674:5:
+assertion `left == right` failed
+  left: 250
+ right: 258
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds
+
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+Result M3: KILLED
+--- M4: ct_eq bypasses byte comparison ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-623-dave-mls-v2/rust/crates/discord-voice)
+warning: unused variable: `y`
+    --> crates/discord-voice/src/srtp.rs:1400:15
+     |
+1400 |     for (&x, &y) in a.iter().zip(b.iter()) {
+     |               ^ help: if this is intentional, prefix it with an underscore: `_y`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
+
+running 24 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test malformed_43b_k ... ok
+test rtp_ext_len_k ... ok
+test short_packet_k ... ok
+test rtp_version_k ... ok
+test incoming_srtcp_k ... ok
+test unsupported_mode_k ... ok
+test counter_overflow_k ... ok
+test srtcp_version_k ... ok
+test dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator ... FAILED
+test rtp_layout_k ... ok
+test xchacha_rtpsize_k ... ok
+test rtp_roundtrip_k ... ok
+test srtcp_layout_k ... ok
+test rtp_tamper_k ... ok
+test non_rtpsize_mode_k ... ok
+test srtcp_tamper_k ... ok
+test srtcp_roundtrip_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test rtp_counter_shared_k ... ok
+test dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds ... ok
+
+failures:
+
+---- dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator stdout ----
+
+thread 'dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator' (829289) panicked at crates/discord-voice/tests/srtp_contract.rs:819:5:
+assertion failed: engine.on_proposals_op27(&bad_sig_prop).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator
+
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+Result M4: KILLED
+--- M5: Bypass CommitWithoutQueuedProposals check in on_commit_or_welcome_op29_op30 ---
+   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-623-dave-mls-v2/rust/crates/discord-voice)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
+     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
+
+running 24 tests
+test crypto_error_k ... ok
+test mode_names_k ... ok
+test counter_rewind_rejected_k ... ok
+test rtp_ext_len_k ... ok
+test short_packet_k ... ok
+test counter_overflow_k ... ok
+test rtp_layout_k ... ok
+test srtcp_version_k ... ok
+test unsupported_mode_k ... ok
+test dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator ... FAILED
+test xchacha_rtpsize_k ... ok
+test rtp_tamper_k ... ok
+test srtcp_layout_k ... ok
+test srtcp_roundtrip_k ... ok
+test srtcp_tamper_k ... ok
+test incoming_srtcp_k ... ok
+test malformed_43b_k ... ok
+test rtp_version_k ... ok
+test incoming_counter_non_monotonic_k ... ok
+test rtp_roundtrip_k ... ok
+test decrypt_nonce_reuse_rejected_k ... ok
+test non_rtpsize_mode_k ... ok
+test rtp_counter_shared_k ... ok
+test dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap_bounds ... ok
+
+failures:
+
+---- dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator stdout ----
+
+thread 'dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator' (829615) panicked at crates/discord-voice/tests/srtp_contract.rs:858:5:
+assertion failed: engine.on_proposals_op27(&good_revoke).expect("revoke proposal").is_none()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    dave_mls_structured_proposal_commit_and_welcome_verification_and_epoch_authenticator
+
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p discord-voice --test srtp_contract`
+Result M5: KILLED
+=== Restored MD5: d0f5f56ba528504152abbae89b9af5b9 ===

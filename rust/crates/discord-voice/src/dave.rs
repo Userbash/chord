@@ -987,8 +987,16 @@ impl SecureFramesStateUpdate {
 }
 
 pub use crate::srtp::{
-    DAVE_MARKER_BYTES, DaveFrameCipher, DaveMediaCipher, DaveMlsEngine, DaveStrippedRtpPacket,
-    DaveTransitionOutcome,
+    DAVE_MARKER_BYTES, DAVE_MAX_EPOCH_TRANSITIONS, DAVE_MAX_GENERATION_GAP,
+    DAVE_MAX_LIFETIME_GENERATIONS, DAVE_MAX_PARTICIPANTS, DAVE_MAX_RESETS, DAVE_MAX_SIGNAL_BYTES,
+    DAVE_MLS_EPOCH_AUTH_LABEL, DAVE_MLS_RATCHET_KEY_LABEL, DAVE_MLS_RATCHET_NONCE_LABEL,
+    DAVE_MLS_RATCHET_SECRET_LABEL, DAVE_MLS_USER_MEDIA_KEY_BASE_LABEL, DAVE_PROPOSAL_MAGIC,
+    DAVE_PROPOSAL_REVOKE_MAGIC, DAVE_RATCHET_GENERATION_SHIFT_BITS, DAVE_STRUCTURED_COMMIT_MAGIC,
+    DAVE_WELCOME_MAGIC, DaveFrameCipher, DaveMediaCipher, DaveMlsEngine, DaveStrippedRtpPacket,
+    DaveTransitionOutcome, MlsKeyRatchet, MlsProposalType, MlsRatchetKeyAndNonce,
+    MlsVerificationError, build_structured_mls_commit, build_structured_mls_proposal,
+    build_structured_mls_revoke, build_structured_mls_welcome, compute_wrapped_big_nonce,
+    compute_wrapped_generation,
 };
 
 /// Длина тега аутентификации AES-256-GCM внутреннего слоя DAVE MLS v1 (16 байт).
