@@ -16,6 +16,7 @@ pub mod dispatch;
 pub mod gateway;
 pub mod history;
 pub mod identify;
+pub mod permissions;
 pub mod ready;
 pub mod rest;
 pub mod resume;
@@ -44,6 +45,10 @@ pub use identify::{
     CAPABILITIES_ACTIVE, CAPABILITIES_CHANNEL_OBFUSCATION, IdentifyError, IdentifyParams,
     IdentifyProperties, PresenceInfo, build_identify, build_identify_frame,
     qos_token_client_provided,
+};
+pub use permissions::{
+    ALL_PERMISSIONS, OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionOverwrite, Permissions,
+    compute_base_permissions, compute_channel_permissions, has_permission,
 };
 pub use ready::ReadySummary;
 pub use rest::client::{ApiAuth, ApiAuthError, AuthScheme};

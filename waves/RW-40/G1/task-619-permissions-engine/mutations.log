@@ -1,0 +1,18 @@
+ORIGINAL_MD5=2565ee3ace58151e0a3ff9a784442a3b
+M1_owner_bypass: status=KILLED exit=101 mut_md5=68c798ea535d01cc95cc489445454739
+  test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... FAILED
+  test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+M2_base_admin_bypass: status=KILLED exit=101 mut_md5=7f2b50b73fd38673714a69b5ade6a658
+  test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... FAILED
+  test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+M3_everyone_overwrite_precedence: status=KILLED exit=101 mut_md5=243e3d55c898c343b34f0fcac8d4736d
+  test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... FAILED
+  test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+M4_role_allow_over_deny: status=KILLED exit=101 mut_md5=b3219efb3e2c146169ae7f0b55ef0a9c
+  test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... FAILED
+  test channel_overwrites_follow_everyone_then_roles_then_member_hierarchy ... FAILED
+  test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+M5_has_permission_composite: status=KILLED exit=101 mut_md5=b2fa51242997e639e67203ed25d73ca5
+  test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... FAILED
+  test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+RESTORED_MD5=2565ee3ace58151e0a3ff9a784442a3b (match=True) KILLED=5/5

@@ -1,0 +1,66 @@
+   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-619-permissions-engine/rust/crates/discord-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s
+     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+
+running 6 tests
+test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
+test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... ok
+test channel_overwrites_follow_everyone_then_roles_then_member_hierarchy ... ok
+test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... ok
+test v9_permission_bitfield_flags_match_official_bit_positions ... ok
+test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+
+running 6 tests
+test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
+test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... ok
+test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... ok
+test channel_overwrites_follow_everyone_then_roles_then_member_hierarchy ... ok
+test v9_permission_bitfield_flags_match_official_bit_positions ... ok
+test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+
+running 6 tests
+test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
+test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... ok
+test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... ok
+test channel_overwrites_follow_everyone_then_roles_then_member_hierarchy ... ok
+test v9_permission_bitfield_flags_match_official_bit_positions ... ok
+test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+
+running 6 tests
+test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
+test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... ok
+test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... ok
+test channel_overwrites_follow_everyone_then_roles_then_member_hierarchy ... ok
+test v9_permission_bitfield_flags_match_official_bit_positions ... ok
+test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+
+running 6 tests
+test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
+test base_permissions_combines_roles_and_honors_owner_and_admin_bypass ... ok
+test boundary_snowflakes_same_level_allow_precedence_and_has_permission_semantics ... ok
+test channel_overwrites_follow_everyone_then_roles_then_member_hierarchy ... ok
+test v9_permission_bitfield_flags_match_official_bit_positions ... ok
+test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
