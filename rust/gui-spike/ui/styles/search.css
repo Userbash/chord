@@ -1,0 +1,265 @@
+/* =============================================================================
+ * TASK-618 (G2 Frontend): Стили поискового попапа с подсказками токенов,
+ * подсветкой активных токенов в строке ввода и подсветкой совпадений в выдаче.
+ *
+ * RE-оракул:
+ * - /home/sanya/re-deep/frontend-d03.md §1.1–§1.3 (searchResultsWrap_a98f3b,
+ *   searchResultGroup_a7e67f, searchResult__80bf8, id="search-result-<id>");
+ * - waves/RW-40/DESIGN/SEARCH-202-NSFW-SPEC.md §2, §5, §6;
+ * - rust/gui-spike/ui/tokens.css (100% привязка к дизайн-токенам без сырых цветов).
+ * ========================================================================== */
+
+.search-popover {
+  position: relative;
+  z-index: var(--z-popover);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: var(--shadow-popover);
+  font-family: var(--font-sans);
+}
+
+.search-popover[data-open="false"],
+.search-popover[hidden] {
+  display: none;
+}
+
+/* --- 1. Строка ввода и слой подсветки активных токенов --- */
+
+.search-popover-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.search-popover-input {
+  width: 100%;
+  height: var(--search-height);
+  padding: var(--space-0) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text-strong);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  transition:
+    border-color var(--motion-fast) var(--ease-out),
+    background-color var(--motion-fast) var(--ease-out);
+}
+
+.search-popover-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--focus-ring);
+}
+
+.search-popover-input-highlight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--line-height-small);
+}
+
+.search-popover-input-highlight[hidden] {
+  display: none;
+}
+
+.search-input-token {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-round);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.search-chip-prefix {
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.search-chip-value {
+  color: var(--text-strong);
+  font-weight: var(--font-weight-medium);
+}
+
+.search-input-free-text {
+  color: var(--text);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* --- 2. Выпадающие подсказки токенов (from:, mentions:, has:, in:, before:, after:, pinned:) --- */
+
+.search-popover-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.search-popover-suggestions[hidden] {
+  display: none;
+}
+
+.search-popover-suggestion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.search-popover-suggestion-item:hover,
+.search-popover-suggestion-item[aria-selected="true"] {
+  background: var(--state-hover);
+  border-color: var(--border-subtle);
+  color: var(--text-strong);
+}
+
+.search-suggestion-token {
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.search-suggestion-label {
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+/* --- 3. Заголовок и список результатов с подсветкой совпадений --- */
+
+.search-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+}
+
+.search-popover-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.search-popover-result-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--text);
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.search-popover-result-item:hover {
+  background: var(--surface-4);
+  border-color: var(--border);
+}
+
+.search-popover-result-item.is-active,
+.search-popover-result-item[aria-selected="true"] {
+  background: var(--state-selected);
+  border-color: var(--focus-ring);
+}
+
+.search-popover-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.search-popover-result-author {
+  color: var(--text-strong);
+  font-weight: var(--font-weight-semibold);
+}
+
+.search-popover-result-channel,
+.search-popover-result-timestamp {
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.search-popover-result-content {
+  margin: var(--space-0);
+  color: var(--text);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-body);
+  word-break: break-word;
+}
+
+.search-highlight {
+  padding: var(--space-0) var(--space-1);
+  border-radius: var(--radius-xs);
+  background: var(--warning);
+  color: var(--text-on-warning);
+  font-weight: var(--font-weight-semibold);
+}
+
+.search-popover-jump-btn {
+  flex: 0 0 auto;
+  height: var(--btn-height-sm);
+  padding: var(--space-0) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--surface-1);
+  color: var(--text-subtle);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.search-popover-jump-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent-hover);
+  color: var(--text-on-accent);
+}

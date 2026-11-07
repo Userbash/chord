@@ -747,3 +747,795 @@ export function bindListSearch(options) {
     }
   });
 }
+
+/* =============================================================================
+ * TASK-618 (G2 Frontend): Поисковый попап с выпадающими подсказками токенов,
+ * подсветкой активных токенов в строке ввода, рендерингом списка результатов
+ * с подсветкой поискового запроса, прыжком к сообщению (onJumpToMessage)
+ * и клавиатурной навигацией (ArrowUp, ArrowDown, Enter, Escape).
+ *
+ * RE-оракул:
+ * - /home/sanya/re-deep/frontend-d03.md §1.1–§1.3 (searchResultsWrap_a98f3b,
+ *   searchResultGroup_a7e67f, id="search-result-<id>");
+ * - docs/re/frontend-d03.md §1.1–§1.3;
+ * - waves/RW-40/DESIGN/SEARCH-202-NSFW-SPEC.md §5 (грамматика токенов и чипов).
+ * ========================================================================== */
+
+/**
+ * @typedef {{
+ *   token: "from:" | "mentions:" | "has:" | "in:" | "before:" | "after:" | "pinned:",
+ *   key: "from" | "mentions" | "has" | "in" | "before" | "after" | "pinned",
+ *   labelRu: string,
+ *   hintRu: string,
+ *   example: string,
+ * }} SearchTokenSuggestionItem
+ */
+
+/**
+ * Выпадающие подсказки токенов поискового попапа (`from:`, `mentions:`, `has:`,
+ * `in:`, `before:`, `after:`, `pinned:`).
+ * @type {ReadonlyArray<Readonly<SearchTokenSuggestionItem>>}
+ */
+export const SEARCH_POPOVER_TOKEN_SUGGESTIONS = Object.freeze([
+  Object.freeze({
+    token: /** @type {const} */ ("from:"),
+    key: /** @type {const} */ ("from"),
+    labelRu: "от: пользователь",
+    hintRu: "Сообщения от выбранного пользователя",
+    example: "from:alex",
+  }),
+  Object.freeze({
+    token: /** @type {const} */ ("mentions:"),
+    key: /** @type {const} */ ("mentions"),
+    labelRu: "упоминания: пользователь",
+    hintRu: "Сообщения с упоминанием пользователя",
+    example: "mentions:bob",
+  }),
+  Object.freeze({
+    token: /** @type {const} */ ("has:"),
+    key: /** @type {const} */ ("has"),
+    labelRu: "содержит: ссылка, вложение или файл",
+    hintRu: "link, embed, file, image, video, sound, sticker, poll",
+    example: "has:image",
+  }),
+  Object.freeze({
+    token: /** @type {const} */ ("in:"),
+    key: /** @type {const} */ ("in"),
+    labelRu: "в: канал",
+    hintRu: "Сообщения в выбранном канале",
+    example: "in:новости",
+  }),
+  Object.freeze({
+    token: /** @type {const} */ ("before:"),
+    key: /** @type {const} */ ("before"),
+    labelRu: "до: ГГГГ-ММ-ДД",
+    hintRu: "Сообщения, отправленные до даты",
+    example: "before:2026-10-20",
+  }),
+  Object.freeze({
+    token: /** @type {const} */ ("after:"),
+    key: /** @type {const} */ ("after"),
+    labelRu: "после: ГГГГ-ММ-ДД",
+    hintRu: "Сообщения, отправленные после даты",
+    example: "after:2026-01-01",
+  }),
+  Object.freeze({
+    token: /** @type {const} */ ("pinned:"),
+    key: /** @type {const} */ ("pinned"),
+    labelRu: "закреплено: true или false",
+    hintRu: "Только закреплённые сообщения",
+    example: "pinned:true",
+  }),
+]);
+
+/**
+ * Возвращает отфильтрованный список выпадающих подсказок токенов по текущему вводу.
+ * Если строка пуста или оканчивается пробелом — возвращает все 7 подсказок.
+ * Иначе сопоставляет последний незавершённый фрагмент с префиксом токена или русской подписью.
+ *
+ * @param {string | undefined} rawQuery
+ * @returns {ReadonlyArray<Readonly<SearchTokenSuggestionItem>>}
+ */
+export function getSearchTokenSuggestions(rawQuery) {
+  if (typeof rawQuery !== "string" || rawQuery.length === 0 || /\s$/.test(rawQuery)) {
+    return SEARCH_POPOVER_TOKEN_SUGGESTIONS;
+  }
+  const parts = rawQuery.split(/\s+/);
+  const trailing = (parts[parts.length - 1] ?? "").toLowerCase();
+  if (trailing.length === 0) {
+    return SEARCH_POPOVER_TOKEN_SUGGESTIONS;
+  }
+  return SEARCH_POPOVER_TOKEN_SUGGESTIONS.filter(
+    (item) => item.token.startsWith(trailing) || item.labelRu.toLowerCase().startsWith(trailing),
+  );
+}
+
+/**
+ * @typedef {{
+ *   type: "text" | "token",
+ *   text: string,
+ *   key?: string,
+ *   prefix?: string,
+ *   value?: string,
+ *   negated?: boolean,
+ * }} SearchInputHighlightSegment
+ */
+
+/**
+ * Разбивает поисковую строку на сегменты свободного текста и активных токенов
+ * (`from:`, `mentions:`, `has:`, `in:`, `before:`, `after:`, `pinned:` и их алиасы)
+ * для визуальной подсветки токенов в строке ввода с сохранением исходного текста.
+ *
+ * @param {string | undefined} rawQuery
+ * @returns {SearchInputHighlightSegment[]}
+ */
+export function tokenizeSearchInputForHighlight(rawQuery) {
+  const input = typeof rawQuery === "string" ? rawQuery : "";
+  if (input.length === 0) return [];
+
+  const highlightTokenRegex =
+    /(^|\s)(-?(?:с\s+упоминанием|закреплённые|authorType|author_type|ТипАвтора|mentions|before|during|pinned|after|имеет|from|день|has|от|in|в|до|после|on)):(?:"([^"]+)"|(\S+))/giu;
+
+  /** @type {SearchInputHighlightSegment[]} */
+  const segments = [];
+  let cursor = 0;
+
+  for (const match of input.matchAll(highlightTokenRegex)) {
+    const leadingSpace = match[1] ?? "";
+    const rawOp = (match[2] ?? "").trim();
+    const rawVal = (match[3] ?? match[4] ?? "").trim();
+    const tokenStart = (match.index ?? 0) + leadingSpace.length;
+    const tokenEnd = (match.index ?? 0) + match[0].length;
+
+    if (rawVal === "") continue;
+
+    const opNegated = rawOp.startsWith("-");
+    const opLower = (opNegated ? rawOp.slice(1) : rawOp).replace(/\s+/g, " ").toLowerCase();
+
+    let canonicalKey = "";
+    let canonicalPrefix = "";
+    let cleanValue = rawVal;
+
+    if (opLower === "from" || opLower === "от") {
+      if (opNegated) continue;
+      canonicalKey = "from";
+      canonicalPrefix = "from:";
+    } else if (opLower === "mentions" || opLower === "с упоминанием") {
+      if (opNegated) continue;
+      canonicalKey = "mentions";
+      canonicalPrefix = "mentions:";
+    } else if (opLower === "has" || opLower === "имеет") {
+      canonicalKey = "has";
+      canonicalPrefix = opNegated ? "-has:" : "has:";
+    } else if (opLower === "in" || opLower === "в") {
+      if (opNegated) continue;
+      cleanValue = rawVal.replace(/^#+/, "");
+      if (cleanValue === "") continue;
+      canonicalKey = "in";
+      canonicalPrefix = "in:";
+    } else if (opLower === "before" || opLower === "до") {
+      if (opNegated) continue;
+      canonicalKey = "before";
+      canonicalPrefix = "before:";
+    } else if (opLower === "after" || opLower === "после") {
+      if (opNegated) continue;
+      canonicalKey = "after";
+      canonicalPrefix = "after:";
+    } else if (opLower === "pinned" || opLower === "закреплённые") {
+      if (opNegated) continue;
+      canonicalKey = "pinned";
+      canonicalPrefix = "pinned:";
+    } else if (opLower === "on" || opLower === "during" || opLower === "день") {
+      if (opNegated) continue;
+      canonicalKey = "on";
+      canonicalPrefix = "on:";
+    } else if (opLower === "authortype" || opLower === "author_type" || opLower === "типавтора") {
+      canonicalKey = "authorType";
+      canonicalPrefix = opNegated ? "-authorType:" : "authorType:";
+    } else {
+      continue;
+    }
+
+    if (tokenStart > cursor) {
+      segments.push({
+        type: "text",
+        text: input.slice(cursor, tokenStart),
+      });
+    }
+
+    segments.push({
+      type: "token",
+      text: input.slice(tokenStart, tokenEnd),
+      key: canonicalKey,
+      prefix: canonicalPrefix,
+      value: cleanValue,
+      negated: opNegated,
+    });
+    cursor = tokenEnd;
+  }
+
+  if (cursor < input.length) {
+    segments.push({
+      type: "text",
+      text: input.slice(cursor),
+    });
+  }
+
+  return segments;
+}
+
+/**
+ * Экранирует спецсимволы регулярного выражения в пользовательской подстроке.
+ * @param {string} value
+ * @returns {string}
+ */
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Разбивает текст сообщения на фрагменты `{ text, match }` для подсветки поискового запроса.
+ * Инлайн-токены фильтрации (`from:`, `in:` и др.) исключаются из подсветки текста сообщения.
+ *
+ * @param {string | undefined} content
+ * @param {string | undefined} rawQuery
+ * @returns {Array<{ text: string, match: boolean }>}
+ */
+export function splitTextBySearchQuery(content, rawQuery) {
+  const source = typeof content === "string" ? content : "";
+  if (source.length === 0) return [];
+
+  const parsed = parseSearchQueryTokens(rawQuery);
+  const freeText = parsed.freeText.trim();
+  if (freeText.length === 0) {
+    return [{ text: source, match: false }];
+  }
+
+  const terms = uniqueStrings(
+    freeText
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0),
+  ).sort((a, b) => b.length - a.length);
+
+  if (terms.length === 0) {
+    return [{ text: source, match: false }];
+  }
+
+  const pattern = new RegExp(`(${terms.map(escapeRegExp).join("|")})`, "giu");
+  /** @type {Array<{ text: string, match: boolean }>} */
+  const parts = [];
+  let lastIndex = 0;
+
+  for (const m of source.matchAll(pattern)) {
+    const idx = m.index ?? 0;
+    const matchedText = m[0] ?? "";
+    if (matchedText.length === 0) continue;
+    if (idx > lastIndex) {
+      parts.push({ text: source.slice(lastIndex, idx), match: false });
+    }
+    parts.push({ text: matchedText, match: true });
+    lastIndex = idx + matchedText.length;
+  }
+
+  if (lastIndex < source.length) {
+    parts.push({ text: source.slice(lastIndex), match: false });
+  }
+
+  return parts.length > 0 ? parts : [{ text: source, match: false }];
+}
+
+/**
+ * Возвращает фабрику DOM-элементов из контейнера или глобального документа.
+ * @param {any} containerEl
+ * @returns {{ createElement: (tag: string) => any }}
+ */
+function resolvePopoverDocument(containerEl) {
+  if (
+    containerEl &&
+    containerEl.ownerDocument &&
+    typeof containerEl.ownerDocument.createElement === "function"
+  ) {
+    return containerEl.ownerDocument;
+  }
+  if (containerEl && typeof containerEl.createElement === "function") {
+    return containerEl;
+  }
+  const globalDoc = /** @type {any} */ (globalThis).document;
+  if (globalDoc && typeof globalDoc.createElement === "function") {
+    return globalDoc;
+  }
+  throw new TypeError("containerEl must provide ownerDocument.createElement");
+}
+
+/**
+ * Заменяет дочерние узлы элемента без использования `innerHTML`.
+ * @param {any} targetEl
+ * @param {any[]} nodes
+ */
+function replacePopoverChildren(targetEl, nodes) {
+  if (typeof targetEl.replaceChildren === "function") {
+    targetEl.replaceChildren(...nodes);
+    return;
+  }
+  if (Array.isArray(targetEl.children)) {
+    for (const child of targetEl.children) {
+      if (child && typeof child === "object") {
+        child.parentNode = null;
+      }
+    }
+    targetEl.children.length = 0;
+  }
+  for (const node of nodes) {
+    targetEl.appendChild(node);
+  }
+}
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   channelId: string,
+ *   channelName?: string,
+ *   author?: string,
+ *   content?: string,
+ *   timestamp?: string,
+ * }} SearchPopoverResultItem
+ */
+
+/**
+ * @typedef {{
+ *   initialQuery?: string,
+ *   onSearch?: (payload: { query: string, freeText: string, parsedQuery: Record<string, unknown> }) => void,
+ *   onJumpToMessage?: (messageId: string, channelId: string, item: SearchPopoverResultItem) => void,
+ *   onClose?: () => void,
+ * }} SearchPopoverOptions
+ */
+
+/**
+ * Создаёт UI-компонент поискового попапа с выпадающими подсказками токенов,
+ * подсветкой активных токенов в строке ввода, списком результатов с подсветкой
+ * поискового запроса, прыжком к сообщению (`onJumpToMessage`) и клавиатурной
+ * навигацией (`ArrowUp`, `ArrowDown`, `Enter`, `Escape`).
+ *
+ * @param {any} containerEl
+ * @param {SearchPopoverOptions} [options]
+ */
+export function createSearchPopover(containerEl, options = {}) {
+  const doc = resolvePopoverDocument(containerEl);
+
+  let isOpen = true;
+  let query = typeof options.initialQuery === "string" ? options.initialQuery : "";
+  /** @type {SearchPopoverResultItem[]} */
+  let results = [];
+  let totalResults = 0;
+  let activeResultIndex = -1;
+  let activeSuggestionIndex = 0;
+
+  const root = doc.createElement("section");
+  root.setAttribute("class", "search-popover");
+  root.setAttribute("data-search-popover", "");
+  root.setAttribute("role", "search");
+  root.setAttribute("aria-label", "Поиск сообщений");
+  root.setAttribute("data-open", "true");
+  root.setAttribute("aria-hidden", "false");
+
+  const barEl = doc.createElement("div");
+  barEl.setAttribute("class", "search-popover-bar");
+  barEl.setAttribute("data-search-popover-bar", "");
+
+  const input = doc.createElement("input");
+  input.setAttribute("type", "search");
+  input.setAttribute("class", "search-popover-input search-input");
+  input.setAttribute("data-search-popover-input", "");
+  input.setAttribute("placeholder", "Поиск");
+  input.setAttribute("aria-label", "Поиск сообщений");
+  input.setAttribute("autocomplete", "off");
+  input.value = query;
+
+  const highlightBar = doc.createElement("div");
+  highlightBar.setAttribute("class", "search-popover-input-highlight");
+  highlightBar.setAttribute("data-search-input-highlight", "");
+  highlightBar.setAttribute("aria-hidden", "true");
+
+  barEl.appendChild(input);
+  barEl.appendChild(highlightBar);
+
+  const suggestionsList = doc.createElement("div");
+  suggestionsList.setAttribute("class", "search-popover-suggestions");
+  suggestionsList.setAttribute("role", "listbox");
+  suggestionsList.setAttribute("aria-label", "Подсказки фильтров поиска");
+  suggestionsList.setAttribute("data-search-token-suggestions", "");
+
+  const headerEl = doc.createElement("div");
+  headerEl.setAttribute("class", "search-popover-header");
+  headerEl.setAttribute("data-search-results-header", "");
+  headerEl.setAttribute("aria-live", "polite");
+
+  const resultsList = doc.createElement("div");
+  resultsList.setAttribute("class", "search-popover-results");
+  resultsList.setAttribute("role", "listbox");
+  resultsList.setAttribute("aria-label", "Результаты поиска");
+  resultsList.setAttribute("data-search-popover-results", "");
+
+  root.appendChild(barEl);
+  root.appendChild(suggestionsList);
+  root.appendChild(headerEl);
+  root.appendChild(resultsList);
+  replacePopoverChildren(containerEl, [root]);
+
+  function renderInputHighlight() {
+    const segments = tokenizeSearchInputForHighlight(query);
+    /** @type {any[]} */
+    const nodes = [];
+    for (const seg of segments) {
+      if (seg.type === "token") {
+        const mark = doc.createElement("mark");
+        mark.setAttribute("class", "search-input-token");
+        mark.setAttribute("data-active-token", String(seg.key ?? ""));
+        mark.setAttribute("data-token-prefix", String(seg.prefix ?? ""));
+        mark.setAttribute("data-token-value", String(seg.value ?? ""));
+
+        const prefixSpan = doc.createElement("span");
+        prefixSpan.setAttribute("class", "search-chip-prefix");
+        prefixSpan.textContent = String(seg.prefix ?? "");
+
+        const valueSpan = doc.createElement("span");
+        valueSpan.setAttribute("class", "search-chip-value");
+        valueSpan.textContent = String(seg.value ?? "");
+
+        mark.appendChild(prefixSpan);
+        mark.appendChild(valueSpan);
+        nodes.push(mark);
+      } else if (seg.text.trim().length > 0) {
+        const textSpan = doc.createElement("span");
+        textSpan.setAttribute("class", "search-input-free-text");
+        textSpan.textContent = seg.text;
+        nodes.push(textSpan);
+      }
+    }
+    replacePopoverChildren(highlightBar, nodes);
+  }
+
+  function renderSuggestions() {
+    const items = getSearchTokenSuggestions(query);
+    if (activeSuggestionIndex >= items.length) {
+      activeSuggestionIndex = 0;
+    }
+    /** @type {any[]} */
+    const nodes = [];
+    items.forEach((item, idx) => {
+      const btn = doc.createElement("button");
+      btn.setAttribute("type", "button");
+      btn.setAttribute("role", "option");
+      btn.setAttribute("class", "search-popover-suggestion-item");
+      btn.setAttribute("data-token-suggestion", item.token);
+      btn.setAttribute("aria-selected", idx === activeSuggestionIndex ? "true" : "false");
+
+      const tokenSpan = doc.createElement("span");
+      tokenSpan.setAttribute("class", "search-suggestion-token");
+      tokenSpan.textContent = item.token;
+
+      const labelSpan = doc.createElement("span");
+      labelSpan.setAttribute("class", "search-suggestion-label");
+      labelSpan.textContent = item.labelRu;
+
+      btn.appendChild(tokenSpan);
+      btn.appendChild(labelSpan);
+      btn.addEventListener("click", () => {
+        applyTokenSuggestion(item.token);
+      });
+      nodes.push(btn);
+    });
+    replacePopoverChildren(suggestionsList, nodes);
+  }
+
+  function renderResults() {
+    if (totalResults > 0) {
+      headerEl.textContent = `Найдено результатов: ${totalResults}`;
+    } else {
+      headerEl.textContent = "Нет результатов";
+    }
+    headerEl.setAttribute("data-total-results", String(totalResults));
+
+    /** @type {any[]} */
+    const nodes = [];
+    results.forEach((item, idx) => {
+      const msgId = String(item.id ?? "");
+      const channelId = String(item.channelId ?? "");
+      const isSelected = idx === activeResultIndex;
+
+      const card = doc.createElement("article");
+      card.setAttribute("id", `search-result-${msgId}`);
+      card.setAttribute("role", "option");
+      card.setAttribute(
+        "class",
+        isSelected ? "search-popover-result-item is-active" : "search-popover-result-item",
+      );
+      card.setAttribute("data-search-result-id", msgId);
+      card.setAttribute("data-channel-id", channelId);
+      card.setAttribute("aria-selected", isSelected ? "true" : "false");
+
+      const head = doc.createElement("div");
+      head.setAttribute("class", "search-popover-result-head");
+
+      const authorEl = doc.createElement("span");
+      authorEl.setAttribute("class", "search-popover-result-author");
+      authorEl.setAttribute("data-result-author", "");
+      authorEl.textContent = typeof item.author === "string" ? item.author : "";
+      head.appendChild(authorEl);
+
+      if (typeof item.channelName === "string" && item.channelName.length > 0) {
+        const channelEl = doc.createElement("span");
+        channelEl.setAttribute("class", "search-popover-result-channel");
+        channelEl.setAttribute("data-result-channel", "");
+        channelEl.textContent = `#${item.channelName.replace(/^#+/, "")}`;
+        head.appendChild(channelEl);
+      }
+
+      if (typeof item.timestamp === "string" && item.timestamp.length > 0) {
+        const timeEl = doc.createElement("span");
+        timeEl.setAttribute("class", "search-popover-result-timestamp");
+        timeEl.setAttribute("data-result-timestamp", "");
+        timeEl.textContent = item.timestamp;
+        head.appendChild(timeEl);
+      }
+
+      const jumpBtn = doc.createElement("button");
+      jumpBtn.setAttribute("type", "button");
+      jumpBtn.setAttribute("class", "search-popover-jump-btn");
+      jumpBtn.setAttribute("data-action", "jump-to-message");
+      jumpBtn.setAttribute("data-jump-message-id", msgId);
+      jumpBtn.setAttribute("data-jump-channel-id", channelId);
+      jumpBtn.textContent = "Перейти";
+      jumpBtn.addEventListener("click", () => {
+        triggerJump(item);
+      });
+      head.appendChild(jumpBtn);
+
+      const contentEl = doc.createElement("p");
+      contentEl.setAttribute("class", "search-popover-result-content");
+      contentEl.setAttribute("data-result-content", "");
+
+      const textParts = splitTextBySearchQuery(item.content ?? "", query);
+      /** @type {any[]} */
+      const contentNodes = [];
+      for (const part of textParts) {
+        if (part.match) {
+          const mark = doc.createElement("mark");
+          mark.setAttribute("class", "search-highlight");
+          mark.setAttribute("data-search-highlight", "");
+          mark.textContent = part.text;
+          contentNodes.push(mark);
+        } else {
+          const span = doc.createElement("span");
+          span.textContent = part.text;
+          contentNodes.push(span);
+        }
+      }
+      replacePopoverChildren(contentEl, contentNodes);
+
+      card.appendChild(head);
+      card.appendChild(contentEl);
+      nodes.push(card);
+    });
+
+    replacePopoverChildren(resultsList, nodes);
+
+    const activeItem =
+      activeResultIndex >= 0 && activeResultIndex < results.length
+        ? results[activeResultIndex]
+        : null;
+    if (activeItem) {
+      input.setAttribute("aria-activedescendant", `search-result-${String(activeItem.id ?? "")}`);
+    } else {
+      input.removeAttribute("aria-activedescendant");
+    }
+  }
+
+  /**
+   * @param {SearchPopoverResultItem} item
+   */
+  function triggerJump(item) {
+    if (typeof options.onJumpToMessage === "function") {
+      options.onJumpToMessage(String(item.id ?? ""), String(item.channelId ?? ""), item);
+    }
+  }
+
+  function emitSearch() {
+    const parsedTokens = parseSearchQueryTokens(query);
+    const parsedQuery = buildSearchQuery({}, { content: query });
+    if (typeof options.onSearch === "function") {
+      options.onSearch({
+        query,
+        freeText: parsedTokens.freeText,
+        parsedQuery,
+      });
+    }
+  }
+
+  /**
+   * Подставляет выбранный токен подсказки в конец строки поиска (заменяя вводимый префикс).
+   * @param {string} token
+   */
+  function applyTokenSuggestion(token) {
+    const cleanToken = String(token ?? "").trim();
+    if (cleanToken === "") return;
+
+    if (query.length === 0 || /\s$/.test(query)) {
+      setQuery(`${query}${cleanToken}`);
+      return;
+    }
+
+    const lastSpaceIdx = query.search(/\S+$/);
+    const prefixBefore = lastSpaceIdx > 0 ? query.slice(0, lastSpaceIdx) : "";
+    setQuery(`${prefixBefore}${cleanToken}`);
+  }
+
+  /**
+   * Устанавливает поисковый запрос, обновляет подсветку токенов, подсказки и подсветку результатов.
+   * @param {string} nextQuery
+   */
+  function setQuery(nextQuery) {
+    query = typeof nextQuery === "string" ? nextQuery : "";
+    input.value = query;
+    activeResultIndex = -1;
+    if (!isOpen) {
+      open();
+    }
+    renderInputHighlight();
+    renderSuggestions();
+    renderResults();
+    emitSearch();
+  }
+
+  /**
+   * Устанавливает список результатов поиска и перерисовывает выдачу.
+   * @param {any} payload
+   */
+  function setResults(payload) {
+    if (Array.isArray(payload)) {
+      results = payload.map((/** @type {SearchPopoverResultItem} */ item) => ({ ...item }));
+      totalResults = results.length;
+    } else if (payload && typeof payload === "object") {
+      /** @type {SearchPopoverResultItem[]} */
+      const list = Array.isArray(payload.results)
+        ? payload.results
+        : Array.isArray(payload.hits)
+          ? payload.hits
+          : [];
+      results = list.map((/** @type {SearchPopoverResultItem} */ item) => ({ ...item }));
+      const rawTotal = payload.totalResults ?? payload.totalCount;
+      totalResults =
+        typeof rawTotal === "number" && Number.isFinite(rawTotal) && rawTotal >= 0
+          ? Math.trunc(rawTotal)
+          : results.length;
+    } else {
+      results = [];
+      totalResults = 0;
+    }
+    activeResultIndex = -1;
+    renderResults();
+  }
+
+  function open() {
+    isOpen = true;
+    root.setAttribute("data-open", "true");
+    root.setAttribute("aria-hidden", "false");
+  }
+
+  function close() {
+    isOpen = false;
+    activeResultIndex = -1;
+    root.setAttribute("data-open", "false");
+    root.setAttribute("aria-hidden", "true");
+    renderResults();
+    if (typeof options.onClose === "function") {
+      options.onClose();
+    }
+  }
+
+  /**
+   * Обрабатывает навигацию по результатам стрелками (`ArrowDown`, `ArrowUp`),
+   * переход к выбранному сообщению по `Enter` и закрытие попапа по `Escape`.
+   * @param {any} event
+   */
+  function handleKeyDown(event) {
+    const key = event?.key;
+    if (key === "Escape") {
+      event?.preventDefault?.();
+      close();
+      return;
+    }
+
+    if (key === "ArrowDown") {
+      event?.preventDefault?.();
+      if (results.length > 0) {
+        activeResultIndex =
+          activeResultIndex < 0 ? 0 : (activeResultIndex + 1) % results.length;
+        renderResults();
+      } else {
+        const suggestions = getSearchTokenSuggestions(query);
+        if (suggestions.length > 0) {
+          activeSuggestionIndex = (activeSuggestionIndex + 1) % suggestions.length;
+          renderSuggestions();
+        }
+      }
+      return;
+    }
+
+    if (key === "ArrowUp") {
+      event?.preventDefault?.();
+      if (results.length > 0) {
+        activeResultIndex =
+          activeResultIndex <= 0 ? results.length - 1 : activeResultIndex - 1;
+        renderResults();
+      } else {
+        const suggestions = getSearchTokenSuggestions(query);
+        if (suggestions.length > 0) {
+          activeSuggestionIndex =
+            activeSuggestionIndex <= 0 ? suggestions.length - 1 : activeSuggestionIndex - 1;
+          renderSuggestions();
+        }
+      }
+      return;
+    }
+
+    if (key === "Enter") {
+      if (activeResultIndex >= 0 && activeResultIndex < results.length) {
+        event?.preventDefault?.();
+        const activeHit = results[activeResultIndex];
+        if (activeHit) {
+          triggerJump(activeHit);
+        }
+      } else if (results.length === 0) {
+        const suggestions = getSearchTokenSuggestions(query);
+        const chosen = suggestions[activeSuggestionIndex];
+        if (chosen && query.trim().length > 0 && !query.endsWith(":")) {
+          event?.preventDefault?.();
+          applyTokenSuggestion(chosen.token);
+        }
+      }
+    }
+  }
+
+  input.addEventListener("input", (/** @type {any} */ event) => {
+    const nextVal = event?.target?.value ?? input.value ?? "";
+    setQuery(String(nextVal));
+  });
+
+  input.addEventListener("keydown", (/** @type {any} */ event) => {
+    handleKeyDown(event);
+  });
+
+  renderInputHighlight();
+  renderSuggestions();
+  renderResults();
+
+  return {
+    root,
+    input,
+    setQuery,
+    setResults,
+    applyTokenSuggestion,
+    handleKeyDown,
+    open,
+    close,
+    getState() {
+      const parsed = parseSearchQueryTokens(query);
+      return {
+        isOpen,
+        query,
+        freeText: parsed.freeText,
+        activeTokens: tokenizeSearchInputForHighlight(query).filter((s) => s.type === "token"),
+        suggestions: [...getSearchTokenSuggestions(query)],
+        results: results.map((r) => ({ ...r })),
+        totalResults,
+        activeResultIndex,
+        activeSuggestionIndex,
+      };
+    },
+  };
+}
+
+export const createSearchPopoverController = createSearchPopover;
+
