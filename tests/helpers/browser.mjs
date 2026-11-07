@@ -71,6 +71,9 @@ export async function launchBrowser(options) {
   const args = [
     "--headless=new",
     "--disable-gpu",
+    "--disable-software-rasterizer",
+    "--use-gl=swiftshader",
+    "--disable-dev-shm-usage",
     "--no-first-run",
     "--no-default-browser-check",
     "--no-sandbox",
