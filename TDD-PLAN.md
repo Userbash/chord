@@ -397,6 +397,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/meta/ipc-path.test.mjs` | — | мета: IPC не принимает путь — `scan` сигнатур `#[tauri::command]` (`PathBuf`, `File`, `path`/`root`/`dir`), `tauri-plugin-fs`/`tauri-plugin-dialog`, 0 violations |
 | `tests/meta/ci-browser.test.mjs` | — | мета: CI `qa-browser` — pinned Chromium, `CHROME_BIN`, preflight, `--test-concurrency=1`, `.gate` |
 | `tests/meta/e2e-required.test.mjs` | — | мета: `m2-scenarios.json`, `failOnSkips`, `requireBrowser`, `InfraError` |
+| `tests/meta/mutations.test.mjs` | — | `15/15`, `mutations`, `killed`, `LatestFrameSlot`, `DAVE`, `hCaptcha` |
 | `tests/unit/dispatch_ui.test.mjs` | — | `gateway://dispatch`, `FORWARDED_DISPATCHES`, `createDispatchBridge`, `READY`, `PRESENCE_UPDATE` |
 | `tests/unit/search-remote-real-index.test.mjs` | — | `search_remote`, `data-guild-id`, `ready`, `002-READY.json` |
 | `tests/e2e/m2-login-ready-rail.e2e.test.mjs` | — | `auth_status`, `auth_login_token`, `ready`, `002-READY.json` |
