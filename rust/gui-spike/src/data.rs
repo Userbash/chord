@@ -5658,6 +5658,24 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
     }
 }
 
+/// Полностью очищает локальное состояние стрима (ключ, токен, сервер) и немедленно
+/// завершает активную RTC-сессию и фоновые процессы декодирования/трансляции кадров.
+pub fn reset_live_stream_state() {
+    if let Ok(mut guard) = live_session().lock() {
+        guard.stream_key = None;
+        guard.stream_rtc_server_id = None;
+        guard.stream_rtc_channel_id = None;
+        guard.stream_endpoint = None;
+        guard.stream_token = None;
+        guard.stream_launched_token = None;
+        guard.stream_launched_server_id = None;
+    }
+    discord_core::ws::stop_live_stream_rtc_session();
+    let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
+    let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
+    let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
+}
+
 /// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`discord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
 /// никогда не изменяя системную громкость или системный mute ОС (`pactl`).
 pub fn set_system_audio_device(
@@ -6029,16 +6047,10 @@ pub fn set_system_audio_device(
     }
     if kind == "stream_stop_watch" {
         let skey = device_id.unwrap_or_default();
-        if let Ok(mut guard) = live_session().lock() {
-            guard.stream_launched_token = None;
-        }
         if !skey.trim().is_empty() {
             let _ = discord_core::ws::queue_live_stream_delete(skey);
         }
-        discord_core::ws::stop_live_stream_rtc_session();
-        let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
-        let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
-        let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
+        reset_live_stream_state();
         return json!({ "ok": true });
     }
     if kind == "voice_states_sync" {

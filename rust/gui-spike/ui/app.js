@@ -8260,7 +8260,7 @@ function boot() {
     }
     const closeStageBtn = document.createElement("button");
     closeStageBtn.type = "button";
-    closeStageBtn.textContent = "Прекратить просмотр ✕";
+    closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
     closeStageBtn.style.cssText =
       "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
     rightControls.append(closeStageBtn);
@@ -8770,7 +8770,45 @@ function boot() {
       window.removeEventListener("mouseup", onWinMouseUp);
       window.removeEventListener("resize", onWinResize);
       window.removeEventListener("keydown", onStageKeyDown);
-      if (!isSelfStream) {
+      if (isSelfStream) {
+        if (activeVoiceConnection) {
+          const selfConn = /** @type {any} */ (activeVoiceConnection);
+          selfConn.screenShareOn = false;
+          const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+          for (const gk of new Set([
+            selfConn.guildId,
+            normalizeVoiceGuildKey(selfConn.guildId),
+          ])) {
+            const gList = liveVoiceStatesByGuild.get(gk) ?? [];
+            for (const v of gList) {
+              if (String(v?.user_id ?? v?.userId ?? "") === selfId) {
+                v.self_stream = false;
+                v.selfStream = false;
+              }
+            }
+          }
+          const isCall =
+            !selfConn.guildId ||
+            selfConn.guildId === HOME_GUILD_ID ||
+            selfConn.guildId === "@me";
+          const stopKey =
+            selfConn.activeStreamKey ||
+            /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+            (isCall
+              ? `call:${selfConn.channelId}:${selfId}`
+              : `guild:${selfConn.guildId}:${selfConn.channelId}:${selfId}`);
+          void invoke("voice_stream_stop", {
+            stream_key: stopKey,
+            streamKey: stopKey,
+          }).catch(() => {});
+          selfConn.activeStreamKey = null;
+          /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
+        }
+        playVoiceUiSound("stream_off");
+        syncVoiceMuteStateWithBackend();
+        renderLiveVoicePanel();
+        tree.refreshView();
+      } else {
         playVoiceUiSound("stream_user_left");
         void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
           kind: "stream_stop_watch",
@@ -11290,6 +11328,18 @@ function boot() {
           }
         }
         playVoiceUiSound("stream_off");
+        const panelConn = /** @type {any} */ (conn);
+        const isCall = !panelConn.guildId || panelConn.guildId === HOME_GUILD_ID || panelConn.guildId === "@me";
+        const stopKey =
+          panelConn.activeStreamKey ||
+          /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+          (isCall ? `call:${panelConn.channelId}:${selfId}` : `guild:${panelConn.guildId}:${panelConn.channelId}:${selfId}`);
+        void invoke("voice_stream_stop", {
+          stream_key: stopKey,
+          streamKey: stopKey,
+        }).catch(() => {});
+        panelConn.activeStreamKey = null;
+        /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
         syncVoiceMuteStateWithBackend();
         renderLiveVoicePanel();
         tree.refreshView();

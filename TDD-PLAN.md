@@ -429,6 +429,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/captcha-modal.test.mjs` | `rust/gui-spike/ui/features/captcha-modal.js` | `createCaptchaModal`, `extractCaptchaChallenge`, `captcha-modal` |
 | `tests/unit/call_stream_dispatch.test.mjs` | — | — |
 | `tests/unit/call_stream_lifecycle.test.mjs` | — | — |
+| `tests/unit/stream_restart_lifecycle.test.mjs` | — | — |
 | `tests/unit/channel-gate.test.mjs` | — | — |
 | `tests/unit/channel-tree.test.mjs` | — | — |
 | `tests/unit/composer-autocomplete.test.mjs` | — | — |

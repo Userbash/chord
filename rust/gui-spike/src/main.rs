@@ -1332,6 +1332,20 @@ async fn voice_connect(
 async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value, String> {
     println!("[IPC-TRACE] voice_disconnect guild_id={guild_id:?}");
     blocking(move || {
+        let (gid, cid) = data::current_live_voice_target();
+        let self_id = data::current_live_self_uid();
+        let uid = if self_id.is_empty() { "me".to_string() } else { self_id };
+        let stop_key = match (gid, cid) {
+            (Some(g), Some(c)) if !g.is_empty() && g != "@me" && g != "call" => {
+                format!("guild:{g}:{c}:{uid}")
+            }
+            (_, Some(c)) => format!("call:{c}:{uid}"),
+            _ => String::new(),
+        };
+        if !stop_key.is_empty() {
+            let _ = discord_core::ws::queue_live_stream_delete(&stop_key);
+        }
+        data::reset_live_stream_state();
         let res = data::connect_or_update_live_voice(guild_id, None, false, false);
         let _ = discord_core::ws::queue_live_voice_state_ext(None, None, false, false, false, false, None);
         res
@@ -1447,6 +1461,7 @@ async fn voice_stream_start(
     let gid_arg = gid.clone();
     let cid_arg = spec.channel_id.clone();
     let _ = blocking(move || {
+        data::reset_live_stream_state();
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, true)?;
         discord_core::ws::queue_live_stream_create(stream_type, gid_arg.as_deref(), &cid_arg).map_err(|e| e.to_string())
@@ -1493,6 +1508,7 @@ async fn voice_stream_stop(
         if !k.is_empty() {
             let _ = discord_core::ws::queue_live_stream_delete(&k);
         }
+        data::reset_live_stream_state();
         Ok::<(), String>(())
     })
     .await?;
