@@ -2156,6 +2156,12 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
                                         }
                                     }
                                 }
+                                for (prev_gid, prev_gval) in &prev_guilds {
+                                    if !list.iter().any(|x| field_str(x, "id") == Some(prev_gid.as_str())) {
+                                        gids_to_hydrate.push(prev_gid.clone());
+                                        list.push(prev_gval.clone());
+                                    }
+                                }
                                 for (lgid, lval) in &g.local_preview_guilds {
                                     if !list
                                         .iter()
@@ -2163,6 +2169,54 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
                                     {
                                         gids_to_hydrate.push(lgid.clone());
                                         list.push(lval.clone());
+                                    }
+                                }
+                            }
+                            let prev_rels = g
+                                .ready_data
+                                .as_ref()
+                                .and_then(|old_rd| old_rd.get("relationships"))
+                                .and_then(Value::as_array)
+                                .cloned()
+                                .unwrap_or_default();
+                            if !prev_rels.is_empty() {
+                                let cur_rels = r_map
+                                    .entry("relationships".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut clist) = cur_rels {
+                                    if clist.is_empty() {
+                                        *clist = prev_rels;
+                                    } else {
+                                        for pr in prev_rels {
+                                            let puid = field_str(&pr, "id").unwrap_or("");
+                                            if !puid.is_empty() && !clist.iter().any(|cr| field_str(cr, "id") == Some(puid)) {
+                                                clist.push(pr);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            let prev_privs = g
+                                .ready_data
+                                .as_ref()
+                                .and_then(|old_rd| old_rd.get("private_channels"))
+                                .and_then(Value::as_array)
+                                .cloned()
+                                .unwrap_or_default();
+                            if !prev_privs.is_empty() {
+                                let cur_privs = r_map
+                                    .entry("private_channels".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut clist) = cur_privs {
+                                    if clist.is_empty() {
+                                        *clist = prev_privs;
+                                    } else {
+                                        for pc in prev_privs {
+                                            let pcid = field_str(&pc, "id").unwrap_or("");
+                                            if !pcid.is_empty() && !clist.iter().any(|c| field_str(c, "id") == Some(pcid)) {
+                                                clist.push(pc);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -5676,6 +5730,161 @@ pub fn reset_live_stream_state() {
     let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
 }
 
+/// Опрашивает список реальных окон через KWin Scripting D-Bus API на KDE Wayland.
+pub fn query_kwin_active_windows() -> Vec<Value> {
+    let js_code = r#"
+(function() {
+    var wins = workspace.windowList();
+    var res = [];
+    for (var i = 0; i < wins.length; ++i) {
+        var w = wins[i];
+        if (w.normalWindow && !w.deleted) {
+            res.push({
+                id: String(w.internalId),
+                title: String(w.caption || ""),
+                app: String(w.resourceClass || w.resourceName || "")
+            });
+        }
+    }
+    console.info("KWIN_WINDOWS_JSON:" + JSON.stringify(res));
+})();
+"#;
+    let script_path = "/tmp/discord_kwin_list_wins.js";
+    if std::fs::write(script_path, js_code).is_err() {
+        return fallback_capture_windows();
+    }
+
+    let plugin_name = format!(
+        "query_wins_{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis())
+            .unwrap_or(0)
+    );
+    let out = std::process::Command::new("gdbus")
+        .args([
+            "call",
+            "--session",
+            "--dest",
+            "org.kde.KWin",
+            "--object-path",
+            "/Scripting",
+            "--method",
+            "org.kde.kwin.Scripting.loadScript",
+            script_path,
+            &plugin_name,
+        ])
+        .output();
+
+    let Ok(out) = out else {
+        return fallback_capture_windows();
+    };
+
+    let out_str = String::from_utf8_lossy(&out.stdout);
+    let trimmed = out_str
+        .trim()
+        .trim_matches(|c| c == '(' || c == ')' || c == ',' || c == ' ');
+    if let Ok(script_num) = trimmed.parse::<u32>() {
+        let obj_path = format!("/Scripting/Script{script_num}");
+        let _ = std::process::Command::new("gdbus")
+            .args([
+                "call",
+                "--session",
+                "--dest",
+                "org.kde.KWin",
+                "--object-path",
+                &obj_path,
+                "--method",
+                "org.kde.kwin.Script.run",
+            ])
+            .output();
+        let _ = std::process::Command::new("gdbus")
+            .args([
+                "call",
+                "--session",
+                "--dest",
+                "org.kde.KWin",
+                "--object-path",
+                &obj_path,
+                "--method",
+                "org.kde.kwin.Script.stop",
+            ])
+            .output();
+
+        std::thread::sleep(std::time::Duration::from_millis(35));
+        if let Ok(j_out) = std::process::Command::new("journalctl")
+            .args(["_COMM=kwin_wayland", "-n", "6", "--no-pager"])
+            .output()
+        {
+            let j_text = String::from_utf8_lossy(&j_out.stdout);
+            for line in j_text.lines().rev() {
+                if let Some(pos) = line.find("KWIN_WINDOWS_JSON:") {
+                    let json_sub = &line[pos + "KWIN_WINDOWS_JSON:".len()..];
+                    if let Ok(parsed) = serde_json::from_str::<Vec<Value>>(json_sub) {
+                        let res: Vec<Value> = parsed
+                            .into_iter()
+                            .filter(|w| {
+                                let title = w
+                                    .get("title")
+                                    .and_then(|t| t.as_str())
+                                    .unwrap_or("")
+                                    .trim();
+                                let app = w
+                                    .get("app")
+                                    .and_then(|a| a.as_str())
+                                    .unwrap_or("")
+                                    .trim();
+                                !title.is_empty() && app != "kwin_wayland"
+                            })
+                            .map(|w| {
+                                let wid = w
+                                    .get("id")
+                                    .and_then(|i| i.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let title = w
+                                    .get("title")
+                                    .and_then(|t| t.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let app = w
+                                    .get("app")
+                                    .and_then(|a| a.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let label = if !title.is_empty() {
+                                    title.clone()
+                                } else {
+                                    app.clone()
+                                };
+                                json!({
+                                    "id": wid,
+                                    "uuid": wid,
+                                    "title": title,
+                                    "label": label,
+                                    "app": app
+                                })
+                            })
+                            .collect();
+                        if !res.is_empty() {
+                            return res;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    fallback_capture_windows()
+}
+
+fn fallback_capture_windows() -> Vec<Value> {
+    vec![
+        json!({ "id": "win_orca", "uuid": "win_orca", "title": "Orca", "label": "Orca", "app": "orca" }),
+        json!({ "id": "win_browser", "uuid": "win_browser", "title": "Браузер", "label": "Браузер", "app": "browser" }),
+        json!({ "id": "win_discord", "uuid": "win_discord", "title": "Discord Lab", "label": "Discord Lab", "app": "discord" })
+    ]
+}
+
 /// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`discord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
 /// никогда не изменяя системную громкость или системный mute ОС (`pactl`).
 pub fn set_system_audio_device(
@@ -5685,6 +5894,45 @@ pub fn set_system_audio_device(
     muted: Option<bool>,
 ) -> Value {
     use std::sync::atomic::Ordering;
+    if kind == "set_capture_source" {
+        let raw = device_id.unwrap_or_default().trim().to_string();
+        let mut target_handle = String::new();
+        let mut target_label = String::new();
+        let mut target_kind = "screen".to_string();
+        if !raw.is_empty() {
+            let parts: Vec<&str> = raw.splitn(3, ':').collect();
+            if let Some(&tab) = parts.first() {
+                if tab == "windows" || tab == "window" {
+                    target_kind = "window".to_string();
+                }
+            }
+            if let Some(&id) = parts.get(1) {
+                target_handle = id.trim().to_string();
+            }
+            if let Some(&lbl) = parts.get(2) {
+                target_label = lbl.trim().to_string();
+            }
+        }
+        let _ = std::fs::write("/dev/shm/discord_capture_target.txt", target_handle.as_bytes());
+        let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
+        let ucmd = format!(
+            "{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{target_handle}\",\"label\":\"{target_label}\"}}"
+        );
+        discord_core::ws::send_native_stream_cmd(&ucmd);
+        return json!({
+            "ok": true,
+            "targetKind": target_kind,
+            "targetHandle": target_handle,
+            "targetLabel": target_label
+        });
+    }
+    if kind == "list_capture_windows" {
+        let windows = query_kwin_active_windows();
+        return json!({
+            "ok": true,
+            "windows": windows
+        });
+    }
     if kind == "ui_telemetry" {
         if let Some(line) = device_id {
             use std::io::Write;
@@ -5845,6 +6093,11 @@ pub fn set_system_audio_device(
                                                 }
                                             }
                                         }
+                                        for (prev_gid, prev_gval) in &prev_guilds {
+                                            if !list.iter().any(|x| field_str(x, "id") == Some(prev_gid.as_str())) {
+                                                list.push(prev_gval.clone());
+                                            }
+                                        }
                                         for (lgid, lval) in &g.local_preview_guilds {
                                             if !list
                                                 .iter()
@@ -5866,6 +6119,54 @@ pub fn set_system_audio_device(
                                                     }
                                                 }
                                                 list.push(preview_clone);
+                                            }
+                                        }
+                                    }
+                                    let prev_rels = g
+                                        .ready_data
+                                        .as_ref()
+                                        .and_then(|old_rd| old_rd.get("relationships"))
+                                        .and_then(Value::as_array)
+                                        .cloned()
+                                        .unwrap_or_default();
+                                    if !prev_rels.is_empty() {
+                                        let cur_rels = r_map
+                                            .entry("relationships".to_string())
+                                            .or_insert_with(|| Value::Array(Vec::new()));
+                                        if let Value::Array(ref mut clist) = cur_rels {
+                                            if clist.is_empty() {
+                                                *clist = prev_rels;
+                                            } else {
+                                                for pr in prev_rels {
+                                                    let puid = field_str(&pr, "id").unwrap_or("");
+                                                    if !puid.is_empty() && !clist.iter().any(|cr| field_str(cr, "id") == Some(puid)) {
+                                                        clist.push(pr);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    let prev_privs = g
+                                        .ready_data
+                                        .as_ref()
+                                        .and_then(|old_rd| old_rd.get("private_channels"))
+                                        .and_then(Value::as_array)
+                                        .cloned()
+                                        .unwrap_or_default();
+                                    if !prev_privs.is_empty() {
+                                        let cur_privs = r_map
+                                            .entry("private_channels".to_string())
+                                            .or_insert_with(|| Value::Array(Vec::new()));
+                                        if let Value::Array(ref mut clist) = cur_privs {
+                                            if clist.is_empty() {
+                                                *clist = prev_privs;
+                                            } else {
+                                                for pc in prev_privs {
+                                                    let pcid = field_str(&pc, "id").unwrap_or("");
+                                                    if !pcid.is_empty() && !clist.iter().any(|c| field_str(c, "id") == Some(pcid)) {
+                                                        clist.push(pc);
+                                                    }
+                                                }
                                             }
                                         }
                                     }

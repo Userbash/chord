@@ -1403,7 +1403,20 @@ async fn voice_set_audio_device(
 async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
     blocking(|| {
         let capturer = discord_media::ScreenCapturer::new();
-        let sources = capturer.enumerate_sources();
+        let mut sources = capturer.enumerate_sources();
+        let live_windows = data::query_kwin_active_windows();
+        for w in live_windows {
+            let wid = w.get("id").and_then(|i| i.as_str()).unwrap_or("").trim();
+            let label = w.get("label").and_then(|l| l.as_str()).unwrap_or(wid).trim();
+            if !wid.is_empty() && !sources.iter().any(|s| s.id == wid) {
+                sources.push(discord_media::DesktopSource {
+                    id: wid.to_string(),
+                    name: label.to_string(),
+                    source_type: discord_media::DesktopSourceType::Window,
+                    is_primary: false,
+                });
+            }
+        }
         let json_sources: Vec<_> = sources
             .into_iter()
             .map(|s| {
@@ -1460,8 +1473,23 @@ async fn voice_stream_start(
     let stream_type = if spec.guild_id.is_none() { "call" } else { "guild" };
     let gid_arg = gid.clone();
     let cid_arg = spec.channel_id.clone();
+    let target_source_id = spec.source_id.clone();
     let _ = blocking(move || {
         data::reset_live_stream_state();
+        if !target_source_id.is_empty() {
+            let clean_src = target_source_id.trim();
+            let target_kind = if clean_src.starts_with('{') || clean_src.starts_with("win") {
+                "window"
+            } else {
+                "screen"
+            };
+            let _ = std::fs::write("/dev/shm/discord_capture_target.txt", clean_src.as_bytes());
+            let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
+            let ucmd = format!(
+                "{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}"
+            );
+            discord_core::ws::send_native_stream_cmd(&ucmd);
+        }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, true)?;
         discord_core::ws::queue_live_stream_create(stream_type, gid_arg.as_deref(), &cid_arg).map_err(|e| e.to_string())

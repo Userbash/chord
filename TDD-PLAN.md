@@ -430,6 +430,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/call_stream_dispatch.test.mjs` | — | — |
 | `tests/unit/call_stream_lifecycle.test.mjs` | — | — |
 | `tests/unit/stream_restart_lifecycle.test.mjs` | — | — |
+| `tests/unit/screen_color_and_window_target.test.mjs` | — | — |
 | `tests/unit/channel-gate.test.mjs` | — | — |
 | `tests/unit/channel-tree.test.mjs` | — | — |
 | `tests/unit/composer-autocomplete.test.mjs` | — | — |
