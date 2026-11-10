@@ -1326,6 +1326,16 @@ pub fn queue_live_voice_state_ext(
     Ok(())
 }
 
+/// Очищает кешированный ключ стрима, позволяя повторно запускать трансляцию на том же канале.
+pub fn clear_last_stream_key() {
+    if let Ok(mut prev_sk) = LAST_STREAM_KEY
+        .get_or_init(|| std::sync::Mutex::new(None))
+        .lock()
+    {
+        *prev_sk = None;
+    }
+}
+
 /// Отправляет в живой шлюз Discord `OP 18 STREAM_CREATE`
 /// (`{"op":18,"d":{"type":"guild"|"call","guild_id":...|null,"channel_id":...,"preferred_region":null}}`)
 /// для запуска демонстрации экрана / трансляции (`Go Live`) в гильдейском или личном звонке.
@@ -2278,7 +2288,7 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
     fclose(tfp_target);
   }
 
-  const char* method = "CaptureActiveScreen";
+  const char* method = "CaptureWorkspace";
   GVariant* params = NULL;
   if (target_buf[0] == '{') {
     method = "CaptureWindow";
@@ -2308,10 +2318,11 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
   if (!res) return 0;
 
   GVariant* dict = g_variant_get_child_value(res, 0);
-  guint32 src_w = 0, src_h = 0, src_stride = 0;
+  guint32 src_w = 0, src_h = 0, src_stride = 0, src_format = 0;
   g_variant_lookup(dict, "width", "u", &src_w);
   g_variant_lookup(dict, "height", "u", &src_h);
   g_variant_lookup(dict, "stride", "u", &src_stride);
+  g_variant_lookup(dict, "format", "u", &src_format);
   g_variant_unref(dict);
   g_variant_unref(res);
 
@@ -2331,13 +2342,18 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
     slot->cap = needed;
   }
 
+  int need_swap = (src_format == 16 || src_format == 17 || src_format == 18 || src_format == 0);
   uint32_t* dst32 = (uint32_t*)slot->bgra;
   if (src_w == (guint32)dst_w && src_h == (guint32)dst_h && eff_stride == (size_t)dst_w * 4) {
     const uint32_t* s32 = (const uint32_t*)raw_scratch;
     size_t total_px = (size_t)dst_w * (size_t)dst_h;
-    for (size_t i = 0; i < total_px; i++) {
-      uint32_t px = s32[i];
-      dst32[i] = ((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U);
+    if (need_swap) {
+      for (size_t i = 0; i < total_px; i++) {
+        uint32_t px = s32[i];
+        dst32[i] = ((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U);
+      }
+    } else {
+      memcpy(dst32, s32, total_px * 4);
     }
   } else {
     for (int row = 0; row < dst_h; row++) {
@@ -2346,7 +2362,7 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
       uint32_t* drow = dst32 + (size_t)row * (size_t)dst_w;
       for (int col = 0; col < dst_w; col++) {
         uint32_t px = srow[(col * (int)src_w) / dst_w];
-        drow[col] = ((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U);
+        drow[col] = need_swap ? (((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U)) : px;
       }
     }
   }
@@ -3185,13 +3201,16 @@ function applyScreenBroadcast(active) {
         fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1]));
       } catch (_) {}
       let currentSourceType = "screen";
-      let currentSourceId = "-1";
+      let currentSourceId = "0";
       try {
         if (fs.existsSync("/dev/shm/discord_capture_target.txt")) {
           const t = fs.readFileSync("/dev/shm/discord_capture_target.txt", "utf8").trim();
-          if (t.startsWith("{")) {
+          if (t.startsWith("{") || t.startsWith("window:") || t.startsWith("win")) {
             currentSourceType = "window";
-            currentSourceId = t;
+            currentSourceId = t.startsWith("window:") ? t.slice(7) : t;
+          } else {
+            currentSourceType = "screen";
+            currentSourceId = t.startsWith("screen:") ? t.slice(7) : (t || "0");
           }
         }
       } catch (_) {}
@@ -3902,7 +3921,20 @@ rl.on("line", (line) => {
       sendEv({ ev: "log", msg: "setLoopback err: " + (e && e.message) });
     }
   } else if (cmd === "set_stream") {
-    applyScreenBroadcast(Boolean(msg.broadcasting));
+    const isBcast = Boolean(msg.broadcasting);
+    if (!isBcast && conn) {
+      try {
+        if (typeof conn.clearDesktopSource === "function") {
+          conn.clearDesktopSource();
+        } else if (typeof conn.setDesktopSource === "function") {
+          conn.setDesktopSource("", false, "");
+        }
+        if (typeof conn.setVideoBroadcast === "function") {
+          conn.setVideoBroadcast(false);
+        }
+      } catch (_) {}
+    }
+    applyScreenBroadcast(isBcast);
   } else if (cmd === "set_stream_source") {
     try {
       fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1]));
@@ -3910,10 +3942,15 @@ rl.on("line", (line) => {
     if (conn && typeof conn.setDesktopSourceWithOptions === "function") {
       try {
         const sType = msg.sourceType === "window" ? "window" : "screen";
-        const sId = String(msg.sourceId || "-1");
+        let sId = String(msg.sourceId || "0");
+        if (sId.startsWith("screen:")) {
+          sId = sId.slice(7);
+        } else if (sId.startsWith("window:")) {
+          sId = sId.slice(7);
+        }
         conn.setDesktopSourceWithOptions({
           type: sType,
-          sourceId: sId,
+          sourceId: sId || "0",
           width: 1280,
           height: 720,
           frameRate: 60,

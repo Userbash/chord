@@ -1381,17 +1381,19 @@ async fn voice_set_audio_device(
         }
         return Ok(serde_json::json!({ "ok": true, "hidden": true }));
     }
-    if kind == "ui_telemetry_log" {
+    if kind == "ui_telemetry_log" || kind == "ui_telemetry" {
         if let Some(payload) = device_id {
             println!("[UI-TELEMETRY] {payload}");
-            let _ = std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open("/tmp/discord-gui-spike-telemetry.jsonl")
-                .and_then(|mut f| {
-                    use std::io::Write;
-                    writeln!(f, "{payload}")
-                });
+            for path in &["/tmp/discord-gui-spike-telemetry.jsonl", "/tmp/live-ui-telemetry.jsonl"] {
+                let _ = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(path)
+                    .and_then(|mut f| {
+                        use std::io::Write;
+                        writeln!(f, "{payload}")
+                    });
+            }
         }
         return Ok(serde_json::json!({ "ok": true }));
     }

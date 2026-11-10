@@ -3944,8 +3944,9 @@ pub fn connect_or_update_live_voice_ext(
     }
     LOCAL_SELF_MUTE.store(self_mute, Ordering::SeqCst);
     LOCAL_SELF_DEAF.store(self_deaf, Ordering::SeqCst);
-    LOCAL_SELF_VIDEO.store(self_video, Ordering::SeqCst);
-    LOCAL_SELF_STREAM.store(self_stream, Ordering::SeqCst);
+    let v_prev = LOCAL_SELF_VIDEO.swap(self_video, Ordering::SeqCst);
+    let s_prev = LOCAL_SELF_STREAM.swap(self_stream, Ordering::SeqCst);
+    let stream_or_video_changed = s_prev != self_stream || v_prev != self_video;
     LOCAL_VOICE_ACTIVE.store(clean_cid.is_some(), Ordering::SeqCst);
     discord_core::ws::set_live_voice_mute_deaf_state(self_mute, self_deaf);
     let (self_uid, prev_gids, channel_changed, coalesce_seq) = {
@@ -4176,7 +4177,7 @@ pub fn connect_or_update_live_voice_ext(
         ensure_local_mic_monitor();
     }
 
-    if !channel_changed {
+    if !stream_or_video_changed && !channel_changed {
         // V1: Коалесценция 120ms для обновлений mute/deaf на том же голосовом канале
         let gid_for_timer = clean_gid.clone();
         let cid_for_timer = clean_cid.clone();
@@ -5715,6 +5716,8 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
 /// Полностью очищает локальное состояние стрима (ключ, токен, сервер) и немедленно
 /// завершает активную RTC-сессию и фоновые процессы декодирования/трансляции кадров.
 pub fn reset_live_stream_state() {
+    LOCAL_SELF_STREAM.store(false, std::sync::atomic::Ordering::SeqCst);
+    discord_core::ws::clear_last_stream_key();
     if let Ok(mut guard) = live_session().lock() {
         guard.stream_key = None;
         guard.stream_rtc_server_id = None;

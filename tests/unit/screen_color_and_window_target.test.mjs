@@ -9,6 +9,9 @@ import assert from "node:assert/strict";
 test("color conversion: swaps red and blue channels while preserving green and alpha", () => {
   // Симуляция алгоритма в C:
   // drow[col] = ((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U);
+  /**
+   * @param {number} px
+   */
   function swapRgbaToBgra(px) {
     const r = px & 0x000000ff;
     const b = (px & 0x00ff0000) >>> 16;
@@ -41,6 +44,9 @@ test("color conversion: swaps red and blue channels while preserving green and a
 });
 
 test("target routing: detects window UUID vs screen and generates correct IPC commands", () => {
+  /**
+   * @param {string} raw
+   */
   function parseCaptureTarget(raw) {
     let targetKind = "screen";
     let targetHandle = "";
@@ -76,6 +82,10 @@ test("target routing: detects window UUID vs screen and generates correct IPC co
 });
 
 test("state persistence: preserves relationships and private channels when REST sync returns empty", () => {
+  /**
+   * @param {any} existingReady
+   * @param {any} fetchedReady
+   */
   function mergeRestReady(existingReady, fetchedReady) {
     const merged = { ...fetchedReady };
     const prevGuilds = existingReady?.guilds || [];
