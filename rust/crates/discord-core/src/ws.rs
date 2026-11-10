@@ -1188,7 +1188,17 @@ pub fn queue_live_voice_state_ext(
         .as_deref()
         .map(str::trim)
         .filter(|s| !s.is_empty() && *s != "@me" && *s != "nil" && *s != "null")
-        .map(str::to_string);
+        .map(str::to_string)
+        .or_else(|| {
+            if channel_id.is_none() {
+                LAST_VOICE_STATE_CACHE
+                    .get()
+                    .and_then(|m| m.lock().ok())
+                    .and_then(|c| c.0.clone())
+            } else {
+                None
+            }
+        });
     let clean_cid = channel_id
         .as_deref()
         .map(str::trim)
@@ -3355,7 +3365,7 @@ rl.on("line", (line) => {
             inputModeOptions: {
               vadThreshold: isStreamConn ? -60 : currentVadThreshold,
               vadAutoThreshold: (!isStreamConn && currentAutoSensitivity) ? 3 : -1,
-              vadUseKrisp: !isStreamConn && Boolean(currentKrispEnabled),
+              vadUseKrisp: false, // STABILITY: WebRTC native VAD prevents SIGSEGV in krispCreateVadInt16 while Krisp noiseCancellation filters noise
               vadLeading: 5,
               vadTrailing: 25
             },
@@ -3745,7 +3755,7 @@ rl.on("line", (line) => {
               inputModeOptions: {
                 vadThreshold: currentVadThreshold,
                 vadAutoThreshold: currentAutoSensitivity ? 3 : -1,
-                vadUseKrisp: Boolean(currentKrispEnabled),
+                vadUseKrisp: false, // STABILITY: WebRTC native VAD prevents SIGSEGV in krispCreateVadInt16
                 vadLeading: 5,
                 vadTrailing: 25
               }
@@ -3781,7 +3791,7 @@ rl.on("line", (line) => {
             inputModeOptions: {
               vadThreshold: currentVadThreshold,
               vadAutoThreshold: currentAutoSensitivity ? 3 : -1,
-              vadUseKrisp: Boolean(currentKrispEnabled),
+              vadUseKrisp: false, // STABILITY: WebRTC native VAD prevents SIGSEGV in krispCreateVadInt16
               vadLeading: 5,
               vadTrailing: 25
             }

@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-10T08:20:08.199Z",
+  "updated_at": "2026-11-10T08:51:57.450Z",
   "columns": [
     {
       "id": "backlog",
@@ -803,6 +803,228 @@
         "Удаление сообщения в клиенте немедленно синхронизируется с сервером Discord",
         "Удаленные сообщения не восстанавливаются при листании истории чата",
         "Входящие события Gateway MESSAGE_DELETE и MESSAGE_DELETE_BULK удаляют сообщения из окна"
+      ]
+    },
+    {
+      "id": "TASK-763",
+      "title": "G5 Voice: Устранение крэша Krisp VAD (SEGV) и оптимизация звукового тракта",
+      "status": "done",
+      "priority": "P0",
+      "department": "G5 Voice/Platform",
+      "summary": "Устранен сбой webrtc_audio_mo Signal 11 (SEGV) в Krisp::AudioSdk::Vad<short>::create. Делегирование детектора активности голоса (VAD) надежному встроенному модулю WebRTC (vadUseKrisp: false) при сохранении активного нейро-шумоподавления Krisp (krisp-nc-o-med-v7.kef). Клавиатурные клики и фоновый шум фильтруются без падений.",
+      "layout": {
+        "container": "WebRTC Audio Pipeline",
+        "dimensions": "Native Node.js Addon (discord_krisp.node + discord_voice.node)",
+        "padding": "N/A",
+        "spacing": "N/A"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#23a55a",
+        "accent": "#5865f2"
+      },
+      "interactive_states": [
+        {
+          "element": "Krisp Button (#voice-panel)",
+          "default": "Waveform Icon #b5bac1",
+          "hover": "Waveform Icon #f2f3f5",
+          "active": "Neural noise suppression active"
+        }
+      ],
+      "acceptance_criteria": [
+        "Отсутствие сбоев webrtc_audio_mo Signal 11 (SEGV)",
+        "Шумоподавление Krisp активно фильтрует стук клавиш и внешние шумы",
+        "Стабильная передача голоса в WebRTC транспорт"
+      ]
+    },
+    {
+      "id": "TASK-764",
+      "title": "G1 Backend: Мгновенное и чистое отключение от голосового канала при закрытии приложения",
+      "status": "done",
+      "priority": "P0",
+      "department": "G1 Backend",
+      "summary": "Ликвидировано зависание пользователя в голосовом чате Discord и долгий выход из приложения. Восстановление сохраненного guild_id в LAST_VOICE_STATE_CACHE при закрытии окна (OP 4 Voice State Update с точным guild_id и channel_id: null). Сброс RTC-сессии и завершение процесса без многоступенчатых пауз.",
+      "layout": {
+        "container": "Tauri Window Event Loop & Gateway Outbound Queue",
+        "dimensions": "Desktop Client Lifecycle",
+        "padding": "N/A",
+        "spacing": "N/A"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#f23f43"
+      },
+      "interactive_states": [
+        {
+          "element": "Window Close [X]",
+          "default": "Window active",
+          "hover": "Close button hover",
+          "active": "Clean OP 4 disconnect + immediate exit < 120ms"
+        }
+      ],
+      "acceptance_criteria": [
+        "При нажатии [X] отправляется корректный OP 4 с guild_id текущего сервера и channel_id null",
+        "Пользователь моментально исчезает из голосового канала на официальном клиенте Discord",
+        "Приложение закрывается быстро без зависания процесса"
+      ]
+    },
+    {
+      "id": "TASK-765",
+      "title": "G2 Frontend: Точный 1:1 дизайн и функционал нижней панели пользователя (#user-bar)",
+      "status": "done",
+      "priority": "P0",
+      "department": "G2 Frontend",
+      "summary": "Повторены точные размеры, отступы и расположение элементов официального Discord: удалена лишняя кнопка «Выйти», кнопки Микрофона и Наушников преобразованы в сплит-пилюли 32x32px с выпадающими шевронами 16x32px для быстрого выбора аудиоустройств, красная индикация блокировок, иконка Невидимый на аватарке, кнопка настроек 32x32px.",
+      "layout": {
+        "container": "User Bar (#user-bar)",
+        "dimensions": "Height: 52px, Padding: 0 8px",
+        "padding": "0 8px",
+        "spacing": "2px-4px"
+      },
+      "design_tokens": {
+        "background": "#232428",
+        "muted_button_bg": "rgba(242, 63, 67, 0.18)",
+        "danger_icon": "#f23f43",
+        "default_icon": "#b5bac1"
+      },
+      "interactive_states": [
+        {
+          "element": "Split Mic Button",
+          "default": "32px mic + 16px chevron",
+          "hover": "Dark red hover when muted / white hover when unmuted",
+          "active": "Toggle mute / Open input picker"
+        },
+        {
+          "element": "Split Deafen Button",
+          "default": "32px deafen + 16px chevron",
+          "hover": "Dark red hover when deafened / white hover when undeafened",
+          "active": "Toggle deafen / Open output picker"
+        }
+      ],
+      "acceptance_criteria": [
+        "Кнопка «Выйти» полностью отсутствует в строке пользователя",
+        "Шевроны выпадающего списка прижаты к кнопкам микрофона и наушников",
+        "Клик по шевронам открывает поповер выбора аудиоустройств",
+        "Размеры кнопок строго 32px"
+      ]
+    },
+    {
+      "id": "TASK-766",
+      "title": "G2 Frontend: 4-кнопочная панель медиа в голосовом статусе (#voice-panel)",
+      "status": "done",
+      "priority": "P1",
+      "department": "G2 Frontend",
+      "summary": "Интерфейс медиа-действий в голосовой панели: 4 колонки одинакового размера (Камера, Демонстрация экрана, Активности, Звуковая панель) высотой 32px с темно-серой подложкой #2b2d31, скруглением углов 4px и SVG-иконками паритета с официальным Discord.",
+      "layout": {
+        "container": "Voice Status Media Grid",
+        "dimensions": "Grid 4 cols, Height 32px each",
+        "padding": "2px 0",
+        "spacing": "6px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "hover_background": "#35373c",
+        "active_background": "#23a55a",
+        "icon_color": "#dbdee1"
+      },
+      "interactive_states": [
+        {
+          "element": "Camera Button",
+          "default": "Video off icon",
+          "hover": "bg: #35373c",
+          "active": "bg: #23a55a (Video on)"
+        },
+        {
+          "element": "Screen Share Button",
+          "default": "Monitor arrow icon",
+          "hover": "bg: #35373c",
+          "active": "bg: #23a55a (Screen on)"
+        },
+        {
+          "element": "Activities Button",
+          "default": "Shapes icon",
+          "hover": "bg: #35373c",
+          "active": "Open activities popout"
+        },
+        {
+          "element": "Soundboard Button",
+          "default": "Sound horn icon",
+          "hover": "bg: #35373c",
+          "active": "Open soundboard popout"
+        }
+      ],
+      "acceptance_criteria": [
+        "4 кнопки расположены в один ряд с равными ширинами",
+        "Высота кнопок 32px с плавной анимацией наведения",
+        "Полнофункциональное открытие экранов шаринга и активностей"
+      ]
+    },
+    {
+      "id": "TASK-767",
+      "title": "G1 Backend + G2 Frontend: Устранение мерцания участников голосового канала и ролей",
+      "status": "done",
+      "priority": "P0",
+      "department": "G1 Backend + G2 Frontend",
+      "summary": "Устранено мерцание и исчезновение пользователей официального Discord из списка голосового канала. Заменен liveVoiceStatesByGuild.clear() на поключевой инкрементальный merge, добавлена обработка событий GUILD_MEMBER_UPDATE в Rust BFF и JS-модель, обеспечивая мгновенную актуализацию прав доступа без ложных блокировок каналов.",
+      "layout": {
+        "container": "Channel Voice Tree & Member List",
+        "dimensions": "Width: 240px",
+        "padding": "4px 8px",
+        "spacing": "2px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "speaking_ring": "#23a55a",
+        "text_primary": "#f2f3f5"
+      },
+      "interactive_states": [
+        {
+          "element": "VoiceChannelUser",
+          "default": "Avatar + Nick",
+          "hover": "bg: rgba(255,255,255,0.06)",
+          "active": "Context menu"
+        }
+      ],
+      "acceptance_criteria": [
+        "Участники с официального клиента Discord не пропадают из каналов",
+        "Изменение ролей на сервере мгновенно обновляет права доступа без переподключения",
+        "Контрактные тесты dispatch_ui и data_contract зеленые на 100%"
+      ]
+    },
+    {
+      "id": "TASK-768",
+      "title": "G4 QA & DevOps: Релизная сборка бинарника, SHA256SUMS и верификация",
+      "status": "done",
+      "priority": "P0",
+      "department": "DevOps / Integration",
+      "summary": "Успешная сборка release-бинарника rust/dist/discord-gui-spike, генерация SHA256SUMS, прохождение всех юнит- и контрактных тестов (100% PASS), синхронизация с удаленным репозиторием GitHub.",
+      "layout": {
+        "container": "Release Artifacts",
+        "dimensions": "ELF 64-bit LSB executable, x86-64",
+        "padding": "N/A",
+        "spacing": "N/A"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#23a55a",
+        "accent": "#5865f2"
+      },
+      "interactive_states": [
+        {
+          "element": "cargo build --release",
+          "default": "Clean compile",
+          "hover": "N/A",
+          "active": "SHA256 verified"
+        }
+      ],
+      "acceptance_criteria": [
+        "cargo build --release завершается без ошибок",
+        "rust/dist/SHA256SUMS обновлен",
+        "Ветка feature/sprints-1-5-build-004 синхронизирована с GitHub"
       ]
     }
   ]

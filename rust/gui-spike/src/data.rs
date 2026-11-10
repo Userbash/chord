@@ -2812,6 +2812,68 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                     }
                 }
             }
+            "GUILD_MEMBER_UPDATE" => {
+                if let (Some(gid), Some(uid)) = (
+                    field_str(data, "guild_id"),
+                    data.get("user")
+                        .and_then(|u| field_str(u, "id"))
+                        .or_else(|| field_str(data, "user_id")),
+                ) {
+                    let new_roles = array(data.get("roles")).to_vec();
+                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                        if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                            for rg in r_guilds.iter_mut() {
+                                if field_str(rg, "id") == Some(gid) {
+                                    if let Value::Object(ref mut gm) = rg {
+                                        let m_arr = gm
+                                            .entry("members".to_string())
+                                            .or_insert_with(|| Value::Array(Vec::new()));
+                                        if let Value::Array(ref mut list) = m_arr {
+                                            if let Some(ex) = list.iter_mut().find(|x| {
+                                                x.get("user")
+                                                    .and_then(|u| field_str(u, "id"))
+                                                    .or_else(|| field_str(x, "user_id"))
+                                                    == Some(uid)
+                                            }) {
+                                                if let Value::Object(ref mut obj) = ex {
+                                                    obj.insert("roles".to_string(), Value::Array(new_roles.clone()));
+                                                    if let Some(nick) = data.get("nick") {
+                                                        obj.insert("nick".to_string(), nick.clone());
+                                                    }
+                                                }
+                                            } else {
+                                                list.push(data.clone());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if let Some(preview_g) = guard.local_preview_guilds.get_mut(gid) {
+                        if let Value::Object(ref mut gm) = preview_g {
+                            let m_arr = gm
+                                .entry("members".to_string())
+                                .or_insert_with(|| Value::Array(Vec::new()));
+                            if let Value::Array(ref mut list) = m_arr {
+                                if let Some(ex) = list.iter_mut().find(|x| {
+                                    x.get("user")
+                                        .and_then(|u| field_str(u, "id"))
+                                        .or_else(|| field_str(x, "user_id"))
+                                        == Some(uid)
+                                }) {
+                                    if let Value::Object(ref mut obj) = ex {
+                                        obj.insert("roles".to_string(), Value::Array(new_roles));
+                                        if let Some(nick) = data.get("nick") {
+                                            obj.insert("nick".to_string(), nick.clone());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             "GUILD_CREATE" => {
                 if let Some(gid) = field_str(data, "id") {
                     let mut users_by_id: HashMap<String, Value> = HashMap::new();
@@ -4076,6 +4138,10 @@ pub fn connect_or_update_live_voice_ext(
 pub fn current_live_voice_target() -> (Option<String>, Option<String>) {
     let guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
     (guard.voice_guild_id.clone(), guard.voice_channel_id.clone())
+}
+
+pub fn active_voice_guild_and_channel() -> (Option<String>, Option<String>) {
+    current_live_voice_target()
 }
 
 pub fn current_live_voice_mute_deaf() -> (bool, bool) {

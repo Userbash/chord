@@ -50,8 +50,6 @@ export const FORWARDED_KINDS = Object.freeze([
   "VOICE_SERVER_UPDATE",
   "VOICE_STATE_UPDATE",
   "MESSAGE_REACTION_REMOVE",
-  "MESSAGE_DELETE",
-  "MESSAGE_DELETE_BULK",
 ]);
 
 /** Статусы присутствия из `[L]`-кадров; всё остальное — `unknown` (не offline). */
@@ -1572,12 +1570,6 @@ export function applyDispatch(store, value, counters = emptyCounters()) {
       break;
     case "MESSAGE_UPDATE":
       changes = projectMessageUpdate(store, data, counters);
-      break;
-    case "MESSAGE_DELETE":
-      changes = projectMessageDelete(store, data, counters);
-      break;
-    case "MESSAGE_DELETE_BULK":
-      changes = projectMessageDeleteBulk(store, data, counters);
       break;
     case "MESSAGE_ACK":
       changes = projectMessageAck(store, data, counters);

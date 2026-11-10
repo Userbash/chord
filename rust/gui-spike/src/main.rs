@@ -1894,20 +1894,17 @@ fn main() {
                     let _ = window.hide();
                 } else {
                     eprintln!("[window_event] CloseRequested -> disconnecting live voice & shutting down workers");
-                    let _ = data::connect_or_update_live_voice(None, None, false, false);
-                    let _ = discord_core::ws::queue_live_voice_state(None, None, false, false);
-                    // Даём асинхронному циклу шлюза 250 мс для гарантированной отправки OP 4
-                    // (channel_id = nil) и закрытия RTC WebSocket перед завершением процесса Linux.
-                    std::thread::sleep(std::time::Duration::from_millis(250));
+                    let (active_gid, _) = data::active_voice_guild_and_channel();
+                    let _ = data::connect_or_update_live_voice(active_gid.clone(), None, false, false);
+                    let _ = discord_core::ws::queue_live_voice_state(active_gid, None, false, false);
                     data::shutdown_live_workers();
+                    std::thread::sleep(std::time::Duration::from_millis(100));
+                    std::process::exit(0);
                 }
             }
             tauri::WindowEvent::Destroyed => {
-                eprintln!("[window_event] Destroyed -> disconnecting live voice & shutting down workers");
-                let _ = data::connect_or_update_live_voice(None, None, false, false);
-                let _ = discord_core::ws::queue_live_voice_state(None, None, false, false);
-                std::thread::sleep(std::time::Duration::from_millis(200));
-                data::shutdown_live_workers();
+                eprintln!("[window_event] Destroyed -> quick exit");
+                std::process::exit(0);
             }
             _ => {}
         })

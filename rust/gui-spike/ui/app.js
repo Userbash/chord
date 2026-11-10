@@ -4932,7 +4932,12 @@ function boot() {
             ...(liveVoiceStatesByGuild.get(HOME_GUILD_ID) ?? []),
             ...(liveVoiceStatesByGuild.get("") ?? []),
           ]
-        : (liveVoiceStatesByGuild.get(targetGuildId) ?? []);
+        : [
+            ...(liveVoiceStatesByGuild.get(targetGuildId) ?? []),
+            ...(normGuildKey && normGuildKey !== targetGuildId
+              ? liveVoiceStatesByGuild.get(normGuildKey) ?? []
+              : []),
+          ];
     /** @type {Map<string, any>} */
     const byUser = new Map();
     const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
@@ -10277,7 +10282,18 @@ function boot() {
     }
     const uLogout = /** @type {HTMLElement | null} */ (document.getElementById("auth-logout"));
     if (uLogout) {
-      uLogout.style.display = "none";
+      uLogout.style.setProperty("display", "none", "important");
+      uLogout.style.visibility = "hidden";
+      uLogout.style.width = "0px";
+      uLogout.style.height = "0px";
+      uLogout.style.padding = "0px";
+      uLogout.style.margin = "0px";
+      uLogout.style.border = "none";
+      uLogout.style.overflow = "hidden";
+      uLogout.style.position = "absolute";
+      uLogout.style.pointerEvents = "none";
+      uLogout.setAttribute("aria-hidden", "true");
+      uLogout.hidden = true;
     }
     const uMute = /** @type {HTMLElement | null} */ (
       document.querySelector('#user-bar [data-action="mute"]')
@@ -11569,7 +11585,6 @@ function boot() {
       const rawVs = fastVs?.voiceStates;
       let nextDigest = "";
       if (rawVs && typeof rawVs === "object") {
-        liveVoiceStatesByGuild.clear();
         const parts = [];
         for (const [gid, arr] of Object.entries(rawVs)) {
           if (Array.isArray(arr)) {
@@ -11582,6 +11597,11 @@ function boot() {
                 )
                 .join(",")}`,
             );
+          }
+        }
+        for (const existingGid of Array.from(liveVoiceStatesByGuild.keys())) {
+          if (!Object.prototype.hasOwnProperty.call(rawVs, existingGid)) {
+            liveVoiceStatesByGuild.delete(existingGid);
           }
         }
         nextDigest = parts.join("|");
@@ -12766,6 +12786,25 @@ function boot() {
           const tile = railEl?.querySelector(`[data-guild-id="${gid}"]`);
           tile?.remove();
         }
+      } else if (kind === "GUILD_MEMBER_UPDATE") {
+        if (data && typeof data === "object") {
+          const gid = cleanDiscordStr(String(data.guild_id || ""));
+          const uid = cleanDiscordStr(String(data.user?.id || data.user_id || ""));
+          const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+          const roles = Array.isArray(data.roles) ? data.roles.map(String) : [];
+          if (gid && uid) {
+            liveMemberRolesByGuildAndUser.set(`${gid}:${uid}`, roles);
+            if (uid === selfId) {
+              const gObj = liveGuildsById.get(gid);
+              if (gObj) {
+                gObj.myRoles = roles;
+              }
+              tree.refreshView();
+            }
+          }
+        }
+      } else if (kind === "GUILD_ROLE_CREATE" || kind === "GUILD_ROLE_UPDATE" || kind === "GUILD_ROLE_DELETE") {
+        tree.refreshView();
       }
     },
   });
