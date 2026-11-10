@@ -2891,6 +2891,9 @@ export function renderChannelMessage(row, item, index, total, options = {}) {
   );
   // Ключ состояния — реальный канал/сообщение, а не bench-индекс (M-06).
   const channelId = String(options.channelId ?? item.channelId ?? "");
+  if (channelId) {
+    row.setAttribute("data-channel-id", channelId);
+  }
   const reactionKey = channelReactionKey(channelId, item.id);
   const reactions = reactionsFor(reactionKey, item.reactions);
   const attachmentsEl = renderAttachments(item, options);
@@ -3556,6 +3559,10 @@ export function createChatScreen(options) {
       row.setAttribute("data-message-status", "sent");
       const receiptId = String(receipt?.id ?? "");
       row.setAttribute("data-message-id", receiptId);
+      const receiptChannelId = String(receipt?.channel_id ?? receipt?.channelId ?? currentChannelId() ?? "");
+      if (receiptChannelId) {
+        row.setAttribute("data-channel-id", receiptChannelId);
+      }
       const isLiveDesktop =
         typeof globalThis.Image === "function" &&
         !(/** @type {any} */ (globalThis).__SPIKE_AUTH_DISABLED__) &&
@@ -4899,6 +4906,27 @@ export function createChatScreen(options) {
   options.list.addEventListener("focus", onFocusAck);
   options.list.addEventListener("focusin", onFocusAck);
 
+  /**
+   * Удаляет сообщение из кэша окна канала и синхронизирует DOM (M-08 / TASK-762).
+   * @param {string} messageId
+   * @param {string} [channelId]
+   */
+  function removeMessageFromWindow(messageId, channelId) {
+    if (!messageId) return;
+    const targetChannelId = channelId || currentChannelId();
+    const win = channelWindows.get(targetChannelId);
+    if (win && Array.isArray(win.items)) {
+      win.items = win.items.filter((item) => String(item.id) !== String(messageId));
+    }
+    const targetRow = options.list.querySelector(`[data-message-id="${messageId}"], [data-id="${messageId}"]`);
+    if (targetRow) {
+      targetRow.remove();
+    }
+    if (isChannelMode() && channel && channel.id === targetChannelId) {
+      list.paint();
+    }
+  }
+
   return {
     store,
     list,
@@ -4909,6 +4937,7 @@ export function createChatScreen(options) {
     },
     refreshRow,
     jumpTo,
+    removeMessageFromWindow,
     /** @param {import("./composer.js").Composer} instance */
     bindComposer(instance) {
       composer = instance;

@@ -549,15 +549,18 @@ export function createCaptchaModal(options) {
     void submit();
   });
 
-  submitBtn.addEventListener("click", () => {
+  submitBtn.addEventListener("click", (/** @type {any} */ event) => {
+    if (event?.stopPropagation) event.stopPropagation();
     void submit();
   });
 
-  cancelBtn.addEventListener("click", () => {
+  cancelBtn.addEventListener("click", (/** @type {any} */ event) => {
+    if (event?.stopPropagation) event.stopPropagation();
     close(true);
   });
 
-  closeBtn.addEventListener("click", () => {
+  closeBtn.addEventListener("click", (/** @type {any} */ event) => {
+    if (event?.stopPropagation) event.stopPropagation();
     close(true);
   });
 

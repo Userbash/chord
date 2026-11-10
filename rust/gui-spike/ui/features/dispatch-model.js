@@ -50,6 +50,8 @@ export const FORWARDED_KINDS = Object.freeze([
   "VOICE_SERVER_UPDATE",
   "VOICE_STATE_UPDATE",
   "MESSAGE_REACTION_REMOVE",
+  "MESSAGE_DELETE",
+  "MESSAGE_DELETE_BULK",
 ]);
 
 /** Статусы присутствия из `[L]`-кадров; всё остальное — `unknown` (не offline). */
@@ -341,7 +343,13 @@ export function asRecord(value) {
  *   guildId: string,
  *   threads: LiveThread[],
  * }} ThreadsChange */
-/** @typedef {GuildsChange | MembersChange | PresenceChange | ReactionChange | MessageCreateChange | MessageUpdateChange | MessageAckChange | TypingChange | VoiceStateChange | VoiceServerChange | ThreadsChange} DispatchChange */
+/** @typedef {{
+ *   type: "message_delete",
+ *   channelId: string,
+ *   messageId: string,
+ *   guildId?: string,
+ * }} MessageDeleteChange */
+/** @typedef {GuildsChange | MembersChange | PresenceChange | ReactionChange | MessageCreateChange | MessageUpdateChange | MessageDeleteChange | MessageAckChange | TypingChange | VoiceStateChange | VoiceServerChange | ThreadsChange} DispatchChange */
 /**
  * Счётчики модели. `ignored` — `kind` вне `FORWARDED_KINDS` или no-op проекции
  * (например, `REMOVE` реакции без предшествующего `ADD`); `skipped` — событие
@@ -1219,6 +1227,64 @@ export function projectMessageUpdate(store, data, counters = emptyCounters()) {
 }
 
 /**
+ * MESSAGE_DELETE — удаление сообщения по snowflake ID (M-08 / TASK-762).
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectMessageDelete(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data) || !data || typeof data !== "object") {
+    counters.malformed += 1;
+    return [];
+  }
+  const id = asString(data.id);
+  const channelId = asString(data.channel_id) || asString(data.channelId);
+  if (!id || !channelId) {
+    counters.malformed += 1;
+    return [];
+  }
+  counters.applied += 1;
+  return [
+    {
+      type: "message_delete",
+      channelId,
+      messageId: id,
+      guildId: asString(data.guild_id) || asString(data.guildId) || undefined,
+    },
+  ];
+}
+
+/**
+ * MESSAGE_DELETE_BULK — пачка удалений сообщений в канале (M-08 / TASK-762).
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectMessageDeleteBulk(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data) || !data || typeof data !== "object") {
+    counters.malformed += 1;
+    return [];
+  }
+  const channelId = asString(data.channel_id) || asString(data.channelId);
+  const rawIds = Array.isArray(data.ids) ? data.ids : [];
+  const ids = rawIds.map((item) => asString(item)).filter((s) => s.length > 0);
+  if (ids.length === 0 || !channelId) {
+    counters.malformed += 1;
+    return [];
+  }
+  counters.applied += ids.length;
+  const guildId = asString(data.guild_id) || asString(data.guildId) || undefined;
+  return ids.map((id) => ({
+    type: "message_delete",
+    channelId,
+    messageId: id,
+    guildId,
+  }));
+}
+
+/**
  * MESSAGE_ACK — сброс `unread` и `mentionCount` для `channel_id` до `message_id`.
  * @param {DispatchStore} store
  * @param {Record<string, unknown>} data
@@ -1506,6 +1572,12 @@ export function applyDispatch(store, value, counters = emptyCounters()) {
       break;
     case "MESSAGE_UPDATE":
       changes = projectMessageUpdate(store, data, counters);
+      break;
+    case "MESSAGE_DELETE":
+      changes = projectMessageDelete(store, data, counters);
+      break;
+    case "MESSAGE_DELETE_BULK":
+      changes = projectMessageDeleteBulk(store, data, counters);
       break;
     case "MESSAGE_ACK":
       changes = projectMessageAck(store, data, counters);

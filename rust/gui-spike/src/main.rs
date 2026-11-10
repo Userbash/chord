@@ -344,6 +344,7 @@ async fn delete_message(
     channel_id: String,
     message_id: String,
 ) -> Result<(), MessageError> {
+    eprintln!("[tauri delete_message] requested channel_id={channel_id}, message_id={message_id}");
     let backend = Arc::clone(backend.inner());
     let token = token_or::<MessageError, _>(
         move || backend.token(),
@@ -352,7 +353,9 @@ async fn delete_message(
     )
     .await?;
     let api = DiscordMessageSender::new(&token)?;
-    messages::delete_message(&api, &channel_id, &message_id).await
+    let outcome = messages::delete_message(&api, &channel_id, &message_id).await;
+    eprintln!("[tauri delete_message] result: {outcome:?}");
+    outcome
 }
 
 #[tauri::command]
@@ -1416,6 +1419,13 @@ async fn voice_stream_start(
     let op18 = discord_gui_spike::voice_stage::build_gateway_stream_create_op18(&spec)?;
     let stream_key = spec.to_stream_key("me");
     println!("[IPC-TRACE] voice_stream_start: stream_key={stream_key}");
+    let gid = spec.guild_id.clone();
+    let cid = Some(spec.channel_id.clone());
+    let _ = blocking(move || {
+        let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
+        data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, true)
+    })
+    .await?;
     Ok(serde_json::json!({
         "ok": true,
         "streamKey": stream_key,
@@ -1433,6 +1443,15 @@ async fn voice_stream_stop(
         .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
     let op19 = discord_gui_spike::voice_stage::build_gateway_stream_delete_op19(&key)?;
     println!("[IPC-TRACE] voice_stream_stop: stream_key={key}");
+    let k = key.clone();
+    let _ = blocking(move || {
+        let (gid, cid) = data::current_live_voice_target();
+        let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
+        let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
+        let _ = discord_core::ws::queue_live_stream_delete(&k);
+        Ok::<(), String>(())
+    })
+    .await?;
     Ok(serde_json::json!({
         "ok": true,
         "streamKey": key,
@@ -1450,6 +1469,11 @@ async fn voice_stream_watch(
         .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
     let op20 = discord_gui_spike::voice_stage::build_gateway_stream_watch_op20(&key)?;
     println!("[IPC-TRACE] voice_stream_watch: stream_key={key}");
+    let k = key.clone();
+    let _ = blocking(move || {
+        discord_core::ws::queue_live_stream_watch(&k).map_err(|e| e.to_string())
+    })
+    .await?;
     Ok(serde_json::json!({
         "ok": true,
         "streamKey": key,
@@ -1864,16 +1888,25 @@ fn main() {
     tauri::Builder::default()
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
-                if std::env::var_os("SPIKE_EXIT_AFTER_MS").is_none()
-                    && std::env::var_os("SPIKE_AUTH_DISABLED").is_none()
-                {
+                let minimize_to_tray = std::env::var_os("DISCORD_MINIMIZE_TO_TRAY").is_some();
+                if minimize_to_tray {
                     api.prevent_close();
                     let _ = window.hide();
                 } else {
+                    eprintln!("[window_event] CloseRequested -> disconnecting live voice & shutting down workers");
+                    let _ = data::connect_or_update_live_voice(None, None, false, false);
+                    let _ = discord_core::ws::queue_live_voice_state(None, None, false, false);
+                    // Даём асинхронному циклу шлюза 250 мс для гарантированной отправки OP 4
+                    // (channel_id = nil) и закрытия RTC WebSocket перед завершением процесса Linux.
+                    std::thread::sleep(std::time::Duration::from_millis(250));
                     data::shutdown_live_workers();
                 }
             }
             tauri::WindowEvent::Destroyed => {
+                eprintln!("[window_event] Destroyed -> disconnecting live voice & shutting down workers");
+                let _ = data::connect_or_update_live_voice(None, None, false, false);
+                let _ = discord_core::ws::queue_live_voice_state(None, None, false, false);
+                std::thread::sleep(std::time::Duration::from_millis(200));
                 data::shutdown_live_workers();
             }
             _ => {}

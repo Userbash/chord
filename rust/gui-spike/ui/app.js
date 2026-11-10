@@ -924,8 +924,14 @@ function createGuildRail(options) {
       ? /** @type {Record<string, unknown>} */ (value)
       : {};
     const id = typeof bag.id === "string" ? bag.id : "";
-    const name = typeof bag.name === "string" ? bag.name : "";
-    if (id === "" || name === "") throw new UIError("IPC_FAILED", "ready: гильдия без id/name");
+    if (id === "") throw new UIError("IPC_FAILED", "ready: гильдия без id");
+    const rawProps = /** @type {Record<string, unknown> | null | undefined} */ (
+      bag.properties && typeof bag.properties === "object" ? bag.properties : null
+    );
+    const propName = typeof rawProps?.name === "string" ? rawProps.name : "";
+    const name = typeof bag.name === "string" && bag.name !== ""
+      ? bag.name
+      : (propName !== "" ? propName : "Загрузка сервера...");
     if (typeof bag.icon === "string" && bag.icon !== "") {
       guildIcons.set(id, bag.icon);
     }
@@ -4024,6 +4030,19 @@ function boot() {
     tree.refreshView();
   }
 
+  if (typeof window !== "undefined") {
+    window.addEventListener("beforeunload", () => {
+      if (activeVoiceConnection) {
+        disconnectFromLiveVoiceChannel();
+      }
+    });
+    window.addEventListener("unload", () => {
+      if (activeVoiceConnection) {
+        disconnectFromLiveVoiceChannel();
+      }
+    });
+  }
+
   /**
    * Переключает блокировку микрофона И динамиков (`self_deaf` + `self_mute`).
    * При снятии оглушения включает обратно и звук, и микрофон.
@@ -4046,6 +4065,19 @@ function boot() {
     syncVoiceMuteStateWithBackend();
     renderLiveVoicePanel();
     tree.refreshView();
+  }
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("beforeunload", () => {
+      if (activeVoiceConnection) {
+        disconnectFromLiveVoiceChannel();
+      }
+    });
+    window.addEventListener("unload", () => {
+      if (activeVoiceConnection) {
+        disconnectFromLiveVoiceChannel();
+      }
+    });
   }
 
   let highPingStrikes = 0;
@@ -4430,6 +4462,19 @@ function boot() {
     }
     renderLiveVoicePanel();
     tree.refreshView();
+  }
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("beforeunload", () => {
+      if (activeVoiceConnection) {
+        disconnectFromLiveVoiceChannel();
+      }
+    });
+    window.addEventListener("unload", () => {
+      if (activeVoiceConnection) {
+        disconnectFromLiveVoiceChannel();
+      }
+    });
   }
 
   /**
@@ -9560,7 +9605,6 @@ function boot() {
       playVoiceUiSound("stream_off");
       void invoke("voice_stream_stop", {
         stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
-        streamKey: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
       }).catch(() => {});
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
@@ -9600,7 +9644,6 @@ function boot() {
       playVoiceUiSound("stream_off");
       void invoke("voice_stream_stop", {
         stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
-        streamKey: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
       }).catch(() => {});
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
@@ -9663,17 +9706,15 @@ function boot() {
       void invoke("voice_stream_start", {
         spec: {
           guild_id: conn.guildId || null,
-          guildId: conn.guildId || null,
           channel_id: conn.channelId || "default",
-          channelId: conn.channelId || "default",
           source_id: picked.id,
-          sourceId: picked.id,
           resolution: conn.streamResolution || "720p",
           fps: Number(conn.streamFps || 60),
           share_audio: conn.streamAudio !== false,
-          shareAudio: conn.streamAudio !== false,
         },
-      }).catch(() => {});
+      }).catch((err) => {
+        console.warn("[voice_stream_start err]", err);
+      });
       void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
         kind: "set_capture_source",
         deviceId: (picked.tab || appCaptureKind) + ":" + picked.id + ":" + (picked.label || ""),
@@ -10181,7 +10222,7 @@ function boot() {
       btn.setAttribute("aria-label", label);
       btn.title = label;
       btn.style.cssText =
-        "width:18px;min-width:18px;height:32px;padding:0;margin-left:0;border:none;border-radius:0 8px 8px 0;display:inline-flex;align-items:center;justify-content:center;color:#b5bac1;background:transparent;cursor:pointer;";
+        "width:16px;min-width:16px;height:32px;padding:0;margin-left:0;border:none;border-radius:0 4px 4px 0;display:inline-flex;align-items:center;justify-content:center;color:#b5bac1;background:transparent;cursor:pointer;";
       btn.innerHTML = SVG_CHEVRON_DOWN;
       btn.addEventListener("click", (ev) => {
         ev.stopPropagation();
@@ -10202,31 +10243,41 @@ function boot() {
     ensureUserBarDeviceChevrons();
     const uBar = /** @type {HTMLElement | null} */ (document.getElementById("user-bar"));
     if (uBar) {
-      uBar.style.padding = "4px 6px";
-      uBar.style.gap = "4px";
+      uBar.style.cssText =
+        "height:52px;padding:0 8px;display:flex;align-items:center;justify-content:space-between;gap:4px;box-sizing:border-box;";
     }
     const uProf = /** @type {HTMLElement | null} */ (
       document.querySelector('#user-bar [data-action="profile"]')
     );
     if (uProf) {
-      uProf.style.gap = "8px";
-      uProf.style.padding = "2px 4px";
-      uProf.style.minWidth = "86px";
+      uProf.style.cssText =
+        "display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:4px;min-width:0;flex:1 1 auto;overflow:hidden;background:transparent;cursor:pointer;border:none;";
+    }
+    const uActions = /** @type {HTMLElement | null} */ (
+      document.querySelector("#user-bar .user-actions")
+    );
+    if (uActions) {
+      uActions.style.cssText =
+        "display:flex;align-items:center;gap:2px;flex-shrink:0;";
     }
     const uSettings = /** @type {HTMLElement | null} */ (
       document.querySelector('#user-bar [data-action="settings"]')
     );
     if (uSettings) {
-      uSettings.style.width = "24px";
-      uSettings.style.minWidth = "24px";
-      uSettings.style.height = "28px";
-      uSettings.style.padding = "0";
+      uSettings.style.cssText =
+        "width:32px;min-width:32px;height:32px;border-radius:4px;padding:0;border:none;display:inline-flex;align-items:center;justify-content:center;color:#b5bac1;background:transparent;cursor:pointer;transition:background 100ms ease,color 100ms ease;";
+      uSettings.onmouseenter = () => {
+        uSettings.style.background = "rgba(255,255,255,0.08)";
+        uSettings.style.color = "#dbdee1";
+      };
+      uSettings.onmouseleave = () => {
+        uSettings.style.background = "transparent";
+        uSettings.style.color = "#b5bac1";
+      };
     }
     const uLogout = /** @type {HTMLElement | null} */ (document.getElementById("auth-logout"));
     if (uLogout) {
-      uLogout.style.fontSize = "11px";
-      uLogout.style.padding = "0 4px";
-      uLogout.style.height = "24px";
+      uLogout.style.display = "none";
     }
     const uMute = /** @type {HTMLElement | null} */ (
       document.querySelector('#user-bar [data-action="mute"]')
@@ -10246,7 +10297,7 @@ function boot() {
       uMute.setAttribute("data-pressed", muted ? "true" : "false");
       uMute.innerHTML = muted ? SVG_MIC_OFF : SVG_MIC_ON;
       uMute.style.cssText =
-        `width:24px;min-width:24px;height:28px;padding:0;border:none;border-radius:6px 0 0 6px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${muted ? "#f23f43" : "#b5bac1"};background:${muted ? "rgba(242, 63, 67, 0.18)" : "transparent"};border-right:${muted ? "1px solid rgba(242, 63, 67, 0.28)" : "1px solid transparent"};`;
+        `width:32px;min-width:32px;height:32px;padding:0;border:none;border-radius:4px 0 0 4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${muted ? "#f23f43" : "#b5bac1"};background:${muted ? "rgba(242, 63, 67, 0.18)" : "transparent"};border-right:${muted ? "1px solid rgba(242, 63, 67, 0.3)" : "1px solid transparent"};transition:background 100ms ease,color 100ms ease;`;
       uMute.title = muted
         ? "Ваш микрофон отключён! (Нажмите, чтобы включить микрофон)"
         : "Отключить только микрофон (динамики останутся включены)";
@@ -10254,16 +10305,32 @@ function boot() {
         "aria-label",
         muted ? "Включить микрофон" : "Отключить только микрофон",
       );
+      uMute.onmouseenter = () => {
+        uMute.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+        uMute.style.color = selfVoicePrefs.muted ? "#f23f43" : "#dbdee1";
+      };
+      uMute.onmouseleave = () => {
+        uMute.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.18)" : "transparent";
+        uMute.style.color = selfVoicePrefs.muted ? "#f23f43" : "#b5bac1";
+      };
     }
     if (uMuteChevron) {
       uMuteChevron.style.cssText =
-        `width:12px;min-width:12px;height:28px;padding:0;margin-left:0;border:none;border-radius:0 6px 6px 0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${muted ? "#f23f43" : "#b5bac1"};background:${muted ? "rgba(242, 63, 67, 0.18)" : "transparent"};`;
+        `width:16px;min-width:16px;height:32px;padding:0;margin-left:0;margin-right:2px;border:none;border-radius:0 4px 4px 0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${muted ? "#f23f43" : "#b5bac1"};background:${muted ? "rgba(242, 63, 67, 0.18)" : "transparent"};transition:background 100ms ease,color 100ms ease;`;
+      uMuteChevron.onmouseenter = () => {
+        uMuteChevron.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+        uMuteChevron.style.color = selfVoicePrefs.muted ? "#f23f43" : "#dbdee1";
+      };
+      uMuteChevron.onmouseleave = () => {
+        uMuteChevron.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.18)" : "transparent";
+        uMuteChevron.style.color = selfVoicePrefs.muted ? "#f23f43" : "#b5bac1";
+      };
     }
     if (uDeaf) {
       uDeaf.setAttribute("data-pressed", deafened ? "true" : "false");
       uDeaf.innerHTML = deafened ? SVG_DEAF_OFF : SVG_DEAF_ON;
       uDeaf.style.cssText =
-        `width:24px;min-width:24px;height:28px;padding:0;border:none;border-radius:6px 0 0 6px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${deafened ? "#f23f43" : "#b5bac1"};background:${deafened ? "rgba(242, 63, 67, 0.18)" : "transparent"};border-right:${deafened ? "1px solid rgba(242, 63, 67, 0.28)" : "1px solid transparent"};`;
+        `width:32px;min-width:32px;height:32px;padding:0;border:none;border-radius:4px 0 0 4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${deafened ? "#f23f43" : "#b5bac1"};background:${deafened ? "rgba(242, 63, 67, 0.18)" : "transparent"};border-right:${deafened ? "1px solid rgba(242, 63, 67, 0.3)" : "1px solid transparent"};transition:background 100ms ease,color 100ms ease;`;
       uDeaf.title = deafened
         ? "Включить звук и микрофон (Снять оглушение)"
         : "Отключить звук и микрофон (Оглушить)";
@@ -10271,10 +10338,26 @@ function boot() {
         "aria-label",
         deafened ? "Включить звук" : "Отключить звук и микрофон",
       );
+      uDeaf.onmouseenter = () => {
+        uDeaf.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+        uDeaf.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#dbdee1";
+      };
+      uDeaf.onmouseleave = () => {
+        uDeaf.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.18)" : "transparent";
+        uDeaf.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#b5bac1";
+      };
     }
     if (uDeafChevron) {
       uDeafChevron.style.cssText =
-        `width:12px;min-width:12px;height:28px;padding:0;margin-left:0;border:none;border-radius:0 6px 6px 0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${deafened ? "#f23f43" : "#b5bac1"};background:${deafened ? "rgba(242, 63, 67, 0.18)" : "transparent"};`;
+        `width:16px;min-width:16px;height:32px;padding:0;margin-left:0;margin-right:2px;border:none;border-radius:0 4px 4px 0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${deafened ? "#f23f43" : "#b5bac1"};background:${deafened ? "rgba(242, 63, 67, 0.18)" : "transparent"};transition:background 100ms ease,color 100ms ease;`;
+      uDeafChevron.onmouseenter = () => {
+        uDeafChevron.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+        uDeafChevron.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#dbdee1";
+      };
+      uDeafChevron.onmouseleave = () => {
+        uDeafChevron.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.18)" : "transparent";
+        uDeafChevron.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#b5bac1";
+      };
     }
 
     // Обновляем кружок статуса на аватарке в `#user-bar` (`В сети` / `Неактивен` / `Не беспокоить` / `Невидимый`)
@@ -10728,12 +10811,12 @@ function boot() {
     const statusBtn = document.createElement("button");
     statusBtn.type = "button";
     statusBtn.style.cssText =
-      "display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 0%;background:none;border:none;padding:0;text-align:left;cursor:pointer;color:inherit;";
+      "display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 0%;background:none;border:none;padding:0;text-align:left;cursor:pointer;color:inherit;";
     statusBtn.title = "О голосовом звонке (RTC / RTT / Шифрование)";
     const sigIcon = document.createElement("span");
     sigIcon.setAttribute("data-voice-signal-icon", "true");
     sigIcon.style.cssText =
-      `width:32px;height:32px;border-radius:8px;background:rgba(35,165,90,0.14);border:1px solid rgba(35,165,90,0.24);color:${initPhase.statusColor};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;`;
+      `width:20px;height:20px;color:${initPhase.statusColor};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;`;
     sigIcon.innerHTML = SVG_SIGNAL_BARS;
 
     const statusCol = document.createElement("div");
@@ -10743,7 +10826,7 @@ function boot() {
     const badge = document.createElement("span");
     badge.id = "live-voice-status-badge";
     badge.style.cssText =
-      `font-size:13px;font-weight:700;color:${initPhase.statusColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;`;
+      `font-size:13px;font-weight:600;color:${initPhase.statusColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;`;
     badge.textContent = initPhase.label || "Ожидание ответа сервера Discord...";
     badgeRow.append(badge);
 
@@ -10792,7 +10875,7 @@ function boot() {
     krispBtn.type = "button";
     krispBtn.className = "icon-btn";
     krispBtn.style.cssText =
-      `width:28px;height:28px;border-radius:6px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${selfVoicePrefs.krispEnabled ? "#dbdee1" : "#80848e"};background:transparent;`;
+      `width:32px;height:32px;border-radius:4px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${selfVoicePrefs.krispEnabled ? "#dbdee1" : "#80848e"};background:transparent;`;
     krispBtn.innerHTML = SVG_KRISP_BARS;
     krispBtn.title = "Подавление шума с помощью Krisp";
     krispBtn.setAttribute("aria-label", "Подавление шума с помощью Krisp");
@@ -10812,7 +10895,7 @@ function boot() {
     leaveBtn.type = "button";
     leaveBtn.className = "icon-btn";
     leaveBtn.style.cssText =
-      "width:28px;height:28px;border-radius:6px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#dbdee1;background:transparent;";
+      "width:32px;height:32px;border-radius:4px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#dbdee1;background:transparent;";
     leaveBtn.innerHTML = SVG_PHONE_DISCONNECT;
     leaveBtn.title = "Отключиться";
     leaveBtn.setAttribute("aria-label", "Отключиться");
@@ -10831,7 +10914,7 @@ function boot() {
     topRow.append(statusBtn, topRightActions);
 
     const mediaRow = document.createElement("div");
-    mediaRow.style.cssText = "display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;";
+    mediaRow.style.cssText = "display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;margin-top:2px;";
     /**
      * @param {string} svg
      * @param {string} tooltip
@@ -10849,7 +10932,7 @@ function boot() {
       const baseBg = active ? "#23a55a" : "#2b2d31";
       const baseColor = active ? "#ffffff" : mutedAppearance ? "#80848e" : "#f2f3f5";
       btn.style.cssText =
-        `height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:${baseBg};color:${baseColor};transition:background 110ms ease,color 110ms ease;`;
+        `height:32px;border-radius:4px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:${baseBg};color:${baseColor};transition:background 110ms ease,color 110ms ease;`;
       btn.innerHTML = svg;
       btn.addEventListener("mouseenter", () => {
         if (!active) {
@@ -11231,16 +11314,23 @@ function boot() {
               : rawRoleColor || roleInfo.colorHex;
           const clanBadge = rawClanTag ? formatClanTagBadge(rawClanTag) : "";
           const knownUser = uid ? liveUsersById.get(uid) : null;
-          const displayName =
+          const rawDisplayName =
             cleanDiscordStr(m?.displayName) ||
             cleanDiscordStr(knownUser?.nick) ||
             cleanDiscordStr(knownUser?.global_name) ||
             cleanDiscordStr(knownUser?.globalName) ||
             cleanDiscordStr(m?.username) ||
             cleanDiscordStr(knownUser?.username) ||
-            uid ||
-            "Участник";
-          const uname = cleanDiscordStr(m?.username) || cleanDiscordStr(knownUser?.username);
+            "";
+          const isSnowflakeOnly = Boolean(rawDisplayName && /^\d{15,22}$/.test(rawDisplayName));
+          const displayName = !isSnowflakeOnly && rawDisplayName
+            ? rawDisplayName
+            : `Участник ${uid ? uid.slice(-4) : ""}`.trim();
+          const rawUname = cleanDiscordStr(m?.username) || cleanDiscordStr(knownUser?.username) || "";
+          const isUnameSnowflake = Boolean(rawUname && /^\d{15,22}$/.test(rawUname));
+          const uname = !isUnameSnowflake && rawUname
+            ? rawUname
+            : `user_${uid ? uid.slice(-4) : "anon"}`;
           const activityText = cleanDiscordStr(m?.activity);
           let hue = 0;
           for (const ch of uid || displayName) hue = (hue * 31 + (ch.codePointAt(0) ?? 0)) % 360;
@@ -11395,41 +11485,44 @@ function boot() {
   const lastGuildChannelCountById = new Map();
   /**
    * @param {any[]} rawGuilds
+   * @param {boolean} [incremental=false]
    */
-  function syncLiveGuildRailFromSnapshot(rawGuilds) {
+  function syncLiveGuildRailFromSnapshot(rawGuilds, incremental = false) {
     if (!Array.isArray(rawGuilds)) return;
-    const validIds = new Set();
-    const parsedGuilds = [];
     for (const g of rawGuilds) {
       const gid = String(g?.id ?? "").trim();
       if (!gid) continue;
-      validIds.add(gid);
       hydrateGuildMembersAndRoles(g);
-      const name = String(g?.name ?? g?.properties?.name ?? gid);
+    }
+    if (!incremental) {
+      const validIds = new Set(rawGuilds.map((g) => String(g?.id ?? "").trim()).filter(Boolean));
+      for (const oldGid of Array.from(liveGuildsById.keys())) {
+        if (!validIds.has(oldGid)) {
+          liveGuildsById.delete(oldGid);
+          lastGuildChannelCountById.delete(oldGid);
+        }
+      }
+    }
+    const parsedGuilds = [];
+    for (const [gid, hydrated] of liveGuildsById.entries()) {
+      const name = String(hydrated?.name ?? hydrated?.properties?.name ?? gid);
       const icon =
-        typeof g?.icon === "string"
-          ? g.icon
-          : typeof g?.properties?.icon === "string"
-            ? g.properties.icon
+        typeof hydrated?.icon === "string"
+          ? hydrated.icon
+          : typeof hydrated?.properties?.icon === "string"
+            ? hydrated.properties.icon
             : null;
-      const hydrated = liveGuildsById.get(gid);
       const roleSig = `${Array.isArray(hydrated?.roles) ? hydrated.roles.length : 0}:${Array.isArray(hydrated?.myRoles) ? hydrated.myRoles.join(",") : ""}:${Boolean(hydrated?.lurker)}:${hydrated?.isMember !== false}`;
       parsedGuilds.push({
         id: gid,
         name,
         icon,
-        memberCount: Number(g?.memberCount ?? g?.member_count ?? 0),
+        memberCount: Number(hydrated?.memberCount ?? hydrated?.member_count ?? 0),
         channelCount: Number(
-          g?.channelCount ?? (Array.isArray(g?.channels) ? g.channels.length : 0),
+          hydrated?.channelCount ?? (Array.isArray(hydrated?.channels) ? hydrated.channels.length : 0),
         ),
         roleSig,
       });
-    }
-    for (const oldGid of Array.from(liveGuildsById.keys())) {
-      if (!validIds.has(oldGid)) {
-        liveGuildsById.delete(oldGid);
-        lastGuildChannelCountById.delete(oldGid);
-      }
     }
     const curSel = String(rail.selectedId || "");
     const curSelGuild = parsedGuilds.find((g) => g.id === curSel) ?? null;
@@ -11443,6 +11536,7 @@ function boot() {
     if (nextSig !== lastSyncedGuildIdsSig) {
       lastSyncedGuildIdsSig = nextSig;
       rail.applyGuilds(parsedGuilds);
+      const validIds = new Set(liveGuildsById.keys());
       if (curSel && curSel !== HOME_GUILD_ID && !validIds.has(curSel)) {
         const firstGid = parsedGuilds[0]?.id;
         if (firstGid) {
@@ -12659,13 +12753,17 @@ function boot() {
         if (data && typeof data === "object") {
           hydrateGuildMembersAndRoles(data);
           if (data.id) {
-            syncLiveGuildRailFromSnapshot([data]);
+            syncLiveGuildRailFromSnapshot([data], true);
           }
         }
       } else if (kind === "GUILD_DELETE") {
         if (data?.id) {
-          const rail = document.querySelector("#server-rail, #guild-rail");
-          const tile = rail?.querySelector(`[data-guild-id="${data.id}"]`);
+          const gid = String(data.id);
+          liveGuildsById.delete(gid);
+          lastGuildChannelCountById.delete(gid);
+          syncLiveGuildRailFromSnapshot([], true);
+          const railEl = document.querySelector("#server-rail, #guild-rail");
+          const tile = railEl?.querySelector(`[data-guild-id="${gid}"]`);
           tile?.remove();
         }
       }
@@ -13734,11 +13832,19 @@ function boot() {
     const msgId = String(
       msgRow.getAttribute("data-message-id") || msgRow.getAttribute("data-id") || "",
     ).trim();
-    const chId = String(
+    let chId = String(
       msgRow.getAttribute("data-channel-id") || chat.channelId || "",
     ).trim();
-    if (!chId || !msgId) {
-      msgRow.remove();
+    if (!chId || chId === "news") {
+      chId = String(
+        document.querySelector('#channel-tree .channel-item[aria-current="page"]')?.getAttribute("data-channel-id") ||
+        document.querySelector('#chat-list')?.getAttribute("data-channel-id") ||
+        chat.channel?.id ||
+        ""
+      ).trim();
+    }
+    if (!msgId || !chId || chId === "news") {
+      showVoiceToastNotice("Не удалось определить ID канала или сообщения для удаления");
       return;
     }
     msgRow.setAttribute("data-state", "deleted");
@@ -13747,14 +13853,18 @@ function boot() {
       await invoke("delete_message", {
         channelId: chId,
         messageId: msgId,
+        channel_id: chId,
+        message_id: msgId,
       });
       /** @type {any} */ (chat).removeMessageFromWindow?.(msgId, chId);
       msgRow.remove();
-    } catch {
+      showVoiceToastNotice("Сообщение удалено");
+    } catch (err) {
       msgRow.style.display = "";
       msgRow.removeAttribute("data-state");
       clearErrorState(content);
-      showVoiceToastNotice("Не удалось удалить сообщение (недостаточно прав или системное сообщение)");
+      const detail = typeof err === "object" && err !== null ? (/** @type {any} */ (err).message || /** @type {any} */ (err).kind || "") : String(err || "");
+      showVoiceToastNotice("Не удалось удалить сообщение в Discord" + (detail ? `: ${detail}` : ""));
     }
   }
 

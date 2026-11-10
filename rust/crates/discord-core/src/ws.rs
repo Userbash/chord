@@ -1231,7 +1231,14 @@ pub fn queue_live_voice_state_ext(
             EtfValue::Str("self_video".to_string()),
             EtfValue::Atom(if self_video { "true" } else { "false" }.to_string()),
         ),
-        (EtfValue::Str("flags".to_string()), EtfValue::Int(2)),
+        (
+            EtfValue::Str("self_stream".to_string()),
+            EtfValue::Atom(if self_stream { "true" } else { "false" }.to_string()),
+        ),
+        (
+            EtfValue::Str("flags".to_string()),
+            EtfValue::Int(if self_stream { 2 } else { 0 }),
+        ),
     ]);
     let envelope = EtfValue::Map(vec![
         (EtfValue::Str("op".to_string()), EtfValue::Int(4)),
@@ -2864,6 +2871,15 @@ dv.initialize({
   asyncVideoInputDeviceInit: false
 });
 
+try {
+  if (typeof dv.setKrispPath === "function") {
+    dv.setKrispPath("/home/sanya/.config/discord/app-1.0.168/modules/discord_krisp-1/discord_krisp");
+    sendEv({ ev: "log", msg: "setKrispPath initialized with neural models" });
+  }
+} catch (e) {
+  sendEv({ ev: "log", msg: "setKrispPath err: " + (e && e.message) });
+}
+
 const activeVideoSinks = new Map();
 let smoothedPingMs = 90;
 let currentVideoTargetBitrate = 2500000;
@@ -2953,7 +2969,7 @@ function applyStreamAudioSettings() {
         if (typeof conn.setLocalVolume === "function") conn.setLocalVolume(uid, normVol);
       } catch (_) {}
     }
-    const validUsers = Array.from(remoteUsers.values()).filter((u) => u.ssrc > 0);
+    const validUsers = Array.from(remoteUsers.values()).filter((u) => u && u.id && String(u.id) !== String(currentUserId));
     if (connConnected && validUsers.length > 0) {
       try {
         conn.mergeUsers(validUsers);
@@ -2975,6 +2991,8 @@ let currentOutputVolume = 100;
 let currentUserId = "";
 let currentChannelId = "";
 let currentLocalSsrc = 0;
+let currentVideoSsrc = 0;
+let currentRtxSsrc = 0;
 let isSelfBroadcaster = false;
 let pendingExternalSender = null;
 let sessionEpochPrepared = false;
@@ -3019,7 +3037,7 @@ function attachConnCallbacks(c) {
 
 function flushMergedUsersToConn(_forceRetriggerVideo) {
   if (!conn || !connConnected) return;
-  const validUsers = Array.from(remoteUsers.values()).filter((u) => u.ssrc > 0);
+  const validUsers = Array.from(remoteUsers.values()).filter((u) => u && u.id && String(u.id) !== String(currentUserId));
   if (validUsers.length === 0) return;
   try {
     conn.mergeUsers(validUsers);
@@ -3041,8 +3059,8 @@ function applyScreenBroadcast(active) {
   if (!conn || !isStreamWorker) return;
   try {
     if (active) {
-      const vSsrc = currentLocalSsrc + 1;
-      const rSsrc = currentLocalSsrc + 2;
+      const vSsrc = currentVideoSsrc > 0 ? currentVideoSsrc : currentLocalSsrc + 1;
+      const rSsrc = currentRtxSsrc > 0 ? currentRtxSsrc : currentLocalSsrc + 2;
       const rates = computeAdaptiveRates(smoothedPingMs);
       conn.setTransportOptions({
         encodingVideoBitRate: rates.videoTarget,
@@ -3169,7 +3187,7 @@ function syncRemoteUser(uid, audioSsrc, videoSsrc, speaking) {
     prev.audioSsrc = prev.ssrc;
   }
   remoteUsers.set(key, prev);
-  if (conn && connConnected && prev.ssrc > 0) {
+  if (conn && connConnected && prev.id && String(prev.id) !== String(currentUserId)) {
     try {
       conn.mergeUsers([prev]);
     } catch (_) {}
@@ -3252,6 +3270,8 @@ rl.on("line", (line) => {
     currentUserId = String(msg.userId || "");
     currentChannelId = String(msg.channelId || "");
     currentLocalSsrc = Number(msg.ssrc || 1);
+    if (typeof msg.videoSsrc === "number" && msg.videoSsrc > 0) currentVideoSsrc = Number(msg.videoSsrc);
+    if (typeof msg.rtxSsrc === "number" && msg.rtxSsrc > 0) currentRtxSsrc = Number(msg.rtxSsrc);
     if (typeof msg.selfMute === "boolean") currentSelfMute = msg.selfMute;
     if (typeof msg.selfDeafen === "boolean") currentSelfDeafen = msg.selfDeafen;
     if (typeof msg.streamMuted === "boolean") currentStreamMuted = msg.streamMuted;
@@ -3259,6 +3279,8 @@ rl.on("line", (line) => {
     const connContext = isStreamWorker ? "stream" : String(msg.context || "default");
     const isStreamConn = connContext === "stream";
     isSelfBroadcaster = Boolean(msg.isSelfBroadcaster) || (isStreamConn && String(msg.streamUserId || "") === currentUserId);
+    const effVideoSsrc = currentVideoSsrc > 0 ? currentVideoSsrc : currentLocalSsrc + 1;
+    const effRtxSsrc = currentRtxSsrc > 0 ? currentRtxSsrc : currentLocalSsrc + 2;
     const modes = Array.isArray(msg.modes) && msg.modes.length > 0
       ? msg.modes
       : ["aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize"];
@@ -3281,8 +3303,8 @@ rl.on("line", (line) => {
           {
             type: "video",
             rid: "100",
-            ssrc: currentLocalSsrc + 1,
-            rtxSsrc: currentLocalSsrc + 2,
+            ssrc: effVideoSsrc,
+            rtxSsrc: effRtxSsrc,
             quality: 100,
             active: true,
             maxBitrate: 4500000,
@@ -3323,8 +3345,8 @@ rl.on("line", (line) => {
           attachConnCallbacks(conn);
           dv.setTransportOptions({
             echoCancellation: !isStreamConn,
-            noiseSuppression: !isStreamConn && Boolean(currentKrispEnabled),
-            noiseCancellation: false,
+            noiseSuppression: !isStreamConn && !currentKrispEnabled,
+            noiseCancellation: !isStreamConn && Boolean(currentKrispEnabled),
             automaticGainControl: !isStreamConn && Boolean(currentAutoGain),
             ducking: 0
           });
@@ -3333,7 +3355,7 @@ rl.on("line", (line) => {
             inputModeOptions: {
               vadThreshold: isStreamConn ? -60 : currentVadThreshold,
               vadAutoThreshold: (!isStreamConn && currentAutoSensitivity) ? 3 : -1,
-              vadUseKrisp: false,
+              vadUseKrisp: !isStreamConn && Boolean(currentKrispEnabled),
               vadLeading: 5,
               vadTrailing: 25
             },
@@ -3390,11 +3412,13 @@ rl.on("line", (line) => {
         }
       ];
       if (isStreamWorker) {
+        const effVideoSsrc = currentVideoSsrc > 0 ? currentVideoSsrc : currentLocalSsrc + 1;
+        const effRtxSsrc = currentRtxSsrc > 0 ? currentRtxSsrc : currentLocalSsrc + 2;
         streamParams.push({
           type: "video",
           rid: "100",
-          ssrc: currentLocalSsrc + 1,
-          rtxSsrc: currentLocalSsrc + 2,
+          ssrc: effVideoSsrc,
+          rtxSsrc: effRtxSsrc,
           quality: 100,
           active: true,
           maxBitrate: rates.videoMax,
@@ -3405,23 +3429,45 @@ rl.on("line", (line) => {
           maxResolution: { type: "fixed", width: 1280, height: 720 }
         });
       }
+      const isVp8Negotiated = Boolean(msg.videoCodec && String(msg.videoCodec).toUpperCase() === "VP8");
+      const videoEncoderCfg = isVp8Negotiated
+        ? {
+            name: "VP8",
+            type: 107,
+            rtxType: 108,
+            maxFrameRate: 60,
+            maxBitrate: rates.videoMax,
+            minBitrate: 350000,
+            targetBitrate: rates.videoTarget,
+            width: 1280,
+            height: 720,
+            params: {}
+          }
+        : {
+            name: "H264",
+            type: 105,
+            rtxType: 106,
+            maxFrameRate: 60,
+            maxBitrate: rates.videoMax,
+            minBitrate: 350000,
+            targetBitrate: rates.videoTarget,
+            width: 1280,
+            height: 720,
+            params: {
+              "level-asymmetry-allowed": "1",
+              "packetization-mode": "1",
+              "profile-level-id": "42e034",
+              "hardware-h264": (typeof dv.isVaapiEnabled === "function" && dv.isVaapiEnabled()) ? "1" : "0",
+              "libopenh264": "1",
+              "libopenh264-path": "/home/sanya/.config/discord/discord_asset_cache/openh264/libopenh264-2.7.0-linux64.8.so"
+            }
+          };
       conn.setTransportOptions({
         audioEncoder: { type: 120, name: "opus", freq: 48000, pacsize: 960, channels: isStreamWorker ? 2 : 1, rate: rates.voiceRate },
         audioDecoders: [{ type: 120, name: "opus", freq: 48000, channels: 2, params: { stereo: "1" } }],
         fec: true,
         packetLossRate: rates.lossRate,
-        videoEncoder: {
-          name: "VP8",
-          type: 107,
-          rtxType: 108,
-          maxFrameRate: 60,
-          maxBitrate: rates.videoMax,
-          minBitrate: 350000,
-          targetBitrate: rates.videoTarget,
-          width: 1280,
-          height: 720,
-          params: {}
-        },
+        videoEncoder: videoEncoderCfg,
         videoDecoders: [
           {
             name: "H264",
@@ -3431,7 +3477,7 @@ rl.on("line", (line) => {
               "level-asymmetry-allowed": "1",
               "packetization-mode": "1",
               "profile-level-id": "42e034",
-              "hardware-h264": "0",
+              "hardware-h264": (typeof dv.isVaapiEnabled === "function" && dv.isVaapiEnabled()) ? "1" : "0",
               "libopenh264": "1",
               "libopenh264-path": "/home/sanya/.config/discord/discord_asset_cache/openh264/libopenh264-2.7.0-linux64.8.so"
             }
@@ -3552,7 +3598,7 @@ rl.on("line", (line) => {
           if (typeof conn.setLocalMute === "function") conn.setLocalMute(uid, Boolean(prevPref.mute || prevPref.volume === 0));
           if (typeof conn.setLocalVolume === "function") conn.setLocalVolume(uid, prevPref.volume);
         } catch (_) {}
-        if (connConnected && u && u.ssrc > 0) {
+        if (connConnected && u && u.id && String(u.id) !== String(currentUserId)) {
           try { conn.mergeUsers([u]); } catch (_) {}
         }
       }
@@ -3645,22 +3691,25 @@ rl.on("line", (line) => {
   } else if (cmd === "client_connect" && Array.isArray(msg.userIds)) {
     for (const uid of msg.userIds) {
       const key = String(uid || "");
-      if (key && key !== String(currentUserId) && !remoteUsers.has(key)) {
-        const pref = perUserAudioPrefs.get(key);
-        remoteUsers.set(key, {
-          id: key,
-          audioSsrc: 0,
-          ssrc: 0,
-          videoSsrc: 0,
-          videoSsrcs: [],
-          rtxSsrc: 0,
-          mute: isStreamWorker ? Boolean(currentStreamMuted || currentStreamVolume === 0) : Boolean(pref ? pref.mute : false),
-          volume: isStreamWorker
-            ? (currentStreamMuted ? 0 : Math.max(0, Math.min(200, currentStreamVolume)) / 100.0)
-            : Number(pref ? pref.volume : 1.0)
-        });
+      if (key && key !== String(currentUserId)) {
+        if (!remoteUsers.has(key)) {
+          const pref = perUserAudioPrefs.get(key);
+          remoteUsers.set(key, {
+            id: key,
+            audioSsrc: 0,
+            ssrc: 0,
+            videoSsrc: 0,
+            videoSsrcs: [],
+            rtxSsrc: 0,
+            mute: isStreamWorker ? Boolean(currentStreamMuted || currentStreamVolume === 0) : Boolean(pref ? pref.mute : false),
+            volume: isStreamWorker
+              ? (currentStreamMuted ? 0 : Math.max(0, Math.min(200, currentStreamVolume)) / 100.0)
+              : Number(pref ? pref.volume : 1.0)
+          });
+        }
       }
     }
+    flushMergedUsersToConn(false);
   } else if (cmd === "disconnect_user") {
     const key = String(msg.userId || "");
     remoteUsers.delete(key);
@@ -3686,10 +3735,22 @@ rl.on("line", (line) => {
         try {
           dv.setTransportOptions({
             echoCancellation: true,
-            noiseCancellation: false,
-            noiseSuppression: Boolean(currentKrispEnabled),
+            noiseCancellation: Boolean(currentKrispEnabled),
+            noiseSuppression: !currentKrispEnabled,
             automaticGainControl: Boolean(currentAutoGain)
           });
+          if (conn) {
+            conn.setTransportOptions({
+              inputMode: 1,
+              inputModeOptions: {
+                vadThreshold: currentVadThreshold,
+                vadAutoThreshold: currentAutoSensitivity ? 3 : -1,
+                vadUseKrisp: Boolean(currentKrispEnabled),
+                vadLeading: 5,
+                vadTrailing: 25
+              }
+            });
+          }
         } catch (_) {}
       }
     }
@@ -3699,8 +3760,8 @@ rl.on("line", (line) => {
         try {
           dv.setTransportOptions({
             echoCancellation: true,
-            noiseCancellation: false,
-            noiseSuppression: Boolean(currentKrispEnabled),
+            noiseCancellation: Boolean(currentKrispEnabled),
+            noiseSuppression: !currentKrispEnabled,
             automaticGainControl: Boolean(currentAutoGain)
           });
         } catch (_) {}
@@ -3720,7 +3781,7 @@ rl.on("line", (line) => {
             inputModeOptions: {
               vadThreshold: currentVadThreshold,
               vadAutoThreshold: currentAutoSensitivity ? 3 : -1,
-              vadUseKrisp: false,
+              vadUseKrisp: Boolean(currentKrispEnabled),
               vadLeading: 5,
               vadTrailing: 25
             }
@@ -3729,6 +3790,21 @@ rl.on("line", (line) => {
       }
     }
     applyVoiceMuteAndVolumeState();
+  } else if (cmd === "loopback") {
+    const active = Boolean(msg.active);
+    try {
+      if (typeof dv.setLoopback === "function") {
+        dv.setLoopback(active, {
+          echoCancellation: true,
+          noiseCancellation: Boolean(currentKrispEnabled),
+          noiseSuppression: !currentKrispEnabled,
+          automaticGainControl: Boolean(currentAutoGain)
+        });
+        sendEv({ ev: "log", msg: "setLoopback active=" + active + " krisp=" + currentKrispEnabled });
+      }
+    } catch (e) {
+      sendEv({ ev: "log", msg: "setLoopback err: " + (e && e.message) });
+    }
   } else if (cmd === "set_stream") {
     applyScreenBroadcast(Boolean(msg.broadcasting));
   } else if (cmd === "stop") {
@@ -3875,6 +3951,7 @@ pub fn stop_live_stream_rtc_session() {
 
 /// Останавливает активную RTC-сессию и немедленно завершает дочерние воркеры голоса и стрима.
 pub fn stop_live_rtc_session() {
+    let _ = queue_live_voice_state(None, None, false, false);
     LIVE_RTC_GENERATION.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     LIVE_STREAM_RTC_GENERATION.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     NATIVE_VOICE_ACTIVE.store(false, std::sync::atomic::Ordering::SeqCst);
@@ -4812,8 +4889,13 @@ async fn run_rtc_task(
             .env("XDG_SESSION_TYPE", "x11")
             .env("DV_GPU_VENDOR", &gpu_caps.vendor)
             .env("DV_PREFERRED_CODEC", &gpu_caps.preferred_video_codec)
-            .env("PULSE_LATENCY_MSEC", "20")
-            .env_remove("WAYLAND_DISPLAY")
+            .env("PULSE_LATENCY_MSEC", "20");
+        if let Ok(disp) = std::env::var("DISPLAY") {
+            cmd_builder.env("DISPLAY", disp);
+        } else {
+            cmd_builder.env("DISPLAY", ":0");
+        }
+        cmd_builder
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::null());
@@ -4973,6 +5055,8 @@ async fn run_rtc_task(
         std::collections::HashMap::new();
     let mut srtp_ctx: Option<discord_voice::srtp::SrtpContext> = None;
     let mut local_ssrc: u32 = 1;
+    let mut sfu_video_ssrc: Option<u32> = None;
+    let mut sfu_rtx_ssrc: Option<u32> = None;
     let mut known_video_ssrcs: Vec<i64> = Vec::new();
     let mut session_desc_received = false;
     let mut rtp_seq: u16 = 1;
@@ -5095,6 +5179,31 @@ async fn run_rtc_task(
                             .and_then(discord_json::JsonValue::as_i64)
                             .unwrap_or(1) as u32;
                         local_ssrc = ssrc;
+                        if let Some(streams_arr) = d
+                            .and_then(|d| d.get("streams"))
+                            .and_then(discord_json::JsonValue::as_array)
+                        {
+                            for s in streams_arr {
+                                let stype = s
+                                    .get("type")
+                                    .and_then(discord_json::JsonValue::as_str)
+                                    .unwrap_or("");
+                                if stype == "video" || stype == "screen" {
+                                    if let Some(v) = s
+                                        .get("ssrc")
+                                        .and_then(discord_json::JsonValue::as_i64)
+                                    {
+                                        sfu_video_ssrc = Some(v as u32);
+                                    }
+                                    if let Some(r) = s
+                                        .get("rtx_ssrc")
+                                        .and_then(discord_json::JsonValue::as_i64)
+                                    {
+                                        sfu_rtx_ssrc = Some(r as u32);
+                                    }
+                                }
+                            }
+                        }
                         let ip = d
                             .and_then(|d| d.get("ip"))
                             .and_then(discord_json::JsonValue::as_str)
@@ -5104,7 +5213,9 @@ async fn run_rtc_task(
                             .and_then(|d| d.get("port"))
                             .and_then(discord_json::JsonValue::as_i64)
                             .unwrap_or(0) as u16;
-                        println!("[VOICE-RTC] OP 2 READY ssrc={ssrc} media_udp={ip}:{port}");
+                        println!(
+                            "[VOICE-RTC] OP 2 READY ssrc={ssrc} sfu_video_ssrc={sfu_video_ssrc:?} sfu_rtx_ssrc={sfu_rtx_ssrc:?} media_udp={ip}:{port}"
+                        );
                         if !is_stream_conn {
                             let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
                             g.ssrc = ssrc;
@@ -5116,12 +5227,17 @@ async fn run_rtc_task(
                             use std::io::Write as _;
                             let (smuted, svol) = get_live_stream_audio_state();
                             let (vmute, vdeaf) = get_live_voice_mute_deaf_state();
+                            let sfu_ssrc_field = match (sfu_video_ssrc, sfu_rtx_ssrc) {
+                                (Some(v), Some(r)) => format!(",\"videoSsrc\":{v},\"rtxSsrc\":{r}"),
+                                (Some(v), None) => format!(",\"videoSsrc\":{v},\"rtxSsrc\":{}", v.wrapping_add(1)),
+                                _ => String::new(),
+                            };
                             let stream_uid_field = match stream_owner_id.as_deref() {
                                 Some(su) => format!(
-                                    ",\"context\":\"stream\",\"streamUserId\":\"{su}\",\"isSelfBroadcaster\":{is_self_broadcaster},\"streamMuted\":{smuted},\"streamVolume\":{svol}"
+                                    ",\"context\":\"stream\",\"streamUserId\":\"{su}\",\"isSelfBroadcaster\":{is_self_broadcaster},\"streamMuted\":{smuted},\"streamVolume\":{svol}{sfu_ssrc_field}"
                                 ),
                                 None => format!(
-                                    ",\"selfMute\":{vmute},\"selfDeafen\":{vdeaf}"
+                                    ",\"selfMute\":{vmute},\"selfDeafen\":{vdeaf}{sfu_ssrc_field}"
                                 ),
                             };
                             let cmd = format!(
@@ -5175,7 +5291,7 @@ async fn run_rtc_task(
                                     }
                                     let can_encode = !is_stream_conn || is_self_broadcaster;
                                     let select_proto = format!(
-                                        "{{\"op\":1,\"d\":{{\"protocol\":\"udp\",\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"aead_aes256_gcm_rtpsize\",\"data\":{{\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"aead_aes256_gcm_rtpsize\"}},\"codecs\":[{{\"name\":\"opus\",\"type\":\"audio\",\"priority\":1000,\"payload_type\":120}},{{\"name\":\"VP8\",\"type\":\"video\",\"priority\":1000,\"payload_type\":107,\"rtx_payload_type\":108,\"encode\":{can_encode},\"decode\":true}},{{\"name\":\"H264\",\"type\":\"video\",\"priority\":2000,\"payload_type\":105,\"rtx_payload_type\":106,\"encode\":false,\"decode\":true}},{{\"name\":\"AV1\",\"type\":\"video\",\"priority\":3000,\"payload_type\":101,\"rtx_payload_type\":102,\"encode\":false,\"decode\":true}}]}}}}"
+                                        "{{\"op\":1,\"d\":{{\"protocol\":\"udp\",\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"aead_aes256_gcm_rtpsize\",\"data\":{{\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"aead_aes256_gcm_rtpsize\"}},\"codecs\":[{{\"name\":\"opus\",\"type\":\"audio\",\"priority\":1000,\"payload_type\":120}},{{\"name\":\"H264\",\"type\":\"video\",\"priority\":1000,\"payload_type\":105,\"rtx_payload_type\":106,\"encode\":{can_encode},\"decode\":true}},{{\"name\":\"VP8\",\"type\":\"video\",\"priority\":2000,\"payload_type\":107,\"rtx_payload_type\":108,\"encode\":{can_encode},\"decode\":true}},{{\"name\":\"AV1\",\"type\":\"video\",\"priority\":3000,\"payload_type\":101,\"rtx_payload_type\":102,\"encode\":false,\"decode\":true}}]}}}}"
                                     );
                                     let _ = ws.send(Message::Text(select_proto.into())).await;
                                     udp_sock = Some(sock);
@@ -5252,8 +5368,8 @@ async fn run_rtc_task(
                         }
                         if is_stream_conn {
                             if is_self_broadcaster {
-                                let v_ssrc = local_ssrc.wrapping_add(1);
-                                let r_ssrc = local_ssrc.wrapping_add(2);
+                                let v_ssrc = sfu_video_ssrc.unwrap_or_else(|| local_ssrc.wrapping_add(1));
+                                let r_ssrc = sfu_rtx_ssrc.unwrap_or_else(|| local_ssrc.wrapping_add(2));
                                 let op12_broadcaster = format!(
                                     "{{\"op\":12,\"d\":{{\"audio_ssrc\":{local_ssrc},\"video_ssrc\":{v_ssrc},\"rtx_ssrc\":{r_ssrc},\"streams\":[{{\"type\":\"video\",\"rid\":\"100\",\"ssrc\":{v_ssrc},\"active\":true,\"quality\":100,\"rtx_ssrc\":{r_ssrc},\"max_bitrate\":2500000,\"max_framerate\":30,\"max_resolution\":{{\"type\":\"fixed\",\"width\":1280,\"height\":720}}}}]}}}}"
                                 );
@@ -5286,7 +5402,7 @@ async fn run_rtc_task(
                             use std::io::Write as _;
                             let (vmute, vdeaf) = get_live_voice_mute_deaf_state();
                             let cmd = format!(
-                                "{{\"cmd\":\"session_description\",\"mode\":\"{mode}\",\"secretKey\":[{secret_key_csv}],\"daveVersion\":{dave_ver},\"channelId\":\"{cid}\",\"selfMute\":{vmute},\"selfDeafen\":{vdeaf}}}\n"
+                                "{{\"cmd\":\"session_description\",\"mode\":\"{mode}\",\"videoCodec\":\"{video_codec}\",\"secretKey\":[{secret_key_csv}],\"daveVersion\":{dave_ver},\"channelId\":\"{cid}\",\"selfMute\":{vmute},\"selfDeafen\":{vdeaf}}}\n"
                             );
                             let _ = stdin.write_all(cmd.as_bytes());
                             let _ = stdin.flush();
@@ -5420,7 +5536,10 @@ async fn run_rtc_task(
                         {
                             let mut uids_json = Vec::new();
                             for item in arr {
-                                if let Some(u) = item.as_str() {
+                                let uid_opt = item.as_str().map(|s| s.to_string())
+                                    .or_else(|| item.as_i64().map(|n| n.to_string()))
+                                    .or_else(|| item.as_u64().map(|n| n.to_string()));
+                                if let Some(u) = uid_opt {
                                     uids_json.push(format!("\"{u}\""));
                                 }
                             }
@@ -5443,10 +5562,14 @@ async fn run_rtc_task(
                         }
                     }
                     5 => {
-                        if let Some(uid) = d
+                        let uid_opt = d
                             .and_then(|d| d.get("user_id"))
-                            .and_then(discord_json::JsonValue::as_str)
-                        {
+                            .and_then(|v| {
+                                v.as_str().map(|s| s.to_string())
+                                    .or_else(|| v.as_i64().map(|n| n.to_string()))
+                                    .or_else(|| v.as_u64().map(|n| n.to_string()))
+                            });
+                        if let Some(uid) = uid_opt {
                             let peer_ssrc = d
                                 .and_then(|d| d.get("ssrc"))
                                 .and_then(discord_json::JsonValue::as_i64)
@@ -5469,21 +5592,25 @@ async fn run_rtc_task(
                                 let _ = stdin.flush();
                             }
                             let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
-                            g.speaking_users.retain(|u| u != uid);
+                            g.speaking_users.retain(|u| u != &uid);
                             if flags != 0 {
                                 g.speaking_users.push(uid.to_string());
                                 rtp_speaking_until
                                     .insert(uid.to_string(), Instant::now() + Duration::from_secs(8));
                             } else {
-                                rtp_speaking_until.remove(uid);
+                                rtp_speaking_until.remove(&uid);
                             }
                         }
                     }
                     12 | 18 => {
-                        if let Some(uid) = d
+                        let uid_opt = d
                             .and_then(|d| d.get("user_id"))
-                            .and_then(discord_json::JsonValue::as_str)
-                        {
+                            .and_then(|v| {
+                                v.as_str().map(|s| s.to_string())
+                                    .or_else(|| v.as_i64().map(|n| n.to_string()))
+                                    .or_else(|| v.as_u64().map(|n| n.to_string()))
+                            });
+                        if let Some(uid) = uid_opt {
                             let audio_ssrc = d
                                 .and_then(|d| d.get("audio_ssrc").or_else(|| d.get("ssrc")))
                                 .and_then(discord_json::JsonValue::as_i64)
@@ -5536,10 +5663,14 @@ async fn run_rtc_task(
                         }
                     }
                     13 => {
-                        if let Some(uid) = d
+                        let uid_opt = d
                             .and_then(|d| d.get("user_id"))
-                            .and_then(discord_json::JsonValue::as_str)
-                        {
+                            .and_then(|v| {
+                                v.as_str().map(|s| s.to_string())
+                                    .or_else(|| v.as_i64().map(|n| n.to_string()))
+                                    .or_else(|| v.as_u64().map(|n| n.to_string()))
+                            });
+                        if let Some(uid) = uid_opt {
                             if let Some(stdin) = dv_stdin.as_mut() {
                                 use std::io::Write as _;
                                 let cmd = format!(
@@ -5550,9 +5681,9 @@ async fn run_rtc_task(
                             } else {
                                 let _ = v8_state.on_text_frame(&text);
                             }
-                            rtp_speaking_until.remove(uid);
+                            rtp_speaking_until.remove(&uid);
                             let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
-                            g.speaking_users.retain(|u| u != uid);
+                            g.speaking_users.retain(|u| u != &uid);
                         }
                     }
                     6 => {
@@ -5597,7 +5728,7 @@ async fn run_rtc_task(
                                 );
                                 let can_encode = !is_stream_conn || is_self_broadcaster;
                                 let select_proto = format!(
-                                    "{{\"op\":1,\"d\":{{\"protocol\":\"udp\",\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"{mode}\",\"data\":{{\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"{mode}\"}},\"codecs\":[{{\"name\":\"opus\",\"type\":\"audio\",\"priority\":1000,\"payload_type\":120}},{{\"name\":\"VP8\",\"type\":\"video\",\"priority\":1000,\"payload_type\":107,\"rtx_payload_type\":108,\"encode\":{can_encode},\"decode\":true}},{{\"name\":\"H264\",\"type\":\"video\",\"priority\":2000,\"payload_type\":105,\"rtx_payload_type\":106,\"encode\":false,\"decode\":true}},{{\"name\":\"AV1\",\"type\":\"video\",\"priority\":3000,\"payload_type\":101,\"rtx_payload_type\":102,\"encode\":false,\"decode\":true}}]}}}}"
+                                    "{{\"op\":1,\"d\":{{\"protocol\":\"udp\",\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"{mode}\",\"data\":{{\"address\":\"{ext_ip}\",\"port\":{ext_port},\"mode\":\"{mode}\"}},\"codecs\":[{{\"name\":\"opus\",\"type\":\"audio\",\"priority\":1000,\"payload_type\":120}},{{\"name\":\"H264\",\"type\":\"video\",\"priority\":1000,\"payload_type\":105,\"rtx_payload_type\":106,\"encode\":{can_encode},\"decode\":true}},{{\"name\":\"VP8\",\"type\":\"video\",\"priority\":2000,\"payload_type\":107,\"rtx_payload_type\":108,\"encode\":{can_encode},\"decode\":true}},{{\"name\":\"AV1\",\"type\":\"video\",\"priority\":3000,\"payload_type\":101,\"rtx_payload_type\":102,\"encode\":false,\"decode\":true}}]}}}}"
                                 );
                                 let _ = ws.send(Message::Text(select_proto.into())).await;
                             }

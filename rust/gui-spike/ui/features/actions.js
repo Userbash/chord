@@ -1068,6 +1068,18 @@ export function initActions(context) {
       // L-01: только ручной retry; ошибка показывается баннером, без авто-цикла.
       void net?.retry();
     },
+    "captcha-cancel": () => {
+      // TASK-637: закрытие модалки hCaptcha управляется собственным листенером
+    },
+    "captcha-submit": () => {
+      // TASK-637: отправка решения hCaptcha управляется собственным листенером
+    },
+    "captcha-close": () => {
+      // TASK-637: закрытие модалки hCaptcha
+    },
+    "toggle-hide-offline-members": () => {
+      // TASK-638: переключение фильтра оффлайн участников сервера
+    },
   };
 
   for (const actionNode of [...document.querySelectorAll("[data-action]")]) {

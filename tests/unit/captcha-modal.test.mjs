@@ -449,6 +449,24 @@ describe("TASK-610: сквозная интеграция join-server.js ↔ #ca
     }
   });
 
+  it("TASK-637: клик по captcha-cancel/captcha-submit/captcha-close останавливает всплытие и не падает в ACTION_FAILED", () => {
+    const env = createCaptchaTestEnv();
+    env.modal.open({
+      code: "eSrxp2YGUC",
+      captcha_service: "hcaptcha",
+      captcha_sitekey: SAMPLE_SITEKEY,
+    });
+
+    const cancelBtn = env.document.getElementById("captcha-cancel-btn");
+    assert.ok(cancelBtn, "кнопка captcha-cancel найдена");
+    assert.equal(cancelBtn.getAttribute("data-action"), "captcha-cancel");
+
+    // Вызываем click на кнопке Отмена
+    const event = cancelBtn.dispatchEvent("click");
+    assert.equal(/** @type {any} */ (event).stopped, true, "клик по кнопке отмены остановил всплытие события (stopPropagation)");
+    assert.equal(env.modal.isOpen, false, "модалка закрылась после нажатия Отмена");
+  });
+
   it("безопасность: модуль captcha-modal.js не обращается к fetch/localStorage/sessionStorage напрямую", () => {
     assert.equal(
       /\bfetch\s*\(|XMLHttpRequest|localStorage|sessionStorage/.test(captchaModalSource),

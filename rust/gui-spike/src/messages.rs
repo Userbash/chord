@@ -78,11 +78,24 @@ impl From<crate::rest_failure::RestFailure> for MessageError {
     }
 }
 
+fn deserialize_nonce<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+    match value {
+        serde_json::Value::String(s) => Ok(s),
+        serde_json::Value::Number(n) => Ok(n.to_string()),
+        _ => Ok(String::new()),
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, serde::Serialize)]
 pub struct MessageReceipt {
     pub id: String,
     pub channel_id: String,
     pub content: String,
+    #[serde(default, deserialize_with = "deserialize_nonce")]
     pub nonce: String,
 }
 
@@ -269,9 +282,11 @@ impl MessageActions for DiscordMessageSender {
         Box::pin(async move {
             validate_ids(&[channel_id, message_id])?;
             let path = format!("/channels/{channel_id}/messages/{message_id}");
+            eprintln!("[IPC-DELETE] Sending DELETE to Discord: {path}");
             let res = self
                 .action(discord_core::rest::routes::HttpMethod::Delete, &path, None)
                 .await;
+            eprintln!("[IPC-DELETE] Response for {path}: {res:?}");
             if res.is_ok() {
                 crate::data::remove_deleted_message(channel_id, message_id);
             }

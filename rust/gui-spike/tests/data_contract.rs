@@ -947,6 +947,47 @@ fn member_item_without_user_id_is_parse_error() {
     cleanup(&group_root);
 }
 
+#[test]
+fn task_638_members_page_sanitizes_unresolved_snowflake_names() {
+    let root = temp_root("snowflake-sanitizer-test");
+    write_minimal_ready(&root, "42", "1");
+    // Снимок с участником, у которого нет ни ника, ни имени, только ID в виде снежинки
+    let update = serde_json::json!({
+        "t": "GUILD_MEMBER_LIST_UPDATE",
+        "d": {
+            "guild_id": "1",
+            "ops": [{
+                "op": "SYNC",
+                "items": [
+                    {"group": {"id": "online"}},
+                    {"member": {"user": {"id": "1027985969112166410"}}},
+                ],
+            }],
+        },
+    });
+    fs::write(
+        root.join("gateway/by-type/001-member-list.json"),
+        update.to_string(),
+    )
+    .expect("пишем снимок участников");
+
+    let page = data::members_page(&root, "1", None, None).expect("страница участников");
+    assert_eq!(page.items.len(), 1);
+    let member = &page.items[0];
+    assert_eq!(member.id, "1027985969112166410");
+    assert_eq!(
+        member.display_name, "Участник 6410",
+        "Имя участника не должно быть сырым снежинкой, ожидается 'Участник 6410', получено {:?}",
+        member.display_name
+    );
+    assert_eq!(
+        member.username, "user_6410",
+        "Логин участника не должен быть сырым снежинкой, ожидается 'user_6410', получено {:?}",
+        member.username
+    );
+    cleanup(&root);
+}
+
 // ---------------------------------------------------------------------------
 // W39i: поля сообщений из фикстур (embeds/attachments/reactions/reply/day/group)
 // ---------------------------------------------------------------------------

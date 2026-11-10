@@ -71,6 +71,16 @@ PSS дерева **393,9 → 276,2 МБ** (≤300), 60 fps p95 18 мс, cold sta
 мутации model.js 12 caught (2 эквивалентных), targeted 66/66, live smoke 1/1.
 Счётчик PLAN не меняется: **48/90**. Артефакты — `waves/RW-37/`, `ADR-1.md` §6.
 
+Дополнено 2026-11-10: Волна RW-42 (GPUI-миграция и живой паритет). Закрыты карточки TASK-701–TASK-740:
+устранена коллизия VoicePanel на профиль (жёсткий 52px контейнер, single-line ellipsis, zero-overflow),
+скрытие фейкового статуса RTC при отсутствии голосовой сессии (voice_session = None),
+реализовано полноценное модальное окно «Добавить сервер» (+) с выбором шаблонов и интерактивным вводом
+ссылки/кода приглашения (`discord.gg/...`, поддержка Backspace, буфера 📋 и очистки ✕),
+экран обзора сообществ `ExploreView` (🧭), двусторонняя отправка сообщений и подгрузка истории каналов
+через официальный REST API v9 (`GET /channels/{id}/messages`), динамическое обнаружение участников гильдии
+в обход ограничения HTTP 403, 55/55 контрактов GPUI 100% pass (7.67с). Чистая релизная сборка target/release/discord-gpui (55 МБ).
+Артефакты — `waves/RW-42-GPUI-MIGRATION/TASKS-GPUI.md`.
+
 ## Как читать
 
 - **ID**: `W<волна>-<группа>-<номер>` — инфраструктура/тесты/делегирование;
@@ -875,3 +885,63 @@ N3 — в backlog. Отчёт: `waves/RW-09/report.md`; ревью: `waves/revie
   пометить при следующем касании.
 - Процесс (нит ревью RW-04): в red/green-логи волн включать `# EXIT=…` и md5 тест-файла — связь
   «red снят на финальном тесте» должна доказываться содержимым лога, а не mtime.
+
+---
+
+## RW-42: Полная миграция с Tauri на GPUI Kit (`gpui-kit`) и Замена самописного кода
+
+- **Цель**: Полный перенос на нативный GPU Rust UI фреймворк `/home/sanya/orca/project/gpui-kit` (75+ компонентов, VirtualList, Markdown TextView, Dialogs, Webview). Ликвидация 107 JS-файлов, CSS, IPC-моста и самописных костылей.
+- **Архитектурный манифест**: [`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`](file:///home/sanya/orca/project/docs/specs/GPUI-ARCHITECTURE-MIGRATION.md)
+- **Детальная доска задач волны**: [`waves/RW-42-GPUI-MIGRATION/TASKS-GPUI.md`](file:///home/sanya/orca/project/waves/RW-42-GPUI-MIGRATION/TASKS-GPUI.md)
+
+### Доска задач волны RW-42
+
+| ID | Приоритет | Отдел / Ответственный | Задача | Статус |
+|---|---|---|---|---|
+| **TASK-701** | `P0` | **Chief Architect** + **DevOps** | Инициализация крейта `discord-gpui`, окно 1280x720, запуск `gpui-kit` | `[ ]` todo |
+| **TASK-702** | `P0` | **Chief Architect** + **G1 Backend** | Реактивная модель `AppState` (`Model<T>`), связь Tokio ↔ GPUI | `[ ]` todo |
+| **TASK-703** | `P0` | **G3 Design Lead** | Тема `DiscordDarkTheme` в `gpui-kit::ActiveTheme`, ассеты и типографика | `[ ]` todo |
+| **TASK-704** | `P0` | **G1 Backend Lead** | REST v9 клиент на базе `reqwest` + `backoff` (замена самописного HTTP) | `[ ]` todo |
+| **TASK-705** | `P0` | **G4 QA Lead** | Headless UI тест-харнесс на `gpui::TestAppContext` (без Chromium/Xvfb) | `[ ]` todo |
+| **TASK-706** | `P1` | **G2 Frontend Lead** | Трехпанельный макет `AppLayout` на базе `h_resizable` | `[ ]` todo |
+| **TASK-707** | `P1` | **G2 Frontend Lead** | Колонка серверов `ServerRail`, индикаторы, бейджи непрочитанного | `[ ]` todo |
+| **TASK-708** | `P1` | **G2 Frontend Lead** | Список каналов `ChannelSidebar`, категории, плашка текущего юзера | `[ ]` todo |
+| **TASK-709** | `P1` | **G2 Frontend Lead** + **G1 Backend** | Виртуальный скроллинг чата `ChatView` на базе `virtual_list` (100k) | `[ ]` todo |
+| **TASK-710** | `P1` | **G2 Frontend Lead** + **G3 Design** | Рендеринг сообщений: `TextView` (Markdown + Syntect подсветка синтаксиса) | `[ ]` todo |
+| **TASK-711** | `P1` | **G2 Frontend Lead** | Ввод сообщений `MessageBar` на базе `gpui-component::input` | `[ ]` todo |
+| **TASK-712** | `P2` | **G2 Frontend Lead** + **Architect** | Модальное окно решения hCaptcha на базе `gpui-webview::WebView` | `[ ]` todo |
+| **TASK-713** | `P2` | **G2 Frontend Lead** | Диалоги создания и вступления на сервер (`Join/Create Guild`) | `[ ]` todo |
+| **TASK-714** | `P2` | **G2 Frontend Lead** | Виртуализированный список участников `MemberSidebar` (25k) | `[ ]` todo |
+| **TASK-715** | `P2` | **G2 Frontend Lead** + **G3 Design** | Окно настроек `SettingsDialog` (аккаунт, голос, звук, тема) | `[ ]` todo |
+| **TASK-716** | `P2` | **G2 Frontend Lead** | Нативное контекстное меню по ПКМ (`menu::DropdownMenu`) | `[ ]` todo |
+| **TASK-717** | `P3` | **G5 Voice Lead** | Нативный аудио-движок на базе `cpal` + VAD + Push-to-Talk | `[x]` accepted |
+| **TASK-718** | `P3` | **G5 Voice Lead** + **G2 Frontend** | Голосовая панель подключения и индикаторы говорящих | `[x]` accepted |
+| **TASK-719** | `P3` | **G5 Platform Lead** | Системный трей (`tray-icon`) и нативные уведомления (`notify-rust`) | `[ ]` todo |
+| **TASK-720** | `P3` | **G4 QA Lead** + **PM Review** | Финальная сертификация сборки, 120 FPS, RAM < 60 МБ, 25/25 мутаций | `[ ]` todo |
+| **TASK-721** | `P1` | **G3 Design** + **G2 Frontend** | Устранение наложения VoicePanel на профиль пользователя (Стрелка 2, 52px flex-none) | `[x]` accepted |
+| **TASK-722** | `P1` | **G1 Backend** + **G2 Frontend** | Полнофункциональное модальное окно создания и вступления на сервер по кнопке `+` (Стрелка 1) | `[x]` accepted |
+| **TASK-723** | `P1` | **G1 Backend Lead** | Двусторонняя отправка сообщений через официальный REST API v9 | `[x]` accepted |
+| **TASK-724** | `P1` | **G2 Frontend** + **G3 Design** | Экран обзора публичных сообществ ExploreView (Кнопка 🧭) | `[x]` accepted |
+| **TASK-725** | `P0` | **G4 QA Lead** | Расширение тестового харнесса до 48/48 контрактов | `[x]` accepted |
+| **TASK-726** | `P1` | **G2 Frontend Lead** | Устранение перехвата событий неактивными модальными окнами в AppLayout (.children) | `[x]` accepted |
+| **TASK-727** | `P1` | **G1 Backend Lead** | Загрузка и синхронизация реальных каналов серверов (GET /guilds/{id}/channels) для SISI 18+ PROJECT | `[x]` accepted |
+| **TASK-728** | `P0` | **G4 QA Lead** | Расширение тестового харнесса до 53/53 контрактов с верификацией живого инвайта | `[x]` accepted |
+| **TASK-729** | `P1` | **G1 Backend Lead** | Загрузка и кэширование сообщений гильдийных каналов через REST API (`GET /channels/{id}/messages`) | `[x]` accepted |
+| **TASK-730** | `P1` | **G1 Backend Lead** | Динамическое обнаружение и наполнение участников сервера из авторов сообщений (`MemberSidebar`) | `[x]` accepted |
+| **TASK-731** | `P1` | **G2 Frontend Lead** | Синхронизация выбора каналов гильдии и автоматический выбор первого текстового канала | `[x]` accepted |
+| **TASK-732** | `P1` | **G2 Frontend Lead** | Интерактивный ввод ссылки приглашения в `CreateGuildModal` (Стрелка 1: курсор, Backspace, Paste) | `[x]` accepted |
+| **TASK-733** | `P1` | **G5 Voice Lead** + **G2 Frontend** | Устранение наложения и фейкового статуса голосового подключения `VoicePanel` (Стрелка 2) | `[x]` accepted |
+| **TASK-734** | `P0` | **G4 QA Lead** | Расширение тестового харнесса до 55/55 контрактов GPUI | `[x]` accepted |
+| **TASK-735** | `P1` | **G1 Backend Lead** | Интеграция реального подключения к серверу через `POST /invites/{code}` | `[x]` accepted |
+| **TASK-736** | `P2` | **G5 Voice Lead** | Управление жизненным циклом голосовой сессии и интеграция аудио-устройств CPAL | `[x]` accepted |
+| **TASK-737** | `P1` | **G3 Design Lead** | Стилизация и паритет модального окна добавления сервера по стандартам Discord Dark | `[x]` accepted |
+| **TASK-738** | `P1` | **G2 Frontend Lead** | Изоляция контейнеров нижней панели сайдбара и профиля пользователя | `[x]` accepted |
+| **TASK-739** | `P1` | **G1 Backend** + **G2 Frontend** | Отображение реального профиля аутентифицированного пользователя вместо тестовых моков | `[x]` accepted |
+| **TASK-740** | `P0` | **G4 QA Lead** + **DevOps** | Автоматизированная регрессионная верификация сборки и релиз бинарника | `[x]` accepted |
+| **TASK-741** | `P1` | **G1 Backend Lead** | Реальные REST API действия сообщений: удаление, закрепление, открепление (`DELETE /channels/{id}/messages/{id}`) | `[x]` accepted |
+| **TASK-742** | `P1` | **G5 Voice Lead** | Прямой Voice UDP Media Streamer (`tokio::net::UdpSocket` + Keepalive + RTP Opus AES-256-GCM) | `[x]` accepted |
+| **TASK-743** | `P2` | **G5 Platform Lead** | Демонстрация экрана через Linux XDG Desktop Portal и PipeWire (`ScreenCastManager` / `ashpd`) | `[x]` accepted |
+| **TASK-744** | `P2` | **G5 Platform Lead** | Нативные D-Bus уведомления рабочего стола и системный трей Linux (меню 6 пунктов, бейджи) | `[x]` accepted |
+| **TASK-745** | `P2` | **G1 Backend Lead** | Сервер локального протокола Discord Local RPC IPC (`$XDG_RUNTIME_DIR/discord-ipc-0`) по эталону `rust-discord-activity` | `[x]` accepted |
+| **TASK-746** | `P0` | **G4 QA Lead** + **DevOps** | Автоматизированный регрессионный контрактный харнесс 61/61 (100% Pass) | `[x]` accepted |
+

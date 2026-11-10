@@ -91,8 +91,10 @@ struct LiveSession {
     stream_endpoint: Option<String>,
     stream_token: Option<String>,
     stream_launched_token: Option<String>,
+    stream_launched_server_id: Option<String>,
     resolved_invites: HashMap<String, Value>,
     local_preview_guilds: HashMap<String, Value>,
+    deleted_message_ids: HashSet<(String, String)>,
 }
 
 fn live_session() -> &'static Mutex<LiveSession> {
@@ -1451,7 +1453,8 @@ pub fn update_edited_message(channel_id: &str, message_id: &str, content: &str) 
     }
 }
 
-/// Удаляет сообщение из кэша `channel_messages`.
+/// Удаляет сообщение из кэша `channel_messages` и запоминает ID удалённого сообщения,
+/// предотвращая повторное воскрешение из фоновых GET /messages запросов.
 pub fn remove_deleted_message(channel_id: &str, message_id: &str) {
     let cid = channel_id.trim();
     let mid = message_id.trim();
@@ -1461,6 +1464,9 @@ pub fn remove_deleted_message(channel_id: &str, message_id: &str) {
     let mut guard = live_session()
         .lock()
         .unwrap_or_else(|poison| poison.into_inner());
+    guard
+        .deleted_message_ids
+        .insert((cid.to_string(), mid.to_string()));
     if let Some(list) = guard.channel_messages.get_mut(cid) {
         list.retain(|m| field_str(m, "id") != Some(mid));
     }
@@ -2897,8 +2903,27 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
             }
             "MESSAGE_DELETE" => {
                 if let (Some(cid), Some(mid)) = (field_str(data, "channel_id"), field_str(data, "id")) {
+                    guard
+                        .deleted_message_ids
+                        .insert((cid.to_string(), mid.to_string()));
                     if let Some(list) = guard.channel_messages.get_mut(cid) {
                         list.retain(|m| field_str(m, "id") != Some(mid));
+                    }
+                }
+            }
+            "MESSAGE_DELETE_BULK" => {
+                if let Some(cid) = field_str(data, "channel_id") {
+                    if let Some(Value::Array(ids)) = data.get("ids") {
+                        for mid_val in ids {
+                            if let Some(mid) = mid_val.as_str() {
+                                guard
+                                    .deleted_message_ids
+                                    .insert((cid.to_string(), mid.to_string()));
+                                if let Some(list) = guard.channel_messages.get_mut(cid) {
+                                    list.retain(|m| field_str(m, "id") != Some(mid));
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3391,8 +3416,11 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                     guard.stream_rtc_server_id.clone(),
                     sid,
                 ) {
-                    if guard.stream_launched_token.as_deref() != Some(tok_val.as_str()) {
+                    let needs_launch = guard.stream_launched_token.as_deref() != Some(tok_val.as_str())
+                        || guard.stream_launched_server_id.as_deref() != Some(srv_val.as_str());
+                    if needs_launch {
                         guard.stream_launched_token = Some(tok_val.clone());
+                        guard.stream_launched_server_id = Some(srv_val.clone());
                         stream_launch_params = Some((
                             ep_val,
                             srv_val,
@@ -3414,6 +3442,19 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                 }
                 guard.stream_endpoint = ep.clone();
                 guard.stream_token = tok.clone();
+                let skey_cid = skey.as_deref().and_then(|sk| {
+                    let parts: Vec<&str> = sk.split(':').collect();
+                    if parts.first() == Some(&"call") && parts.len() >= 3 {
+                        Some(parts[1].to_string())
+                    } else if parts.first() == Some(&"guild") && parts.len() >= 4 {
+                        Some(parts[2].to_string())
+                    } else {
+                        None
+                    }
+                });
+                if guard.stream_rtc_channel_id.is_none() {
+                    guard.stream_rtc_channel_id = skey_cid.or_else(|| guard.voice_channel_id.clone());
+                }
                 let self_uid = resolve_live_self_uid(&guard);
                 let streamer_uid = guard
                     .stream_key
@@ -3436,6 +3477,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                 {
                     if guard.stream_launched_token.as_deref() != Some(tok_val.as_str()) {
                         guard.stream_launched_token = Some(tok_val.clone());
+                        guard.stream_launched_server_id = Some(srv_val.clone());
                         stream_launch_params = Some((
                             ep_val,
                             srv_val,
@@ -3457,6 +3499,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                     guard.stream_endpoint = None;
                     guard.stream_token = None;
                     guard.stream_launched_token = None;
+                    guard.stream_launched_server_id = None;
                     should_stop_stream = true;
                 }
             }
@@ -3473,13 +3516,12 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
     } else if let Some((ep, server_id, user_id, session_id, token, cid, streamer_uid)) =
         stream_launch_params
     {
-        let rtc_ch = cid.unwrap_or_else(|| {
-            server_id
-                .parse::<u64>()
-                .ok()
-                .map(|v| v.saturating_sub(1).to_string())
-                .unwrap_or_else(|| server_id.clone())
-        });
+        let rtc_ch = cid
+            .or_else(|| {
+                let guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
+                guard.voice_channel_id.clone()
+            })
+            .unwrap_or_else(|| server_id.clone());
         discord_core::ws::start_live_stream_rtc_session(
             ep,
             server_id,
@@ -3769,6 +3811,7 @@ pub fn connect_or_update_live_voice_ext(
             guard.voice_token = None;
             guard.voice_launched_token = None;
             guard.stream_launched_token = None;
+            guard.stream_launched_server_id = None;
             guard.voice_phase = "disconnected".to_string();
             guard.voice_got_state_update = false;
             guard.voice_got_server_update = false;
@@ -3780,6 +3823,7 @@ pub fn connect_or_update_live_voice_ext(
             guard.voice_token = None;
             guard.voice_launched_token = None;
             guard.stream_launched_token = None;
+            guard.stream_launched_server_id = None;
             guard.voice_phase = "signaling".to_string();
             guard.voice_got_state_update = false;
             guard.voice_got_server_update = false;
@@ -3791,6 +3835,7 @@ pub fn connect_or_update_live_voice_ext(
         }
         if !self_stream {
             guard.stream_launched_token = None;
+            guard.stream_launched_server_id = None;
         }
         if clean_cid.is_none() {
             for list in guard.voice_states.values_mut() {
@@ -4028,6 +4073,18 @@ pub fn connect_or_update_live_voice_ext(
     Ok(live_voice_rtc_status_json())
 }
 
+pub fn current_live_voice_target() -> (Option<String>, Option<String>) {
+    let guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
+    (guard.voice_guild_id.clone(), guard.voice_channel_id.clone())
+}
+
+pub fn current_live_voice_mute_deaf() -> (bool, bool) {
+    (
+        LOCAL_SELF_MUTE.load(std::sync::atomic::Ordering::SeqCst),
+        LOCAL_SELF_DEAF.load(std::sync::atomic::Ordering::SeqCst),
+    )
+}
+
 static LOCAL_MIC_LEVEL_DB: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-100);
 static LOCAL_MIC_SPEAKING: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
@@ -4060,6 +4117,7 @@ pub fn shutdown_live_workers() {
     MEDIA_PLAY_EPOCH.fetch_add(1, Ordering::SeqCst);
     VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
     stop_local_mic_monitor();
+    let _ = discord_core::ws::queue_live_voice_state(None, None, false, false);
     discord_core::ws::stop_live_rtc_session();
 }
 
@@ -4848,13 +4906,13 @@ try:
                 g_target = 0.01 + 0.99 * (norm_t * norm_t)
             else:
                 g_target = 1.0
-            # Suppress sharp transient keyboard/mouse clicks (high crest factor, short energy)
-            if crest > 4.2 and snr < 6.0:
-                g_target *= 0.06
+            # Suppress sharp transient keyboard/mouse clicks (high crest factor, short impulsive energy)
+            if crest > 2.8 and snr < 9.5:
+                g_target = 0.005
             if g_target > ns_gain:
                 ns_gain = 0.42 * ns_gain + 0.58 * g_target
             else:
-                ns_gain = 0.72 * ns_gain + 0.28 * g_target
+                ns_gain = 0.88 * ns_gain + 0.12 * g_target
         else:
             ns_gain = 1.0
 
@@ -5641,12 +5699,14 @@ pub fn set_system_audio_device(
     if kind == "mic_test_start" {
         LOCAL_MIC_LOOPBACK_ACTIVE.store(true, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
+        discord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":true}"#);
         ensure_local_mic_monitor();
         return live_voice_rtc_status_json();
     }
     if kind == "mic_test_stop" {
         LOCAL_MIC_LOOPBACK_ACTIVE.store(false, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
+        discord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":false}"#);
         return live_voice_rtc_status_json();
     }
     if kind == "media_play" {
@@ -7289,16 +7349,28 @@ pub struct ReadStateEntry {
 
 /// Строковое поле, где `null`, `nil` и `""` — «значения нет». Другой тип —
 /// `Parse`: битый READY не должен молча превращаться в `null`.
+#[allow(dead_code)]
 fn optional_str(
     value: &Value,
     key: &str,
     path: &Path,
     at: &str,
 ) -> Result<Option<String>, DataError> {
+    optional_str_or_snowflake(value, key, path, at, false)
+}
+
+fn optional_str_or_snowflake(
+    value: &Value,
+    key: &str,
+    path: &Path,
+    at: &str,
+    allow_number: bool,
+) -> Result<Option<String>, DataError> {
     match value.get(key) {
         None | Some(Value::Null) => Ok(None),
         Some(Value::String(text)) if text == "nil" || text.is_empty() => Ok(None),
         Some(Value::String(text)) => Ok(Some(text.clone())),
+        Some(Value::Number(num)) if allow_number => Ok(Some(num.to_string())),
         Some(_) => Err(DataError::parse(
             path,
             format!("{at}: поле {key} должно быть строкой или null"),
@@ -7393,6 +7465,7 @@ pub fn read_state(root: &Path) -> Result<Vec<ReadStateEntry>, DataError> {
         }
     };
 
+    let is_live = live_entries.is_some();
     let mut rows = Vec::with_capacity(entries.len());
     for (index, entry) in entries.iter().enumerate() {
         let at = format!("READY.read_state.entries[{index}]");
@@ -7401,12 +7474,12 @@ pub fn read_state(root: &Path) -> Result<Vec<ReadStateEntry>, DataError> {
         rows.push(ReadStateEntry {
             channel_id: channel_id.to_string(),
             flags: optional_u64(entry, "flags", &path, &at)?,
-            last_message_id: optional_str(entry, "last_message_id", &path, &at)?,
-            last_pin_timestamp: optional_str(entry, "last_pin_timestamp", &path, &at)?,
+            last_message_id: optional_str_or_snowflake(entry, "last_message_id", &path, &at, is_live)?,
+            last_pin_timestamp: optional_str_or_snowflake(entry, "last_pin_timestamp", &path, &at, is_live)?,
             last_viewed: optional_u64(entry, "last_viewed", &path, &at)?,
             mention_count: optional_u64(entry, "mention_count", &path, &at)?,
             badge_count: optional_i64(entry, "badge_count", &path, &at)?,
-            last_acked_id: optional_str(entry, "last_acked_id", &path, &at)?,
+            last_acked_id: optional_str_or_snowflake(entry, "last_acked_id", &path, &at, is_live)?,
             read_state_type: optional_i64(entry, "read_state_type", &path, &at)?,
         });
     }
@@ -7909,9 +7982,31 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
                     let mut guard = live_session()
                         .lock()
                         .unwrap_or_else(|poison| poison.into_inner());
+                    // Фильтруем удалённые сообщения: сообщения из blacklisted deleted_message_ids
+                    // гарантированно не попадут в отображение канала.
+                    fetched.retain(|m| {
+                        if let Some(mid) = field_str(m, "id") {
+                            !guard
+                                .deleted_message_ids
+                                .contains(&(channel_id.to_string(), mid.to_string()))
+                        } else {
+                            true
+                        }
+                    });
+                    // Не воскрешаем старые сообщения из кэша, если они удалены на сервере Discord.
+                    // Сохраняем только локальные неподтверждённые (pending) сообщения.
                     for existing in &live_msgs {
                         if let Some(eid) = field_str(existing, "id") {
-                            if !fetched.iter().any(|m| field_str(m, "id") == Some(eid)) {
+                            let is_pending = existing
+                                .get("is_pending")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false);
+                            if is_pending
+                                && !guard
+                                    .deleted_message_ids
+                                    .contains(&(channel_id.to_string(), eid.to_string()))
+                                && !fetched.iter().any(|m| field_str(m, "id") == Some(eid))
+                            {
                                 fetched.push(existing.clone());
                             }
                         }
@@ -9003,11 +9098,30 @@ fn parse_member(value: &Value, guild: &GuildInfo) -> Option<MemberRow> {
         .get("presence")
         .and_then(|presence| field_str(presence, "status"))
         .unwrap_or("offline");
-    let username = field_str(user, "username").unwrap_or(id);
-    let display_name = field_str(value, "nick")
+    let raw_username = field_str(user, "username").unwrap_or(id);
+    let raw_display_name = field_str(value, "nick")
         .or_else(|| field_str(user, "global_name"))
         .or_else(|| field_str(user, "display_name"))
-        .unwrap_or(username);
+        .unwrap_or(raw_username);
+    let is_snowflake = raw_display_name.len() >= 15
+        && raw_display_name.len() <= 22
+        && raw_display_name.bytes().all(|b| b.is_ascii_digit());
+    let display_name = if is_snowflake {
+        format!(
+            "Участник {}",
+            &raw_display_name[raw_display_name.len().saturating_sub(4)..]
+        )
+    } else {
+        raw_display_name.to_string()
+    };
+    let username = if is_snowflake {
+        format!(
+            "user_{}",
+            &raw_username[raw_username.len().saturating_sub(4)..]
+        )
+    } else {
+        raw_username.to_string()
+    };
     let mut roles: Vec<String> = array(value.get("roles"))
         .iter()
         .filter_map(|role| role.as_str().map(str::to_string))
@@ -9509,16 +9623,35 @@ fn collect_supplemental_members(
             }
         }
         let user_obj = embedded_user.or_else(|| users_by_id.get(&resolved_uid));
-        let username = user_obj
+        let username_raw = user_obj
             .and_then(|u| field_str(u, "username"))
             .unwrap_or(&resolved_uid);
-        let display_name = field_str(&m, "nick")
+        let display_name_raw = field_str(&m, "nick")
             .or_else(|| user_obj.and_then(|u| field_str(u, "global_name")))
             .or_else(|| user_obj.and_then(|u| field_str(u, "display_name")))
-            .unwrap_or(username);
-        if display_name == "nil" || username == "nil" {
+            .unwrap_or(username_raw);
+        if display_name_raw == "nil" || username_raw == "nil" {
             continue;
         }
+        let is_snowflake = display_name_raw.len() >= 15
+            && display_name_raw.len() <= 22
+            && display_name_raw.bytes().all(|b| b.is_ascii_digit());
+        let display_name = if is_snowflake {
+            format!(
+                "Участник {}",
+                &display_name_raw[display_name_raw.len().saturating_sub(4)..]
+            )
+        } else {
+            display_name_raw.to_string()
+        };
+        let username = if is_snowflake {
+            format!(
+                "user_{}",
+                &username_raw[username_raw.len().saturating_sub(4)..]
+            )
+        } else {
+            username_raw.to_string()
+        };
         let avatar = field_str(&m, "avatar")
             .or_else(|| user_obj.and_then(|u| field_str(u, "avatar")))
             .map(str::to_string);

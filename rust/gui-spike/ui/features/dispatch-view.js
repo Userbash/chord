@@ -523,6 +523,25 @@ export function createDispatchView(options = {}) {
   }
 
   /**
+   * C21: живой MESSAGE_DELETE удаляет сообщение из DOM и синхронизирует окно чата (M-08 / TASK-762).
+   * @param {import("./dispatch-model.js").MessageDeleteChange} change
+   * @returns {number}
+   */
+  function applyMessageDelete(change) {
+    if (!change || !change.messageId) return 0;
+    if (chat && typeof (/** @type {any} */ (chat).removeMessageFromWindow) === "function") {
+      (/** @type {any} */ (chat)).removeMessageFromWindow(change.messageId, change.channelId);
+    }
+    const list = getMessageList();
+    const row = list?.querySelector(`[data-message-id="${change.messageId}"], [data-id="${change.messageId}"]`);
+    if (row) {
+      row.remove();
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
    * C19: живой MESSAGE_ACK очищает unread-индикатор канала в #channel-list.
    * @param {import("./dispatch-model.js").MessageAckChange} change
    * @returns {number}
@@ -717,6 +736,9 @@ export function createDispatchView(options = {}) {
             notLoaded += result.notLoaded;
             break;
           }
+          case "message_delete":
+            applied += applyMessageDelete(/** @type {import("./dispatch-model.js").MessageDeleteChange} */ (change));
+            break;
           case "message_ack":
             applied += applyMessageAck(change);
             break;

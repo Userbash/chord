@@ -161,8 +161,9 @@
   line-height: var(--line-height-caption);
 }
 
+.auth-logout,
 .auth-logout[hidden] {
-  display: none;
+  display: none !important;
 }
 
 .auth-card { width: 480px; padding: var(--space-9); border-radius: 8px; }

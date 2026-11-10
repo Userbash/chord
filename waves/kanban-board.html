@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Discord GPUI Client (Rust + WGPU) — Visual Kanban Board</title>
+  <style>
+    :root {
+      --bg-primary: #1e1f22;
+      --bg-secondary: #2b2d31;
+      --bg-tertiary: #313338;
+      --channel-bg: #232428;
+      --text-normal: #dbdee1;
+      --text-muted: #949ba4;
+      --accent: #5865f2;
+      --accent-hover: #4752c4;
+      --green: #23a55a;
+      --yellow: #f0b232;
+      --red: #f23f43;
+      --border: #3f4147;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-normal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .badge-wave {
+      background: rgba(88, 101, 242, 0.2);
+      color: #5865f2;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .board-container {
+      flex: 1;
+      display: flex;
+      gap: 16px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      align-items: flex-start;
+    }
+    .column {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      width: 330px;
+      min-width: 330px;
+      max-height: calc(100vh - 120px);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .col-header {
+      padding: 14px 16px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .col-count {
+      background: var(--bg-primary);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .cards-list {
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .card {
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-id {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .card-priority {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .p-P0 { background: rgba(242, 63, 67, 0.2); color: #f23f43; }
+    .p-P1 { background: rgba(240, 178, 50, 0.2); color: #f0b232; }
+    .p-P2 { background: rgba(88, 101, 242, 0.2); color: #5865f2; }
+    .p-P3 { background: rgba(148, 155, 164, 0.2); color: #949ba4; }
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.35;
+    }
+    .card-dept {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-layout-tag {
+      background: var(--bg-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #00a8fc;
+      border-left: 2px solid #00a8fc;
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      width: 740px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: #fff; }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .close-btn:hover { color: #fff; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: var(--bg-primary);
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+    .states-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .states-table th, .states-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    .states-table th { background: var(--bg-primary); color: #fff; }
+    .dod-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-title">
+      <h1>🚀 Discord GPUI Client (Rust + WGPU)</h1>
+      <p>RW-42: Native GPUI Migration & Design Parity • Обновлено: 10.11.2026, 13:20:08</p>
+    </div>
+    <div class="badge-wave">61/61 Контрактов Pass (100%)</div>
+  </header>
+
+  <main class="board-container">
+    
+      <section class="column" data-col="backlog">
+        <div class="col-header" style="border-top: 3px solid #4e5058">
+          <span>📋 Бэклог задач</span>
+          <span class="col-count">0</span>
+        </div>
+        <div class="cards-list">
+          
+        </div>
+      </section>
+      <section class="column" data-col="design_specs">
+        <div class="col-header" style="border-top: 3px solid #5865f2">
+          <span>🎨 Спецификации и Дизайн</span>
+          <span class="col-count">0</span>
+        </div>
+        <div class="cards-list">
+          
+        </div>
+      </section>
+      <section class="column" data-col="in_dev">
+        <div class="col-header" style="border-top: 3px solid #f0b232">
+          <span>⚡ В разработке</span>
+          <span class="col-count">2</span>
+        </div>
+        <div class="cards-list">
+          
+            <article class="card" onclick="openModal('TASK-751')">
+              <div class="card-top">
+                <span class="card-id">TASK-751</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">G1 Backend + G7 REA: Устойчивый парсер read_state.last_acked_id (Snowflake String/Integer/Null)</h2>
+              <div class="card-dept">🏷️ G1 Backend</div>
+              <div class="card-layout-tag">📐 JSON Snowflake u64 or String id</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-752')">
+              <div class="card-top">
+                <span class="card-id">TASK-752</span>
+                <span class="card-priority p-P2">P2</span>
+              </div>
+              <h2 class="card-title">G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс)</h2>
+              <div class="card-dept">🏷️ G2 Frontend</div>
+              <div class="card-layout-tag">📐 Width: 100%, Height: 100%</div>
+            </article>
+          
+        </div>
+      </section>
+      <section class="column" data-col="in_review">
+        <div class="col-header" style="border-top: 3px solid #eb459e">
+          <span>🧪 Тестирование и Ревью</span>
+          <span class="col-count">0</span>
+        </div>
+        <div class="cards-list">
+          
+        </div>
+      </section>
+      <section class="column" data-col="done">
+        <div class="col-header" style="border-top: 3px solid #23a55a">
+          <span>✅ Завершено и Принято</span>
+          <span class="col-count">17</span>
+        </div>
+        <div class="cards-list">
+          
+            <article class="card" onclick="openModal('TASK-701')">
+              <div class="card-top">
+                <span class="card-id">TASK-701</span>
+                <span class="card-priority p-P0">P0</span>
+              </div>
+              <h2 class="card-title">Каркас приложения AppLayout и WGPU GPU-рендеринг</h2>
+              <div class="card-dept">🏷️ G2 Frontend</div>
+              <div class="card-layout-tag">📐 1280x720 min, 100vw x 100vh</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-707')">
+              <div class="card-top">
+                <span class="card-id">TASK-707</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Панель серверов ServerRail (72px) и Индикаторы Активности</h2>
+              <div class="card-dept">🏷️ G2 Frontend</div>
+              <div class="card-layout-tag">📐 Width: 72px, Height: 100%</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-708')">
+              <div class="card-top">
+                <span class="card-id">TASK-708</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Список каналов ChannelSidebar и Панель профиля (240px)</h2>
+              <div class="card-dept">🏷️ G2 Frontend</div>
+              <div class="card-layout-tag">📐 Width: 240px, Height: 100%</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-716')">
+              <div class="card-top">
+                <span class="card-id">TASK-716</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Нативное контекстное меню ПКМ (Context Menu)</h2>
+              <div class="card-dept">🏷️ G2 Frontend</div>
+              <div class="card-layout-tag">📐 Width: 220px, Height: auto</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-741')">
+              <div class="card-top">
+                <span class="card-id">TASK-741</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Реальные REST API действия сообщений (Удаление, Закрепление, Открепление)</h2>
+              <div class="card-dept">🏷️ G1 Backend</div>
+              <div class="card-layout-tag">📐 Asynchronous Tokio block_on execution</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-742')">
+              <div class="card-top">
+                <span class="card-id">TASK-742</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Прямой Voice UDP Media Streamer (tokio::net::UdpSocket + Opus + AES-256-GCM)</h2>
+              <div class="card-dept">🏷️ G5 Voice/Platform</div>
+              <div class="card-layout-tag">📐 48 kHz Stereo, 20ms frames = 960 samples</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-743')">
+              <div class="card-top">
+                <span class="card-id">TASK-743</span>
+                <span class="card-priority p-P2">P2</span>
+              </div>
+              <h2 class="card-title">Демонстрация экрана PipeWire через Linux XDG Desktop Portal</h2>
+              <div class="card-dept">🏷️ G5 Voice/Platform</div>
+              <div class="card-layout-tag">📐 Width: 600px, Max-height: 520px</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-744')">
+              <div class="card-top">
+                <span class="card-id">TASK-744</span>
+                <span class="card-priority p-P2">P2</span>
+              </div>
+              <h2 class="card-title">Нативные D-Bus уведомления рабочего стола и системный трей Linux</h2>
+              <div class="card-dept">🏷️ G5 Voice/Platform</div>
+              <div class="card-layout-tag">📐 Standard desktop notification popup (320px) + Tray Menu (6 items)</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-745')">
+              <div class="card-top">
+                <span class="card-id">TASK-745</span>
+                <span class="card-priority p-P2">P2</span>
+              </div>
+              <h2 class="card-title">Сервер локального бинарного протокола Discord Local RPC IPC</h2>
+              <div class="card-dept">🏷️ G1 Backend</div>
+              <div class="card-layout-tag">📐 Header 8 bytes [Opcode u32 LE][Length u32 LE] + JSON body up to 16 KiB</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-746')">
+              <div class="card-top">
+                <span class="card-id">TASK-746</span>
+                <span class="card-priority p-P0">P0</span>
+              </div>
+              <h2 class="card-title">Автоматизированный регрессионный контрактный харнесс 61/61</h2>
+              <div class="card-dept">🏷️ G4 QA</div>
+              <div class="card-layout-tag">📐 Fast headless execution in 2.5s</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-747')">
+              <div class="card-top">
+                <span class="card-id">TASK-747</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Паритет стилей Discord Dark Design Polish и Hover-эффекты сообщений</h2>
+              <div class="card-dept">🏷️ G3 Design</div>
+              <div class="card-layout-tag">📐 100% width, min-height 48px</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-748')">
+              <div class="card-top">
+                <span class="card-id">TASK-748</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Аппаратный GPU-конвейер PipeWire кадра и захват экрана</h2>
+              <div class="card-dept">🏷️ G5 Voice/Platform</div>
+              <div class="card-layout-tag">📐 1920x1080 60 FPS</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-749')">
+              <div class="card-top">
+                <span class="card-id">TASK-749</span>
+                <span class="card-priority p-P1">P1</span>
+              </div>
+              <h2 class="card-title">Плавающий бар быстрых действий над сообщением (Floating Action Bar)</h2>
+              <div class="card-dept">🏷️ G2 Frontend</div>
+              <div class="card-layout-tag">📐 auto x 26px</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-750')">
+              <div class="card-top">
+                <span class="card-id">TASK-750</span>
+                <span class="card-priority p-P0">P0</span>
+              </div>
+              <h2 class="card-title">Шлюз Discord Gateway Opcode 4 (Voice State Update)</h2>
+              <div class="card-dept">🏷️ G1 Backend</div>
+              <div class="card-layout-tag">📐 Standard Discord Gateway protocol frame</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-760')">
+              <div class="card-top">
+                <span class="card-id">TASK-760</span>
+                <span class="card-priority p-P0">P0</span>
+              </div>
+              <h2 class="card-title">Паритет дизайна кнопок User Bar и Voice Panel 1:1 с Discord (Сплит-шевроны, Удаление Выйти, Voice Bar 4 Media)</h2>
+              <div class="card-dept">🏷️ G2 Frontend + G3 Design</div>
+              <div class="card-layout-tag">📐 240px width, 52px height user-bar</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-761')">
+              <div class="card-top">
+                <span class="card-id">TASK-761</span>
+                <span class="card-priority p-P0">P0</span>
+              </div>
+              <h2 class="card-title">Паритет сигнализации SFU Discord для трансляции экрана на официальные клиенты</h2>
+              <div class="card-dept">🏷️ G5 Voice / Platform + G1 Backend</div>
+              <div class="card-layout-tag">📐 1280x720p 60fps / 1080p 60fps / 4K</div>
+            </article>
+          
+            <article class="card" onclick="openModal('TASK-762')">
+              <div class="card-top">
+                <span class="card-id">TASK-762</span>
+                <span class="card-priority p-P0">P0</span>
+              </div>
+              <h2 class="card-title">Устранение рассинхронизации удаления сообщений с официальным клиентом Discord</h2>
+              <div class="card-dept">🏷️ G1 Backend + G2 Frontend</div>
+              <div class="card-layout-tag">📐 flex-1 height, dynamic virtual list</div>
+            </article>
+          
+        </div>
+      </section>
+  </main>
+
+  <div id="cardModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span id="modalId" class="card-id"></span>
+          <h2 id="modalTitle" class="modal-title"></h2>
+        </div>
+        <button class="close-btn" onclick="hideModal()">✕</button>
+      </div>
+
+      <div class="section-title">Описание и Назначение</div>
+      <p id="modalSummary" style="font-size: 13.5px; line-height: 1.5; color: var(--text-normal);"></p>
+
+      <div class="section-title">Геометрия и Макет (Layout Specs)</div>
+      <div id="modalLayout" class="specs-grid"></div>
+
+      <div class="section-title" id="wireframeSectionTitle">Визуальная схема (SVG Wireframe)</div>
+      <div id="modalWireframe" style="background: #1e1f22; border-radius: 8px; padding: 12px; margin-top: 8px; overflow-x: auto; text-align: center; border: 1px solid var(--border);"></div>
+
+      <div class="section-title">Дизайн-Токены (Палитра Discord Dark)</div>
+      <div id="modalTokens" class="specs-grid"></div>
+
+      <div class="section-title">Интерактивные Состояния Элементов</div>
+      <table class="states-table">
+        <thead>
+          <tr><th>Элемент</th><th>Default</th><th>Hover</th><th>Active / Click</th></tr>
+        </thead>
+        <tbody id="modalStatesBody"></tbody>
+      </table>
+
+      <div class="section-title">Критерии приёмки (DoD)</div>
+      <div id="modalDod"></div>
+    </div>
+  </div>
+
+  <script>
+    const CARDS = [{"id":"TASK-701","title":"Каркас приложения AppLayout и WGPU GPU-рендеринг","status":"done","priority":"P0","department":"G2 Frontend","summary":"Трехпанельный макет Discord Dark: левая серверная панель (72px), средний список каналов (240px), центральный чат (flex-1) и правый сайдбар участников (240px). 120 FPS без лагов WebKit.","layout":{"container":"Three-column flex layout","dimensions":"1280x720 min, 100vw x 100vh","padding":"0px","spacing":"0px"},"design_tokens":{"background":"#1e1f22","surface":"#2b2d31","text_primary":"#ffffff","accent":"#5865f2","border":"#3f4147"},"interactive_states":[{"element":"ServerRail","default":"bg: #1e1f22, w: 72px","hover":"w: 72px, cursor: default","active":"focus: outline-none"},{"element":"ChannelSidebar","default":"bg: #2b2d31, w: 240px","hover":"border-r: 1px solid #1e1f22","active":"selected-item"},{"element":"ChatView","default":"bg: #313338, flex: 1","hover":"smooth-scroll","active":"input-focused"}],"acceptance_criteria":["Сетка не расползается при изменении размеров окна (min-width 900px)","Отсутствуют DOM-коллизии и утечки памяти","61/61 контрактных тестов пройдены успешно"]},{"id":"TASK-707","title":"Панель серверов ServerRail (72px) и Индикаторы Активности","status":"done","priority":"P1","department":"G2 Frontend","summary":"Вертикальный рейл серверов Discord с кнопкой Home, разделителем, иконками серверов с анимацией скругления (круг 24px -> скругленный квадрат rx=16px при наведении), индикатором-пилюлей активности слева и кнопками Добавить сервер (+) и Исследовать (🧭).","layout":{"container":"Vertical Flex column","dimensions":"Width: 72px, Height: 100%","padding":"12px 0px","spacing":"8px"},"design_tokens":{"background":"#1e1f22","surface":"#313338","text_primary":"#ffffff","text_muted":"#dbdee1","accent":"#5865f2","border":"none"},"interactive_states":[{"element":"Home Button (Discord)","default":"rx: 24px (круг), bg: #313338","hover":"rx: 16px, bg: #5865f2","active":"scale: 0.96"},{"element":"Server Icon","default":"rx: 24px, bg: #313338","hover":"rx: 16px, bg: #5865f2, белый индикатор 20px","active":"rx: 16px, bg: #5865f2, белый индикатор 40px"},{"element":"Add Server (+)","default":"rx: 24px, bg: #313338, text: #23a55a","hover":"rx: 16px, bg: #23a55a, text: #ffffff","active":"scale: 0.94"},{"element":"Explore (🧭)","default":"rx: 24px, bg: #313338, text: #23a55a","hover":"rx: 16px, bg: #23a55a, text: #ffffff","active":"scale: 0.94"}],"acceptance_criteria":["Активный сервер подсвечивается вертикальной белой пилюлей слева (высота 40px, ширина 4px)","Непрочитанные сообщения отображаются красным бейджем с белым числом в нижнем правом углу иконки","Кнопка + открывает модальное окно CreateGuildModal"]},{"id":"TASK-708","title":"Список каналов ChannelSidebar и Панель профиля (240px)","status":"done","priority":"P1","department":"G2 Frontend","summary":"Иерархический список каналов гильдии с категориями (▾ ТЕКСТОВЫЕ КАНАЛЫ, ▾ ГОЛОСОВЫЕ КАНАЛЫ), плашка текущего статуса звонка VoicePanel (52px flex-none) и фиксированная нижняя панель профиля пользователя UserProfileBar (52px flex-none).","layout":{"container":"Vertical Flex column with scrollable channel list and fixed bottom bars","dimensions":"Width: 240px, Height: 100%","padding":"0px","spacing":"2px"},"design_tokens":{"background":"#2b2d31","surface":"#232428","text_primary":"#ffffff","text_muted":"#949ba4","accent":"#5865f2","border":"1px solid rgba(255, 255, 255, 0.05)"},"interactive_states":[{"element":"Категория каналов","default":"text: #949ba4, 11px uppercase bold","hover":"text: #dbdee1, cursor: pointer","active":"toggle collapse"},{"element":"Текстовый канал (#)","default":"text: #949ba4, bg: transparent","hover":"bg: rgba(255,255,255,0.04), text: #dbdee1","active":"bg: #35373c, text: #ffffff, font-bold"},{"element":"Голосовой канал (🔊)","default":"text: #949ba4, bg: transparent","hover":"bg: rgba(255,255,255,0.04), text: #23a55a","active":"connect_voice() -> VoicePanel open"},{"element":"Кнопки микрофона/звука","default":"text: #dbdee1","hover":"bg: rgba(255,255,255,0.08), rounded 4px","active":"toggle mute/deafen (red slash)"}],"acceptance_criteria":["Жесткая фиксация высоты UserProfileBar = 52px и VoicePanel = 52px","Голосовая панель полностью скрывается при отключенном звонке (voice_session = None)","Исключено перекрытие элементов профиля пользователя"]},{"id":"TASK-716","title":"Нативное контекстное меню ПКМ (Context Menu)","status":"done","priority":"P1","department":"G2 Frontend","summary":"Всплывающее меню по правому клику мыши на сообщении: «Закрепить/Открепить сообщение», «Ответить», «Копировать текст», «Удалить сообщение». Мгновенный оптимистичный UI с асинхронным вызовом Discord REST API v9.","layout":{"container":"Floating absolute card with blur backdrop overlay","dimensions":"Width: 220px, Height: auto","padding":"6px","spacing":"2px"},"design_tokens":{"background":"#2b2d31","surface":"#313338","text_primary":"#ffffff","text_muted":"#dbdee1","accent":"#5865f2","border":"1px solid #3f4147"},"interactive_states":[{"element":"Пункт «Закрепить» (📌)","default":"bg: transparent, text: #dbdee1","hover":"bg: #5865f2, text: #ffffff","active":"pin_live_message_blocking"},{"element":"Пункт «Ответить» (💬)","default":"bg: transparent, text: #dbdee1","hover":"bg: #5865f2, text: #ffffff","active":"focus message bar with reply badge"},{"element":"Пункт «Копировать» (📋)","default":"bg: transparent, text: #dbdee1","hover":"bg: #5865f2, text: #ffffff","active":"copy to system clipboard"},{"element":"Пункт «Удалить» (🗑️)","default":"bg: transparent, text: #f23f43","hover":"bg: #da373c, text: #ffffff","active":"delete_live_message_blocking"}],"acceptance_criteria":["Клик вне меню мгновенно закрывает всплывающее окно","Динамическая плашка «Открепить сообщение» если сообщение уже закреплено","Отправка реального DELETE /channels/{id}/messages/{id} при наличии токена"]},{"id":"TASK-741","title":"Реальные REST API действия сообщений (Удаление, Закрепление, Открепление)","status":"done","priority":"P1","department":"G1 Backend","summary":"Интеграция официальных эндпоинтов Discord REST API v9: DELETE /channels/{id}/messages/{id}, PUT /channels/{id}/pins/{id}, DELETE /channels/{id}/pins/{id} через discord-core и reqwest с защитой от 429 Too Many Requests.","layout":{"container":"Backend Network Stack & Threadpool Worker","dimensions":"Asynchronous Tokio block_on execution","padding":"N/A","spacing":"N/A"},"design_tokens":{"background":"N/A","surface":"N/A","text_primary":"N/A","accent":"#5865f2"},"interactive_states":[{"element":"delete_live_message","default":"Idle","hover":"Optimistic UI local delete","active":"HTTP 204 No Content"},{"element":"pin_live_message","default":"Idle","hover":"Toggle is_pinned locally","active":"HTTP 204 No Content"}],"acceptance_criteria":["Локальное состояние сообщений в ленте обновляется мгновенно за 0 мс","Сетевые запросы исполняются в фоновом потоке без блокировки GUI","Покрыто контрактом test_rest_message_actions_endpoints_contract"]},{"id":"TASK-742","title":"Прямой Voice UDP Media Streamer (tokio::net::UdpSocket + Opus + AES-256-GCM)","status":"done","priority":"P1","department":"G5 Voice/Platform","summary":"Реализация VoiceUdpStreamer по спецификации Serein transport.rs: прямое UDP-соединение к голосовому шлюзу, IP Discovery (74B), периодические Keepalive (8B 0x1337cafe LE), сборка 12B RTP заголовка и шифрование 20мс Opus-пакетов AES-256-GCM.","layout":{"container":"Realtime Voice UDP Pipeline","dimensions":"48 kHz Stereo, 20ms frames = 960 samples","padding":"12B RTP header + ciphertext + 16B GCM tag + 4B LE counter","spacing":"5000ms keepalive interval"},"design_tokens":{"background":"#232428","surface":"#23a55a","text_primary":"#ffffff","accent":"#23a55a"},"interactive_states":[{"element":"Voice Connection","default":"Disconnected","hover":"Connecting (IP Discovery)","active":"Connected (Voice Ping 18ms)"},{"element":"Push-to-Talk / VAD","default":"Silent (No UDP audio)","hover":"VAD Trigger","active":"Streaming encrypted Opus packets"}],"acceptance_criteria":["Keepalive пакет ровно 8 байт (0x1337cafe LE + sequence)","Шифрование RTP медиа-кадров по эталону voice-deep.md §2.3","Покрыто контрактом test_voice_udp_streamer_lifecycle_contract"]},{"id":"TASK-743","title":"Демонстрация экрана PipeWire через Linux XDG Desktop Portal","status":"done","priority":"P2","department":"G5 Voice/Platform","summary":"ScreenCastManager на базе org.freedesktop.portal.ScreenCast (D-Bus / ashpd): открытие диалога выбора мониторов и окон, согласование курсора (Embedded/Metadata), получение PipeWire remote fd и передача кадров в GPU WGPU видео-пайплайн.","layout":{"container":"Screen Share Modal (600px) with 2x2 grid of display sources","dimensions":"Width: 600px, Max-height: 520px","padding":"20px","spacing":"16px"},"design_tokens":{"background":"#2b2d31","surface":"#313338","text_primary":"#ffffff","accent":"#5865f2","border":"1px solid #3f4147"},"interactive_states":[{"element":"Карточка экрана/окна","default":"bg: #313338, border: 1px solid transparent","hover":"border: 1px solid #5865f2, bg: #35373c","active":"border: 2px solid #5865f2"},{"element":"Выбор разрешения (720p/1080p)","default":"bg: #1e1f22, text: #949ba4","hover":"text: #ffffff","active":"bg: #5865f2, text: #ffffff"},{"element":"Выбор частоты (30/60 FPS)","default":"bg: #1e1f22, text: #949ba4","hover":"text: #ffffff","active":"bg: #5865f2, text: #ffffff"}],"acceptance_criteria":["Проверка доступности D-Bus сессии через is_portal_available()","Сборка корректных параметров PortalSourceTypes::MONITOR_AND_WINDOW","Покрыто контрактом test_screencast_portal_options_contract"]},{"id":"TASK-744","title":"Нативные D-Bus уведомления рабочего стола и системный трей Linux","status":"done","priority":"P2","department":"G5 Voice/Platform","summary":"Интеграция freedesktop D-Bus уведомлений (org.freedesktop.Notifications) с кнопками «Открыть» и «Прочитано», а также системного трея Linux (TrayController) с 6-пунктовым меню Discord и бейджем количества непрочитанных сообщений 1..99+.","layout":{"container":"System D-Bus Notifications & Linux StatusNotifierItem Tray","dimensions":"Standard desktop notification popup (320px) + Tray Menu (6 items)","padding":"N/A","spacing":"N/A"},"design_tokens":{"background":"#2b2d31","surface":"#1e1f22","text_primary":"#ffffff","accent":"#5865f2"},"interactive_states":[{"element":"Иконка трея","default":"discord-tray (Normal)","hover":"discord-tray-unread (Unread)","active":"discord-tray-speaking (InCall)"},{"element":"Кнопка «Открыть» в уведомлении","default":"Default action","hover":"Highlight","active":"Focus main GPUI window"}],"acceptance_criteria":["Уведомление содержит app_name = \"Discord\", заголовок \"Автор (#канал)\" и текст сообщения","Бейдж лаунчера отображает точное число до 99 и \"99+\" при превышении","Покрыто контрактом test_desktop_notification_formatting_contract"]},{"id":"TASK-745","title":"Сервер локального бинарного протокола Discord Local RPC IPC","status":"done","priority":"P2","department":"G1 Backend","summary":"Поддержка Unix domain socket $XDG_RUNTIME_DIR/discord-ipc-0..9 для интеграции с внешними играми и приложениями по эталону rust-discord-activity и Serein. Разбор рукопожатия Handshake (Opcode 0) и команды SET_ACTIVITY (Opcode 1).","layout":{"container":"Local Unix Domain Socket Listener","dimensions":"Header 8 bytes [Opcode u32 LE][Length u32 LE] + JSON body up to 16 KiB","padding":"N/A","spacing":"N/A"},"design_tokens":{"background":"N/A","surface":"N/A","text_primary":"N/A","accent":"#5865f2"},"interactive_states":[{"element":"Game connect","default":"Listening discord-ipc-0","hover":"Handshake v=1","active":"DISPATCH READY"},{"element":"SET_ACTIVITY","default":"Idle","hover":"Update rich presence details","active":"User status updated"}],"acceptance_criteria":["Парсинг бинарного фрейма и JSON-пейлоада SET_ACTIVITY","Обновление полей игры (state, details, timestamps) в профиле пользователя","Покрыто контрактом test_local_rpc_ipc_frame_contract"]},{"id":"TASK-746","title":"Автоматизированный регрессионный контрактный харнесс 61/61","status":"done","priority":"P0","department":"G4 QA","summary":"Полная регрессионная верификация всей кодовой базы: 61/61 контрактных тестов GPUI (REST API, Voice UDP, Screencast, D-Bus, SQLite, Audio CPAL, Design tokens, Escape hierarchy, Virtual chat) выполняются за 2.50 секунды со 100% успехом.","layout":{"container":"Headless GPUI Test Harness","dimensions":"Fast headless execution in 2.5s","padding":"0ms sleep delays in mock mode","spacing":"Zero-flake deterministic assertions"},"design_tokens":{"background":"#1e1f22","surface":"#23a55a","text_primary":"#ffffff","accent":"#23a55a"},"interactive_states":[{"element":"cargo test --test gpui_contract_test","default":"Running 61 tests","hover":"Compiling","active":"test result: ok. 61 passed; 0 failed"}],"acceptance_criteria":["100% зеленых тестов (64/64)","0 падений и регрессий","Скомпилирован рабочий релизный бинарник target/release/discord-gpui (55 МБ)"]},{"id":"TASK-747","title":"Паритет стилей Discord Dark Design Polish и Hover-эффекты сообщений","status":"done","priority":"P1","department":"G3 Design","summary":"Стилизация ховеров строк сообщений ленты чата (rgba(255,255,255,0.03)), плавное скругление иконок серверов и индикаторной пилюли, тени контекстного меню по эталону официального Discord.","layout":{"container":"Chat message row","dimensions":"100% width, min-height 48px","padding":"6px 16px","spacing":"16px"},"design_tokens":{"background":"#313338","surface":"rgba(255,255,255,0.04)","text_primary":"#ffffff","accent":"#5865f2"},"interactive_states":[{"element":"Message Row","default":"transparent","hover":"bg: rgba(255,255,255,0.04)","active":"highlight"},{"element":"Server Icon","default":"rx: 24px","hover":"rx: 16px, bg: #5865f2","active":"scale: 0.96"}],"acceptance_criteria":["Плавный фон при наведении мыши","Скругление аватарок серверов при ховере"]},{"id":"TASK-748","title":"Аппаратный GPU-конвейер PipeWire кадра и захват экрана","status":"done","priority":"P1","department":"G5 Voice/Platform","summary":"Связывание D-Bus сессии XDG Desktop Portal ScreenCast и конвейера GpuVideoPipeline: получение remote fd PipeWire и node_id, валидация формата Rgba8 и отрисовка кадра на GPU без лишних копий.","layout":{"container":"PipeWire Stream Pipe & GpuTextureDescriptor","dimensions":"1920x1080 60 FPS","padding":"0ms delay","spacing":"Zero-copy DMA"},"design_tokens":{"background":"#1e1f22","surface":"#2b2d31","text_primary":"#ffffff","accent":"#5865f2"},"interactive_states":[{"element":"PipeWire FD Stream","default":"Unconnected","hover":"Portal selected","active":"Connected fd=42 node_id=101"}],"acceptance_criteria":["Успешная привязка fd и node_id в GpuVideoPipeline","Покрыто тестом test_gpu_video_pipeline_pipewire_connector_contract"]},{"id":"TASK-749","title":"Плавающий бар быстрых действий над сообщением (Floating Action Bar)","status":"done","priority":"P1","department":"G2 Frontend","summary":"Плавающий тулбар быстрых действий в правом углу каждого сообщения при наведении: быстрая реакция 😀 (добавляет/снимает 👍), быстрый ответ 💬 (подставляет @Author: ), закрепление 📌 (инвертирует статус и шлёт REST запрос), кнопка «⋯» для открытия контекстного меню.","layout":{"container":"Floating flex action bar","dimensions":"auto x 26px","padding":"2px 4px","spacing":"2px"},"design_tokens":{"background":"#2b2d31","surface":"#383a40","text_primary":"#ffffff","accent":"#5865f2","border":"1px solid rgba(255,255,255,0.08)"},"interactive_states":[{"element":"btn-react","default":"😀","hover":"bg: #35373c","active":"toggle 👍 reaction"},{"element":"btn-reply","default":"💬","hover":"bg: #35373c","active":"draft: @Author:"},{"element":"btn-pin","default":"📌","hover":"bg: #35373c","active":"toggle is_pinned"},{"element":"btn-more","default":"⋯","hover":"bg: #35373c","active":"open context menu"}],"acceptance_criteria":["Реализован тулбар в ChatView","Клик на реакцию и пин покрыт тестом test_floating_message_action_bar_and_quick_reaction_contract"]},{"id":"TASK-750","title":"Шлюз Discord Gateway Opcode 4 (Voice State Update)","status":"done","priority":"P0","department":"G1 Backend","summary":"Автоматическая генерация и отправка пакетов шлюза Discord Opcode 4 (Voice State Update) при подключении к голосовому каналу (guild_id, channel_id, self_mute, self_deaf) и при отключении (channel_id = null).","layout":{"container":"Gateway WebSocket JSON packet","dimensions":"Standard Discord Gateway protocol frame","padding":"N/A","spacing":"N/A"},"design_tokens":{"background":"N/A","surface":"N/A","text_primary":"N/A","accent":"#5865f2"},"interactive_states":[{"element":"Connect to Voice","default":"Disconnected","hover":"Click voice channel","active":"Send Opcode 4 with channel_id"},{"element":"Disconnect","default":"Connected","hover":"Click disconnect 📞✕","active":"Send Opcode 4 with channel_id: null"}],"acceptance_criteria":["Генерация валидного JSON payload Opcode 4","Покрыто тестом test_voice_state_update_opcode_4_gateway_contract"]},{"id":"TASK-751","title":"G1 Backend + G7 REA: Устойчивый парсер read_state.last_acked_id (Snowflake String/Integer/Null)","status":"in_dev","priority":"P1","department":"G1 Backend","summary":"Устранение критической ошибки парсинга read_state, обнаруженной живым GDB-трейсером: поле last_acked_id в entries[31] пакета READY приходит как integer/null/string. Замена жесткого требования строки на гибкий десериализатор Snowflake по эталону re-deep/gateway-schema.md.","layout":{"container":"Channel Read State Marker & Unread Badge","dimensions":"JSON Snowflake u64 or String id","padding":"N/A","spacing":"N/A"},"design_tokens":{"background":"#2b2d31","surface":"#1e1f22","text_primary":"#ffffff","accent":"#f23f43"},"interactive_states":[{"element":"openChannel click","default":"Load read_state","hover":"Parse Snowflake","active":"Badge cleared without error alert"},{"element":"chat-ack-note alert","default":"Hidden when valid","hover":"N/A","active":"No false-positive error banner"}],"acceptance_criteria":["read_state успешно парсит entries с целочисленным и строковым last_acked_id","Красный баннер «Не удалось прочитать состояние канала» не отображается","Покрыто контрактным тестом на фикстуре 002-READY.json"]},{"id":"TASK-752","title":"G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс)","status":"in_dev","priority":"P2","department":"G2 Frontend","summary":"Устранение задержки 1236 мс, зафиксированной живой телеметрией при клике на личный диалог ShadowByte. Асинхронное чтение из кэша памяти до блокирующего чтения с диска, виртуализация чанками по 50 сообщений.","layout":{"container":"Virtual Chat Message List","dimensions":"Width: 100%, Height: 100%","padding":"16px","spacing":"16px"},"design_tokens":{"background":"#313338","surface":"#2b2d31","text_primary":"#ffffff","accent":"#5865f2"},"interactive_states":[{"element":"Click on Channel / DM","default":"Skeleton loader","hover":"Preload cache","active":"Render messages < 300ms"}],"acceptance_criteria":["Время выполнения messages_page сокращено с 1236 мс до < 300 мс","Плавная прокрутка без рывков интерфейса"]},{"id":"TASK-760","title":"Паритет дизайна кнопок User Bar и Voice Panel 1:1 с Discord (Сплит-шевроны, Удаление Выйти, Voice Bar 4 Media)","status":"done","priority":"P0","department":"G2 Frontend + G3 Design","summary":"Удалена кнопка Выйти из user-bar (сохранена в настройках). Реализованы сплит-кнопки микрофона и оглушения (32x32 + 16x32 шеврон), красная подсветка mute, индикатор статуса Невидимый, 4 кнопки медиа (Камера, Демонстрация, Активности, Soundboard), задержка сброса OP 4 при выходе.","layout":{"container":"Bottom Sidebar (.user-bar 52px + #voice-panel)","dimensions":"240px width, 52px height user-bar","padding":"0 8px","spacing":"4px"},"design_tokens":{"background":"#232428","surface":"#2b2d31","danger_tint":"rgba(242, 63, 67, 0.18)","danger_text":"#f23f43","text_muted":"#b5bac1","accent":"#23a55a"},"interactive_states":[{"element":"MuteSplitButton","default":"32px mic + 16px chevron, normal: transparent, muted: rgba(242,63,67,0.18)","hover":"normal: rgba(255,255,255,0.08), muted: rgba(242,63,67,0.28)","active":"toggle mute state, trigger Discord audio cue"},{"element":"VoiceActionButtons","default":"Grid 4 cols (Camera, Screen, Activity, Soundboard), bg: #2b2d31, r: 4px","hover":"bg: #35373c, color: #ffffff","active":"active screen share: bg #23a55a"}],"acceptance_criteria":["Кнопка «Выйти» полностью отсутствует в строке пользователя","Кнопки микрофона и звука имеют правильные сплит-шевроны 32x32 и 16x32","При выходе из приложения клиент корректно отключается от голосового канала без зависания","Тесты tests/unit/message-delete-voice-exit-ui.test.mjs проходят 3/3"]},{"id":"TASK-761","title":"Паритет сигнализации SFU Discord для трансляции экрана на официальные клиенты","status":"done","priority":"P0","department":"G5 Voice / Platform + G1 Backend","summary":"Устранена ошибка SFU 4006/4014 при подключении зрителей из официального Discord. Извлечение серверных SSRCs (video + rtx) из OP 2 READY d.streams, согласование кодеков H264 и VP8 (can_encode=true), точное определение channel_id из stream_key без смещения -1.","layout":{"container":"WebRTC RTCDataChannel / Opus / H264 / VP8 SFU Voice Engine","dimensions":"1280x720p 60fps / 1080p 60fps / 4K","padding":"0","spacing":"0"},"design_tokens":{"accent":"#23a55a","danger":"#f23f43"},"interactive_states":[{"element":"ScreenShareModal","default":"Выбор окна / экрана, 720p/1080p, 30/60 FPS","hover":"Окно предпросмотра","active":"Запуск стрима через voice_stream_start"}],"acceptance_criteria":["Извлечение sfu_video_ssrc и sfu_rtx_ssrc из d.streams","OP 12 VIDEO использует назначенные сервером SSRCs","OP 1 SELECT_PROTOCOL согласует H264 и VP8 с флагом encode: true","Тесты tests/unit/stream-signaling-parity.test.mjs проходят 5/5"]},{"id":"TASK-762","title":"Устранение рассинхронизации удаления сообщений с официальным клиентом Discord","status":"done","priority":"P0","department":"G1 Backend + G2 Frontend","summary":"Устранено воскрешение удаленных сообщений из локального кэша channel_rows. Обработка событий шлюза MESSAGE_DELETE и MESSAGE_DELETE_BULK в ingest_live_dispatch и dispatch-model/view.js, удаление из DOM и кэша окон chat.js removeMessageFromWindow.","layout":{"container":"Chat Area (#chat-list)","dimensions":"flex-1 height, dynamic virtual list","padding":"0","spacing":"0"},"design_tokens":{"deleted_background":"rgba(242, 63, 67, 0.08)","danger_text":"#f23f43"},"interactive_states":[{"element":"MessageActionDelete","default":"Корзина / Клик Удалить","hover":"bg: rgba(242,63,67,0.16), color: #f23f43","active":"Мгновенное удаление из DOM + REST DELETE + Gateway sync"}],"acceptance_criteria":["Удаление сообщения в клиенте немедленно синхронизируется с сервером Discord","Удаленные сообщения не восстанавливаются при листании истории чата","Входящие события Gateway MESSAGE_DELETE и MESSAGE_DELETE_BULK удаляют сообщения из окна"]}];
+    const WIREFRAMES = {"app_layout":"<svg width=\"800\" height=\"450\" viewBox=\"0 0 800 450\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect width=\"800\" height=\"450\" fill=\"#1e1f22\" />\n  <!-- Server Rail (72px) -->\n  <rect x=\"0\" y=\"0\" width=\"72\" height=\"450\" fill=\"#1e1f22\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <circle cx=\"36\" cy=\"36\" r=\"24\" fill=\"#5865f2\" />\n  <text x=\"36\" y=\"41\" fill=\"#fff\" font-size=\"12\" text-anchor=\"middle\" font-family=\"sans-serif\">🎮</text>\n  <line x1=\"16\" y1=\"72\" x2=\"56\" y2=\"72\" stroke=\"#3f4147\" stroke-width=\"2\" />\n  <circle cx=\"36\" cy=\"104\" r=\"22\" fill=\"#2b2d31\" />\n  <text x=\"36\" y=\"109\" fill=\"#dbdee1\" font-size=\"11\" text-anchor=\"middle\" font-family=\"sans-serif\">RD</text>\n  <circle cx=\"36\" cy=\"160\" r=\"22\" fill=\"#23a55a\" />\n  <text x=\"36\" y=\"165\" fill=\"#fff\" font-size=\"16\" text-anchor=\"middle\" font-family=\"sans-serif\">+</text>\n  \n  <!-- Channel Sidebar (240px) -->\n  <rect x=\"72\" y=\"0\" width=\"240\" height=\"450\" fill=\"#2b2d31\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <rect x=\"72\" y=\"0\" width=\"240\" height=\"48\" fill=\"#2b2d31\" border-bottom=\"1px solid #1e1f22\"/>\n  <text x=\"88\" y=\"30\" fill=\"#fff\" font-size=\"14\" font-weight=\"bold\" font-family=\"sans-serif\">Rust Developers</text>\n  <text x=\"88\" y=\"70\" fill=\"#949ba4\" font-size=\"11\" font-weight=\"bold\" font-family=\"sans-serif\">▾ ТЕКСТОВЫЕ КАНАЛЫ</text>\n  <rect x=\"80\" y=\"80\" width=\"224\" height=\"34\" rx=\"4\" fill=\"#35373c\"/>\n  <text x=\"94\" y=\"102\" fill=\"#fff\" font-size=\"13\" font-family=\"sans-serif\">#  general</text>\n  <text x=\"94\" y=\"136\" fill=\"#949ba4\" font-size=\"13\" font-family=\"sans-serif\">#  architecture</text>\n  \n  <!-- Voice Panel (52px) -->\n  <rect x=\"72\" y=\"346\" width=\"240\" height=\"52\" fill=\"#232428\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <circle cx=\"88\" cy=\"372\" r=\"5\" fill=\"#23a55a\" />\n  <text x=\"100\" y=\"368\" fill=\"#23a55a\" font-size=\"11\" font-weight=\"bold\" font-family=\"sans-serif\">Голос подключен</text>\n  <text x=\"100\" y=\"384\" fill=\"#949ba4\" font-size=\"11\" font-family=\"sans-serif\">🔊 Voice 1 / 18ms</text>\n  <text x=\"286\" y=\"376\" fill=\"#f23f43\" font-size=\"14\" text-anchor=\"middle\" font-family=\"sans-serif\">📞✕</text>\n\n  <!-- User Profile Bar (52px) -->\n  <rect x=\"72\" y=\"398\" width=\"240\" height=\"52\" fill=\"#232428\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <circle cx=\"94\" cy=\"424\" r=\"16\" fill=\"#5865f2\"/>\n  <circle cx=\"106\" cy=\"436\" r=\"5\" fill=\"#23a55a\" stroke=\"#232428\" stroke-width=\"2\"/>\n  <text x=\"118\" y=\"420\" fill=\"#fff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">Rustery</text>\n  <text x=\"118\" y=\"436\" fill=\"#949ba4\" font-size=\"11\" font-family=\"sans-serif\">В сети</text>\n  <text x=\"250\" y=\"428\" fill=\"#dbdee1\" font-size=\"14\" font-family=\"sans-serif\">🎙️ 🎧 ⚙️</text>\n\n  <!-- Chat View (flex-1) -->\n  <rect x=\"312\" y=\"0\" width=\"488\" height=\"450\" fill=\"#313338\" />\n  <rect x=\"312\" y=\"0\" width=\"488\" height=\"48\" fill=\"#313338\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <text x=\"330\" y=\"30\" fill=\"#fff\" font-size=\"15\" font-weight=\"bold\" font-family=\"sans-serif\"># general</text>\n  <text x=\"410\" y=\"30\" fill=\"#949ba4\" font-size=\"12\" font-family=\"sans-serif\">Общий чат сообщества</text>\n\n  <!-- Messages -->\n  <circle cx=\"340\" cy=\"80\" r=\"18\" fill=\"#5865f2\"/>\n  <text x=\"368\" y=\"74\" fill=\"#fff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">ChiefArchitect</text>\n  <text x=\"470\" y=\"74\" fill=\"#949ba4\" font-size=\"11\" font-family=\"sans-serif\">Сегодня в 10:45</text>\n  <text x=\"368\" y=\"96\" fill=\"#dbdee1\" font-size=\"13\" font-family=\"sans-serif\">Клиент собран на чистом GPUI 120 FPS без WebKit!</text>\n\n  <!-- Message Bar -->\n  <rect x=\"328\" y=\"394\" width=\"456\" height=\"44\" rx=\"8\" fill=\"#383a40\"/>\n  <text x=\"344\" y=\"421\" fill=\"#949ba4\" font-size=\"13\" font-family=\"sans-serif\">Написать в #general...</text>\n  <text x=\"750\" y=\"421\" fill=\"#dbdee1\" font-size=\"16\" font-family=\"sans-serif\">😊 🎁</text>\n</svg>","channel_sidebar":"<svg width=\"240\" height=\"500\" viewBox=\"0 0 240 500\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect width=\"240\" height=\"500\" fill=\"#2b2d31\"/>\n  <!-- Guild Header Dropdown -->\n  <rect x=\"0\" y=\"0\" width=\"240\" height=\"48\" fill=\"#2b2d31\" stroke=\"#1f2023\" stroke-width=\"1\"/>\n  <text x=\"16\" y=\"28\" fill=\"#ffffff\" font-size=\"14\" font-weight=\"bold\" font-family=\"sans-serif\">Rust Developers</text>\n  <text x=\"216\" y=\"28\" fill=\"#dbdee1\" font-size=\"14\" font-family=\"sans-serif\">▾</text>\n\n  <!-- Category: TEXT CHANNELS -->\n  <text x=\"16\" y=\"74\" fill=\"#949ba4\" font-size=\"11\" font-weight=\"bold\" font-family=\"sans-serif\">▾ ТЕКСТОВЫЕ КАНАЛЫ</text>\n  <!-- Channel Item: Active #general -->\n  <rect x=\"8\" y=\"86\" width=\"224\" height=\"34\" rx=\"4\" fill=\"#35373c\"/>\n  <text x=\"18\" y=\"108\" fill=\"#ffffff\" font-size=\"15\" font-family=\"sans-serif\">#</text>\n  <text x=\"36\" y=\"108\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">general</text>\n  <!-- Channel Item: Hover #architecture -->\n  <rect x=\"8\" y=\"124\" width=\"224\" height=\"34\" rx=\"4\" fill=\"rgba(255,255,255,0.04)\"/>\n  <text x=\"18\" y=\"146\" fill=\"#949ba4\" font-size=\"15\" font-family=\"sans-serif\">#</text>\n  <text x=\"36\" y=\"146\" fill=\"#dbdee1\" font-size=\"13\" font-family=\"sans-serif\">architecture</text>\n  <!-- Channel Item: Unread #announcements -->\n  <rect x=\"8\" y=\"162\" width=\"224\" height=\"34\" rx=\"4\" fill=\"transparent\"/>\n  <circle cx=\"4\" cy=\"179\" r=\"3\" fill=\"#ffffff\"/>\n  <text x=\"18\" y=\"184\" fill=\"#949ba4\" font-size=\"15\" font-family=\"sans-serif\">#</text>\n  <text x=\"36\" y=\"184\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">announcements</text>\n\n  <!-- Category: VOICE CHANNELS -->\n  <text x=\"16\" y=\"230\" fill=\"#949ba4\" font-size=\"11\" font-weight=\"bold\" font-family=\"sans-serif\">▾ ГОЛОСОВЫЕ КАНАЛЫ</text>\n  <!-- Voice Channel: Lounge -->\n  <rect x=\"8\" y=\"242\" width=\"224\" height=\"34\" rx=\"4\" fill=\"transparent\"/>\n  <text x=\"18\" y=\"264\" fill=\"#949ba4\" font-size=\"14\" font-family=\"sans-serif\">🔊</text>\n  <text x=\"38\" y=\"264\" fill=\"#dbdee1\" font-size=\"13\" font-family=\"sans-serif\">Voice 1 (Lounge)</text>\n  <!-- Connected Voice Users -->\n  <circle cx=\"36\" cy=\"292\" r=\"10\" fill=\"#5865f2\"/>\n  <text x=\"54\" y=\"296\" fill=\"#23a55a\" font-size=\"12\" font-weight=\"bold\" font-family=\"sans-serif\">Rustery (Говорит)</text>\n  <circle cx=\"216\" cy=\"292\" r=\"4\" fill=\"#23a55a\"/>\n\n  <!-- Voice Control Panel (Connected State) -->\n  <rect x=\"0\" y=\"396\" width=\"240\" height=\"52\" fill=\"#232428\" stroke=\"#1f2023\" stroke-width=\"1\"/>\n  <circle cx=\"16\" cy=\"418\" r=\"4\" fill=\"#23a55a\"/>\n  <text x=\"26\" y=\"415\" fill=\"#23a55a\" font-size=\"11\" font-weight=\"bold\" font-family=\"sans-serif\">RTC Подключено</text>\n  <text x=\"26\" y=\"432\" fill=\"#949ba4\" font-size=\"11\" font-family=\"sans-serif\">Voice 1 / 18ms</text>\n  <rect x=\"196\" y=\"408\" width=\"32\" height=\"28\" rx=\"4\" fill=\"rgba(242,63,67,0.15)\"/>\n  <text x=\"206\" y=\"427\" fill=\"#f23f43\" font-size=\"14\" font-family=\"sans-serif\">✕</text>\n\n  <!-- User Bar -->\n  <rect x=\"0\" y=\"448\" width=\"240\" height=\"52\" fill=\"#232428\"/>\n  <circle cx=\"24\" cy=\"474\" r=\"16\" fill=\"#5865f2\"/>\n  <circle cx=\"36\" cy=\"486\" r=\"5\" fill=\"#23a55a\" stroke=\"#232428\" stroke-width=\"2\"/>\n  <text x=\"48\" y=\"470\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">Rustery</text>\n  <text x=\"48\" y=\"486\" fill=\"#949ba4\" font-size=\"11\" font-family=\"sans-serif\">#0001</text>\n  <text x=\"160\" y=\"478\" fill=\"#b5bac1\" font-size=\"15\" font-family=\"sans-serif\">🎙️ 🎧 ⚙️</text>\n</svg>","context_menu":"<svg width=\"260\" height=\"200\" viewBox=\"0 0 260 200\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect x=\"10\" y=\"10\" width=\"240\" height=\"180\" rx=\"8\" fill=\"#2b2d31\" stroke=\"#3f4147\" stroke-width=\"1\" filter=\"drop-shadow(0 8px 16px rgba(0,0,0,0.4))\"/>\n  <!-- Item 1: Pin (Hover State) -->\n  <rect x=\"16\" y=\"16\" width=\"228\" height=\"34\" rx=\"4\" fill=\"#5865f2\"/>\n  <text x=\"28\" y=\"38\" fill=\"#fff\" font-size=\"14\" font-family=\"sans-serif\">📌</text>\n  <text x=\"52\" y=\"38\" fill=\"#fff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">Закрепить сообщение</text>\n  <!-- Item 2: Reply -->\n  <rect x=\"16\" y=\"52\" width=\"228\" height=\"34\" rx=\"4\" fill=\"transparent\"/>\n  <text x=\"28\" y=\"74\" fill=\"#dbdee1\" font-size=\"14\" font-family=\"sans-serif\">💬</text>\n  <text x=\"52\" y=\"74\" fill=\"#dbdee1\" font-size=\"13\" font-family=\"sans-serif\">Ответить</text>\n  <!-- Item 3: Copy -->\n  <rect x=\"16\" y=\"88\" width=\"228\" height=\"34\" rx=\"4\" fill=\"transparent\"/>\n  <text x=\"28\" y=\"110\" fill=\"#dbdee1\" font-size=\"14\" font-family=\"sans-serif\">📋</text>\n  <text x=\"52\" y=\"110\" fill=\"#dbdee1\" font-size=\"13\" font-family=\"sans-serif\">Копировать текст</text>\n  <line x1=\"20\" y1=\"126\" x2=\"240\" y2=\"126\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <!-- Item 4: Delete -->\n  <rect x=\"16\" y=\"132\" width=\"228\" height=\"34\" rx=\"4\" fill=\"transparent\"/>\n  <text x=\"28\" y=\"154\" fill=\"#f23f43\" font-size=\"14\" font-family=\"sans-serif\">🗑️</text>\n  <text x=\"52\" y=\"154\" fill=\"#f23f43\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">Удалить сообщение</text>\n</svg>","create_guild_modal":"<svg width=\"440\" height=\"360\" viewBox=\"0 0 440 360\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect width=\"440\" height=\"360\" rx=\"12\" fill=\"#313338\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <text x=\"220\" y=\"44\" fill=\"#ffffff\" font-size=\"20\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">Создайте свой сервер</text>\n  <text x=\"220\" y=\"68\" fill=\"#949ba4\" font-size=\"13\" text-anchor=\"middle\" font-family=\"sans-serif\">Сервер — это место, где собираются ваши друзья</text>\n  \n  <!-- Server Name Input Field -->\n  <text x=\"32\" y=\"112\" fill=\"#b5bac1\" font-size=\"12\" font-weight=\"bold\" font-family=\"sans-serif\">НАЗВАНИЕ СЕРВЕРА</text>\n  <rect x=\"32\" y=\"124\" width=\"376\" height=\"42\" rx=\"4\" fill=\"#1e1f22\" stroke=\"#5865f2\" stroke-width=\"1\"/>\n  <text x=\"44\" y=\"150\" fill=\"#ffffff\" font-size=\"14\" font-family=\"sans-serif\">Сервер Rustery</text>\n\n  <!-- Guild Icon Upload Placeholder -->\n  <circle cx=\"220\" cy=\"220\" r=\"36\" fill=\"#2b2d31\" stroke=\"#3f4147\" stroke-dasharray=\"4 2\"/>\n  <text x=\"220\" y=\"226\" fill=\"#949ba4\" font-size=\"24\" text-anchor=\"middle\" font-family=\"sans-serif\">📷</text>\n  <text x=\"220\" y=\"272\" fill=\"#949ba4\" font-size=\"11\" text-anchor=\"middle\" font-family=\"sans-serif\">Загрузить иконку</text>\n\n  <!-- Footer Actions -->\n  <rect x=\"0\" y=\"304\" width=\"440\" height=\"56\" fill=\"#2b2d31\" rx=\"0 0 12 12\"/>\n  <text x=\"48\" y=\"338\" fill=\"#ffffff\" font-size=\"14\" font-family=\"sans-serif\">Назад</text>\n  <rect x=\"310\" y=\"316\" width=\"98\" height=\"34\" rx=\"4\" fill=\"#5865f2\"/>\n  <text x=\"359\" y=\"338\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">Создать</text>\n</svg>","screen_share_modal":"<svg width=\"600\" height=\"420\" viewBox=\"0 0 600 420\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect width=\"600\" height=\"420\" rx=\"12\" fill=\"#313338\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <!-- Modal Header -->\n  <text x=\"32\" y=\"44\" fill=\"#ffffff\" font-size=\"20\" font-weight=\"bold\" font-family=\"sans-serif\">Демонстрация экрана</text>\n  <text x=\"32\" y=\"68\" fill=\"#949ba4\" font-size=\"13\" font-family=\"sans-serif\">Выберите монитор или окно приложения для трансляции через PipeWire</text>\n  <!-- Tabs: Screens / Applications -->\n  <rect x=\"32\" y=\"92\" width=\"120\" height=\"32\" rx=\"4\" fill=\"#3f4147\"/>\n  <text x=\"92\" y=\"113\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">Экраны (1)</text>\n  <text x=\"200\" y=\"113\" fill=\"#949ba4\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">Приложения (4)</text>\n\n  <!-- Screen 1 Card (Selected) -->\n  <rect x=\"32\" y=\"140\" width=\"250\" height=\"150\" rx=\"8\" fill=\"#2b2d31\" stroke=\"#5865f2\" stroke-width=\"2\"/>\n  <rect x=\"42\" y=\"150\" width=\"230\" height=\"100\" rx=\"4\" fill=\"#1e1f22\"/>\n  <text x=\"157\" y=\"205\" fill=\"#5865f2\" font-size=\"24\" text-anchor=\"middle\" font-family=\"sans-serif\">🖥️</text>\n  <text x=\"42\" y=\"274\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" font-family=\"sans-serif\">Экран 1: 1920x1080 (60 FPS)</text>\n\n  <!-- Stream Quality Settings -->\n  <text x=\"32\" y=\"324\" fill=\"#dbdee1\" font-size=\"12\" font-weight=\"bold\" font-family=\"sans-serif\">КАЧЕСТВО СТРИМА</text>\n  <rect x=\"32\" y=\"336\" width=\"70\" height=\"28\" rx=\"4\" fill=\"#2b2d31\"/>\n  <text x=\"67\" y=\"355\" fill=\"#949ba4\" font-size=\"12\" text-anchor=\"middle\" font-family=\"sans-serif\">720p</text>\n  <rect x=\"110\" y=\"336\" width=\"70\" height=\"28\" rx=\"4\" fill=\"#5865f2\"/>\n  <text x=\"145\" y=\"355\" fill=\"#ffffff\" font-size=\"12\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">1080p</text>\n  <rect x=\"188\" y=\"336\" width=\"70\" height=\"28\" rx=\"4\" fill=\"#2b2d31\"/>\n  <text x=\"223\" y=\"355\" fill=\"#949ba4\" font-size=\"12\" text-anchor=\"middle\" font-family=\"sans-serif\">1440p</text>\n\n  <!-- Modal Footer Actions -->\n  <rect x=\"0\" y=\"372\" width=\"600\" height=\"48\" fill=\"#2b2d31\" rx=\"0 0 12 12\"/>\n  <text x=\"430\" y=\"402\" fill=\"#ffffff\" font-size=\"14\" font-family=\"sans-serif\">Отмена</text>\n  <rect x=\"490\" y=\"380\" width=\"94\" height=\"34\" rx=\"4\" fill=\"#5865f2\"/>\n  <text x=\"537\" y=\"402\" fill=\"#ffffff\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">В эфир</text>\n</svg>","server_rail":"<svg width=\"72\" height=\"500\" viewBox=\"0 0 72 500\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect width=\"72\" height=\"500\" fill=\"#1e1f22\"/>\n  <!-- Home/DM Icon (Active) -->\n  <rect x=\"0\" y=\"14\" width=\"4\" height=\"40\" rx=\"2\" fill=\"#ffffff\"/>\n  <circle cx=\"36\" cy=\"34\" r=\"24\" fill=\"#5865f2\"/>\n  <text x=\"36\" y=\"40\" fill=\"#fff\" font-size=\"16\" text-anchor=\"middle\" font-family=\"sans-serif\">💬</text>\n  <!-- Separator -->\n  <line x1=\"20\" y1=\"70\" x2=\"52\" y2=\"70\" stroke=\"#35373c\" stroke-width=\"2\"/>\n  <!-- Guild 1: Rust Developers (Hovered) -->\n  <rect x=\"0\" y=\"90\" width=\"4\" height=\"20\" rx=\"2\" fill=\"#ffffff\"/>\n  <rect x=\"12\" y=\"80\" width=\"48\" height=\"48\" rx=\"16\" fill=\"#313338\"/>\n  <text x=\"36\" y=\"110\" fill=\"#ffffff\" font-size=\"14\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">RD</text>\n  <!-- Guild 2: Tokyo Async -->\n  <circle cx=\"36\" cy=\"160\" r=\"24\" fill=\"#2b2d31\"/>\n  <text x=\"36\" y=\"165\" fill=\"#dbdee1\" font-size=\"13\" text-anchor=\"middle\" font-family=\"sans-serif\">TA</text>\n  <!-- Add Guild Button -->\n  <circle cx=\"36\" cy=\"220\" r=\"24\" fill=\"#313338\" stroke=\"#23a55a\" stroke-dasharray=\"4 2\"/>\n  <text x=\"36\" y=\"226\" fill=\"#23a55a\" font-size=\"20\" font-weight=\"bold\" text-anchor=\"middle\" font-family=\"sans-serif\">+</text>\n  <!-- Explore Public Guilds -->\n  <circle cx=\"36\" cy=\"280\" r=\"24\" fill=\"#313338\"/>\n  <text x=\"36\" y=\"286\" fill=\"#23a55a\" font-size=\"16\" text-anchor=\"middle\" font-family=\"sans-serif\">🧭</text>\n</svg>","voice_panel":"<svg width=\"300\" height=\"120\" viewBox=\"0 0 300 120\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect width=\"300\" height=\"120\" fill=\"#232428\" rx=\"8\" stroke=\"#3f4147\" stroke-width=\"1\"/>\n  <!-- Voice Status Banner -->\n  <circle cx=\"20\" cy=\"28\" r=\"5\" fill=\"#23a55a\"/>\n  <text x=\"34\" y=\"25\" fill=\"#23a55a\" font-size=\"12\" font-weight=\"bold\" font-family=\"sans-serif\">Голос подключен</text>\n  <text x=\"34\" y=\"42\" fill=\"#949ba4\" font-size=\"11\" font-family=\"sans-serif\">Voice 1 / RTC 18ms (Opus 48kHz)</text>\n  <!-- Disconnect Button -->\n  <rect x=\"250\" y=\"16\" width=\"34\" height=\"30\" rx=\"4\" fill=\"rgba(242,63,67,0.2)\"/>\n  <text x=\"267\" y=\"36\" fill=\"#f23f43\" font-size=\"16\" text-anchor=\"middle\" font-family=\"sans-serif\">📞✕</text>\n  \n  <line x1=\"16\" y1=\"58\" x2=\"284\" y2=\"58\" stroke=\"#35373c\" stroke-width=\"1\"/>\n\n  <!-- Voice Control Buttons: Video, Screen Share, Mute, Deafen -->\n  <rect x=\"16\" y=\"68\" width=\"60\" height=\"38\" rx=\"4\" fill=\"#2b2d31\"/>\n  <text x=\"46\" y=\"92\" fill=\"#dbdee1\" font-size=\"14\" text-anchor=\"middle\" font-family=\"sans-serif\">📹 Камера</text>\n  <rect x=\"84\" y=\"68\" width=\"60\" height=\"38\" rx=\"4\" fill=\"#5865f2\"/>\n  <text x=\"114\" y=\"92\" fill=\"#ffffff\" font-size=\"14\" text-anchor=\"middle\" font-family=\"sans-serif\">🖥️ Экран</text>\n  <rect x=\"152\" y=\"68\" width=\"60\" height=\"38\" rx=\"4\" fill=\"#2b2d31\"/>\n  <text x=\"182\" y=\"92\" fill=\"#dbdee1\" font-size=\"14\" text-anchor=\"middle\" font-family=\"sans-serif\">🎙️ Микр</text>\n  <rect x=\"220\" y=\"68\" width=\"64\" height=\"38\" rx=\"4\" fill=\"#2b2d31\"/>\n  <text x=\"252\" y=\"92\" fill=\"#dbdee1\" font-size=\"14\" text-anchor=\"middle\" font-family=\"sans-serif\">🎧 Звук</text>\n</svg>"};
+    const WF_MAP = {
+      'TASK-701': 'app_layout',
+      'TASK-707': 'server_rail',
+      'TASK-708': 'channel_sidebar',
+      'TASK-709': 'app_layout',
+      'TASK-710': 'context_menu',
+      'TASK-711': 'voice_panel',
+      'TASK-712': 'screen_share_modal',
+      'TASK-743': 'create_guild_modal'
+    };
+
+    function openModal(id) {
+      const card = CARDS.find(c => c.id === id);
+      if (!card) return;
+      document.getElementById('modalId').innerText = card.id + ' • ' + card.department + ' • ' + card.priority;
+      document.getElementById('modalTitle').innerText = card.title;
+      document.getElementById('modalSummary').innerText = card.summary || 'Описание не указано';
+
+      const layoutDiv = document.getElementById('modalLayout');
+      layoutDiv.innerHTML = card.layout ? `
+        <div><strong>Контейнер:</strong> ${card.layout.container || 'Flex'}</div>
+        <div><strong>Размеры:</strong> ${card.layout.dimensions || 'auto'}</div>
+        <div><strong>Внутренние отступы:</strong> ${card.layout.padding || '0px'}</div>
+        <div><strong>Зазоры между элементами:</strong> ${card.layout.spacing || '0px'}</div>
+      ` : '<div>Макет по умолчанию</div>';
+
+      const wfKey = WF_MAP[card.id];
+      const wfContainer = document.getElementById('modalWireframe');
+      const wfTitle = document.getElementById('wireframeSectionTitle');
+      if (wfKey && WIREFRAMES[wfKey]) {
+        wfContainer.style.display = 'block';
+        wfTitle.style.display = 'block';
+        wfContainer.innerHTML = WIREFRAMES[wfKey];
+      } else {
+        wfContainer.style.display = 'none';
+        wfTitle.style.display = 'none';
+      }
+
+      const tokensDiv = document.getElementById('modalTokens');
+      tokensDiv.innerHTML = card.design_tokens ? `
+        <div><strong>Фон:</strong> ${card.design_tokens.background || '#2b2d31'}</div>
+        <div><strong>Поверхность:</strong> ${card.design_tokens.surface || '#313338'}</div>
+        <div><strong>Текст:</strong> ${card.design_tokens.text_primary || '#ffffff'}</div>
+        <div><strong>Акцент:</strong> ${card.design_tokens.accent || '#5865f2'}</div>
+      ` : '<div>Токены Discord Dark</div>';
+
+      const tbody = document.getElementById('modalStatesBody');
+      tbody.innerHTML = (card.interactive_states && card.interactive_states.length > 0) ? card.interactive_states.map(s => `
+        <tr>
+          <td><strong>${s.element}</strong></td>
+          <td>${s.default}</td>
+          <td><span style="color: #00a8fc;">${s.hover}</span></td>
+          <td><span style="color: #23a55a;">${s.active}</span></td>
+        </tr>
+      `).join('') : '<tr><td colspan="4">Стандартные состояния</td></tr>';
+
+      const dodDiv = document.getElementById('modalDod');
+      dodDiv.innerHTML = (card.acceptance_criteria && card.acceptance_criteria.length > 0) ? card.acceptance_criteria.map(d => `
+        <div class="dod-item"><span style="color: #23a55a;">✔</span> <span>${d}</span></div>
+      `).join('') : '<div>100% покрытие контрактами</div>';
+
+      document.getElementById('cardModal').style.display = 'flex';
+    }
+    function hideModal() {
+      document.getElementById('cardModal').style.display = 'none';
+    }
+    function closeModal(e) {
+      if (e.target.id === 'cardModal') hideModal();
+    }
+  </script>
+</body>
+</html>

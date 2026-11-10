@@ -1327,7 +1327,8 @@ export class GuiDom {
     this.realError = console.error;
     /** @type {Console["warn"]} */
     this.realWarn = console.warn;
-    /** @type {{ document: ShimDocument, __TAURI__: any, addEventListener: (...args: any[]) => void, removeEventListener: (...args: any[]) => void, requestAnimationFrame: (cb: (time: number) => void) => number }} */
+    /** @type {Map<string, Set<Function>>} */
+    const windowListeners = new Map();
     this.window = {
       document: this.document,
       __TAURI__: {
@@ -1336,8 +1337,25 @@ export class GuiDom {
           invoke: (cmd, args) => this.invoke(cmd, args),
         },
       },
-      addEventListener() {},
-      removeEventListener() {},
+      /** @param {string} type @param {any} listener */
+      addEventListener: (type, listener) => {
+        if (!windowListeners.has(type)) windowListeners.set(type, new Set());
+        windowListeners.get(type)?.add(listener);
+      },
+      /** @param {string} type @param {any} listener */
+      removeEventListener: (type, listener) => {
+        windowListeners.get(type)?.delete(listener);
+      },
+      /** @param {any} event */
+      dispatchEvent: (event) => {
+        const type = typeof event === "string" ? event : event?.type;
+        const set = windowListeners.get(type);
+        if (set) {
+          for (const fn of set) fn(event);
+        }
+        return true;
+      },
+      /** @param {any} callback */
       requestAnimationFrame: (callback) => this.requestAnimationFrame(callback),
     };
     buildDom(this.document);
@@ -1378,6 +1396,8 @@ export class GuiDom {
       case "window_ready":
       case "settings_save":
       case "ack_channel_message":
+      case "delete_message":
+      case "voice_disconnect":
         return null;
       case "settings_load":
         // RW-40/B8b: дефолты `UiSettings::default` (settings_store.rs).
