@@ -1304,17 +1304,15 @@ pub fn queue_live_voice_state_ext(
             }
         }
     } else if let Some(old_key) = prev_stream_key.take() {
-        if clean_cid.is_some() {
-            let del_d = EtfValue::Map(vec![(
-                EtfValue::Str("stream_key".to_string()),
-                EtfValue::Str(old_key),
-            )]);
-            let del_env = EtfValue::Map(vec![
-                (EtfValue::Str("op".to_string()), EtfValue::Int(19)),
-                (EtfValue::Str("d".to_string()), del_d),
-            ]);
-            send_live_gateway_frame(encode(&del_env));
-        }
+        let del_d = EtfValue::Map(vec![(
+            EtfValue::Str("stream_key".to_string()),
+            EtfValue::Str(old_key),
+        )]);
+        let del_env = EtfValue::Map(vec![
+            (EtfValue::Str("op".to_string()), EtfValue::Int(19)),
+            (EtfValue::Str("d".to_string()), del_d),
+        ]);
+        send_live_gateway_frame(encode(&del_env));
         let watching_other = LAST_WATCHED_STREAM_KEY
             .get_or_init(|| std::sync::Mutex::new(None))
             .lock()
@@ -1325,6 +1323,50 @@ pub fn queue_live_voice_state_ext(
             stop_live_stream_rtc_session();
         }
     }
+    Ok(())
+}
+
+/// Отправляет в живой шлюз Discord `OP 18 STREAM_CREATE`
+/// (`{"op":18,"d":{"type":"guild"|"call","guild_id":...|null,"channel_id":...,"preferred_region":null}}`)
+/// для запуска демонстрации экрана / трансляции (`Go Live`) в гильдейском или личном звонке.
+pub fn queue_live_stream_create(
+    stream_type: &str,
+    guild_id: Option<&str>,
+    channel_id: &str,
+) -> Result<(), OutboundError> {
+    use discord_codec::etf::{encode, EtfValue};
+    let stype = stream_type.trim();
+    let cid = channel_id.trim();
+    if cid.is_empty() {
+        return Ok(());
+    }
+    let clean_gid = guild_id
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && *s != "@me" && *s != "nil" && *s != "null");
+    let gid_val = match clean_gid {
+        Some(gid) => EtfValue::Str(gid.to_string()),
+        None => EtfValue::Nil,
+    };
+    let stream_d = EtfValue::Map(vec![
+        (
+            EtfValue::Str("type".to_string()),
+            EtfValue::Str(stype.to_string()),
+        ),
+        (EtfValue::Str("guild_id".to_string()), gid_val),
+        (
+            EtfValue::Str("channel_id".to_string()),
+            EtfValue::Str(cid.to_string()),
+        ),
+        (
+            EtfValue::Str("preferred_region".to_string()),
+            EtfValue::Nil,
+        ),
+    ]);
+    let stream_env = EtfValue::Map(vec![
+        (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
+        (EtfValue::Str("d".to_string()), stream_d),
+    ]);
+    send_live_gateway_frame(encode(&stream_env));
     Ok(())
 }
 

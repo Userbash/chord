@@ -3711,6 +3711,8 @@ function boot() {
   /** @type {Map<string, any[]>} */
   const liveVoiceStatesByGuild = new Map();
   /** @type {Map<string, any>} */
+  const activeDmCalls = new Map();
+  /** @type {Map<string, any>} */
   const liveGuildsById = new Map();
   /** @type {Map<string, string[]>} */
   const liveMemberRolesByGuildAndUser = new Map();
@@ -3824,7 +3826,7 @@ function boot() {
   /**
    * Проигрывает стандартные оригинальные звуки Discord для всех действий
    * (вход, выход, перемещение, отключение, мьют, размьют, оглушение, стрим, камера, сообщение).
-   * @param {"join" | "leave" | "user_moved" | "disconnect" | "mute" | "unmute" | "deafen" | "undeafen" | "stream_on" | "stream_off" | "stream_user_joined" | "stream_user_left" | "camera_on" | "camera_off" | "message"} kind
+   * @param {"join" | "leave" | "user_moved" | "disconnect" | "mute" | "unmute" | "deafen" | "undeafen" | "stream_on" | "stream_off" | "stream_user_joined" | "stream_user_left" | "camera_on" | "camera_off" | "message" | "outgoing_call"} kind
    */
   function playVoiceUiSound(kind) {
     if (!isLiveSession()) return;
@@ -3847,6 +3849,7 @@ function boot() {
       camera_on: "stream_started.mp3",
       camera_off: "stream_ended.mp3",
       message: "message1.mp3",
+      outgoing_call: "user_join.mp3",
     };
     const fileName = fileMap[kind] || "mute.mp3";
     void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
@@ -4438,8 +4441,33 @@ function boot() {
   }
 
   function disconnectFromLiveVoiceChannel() {
+    const connAny = /** @type {any} */ (activeVoiceConnection);
     const prevGuildId = activeVoiceConnection?.guildId ?? null;
-    const selfId = String(liveSelfUser?.id || "");
+    const prevChannelId = activeVoiceConnection?.channelId ?? null;
+    const hadStream = Boolean(
+      activeVoiceConnection?.screenShareOn ||
+      connAny?.activeStreamKey ||
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__
+    );
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    const stopStreamKey =
+      connAny?.activeStreamKey ||
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+      (prevGuildId && prevGuildId !== HOME_GUILD_ID && prevGuildId !== "@me"
+        ? `guild:${prevGuildId}:${prevChannelId}:${selfId}`
+        : `call:${prevChannelId}:${selfId}`);
+
+    if (hadStream) {
+      document.getElementById("live-stream-pip")?.remove();
+      document.getElementById("live-stream-preview-overlay")?.remove();
+      document.getElementById("live-screenshare-modal")?.remove();
+      void invoke("voice_stream_stop", {
+        stream_key: stopStreamKey,
+      }).catch(() => {});
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
+      playVoiceUiSound("stream_off");
+    }
+
     for (const [gid, arr] of liveVoiceStatesByGuild.entries()) {
       liveVoiceStatesByGuild.set(
         gid,
@@ -9608,9 +9636,16 @@ function boot() {
         }
       }
       playVoiceUiSound("stream_off");
+      const isCall = !conn.guildId || conn.guildId === HOME_GUILD_ID || conn.guildId === "@me";
+      const stopKey =
+        conn.activeStreamKey ||
+        /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+        (isCall ? `call:${conn.channelId}:${selfId}` : `guild:${conn.guildId}:${conn.channelId}:${selfId}`);
       void invoke("voice_stream_stop", {
-        stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+        stream_key: stopKey,
       }).catch(() => {});
+      conn.activeStreamKey = null;
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
       tree.refreshView();
@@ -9631,6 +9666,7 @@ function boot() {
     document.getElementById("live-stream-settings-menu")?.remove();
     document.getElementById("live-stream-settings-submenu")?.remove();
     if (!activeVoiceConnection) return;
+    const conn = /** @type {any} */ (activeVoiceConnection);
     if (activeVoiceConnection.screenShareOn && !forceOpenConfig) {
       activeVoiceConnection.screenShareOn = false;
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
@@ -9647,9 +9683,16 @@ function boot() {
         }
       }
       playVoiceUiSound("stream_off");
+      const isCall = !conn.guildId || conn.guildId === HOME_GUILD_ID || conn.guildId === "@me";
+      const stopKey =
+        conn.activeStreamKey ||
+        /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+        (isCall ? `call:${conn.channelId}:${selfId}` : `guild:${conn.guildId}:${conn.channelId}:${selfId}`);
       void invoke("voice_stream_stop", {
-        stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+        stream_key: stopKey,
       }).catch(() => {});
+      conn.activeStreamKey = null;
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
       tree.refreshView();
@@ -9661,7 +9704,6 @@ function boot() {
       channelId: activeVoiceConnection.channelId,
       screenShareOn: Boolean(activeVoiceConnection.screenShareOn),
     });
-    const conn = /** @type {any} */ (activeVoiceConnection);
     if (!conn.preset) conn.preset = "games";
     if (!conn.resolution) conn.resolution = conn.streamResolution || "720p";
     if (!conn.fps) conn.fps = Number(conn.streamFps || 60);
@@ -9708,18 +9750,26 @@ function boot() {
       }
       cleanupModal();
       playVoiceUiSound("stream_on");
+      const isCall = !conn.guildId || conn.guildId === HOME_GUILD_ID || conn.guildId === "@me";
       void invoke("voice_stream_start", {
         spec: {
-          guild_id: conn.guildId || null,
+          guild_id: isCall ? null : conn.guildId,
           channel_id: conn.channelId || "default",
           source_id: picked.id,
           resolution: conn.streamResolution || "720p",
           fps: Number(conn.streamFps || 60),
           share_audio: conn.streamAudio !== false,
         },
-      }).catch((err) => {
-        console.warn("[voice_stream_start err]", err);
-      });
+      })
+        .then((res) => {
+          if (res && typeof res === "object" && res.streamKey) {
+            conn.activeStreamKey = String(res.streamKey);
+            /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = String(res.streamKey);
+          }
+        })
+        .catch((err) => {
+          console.warn("[voice_stream_start err]", err);
+        });
       void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
         kind: "set_capture_source",
         deviceId: (picked.tab || appCaptureKind) + ":" + picked.id + ":" + (picked.label || ""),
@@ -10425,13 +10475,15 @@ function boot() {
       return;
     }
     const participants = getVoiceParticipants(HOME_GUILD_ID, dmCid);
+    const hasActiveDmCall = activeDmCalls.has(dmCid);
     const isConnectedHere = Boolean(
       activeVoiceConnection &&
         normalizeVoiceGuildKey(activeVoiceConnection.guildId) === HOME_GUILD_ID &&
         String(activeVoiceConnection.channelId || "") === dmCid,
     );
-    if (!isConnectedHere && participants.length === 0) {
+    if (!isConnectedHere && participants.length === 0 && !hasActiveDmCall) {
       existing?.remove();
+      document.getElementById("dm-call-join-banner")?.remove();
       return;
     }
 
@@ -10439,6 +10491,37 @@ function boot() {
       cleanDiscordStr(document.querySelector(".chat-header .chat-title")?.textContent) ||
       activeVoiceConnection?.channelName ||
       "Звонок";
+
+    if (!isConnectedHere) {
+      existing?.remove();
+      let callInviteBanner = document.getElementById("dm-call-join-banner");
+      if (!callInviteBanner) {
+        callInviteBanner = document.createElement("div");
+        callInviteBanner.id = "dm-call-join-banner";
+        callInviteBanner.style.cssText =
+          "margin:8px 16px;padding:12px 16px;background:rgba(35,165,90,0.15);border:1px solid #23a55a;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;";
+        const txt = document.createElement("div");
+        txt.style.cssText = "color:#f2f3f5;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;";
+        txt.innerHTML = "<span>📞</span><span>В этом чате идёт голосовой звонок</span>";
+        const joinBtn = document.createElement("button");
+        joinBtn.type = "button";
+        joinBtn.style.cssText =
+          "background:#23a55a;color:#fff;border:none;border-radius:4px;padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer;";
+        joinBtn.textContent = "Присоединиться к звонку";
+        joinBtn.onclick = () => {
+          connectToLiveVoiceChannel("", dmChannelName, { id: dmCid, name: dmChannelName });
+        };
+        callInviteBanner.append(txt, joinBtn);
+        const chatScreen = document.getElementById("screen-chat");
+        const chatMain = chatScreen?.querySelector(".chat-main");
+        if (chatMain) {
+          chatMain.prepend(callInviteBanner);
+        }
+      }
+      return;
+    } else {
+      document.getElementById("dm-call-join-banner")?.remove();
+    }
     const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const displayParticipants = [...participants];
     if (isConnectedHere && displayParticipants.length === 1 && displayParticipants[0]?.userId === selfId) {
@@ -10795,6 +10878,131 @@ function boot() {
       );
     }
     banner.append(controlsRow);
+  }
+
+  /** @type {any} */
+  let ringingAudioLoopTimer = null;
+  /** @param {boolean} start */
+  function playRingingTone(start) {
+    if (ringingAudioLoopTimer) {
+      clearInterval(ringingAudioLoopTimer);
+      ringingAudioLoopTimer = null;
+    }
+    if (!start) return;
+    playVoiceUiSound("outgoing_call");
+    ringingAudioLoopTimer = setInterval(() => {
+      playVoiceUiSound("outgoing_call");
+    }, 2800);
+  }
+
+  /**
+   * Отображает модальное уведомление входящего звонка в соответствии с оригиналом Discord.
+   * @param {any} data
+   */
+  function showIncomingCallOverlay(data) {
+    const cid = cleanDiscordStr(String(data?.channel_id || ""));
+    if (!cid) return;
+    document.getElementById("incoming-call-overlay")?.remove();
+    playRingingTone(true);
+
+    const overlay = document.createElement("div");
+    overlay.id = "incoming-call-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-label", "Входящий звонок");
+    overlay.style.cssText =
+      "position:fixed;top:20px;right:24px;z-index:10000;background:#1e1f22;border:1px solid #383a40;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,0.85);padding:14px 18px;display:flex;align-items:center;gap:14px;min-width:320px;max-width:420px;font-family:inherit;";
+
+    const pcs = dmFriendsController?.getPrivateChannels?.() ?? [];
+    const pc = pcs.find((c) => String(c?.id || "") === cid);
+    const anyPc = /** @type {any} */ (pc);
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    let callerUser = null;
+    if (Array.isArray(data.voice_states)) {
+      const callerVs = data.voice_states.find((/** @type {any} */ v) => String(v?.user_id || "") !== selfId);
+      if (callerVs) {
+        callerUser = liveUsersById.get(String(callerVs.user_id)) || callerVs.member?.user;
+      }
+    }
+    if (!callerUser && anyPc) {
+      const recs = anyPc.rawRecipients || anyPc.recipients || [];
+      callerUser = recs.find((/** @type {any} */ r) => String(r?.id || "") !== selfId) || recs[0];
+    }
+    const callerName = callerUser?.global_name || callerUser?.username || anyPc?.name || "Пользователь";
+    const callerAvatar = callerUser?.avatar
+      ? `https://cdn.discordapp.com/avatars/${callerUser.id}/${callerUser.avatar}.png?size=64`
+      : null;
+
+    const avatarEl = document.createElement("div");
+    avatarEl.style.cssText =
+      "width:46px;height:46px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;overflow:hidden;flex-shrink:0;";
+    if (callerAvatar) {
+      const img = document.createElement("img");
+      img.src = callerAvatar;
+      img.style.cssText = "width:100%;height:100%;object-fit:cover;";
+      avatarEl.append(img);
+    } else {
+      avatarEl.textContent = callerName.charAt(0).toUpperCase();
+    }
+
+    const infoCol = document.createElement("div");
+    infoCol.style.cssText = "flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;";
+    const nameEl = document.createElement("div");
+    nameEl.style.cssText =
+      "font-size:15px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+    nameEl.textContent = callerName;
+    const titleEl = document.createElement("div");
+    titleEl.style.cssText = "font-size:12px;color:#23a55a;font-weight:600;";
+    titleEl.textContent = "Входящий голосовой звонок...";
+    infoCol.append(nameEl, titleEl);
+
+    const actionsRow = document.createElement("div");
+    actionsRow.style.cssText = "display:flex;align-items:center;gap:8px;flex-shrink:0;";
+
+    const declineBtn = document.createElement("button");
+    declineBtn.type = "button";
+    declineBtn.title = "Отклонить";
+    declineBtn.setAttribute("aria-label", "Отклонить звонок");
+    declineBtn.style.cssText =
+      "width:38px;height:38px;border-radius:50%;border:none;background:#da373c;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background 120ms ease;";
+    declineBtn.innerHTML = SVG_PHONE_DISCONNECT;
+    declineBtn.onmouseenter = () => { declineBtn.style.background = "#a1282c"; };
+    declineBtn.onmouseleave = () => { declineBtn.style.background = "#da373c"; };
+    declineBtn.onclick = () => {
+      dismissIncomingCallOverlay(cid);
+      void sendDmRest({
+        method: "POST",
+        url: `/channels/${cid}/call/stop-ringing`,
+        body: {},
+      }).catch(() => {});
+    };
+
+    const acceptBtn = document.createElement("button");
+    acceptBtn.type = "button";
+    acceptBtn.title = "Принять";
+    acceptBtn.setAttribute("aria-label", "Принять звонок");
+    acceptBtn.style.cssText =
+      "width:38px;height:38px;border-radius:50%;border:none;background:#23a55a;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:18px;transition:background 120ms ease;";
+    acceptBtn.textContent = "📞";
+    acceptBtn.onmouseenter = () => { acceptBtn.style.background = "#1a7c44"; };
+    acceptBtn.onmouseleave = () => { acceptBtn.style.background = "#23a55a"; };
+    acceptBtn.onclick = () => {
+      dismissIncomingCallOverlay(cid);
+      connectToLiveVoiceChannel("", callerName, { id: cid, name: callerName });
+    };
+
+    actionsRow.append(acceptBtn, declineBtn);
+    overlay.append(avatarEl, infoCol, actionsRow);
+    document.body.append(overlay);
+  }
+
+  /** @param {string} [cid] */
+  function dismissIncomingCallOverlay(cid) {
+    void cid;
+    const el = document.getElementById("incoming-call-overlay");
+    if (el) {
+      el.remove();
+      playRingingTone(false);
+    }
   }
 
   /**
@@ -12827,6 +13035,100 @@ function boot() {
               }
               tree.refreshView();
             }
+          }
+        }
+      } else if (kind === "CALL_CREATE" || kind === "CALL_UPDATE") {
+        if (data && typeof data === "object") {
+          const cid = cleanDiscordStr(String(data.channel_id || ""));
+          if (cid) {
+            activeDmCalls.set(cid, data);
+            if (Array.isArray(data.voice_states) && data.voice_states.length > 0) {
+              const currentMe = liveVoiceStatesByGuild.get("@me") ?? [];
+              const otherStates = currentMe.filter((vs) => String(vs?.channel_id || "") !== cid);
+              for (const vs of data.voice_states) {
+                otherStates.push({
+                  ...vs,
+                  guild_id: "@me",
+                  channel_id: cid,
+                  confirmed: true,
+                });
+              }
+              liveVoiceStatesByGuild.set("@me", otherStates);
+              liveVoiceStatesByGuild.set(HOME_GUILD_ID, otherStates);
+            }
+            const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+            const isRinging = Array.isArray(data.ringing) && data.ringing.map(String).includes(selfId);
+            if (isRinging) {
+              showIncomingCallOverlay(data);
+            } else {
+              dismissIncomingCallOverlay(cid);
+            }
+            renderLiveDmCallStage();
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "CALL_DELETE") {
+        if (data && typeof data === "object") {
+          const cid = cleanDiscordStr(String(data.channel_id || ""));
+          if (cid) {
+            activeDmCalls.delete(cid);
+            dismissIncomingCallOverlay(cid);
+            const currentMe = liveVoiceStatesByGuild.get("@me") ?? [];
+            const filtered = currentMe.filter((vs) => String(vs?.channel_id || "") !== cid);
+            liveVoiceStatesByGuild.set("@me", filtered);
+            liveVoiceStatesByGuild.set(HOME_GUILD_ID, filtered);
+            renderLiveDmCallStage();
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "STREAM_CREATE") {
+        if (data && typeof data === "object") {
+          const skey = String(data.stream_key || "");
+          const parts = skey.split(":");
+          const streamerUid = parts[parts.length - 1];
+          const streamGid = parts.length >= 4 ? parts[1] : "@me";
+          if (streamerUid) {
+            for (const gk of new Set([streamGid, normalizeVoiceGuildKey(streamGid), "@me", HOME_GUILD_ID])) {
+              if (typeof gk !== "string") continue;
+              const list = liveVoiceStatesByGuild.get(gk);
+              if (Array.isArray(list)) {
+                for (const vs of list) {
+                  if (String(vs?.user_id || vs?.userId || "") === streamerUid) {
+                    vs.self_stream = true;
+                    vs.selfStream = true;
+                  }
+                }
+              }
+            }
+            playVoiceUiSound("stream_on");
+            renderLiveVoicePanel();
+            renderLiveDmCallStage();
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "STREAM_DELETE") {
+        if (data && typeof data === "object") {
+          const skey = String(data.stream_key || "");
+          const parts = skey.split(":");
+          const streamerUid = parts[parts.length - 1];
+          const streamGid = parts.length >= 4 ? parts[1] : "@me";
+          if (streamerUid) {
+            for (const gk of new Set([streamGid, normalizeVoiceGuildKey(streamGid), "@me", HOME_GUILD_ID])) {
+              if (typeof gk !== "string") continue;
+              const list = liveVoiceStatesByGuild.get(gk);
+              if (Array.isArray(list)) {
+                for (const vs of list) {
+                  if (String(vs?.user_id || vs?.userId || "") === streamerUid) {
+                    vs.self_stream = false;
+                    vs.selfStream = false;
+                  }
+                }
+              }
+            }
+            playVoiceUiSound("stream_off");
+            renderLiveVoicePanel();
+            renderLiveDmCallStage();
+            tree.refreshView();
           }
         }
       } else if (kind === "GUILD_ROLE_CREATE" || kind === "GUILD_ROLE_UPDATE" || kind === "GUILD_ROLE_DELETE") {

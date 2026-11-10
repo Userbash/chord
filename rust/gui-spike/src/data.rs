@@ -4146,6 +4146,13 @@ pub fn current_live_voice_mute_deaf() -> (bool, bool) {
     )
 }
 
+pub fn current_live_self_uid() -> String {
+    let guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    resolve_live_self_uid(&guard)
+}
+
 static LOCAL_MIC_LEVEL_DB: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-100);
 static LOCAL_MIC_SPEAKING: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);

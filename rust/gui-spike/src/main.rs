@@ -1331,7 +1331,11 @@ async fn voice_connect(
 #[tauri::command]
 async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value, String> {
     println!("[IPC-TRACE] voice_disconnect guild_id={guild_id:?}");
-    blocking(move || data::connect_or_update_live_voice(guild_id, None, false, false)).await?
+    blocking(move || {
+        let res = data::connect_or_update_live_voice(guild_id, None, false, false);
+        let _ = discord_core::ws::queue_live_voice_state_ext(None, None, false, false, false, false, None);
+        res
+    }).await?
 }
 
 #[tauri::command]
@@ -1413,17 +1417,29 @@ async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
 
 #[tauri::command]
 async fn voice_stream_start(
-    spec: discord_gui_spike::voice_stage::ScreenShareSpec,
+    mut spec: discord_gui_spike::voice_stage::ScreenShareSpec,
 ) -> Result<serde_json::Value, String> {
+    if spec.guild_id.as_deref().map_or(false, |g| {
+        let t = g.trim();
+        t.is_empty() || t == "@me" || t == "null" || t == "nil"
+    }) {
+        spec.guild_id = None;
+    }
     spec.validate()?;
     let op18 = discord_gui_spike::voice_stage::build_gateway_stream_create_op18(&spec)?;
-    let stream_key = spec.to_stream_key("me");
+    let self_id = blocking(data::current_live_self_uid).await?;
+    let self_uid_str = if self_id.is_empty() { "me".to_string() } else { self_id };
+    let stream_key = spec.to_stream_key(&self_uid_str);
     println!("[IPC-TRACE] voice_stream_start: stream_key={stream_key}");
     let gid = spec.guild_id.clone();
     let cid = Some(spec.channel_id.clone());
+    let stream_type = if spec.guild_id.is_none() { "call" } else { "guild" };
+    let gid_arg = gid.clone();
+    let cid_arg = spec.channel_id.clone();
     let _ = blocking(move || {
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
-        data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, true)
+        data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, true)?;
+        discord_core::ws::queue_live_stream_create(stream_type, gid_arg.as_deref(), &cid_arg).map_err(|e| e.to_string())
     })
     .await?;
     Ok(serde_json::json!({
