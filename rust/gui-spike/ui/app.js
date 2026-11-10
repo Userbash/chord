@@ -11511,11 +11511,13 @@ function boot() {
       hydrateGuildMembersAndRoles(g);
     }
     if (!incremental) {
-      const validIds = new Set(rawGuilds.map((g) => String(g?.id ?? "").trim()).filter(Boolean));
-      for (const oldGid of Array.from(liveGuildsById.keys())) {
-        if (!validIds.has(oldGid)) {
-          liveGuildsById.delete(oldGid);
-          lastGuildChannelCountById.delete(oldGid);
+      if (rawGuilds.length > 0) {
+        const validIds = new Set(rawGuilds.map((g) => String(g?.id ?? "").trim()).filter(Boolean));
+        for (const oldGid of Array.from(liveGuildsById.keys())) {
+          if (!validIds.has(oldGid)) {
+            liveGuildsById.delete(oldGid);
+            lastGuildChannelCountById.delete(oldGid);
+          }
         }
       }
     }
@@ -11600,7 +11602,7 @@ function boot() {
           }
         }
         for (const existingGid of Array.from(liveVoiceStatesByGuild.keys())) {
-          if (!Object.prototype.hasOwnProperty.call(rawVs, existingGid)) {
+          if (existingGid !== "@me" && !liveGuildsById.has(existingGid)) {
             liveVoiceStatesByGuild.delete(existingGid);
           }
         }
@@ -12767,7 +12769,31 @@ function boot() {
       if (!envelope || typeof envelope !== "object") return;
       const kind = envelope.kind;
       const data = envelope.data;
-      if (kind === "RELATIONSHIP_ADD" || kind === "RELATIONSHIP_REMOVE" || kind === "RELATIONSHIP_UPDATE") {
+      if (kind === "READY") {
+        if (isLiveSession() && data && typeof data === "object") {
+          if (Array.isArray(data.guilds) && data.guilds.length > 0) {
+            syncLiveGuildRailFromSnapshot(data.guilds, false);
+          }
+          if (Array.isArray(data.relationships) && data.relationships.length > 0) {
+            dmFriendsController?.syncLiveState?.({
+              relationships: data.relationships,
+              privateChannels: data.private_channels,
+              users: data.users,
+            });
+          }
+        }
+      } else if (kind === "READY_SUPPLEMENTAL") {
+        if (isLiveSession() && data && typeof data === "object") {
+          if (Array.isArray(data.guilds) && data.guilds.length > 0) {
+            syncLiveGuildRailFromSnapshot(data.guilds, true);
+          }
+          if (data.merged_presences) {
+            dmFriendsController?.syncLiveState?.({
+              presences: data.merged_presences.friends,
+            });
+          }
+        }
+      } else if (kind === "RELATIONSHIP_ADD" || kind === "RELATIONSHIP_REMOVE" || kind === "RELATIONSHIP_UPDATE") {
         dmFriendsController?.handleGatewayEvent?.({ type: kind, d: data });
       } else if (kind === "GUILD_CREATE") {
         if (data && typeof data === "object") {

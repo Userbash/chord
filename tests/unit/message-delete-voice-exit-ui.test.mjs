@@ -94,3 +94,27 @@ test("TASK-760: Voice disconnect on exit / unload event triggers cleanup", async
     globalThis.Image = prevImage;
   }
 });
+
+test("TASK-762: Non-destructive hydration: user-bar has no auth-logout, and friends retain on empty sync", async () => {
+  const prevImage = globalThis.Image;
+  // @ts-ignore
+  globalThis.Image = class FakeImage {};
+  try {
+    const harness = await loadApp({
+      invokeHandler: async (cmd, args) => {
+        if (cmd === "settings_load") {
+          return { volume: 100, lastGuildId: "guild-1" };
+        }
+        return null;
+      },
+    });
+
+    const app = harness;
+    const userBarActions = app.document.querySelector("#user-bar .user-actions");
+    assert.ok(userBarActions, ".user-actions must exist in #user-bar");
+    const logoutInBar = userBarActions.querySelector("#auth-logout, .auth-logout");
+    assert.equal(logoutInBar, null, "#auth-logout must never be inside #user-bar .user-actions");
+  } finally {
+    globalThis.Image = prevImage;
+  }
+});

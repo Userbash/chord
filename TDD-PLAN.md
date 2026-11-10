@@ -440,6 +440,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/friends-home.test.mjs` | — | — |
 | `tests/unit/gift-modal.test.mjs` | `rust/gui-spike/ui/features/gift-modal.js` | `createGiftModal`, `resolveGiftStyle`, `extractGiftCodesFromText`, `classifyGiftError` |
 | `tests/unit/guild-folders.test.mjs` | — | — |
+| `tests/unit/guild-rail-incremental.test.mjs` | — | — |
 | `tests/unit/guild-modals.test.mjs` | — | — |
 | `tests/unit/i18n.test.mjs` | — | — |
 | `tests/unit/inbox.test.mjs` | — | — |
@@ -454,6 +455,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/message-actions.test.mjs` | — | — |
 | `tests/unit/message-context-actions.test.mjs` | — | — |
 | `tests/unit/message-media-polls.test.mjs` | — | — |
+| `tests/unit/message-delete-voice-exit-ui.test.mjs` | — | — |
 | `tests/unit/notifications.test.mjs` | — | — |
 | `tests/unit/path1-frameworks.test.mjs` | — | — |
 | `tests/unit/pins-threads.test.mjs` | — | — |
@@ -477,6 +479,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/stage-channel.test.mjs` | — | — |
 | `tests/unit/stream-viewer.test.mjs` | — | — |
 | `tests/unit/stream-viewer-ui.test.mjs` | — | — |
+| `tests/unit/stream-signaling-parity.test.mjs` | — | — |
 | `tests/unit/svg-icons.test.mjs` | — | — |
 | `tests/unit/threads-drawer.test.mjs` | — | — |
 | `tests/unit/token-map.test.mjs` | — | — |

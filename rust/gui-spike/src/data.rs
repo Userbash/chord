@@ -2288,11 +2288,6 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                     .unwrap_or_default();
                 let supp_guilds = array(data.get("guilds"));
                 if !supp_guilds.is_empty() {
-                    let preserved_home_vs = guard.voice_states.get("@me").cloned();
-                    guard.voice_states.clear();
-                    if let Some(home_vs) = preserved_home_vs {
-                        guard.voice_states.insert("@me".to_string(), home_vs);
-                    }
                     let ready_guild_ids: Vec<String> = guard
                         .ready_data
                         .as_ref()
@@ -5893,12 +5888,27 @@ pub fn set_system_audio_device(
     }
     if kind == "voice_states_sync" {
         if let Ok(guard) = live_session().lock() {
+            let mut combined = guard.voice_states.clone();
+            if let Some(ref rd) = guard.ready_data {
+                if let Some(g_arr) = rd.get("guilds").and_then(Value::as_array) {
+                    for g in g_arr {
+                        if let Some(gid) = field_str(g, "id") {
+                            if !combined.contains_key(gid) {
+                                let vs = array(g.get("voice_states"));
+                                if !vs.is_empty() {
+                                    combined.insert(gid.to_string(), vs.to_vec());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return json!({
                 "ok": true,
-                "voiceStates": guard.voice_states.clone()
+                "voiceStates": combined
             });
         }
-        return json!({ "ok": false, "voiceStates": [] });
+        return json!({ "ok": false, "voiceStates": {} });
     }
     if kind == "remote_stream_frame" {
         static LAST_REMOTE_PREVIEW_FETCH_MS: std::sync::atomic::AtomicU64 =
@@ -7222,6 +7232,32 @@ pub fn ready(root: &Path) -> Result<ReadyPayload, DataError> {
     }
 
     {
+        {
+            let mut guard = live_session()
+                .lock()
+                .unwrap_or_else(|poison| poison.into_inner());
+            if guard.active && guard.ready_data.is_none() {
+                let tok_opt = guard.token.clone().or_else(resolve_live_token);
+                let exp_uid = guard.user.as_ref().map(|u| u.id.clone());
+                if let Some(cached) = load_live_ready_cache_for(tok_opt.as_deref(), exp_uid.as_deref()) {
+                    populate_voice_and_presences_from_ready(&mut guard, &cached);
+                    guard.ready_data = Some(cached);
+                }
+            }
+        }
+        if forbid_fixture {
+            for _ in 0..12 {
+                {
+                    let guard = live_session()
+                        .lock()
+                        .unwrap_or_else(|poison| poison.into_inner());
+                    if guard.ready_data.is_some() || !guard.active {
+                        break;
+                    }
+                }
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+        }
         let guard = live_session()
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());

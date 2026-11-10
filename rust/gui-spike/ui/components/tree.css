@@ -229,6 +229,22 @@
 .user-bar .auth-logout,
 #auth-logout {
   display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+.voice-panel {
+  background: var(--surface-2, #2b2d31);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 8px 8px 10px 8px;
+  box-sizing: border-box;
 }
 
 /* ---------------------------------------------------------------------------
