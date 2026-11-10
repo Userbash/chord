@@ -967,13 +967,23 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) -> Option<Value> {
                     hydrated_out = Some(Value::Object(lp.clone()));
                 }
                 if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                    if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    let g_arr = ready_map
+                        .entry("guilds".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()));
+                    if let Value::Array(ref mut r_guilds) = g_arr {
                         if let Some(Value::Object(ref mut ex_map)) = r_guilds
                             .iter_mut()
                             .find(|g| field_str(g, "id") == Some(gid.as_str()))
                         {
                             apply_updates(ex_map);
                             hydrated_out = Some(Value::Object(ex_map.clone()));
+                        } else if is_member_state == Some(true) || guild_val.is_some() || channels_val.is_some() {
+                            let mut new_map = serde_json::Map::new();
+                            new_map.insert("id".to_string(), Value::String(gid.clone()));
+                            apply_updates(&mut new_map);
+                            let val = Value::Object(new_map);
+                            r_guilds.push(val.clone());
+                            hydrated_out = Some(val);
                         }
                     }
                 }
@@ -3677,6 +3687,63 @@ pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) 
 }
 
 /// Подключается к голосовому каналу либо обновляет состояние `self_mute`/`self_deaf` через `OP 4 VOICE_STATE_UPDATE`.
+/// Проверяет, разрешено ли текущему пользователю запускать стрим (право PERM_STREAM = 1 << 9)
+/// в указанном голосовом канале.
+pub fn can_user_stream_in_channel(guild_id: Option<&str>, channel_id: &str) -> bool {
+    let clean_gid = guild_id
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil");
+    let Some(gid) = clean_gid else {
+        // В личных сообщениях (@me / DM) демонстрация экрана всегда разрешена
+        return true;
+    };
+    let guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    let self_uid = resolve_live_self_uid(&guard);
+    let guild_opt = guard
+        .ready_data
+        .as_ref()
+        .and_then(|rd| rd.get("guilds"))
+        .and_then(Value::as_array)
+        .and_then(|arr| arr.iter().find(|g| field_str(g, "id") == Some(gid)))
+        .or_else(|| guard.local_preview_guilds.get(gid));
+    let Some(g_val) = guild_opt else {
+        return true;
+    };
+    let is_lurker = field_bool(g_val, "lurker")
+        || field_bool_opt(g_val, "isMember") == Some(false)
+        || field_bool_opt(g_val, "is_member") == Some(false);
+    let is_pending = field_bool(g_val, "pending") || field_bool(g_val, "is_pending");
+    if is_lurker || is_pending {
+        return false;
+    }
+    let roles = array(g_val.get("roles"));
+    let channels = array(g_val.get("channels"));
+    let owner_id = field_str(g_val, "owner_id").or_else(|| {
+        g_val.get("properties").and_then(|p| field_str(p, "owner_id"))
+    });
+    let my_roles: Vec<String> = array(g_val.get("my_roles").or_else(|| g_val.get("myRoles")))
+        .iter()
+        .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+        .collect();
+
+    let ch_perms_map = crate::permissions::PermissionCalculator::compute_guild_channel_permissions(
+        gid,
+        owner_id,
+        &self_uid,
+        &my_roles,
+        roles,
+        channels,
+        is_lurker,
+        is_pending,
+    );
+    if let Some(access) = ch_perms_map.get(channel_id) {
+        return access.can_stream;
+    }
+    true
+}
+
 pub fn connect_or_update_live_voice(
     guild_id: Option<String>,
     channel_id: Option<String>,
@@ -5513,6 +5580,84 @@ pub fn list_system_audio_devices_json() -> Value {
     })
 }
 
+/// Выполняет REST-запросы личных сообщений (звонки / звонок начался / ringing)
+pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
+    let parsed: Value = match serde_json::from_str(raw_json) {
+        Ok(v) => v,
+        Err(_) => return json!({ "ok": false, "error": "invalid json payload" }),
+    };
+    let method = field_str(&parsed, "method").unwrap_or("GET").to_uppercase();
+    let url = field_str(&parsed, "url").unwrap_or("");
+    let body_val = parsed.get("body");
+
+    let token_opt = {
+        let guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
+        guard.token.clone()
+    };
+    let Some(token) = token_opt.filter(|t| !t.trim().is_empty()) else {
+        return json!({ "ok": false, "error": "no authorization token" });
+    };
+
+    let identity = crate::auth::IdentityContext::detect();
+    let auth = match discord_core::rest::client::ApiAuth::from_token_with_scheme(
+        &token,
+        discord_core::rest::client::AuthScheme::User,
+        &identity.super_properties,
+        &identity.locale,
+        &identity.timezone,
+    ) {
+        Ok(a) => a,
+        Err(e) => return json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    let client = match discord_core::rest::client::ApiClient::new(discord_core::rest::client::ApiConfig {
+        base: discord_core::API_V9_BASE.to_string(),
+        auth,
+        http: discord_core::rest::transport::HttpClientConfig {
+            connect_timeout: std::time::Duration::from_millis(1500),
+            read_timeout: std::time::Duration::from_millis(2500),
+            write_timeout: std::time::Duration::from_millis(1500),
+            ..discord_core::rest::transport::HttpClientConfig::default()
+        },
+        retry: discord_core::rest::client::ApiRetryPolicy {
+            max_attempts: 1,
+            ..discord_core::rest::client::ApiRetryPolicy::default()
+        },
+    }) {
+        Ok(c) => c,
+        Err(e) => return json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    let runtime = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
+        Ok(rt) => rt,
+        Err(e) => return json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    let body_bytes = body_val.map(|b| serde_json::to_vec(b).unwrap_or_default()).unwrap_or_default();
+    let res = match method.as_str() {
+        "POST" => runtime.block_on(client.post(url, &body_bytes)),
+        "PUT" => runtime.block_on(client.put(url, &body_bytes)),
+        "DELETE" => runtime.block_on(client.delete(url)),
+        _ => runtime.block_on(client.get(url)),
+    };
+
+    match res {
+        Ok(resp) => {
+            let status = resp.status;
+            let data: Value = serde_json::from_slice(&resp.body).unwrap_or(Value::Null);
+            json!({
+                "ok": (200..300).contains(&status),
+                "status": status,
+                "data": data
+            })
+        }
+        Err(e) => json!({
+            "ok": false,
+            "error": e.to_string()
+        }),
+    }
+}
+
 /// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`discord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
 /// никогда не изменяя системную громкость или системный mute ОС (`pactl`).
 pub fn set_system_audio_device(
@@ -5535,6 +5680,9 @@ pub fn set_system_audio_device(
             println!("[USER-TELEMETRY] {line}");
         }
         return json!({ "ok": true });
+    }
+    if kind == "dm_rest_request" {
+        return handle_live_dm_rest_request(device_id.unwrap_or_default());
     }
     if kind == "dm_friends_sync" {
         let dev_str = device_id.unwrap_or_default();

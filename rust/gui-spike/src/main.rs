@@ -1426,6 +1426,16 @@ async fn voice_stream_start(
         spec.guild_id = None;
     }
     spec.validate()?;
+    if let Some(ref gid_str) = spec.guild_id {
+        let cid_str = spec.channel_id.clone();
+        let gid_check = gid_str.clone();
+        let allowed = blocking(move || {
+            data::can_user_stream_in_channel(Some(&gid_check), &cid_str)
+        }).await?;
+        if !allowed {
+            return Err("Отсутствует право на проведение трансляции (STREAM) в данном канале".to_string());
+        }
+    }
     let op18 = discord_gui_spike::voice_stage::build_gateway_stream_create_op18(&spec)?;
     let self_id = blocking(data::current_live_self_uid).await?;
     let self_uid_str = if self_id.is_empty() { "me".to_string() } else { self_id };
@@ -1456,15 +1466,33 @@ async fn voice_stream_stop(
 ) -> Result<serde_json::Value, String> {
     let key = stream_key
         .or(streamKey)
-        .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
-    let op19 = discord_gui_spike::voice_stage::build_gateway_stream_delete_op19(&key)?;
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| {
+            let (gid, cid) = data::current_live_voice_target();
+            let self_id = data::current_live_self_uid();
+            let uid = if self_id.is_empty() { "me".to_string() } else { self_id };
+            match (gid, cid) {
+                (Some(g), Some(c)) if !g.is_empty() && g != "@me" && g != "call" => {
+                    format!("guild:{g}:{c}:{uid}")
+                }
+                (_, Some(c)) => format!("call:{c}:{uid}"),
+                _ => String::new(),
+            }
+        });
+    let op19 = if !key.is_empty() {
+        discord_gui_spike::voice_stage::build_gateway_stream_delete_op19(&key)?
+    } else {
+        serde_json::json!({ "op": 19, "d": { "stream_key": "" } })
+    };
     println!("[IPC-TRACE] voice_stream_stop: stream_key={key}");
     let k = key.clone();
     let _ = blocking(move || {
         let (gid, cid) = data::current_live_voice_target();
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
-        let _ = discord_core::ws::queue_live_stream_delete(&k);
+        if !k.is_empty() {
+            let _ = discord_core::ws::queue_live_stream_delete(&k);
+        }
         Ok::<(), String>(())
     })
     .await?;

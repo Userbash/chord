@@ -4463,6 +4463,7 @@ function boot() {
       document.getElementById("live-screenshare-modal")?.remove();
       void invoke("voice_stream_stop", {
         stream_key: stopStreamKey,
+        streamKey: stopStreamKey,
       }).catch(() => {});
       /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
       playVoiceUiSound("stream_off");
@@ -9643,6 +9644,7 @@ function boot() {
         (isCall ? `call:${conn.channelId}:${selfId}` : `guild:${conn.guildId}:${conn.channelId}:${selfId}`);
       void invoke("voice_stream_stop", {
         stream_key: stopKey,
+        streamKey: stopKey,
       }).catch(() => {});
       conn.activeStreamKey = null;
       /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
@@ -9667,6 +9669,12 @@ function boot() {
     document.getElementById("live-stream-settings-submenu")?.remove();
     if (!activeVoiceConnection) return;
     const conn = /** @type {any} */ (activeVoiceConnection);
+    if (!conn.screenShareOn && !forceOpenConfig) {
+      if (!canStreamInChannel(conn.guildId, conn.channelId)) {
+        showVoiceToastNotice("Отсутствует право на проведение трансляции (STREAM) в этом канале");
+        return;
+      }
+    }
     if (activeVoiceConnection.screenShareOn && !forceOpenConfig) {
       activeVoiceConnection.screenShareOn = false;
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
@@ -9690,6 +9698,7 @@ function boot() {
         (isCall ? `call:${conn.channelId}:${selfId}` : `guild:${conn.guildId}:${conn.channelId}:${selfId}`);
       void invoke("voice_stream_stop", {
         stream_key: stopKey,
+        streamKey: stopKey,
       }).catch(() => {});
       conn.activeStreamKey = null;
       /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
@@ -12030,6 +12039,38 @@ function boot() {
             }),
           );
           chatActionsEl.prepend(dmCallBar);
+          if (isLiveSession() && targetChannelId) {
+            void sendDmRest({
+              method: "GET",
+              url: `/channels/${targetChannelId}/call`,
+            })
+              .then((res) => {
+                if (res && res.ok && res.data && typeof res.data === "object") {
+                  const callData = res.data;
+                  const cid = String(callData.channel_id || targetChannelId);
+                  if (cid) {
+                    activeDmCalls.set(cid, callData);
+                    if (Array.isArray(callData.voice_states) && callData.voice_states.length > 0) {
+                      const currentMe = liveVoiceStatesByGuild.get("@me") ?? [];
+                      const otherStates = currentMe.filter((vs) => String(vs?.channel_id || "") !== cid);
+                      for (const vs of callData.voice_states) {
+                        otherStates.push({
+                          ...vs,
+                          guild_id: "@me",
+                          channel_id: cid,
+                          confirmed: true,
+                        });
+                      }
+                      liveVoiceStatesByGuild.set("@me", otherStates);
+                      liveVoiceStatesByGuild.set(HOME_GUILD_ID, otherStates);
+                    }
+                    renderLiveDmCallStage();
+                    tree.refreshView();
+                  }
+                }
+              })
+              .catch(() => {});
+          }
         }
         const chatListEl = document.getElementById("chat-list");
         if (chatListEl && !chatListEl.dataset.dmCallClickBound) {
@@ -13012,6 +13053,11 @@ function boot() {
         }
       } else if (kind === "GUILD_DELETE") {
         if (data?.id) {
+          if (data.unavailable === true) {
+            // Discord API: unavailable: true означает временную недоступность сервера из-за сбоя или реконнекта.
+            // Сервер не должен удаляться из списка серверов!
+            return;
+          }
           const gid = String(data.id);
           liveGuildsById.delete(gid);
           lastGuildChannelCountById.delete(gid);
@@ -13056,8 +13102,19 @@ function boot() {
               liveVoiceStatesByGuild.set("@me", otherStates);
               liveVoiceStatesByGuild.set(HOME_GUILD_ID, otherStates);
             }
-            const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
-            const isRinging = Array.isArray(data.ringing) && data.ringing.map(String).includes(selfId);
+            const selfId = cleanDiscordStr(
+              String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || "")
+            );
+            const isConnectedHere = Boolean(
+              activeVoiceConnection &&
+                normalizeVoiceGuildKey(activeVoiceConnection.guildId) === HOME_GUILD_ID &&
+                String(activeVoiceConnection.channelId || "") === cid,
+            );
+            const ringingArr = Array.isArray(data.ringing) ? data.ringing.map(String) : [];
+            const isRinging = !isConnectedHere && (
+              ringingArr.includes(selfId) ||
+              (ringingArr.length > 0 && (!selfId || ringingArr.some((/** @type {string} */ uid) => uid !== selfId)))
+            );
             if (isRinging) {
               showIncomingCallOverlay(data);
             } else {
