@@ -3214,10 +3214,17 @@ function applyScreenBroadcast(active) {
           }
         }
       } catch (_) {}
+      // Linux Wayland Hook Parity:
+      // discord_voice.node runs an X11 capturer (ScreenCapturerX11) which expects an integer screen ID.
+      // Under Wayland, passing window GUID {...} directly causes SetScreenshareSourceLinux to fail with
+      // "Screenshare: Failed to select source: 0" and "SetScreenshare: (nil)", sending 0 bytes.
+      // We ALWAYS configure discord_voice.node with type: "screen", sourceId: "0" so ScreenCapturerX11
+      // succeeds and invokes hook_XShmGetImage. The hook dynamically reads /dev/shm/discord_capture_target.txt
+      // to stream either the entire workspace or the selected window via KWin ScreenShot2 D-Bus.
       if (typeof conn.setDesktopSourceWithOptions === "function") {
         conn.setDesktopSourceWithOptions({
-          type: currentSourceType,
-          sourceId: currentSourceId,
+          type: "screen",
+          sourceId: "0",
           width: 1280,
           height: 720,
           frameRate: 60,
@@ -3941,16 +3948,9 @@ rl.on("line", (line) => {
     } catch (_) {}
     if (conn && typeof conn.setDesktopSourceWithOptions === "function") {
       try {
-        const sType = msg.sourceType === "window" ? "window" : "screen";
-        let sId = String(msg.sourceId || "0");
-        if (sId.startsWith("screen:")) {
-          sId = sId.slice(7);
-        } else if (sId.startsWith("window:")) {
-          sId = sId.slice(7);
-        }
         conn.setDesktopSourceWithOptions({
-          type: sType,
-          sourceId: sId || "0",
+          type: "screen",
+          sourceId: "0",
           width: 1280,
           height: 720,
           frameRate: 60,
@@ -3960,7 +3960,13 @@ rl.on("line", (line) => {
           allowScreenCaptureKit: false,
           hdrCaptureMode: "never"
         });
-        sendEv({ ev: "log", msg: "set_stream_source: " + sType + " " + sId });
+        if (typeof conn.setVideoBroadcast === "function") {
+          conn.setVideoBroadcast(true);
+        }
+        if (typeof conn.setTransportOptions === "function") {
+          conn.setTransportOptions({ keyframeInterval: 1000 });
+        }
+        sendEv({ ev: "log", msg: "set_stream_source: updated to " + (msg.sourceId || "0") });
       } catch (e) {
         sendEv({ ev: "log", msg: "set_stream_source err: " + (e && e.message) });
       }

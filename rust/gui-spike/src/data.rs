@@ -5903,18 +5903,34 @@ pub fn set_system_audio_device(
         let mut target_label = String::new();
         let mut target_kind = "screen".to_string();
         if !raw.is_empty() {
-            let parts: Vec<&str> = raw.splitn(3, ':').collect();
-            if let Some(&tab) = parts.first() {
-                if tab == "windows" || tab == "window" {
+            if raw.starts_with('{') {
+                target_handle = raw.clone();
+                target_kind = "window".to_string();
+            } else if raw.starts_with("screen:") || raw.starts_with("screens:") {
+                target_handle = raw.clone();
+                target_kind = "screen".to_string();
+            } else if raw.contains(':') {
+                let parts: Vec<&str> = raw.splitn(3, ':').collect();
+                if let Some(&tab) = parts.first() {
+                    if tab == "windows" || tab == "window" {
+                        target_kind = "window".to_string();
+                    }
+                }
+                if let Some(&id) = parts.get(1) {
+                    target_handle = id.trim().to_string();
+                }
+                if let Some(&lbl) = parts.get(2) {
+                    target_label = lbl.trim().to_string();
+                }
+            } else {
+                target_handle = raw.clone();
+                if raw.starts_with("win") {
                     target_kind = "window".to_string();
                 }
             }
-            if let Some(&id) = parts.get(1) {
-                target_handle = id.trim().to_string();
-            }
-            if let Some(&lbl) = parts.get(2) {
-                target_label = lbl.trim().to_string();
-            }
+        }
+        if target_handle.starts_with('{') {
+            target_kind = "window".to_string();
         }
         let _ = std::fs::write("/dev/shm/discord_capture_target.txt", target_handle.as_bytes());
         let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);

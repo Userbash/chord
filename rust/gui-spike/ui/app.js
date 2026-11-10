@@ -3763,6 +3763,8 @@ function boot() {
    *   cameraOn: boolean,
    *   screenShareOn: boolean,
    *   streamSourceId?: string,
+   *   streamSourceName?: string,
+   *   hideStreamPreview?: boolean,
    *   connectedAtMs: number,
    * } | null}
    */
@@ -8002,6 +8004,26 @@ function boot() {
   }
 
   /**
+   * Динамически переключает источник захвата активной трансляции (окно или экран)
+   * без разрыва RTC-соединения и без перезахода в голосовой канал.
+   * @param {{ id: string, label?: string, tab?: "screens" | "windows" }} picked
+   */
+  function switchLiveStreamSource(picked) {
+    if (!activeVoiceConnection || !picked?.id) return;
+    const conn = /** @type {any} */ (activeVoiceConnection);
+    conn.streamSourceId = picked.id;
+    conn.streamSourceName = picked.label || "Окно или экран";
+    void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+      kind: "set_capture_source",
+      deviceId: picked.id,
+    }).catch(() => {});
+    playVoiceUiSound("stream_on");
+    showVoiceToastNotice(`Источник трансляции изменён: ${picked.label || picked.id}`);
+    renderLiveVoicePanel();
+    syncFloatingStreamPipPreview();
+  }
+
+  /**
    * Открывает полноразмерное окно просмотра трансляции (`Stream Stage Viewer`) и отправляет `OP 20 STREAM_WATCH`.
    * Поддерживает масштабирование колесом мыши (100%..500%), панорамирование перетаскиванием (Drag-to-Pan),
    * двойной клик для быстрого приближения (100% ↔ 225%), кнопки зума и полноэкранный режим (`⛶`).
@@ -8258,12 +8280,64 @@ function boot() {
       });
       rightControls.append(refreshStreamBtn);
     }
-    const closeStageBtn = document.createElement("button");
-    closeStageBtn.type = "button";
-    closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
-    closeStageBtn.style.cssText =
-      "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
-    rightControls.append(closeStageBtn);
+
+    if (isSelfStream) {
+      const changeSourceBtn = document.createElement("button");
+      changeSourceBtn.type = "button";
+      changeSourceBtn.id = "stage-change-source-btn";
+      changeSourceBtn.textContent = "🖥 Сменить источник";
+      changeSourceBtn.title = "Сменить окно или экран без перезапуска трансляции";
+      changeSourceBtn.style.cssText =
+        "padding:6px 10px;border-radius:6px;border:1px solid #3f4147;background:#2b2d31;color:#dbdee1;font-size:12px;font-weight:600;cursor:pointer;";
+      changeSourceBtn.addEventListener("click", () => {
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
+
+      const minimizeStageBtn = document.createElement("button");
+      minimizeStageBtn.type = "button";
+      minimizeStageBtn.id = "stage-minimize-viewer-btn";
+      minimizeStageBtn.textContent = "Свернуть 🗕";
+      minimizeStageBtn.title = "Свернуть окно просмотра в мини-плеер (стрим продолжится)";
+      minimizeStageBtn.style.cssText =
+        "padding:6px 10px;border-radius:6px;border:1px solid #3f4147;background:#2b2d31;color:#dbdee1;font-size:12px;font-weight:600;cursor:pointer;";
+      minimizeStageBtn.addEventListener("click", () => {
+        closeStageViewer(false);
+      });
+
+      const stopStageBtn = document.createElement("button");
+      stopStageBtn.type = "button";
+      stopStageBtn.id = "stage-stop-stream-btn";
+      stopStageBtn.textContent = "Прекратить стрим";
+      stopStageBtn.title = "Остановить трансляцию экрана для всех участников";
+      stopStageBtn.style.cssText =
+        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+      stopStageBtn.addEventListener("click", () => {
+        closeStageViewer(true);
+      });
+
+      const closeStageBtn = document.createElement("button");
+      closeStageBtn.type = "button";
+      closeStageBtn.id = "stage-close-viewer-btn";
+      closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
+      closeStageBtn.style.cssText =
+        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+      closeStageBtn.addEventListener("click", () => {
+        closeStageViewer(true);
+      });
+
+      rightControls.append(changeSourceBtn, minimizeStageBtn, closeStageBtn);
+    } else {
+      const closeStageBtn = document.createElement("button");
+      closeStageBtn.type = "button";
+      closeStageBtn.id = "stage-close-viewer-btn";
+      closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
+      closeStageBtn.style.cssText =
+        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+      closeStageBtn.addEventListener("click", () => {
+        closeStageViewer(true);
+      });
+      rightControls.append(closeStageBtn);
+    }
     topBar.append(titleLeft, rightControls);
 
     const stageWrap = document.createElement("div");
@@ -8756,7 +8830,7 @@ function boot() {
       }
     }, 250);
 
-    const closeStageViewer = () => {
+    const closeStageViewer = (stopStream = false) => {
       viewerClosed = true;
       clearInterval(stageTimer);
       if (pendingBitmap && typeof (/** @type {any} */ (pendingBitmap).close) === "function") {
@@ -8770,10 +8844,14 @@ function boot() {
       window.removeEventListener("mouseup", onWinMouseUp);
       window.removeEventListener("resize", onWinResize);
       window.removeEventListener("keydown", onStageKeyDown);
+      overlay.remove();
+
       if (isSelfStream) {
-        if (activeVoiceConnection) {
+        if (stopStream && activeVoiceConnection) {
           const selfConn = /** @type {any} */ (activeVoiceConnection);
           selfConn.screenShareOn = false;
+          selfConn.hideStreamPreview = true;
+          document.getElementById("live-stream-pip-preview")?.remove();
           const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
           for (const gk of new Set([
             selfConn.guildId,
@@ -8803,11 +8881,13 @@ function boot() {
           }).catch(() => {});
           selfConn.activeStreamKey = null;
           /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
+          playVoiceUiSound("stream_off");
+          syncVoiceMuteStateWithBackend();
+          renderLiveVoicePanel();
+          tree.refreshView();
+        } else if (!stopStream) {
+          syncFloatingStreamPipPreview();
         }
-        playVoiceUiSound("stream_off");
-        syncVoiceMuteStateWithBackend();
-        renderLiveVoicePanel();
-        tree.refreshView();
       } else {
         playVoiceUiSound("stream_user_left");
         void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
@@ -8815,7 +8895,6 @@ function boot() {
           deviceId: streamKey,
         }).catch(() => {});
       }
-      overlay.remove();
     };
 
     /** @param {KeyboardEvent} ev */
@@ -8828,15 +8907,13 @@ function boot() {
           syncUnderlyingDomVisibility();
           applyTransform();
         } else {
-          closeStageViewer();
+          closeStageViewer(false);
         }
       } else if (ev.key === "m" || ev.key === "M" || ev.key === "ь" || ev.key === "Ь") {
         muteStreamBtn.click();
       }
     };
     window.addEventListener("keydown", onStageKeyDown);
-
-    closeStageBtn.addEventListener("click", closeStageViewer);
   }
 
   /**
@@ -9076,6 +9153,28 @@ function boot() {
     const renderMenu = () => {
       menu.replaceChildren();
       closeSubmenu();
+
+      const changeSourceRow = document.createElement("button");
+      changeSourceRow.type = "button";
+      changeSourceRow.setAttribute("role", "menuitem");
+      changeSourceRow.style.cssText =
+        "display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border:none;border-radius:6px;background:transparent;color:#f2f3f5;cursor:pointer;text-align:left;border-bottom:1px solid #2b2d31;margin-bottom:4px;";
+      changeSourceRow.innerHTML = `<span style="font-size:14px;">🖥</span><div style="font-size:13px;font-weight:600;">Сменить окно или экран…</div>`;
+      changeSourceRow.addEventListener("mouseenter", () => {
+        changeSourceRow.style.background = "#2b2d31";
+        closeSubmenu();
+      });
+      changeSourceRow.addEventListener("mouseleave", () => {
+        changeSourceRow.style.background = "transparent";
+      });
+      changeSourceRow.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        menu.remove();
+        closeSubmenu();
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
+      menu.append(changeSourceRow);
+
       const hdr = document.createElement("div");
       hdr.style.cssText = "padding:4px 8px 6px;font-size:12px;font-weight:700;color:#949ba4;";
       hdr.textContent = "Режим стрима";
@@ -9664,6 +9763,9 @@ function boot() {
     stopBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>`;
     stopBtn.addEventListener("click", () => {
       conn.screenShareOn = false;
+      conn.hideStreamPreview = true;
+      document.getElementById("live-stream-stage-viewer")?.remove();
+      pip.remove();
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
         const gList = liveVoiceStatesByGuild.get(gk) ?? [];
@@ -11259,7 +11361,11 @@ function boot() {
           showVoiceToastNotice("У вашей роли нет разрешения «Видео / Трансляция» в этом голосовом канале");
           return;
         }
-        openScreenShareModal(Boolean(conn.screenShareOn));
+        if (conn.screenShareOn) {
+          openScreenSharePortalPicker("windows", switchLiveStreamSource);
+        } else {
+          openScreenShareModal(Boolean(conn.screenShareOn));
+        }
       },
     );
     if (!hasStreamPerm && !conn.screenShareOn) {
@@ -11287,8 +11393,12 @@ function boot() {
       sLeft.style.cssText = "display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;";
       const sTitle = document.createElement("div");
       sTitle.style.cssText =
-        "font-size:12px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
-      sTitle.textContent = "Окно, экран или приложение";
+        "font-size:12px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;";
+      sTitle.title = "Нажмите, чтобы сменить окно или экран трансляции";
+      sTitle.textContent = conn.streamSourceName || "Окно, экран или приложение";
+      sTitle.addEventListener("click", () => {
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
       const sRes = /** @type {any} */ (conn).streamResolution || /** @type {any} */ (conn).resolution || "720p";
       const sFps = /** @type {any} */ (conn).streamFps || /** @type {any} */ (conn).fps || 60;
       const sSub = document.createElement("div");
@@ -11317,6 +11427,9 @@ function boot() {
       });
       stopStreamBtn.addEventListener("click", () => {
         conn.screenShareOn = false;
+        conn.hideStreamPreview = true;
+        document.getElementById("live-stream-stage-viewer")?.remove();
+        document.getElementById("live-stream-pip-preview")?.remove();
         const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
         for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
           const gList = liveVoiceStatesByGuild.get(gk) ?? [];
