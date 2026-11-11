@@ -6469,7 +6469,7 @@
     {
       "id": "TASK-1007",
       "title": "Иерархия ролей сервера и редактор битовой маски прав",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Управление ролями, drag-and-drop иерархии, выбор цвета и настройка 64-битного поля permissions.",
@@ -6809,7 +6809,7 @@
     {
       "id": "TASK-1016",
       "title": "Сборки и пакеты для Windows (MSI/Portable) и macOS (DMG/Vibrancy)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "WiX конфигурация для Windows MSI/Portable и macOS скрипт генерации DMG с размытием окна Vibrancy.",
