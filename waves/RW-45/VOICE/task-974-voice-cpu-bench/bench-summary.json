@@ -13,11 +13,11 @@
   "pcmFrameSamples": 960,
   "rtpPayloadType": 120,
   "rtpExtensionProfile": "0xbede",
-  "wallElapsedMs": 13.2731,
-  "cpuTimeMs": 26.945,
+  "wallElapsedMs": 12.2035,
+  "cpuTimeMs": 21.467,
   "availableCores": 16,
-  "cpuLoadPct": 1.3273,
-  "systemNormalizedCpuPct": 0.1684,
+  "cpuLoadPct": 1.2204,
+  "systemNormalizedCpuPct": 0.1342,
   "maxCpuBudgetPct": 5,
   "jitterBufferDelayMs": 14.9968,
   "avgJitterBufferDelayMs": 14.0641,
@@ -43,5 +43,5 @@
     "jitterUnits": 222.138914,
     "jitterMs": 4.627894
   },
-  "generatedAt": "2026-11-11T12:02:58.195Z"
+  "generatedAt": "2026-11-11T12:26:56.625Z"
 }

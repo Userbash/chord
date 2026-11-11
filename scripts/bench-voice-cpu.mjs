@@ -970,11 +970,8 @@ export function runCli(argv = process.argv.slice(2)) {
   mkdirSync(dirname(outMd), { recursive: true });
   writeFileSync(outMd, reportMd, "utf8");
 
+  // Only write to canonicalReportPath if explicitly targeting it or default
   const canonicalReportPath = resolve(ROOT, "waves", "RW-45", "QUALITY", "VOICE-CPU-BENCH-REPORT.md");
-  if (outMd !== canonicalReportPath) {
-    mkdirSync(dirname(canonicalReportPath), { recursive: true });
-    writeFileSync(canonicalReportPath, reportMd, "utf8");
-  }
 
   if (!bench.passed || !oracleParity.passed) {
     console.error(redactVoiceSecrets(`Бенчмарк завершился с ошибкой: ${[...bench.reasons, ...oracleParity.reasons].join("; ")}`));
