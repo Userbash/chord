@@ -6920,7 +6920,7 @@
     {
       "id": "TASK-1002A",
       "title": "Жизненный цикл тредов: REST создание и таймеры автоархивации",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Создание треда POST /channels/{id}/messages/{msg_id}/threads и обработка автоархивации 60..10080 мин.",
@@ -7143,7 +7143,7 @@
     {
       "id": "TASK-1005A",
       "title": "Парсер <:name:id> и двухуровневый кэш эмодзи (ОЗУ LRU + диск)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Парсинг статических и GIF эмодзи, CDN загрузчик и кэширование в ~/.cache/discord-gpui/emojis/.",
