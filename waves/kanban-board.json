@@ -6957,7 +6957,7 @@
     {
       "id": "TASK-1002B",
       "title": "Боковая панель треда ThreadSidebar (360px) с виртуальным скроллом",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Правая сплит-панель треда фиксированной ширины 360px с независимым буфером сообщений.",
@@ -7476,7 +7476,7 @@
     {
       "id": "TASK-1011A",
       "title": "Сборщик RTCP метрик (RTT, джиттер, потери, битрейт, DAVE MLS)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Кольцевой буфер 120 измерений (60с с шагом 500мс) и мониторинг эпох DAVE MLS v1.",
