@@ -1,0 +1,17 @@
+Использование: node scripts/verify-afk.mjs [--oracle <path>] [--out-json <path>] [--out-md <path>]
+▶ TASK-1010: Автоматический перевод в AFK-канал при простое (rust/discord-gpui/src/voice/afk_monitor.rs)
+  ✔ SUB-1010-0: модули rust/discord-gpui/src/voice/afk_monitor.rs и scripts/verify-afk.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений (114.315399ms)
+  ✔ SUB-1010-1: сверяет дизайн-токены, раскладку Voice State Service, состояния afk-badge/idle-detect/voice-afk, D-Bus фикстуру и события Gateway с независимыми оракулами (20.048407ms)
+  ✔ SUB-1010-2: проверяет системный детектор бездействия (Wayland ext-idle-notifier-v1 -> D-Bus ScreenSaver -> X11 fallback) и фильтрацию активности медиа/стримов/речи (1.282531ms)
+  ✔ SUB-1010-3: проверяет перевод в afk_channel_id по guild.afk_timeout (1..60 мин), отправку Gateway Opcode 4 с self_mute: true и воспроизведение на реальных гильдиях RE-дампа (1.697122ms)
+  ✔ SUB-1010-4: покрывает все 9 обязательных измерений TEST-POLICY.md и проверяет CLI scripts/verify-afk.mjs (коды 0 / 1 / 2) (65.229226ms)
+  ✔ SUB-1010-5: убивает 5/5 контрольных мутаций в rust/discord-gpui/src/voice/afk_monitor.rs и scripts/verify-afk.mjs (100% mutation kill rate) (520.846422ms)
+✔ TASK-1010: Автоматический перевод в AFK-канал при простое (rust/discord-gpui/src/voice/afk_monitor.rs) (726.69709ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 767.166916

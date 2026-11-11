@@ -6507,7 +6507,7 @@
     {
       "id": "TASK-1008",
       "title": "Журнал аудита сервера (Server Audit Log & REST API v9)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Просмотр журнала действий модераторов через GET /guilds/{id}/audit-logs с фильтрацией по типам событий и авторам.",
@@ -6583,7 +6583,7 @@
     {
       "id": "TASK-1010",
       "title": "Автоматический перевод в AFK-канал при простое",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G5 Voice / Platform",
       "summary": "Опрос системного времени бездействия (ScreenSaver / idle-notifier) и перевод в afk_channel_id при тайм-ауте.",
@@ -6883,7 +6883,7 @@
     {
       "id": "TASK-1001B",
       "title": "UI-сетка постов форума ForumGridView с фильтрацией тегов",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "2-колоночная сетка постов форума (96px плашки), мультивыбор тегов и счетчики реакций.",
@@ -6920,7 +6920,7 @@
     {
       "id": "TASK-1002A",
       "title": "Жизненный цикл тредов: REST создание и таймеры автоархивации",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Создание треда POST /channels/{id}/messages/{msg_id}/threads и обработка автоархивации 60..10080 мин.",
