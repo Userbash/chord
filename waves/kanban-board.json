@@ -6697,7 +6697,7 @@
     {
       "id": "TASK-1013",
       "title": "Интеграция со Spotify по D-Bus MPRIS (Listen Along)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Детект трека Spotify через D-Bus MPRIS, трансляция активности в статус и кнопка совместного прослушивания.",
@@ -7031,7 +7031,7 @@
     {
       "id": "TASK-1003B",
       "title": "Интерактивный плеер VoiceMessagePlayer с переключением 1x/1.5x/2x",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Отрисовка полосок волны, прогресс воспроизведения, перемотка кликом и кнопка скорости.",
