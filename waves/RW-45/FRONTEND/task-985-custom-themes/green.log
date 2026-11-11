@@ -1,0 +1,16 @@
+▶ TASK-985: Пользовательские темы оформления и динамическая CSS палитра (custom_themes.rs + custom-themes.js)
+  ✔ SUB-985-0: модули custom_themes.rs и custom-themes.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), rustfmt 2024 и компилируются без предупреждений (122.576998ms)
+  ✔ SUB-985-1: сверяет дизайн-токены, макет Theme Picker, палитры (Midnight, Dark, Light, AMOLED) и интерактивные состояния с независимыми оракулами (6.299747ms)
+  ✔ SUB-985-2: переключает темы (Dark, Light, Midnight, AMOLED и пользовательские) на лету без перезагрузки интерфейса и управляет состояниями theme-preview (3.11623ms)
+  ✔ SUB-985-3: валидирует CSS-токены на WCAG 2.2 AA контрастность (>= 4.5:1 текст, >= 3.0:1 UI/focus) и блокирует CSS-инъекции (1.514563ms)
+  ✔ SUB-985-4: покрывает все 9 измерений TEST-POLICY.md (граничные 4.49 vs 4.50, лимит 8 тем, Snowflake, 2000 символов, ошибки 401..5xx, skeleton/202, права, fallback и маскирование) (2.384457ms)
+  ✔ SUB-985-5: убивает 5/5 контрольных мутаций в custom_themes.rs и custom-themes.js (100% mutation kill rate) (544.169463ms)
+✔ TASK-985: Пользовательские темы оформления и динамическая CSS палитра (custom_themes.rs + custom-themes.js) (682.653271ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 724.626323

@@ -6014,7 +6014,7 @@
     {
       "id": "TASK-985",
       "title": "Пользовательские темы оформления и динамическая CSS палитра",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Поддержка пользовательских цветовых тем, динамической инъекции CSS-токенов и тем оформления Discord (Midnight, Dark, Light, AMOLED).",
@@ -6046,7 +6046,8 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T13:13:33.149Z",
-      "assignee": "term_6683157a-c4c7-4044-bf41-1117f478cb4c"
+      "assignee": "term_6683157a-c4c7-4044-bf41-1117f478cb4c",
+      "progress": 100
     },
     {
       "id": "TASK-986",
@@ -6350,7 +6351,7 @@
     {
       "id": "TASK-1004",
       "title": "Интерактивные опросы в сообщениях (Polls & Voting)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Опросы в чате с вариантами ответов, дедлайном, мультивыбором и отображением прогресса голосования.",
@@ -6382,7 +6383,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/chat/polls.rs, tests/unit/polls-voting-1004.test.mjs.\nОракул: re-deep/rest-d02.json (polls endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1005",

@@ -1,0 +1,120 @@
+▶ TASK-985: Пользовательские темы оформления и динамическая CSS палитра (custom_themes.rs + custom-themes.js)
+  ✖ SUB-985-0: модули custom_themes.rs и custom-themes.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), rustfmt 2024 и компилируются без предупреждений (1.141196ms)
+  ✖ SUB-985-1: сверяет дизайн-токены, макет Theme Picker, палитры (Midnight, Dark, Light, AMOLED) и интерактивные состояния с независимыми оракулами (0.371079ms)
+  ✖ SUB-985-2: переключает темы (Dark, Light, Midnight, AMOLED и пользовательские) на лету без перезагрузки интерфейса и управляет состояниями theme-preview (0.278439ms)
+  ✖ SUB-985-3: валидирует CSS-токены на WCAG 2.2 AA контрастность (>= 4.5:1 текст, >= 3.0:1 UI/focus) и блокирует CSS-инъекции (0.268989ms)
+  ✖ SUB-985-4: покрывает все 9 измерений TEST-POLICY.md (граничные 4.49 vs 4.50, лимит 8 тем, Snowflake, 2000 символов, ошибки 401..5xx, skeleton/202, права, fallback и маскирование) (0.271509ms)
+  ✖ SUB-985-5: убивает 5/5 контрольных мутаций в custom_themes.rs и custom-themes.js (100% mutation kill rate) (0.275569ms)
+✖ TASK-985: Пользовательские темы оформления и динамическая CSS палитра (custom_themes.rs + custom-themes.js) (3.63282ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 0
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.583663
+
+✖ failing tests:
+
+test at tests/unit/custom-themes-985.test.mjs:206:3
+✖ SUB-985-0: модули custom_themes.rs и custom-themes.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), rustfmt 2024 и компилируются без предупреждений (1.141196ms)
+  AssertionError [ERR_ASSERTION]: Модуль rust/discord-gpui/src/custom_themes.rs должен существовать
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs:207:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/custom-themes-985.test.mjs:280:3
+✖ SUB-985-1: сверяет дизайн-токены, макет Theme Picker, палитры (Midnight, Dark, Light, AMOLED) и интерактивные состояния с независимыми оракулами (0.371079ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js' imported from /home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js'
+  }
+
+test at tests/unit/custom-themes-985.test.mjs:351:3
+✖ SUB-985-2: переключает темы (Dark, Light, Midnight, AMOLED и пользовательские) на лету без перезагрузки интерфейса и управляет состояниями theme-preview (0.278439ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js' imported from /home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js'
+  }
+
+test at tests/unit/custom-themes-985.test.mjs:444:3
+✖ SUB-985-3: валидирует CSS-токены на WCAG 2.2 AA контрастность (>= 4.5:1 текст, >= 3.0:1 UI/focus) и блокирует CSS-инъекции (0.268989ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js' imported from /home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js'
+  }
+
+test at tests/unit/custom-themes-985.test.mjs:508:3
+✖ SUB-985-4: покрывает все 9 измерений TEST-POLICY.md (граничные 4.49 vs 4.50, лимит 8 тем, Snowflake, 2000 символов, ошибки 401..5xx, skeleton/202, права, fallback и маскирование) (0.271509ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js' imported from /home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js'
+  }
+
+test at tests/unit/custom-themes-985.test.mjs:543:3
+✖ SUB-985-5: убивает 5/5 контрольных мутаций в custom_themes.rs и custom-themes.js (100% mutation kill rate) (0.275569ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js' imported from /home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js'
+  }

@@ -1,0 +1,17 @@
+=== TASK-985 Mutation Gate Verification (5/5 Rust + 5/5 JS = 100% Kill Rate) ===
+
+[Rust Module: rust/discord-gpui/src/custom_themes.rs]
+1. MUT-985-RS-01 (WcagNormalThresholdLowering: 4.5 -> 1.5) -> KILLED (test_sub_985_3_wcag_aa_contrast_and_css_sanitizer failed)
+2. MUT-985-RS-02 (HotSwitchReloadFlagTamper: reloaded: false -> true) -> KILLED (test_sub_985_2_hot_theme_switch_without_reload failed)
+3. MUT-985-RS-03 (AmoledTrueBlackTamper: "#000000" -> "#2b2d31") -> KILLED (test_sub_985_1_builtin_palettes_and_picker_tokens failed)
+4. MUT-985-RS-04 (CssInjectionSanitizerBypass: "url(" -> "__never_match_url__") -> KILLED (test_sub_985_3_wcag_aa_contrast_and_css_sanitizer failed)
+5. MUT-985-RS-05 (MaxCustomThemesLimitTamper: 8 -> 99) -> KILLED (test_sub_985_4_all_nine_dimensions_contract failed)
+
+[JS Module: rust/gui-spike/ui/features/custom-themes.js]
+1. MUT-985-JS-01 (WCAG 2.2 AA 4.5:1 text contrast threshold bypass) -> KILLED
+2. MUT-985-JS-02 (CSS injection url() sanitizer bypass) -> KILLED
+3. MUT-985-JS-03 (AMOLED #000000 true black surface replacement) -> KILLED
+4. MUT-985-JS-04 (Hot theme switch reload flag tampering) -> KILLED
+5. MUT-985-JS-05 (Max 8 installed custom themes limit bypass) -> KILLED
+
+Result: 5/5 Rust mutants KILLED (100%), 5/5 JS mutants KILLED (100%), 0 survivors.
