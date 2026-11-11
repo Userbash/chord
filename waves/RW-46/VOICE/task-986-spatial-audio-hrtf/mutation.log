@@ -1,0 +1,11 @@
+▶ TASK-986: Пространственное 3D-позиционирование звука участников (HRTF) в rust/discord-voice/src/spatial_audio.rs
+  ✔ SUB-986-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/spatial_audio.rs (100% mutation kill rate) (1008.039923ms)
+✔ TASK-986: Пространственное 3D-позиционирование звука участников (HRTF) в rust/discord-voice/src/spatial_audio.rs (1010.288019ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1051.746085

@@ -1,0 +1,16 @@
+▶ TASK-986: Пространственное 3D-позиционирование звука участников (HRTF) в rust/discord-voice/src/spatial_audio.rs
+  ✔ SUB-986-0: модуль rust/discord-voice/src/spatial_audio.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений (221.219319ms)
+  ✔ SUB-986-1: сверяет константы Steam Audio (Phonon), пути default.sofa/api_hrtf.cpp/api_binaural_effect.cpp, NAPI-символы и состояния peer-avatar-3d с независимыми RE-оракулами (5.52188ms)
+  ✔ SUB-986-2: сверяет расчёт межушной разности времени (ITD до 0.7 мс по Вудворту) и уровня (ILD до 20 дБ по KEMAR) и затухания 1/r с независимым математическим оракулом (1.387417ms)
+  ✔ SUB-986-3: выполняет бинауральную HRTF-свёртку (Overlap-Save FIR Convolver + дробная задержка ITD) моно-потока 48 кГц (960 сэмплов) в стерео без щелчков на стыках кадров (1.235731ms)
+  ✔ SUB-986-4: подтверждает нагрузку CPU < 2% на 10 участников и покрывает все 9 измерений TEST-POLICY.md (граничные, ошибки 401..5xx, тишина/DTX, прогрев 202, права, fallback и маскирование секретов) (6.549556ms)
+  ✔ SUB-986-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/spatial_audio.rs (100% mutation kill rate) (1052.347242ms)
+✔ TASK-986: Пространственное 3D-позиционирование звука участников (HRTF) в rust/discord-voice/src/spatial_audio.rs (1291.656266ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1332.607741

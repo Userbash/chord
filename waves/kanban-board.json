@@ -6053,7 +6053,7 @@
     {
       "id": "TASK-986",
       "title": "Пространственное 3D-позиционирование звука участников (HRTF)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G5 Voice / Platform",
       "summary": "Бинауральное пространственное панорамирование участников голосового канала с учетом угла азимута и расстояния (HRTF convolver).",
@@ -6085,7 +6085,8 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T13:13:33.149Z",
-      "assignee": "term_f444d31d-d659-43d0-9e52-8d275a21fed6"
+      "assignee": "term_f444d31d-d659-43d0-9e52-8d275a21fed6",
+      "progress": 100
     },
     {
       "id": "TASK-987",
@@ -6166,7 +6167,7 @@
     {
       "id": "TASK-989",
       "title": "Автоматизированный нагрузочный стенд на 50 одновременных ботов/клиентов",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G4 QA",
       "summary": "Эмуляция высокой нагрузки сообщений, синхронных реакций и голосового присутствия 50 участников с замером времени отклика.",
@@ -6198,7 +6199,7 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T12:35:00.000Z",
-      "progress": 10
+      "progress": 100
     },
     {
       "id": "TASK-990",
@@ -6506,7 +6507,7 @@
     {
       "id": "TASK-1008",
       "title": "Журнал аудита сервера (Server Audit Log & REST API v9)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Просмотр журнала действий модераторов через GET /guilds/{id}/audit-logs с фильтрацией по типам событий и авторам.",
@@ -6538,12 +6539,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/audit_log.rs, tests/unit/audit-log-viewer-1008.test.mjs.\nОракул: re-deep/rest-d02.json (audit-logs endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1009",
       "title": "Двухфакторная аутентификация TOTP 2FA и управление сессиями",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Модальное окно ввода 6 цифр TOTP при логине, просмотр списка активных сессий и принудительный разлогин.",
@@ -6575,7 +6577,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/auth/totp_dialog.rs, tests/unit/totp-sessions-1009.test.mjs.\nОракул: re-deep/rest-d02.json (mfa/totp endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1010",

@@ -1,0 +1,80 @@
+{
+  "taskId": "TASK-989",
+  "status": "passed",
+  "oracleParity": {
+    "passed": true,
+    "reasons": [],
+    "guildId": "1014537851418980372",
+    "channelId": "1163408591315812392",
+    "baseAudioSsrc": 17843
+  },
+  "simulation": {
+    "peerCount": 50,
+    "totalEventsProcessed": 5000,
+    "eventsPerSecond": 5000,
+    "clientCrashed": false,
+    "uiThreadBlocked": false,
+    "jankFrames": 0,
+    "p99FrameTimeMs": 0.2276,
+    "rssBeforeMb": 54.316,
+    "rssAfterMb": 60.676,
+    "rssDeltaMb": 6.36,
+    "estimatedClientRssMb": 11.37,
+    "breakdown": {
+      "messageEvents": 2000,
+      "reactionEvents": 1000,
+      "typingEvents": 1000,
+      "voiceSpeakingEvents": 1000
+    },
+    "stateSnapshot": {
+      "retainedMessagesCount": 200,
+      "activeTypingUsersCount": 10,
+      "connectedVoicePeers": 50,
+      "speakingPeers": 5,
+      "unreadBadge": "99+"
+    },
+    "passed": true,
+    "reasons": []
+  },
+  "nineDimensions": {
+    "passed": true,
+    "reasons": [],
+    "boundaries": {
+      "minSnowflake": "0",
+      "maxSnowflake": "18446744073709551615",
+      "maxMessageChars": 2000,
+      "maxAttachmentsCount": 10,
+      "maxAttachmentSizeBytes": 26214400,
+      "maxSearchOffset": 9975,
+      "voiceVolumeBoundsPercent": [
+        0,
+        200
+      ],
+      "unreadBadgeCap": "99+",
+      "maxRssMb": 60
+    },
+    "emptyState": {
+      "zeroMessagesAtInit": true
+    },
+    "loadingState": {
+      "http202BackfillSupported": true
+    },
+    "permissions": {
+      "mutedSpeakingBlocked": true,
+      "ageGatedSpacesChecked": true
+    },
+    "errorHandling": {
+      "httpStatusCodesCovered": [
+        401,
+        403,
+        404,
+        413,
+        429,
+        503
+      ]
+    },
+    "recovery": {
+      "resumeReplayVerified": true
+    }
+  }
+}
