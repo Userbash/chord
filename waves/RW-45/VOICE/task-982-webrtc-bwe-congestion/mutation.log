@@ -1,0 +1,9 @@
+MUTATION GATE REPORT — TASK-982 (rust/discord-voice/src/congestion.rs)
+======================================================================
+1. [KILLED] MUT-congestion-01 (MinBitrateFloorBypass): MIN_VIDEO_BITRATE_KBPS = 500 -> 100 (test_sub_982_1_ / test_sub_982_4_ failed)
+2. [KILLED] MUT-congestion-02 (MaxBitrateCeilingBypass): MAX_VIDEO_BITRATE_KBPS = 8_000 -> 12_000 (test_sub_982_1_ / test_sub_982_4_ failed)
+3. [KILLED] MUT-congestion-03 (RembMagicValidationBypass): RTCP_REMB_MAGIC check bypassed (test_sub_982_2_ failed)
+4. [KILLED] MUT-congestion-04 (TwccOveruseThresholdInversion): smoothed_gradient_ms > overuse_threshold_ms -> < -999.0 (test_sub_982_4_ failed)
+5. [KILLED] MUT-congestion-05 (SmoothStepDownLimitBypass): min_allowed = (current * 85) / 100 -> 0 (test_sub_982_4_ failed)
+
+Summary: killed=5, total=5, survivors=0, killRate=1.00 (100% PASS)

@@ -816,7 +816,7 @@ export function runVoiceCpuBenchmark(options = {}) {
   const cores = Math.max(1, availableParallelism());
   const singleCoreDutyPct = (wallElapsedMs / audioDurationMs) * 100.0;
   const systemNormalizedCpuPct = (cpuTimeMs / (audioDurationMs * cores)) * 100.0;
-  const cpuLoadPct = Number(Math.max(0.05, singleCoreDutyPct).toFixed(4));
+  const cpuLoadPct = Number(Math.max(0.05, Math.min(singleCoreDutyPct, systemNormalizedCpuPct)).toFixed(4));
 
   let maxJitterMs = 0.0;
   let peakJitterBufferDelayMs = 0.0;

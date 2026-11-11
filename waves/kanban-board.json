@@ -5901,7 +5901,7 @@
     {
       "id": "TASK-982",
       "title": "Контроль перегрузки WebRTC BWE (GCC, REMB/TWCC адаптация)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Модуль rust/discord-voice/src/congestion.rs, скрипт scripts/verify-bwe.mjs, адаптация видеобитрейта 500..8000 kbps по REMB/TWCC.",
@@ -5932,7 +5932,8 @@
         "Контрактный тест tests/unit/webrtc-bwe-congestion-982.test.mjs green"
       ],
       "created_at": "2026-11-11T12:20:22.303Z",
-      "updated_at": "2026-11-11T12:20:22.304Z"
+      "updated_at": "2026-11-11T12:20:22.304Z",
+      "progress": 100
     },
     {
       "id": "TASK-983",
@@ -6159,7 +6160,7 @@
     {
       "id": "TASK-989",
       "title": "Автоматизированный нагрузочный стенд на 50 одновременных ботов/клиентов",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G4 QA",
       "summary": "Эмуляция высокой нагрузки сообщений, синхронных реакций и голосового присутствия 50 участников с замером времени отклика.",
@@ -6190,7 +6191,8 @@
         "Контрактный тест tests/unit/multi-client-stress-989.test.mjs green"
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
-      "updated_at": "2026-11-11T12:35:00.000Z"
+      "updated_at": "2026-11-11T12:35:00.000Z",
+      "progress": 10
     },
     {
       "id": "TASK-990",

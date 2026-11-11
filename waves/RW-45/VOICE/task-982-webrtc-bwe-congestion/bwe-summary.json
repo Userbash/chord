@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-982",
+  "passed": true,
+  "parity": {
+    "passed": true,
+    "reasons": [],
+    "videoSsrc": 17844,
+    "rtxSsrc": 17845,
+    "av1PayloadType": 101
+  },
+  "verdict": {
+    "passed": true,
+    "reasons": []
+  },
+  "rustMd5": "5447cc03a9806dbefa3ceef351bd633e",
+  "simulation": {
+    "minObservedBitrateKbps": 500,
+    "maxObservedBitrateKbps": 8000,
+    "finalBitrateKbps": 2500,
+    "maxSingleStepDropRatio": 0.15,
+    "connectionDropped": false,
+    "reconnectCount": 0,
+    "stepsExecuted": 56
+  }
+}
