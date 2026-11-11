@@ -6431,7 +6431,7 @@
     {
       "id": "TASK-1006",
       "title": "Нативная проверка орфографии в поле ввода (hunspell / libenchant)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Проверка орфографии через системную библиотеку hunspell/libenchant с подчёркиванием опечаток и подсказками.",
@@ -6772,7 +6772,7 @@
     {
       "id": "TASK-1015",
       "title": "Автозапуск с системой (XDG Autostart & Start Minimized)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Генерация desktop-файла в ~/.config/autostart/, флаг --start-minimized и старт свёрнутым в системный трей.",
