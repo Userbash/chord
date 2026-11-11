@@ -1,0 +1,8 @@
+Original MD5: 99258d2c78a37cda853e7010821074f7
+M1: colorFormat rgba8_unorm_srgb -> r8_unorm => status=1 (KILLED)
+M2: CJK_TTC_FACE_INDICES zh-CN: 2 -> 0 => status=1 (KILLED)
+M3: RTL direction rtl -> ltr => status=1 (KILLED)
+M4: Tofurion glyphId: 0 -> 1 => status=1 (KILLED)
+M5: WGPU LRU eviction disabled (lruEvictions += 0) => status=1 (KILLED)
+Restored MD5: 99258d2c78a37cda853e7010821074f7 (match=true)
+Summary: 5/5 mutations killed (100%)

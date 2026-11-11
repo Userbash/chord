@@ -1,0 +1,15 @@
+▶ TASK-981: Комплексный чекер системных шрифтов и кэша атласа WGPU (scripts/font-audit.mjs)
+  ✔ SUB-981-1: сверяет дизайн-токены, интерактивные состояния emoji-picker, классификацию скриптов Unicode, fc-list и независимые оракулы (19.913971ms)
+  ✔ SUB-981-2: сегментирует графемные кластеры (ZWJ, тон кожи, флаги, харакат) и разрешает fallback для Noto Color Emoji, CJK и RTL (3.063649ms)
+  ✔ SUB-981-3: заменяет отсутствующие, PUA и невалидные глифы на tofurion (.notdef / U+FFFD) без паники (0.393123ms)
+  ✔ SUB-981-4: симулирует кэш текстурного атласа WGPU (Shelf bin-packing, переходы состояний emoji-picker и LRU-вытеснение без паники) (4.176915ms)
+  ✔ SUB-981-5: проверяет матричный аудит, 9 измерений TEST-POLICY.md, CLI scripts/font-audit.mjs (коды 0/1/2), лимиты кода и 5/5 мутаций (242.781573ms)
+✔ TASK-981: Комплексный чекер системных шрифтов и кэша атласа WGPU (scripts/font-audit.mjs) (271.046655ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 308.037029

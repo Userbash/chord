@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-11T13:13:33.149Z",
+  "updated_at": "2026-11-11T13:18:43.227Z",
   "columns": [
     {
       "id": "backlog",
@@ -5865,7 +5865,7 @@
     {
       "id": "TASK-981",
       "title": "Комплексный чекер системных шрифтов (Fallback Noto Color Emoji, CJK)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Скрипт scripts/font-audit.mjs, цепочка подстановки глифов Emoji/CJK/Arabic, проверка кэша атласа WGPU без паник.",
@@ -5896,7 +5896,7 @@
         "Контрактный тест tests/unit/font-fallback-matrix-981.test.mjs green"
       ],
       "created_at": "2026-11-11T12:18:41.924Z",
-      "updated_at": "2026-11-11T12:18:41.924Z"
+      "updated_at": "2026-11-11T13:18:21.257Z"
     },
     {
       "id": "TASK-982",
@@ -6085,7 +6085,7 @@
     {
       "id": "TASK-987",
       "title": "Мгновенное переключение аккаунтов (Multi-Account Switcher)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Хранение до 5 профилей пользователей с мгновенным переключением Gateway и REST сессий без перезапуска GPUI клиента.",
@@ -6116,7 +6116,8 @@
         "Контрактный тест tests/unit/multi-account-switcher-987.test.mjs green"
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
-      "updated_at": "2026-11-11T12:35:00.000Z"
+      "updated_at": "2026-11-11T13:18:43.226Z",
+      "assignee": "term_c48aac56-92f5-46e4-84b8-cd65059faf54"
     },
     {
       "id": "TASK-988",
