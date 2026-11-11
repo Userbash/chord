@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-11T13:18:43.227Z",
+  "updated_at": "2026-11-11T13:23:04.791Z",
   "columns": [
     {
       "id": "backlog",
@@ -5757,7 +5757,7 @@
     {
       "id": "TASK-978",
       "title": "Стенд эмуляции WAN профилей и устойчивость к потерям Opus PLC",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Скрипт scripts/wan-simulation.mjs, эмуляция 150ms RTT, 5% потерь пакетов, проверка NACK/RTX и сокрытия потерь Opus PLC.",
@@ -5788,7 +5788,7 @@
         "Контрактный тест tests/unit/wan-network-profiles-978.test.mjs green"
       ],
       "created_at": "2026-11-11T12:18:41.924Z",
-      "updated_at": "2026-11-11T12:18:41.924Z"
+      "updated_at": "2026-11-11T13:22:34.686Z"
     },
     {
       "id": "TASK-979",
@@ -6122,7 +6122,7 @@
     {
       "id": "TASK-988",
       "title": "Глобальные хоткеи и Wayland In-Game Overlay",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Поддержка оверлея поверх полноэкранных игр под Wayland (через протокол ext-foreign-toplevel-list-v1) и X11.",
@@ -6153,7 +6153,8 @@
         "Контрактный тест tests/unit/ingame-overlay-988.test.mjs green"
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
-      "updated_at": "2026-11-11T12:35:00.000Z"
+      "updated_at": "2026-11-11T13:23:04.790Z",
+      "assignee": "term_7c28470e-4d2c-4167-bdd0-c64622ae6cbc"
     },
     {
       "id": "TASK-989",

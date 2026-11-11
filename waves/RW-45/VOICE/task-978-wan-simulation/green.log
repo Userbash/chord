@@ -1,0 +1,14 @@
+▶ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs)
+  ✔ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (4.890107ms)
+  ✔ SUB-978-2: подтверждает непрерывность голоса при 5% потерь, 150ms RTT и 30ms jitter за счёт Opus PLC и In-Band FEC (4.725797ms)
+  ✔ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (1.775086ms)
+  ✔ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (80.568597ms)
+✔ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (92.691289ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 133.69768

@@ -1,0 +1,60 @@
+# Mutation Testing Log — TASK-978 (scripts/wan-simulation.mjs)
+Original MD5: 56cced9b7dc6fdb4cee1014baa9bc925
+
+## M1: WAN_DEFAULT_PROFILE.rttMs: 150 -> 120 (нарушение RTT контракта 150ms)
+Status: KILLED (exit=1)
+```
+  ✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (3.491953ms)
+  ✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (36.459724ms)
+✖ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (47.667475ms)
+ℹ fail 2
+✖ failing tests:
+✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (3.491953ms)
+```
+
+## M2: WAN_DEFAULT_PROFILE.packetLossPct: 5.0 -> 2.0 (нарушение профиля 5% потерь)
+Status: KILLED (exit=1)
+```
+  ✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (3.095872ms)
+  ✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (36.837045ms)
+✖ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (47.778986ms)
+ℹ fail 2
+✖ failing tests:
+✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (3.095872ms)
+```
+
+## M3: RTCP_RTPFB_PT: 205 -> 204 (нарушение RFC 4585 Generic NACK PT=205)
+Status: KILLED (exit=1)
+```
+  ✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (0.660742ms)
+✖ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (92.209778ms)
+ℹ fail 1
+✖ failing tests:
+✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (0.660742ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+```
+
+## M4: evaluateWanSimulationResult: packetLossPct > 10.0 -> >= 10.0 (ложное срабатывание Error 2003 на границе 10%)
+Status: KILLED (exit=1)
+```
+  ✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (3.333442ms)
+✖ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (16.385511ms)
+ℹ fail 1
+✖ failing tests:
+✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (3.333442ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+```
+
+## M5: recoverMissingVideoViaRtx: parsedNack.lostSequences -> parsedNack.lostSequences.slice(1) (неполное RTX восстановление ключевого кадра)
+Status: KILLED (exit=1)
+```
+  ✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (1.875967ms)
+  ✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (2.60744ms)
+✖ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (14.717744ms)
+ℹ fail 2
+✖ failing tests:
+✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (1.875967ms)
+```
+
+Restored MD5: 56cced9b7dc6fdb4cee1014baa9bc925 (match=true)
+Result: 5/5 mutations KILLED (100%)

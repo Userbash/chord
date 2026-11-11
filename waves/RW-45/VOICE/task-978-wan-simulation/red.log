@@ -1,0 +1,84 @@
+▶ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs)
+  ✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (0.718633ms)
+  ✖ SUB-978-2: подтверждает непрерывность голоса при 5% потерь, 150ms RTT и 30ms jitter за счёт Opus PLC и In-Band FEC (0.383926ms)
+  ✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (0.289946ms)
+  ✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (0.646413ms)
+✖ TASK-978: Стенд эмуляции WAN профилей (150ms RTT, 5% loss, 30ms jitter), NACK/RTX и Opus PLC (scripts/wan-simulation.mjs) (2.945528ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.476151
+
+✖ failing tests:
+
+test at tests/unit/wan-network-profiles-978.test.mjs:34:3
+✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (0.718633ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+  }
+
+test at tests/unit/wan-network-profiles-978.test.mjs:139:3
+✖ SUB-978-2: подтверждает непрерывность голоса при 5% потерь, 150ms RTT и 30ms jitter за счёт Opus PLC и In-Band FEC (0.383926ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+  }
+
+test at tests/unit/wan-network-profiles-978.test.mjs:201:3
+✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (0.289946ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+  }
+
+test at tests/unit/wan-network-profiles-978.test.mjs:311:3
+✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (0.646413ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+  }
