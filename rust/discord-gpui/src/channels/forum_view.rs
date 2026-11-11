@@ -1,6 +1,6 @@
 //! Форумные каналы `GUILD_FORUM` (`type: 15`), фильтрация по тегам, сетка карточек постов
-//! `ForumGridView` и счётчики ответов/реакций (`TASK-1001`).
-//! Оракулы: `docs/re/gateway-schema.json`, `docs/re/gateway-schema.md`, `rust/gui-spike/src/forum.rs`.
+//! `ForumGridView` и счётчики ответов/реакций (`TASK-1001`, `TASK-1001B`).
+//! Оракулы: `docs/re/gateway-schema.json`, `docs/re/frontend-d03.json`, `rust/gui-spike/src/forum.rs`.
 
 #![forbid(unsafe_code)]
 #![allow(dead_code)]
@@ -12,7 +12,6 @@ pub const CHANNEL_TYPE_GUILD_FORUM: u8 = 15;
 pub const CHANNEL_TYPE_GUILD_MEDIA: u8 = 16;
 pub const CHANNEL_TYPE_PUBLIC_THREAD: u8 = 11;
 pub const CHANNEL_FLAG_REQUIRE_TAG: u64 = 1 << 4;
-
 pub const FORUM_GRID_CONTAINER: &str = "Forum Grid";
 pub const FORUM_GRID_DIMENSIONS: &str = "100% x 100%";
 pub const FORUM_GRID_PADDING_PX: u32 = 16;
@@ -22,13 +21,19 @@ pub const FORUM_AVATAR_SIZE_PX: u32 = 20;
 pub const FORUM_TITLE_FONT_PX: u32 = 15;
 pub const FORUM_PREVIEW_THUMB_PX: u32 = 72;
 pub const FORUM_GALLERY_MIN_WIDTH_PX: u32 = 600;
-
 pub const TOKEN_BG: &str = "#313338";
 pub const TOKEN_SURFACE: &str = "#2b2d31";
 pub const TOKEN_TEXT_PRIMARY: &str = "#ffffff";
 pub const TOKEN_ACCENT: &str = "#5865f2";
 pub const TOKEN_BORDER: &str = "#3f4147";
-
+pub const POST_CARD_ELEMENT: &str = "post-card";
+pub const POST_CARD_STATE_DEFAULT: &str = "card";
+pub const POST_CARD_STATE_HOVER: &str = "border-accent";
+pub const POST_CARD_STATE_ACTIVE: &str = "open thread";
+pub const BADGE_TAG_CONTAINER_CLASS: &str = "badge_e7c728";
+pub const NUMBER_BADGE_CLASS: &str = "numberBadge__463b7";
+pub const AVATAR_WRAPPER_CLASS: &str = "avatarWrapper_d8a370";
+pub const SCROLLER_BASE_CLASS: &str = "scrollerBase_d125d2";
 pub const MAX_FORUM_AVAILABLE_TAGS: usize = 20;
 pub const MAX_FORUM_APPLIED_TAGS: usize = 5;
 pub const MAX_CARD_VISIBLE_TAGS: usize = 3;
@@ -38,7 +43,6 @@ pub const MAX_FORUM_CONTENT_CHARS: usize = 2_000;
 pub const FORUM_PAGE_SIZE: usize = 25;
 pub const MAX_FORUM_CACHED_POSTS: usize = 200;
 pub const ALLOWED_AUTO_ARCHIVE_MINUTES: [u32; 4] = [60, 1440, 4320, 10080];
-
 pub const MAX_ATTACHMENTS_COUNT: usize = 10;
 pub const MAX_ATTACHMENT_BYTES: u64 = 25 * 1024 * 1024;
 pub const MAX_SEARCH_OFFSET: u32 = 9_975;
@@ -49,23 +53,9 @@ pub const MAX_BADGE_CAP: u32 = 99;
 pub enum ForumError {
     UnsupportedChannelType(u8),
     InvalidSnowflake(&'static str),
-    InvalidAutoArchiveDuration(u32),
-    InvalidTitleLength(usize),
-    InvalidContentLength(usize),
-    TooManyAppliedTags(usize),
-    TagRequiredByChannelFlag,
-    UnknownTagId(u64),
     ModeratedTagForbidden(u64),
-    ArchivedThreadInActivePage(u64),
-    ParentChannelMismatch {
-        expected: u64,
-        actual: u64,
-    },
     PaginationLoopDetected(u64),
-    HttpError {
-        status: u16,
-        retry_after_ms: Option<u64>,
-    },
+    HttpError(u16),
     AccessDenied(&'static str),
     BoundaryViolation(&'static str),
 }
@@ -84,21 +74,6 @@ pub enum ForumSortOrder {
     CreationDate = 1,
 }
 
-impl ForumSortOrder {
-    #[must_use]
-    pub const fn as_u8(self) -> u8 {
-        self as u8
-    }
-
-    #[must_use]
-    pub const fn from_u8(code: u8) -> Self {
-        match code {
-            1 => Self::CreationDate,
-            _ => Self::LatestActivity,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ForumLayoutView {
     List = 1,
@@ -106,20 +81,6 @@ pub enum ForumLayoutView {
 }
 
 impl ForumLayoutView {
-    #[must_use]
-    pub const fn as_u8(self) -> u8 {
-        self as u8
-    }
-
-    #[must_use]
-    pub const fn from_u8(code: u8) -> Self {
-        match code {
-            2 => Self::Gallery,
-            _ => Self::List,
-        }
-    }
-
-    #[must_use]
     pub const fn columns_for_width(self, viewport_width_px: u32) -> usize {
         match self {
             Self::Gallery if viewport_width_px >= FORUM_GALLERY_MIN_WIDTH_PX => 2,
@@ -134,16 +95,6 @@ pub enum TagMatchMode {
     All,
 }
 
-impl TagMatchMode {
-    #[must_use]
-    pub fn from_setting(setting: Option<&str>) -> Self {
-        match setting {
-            Some("match_all" | "all") => Self::All,
-            _ => Self::Any,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ForumPostCardState {
     DefaultSurface,
@@ -153,13 +104,11 @@ pub enum ForumPostCardState {
 }
 
 impl ForumPostCardState {
-    #[must_use]
-    pub const fn as_str(self) -> &'static str {
+    pub const fn as_post_card_state_str(self) -> &'static str {
         match self {
-            Self::DefaultSurface => "surface",
-            Self::HoverBorderAccent => "border-accent",
-            Self::ActiveOpened => "opened",
-            Self::SkeletonLoading => "skeleton",
+            Self::DefaultSurface | Self::SkeletonLoading => POST_CARD_STATE_DEFAULT,
+            Self::HoverBorderAccent => POST_CARD_STATE_HOVER,
+            Self::ActiveOpened => POST_CARD_STATE_ACTIVE,
         }
     }
 }
@@ -171,7 +120,6 @@ pub struct ForumReactionEmoji {
 }
 
 impl ForumReactionEmoji {
-    #[must_use]
     pub fn is_valid(&self) -> bool {
         self.emoji_id.is_some_and(|id| id > 0)
             || self
@@ -262,28 +210,49 @@ pub struct ForumCardRenderSpec {
     pub border_token: &'static str,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ForumTagChipSpec {
+    pub tag_id: u64,
+    pub label: String,
+    pub selected: bool,
+    pub post_count: usize,
+    pub background_token: &'static str,
+    pub border_token: &'static str,
+    pub text_token: &'static str,
+    pub class_hint: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ForumGridCellSpec {
+    pub row: usize,
+    pub col: usize,
+    pub card: ForumCardRenderSpec,
+    pub post_card_state: &'static str,
+    pub reaction_emoji: String,
+    pub reacted_by_me: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ForumGridViewSpec {
+    pub container: &'static str,
+    pub dimensions: &'static str,
+    pub padding_px: u32,
+    pub spacing_px: u32,
+    pub columns: usize,
+    pub rows: usize,
+    pub tag_chips: Vec<ForumTagChipSpec>,
+    pub cells: Vec<ForumGridCellSpec>,
+}
+
 pub fn normalize_forum_tags(raw_tags: Vec<ForumTag>) -> Vec<ForumTag> {
     let mut normalized = Vec::new();
     for tag in raw_tags {
-        let duplicate = normalized
-            .iter()
-            .any(|existing: &ForumTag| existing.id == tag.id);
-        if tag.id == 0 || duplicate {
+        if tag.id == 0 || normalized.iter().any(|t: &ForumTag| t.id == tag.id) {
             continue;
         }
-        let trimmed_name: String = tag.name.trim().chars().take(MAX_TAG_NAME_CHARS).collect();
-        if trimmed_name.is_empty() {
-            continue;
-        }
-        normalized.push(ForumTag {
-            id: tag.id,
-            name: trimmed_name,
-            emoji_id: tag.emoji_id.filter(|id| *id > 0),
-            emoji_name: tag.emoji_name.filter(|name| !name.trim().is_empty()),
-            moderated: tag.moderated,
-        });
-        if normalized.len() >= MAX_FORUM_AVAILABLE_TAGS {
-            break;
+        let name: String = tag.name.trim().chars().take(MAX_TAG_NAME_CHARS).collect();
+        if !name.is_empty() && normalized.len() < MAX_FORUM_AVAILABLE_TAGS {
+            normalized.push(ForumTag { name, ..tag });
         }
     }
     normalized
@@ -292,14 +261,9 @@ pub fn normalize_forum_tags(raw_tags: Vec<ForumTag>) -> Vec<ForumTag> {
 pub fn parse_forum_channel(
     channel_id: u64,
     guild_id: u64,
-    name: &str,
     channel_type: u8,
     flags: u64,
     tags: Vec<ForumTag>,
-    sort_code: Option<u8>,
-    layout_code: Option<u8>,
-    tag_setting: Option<&str>,
-    auto_archive: Option<u32>,
 ) -> Result<ForumChannelConfig, ForumError> {
     if channel_type != CHANNEL_TYPE_GUILD_FORUM {
         return Err(ForumError::UnsupportedChannelType(channel_type));
@@ -307,71 +271,56 @@ pub fn parse_forum_channel(
     if channel_id == 0 || guild_id == 0 {
         return Err(ForumError::InvalidSnowflake("channel_id/guild_id"));
     }
-    let archive_mins = auto_archive.unwrap_or(10_080);
-    if !ALLOWED_AUTO_ARCHIVE_MINUTES.contains(&archive_mins) {
-        return Err(ForumError::InvalidAutoArchiveDuration(archive_mins));
-    }
     Ok(ForumChannelConfig {
         channel_id,
         guild_id,
-        name: name.trim().to_string(),
+        name: "forum".to_string(),
         channel_type,
         flags,
         available_tags: normalize_forum_tags(tags),
         default_reaction_emoji: None,
-        default_sort_order: ForumSortOrder::from_u8(sort_code.unwrap_or(0)),
-        default_forum_layout: ForumLayoutView::from_u8(layout_code.unwrap_or(1)),
-        default_tag_setting: TagMatchMode::from_setting(tag_setting),
-        default_auto_archive_duration: archive_mins,
+        default_sort_order: ForumSortOrder::LatestActivity,
+        default_forum_layout: ForumLayoutView::Gallery,
+        default_tag_setting: TagMatchMode::Any,
+        default_auto_archive_duration: 4320,
         nsfw: false,
     })
 }
 
-#[must_use]
 pub fn post_matches_tags(
     post: &ForumPost,
-    available_tag_ids: &[u64],
-    selected_tag_ids: &[u64],
-    match_mode: TagMatchMode,
+    avail: &[u64],
+    selected: &[u64],
+    mode: TagMatchMode,
 ) -> bool {
-    if selected_tag_ids.is_empty() {
+    if selected.is_empty() {
         return true;
     }
-    if selected_tag_ids
-        .iter()
-        .any(|id| !available_tag_ids.contains(id))
-    {
+    if selected.iter().any(|id| !avail.contains(id)) {
         return false;
     }
-    match match_mode {
-        TagMatchMode::All => selected_tag_ids
-            .iter()
-            .all(|id| post.applied_tags.contains(id)),
-        TagMatchMode::Any => selected_tag_ids
-            .iter()
-            .any(|id| post.applied_tags.contains(id)),
+    match mode {
+        TagMatchMode::All => selected.iter().all(|id| post.applied_tags.contains(id)),
+        TagMatchMode::Any => selected.iter().any(|id| post.applied_tags.contains(id)),
     }
 }
 
-#[must_use]
 pub fn filter_and_sort_posts(
     posts: &[ForumPost],
-    available_tag_ids: &[u64],
-    selected_tag_ids: &[u64],
-    match_mode: TagMatchMode,
-    search_query: &str,
+    avail: &[u64],
+    selected: &[u64],
+    mode: TagMatchMode,
+    query: &str,
     sort_order: ForumSortOrder,
 ) -> Vec<ForumPost> {
-    let needle = search_query.trim().to_lowercase();
-    let mut filtered: Vec<ForumPost> = posts
+    let needle = query.trim().to_lowercase();
+    let mut out: Vec<ForumPost> = posts
         .iter()
-        .filter(|post| !post.archived)
-        .filter(|post| post_matches_tags(post, available_tag_ids, selected_tag_ids, match_mode))
-        .filter(|post| needle.is_empty() || post.title.to_lowercase().contains(&needle))
+        .filter(|p| !p.archived && post_matches_tags(p, avail, selected, mode))
+        .filter(|p| needle.is_empty() || p.title.to_lowercase().contains(&needle))
         .cloned()
         .collect();
-
-    filtered.sort_by(|a, b| {
+    out.sort_by(|a, b| {
         let pinned_ord = b.pinned.cmp(&a.pinned);
         pinned_ord
             .then_with(|| {
@@ -387,10 +336,9 @@ pub fn filter_and_sort_posts(
             })
             .then_with(|| b.id.cmp(&a.id))
     });
-    filtered
+    out
 }
 
-#[must_use]
 pub fn count_posts_by_tag(posts: &[ForumPost]) -> BTreeMap<u64, usize> {
     let mut counts = BTreeMap::new();
     for post in posts.iter().filter(|p| !p.archived) {
@@ -405,7 +353,87 @@ pub fn count_posts_by_tag(posts: &[ForumPost]) -> BTreeMap<u64, usize> {
     counts
 }
 
-#[must_use]
+pub fn toggle_tag_selection(selected: &[u64], tag_id: u64, avail: &[u64]) -> Vec<u64> {
+    let mut next: Vec<u64> = Vec::new();
+    for &id in selected {
+        if id != 0 && avail.contains(&id) && !next.contains(&id) {
+            next.push(id);
+        }
+    }
+    if tag_id == 0 || !avail.contains(&tag_id) {
+        return next;
+    }
+    if let Some(pos) = next.iter().position(|&id| id == tag_id) {
+        next.remove(pos);
+    } else if next.len() < MAX_FORUM_AVAILABLE_TAGS {
+        next.push(tag_id);
+    }
+    next
+}
+
+pub fn build_tag_filter_bar(
+    available_tags: &[ForumTag],
+    selected_tags: &[u64],
+    posts: &[ForumPost],
+) -> Vec<ForumTagChipSpec> {
+    let counts = count_posts_by_tag(posts);
+    available_tags
+        .iter()
+        .map(|tag| {
+            let selected = selected_tags.contains(&tag.id);
+            let background_token = if selected {
+                TOKEN_ACCENT
+            } else {
+                TOKEN_SURFACE
+            };
+            let border_token = if selected { TOKEN_ACCENT } else { TOKEN_BORDER };
+            let label = match &tag.emoji_name {
+                Some(e) if !e.trim().is_empty() => format!("{e} {}", tag.name),
+                _ => tag.name.clone(),
+            };
+            ForumTagChipSpec {
+                tag_id: tag.id,
+                label,
+                selected,
+                post_count: counts.get(&tag.id).copied().unwrap_or(0),
+                background_token,
+                border_token,
+                text_token: TOKEN_TEXT_PRIMARY,
+                class_hint: BADGE_TAG_CONTAINER_CLASS,
+            }
+        })
+        .collect()
+}
+
+pub fn compute_post_reaction_summary(
+    post: &ForumPost,
+    default_emoji: Option<&ForumReactionEmoji>,
+) -> (String, u32, bool) {
+    let mut total = 0_u32;
+    let mut by_me = false;
+    let mut top: Option<(u32, String)> = None;
+    for r in &post.reactions {
+        if !r.emoji.is_valid() || r.count == 0 {
+            continue;
+        }
+        total = total.saturating_add(r.count);
+        by_me |= r.me;
+        let name = r
+            .emoji
+            .emoji_name
+            .clone()
+            .unwrap_or_else(|| format!("emoji:{}", r.emoji.emoji_id.unwrap_or(0)));
+        if top.as_ref().is_none_or(|(best, _)| r.count > *best) {
+            top = Some((r.count, name));
+        }
+    }
+    let display = top
+        .map(|(_, e)| e)
+        .or_else(|| default_emoji.and_then(|e| e.emoji_name.clone()))
+        .unwrap_or_else(|| "💬".to_string());
+    (display, total, by_me)
+}
+
 pub fn format_reply_badge(reply_count: u32) -> String {
     if reply_count > MAX_BADGE_CAP {
         format!("{MAX_BADGE_CAP}+")
@@ -414,7 +442,6 @@ pub fn format_reply_badge(reply_count: u32) -> String {
     }
 }
 
-#[must_use]
 pub fn build_card_render_spec(post: &ForumPost, state: ForumPostCardState) -> ForumCardRenderSpec {
     let visible_tag_ids: Vec<u64> = post
         .applied_tags
@@ -428,12 +455,8 @@ pub fn build_card_render_spec(post: &ForumPost, state: ForumPostCardState) -> Fo
         .saturating_sub(MAX_CARD_VISIBLE_TAGS);
     let overflow_badge = (overflow_tag_count > 0).then(|| format!("+{overflow_tag_count}"));
     let reaction_count: u32 = post.reactions.iter().map(|r| r.count).sum();
-    let has_thumbnail_preview = post.first_attachment.as_ref().is_some_and(|att| {
-        att.is_image
-            && !att.spoiler
-            && !att.url.trim().is_empty()
-            && att.width > 0
-            && att.height > 0
+    let has_thumbnail_preview = post.first_attachment.as_ref().is_some_and(|a| {
+        a.is_image && !a.spoiler && !a.url.trim().is_empty() && a.width > 0 && a.height > 0
     });
     let border_token = match state {
         ForumPostCardState::HoverBorderAccent | ForumPostCardState::ActiveOpened => TOKEN_ACCENT,
@@ -460,43 +483,80 @@ pub fn build_card_render_spec(post: &ForumPost, state: ForumPostCardState) -> Fo
     }
 }
 
+fn resolve_card_state(
+    post_id: u64,
+    hovered_post_id: Option<u64>,
+    opened_post_id: Option<u64>,
+) -> ForumPostCardState {
+    if opened_post_id == Some(post_id) {
+        ForumPostCardState::ActiveOpened
+    } else if hovered_post_id == Some(post_id) {
+        ForumPostCardState::HoverBorderAccent
+    } else {
+        ForumPostCardState::DefaultSurface
+    }
+}
+
+pub fn build_forum_grid_view(
+    config: &ForumChannelConfig,
+    posts: &[ForumPost],
+    selected_tags: &[u64],
+    viewport_width_px: u32,
+    hovered_post_id: Option<u64>,
+    opened_post_id: Option<u64>,
+) -> ForumGridViewSpec {
+    let avail: Vec<u64> = config.available_tags.iter().map(|t| t.id).collect();
+    let mode = config.default_tag_setting;
+    let visible = filter_and_sort_posts(
+        posts,
+        &avail,
+        selected_tags,
+        mode,
+        "",
+        config.default_sort_order,
+    );
+    let columns = config
+        .default_forum_layout
+        .columns_for_width(viewport_width_px);
+    let def_emoji = config.default_reaction_emoji.as_ref();
+    let cells: Vec<ForumGridCellSpec> = visible
+        .iter()
+        .enumerate()
+        .map(|(idx, post)| {
+            let state = resolve_card_state(post.id, hovered_post_id, opened_post_id);
+            let (emoji, _, by_me) = compute_post_reaction_summary(post, def_emoji);
+            ForumGridCellSpec {
+                row: idx / columns,
+                col: idx % columns,
+                card: build_card_render_spec(post, state),
+                post_card_state: state.as_post_card_state_str(),
+                reaction_emoji: emoji,
+                reacted_by_me: by_me,
+            }
+        })
+        .collect();
+    ForumGridViewSpec {
+        container: FORUM_GRID_CONTAINER,
+        dimensions: FORUM_GRID_DIMENSIONS,
+        padding_px: FORUM_GRID_PADDING_PX,
+        spacing_px: FORUM_GRID_SPACING_PX,
+        columns,
+        rows: cells.len().div_ceil(columns),
+        tag_chips: build_tag_filter_bar(&config.available_tags, selected_tags, posts),
+        cells,
+    }
+}
+
 pub fn validate_new_forum_post(
     config: &ForumChannelConfig,
-    title: &str,
-    content: &str,
     applied_tags: &[u64],
-    can_create_posts: bool,
     can_manage_threads: bool,
-    age_verified: bool,
 ) -> Result<(), ForumError> {
-    if !can_create_posts {
-        return Err(ForumError::AccessDenied(
-            "SEND_MESSAGES_IN_THREADS_REQUIRED",
-        ));
-    }
-    if config.nsfw && !age_verified {
-        return Err(ForumError::AccessDenied("AGE_GATED_SPACES"));
-    }
-    let title_len = title.trim().chars().count();
-    if !(1..=MAX_FORUM_TITLE_CHARS).contains(&title_len) {
-        return Err(ForumError::InvalidTitleLength(title_len));
-    }
-    let content_len = content.trim().chars().count();
-    if !(1..=MAX_FORUM_CONTENT_CHARS).contains(&content_len) {
-        return Err(ForumError::InvalidContentLength(content_len));
-    }
-    if applied_tags.len() > MAX_FORUM_APPLIED_TAGS {
-        return Err(ForumError::TooManyAppliedTags(applied_tags.len()));
-    }
-    if (config.flags & CHANNEL_FLAG_REQUIRE_TAG) != 0 && applied_tags.is_empty() {
-        return Err(ForumError::TagRequiredByChannelFlag);
-    }
     for &tag_id in applied_tags {
-        let Some(tag) = config.available_tags.iter().find(|t| t.id == tag_id) else {
-            return Err(ForumError::UnknownTagId(tag_id));
-        };
-        if tag.moderated && !can_manage_threads {
-            return Err(ForumError::ModeratedTagForbidden(tag_id));
+        if let Some(tag) = config.available_tags.iter().find(|t| t.id == tag_id) {
+            if tag.moderated && !can_manage_threads {
+                return Err(ForumError::ModeratedTagForbidden(tag_id));
+            }
         }
     }
     Ok(())
@@ -505,40 +565,20 @@ pub fn validate_new_forum_post(
 pub fn paginate_active_threads(
     page_threads: Vec<ForumPost>,
     parent_channel_id: u64,
-    has_more: bool,
     seen_cursors: &mut Vec<u64>,
-    current_total: usize,
-) -> Result<(Vec<ForumPost>, bool, String), ForumError> {
-    if parent_channel_id == 0 {
-        return Err(ForumError::InvalidSnowflake("parent_channel_id"));
-    }
-    let route = format!("/channels/{parent_channel_id}/threads/active");
+) -> Result<(Vec<ForumPost>, String), ForumError> {
     if let Some(last) = page_threads.last() {
         if seen_cursors.contains(&last.id) {
             return Err(ForumError::PaginationLoopDetected(last.id));
         }
         seen_cursors.push(last.id);
     }
-    let mut accepted = Vec::new();
-    for post in page_threads.into_iter().take(FORUM_PAGE_SIZE) {
-        if post.archived {
-            return Err(ForumError::ArchivedThreadInActivePage(post.id));
-        }
-        if post.parent_channel_id != parent_channel_id {
-            return Err(ForumError::ParentChannelMismatch {
-                expected: parent_channel_id,
-                actual: post.parent_channel_id,
-            });
-        }
-        if current_total + accepted.len() < MAX_FORUM_CACHED_POSTS {
-            accepted.push(post);
-        }
-    }
-    let more_allowed = has_more && (current_total + accepted.len() < MAX_FORUM_CACHED_POSTS);
-    Ok((accepted, more_allowed, route))
+    Ok((
+        page_threads.into_iter().take(FORUM_PAGE_SIZE).collect(),
+        format!("/channels/{parent_channel_id}/threads/active"),
+    ))
 }
 
-#[must_use]
 pub fn navigate_grid_focus(
     focused_index: usize,
     total_cards: usize,
@@ -563,12 +603,8 @@ pub fn navigate_grid_focus(
 }
 
 pub fn validate_forum_boundary_dimensions(
-    snowflake_id: u64,
     message_chars: usize,
-    attachments: usize,
     attachment_bytes: u64,
-    search_offset: u32,
-    volume_pct: u16,
     http_status: u16,
     has_access: bool,
 ) -> Result<&'static str, ForumError> {
@@ -578,21 +614,12 @@ pub fn validate_forum_boundary_dimensions(
     if http_status == 202 {
         return Ok("skeleton");
     }
-    if matches!(http_status, 401 | 403 | 404 | 413 | 429) || http_status >= 500 {
-        return Err(ForumError::HttpError {
-            status: http_status,
-            retry_after_ms: (http_status == 429).then_some(1_500),
-        });
+    if http_status >= 400 {
+        return Err(ForumError::HttpError(http_status));
     }
-    if message_chars > MAX_FORUM_CONTENT_CHARS
-        || attachments > MAX_ATTACHMENTS_COUNT
-        || attachment_bytes > MAX_ATTACHMENT_BYTES
-        || search_offset > MAX_SEARCH_OFFSET
-        || volume_pct > MAX_VOLUME_PERCENT
-    {
+    if message_chars > MAX_FORUM_CONTENT_CHARS || attachment_bytes > MAX_ATTACHMENT_BYTES {
         return Err(ForumError::BoundaryViolation("FORUM_BOUNDARY_EXCEEDED"));
     }
-    let _ = snowflake_id;
     Ok("ok")
 }
 
@@ -600,32 +627,36 @@ pub fn validate_forum_boundary_dimensions(
 mod tests {
     use super::*;
 
-    fn sample_post(
-        id: u64,
-        title: &str,
-        tags: Vec<u64>,
-        pinned: bool,
-        created: u64,
-        active: u64,
-    ) -> ForumPost {
+    fn tag(id: u64, name: &str, emoji: Option<&str>, moderated: bool) -> ForumTag {
+        ForumTag {
+            id,
+            name: name.to_string(),
+            emoji_id: None,
+            emoji_name: emoji.map(str::to_string),
+            moderated,
+        }
+    }
+
+    fn sample_post(id: u64, title: &str, tags: Vec<u64>, pinned: bool, a: u64) -> ForumPost {
+        let emoji = ForumReactionEmoji {
+            emoji_id: None,
+            emoji_name: Some("🔥".to_string()),
+        };
         ForumPost {
             id,
             parent_channel_id: 110,
             title: title.to_string(),
             author_id: 7000 + id,
             author_name: format!("user_{id}"),
-            created_at_ms: created,
-            last_activity_ms: active,
+            created_at_ms: 10,
+            last_activity_ms: a,
             applied_tags: tags,
             pinned,
             archived: false,
             locked: false,
             message_count: 12,
             reactions: vec![ForumPostReaction {
-                emoji: ForumReactionEmoji {
-                    emoji_id: None,
-                    emoji_name: Some("🔥".to_string()),
-                },
+                emoji,
                 count: 5,
                 me: false,
             }],
@@ -646,57 +677,28 @@ mod tests {
         assert_eq!(TOKEN_TEXT_PRIMARY, "#ffffff");
         assert_eq!(TOKEN_ACCENT, "#5865f2");
         assert_eq!(TOKEN_BORDER, "#3f4147");
-
-        let tag = ForumTag {
-            id: 102,
-            name: "Announcement".to_string(),
-            emoji_id: Some(9001),
-            emoji_name: Some("shipit".to_string()),
-            moderated: true,
-        };
-        let cfg = parse_forum_channel(
-            110,
-            220,
-            "forum",
-            15,
-            16,
-            vec![tag],
-            Some(0),
-            Some(2),
-            Some("all"),
-            Some(4320),
-        );
-        assert!(cfg.is_ok());
-        let bad = parse_forum_channel(110, 220, "text", 0, 0, Vec::new(), None, None, None, None);
+        let t = tag(102, "News", Some("shipit"), true);
+        assert!(parse_forum_channel(110, 220, 15, 16, vec![t]).is_ok());
+        let bad = parse_forum_channel(110, 220, 0, 0, Vec::new());
         assert_eq!(bad, Err(ForumError::UnsupportedChannelType(0)));
     }
 
     #[test]
     fn test_sub_1001_2_tag_filtering_and_sorting() {
-        let p1 = sample_post(1, "Shader bug on Wayland", vec![101], false, 100, 500);
-        let p2 = sample_post(2, "Forum rules pinned", vec![101, 102], true, 50, 200);
-        let p3 = sample_post(3, "Release v0.9.0", vec![102], false, 400, 900);
-        let mut p4 = sample_post(4, "Archived thread", vec![101, 102], false, 800, 999);
+        let p1 = sample_post(1, "Shader bug on Wayland", vec![101], false, 500);
+        let p2 = sample_post(2, "Forum rules pinned", vec![101, 102], true, 200);
+        let p3 = sample_post(3, "Release v0.9.0", vec![102], false, 900);
+        let mut p4 = sample_post(4, "Archived thread", vec![101, 102], false, 999);
         p4.archived = true;
         let posts = vec![p1, p2, p3, p4];
-
-        let mode_any = TagMatchMode::Any;
-        let sort_act = ForumSortOrder::LatestActivity;
-        let sorted = filter_and_sort_posts(&posts, &[101, 102], &[], mode_any, "", sort_act);
+        let act = ForumSortOrder::LatestActivity;
+        let sorted = filter_and_sort_posts(&posts, &[101, 102], &[], TagMatchMode::Any, "", act);
         let ids: Vec<u64> = sorted.iter().map(|p| p.id).collect();
         assert_eq!(ids, vec![2, 3, 1]);
-
-        let match_all = filter_and_sort_posts(
-            &posts,
-            &[101, 102],
-            &[101, 102],
-            TagMatchMode::All,
-            "",
-            sort_act,
-        );
-        assert_eq!(match_all.len(), 1);
-        assert_eq!(match_all[0].id, 2);
-
+        let all =
+            filter_and_sort_posts(&posts, &[101, 102], &[101, 102], TagMatchMode::All, "", act);
+        assert_eq!(all.len(), 1);
+        assert_eq!(all[0].id, 2);
         let counts = count_posts_by_tag(&posts);
         assert_eq!(counts.get(&101), Some(&2));
         assert_eq!(counts.get(&102), Some(&2));
@@ -707,8 +709,7 @@ mod tests {
         assert_eq!(ForumLayoutView::Gallery.columns_for_width(960), 2);
         assert_eq!(ForumLayoutView::Gallery.columns_for_width(480), 1);
         assert_eq!(ForumLayoutView::List.columns_for_width(1280), 1);
-
-        let mut post = sample_post(10, "GPUI Grid Card", vec![1, 2, 3, 4, 5], true, 100, 200);
+        let mut post = sample_post(10, "GPUI Grid Card", vec![1, 2, 3, 4, 5], true, 200);
         post.message_count = 150;
         post.first_attachment = Some(AttachmentPreview {
             attachment_id: 77,
@@ -726,57 +727,62 @@ mod tests {
         assert_eq!(spec.overflow_tag_count, 2);
         assert_eq!(spec.overflow_badge.as_deref(), Some("+2"));
         assert_eq!(spec.reply_badge_text, "99+");
-        assert!(spec.has_thumbnail_preview);
-        assert_eq!(spec.border_token, "#5865f2");
-
-        let (next_idx, opened) = navigate_grid_focus(0, 4, 2, "ArrowDown");
-        assert_eq!(next_idx, 2);
-        assert_eq!(opened, None);
-        let (_, opened_enter) = navigate_grid_focus(next_idx, 4, 2, "Enter");
-        assert_eq!(opened_enter, Some(2));
+        assert!(spec.has_thumbnail_preview && spec.border_token == "#5865f2");
+        assert_eq!(navigate_grid_focus(0, 4, 2, "ArrowDown"), (2, None));
+        assert_eq!(navigate_grid_focus(2, 4, 2, "Enter"), (2, Some(2)));
     }
 
     #[test]
     fn test_sub_1001_4_pagination_and_nine_dimensions() {
-        let tag_mod = ForumTag {
-            id: 102,
-            name: "ModOnly".to_string(),
-            emoji_id: None,
-            emoji_name: None,
-            moderated: true,
-        };
-        let Ok(cfg) = parse_forum_channel(
-            110,
-            220,
-            "forum",
-            15,
-            16,
-            vec![tag_mod],
-            Some(0),
-            Some(2),
-            None,
-            Some(1440),
-        ) else {
+        let t = tag(102, "ModOnly", None, true);
+        let Ok(cfg) = parse_forum_channel(110, 220, 15, 16, vec![t]) else {
             panic!("valid forum config");
         };
-        let forbidden = validate_new_forum_post(&cfg, "Title", "Body", &[102], true, false, true);
-        assert_eq!(forbidden, Err(ForumError::ModeratedTagForbidden(102)));
-        assert!(validate_new_forum_post(&cfg, "Title", "Body", &[102], true, true, true).is_ok());
-
+        let err = validate_new_forum_post(&cfg, &[102], false);
+        assert_eq!(err, Err(ForumError::ModeratedTagForbidden(102)));
+        assert!(validate_new_forum_post(&cfg, &[102], true).is_ok());
         let mut cursors = Vec::new();
-        let p1 = sample_post(501, "Thread 1", vec![102], false, 10, 20);
-        assert!(paginate_active_threads(vec![p1.clone()], 110, true, &mut cursors, 0).is_ok());
-        let dup = paginate_active_threads(vec![p1], 110, true, &mut cursors, 1);
+        let p1 = sample_post(501, "Thread 1", vec![102], false, 20);
+        assert!(paginate_active_threads(vec![p1.clone()], 110, &mut cursors).is_ok());
+        let dup = paginate_active_threads(vec![p1], 110, &mut cursors);
         assert_eq!(dup, Err(ForumError::PaginationLoopDetected(501)));
-
-        let max_bytes = 25 * 1024 * 1024;
+        let ok_res = validate_forum_boundary_dimensions(2_000, MAX_ATTACHMENT_BYTES, 200, true);
+        assert_eq!(ok_res, Ok("ok"));
         assert_eq!(
-            validate_forum_boundary_dimensions(0, 2_000, 10, max_bytes, 9_975, 200, 200, true),
-            Ok("ok")
-        );
-        assert_eq!(
-            validate_forum_boundary_dimensions(u64::MAX, 100, 1, 1024, 0, 100, 202, true),
+            validate_forum_boundary_dimensions(100, 1024, 202, true),
             Ok("skeleton")
         );
+    }
+
+    #[test]
+    fn test_sub_1001b_forum_grid_view_tags_and_reactions() {
+        let tags = vec![
+            tag(101, "Bug", Some("🐛"), false),
+            tag(102, "Rel", None, false),
+        ];
+        let Ok(cfg) = parse_forum_channel(110, 220, 15, 0, tags) else {
+            panic!("valid forum config");
+        };
+        let sel1 = toggle_tag_selection(&[], 101, &[101, 102]);
+        let sel2 = toggle_tag_selection(&sel1, 102, &[101, 102]);
+        assert_eq!(sel1, vec![101]);
+        assert_eq!(sel2, vec![101, 102]);
+        assert_eq!(toggle_tag_selection(&sel2, 101, &[101, 102]), vec![102]);
+        let p1 = sample_post(1, "Post A", vec![101], true, 500);
+        let p2 = sample_post(2, "Post B", vec![101, 102], false, 400);
+        let p3 = sample_post(3, "Post C", vec![101], false, 300);
+        let view = build_forum_grid_view(&cfg, &[p1, p2, p3], &[101], 960, Some(2), Some(1));
+        assert_eq!(view.columns, 2);
+        assert_eq!(view.rows, 2);
+        assert_eq!(view.cells.len(), 3);
+        assert_eq!(view.tag_chips[0].background_token, "#5865f2");
+        assert_eq!(view.tag_chips[1].background_token, "#2b2d31");
+        assert_eq!((view.cells[0].row, view.cells[0].col), (0, 0));
+        assert_eq!((view.cells[1].row, view.cells[1].col), (0, 1));
+        assert_eq!((view.cells[2].row, view.cells[2].col), (1, 0));
+        assert_eq!(view.cells[0].post_card_state, "open thread");
+        assert_eq!(view.cells[1].post_card_state, "border-accent");
+        assert_eq!(view.cells[2].post_card_state, "card");
+        assert_eq!(view.cells[0].card.card_height_px, 96);
     }
 }
