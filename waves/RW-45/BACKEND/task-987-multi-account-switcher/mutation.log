@@ -1,0 +1,11 @@
+▶ TASK-987: Мгновенное переключение аккаунтов (Multi-Account Switcher — rust/discord-gpui/src/multi_account_switcher.rs)
+  ✔ SUB-987-5: убивает 5/5 контрольных мутаций модуля multi_account_switcher.rs (100% mutation kill rate) (638.026605ms)
+✔ TASK-987: Мгновенное переключение аккаунтов (Multi-Account Switcher — rust/discord-gpui/src/multi_account_switcher.rs) (641.324499ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 680.909519

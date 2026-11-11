@@ -1,0 +1,109 @@
+▶ TASK-984: Шифрование локального хранилища SQLite (AES-256-GCM / Linux Keyring)
+  ✖ SUB-984-0: модуль rust/discord-gpui/src/encrypted_store.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируется без предупреждений (0.685588ms)
+  ✖ SUB-984-1: сверяет константы AES-256-GCM, дизайн-токены, интерактивные состояния keyring-auth и IPC-каналы safeStorage с независимыми оракулами (0.178129ms)
+  ✖ SUB-984-2: извлекает ключ из Linux Keyring без утечки в логи, деривирует подключи по HKDF-SHA256 (сверка с node:crypto), маскирует <скрыто> и затирает память zeroize (0.15239ms)
+  ✖ SUB-984-3: шифрует реальную БД SQLite на уровне страниц (4096 байт AES-256-GCM), скрывает заголовок 'SQLite format 3' и сообщения на диске, проходит сверку с node:crypto и node:sqlite (0.198679ms)
+  ✖ SUB-984-4: проверяет все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake/2000/25MB/offset=9975/200%/99+, ошибки 401..5xx, HTTP 202, права AGE_GATED_SPACES, восстановление WAL) (0.11397ms)
+  ✖ SUB-984-5: проходит мутационный гейт 5/5 (100% kill rate) и восстанавливает исходный MD5 модуля (0.126369ms)
+✖ TASK-984: Шифрование локального хранилища SQLite (AES-256-GCM / Linux Keyring) (2.413293ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 0
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.386769
+
+✖ failing tests:
+
+test at tests/unit/sqlite-encrypted-store-984.test.mjs:260:3
+✖ SUB-984-0: модуль rust/discord-gpui/src/encrypted_store.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируется без предупреждений (0.685588ms)
+  AssertionError [ERR_ASSERTION]: Модуль rust/discord-gpui/src/encrypted_store.rs должен существовать
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/sqlite-encrypted-store-984.test.mjs:261:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/sqlite-encrypted-store-984.test.mjs:322:3
+✖ SUB-984-1: сверяет константы AES-256-GCM, дизайн-токены, интерактивные состояния keyring-auth и IPC-каналы safeStorage с независимыми оракулами (0.178129ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/sqlite-encrypted-store-984.test.mjs:323:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/sqlite-encrypted-store-984.test.mjs:414:3
+✖ SUB-984-2: извлекает ключ из Linux Keyring без утечки в логи, деривирует подключи по HKDF-SHA256 (сверка с node:crypto), маскирует <скрыто> и затирает память zeroize (0.15239ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/sqlite-encrypted-store-984.test.mjs:415:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/sqlite-encrypted-store-984.test.mjs:491:3
+✖ SUB-984-3: шифрует реальную БД SQLite на уровне страниц (4096 байт AES-256-GCM), скрывает заголовок 'SQLite format 3' и сообщения на диске, проходит сверку с node:crypto и node:sqlite (0.198679ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/sqlite-encrypted-store-984.test.mjs:492:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/sqlite-encrypted-store-984.test.mjs:658:3
+✖ SUB-984-4: проверяет все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake/2000/25MB/offset=9975/200%/99+, ошибки 401..5xx, HTTP 202, права AGE_GATED_SPACES, восстановление WAL) (0.11397ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/sqlite-encrypted-store-984.test.mjs:659:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/sqlite-encrypted-store-984.test.mjs:681:3
+✖ SUB-984-5: проходит мутационный гейт 5/5 (100% kill rate) и восстанавливает исходный MD5 модуля (0.126369ms)
+  Error: ENOENT: no such file or directory, open '/home/sanya/orca/project/rust/discord-gpui/src/encrypted_store.rs'
+      at readFileSync (node:fs:624:20)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/sqlite-encrypted-store-984.test.mjs:682:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/sanya/orca/project/rust/discord-gpui/src/encrypted_store.rs'
+  }

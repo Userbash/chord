@@ -5977,7 +5977,7 @@
     {
       "id": "TASK-984",
       "title": "Шифрование локального хранилища SQLite (AES-256-GCM / SQLCipher)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Шифрование локальной БД сообщений и токенов на диске с деривацией ключа через Linux Keyring (org.freedesktop.secrets).",
@@ -6009,7 +6009,8 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T13:13:33.149Z",
-      "assignee": "term_b1bd6cc0-793b-46c1-9796-0f8d4583867b"
+      "assignee": "term_b1bd6cc0-793b-46c1-9796-0f8d4583867b",
+      "progress": 100
     },
     {
       "id": "TASK-985",
@@ -6089,7 +6090,7 @@
     {
       "id": "TASK-987",
       "title": "Мгновенное переключение аккаунтов (Multi-Account Switcher)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Хранение до 5 профилей пользователей с мгновенным переключением Gateway и REST сессий без перезапуска GPUI клиента.",
@@ -6121,7 +6122,8 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T13:18:43.226Z",
-      "assignee": "term_c48aac56-92f5-46e4-84b8-cd65059faf54"
+      "assignee": "term_c48aac56-92f5-46e4-84b8-cd65059faf54",
+      "progress": 100
     },
     {
       "id": "TASK-988",
@@ -6428,7 +6430,7 @@
     {
       "id": "TASK-1006",
       "title": "Нативная проверка орфографии в поле ввода (hunspell / libenchant)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Проверка орфографии через системную библиотеку hunspell/libenchant с подчёркиванием опечаток и подсказками.",
@@ -6460,12 +6462,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/chat/spellchecker.rs, tests/unit/spellchecker-native-1006.test.mjs.\nОракул: libenchant-2 / libhunspell C FFI bindings.\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1007",
       "title": "Иерархия ролей сервера и редактор битовой маски прав",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Управление ролями, drag-and-drop иерархии, выбор цвета и настройка 64-битного поля permissions.",
@@ -6497,7 +6500,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/roles.rs, tests/unit/guild-roles-permissions-1007.test.mjs.\nОракул: re-deep/rest-d02.json (guild roles endpoints, permissions bitmask).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1008",

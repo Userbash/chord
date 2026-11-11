@@ -1,0 +1,16 @@
+▶ TASK-987: Мгновенное переключение аккаунтов (Multi-Account Switcher — rust/discord-gpui/src/multi_account_switcher.rs)
+  ✔ SUB-987-0: модуль rust/discord-gpui/src/multi_account_switcher.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений (149.362952ms)
+  ✔ SUB-987-1: сверяет карточку TASK-987, дизайн-токены, геометрию Account Switcher Popup (280px, padding 8px, spacing 4px), 3 IPC-канала DISCORD_SAFE_STORAGE_* и модули RE-дампа (274303, 376463, 429707, 573879) с независимыми оракулами (18.671727ms)
+  ✔ SUB-987-2: обеспечивает хранение до 5 профилей пользователей и строгую криптографическую изоляцию токенов разных аккаунтов (SafeStorageTokenVault, защита от коллизий и кросс-чтения, zeroize_slice при удалении/вытеснении) (1.397863ms)
+  ✔ SUB-987-3: выполняет мгновенное переключение Gateway и REST сессий (< 300 мс) без перезапуска GPUI клиента со сбросом предыдущей сессии и валидацией /api/v9/users/@me (1.489911ms)
+  ✔ SUB-987-4: покрывает все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake 0/u64::MAX, 5 vs 6 профилей, 299 vs 300 мс, 2000 символов, 10 файлов/25 МБ, offset=9975, громкость 0..200%, бейдж 99+, коды 401/403/404/413/429/5xx, Gateway 4004, права, откат и маскирование секретов) (1.313605ms)
+  ✔ SUB-987-5: убивает 5/5 контрольных мутаций модуля multi_account_switcher.rs (100% mutation kill rate) (644.933656ms)
+✔ TASK-987: Мгновенное переключение аккаунтов (Multi-Account Switcher — rust/discord-gpui/src/multi_account_switcher.rs) (820.499415ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 860.664563
