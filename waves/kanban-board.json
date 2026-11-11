@@ -5433,7 +5433,7 @@
     {
       "id": "TASK-969",
       "title": "Генератор бинарных дельта-патчей zstd и проверка отката",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "DevOps / Integration",
       "summary": "Разработка scripts/generate-delta.mjs, наложение бинарных дельт, проверка хеша и автоматический откат при повреждении.",
@@ -5464,7 +5464,7 @@
         "Контрактный тест tests/unit/binary-delta-969.test.mjs green"
       ],
       "created_at": "2026-11-11T11:23:10.336Z",
-      "updated_at": "2026-11-11T11:23:10.336Z"
+      "updated_at": "2026-11-11T12:04:42.923Z"
     },
     {
       "id": "TASK-970",
@@ -5577,7 +5577,7 @@
     {
       "id": "TASK-973",
       "title": "Стресс-тест SQLite FTS5 при конкурентных транзакциях WAL",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Скрипт scripts/stress-fts5.mjs, эмуляция 10 параллельных потоков на 100k сообщений, проверка PRAGMA integrity_check и FTS5 поиска.",
@@ -5608,7 +5608,7 @@
         "Контрактный тест tests/unit/sqlite-fts5-stress-973.test.mjs green"
       ],
       "created_at": "2026-11-11T11:29:48.923Z",
-      "updated_at": "2026-11-11T11:29:48.924Z"
+      "updated_at": "2026-11-11T12:04:42.925Z"
     },
     {
       "id": "TASK-974",
