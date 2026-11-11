@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-10T08:51:57.450Z",
+  "updated_at": "2026-11-10T09:20:28.983Z",
   "columns": [
     {
       "id": "backlog",
@@ -671,7 +671,7 @@
     {
       "id": "TASK-752",
       "title": "G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Устранение задержки 1236 мс, зафиксированной живой телеметрией при клике на личный диалог ShadowByte. Асинхронное чтение из кэша памяти до блокирующего чтения с диска, виртуализация чанками по 50 сообщений.",
@@ -701,120 +701,15 @@
       ]
     },
     {
-      "id": "TASK-760",
-      "title": "Паритет дизайна кнопок User Bar и Voice Panel 1:1 с Discord (Сплит-шевроны, Удаление Выйти, Voice Bar 4 Media)",
+      "id": "TASK-769",
+      "title": "G1 Backend: Handshake Wait & Verified Cache Hydration в ready()",
       "status": "done",
       "priority": "P0",
-      "department": "G2 Frontend + G3 Design",
-      "summary": "Удалена кнопка Выйти из user-bar (сохранена в настройках). Реализованы сплит-кнопки микрофона и оглушения (32x32 + 16x32 шеврон), красная подсветка mute, индикатор статуса Невидимый, 4 кнопки медиа (Камера, Демонстрация, Активности, Soundboard), задержка сброса OP 4 при выходе.",
+      "department": "G1 Backend",
+      "summary": "Устранение race condition при старте: ready() проверяет load_live_ready_cache_for и ожидает live WebSocket READY до 600мс вместо возврата пустых списков guilds/relationships. READY_SUPPLEMENTAL обновляет voice states без вызова guard.voice_states.clear().",
       "layout": {
-        "container": "Bottom Sidebar (.user-bar 52px + #voice-panel)",
-        "dimensions": "240px width, 52px height user-bar",
-        "padding": "0 8px",
-        "spacing": "4px"
-      },
-      "design_tokens": {
-        "background": "#232428",
-        "surface": "#2b2d31",
-        "danger_tint": "rgba(242, 63, 67, 0.18)",
-        "danger_text": "#f23f43",
-        "text_muted": "#b5bac1",
-        "accent": "#23a55a"
-      },
-      "interactive_states": [
-        {
-          "element": "MuteSplitButton",
-          "default": "32px mic + 16px chevron, normal: transparent, muted: rgba(242,63,67,0.18)",
-          "hover": "normal: rgba(255,255,255,0.08), muted: rgba(242,63,67,0.28)",
-          "active": "toggle mute state, trigger Discord audio cue"
-        },
-        {
-          "element": "VoiceActionButtons",
-          "default": "Grid 4 cols (Camera, Screen, Activity, Soundboard), bg: #2b2d31, r: 4px",
-          "hover": "bg: #35373c, color: #ffffff",
-          "active": "active screen share: bg #23a55a"
-        }
-      ],
-      "acceptance_criteria": [
-        "Кнопка «Выйти» полностью отсутствует в строке пользователя",
-        "Кнопки микрофона и звука имеют правильные сплит-шевроны 32x32 и 16x32",
-        "При выходе из приложения клиент корректно отключается от голосового канала без зависания",
-        "Тесты tests/unit/message-delete-voice-exit-ui.test.mjs проходят 3/3"
-      ]
-    },
-    {
-      "id": "TASK-761",
-      "title": "Паритет сигнализации SFU Discord для трансляции экрана на официальные клиенты",
-      "status": "done",
-      "priority": "P0",
-      "department": "G5 Voice / Platform + G1 Backend",
-      "summary": "Устранена ошибка SFU 4006/4014 при подключении зрителей из официального Discord. Извлечение серверных SSRCs (video + rtx) из OP 2 READY d.streams, согласование кодеков H264 и VP8 (can_encode=true), точное определение channel_id из stream_key без смещения -1.",
-      "layout": {
-        "container": "WebRTC RTCDataChannel / Opus / H264 / VP8 SFU Voice Engine",
-        "dimensions": "1280x720p 60fps / 1080p 60fps / 4K",
-        "padding": "0",
-        "spacing": "0"
-      },
-      "design_tokens": {
-        "accent": "#23a55a",
-        "danger": "#f23f43"
-      },
-      "interactive_states": [
-        {
-          "element": "ScreenShareModal",
-          "default": "Выбор окна / экрана, 720p/1080p, 30/60 FPS",
-          "hover": "Окно предпросмотра",
-          "active": "Запуск стрима через voice_stream_start"
-        }
-      ],
-      "acceptance_criteria": [
-        "Извлечение sfu_video_ssrc и sfu_rtx_ssrc из d.streams",
-        "OP 12 VIDEO использует назначенные сервером SSRCs",
-        "OP 1 SELECT_PROTOCOL согласует H264 и VP8 с флагом encode: true",
-        "Тесты tests/unit/stream-signaling-parity.test.mjs проходят 5/5"
-      ]
-    },
-    {
-      "id": "TASK-762",
-      "title": "Устранение рассинхронизации удаления сообщений с официальным клиентом Discord",
-      "status": "done",
-      "priority": "P0",
-      "department": "G1 Backend + G2 Frontend",
-      "summary": "Устранено воскрешение удаленных сообщений из локального кэша channel_rows. Обработка событий шлюза MESSAGE_DELETE и MESSAGE_DELETE_BULK в ingest_live_dispatch и dispatch-model/view.js, удаление из DOM и кэша окон chat.js removeMessageFromWindow.",
-      "layout": {
-        "container": "Chat Area (#chat-list)",
-        "dimensions": "flex-1 height, dynamic virtual list",
-        "padding": "0",
-        "spacing": "0"
-      },
-      "design_tokens": {
-        "deleted_background": "rgba(242, 63, 67, 0.08)",
-        "danger_text": "#f23f43"
-      },
-      "interactive_states": [
-        {
-          "element": "MessageActionDelete",
-          "default": "Корзина / Клик Удалить",
-          "hover": "bg: rgba(242,63,67,0.16), color: #f23f43",
-          "active": "Мгновенное удаление из DOM + REST DELETE + Gateway sync"
-        }
-      ],
-      "acceptance_criteria": [
-        "Удаление сообщения в клиенте немедленно синхронизируется с сервером Discord",
-        "Удаленные сообщения не восстанавливаются при листании истории чата",
-        "Входящие события Gateway MESSAGE_DELETE и MESSAGE_DELETE_BULK удаляют сообщения из окна"
-      ]
-    },
-    {
-      "id": "TASK-763",
-      "title": "G5 Voice: Устранение крэша Krisp VAD (SEGV) и оптимизация звукового тракта",
-      "status": "done",
-      "priority": "P0",
-      "department": "G5 Voice/Platform",
-      "summary": "Устранен сбой webrtc_audio_mo Signal 11 (SEGV) в Krisp::AudioSdk::Vad<short>::create. Делегирование детектора активности голоса (VAD) надежному встроенному модулю WebRTC (vadUseKrisp: false) при сохранении активного нейро-шумоподавления Krisp (krisp-nc-o-med-v7.kef). Клавиатурные клики и фоновый шум фильтруются без падений.",
-      "layout": {
-        "container": "WebRTC Audio Pipeline",
-        "dimensions": "Native Node.js Addon (discord_krisp.node + discord_voice.node)",
+        "container": "Gateway Handshake & State Pipeline",
+        "dimensions": "Non-blocking wait loop (12 x 50ms)",
         "padding": "N/A",
         "spacing": "N/A"
       },
@@ -826,28 +721,28 @@
       },
       "interactive_states": [
         {
-          "element": "Krisp Button (#voice-panel)",
-          "default": "Waveform Icon #b5bac1",
-          "hover": "Waveform Icon #f2f3f5",
-          "active": "Neural noise suppression active"
+          "element": "ready() IPC",
+          "default": "Cached/Live READY guilds returned",
+          "hover": "N/A",
+          "active": "Zero empty rail frames"
         }
       ],
       "acceptance_criteria": [
-        "Отсутствие сбоев webrtc_audio_mo Signal 11 (SEGV)",
-        "Шумоподавление Krisp активно фильтрует стук клавиш и внешние шумы",
-        "Стабильная передача голоса в WebRTC транспорт"
+        "ready() не возвращает пустой список серверов при наличии кэша или активного шлюза",
+        "READY_SUPPLEMENTAL сохраняет участников существующих голосовых каналов",
+        "39/39 тестов data_contract.rs пройдены успешно"
       ]
     },
     {
-      "id": "TASK-764",
-      "title": "G1 Backend: Мгновенное и чистое отключение от голосового канала при закрытии приложения",
+      "id": "TASK-770",
+      "title": "G2 Frontend: Неразрушающая гидратация серверов и друзей в app.js и dm-friends.js",
       "status": "done",
       "priority": "P0",
-      "department": "G1 Backend",
-      "summary": "Ликвидировано зависание пользователя в голосовом чате Discord и долгий выход из приложения. Восстановление сохраненного guild_id в LAST_VOICE_STATE_CACHE при закрытии окна (OP 4 Voice State Update с точным guild_id и channel_id: null). Сброс RTC-сессии и завершение процесса без многоступенчатых пауз.",
+      "department": "G2 Frontend",
+      "summary": "syncLiveGuildRailFromSnapshot и dmFriendsController.syncLiveState защищены от стирания данных при получении пустых или промежуточных sync-ответов. READY/READY_SUPPLEMENTAL диспатчи шлюза мгновенно гидратируют рейл и друзей.",
       "layout": {
-        "container": "Tauri Window Event Loop & Gateway Outbound Queue",
-        "dimensions": "Desktop Client Lifecycle",
+        "container": "Client-Side Store & View Hydration",
+        "dimensions": "Full DOM synchronization",
         "padding": "N/A",
         "spacing": "N/A"
       },
@@ -855,152 +750,137 @@
         "background": "#1e1f22",
         "surface": "#2b2d31",
         "text_primary": "#ffffff",
-        "accent": "#f23f43"
+        "accent": "#5865f2"
       },
       "interactive_states": [
         {
-          "element": "Window Close [X]",
-          "default": "Window active",
-          "hover": "Close button hover",
-          "active": "Clean OP 4 disconnect + immediate exit < 120ms"
+          "element": "Server Rail & Friends List",
+          "default": "Retains all guilds and friends across reconnects",
+          "hover": "Interactive",
+          "active": "No «Нет серверов» flicker"
         }
       ],
       "acceptance_criteria": [
-        "При нажатии [X] отправляется корректный OP 4 с guild_id текущего сервера и channel_id null",
-        "Пользователь моментально исчезает из голосового канала на официальном клиенте Discord",
-        "Приложение закрывается быстро без зависания процесса"
+        "Пустой массив в sync-ответе не очищает liveGuildsById и relationships",
+        "При переподключении список серверов и друзей не пропадает",
+        "77/77 тестов dm-friends и dispatch_ui пройдены успешно"
       ]
     },
     {
-      "id": "TASK-765",
-      "title": "G2 Frontend: Точный 1:1 дизайн и функционал нижней панели пользователя (#user-bar)",
+      "id": "TASK-771",
+      "title": "G3 Design & G2 UI: Точный паритет Voice Panel и User Bar по официальному Discord",
       "status": "done",
       "priority": "P0",
-      "department": "G2 Frontend",
-      "summary": "Повторены точные размеры, отступы и расположение элементов официального Discord: удалена лишняя кнопка «Выйти», кнопки Микрофона и Наушников преобразованы в сплит-пилюли 32x32px с выпадающими шевронами 16x32px для быстрого выбора аудиоустройств, красная индикация блокировок, иконка Невидимый на аватарке, кнопка настроек 32x32px.",
+      "department": "G3 Design",
+      "summary": "Пиксельный паритет нижней панели пользователя: убрана кнопка «Выйти» из user-bar, добавлены сплит-капсулы микрофона и звука с шевронами параметров, 4 медиа-кнопки (видео, стрим, активности, саундборд) и аккуратный статус Невидимый.",
       "layout": {
-        "container": "User Bar (#user-bar)",
-        "dimensions": "Height: 52px, Padding: 0 8px",
-        "padding": "0 8px",
-        "spacing": "2px-4px"
+        "container": "Voice Panel & User Bar Capsule Layout",
+        "dimensions": "UserBar: 52px height; MediaRow: 4x 32px buttons; Mute/Deaf: 32+16px capsules",
+        "padding": "UserBar: 0 8px; VoicePanel: 8px 8px 10px 8px",
+        "spacing": "gap: 2px / 6px"
       },
       "design_tokens": {
         "background": "#232428",
-        "muted_button_bg": "rgba(242, 63, 67, 0.18)",
-        "danger_icon": "#f23f43",
-        "default_icon": "#b5bac1"
+        "surface": "#2b2d31",
+        "text_primary": "#f2f3f5",
+        "text_muted": "#949ba4",
+        "danger_tint": "#3c2429",
+        "danger": "#f23f43",
+        "success": "#23a55a"
       },
       "interactive_states": [
         {
-          "element": "Split Mic Button",
-          "default": "32px mic + 16px chevron",
-          "hover": "Dark red hover when muted / white hover when unmuted",
-          "active": "Toggle mute / Open input picker"
+          "element": "Mute Split Button",
+          "default": "Transparent, grey icon #b5bac1",
+          "hover": "rgba(255,255,255,0.08)",
+          "active": "Muted: bg #3c2429, red icon #f23f43, red chevron #f23f43"
         },
         {
-          "element": "Split Deafen Button",
-          "default": "32px deafen + 16px chevron",
-          "hover": "Dark red hover when deafened / white hover when undeafened",
-          "active": "Toggle deafen / Open output picker"
+          "element": "Deafen Split Button",
+          "default": "Transparent, grey icon #b5bac1",
+          "hover": "rgba(255,255,255,0.08)",
+          "active": "Deafened: bg #3c2429, red icon #f23f43, red chevron #f23f43"
         }
       ],
       "acceptance_criteria": [
-        "Кнопка «Выйти» полностью отсутствует в строке пользователя",
-        "Шевроны выпадающего списка прижаты к кнопкам микрофона и наушников",
-        "Клик по шевронам открывает поповер выбора аудиоустройств",
-        "Размеры кнопок строго 32px"
+        "Кнопка Выйти отсутствует в #user-bar и .user-actions",
+        "Сплит-кнопки микрофона и наушников содержат отдельные шевроны выбора устройств",
+        "Все 31 проверка геометрии и мета-тесты пройдены успешно"
       ]
     },
     {
-      "id": "TASK-766",
-      "title": "G2 Frontend: 4-кнопочная панель медиа в голосовом статусе (#voice-panel)",
-      "status": "done",
-      "priority": "P1",
-      "department": "G2 Frontend",
-      "summary": "Интерфейс медиа-действий в голосовой панели: 4 колонки одинакового размера (Камера, Демонстрация экрана, Активности, Звуковая панель) высотой 32px с темно-серой подложкой #2b2d31, скруглением углов 4px и SVG-иконками паритета с официальным Discord.",
-      "layout": {
-        "container": "Voice Status Media Grid",
-        "dimensions": "Grid 4 cols, Height 32px each",
-        "padding": "2px 0",
-        "spacing": "6px"
-      },
-      "design_tokens": {
-        "background": "#2b2d31",
-        "hover_background": "#35373c",
-        "active_background": "#23a55a",
-        "icon_color": "#dbdee1"
-      },
-      "interactive_states": [
-        {
-          "element": "Camera Button",
-          "default": "Video off icon",
-          "hover": "bg: #35373c",
-          "active": "bg: #23a55a (Video on)"
-        },
-        {
-          "element": "Screen Share Button",
-          "default": "Monitor arrow icon",
-          "hover": "bg: #35373c",
-          "active": "bg: #23a55a (Screen on)"
-        },
-        {
-          "element": "Activities Button",
-          "default": "Shapes icon",
-          "hover": "bg: #35373c",
-          "active": "Open activities popout"
-        },
-        {
-          "element": "Soundboard Button",
-          "default": "Sound horn icon",
-          "hover": "bg: #35373c",
-          "active": "Open soundboard popout"
-        }
-      ],
-      "acceptance_criteria": [
-        "4 кнопки расположены в один ряд с равными ширинами",
-        "Высота кнопок 32px с плавной анимацией наведения",
-        "Полнофункциональное открытие экранов шаринга и активностей"
-      ]
-    },
-    {
-      "id": "TASK-767",
-      "title": "G1 Backend + G2 Frontend: Устранение мерцания участников голосового канала и ролей",
+      "id": "TASK-772",
+      "title": "G5 Voice: Устранение задержек отображения участников голосовых каналов",
       "status": "done",
       "priority": "P0",
-      "department": "G1 Backend + G2 Frontend",
-      "summary": "Устранено мерцание и исчезновение пользователей официального Discord из списка голосового канала. Заменен liveVoiceStatesByGuild.clear() на поключевой инкрементальный merge, добавлена обработка событий GUILD_MEMBER_UPDATE в Rust BFF и JS-модель, обеспечивая мгновенную актуализацию прав доступа без ложных блокировок каналов.",
+      "department": "G5 Voice / Platform",
+      "summary": "Агрегация voice_states из ready_data и live_session в voice_states_sync. Защита liveVoiceStatesByGuild от ложного удаления участников при частичных poll-ответах.",
       "layout": {
-        "container": "Channel Voice Tree & Member List",
-        "dimensions": "Width: 240px",
-        "padding": "4px 8px",
-        "spacing": "2px"
+        "container": "Voice States Realtime Aggregator",
+        "dimensions": "Sub-millisecond query latency",
+        "padding": "N/A",
+        "spacing": "N/A"
       },
       "design_tokens": {
-        "background": "#2b2d31",
-        "speaking_ring": "#23a55a",
-        "text_primary": "#f2f3f5"
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#23a55a",
+        "accent": "#5865f2"
       },
       "interactive_states": [
         {
-          "element": "VoiceChannelUser",
-          "default": "Avatar + Nick",
-          "hover": "bg: rgba(255,255,255,0.06)",
-          "active": "Context menu"
+          "element": "Channel Tree Voice Participant List",
+          "default": "Instant participant render",
+          "hover": "Interactive tooltip/popout",
+          "active": "Green speaking border"
         }
       ],
       "acceptance_criteria": [
-        "Участники с официального клиента Discord не пропадают из каналов",
-        "Изменение ролей на сервере мгновенно обновляет права доступа без переподключения",
-        "Контрактные тесты dispatch_ui и data_contract зеленые на 100%"
+        "Участники голосовых каналов отображаются без задержек при старте и переключениях",
+        "Список участников не мигает и не пропадает при периодическом опросе",
+        "119/119 тестов voice-ui и guild-rail пройдены"
       ]
     },
     {
-      "id": "TASK-768",
-      "title": "G4 QA & DevOps: Релизная сборка бинарника, SHA256SUMS и верификация",
+      "id": "TASK-773",
+      "title": "G4 QA: Автоматизированные тесты неразрушающей гидратации и UI-паритета",
+      "status": "done",
+      "priority": "P0",
+      "department": "G4 QA",
+      "summary": "Регрессионные тесты в message-delete-voice-exit-ui.test.mjs и data_contract.rs, проверка отсутствия auth-logout в user-bar, проверка неразрушающего обновления relationships.",
+      "layout": {
+        "container": "Automated Test Suite",
+        "dimensions": "Unit + Contract + Meta suites",
+        "padding": "N/A",
+        "spacing": "N/A"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#23a55a",
+        "accent": "#5865f2"
+      },
+      "interactive_states": [
+        {
+          "element": "Test Runner",
+          "default": "All suites green",
+          "hover": "N/A",
+          "active": "100% Pass"
+        }
+      ],
+      "acceptance_criteria": [
+        "138/138 мета-тестов пройдены успешно",
+        "77/77 тестов друзей и диспатча пройдены успешно",
+        "39/39 тестов Rust data_contract пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-774",
+      "title": "DevOps: Сборка release бинарника, SHA256SUMS и пуш в remote mirror",
       "status": "done",
       "priority": "P0",
       "department": "DevOps / Integration",
-      "summary": "Успешная сборка release-бинарника rust/dist/discord-gui-spike, генерация SHA256SUMS, прохождение всех юнит- и контрактных тестов (100% PASS), синхронизация с удаленным репозиторием GitHub.",
+      "summary": "Компиляция rust/dist/discord-gui-spike, расчет контрольной суммы в rust/dist/SHA256SUMS, экспорт Kanban-доски и пуш в git remote.",
       "layout": {
         "container": "Release Artifacts",
         "dimensions": "ELF 64-bit LSB executable, x86-64",
@@ -1015,16 +895,16 @@
       },
       "interactive_states": [
         {
-          "element": "cargo build --release",
-          "default": "Clean compile",
+          "element": "Binary Verification",
+          "default": "7aa144733fa99529362514323785362e50de61481ee196b5e456e532da471f40",
           "hover": "N/A",
-          "active": "SHA256 verified"
+          "active": "Verified on Wayland / X11"
         }
       ],
       "acceptance_criteria": [
-        "cargo build --release завершается без ошибок",
-        "rust/dist/SHA256SUMS обновлен",
-        "Ветка feature/sprints-1-5-build-004 синхронизирована с GitHub"
+        "Бинарник скомпилирован в release профиле",
+        "SHA256SUMS актуализирован",
+        "Изменения зафиксированы и запушены в remote mirror"
       ]
     }
   ]

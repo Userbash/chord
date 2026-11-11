@@ -181,6 +181,16 @@ fn validate_snowflake(field: &str, value: &str) -> Result<(), String> {
 }
 
 impl ScreenShareSpec {
+    /// Нормализует спецификацию для звонков в ЛС / групповых чатах (`@me` / пустой `guild_id` -> `None`).
+    pub fn normalize_call_stream(&mut self) {
+        if self.guild_id.as_deref().map_or(false, |g| {
+            let t = g.trim();
+            t.is_empty() || t == "@me" || t == "null" || t == "nil"
+        }) {
+            self.guild_id = None;
+        }
+    }
+
     /// Проверяет корректность спецификации запуска демонстрации экрана:
     /// - `channel_id` (и `guild_id`, если задан) — ненулевые числовые Snowflake ID (`1..=u64::MAX`);
     /// - `source_id` не пустой после обрезки пробелов.
@@ -236,6 +246,15 @@ pub fn build_gateway_stream_create_op18(spec: &ScreenShareSpec) -> Result<Value,
     }))
 }
 
+/// Проверяет Snowflake ID или ключевое слово `me`.
+fn validate_user_segment(field: &str, value: &str) -> Result<(), String> {
+    if value == "me" {
+        Ok(())
+    } else {
+        validate_snowflake(field, value)
+    }
+}
+
 /// Валидирует каноническую строку `stream_key` (`guild:{gid}:{cid}:{uid}` или `call:{cid}:{uid}`)
 /// по правилам `A-KEY-PARSE` (`@5089698`).
 fn validate_stream_key(stream_key: &str) -> Result<(), String> {
@@ -250,7 +269,7 @@ fn validate_stream_key(stream_key: &str) -> Result<(), String> {
             }
             validate_snowflake("guild_id", segments[1])?;
             validate_snowflake("channel_id", segments[2])?;
-            validate_snowflake("user_id", segments[3])?;
+            validate_user_segment("user_id", segments[3])?;
             Ok(())
         }
         Some("call") => {
@@ -258,7 +277,7 @@ fn validate_stream_key(stream_key: &str) -> Result<(), String> {
                 return Err("stream_key типа call должен содержать 3 сегмента".to_string());
             }
             validate_snowflake("channel_id", segments[1])?;
-            validate_snowflake("user_id", segments[2])?;
+            validate_user_segment("user_id", segments[2])?;
             Ok(())
         }
         _ => Err("неизвестный тип stream_key (ожидается guild или call)".to_string()),

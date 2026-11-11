@@ -967,13 +967,23 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) -> Option<Value> {
                     hydrated_out = Some(Value::Object(lp.clone()));
                 }
                 if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                    if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    let g_arr = ready_map
+                        .entry("guilds".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()));
+                    if let Value::Array(ref mut r_guilds) = g_arr {
                         if let Some(Value::Object(ref mut ex_map)) = r_guilds
                             .iter_mut()
                             .find(|g| field_str(g, "id") == Some(gid.as_str()))
                         {
                             apply_updates(ex_map);
                             hydrated_out = Some(Value::Object(ex_map.clone()));
+                        } else if is_member_state == Some(true) || guild_val.is_some() || channels_val.is_some() {
+                            let mut new_map = serde_json::Map::new();
+                            new_map.insert("id".to_string(), Value::String(gid.clone()));
+                            apply_updates(&mut new_map);
+                            let val = Value::Object(new_map);
+                            r_guilds.push(val.clone());
+                            hydrated_out = Some(val);
                         }
                     }
                 }
@@ -2146,6 +2156,12 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
                                         }
                                     }
                                 }
+                                for (prev_gid, prev_gval) in &prev_guilds {
+                                    if !list.iter().any(|x| field_str(x, "id") == Some(prev_gid.as_str())) {
+                                        gids_to_hydrate.push(prev_gid.clone());
+                                        list.push(prev_gval.clone());
+                                    }
+                                }
                                 for (lgid, lval) in &g.local_preview_guilds {
                                     if !list
                                         .iter()
@@ -2153,6 +2169,54 @@ pub fn set_live_session(token: Option<String>, auth_user: Option<&crate::auth::A
                                     {
                                         gids_to_hydrate.push(lgid.clone());
                                         list.push(lval.clone());
+                                    }
+                                }
+                            }
+                            let prev_rels = g
+                                .ready_data
+                                .as_ref()
+                                .and_then(|old_rd| old_rd.get("relationships"))
+                                .and_then(Value::as_array)
+                                .cloned()
+                                .unwrap_or_default();
+                            if !prev_rels.is_empty() {
+                                let cur_rels = r_map
+                                    .entry("relationships".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut clist) = cur_rels {
+                                    if clist.is_empty() {
+                                        *clist = prev_rels;
+                                    } else {
+                                        for pr in prev_rels {
+                                            let puid = field_str(&pr, "id").unwrap_or("");
+                                            if !puid.is_empty() && !clist.iter().any(|cr| field_str(cr, "id") == Some(puid)) {
+                                                clist.push(pr);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            let prev_privs = g
+                                .ready_data
+                                .as_ref()
+                                .and_then(|old_rd| old_rd.get("private_channels"))
+                                .and_then(Value::as_array)
+                                .cloned()
+                                .unwrap_or_default();
+                            if !prev_privs.is_empty() {
+                                let cur_privs = r_map
+                                    .entry("private_channels".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut clist) = cur_privs {
+                                    if clist.is_empty() {
+                                        *clist = prev_privs;
+                                    } else {
+                                        for pc in prev_privs {
+                                            let pcid = field_str(&pc, "id").unwrap_or("");
+                                            if !pcid.is_empty() && !clist.iter().any(|c| field_str(c, "id") == Some(pcid)) {
+                                                clist.push(pc);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -2288,11 +2352,6 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                     .unwrap_or_default();
                 let supp_guilds = array(data.get("guilds"));
                 if !supp_guilds.is_empty() {
-                    let preserved_home_vs = guard.voice_states.get("@me").cloned();
-                    guard.voice_states.clear();
-                    if let Some(home_vs) = preserved_home_vs {
-                        guard.voice_states.insert("@me".to_string(), home_vs);
-                    }
                     let ready_guild_ids: Vec<String> = guard
                         .ready_data
                         .as_ref()
@@ -3682,6 +3741,63 @@ pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) 
 }
 
 /// Подключается к голосовому каналу либо обновляет состояние `self_mute`/`self_deaf` через `OP 4 VOICE_STATE_UPDATE`.
+/// Проверяет, разрешено ли текущему пользователю запускать стрим (право PERM_STREAM = 1 << 9)
+/// в указанном голосовом канале.
+pub fn can_user_stream_in_channel(guild_id: Option<&str>, channel_id: &str) -> bool {
+    let clean_gid = guild_id
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil");
+    let Some(gid) = clean_gid else {
+        // В личных сообщениях (@me / DM) демонстрация экрана всегда разрешена
+        return true;
+    };
+    let guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    let self_uid = resolve_live_self_uid(&guard);
+    let guild_opt = guard
+        .ready_data
+        .as_ref()
+        .and_then(|rd| rd.get("guilds"))
+        .and_then(Value::as_array)
+        .and_then(|arr| arr.iter().find(|g| field_str(g, "id") == Some(gid)))
+        .or_else(|| guard.local_preview_guilds.get(gid));
+    let Some(g_val) = guild_opt else {
+        return true;
+    };
+    let is_lurker = field_bool(g_val, "lurker")
+        || field_bool_opt(g_val, "isMember") == Some(false)
+        || field_bool_opt(g_val, "is_member") == Some(false);
+    let is_pending = field_bool(g_val, "pending") || field_bool(g_val, "is_pending");
+    if is_lurker || is_pending {
+        return false;
+    }
+    let roles = array(g_val.get("roles"));
+    let channels = array(g_val.get("channels"));
+    let owner_id = field_str(g_val, "owner_id").or_else(|| {
+        g_val.get("properties").and_then(|p| field_str(p, "owner_id"))
+    });
+    let my_roles: Vec<String> = array(g_val.get("my_roles").or_else(|| g_val.get("myRoles")))
+        .iter()
+        .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+        .collect();
+
+    let ch_perms_map = crate::permissions::PermissionCalculator::compute_guild_channel_permissions(
+        gid,
+        owner_id,
+        &self_uid,
+        &my_roles,
+        roles,
+        channels,
+        is_lurker,
+        is_pending,
+    );
+    if let Some(access) = ch_perms_map.get(channel_id) {
+        return access.can_stream;
+    }
+    true
+}
+
 pub fn connect_or_update_live_voice(
     guild_id: Option<String>,
     channel_id: Option<String>,
@@ -3828,8 +3944,9 @@ pub fn connect_or_update_live_voice_ext(
     }
     LOCAL_SELF_MUTE.store(self_mute, Ordering::SeqCst);
     LOCAL_SELF_DEAF.store(self_deaf, Ordering::SeqCst);
-    LOCAL_SELF_VIDEO.store(self_video, Ordering::SeqCst);
-    LOCAL_SELF_STREAM.store(self_stream, Ordering::SeqCst);
+    let v_prev = LOCAL_SELF_VIDEO.swap(self_video, Ordering::SeqCst);
+    let s_prev = LOCAL_SELF_STREAM.swap(self_stream, Ordering::SeqCst);
+    let stream_or_video_changed = s_prev != self_stream || v_prev != self_video;
     LOCAL_VOICE_ACTIVE.store(clean_cid.is_some(), Ordering::SeqCst);
     discord_core::ws::set_live_voice_mute_deaf_state(self_mute, self_deaf);
     let (self_uid, prev_gids, channel_changed, coalesce_seq) = {
@@ -4060,7 +4177,7 @@ pub fn connect_or_update_live_voice_ext(
         ensure_local_mic_monitor();
     }
 
-    if !channel_changed {
+    if !stream_or_video_changed && !channel_changed {
         // V1: Коалесценция 120ms для обновлений mute/deaf на том же голосовом канале
         let gid_for_timer = clean_gid.clone();
         let cid_for_timer = clean_cid.clone();
@@ -4149,6 +4266,13 @@ pub fn current_live_voice_mute_deaf() -> (bool, bool) {
         LOCAL_SELF_MUTE.load(std::sync::atomic::Ordering::SeqCst),
         LOCAL_SELF_DEAF.load(std::sync::atomic::Ordering::SeqCst),
     )
+}
+
+pub fn current_live_self_uid() -> String {
+    let guard = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    resolve_live_self_uid(&guard)
 }
 
 static LOCAL_MIC_LEVEL_DB: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-100);
@@ -5511,6 +5635,259 @@ pub fn list_system_audio_devices_json() -> Value {
     })
 }
 
+/// Выполняет REST-запросы личных сообщений (звонки / звонок начался / ringing)
+pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
+    let parsed: Value = match serde_json::from_str(raw_json) {
+        Ok(v) => v,
+        Err(_) => return json!({ "ok": false, "error": "invalid json payload" }),
+    };
+    let method = field_str(&parsed, "method").unwrap_or("GET").to_uppercase();
+    let url = field_str(&parsed, "url").unwrap_or("");
+    let body_val = parsed.get("body");
+
+    let token_opt = {
+        let guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
+        guard.token.clone()
+    };
+    let Some(token) = token_opt.filter(|t| !t.trim().is_empty()) else {
+        return json!({ "ok": false, "error": "no authorization token" });
+    };
+
+    let identity = crate::auth::IdentityContext::detect();
+    let auth = match discord_core::rest::client::ApiAuth::from_token_with_scheme(
+        &token,
+        discord_core::rest::client::AuthScheme::User,
+        &identity.super_properties,
+        &identity.locale,
+        &identity.timezone,
+    ) {
+        Ok(a) => a,
+        Err(e) => return json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    let client = match discord_core::rest::client::ApiClient::new(discord_core::rest::client::ApiConfig {
+        base: discord_core::API_V9_BASE.to_string(),
+        auth,
+        http: discord_core::rest::transport::HttpClientConfig {
+            connect_timeout: std::time::Duration::from_millis(1500),
+            read_timeout: std::time::Duration::from_millis(2500),
+            write_timeout: std::time::Duration::from_millis(1500),
+            ..discord_core::rest::transport::HttpClientConfig::default()
+        },
+        retry: discord_core::rest::client::ApiRetryPolicy {
+            max_attempts: 1,
+            ..discord_core::rest::client::ApiRetryPolicy::default()
+        },
+    }) {
+        Ok(c) => c,
+        Err(e) => return json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    let runtime = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
+        Ok(rt) => rt,
+        Err(e) => return json!({ "ok": false, "error": e.to_string() }),
+    };
+
+    let body_bytes = body_val.map(|b| serde_json::to_vec(b).unwrap_or_default()).unwrap_or_default();
+    let res = match method.as_str() {
+        "POST" => runtime.block_on(client.post(url, &body_bytes)),
+        "PUT" => runtime.block_on(client.put(url, &body_bytes)),
+        "DELETE" => runtime.block_on(client.delete(url)),
+        _ => runtime.block_on(client.get(url)),
+    };
+
+    match res {
+        Ok(resp) => {
+            let status = resp.status;
+            let data: Value = serde_json::from_slice(&resp.body).unwrap_or(Value::Null);
+            json!({
+                "ok": (200..300).contains(&status),
+                "status": status,
+                "data": data
+            })
+        }
+        Err(e) => json!({
+            "ok": false,
+            "error": e.to_string()
+        }),
+    }
+}
+
+/// Полностью очищает локальное состояние стрима (ключ, токен, сервер) и немедленно
+/// завершает активную RTC-сессию и фоновые процессы декодирования/трансляции кадров.
+pub fn reset_live_stream_state() {
+    LOCAL_SELF_STREAM.store(false, std::sync::atomic::Ordering::SeqCst);
+    discord_core::ws::clear_last_stream_key();
+    if let Ok(mut guard) = live_session().lock() {
+        guard.stream_key = None;
+        guard.stream_rtc_server_id = None;
+        guard.stream_rtc_channel_id = None;
+        guard.stream_endpoint = None;
+        guard.stream_token = None;
+        guard.stream_launched_token = None;
+        guard.stream_launched_server_id = None;
+    }
+    discord_core::ws::stop_live_stream_rtc_session();
+    let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
+    let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
+    let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
+}
+
+/// Опрашивает список реальных окон через KWin Scripting D-Bus API на KDE Wayland.
+pub fn query_kwin_active_windows() -> Vec<Value> {
+    let js_code = r#"
+(function() {
+    var wins = workspace.windowList();
+    var res = [];
+    for (var i = 0; i < wins.length; ++i) {
+        var w = wins[i];
+        if (w.normalWindow && !w.deleted) {
+            res.push({
+                id: String(w.internalId),
+                title: String(w.caption || ""),
+                app: String(w.resourceClass || w.resourceName || "")
+            });
+        }
+    }
+    console.info("KWIN_WINDOWS_JSON:" + JSON.stringify(res));
+})();
+"#;
+    let script_path = "/tmp/discord_kwin_list_wins.js";
+    if std::fs::write(script_path, js_code).is_err() {
+        return fallback_capture_windows();
+    }
+
+    let plugin_name = format!(
+        "query_wins_{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis())
+            .unwrap_or(0)
+    );
+    let out = std::process::Command::new("gdbus")
+        .args([
+            "call",
+            "--session",
+            "--dest",
+            "org.kde.KWin",
+            "--object-path",
+            "/Scripting",
+            "--method",
+            "org.kde.kwin.Scripting.loadScript",
+            script_path,
+            &plugin_name,
+        ])
+        .output();
+
+    let Ok(out) = out else {
+        return fallback_capture_windows();
+    };
+
+    let out_str = String::from_utf8_lossy(&out.stdout);
+    let trimmed = out_str
+        .trim()
+        .trim_matches(|c| c == '(' || c == ')' || c == ',' || c == ' ');
+    if let Ok(script_num) = trimmed.parse::<u32>() {
+        let obj_path = format!("/Scripting/Script{script_num}");
+        let _ = std::process::Command::new("gdbus")
+            .args([
+                "call",
+                "--session",
+                "--dest",
+                "org.kde.KWin",
+                "--object-path",
+                &obj_path,
+                "--method",
+                "org.kde.kwin.Script.run",
+            ])
+            .output();
+        let _ = std::process::Command::new("gdbus")
+            .args([
+                "call",
+                "--session",
+                "--dest",
+                "org.kde.KWin",
+                "--object-path",
+                &obj_path,
+                "--method",
+                "org.kde.kwin.Script.stop",
+            ])
+            .output();
+
+        std::thread::sleep(std::time::Duration::from_millis(35));
+        if let Ok(j_out) = std::process::Command::new("journalctl")
+            .args(["_COMM=kwin_wayland", "-n", "6", "--no-pager"])
+            .output()
+        {
+            let j_text = String::from_utf8_lossy(&j_out.stdout);
+            for line in j_text.lines().rev() {
+                if let Some(pos) = line.find("KWIN_WINDOWS_JSON:") {
+                    let json_sub = &line[pos + "KWIN_WINDOWS_JSON:".len()..];
+                    if let Ok(parsed) = serde_json::from_str::<Vec<Value>>(json_sub) {
+                        let res: Vec<Value> = parsed
+                            .into_iter()
+                            .filter(|w| {
+                                let title = w
+                                    .get("title")
+                                    .and_then(|t| t.as_str())
+                                    .unwrap_or("")
+                                    .trim();
+                                let app = w
+                                    .get("app")
+                                    .and_then(|a| a.as_str())
+                                    .unwrap_or("")
+                                    .trim();
+                                !title.is_empty() && app != "kwin_wayland"
+                            })
+                            .map(|w| {
+                                let wid = w
+                                    .get("id")
+                                    .and_then(|i| i.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let title = w
+                                    .get("title")
+                                    .and_then(|t| t.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let app = w
+                                    .get("app")
+                                    .and_then(|a| a.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let label = if !title.is_empty() {
+                                    title.clone()
+                                } else {
+                                    app.clone()
+                                };
+                                json!({
+                                    "id": wid,
+                                    "uuid": wid,
+                                    "title": title,
+                                    "label": label,
+                                    "app": app
+                                })
+                            })
+                            .collect();
+                        if !res.is_empty() {
+                            return res;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    fallback_capture_windows()
+}
+
+fn fallback_capture_windows() -> Vec<Value> {
+    vec![
+        json!({ "id": "win_orca", "uuid": "win_orca", "title": "Orca", "label": "Orca", "app": "orca" }),
+        json!({ "id": "win_browser", "uuid": "win_browser", "title": "Браузер", "label": "Браузер", "app": "browser" }),
+        json!({ "id": "win_discord", "uuid": "win_discord", "title": "Discord Lab", "label": "Discord Lab", "app": "discord" })
+    ]
+}
+
 /// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`discord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
 /// никогда не изменяя системную громкость или системный mute ОС (`pactl`).
 pub fn set_system_audio_device(
@@ -5520,6 +5897,61 @@ pub fn set_system_audio_device(
     muted: Option<bool>,
 ) -> Value {
     use std::sync::atomic::Ordering;
+    if kind == "set_capture_source" {
+        let raw = device_id.unwrap_or_default().trim().to_string();
+        let mut target_handle = String::new();
+        let mut target_label = String::new();
+        let mut target_kind = "screen".to_string();
+        if !raw.is_empty() {
+            if raw.starts_with('{') {
+                target_handle = raw.clone();
+                target_kind = "window".to_string();
+            } else if raw.starts_with("screen:") || raw.starts_with("screens:") {
+                target_handle = raw.clone();
+                target_kind = "screen".to_string();
+            } else if raw.contains(':') {
+                let parts: Vec<&str> = raw.splitn(3, ':').collect();
+                if let Some(&tab) = parts.first() {
+                    if tab == "windows" || tab == "window" {
+                        target_kind = "window".to_string();
+                    }
+                }
+                if let Some(&id) = parts.get(1) {
+                    target_handle = id.trim().to_string();
+                }
+                if let Some(&lbl) = parts.get(2) {
+                    target_label = lbl.trim().to_string();
+                }
+            } else {
+                target_handle = raw.clone();
+                if raw.starts_with("win") {
+                    target_kind = "window".to_string();
+                }
+            }
+        }
+        if target_handle.starts_with('{') {
+            target_kind = "window".to_string();
+        }
+        let _ = std::fs::write("/dev/shm/discord_capture_target.txt", target_handle.as_bytes());
+        let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
+        let ucmd = format!(
+            "{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{target_handle}\",\"label\":\"{target_label}\"}}"
+        );
+        discord_core::ws::send_native_stream_cmd(&ucmd);
+        return json!({
+            "ok": true,
+            "targetKind": target_kind,
+            "targetHandle": target_handle,
+            "targetLabel": target_label
+        });
+    }
+    if kind == "list_capture_windows" {
+        let windows = query_kwin_active_windows();
+        return json!({
+            "ok": true,
+            "windows": windows
+        });
+    }
     if kind == "ui_telemetry" {
         if let Some(line) = device_id {
             use std::io::Write;
@@ -5533,6 +5965,9 @@ pub fn set_system_audio_device(
             println!("[USER-TELEMETRY] {line}");
         }
         return json!({ "ok": true });
+    }
+    if kind == "dm_rest_request" {
+        return handle_live_dm_rest_request(device_id.unwrap_or_default());
     }
     if kind == "dm_friends_sync" {
         let dev_str = device_id.unwrap_or_default();
@@ -5677,6 +6112,11 @@ pub fn set_system_audio_device(
                                                 }
                                             }
                                         }
+                                        for (prev_gid, prev_gval) in &prev_guilds {
+                                            if !list.iter().any(|x| field_str(x, "id") == Some(prev_gid.as_str())) {
+                                                list.push(prev_gval.clone());
+                                            }
+                                        }
                                         for (lgid, lval) in &g.local_preview_guilds {
                                             if !list
                                                 .iter()
@@ -5698,6 +6138,54 @@ pub fn set_system_audio_device(
                                                     }
                                                 }
                                                 list.push(preview_clone);
+                                            }
+                                        }
+                                    }
+                                    let prev_rels = g
+                                        .ready_data
+                                        .as_ref()
+                                        .and_then(|old_rd| old_rd.get("relationships"))
+                                        .and_then(Value::as_array)
+                                        .cloned()
+                                        .unwrap_or_default();
+                                    if !prev_rels.is_empty() {
+                                        let cur_rels = r_map
+                                            .entry("relationships".to_string())
+                                            .or_insert_with(|| Value::Array(Vec::new()));
+                                        if let Value::Array(ref mut clist) = cur_rels {
+                                            if clist.is_empty() {
+                                                *clist = prev_rels;
+                                            } else {
+                                                for pr in prev_rels {
+                                                    let puid = field_str(&pr, "id").unwrap_or("");
+                                                    if !puid.is_empty() && !clist.iter().any(|cr| field_str(cr, "id") == Some(puid)) {
+                                                        clist.push(pr);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    let prev_privs = g
+                                        .ready_data
+                                        .as_ref()
+                                        .and_then(|old_rd| old_rd.get("private_channels"))
+                                        .and_then(Value::as_array)
+                                        .cloned()
+                                        .unwrap_or_default();
+                                    if !prev_privs.is_empty() {
+                                        let cur_privs = r_map
+                                            .entry("private_channels".to_string())
+                                            .or_insert_with(|| Value::Array(Vec::new()));
+                                        if let Value::Array(ref mut clist) = cur_privs {
+                                            if clist.is_empty() {
+                                                *clist = prev_privs;
+                                            } else {
+                                                for pc in prev_privs {
+                                                    let pcid = field_str(&pc, "id").unwrap_or("");
+                                                    if !pcid.is_empty() && !clist.iter().any(|c| field_str(c, "id") == Some(pcid)) {
+                                                        clist.push(pc);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -5879,26 +6367,35 @@ pub fn set_system_audio_device(
     }
     if kind == "stream_stop_watch" {
         let skey = device_id.unwrap_or_default();
-        if let Ok(mut guard) = live_session().lock() {
-            guard.stream_launched_token = None;
-        }
         if !skey.trim().is_empty() {
             let _ = discord_core::ws::queue_live_stream_delete(skey);
         }
-        discord_core::ws::stop_live_stream_rtc_session();
-        let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
-        let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
-        let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
+        reset_live_stream_state();
         return json!({ "ok": true });
     }
     if kind == "voice_states_sync" {
         if let Ok(guard) = live_session().lock() {
+            let mut combined = guard.voice_states.clone();
+            if let Some(ref rd) = guard.ready_data {
+                if let Some(g_arr) = rd.get("guilds").and_then(Value::as_array) {
+                    for g in g_arr {
+                        if let Some(gid) = field_str(g, "id") {
+                            if !combined.contains_key(gid) {
+                                let vs = array(g.get("voice_states"));
+                                if !vs.is_empty() {
+                                    combined.insert(gid.to_string(), vs.to_vec());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return json!({
                 "ok": true,
-                "voiceStates": guard.voice_states.clone()
+                "voiceStates": combined
             });
         }
-        return json!({ "ok": false, "voiceStates": [] });
+        return json!({ "ok": false, "voiceStates": {} });
     }
     if kind == "remote_stream_frame" {
         static LAST_REMOTE_PREVIEW_FETCH_MS: std::sync::atomic::AtomicU64 =
@@ -7222,6 +7719,32 @@ pub fn ready(root: &Path) -> Result<ReadyPayload, DataError> {
     }
 
     {
+        {
+            let mut guard = live_session()
+                .lock()
+                .unwrap_or_else(|poison| poison.into_inner());
+            if guard.active && guard.ready_data.is_none() {
+                let tok_opt = guard.token.clone().or_else(resolve_live_token);
+                let exp_uid = guard.user.as_ref().map(|u| u.id.clone());
+                if let Some(cached) = load_live_ready_cache_for(tok_opt.as_deref(), exp_uid.as_deref()) {
+                    populate_voice_and_presences_from_ready(&mut guard, &cached);
+                    guard.ready_data = Some(cached);
+                }
+            }
+        }
+        if forbid_fixture {
+            for _ in 0..12 {
+                {
+                    let guard = live_session()
+                        .lock()
+                        .unwrap_or_else(|poison| poison.into_inner());
+                    if guard.ready_data.is_some() || !guard.active {
+                        break;
+                    }
+                }
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+        }
         let guard = live_session()
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());

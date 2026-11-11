@@ -3626,27 +3626,31 @@ export function createDmFriendsController(options = {}) {
       }
     }
     if (Array.isArray(nextState.relationships)) {
-      relationships = nextState.relationships.map((r) =>
-        normalizeRelationship(r, usersById, presencesById),
-      );
+      if (nextState.relationships.length > 0 || relationships.length === 0 || /** @type {any} */ (nextState).forceWipe === true) {
+        relationships = nextState.relationships.map((r) =>
+          normalizeRelationship(r, usersById, presencesById),
+        );
+      }
     }
     if (Array.isArray(nextState.privateChannels)) {
-      for (const rawCh of nextState.privateChannels) {
-        if (Array.isArray(rawCh?.recipients)) {
-          for (const rec of rawCh.recipients) {
-            const nu = normalizeUser(rec);
-            if (nu) usersById.set(nu.id, nu);
+      if (nextState.privateChannels.length > 0 || privateChannels.length === 0 || /** @type {any} */ (nextState).forceWipe === true) {
+        for (const rawCh of nextState.privateChannels) {
+          if (Array.isArray(rawCh?.recipients)) {
+            for (const rec of rawCh.recipients) {
+              const nu = normalizeUser(rec);
+              if (nu) usersById.set(nu.id, nu);
+            }
           }
         }
+        privateChannels = sortPrivateChannels(
+          nextState.privateChannels
+            .filter((c) => {
+              const type = c?.type;
+              return type === null || type === undefined || PRIVATE_CHANNEL_TYPE_SET.has(Number(type));
+            })
+            .map((c) => hydratePrivateChannel(c, usersById, relationships)),
+        );
       }
-      privateChannels = sortPrivateChannels(
-        nextState.privateChannels
-          .filter((c) => {
-            const type = c?.type;
-            return type === null || type === undefined || PRIVATE_CHANNEL_TYPE_SET.has(Number(type));
-          })
-          .map((c) => hydratePrivateChannel(c, usersById, relationships)),
-      );
     }
     updateBadges();
     if (currentGuildId === HOME_GUILD_ID) {

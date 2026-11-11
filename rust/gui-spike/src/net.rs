@@ -521,6 +521,9 @@ impl DispatchSink {
                 | "GUILD_DELETE"
                 | "RELATIONSHIP_ADD"
                 | "RELATIONSHIP_REMOVE"
+                | "STREAM_CREATE"
+                | "STREAM_UPDATE"
+                | "STREAM_DELETE"
         ) {
             if let Ok(raw_json) = etf_to_json(&event.data) {
                 crate::data::ingest_live_dispatch(&event.name, &raw_json);

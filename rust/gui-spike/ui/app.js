@@ -3711,6 +3711,8 @@ function boot() {
   /** @type {Map<string, any[]>} */
   const liveVoiceStatesByGuild = new Map();
   /** @type {Map<string, any>} */
+  const activeDmCalls = new Map();
+  /** @type {Map<string, any>} */
   const liveGuildsById = new Map();
   /** @type {Map<string, string[]>} */
   const liveMemberRolesByGuildAndUser = new Map();
@@ -3761,6 +3763,8 @@ function boot() {
    *   cameraOn: boolean,
    *   screenShareOn: boolean,
    *   streamSourceId?: string,
+   *   streamSourceName?: string,
+   *   hideStreamPreview?: boolean,
    *   connectedAtMs: number,
    * } | null}
    */
@@ -3824,7 +3828,7 @@ function boot() {
   /**
    * Проигрывает стандартные оригинальные звуки Discord для всех действий
    * (вход, выход, перемещение, отключение, мьют, размьют, оглушение, стрим, камера, сообщение).
-   * @param {"join" | "leave" | "user_moved" | "disconnect" | "mute" | "unmute" | "deafen" | "undeafen" | "stream_on" | "stream_off" | "stream_user_joined" | "stream_user_left" | "camera_on" | "camera_off" | "message"} kind
+   * @param {"join" | "leave" | "user_moved" | "disconnect" | "mute" | "unmute" | "deafen" | "undeafen" | "stream_on" | "stream_off" | "stream_user_joined" | "stream_user_left" | "camera_on" | "camera_off" | "message" | "outgoing_call"} kind
    */
   function playVoiceUiSound(kind) {
     if (!isLiveSession()) return;
@@ -3847,6 +3851,7 @@ function boot() {
       camera_on: "stream_started.mp3",
       camera_off: "stream_ended.mp3",
       message: "message1.mp3",
+      outgoing_call: "user_join.mp3",
     };
     const fileName = fileMap[kind] || "mute.mp3";
     void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
@@ -4438,8 +4443,34 @@ function boot() {
   }
 
   function disconnectFromLiveVoiceChannel() {
+    const connAny = /** @type {any} */ (activeVoiceConnection);
     const prevGuildId = activeVoiceConnection?.guildId ?? null;
-    const selfId = String(liveSelfUser?.id || "");
+    const prevChannelId = activeVoiceConnection?.channelId ?? null;
+    const hadStream = Boolean(
+      activeVoiceConnection?.screenShareOn ||
+      connAny?.activeStreamKey ||
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__
+    );
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    const stopStreamKey =
+      connAny?.activeStreamKey ||
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+      (prevGuildId && prevGuildId !== HOME_GUILD_ID && prevGuildId !== "@me"
+        ? `guild:${prevGuildId}:${prevChannelId}:${selfId}`
+        : `call:${prevChannelId}:${selfId}`);
+
+    if (hadStream) {
+      document.getElementById("live-stream-pip")?.remove();
+      document.getElementById("live-stream-preview-overlay")?.remove();
+      document.getElementById("live-screenshare-modal")?.remove();
+      void invoke("voice_stream_stop", {
+        stream_key: stopStreamKey,
+        streamKey: stopStreamKey,
+      }).catch(() => {});
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
+      playVoiceUiSound("stream_off");
+    }
+
     for (const [gid, arr] of liveVoiceStatesByGuild.entries()) {
       liveVoiceStatesByGuild.set(
         gid,
@@ -7973,6 +8004,26 @@ function boot() {
   }
 
   /**
+   * Динамически переключает источник захвата активной трансляции (окно или экран)
+   * без разрыва RTC-соединения и без перезахода в голосовой канал.
+   * @param {{ id: string, label?: string, tab?: "screens" | "windows" }} picked
+   */
+  function switchLiveStreamSource(picked) {
+    if (!activeVoiceConnection || !picked?.id) return;
+    const conn = /** @type {any} */ (activeVoiceConnection);
+    conn.streamSourceId = picked.id;
+    conn.streamSourceName = picked.label || "Окно или экран";
+    void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+      kind: "set_capture_source",
+      deviceId: picked.id,
+    }).catch(() => {});
+    playVoiceUiSound("stream_on");
+    showVoiceToastNotice(`Источник трансляции изменён: ${picked.label || picked.id}`);
+    renderLiveVoicePanel();
+    syncFloatingStreamPipPreview();
+  }
+
+  /**
    * Открывает полноразмерное окно просмотра трансляции (`Stream Stage Viewer`) и отправляет `OP 20 STREAM_WATCH`.
    * Поддерживает масштабирование колесом мыши (100%..500%), панорамирование перетаскиванием (Drag-to-Pan),
    * двойной клик для быстрого приближения (100% ↔ 225%), кнопки зума и полноэкранный режим (`⛶`).
@@ -8229,12 +8280,64 @@ function boot() {
       });
       rightControls.append(refreshStreamBtn);
     }
-    const closeStageBtn = document.createElement("button");
-    closeStageBtn.type = "button";
-    closeStageBtn.textContent = "Прекратить просмотр ✕";
-    closeStageBtn.style.cssText =
-      "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
-    rightControls.append(closeStageBtn);
+
+    if (isSelfStream) {
+      const changeSourceBtn = document.createElement("button");
+      changeSourceBtn.type = "button";
+      changeSourceBtn.id = "stage-change-source-btn";
+      changeSourceBtn.textContent = "🖥 Сменить источник";
+      changeSourceBtn.title = "Сменить окно или экран без перезапуска трансляции";
+      changeSourceBtn.style.cssText =
+        "padding:6px 10px;border-radius:6px;border:1px solid #3f4147;background:#2b2d31;color:#dbdee1;font-size:12px;font-weight:600;cursor:pointer;";
+      changeSourceBtn.addEventListener("click", () => {
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
+
+      const minimizeStageBtn = document.createElement("button");
+      minimizeStageBtn.type = "button";
+      minimizeStageBtn.id = "stage-minimize-viewer-btn";
+      minimizeStageBtn.textContent = "Свернуть 🗕";
+      minimizeStageBtn.title = "Свернуть окно просмотра в мини-плеер (стрим продолжится)";
+      minimizeStageBtn.style.cssText =
+        "padding:6px 10px;border-radius:6px;border:1px solid #3f4147;background:#2b2d31;color:#dbdee1;font-size:12px;font-weight:600;cursor:pointer;";
+      minimizeStageBtn.addEventListener("click", () => {
+        closeStageViewer(false);
+      });
+
+      const stopStageBtn = document.createElement("button");
+      stopStageBtn.type = "button";
+      stopStageBtn.id = "stage-stop-stream-btn";
+      stopStageBtn.textContent = "Прекратить стрим";
+      stopStageBtn.title = "Остановить трансляцию экрана для всех участников";
+      stopStageBtn.style.cssText =
+        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+      stopStageBtn.addEventListener("click", () => {
+        closeStageViewer(true);
+      });
+
+      const closeStageBtn = document.createElement("button");
+      closeStageBtn.type = "button";
+      closeStageBtn.id = "stage-close-viewer-btn";
+      closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
+      closeStageBtn.style.cssText =
+        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+      closeStageBtn.addEventListener("click", () => {
+        closeStageViewer(true);
+      });
+
+      rightControls.append(changeSourceBtn, minimizeStageBtn, closeStageBtn);
+    } else {
+      const closeStageBtn = document.createElement("button");
+      closeStageBtn.type = "button";
+      closeStageBtn.id = "stage-close-viewer-btn";
+      closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
+      closeStageBtn.style.cssText =
+        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+      closeStageBtn.addEventListener("click", () => {
+        closeStageViewer(true);
+      });
+      rightControls.append(closeStageBtn);
+    }
     topBar.append(titleLeft, rightControls);
 
     const stageWrap = document.createElement("div");
@@ -8727,7 +8830,7 @@ function boot() {
       }
     }, 250);
 
-    const closeStageViewer = () => {
+    const closeStageViewer = (stopStream = false) => {
       viewerClosed = true;
       clearInterval(stageTimer);
       if (pendingBitmap && typeof (/** @type {any} */ (pendingBitmap).close) === "function") {
@@ -8741,14 +8844,57 @@ function boot() {
       window.removeEventListener("mouseup", onWinMouseUp);
       window.removeEventListener("resize", onWinResize);
       window.removeEventListener("keydown", onStageKeyDown);
-      if (!isSelfStream) {
+      overlay.remove();
+
+      if (isSelfStream) {
+        if (stopStream && activeVoiceConnection) {
+          const selfConn = /** @type {any} */ (activeVoiceConnection);
+          selfConn.screenShareOn = false;
+          selfConn.hideStreamPreview = true;
+          document.getElementById("live-stream-pip-preview")?.remove();
+          const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+          for (const gk of new Set([
+            selfConn.guildId,
+            normalizeVoiceGuildKey(selfConn.guildId),
+          ])) {
+            const gList = liveVoiceStatesByGuild.get(gk) ?? [];
+            for (const v of gList) {
+              if (String(v?.user_id ?? v?.userId ?? "") === selfId) {
+                v.self_stream = false;
+                v.selfStream = false;
+              }
+            }
+          }
+          const isCall =
+            !selfConn.guildId ||
+            selfConn.guildId === HOME_GUILD_ID ||
+            selfConn.guildId === "@me";
+          const stopKey =
+            selfConn.activeStreamKey ||
+            /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+            (isCall
+              ? `call:${selfConn.channelId}:${selfId}`
+              : `guild:${selfConn.guildId}:${selfConn.channelId}:${selfId}`);
+          void invoke("voice_stream_stop", {
+            stream_key: stopKey,
+            streamKey: stopKey,
+          }).catch(() => {});
+          selfConn.activeStreamKey = null;
+          /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
+          playVoiceUiSound("stream_off");
+          syncVoiceMuteStateWithBackend();
+          renderLiveVoicePanel();
+          tree.refreshView();
+        } else if (!stopStream) {
+          syncFloatingStreamPipPreview();
+        }
+      } else {
         playVoiceUiSound("stream_user_left");
         void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
           kind: "stream_stop_watch",
           deviceId: streamKey,
         }).catch(() => {});
       }
-      overlay.remove();
     };
 
     /** @param {KeyboardEvent} ev */
@@ -8761,15 +8907,13 @@ function boot() {
           syncUnderlyingDomVisibility();
           applyTransform();
         } else {
-          closeStageViewer();
+          closeStageViewer(false);
         }
       } else if (ev.key === "m" || ev.key === "M" || ev.key === "ь" || ev.key === "Ь") {
         muteStreamBtn.click();
       }
     };
     window.addEventListener("keydown", onStageKeyDown);
-
-    closeStageBtn.addEventListener("click", closeStageViewer);
   }
 
   /**
@@ -9009,6 +9153,28 @@ function boot() {
     const renderMenu = () => {
       menu.replaceChildren();
       closeSubmenu();
+
+      const changeSourceRow = document.createElement("button");
+      changeSourceRow.type = "button";
+      changeSourceRow.setAttribute("role", "menuitem");
+      changeSourceRow.style.cssText =
+        "display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border:none;border-radius:6px;background:transparent;color:#f2f3f5;cursor:pointer;text-align:left;border-bottom:1px solid #2b2d31;margin-bottom:4px;";
+      changeSourceRow.innerHTML = `<span style="font-size:14px;">🖥</span><div style="font-size:13px;font-weight:600;">Сменить окно или экран…</div>`;
+      changeSourceRow.addEventListener("mouseenter", () => {
+        changeSourceRow.style.background = "#2b2d31";
+        closeSubmenu();
+      });
+      changeSourceRow.addEventListener("mouseleave", () => {
+        changeSourceRow.style.background = "transparent";
+      });
+      changeSourceRow.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        menu.remove();
+        closeSubmenu();
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
+      menu.append(changeSourceRow);
+
       const hdr = document.createElement("div");
       hdr.style.cssText = "padding:4px 8px 6px;font-size:12px;font-weight:700;color:#949ba4;";
       hdr.textContent = "Режим стрима";
@@ -9597,6 +9763,9 @@ function boot() {
     stopBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>`;
     stopBtn.addEventListener("click", () => {
       conn.screenShareOn = false;
+      conn.hideStreamPreview = true;
+      document.getElementById("live-stream-stage-viewer")?.remove();
+      pip.remove();
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
         const gList = liveVoiceStatesByGuild.get(gk) ?? [];
@@ -9608,9 +9777,17 @@ function boot() {
         }
       }
       playVoiceUiSound("stream_off");
+      const isCall = !conn.guildId || conn.guildId === HOME_GUILD_ID || conn.guildId === "@me";
+      const stopKey =
+        conn.activeStreamKey ||
+        /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+        (isCall ? `call:${conn.channelId}:${selfId}` : `guild:${conn.guildId}:${conn.channelId}:${selfId}`);
       void invoke("voice_stream_stop", {
-        stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+        stream_key: stopKey,
+        streamKey: stopKey,
       }).catch(() => {});
+      conn.activeStreamKey = null;
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
       tree.refreshView();
@@ -9631,6 +9808,13 @@ function boot() {
     document.getElementById("live-stream-settings-menu")?.remove();
     document.getElementById("live-stream-settings-submenu")?.remove();
     if (!activeVoiceConnection) return;
+    const conn = /** @type {any} */ (activeVoiceConnection);
+    if (!conn.screenShareOn && !forceOpenConfig) {
+      if (!canStreamInChannel(conn.guildId, conn.channelId)) {
+        showVoiceToastNotice("Отсутствует право на проведение трансляции (STREAM) в этом канале");
+        return;
+      }
+    }
     if (activeVoiceConnection.screenShareOn && !forceOpenConfig) {
       activeVoiceConnection.screenShareOn = false;
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
@@ -9647,9 +9831,17 @@ function boot() {
         }
       }
       playVoiceUiSound("stream_off");
+      const isCall = !conn.guildId || conn.guildId === HOME_GUILD_ID || conn.guildId === "@me";
+      const stopKey =
+        conn.activeStreamKey ||
+        /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+        (isCall ? `call:${conn.channelId}:${selfId}` : `guild:${conn.guildId}:${conn.channelId}:${selfId}`);
       void invoke("voice_stream_stop", {
-        stream_key: `guild:${activeVoiceConnection?.channelId || "default"}:screen`,
+        stream_key: stopKey,
+        streamKey: stopKey,
       }).catch(() => {});
+      conn.activeStreamKey = null;
+      /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
       syncVoiceMuteStateWithBackend();
       renderLiveVoicePanel();
       tree.refreshView();
@@ -9661,7 +9853,6 @@ function boot() {
       channelId: activeVoiceConnection.channelId,
       screenShareOn: Boolean(activeVoiceConnection.screenShareOn),
     });
-    const conn = /** @type {any} */ (activeVoiceConnection);
     if (!conn.preset) conn.preset = "games";
     if (!conn.resolution) conn.resolution = conn.streamResolution || "720p";
     if (!conn.fps) conn.fps = Number(conn.streamFps || 60);
@@ -9708,18 +9899,26 @@ function boot() {
       }
       cleanupModal();
       playVoiceUiSound("stream_on");
+      const isCall = !conn.guildId || conn.guildId === HOME_GUILD_ID || conn.guildId === "@me";
       void invoke("voice_stream_start", {
         spec: {
-          guild_id: conn.guildId || null,
+          guild_id: isCall ? null : conn.guildId,
           channel_id: conn.channelId || "default",
           source_id: picked.id,
           resolution: conn.streamResolution || "720p",
           fps: Number(conn.streamFps || 60),
           share_audio: conn.streamAudio !== false,
         },
-      }).catch((err) => {
-        console.warn("[voice_stream_start err]", err);
-      });
+      })
+        .then((res) => {
+          if (res && typeof res === "object" && res.streamKey) {
+            conn.activeStreamKey = String(res.streamKey);
+            /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = String(res.streamKey);
+          }
+        })
+        .catch((err) => {
+          console.warn("[voice_stream_start err]", err);
+        });
       void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
         kind: "set_capture_source",
         deviceId: (picked.tab || appCaptureKind) + ":" + picked.id + ":" + (picked.label || ""),
@@ -10425,13 +10624,15 @@ function boot() {
       return;
     }
     const participants = getVoiceParticipants(HOME_GUILD_ID, dmCid);
+    const hasActiveDmCall = activeDmCalls.has(dmCid);
     const isConnectedHere = Boolean(
       activeVoiceConnection &&
         normalizeVoiceGuildKey(activeVoiceConnection.guildId) === HOME_GUILD_ID &&
         String(activeVoiceConnection.channelId || "") === dmCid,
     );
-    if (!isConnectedHere && participants.length === 0) {
+    if (!isConnectedHere && participants.length === 0 && !hasActiveDmCall) {
       existing?.remove();
+      document.getElementById("dm-call-join-banner")?.remove();
       return;
     }
 
@@ -10439,6 +10640,37 @@ function boot() {
       cleanDiscordStr(document.querySelector(".chat-header .chat-title")?.textContent) ||
       activeVoiceConnection?.channelName ||
       "Звонок";
+
+    if (!isConnectedHere) {
+      existing?.remove();
+      let callInviteBanner = document.getElementById("dm-call-join-banner");
+      if (!callInviteBanner) {
+        callInviteBanner = document.createElement("div");
+        callInviteBanner.id = "dm-call-join-banner";
+        callInviteBanner.style.cssText =
+          "margin:8px 16px;padding:12px 16px;background:rgba(35,165,90,0.15);border:1px solid #23a55a;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;";
+        const txt = document.createElement("div");
+        txt.style.cssText = "color:#f2f3f5;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;";
+        txt.innerHTML = "<span>📞</span><span>В этом чате идёт голосовой звонок</span>";
+        const joinBtn = document.createElement("button");
+        joinBtn.type = "button";
+        joinBtn.style.cssText =
+          "background:#23a55a;color:#fff;border:none;border-radius:4px;padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer;";
+        joinBtn.textContent = "Присоединиться к звонку";
+        joinBtn.onclick = () => {
+          connectToLiveVoiceChannel("", dmChannelName, { id: dmCid, name: dmChannelName });
+        };
+        callInviteBanner.append(txt, joinBtn);
+        const chatScreen = document.getElementById("screen-chat");
+        const chatMain = chatScreen?.querySelector(".chat-main");
+        if (chatMain) {
+          chatMain.prepend(callInviteBanner);
+        }
+      }
+      return;
+    } else {
+      document.getElementById("dm-call-join-banner")?.remove();
+    }
     const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const displayParticipants = [...participants];
     if (isConnectedHere && displayParticipants.length === 1 && displayParticipants[0]?.userId === selfId) {
@@ -10797,6 +11029,131 @@ function boot() {
     banner.append(controlsRow);
   }
 
+  /** @type {any} */
+  let ringingAudioLoopTimer = null;
+  /** @param {boolean} start */
+  function playRingingTone(start) {
+    if (ringingAudioLoopTimer) {
+      clearInterval(ringingAudioLoopTimer);
+      ringingAudioLoopTimer = null;
+    }
+    if (!start) return;
+    playVoiceUiSound("outgoing_call");
+    ringingAudioLoopTimer = setInterval(() => {
+      playVoiceUiSound("outgoing_call");
+    }, 2800);
+  }
+
+  /**
+   * Отображает модальное уведомление входящего звонка в соответствии с оригиналом Discord.
+   * @param {any} data
+   */
+  function showIncomingCallOverlay(data) {
+    const cid = cleanDiscordStr(String(data?.channel_id || ""));
+    if (!cid) return;
+    document.getElementById("incoming-call-overlay")?.remove();
+    playRingingTone(true);
+
+    const overlay = document.createElement("div");
+    overlay.id = "incoming-call-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-label", "Входящий звонок");
+    overlay.style.cssText =
+      "position:fixed;top:20px;right:24px;z-index:10000;background:#1e1f22;border:1px solid #383a40;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,0.85);padding:14px 18px;display:flex;align-items:center;gap:14px;min-width:320px;max-width:420px;font-family:inherit;";
+
+    const pcs = dmFriendsController?.getPrivateChannels?.() ?? [];
+    const pc = pcs.find((c) => String(c?.id || "") === cid);
+    const anyPc = /** @type {any} */ (pc);
+    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    let callerUser = null;
+    if (Array.isArray(data.voice_states)) {
+      const callerVs = data.voice_states.find((/** @type {any} */ v) => String(v?.user_id || "") !== selfId);
+      if (callerVs) {
+        callerUser = liveUsersById.get(String(callerVs.user_id)) || callerVs.member?.user;
+      }
+    }
+    if (!callerUser && anyPc) {
+      const recs = anyPc.rawRecipients || anyPc.recipients || [];
+      callerUser = recs.find((/** @type {any} */ r) => String(r?.id || "") !== selfId) || recs[0];
+    }
+    const callerName = callerUser?.global_name || callerUser?.username || anyPc?.name || "Пользователь";
+    const callerAvatar = callerUser?.avatar
+      ? `https://cdn.discordapp.com/avatars/${callerUser.id}/${callerUser.avatar}.png?size=64`
+      : null;
+
+    const avatarEl = document.createElement("div");
+    avatarEl.style.cssText =
+      "width:46px;height:46px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;overflow:hidden;flex-shrink:0;";
+    if (callerAvatar) {
+      const img = document.createElement("img");
+      img.src = callerAvatar;
+      img.style.cssText = "width:100%;height:100%;object-fit:cover;";
+      avatarEl.append(img);
+    } else {
+      avatarEl.textContent = callerName.charAt(0).toUpperCase();
+    }
+
+    const infoCol = document.createElement("div");
+    infoCol.style.cssText = "flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;";
+    const nameEl = document.createElement("div");
+    nameEl.style.cssText =
+      "font-size:15px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+    nameEl.textContent = callerName;
+    const titleEl = document.createElement("div");
+    titleEl.style.cssText = "font-size:12px;color:#23a55a;font-weight:600;";
+    titleEl.textContent = "Входящий голосовой звонок...";
+    infoCol.append(nameEl, titleEl);
+
+    const actionsRow = document.createElement("div");
+    actionsRow.style.cssText = "display:flex;align-items:center;gap:8px;flex-shrink:0;";
+
+    const declineBtn = document.createElement("button");
+    declineBtn.type = "button";
+    declineBtn.title = "Отклонить";
+    declineBtn.setAttribute("aria-label", "Отклонить звонок");
+    declineBtn.style.cssText =
+      "width:38px;height:38px;border-radius:50%;border:none;background:#da373c;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background 120ms ease;";
+    declineBtn.innerHTML = SVG_PHONE_DISCONNECT;
+    declineBtn.onmouseenter = () => { declineBtn.style.background = "#a1282c"; };
+    declineBtn.onmouseleave = () => { declineBtn.style.background = "#da373c"; };
+    declineBtn.onclick = () => {
+      dismissIncomingCallOverlay(cid);
+      void sendDmRest({
+        method: "POST",
+        url: `/channels/${cid}/call/stop-ringing`,
+        body: {},
+      }).catch(() => {});
+    };
+
+    const acceptBtn = document.createElement("button");
+    acceptBtn.type = "button";
+    acceptBtn.title = "Принять";
+    acceptBtn.setAttribute("aria-label", "Принять звонок");
+    acceptBtn.style.cssText =
+      "width:38px;height:38px;border-radius:50%;border:none;background:#23a55a;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:18px;transition:background 120ms ease;";
+    acceptBtn.textContent = "📞";
+    acceptBtn.onmouseenter = () => { acceptBtn.style.background = "#1a7c44"; };
+    acceptBtn.onmouseleave = () => { acceptBtn.style.background = "#23a55a"; };
+    acceptBtn.onclick = () => {
+      dismissIncomingCallOverlay(cid);
+      connectToLiveVoiceChannel("", callerName, { id: cid, name: callerName });
+    };
+
+    actionsRow.append(acceptBtn, declineBtn);
+    overlay.append(avatarEl, infoCol, actionsRow);
+    document.body.append(overlay);
+  }
+
+  /** @param {string} [cid] */
+  function dismissIncomingCallOverlay(cid) {
+    void cid;
+    const el = document.getElementById("incoming-call-overlay");
+    if (el) {
+      el.remove();
+      playRingingTone(false);
+    }
+  }
+
   /**
    * Рендерит активную голосовую панель `#voice-panel` при подключении к голосовому каналу
    * в точном соответствии с оригинальным клиентом Discord (`uploaded_media_1793512261812.png`, `frame_009.jpg`).
@@ -11004,7 +11361,11 @@ function boot() {
           showVoiceToastNotice("У вашей роли нет разрешения «Видео / Трансляция» в этом голосовом канале");
           return;
         }
-        openScreenShareModal(Boolean(conn.screenShareOn));
+        if (conn.screenShareOn) {
+          openScreenSharePortalPicker("windows", switchLiveStreamSource);
+        } else {
+          openScreenShareModal(Boolean(conn.screenShareOn));
+        }
       },
     );
     if (!hasStreamPerm && !conn.screenShareOn) {
@@ -11032,8 +11393,12 @@ function boot() {
       sLeft.style.cssText = "display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;";
       const sTitle = document.createElement("div");
       sTitle.style.cssText =
-        "font-size:12px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
-      sTitle.textContent = "Окно, экран или приложение";
+        "font-size:12px;font-weight:700;color:#f2f3f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;";
+      sTitle.title = "Нажмите, чтобы сменить окно или экран трансляции";
+      sTitle.textContent = conn.streamSourceName || "Окно, экран или приложение";
+      sTitle.addEventListener("click", () => {
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
       const sRes = /** @type {any} */ (conn).streamResolution || /** @type {any} */ (conn).resolution || "720p";
       const sFps = /** @type {any} */ (conn).streamFps || /** @type {any} */ (conn).fps || 60;
       const sSub = document.createElement("div");
@@ -11062,6 +11427,9 @@ function boot() {
       });
       stopStreamBtn.addEventListener("click", () => {
         conn.screenShareOn = false;
+        conn.hideStreamPreview = true;
+        document.getElementById("live-stream-stage-viewer")?.remove();
+        document.getElementById("live-stream-pip-preview")?.remove();
         const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
         for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
           const gList = liveVoiceStatesByGuild.get(gk) ?? [];
@@ -11073,6 +11441,18 @@ function boot() {
           }
         }
         playVoiceUiSound("stream_off");
+        const panelConn = /** @type {any} */ (conn);
+        const isCall = !panelConn.guildId || panelConn.guildId === HOME_GUILD_ID || panelConn.guildId === "@me";
+        const stopKey =
+          panelConn.activeStreamKey ||
+          /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ ||
+          (isCall ? `call:${panelConn.channelId}:${selfId}` : `guild:${panelConn.guildId}:${panelConn.channelId}:${selfId}`);
+        void invoke("voice_stream_stop", {
+          stream_key: stopKey,
+          streamKey: stopKey,
+        }).catch(() => {});
+        panelConn.activeStreamKey = null;
+        /** @type {any} */ (globalThis).__ACTIVE_STREAM_KEY__ = null;
         syncVoiceMuteStateWithBackend();
         renderLiveVoicePanel();
         tree.refreshView();
@@ -11511,11 +11891,13 @@ function boot() {
       hydrateGuildMembersAndRoles(g);
     }
     if (!incremental) {
-      const validIds = new Set(rawGuilds.map((g) => String(g?.id ?? "").trim()).filter(Boolean));
-      for (const oldGid of Array.from(liveGuildsById.keys())) {
-        if (!validIds.has(oldGid)) {
-          liveGuildsById.delete(oldGid);
-          lastGuildChannelCountById.delete(oldGid);
+      if (rawGuilds.length > 0) {
+        const validIds = new Set(rawGuilds.map((g) => String(g?.id ?? "").trim()).filter(Boolean));
+        for (const oldGid of Array.from(liveGuildsById.keys())) {
+          if (!validIds.has(oldGid)) {
+            liveGuildsById.delete(oldGid);
+            lastGuildChannelCountById.delete(oldGid);
+          }
         }
       }
     }
@@ -11600,7 +11982,7 @@ function boot() {
           }
         }
         for (const existingGid of Array.from(liveVoiceStatesByGuild.keys())) {
-          if (!Object.prototype.hasOwnProperty.call(rawVs, existingGid)) {
+          if (existingGid !== "@me" && !liveGuildsById.has(existingGid)) {
             liveVoiceStatesByGuild.delete(existingGid);
           }
         }
@@ -11820,6 +12202,38 @@ function boot() {
             }),
           );
           chatActionsEl.prepend(dmCallBar);
+          if (isLiveSession() && targetChannelId) {
+            void sendDmRest({
+              method: "GET",
+              url: `/channels/${targetChannelId}/call`,
+            })
+              .then((res) => {
+                if (res && res.ok && res.data && typeof res.data === "object") {
+                  const callData = res.data;
+                  const cid = String(callData.channel_id || targetChannelId);
+                  if (cid) {
+                    activeDmCalls.set(cid, callData);
+                    if (Array.isArray(callData.voice_states) && callData.voice_states.length > 0) {
+                      const currentMe = liveVoiceStatesByGuild.get("@me") ?? [];
+                      const otherStates = currentMe.filter((vs) => String(vs?.channel_id || "") !== cid);
+                      for (const vs of callData.voice_states) {
+                        otherStates.push({
+                          ...vs,
+                          guild_id: "@me",
+                          channel_id: cid,
+                          confirmed: true,
+                        });
+                      }
+                      liveVoiceStatesByGuild.set("@me", otherStates);
+                      liveVoiceStatesByGuild.set(HOME_GUILD_ID, otherStates);
+                    }
+                    renderLiveDmCallStage();
+                    tree.refreshView();
+                  }
+                }
+              })
+              .catch(() => {});
+          }
         }
         const chatListEl = document.getElementById("chat-list");
         if (chatListEl && !chatListEl.dataset.dmCallClickBound) {
@@ -12767,7 +13181,31 @@ function boot() {
       if (!envelope || typeof envelope !== "object") return;
       const kind = envelope.kind;
       const data = envelope.data;
-      if (kind === "RELATIONSHIP_ADD" || kind === "RELATIONSHIP_REMOVE" || kind === "RELATIONSHIP_UPDATE") {
+      if (kind === "READY") {
+        if (isLiveSession() && data && typeof data === "object") {
+          if (Array.isArray(data.guilds) && data.guilds.length > 0) {
+            syncLiveGuildRailFromSnapshot(data.guilds, false);
+          }
+          if (Array.isArray(data.relationships) && data.relationships.length > 0) {
+            dmFriendsController?.syncLiveState?.({
+              relationships: data.relationships,
+              privateChannels: data.private_channels,
+              users: data.users,
+            });
+          }
+        }
+      } else if (kind === "READY_SUPPLEMENTAL") {
+        if (isLiveSession() && data && typeof data === "object") {
+          if (Array.isArray(data.guilds) && data.guilds.length > 0) {
+            syncLiveGuildRailFromSnapshot(data.guilds, true);
+          }
+          if (data.merged_presences) {
+            dmFriendsController?.syncLiveState?.({
+              presences: data.merged_presences.friends,
+            });
+          }
+        }
+      } else if (kind === "RELATIONSHIP_ADD" || kind === "RELATIONSHIP_REMOVE" || kind === "RELATIONSHIP_UPDATE") {
         dmFriendsController?.handleGatewayEvent?.({ type: kind, d: data });
       } else if (kind === "GUILD_CREATE") {
         if (data && typeof data === "object") {
@@ -12778,6 +13216,11 @@ function boot() {
         }
       } else if (kind === "GUILD_DELETE") {
         if (data?.id) {
+          if (data.unavailable === true) {
+            // Discord API: unavailable: true означает временную недоступность сервера из-за сбоя или реконнекта.
+            // Сервер не должен удаляться из списка серверов!
+            return;
+          }
           const gid = String(data.id);
           liveGuildsById.delete(gid);
           lastGuildChannelCountById.delete(gid);
@@ -12801,6 +13244,111 @@ function boot() {
               }
               tree.refreshView();
             }
+          }
+        }
+      } else if (kind === "CALL_CREATE" || kind === "CALL_UPDATE") {
+        if (data && typeof data === "object") {
+          const cid = cleanDiscordStr(String(data.channel_id || ""));
+          if (cid) {
+            activeDmCalls.set(cid, data);
+            if (Array.isArray(data.voice_states) && data.voice_states.length > 0) {
+              const currentMe = liveVoiceStatesByGuild.get("@me") ?? [];
+              const otherStates = currentMe.filter((vs) => String(vs?.channel_id || "") !== cid);
+              for (const vs of data.voice_states) {
+                otherStates.push({
+                  ...vs,
+                  guild_id: "@me",
+                  channel_id: cid,
+                  confirmed: true,
+                });
+              }
+              liveVoiceStatesByGuild.set("@me", otherStates);
+              liveVoiceStatesByGuild.set(HOME_GUILD_ID, otherStates);
+            }
+            const selfId = cleanDiscordStr(
+              String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || "")
+            );
+            const isConnectedHere = Boolean(
+              activeVoiceConnection &&
+                normalizeVoiceGuildKey(activeVoiceConnection.guildId) === HOME_GUILD_ID &&
+                String(activeVoiceConnection.channelId || "") === cid,
+            );
+            const ringingArr = Array.isArray(data.ringing) ? data.ringing.map(String) : [];
+            const isRinging = !isConnectedHere && (
+              ringingArr.includes(selfId) ||
+              (ringingArr.length > 0 && (!selfId || ringingArr.some((/** @type {string} */ uid) => uid !== selfId)))
+            );
+            if (isRinging) {
+              showIncomingCallOverlay(data);
+            } else {
+              dismissIncomingCallOverlay(cid);
+            }
+            renderLiveDmCallStage();
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "CALL_DELETE") {
+        if (data && typeof data === "object") {
+          const cid = cleanDiscordStr(String(data.channel_id || ""));
+          if (cid) {
+            activeDmCalls.delete(cid);
+            dismissIncomingCallOverlay(cid);
+            const currentMe = liveVoiceStatesByGuild.get("@me") ?? [];
+            const filtered = currentMe.filter((vs) => String(vs?.channel_id || "") !== cid);
+            liveVoiceStatesByGuild.set("@me", filtered);
+            liveVoiceStatesByGuild.set(HOME_GUILD_ID, filtered);
+            renderLiveDmCallStage();
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "STREAM_CREATE") {
+        if (data && typeof data === "object") {
+          const skey = String(data.stream_key || "");
+          const parts = skey.split(":");
+          const streamerUid = parts[parts.length - 1];
+          const streamGid = parts.length >= 4 ? parts[1] : "@me";
+          if (streamerUid) {
+            for (const gk of new Set([streamGid, normalizeVoiceGuildKey(streamGid), "@me", HOME_GUILD_ID])) {
+              if (typeof gk !== "string") continue;
+              const list = liveVoiceStatesByGuild.get(gk);
+              if (Array.isArray(list)) {
+                for (const vs of list) {
+                  if (String(vs?.user_id || vs?.userId || "") === streamerUid) {
+                    vs.self_stream = true;
+                    vs.selfStream = true;
+                  }
+                }
+              }
+            }
+            playVoiceUiSound("stream_on");
+            renderLiveVoicePanel();
+            renderLiveDmCallStage();
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "STREAM_DELETE") {
+        if (data && typeof data === "object") {
+          const skey = String(data.stream_key || "");
+          const parts = skey.split(":");
+          const streamerUid = parts[parts.length - 1];
+          const streamGid = parts.length >= 4 ? parts[1] : "@me";
+          if (streamerUid) {
+            for (const gk of new Set([streamGid, normalizeVoiceGuildKey(streamGid), "@me", HOME_GUILD_ID])) {
+              if (typeof gk !== "string") continue;
+              const list = liveVoiceStatesByGuild.get(gk);
+              if (Array.isArray(list)) {
+                for (const vs of list) {
+                  if (String(vs?.user_id || vs?.userId || "") === streamerUid) {
+                    vs.self_stream = false;
+                    vs.selfStream = false;
+                  }
+                }
+              }
+            }
+            playVoiceUiSound("stream_off");
+            renderLiveVoicePanel();
+            renderLiveDmCallStage();
+            tree.refreshView();
           }
         }
       } else if (kind === "GUILD_ROLE_CREATE" || kind === "GUILD_ROLE_UPDATE" || kind === "GUILD_ROLE_DELETE") {

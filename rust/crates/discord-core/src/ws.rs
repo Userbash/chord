@@ -1304,17 +1304,15 @@ pub fn queue_live_voice_state_ext(
             }
         }
     } else if let Some(old_key) = prev_stream_key.take() {
-        if clean_cid.is_some() {
-            let del_d = EtfValue::Map(vec![(
-                EtfValue::Str("stream_key".to_string()),
-                EtfValue::Str(old_key),
-            )]);
-            let del_env = EtfValue::Map(vec![
-                (EtfValue::Str("op".to_string()), EtfValue::Int(19)),
-                (EtfValue::Str("d".to_string()), del_d),
-            ]);
-            send_live_gateway_frame(encode(&del_env));
-        }
+        let del_d = EtfValue::Map(vec![(
+            EtfValue::Str("stream_key".to_string()),
+            EtfValue::Str(old_key),
+        )]);
+        let del_env = EtfValue::Map(vec![
+            (EtfValue::Str("op".to_string()), EtfValue::Int(19)),
+            (EtfValue::Str("d".to_string()), del_d),
+        ]);
+        send_live_gateway_frame(encode(&del_env));
         let watching_other = LAST_WATCHED_STREAM_KEY
             .get_or_init(|| std::sync::Mutex::new(None))
             .lock()
@@ -1325,6 +1323,60 @@ pub fn queue_live_voice_state_ext(
             stop_live_stream_rtc_session();
         }
     }
+    Ok(())
+}
+
+/// Очищает кешированный ключ стрима, позволяя повторно запускать трансляцию на том же канале.
+pub fn clear_last_stream_key() {
+    if let Ok(mut prev_sk) = LAST_STREAM_KEY
+        .get_or_init(|| std::sync::Mutex::new(None))
+        .lock()
+    {
+        *prev_sk = None;
+    }
+}
+
+/// Отправляет в живой шлюз Discord `OP 18 STREAM_CREATE`
+/// (`{"op":18,"d":{"type":"guild"|"call","guild_id":...|null,"channel_id":...,"preferred_region":null}}`)
+/// для запуска демонстрации экрана / трансляции (`Go Live`) в гильдейском или личном звонке.
+pub fn queue_live_stream_create(
+    stream_type: &str,
+    guild_id: Option<&str>,
+    channel_id: &str,
+) -> Result<(), OutboundError> {
+    use discord_codec::etf::{encode, EtfValue};
+    let stype = stream_type.trim();
+    let cid = channel_id.trim();
+    if cid.is_empty() {
+        return Ok(());
+    }
+    let clean_gid = guild_id
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && *s != "@me" && *s != "nil" && *s != "null");
+    let gid_val = match clean_gid {
+        Some(gid) => EtfValue::Str(gid.to_string()),
+        None => EtfValue::Nil,
+    };
+    let stream_d = EtfValue::Map(vec![
+        (
+            EtfValue::Str("type".to_string()),
+            EtfValue::Str(stype.to_string()),
+        ),
+        (EtfValue::Str("guild_id".to_string()), gid_val),
+        (
+            EtfValue::Str("channel_id".to_string()),
+            EtfValue::Str(cid.to_string()),
+        ),
+        (
+            EtfValue::Str("preferred_region".to_string()),
+            EtfValue::Nil,
+        ),
+    ]);
+    let stream_env = EtfValue::Map(vec![
+        (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
+        (EtfValue::Str("d".to_string()), stream_d),
+    ]);
+    send_live_gateway_frame(encode(&stream_env));
     Ok(())
 }
 
@@ -2226,13 +2278,32 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
   g_variant_builder_add(&b, "{sv}", "include-cursor", g_variant_new_boolean(TRUE));
   g_variant_builder_add(&b, "{sv}", "native-resolution", g_variant_new_boolean(FALSE));
 
+  char target_buf[128] = {0};
+  FILE* tfp_target = fopen("/dev/shm/discord_capture_target.txt", "r");
+  if (tfp_target) {
+    if (fgets(target_buf, sizeof(target_buf), tfp_target)) {
+      char* nl = strpbrk(target_buf, "\r\n");
+      if (nl) *nl = '\0';
+    }
+    fclose(tfp_target);
+  }
+
+  const char* method = "CaptureWorkspace";
+  GVariant* params = NULL;
+  if (target_buf[0] == '{') {
+    method = "CaptureWindow";
+    params = g_variant_new("(sa{sv}h)", target_buf, &b, 0);
+  } else {
+    params = g_variant_new("(a{sv}h)", &b, 0);
+  }
+
   GVariant* res = g_dbus_connection_call_with_unix_fd_list_sync(
     bus,
     "org.kde.KWin",
     "/org/kde/KWin/ScreenShot2",
     "org.kde.KWin.ScreenShot2",
-    "CaptureActiveScreen",
-    g_variant_new("(a{sv}h)", &b, 0),
+    method,
+    params,
     G_VARIANT_TYPE("(a{sv})"),
     G_DBUS_CALL_FLAGS_NONE,
     600,
@@ -2247,10 +2318,11 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
   if (!res) return 0;
 
   GVariant* dict = g_variant_get_child_value(res, 0);
-  guint32 src_w = 0, src_h = 0, src_stride = 0;
+  guint32 src_w = 0, src_h = 0, src_stride = 0, src_format = 0;
   g_variant_lookup(dict, "width", "u", &src_w);
   g_variant_lookup(dict, "height", "u", &src_h);
   g_variant_lookup(dict, "stride", "u", &src_stride);
+  g_variant_lookup(dict, "format", "u", &src_format);
   g_variant_unref(dict);
   g_variant_unref(res);
 
@@ -2270,16 +2342,27 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
     slot->cap = needed;
   }
 
+  int need_swap = (src_format == 16 || src_format == 17 || src_format == 18 || src_format == 0);
   uint32_t* dst32 = (uint32_t*)slot->bgra;
   if (src_w == (guint32)dst_w && src_h == (guint32)dst_h && eff_stride == (size_t)dst_w * 4) {
-    memcpy(dst32, raw_scratch, needed);
+    const uint32_t* s32 = (const uint32_t*)raw_scratch;
+    size_t total_px = (size_t)dst_w * (size_t)dst_h;
+    if (need_swap) {
+      for (size_t i = 0; i < total_px; i++) {
+        uint32_t px = s32[i];
+        dst32[i] = ((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U);
+      }
+    } else {
+      memcpy(dst32, s32, total_px * 4);
+    }
   } else {
     for (int row = 0; row < dst_h; row++) {
       int sy = (row * (int)src_h) / dst_h;
       const uint32_t* srow = (const uint32_t*)(raw_scratch + (size_t)sy * eff_stride);
       uint32_t* drow = dst32 + (size_t)row * (size_t)dst_w;
       for (int col = 0; col < dst_w; col++) {
-        drow[col] = srow[(col * (int)src_w) / dst_w];
+        uint32_t px = srow[(col * (int)src_w) / dst_w];
+        drow[col] = need_swap ? (((px & 0x000000FFU) << 16) | ((px & 0x00FF0000U) >> 16) | (px & 0xFF00FF00U)) : px;
       }
     }
   }
@@ -2393,9 +2476,14 @@ static void* screen_capture_worker(void* arg) {
   uint32_t frame_idx = 0;
   struct stat st_prev;
   memset(&st_prev, 0, sizeof(st_prev));
+  __atomic_store_n(&g_last_capture_req_ms, monotonic_ms(), __ATOMIC_RELAXED);
 
   while (1) {
     uint64_t t_start = monotonic_ms();
+    if (access("/dev/shm/discord_capture_kick.bin", F_OK) == 0) {
+      unlink("/dev/shm/discord_capture_kick.bin");
+      __atomic_store_n(&g_last_capture_req_ms, t_start, __ATOMIC_RELAXED);
+    }
     uint64_t req = __atomic_load_n(&g_last_capture_req_ms, __ATOMIC_RELAXED);
     if (req == 0 || t_start - req > 2500) {
       usleep(40000);
@@ -3109,10 +3197,34 @@ function applyScreenBroadcast(active) {
           }
         ]
       });
+      try {
+        fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1]));
+      } catch (_) {}
+      let currentSourceType = "screen";
+      let currentSourceId = "0";
+      try {
+        if (fs.existsSync("/dev/shm/discord_capture_target.txt")) {
+          const t = fs.readFileSync("/dev/shm/discord_capture_target.txt", "utf8").trim();
+          if (t.startsWith("{") || t.startsWith("window:") || t.startsWith("win")) {
+            currentSourceType = "window";
+            currentSourceId = t.startsWith("window:") ? t.slice(7) : t;
+          } else {
+            currentSourceType = "screen";
+            currentSourceId = t.startsWith("screen:") ? t.slice(7) : (t || "0");
+          }
+        }
+      } catch (_) {}
+      // Linux Wayland Hook Parity:
+      // discord_voice.node runs an X11 capturer (ScreenCapturerX11) which expects an integer screen ID.
+      // Under Wayland, passing window GUID {...} directly causes SetScreenshareSourceLinux to fail with
+      // "Screenshare: Failed to select source: 0" and "SetScreenshare: (nil)", sending 0 bytes.
+      // We ALWAYS configure discord_voice.node with type: "screen", sourceId: "0" so ScreenCapturerX11
+      // succeeds and invokes hook_XShmGetImage. The hook dynamically reads /dev/shm/discord_capture_target.txt
+      // to stream either the entire workspace or the selected window via KWin ScreenShot2 D-Bus.
       if (typeof conn.setDesktopSourceWithOptions === "function") {
         conn.setDesktopSourceWithOptions({
           type: "screen",
-          sourceId: "-1",
+          sourceId: "0",
           width: 1280,
           height: 720,
           frameRate: 60,
@@ -3816,7 +3928,49 @@ rl.on("line", (line) => {
       sendEv({ ev: "log", msg: "setLoopback err: " + (e && e.message) });
     }
   } else if (cmd === "set_stream") {
-    applyScreenBroadcast(Boolean(msg.broadcasting));
+    const isBcast = Boolean(msg.broadcasting);
+    if (!isBcast && conn) {
+      try {
+        if (typeof conn.clearDesktopSource === "function") {
+          conn.clearDesktopSource();
+        } else if (typeof conn.setDesktopSource === "function") {
+          conn.setDesktopSource("", false, "");
+        }
+        if (typeof conn.setVideoBroadcast === "function") {
+          conn.setVideoBroadcast(false);
+        }
+      } catch (_) {}
+    }
+    applyScreenBroadcast(isBcast);
+  } else if (cmd === "set_stream_source") {
+    try {
+      fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1]));
+    } catch (_) {}
+    if (conn && typeof conn.setDesktopSourceWithOptions === "function") {
+      try {
+        conn.setDesktopSourceWithOptions({
+          type: "screen",
+          sourceId: "0",
+          width: 1280,
+          height: 720,
+          frameRate: 60,
+          useVideoHook: false,
+          useGraphicsCapture: false,
+          useQuartzCapturer: false,
+          allowScreenCaptureKit: false,
+          hdrCaptureMode: "never"
+        });
+        if (typeof conn.setVideoBroadcast === "function") {
+          conn.setVideoBroadcast(true);
+        }
+        if (typeof conn.setTransportOptions === "function") {
+          conn.setTransportOptions({ keyframeInterval: 1000 });
+        }
+        sendEv({ ev: "log", msg: "set_stream_source: updated to " + (msg.sourceId || "0") });
+      } catch (e) {
+        sendEv({ ev: "log", msg: "set_stream_source err: " + (e && e.message) });
+      }
+    }
   } else if (cmd === "stop") {
     if (conn) {
       try { conn.destroy(); } catch (_) {}
