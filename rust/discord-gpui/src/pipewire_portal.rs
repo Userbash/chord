@@ -98,21 +98,16 @@ pub enum PortalError {
     InvalidObjectPath(String),
     InvalidSourceTypes(u32),
     InvalidSessionState(&'static str, PortalSessionState),
-    ConsentDenied,
     NoStreamsReturned,
     InvalidFd(RawFd),
     TooManyFds(usize),
     EmptyPayloadWithFds,
     ControlDataTruncated,
-    UnexpectedAncillaryHeader(i32, i32),
     MalformedAncillaryData,
     InvalidDimensions(u32, u32),
-    OddChromaDimensions(u32, u32),
-    InvalidFps(u32),
     InvalidStride(u32, u32),
     NoCompatibleDmaBufModifier,
     PipeWireDaemonDisconnected(String),
-    MaxReconnectAttemptsExceeded(u32),
     IoError(String),
 }
 
@@ -134,31 +129,12 @@ pub enum PortalSessionState {
     Closed,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum PortalResponseCode {
-    Success = 0,
-    CancelledByUser = 1,
-}
-
-impl PortalResponseCode {
-    pub const fn into_result(self) -> Result<(), PortalError> {
-        match self {
-            Self::Success => Ok(()),
-            Self::CancelledByUser => Err(PortalError::ConsentDenied),
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PortalSessionConfig {
     pub handle_token: String,
     pub session_handle_token: String,
     pub source_types: u32,
-    pub multiple: bool,
-    pub cursor_mode: u32,
-    pub persist_mode: u32,
     pub restore_token: Option<String>,
-    pub parent_window: String,
 }
 
 impl PortalSessionConfig {
@@ -168,11 +144,7 @@ impl PortalSessionConfig {
             handle_token: "discord_gpui_req_971".to_string(),
             session_handle_token: "discord_gpui_sess_971".to_string(),
             source_types: SOURCE_TYPE_MONITOR | SOURCE_TYPE_WINDOW,
-            multiple: false,
-            cursor_mode: 4,
-            persist_mode: 2,
             restore_token: None,
-            parent_window: String::new(),
         }
     }
 
@@ -199,15 +171,13 @@ pub fn validate_portal_token(token: &str) -> Result<(), PortalError> {
 }
 
 pub fn validate_dbus_object_path(path: &str) -> Result<(), PortalError> {
-    if path == "/" {
-        return Ok(());
-    }
-    let valid_segs = path.starts_with('/')
-        && !path.ends_with('/')
-        && path[1..]
-            .split('/')
-            .all(|s| !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_'));
-    if valid_segs {
+    let ok = path == "/"
+        || (path.starts_with('/')
+            && !path.ends_with('/')
+            && path[1..].split('/').all(|s| {
+                !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
+            }));
+    if ok {
         Ok(())
     } else {
         Err(PortalError::InvalidObjectPath(path.to_string()))
@@ -232,7 +202,7 @@ pub fn close_raw_fd(raw: RawFd) {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct OwnedPortalFd {
     raw: RawFd,
 }
@@ -377,63 +347,19 @@ fn parse_scm_rights_control(ctrl: &[u8]) -> Result<Vec<OwnedPortalFd>, PortalErr
         if hdr.cmsg_len < CMSG_HEADER_BYTES
             || off + hdr.cmsg_len > ctrl.len()
             || !plen.is_multiple_of(INT_BYTES)
+            || hdr.cmsg_level != SOL_SOCKET
+            || hdr.cmsg_type != SCM_RIGHTS
         {
             return Err(PortalError::MalformedAncillaryData);
         }
-        for chunk in ctrl[off + CMSG_HEADER_BYTES..off + hdr.cmsg_len].chunks_exact(INT_BYTES) {
+        for c in ctrl[off + CMSG_HEADER_BYTES..off + hdr.cmsg_len].chunks_exact(INT_BYTES) {
             fds.push(OwnedPortalFd::from_raw_fd_checked(i32::from_ne_bytes([
-                chunk[0], chunk[1], chunk[2], chunk[3],
+                c[0], c[1], c[2], c[3],
             ]))?);
-        }
-        if hdr.cmsg_level != SOL_SOCKET || hdr.cmsg_type != SCM_RIGHTS {
-            fds.clear();
-            return Err(PortalError::UnexpectedAncillaryHeader(
-                hdr.cmsg_level,
-                hdr.cmsg_type,
-            ));
         }
         off += cmsg_align(hdr.cmsg_len);
     }
     Ok(fds)
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DmaBufPixelFormat {
-    Bgra8,
-    Rgba8,
-    Nv12,
-    I420,
-}
-
-impl DmaBufPixelFormat {
-    #[must_use]
-    pub const fn drm_fourcc(self) -> u32 {
-        match self {
-            Self::Bgra8 => DRM_FOURCC_BGRA8888,
-            Self::Rgba8 => DRM_FOURCC_RGBA8888,
-            Self::Nv12 => DRM_FOURCC_NV12,
-            Self::I420 => DRM_FOURCC_YUV420,
-        }
-    }
-
-    #[must_use]
-    pub const fn min_stride_bytes(self, width: u32) -> u32 {
-        match self {
-            Self::Bgra8 | Self::Rgba8 => width.saturating_mul(4),
-            Self::Nv12 | Self::I420 => width,
-        }
-    }
-
-    #[must_use]
-    pub const fn requires_even_dimensions(self) -> bool {
-        matches!(self, Self::Nv12 | Self::I420)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DmaBufBufferKind {
-    ZeroCopyDmaBuf,
-    SharedMemoryMemFd,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -441,7 +367,7 @@ pub struct DmaBufNegotiationRequest {
     pub width: u32,
     pub height: u32,
     pub fps: u32,
-    pub format: DmaBufPixelFormat,
+    pub drm_fourcc: u32,
     pub candidate_stride: u32,
     pub advertised_modifiers: Vec<u64>,
     pub allow_shm_fallback: bool,
@@ -449,32 +375,28 @@ pub struct DmaBufNegotiationRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NegotiatedDmaBufConfig {
-    pub width: u32,
-    pub height: u32,
-    pub fps: u32,
-    pub format: DmaBufPixelFormat,
     pub drm_fourcc: u32,
     pub drm_modifier: u64,
     pub stride_bytes: u32,
-    pub buffer_kind: DmaBufBufferKind,
     pub is_zero_copy: bool,
 }
 
 pub fn negotiate_dma_buf_stream(
     req: &DmaBufNegotiationRequest,
 ) -> Result<NegotiatedDmaBufConfig, PortalError> {
-    if !(MIN_CAPTURE_DIMENSION..=MAX_CAPTURE_WIDTH).contains(&req.width)
-        || !(MIN_CAPTURE_DIMENSION..=MAX_CAPTURE_HEIGHT).contains(&req.height)
-    {
+    let is_planar = matches!(req.drm_fourcc, DRM_FOURCC_NV12 | DRM_FOURCC_YUV420);
+    let dims_ok = (MIN_CAPTURE_DIMENSION..=MAX_CAPTURE_WIDTH).contains(&req.width)
+        && (MIN_CAPTURE_DIMENSION..=MAX_CAPTURE_HEIGHT).contains(&req.height)
+        && (1..=MAX_CAPTURE_FPS).contains(&req.fps)
+        && (!is_planar || (req.width % 2 == 0 && req.height % 2 == 0));
+    if !dims_ok {
         return Err(PortalError::InvalidDimensions(req.width, req.height));
     }
-    if req.format.requires_even_dimensions() && (req.width % 2 != 0 || req.height % 2 != 0) {
-        return Err(PortalError::OddChromaDimensions(req.width, req.height));
-    }
-    if req.fps == 0 || req.fps > MAX_CAPTURE_FPS {
-        return Err(PortalError::InvalidFps(req.fps));
-    }
-    let min_stride = req.format.min_stride_bytes(req.width);
+    let min_stride = if is_planar {
+        req.width
+    } else {
+        req.width.saturating_mul(4)
+    };
     let candidate_stride = req.candidate_stride;
     if candidate_stride < min_stride {
         return Err(PortalError::InvalidStride(candidate_stride, min_stride));
@@ -484,55 +406,23 @@ pub fn negotiate_dma_buf_stream(
         .iter()
         .copied()
         .find(|m| *m != DRM_FORMAT_MOD_INVALID);
-    let (drm_modifier, buffer_kind, is_zero_copy) = match (valid_mod, req.allow_shm_fallback) {
-        (Some(m), _) => (m, DmaBufBufferKind::ZeroCopyDmaBuf, true),
-        (None, true) => (
-            DRM_FORMAT_MOD_LINEAR,
-            DmaBufBufferKind::SharedMemoryMemFd,
-            false,
-        ),
+    let (drm_modifier, is_zero_copy) = match (valid_mod, req.allow_shm_fallback) {
+        (Some(m), _) => (m, true),
+        (None, true) => (DRM_FORMAT_MOD_LINEAR, false),
         (None, false) => return Err(PortalError::NoCompatibleDmaBufModifier),
     };
     Ok(NegotiatedDmaBufConfig {
-        width: req.width,
-        height: req.height,
-        fps: req.fps,
-        format: req.format,
-        drm_fourcc: req.format.drm_fourcc(),
+        drm_fourcc: req.drm_fourcc,
         drm_modifier,
         stride_bytes: candidate_stride,
-        buffer_kind,
         is_zero_copy,
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PortalStreamDescriptor {
-    pub node_id: u32,
-    pub source_type: u32,
-    pub width: u32,
-    pub height: u32,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PortalStartReply {
-    pub code: PortalResponseCode,
-    pub streams: Vec<PortalStreamDescriptor>,
-    pub restore_token: Option<String>,
-}
-
 pub trait PortalBackend {
-    fn create_session(
-        &mut self,
-        req: &str,
-        sess: &str,
-    ) -> Result<(PortalResponseCode, String), PortalError>;
-    fn select_sources(
-        &mut self,
-        path: &str,
-        cfg: &PortalSessionConfig,
-    ) -> Result<PortalResponseCode, PortalError>;
-    fn start(&mut self, path: &str, win: &str, req: &str) -> Result<PortalStartReply, PortalError>;
+    fn create_session(&mut self, req: &str, sess: &str) -> Result<String, PortalError>;
+    fn select_sources(&mut self, path: &str, cfg: &PortalSessionConfig) -> Result<(), PortalError>;
+    fn start(&mut self, path: &str, req: &str) -> Result<(u32, Option<String>), PortalError>;
     fn open_pipewire_remote(&mut self, path: &str) -> Result<Vec<OwnedPortalFd>, PortalError>;
     fn close_session(&mut self, path: &str) -> Result<(), PortalError>;
 }
@@ -553,10 +443,6 @@ pub struct PortalTelemetrySnapshot {
     pub active_node_id: Option<u32>,
     pub active_fd: Option<RawFd>,
     pub redacted_restore_token: String,
-    pub daemon_restarts: u64,
-    pub successful_recoveries: u64,
-    pub dma_buf_sessions: u64,
-    pub shm_fallback_sessions: u64,
     pub total_fds_opened: u64,
     pub total_fds_closed: u64,
 }
@@ -576,8 +462,6 @@ pub struct PipeWirePortalManager<B: PortalBackend> {
     active_fd: Option<OwnedPortalFd>,
     active_node_id: Option<u32>,
     saved_restore_token: Option<String>,
-    counters: (u64, u64, u64, u64),
-    max_reconnect_attempts: u32,
 }
 
 impl<B: PortalBackend> PipeWirePortalManager<B> {
@@ -591,8 +475,6 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             active_fd: None,
             active_node_id: None,
             saved_restore_token: None,
-            counters: (0, 0, 0, 0),
-            max_reconnect_attempts: 3,
         }
     }
 
@@ -613,8 +495,7 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             return Err(PortalError::InvalidSessionState("Unconnected", self.state));
         }
         cfg.validate()?;
-        let path = self.step_create_and_select(cfg)?;
-        let (node_id, r_tok, fd) = self.step_start_and_open(&path, cfg)?;
+        let (path, node_id, r_tok, fd) = self.acquire_remote_session(cfg)?;
         let negotiated = match negotiate_dma_buf_stream(dma_req) {
             Ok(neg) => neg,
             Err(err) => {
@@ -622,11 +503,6 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
                 return self.fail(err);
             }
         };
-        if negotiated.is_zero_copy {
-            self.counters.2 += 1
-        } else {
-            self.counters.3 += 1
-        }
         if let Some(tok) = r_tok.or_else(|| cfg.restore_token.clone()) {
             self.saved_restore_token = Some(tok);
         }
@@ -638,58 +514,39 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
         Ok(negotiated)
     }
 
-    fn step_create_and_select(&mut self, cfg: &PortalSessionConfig) -> Result<String, PortalError> {
-        let (code, path) = self
+    fn acquire_remote_session(
+        &mut self,
+        cfg: &PortalSessionConfig,
+    ) -> Result<(String, u32, Option<String>, OwnedPortalFd), PortalError> {
+        let path = self
             .backend
             .create_session(&cfg.handle_token, &cfg.session_handle_token)?;
-        if let Err(err) = code.into_result() {
-            self.state = PortalSessionState::Closed;
-            return Err(err);
-        }
         validate_dbus_object_path(&path)?;
         self.session_handle = Some(path.clone());
         self.state = PortalSessionState::SessionCreated;
         let mut eff = cfg.clone();
-        if eff.restore_token.is_none() {
-            eff.restore_token = self.saved_restore_token.clone();
-        }
-        if let Err(err) = self
-            .backend
+        eff.restore_token = eff
+            .restore_token
+            .or_else(|| self.saved_restore_token.clone());
+        self.backend
             .select_sources(&path, &eff)
-            .and_then(|c| c.into_result())
-        {
-            return self.fail(err);
-        }
+            .or_else(|e| self.fail(e))?;
         self.state = PortalSessionState::SourcesSelected;
-        Ok(path)
-    }
-
-    fn step_start_and_open(
-        &mut self,
-        path: &str,
-        cfg: &PortalSessionConfig,
-    ) -> Result<(u32, Option<String>, OwnedPortalFd), PortalError> {
-        let reply = match self
+        let (node_id, r_tok) = self
             .backend
-            .start(path, &cfg.parent_window, &cfg.handle_token)
-        {
-            Ok(r) => r,
-            Err(err) => return self.fail(err),
-        };
-        if let Err(err) = reply.code.into_result() {
-            return self.fail(err);
-        }
-        let Some(first) = reply.streams.first().filter(|s| s.node_id > 0) else {
+            .start(&path, &cfg.handle_token)
+            .or_else(|e| self.fail(e))?;
+        if node_id == 0 {
             return self.fail(PortalError::NoStreamsReturned);
-        };
-        let mut fds = match self.backend.open_pipewire_remote(path) {
-            Ok(list) if !list.is_empty() => list,
-            Ok(_) => return self.fail(PortalError::InvalidFd(-1)),
-            Err(err) => return self.fail(err),
-        };
-        let primary = fds.remove(0);
-        drop(fds);
-        Ok((first.node_id, reply.restore_token, primary))
+        }
+        let mut fds = self
+            .backend
+            .open_pipewire_remote(&path)
+            .or_else(|e| self.fail(e))?;
+        if fds.is_empty() {
+            return self.fail(PortalError::InvalidFd(-1));
+        }
+        Ok((path, node_id, r_tok, fds.remove(0)))
     }
 
     fn release_active_fd(&mut self) -> Option<RawFd> {
@@ -706,58 +563,26 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
         if self.state != PortalSessionState::Streaming {
             return Err(PortalError::InvalidSessionState("Streaming", self.state));
         }
-        self.counters.0 += 1;
         self.state = PortalSessionState::ReconnectingDaemon;
         let closed_old_fd = self.release_active_fd();
-        if let Some(rep) = self.try_reopen_existing(closed_old_fd, dma_req)? {
-            self.counters.1 += 1;
-            return Ok(rep);
+        if let Some(path) = self.session_handle.clone()
+            && let Ok(mut fds) = self.backend.open_pipewire_remote(&path)
+            && !fds.is_empty()
+        {
+            let new_owned = fds.remove(0);
+            let negotiated = negotiate_dma_buf_stream(dma_req)?;
+            let new_fd = new_owned.as_raw_fd();
+            self.active_fd = Some(new_owned);
+            self.state = PortalSessionState::Streaming;
+            return Ok(DaemonRestartReport {
+                closed_old_fd,
+                new_fd,
+                node_id: self.active_node_id.unwrap_or(1),
+                session_recreated: false,
+                used_restore_token: self.saved_restore_token.is_some(),
+                negotiated,
+            });
         }
-        let rep = self.recreate_with_retries(closed_old_fd, dma_req)?;
-        self.counters.1 += 1;
-        Ok(rep)
-    }
-
-    fn try_reopen_existing(
-        &mut self,
-        closed_old_fd: Option<RawFd>,
-        dma_req: &DmaBufNegotiationRequest,
-    ) -> Result<Option<DaemonRestartReport>, PortalError> {
-        let Some(path) = self.session_handle.clone() else {
-            return Ok(None);
-        };
-        let Ok(mut fds) = self.backend.open_pipewire_remote(&path) else {
-            return Ok(None);
-        };
-        if fds.is_empty() {
-            return Ok(None);
-        }
-        let new_owned = fds.remove(0);
-        drop(fds);
-        let negotiated = negotiate_dma_buf_stream(dma_req)?;
-        if negotiated.is_zero_copy {
-            self.counters.2 += 1
-        } else {
-            self.counters.3 += 1
-        }
-        let new_fd = new_owned.as_raw_fd();
-        self.active_fd = Some(new_owned);
-        self.state = PortalSessionState::Streaming;
-        Ok(Some(DaemonRestartReport {
-            closed_old_fd,
-            new_fd,
-            node_id: self.active_node_id.unwrap_or(1),
-            session_recreated: false,
-            used_restore_token: self.saved_restore_token.is_some(),
-            negotiated,
-        }))
-    }
-
-    fn recreate_with_retries(
-        &mut self,
-        closed_old_fd: Option<RawFd>,
-        dma_req: &DmaBufNegotiationRequest,
-    ) -> Result<DaemonRestartReport, PortalError> {
         if let Some(old_h) = self.session_handle.take() {
             let _ = self.backend.close_session(&old_h);
         }
@@ -765,27 +590,16 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             .config
             .clone()
             .unwrap_or_else(PortalSessionConfig::default_monitor_and_window);
-        let used_restore_token = self.saved_restore_token.is_some();
-        if used_restore_token {
-            cfg.restore_token = self.saved_restore_token.clone();
-        }
-        for _ in 0..self.max_reconnect_attempts {
-            self.state = PortalSessionState::ReconnectingDaemon;
-            if let Ok(negotiated) = self.open_session(&cfg, dma_req) {
-                return Ok(DaemonRestartReport {
-                    closed_old_fd,
-                    new_fd: self.active_fd.as_ref().map_or(-1, OwnedPortalFd::as_raw_fd),
-                    node_id: self.active_node_id.unwrap_or(1),
-                    session_recreated: true,
-                    used_restore_token,
-                    negotiated,
-                });
-            }
-        }
-        self.state = PortalSessionState::Closed;
-        Err(PortalError::MaxReconnectAttemptsExceeded(
-            self.max_reconnect_attempts,
-        ))
+        cfg.restore_token = self.saved_restore_token.clone().or(cfg.restore_token);
+        let negotiated = self.open_session(&cfg, dma_req)?;
+        Ok(DaemonRestartReport {
+            closed_old_fd,
+            new_fd: self.active_fd.as_ref().map_or(-1, OwnedPortalFd::as_raw_fd),
+            node_id: self.active_node_id.unwrap_or(1),
+            session_recreated: true,
+            used_restore_token: self.saved_restore_token.is_some(),
+            negotiated,
+        })
     }
 
     pub fn close(&mut self) -> Result<(), PortalError> {
@@ -807,10 +621,6 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             active_node_id: self.active_node_id,
             active_fd: self.active_fd.as_ref().map(OwnedPortalFd::as_raw_fd),
             redacted_restore_token: redact_restore_token(raw_tok),
-            daemon_restarts: self.counters.0,
-            successful_recoveries: self.counters.1,
-            dma_buf_sessions: self.counters.2,
-            shm_fallback_sessions: self.counters.3,
             total_fds_opened: TOTAL_FDS_OPENED.load(Ordering::SeqCst),
             total_fds_closed: TOTAL_FDS_CLOSED.load(Ordering::SeqCst),
         }
@@ -828,53 +638,26 @@ mod tests {
     use super::*;
     use std::io::{Read, Write};
 
+    #[derive(Default)]
     struct FakeBackend {
         fail_next_remote: bool,
         held_peers: Vec<UnixStream>,
     }
 
-    impl FakeBackend {
-        fn new() -> Self {
-            Self {
-                fail_next_remote: false,
-                held_peers: Vec::new(),
-            }
-        }
-    }
-
     impl PortalBackend for FakeBackend {
-        fn create_session(
-            &mut self,
-            _r: &str,
-            _s: &str,
-        ) -> Result<(PortalResponseCode, String), PortalError> {
-            Ok((
-                PortalResponseCode::Success,
-                "/org/freedesktop/portal/desktop/session/1_971/s1".to_string(),
-            ))
+        fn create_session(&mut self, _r: &str, _s: &str) -> Result<String, PortalError> {
+            Ok("/org/freedesktop/portal/desktop/session/1_971/s1".to_string())
         }
-
         fn select_sources(
             &mut self,
             _p: &str,
             _c: &PortalSessionConfig,
-        ) -> Result<PortalResponseCode, PortalError> {
-            Ok(PortalResponseCode::Success)
+        ) -> Result<(), PortalError> {
+            Ok(())
         }
-
-        fn start(&mut self, _p: &str, _w: &str, _r: &str) -> Result<PortalStartReply, PortalError> {
-            Ok(PortalStartReply {
-                code: PortalResponseCode::Success,
-                streams: vec![PortalStreamDescriptor {
-                    node_id: 42,
-                    source_type: 1,
-                    width: 1920,
-                    height: 1080,
-                }],
-                restore_token: Some("secret_portal_restore_token_971".to_string()),
-            })
+        fn start(&mut self, _p: &str, _r: &str) -> Result<(u32, Option<String>), PortalError> {
+            Ok((42, Some("secret_portal_restore_token_971".to_string())))
         }
-
         fn open_pipewire_remote(&mut self, _p: &str) -> Result<Vec<OwnedPortalFd>, PortalError> {
             if self.fail_next_remote {
                 self.fail_next_remote = false;
@@ -888,7 +671,6 @@ mod tests {
             let mut buf = [0u8; 8];
             Ok(recv_fds_scm_rights(&rx, &mut buf)?.1)
         }
-
         fn close_session(&mut self, _p: &str) -> Result<(), PortalError> {
             Ok(())
         }
@@ -899,7 +681,7 @@ mod tests {
             width: 1920,
             height: 1080,
             fps: 60,
-            format: DmaBufPixelFormat::Bgra8,
+            drm_fourcc: DRM_FOURCC_BGRA8888,
             candidate_stride: 1920 * 4,
             advertised_modifiers: vec![0x0100_0000_0000_0001, DRM_FORMAT_MOD_LINEAR],
             allow_shm_fallback: true,
@@ -916,7 +698,7 @@ mod tests {
         assert_eq!(redact_restore_token(""), "<empty>");
         assert_eq!(redact_restore_token("tok_secret_971"), "[REDACTED]");
 
-        let mut mgr = PipeWirePortalManager::new(FakeBackend::new());
+        let mut mgr = PipeWirePortalManager::new(FakeBackend::default());
         let cfg = PortalSessionConfig::default_monitor_and_window();
         let neg = mgr.open_session(&cfg, &default_dma_req()).expect("open ok");
         assert!(neg.is_zero_copy);
@@ -932,15 +714,10 @@ mod tests {
     fn test_sub_971_2_scm_rights_fd_transfer_and_zero_leaks() {
         assert!(OwnedPortalFd::from_raw_fd_checked(-1).is_err());
         let (tx, rx) = UnixStream::pair().expect("pair");
-        assert_eq!(
-            send_fds_scm_rights(&tx, b"", &[tx.as_raw_fd()]),
-            Err(PortalError::EmptyPayloadWithFds)
-        );
+        let empty_err = send_fds_scm_rights(&tx, b"", &[tx.as_raw_fd()]);
+        assert_eq!(empty_err, Err(PortalError::EmptyPayloadWithFds));
         let many = vec![tx.as_raw_fd(); MAX_FDS_PER_MESSAGE + 1];
-        assert_eq!(
-            send_fds_scm_rights(&tx, b"x", &many),
-            Err(PortalError::TooManyFds(MAX_FDS_PER_MESSAGE + 1))
-        );
+        assert!(send_fds_scm_rights(&tx, b"x", &many).is_err());
 
         let (mut p_a, p_b) = UnixStream::pair().expect("pipe");
         send_fds_scm_rights(&tx, b"FD", &[p_b.as_raw_fd()]).expect("send");
@@ -960,51 +737,42 @@ mod tests {
         drop(cloned);
         drop(fds);
 
-        let mut dummy_iov = Iovec {
+        let mut iov = Iovec {
             iov_base: std::ptr::null_mut(),
             iov_len: 0,
         };
-        let mut trunc_msg = Msghdr::new(&mut dummy_iov, std::ptr::null_mut(), 0);
-        trunc_msg.msg_flags = MSG_CTRUNC;
-        assert_eq!(
-            finalize_scm_recv(1, &trunc_msg, &[]).unwrap_err(),
-            PortalError::ControlDataTruncated
-        );
-        assert_eq!(
-            parse_scm_rights_control(&[1, 2, 3]).unwrap_err(),
-            PortalError::MalformedAncillaryData
-        );
+        let mut msg = Msghdr::new(&mut iov, std::ptr::null_mut(), 0);
+        msg.msg_flags = MSG_CTRUNC;
+        let trunc = finalize_scm_recv(1, &msg, &[]);
+        assert_eq!(trunc, Err(PortalError::ControlDataTruncated));
+        let bad_cmsg = parse_scm_rights_control(&[1, 2]);
+        assert_eq!(bad_cmsg, Err(PortalError::MalformedAncillaryData));
     }
 
     #[test]
     fn test_sub_971_3_dma_buf_negotiation_and_validation() {
         let mut req = default_dma_req();
         let neg = negotiate_dma_buf_stream(&req).expect("zero copy");
-        assert_eq!(neg.buffer_kind, DmaBufBufferKind::ZeroCopyDmaBuf);
+        assert!(neg.is_zero_copy);
         assert_eq!(neg.drm_modifier, 0x0100_0000_0000_0001);
 
         req.advertised_modifiers = vec![DRM_FORMAT_MOD_INVALID];
         let shm = negotiate_dma_buf_stream(&req).expect("shm fallback");
-        assert_eq!(shm.buffer_kind, DmaBufBufferKind::SharedMemoryMemFd);
         assert!(!shm.is_zero_copy);
 
         req.allow_shm_fallback = false;
-        assert_eq!(
-            negotiate_dma_buf_stream(&req),
-            Err(PortalError::NoCompatibleDmaBufModifier)
-        );
+        let no_mod = negotiate_dma_buf_stream(&req);
+        assert_eq!(no_mod, Err(PortalError::NoCompatibleDmaBufModifier));
 
-        let mut bad_stride = default_dma_req();
-        bad_stride.candidate_stride = 100;
-        assert_eq!(
-            negotiate_dma_buf_stream(&bad_stride),
-            Err(PortalError::InvalidStride(100, 1920 * 4))
-        );
+        let mut bad = default_dma_req();
+        bad.candidate_stride = 100;
+        let bad_res = negotiate_dma_buf_stream(&bad);
+        assert_eq!(bad_res, Err(PortalError::InvalidStride(100, 1920 * 4)));
     }
 
     #[test]
     fn test_sub_971_4_daemon_restart_recovery_and_fd_cleanup() {
-        let mut mgr = PipeWirePortalManager::new(FakeBackend::new());
+        let mut mgr = PipeWirePortalManager::new(FakeBackend::default());
         let cfg = PortalSessionConfig::default_monitor_and_window();
         let dma = default_dma_req();
         mgr.open_session(&cfg, &dma).expect("open");

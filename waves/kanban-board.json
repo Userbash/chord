@@ -5505,7 +5505,7 @@
     {
       "id": "TASK-971",
       "title": "Интеграция PipeWire ScreenCast Portal и DMA-BUF",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Модуль rust/discord-gpui/src/pipewire_portal.rs, согласование DMA-BUF, передача FD через D-Bus SCM_RIGHTS.",
@@ -5536,7 +5536,7 @@
         "Контрактный тест tests/unit/pipewire-portal-971.test.mjs green"
       ],
       "created_at": "2026-11-11T11:25:02.792Z",
-      "updated_at": "2026-11-11T11:25:02.792Z"
+      "updated_at": "2026-11-11T12:20:03.413Z"
     },
     {
       "id": "TASK-972",
@@ -5897,6 +5897,42 @@
       ],
       "created_at": "2026-11-11T12:18:41.924Z",
       "updated_at": "2026-11-11T12:18:41.924Z"
+    },
+    {
+      "id": "TASK-982",
+      "title": "Контроль перегрузки WebRTC BWE (GCC, REMB/TWCC адаптация)",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Модуль rust/discord-voice/src/congestion.rs, скрипт scripts/verify-bwe.mjs, адаптация видеобитрейта 500..8000 kbps по REMB/TWCC.",
+      "layout": {
+        "container": "Congestion Control",
+        "dimensions": "500-8000 kbps",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "bwe-graph",
+          "default": "probing",
+          "hover": "limit bandwidth",
+          "active": "adapted bitrate"
+        }
+      ],
+      "acceptance_criteria": [
+        "Битрейт снижается плавно без сброса соединения",
+        "RTCP REMB и TWCC обрабатываются корректно",
+        "Контрактный тест tests/unit/webrtc-bwe-congestion-982.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:20:22.303Z",
+      "updated_at": "2026-11-11T12:20:22.304Z"
     }
   ]
 }
