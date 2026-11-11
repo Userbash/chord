@@ -6241,7 +6241,7 @@
     {
       "id": "TASK-1001",
       "title": "Форумные каналы GUILD_FORUM и карточки постов",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Поддержка каналов типа 15 (GUILD_FORUM): сетка постов, теги форума, реакции и счетчики ответов.",
@@ -6274,7 +6274,7 @@
       "coding_instructions": "Файлы: rust/discord-gpui/src/channels/forum_view.rs, tests/unit/forum-channels-1001.test.mjs.\nОракул: re-deep/gateway-schema.json (CHANNEL_CREATE type 15).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
       "updated_at": "2026-11-11T12:47:04.189Z",
-      "progress": 10
+      "progress": 100
     },
     {
       "id": "TASK-1002",
@@ -6697,7 +6697,7 @@
     {
       "id": "TASK-1013",
       "title": "Интеграция со Spotify по D-Bus MPRIS (Listen Along)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Детект трека Spotify через D-Bus MPRIS, трансляция активности в статус и кнопка совместного прослушивания.",
@@ -6729,7 +6729,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/integrations/spotify_mpris.rs, tests/unit/spotify-mpris-presence-1013.test.mjs.\nОракул: D-Bus org.mpris.MediaPlayer2 spec + re-deep/gateway-schema.json (activity type 2).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1014",
