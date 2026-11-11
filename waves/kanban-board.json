@@ -6772,7 +6772,7 @@
     {
       "id": "TASK-1015",
       "title": "Автозапуск с системой (XDG Autostart & Start Minimized)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Генерация desktop-файла в ~/.config/autostart/, флаг --start-minimized и старт свёрнутым в системный трей.",
@@ -7180,7 +7180,7 @@
     {
       "id": "TASK-1005B",
       "title": "Интерактивный пикер эмодзи и векторных Lottie стикеров",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Попап 380x420px, категории, быстрый поиск и рендеринг анимированных Lottie JSON кадров.",
