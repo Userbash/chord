@@ -7106,7 +7106,7 @@
     {
       "id": "TASK-1004B",
       "title": "UI-карточка опроса PollCardView с анимированными шкалами",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Отрисовка карточки опроса в чате, анимированные шкалы результатов и бейдж победителя.",
@@ -7143,7 +7143,7 @@
     {
       "id": "TASK-1005A",
       "title": "Парсер <:name:id> и двухуровневый кэш эмодзи (ОЗУ LRU + диск)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Парсинг статических и GIF эмодзи, CDN загрузчик и кэширование в ~/.cache/discord-gpui/emojis/.",
@@ -7402,7 +7402,7 @@
     {
       "id": "TASK-1017A",
       "title": "Бинауральный HRTF фильтр 360-градусного панорамирования",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G5 Voice / Platform",
       "summary": "Расчет межушных задержек ITD и разности уровней ILD, FFT-свертка моно-сигнала в стерео.",
@@ -7439,7 +7439,7 @@
     {
       "id": "TASK-1017B",
       "title": "Интерактивный радар участников голосового канала SpatialRadar",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Круглый радар расстановки аватаров в пространстве с сохранением координат в SQLite.",
