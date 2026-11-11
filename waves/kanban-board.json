@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-11T12:38:37.836Z",
+  "updated_at": "2026-11-11T12:50:19.910Z",
   "columns": [
     {
       "id": "backlog",
@@ -4646,7 +4646,7 @@
       "id": "TASK-952",
       "title": "Сквозной интеграционный гейт T2/T3 в ветке testing (scripts/ci.sh & scripts/gate.mjs)",
       "department": "g4_qa",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P0",
       "summary": "Полный безоговорочный прогон всех уровней проверок конвейера в ветке testing: cargo fmt, clippy -D warnings, 391+ тестов, GPUI headless smoke, E2E journeys, SSIM visual regression и live-keyring.",
       "layout": {
@@ -4711,7 +4711,7 @@
       "column": "backlog",
       "dispatchId": "ctx_89047b1e920c",
       "terminal": "term_8be92274",
-      "updated_at": "2026-11-11T10:41:44.487Z"
+      "updated_at": "2026-11-11T12:49:25.068Z"
     },
     {
       "id": "TASK-953",
@@ -5937,7 +5937,7 @@
     {
       "id": "TASK-983",
       "title": "Интеграция ИИ-шумоподавления RNNoise / Krisp (SIMD AVX2 фильтр)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Фильтрация фонового шума клавиатуры и окружения в rust/discord-voice на базе RNNoise SIMD с обеспечением SNR > 15 dB и задержки < 5 мс.",
@@ -5968,7 +5968,8 @@
         "Контрактный тест tests/unit/voice-rnnoise-983.test.mjs green"
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
-      "updated_at": "2026-11-11T12:35:00.000Z"
+      "updated_at": "2026-11-11T12:50:19.909Z",
+      "assignee": "term_0cdacc18-8ab2-4f24-8ec6-dec43012e570"
     },
     {
       "id": "TASK-984",
@@ -6221,6 +6222,598 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-1001",
+      "title": "Форумные каналы GUILD_FORUM и карточки постов",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G2 Frontend",
+      "summary": "Поддержка каналов типа 15 (GUILD_FORUM): сетка постов, теги форума, реакции и счетчики ответов.",
+      "layout": {
+        "container": "Forum Grid",
+        "dimensions": "100% x 100%",
+        "padding": "16px",
+        "spacing": "12px"
+      },
+      "design_tokens": {
+        "background": "#313338",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "forum-post-card",
+          "default": "surface",
+          "hover": "border-accent",
+          "active": "opened"
+        }
+      ],
+      "acceptance_criteria": [
+        "Отображение тегов форума и фильтрация постов",
+        "Сетка постов с авторами и количеством ответов",
+        "Контрактный тест tests/unit/forum-channels-1001.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/channels/forum_view.rs, tests/unit/forum-channels-1001.test.mjs.\nОракул: re-deep/gateway-schema.json (CHANNEL_CREATE type 15).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1002",
+      "title": "Вложенные треды обсуждений PUBLIC_THREAD и автоархивация",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Создание и отображение тредов обсуждений (type 11), правая боковая панель треда и таймеры архивации.",
+      "layout": {
+        "container": "Thread Split View",
+        "dimensions": "360px sidebar",
+        "padding": "8px",
+        "spacing": "8px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "surface": "#1e1f22",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "thread-indicator",
+          "default": "link",
+          "hover": "underline",
+          "active": "open sidebar"
+        }
+      ],
+      "acceptance_criteria": [
+        "REST создание треда POST /channels/{id}/messages/{msg_id}/threads",
+        "Правая панель треда с независимым скроллом",
+        "Контрактный тест tests/unit/threads-lifecycle-1002.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/channels/threads.rs, tests/unit/threads-lifecycle-1002.test.mjs.\nОракул: re-deep/rest-d02.json (threads endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1003",
+      "title": "Голосовые сообщения с Waveform в чате (OGG Opus)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Запись голосовых заметок через cpal в OGG Opus, вычисление 256 байт waveform и интерактивный плеер.",
+      "layout": {
+        "container": "Audio Waveform Player",
+        "dimensions": "280px x 48px",
+        "padding": "8px",
+        "spacing": "6px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "surface": "#383a40",
+        "text_primary": "#ffffff",
+        "accent": "#23a55a",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "waveform-bar",
+          "default": "muted",
+          "hover": "highlight",
+          "active": "playing"
+        }
+      ],
+      "acceptance_criteria": [
+        "Кодирование 48kHz mono в OGG Opus 32 kbps",
+        "Генерация 256 байт base64 waveform и флаг IS_VOICE_MESSAGE (8192)",
+        "Контрактный тест tests/unit/voice-messages-waveform-1003.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/crates/discord-voice/src/voice_message.rs, rust/discord-gpui/src/chat/voice_message_player.rs, tests/unit/voice-messages-waveform-1003.test.mjs.\nОракул: re-deep/rest-d02.json (attachments flags 8192).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1004",
+      "title": "Интерактивные опросы в сообщениях (Polls & Voting)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Опросы в чате с вариантами ответов, дедлайном, мультивыбором и отображением прогресса голосования.",
+      "layout": {
+        "container": "Poll Card",
+        "dimensions": "100% x auto",
+        "padding": "12px",
+        "spacing": "8px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "surface": "#1e1f22",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "poll-option",
+          "default": "radio",
+          "hover": "hover bg",
+          "active": "voted"
+        }
+      ],
+      "acceptance_criteria": [
+        "Голосование через PUT /channels/{id}/polls/{msg_id}/answers/{answer_id}",
+        "Процентные индикаторы и счетчики голосов",
+        "Контрактный тест tests/unit/polls-voting-1004.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/chat/polls.rs, tests/unit/polls-voting-1004.test.mjs.\nОракул: re-deep/rest-d02.json (polls endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1005",
+      "title": "Серверные эмодзи и анимированные стикеры Lottie",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G2 Frontend",
+      "summary": "Поддержка кастомных эмодзи гильдий <:name:id>, анимированных GIF и стикеров формата Lottie JSON.",
+      "layout": {
+        "container": "Emoji & Sticker Grid",
+        "dimensions": "320px x 400px",
+        "padding": "8px",
+        "spacing": "4px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "surface": "#1e1f22",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "emoji-item",
+          "default": "normal",
+          "hover": "scale-110",
+          "active": "inserted"
+        }
+      ],
+      "acceptance_criteria": [
+        "Кэширование изображений на диске в ~/.cache/discord-gpui/emojis/",
+        "Рендеринг стикеров и анимированных эмодзи",
+        "Контрактный тест tests/unit/custom-emojis-stickers-1005.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/chat/custom_emojis.rs, tests/unit/custom-emojis-stickers-1005.test.mjs.\nОракул: re-deep/frontend-d03.json (emoji picker contracts).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1006",
+      "title": "Нативная проверка орфографии в поле ввода (hunspell / libenchant)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G1 Backend",
+      "summary": "Проверка орфографии через системную библиотеку hunspell/libenchant с подчёркиванием опечаток и подсказками.",
+      "layout": {
+        "container": "Text Input Context",
+        "dimensions": "100%",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#383a40",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#f23f43",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "misspelled-word",
+          "default": "red-wavy-underline",
+          "hover": "pointer",
+          "active": "open suggestions"
+        }
+      ],
+      "acceptance_criteria": [
+        "Дебаунс проверки 150 мс",
+        "Контекстное меню предложений при клике ПКМ",
+        "Контрактный тест tests/unit/spellchecker-native-1006.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/chat/spellchecker.rs, tests/unit/spellchecker-native-1006.test.mjs.\nОракул: libenchant-2 / libhunspell C FFI bindings.\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1007",
+      "title": "Иерархия ролей сервера и редактор битовой маски прав",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Управление ролями, drag-and-drop иерархии, выбор цвета и настройка 64-битного поля permissions.",
+      "layout": {
+        "container": "Roles Manager Dialog",
+        "dimensions": "720px x 540px",
+        "padding": "16px",
+        "spacing": "12px"
+      },
+      "design_tokens": {
+        "background": "#313338",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "role-item",
+          "default": "row",
+          "hover": "reorder icon",
+          "active": "selected role"
+        }
+      ],
+      "acceptance_criteria": [
+        "Drag-and-drop упорядочивание с отправкой PATCH /guilds/{id}/roles",
+        "Матрица прав доступа с валидацией наивысшей роли",
+        "Контрактный тест tests/unit/guild-roles-permissions-1007.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/guild/roles.rs, tests/unit/guild-roles-permissions-1007.test.mjs.\nОракул: re-deep/rest-d02.json (guild roles endpoints, permissions bitmask).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1008",
+      "title": "Журнал аудита сервера (Server Audit Log & REST API v9)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Просмотр журнала действий модераторов через GET /guilds/{id}/audit-logs с фильтрацией по типам событий и авторам.",
+      "layout": {
+        "container": "Audit Log Viewer",
+        "dimensions": "100% x 100%",
+        "padding": "16px",
+        "spacing": "8px"
+      },
+      "design_tokens": {
+        "background": "#313338",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "audit-entry",
+          "default": "entry row",
+          "hover": "expand diff",
+          "active": "expanded details"
+        }
+      ],
+      "acceptance_criteria": [
+        "Декодирование изменений changes (old_value, new_value)",
+        "Фильтрация по типу события и временному интервалу",
+        "Контрактный тест tests/unit/audit-log-viewer-1008.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/guild/audit_log.rs, tests/unit/audit-log-viewer-1008.test.mjs.\nОракул: re-deep/rest-d02.json (audit-logs endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1009",
+      "title": "Двухфакторная аутентификация TOTP 2FA и управление сессиями",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Модальное окно ввода 6 цифр TOTP при логине, просмотр списка активных сессий и принудительный разлогин.",
+      "layout": {
+        "container": "TOTP Modal",
+        "dimensions": "400px x 280px",
+        "padding": "20px",
+        "spacing": "12px"
+      },
+      "design_tokens": {
+        "background": "#313338",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "digit-box",
+          "default": "border",
+          "hover": "border-accent",
+          "active": "focused digit"
+        }
+      ],
+      "acceptance_criteria": [
+        "Автоматический перенос фокуса между 6 полями ввода цифр",
+        "Запрос активных сессий и завершение сессии по ID",
+        "Контрактный тест tests/unit/totp-sessions-1009.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/auth/totp_dialog.rs, tests/unit/totp-sessions-1009.test.mjs.\nОракул: re-deep/rest-d02.json (mfa/totp endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1010",
+      "title": "Автоматический перевод в AFK-канал при простое",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G5 Voice / Platform",
+      "summary": "Опрос системного времени бездействия (ScreenSaver / idle-notifier) и перевод в afk_channel_id при тайм-ауте.",
+      "layout": {
+        "container": "Voice State Service",
+        "dimensions": "background daemon",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#f0b232",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "afk-badge",
+          "default": "hidden",
+          "hover": "visible",
+          "active": "moved to afk"
+        }
+      ],
+      "acceptance_criteria": [
+        "Интеграция с D-Bus ScreenSaver / Wayland ext-idle-notifier-v1",
+        "Отправка Gateway Opcode 4 на смену канала при простое",
+        "Контрактный тест tests/unit/voice-afk-monitor-1010.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/voice/afk_monitor.rs, tests/unit/voice-afk-monitor-1010.test.mjs.\nОракул: re-deep/gateway-schema.json (Voice State Update Opcode 4).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1011",
+      "title": "Продвинутая WebRTC диагностика и RTC Internals (RE-GAP-22)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Окно графиков статистики звонка: RTT в реальном времени, задержка джиттер-буфера, потери пакетов и статус DAVE MLS.",
+      "layout": {
+        "container": "RTC Internals HUD",
+        "dimensions": "640px x 480px",
+        "padding": "16px",
+        "spacing": "10px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#23a55a",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "rtc-graph",
+          "default": "60fps graph",
+          "hover": "data point tooltip",
+          "active": "zoomed metric"
+        }
+      ],
+      "acceptance_criteria": [
+        "Сбор RTCP receiver/sender reports в реальном времени",
+        "Отрисовка кривых RTT, джиттера и битрейта на 60 FPS",
+        "Контрактный тест tests/unit/rtc-diagnostics-internals-1011.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/voice/rtc_diagnostics.rs, tests/unit/rtc-diagnostics-internals-1011.test.mjs.\nОракул: waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md.\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1012",
+      "title": "Серверная звуковая панель (Soundboard SFX)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Воспроизведение SFX эффектов с Voice Gateway Opcode 18 (SOUNDBOARD_SOUND) и микшированием в поток RTP Opus.",
+      "layout": {
+        "container": "Soundboard Grid",
+        "dimensions": "320px x 360px",
+        "padding": "8px",
+        "spacing": "6px"
+      },
+      "design_tokens": {
+        "background": "#2b2d31",
+        "surface": "#1e1f22",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "sound-button",
+          "default": "sfx tile",
+          "hover": "scale-105",
+          "active": "playing sfx"
+        }
+      ],
+      "acceptance_criteria": [
+        "Отправка Voice Opcode 18 и локальное кэширование звуков",
+        "Микширование в исходящий RTP поток без искажения речи",
+        "Контрактный тест tests/unit/soundboard-sfx-1012.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/crates/discord-voice/src/soundboard.rs, tests/unit/soundboard-sfx-1012.test.mjs.\nОракул: re-deep/voice-deep.md (Voice Opcode 18).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1013",
+      "title": "Интеграция со Spotify по D-Bus MPRIS (Listen Along)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G1 Backend",
+      "summary": "Детект трека Spotify через D-Bus MPRIS, трансляция активности в статус и кнопка совместного прослушивания.",
+      "layout": {
+        "container": "Spotify Activity Card",
+        "dimensions": "100% x auto",
+        "padding": "8px",
+        "spacing": "6px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#1db954",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "listen-along-btn",
+          "default": "spotify green",
+          "hover": "brighten",
+          "active": "sync playback"
+        }
+      ],
+      "acceptance_criteria": [
+        "Подписка на сигналы org.mpris.MediaPlayer2.spotify",
+        "Трансляция типа активности 2 (LISTENING) в шлюз",
+        "Контрактный тест tests/unit/spotify-mpris-presence-1013.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/integrations/spotify_mpris.rs, tests/unit/spotify-mpris-presence-1013.test.mjs.\nОракул: D-Bus org.mpris.MediaPlayer2 spec + re-deep/gateway-schema.json (activity type 2).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1014",
+      "title": "Режим Steam Deck & Gamepad UI",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G2 Frontend",
+      "summary": "Управление клиентом с геймпада через gilrs: навигация D-pad по каналам/серверам и экранная клавиатура SteamOS.",
+      "layout": {
+        "container": "Gamepad Navigation HUD",
+        "dimensions": "1280x800 handheld",
+        "padding": "16px",
+        "spacing": "12px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#5865f2"
+      },
+      "interactive_states": [
+        {
+          "element": "focused-item",
+          "default": "outline-accent",
+          "hover": "pulse focus",
+          "active": "activated"
+        }
+      ],
+      "acceptance_criteria": [
+        "Поддержка D-pad и бамперов L1/R1 для переключения серверов",
+        "Вызов клавиатуры SteamOS по D-Bus / хоткею",
+        "Контрактный тест tests/unit/steam-deck-gamepad-1014.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/input/gamepad.rs, tests/unit/steam-deck-gamepad-1014.test.mjs.\nОракул: docs/feature-backlog.md (R6-01 SteamOS).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1015",
+      "title": "Автозапуск с системой (XDG Autostart & Start Minimized)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "DevOps / Integration",
+      "summary": "Генерация desktop-файла в ~/.config/autostart/, флаг --start-minimized и старт свёрнутым в системный трей.",
+      "layout": {
+        "container": "Autostart Service",
+        "dimensions": "CLI & Config",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "autostart-toggle",
+          "default": "off",
+          "hover": "highlight toggle",
+          "active": "enabled"
+        }
+      ],
+      "acceptance_criteria": [
+        "Валидный desktop-файл по стандарту XDG Autostart",
+        "Запуск с флагом --start-minimized без открытия окна WGPU",
+        "Контрактный тест tests/unit/autostart-xdg-1015.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: rust/discord-gpui/src/platform/autostart.rs, tests/unit/autostart-xdg-1015.test.mjs.\nОракул: docs/feature-backlog.md (R4-04 Autostart).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
+    },
+    {
+      "id": "TASK-1016",
+      "title": "Сборки и пакеты для Windows (MSI/Portable) и macOS (DMG/Vibrancy)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "DevOps / Integration",
+      "summary": "WiX конфигурация для Windows MSI/Portable и macOS скрипт генерации DMG с размытием окна Vibrancy.",
+      "layout": {
+        "container": "Cross-OS Packaging",
+        "dimensions": "multi-platform",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "build-target",
+          "default": "linux",
+          "hover": "select os",
+          "active": "building win/mac"
+        }
+      ],
+      "acceptance_criteria": [
+        "Спецификация WiX Toolset packaging/windows/wix.xml",
+        "Скрипт packaging/macos/build-dmg.sh",
+        "Контрактный тест tests/unit/cross-platform-packaging-1016.test.mjs green"
+      ],
+      "coding_instructions": "Файлы: packaging/windows/wix.xml, packaging/macos/build-dmg.sh, tests/unit/cross-platform-packaging-1016.test.mjs.\nОракул: docs/feature-backlog.md (R6-03, R6-04).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
+      "created_at": "2026-11-11T12:47:04.189Z",
+      "updated_at": "2026-11-11T12:47:04.189Z"
     }
   ]
 }

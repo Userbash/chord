@@ -405,6 +405,9 @@ function exportHtml(board) {
 
       <div class="section-title">Критерии приёмки (DoD)</div>
       <div id="modalDod"></div>
+
+      <div class="section-title" id="modalInstructionsTitle">Инструкция по написанию кода (TDD & Оракулы)</div>
+      <div id="modalInstructions" style="background: #111214; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 12px; white-space: pre-wrap; color: #dbdee1; border: 1px solid #3f4147; margin-top: 6px; max-height: 240px; overflow-y: auto;"></div>
     </div>
   </div>
 
@@ -471,6 +474,19 @@ function exportHtml(board) {
       dodDiv.innerHTML = (card.acceptance_criteria && card.acceptance_criteria.length > 0) ? card.acceptance_criteria.map(d => \`
         <div class="dod-item"><span style="color: #23a55a;">✔</span> <span>\${d}</span></div>
       \`).join('') : '<div>100% покрытие контрактами</div>';
+
+      const instrTitle = document.getElementById('modalInstructionsTitle');
+      const instrDiv = document.getElementById('modalInstructions');
+      if (card.coding_instructions) {
+        instrTitle.style.display = 'block';
+        instrDiv.style.display = 'block';
+        instrDiv.textContent = typeof card.coding_instructions === 'string' 
+          ? card.coding_instructions 
+          : JSON.stringify(card.coding_instructions, null, 2);
+      } else {
+        instrTitle.style.display = 'none';
+        instrDiv.style.display = 'none';
+      }
 
       document.getElementById('cardModal').style.display = 'flex';
     }
