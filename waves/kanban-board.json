@@ -6355,7 +6355,7 @@
     {
       "id": "TASK-1004",
       "title": "Интерактивные опросы в сообщениях (Polls & Voting)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Опросы в чате с вариантами ответов, дедлайном, мультивыбором и отображением прогресса голосования.",
@@ -6735,7 +6735,7 @@
     {
       "id": "TASK-1014",
       "title": "Режим Steam Deck & Gamepad UI",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Управление клиентом с геймпада через gilrs: навигация D-pad по каналам/серверам и экранная клавиатура SteamOS.",
