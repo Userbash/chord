@@ -6659,7 +6659,7 @@
     {
       "id": "TASK-1012",
       "title": "Серверная звуковая панель (Soundboard SFX)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Воспроизведение SFX эффектов с Voice Gateway Opcode 18 (SOUNDBOARD_SOUND) и микшированием в поток RTP Opus.",
@@ -6735,7 +6735,7 @@
     {
       "id": "TASK-1014",
       "title": "Режим Steam Deck & Gamepad UI",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Управление клиентом с геймпада через gilrs: навигация D-pad по каналам/серверам и экранная клавиатура SteamOS.",
@@ -7069,7 +7069,7 @@
     {
       "id": "TASK-1004A",
       "title": "Модель опроса, REST эндпоинты голосования и расчет процентов",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Десериализация Poll, эндпоинты PUT /polls/{id}/answers/{id} и математика процентных шкал.",
@@ -7106,7 +7106,7 @@
     {
       "id": "TASK-1004B",
       "title": "UI-карточка опроса PollCardView с анимированными шкалами",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Отрисовка карточки опроса в чате, анимированные шкалы результатов и бейдж победителя.",
