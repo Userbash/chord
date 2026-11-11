@@ -6621,7 +6621,7 @@
     {
       "id": "TASK-1011",
       "title": "Продвинутая WebRTC диагностика и RTC Internals (RE-GAP-22)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Окно графиков статистики звонка: RTT в реальном времени, задержка джиттер-буфера, потери пакетов и статус DAVE MLS.",
@@ -6994,7 +6994,7 @@
     {
       "id": "TASK-1003A",
       "title": "Захват микрофона в OGG Opus и вычисление 256 Б Waveform",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Кодирование 48kHz mono в Opus 32 kbps и RMS-генерация 256 байт base64 формы волны.",
