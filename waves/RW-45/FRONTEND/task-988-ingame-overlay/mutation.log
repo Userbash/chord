@@ -1,0 +1,21 @@
+Original Rust MD5: a0e3e02fdb5abdf96f5035d0fea87d1a (rust/discord-gpui/src/ingame_overlay.rs)
+Original JS MD5: a1bf2c235d05174ee19a7a062721e8e1 (rust/gui-spike/ui/features/ingame-overlay.js)
+
+Rust Mutation Gate (5/5):
+M1-RUST-PASSTHROUGH-INVERT (Self::Hud => true -> false): KILLED
+M2-RUST-TOPLEFT-ORIGIN-SHIFT (OVERLAY_PADDING_PX: 16 -> 64): KILLED
+M3-RUST-BUBBLE-HOVER-STATE (Self::Hover => "opaque" -> "semi-transparent"): KILLED
+M4-RUST-SCANCODE-GUARD-BYPASS (is_forbidden_linux_single_scancode -> false): KILLED
+M5-RUST-TOPLEVEL-DONE-BYPASS (self.committed.insert(...) -> let _ = state;): KILLED
+Rust Verdict: 5/5 mutations killed PASS (killRate = 1.0)
+
+JS Mutation Gate (5/5):
+M1-JS-PASSTHROUGH-INVERT (inputPassthrough = false): KILLED
+M2-JS-TOPLEFT-PADDING-SHIFT (OVERLAY_PADDING_PX = 64): KILLED
+M3-JS-BUBBLE-HOVER-STATE (hover: "semi-transparent"): KILLED
+M4-JS-SCANCODE-BYPASS (LINUX_FORBIDDEN_SINGLE_SCANCODES bypass): KILLED
+M5-JS-TOPLEVEL-DONE-BYPASS (committedToplevels.set skipped): KILLED
+JS Verdict: 5/5 mutations killed PASS (killRate = 1.0)
+
+Restored Rust MD5: a0e3e02fdb5abdf96f5035d0fea87d1a (match=true)
+Restored JS MD5: a1bf2c235d05174ee19a7a062721e8e1 (match=true)

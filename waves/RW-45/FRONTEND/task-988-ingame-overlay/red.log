@@ -1,0 +1,110 @@
+▶ TASK-988: Глобальные хоткеи и Wayland In-Game Overlay (ingame_overlay.rs + ingame-overlay.js)
+  ✖ SUB-988-0: модули rust/discord-gpui/src/ingame_overlay.rs и rust/gui-spike/ui/features/ingame-overlay.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений (0.770805ms)
+  ✖ SUB-988-1: сверяет дизайн-токены, состояния overlay-chat-bubble, протокол ext-foreign-toplevel-list-v1 и IPC/NAPI контракты с независимыми оракулами репозитория (0.252232ms)
+  ✖ SUB-988-2: обеспечивает прозрачный клик-сквозь (input passthrough) в режиме HUD, переходы overlay-chat-bubble и глобальные хоткеи с защитой скан-кодов Linux (0.239473ms)
+  ✖ SUB-988-3: отображает говорящих участников в верхнем левом углу (16px padding, 8px spacing) и отслеживает полноэкранные игры через ext-foreign-toplevel-list-v1 (0.215836ms)
+  ✖ SUB-988-4: проверяет все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake/2000 символов/25 МБ/offset=9975/0..200%/99+, ошибки 401..5xx, права, fallback и маскирование секретов) (0.150763ms)
+  ✖ SUB-988-5: проходит мутационный гейт 5/5 (100% kill rate) для Rust и JS реализаций по контракту scripts/quality-gate.mjs (0.132346ms)
+✖ TASK-988: Глобальные хоткеи и Wayland In-Game Overlay (ingame_overlay.rs + ingame-overlay.js) (2.805851ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 0
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.752031
+
+✖ failing tests:
+
+test at tests/unit/ingame-overlay-988.test.mjs:120:3
+✖ SUB-988-0: модули rust/discord-gpui/src/ingame_overlay.rs и rust/gui-spike/ui/features/ingame-overlay.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений (0.770805ms)
+  AssertionError [ERR_ASSERTION]: Модуль rust/discord-gpui/src/ingame_overlay.rs должен существовать
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs:121:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/ingame-overlay-988.test.mjs:191:3
+✖ SUB-988-1: сверяет дизайн-токены, состояния overlay-chat-bubble, протокол ext-foreign-toplevel-list-v1 и IPC/NAPI контракты с независимыми оракулами репозитория (0.252232ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs:192:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/ingame-overlay-988.test.mjs:322:3
+✖ SUB-988-2: обеспечивает прозрачный клик-сквозь (input passthrough) в режиме HUD, переходы overlay-chat-bubble и глобальные хоткеи с защитой скан-кодов Linux (0.239473ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs:323:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/ingame-overlay-988.test.mjs:423:3
+✖ SUB-988-3: отображает говорящих участников в верхнем левом углу (16px padding, 8px spacing) и отслеживает полноэкранные игры через ext-foreign-toplevel-list-v1 (0.215836ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs:424:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/ingame-overlay-988.test.mjs:547:3
+✖ SUB-988-4: проверяет все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake/2000 символов/25 МБ/offset=9975/0..200%/99+, ошибки 401..5xx, права, fallback и маскирование секретов) (0.150763ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs:548:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/ingame-overlay-988.test.mjs:585:3
+✖ SUB-988-5: проходит мутационный гейт 5/5 (100% kill rate) для Rust и JS реализаций по контракту scripts/quality-gate.mjs (0.132346ms)
+  AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs:586:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,16 @@
+▶ TASK-988: Глобальные хоткеи и Wayland In-Game Overlay (ingame_overlay.rs + ingame-overlay.js)
+  ✔ SUB-988-0: модули rust/discord-gpui/src/ingame_overlay.rs и rust/gui-spike/ui/features/ingame-overlay.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений (122.862701ms)
+  ✔ SUB-988-1: сверяет дизайн-токены, состояния overlay-chat-bubble, протокол ext-foreign-toplevel-list-v1 и IPC/NAPI контракты с независимыми оракулами репозитория (7.10895ms)
+  ✔ SUB-988-2: обеспечивает прозрачный клик-сквозь (input passthrough) в режиме HUD, переходы overlay-chat-bubble и глобальные хоткеи с защитой скан-кодов Linux (1.291047ms)
+  ✔ SUB-988-3: отображает говорящих участников в верхнем левом углу (16px padding, 8px spacing) и отслеживает полноэкранные игры через ext-foreign-toplevel-list-v1 (5.811443ms)
+  ✔ SUB-988-4: проверяет все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake/2000 символов/25 МБ/offset=9975/0..200%/99+, ошибки 401..5xx, права, fallback и маскирование секретов) (1.284988ms)
+  ✔ SUB-988-5: проходит мутационный гейт 5/5 (100% kill rate) для Rust и JS реализаций по контракту scripts/quality-gate.mjs (560.021407ms)
+✔ TASK-988: Глобальные хоткеи и Wayland In-Game Overlay (ingame_overlay.rs + ingame-overlay.js) (701.048605ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 743.57903
