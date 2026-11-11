@@ -6279,7 +6279,7 @@
     {
       "id": "TASK-1002",
       "title": "Вложенные треды обсуждений PUBLIC_THREAD и автоархивация",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Создание и отображение тредов обсуждений (type 11), правая боковая панель треда и таймеры архивации.",
@@ -6846,7 +6846,7 @@
     {
       "id": "TASK-1001A",
       "title": "Парсер Gateway type: 15 (GUILD_FORUM) и REST /threads/active",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Парсинг available_tags, default_sort_order, пагинация активных постов через REST GET /channels/{id}/threads/active.",

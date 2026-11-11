@@ -1,0 +1,16 @@
+▶ TASK-1002: Вложенные треды обсуждений PUBLIC_THREAD / PRIVATE_THREAD и автоархивация (rust/discord-gpui/src/channels/threads.rs)
+  ✔ SUB-1002-0: модуль rust/discord-gpui/src/channels/threads.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений (152.626379ms)
+  ✔ SUB-1002-1: сверяет карточку TASK-1002, дизайн-токены, геометрию Thread Split View (360px sidebar, padding 8px, spacing 8px), маршруты REST и модули RE-дампа с независимыми оракулами (17.525393ms)
+  ✔ SUB-1002-2: создаёт треды типов 11 (PUBLIC_THREAD) и 12 (PRIVATE_THREAD), формирует REST-запрос POST /channels/{id}/messages/{msg_id}/threads, проверяет права и синхронизирует участников THREAD_MEMBERS_UPDATE (1.324012ms)
+  ✔ SUB-1002-3: обеспечивает независимый скролл боковой панели треда (360px sidebar) от основного чата и обрабатывает таймеры автоархивации (60/1440/4320/10080 мин) с защитой locked-тредов (1.226362ms)
+  ✔ SUB-1002-4: покрывает все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake 0/u64::MAX, 59/60..10079/10080 мин, 100 символов имени, 2000 символов, 10 файлов/25 МБ, offset=9975, громкость 0..200%, бейдж 99+, коды 400/401/403/404/413/429/5xx, skeleton/202, права, THREAD_LIST_SYNC и маскирование секретов) (1.177371ms)
+  ✔ SUB-1002-5: убивает 5/5 контрольных мутаций модуля threads.rs (100% mutation kill rate) (642.391356ms)
+✔ TASK-1002: Вложенные треды обсуждений PUBLIC_THREAD / PRIVATE_THREAD и автоархивация (rust/discord-gpui/src/channels/threads.rs) (819.106496ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 860.53129
