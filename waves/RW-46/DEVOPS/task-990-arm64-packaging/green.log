@@ -1,0 +1,15 @@
+▶ TASK-990: Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)
+  ✔ SUB-990-1: скрипт scripts/build-arm64.sh и конфигурация Cargo для aarch64-unknown-linux-gnu валидны и поддерживают профили generic, rpi5, asahi (30.160131ms)
+  ✔ SUB-990-2: генерирует валидный 64-битный ELF aarch64 (EM_AARCH64=183, 16K page alignment, Full RELRO, stripped) по оракулам readelf и file (6.49014ms)
+  ✔ SUB-990-3: собирает и верифицирует ARM64 пакеты .tar.gz, .deb (Architecture: arm64) и Type 2 .AppImage (EM_AARCH64) (16.285223ms)
+  ✔ SUB-990-4: контрольные суммы всех ARM64 артефактов записаны в rust/dist/SHA256SUMS и проходят sha256sum -c и --verify (165.518802ms)
+  ✔ SUB-990-5: проверяет изолированную сборку профилей rpi5/asahi, негативные/граничные сценарии CLI (коды 0/1/2), повреждение артефактов и маскирование секретов (372.004354ms)
+✔ TASK-990: Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi) (591.515313ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 629.269979

@@ -1,0 +1,111 @@
+▶ TASK-990: Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)
+  ✖ SUB-990-1: скрипт scripts/build-arm64.sh и конфигурация Cargo для aarch64-unknown-linux-gnu валидны и поддерживают профили generic, rpi5, asahi (0.725472ms)
+  ✖ SUB-990-2: генерирует валидный 64-битный ELF aarch64 (EM_AARCH64=183, 16K page alignment, Full RELRO, stripped) по оракулам readelf и file (0.180056ms)
+  ✖ SUB-990-3: собирает и верифицирует ARM64 пакеты .tar.gz, .deb (Architecture: arm64) и Type 2 .AppImage (EM_AARCH64) (1.189881ms)
+  ✖ SUB-990-4: контрольные суммы всех ARM64 артефактов записаны в rust/dist/SHA256SUMS и проходят sha256sum -c и --verify (0.301003ms)
+  ✖ SUB-990-5: проверяет изолированную сборку профилей rpi5/asahi, негативные/граничные сценарии CLI (коды 0/1/2), повреждение артефактов и маскирование секретов (2.215306ms)
+✖ TASK-990: Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi) (5.375919ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.873444
+
+✖ failing tests:
+
+test at tests/unit/arm64-packaging-990.test.mjs:181:3
+✖ SUB-990-1: скрипт scripts/build-arm64.sh и конфигурация Cargo для aarch64-unknown-linux-gnu валидны и поддерживают профили generic, rpi5, asahi (0.725472ms)
+  AssertionError [ERR_ASSERTION]: Скрипт сборки ARM64 должен существовать: /home/sanya/orca/project/scripts/build-arm64.sh
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/arm64-packaging-990.test.mjs:182:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/arm64-packaging-990.test.mjs:245:3
+✖ SUB-990-2: генерирует валидный 64-битный ELF aarch64 (EM_AARCH64=183, 16K page alignment, Full RELRO, stripped) по оракулам readelf и file (0.180056ms)
+  AssertionError [ERR_ASSERTION]: Бинарник ARM64 должен существовать: /home/sanya/orca/project/rust/dist/discord-gpui-aarch64
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/arm64-packaging-990.test.mjs:246:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/arm64-packaging-990.test.mjs:322:3
+✖ SUB-990-3: собирает и верифицирует ARM64 пакеты .tar.gz, .deb (Architecture: arm64) и Type 2 .AppImage (EM_AARCH64) (1.189881ms)
+  AssertionError [ERR_ASSERTION]: Архив .tar.gz должен существовать: /home/sanya/orca/project/rust/dist/discord-gpui-v1.0.0-beta.1-linux-aarch64.tar.gz
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/arm64-packaging-990.test.mjs:329:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/arm64-packaging-990.test.mjs:511:3
+✖ SUB-990-4: контрольные суммы всех ARM64 артефактов записаны в rust/dist/SHA256SUMS и проходят sha256sum -c и --verify (0.301003ms)
+  AssertionError [ERR_ASSERTION]: В rust/dist/SHA256SUMS должна присутствовать запись для discord-gpui-aarch64
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/arm64-packaging-990.test.mjs:524:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/arm64-packaging-990.test.mjs:584:3
+✖ SUB-990-5: проверяет изолированную сборку профилей rpi5/asahi, негативные/граничные сценарии CLI (коды 0/1/2), повреждение артефактов и маскирование секретов (2.215306ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  127 !== 0
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/arm64-packaging-990.test.mjs:592:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 127,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

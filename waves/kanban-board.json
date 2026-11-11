@@ -6204,7 +6204,7 @@
     {
       "id": "TASK-990",
       "title": "Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Конфигурация кросс-сборки cargo для aarch64-unknown-linux-gnu, генерация ARM64 deb, tar.gz и AppImage артефактов.",
@@ -6236,7 +6236,7 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T12:35:00.000Z",
-      "progress": 10
+      "progress": 100
     },
     {
       "id": "TASK-1001",
@@ -6317,7 +6317,7 @@
     {
       "id": "TASK-1003",
       "title": "Голосовые сообщения с Waveform в чате (OGG Opus)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Запись голосовых заметок через cpal в OGG Opus, вычисление 256 байт waveform и интерактивный плеер.",
@@ -6350,7 +6350,7 @@
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/voice_message.rs, rust/discord-gpui/src/chat/voice_message_player.rs, tests/unit/voice-messages-waveform-1003.test.mjs.\nОракул: re-deep/rest-d02.json (attachments flags 8192).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
       "updated_at": "2026-11-11T12:47:04.189Z",
-      "progress": 10
+      "progress": 100
     },
     {
       "id": "TASK-1004",
@@ -6393,7 +6393,7 @@
     {
       "id": "TASK-1005",
       "title": "Серверные эмодзи и анимированные стикеры Lottie",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Поддержка кастомных эмодзи гильдий <:name:id>, анимированных GIF и стикеров формата Lottie JSON.",
@@ -6426,7 +6426,7 @@
       "coding_instructions": "Файлы: rust/discord-gpui/src/chat/custom_emojis.rs, tests/unit/custom-emojis-stickers-1005.test.mjs.\nОракул: re-deep/frontend-d03.json (emoji picker contracts).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
       "updated_at": "2026-11-11T12:47:04.189Z",
-      "progress": 10
+      "progress": 100
     },
     {
       "id": "TASK-1006",
@@ -6583,7 +6583,7 @@
     {
       "id": "TASK-1010",
       "title": "Автоматический перевод в AFK-канал при простое",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G5 Voice / Platform",
       "summary": "Опрос системного времени бездействия (ScreenSaver / idle-notifier) и перевод в afk_channel_id при тайм-ауте.",
@@ -6615,12 +6615,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/afk_monitor.rs, tests/unit/voice-afk-monitor-1010.test.mjs.\nОракул: re-deep/gateway-schema.json (Voice State Update Opcode 4).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1011",
       "title": "Продвинутая WebRTC диагностика и RTC Internals (RE-GAP-22)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Окно графиков статистики звонка: RTT в реальном времени, задержка джиттер-буфера, потери пакетов и статус DAVE MLS.",
@@ -6652,12 +6653,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/rtc_diagnostics.rs, tests/unit/rtc-diagnostics-internals-1011.test.mjs.\nОракул: waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md.\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1012",
       "title": "Серверная звуковая панель (Soundboard SFX)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Воспроизведение SFX эффектов с Voice Gateway Opcode 18 (SOUNDBOARD_SOUND) и микшированием в поток RTP Opus.",
@@ -6689,7 +6691,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/soundboard.rs, tests/unit/soundboard-sfx-1012.test.mjs.\nОракул: re-deep/voice-deep.md (Voice Opcode 18).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1013",

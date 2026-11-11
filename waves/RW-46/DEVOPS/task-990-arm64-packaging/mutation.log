@@ -1,0 +1,7 @@
+[KILLED] M1: Искажение target-cpu для профиля rpi5 (cortex-a76 -> cortex-a53) (exit=1)
+[KILLED] M2: Искажение константы архитектуры EM_AARCH64 в валидаторе (183 -> 62) (exit=1)
+[KILLED] M3: Уменьшение размера страницы памяти в конфигурации Cargo (16384 -> 4096) (exit=1)
+[KILLED] M4: Искажение магической сигнатуры Type 2 AppImage (AI\x02 -> AI\x01) (exit=1)
+[KILLED] M5: Отключение маскирования Discord MFA токенов в отчётах (exit=1)
+Summary: 5/5 mutations killed (100% kill rate)
+MD5 before: cbeb21916d347f77657b26c714fa7c22, MD5 after: cbeb21916d347f77657b26c714fa7c22
