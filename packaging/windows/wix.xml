@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Спецификация установщика Windows MSI и переносимой сборки Portable на базе WiX Toolset (TASK-1016 / TASK-1016A).
+  Оракул фич: docs/feature-backlog.md (R6-03 Windows-специфика: appBadge.ts, constants.ts,
+    оверлей-иконки бейджей в таскбаре 1..99 и 99+, portable-режим с хранением данных в ./data/
+    рядом с discord-gpui.exe без записи в %APPDATA% и реестр, хоткеи выхода Alt+F4 и Ctrl+Q).
+  Оракул RE: /home/sanya/re-deep/main-arch.md (@21000 setAppUserModelId, @21998 discord://, @24154 disclip://),
+    /home/sanya/re-deep/backend-ipc.json (DISCORD_APP_BADGE_SET, DISCORD_THUMBAR_BUTTONS_UPDATE,
+    DISCORD_WINDOW_SET_PROGRESS_BAR).
+  Контрольные суммы синхронизированы с rust/dist/SHA256SUMS.
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="{8D4A1016-5865-4F20-9A63-1E1F222B2D31}"
+           Name="Discord GPUI"
+           Language="1033"
+           Codepage="65001"
+           Version="1.0.0.0"
+           Manufacturer="Discord Lab"
+           UpgradeCode="{D15C08D4-1016-4603-8A58-65F21E1F2200}">
+
+    <Package InstallerVersion="500"
+             Compressed="yes"
+             InstallScope="perUser"
+             InstallPrivileges="limited"
+             Platform="x64"
+             SummaryCodepage="65001"
+             Description="Native Rust GPUI Discord Client for Windows (WGPU 120 FPS, DAVE MLS v1, WASAPI Loopback)"
+             Comments="TASK-1016 Windows MSI and Portable Package Specification (R6-03)" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+                  Schedule="afterInstallInitialize"
+                  AllowSameVersionUpgrades="yes" />
+
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!-- Оракулы R6-03, RE-дампа и дизайн-токенов Kanban (TASK-1016 / TASK-1016A) -->
+    <Property Id="APP_USER_MODEL_ID" Value="com.discord_lab.DiscordGpui" />
+    <Property Id="PORTABLE_MODE" Value="0" />
+    <Property Id="PORTABLE_DATA_DIR" Value="data" />
+    <Property Id="TASKBAR_OVERLAY_BADGE" Value="ITaskbarList3::SetOverlayIcon (0..99, 99+)" />
+    <Property Id="IPC_BADGE_CHANNELS" Value="DISCORD_APP_BADGE_SET;DISCORD_THUMBAR_BUTTONS_UPDATE;DISCORD_WINDOW_SET_PROGRESS_BAR" />
+    <Property Id="WINDOWS_EXIT_HOTKEYS" Value="Alt+F4;Ctrl+Q" />
+    <Property Id="WASAPI_LOOPBACK_MIN_BUILD" Value="19045" />
+    <Property Id="BINARY_SHA256" Value="d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e" />
+    <Property Id="SBOM_SHA256" Value="acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921" />
+    <Property Id="TOKEN_BG" Value="#1e1f22" />
+    <Property Id="TOKEN_SURFACE" Value="#2b2d31" />
+    <Property Id="TOKEN_TEXT_PRIMARY" Value="#ffffff" />
+    <Property Id="TOKEN_ACCENT" Value="#5865f2" />
+    <Property Id="TOKEN_BORDER" Value="#3f4147" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/discord-lab/discord-gpui" />
+    <Property Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" />
+
+    <Icon Id="DiscordGpuiIcon.ico" SourceFile="..\..\rust\dist\discord-gpui.ico" />
+    <Property Id="ARPPRODUCTICON" Value="DiscordGpuiIcon.ico" />
+
+    <!-- Иерархия директорий установки (Per-User %LOCALAPPDATA%\Programs\DiscordGPUI и Portable ./data/) -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="ProgramsFolder" Name="Programs">
+          <Directory Id="INSTALLFOLDER" Name="DiscordGPUI">
+            <Directory Id="PortableDataDir" Name="data" />
+            <Directory Id="TaskbarBadgesDir" Name="badges" />
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Discord GPUI" />
+      </Directory>
+    </Directory>
+
+    <!-- Компоненты установки MSI и изолированного режима Portable -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="MainExecutableComponent"
+                 Guid="{A1016001-5865-4F20-9A01-1E1F222B2D31}"
+                 Win64="yes">
+        <File Id="DiscordGpuiExe"
+              Name="discord-gpui.exe"
+              Source="..\..\rust\dist\discord-gpui"
+              KeyPath="yes"
+              Checksum="yes" />
+        <File Id="SbomSpdxJson"
+              Name="sbom.spdx.json"
+              Source="..\..\rust\dist\sbom.spdx.json" />
+      </Component>
+
+      <!-- Изолированный Portable-режим (R6-03): хранит все данные в ./data/ рядом с .exe,
+           не пишет в %APPDATA% / %LOCALAPPDATA% и не создаёт ключей в реестре Windows -->
+      <Component Id="PortableModeComponent"
+                 Guid="{A1016004-5865-4F20-9A04-1E1F222B2D31}"
+                 Win64="yes">
+        <Condition>PORTABLE_MODE = "1"</Condition>
+        <CreateFolder Directory="PortableDataDir" />
+        <Environment Id="PortableFlagEnv"
+                     Name="DISCORD_GPUI_PORTABLE"
+                     Value="1"
+                     Permanent="no"
+                     Part="all"
+                     Action="set"
+                     System="no" />
+        <Environment Id="PortableDataDirEnv"
+                     Name="DISCORD_GPUI_DATA_DIR"
+                     Value="[INSTALLFOLDER]data"
+                     Permanent="no"
+                     Part="all"
+                     Action="set"
+                     System="no" />
+      </Component>
+
+      <!-- Регистрация URI-протоколов discord:// и disclip:// (отключена в Portable-режиме) -->
+      <Component Id="ProtocolHandlerComponent"
+                 Guid="{A1016003-5865-4F20-9A03-1E1F222B2D31}"
+                 Win64="yes">
+        <Condition>PORTABLE_MODE = "0"</Condition>
+        <RegistryKey Root="HKCU" Key="Software\Classes\discord">
+          <RegistryValue Type="string" Value="URL:Discord Protocol" KeyPath="yes" />
+          <RegistryValue Type="string" Name="URL Protocol" Value="" />
+          <RegistryKey Key="DefaultIcon">
+            <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]discord-gpui.exe&quot;,0" />
+          </RegistryKey>
+          <RegistryKey Key="shell\open\command">
+            <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]discord-gpui.exe&quot; --url &quot;%1&quot;" />
+          </RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\disclip">
+          <RegistryValue Type="string" Value="URL:Discord Clip Protocol" />
+          <RegistryValue Type="string" Name="URL Protocol" Value="" />
+          <RegistryKey Key="shell\open\command">
+            <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]discord-gpui.exe&quot; --url &quot;%1&quot;" />
+          </RegistryKey>
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Ресурсы оверлей-иконок бейджей таскбара Windows (1..9, 9+, 99+, dot) для ITaskbarList3::SetOverlayIcon -->
+    <DirectoryRef Id="TaskbarBadgesDir">
+      <Component Id="TaskbarOverlayBadgesComponent"
+                 Guid="{A1016005-5865-4F20-9A05-1E1F222B2D31}"
+                 Win64="yes">
+        <CreateFolder Directory="TaskbarBadgesDir" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Ярлык меню Пуск с привязкой System.AppUserModel.ID для WinRT Toast и таскбар-бейджей (только для MSI) -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcutComponent"
+                 Guid="{A1016002-5865-4F20-9A02-1E1F222B2D31}"
+                 Win64="yes">
+        <Condition>PORTABLE_MODE = "0"</Condition>
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Discord GPUI"
+                  Description="Native Rust GPUI Discord Client (120 FPS WGPU)"
+                  Target="[INSTALLFOLDER]discord-gpui.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="DiscordGpuiIcon.ico">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="com.discord_lab.DiscordGpui" />
+        </Shortcut>
+        <RemoveFolder Id="CleanUpShortCutDir" Directory="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\DiscordLab\DiscordGPUI"
+                       Name="StartMenuShortcutInstalled"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="ProductFeature" Title="Discord GPUI Desktop Client" Level="1">
+      <ComponentRef Id="MainExecutableComponent" />
+      <ComponentRef Id="TaskbarOverlayBadgesComponent" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+      <ComponentRef Id="ProtocolHandlerComponent" />
+      <ComponentRef Id="PortableModeComponent" />
+    </Feature>
+  </Product>
+</Wix>

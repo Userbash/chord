@@ -6809,7 +6809,7 @@
     {
       "id": "TASK-1016",
       "title": "Сборки и пакеты для Windows (MSI/Portable) и macOS (DMG/Vibrancy)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "WiX конфигурация для Windows MSI/Portable и macOS скрипт генерации DMG с размытием окна Vibrancy.",
@@ -7180,7 +7180,7 @@
     {
       "id": "TASK-1005B",
       "title": "Интерактивный пикер эмодзи и векторных Lottie стикеров",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Попап 380x420px, категории, быстрый поиск и рендеринг анимированных Lottie JSON кадров.",
@@ -7328,7 +7328,7 @@
     {
       "id": "TASK-1012B",
       "title": "Линейный микшер SFX эффектов в поток микрофона с софт-лимитером",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Сложение сэмплов голоса и SFX с софт-клиппингом tanh() без перегрузки звукового тракта.",
@@ -7365,7 +7365,7 @@
     {
       "id": "TASK-1012C",
       "title": "Сетка кнопок саундборда SoundboardGridView и хоткеи",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Интерфейс панели звуковых эффектов, анимация нажатия и регулировка громкости SFX.",
