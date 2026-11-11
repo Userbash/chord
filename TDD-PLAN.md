@@ -589,6 +589,12 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/voice-recorder-1003a.test.mjs` | — | — |
 | `tests/unit/voice-rnnoise-983.test.mjs` | — | — |
 | `tests/unit/webrtc-bwe-congestion-982.test.mjs` | — | — |
+| `tests/unit/soundboard-mixer-1012b.test.mjs` | — | — |
+| `tests/unit/soundboard-protocol-1012a.test.mjs` | — | — |
+| `tests/unit/soundboard-view-1012c.test.mjs` | — | — |
+| `tests/unit/spatial-audio-filter-1017a.test.mjs` | — | — |
+| `tests/unit/rtc-metrics-1011a.test.mjs` | — | — |
+| `tests/unit/spatial-radar-1017b.test.mjs` | — | — |
 
 Цикл для новой функциональности (рецепт):
 

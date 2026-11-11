@@ -7031,7 +7031,7 @@
     {
       "id": "TASK-1003B",
       "title": "Интерактивный плеер VoiceMessagePlayer с переключением 1x/1.5x/2x",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Отрисовка полосок волны, прогресс воспроизведения, перемотка кликом и кнопка скорости.",
@@ -7064,7 +7064,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/chat/voice_player.rs, tests/unit/voice-player-1003b.test.mjs.\nОракул: re-deep/ui7/.\nПлан: 1. Red-тест 2. GPUI шейдер/холст волны 3. Перемотка 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1004A",
@@ -7217,7 +7218,7 @@
     {
       "id": "TASK-1006A",
       "title": "FFI биндинг libenchant-2 / hunspell и словарь подсказок",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Интеграция с системным словарем Linux, метод check_word() и генерация до 5 подсказок замены.",
@@ -7249,12 +7250,13 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/spellcheck.rs, tests/unit/spellcheck-ffi-1006a.test.mjs.\nОракул: /usr/share/hunspell/.\nПлан: 1. Red-тест 2. FFI связка 3. Suggestion эвристика 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1006B",
       "title": "Рендеринг волнистых опечаток и контекстное меню замены в чате",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Красная волнистая линия #f23f43 в TextView и всплывающее меню вариантов при клике ПКМ.",
@@ -7286,12 +7288,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/chat/input_spellcheck.rs, tests/unit/input-spellcheck-1006b.test.mjs.\nОракул: re-deep/frontend-d03.json.\nПлан: 1. Red-тест 2. GPUI волнистая линия 3. Меню ПКМ 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1012A",
       "title": "Voice Gateway Opcode 18 (SOUNDBOARD_SOUND) и кэш аудиосэмплов",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Отправка Voice Opcode 18, прием Opcode 19 (SPEAKING soundboard) и кэш сэмплов 48kHz stereo.",
@@ -7323,12 +7326,13 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/soundboard_protocol.rs, tests/unit/soundboard-protocol-1012a.test.mjs.\nОракул: re-deep/voice-deep.md (Opcode 18).\nПлан: 1. Red-тест 2. WS протокол 3. Кэш сэмплов 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1012B",
       "title": "Линейный микшер SFX эффектов в поток микрофона с софт-лимитером",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Сложение сэмплов голоса и SFX с софт-клиппингом tanh() без перегрузки звукового тракта.",
@@ -7360,12 +7364,13 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/soundboard_mixer.rs, tests/unit/soundboard-mixer-1012b.test.mjs.\nОракул: RFC 3550 RTP Opus.\nПлан: 1. Red-тест 2. Алгоритм микширования 3. Софт-лимитер 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1012C",
       "title": "Сетка кнопок саундборда SoundboardGridView и хоткеи",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Интерфейс панели звуковых эффектов, анимация нажатия и регулировка громкости SFX.",
@@ -7397,12 +7402,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/soundboard_view.rs, tests/unit/soundboard-view-1012c.test.mjs.\nОракул: re-deep/voice/ui7/.\nПлан: 1. Red-тест 2. GPUI сетка 3. Хоткеи 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1017A",
       "title": "Бинауральный HRTF фильтр 360-градусного панорамирования",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G5 Voice / Platform",
       "summary": "Расчет межушных задержек ITD и разности уровней ILD, FFT-свертка моно-сигнала в стерео.",
@@ -7434,7 +7440,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/spatial_audio.rs, tests/unit/spatial-audio-filter-1017a.test.mjs.\nОракул: KEMAR HRTF dataset.\nПлан: 1. Red-тест 2. ITD/ILD формулы 3. FFT свертка 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1017B",
