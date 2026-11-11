@@ -1,0 +1,6 @@
+KILLED: M1 (runtime-version -> 22.08)
+KILLED: M2 (remove --socket=wayland)
+KILLED: M3 (replace --socket=fallback-x11 with --socket=x11)
+KILLED: M4 (remove --filesystem=xdg-run/pipewire-0)
+KILLED: M5 (remove --talk-name=org.freedesktop.secrets)
+Mutations killed: 5/5, MD5 restored: true (897e1179c36a5ed4c3e78833bb77f5cf)

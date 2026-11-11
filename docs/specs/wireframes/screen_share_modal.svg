@@ -1,0 +1,31 @@
+<svg width="600" height="420" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="420" rx="12" fill="#313338" stroke="#3f4147" stroke-width="1"/>
+  <!-- Modal Header -->
+  <text x="32" y="44" fill="#ffffff" font-size="20" font-weight="bold" font-family="sans-serif">Демонстрация экрана</text>
+  <text x="32" y="68" fill="#949ba4" font-size="13" font-family="sans-serif">Выберите монитор или окно приложения для трансляции через PipeWire</text>
+  <!-- Tabs: Screens / Applications -->
+  <rect x="32" y="92" width="120" height="32" rx="4" fill="#3f4147"/>
+  <text x="92" y="113" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle" font-family="sans-serif">Экраны (1)</text>
+  <text x="200" y="113" fill="#949ba4" font-size="13" font-weight="bold" text-anchor="middle" font-family="sans-serif">Приложения (4)</text>
+
+  <!-- Screen 1 Card (Selected) -->
+  <rect x="32" y="140" width="250" height="150" rx="8" fill="#2b2d31" stroke="#5865f2" stroke-width="2"/>
+  <rect x="42" y="150" width="230" height="100" rx="4" fill="#1e1f22"/>
+  <text x="157" y="205" fill="#5865f2" font-size="24" text-anchor="middle" font-family="sans-serif">🖥️</text>
+  <text x="42" y="274" fill="#ffffff" font-size="13" font-weight="bold" font-family="sans-serif">Экран 1: 1920x1080 (60 FPS)</text>
+
+  <!-- Stream Quality Settings -->
+  <text x="32" y="324" fill="#dbdee1" font-size="12" font-weight="bold" font-family="sans-serif">КАЧЕСТВО СТРИМА</text>
+  <rect x="32" y="336" width="70" height="28" rx="4" fill="#2b2d31"/>
+  <text x="67" y="355" fill="#949ba4" font-size="12" text-anchor="middle" font-family="sans-serif">720p</text>
+  <rect x="110" y="336" width="70" height="28" rx="4" fill="#5865f2"/>
+  <text x="145" y="355" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle" font-family="sans-serif">1080p</text>
+  <rect x="188" y="336" width="70" height="28" rx="4" fill="#2b2d31"/>
+  <text x="223" y="355" fill="#949ba4" font-size="12" text-anchor="middle" font-family="sans-serif">1440p</text>
+
+  <!-- Modal Footer Actions -->
+  <rect x="0" y="372" width="600" height="48" fill="#2b2d31" rx="0 0 12 12"/>
+  <text x="430" y="402" fill="#ffffff" font-size="14" font-family="sans-serif">Отмена</text>
+  <rect x="490" y="380" width="94" height="34" rx="4" fill="#5865f2"/>
+  <text x="537" y="402" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle" font-family="sans-serif">В эфир</text>
+</svg>

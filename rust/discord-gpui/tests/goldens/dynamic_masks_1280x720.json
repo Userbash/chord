@@ -1,0 +1,69 @@
+{
+  "viewport_width": 1280,
+  "viewport_height": 720,
+  "regions": [
+    {
+      "id": "header-system-clock",
+      "category": "clock",
+      "x": 780,
+      "y": 10,
+      "width": 100,
+      "height": 28,
+      "description": "Системные часы в верхней панели заголовка чата"
+    },
+    {
+      "id": "header-fps-counter",
+      "category": "fps_counter",
+      "x": 900,
+      "y": 10,
+      "width": 120,
+      "height": 28,
+      "description": "Индикатор частоты кадров 120 FPS и времени кадра"
+    },
+    {
+      "id": "chat-message-timestamps",
+      "category": "clock",
+      "x": 430,
+      "y": 64,
+      "width": 110,
+      "height": 580,
+      "description": "Колонка временных меток сообщений в ленте чата"
+    },
+    {
+      "id": "chat-author-avatars",
+      "category": "avatar",
+      "x": 324,
+      "y": 64,
+      "width": 48,
+      "height": 580,
+      "description": "Круглые 40x40 аватарки авторов сообщений в ленте"
+    },
+    {
+      "id": "user-panel-avatar",
+      "category": "avatar",
+      "x": 80,
+      "y": 674,
+      "width": 36,
+      "height": 36,
+      "description": "Аватар текущего пользователя в нижней плашке профиля"
+    },
+    {
+      "id": "voice-rtc-ping-badge",
+      "category": "ping_indicator",
+      "x": 80,
+      "y": 622,
+      "width": 220,
+      "height": 44,
+      "description": "Индикатор RTC пинга и качества голосовой связи"
+    },
+    {
+      "id": "member-sidebar-avatars",
+      "category": "avatar",
+      "x": 1048,
+      "y": 64,
+      "width": 40,
+      "height": 640,
+      "description": "Аватарки и статус-индикаторы участников в правом сайдбаре"
+    }
+  ]
+}

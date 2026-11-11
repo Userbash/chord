@@ -22,7 +22,9 @@ use serde_json::Value;
 
 pub use crate::automod::UpsertAutoModRuleRequest;
 pub use crate::expressions::CreateGuildEmojiRequest;
-pub use crate::slash_commands::InvokeSlashCommandRequest;
+pub use crate::slash_commands::{
+    ClickMessageComponentRequest, InteractionType, InvokeSlashCommandRequest,
+};
 pub use crate::soundboard::SendSoundboardSoundRequest;
 pub use crate::stage_instances::CreateStageInstanceRequest;
 pub use crate::webhooks::CreateWebhookRequest;
@@ -44,8 +46,11 @@ pub const SUPPORTED_BFF_DOMAINS: &[&str] = &[
 /// Единое типизированное действие домена BFF.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum BffDomainAction {
-    /// Вызов slash-команды приложения (`POST /api/v9/interactions`).
+    /// Вызов slash-команды приложения (`POST /api/v9/interactions`, `type = 2`).
     InvokeSlashCommand(InvokeSlashCommandRequest),
+    /// Клик по интерактивной кнопке сообщения (`POST /api/v9/interactions`, `type = 3`).
+    #[serde(alias = "MessageComponent", alias = "InvokeMessageComponent")]
+    ClickMessageComponent(ClickMessageComponentRequest),
     /// Обновление онбординга / экрана приветствия гильдии (`PATCH /api/v9/guilds/{guild_id}/welcome-screen`).
     UpdateGuildOnboarding {
         /// Snowflake ID гильдии.
@@ -113,6 +118,9 @@ pub fn dispatch_bff_domain_action(action: &BffDomainAction) -> Result<(String, V
     match action {
         BffDomainAction::InvokeSlashCommand(req) => {
             crate::slash_commands::build_interactions_route_and_body(req)
+        }
+        BffDomainAction::ClickMessageComponent(req) => {
+            crate::slash_commands::build_message_component_interactions_route_and_body(req)
         }
         BffDomainAction::UpdateGuildOnboarding { guild_id, request } => {
             crate::onboarding::validate_welcome_screen_request(request)?;
@@ -192,6 +200,7 @@ pub fn resolve_bff_domain_action(req: BffDomainRequest) -> Result<BffResolvedAct
             rule_id: Some(_), ..
         } => "PATCH",
         BffDomainAction::InvokeSlashCommand(_)
+        | BffDomainAction::ClickMessageComponent(_)
         | BffDomainAction::SendSoundboardSound { .. }
         | BffDomainAction::CreateStageInstance(_)
         | BffDomainAction::UpsertAutoModRule { rule_id: None, .. }

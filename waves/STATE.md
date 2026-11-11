@@ -1,5 +1,41 @@
 # STATE — где мы и что дальше
 
+- Обновлено: **2026-11-11 15:38**. **Волна RW-44: Full-Scale QA Automation, AT-SPI Driver, Fuzzing & E2E (АКТИВНА)**:
+  - **Активный Run оркестрации**: `run_a1698b82d00f` под управлением ECC 2.0 Control Plane (`pm_review`).
+  - **Завершены и приняты 7 задач (7/8 в RW-44, 127/128 на доске)**:
+    - **`TASK-907`** (Автоматизированный гейт качества кода): статический линтер `Clippy -D warnings` (0 варнингов), форматирование rustfmt 2024, проверка лицензий cargo-deny и уязвимостей cargo-audit, статические лимиты функций (<50 строк) и модулей (<800 строк), санитайзеры AddressSanitizer и ThreadSanitizer для ring buffer и Tokio-GPUI дедлок-детектор, мутационный гейт 5/5 (100% kill rate с восстановлением md5). 10/10 тестов Rust и 5/5 тестов Node green.
+    - **`TASK-903`** (Фаззинг протоколов & DAVE MLS v1): 5 таргетов `cargo-fuzz` + AddressSanitizer/LeakSanitizer, 1 000 000 итераций каждый (5 000 000 суммарно). 0 паник, 0 утечек памяти, пиковый RSS <= 509 МБ. Обнаружены и устранены 4 граничные ошибки (ZstdStream zip-bomb, u32 overflow в generation, u32::MAX loop в ratchet, границы IP Discovery). 18/18 тестов регрессий green.
+    - **`TASK-906`** (120 FPS Benchmark & Heap Profiling): замер времени рендера кадра (<8.33 мс, p95=1.35µs, p99=1.72µs на 100k сообщений), профилирование jemalloc/heaptrack с 24-часовым стресс-тестом утечек (0 байт утечек), VmRSS 11.26–18.00 МБ, холодный старт FMP 0.34 мс. 53/53 тестов green, 5/5 мутаций убиты.
+    - **`TASK-902`** (Семантический GUI-драйвер AT-SPI D-Bus): `AppDriver` поверх D-Bus AT-SPI (`org.a11y.Bus`), аудит контрастности WCAG 2.2 AA/AAA, валидация отсутствия Focus Traps во всех 13 модальных окнах. 34/34 тестов green, 5/5 мутаций убиты.
+    - **`TASK-904`** (Визуальная регрессия GPUI SSIM >0.99): `FrameBuffer` RGBA8, $8\times8$ перцептивный SSIM с JSON-масками, 15 Golden Snapshots, HTML diff report. 10/10 тестов green, 5/5 мутаций убиты.
+    - **`TASK-905`** (Chaos Engineering Lab): 100 циклов сетевых сбоев, TCP reset с Opcode 6 `RESUME`, backoff 429, потеря UDP 5–30%, джиттер 20–60мс, PipeWire crash-restart. 53/53 тестов green, 5/5 мутаций убиты.
+    - **`TASK-908`** (Manual QA Suite): Спецификация исследовательского тестирования `docs/specs/MANUAL-QA-SUITE.md`, матрица 4 Linux окружений (GNOME, KDE, Hyprland, X11). 56/56 тестов green.
+  - **В активной разработке последняя 1 задача**:
+    - `TASK-901`: Headless E2E Harness (Virtual Wayland + Mock Gateway Daemon).
+  - **Канбан-доска**: 136 задач (**127 Done**, 1 In Dev, 8 Backlog Beta).
+  - **Конвейер CI/CD и Gate**: Скрипты `scripts/ci.sh` и `scripts/gate.mjs` обновлены — встроены нативные фазы `gpui-smoke`, `gpui-e2e` и `gpui-visual`.
+  - **Регламент управления**: Разработан и внедрён документ `docs/specs/ECC-CONTROL-PLANE-AND-DELIVERY-PIPELINE.md`.
+  - **План Beta-продвижения**: Разработан документ `docs/specs/BETA-PROMOTION-PLAN-AND-TASKS.md`, 8 задач перевода в beta (TASK-951..TASK-958) внесены в бэклог канбан-доски.
+  - **Граф знаний**: Успешно синхронизированы 17 коннекторов через `scripts/ecc graph connector-sync --all`.
+
+- Обновлено: **2026-11-11 13:42**. **Волна RW-42 & RW-43: GPUI Native Rust Client & Modern E2E — ВСЕ 16/16 ЗАДАЧ ПРИНЯТЫ (100% DONE)**:
+  - **Оркестрация `run_abdbd1df0491` завершена на 100%**: все 16 задач (`TASK-704..TASK-758`) переведены в статус `completed`.
+  - **Релизный бинарник**: [`rust/dist/discord-gpui`](file:///home/sanya/orca/project/rust/dist/discord-gpui) (42 МБ, stripped ELF, LTO Thin), контрольные суммы верифицированы в [`rust/dist/SHA256SUMS`](file:///home/sanya/orca/project/rust/dist/SHA256SUMS). Headless smoke-тест Wayland/X11: VmRSS **11.26 МБ** (бюджет <60 МБ), 120 FPS frame budget соблюдён.
+  - **Сквозное шифрование DAVE E2EE MLS v1 (`TASK-756`)**: RFC 9420 KDF, подтверждающий тег, Discord Secure Frames v0, 30-значный privacy code, per-sender `DaveHashRatchet`, усечённый 8-байтный тег `Aes128GcmTruncated8`, двухфазная смена эпох в `DaveVoiceSession`.
+  - **Экран и трансляции PipeWire (`TASK-755`)**: модальное окно `ScreenShareModal` с вкладками «Экраны» / «Окна приложений» и 4 пресетами качества (720p/1080p × 30/60 FPS).
+  - **Современный E2E-контур**: внедрён детерминированный сквозной контракт [`rust/discord-gpui/tests/gpui_e2e_contract.rs`](file:///home/sanya/orca/project/rust/discord-gpui/tests/gpui_e2e_contract.rs) с 5 ключевыми User Journeys (холодный старт + FTS5 кэш <150ms, навигация QuickSwitcher Ctrl+K, голосовой вызов DAVE E2EE + адаптивный Jitter Buffer, PipeWire Screen Share 60 FPS, бюджет кадров 120 FPS). Все 50/50 тестов — 100% Green за 0.08с.
+
+
+- Обновлено: **2026-11-11 00:05**. **Волна RW-42 & Видео-аудит (`Video_2026-11-10_23-08-02.mp4`) — 115/115 ЗАДАЧ ПРИНЯТЫ (100% DONE)**:
+  - **Ликвидация всех дефектов видеозаписи**:
+    1. **hCaptcha S3 `AccessDenied` (`TASK-818`)**: устранён сбой загрузки стороннего фрейма, внедрён автономный `rust/gui-spike/ui/assets/hcaptcha-bridge.html` с официальным JS SDK `api.js`, параметрами `sitekey` (`b2b02ab5-7dae-4d6f-830e-7b55634c888b`), `rqdata` и передачей токена в 1 клик через `postMessage`.
+    2. **Ошибка Discord WebRTC / Stream 2007 (`TASK-819`, `TASK-820`)**: устранена первопричина (спам `voice_connect` каждые 500мс при полинге устройств, приводивший к инвалидации сессии медиа-сервера). Внедрена мемоизация `lastVoiceConnectState`, dirty-checking в `data::connect_or_update_live_voice_ext`, стабилизация SSRC и непрерывные 90 кГц таймстемпы в `discord-voice`, а также RTCP PLI/FIR генерация ключевых кадров.
+    3. **Паритет Voice Channel Stage Banner (`TASK-821`, frame 032)**: реализована карточка `#voice-stage-preview-banner` высотой 280px с плашками участников `#eb459e`, бейджами `В ЭФИРЕ` / `Muted` и кнопкой подключения при клике на голосовой канал.
+    4. **Фриз 2.6 сек при проверке инвайта (`TASK-822`)**: HTTP/2 пул с 90-секундным `keep-alive` и неблокирующий индикатор в `join-server.js`.
+  - **100% победа над всеми кодами Discord WebRTC / Stream 2*** (`TASK-824`)**: коды 2000..=2018 полностью закрыты контрактными тестами `voice_stream_codes_contract.rs` (5/5 pass) и `voice-stream-codes-2000-2018.test.mjs` (5/5 pass), мутационный гейт 15/15 убит (100%), логи GDB `/tmp/gdb-native-trace.log` чисты.
+  - **Полный паритет канбан-доски**: все 115 задач на доске `waves/kanban-board.json` и `waves/kanban-board.html` переведены в статус `done`. 0 задач в `backlog` / `in_dev`.
+  - **Тестовый контур**: 147/147 meta-тестов, 49/49 JS unit-тестов, 42/42 Rust контрактных тестов, 64/64 GPUI контрактов — 100% Green.
+
 - Обновлено: **2026-11-10 02:10 (Ночная фиксация)**. **RW-42: Native GPUI Client Migration & Production Release (`discord-gpui`) — ЗАДАЧИ ЗАФИКСИРОВАНЫ ДО УТРА (TASK-701..TASK-746 ПРИНЯТЫ)**:
   - **100% Native Rust на базе `gpui-kit` (WGPU 120 FPS)**: Устранены все тормоза и наложения WebKit/Tauri. Чистый скомпилированный нативный клиент.
   - **Релизный бинарник готов к запуску**: `rust/discord-gpui/target/release/discord-gpui` (55 МБ, чистый релизный билд, время компиляции 2.90с).

@@ -1,0 +1,14 @@
+▶ TASK-951: Централизованный манифест BUILD-005 и слияние unstable -> testing
+  ✔ 951.1: рабочая ветка feature/sprints-1-5-build-004 влита в unstable (--no-ff), рабочее дерево unstable чистое (20.113625ms)
+  ✔ 951.2: файл waves/BUILD-005.json существует и соответствует JSON-схеме манифеста сборки (1.919962ms)
+  ✔ 951.2: манифест waves/BUILD-005.json содержит полный реестр всех 128 выполненных задач (1.785872ms)
+  ✔ 951.3: ветка testing синхронизирована с unstable, легковесный тег build-005-candidate указывает на вершину testing (20.80919ms)
+✔ TASK-951: Централизованный манифест BUILD-005 и слияние unstable -> testing (45.398526ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 81.071675

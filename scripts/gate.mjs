@@ -28,7 +28,7 @@ import {
   readFileSync, readdirSync, rmSync, statSync, writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -272,6 +272,26 @@ const commonPhases = [
     // попадают в warnings/ignored, но не превращают вердикт в e2e-skip (QA-M2-09).
     skipKind: "ignored",
   },
+  {
+    name: "gpui-smoke",
+    command: "cargo",
+    args: ["run", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--", "--headless-smoke"],
+    timeoutMs: 60000,
+  },
+  {
+    name: "gpui-e2e",
+    command: "cargo",
+    args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "gpui_e2e_contract"],
+    timeoutMs: 180000,
+    countsKind: "cargo",
+  },
+  {
+    name: "gpui-visual",
+    command: "cargo",
+    args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "visual_regression_contract", "test_sub_904"],
+    timeoutMs: 180000,
+    countsKind: "cargo",
+  },
   { name: "smoke", command: "node", args: ["--test", "--test-concurrency=1", "tests/smoke/**/*.test.mjs"], env: smokePhaseEnv() },
 ];
 
@@ -329,6 +349,24 @@ const KNOWN_BROWSER_PATHS = [
   "/usr/bin/google-chrome-stable",
   "/usr/bin/brave-browser",
   "/usr/bin/brave",
+  "/usr/bin/microsoft-edge",
+  "/usr/bin/microsoft-edge-stable",
+  "/snap/bin/chromium",
+  "/opt/google/chrome/chrome",
+  "/opt/brave.com/brave/brave-browser",
+];
+
+/** Имена исполняемых файлов браузеров для поиска в PATH. */
+const BROWSER_BIN_NAMES = [
+  "chromium",
+  "chromium-browser",
+  "google-chrome",
+  "google-chrome-stable",
+  "chrome",
+  "brave-browser",
+  "brave",
+  "microsoft-edge",
+  "microsoft-edge-stable",
 ];
 
 /** Идентификаторы Flatpak-браузеров для резервного обнаружения. */
@@ -337,6 +375,16 @@ const FLATPAK_BROWSERS = [
   "org.chromium.Chromium",
   "com.google.Chrome",
 ];
+
+/** Стандартные пути для поиска `xvfb-run`. */
+const KNOWN_XVFB_PATHS = [
+  "/usr/bin/xvfb-run",
+  "/usr/local/bin/xvfb-run",
+  "/home/sanya/.local/bin/xvfb-run",
+];
+
+/** Параметры виртуального X11-экрана Xvfb (1280x720x24 для E2E/WebKit). */
+const XVFB_SERVER_ARGS = "-screen 0 1280x720x24 -ac +extension GLX +render -noreset";
 
 /**
  * @param {string} filePath
@@ -353,67 +401,101 @@ function isExecutableFile(filePath) {
 
 /**
  * Проверяет наличие активного графического дисплея DISPLAY.
+ * Локальный дисплей `:N` считается активным только при наличии сокета `XN` в X11-каталоге.
+ * @param {Record<string, string | undefined>} [env]
+ * @param {string} [x11SocketDir]
  * @returns {boolean}
  */
-function hasActiveDisplay() {
-  const display = (process.env.DISPLAY ?? "").trim();
+function hasActiveDisplay(env, x11SocketDir) {
+  const activeEnv = env ?? process.env;
+  const socketDir = x11SocketDir ?? activeEnv.DISCORD_LAB_X11_UNIX_DIR ?? "/tmp/.X11-unix";
+  const display = (activeEnv.DISPLAY ?? "").trim();
   if (!display) return false;
   const match = display.match(/^:(\d+)(?:\.\d+)?$/u);
-  if (match && existsSync("/tmp/.X11-unix")) {
-    return existsSync(`/tmp/.X11-unix/X${match[1]}`);
+  if (match) {
+    return existsSync(`${socketDir}/X${match[1]}`);
   }
   return true;
 }
 
 /**
  * Ищет `xvfb-run` для автоматического запуска через виртуальный X-дисплей (`xvfb-run -a`).
+ * @param {Record<string, string | undefined>} [env]
+ * @param {{ knownPaths?: string[] }} [options]
  * @returns {string | null}
  */
-function findXvfbRun() {
-  for (const candidate of ["/usr/bin/xvfb-run", "/usr/local/bin/xvfb-run", "/home/sanya/.local/bin/xvfb-run"]) {
+function findXvfbRun(env, options) {
+  const activeEnv = env ?? process.env;
+  const opts = options ?? {};
+  const explicitXvfb = (activeEnv.XVFB_RUN_BIN ?? "").trim();
+  if (explicitXvfb) {
+    if (explicitXvfb === "none" || explicitXvfb === "0") return null;
+    return isExecutableFile(explicitXvfb) ? explicitXvfb : null;
+  }
+  const pathDirs = String(activeEnv.PATH ?? "").split(delimiter).filter(Boolean);
+  for (const dir of pathDirs) {
+    const candidate = join(dir, "xvfb-run");
     if (isExecutableFile(candidate)) return candidate;
   }
-  const probe = runCommand("sh", ["-c", "command -v xvfb-run || true"], { timeoutMs: 10000 });
-  const found = probe.output.split("\n").map((line) => line.trim()).find(Boolean) ?? "";
-  return found && isExecutableFile(found) ? found : null;
+  const knownPaths = opts.knownPaths ?? KNOWN_XVFB_PATHS;
+  for (const candidate of knownPaths) {
+    if (isExecutableFile(candidate)) return candidate;
+  }
+  return null;
 }
 
 /**
  * Автоматическое обнаружение браузера по стандартным путям, PATH и Flatpak (TASK-621).
+ * @param {Record<string, string | undefined>} [env]
+ * @param {{ knownPaths?: string[], allowFlatpak?: boolean, gateDir?: string }} [options]
  * @returns {{ bin: string | null, explicitMissing: string | null, source: string }}
  */
-function resolveBrowserBin() {
-  const explicit = (process.env.CHROME_BIN ?? process.env.CHROME_PATH ?? "").trim();
+function resolveBrowserBin(env, options) {
+  const activeEnv = env ?? process.env;
+  const opts = options ?? {};
+  const explicit = (activeEnv.CHROME_BIN ?? activeEnv.CHROME_PATH ?? "").trim();
   if (explicit) {
     if (isExecutableFile(explicit)) {
       return { bin: explicit, explicitMissing: null, source: "env" };
     }
     return { bin: null, explicitMissing: explicit, source: "env-missing" };
   }
-  for (const candidate of KNOWN_BROWSER_PATHS) {
+  const knownPaths = opts.knownPaths ?? KNOWN_BROWSER_PATHS;
+  for (const candidate of knownPaths) {
     if (isExecutableFile(candidate)) {
       return { bin: candidate, explicitMissing: null, source: "known-path" };
     }
   }
-  const probe = runCommand("sh", [
-    "-c",
-    "command -v chromium || command -v chromium-browser || command -v google-chrome || command -v google-chrome-stable || command -v chrome || command -v brave-browser || command -v brave || true",
-  ], { timeoutMs: 15000 });
-  const fromPath = probe.output.split("\n").map((line) => line.trim()).find(Boolean) ?? "";
-  if (fromPath && isExecutableFile(fromPath)) {
-    return { bin: fromPath, explicitMissing: null, source: "path" };
+  const pathDirs = String(activeEnv.PATH ?? "").split(delimiter).filter(Boolean);
+  for (const binName of BROWSER_BIN_NAMES) {
+    for (const dir of pathDirs) {
+      const candidate = join(dir, binName);
+      if (isExecutableFile(candidate)) {
+        return { bin: candidate, explicitMissing: null, source: "path" };
+      }
+    }
   }
-  const flatpakProbe = runCommand("sh", ["-c", "command -v flatpak || true"], { timeoutMs: 10000 });
-  const flatpakBin = flatpakProbe.output.split("\n").map((line) => line.trim()).find(Boolean) ?? "";
-  if (flatpakBin) {
-    for (const appId of FLATPAK_BROWSERS) {
-      const info = runCommand(flatpakBin, ["info", appId], { timeoutMs: 10000 });
-      if (info.ok) {
-        mkdirSync(gateDir, { recursive: true });
-        const wrapper = join(gateDir, "flatpak-browser-wrapper.sh");
-        writeFileSync(wrapper, `#!/usr/bin/env bash\nexec flatpak run --filesystem=host ${appId} "$@"\n`);
-        chmodSync(wrapper, 0o755);
-        return { bin: wrapper, explicitMissing: null, source: `flatpak:${appId}` };
+  const allowFlatpak = opts.allowFlatpak ?? true;
+  if (allowFlatpak) {
+    let flatpakBin = "";
+    for (const dir of pathDirs) {
+      const candidate = join(dir, "flatpak");
+      if (isExecutableFile(candidate)) {
+        flatpakBin = candidate;
+        break;
+      }
+    }
+    if (flatpakBin) {
+      const outDir = opts.gateDir ?? gateDir;
+      for (const appId of FLATPAK_BROWSERS) {
+        const info = runCommand(flatpakBin, ["info", appId], { timeoutMs: 10000 });
+        if (info.ok) {
+          mkdirSync(outDir, { recursive: true });
+          const wrapper = join(outDir, "flatpak-browser-wrapper.sh");
+          writeFileSync(wrapper, `#!/usr/bin/env bash\nexec flatpak run --filesystem=host ${appId} "$@"\n`);
+          chmodSync(wrapper, 0o755);
+          return { bin: wrapper, explicitMissing: null, source: `flatpak:${appId}` };
+        }
       }
     }
   }
@@ -422,13 +504,17 @@ function resolveBrowserBin() {
 
 /**
  * Диагностика виртуального/активного дисплея для e2e.
+ * @param {Record<string, string | undefined>} [env]
+ * @param {{ x11SocketDir?: string, knownXvfbPaths?: string[] }} [options]
  * @returns {string}
  */
-function displayPreflightNote() {
-  if (hasActiveDisplay()) {
-    return `дисплей: DISPLAY=${process.env.DISPLAY}`;
+function displayPreflightNote(env, options) {
+  const activeEnv = env ?? process.env;
+  const opts = options ?? {};
+  if (hasActiveDisplay(activeEnv, opts.x11SocketDir)) {
+    return `дисплей: DISPLAY=${activeEnv.DISPLAY}`;
   }
-  const xvfb = findXvfbRun();
+  const xvfb = findXvfbRun(activeEnv, { knownPaths: opts.knownXvfbPaths });
   if (xvfb) {
     return `дисплей: xvfb-run -a (${xvfb}, DISPLAY не активен)`;
   }
@@ -437,11 +523,14 @@ function displayPreflightNote() {
 
 /**
  * Окружение для фазы e2e: автоматически пробрасывает найденный `CHROME_BIN`.
+ * @param {Record<string, string | undefined>} [env]
+ * @param {{ knownPaths?: string[], allowFlatpak?: boolean, gateDir?: string }} [options]
  * @returns {Record<string, string>}
  */
-function e2ePhaseEnv() {
-  const resolved = resolveBrowserBin();
-  if (resolved.bin && !process.env.CHROME_BIN) {
+function e2ePhaseEnv(env, options) {
+  const activeEnv = env ?? process.env;
+  const resolved = resolveBrowserBin(activeEnv, options);
+  if (resolved.bin && !activeEnv.CHROME_BIN) {
     return { CHROME_BIN: resolved.bin };
   }
   return {};
@@ -449,11 +538,15 @@ function e2ePhaseEnv() {
 
 /**
  * Диагностика e2e до запуска: отсутствие браузера — infra fail, а не повод принять skip.
+ * @param {Record<string, string | undefined>} [env]
+ * @param {{ knownPaths?: string[], allowFlatpak?: boolean, gateDir?: string, x11SocketDir?: string, knownXvfbPaths?: string[] }} [options]
  * @returns {string[]}
  */
-function browserPreflight() {
-  const resolved = resolveBrowserBin();
-  const displayNote = displayPreflightNote();
+function browserPreflight(env, options) {
+  const activeEnv = env ?? process.env;
+  const opts = options ?? {};
+  const resolved = resolveBrowserBin(activeEnv, opts);
+  const displayNote = displayPreflightNote(activeEnv, opts);
   if (resolved.explicitMissing) {
     return [
       `e2e_unmet: ${resolved.explicitMissing} не существует — тесты уйдут в skip и фаза будет failed`,
@@ -487,7 +580,7 @@ function fixtureE2eFiles() {
 /**
  * Fixture-набор e2e — обязательная фаза release/qualify. `failOnSkips`: без браузера тесты
  * уходят в skip, и это failed, а не `passed_with_skips`. `minPass` закрывает случай «0 тестов».
- * При отсутствии активного DISPLAY и наличии `xvfb-run` запускается через `xvfb-run -a`.
+ * При отсутствии активного DISPLAY и наличии `xvfb-run` запускается через `xvfb-run -a -s`.
  * @returns {Phase}
  */
 function e2eFixturePhase() {
@@ -501,12 +594,13 @@ function e2eFixturePhase() {
       }),
     };
   }
-  const useXvfb = !hasActiveDisplay() && findXvfbRun() !== null;
+  const xvfbBin = !hasActiveDisplay() ? findXvfbRun() : null;
+  const useXvfb = xvfbBin !== null;
   return {
     name: "e2e",
-    command: useXvfb ? "xvfb-run" : "node",
+    command: useXvfb ? xvfbBin : "node",
     args: useXvfb
-      ? ["-a", "node", "--test", "--test-concurrency=1", ...files]
+      ? ["-a", "-s", XVFB_SERVER_ARGS, "node", "--test", "--test-concurrency=1", ...files]
       : ["--test", "--test-concurrency=1", ...files],
     retries: 1,
     failOnSkips: true,

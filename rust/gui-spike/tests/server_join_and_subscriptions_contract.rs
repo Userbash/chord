@@ -5,12 +5,10 @@ use std::time::Duration;
 
 use discord_gui_spike::auth::AuthUser;
 use discord_gui_spike::data;
-use discord_gui_spike::guilds::{
-    self, GuildJoinTransport, GuildTransportResponse,
-};
+use discord_gui_spike::guilds::{self, GuildJoinTransport, GuildTransportResponse};
 use discord_gui_spike::permissions::{
-    AllowedChannelAccess, ChannelOverwrite, PermissionCalculator, RolePermission,
-    PERM_CONNECT, PERM_SEND_MESSAGES, PERM_SPEAK, PERM_VIEW_CHANNEL,
+    AllowedChannelAccess, ChannelOverwrite, PermissionCalculator, RolePermission, PERM_CONNECT,
+    PERM_SEND_MESSAGES, PERM_SPEAK, PERM_VIEW_CHANNEL,
 };
 use serde_json::{json, Value};
 
@@ -104,7 +102,8 @@ fn s1_forbids_002_ready_fixture_when_live_token_present_and_purges_foreign_state
     assert_eq!(ready_without_disk.user.id, TEST_USER_ID);
 
     // 3. state_cache.json verification: mismatching state.user.id vs active token must be rejected.
-    let tmp_dir = std::env::temp_dir().join(format!("discord_s1_cache_test_{}", std::process::id()));
+    let tmp_dir =
+        std::env::temp_dir().join(format!("discord_s1_cache_test_{}", std::process::id()));
     let _ = std::fs::create_dir_all(&tmp_dir);
     let cache_path = tmp_dir.join("state_cache.json");
 
@@ -124,7 +123,8 @@ fn s1_forbids_002_ready_fixture_when_live_token_present_and_purges_foreign_state
     });
     std::fs::write(&cache_path, serde_json::to_string(&foreign_cache).unwrap()).unwrap();
 
-    let rejected = data::load_verified_state_cache(&cache_path, TEST_LIVE_TOKEN, Some(TEST_USER_ID));
+    let rejected =
+        data::load_verified_state_cache(&cache_path, TEST_LIVE_TOKEN, Some(TEST_USER_ID));
     assert!(
         rejected.is_none(),
         "state_cache.json belonging to another user.id must be rejected"
@@ -288,12 +288,9 @@ impl GuildJoinTransport for MockVerificationTransport {
         }
 
         if method == "GET" && path == format!("/api/v9/guilds/{gid}/members/@me") {
-            let accepted_rules = self
-                .calls
-                .lock()
-                .unwrap()
-                .iter()
-                .any(|c| c.method == "PUT" && c.path == format!("/api/v9/guilds/{gid}/requests/@me"));
+            let accepted_rules = self.calls.lock().unwrap().iter().any(|c| {
+                c.method == "PUT" && c.path == format!("/api/v9/guilds/{gid}/requests/@me")
+            });
             return Ok(GuildTransportResponse {
                 status: 200,
                 body: if accepted_rules {
@@ -369,7 +366,8 @@ impl GuildJoinTransport for MockVerificationTransport {
 }
 
 #[test]
-fn s3_accept_invite_and_hydrate_live_guild_auto_completes_member_verification_and_recalculates_permissions() {
+fn s3_accept_invite_and_hydrate_live_guild_auto_completes_member_verification_and_recalculates_permissions(
+) {
     let _user = setup_clean_live_session();
     let guild_id = "880000000000000001".to_string();
     let verified_role_id = "880000000000000099".to_string();
@@ -383,15 +381,16 @@ fn s3_accept_invite_and_hydrate_live_guild_auto_completes_member_verification_an
         trigger_403_gate: false,
     };
 
-    let join_outcome = guilds::accept_invite_and_join_guild(
-        &transport,
-        "verify-me",
-        &guild_id,
-        TEST_USER_ID,
-    )
-    .expect("accept_invite_and_join_guild must succeed and auto-complete verification gate");
+    let join_outcome =
+        guilds::accept_invite_and_join_guild(&transport, "verify-me", &guild_id, TEST_USER_ID)
+            .expect(
+                "accept_invite_and_join_guild must succeed and auto-complete verification gate",
+            );
 
-    assert!(!join_outcome.pending, "pending must be false after rules confirmation");
+    assert!(
+        !join_outcome.pending,
+        "pending must be false after rules confirmation"
+    );
     assert_eq!(join_outcome.roles, vec![verified_role_id.clone()]);
 
     let recorded = calls.lock().unwrap().clone();
@@ -419,9 +418,16 @@ fn s3_accept_invite_and_hydrate_live_guild_auto_completes_member_verification_an
         !super_props.trim().is_empty(),
         "X-Super-Properties header must not be empty"
     );
-    let put_body = put_req.body.as_ref().expect("PUT /requests/@me must include JSON body");
+    let put_body = put_req
+        .body
+        .as_ref()
+        .expect("PUT /requests/@me must include JSON body");
     assert_eq!(
-        put_body.get("form_fields").and_then(|f| f.get(0)).and_then(|f| f.get("response")).and_then(|v| v.as_bool()),
+        put_body
+            .get("form_fields")
+            .and_then(|f| f.get(0))
+            .and_then(|f| f.get("response"))
+            .and_then(|v| v.as_bool()),
         Some(true),
         "form_fields[0].response must be set to true when accepting TERMS"
     );
@@ -522,7 +528,9 @@ fn s3_accept_invite_and_hydrate_live_guild_auto_completes_member_verification_an
     .unwrap();
     data::cache_resolved_invite_payload("/invites/wVc2y3ET", &invite_payload);
     let materialized = data::materialized_accept_body_for_invite_target("/invites/wVc2y3ET")
-        .expect("materialized_accept_body_for_invite_target must not deadlock when live token is active");
+        .expect(
+        "materialized_accept_body_for_invite_target must not deadlock when live token is active",
+    );
     data::ingest_accepted_invite_payload(&materialized);
     data::ensure_local_guild_present("1340572775974305803");
     assert!(
@@ -565,16 +573,17 @@ fn s4_blocks_gateway_op4_when_cannot_connect_with_exact_russian_reasons() {
         Some("Сервер в режиме просмотра")
     );
 
-    let pending_access: AllowedChannelAccess = PermissionCalculator::evaluate_allowed_channel_access(
-        guild_id,
-        "100000000000000001",
-        TEST_USER_ID,
-        &[],
-        &roles,
-        &overwrites,
-        false, // is_lurker
-        true,  // is_pending
-    );
+    let pending_access: AllowedChannelAccess =
+        PermissionCalculator::evaluate_allowed_channel_access(
+            guild_id,
+            "100000000000000001",
+            TEST_USER_ID,
+            &[],
+            &roles,
+            &overwrites,
+            false, // is_lurker
+            true,  // is_pending
+        );
     assert!(!pending_access.can_connect);
     assert!(!pending_access.can_send);
     assert_eq!(
@@ -582,16 +591,17 @@ fn s4_blocks_gateway_op4_when_cannot_connect_with_exact_russian_reasons() {
         Some("Требуется принять правила сервера")
     );
 
-    let role_denied_access: AllowedChannelAccess = PermissionCalculator::evaluate_allowed_channel_access(
-        guild_id,
-        "100000000000000001",
-        TEST_USER_ID,
-        &[],
-        &roles,
-        &overwrites,
-        false,
-        false,
-    );
+    let role_denied_access: AllowedChannelAccess =
+        PermissionCalculator::evaluate_allowed_channel_access(
+            guild_id,
+            "100000000000000001",
+            TEST_USER_ID,
+            &[],
+            &roles,
+            &overwrites,
+            false,
+            false,
+        );
     assert!(role_denied_access.can_view);
     assert!(!role_denied_access.can_connect);
     assert_eq!(
@@ -748,7 +758,9 @@ fn v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phan
         "Phase immediately after click must be 'signaling', not optimistic 'connected'"
     );
     assert_eq!(
-        status_after_click.get("connected").and_then(|v| v.as_bool()),
+        status_after_click
+            .get("connected")
+            .and_then(|v| v.as_bool()),
         Some(false),
         "connected boolean must be false during 'signaling'"
     );
@@ -786,7 +798,9 @@ fn v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phan
         "Phase after VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE (before RTC op:4) must be 'negotiating'"
     );
     assert_eq!(
-        status_negotiating.get("connected").and_then(|v| v.as_bool()),
+        status_negotiating
+            .get("connected")
+            .and_then(|v| v.as_bool()),
         Some(false),
         "connected must still be false during 'negotiating'"
     );
@@ -849,11 +863,15 @@ fn v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phan
         "Exactly 1 coalesced op:4 frame must be sent after 120ms window"
     );
     assert_eq!(
-        coalesced_frames[0].get("self_mute").and_then(|v| v.as_bool()),
+        coalesced_frames[0]
+            .get("self_mute")
+            .and_then(|v| v.as_bool()),
         Some(true)
     );
     assert_eq!(
-        coalesced_frames[0].get("self_deaf").and_then(|v| v.as_bool()),
+        coalesced_frames[0]
+            .get("self_deaf")
+            .and_then(|v| v.as_bool()),
         Some(true)
     );
 
@@ -900,15 +918,16 @@ fn v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phan
         "15s phantom session cleanup must send op:4 frame"
     );
     assert!(
-        cleanup_frames[0].get("channel_id").map(|v| v.is_null()).unwrap_or(false),
+        cleanup_frames[0]
+            .get("channel_id")
+            .map(|v| v.is_null())
+            .unwrap_or(false),
         "15s phantom session cleanup op:4 must have channel_id: null, got: {:?}",
         cleanup_frames[0]
     );
     let status_after_timeout = data::live_voice_rtc_status_json();
     assert_eq!(
-        status_after_timeout
-            .get("state")
-            .and_then(|v| v.as_str()),
+        status_after_timeout.get("state").and_then(|v| v.as_str()),
         Some("disconnected"),
         "Voice state must be reset to 'disconnected' after 15s phantom session auto-cleanup"
     );
@@ -931,7 +950,10 @@ fn u1_unified_workspace_crates_bridge_and_hallucinated_channel_purge() {
         .expect("unified_engine_snapshot must succeed across all linked workspace crates");
     assert_eq!(snap.etf_tag_count, 11);
     assert_eq!(snap.store_schema_version, 1);
-    assert!(snap.store_in_memory_ok, "discord-store SQLite must initialize in memory");
+    assert!(
+        snap.store_in_memory_ok,
+        "discord-store SQLite must initialize in memory"
+    );
     assert_eq!(snap.i18n_total_locales, 36);
     assert_eq!(snap.i18n_resolved_ru, "ru");
     assert_eq!(snap.voice_opus_payload_type, 120);
@@ -1033,6 +1055,249 @@ fn u2_no_fake_channels_on_invite_and_voice_op8_hello_60ms_heartbeat_rtt() {
     assert!(
         (8..500).contains(&rtt),
         "Measured RTT must reflect real elapsed time (~12ms), got {rtt}ms"
+    );
+
+    data::set_live_session(None, None);
+}
+
+#[test]
+fn task_810_main_accept_invite_wires_accept_invite_and_join_guild_and_auto_confirms_rules_screening(
+) {
+    let (_guard, _user) = setup_clean_live_session();
+
+    // 1. Source wiring check: main.rs::accept_invite must call guilds::accept_invite_and_join_guild
+    // and guilds::apply_guild_join_outcome after accepting the invite.
+    let main_rs_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/main.rs");
+    let main_src = std::fs::read_to_string(&main_rs_path).expect("read src/main.rs");
+    let accept_fn_start = main_src
+        .find("async fn accept_invite(")
+        .expect("async fn accept_invite must exist in src/main.rs");
+    let accept_fn_slice = &main_src[accept_fn_start..];
+    let accept_fn_end = accept_fn_slice
+        .find("\n#[tauri::command]")
+        .unwrap_or(accept_fn_slice.len());
+    let accept_fn_body = &accept_fn_slice[..accept_fn_end];
+    assert!(
+        accept_fn_body.contains("guilds::accept_invite_and_join_guild"),
+        "main.rs::accept_invite must wire guilds::accept_invite_and_join_guild"
+    );
+    assert!(
+        accept_fn_body.contains("guilds::apply_guild_join_outcome"),
+        "main.rs::accept_invite must wire guilds::apply_guild_join_outcome"
+    );
+
+    // 2. Rules Screening detection helper contract
+    let invite_with_gate = json!({
+        "code": "rules-gate",
+        "guild": {
+            "id": "890000000000000001",
+            "name": "Rules Gate Server",
+            "features": ["COMMUNITY", "MEMBER_VERIFICATION_GATE_ENABLED"]
+        }
+    });
+    assert!(
+        guilds::guild_requires_rules_screening(&invite_with_gate),
+        "guild_requires_rules_screening must detect MEMBER_VERIFICATION_GATE_ENABLED in invite guild.features"
+    );
+
+    // 3. Full join pipeline with MEMBER_VERIFICATION_GATE_ENABLED and stale pending on replica:
+    // PUT /guilds/{id}/requests/@me must be sent with X-Super-Properties and response: true,
+    // and the member must immediately transition to pending: false with unlocked channelPermissions.
+    struct RulesGateTransport {
+        calls: Arc<Mutex<Vec<(String, String, HashMap<String, String>, Option<Value>)>>>,
+        guild_id: String,
+        verified_role_id: String,
+    }
+
+    impl GuildJoinTransport for RulesGateTransport {
+        fn request(
+            &self,
+            method: &str,
+            path: &str,
+            headers: &HashMap<String, String>,
+            body: Option<&Value>,
+        ) -> Result<GuildTransportResponse, String> {
+            self.calls.lock().unwrap().push((
+                method.to_string(),
+                path.to_string(),
+                headers.clone(),
+                body.cloned(),
+            ));
+            let gid = &self.guild_id;
+            match (method, path) {
+                ("POST", p) if p.starts_with("/api/v9/invites/") => Ok(GuildTransportResponse {
+                    status: 200,
+                    body: json!({
+                        "code": "rules-gate",
+                        "guild": {
+                            "id": gid,
+                            "name": "Rules Gate Server",
+                            "features": ["COMMUNITY", "MEMBER_VERIFICATION_GATE_ENABLED"]
+                        }
+                    }),
+                }),
+                ("GET", p) if p == format!("/api/v9/guilds/{gid}/member-verification") => {
+                    Ok(GuildTransportResponse {
+                        status: 200,
+                        body: json!({
+                            "version": "2026-04-19T12:00:00.000000+00:00",
+                            "description": "Accept server rules",
+                            "form_fields": [
+                                {
+                                    "field_type": "TERMS",
+                                    "label": "Read and agree to server rules",
+                                    "values": ["Be respectful", "No spam"],
+                                    "required": true
+                                }
+                            ]
+                        }),
+                    })
+                }
+                ("PUT", p) if p == format!("/api/v9/guilds/{gid}/requests/@me") => {
+                    Ok(GuildTransportResponse {
+                        status: 201,
+                        body: json!({
+                            "application_status": "APPROVED",
+                            "guild_id": gid
+                        }),
+                    })
+                }
+                ("GET", p) if p == format!("/api/v9/guilds/{gid}/members/@me") => {
+                    // Simulate read replica still returning pending: true briefly after PUT /requests/@me
+                    Ok(GuildTransportResponse {
+                        status: 200,
+                        body: json!({
+                            "user": { "id": TEST_USER_ID },
+                            "roles": [self.verified_role_id],
+                            "pending": true,
+                            "is_pending": true
+                        }),
+                    })
+                }
+                ("GET", p) if p == format!("/api/v9/guilds/{gid}") => Ok(GuildTransportResponse {
+                    status: 200,
+                    body: json!({
+                        "id": gid,
+                        "name": "Rules Gate Server",
+                        "owner_id": "890000000000000099",
+                        "features": ["COMMUNITY", "MEMBER_VERIFICATION_GATE_ENABLED"],
+                        "roles": [
+                            {
+                                "id": gid,
+                                "name": "@everyone",
+                                "permissions": PERM_VIEW_CHANNEL.to_string(),
+                                "position": 0
+                            },
+                            {
+                                "id": self.verified_role_id,
+                                "name": "Verified",
+                                "permissions": (PERM_VIEW_CHANNEL | PERM_SEND_MESSAGES | PERM_CONNECT).to_string(),
+                                "position": 1
+                            }
+                        ]
+                    }),
+                }),
+                ("GET", p) if p == format!("/api/v9/guilds/{gid}/channels") => {
+                    Ok(GuildTransportResponse {
+                        status: 200,
+                        body: json!([
+                            {
+                                "id": "890000000000000010",
+                                "guild_id": gid,
+                                "name": "general",
+                                "type": 0,
+                                "permission_overwrites": []
+                            },
+                            {
+                                "id": "890000000000000020",
+                                "guild_id": gid,
+                                "name": "Voice Lobby",
+                                "type": 2,
+                                "permission_overwrites": []
+                            }
+                        ]),
+                    })
+                }
+                _ => Err(format!("Unexpected request: {method} {path}")),
+            }
+        }
+    }
+
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let guild_id = "890000000000000001".to_string();
+    let verified_role_id = "890000000000000005".to_string();
+    let transport = RulesGateTransport {
+        calls: calls.clone(),
+        guild_id: guild_id.clone(),
+        verified_role_id: verified_role_id.clone(),
+    };
+
+    let outcome =
+        guilds::accept_invite_and_join_guild(&transport, "rules-gate", &guild_id, TEST_USER_ID)
+            .expect(
+            "accept_invite_and_join_guild must succeed for MEMBER_VERIFICATION_GATE_ENABLED guild",
+        );
+
+    let recorded = calls.lock().unwrap();
+    let put_req = recorded
+        .iter()
+        .find(|(m, p, _, _)| m == "PUT" && p == &format!("/api/v9/guilds/{guild_id}/requests/@me"))
+        .expect(
+            "PUT /api/v9/guilds/{id}/requests/@me must be called automatically for Rules Screening",
+        );
+    assert!(
+        put_req
+            .2
+            .get("X-Super-Properties")
+            .map(|v| !v.trim().is_empty())
+            .unwrap_or(false),
+        "PUT /requests/@me must include non-empty X-Super-Properties header"
+    );
+    let put_body = put_req
+        .3
+        .as_ref()
+        .expect("PUT /requests/@me must include JSON body");
+    assert_eq!(
+        put_body["form_fields"][0]["response"],
+        json!(true),
+        "PUT /requests/@me must set response: true on TERMS field"
+    );
+
+    assert!(
+        !outcome.pending,
+        "Member must immediately transition to pending == false after PUT /requests/@me succeeds"
+    );
+    assert_eq!(outcome.roles, vec![verified_role_id.clone()]);
+    let text_perms = outcome
+        .channel_permissions
+        .get("890000000000000010")
+        .expect("text channel permissions must be computed");
+    assert!(
+        text_perms.can_send,
+        "Text channel can_send must be unlocked immediately after auto-confirming Rules Screening"
+    );
+    let voice_perms = outcome
+        .channel_permissions
+        .get("890000000000000020")
+        .expect("voice channel permissions must be computed");
+    assert!(
+        voice_perms.can_connect,
+        "Voice channel can_connect must be unlocked immediately after auto-confirming Rules Screening"
+    );
+
+    // 4. Applying outcome to live session state must materialize guild with channels and pending == false
+    guilds::apply_guild_join_outcome(&outcome);
+    let root = repo_fixtures_dir();
+    assert!(
+        data::has_live_guild_or_channels(&guild_id),
+        "Joined guild must be present in live session after apply_guild_join_outcome"
+    );
+    let live_channels = data::channels(&root, Some(&guild_id))
+        .expect("data::channels must return materialized channels for joined guild");
+    assert_eq!(
+        live_channels.len(),
+        2,
+        "Both channels of the joined guild must be materialized in live session"
     );
 
     data::set_live_session(None, None);

@@ -160,6 +160,15 @@ pub const FORWARDED_DISPATCHES: [&str; 30] = [
     EXTENDED_DISPATCHES[7],
 ];
 
+/// События динамического обновления ролей и участников гильдии (`TASK-764`),
+/// пробрасываемые в BFF-состояние (`ingest_live_dispatch`) и UI (`gateway://dispatch`).
+pub const ROLE_PERMISSION_DISPATCHES: [&str; 4] = [
+    "GUILD_MEMBER_UPDATE",
+    "GUILD_ROLE_CREATE",
+    "GUILD_ROLE_UPDATE",
+    "GUILD_ROLE_DELETE",
+];
+
 /// Отдаёт ли ядро диспатчи наружу (см. `CONTRACTS/dispatch.md` §6).
 ///
 /// Да: `SupervisorConfig::with_dispatch_handler` дренирует `GatewayPipe::take_events`
@@ -293,7 +302,10 @@ fn redact_secrets(value: Value, redacted: &mut usize) -> Value {
 /// Порядок: фильтр по имени провода → `d` в JSON → вырезание секретов. Ни
 /// одно поле не добавляется: UI получает ровно то, что пришло.
 pub fn map_dispatch(event: &DispatchEvent) -> Result<Option<MappedDispatch>, DispatchError> {
-    if !FORWARDED_DISPATCHES.contains(&event.name.as_str()) {
+    let kind_name = event.name.as_str();
+    if !FORWARDED_DISPATCHES.contains(&kind_name)
+        && !ROLE_PERMISSION_DISPATCHES.contains(&kind_name)
+    {
         return Ok(None);
     }
     let data = etf_to_json(&event.data)?;
@@ -384,9 +396,7 @@ impl DispatchChannel {
                     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                         emitter.emit(&payload)
                     }))
-                    .unwrap_or_else(|_| {
-                        Err("паника при отправке события в UI-канал".to_string())
-                    });
+                    .unwrap_or_else(|_| Err("паника при отправке события в UI-канал".to_string()));
                     let mut stats = worker_stats
                         .lock()
                         .unwrap_or_else(|poison| poison.into_inner());
@@ -964,7 +974,10 @@ impl NetController {
                 // Диспатч — не статус: конверт уходит в UI-канал, состояние сети
                 // не трогается (порядок событий сохраняет поток супервайзера).
                 GatewayEvent::Dispatch(event) => {
-                    if matches!(event.kind, Some(DispatchKind::Ready | DispatchKind::Resumed)) {
+                    if matches!(
+                        event.kind,
+                        Some(DispatchKind::Ready | DispatchKind::Resumed)
+                    ) {
                         *status.lock().unwrap_or_else(|poison| poison.into_inner()) =
                             GatewayStatus::Ready;
                     }

@@ -39,6 +39,18 @@ fn live_test_lock() -> &'static RwLock<()> {
 
 thread_local! {
     static THREAD_READ_LOCKS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    static THREAD_HAS_WRITE_LOCK: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+struct ScopedWriteGuard {
+    _guard: RwLockWriteGuard<'static, ()>,
+}
+
+impl Drop for ScopedWriteGuard {
+    fn drop(&mut self) {
+        data::set_live_session(None, None);
+        THREAD_HAS_WRITE_LOCK.with(|c| c.set(false));
+    }
 }
 
 struct ScopedRoot {
@@ -54,6 +66,9 @@ impl Drop for ScopedRoot {
 }
 
 fn acquire_live_read_guard() -> Option<RwLockReadGuard<'static, ()>> {
+    if THREAD_HAS_WRITE_LOCK.with(|c| c.get()) {
+        return None;
+    }
     THREAD_READ_LOCKS.with(|c| {
         let prev = c.get();
         c.set(prev + 1);
@@ -83,10 +98,12 @@ impl AsRef<Path> for ScopedRoot {
     }
 }
 
-fn acquire_live_write_guard() -> RwLockWriteGuard<'static, ()> {
-    live_test_lock()
+fn acquire_live_write_guard() -> ScopedWriteGuard {
+    let guard = live_test_lock()
         .write()
-        .unwrap_or_else(|poison| poison.into_inner())
+        .unwrap_or_else(|poison| poison.into_inner());
+    THREAD_HAS_WRITE_LOCK.with(|c| c.set(true));
+    ScopedWriteGuard { _guard: guard }
 }
 
 /// Корень фикстур: `DL_FIXTURES` или `fixtures/` на два уровня выше crate.
@@ -1871,7 +1888,10 @@ fn compute_effective_permissions_matches_real_ready_news_and_hidden_channels() {
         !access.can_send_messages,
         "в новостном канале отправка запрещена оверрайтом @everyone"
     );
-    assert!(!access.can_attach_files, "файлы в read-only канале запрещены");
+    assert!(
+        !access.can_attach_files,
+        "файлы в read-only канале запрещены"
+    );
     assert!(!access.can_connect_voice);
     assert!(!access.can_speak_voice);
 
@@ -2058,8 +2078,7 @@ fn live_session_syncs_ready_channels_read_state_and_sent_messages() {
 #[test]
 fn live_session_account_switch_to_zero_guilds_clears_previous_servers_and_fixtures() {
     let _write_guard = acquire_live_write_guard();
-    let root =
-        std::env::temp_dir().join(format!("dl-w47-live-zero-guilds-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!("dl-w47-live-zero-guilds-{}", std::process::id()));
     let _ = fs::remove_dir_all(&root);
     fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог");
     write_minimal_ready(&root, "42", "1");
@@ -2145,7 +2164,10 @@ fn live_session_account_switch_to_zero_guilds_clears_previous_servers_and_fixtur
     assert_eq!(ready_acc2.user.username, "rusty021573");
     assert_eq!(ready_acc2.user.global_name.as_deref(), Some("RU Rusty"));
     assert_eq!(ready_acc2.guild_count, 0, "у аккаунта 0 серверов");
-    assert!(ready_acc2.guilds.is_empty(), "список гильдий обязан быть пустым");
+    assert!(
+        ready_acc2.guilds.is_empty(),
+        "список гильдий обязан быть пустым"
+    );
     assert_eq!(ready_acc2.private_channel_count, 0);
     assert!(ready_acc2.private_channels.is_empty());
     assert_eq!(ready_acc2.relationship_count, 0);
@@ -2180,8 +2202,7 @@ fn live_session_account_switch_to_zero_guilds_clears_previous_servers_and_fixtur
 #[test]
 fn live_session_syncs_relationship_private_channel_and_guild_dispatches() {
     let _write_guard = acquire_live_write_guard();
-    let root =
-        std::env::temp_dir().join(format!("dl-w47-live-rel-dm-sync-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!("dl-w47-live-rel-dm-sync-{}", std::process::id()));
     let _ = fs::remove_dir_all(&root);
     fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог");
     write_minimal_ready(&root, "42", "1");
@@ -2221,7 +2242,9 @@ fn live_session_syncs_relationship_private_channel_and_guild_dispatches() {
     assert_eq!(r1.relationships[0]["id"], "777010");
     assert_eq!(r1.relationships[0]["type"], 3);
     assert!(
-        r1.users.iter().any(|u| u["id"] == "777010" && u["username"] == "incoming_friend"),
+        r1.users
+            .iter()
+            .any(|u| u["id"] == "777010" && u["username"] == "incoming_friend"),
         "вложенный user из RELATIONSHIP_ADD обязан индексироваться в ready.users"
     );
 
@@ -2261,7 +2284,9 @@ fn live_session_syncs_relationship_private_channel_and_guild_dispatches() {
         }),
     );
     let r4 = data::ready(&root).expect("ready after CHANNEL_RECIPIENT_ADD");
-    let recs = r4.private_channels[0]["recipients"].as_array().expect("recipients array");
+    let recs = r4.private_channels[0]["recipients"]
+        .as_array()
+        .expect("recipients array");
     assert_eq!(recs.len(), 2);
     assert!(r4.users.iter().any(|u| u["id"] == "777011"));
 
@@ -2273,7 +2298,9 @@ fn live_session_syncs_relationship_private_channel_and_guild_dispatches() {
         }),
     );
     let r5 = data::ready(&root).expect("ready after CHANNEL_RECIPIENT_REMOVE");
-    let recs_after = r5.private_channels[0]["recipients"].as_array().expect("recipients array");
+    let recs_after = r5.private_channels[0]["recipients"]
+        .as_array()
+        .expect("recipients array");
     assert_eq!(recs_after.len(), 1);
 
     // 4. Присоединение к серверу по инвайту (GUILD_CREATE) и выход (GUILD_DELETE).
@@ -2306,4 +2333,954 @@ fn live_session_syncs_relationship_private_channel_and_guild_dispatches() {
     cleanup(&root);
 }
 
+#[test]
+fn live_session_ingests_and_forwards_guild_member_update_and_role_crud_dispatches() {
+    let _write_guard = acquire_live_write_guard();
+    let root = std::env::temp_dir().join(format!(
+        "dl-task764-member-role-crud-{}",
+        std::process::id()
+    ));
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(root.join("gateway/by-type")).expect("временный каталог");
+    write_minimal_ready(&root, "42", "1");
 
+    // 1. Проверяем, что net::map_dispatch пробрасывает GUILD_MEMBER_UPDATE и GUILD_ROLE_CREATE/UPDATE/DELETE.
+    for kind in [
+        "GUILD_MEMBER_UPDATE",
+        "GUILD_ROLE_CREATE",
+        "GUILD_ROLE_UPDATE",
+        "GUILD_ROLE_DELETE",
+    ] {
+        let event = discord_core::DispatchEvent {
+            name: kind.to_string(),
+            kind: None,
+            seq: Some(77),
+            data: discord_core::codec::etf::EtfValue::Map(vec![
+                (
+                    discord_core::codec::etf::EtfValue::Atom("guild_id".into()),
+                    discord_core::codec::etf::EtfValue::Str("888000".into()),
+                ),
+                (
+                    discord_core::codec::etf::EtfValue::Atom("token".into()),
+                    discord_core::codec::etf::EtfValue::Str("secret-should-be-stripped".into()),
+                ),
+            ]),
+        };
+        let mapped = discord_gui_spike::net::map_dispatch(&event)
+            .expect("map_dispatch without error")
+            .unwrap_or_else(|| panic!("{kind} должен пробрасываться через net::map_dispatch"));
+        assert_eq!(mapped.payload.kind, kind);
+        assert_eq!(mapped.payload.data["guild_id"], "888000");
+        assert!(
+            mapped.payload.data.get("token").is_none(),
+            "секретное поле token должно вырезаться"
+        );
+    }
+
+    // 2. Готовим живую сессию: пользователь 777000 не является владельцем гильдии 888000 (owner_id = 999999).
+    // Роль @everyone (888000) даёт только VIEW_CHANNEL (1024), без SEND_MESSAGES, CONNECT и STREAM.
+    // Роль 888100 даёт VIEW_CHANNEL (1024) | SEND_MESSAGES (2048) | CONNECT (1048576) | SPEAK (2097152) | STREAM (512) = 3149312.
+    let live_ready = json!({
+        "user": {
+            "id": "777000",
+            "username": "live_pilot",
+            "global_name": "Live Pilot"
+        },
+        "guilds": [{
+            "id": "888000",
+            "properties": {
+                "name": "Role & Perms Server",
+                "owner_id": "999999"
+            },
+            "roles": [
+                {
+                    "id": "888000",
+                    "name": "@everyone",
+                    "color": 0,
+                    "hoist": false,
+                    "position": 0,
+                    "permissions": "1024"
+                },
+                {
+                    "id": "888100",
+                    "name": "Speaker & Streamer",
+                    "color": 3447003,
+                    "hoist": true,
+                    "position": 2,
+                    "permissions": "3149312"
+                }
+            ],
+            "members": [{
+                "user": { "id": "777000", "username": "live_pilot" },
+                "roles": [],
+                "nick": "InitialNick",
+                "pending": true
+            }],
+            "channels": [
+                { "id": "888001", "type": 0, "name": "general", "position": 1, "permission_overwrites": [] },
+                { "id": "888002", "type": 2, "name": "voice-stage", "position": 2, "permission_overwrites": [] }
+            ]
+        }],
+        "merged_members": [[{
+            "user_id": "777000",
+            "roles": [],
+            "nick": "InitialNick",
+            "pending": true
+        }]]
+    });
+
+    data::set_live_session(Some("live-test-token".to_string()), None);
+    data::ingest_live_dispatch("READY", &live_ready);
+
+    let r0 = data::ready(&root).expect("initial ready");
+    assert!(r0.guilds[0].my_roles.is_empty(), "изначально ролей нет");
+    assert!(
+        !data::can_user_stream_in_channel(Some("888000"), "888002"),
+        "без роли 888100 стриминг в 888002 запрещён"
+    );
+    assert!(
+        data::connect_or_update_live_voice(
+            Some("888000".to_string()),
+            Some("888002".to_string()),
+            false,
+            false
+        )
+        .is_err(),
+        "без роли 888100 подключение к голосовому каналу 888002 должно блокироваться"
+    );
+
+    // 3. GUILD_MEMBER_UPDATE: выдаём роль 888100, меняем ник на PromotedPilot и снимаем pending.
+    data::ingest_live_dispatch(
+        "GUILD_MEMBER_UPDATE",
+        &json!({
+            "guild_id": "888000",
+            "user": { "id": "777000", "username": "live_pilot", "global_name": "Live Pilot Updated" },
+            "roles": ["888100"],
+            "nick": "PromotedPilot",
+            "pending": false
+        }),
+    );
+
+    let r1 = data::ready(&root).expect("ready after GUILD_MEMBER_UPDATE grant");
+    assert_eq!(r1.guilds[0].my_roles, vec!["888100".to_string()]);
+    assert_eq!(r1.guilds[0].pending, Some(false));
+    let me1 = r1.guilds[0]
+        .members
+        .iter()
+        .find(|m| m["user_id"] == "777000" || m["user"]["id"] == "777000")
+        .expect("member 777000 in guild");
+    assert_eq!(me1["roles"], json!(["888100"]));
+    assert_eq!(me1["nick"].as_str(), Some("PromotedPilot"));
+    assert!(
+        data::can_user_stream_in_channel(Some("888000"), "888002"),
+        "после выдачи роли 888100 стриминг в 888002 разрешён"
+    );
+
+    // 4. GUILD_MEMBER_UPDATE: забираем все роли (`roles: []` — сценарий «дал-забрал роль») и сбрасываем ник (`nick: null`).
+    data::ingest_live_dispatch(
+        "GUILD_MEMBER_UPDATE",
+        &json!({
+            "guild_id": "888000",
+            "user": { "id": "777000", "username": "live_pilot" },
+            "roles": [],
+            "nick": null
+        }),
+    );
+
+    let r2 = data::ready(&root).expect("ready after GUILD_MEMBER_UPDATE revoke");
+    assert!(
+        r2.guilds[0].my_roles.is_empty(),
+        "после отзыва всех ролей my_roles обязан стать пустым без воскрешения старых ролей из merged_members"
+    );
+    let me2 = r2.guilds[0]
+        .members
+        .iter()
+        .find(|m| m["user_id"] == "777000" || m["user"]["id"] == "777000")
+        .expect("member 777000 after revoke");
+    assert_eq!(
+        me2["roles"],
+        json!([]),
+        "roles у участника должен очиститься"
+    );
+    assert!(
+        me2.get("nick").is_none() || me2["nick"].is_null(),
+        "nick должен сброситься в null/None"
+    );
+    assert!(
+        !data::can_user_stream_in_channel(Some("888000"), "888002"),
+        "после отзыва роли 888100 стриминг снова запрещён"
+    );
+    assert!(
+        data::connect_or_update_live_voice(
+            Some("888000".to_string()),
+            Some("888002".to_string()),
+            false,
+            false
+        )
+        .is_err(),
+        "после отзыва роли 888100 подключение к голосовому каналу снова запрещено"
+    );
+
+    // 5. GUILD_ROLE_CREATE: создаём новую роль 888200 (пока только VIEW_CHANNEL = 1024) и выдаём её пользователю.
+    data::ingest_live_dispatch(
+        "GUILD_ROLE_CREATE",
+        &json!({
+            "guild_id": "888000",
+            "role": {
+                "id": "888200",
+                "name": "Stage Listener",
+                "color": 15158332,
+                "hoist": true,
+                "position": 5,
+                "permissions": "1024",
+                "managed": false,
+                "mentionable": true
+            }
+        }),
+    );
+    data::ingest_live_dispatch(
+        "GUILD_MEMBER_UPDATE",
+        &json!({
+            "guild_id": "888000",
+            "user": { "id": "777000", "username": "live_pilot" },
+            "roles": ["888200"]
+        }),
+    );
+
+    let r3 = data::ready(&root).expect("ready after GUILD_ROLE_CREATE");
+    let created_role = r3.guilds[0]
+        .roles
+        .iter()
+        .find(|r| r["id"] == "888200")
+        .expect("роль 888200 должна появиться в guild.roles");
+    assert_eq!(created_role["name"], "Stage Listener");
+    assert_eq!(created_role["color"], 15158332);
+    assert_eq!(created_role["hoist"], true);
+    assert_eq!(created_role["position"], 5);
+    assert_eq!(created_role["permissions"], "1024");
+    assert!(
+        !data::can_user_stream_in_channel(Some("888000"), "888002"),
+        "роль 888200 пока не даёт право стрима"
+    );
+
+    // 6. GUILD_ROLE_UPDATE: повышаем права роли 888200 до 3149312 и переименовываем её.
+    data::ingest_live_dispatch(
+        "GUILD_ROLE_UPDATE",
+        &json!({
+            "guild_id": "888000",
+            "role": {
+                "id": "888200",
+                "name": "Stage Broadcaster",
+                "color": 3066993,
+                "hoist": true,
+                "position": 6,
+                "permissions": "3149312"
+            }
+        }),
+    );
+
+    let r4 = data::ready(&root).expect("ready after GUILD_ROLE_UPDATE");
+    let updated_role = r4.guilds[0]
+        .roles
+        .iter()
+        .find(|r| r["id"] == "888200")
+        .expect("роль 888200 после обновления");
+    assert_eq!(updated_role["name"], "Stage Broadcaster");
+    assert_eq!(updated_role["color"], 3066993);
+    assert_eq!(updated_role["position"], 6);
+    assert_eq!(updated_role["permissions"], "3149312");
+    assert!(
+        data::can_user_stream_in_channel(Some("888000"), "888002"),
+        "после GUILD_ROLE_UPDATE права канала должны пересчитаться и разрешить стрим"
+    );
+
+    // 7. GUILD_ROLE_DELETE: удаляем роль 888200 -> она исчезает из roles, my_roles и members[].roles, права пересчитываются.
+    data::ingest_live_dispatch(
+        "GUILD_ROLE_DELETE",
+        &json!({
+            "guild_id": "888000",
+            "role_id": "888200"
+        }),
+    );
+
+    let r5 = data::ready(&root).expect("ready after GUILD_ROLE_DELETE");
+    assert!(
+        !r5.guilds[0].roles.iter().any(|r| r["id"] == "888200"),
+        "удалённая роль 888200 должна исчезнуть из guild.roles"
+    );
+    assert!(
+        !r5.guilds[0].my_roles.iter().any(|r| r == "888200"),
+        "удалённая роль 888200 должна быть вычищена из my_roles"
+    );
+    let me5 = r5.guilds[0]
+        .members
+        .iter()
+        .find(|m| m["user_id"] == "777000" || m["user"]["id"] == "777000")
+        .expect("member 777000 after role delete");
+    let me5_roles = me5["roles"].as_array().expect("roles array");
+    assert!(
+        !me5_roles.iter().any(|r| r == "888200"),
+        "удалённая роль 888200 должна быть вычищена из members[].roles"
+    );
+    assert!(
+        !data::can_user_stream_in_channel(Some("888000"), "888002"),
+        "после GUILD_ROLE_DELETE права должны пересчитаться и запретить стрим"
+    );
+
+    data::set_live_session(None, None);
+    cleanup(&root);
+}
+
+#[test]
+fn read_state_omnivorous_deserializes_string_integer_and_null_snowflakes_and_mentions() {
+    let _write_guard = acquire_live_write_guard();
+    data::set_live_session(None, None);
+    let root = std::env::temp_dir().join(format!("dl-task751-omnivorous-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(root.join("gateway/by-type")).expect("create gateway/by-type");
+
+    // 34 записи (включая индекс 31 из реального бага 002-READY.json), покрывающие:
+    // - целочисленные, строковые и null/nil/"" значения для last_acked_id, last_message_id, mention_count, id
+    let mut entries = Vec::new();
+    for idx in 0..30 {
+        entries.push(json!({
+            "id": format!("1000000000000000{:02}", idx),
+            "last_message_id": format!("2000000000000000{:02}", idx),
+            "mention_count": 0
+        }));
+    }
+    // Запись 30: строковые поля + строковый mention_count + null last_acked_id
+    entries.push(json!({
+        "id": "100000000000000030",
+        "last_message_id": "200000000000000030",
+        "last_acked_id": null,
+        "mention_count": "7",
+        "flags": "2",
+        "last_viewed": "4310"
+    }));
+    // Запись 31: целочисленный last_acked_id (например u64 Snowflake), целочисленный last_message_id и id
+    entries.push(json!({
+        "id": 1294268550826950656_u64,
+        "last_acked_id": 1294268550826950650_u64,
+        "last_message_id": 1294268550826950655_u64,
+        "mention_count": 3,
+        "read_state_type": 2,
+        "badge_count": "4"
+    }));
+    // Запись 32: last_acked_id = 0 (число), last_message_id = null, mention_count = null
+    entries.push(json!({
+        "id": "100000000000000032",
+        "last_acked_id": 0,
+        "last_message_id": null,
+        "mention_count": null,
+        "read_state_type": 0
+    }));
+    // Запись 33: строковый last_acked_id и пустые/"nil" строки как null
+    entries.push(json!({
+        "id": "100000000000000033",
+        "last_acked_id": "1294268550826950999",
+        "last_message_id": "nil",
+        "mention_count": ""
+    }));
+
+    let ready_payload = json!({
+        "op": 0,
+        "t": "READY",
+        "s": 1,
+        "d": {
+            "v": 9,
+            "user": { "id": "777000", "username": "tester" },
+            "guilds": [],
+            "private_channels": [],
+            "relationships": [],
+            "users": [],
+            "merged_members": [],
+            "read_state": {
+                "version": 42,
+                "partial": false,
+                "entries": entries
+            }
+        }
+    });
+    fs::write(
+        root.join("gateway/by-type/002-READY.json"),
+        serde_json::to_string(&ready_payload).expect("serialize ready"),
+    )
+    .expect("write 002-READY.json");
+
+    let snapshot = data::read_state(&root).expect(
+        "read_state должен успешно парсить строковые, числовые и null поля в 002-READY.json",
+    );
+    assert_eq!(snapshot.len(), 34);
+
+    let e30 = &snapshot[30];
+    assert_eq!(e30.channel_id, "100000000000000030");
+    assert_eq!(e30.last_message_id.as_deref(), Some("200000000000000030"));
+    assert_eq!(e30.last_acked_id, None);
+    assert_eq!(e30.mention_count, Some(7));
+    assert_eq!(e30.flags, Some(2));
+    assert_eq!(e30.last_viewed, Some(4310));
+
+    let e31 = &snapshot[31];
+    assert_eq!(e31.channel_id, "1294268550826950656");
+    assert_eq!(e31.last_acked_id.as_deref(), Some("1294268550826950650"));
+    assert_eq!(e31.last_message_id.as_deref(), Some("1294268550826950655"));
+    assert_eq!(e31.mention_count, Some(3));
+    assert_eq!(e31.read_state_type, Some(2));
+    assert_eq!(e31.badge_count, Some(4));
+
+    let e32 = &snapshot[32];
+    assert_eq!(e32.channel_id, "100000000000000032");
+    assert_eq!(e32.last_acked_id.as_deref(), Some("0"));
+    assert_eq!(e32.last_message_id, None);
+    assert_eq!(e32.mention_count, None);
+    assert_eq!(e32.read_state_type, Some(0));
+
+    let e33 = &snapshot[33];
+    assert_eq!(e33.channel_id, "100000000000000033");
+    assert_eq!(e33.last_acked_id.as_deref(), Some("1294268550826950999"));
+    assert_eq!(e33.last_message_id, None);
+    assert_eq!(e33.mention_count, None);
+
+    // Прямая десериализация ReadStateEntry через serde (snake_case и camelCase, числа, строки и null)
+    let de_int: data::ReadStateEntry = serde_json::from_value(json!({
+        "id": 999888777666555444_u64,
+        "last_acked_id": 111222333444555666_u64,
+        "last_message_id": 111222333444555777_u64,
+        "mention_count": "9"
+    }))
+    .expect("serde ReadStateEntry с числовыми полями");
+    assert_eq!(de_int.channel_id, "999888777666555444");
+    assert_eq!(de_int.last_acked_id.as_deref(), Some("111222333444555666"));
+    assert_eq!(
+        de_int.last_message_id.as_deref(),
+        Some("111222333444555777")
+    );
+    assert_eq!(de_int.mention_count, Some(9));
+
+    // Проверка live MESSAGE_ACK с числовыми/строковыми/null полями
+    data::set_live_session(Some("sess-751".into()), None);
+    data::ingest_live_dispatch("READY", &ready_payload["d"]);
+
+    data::ingest_live_dispatch(
+        "MESSAGE_ACK",
+        &json!({
+            "channel_id": 100000000000000030_u64,
+            "message_id": 200000000000000099_u64,
+            "last_acked_id": 200000000000000099_u64,
+            "mention_count": null,
+            "version": "43"
+        }),
+    );
+
+    let live_snapshot = data::read_state(&root).expect("live read_state after MESSAGE_ACK");
+    let updated_e30 = live_snapshot
+        .iter()
+        .find(|e| e.channel_id == "100000000000000030")
+        .expect("entry 30 in live snapshot");
+    assert_eq!(
+        updated_e30.last_message_id.as_deref(),
+        Some("200000000000000099")
+    );
+    assert_eq!(
+        updated_e30.last_acked_id.as_deref(),
+        Some("200000000000000099")
+    );
+    assert_eq!(updated_e30.mention_count, Some(0));
+
+    data::set_live_session(None, None);
+    cleanup(&root);
+}
+
+#[test]
+fn user_premium_type_0_1_2_and_hd_stream_presets_contract() {
+    // 1. Оракул реального дампа 002-READY.json: premium_type = 0, premium = false.
+    if let Some(fixture_root) = fixtures_root() {
+        let base_ready = data::ready(&fixture_root).expect("ready из эталонного дампа");
+        assert_eq!(base_ready.user.premium_type, 0);
+        assert!(!base_ready.user.premium);
+        assert!(!base_ready.user.supports_hd_stream_preset());
+        assert!(base_ready.user.is_stream_preset_unlocked(720, 60));
+        assert!(base_ready.user.is_stream_preset_unlocked(1080, 30));
+        assert!(!base_ready.user.is_stream_preset_unlocked(1080, 60));
+    }
+
+    // 2. Проверка флагов premium_type = 0 / 1 / 2 в фикстуре и live-сессии (READY + USER_UPDATE).
+    let _write_guard = acquire_live_write_guard();
+    data::set_live_session(None, None);
+    let root = temp_root("premium-type-788");
+    fs::create_dir_all(root.join("gateway/by-type")).expect("create gateway/by-type");
+    write_minimal_ready(&root, "777000", "1");
+
+    for (pt, expected_premium, expected_hd_1080p60, expected_1440p60) in [
+        (0_u8, false, false, false),
+        (1_u8, true, true, false),
+        (2_u8, true, true, true),
+    ] {
+        data::set_live_session(Some("live-test-token".to_string()), None);
+        data::ingest_live_dispatch(
+            "READY",
+            &json!({
+                "user": {
+                    "id": "777000",
+                    "username": "nitro_pilot",
+                    "global_name": "Nitro Pilot",
+                    "premium_type": pt,
+                    "mfa_enabled": true
+                },
+                "guilds": [],
+                "private_channels": [],
+                "relationships": [],
+                "users": []
+            }),
+        );
+
+        let snap =
+            data::ready(&root).unwrap_or_else(|e| panic!("ready при premium_type={pt}: {e}"));
+        assert_eq!(snap.user.premium_type, pt, "premium_type={pt}");
+        assert_eq!(
+            snap.user.premium, expected_premium,
+            "premium при premium_type={pt}"
+        );
+        assert_eq!(
+            snap.user.supports_hd_stream_preset(),
+            expected_hd_1080p60,
+            "supports_hd_stream_preset при premium_type={pt}"
+        );
+        assert!(
+            snap.user.is_stream_preset_unlocked(720, 60),
+            "720p 60fps всегда доступен при premium_type={pt}"
+        );
+        assert!(
+            snap.user.is_stream_preset_unlocked(1080, 30),
+            "1080p 30fps всегда доступен при premium_type={pt}"
+        );
+        assert_eq!(
+            snap.user.is_stream_preset_unlocked(1080, 60),
+            expected_hd_1080p60,
+            "1080p 60fps при premium_type={pt}"
+        );
+        assert_eq!(
+            snap.user.is_stream_preset_unlocked(1440, 60),
+            expected_1440p60,
+            "1440p 60fps при premium_type={pt}"
+        );
+
+        let serialized = serde_json::to_value(&snap.user).expect("ReadyUser сериализуется");
+        assert_eq!(serialized["premiumType"], json!(pt));
+        assert_eq!(serialized["premium"], json!(expected_premium));
+
+        let profile_settings = data::settings(&root, Some("profile")).expect("секция profile");
+        assert_eq!(
+            profile_settings.sections[0].values["premiumType"],
+            json!(pt)
+        );
+        assert_eq!(
+            profile_settings.sections[0].values["premium_type"],
+            json!(pt)
+        );
+        assert_eq!(
+            profile_settings.sections[0].values["premium"],
+            json!(expected_premium)
+        );
+    }
+
+    // 3. Проверка динамического обновления через USER_UPDATE (0 -> 2 -> 1 -> 0).
+    data::ingest_live_dispatch(
+        "USER_UPDATE",
+        &json!({
+            "id": "777000",
+            "username": "nitro_pilot",
+            "premium_type": 2
+        }),
+    );
+    let after_upgrade = data::ready(&root).expect("ready после USER_UPDATE -> 2");
+    assert_eq!(after_upgrade.user.premium_type, 2);
+    assert!(after_upgrade.user.premium);
+    assert!(after_upgrade.user.is_stream_preset_unlocked(1080, 60));
+
+    data::ingest_live_dispatch(
+        "USER_UPDATE",
+        &json!({
+            "id": "777000",
+            "username": "nitro_pilot",
+            "premium_type": 0,
+            "premium": false
+        }),
+    );
+    let after_downgrade = data::ready(&root).expect("ready после USER_UPDATE -> 0");
+    assert_eq!(after_downgrade.user.premium_type, 0);
+    assert!(!after_downgrade.user.premium);
+    assert!(!after_downgrade.user.is_stream_preset_unlocked(1080, 60));
+
+    data::set_live_session(None, None);
+    cleanup(&root);
+}
+
+#[test]
+fn message_components_action_row_and_buttons_parsed_and_returned_in_messages_page() {
+    let root = temp_root("msg-components");
+    write_minimal_ready(&root, "200", "10");
+    fs::write(
+        root.join("gateway/by-type/010-MESSAGE_CREATE.json"),
+        json!({
+            "t": "MESSAGE_CREATE",
+            "d": {
+                "id": "901001",
+                "channel_id": "200",
+                "content": "Подтвердите действие с заявкой #42",
+                "timestamp": "2026-04-19T12:00:00.000Z",
+                "author": {
+                    "id": "88001",
+                    "username": "HelperBot",
+                    "global_name": "Helper Bot",
+                    "bot": true
+                },
+                "components": [
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 3,
+                                "label": "Одобрить",
+                                "custom_id": "ticket:approve:42",
+                                "disabled": false,
+                                "emoji": {
+                                    "id": null,
+                                    "name": "✅",
+                                    "animated": false
+                                }
+                            },
+                            {
+                                "type": 2,
+                                "style": 4,
+                                "label": "Отклонить",
+                                "custom_id": "ticket:reject:42",
+                                "disabled": true,
+                                "emoji": {
+                                    "id": "777888999",
+                                    "name": "ban_hammer",
+                                    "animated": true
+                                }
+                            },
+                            {
+                                "type": 2,
+                                "style": 5,
+                                "label": "Документация",
+                                "url": "https://discord.com/developers/docs/interactions/message-components",
+                                "disabled": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 3,
+                                "custom_id": "ticket:priority:42",
+                                "placeholder": "Выберите приоритет",
+                                "min_values": 1,
+                                "max_values": 1,
+                                "disabled": false,
+                                "options": [
+                                    {
+                                        "label": "Высокий",
+                                        "value": "high",
+                                        "description": "Срочная обработка",
+                                        "default": true
+                                    },
+                                    {
+                                        "label": "Обычный",
+                                        "value": "normal",
+                                        "default": false
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        })
+        .to_string(),
+    )
+    .expect("пишем 010-MESSAGE_CREATE.json");
+
+    let page =
+        data::messages_page(&root, "200", None, Some(50)).expect("messages_page с components");
+    let bot_msg = page
+        .items
+        .iter()
+        .find(|m| m.id == "901001")
+        .expect("сообщение бота 901001 найдено в выдаче");
+
+    assert_eq!(bot_msg.components.len(), 2, "два ActionRow в сообщении");
+    let row0 = &bot_msg.components[0];
+    assert_eq!(row0.component_type, data::COMPONENT_TYPE_ACTION_ROW);
+    assert_eq!(row0.components.len(), 3, "три кнопки в первом ActionRow");
+
+    let approve_btn = &row0.components[0];
+    assert_eq!(approve_btn.component_type, data::COMPONENT_TYPE_BUTTON);
+    assert_eq!(approve_btn.style, Some(data::BUTTON_STYLE_SUCCESS));
+    assert_eq!(approve_btn.label.as_deref(), Some("Одобрить"));
+    assert_eq!(approve_btn.custom_id.as_deref(), Some("ticket:approve:42"));
+    assert!(!approve_btn.disabled);
+    assert_eq!(
+        approve_btn.emoji.as_ref().and_then(|e| e.name.as_deref()),
+        Some("✅")
+    );
+
+    let reject_btn = &row0.components[1];
+    assert_eq!(reject_btn.component_type, data::COMPONENT_TYPE_BUTTON);
+    assert_eq!(reject_btn.style, Some(data::BUTTON_STYLE_DANGER));
+    assert_eq!(reject_btn.label.as_deref(), Some("Отклонить"));
+    assert_eq!(reject_btn.custom_id.as_deref(), Some("ticket:reject:42"));
+    assert!(reject_btn.disabled);
+    let reject_emoji = reject_btn.emoji.as_ref().expect("кастомный эмодзи кнопки");
+    assert_eq!(reject_emoji.id.as_deref(), Some("777888999"));
+    assert_eq!(reject_emoji.name.as_deref(), Some("ban_hammer"));
+    assert!(reject_emoji.animated);
+
+    let link_btn = &row0.components[2];
+    assert_eq!(link_btn.component_type, data::COMPONENT_TYPE_BUTTON);
+    assert_eq!(link_btn.style, Some(data::BUTTON_STYLE_LINK));
+    assert_eq!(
+        link_btn.url.as_deref(),
+        Some("https://discord.com/developers/docs/interactions/message-components")
+    );
+    assert!(link_btn.custom_id.is_none());
+
+    let row1 = &bot_msg.components[1];
+    assert_eq!(row1.component_type, data::COMPONENT_TYPE_ACTION_ROW);
+    assert_eq!(row1.components.len(), 1);
+    let select_menu = &row1.components[0];
+    assert_eq!(
+        select_menu.component_type,
+        data::COMPONENT_TYPE_STRING_SELECT
+    );
+    assert_eq!(select_menu.custom_id.as_deref(), Some("ticket:priority:42"));
+    assert_eq!(
+        select_menu.placeholder.as_deref(),
+        Some("Выберите приоритет")
+    );
+    assert_eq!(select_menu.options.len(), 2);
+    assert_eq!(select_menu.options[0].label, "Высокий");
+    assert_eq!(select_menu.options[0].value, "high");
+    assert!(select_menu.options[0].default);
+
+    // Проверяем сериализацию в JSON для фронтенда (TASK-813 message-components.js):
+    // поля type, style, label, custom_id, url, disabled, emoji, options.
+    let serialized = serde_json::to_value(&page).expect("MessagesPage сериализуется в JSON");
+    let items = serialized["items"].as_array().expect("items — массив");
+    let json_msg = items
+        .iter()
+        .find(|m| m["id"] == "901001")
+        .expect("901001 в JSON");
+    assert_eq!(json_msg["components"][0]["type"], json!(1));
+    assert_eq!(json_msg["components"][0]["components"][0]["type"], json!(2));
+    assert_eq!(
+        json_msg["components"][0]["components"][0]["style"],
+        json!(3)
+    );
+    assert_eq!(
+        json_msg["components"][0]["components"][0]["custom_id"],
+        json!("ticket:approve:42")
+    );
+    assert_eq!(
+        json_msg["components"][0]["components"][1]["disabled"],
+        json!(true)
+    );
+
+    // Проверяем обновление components через MESSAGE_UPDATE.
+    fs::write(
+        root.join("gateway/by-type/011-MESSAGE_UPDATE.json"),
+        json!({
+            "t": "MESSAGE_UPDATE",
+            "d": {
+                "id": "901001",
+                "channel_id": "200",
+                "components": [
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 3,
+                                "label": "Одобрено",
+                                "custom_id": "ticket:approve:42",
+                                "disabled": true
+                            }
+                        ]
+                    }
+                ]
+            }
+        })
+        .to_string(),
+    )
+    .expect("пишем 011-MESSAGE_UPDATE.json");
+
+    let updated_page = data::messages_page(&root, "200", None, Some(50))
+        .expect("messages_page после MESSAGE_UPDATE");
+    let updated_msg = updated_page
+        .items
+        .iter()
+        .find(|m| m.id == "901001")
+        .expect("901001 после обновления");
+    assert_eq!(updated_msg.components.len(), 1);
+    assert_eq!(updated_msg.components[0].components.len(), 1);
+    assert_eq!(
+        updated_msg.components[0].components[0].label.as_deref(),
+        Some("Одобрено")
+    );
+    assert!(updated_msg.components[0].components[0].disabled);
+
+    cleanup(&root);
+}
+
+#[test]
+fn bot_message_components_and_custom_ids_persisted_in_sqlite() {
+    let _write_guard = acquire_live_write_guard();
+    let root = temp_root("msg-components-sqlite");
+    write_minimal_ready(&root, "200", "10");
+    let sqlite_path = root.join("components-store.sqlite3");
+
+    data::set_live_session(Some("live-test-token".to_string()), None);
+    data::set_live_components_sqlite_path(Some(sqlite_path.clone()));
+
+    data::ingest_live_dispatch(
+        "READY",
+        &json!({
+            "user": { "id": "1001", "username": "tester" },
+            "guilds": [{
+                "id": "10",
+                "name": "Bot Guild",
+                "channels": [{ "id": "200", "type": 0, "name": "bot-commands" }]
+            }],
+            "private_channels": []
+        }),
+    );
+
+    data::ingest_live_dispatch(
+        "MESSAGE_CREATE",
+        &json!({
+            "id": "902001",
+            "channel_id": "200",
+            "content": "Выберите роль на сервере:",
+            "timestamp": "2026-04-19T12:05:00.000Z",
+            "author": {
+                "id": "99001",
+                "username": "RoleBot",
+                "bot": true
+            },
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "style": 1,
+                            "label": "Rustacean",
+                            "custom_id": "role:grant:rust",
+                            "disabled": false
+                        },
+                        {
+                            "type": 2,
+                            "style": 2,
+                            "label": "TypeScript",
+                            "custom_id": "role:grant:ts",
+                            "disabled": false
+                        }
+                    ]
+                }
+            ]
+        }),
+    );
+
+    // 1. Проверяем, что messages_page возвращает компоненты живого сообщения.
+    let page = data::messages_page(&root, "200", None, Some(50)).expect("live messages_page");
+    let live_msg = page
+        .items
+        .iter()
+        .find(|m| m.id == "902001")
+        .expect("живое сообщение 902001");
+    assert_eq!(live_msg.components.len(), 1);
+    assert_eq!(live_msg.components[0].components.len(), 2);
+    assert_eq!(
+        live_msg.components[0].components[0].custom_id.as_deref(),
+        Some("role:grant:rust")
+    );
+    assert_eq!(
+        live_msg.components[0].components[1].custom_id.as_deref(),
+        Some("role:grant:ts")
+    );
+
+    // 2. Проверяем, что сообщение бота и его кнопки с custom_id сохранены в SQLite (discord_store::Store).
+    assert!(sqlite_path.exists(), "файл SQLite должен быть создан");
+    let store = discord_store::Store::open(&sqlite_path).expect("открытие SQLite Store");
+    let stored_msgs = store
+        .messages("200", None, 10)
+        .expect("чтение messages из SQLite");
+    assert!(
+        stored_msgs.iter().any(|m| m.id == "902001"),
+        "сообщение 902001 должно быть записано в таблицу messages SQLite"
+    );
+
+    let loaded_components = data::load_message_components_from_sqlite(&store, "902001")
+        .expect("чтение components из SQLite");
+    assert_eq!(loaded_components.len(), 1);
+    assert_eq!(
+        loaded_components[0].component_type,
+        data::COMPONENT_TYPE_ACTION_ROW
+    );
+    assert_eq!(loaded_components[0].components.len(), 2);
+    assert_eq!(
+        loaded_components[0].components[0].custom_id.as_deref(),
+        Some("role:grant:rust")
+    );
+    assert_eq!(
+        loaded_components[0].components[1].custom_id.as_deref(),
+        Some("role:grant:ts")
+    );
+
+    // 3. Проверяем обновление компонентов в SQLite при MESSAGE_UPDATE.
+    data::ingest_live_dispatch(
+        "MESSAGE_UPDATE",
+        &json!({
+            "id": "902001",
+            "channel_id": "200",
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "style": 1,
+                            "label": "Rustacean (выдано)",
+                            "custom_id": "role:grant:rust",
+                            "disabled": true
+                        }
+                    ]
+                }
+            ]
+        }),
+    );
+
+    let reloaded = data::load_message_components_from_sqlite(&store, "902001")
+        .expect("чтение обновлённых components из SQLite");
+    assert_eq!(reloaded.len(), 1);
+    assert_eq!(reloaded[0].components.len(), 1);
+    assert_eq!(
+        reloaded[0].components[0].label.as_deref(),
+        Some("Rustacean (выдано)")
+    );
+    assert_eq!(
+        reloaded[0].components[0].custom_id.as_deref(),
+        Some("role:grant:rust")
+    );
+    assert!(reloaded[0].components[0].disabled);
+
+    drop(store);
+    data::set_live_components_sqlite_path(None);
+    data::set_live_session(None, None);
+    cleanup(&root);
+}

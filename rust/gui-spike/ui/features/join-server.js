@@ -22,7 +22,7 @@
  * Тексты — из §5.1 (`[D]`), коды ошибок — из §3.1 (`[A]`, live не наблюдался).
  */
 import { byId, formatNumber, make } from "./dom.js";
-import { createCaptchaModal, extractCaptchaChallenge } from "./captcha-modal.js";
+import { createCaptchaModal, extractCaptchaChallenge, isCaptchaChallengeError } from "./captcha-modal.js";
 
 /** Команды, принятые backend (`rust/gui-spike/src/main.rs`, D-116/D-76). */
 export const JOIN_COMMANDS = Object.freeze({
@@ -30,6 +30,76 @@ export const JOIN_COMMANDS = Object.freeze({
   accept: "accept_invite",
   enter: "join_guild",
 });
+
+/**
+ * Конфигурация клиентского/BFF пула HTTP/2 Keep-Alive соединений (`90s`)
+ * и экспоненциального backoff (`150ms`) для `resolve_invite_info` (`TASK-822`).
+ */
+export const INVITE_POOL_CONFIG = Object.freeze({
+  httpVersion: "HTTP/2",
+  keepAliveSecs: 90,
+  keepAliveHeader: "timeout=90, max=100",
+  initialBackoffMs: 150,
+  maxAttempts: 3,
+  attemptTimeoutMs: 450,
+});
+
+/**
+ * Выполняет резолв приглашения с экспоненциальным backoff (`150ms` -> `300ms`)
+ * на транзиентных сбоях (`network`, `server` 5xx), не повторяя `notFound` (404)
+ * или `invalidArg`.
+ *
+ * @param {(cmd: string, args?: any) => Promise<any>} invokeFn
+ * @param {string} rawInput
+ * @param {{
+ *   maxAttempts?: number,
+ *   initialBackoffMs?: number,
+ *   onBackoff?: (delayMs: number, attempt: number) => void,
+ *   sleepFn?: (delayMs: number) => Promise<void>,
+ * }} [retryOptions]
+ */
+export async function resolveInviteWithRetry(invokeFn, rawInput, retryOptions = {}) {
+  const code = normalizeInvite(rawInput);
+  if (code === "") {
+    throw { kind: "invalidArg" };
+  }
+  const maxAttempts = retryOptions.maxAttempts ?? INVITE_POOL_CONFIG.maxAttempts;
+  const baseBackoff = retryOptions.initialBackoffMs ?? INVITE_POOL_CONFIG.initialBackoffMs;
+  const sleepFn =
+    retryOptions.sleepFn ??
+    ((/** @type {number} */ ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+
+  let totalBackoffMs = 0;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const raw = await invokeFn(JOIN_COMMANDS.resolve, { code });
+      const preview = parsePreview(raw, code);
+      return {
+        preview,
+        metrics: {
+          attempts: attempt,
+          httpVersion: INVITE_POOL_CONFIG.httpVersion,
+          keepAliveHeader: INVITE_POOL_CONFIG.keepAliveHeader,
+          totalBackoffMs,
+        },
+      };
+    } catch (err) {
+      const kind = errorKind(err);
+      const isTransient = kind === "network" || kind === "server";
+      if (attempt < maxAttempts && isTransient) {
+        const delayMs = baseBackoff * (1 << (attempt - 1));
+        totalBackoffMs += delayMs;
+        if (typeof retryOptions.onBackoff === "function") {
+          retryOptions.onBackoff(delayMs, attempt);
+        }
+        await sleepFn(delayMs);
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw { kind: "network" };
+}
 
 /** Тексты §5.1 (ключи `[D]`); авторские строки помечены в отчёте. */
 export const JOIN_TEXT = Object.freeze({
@@ -214,8 +284,7 @@ export function inviteFailure(error, step = "resolve") {
     case "client":
       if (
         (/** @type {any} */ (error))?.code === 40003 ||
-        isLiveCaptchaChallengeRequired() ||
-        (/** @type {any} */ (error))?.status === 400
+        isCaptchaChallengeError(error)
       ) {
         return {
           text: "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить.",
@@ -230,16 +299,12 @@ export function inviteFailure(error, step = "resolve") {
       return {
         text: step === "resolve"
           ? "Не удалось загрузить профиль для этого сервера."
-          : isLiveCaptchaChallengeRequired()
-            ? "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить."
-            : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
+          : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
         retry: true,
       };
     default:
       return {
-        text: isLiveCaptchaChallengeRequired()
-          ? "Discord запросил проверку Captcha при вступлении на сервер (код 40003). Пройдите проверку в официальном клиенте Discord или веб-версии, чтобы вступить."
-          : "Невозможно присоединиться к серверу. Неизвестная ошибка.",
+        text: "Невозможно присоединиться к серверу. Неизвестная ошибка.",
         retry: true,
       };
   }
@@ -304,6 +369,7 @@ function parseAcceptedGuildId(value) {
  *   invoke: (cmd: string, args?: any) => Promise<any>,
  *   onAccepted?: (guild: JoinedGuild) => void,
  *   onOpenCreate?: (opener?: any) => void,
+ *   verifyViaRules?: (guildId: string) => Promise<boolean>,
  * }} options
  */
 export function createJoinServer(options) {
@@ -366,6 +432,12 @@ export function createJoinServer(options) {
   status.id = "join-status";
   status.setAttribute("aria-live", "polite");
 
+  const loadingIndicator = node("div", "join-loading-indicator", "Проверяем приглашение…");
+  loadingIndicator.id = "join-loading-indicator";
+  loadingIndicator.setAttribute("data-loading", "false");
+  loadingIndicator.setAttribute("aria-hidden", "true");
+  loadingIndicator.setAttribute("hidden", "");
+
   const actions = node("div", "dialog-actions");
   const cancel = node("button", "btn btn-secondary", JOIN_TEXT.cancel);
   cancel.setAttribute("type", "button");
@@ -374,10 +446,11 @@ export function createJoinServer(options) {
   submit.id = "join-submit";
   submit.setAttribute("type", "button");
   submit.setAttribute("data-action", "join-submit");
+  submit.setAttribute("data-loading", "false");
   submit.setAttribute("disabled", "");
   actions.append(cancel, submit);
 
-  form.append(label, input, codeHint, preview, error, status, actions);
+  form.append(label, input, codeHint, loadingIndicator, preview, error, status, actions);
   const close = node("button", "icon-btn dialog-close", "×");
   close.setAttribute("type", "button");
   close.setAttribute("data-action", "dialog-close");
@@ -464,10 +537,16 @@ export function createJoinServer(options) {
     cancel.disabled = false;
     if (isBusy) {
       submit.setAttribute("aria-busy", "true");
+      submit.setAttribute("data-loading", "true");
       form.setAttribute("aria-busy", "true");
+      loadingIndicator.setAttribute("data-loading", "true");
+      loadingIndicator.removeAttribute("hidden");
     } else {
       submit.removeAttribute("aria-busy");
+      submit.setAttribute("data-loading", "false");
       form.removeAttribute("aria-busy");
+      loadingIndicator.setAttribute("data-loading", "false");
+      loadingIndicator.setAttribute("hidden", "");
     }
   }
 
@@ -713,15 +792,36 @@ export function createJoinServer(options) {
       completeAccept(data, raw);
     } catch (failure) {
       if (disposed) return;
-      showFailure(failure, "accept");
       const challenge = extractCaptchaChallenge(failure);
       if (challenge) {
+        let verifiedViaRules = false;
+        if (data.guildId && typeof options?.verifyViaRules === "function") {
+          try {
+            const rulesResult = await options.verifyViaRules(data.guildId);
+            if (rulesResult) {
+              verifiedViaRules = true;
+            }
+          } catch {
+            verifiedViaRules = false;
+          }
+        }
+        if (verifiedViaRules) {
+          completeAccept(data, {
+            guildId: data.guildId,
+            guildName: data.guildName,
+          });
+          return;
+        }
+
+        showFailure(failure, "accept");
         captchaModal.open({
           ...challenge,
           code: data.code,
           guildName: data.guildName,
         });
+        return;
       }
+      showFailure(failure, "accept");
     } finally {
       pending = false;
       syncSubmit();

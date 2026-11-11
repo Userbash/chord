@@ -1082,7 +1082,8 @@ mod tests {
                 channels: vec!["1176785373989445703".to_string()],
             },
         );
-        let frame_bulk = super::encode_guild_subscriptions_bulk(&bulk).expect("bulk op37 кодируется");
+        let frame_bulk =
+            super::encode_guild_subscriptions_bulk(&bulk).expect("bulk op37 кодируется");
         let frame_orig = encode_guild_subscriptions(&bulk).expect("orig op37 кодируется");
         assert_eq!(frame_bulk, frame_orig);
     }
@@ -1101,8 +1102,12 @@ mod tests {
         // чтобы суммарный размер одиночного ETF превысил 15 360 байт (около 35-40 КБ).
         for i in 0..120 {
             let guild_id = format!("1014537851418980{:03}", i);
-            let channels: Vec<String> = (0..10).map(|c| format!("1176785373989445{:02}{:02}", i, c)).collect();
-            let members: Vec<String> = (0..5).map(|m| format!("3842999706328760{:02}{:02}", i, m)).collect();
+            let channels: Vec<String> = (0..10)
+                .map(|c| format!("1176785373989445{:02}{:02}", i, c))
+                .collect();
+            let members: Vec<String> = (0..5)
+                .map(|m| format!("3842999706328760{:02}{:02}", i, m))
+                .collect();
             bulk.insert(
                 guild_id,
                 OutboundGuildSubscription {
@@ -1140,7 +1145,10 @@ mod tests {
                 frame.len(),
                 super::MAX_GUILD_SUBSCRIPTIONS_FRAME_BYTES
             );
-            assert_eq!(frame[0], 0x83, "каждый чанк должен начинаться с 0x83 wetf-маркера");
+            assert_eq!(
+                frame[0], 0x83,
+                "каждый чанк должен начинаться с 0x83 wetf-маркера"
+            );
             let value = decode_frame(frame);
             assert_eq!(
                 value.get("op").and_then(EtfValue::as_int),

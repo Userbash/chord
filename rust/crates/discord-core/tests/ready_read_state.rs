@@ -523,6 +523,57 @@ fn c11_user_and_guild_snowflakes_are_accepted_as_read_state_ids() {
 
     let guild_entry = find_read_state(&ready, guild_id);
     assert_eq!(guild_entry.id, guild_id);
-    assert_eq!(guild_entry.read_state_type, Some(4));
+    assert_eq!(guild_entry.read_state_type, Some(2 + 2));
     assert_eq!(guild_entry.badge_count, Some(0));
+}
+
+/// TASK-751: всеядная десериализация last_acked_id, last_message_id, mention_count (строки, числа, null/nil/"").
+#[test]
+fn c12_omnivorous_last_acked_id_last_message_id_and_mention_count() {
+    let ready = parse_payload(
+        r#","read_state":{"version":10,"partial":false,"entries":[
+            {"id":"101","last_acked_id":"5001","last_message_id":"5002","mention_count":"4","read_state_type":2,"badge_count":"3"},
+            {"id":102,"last_acked_id":6001,"last_message_id":6002,"mention_count":8,"read_state_type":"2","badge_count":5},
+            {"id":"103","last_acked_id":null,"last_message_id":null,"mention_count":null},
+            {"id":"104","last_acked_id":"nil","last_message_id":"","mention_count":"nil"},
+            {"id":"105","last_acked_id":0,"last_message_id":0,"mention_count":"0"}
+        ]}"#,
+    );
+
+    let entries = &ready.read_state.entries;
+    assert_eq!(entries.len(), 5);
+
+    assert_eq!(entries[0].id, 101);
+    assert_eq!(entries[0].last_acked_id, Some(5001));
+    assert_eq!(entries[0].last_message_id, Some(5002));
+    assert_eq!(entries[0].mention_count, Some(4));
+    assert_eq!(entries[0].read_state_type, Some(2));
+    assert_eq!(entries[0].badge_count, Some(3));
+
+    assert_eq!(entries[1].id, 102);
+    assert_eq!(entries[1].last_acked_id, Some(6001));
+    assert_eq!(entries[1].last_message_id, Some(6002));
+    assert_eq!(entries[1].mention_count, Some(8));
+    assert_eq!(entries[1].read_state_type, Some(2));
+    assert_eq!(entries[1].badge_count, Some(5));
+
+    assert_eq!(entries[2].id, 103);
+    assert_eq!(entries[2].last_acked_id, None);
+    assert_eq!(entries[2].last_message_id, None);
+    assert_eq!(entries[2].mention_count, None);
+
+    assert_eq!(entries[3].id, 104);
+    assert_eq!(entries[3].last_acked_id, None);
+    assert_eq!(entries[3].last_message_id, None);
+    assert_eq!(entries[3].mention_count, None);
+
+    assert_eq!(entries[4].id, 105);
+    assert_eq!(entries[4].last_acked_id, Some(0));
+    assert_eq!(entries[4].last_message_id, Some(0));
+    assert_eq!(entries[4].mention_count, Some(0));
+    assert!(
+        ready.diagnostics.ignored.is_empty(),
+        "ожидалось отсутствие диагностик игнорирования, получено: {:?}",
+        ready.diagnostics.ignored
+    );
 }

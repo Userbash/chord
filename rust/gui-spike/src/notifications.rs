@@ -1369,4 +1369,3 @@ pub fn send_desktop_notification(
         .notify_with_hints(&notif, &hints)
         .map_err(|e| format!("D-Bus notify error: {e:?}"))
 }
-

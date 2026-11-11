@@ -18,10 +18,10 @@ use discord_voice::srtp::{
     DAVE_MARKER_BYTES, DaveMlsEngine, DaveTransitionOutcome, EncryptionMode, SrtpError,
 };
 use discord_voice::{
-    KEEPALIVE_MAGIC, STATE_COALESCE, STATE_COALESCE_MS, SeqAckTracker, UDP_MAX_CONSECUTIVE_FAILURES,
-    UdpFailures, UdpReliabilityStatus, UdpReliabilityTracker, VOICE_CALL_NEGOTIATION_TIMEOUT_MS,
-    VoiceCallState, VoiceCallStateMachine, VoiceCleanupAction, VoiceServerUpdate, VoiceStateUpdate,
-    parse_frame,
+    KEEPALIVE_MAGIC, STATE_COALESCE, STATE_COALESCE_MS, SeqAckTracker,
+    UDP_MAX_CONSECUTIVE_FAILURES, UdpFailures, UdpReliabilityStatus, UdpReliabilityTracker,
+    VOICE_CALL_NEGOTIATION_TIMEOUT_MS, VoiceCallState, VoiceCallStateMachine, VoiceCleanupAction,
+    VoiceServerUpdate, VoiceStateUpdate, parse_frame,
 };
 use std::time::Duration;
 
@@ -91,7 +91,10 @@ fn v1_voice_call_state_machine_barrier_monotonic_revision_and_confirm_only_after
     assert!(!fsm.session_confirmed());
 
     // Повторный идентичный VOICE_STATE_UPDATE не раздувает negotiation_revision
-    assert_eq!(fsm.on_voice_state_update(&vsu).expect("idempotent VSU"), None);
+    assert_eq!(
+        fsm.on_voice_state_update(&vsu).expect("idempotent VSU"),
+        None
+    );
     assert_eq!(fsm.negotiation_revision(), 1);
 
     // 3. Приходит VOICE_SERVER_UPDATE: барьер закрыт, ревизия монотонно растёт (1 -> 2), переход в NegotiatingTransport
@@ -161,7 +164,10 @@ fn v1_barrier_accepts_server_update_before_state_update_and_rotates_revision() {
         r#"{"token":"tok-1","guild_id":"1014537851418980372","endpoint":"c-arn02.discord.media:2096"}"#,
     )
     .expect("server_1");
-    assert_eq!(fsm.on_voice_server_update(&server_1).expect("server_1"), None);
+    assert_eq!(
+        fsm.on_voice_server_update(&server_1).expect("server_1"),
+        None
+    );
     assert_eq!(fsm.state(), VoiceCallState::Signaling);
     assert_eq!(fsm.negotiation_revision(), 1);
 
@@ -240,7 +246,9 @@ fn v1_state_coalesce_120ms_collapses_rapid_mute_deaf_toggles_and_handles_send_fa
     // При сбое отправки сокета state_send_failed выставляет немедленный повтор для следующего flush
     fsm.state_send_failed(1_305);
     assert_eq!(fsm.state_deadline_ms(), Some(1_305));
-    let retry = fsm.flush_state(1_305).expect("retry after state_send_failed");
+    let retry = fsm
+        .flush_state(1_305)
+        .expect("retry after state_send_failed");
     let retry_val: serde_json::Value = serde_json::from_str(&retry).expect("json");
     assert_eq!(retry_val["d"]["self_mute"], false);
 }
@@ -424,7 +432,9 @@ fn v3_dave_mls_engine_op4_init_op11_op13_roster_op25_to_31_and_two_layer_srtp_be
     );
 
     // 3. Обработка бинарного op:25 ExternalSenderPackage
-    let ext_sender_frame = [0x00, 0x10, 25, 0xde, 0xad, 0xbe, 0xef, 0x01, 0x02, 0x03, 0x04];
+    let ext_sender_frame = [
+        0x00, 0x10, 25, 0xde, 0xad, 0xbe, 0xef, 0x01, 0x02, 0x03, 0x04,
+    ];
     alice
         .on_external_sender_op25(&ext_sender_frame)
         .expect("alice op25");

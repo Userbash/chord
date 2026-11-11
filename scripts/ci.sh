@@ -54,12 +54,31 @@ if [[ -n "$SCOPE" && "$SCOPE" != "worker" && "$SCOPE" != "release" && "$SCOPE" !
     exit 1
 fi
 
-# Автоматическое обнаружение браузера по стандартным путям и flatpak (TASK-621).
+# Параметры виртуального X11-экрана Xvfb (1280x720x24 для E2E/WebKit).
+XVFB_SERVER_ARGS="${XVFB_SERVER_ARGS:--screen 0 1280x720x24 -ac +extension GLX +render -noreset}"
+XVFB_PID=""
+XVFB_DISPLAY=""
+
+cleanup_xvfb() {
+    if [[ -n "${XVFB_PID:-}" ]]; then
+        kill "$XVFB_PID" 2>/dev/null || true
+        wait "$XVFB_PID" 2>/dev/null || true
+        XVFB_PID=""
+    fi
+}
+trap cleanup_xvfb EXIT INT TERM
+
+# Автоматическое обнаружение браузера по стандартным путям, PATH и flatpak (TASK-621).
 detect_browser() {
     local explicit="${CHROME_BIN:-${CHROME_PATH:-}}"
-    if [[ -n "$explicit" && -x "$explicit" ]]; then
+    if [[ -n "$explicit" ]]; then
+        if [[ -f "$explicit" && -x "$explicit" ]]; then
+            export CHROME_BIN="$explicit"
+            return 0
+        fi
         export CHROME_BIN="$explicit"
-        return 0
+        echo "ci: browser: явный CHROME_BIN=$explicit не существует или не исполняется" >&2
+        return 1
     fi
     local candidates=(
         "/home/sanya/.local/bin/chromium"
@@ -69,17 +88,22 @@ detect_browser() {
         "/usr/bin/google-chrome-stable"
         "/usr/bin/brave-browser"
         "/usr/bin/brave"
+        "/usr/bin/microsoft-edge"
+        "/usr/bin/microsoft-edge-stable"
+        "/snap/bin/chromium"
+        "/opt/google/chrome/chrome"
+        "/opt/brave.com/brave/brave-browser"
     )
     local candidate
     for candidate in "${candidates[@]}"; do
-        if [[ -x "$candidate" ]]; then
+        if [[ -f "$candidate" && -x "$candidate" ]]; then
             export CHROME_BIN="$candidate"
             return 0
         fi
     done
     local bin_name found
-    for bin_name in chromium chromium-browser google-chrome google-chrome-stable chrome brave-browser brave; do
-        if found="$(command -v "$bin_name" 2>/dev/null)" && [[ -n "$found" && -x "$found" ]]; then
+    for bin_name in chromium chromium-browser google-chrome google-chrome-stable chrome brave-browser brave microsoft-edge microsoft-edge-stable; do
+        if found="$(command -v "$bin_name" 2>/dev/null)" && [[ -n "$found" && -f "$found" && -x "$found" ]]; then
             export CHROME_BIN="$found"
             return 0
         fi
@@ -104,14 +128,66 @@ detect_browser() {
 
 # Проверка наличия активного X11 DISPLAY (TASK-621).
 has_active_display() {
-    if [[ -z "${DISPLAY:-}" ]]; then
+    local disp="${DISPLAY:-}"
+    disp="${disp#"${disp%%[![:space:]]*}"}"
+    disp="${disp%"${disp##*[![:space:]]}"}"
+    if [[ -z "$disp" ]]; then
         return 1
     fi
-    if [[ "$DISPLAY" =~ ^:([0-9]+)(\.[0-9]+)?$ ]] && [[ -d /tmp/.X11-unix ]]; then
-        [[ -S "/tmp/.X11-unix/X${BASH_REMATCH[1]}" ]]
+    local x11_dir="${DISCORD_LAB_X11_UNIX_DIR:-/tmp/.X11-unix}"
+    if [[ "$disp" =~ ^:([0-9]+)(\.[0-9]+)?$ ]]; then
+        [[ -S "$x11_dir/X${BASH_REMATCH[1]}" || -e "$x11_dir/X${BASH_REMATCH[1]}" ]]
         return $?
     fi
     return 0
+}
+
+# Прямой запуск демона Xvfb при отсутствии активного DISPLAY и xvfb-run.
+start_xvfb_display() {
+    if has_active_display; then
+        return 0
+    fi
+    if ! command -v Xvfb >/dev/null 2>&1; then
+        return 1
+    fi
+    local x11_dir="${DISCORD_LAB_X11_UNIX_DIR:-/tmp/.X11-unix}"
+    local disp_num
+    for disp_num in $(seq 99 199); do
+        if [[ ! -e "$x11_dir/X$disp_num" && ! -e "/tmp/.X$disp_num-lock" ]]; then
+            # shellcheck disable=SC2086
+            Xvfb ":$disp_num" $XVFB_SERVER_ARGS >/dev/null 2>&1 &
+            XVFB_PID="$!"
+            XVFB_DISPLAY=":$disp_num"
+            local attempt
+            for attempt in $(seq 1 50); do
+                if [[ -S "$x11_dir/X$disp_num" || -e "$x11_dir/X$disp_num" ]]; then
+                    export DISPLAY="$XVFB_DISPLAY"
+                    return 0
+                fi
+                sleep 0.1
+            done
+            cleanup_xvfb
+            return 1
+        fi
+    done
+    return 1
+}
+
+# Выполнение команды с автоматическим подключением виртуального дисплея Xvfb.
+run_with_xvfb() {
+    if has_active_display; then
+        echo "ci: $*"
+        "$@"
+    elif command -v xvfb-run >/dev/null 2>&1; then
+        echo "ci: xvfb-run -a -s \"$XVFB_SERVER_ARGS\" $*"
+        xvfb-run -a -s "$XVFB_SERVER_ARGS" "$@"
+    elif start_xvfb_display; then
+        echo "ci: DISPLAY=$DISPLAY (managed Xvfb) $*"
+        "$@"
+    else
+        echo "ci: $*"
+        "$@"
+    fi
 }
 
 run() {
@@ -160,6 +236,12 @@ cargo_run clippy --manifest-path "$RUST_DIR/Cargo.toml" \
 # 3. Тесты workspace
 cargo_run test --manifest-path "$RUST_DIR/Cargo.toml" --workspace
 
+# 3.1. Нативный GPUI: Headless Smoke, E2E и Visual Regression
+echo "ci: GPUI headless smoke & contract verification"
+cargo_run run --manifest-path "$RUST_DIR/discord-gpui/Cargo.toml" -- --headless-smoke
+cargo_run test --manifest-path "$RUST_DIR/discord-gpui/Cargo.toml" --test gpui_e2e_contract
+cargo_run test --manifest-path "$RUST_DIR/discord-gpui/Cargo.toml" --test visual_regression_contract test_sub_904
+
 # 4. Микробенчмарк ETF (T-HARN-04 — отдельная карточка, здесь smoke производительности)
 cargo_run run --manifest-path "$RUST_DIR/Cargo.toml" \
     --release -p discord-codec --example etf_bench -- --iterations 2000
@@ -201,16 +283,10 @@ if [[ -n "$SCOPE" ]]; then
         if has_active_display; then
             echo "+ node scripts/gate.mjs --scope $SCOPE (CHROME_BIN=${CHROME_BIN:-auto})"
         else
-            echo "+ xvfb-run -a node scripts/gate.mjs --scope $SCOPE (CHROME_BIN=${CHROME_BIN:-auto})"
+            echo "+ xvfb-run -a -s \"$XVFB_SERVER_ARGS\" node scripts/gate.mjs --scope $SCOPE (CHROME_BIN=${CHROME_BIN:-auto})"
         fi
     else
-        if ! has_active_display && command -v xvfb-run >/dev/null 2>&1; then
-            echo "ci: xvfb-run -a node scripts/gate.mjs --scope $SCOPE"
-            xvfb-run -a node "$ROOT/scripts/gate.mjs" --scope "$SCOPE"
-        else
-            echo "ci: node scripts/gate.mjs --scope $SCOPE"
-            node "$ROOT/scripts/gate.mjs" --scope "$SCOPE"
-        fi
+        run_with_xvfb node "$ROOT/scripts/gate.mjs" --scope "$SCOPE"
     fi
 fi
 

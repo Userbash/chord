@@ -13,8 +13,8 @@
 
 use discord_platform::dbus::{BusAddress, Connection, DbusError, Value};
 use discord_platform::notifications::{
-    redact_secrets, Event, Hints, IncomingMessageNotification, Notification,
-    NotificationDispatchDecision, NotificationEvent, NotificationRouter, Notifier, Urgency,
+    Event, Hints, IncomingMessageNotification, Notification, NotificationDispatchDecision,
+    NotificationEvent, NotificationRouter, Notifier, Urgency, redact_secrets,
 };
 use std::fs;
 use std::path::{Path, PathBuf};

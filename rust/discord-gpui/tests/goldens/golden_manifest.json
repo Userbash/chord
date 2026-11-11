@@ -1,0 +1,167 @@
+[
+  {
+    "slug": "main_chat_1280x720",
+    "title": "Главное окно чата Discord Dark (1280x720 HD)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.999999999999984,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "main_chat_1920x1080",
+    "title": "Главное окно чата Discord Dark (1920x1080 FHD)",
+    "width": 1920,
+    "height": 1080,
+    "ssim_score": 0.9999999999999912,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 205656,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_01_my_account",
+    "title": "SettingsDialog — Моя учётная запись",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999786,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_02_profile",
+    "title": "SettingsDialog — Профиль пользователя",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999786,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_03_voice_and_video",
+    "title": "SettingsDialog — Голос и видео (CPAL)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999786,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_04_appearance",
+    "title": "SettingsDialog — Внешний вид",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999784,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_05_keybinds",
+    "title": "SettingsDialog — Горячие клавиши",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999785,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_06_notifications",
+    "title": "SettingsDialog — Уведомления",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999784,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_07_text_and_images",
+    "title": "SettingsDialog — Текст и изображения",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999786,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "settings_08_language",
+    "title": "SettingsDialog — Язык интерфейса",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999785,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "modal_captcha",
+    "title": "CaptchaModal (hCaptcha 40003)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999994,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "modal_create_guild",
+    "title": "CreateGuildModal (Создание и вступление на сервер)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999994,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "modal_screen_share",
+    "title": "ScreenShareModal (Демонстрация экрана PipeWire)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.9999999999999994,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "overlay_context_menu",
+    "title": "ContextMenu (Контекстное меню ПКМ)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.999999999999984,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  },
+  {
+    "slug": "overlay_profile_tooltip",
+    "title": "UserProfileCard (Всплывающий тултип профиля)",
+    "width": 1280,
+    "height": 720,
+    "ssim_score": 0.999999999999984,
+    "threshold": 0.995,
+    "passed": true,
+    "masked_pixels": 134376,
+    "unmasked_diff_pixels": 0
+  }
+]

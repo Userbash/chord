@@ -60,6 +60,12 @@
 //! `gw-proto/zstd-frames-95974_1389.hexl` (137 кадров, 104 066 сжатых Б) пайп получает все
 //! 824 816 Б и разбирает все 137 полных термов (`s = 1..113` для 113 диспатчей op0, 23 op11 ACK
 //! и 1 op10 HELLO) без неразобранного остатка в хвосте.
+#![allow(
+    clippy::collapsible_if,
+    clippy::type_complexity,
+    clippy::too_many_arguments,
+    clippy::manual_is_multiple_of
+)]
 
 use crate::dispatch::{DispatchEvent, route_dispatch};
 use crate::gateway::{
@@ -969,7 +975,9 @@ pub async fn connect_and_run_resume(
                     let parsed = pipe.push_binary(&data, elapsed_ms(start));
                     flush_dispatches(pipe, &opts);
                     let effects = parsed?;
-                    if let Some(outcome) = apply_effects(effects, &mut ws, pipe.session(), is_live_wss).await? {
+                    if let Some(outcome) =
+                        apply_effects(effects, &mut ws, pipe.session(), is_live_wss).await?
+                    {
                         return Ok(outcome);
                     }
                     // HELLO разобран этим кадром (или ранее) — IDENTIFY ровно один раз.
@@ -1140,7 +1148,9 @@ pub fn queue_live_voice_state(
     self_mute: bool,
     self_deaf: bool,
 ) -> Result<(), OutboundError> {
-    queue_live_voice_state_ext(guild_id, channel_id, self_mute, self_deaf, false, false, None)
+    queue_live_voice_state_ext(
+        guild_id, channel_id, self_mute, self_deaf, false, false, None,
+    )
 }
 
 static LAST_STREAM_KEY: std::sync::OnceLock<std::sync::Mutex<Option<String>>> =
@@ -1148,12 +1158,18 @@ static LAST_STREAM_KEY: std::sync::OnceLock<std::sync::Mutex<Option<String>>> =
 static LAST_WATCHED_STREAM_KEY: std::sync::OnceLock<std::sync::Mutex<Option<String>>> =
     std::sync::OnceLock::new();
 static LAST_VOICE_STATE_CACHE: std::sync::OnceLock<
-    std::sync::Mutex<(Option<String>, Option<String>, bool, bool, bool, bool, Option<String>)>,
+    std::sync::Mutex<(
+        Option<String>,
+        Option<String>,
+        bool,
+        bool,
+        bool,
+        bool,
+        Option<String>,
+    )>,
 > = std::sync::OnceLock::new();
-static VOICE_SELF_MUTE: std::sync::atomic::AtomicBool =
-    std::sync::atomic::AtomicBool::new(false);
-static VOICE_SELF_DEAF: std::sync::atomic::AtomicBool =
-    std::sync::atomic::AtomicBool::new(false);
+static VOICE_SELF_MUTE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+static VOICE_SELF_DEAF: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
 /// Синхронизирует атомарное состояние `self_mute` и `self_deaf` для мгновенного применения при старте RTC-воркера.
 pub fn set_live_voice_mute_deaf_state(self_mute: bool, self_deaf: bool) {
@@ -1182,7 +1198,7 @@ pub fn queue_live_voice_state_ext(
     self_stream: bool,
     user_id: Option<&str>,
 ) -> Result<(), OutboundError> {
-    use discord_codec::etf::{encode, EtfValue};
+    use discord_codec::etf::{EtfValue, encode};
     set_live_voice_mute_deaf_state(self_mute, self_deaf);
     let clean_gid = guild_id
         .as_deref()
@@ -1262,10 +1278,8 @@ pub fn queue_live_voice_state_ext(
         .lock()
         .unwrap_or_else(|poison| poison.into_inner());
     if self_stream {
-        if let (Some(c), Some(uid)) = (
-            &clean_cid,
-            user_id.map(str::trim).filter(|s| !s.is_empty()),
-        ) {
+        if let (Some(c), Some(uid)) = (&clean_cid, user_id.map(str::trim).filter(|s| !s.is_empty()))
+        {
             let (skey, stype, gid_etf) = if let Some(g) = &clean_gid {
                 (
                     format!("guild:{g}:{c}:{uid}"),
@@ -1344,7 +1358,7 @@ pub fn queue_live_stream_create(
     guild_id: Option<&str>,
     channel_id: &str,
 ) -> Result<(), OutboundError> {
-    use discord_codec::etf::{encode, EtfValue};
+    use discord_codec::etf::{EtfValue, encode};
     let stype = stream_type.trim();
     let cid = channel_id.trim();
     if cid.is_empty() {
@@ -1355,7 +1369,7 @@ pub fn queue_live_stream_create(
         .filter(|s| !s.is_empty() && *s != "@me" && *s != "nil" && *s != "null");
     let gid_val = match clean_gid {
         Some(gid) => EtfValue::Str(gid.to_string()),
-        None => EtfValue::Nil,
+        None => EtfValue::Atom("nil".to_string()),
     };
     let stream_d = EtfValue::Map(vec![
         (
@@ -1369,7 +1383,7 @@ pub fn queue_live_stream_create(
         ),
         (
             EtfValue::Str("preferred_region".to_string()),
-            EtfValue::Nil,
+            EtfValue::Atom("nil".to_string()),
         ),
     ]);
     let stream_env = EtfValue::Map(vec![
@@ -1383,7 +1397,7 @@ pub fn queue_live_stream_create(
 /// Отправляет в живой шлюз Discord `OP 20 STREAM_WATCH` (`{"op":20,"d":{"stream_key":...}}`)
 /// для подключения к чужой демонстрации экрана (`Go Live`).
 pub fn queue_live_stream_watch(stream_key: &str) -> Result<(), OutboundError> {
-    use discord_codec::etf::{encode, EtfValue};
+    use discord_codec::etf::{EtfValue, encode};
     let skey = stream_key.trim();
     if skey.is_empty() {
         return Ok(());
@@ -1407,12 +1421,20 @@ pub fn queue_live_stream_watch(stream_key: &str) -> Result<(), OutboundError> {
 }
 
 /// Отправляет в живой шлюз Discord `OP 19 STREAM_DELETE` (`{"op":19,"d":{"stream_key":...}}`)
-/// при прекращении просмотра чужого стрима.
+/// при прекращении просмотра чужого стрима или остановке собственной трансляции,
+/// гарантированно очищая `LAST_STREAM_KEY` для мгновенного перезапуска стрима.
 pub fn queue_live_stream_delete(stream_key: &str) -> Result<(), OutboundError> {
-    use discord_codec::etf::{encode, EtfValue};
+    use discord_codec::etf::{EtfValue, encode};
+    clear_last_stream_key();
     let skey = stream_key.trim();
     if skey.is_empty() {
         return Ok(());
+    }
+    if let Ok(mut prev_sk) = LAST_STREAM_KEY
+        .get_or_init(|| std::sync::Mutex::new(None))
+        .lock()
+    {
+        *prev_sk = None;
     }
     if let Ok(mut w) = LAST_WATCHED_STREAM_KEY
         .get_or_init(|| std::sync::Mutex::new(None))
@@ -1434,11 +1456,37 @@ pub fn queue_live_stream_delete(stream_key: &str) -> Result<(), OutboundError> {
     Ok(())
 }
 
+/// Отправляет в живой шлюз Discord `OP 22 STREAM_SET_PAUSED` (`{"op":22,"d":{"stream_key":...,"paused":...}}`)
+/// для постановки на паузу или возобновления трансляции (`Go Live`).
+pub fn queue_live_stream_set_paused(stream_key: &str, paused: bool) -> Result<(), OutboundError> {
+    use discord_codec::etf::{EtfValue, encode};
+    let skey = stream_key.trim();
+    if skey.is_empty() {
+        return Ok(());
+    }
+    let paused_d = EtfValue::Map(vec![
+        (
+            EtfValue::Str("stream_key".to_string()),
+            EtfValue::Str(skey.to_string()),
+        ),
+        (
+            EtfValue::Str("paused".to_string()),
+            EtfValue::Atom(if paused { "true" } else { "false" }.to_string()),
+        ),
+    ]);
+    let paused_env = EtfValue::Map(vec![
+        (EtfValue::Str("op".to_string()), EtfValue::Int(22)),
+        (EtfValue::Str("d".to_string()), paused_d),
+    ]);
+    send_live_gateway_frame(encode(&paused_env));
+    Ok(())
+}
+
 /// Отправляет в живой шлюз Discord `OP 13 CALL_CONNECT` (`{"op":13,"d":{"channel_id":...}}`)
 /// для синхронизации текущего состояния звонка в ЛС / групповом чате без автоматического входа или дозвона
 /// (`Serein/crates/discord-gateway/src/voice.rs:296`).
 pub fn queue_live_dm_call_sync(channel_id: &str) {
-    use discord_codec::etf::{encode, EtfValue};
+    use discord_codec::etf::{EtfValue, encode};
     let cid = channel_id.trim();
     if cid.is_empty() || cid == "nil" || cid == "null" {
         return;
@@ -1559,10 +1607,7 @@ fn encode_op37_flags_only_frame(guild_id: &str) -> Vec<u8> {
         ),
     ]);
     let subs_map = EtfValue::Map(vec![(EtfValue::Str(guild_id.to_string()), sub_entry)]);
-    let d37 = EtfValue::Map(vec![(
-        EtfValue::Str("subscriptions".to_string()),
-        subs_map,
-    )]);
+    let d37 = EtfValue::Map(vec![(EtfValue::Str("subscriptions".to_string()), subs_map)]);
     let env37 = EtfValue::Map(vec![
         (EtfValue::Str("op".to_string()), EtfValue::Int(37)),
         (EtfValue::Str("d".to_string()), d37),
@@ -1608,10 +1653,7 @@ fn encode_op37_channel_ranges_frame(
         (EtfValue::Str("channels".to_string()), channels_map),
     ]);
     let subs_map = EtfValue::Map(vec![(EtfValue::Str(guild_id.to_string()), sub_entry)]);
-    let d37 = EtfValue::Map(vec![(
-        EtfValue::Str("subscriptions".to_string()),
-        subs_map,
-    )]);
+    let d37 = EtfValue::Map(vec![(EtfValue::Str("subscriptions".to_string()), subs_map)]);
     let env37 = EtfValue::Map(vec![
         (EtfValue::Str("op".to_string()), EtfValue::Int(37)),
         (EtfValue::Str("d".to_string()), d37),
@@ -1645,10 +1687,9 @@ pub fn build_guild_subscriptions_bulk_op37(
         let step1 = encode_op37_flags_only_frame(gid);
         let step2 = encode_op37_channel_ranges_frame(gid, cid_trimmed, &effective_ranges);
         state.subscribed_guilds.insert(gid.to_string());
-        state.active_channels.insert(
-            gid.to_string(),
-            (cid_trimmed.to_string(), effective_ranges),
-        );
+        state
+            .active_channels
+            .insert(gid.to_string(), (cid_trimmed.to_string(), effective_ranges));
         vec![step1, step2]
     } else {
         let effective_cid = if has_valid_cid {
@@ -1749,10 +1790,7 @@ pub fn queue_live_request_guild_members(guild_id: &str, user_ids: &[String]) {
             EtfValue::Str("guild_id".to_string()),
             EtfValue::Str(gid.to_string()),
         ),
-        (
-            EtfValue::Str("user_ids".to_string()),
-            EtfValue::List(uids),
-        ),
+        (EtfValue::Str("user_ids".to_string()), EtfValue::List(uids)),
         (
             EtfValue::Str("presences".to_string()),
             EtfValue::Atom("true".to_string()),
@@ -2028,12 +2066,9 @@ impl Default for LiveRtcSnapshot {
 
 static LIVE_RTC_STATE: std::sync::OnceLock<std::sync::Mutex<LiveRtcSnapshot>> =
     std::sync::OnceLock::new();
-static LIVE_RTC_GENERATION: std::sync::atomic::AtomicU64 =
-    std::sync::atomic::AtomicU64::new(0);
-static LIVE_VOICE_DV_PID: std::sync::atomic::AtomicU32 =
-    std::sync::atomic::AtomicU32::new(0);
-static LIVE_STREAM_DV_PID: std::sync::atomic::AtomicU32 =
-    std::sync::atomic::AtomicU32::new(0);
+static LIVE_RTC_GENERATION: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static LIVE_VOICE_DV_PID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+static LIVE_STREAM_DV_PID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
 static STREAM_AUDIO_MUTED: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
 static STREAM_AUDIO_VOLUME_PCT: std::sync::atomic::AtomicU32 =
@@ -2090,9 +2125,7 @@ pub fn set_live_stream_audio_state(muted: bool, volume_pct: u32) {
     let clamped = volume_pct.min(200);
     STREAM_AUDIO_MUTED.store(muted, std::sync::atomic::Ordering::SeqCst);
     STREAM_AUDIO_VOLUME_PCT.store(clamped, std::sync::atomic::Ordering::SeqCst);
-    let cmd = format!(
-        "{{\"cmd\":\"set_stream_audio\",\"muted\":{muted},\"volume\":{clamped}}}"
-    );
+    let cmd = format!("{{\"cmd\":\"set_stream_audio\",\"muted\":{muted},\"volume\":{clamped}}}");
     send_native_stream_cmd(&cmd);
     send_native_voice_cmd(&cmd);
 }
@@ -2279,11 +2312,24 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
   g_variant_builder_add(&b, "{sv}", "native-resolution", g_variant_new_boolean(FALSE));
 
   char target_buf[128] = {0};
+  int kicked = (access("/dev/shm/discord_capture_kick.bin", F_OK) == 0);
+  if (kicked) {
+    unlink("/dev/shm/discord_capture_kick.bin");
+    __atomic_store_n(&g_last_capture_req_ms, monotonic_ms(), __ATOMIC_RELAXED);
+  }
   FILE* tfp_target = fopen("/dev/shm/discord_capture_target.txt", "r");
   if (tfp_target) {
     if (fgets(target_buf, sizeof(target_buf), tfp_target)) {
       char* nl = strpbrk(target_buf, "\r\n");
       if (nl) *nl = '\0';
+      char* open_brace = strchr(target_buf, '{');
+      char* close_brace = open_brace ? strchr(open_brace, '}') : NULL;
+      if (open_brace && close_brace && close_brace > open_brace) {
+        close_brace[1] = '\0';
+        if (open_brace != target_buf) {
+          memmove(target_buf, open_brace, strlen(open_brace) + 1);
+        }
+      }
     }
     fclose(tfp_target);
   }
@@ -2372,7 +2418,7 @@ static int capture_kwin_dbus_to_ring(GDBusConnection* bus, uint8_t* raw_scratch,
   __atomic_store_n(&g_cap_active_slot, slot_idx, __ATOMIC_RELEASE);
   g_cap_write_slot = (slot_idx + 1) % CAP_RING_SLOTS;
 
-  if (tj_enc && (frame_idx % 8 == 0)) {
+  if (tj_enc && (kicked || (frame_idx % 8 == 0))) {
     unsigned char* thumb_buf = NULL;
     unsigned long thumb_sz = 0;
     if (tjCompress2(tj_enc, slot->bgra, dst_w, dst_w * 4, dst_h, TJPF_BGRA, &thumb_buf, &thumb_sz, TJSAMP_420, 82, TJFLAG_FASTDCT) == 0 &&
@@ -2481,7 +2527,10 @@ static void* screen_capture_worker(void* arg) {
   while (1) {
     uint64_t t_start = monotonic_ms();
     if (access("/dev/shm/discord_capture_kick.bin", F_OK) == 0) {
-      unlink("/dev/shm/discord_capture_kick.bin");
+      if (!bus || !raw_scratch) {
+        unlink("/dev/shm/discord_capture_kick.bin");
+      }
+      frame_idx = 0;
       __atomic_store_n(&g_last_capture_req_ms, t_start, __ATOMIC_RELAXED);
     }
     uint64_t req = __atomic_load_n(&g_last_capture_req_ms, __ATOMIC_RELAXED);
@@ -2755,6 +2804,9 @@ napi_value napi_register_module_v1(napi_env env, napi_value exports) {
   const char* preload_libs[] = {
     "/home/sanya/.config/discord/app-1.0.168/libffmpeg.so",
     openh264_so_path,
+    "libcuda.so.1",
+    "libnvidia-encode.so.1",
+    "libvulkan.so.1",
     "libturbojpeg.so.0",
     "libXfixes.so.3",
     "libXdamage.so.1",
@@ -3040,11 +3092,41 @@ function bindVideoSinkId(sid) {
   }
 }
 
-function subscribeRemoteVideoSink(uid, videoSsrc, streamId) {
+function subscribeRemoteVideoSink(uid, videoSsrc, streamId, videoStreamParams) {
   const sid = streamId != null ? String(streamId) : "";
-  sendEv({ ev: "video_callback", userId: String(uid || ""), videoSsrc: Number(videoSsrc || 0), streamId: sid });
-  if (!sid || String(uid || "") === String(currentUserId)) return;
-  activeVideoSinks.set(sid, { uid: String(uid || ""), videoSsrc: Number(videoSsrc || 0) });
+  let vSsrc = Number(videoSsrc || 0);
+  let rSsrc = vSsrc > 0 ? vSsrc + 1 : 0;
+  if (Array.isArray(videoStreamParams) && videoStreamParams.length > 0) {
+    const first = videoStreamParams[0];
+    if (first && typeof first.ssrc === "number" && first.ssrc > 0) {
+      vSsrc = first.ssrc;
+    }
+    if (first && typeof first.rtxSsrc === "number" && first.rtxSsrc > 0) {
+      rSsrc = first.rtxSsrc;
+    } else if (first && typeof first.rtx_ssrc === "number" && first.rtx_ssrc > 0) {
+      rSsrc = first.rtx_ssrc;
+    } else if (vSsrc > 0) {
+      rSsrc = vSsrc + 1;
+    }
+  } else if (vSsrc > 0 && currentRtxSsrc > 0 && currentVideoSsrc === vSsrc) {
+    rSsrc = currentRtxSsrc;
+  }
+  const isSelf = !uid || String(uid) === "0" || String(uid) === String(currentUserId);
+  if (isSelf && vSsrc > 0) {
+    currentVideoSsrc = vSsrc;
+    currentRtxSsrc = rSsrc;
+  }
+  sendEv({
+    ev: "video_callback",
+    userId: String(uid || currentUserId || ""),
+    audioSsrc: currentLocalSsrc,
+    videoSsrc: vSsrc,
+    rtxSsrc: rSsrc,
+    streamId: sid,
+    isSelf: isSelf
+  });
+  if (!sid || isSelf) return;
+  activeVideoSinks.set(sid, { uid: String(uid || ""), videoSsrc: vSsrc });
   bindVideoSinkId(sid);
 }
 
@@ -3097,12 +3179,52 @@ let sessionEpochPrepared = false;
 const remoteUsers = new Map();
 const perUserAudioPrefs = new Map();
 
+function buildVoiceDspTransportOptions(isStreamConn, krispEnabled, autoGain) {
+  const useKrispNc = !isStreamConn && Boolean(krispEnabled);
+  return {
+    echoCancellation: !isStreamConn,
+    noiseSuppression: !isStreamConn && !useKrispNc,
+    noiseCancellation: useKrispNc,
+    automaticGainControl: !isStreamConn && Boolean(autoGain),
+    ducking: 0
+  };
+}
+
+function buildSafeVadInputModeOptions(isStreamConn, vadThreshold, autoSensitivity) {
+  return {
+    vadThreshold: isStreamConn ? -60 : vadThreshold,
+    vadAutoThreshold: (!isStreamConn && autoSensitivity) ? 3 : -1,
+    vadUseKrisp: false, // STABILITY: WebRTC native VAD prevents SIGSEGV in krispCreateVadInt16 while Krisp noiseCancellation filters noise
+    vadLeading: 5,
+    vadTrailing: 25
+  };
+}
+
+function enforceSafeVadTransportOptions(opts) {
+  if (!opts || typeof opts !== "object") return opts;
+  if (opts.inputModeOptions && typeof opts.inputModeOptions === "object") {
+    return {
+      ...opts,
+      inputModeOptions: {
+        ...opts.inputModeOptions,
+        vadUseKrisp: false
+      }
+    };
+  }
+  return opts;
+}
+
 function attachConnCallbacks(c) {
   if (!c) return;
   try {
+    if (typeof c.setTransportOptions === "function" && !c.__krispVadGuarded) {
+      const origSetTransportOptions = c.setTransportOptions.bind(c);
+      c.setTransportOptions = (opts) => origSetTransportOptions(enforceSafeVadTransportOptions(opts));
+      c.__krispVadGuarded = true;
+    }
     if (typeof c.setOnVideoCallback === "function") {
       c.setOnVideoCallback((uid, videoSsrc, streamId, videoStreamParams) => {
-        subscribeRemoteVideoSink(uid, videoSsrc, streamId);
+        subscribeRemoteVideoSink(uid, videoSsrc, streamId, videoStreamParams);
       });
     }
     if (typeof c.setOnFirstFrameCallback === "function") {
@@ -3154,7 +3276,7 @@ function flushMergedUsersToConn(_forceRetriggerVideo) {
 }
 
 function applyScreenBroadcast(active) {
-  if (!conn || !isStreamWorker) return;
+  if (!conn) return;
   try {
     if (active) {
       const vSsrc = currentVideoSsrc > 0 ? currentVideoSsrc : currentLocalSsrc + 1;
@@ -3167,64 +3289,45 @@ function applyScreenBroadcast(active) {
         encodingVideoWidth: 1280,
         encodingVideoHeight: 720,
         encodingVideoFrameRate: 60,
+        captureVideoFrameRate: 60,
         remoteSinkWantsMaxFramerate: 60,
         remoteSinkWantsPixelCount: 1280 * 720,
+        encodingVideoDegradationPreference: 1,
+        videoEncoderLatencyProfile: "ultra_low",
+        videoEncoderExperiments: "nvNewPresets,nvRelaxRc=250,nvReconFrames,linux-vulkan",
         keyframeInterval: 3000,
         alwaysSendVideo: true,
         enableQualityDecoupling: false,
         streamParameters: [
           {
-            type: "audio",
-            ssrc: currentLocalSsrc,
-            rid: "",
-            maxBitrate: 64000,
-            active: Boolean(process.env.DV_HAS_SOUNDSHARE_MONITOR === "1"),
-            soundshare: true
+            type: "audio", ssrc: currentLocalSsrc, rid: "", maxBitrate: 64000,
+            active: Boolean(process.env.DV_HAS_SOUNDSHARE_MONITOR === "1"), soundshare: true
           },
           {
-            type: "video",
-            rid: "100",
-            ssrc: vSsrc,
-            rtxSsrc: rSsrc,
-            quality: 100,
-            active: true,
-            maxBitrate: rates.videoMax,
-            minBitrate: 350000,
-            targetBitrate: rates.videoTarget,
-            maxFrameRate: 60,
-            maxPixelCount: 1280 * 720,
+            type: "video", rid: "100", ssrc: vSsrc, rtxSsrc: rSsrc, quality: 100, active: true,
+            maxBitrate: rates.videoMax, minBitrate: 350000, targetBitrate: rates.videoTarget,
+            maxFrameRate: 60, maxPixelCount: 1280 * 720,
             maxResolution: { type: "fixed", width: 1280, height: 720 }
           }
         ]
       });
-      try {
-        fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1]));
-      } catch (_) {}
+      try { fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1])); } catch (_) {}
       let currentSourceType = "screen";
-      let currentSourceId = "0";
+      let currentSourceId = "-1";
       try {
         if (fs.existsSync("/dev/shm/discord_capture_target.txt")) {
           const t = fs.readFileSync("/dev/shm/discord_capture_target.txt", "utf8").trim();
-          if (t.startsWith("{") || t.startsWith("window:") || t.startsWith("win")) {
+          currentSourceId = t.startsWith("screen:") ? t.slice(7) : (t.startsWith("window:") ? t.slice(7) : (t.startsWith("{") ? t : "-1"));
+          if (t.startsWith("{") || t.startsWith("window:")) {
             currentSourceType = "window";
-            currentSourceId = t.startsWith("window:") ? t.slice(7) : t;
-          } else {
-            currentSourceType = "screen";
-            currentSourceId = t.startsWith("screen:") ? t.slice(7) : (t || "0");
           }
         }
       } catch (_) {}
-      // Linux Wayland Hook Parity:
-      // discord_voice.node runs an X11 capturer (ScreenCapturerX11) which expects an integer screen ID.
-      // Under Wayland, passing window GUID {...} directly causes SetScreenshareSourceLinux to fail with
-      // "Screenshare: Failed to select source: 0" and "SetScreenshare: (nil)", sending 0 bytes.
-      // We ALWAYS configure discord_voice.node with type: "screen", sourceId: "0" so ScreenCapturerX11
-      // succeeds and invokes hook_XShmGetImage. The hook dynamically reads /dev/shm/discord_capture_target.txt
-      // to stream either the entire workspace or the selected window via KWin ScreenShot2 D-Bus.
+      // Linux Wayland Hook Parity (kFullDesktopScreenId = -1)
       if (typeof conn.setDesktopSourceWithOptions === "function") {
         conn.setDesktopSourceWithOptions({
           type: "screen",
-          sourceId: "0",
+          sourceId: "-1",
           width: 1280,
           height: 720,
           frameRate: 60,
@@ -3235,9 +3338,7 @@ function applyScreenBroadcast(active) {
           hdrCaptureMode: "never"
         });
       }
-      if (typeof conn.setVideoBroadcast === "function") {
-        conn.setVideoBroadcast(true);
-      }
+      if (typeof conn.setVideoBroadcast === "function") conn.setVideoBroadcast(true);
       sendEv({ ev: "log", msg: "applyScreenBroadcast active=true videoSsrc=" + vSsrc + " rtxSsrc=" + rSsrc });
       if (!global.__bcastStatsTimer) {
         global.__bcastStatsTimer = setInterval(() => {
@@ -3250,15 +3351,7 @@ function applyScreenBroadcast(active) {
                 if (vo) {
                   sendEv({
                     ev: "log",
-                    msg: "BCAST_VIDEO_STATS codec=" + (vo.codec && vo.codec.name) +
-                      " inFps=" + vo.inputFrameRate +
-                      " encFps=" + vo.encodeFrameRate +
-                      " framesEnc=" + vo.framesEncoded +
-                      " framesSent=" + vo.framesSent +
-                      " pkts=" + vo.packetsSent +
-                      " bytes=" + vo.bytesSent +
-                      " dropQ=" + vo.framesDroppedEncoderQueue +
-                      " dropRate=" + vo.framesDroppedRateLimiter
+                    msg: "BCAST_VIDEO_STATS codec=" + (vo.codec && vo.codec.name) + " inFps=" + vo.inputFrameRate + " encFps=" + vo.encodeFrameRate + " framesEnc=" + vo.framesEncoded + " framesSent=" + vo.framesSent + " pkts=" + vo.packetsSent + " bytes=" + vo.bytesSent + " dropQ=" + vo.framesDroppedEncoderQueue + " dropRate=" + vo.framesDroppedRateLimiter
                   });
                 }
               } catch (_) {}
@@ -3396,6 +3489,7 @@ rl.on("line", (line) => {
     if (typeof msg.rtxSsrc === "number" && msg.rtxSsrc > 0) currentRtxSsrc = Number(msg.rtxSsrc);
     if (typeof msg.selfMute === "boolean") currentSelfMute = msg.selfMute;
     if (typeof msg.selfDeafen === "boolean") currentSelfDeafen = msg.selfDeafen;
+    if (typeof msg.krisp === "boolean") currentKrispEnabled = msg.krisp;
     if (typeof msg.streamMuted === "boolean") currentStreamMuted = msg.streamMuted;
     if (typeof msg.streamVolume === "number") currentStreamVolume = Math.max(0, Math.min(200, msg.streamVolume));
     const connContext = isStreamWorker ? "stream" : String(msg.context || "default");
@@ -3533,7 +3627,7 @@ rl.on("line", (line) => {
           soundshare: isStreamWorker
         }
       ];
-      if (isStreamWorker) {
+      if (isStreamWorker || isSelfBroadcaster) {
         const effVideoSsrc = currentVideoSsrc > 0 ? currentVideoSsrc : currentLocalSsrc + 1;
         const effRtxSsrc = currentRtxSsrc > 0 ? currentRtxSsrc : currentLocalSsrc + 2;
         streamParams.push({
@@ -3551,8 +3645,69 @@ rl.on("line", (line) => {
           maxResolution: { type: "fixed", width: 1280, height: 720 }
         });
       }
-      const isVp8Negotiated = Boolean(msg.videoCodec && String(msg.videoCodec).toUpperCase() === "VP8");
-      const videoEncoderCfg = isVp8Negotiated
+      const rawMsgCodec = String(msg.videoCodec || msg.video_codec || "").trim();
+      const effectiveCodec = (rawMsgCodec && rawMsgCodec.toUpperCase() !== "UNKNOWN" && rawMsgCodec.toUpperCase() !== "NONE")
+        ? rawMsgCodec
+        : String(process.env.DV_PREFERRED_CODEC || "").trim();
+      const requestedCodec = effectiveCodec.toUpperCase();
+      const isAv1Negotiated = requestedCodec === "AV1" || requestedCodec === "AV1X" || requestedCodec.startsWith("AV1");
+      const isVp9Negotiated = requestedCodec === "VP9" || requestedCodec.startsWith("VP9");
+      const isVp8Negotiated = requestedCodec === "VP8" || requestedCodec.startsWith("VP8");
+      const hasNvidiaGpu = Boolean(
+        process.env.DISCORD_GPU_VENDOR === "NVIDIA" ||
+        process.env.DV_GPU_VENDOR === "NVIDIA" ||
+        global.__hasNvidiaGpu ||
+        fs.existsSync("/dev/nvidiactl")
+      );
+      global.__hasNvidiaGpu = hasNvidiaGpu;
+      const hasVaapi = typeof dv !== "undefined" && typeof dv.isVaapiEnabled === "function" && dv.isVaapiEnabled();
+      const hasHwVideo = Boolean(hasNvidiaGpu || hasVaapi);
+      const videoEncoderCfg = isAv1Negotiated
+        ? {
+            name: "AV1X",
+            codec: "AV1",
+            type: 101,
+            rtxType: 102,
+            maxFrameRate: 60,
+            maxBitrate: rates.videoMax,
+            minBitrate: 350000,
+            targetBitrate: rates.videoTarget,
+            width: 1280,
+            height: 720,
+            params: {
+              "hardware-av1": hasNvidiaGpu ? "1" : "0",
+              "hardware-av1-decode": "1",
+              "keyframe-interval": "3000",
+              ...(hasNvidiaGpu
+                ? {
+                    "hardware-nvenc": "1",
+                    "use-nvenc": "1",
+                    "nvenc-cuda": "1",
+                    "nvenc-vulkan": "1",
+                    "discord-latency-profile": "ultra_low",
+                    "video-encoder-experiments": "nvNewPresets,nvRelaxRc=250,nvReconFrames,linux-vulkan"
+                  }
+                : {})
+            }
+          }
+        : isVp9Negotiated
+        ? {
+            name: "VP9",
+            type: 109,
+            rtxType: 110,
+            maxFrameRate: 60,
+            maxBitrate: rates.videoMax,
+            minBitrate: 350000,
+            targetBitrate: rates.videoTarget,
+            width: 1280,
+            height: 720,
+            params: {
+              "profile-id": "0",
+              "keyframe-interval": "3000",
+              "temporal-layers": "3"
+            }
+          }
+        : isVp8Negotiated
         ? {
             name: "VP8",
             type: 107,
@@ -3563,7 +3718,11 @@ rl.on("line", (line) => {
             targetBitrate: rates.videoTarget,
             width: 1280,
             height: 720,
-            params: {}
+            params: {
+              "profile-id": "0",
+              "keyframe-interval": "3000",
+              "temporal-layers": "3"
+            }
           }
         : {
             name: "H264",
@@ -3579,9 +3738,23 @@ rl.on("line", (line) => {
               "level-asymmetry-allowed": "1",
               "packetization-mode": "1",
               "profile-level-id": "42e034",
-              "hardware-h264": (typeof dv.isVaapiEnabled === "function" && dv.isVaapiEnabled()) ? "1" : "0",
-              "libopenh264": "1",
-              "libopenh264-path": "/home/sanya/.config/discord/discord_asset_cache/openh264/libopenh264-2.7.0-linux64.8.so"
+              "hardware-h264": hasHwVideo ? "1" : "0",
+              ...(hasNvidiaGpu
+                ? {
+                    "hardware-nvenc": "1",
+                    "use-nvenc": "1",
+                    "nvenc-cuda": "1",
+                    "nvenc-vulkan": "1",
+                    "discord-latency-profile": "ultra_low",
+                    "video-encoder-experiments": "nvNewPresets,nvRelaxRc=250,nvReconFrames,linux-vulkan"
+                  }
+                : {}),
+              ...(hasHwVideo
+                ? { "libopenh264": "0" }
+                : {
+                    "libopenh264": "1",
+                    "libopenh264-path": "/home/sanya/.config/discord/discord_asset_cache/openh264/libopenh264-2.7.0-linux64.8.so"
+                  })
             }
           };
       conn.setTransportOptions({
@@ -3599,13 +3772,41 @@ rl.on("line", (line) => {
               "level-asymmetry-allowed": "1",
               "packetization-mode": "1",
               "profile-level-id": "42e034",
-              "hardware-h264": (typeof dv.isVaapiEnabled === "function" && dv.isVaapiEnabled()) ? "1" : "0",
+              "hardware-h264": hasHwVideo ? "1" : "0",
+              ...(hasNvidiaGpu ? { "hardware-nvenc": "1", "use-nvenc": "1" } : {}),
               "libopenh264": "1",
               "libopenh264-path": "/home/sanya/.config/discord/discord_asset_cache/openh264/libopenh264-2.7.0-linux64.8.so"
             }
           },
-          { name: "VP8", type: 107, rtxType: 108, params: {} },
-          { name: "AV1X", type: 101, rtxType: 102, params: {} }
+          {
+            name: "VP8",
+            type: 107,
+            rtxType: 108,
+            params: {
+              "profile-id": "0",
+              "keyframe-interval": "3000",
+              "temporal-layers": "3"
+            }
+          },
+          {
+            name: "VP9",
+            type: 109,
+            rtxType: 110,
+            params: {
+              "profile-id": "0",
+              "keyframe-interval": "3000",
+              "temporal-layers": "3"
+            }
+          },
+          {
+            name: "AV1X",
+            codec: "AV1",
+            type: 101,
+            rtxType: 102,
+            params: {
+              "hardware-av1-decode": "1"
+            }
+          }
         ],
         encodingVideoWidth: 1280,
         encodingVideoHeight: 720,
@@ -3613,10 +3814,14 @@ rl.on("line", (line) => {
         encodingVideoMinBitRate: 350000,
         encodingVideoMaxBitRate: rates.videoMax,
         encodingVideoFrameRate: 60,
+        captureVideoFrameRate: 60,
         remoteSinkWantsMaxFramerate: 60,
         remoteSinkWantsPixelCount: 1920 * 1080,
+        encodingVideoDegradationPreference: (typeof dv !== "undefined" && dv.DegradationPreference && dv.DegradationPreference.MAINTAIN_FRAMERATE) || 1,
+        videoEncoderLatencyProfile: "ultra_low",
+        videoEncoderExperiments: "nvNewPresets,nvRelaxRc=250,nvReconFrames,linux-vulkan",
         keyframeInterval: 3000,
-        alwaysSendVideo: isStreamWorker,
+        alwaysSendVideo: Boolean(isStreamWorker || isSelfBroadcaster),
         enableQualityDecoupling: false,
         streamParameters: streamParams,
         encryptionSettings: {
@@ -3920,7 +4125,8 @@ rl.on("line", (line) => {
           echoCancellation: true,
           noiseCancellation: Boolean(currentKrispEnabled),
           noiseSuppression: !currentKrispEnabled,
-          automaticGainControl: Boolean(currentAutoGain)
+          automaticGainControl: Boolean(currentAutoGain),
+          vadUseKrisp: false
         });
         sendEv({ ev: "log", msg: "setLoopback active=" + active + " krisp=" + currentKrispEnabled });
       }
@@ -3948,12 +4154,16 @@ rl.on("line", (line) => {
     } catch (_) {}
     if (conn && typeof conn.setDesktopSourceWithOptions === "function") {
       try {
+        const qMatch = typeof msg.label === "string" ? msg.label.match(/(\d{3,4})x(\d{3,4})(?:@(\d{2,3}))?/) : null;
+        const streamWidth = Number(msg.width) > 0 ? Number(msg.width) : (qMatch ? Number(qMatch[1]) : (msg.resolution === "1080p" ? 1920 : (msg.resolution === "1440p" ? 2560 : 1280)));
+        const streamHeight = Number(msg.height) > 0 ? Number(msg.height) : (qMatch ? Number(qMatch[2]) : (msg.resolution === "1080p" ? 1080 : (msg.resolution === "1440p" ? 1440 : 720)));
+        const streamFrameRate = Number(msg.frameRate || msg.fps) > 0 ? Number(msg.frameRate || msg.fps) : (qMatch && qMatch[3] ? Number(qMatch[3]) : 60);
         conn.setDesktopSourceWithOptions({
           type: "screen",
-          sourceId: "0",
-          width: 1280,
-          height: 720,
-          frameRate: 60,
+          sourceId: "-1",
+          width: streamWidth,
+          height: streamHeight,
+          frameRate: streamFrameRate,
           useVideoHook: false,
           useGraphicsCapture: false,
           useQuartzCapturer: false,
@@ -3964,9 +4174,19 @@ rl.on("line", (line) => {
           conn.setVideoBroadcast(true);
         }
         if (typeof conn.setTransportOptions === "function") {
-          conn.setTransportOptions({ keyframeInterval: 1000 });
+          conn.setTransportOptions({
+            encodingVideoWidth: streamWidth,
+            encodingVideoHeight: streamHeight,
+            encodingVideoFrameRate: streamFrameRate,
+            captureVideoFrameRate: streamFrameRate,
+            remoteSinkWantsMaxFramerate: streamFrameRate,
+            remoteSinkWantsPixelCount: streamWidth * streamHeight,
+            encodingVideoDegradationPreference: (typeof dv !== "undefined" && dv.DegradationPreference && dv.DegradationPreference.MAINTAIN_FRAMERATE) || 1,
+            videoEncoderLatencyProfile: "ultra_low",
+            keyframeInterval: 1000
+          });
         }
-        sendEv({ ev: "log", msg: "set_stream_source: updated to " + (msg.sourceId || "0") });
+        sendEv({ ev: "log", msg: "set_stream_source: updated to " + (msg.sourceId || "-1") + " " + streamWidth + "x" + streamHeight + "@" + streamFrameRate });
       } catch (e) {
         sendEv({ ev: "log", msg: "set_stream_source err: " + (e && e.message) });
       }
@@ -4149,10 +4369,7 @@ pub fn start_live_stream_rtc_session(
         .trim_start_matches("https://")
         .trim_end_matches('/')
         .to_string();
-    if clean_ep.is_empty()
-        || rtc_server_id.is_empty()
-        || session_id.is_empty()
-        || token.is_empty()
+    if clean_ep.is_empty() || rtc_server_id.is_empty() || session_id.is_empty() || token.is_empty()
     {
         return;
     }
@@ -4472,7 +4689,9 @@ fn update_voice_v8_seq_ack_from_json(
     seq_ack: &mut Option<u16>,
     parsed: &discord_json::JsonValue,
 ) -> Option<u16> {
-    let seq_i64 = parsed.get("seq").and_then(discord_json::JsonValue::as_i64)?;
+    let seq_i64 = parsed
+        .get("seq")
+        .and_then(discord_json::JsonValue::as_i64)?;
     let seq_u16 = u16::try_from(seq_i64).ok()?;
     *seq_ack = Some(seq_u16);
     Some(seq_u16)
@@ -4524,6 +4743,36 @@ pub fn build_voice_v8_resume_op7(
     .to_json()
 }
 
+/// Строит JSON-кадр `op:16 VoiceBackendVersion / RTC Ping` для Voice WS `v=8`.
+#[must_use]
+pub fn build_voice_v8_op16() -> String {
+    "{\"op\":16,\"d\":{}}".to_string()
+}
+
+/// Строит JSON-кадр `op:12 Video` для Voice WS `v=8` с маппингом `audio_ssrc`, `video_ssrc` и `rtx_ssrc`.
+#[must_use]
+pub fn build_voice_v8_video_op12(
+    audio_ssrc: u32,
+    video_ssrc: u32,
+    rtx_ssrc: u32,
+    active: bool,
+) -> String {
+    if active && video_ssrc > 0 {
+        let eff_rtx = if rtx_ssrc > 0 {
+            rtx_ssrc
+        } else {
+            video_ssrc.wrapping_add(1)
+        };
+        format!(
+            "{{\"op\":12,\"d\":{{\"audio_ssrc\":{audio_ssrc},\"video_ssrc\":{video_ssrc},\"rtx_ssrc\":{eff_rtx},\"streams\":[{{\"type\":\"video\",\"rid\":\"100\",\"ssrc\":{video_ssrc},\"active\":true,\"quality\":100,\"rtx_ssrc\":{eff_rtx},\"max_bitrate\":6000000,\"max_framerate\":60,\"max_resolution\":{{\"type\":\"fixed\",\"width\":1280,\"height\":720}}}}]}}}}"
+        )
+    } else {
+        format!(
+            "{{\"op\":12,\"d\":{{\"audio_ssrc\":{audio_ssrc},\"video_ssrc\":0,\"rtx_ssrc\":0,\"streams\":[]}}}}"
+        )
+    }
+}
+
 /// Исходящий кадр сигнализации Voice WS `v=8`, порождённый pure-Rust обработчиком DAVE/RTC.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VoiceV8OutboundFrame {
@@ -4541,7 +4790,8 @@ pub const VOICE_V8_DEFAULT_HEARTBEAT_INTERVAL_MS: u64 = 13_750;
 
 /// Состояние pure-Rust ветки Voice WS `v=8` (`when dv_stdin.is_none()`):
 /// отслеживает `seq_ack: Option<u16>`, `OP 8 HELLO` (интервал + мгновенный 60 мс первый `OP 3 HEARTBEAT`),
-/// `OP 6 HEARTBEAT_ACK` (замер реального RTT), управляет движком `DaveMlsEngine` (`op:4 -> op:26`,
+/// `OP 6 HEARTBEAT_ACK` (замер реального RTT), `OP 16` (версии бэкенда и ответный heartbeat/ping),
+/// `OP 12 VIDEO` (`video_ssrc` и `rtx_ssrc`), управляет движком `DaveMlsEngine` (`op:4 -> op:26`,
 /// `op:25`, `op:27 -> op:28`, `op:29/30 -> op:23 | op:31 + op:26`) и считает `UdpFailures`.
 #[derive(Debug)]
 pub struct PureRustVoiceV8State {
@@ -4557,6 +4807,13 @@ pub struct PureRustVoiceV8State {
     hb_counter: u64,
     last_hb_sent: Option<(u64, Instant)>,
     last_rtt_ms: Option<u64>,
+    local_ssrc: u32,
+    video_ssrc: u32,
+    rtx_ssrc: u32,
+    is_broadcaster: bool,
+    video_codec: Option<String>,
+    voice_backend_version: Option<String>,
+    rtc_worker_version: Option<String>,
     dave_engine: Option<discord_voice::srtp::DaveMlsEngine>,
     udp_failures: UdpFailures,
 }
@@ -4582,13 +4839,7 @@ impl PureRustVoiceV8State {
             .parse::<u64>()
             .ok()
             .filter(|&v| v > 0)
-            .or_else(|| {
-                server_id
-                    .trim()
-                    .parse::<u64>()
-                    .ok()
-                    .filter(|&v| v > 0)
-            })
+            .or_else(|| server_id.trim().parse::<u64>().ok().filter(|&v| v > 0))
             .unwrap_or(1);
         Self {
             server_id: server_id.to_string(),
@@ -4603,9 +4854,69 @@ impl PureRustVoiceV8State {
             hb_counter: 1,
             last_hb_sent: None,
             last_rtt_ms: None,
+            local_ssrc: 1,
+            video_ssrc: 2,
+            rtx_ssrc: 3,
+            is_broadcaster: false,
+            video_codec: None,
+            voice_backend_version: None,
+            rtc_worker_version: None,
             dave_engine: None,
             udp_failures: UdpFailures::new(),
         }
+    }
+
+    /// Возвращает локальный `audio_ssrc` из `OP 2 READY`.
+    #[must_use]
+    pub const fn local_ssrc(&self) -> u32 {
+        self.local_ssrc
+    }
+
+    /// Возвращает назначенный `video_ssrc` из `OP 2 READY` (`d.streams`).
+    #[must_use]
+    pub const fn video_ssrc(&self) -> u32 {
+        self.video_ssrc
+    }
+
+    /// Возвращает назначенный `rtx_ssrc` из `OP 2 READY` (`d.streams`).
+    #[must_use]
+    pub const fn rtx_ssrc(&self) -> u32 {
+        self.rtx_ssrc
+    }
+
+    /// Включает или выключает режим вещателя (`Go Live` / видео), при котором на `OP 4` отправляется активный `OP 12 VIDEO`.
+    pub fn set_broadcaster(&mut self, is_broadcaster: bool) {
+        self.is_broadcaster = is_broadcaster;
+    }
+
+    /// Возвращает `true`, если сессия находится в режиме вещателя (`Go Live` / видео).
+    #[must_use]
+    pub const fn is_broadcaster(&self) -> bool {
+        self.is_broadcaster
+    }
+
+    /// Возвращает согласованный видеокодек из входящего `OP 4 SESSION_DESCRIPTION` (например, `"AV1"`).
+    #[must_use]
+    pub fn video_codec(&self) -> Option<&str> {
+        self.video_codec.as_deref()
+    }
+
+    /// Возвращает версию голосового бэкенда из входящего `OP 16`.
+    #[must_use]
+    pub fn voice_backend_version(&self) -> Option<&str> {
+        self.voice_backend_version.as_deref()
+    }
+
+    /// Возвращает версию `rtc_worker` из входящего `OP 16`.
+    #[must_use]
+    pub fn rtc_worker_version(&self) -> Option<&str> {
+        self.rtc_worker_version.as_deref()
+    }
+
+    /// Формирует JSON `op:12 Video` с текущими `local_ssrc`, `video_ssrc` и `rtx_ssrc`.
+    #[must_use]
+    pub fn build_video_op12(&self, active: bool) -> String {
+        build_voice_v8_video_op12(self.local_ssrc, self.video_ssrc, self.rtx_ssrc, active)
     }
 
     /// Возвращает интервал `heartbeat_interval` из `OP 8 HELLO` (по умолчанию `13_750` мс).
@@ -4711,7 +5022,9 @@ impl PureRustVoiceV8State {
                 self.dave_engine = Some(engine);
             }
         }
-        self.dave_engine.as_mut().expect("DaveMlsEngine initialized")
+        self.dave_engine
+            .as_mut()
+            .expect("DaveMlsEngine initialized")
     }
 
     /// Обрабатывает входящий текстовый JSON-кадр Voice WS `v=8` в pure-Rust режиме.
@@ -4739,6 +5052,78 @@ impl PureRustVoiceV8State {
                 self.last_hb_sent = Some((nonce, Instant::now()));
                 out.push(VoiceV8OutboundFrame::Text(hb_json));
             }
+            2 => {
+                let ssrc = d
+                    .and_then(|d| d.get("ssrc"))
+                    .and_then(discord_json::JsonValue::as_i64)
+                    .filter(|&v| v > 0)
+                    .unwrap_or(1) as u32;
+                self.local_ssrc = ssrc;
+                let mut v_ssrc = ssrc.wrapping_add(1);
+                let mut r_ssrc = ssrc.wrapping_add(2);
+                if let Some(streams_arr) = d
+                    .and_then(|d| d.get("streams"))
+                    .and_then(discord_json::JsonValue::as_array)
+                {
+                    for s in streams_arr {
+                        let stype = s
+                            .get("type")
+                            .and_then(discord_json::JsonValue::as_str)
+                            .unwrap_or("");
+                        if stype == "video" || stype == "screen" || stype.is_empty() {
+                            if let Some(v) = s
+                                .get("ssrc")
+                                .and_then(discord_json::JsonValue::as_i64)
+                                .filter(|&v| v > 0)
+                            {
+                                v_ssrc = v as u32;
+                                r_ssrc = v_ssrc.wrapping_add(1);
+                            }
+                            if let Some(r) = s
+                                .get("rtx_ssrc")
+                                .or_else(|| s.get("rtxSsrc"))
+                                .and_then(discord_json::JsonValue::as_i64)
+                                .filter(|&v| v > 0)
+                            {
+                                r_ssrc = r as u32;
+                            }
+                        }
+                    }
+                }
+                self.video_ssrc = v_ssrc;
+                self.rtx_ssrc = r_ssrc;
+                out.push(VoiceV8OutboundFrame::Text(build_voice_v8_op16()));
+            }
+            16 => {
+                if let Some(v) = d
+                    .and_then(|d| d.get("voice"))
+                    .and_then(discord_json::JsonValue::as_str)
+                {
+                    self.voice_backend_version = Some(v.to_string());
+                }
+                if let Some(w) = d
+                    .and_then(|d| d.get("rtc_worker"))
+                    .and_then(discord_json::JsonValue::as_str)
+                {
+                    self.rtc_worker_version = Some(w.to_string());
+                }
+                let nonce = d
+                    .and_then(|d| {
+                        d.get("t")
+                            .or_else(|| d.get("ping"))
+                            .or_else(|| d.get("nonce"))
+                    })
+                    .and_then(discord_json::JsonValue::as_i64)
+                    .and_then(|v| u64::try_from(v).ok())
+                    .unwrap_or_else(|| {
+                        let n = 1_700_000_000_000u64 + self.hb_counter;
+                        self.hb_counter = self.hb_counter.saturating_add(1);
+                        n
+                    });
+                let hb_json = self.build_heartbeat_op3(nonce);
+                self.last_hb_sent = Some((nonce, Instant::now()));
+                out.push(VoiceV8OutboundFrame::Text(hb_json));
+            }
             6 => {
                 if let Some((_, sent_at)) = self.last_hb_sent.take() {
                     let rtt = u64::try_from(sent_at.elapsed().as_millis())
@@ -4760,6 +5145,23 @@ impl PureRustVoiceV8State {
                     .and_then(|d| d.get("mode"))
                     .and_then(discord_json::JsonValue::as_str)
                     .unwrap_or("aead_aes256_gcm_rtpsize");
+                if let Some(vc) = d
+                    .and_then(|d| d.get("video_codec").or_else(|| d.get("videoCodec")))
+                    .and_then(discord_json::JsonValue::as_str)
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty() && !s.eq_ignore_ascii_case("unknown"))
+                {
+                    let upper = vc.to_ascii_uppercase();
+                    let normalized =
+                        if upper == "AV1" || upper == "AV1X" || upper.starts_with("AV1") {
+                            "AV1".to_string()
+                        } else {
+                            upper
+                        };
+                    self.video_codec = Some(normalized.clone());
+                    let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
+                    g.active_video_codec = normalized;
+                }
                 let dave_ver = d
                     .and_then(|d| d.get("dave_protocol_version"))
                     .and_then(discord_json::JsonValue::as_i64)
@@ -4774,6 +5176,9 @@ impl PureRustVoiceV8State {
                             key_bytes[i] = v.as_i64().unwrap_or(0).clamp(0, 255) as u8;
                         }
                     }
+                }
+                if self.is_broadcaster {
+                    out.push(VoiceV8OutboundFrame::Text(self.build_video_op12(true)));
                 }
                 if let Some(op26) = self.on_op4_session_description(mode, dave_ver, &key_bytes) {
                     out.push(VoiceV8OutboundFrame::Binary(op26));
@@ -4857,7 +5262,8 @@ impl PureRustVoiceV8State {
 
     /// Обрабатывает входящий бинарный кадр DAVE (`op:25`, `op:27`, `op:29`, `op:30`) в pure-Rust режиме.
     pub fn on_binary_frame(&mut self, bin: &[u8]) -> Result<Vec<VoiceV8OutboundFrame>, String> {
-        let Some((_, bin_op, payload)) = update_voice_v8_seq_ack_from_binary(&mut self.seq_ack, bin)
+        let Some((_, bin_op, payload)) =
+            update_voice_v8_seq_ack_from_binary(&mut self.seq_ack, bin)
         else {
             return Ok(Vec::new());
         };
@@ -4978,7 +5384,22 @@ async fn run_rtc_task(
     resume_seq_ack: &mut Option<u16>,
 ) -> Result<(), String> {
     let is_stream_conn = stream_owner_id.is_some();
-    let is_self_broadcaster = stream_owner_id.as_deref() == Some(user_id.as_str());
+    let is_cached_broadcaster = LAST_VOICE_STATE_CACHE
+        .get()
+        .and_then(|m| m.lock().ok())
+        .is_some_and(|c| c.5);
+    let is_watching_other = LAST_WATCHED_STREAM_KEY
+        .get()
+        .and_then(|m| m.lock().ok())
+        .is_some_and(|w| w.is_some());
+    let user_id =
+        if (user_id.is_empty() || user_id == "me") && is_cached_broadcaster && !is_watching_other {
+            stream_owner_id.clone().unwrap_or(user_id)
+        } else {
+            user_id
+        };
+    let is_self_broadcaster = stream_owner_id.as_deref() == Some(user_id.as_str())
+        || (is_stream_conn && is_cached_broadcaster && !is_watching_other);
     ensure_crypto_provider();
     let connect_t = Instant::now();
     let url = format!("wss://{clean_ep}/?v=8");
@@ -5361,12 +5782,20 @@ async fn run_rtc_task(
                                     }
                                     if let Some(r) = s
                                         .get("rtx_ssrc")
+                                        .or_else(|| s.get("rtxSsrc"))
                                         .and_then(discord_json::JsonValue::as_i64)
                                     {
-                                        sfu_rtx_ssrc = Some(r as u32);
+                                        if r > 0 {
+                                            sfu_rtx_ssrc = Some(r as u32);
+                                        }
                                     }
                                 }
                             }
+                        }
+                        if sfu_rtx_ssrc.is_none()
+                            && let Some(v) = sfu_video_ssrc
+                        {
+                            sfu_rtx_ssrc = Some(v.wrapping_add(1));
                         }
                         let ip = d
                             .and_then(|d| d.get("ip"))
@@ -5380,6 +5809,8 @@ async fn run_rtc_task(
                         println!(
                             "[VOICE-RTC] OP 2 READY ssrc={ssrc} sfu_video_ssrc={sfu_video_ssrc:?} sfu_rtx_ssrc={sfu_rtx_ssrc:?} media_udp={ip}:{port}"
                         );
+                        let op16_req = build_voice_v8_op16();
+                        let _ = ws.send(Message::Text(op16_req.into())).await;
                         if !is_stream_conn {
                             let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
                             g.ssrc = ssrc;
@@ -5519,6 +5950,16 @@ async fn run_rtc_task(
                             }
                         }
                         session_desc_received = true;
+                        if !video_codec.is_empty() && !video_codec.eq_ignore_ascii_case("unknown") {
+                            let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
+                            let upper = video_codec.trim().to_ascii_uppercase();
+                            g.active_video_codec =
+                                if upper == "AV1" || upper == "AV1X" || upper.starts_with("AV1") {
+                                    "AV1".to_string()
+                                } else {
+                                    upper
+                                };
+                        }
                         if !is_stream_conn {
                             let ssrc = {
                                 let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());
@@ -5533,10 +5974,9 @@ async fn run_rtc_task(
                         if is_stream_conn {
                             if is_self_broadcaster {
                                 let v_ssrc = sfu_video_ssrc.unwrap_or_else(|| local_ssrc.wrapping_add(1));
-                                let r_ssrc = sfu_rtx_ssrc.unwrap_or_else(|| local_ssrc.wrapping_add(2));
-                                let op12_broadcaster = format!(
-                                    "{{\"op\":12,\"d\":{{\"audio_ssrc\":{local_ssrc},\"video_ssrc\":{v_ssrc},\"rtx_ssrc\":{r_ssrc},\"streams\":[{{\"type\":\"video\",\"rid\":\"100\",\"ssrc\":{v_ssrc},\"active\":true,\"quality\":100,\"rtx_ssrc\":{r_ssrc},\"max_bitrate\":2500000,\"max_framerate\":30,\"max_resolution\":{{\"type\":\"fixed\",\"width\":1280,\"height\":720}}}}]}}}}"
-                                );
+                                let r_ssrc = sfu_rtx_ssrc.unwrap_or_else(|| v_ssrc.wrapping_add(1));
+                                let op12_broadcaster =
+                                    build_voice_v8_video_op12(local_ssrc, v_ssrc, r_ssrc, true);
                                 println!(
                                     "[VOICE-RTC] WS TX OP 12 VIDEO (broadcaster): {op12_broadcaster}"
                                 );
@@ -5546,9 +5986,7 @@ async fn run_rtc_task(
                                 );
                                 let _ = ws.send(Message::Text(spk_broadcaster.into())).await;
                             } else {
-                                let op12_viewer = format!(
-                                    "{{\"op\":12,\"d\":{{\"audio_ssrc\":{local_ssrc},\"video_ssrc\":0,\"rtx_ssrc\":0,\"streams\":[]}}}}"
-                                );
+                                let op12_viewer = build_voice_v8_video_op12(local_ssrc, 0, 0, false);
                                 let _ = ws.send(Message::Text(op12_viewer.into())).await;
                             }
                         }
@@ -5686,12 +6124,39 @@ async fn run_rtc_task(
                     }
                     15 => {
                         if is_self_broadcaster {
+                            let v_ssrc = sfu_video_ssrc.unwrap_or_else(|| local_ssrc.wrapping_add(1));
+                            let r_ssrc = sfu_rtx_ssrc.unwrap_or_else(|| v_ssrc.wrapping_add(1));
+                            let op12_reapply =
+                                build_voice_v8_video_op12(local_ssrc, v_ssrc, r_ssrc, true);
+                            let _ = ws.send(Message::Text(op12_reapply.into())).await;
                             if let Some(stdin) = dv_stdin.as_mut() {
                                 use std::io::Write as _;
                                 let _ = stdin.write_all(b"{\"cmd\":\"reapply_broadcast\"}\n");
                                 let _ = stdin.flush();
                             }
                         }
+                    }
+                    16 => {
+                        let voice_ver = d
+                            .and_then(|d| d.get("voice"))
+                            .and_then(discord_json::JsonValue::as_str)
+                            .unwrap_or("");
+                        let rtc_worker_ver = d
+                            .and_then(|d| d.get("rtc_worker"))
+                            .and_then(discord_json::JsonValue::as_str)
+                            .unwrap_or("");
+                        println!(
+                            "[VOICE-RTC] OP 16 VOICE_BACKEND_VERSION voice={voice_ver} rtc_worker={rtc_worker_ver}"
+                        );
+                        hb_counter = hb_counter.wrapping_add(1);
+                        let nonce = d
+                            .and_then(|d| d.get("t"))
+                            .and_then(discord_json::JsonValue::as_i64)
+                            .map(|t| t.unsigned_abs())
+                            .unwrap_or(hb_counter);
+                        last_hb_sent = Some((nonce, Instant::now()));
+                        let hb = build_voice_v8_heartbeat_op3(nonce, seq_ack);
+                        let _ = ws.send(Message::Text(hb.into())).await;
                     }
                     11 => {
                         if let Some(arr) = d
@@ -5988,6 +6453,39 @@ async fn run_rtc_task(
                                     }
                                 }
                             }
+                            "video_callback" => {
+                                let is_self = ev_json
+                                    .get("isSelf")
+                                    .and_then(discord_json::JsonValue::as_bool)
+                                    .unwrap_or(false);
+                                let v_ssrc = ev_json
+                                    .get("videoSsrc")
+                                    .and_then(discord_json::JsonValue::as_i64)
+                                    .unwrap_or(0) as u32;
+                                let r_ssrc = ev_json
+                                    .get("rtxSsrc")
+                                    .and_then(discord_json::JsonValue::as_i64)
+                                    .unwrap_or(0) as u32;
+                                if is_self && v_ssrc > 0 && (is_self_broadcaster || !is_stream_conn) {
+                                    sfu_video_ssrc = Some(v_ssrc);
+                                    let final_rtx = if r_ssrc > 0 {
+                                        r_ssrc
+                                    } else {
+                                        sfu_rtx_ssrc.unwrap_or_else(|| v_ssrc.wrapping_add(1))
+                                    };
+                                    sfu_rtx_ssrc = Some(final_rtx);
+                                    let op12 = build_voice_v8_video_op12(
+                                        local_ssrc,
+                                        v_ssrc,
+                                        final_rtx,
+                                        true,
+                                    );
+                                    println!(
+                                        "[VOICE-RTC] WS TX OP 12 VIDEO (from native video_callback): {op12}"
+                                    );
+                                    let _ = ws.send(Message::Text(op12.into())).await;
+                                }
+                            }
                             "error" => {
                                 println!("[VOICE-RTC] Native error event: {line}");
                                 drop(dv_guard);
@@ -6065,16 +6563,19 @@ async fn run_rtc_task(
             }
             () = tokio::time::sleep_until(tx_audio_tick) => {
                 if let Some(stdin) = dv_stdin.as_mut() {
-                    let q_mutex = if is_stream_conn {
-                        native_stream_cmd_mutex()
+                    let mut cmds: Vec<String> = Vec::new();
+                    if is_stream_conn {
+                        if let Ok(mut q) = native_stream_cmd_mutex().lock() {
+                            cmds.extend(q.drain(..));
+                        }
                     } else {
-                        native_voice_cmd_mutex()
-                    };
-                    let cmds: Vec<String> = if let Ok(mut q) = q_mutex.lock() {
-                        q.drain(..).collect()
-                    } else {
-                        Vec::new()
-                    };
+                        if let Ok(mut q) = native_voice_cmd_mutex().lock() {
+                            cmds.extend(q.drain(..));
+                        }
+                        if let Ok(mut q) = native_stream_cmd_mutex().lock() {
+                            cmds.extend(q.drain(..));
+                        }
+                    }
                     if !cmds.is_empty() {
                         use std::io::Write as _;
                         for cmd in cmds {
@@ -6930,7 +7431,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn voice_v8_op8_hello_sends_immediate_op3_heartbeat_within_60ms_and_op6_ack_updates_rtt() {
+    async fn voice_v8_op8_hello_sends_immediate_op3_heartbeat_within_60ms_and_op6_ack_updates_rtt()
+    {
         let (mut client_ws, mut server_ws) = ws_pair().await;
         let mut v8 = super::PureRustVoiceV8State::new(
             "1014537851418980372",
@@ -6978,7 +7480,9 @@ mod tests {
         };
         let hb_parsed = discord_json::parse(&hb_text).expect("valid op3 json");
         assert_eq!(
-            hb_parsed.get("op").and_then(discord_json::JsonValue::as_i64),
+            hb_parsed
+                .get("op")
+                .and_then(discord_json::JsonValue::as_i64),
             Some(3)
         );
         let nonce = hb_parsed
@@ -7007,12 +7511,188 @@ mod tests {
             .await
             .expect("drive op6 ack");
 
-        let rtt = v8.last_rtt_ms().expect("RTT must be measured on OP 6 HEARTBEAT_ACK");
+        let rtt = v8
+            .last_rtt_ms()
+            .expect("RTT must be measured on OP 6 HEARTBEAT_ACK");
         assert!(
             (10..500).contains(&rtt),
             "Measured RTT must reflect real elapsed time (~15ms), got {rtt}ms"
         );
         let snap = super::live_rtc_snapshot();
         assert_eq!(snap.last_ping_ms, Some(rtt));
+    }
+
+    #[tokio::test]
+    async fn voice_v8_op16_and_op12_ssrc_mapping_and_ping_response() {
+        let (mut client_ws, mut server_ws) = ws_pair().await;
+        let mut v8 = super::PureRustVoiceV8State::new(
+            "1014537851418980372",
+            "1176785373989445703",
+            "999888777666555444",
+            "rtc_sess_785",
+            "voice_tok_785",
+        );
+        v8.set_broadcaster(true);
+
+        // 1. Server sends OP 2 READY with assigned SSRC and streams (video_ssrc=9209, rtx_ssrc=9210):
+        server_ws
+            .send(Message::Text(
+                r#"{"op":2,"d":{"ssrc":9208,"ip":"104.29.146.60","port":19329,"modes":["aead_aes256_gcm_rtpsize"],"streams":[{"type":"video","rid":"100","ssrc":9209,"rtx_ssrc":9210,"quality":100,"active":false}]},"seq":1}"#.into(),
+            ))
+            .await
+            .expect("send op2 ready");
+
+        super::drive_voice_v8_ws_step(&mut client_ws, &mut v8)
+            .await
+            .expect("drive op2 ready");
+
+        assert_eq!(v8.local_ssrc(), 9208);
+        assert_eq!(v8.video_ssrc(), 9209);
+        assert_eq!(v8.rtx_ssrc(), 9210);
+
+        // Client must send OP 16 {"op":16,"d":{}} upon OP 2 READY:
+        let op16_req = timeout(Duration::from_millis(200), server_ws.next())
+            .await
+            .expect("op16 request timeout")
+            .expect("ws open")
+            .expect("ws ok");
+        let op16_req_text = match op16_req {
+            Message::Text(t) => t.to_string(),
+            other => panic!("expected text op16, got {other:?}"),
+        };
+        assert_eq!(op16_req_text, r#"{"op":16,"d":{}}"#);
+
+        // 2. Server sends incoming OP 16 (VOICE_BACKEND_VERSION / RTC Ping):
+        server_ws
+            .send(Message::Text(
+                r#"{"op":16,"d":{"voice":"0.22.1+f01bd52","rtc_worker":"1.6.98","t":1700000000785},"seq":2}"#.into(),
+            ))
+            .await
+            .expect("send incoming op16");
+
+        super::drive_voice_v8_ws_step(&mut client_ws, &mut v8)
+            .await
+            .expect("drive incoming op16");
+
+        assert_eq!(v8.voice_backend_version(), Some("0.22.1+f01bd52"));
+        assert_eq!(v8.rtc_worker_version(), Some("1.6.98"));
+        assert_eq!(v8.seq_ack(), Some(2));
+
+        // Client replies to incoming OP 16 with OP 3 heartbeat/ping response:
+        let hb_reply = timeout(Duration::from_millis(200), server_ws.next())
+            .await
+            .expect("op3 reply to op16 timeout")
+            .expect("ws open")
+            .expect("ws ok");
+        let hb_reply_text = match hb_reply {
+            Message::Text(t) => t.to_string(),
+            other => panic!("expected text op3 reply, got {other:?}"),
+        };
+        let hb_parsed = discord_json::parse(&hb_reply_text).expect("valid op3 json");
+        assert_eq!(
+            hb_parsed
+                .get("op")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(3)
+        );
+        assert_eq!(
+            hb_parsed
+                .get("d")
+                .and_then(|d| d.get("t"))
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(1_700_000_000_785)
+        );
+        assert_eq!(
+            hb_parsed
+                .get("d")
+                .and_then(|d| d.get("seq_ack"))
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(2)
+        );
+
+        // 3. Server sends OP 4 SESSION_DESCRIPTION -> Broadcaster sends OP 12 VIDEO with video_ssrc & rtx_ssrc:
+        server_ws
+            .send(Message::Text(
+                r#"{"op":4,"d":{"mode":"aead_aes256_gcm_rtpsize","audio_codec":"opus","video_codec":"H264","dave_protocol_version":0,"secret_key":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]},"seq":3}"#.into(),
+            ))
+            .await
+            .expect("send op4 session_description");
+
+        super::drive_voice_v8_ws_step(&mut client_ws, &mut v8)
+            .await
+            .expect("drive op4");
+
+        let op12_msg = timeout(Duration::from_millis(200), server_ws.next())
+            .await
+            .expect("op12 video timeout")
+            .expect("ws open")
+            .expect("ws ok");
+        let op12_text = match op12_msg {
+            Message::Text(t) => t.to_string(),
+            other => panic!("expected text op12, got {other:?}"),
+        };
+        let op12_parsed = discord_json::parse(&op12_text).expect("valid op12 json");
+        assert_eq!(
+            op12_parsed
+                .get("op")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(12)
+        );
+        let d12 = op12_parsed.get("d").expect("op12 d");
+        assert_eq!(
+            d12.get("audio_ssrc")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(9208)
+        );
+        assert_eq!(
+            d12.get("video_ssrc")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(9209)
+        );
+        assert_eq!(
+            d12.get("rtx_ssrc")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(9210)
+        );
+        let streams = d12
+            .get("streams")
+            .and_then(discord_json::JsonValue::as_array)
+            .expect("op12 d.streams");
+        assert_eq!(streams.len(), 1);
+        assert_eq!(
+            streams[0]
+                .get("ssrc")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(9209)
+        );
+        assert_eq!(
+            streams[0]
+                .get("rtx_ssrc")
+                .and_then(discord_json::JsonValue::as_i64),
+            Some(9210)
+        );
+        assert_eq!(
+            streams[0]
+                .get("active")
+                .and_then(discord_json::JsonValue::as_bool),
+            Some(true)
+        );
+    }
+
+    #[test]
+    fn op4_session_description_negotiates_av1_codec_without_h264_fallback() {
+        let mut v8 =
+            super::PureRustVoiceV8State::new("1000", "2000", "123456789", "sess-av1", "tok-av1");
+        v8.set_broadcaster(true);
+        assert_eq!(v8.video_codec(), None);
+
+        let frames = v8
+            .on_text_frame(
+                r#"{"op":4,"d":{"mode":"aead_aes256_gcm_rtpsize","audio_codec":"opus","video_codec":"AV1","dave_protocol_version":0,"secret_key":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]},"seq":4}"#,
+            )
+            .expect("process op4 with video_codec AV1");
+        assert_eq!(v8.video_codec(), Some("AV1"));
+        assert_eq!(super::live_rtc_snapshot().active_video_codec, "AV1");
+        assert!(!frames.is_empty());
     }
 }

@@ -1,0 +1,327 @@
+# TASK-968: Релизный CI/CD конвейер матричной сборки Linux-пакетов (.tar.gz, AppImage, .deb, .rpm, Arch)
+# автоматической генерации SHA256SUMS и публикации GitHub Release с RELEASE-NOTES-v1.0.0-beta.1.md.
+
+name: Release Beta Linux Packages
+
+on:
+  push:
+    branches:
+      - beta
+      - main
+    tags:
+      - "v*.*.*-beta.*"
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version tag (SemVer)"
+        required: false
+        default: "v1.0.0-beta.1"
+        type: string
+      prerelease:
+        description: "Mark GitHub Release as pre-release"
+        required: false
+        default: true
+        type: boolean
+      draft:
+        description: "Create GitHub Release as draft"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-beta-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_VERSION: "1.0.0-beta.1"
+  RELEASE_TAG: "v1.0.0-beta.1"
+  RELEASE_NOTES_FILE: "RELEASE-NOTES-v1.0.0-beta.1.md"
+  CARGO_TERM_COLOR: "always"
+
+jobs:
+  preflight-gate:
+    name: Preflight Security, SBOM & Quality Gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Rust workspace
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Security Secret Scan & SBOM SPDX 2.3 Verification
+        run: |
+          set -euo pipefail
+          mkdir -p .gate
+          node scripts/secret-scan.mjs --json .gate/secret-scan.json
+          node scripts/sbom.mjs --check --output rust/dist/sbom.spdx.json
+
+      - name: Verify Release Notes, Beta Testing Guide & Base SHA256SUMS
+        run: |
+          set -euo pipefail
+          test -s "$RELEASE_NOTES_FILE" || { echo "::error::Отсутствует или пуст $RELEASE_NOTES_FILE"; exit 1; }
+          test -s "docs/BETA-TESTING-GUIDE.md" || { echo "::error::Отсутствует docs/BETA-TESTING-GUIDE.md"; exit 1; }
+          node --test --test-concurrency=1 tests/unit/beta-release-package-958.test.mjs
+
+      - name: Upload preflight gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preflight-gate-evidence
+          path: .gate
+          if-no-files-found: ignore
+          retention-days: 14
+
+  package-matrix:
+    name: Build & Verify Linux Package (${{ matrix.format }} / ${{ matrix.distro }})
+    needs: preflight-gate
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - format: "tar.gz"
+            distro: "generic-linux-glibc2.35"
+            container: "ubuntu:22.04"
+            runner: "ubuntu-24.04"
+            package_ext: ".tar.gz"
+            artifact_glob: "rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz"
+            build_script: "scripts/release.sh"
+            contract_test: "tests/unit/beta-release-package-958.test.mjs"
+          - format: "appimage"
+            distro: "ubuntu-22.04-appimage"
+            container: "ubuntu:22.04"
+            runner: "ubuntu-24.04"
+            package_ext: ".AppImage"
+            artifact_glob: "rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage"
+            build_script: "scripts/build-appimage.sh"
+            contract_test: "tests/unit/appimage-package-961.test.mjs"
+          - format: "deb"
+            distro: "debian-12-ubuntu-24.04"
+            container: "debian:bookworm"
+            runner: "ubuntu-24.04"
+            package_ext: ".deb"
+            artifact_glob: "rust/dist/discord-gpui_1.0.0-beta.1_amd64.deb"
+            build_script: "packaging/deb/deb-package.mjs"
+            contract_test: "tests/unit/deb-package-963.test.mjs"
+          - format: "rpm"
+            distro: "fedora-40-rhel-9"
+            container: "fedora:40"
+            runner: "ubuntu-24.04"
+            package_ext: ".rpm"
+            artifact_glob: "rust/dist/discord-gpui-1.0.0-0.1.beta.1.x86_64.rpm"
+            build_script: "packaging/rpm/discord-gpui.spec"
+            contract_test: "tests/unit/rpm-package-966.test.mjs"
+          - format: "arch"
+            distro: "archlinux"
+            container: "archlinux:base-devel"
+            runner: "ubuntu-24.04"
+            package_ext: ".pkg.tar.zst"
+            artifact_glob: "rust/dist/discord-gpui-1.0.0_beta.1-1-x86_64.pkg.tar.zst"
+            build_script: "packaging/arch/PKGBUILD"
+            contract_test: "tests/unit/arch-pkgbuild-964.test.mjs"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust workspace
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+
+      - name: Install Linux packaging utilities
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            desktop-file-utils \
+            binutils \
+            file \
+            rpm \
+            zstd \
+            libarchive-tools \
+            mesa-vulkan-drivers
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build & verify target Linux package (${{ matrix.format }})
+        env:
+          MATRIX_FORMAT: ${{ matrix.format }}
+          MATRIX_DISTRO: ${{ matrix.distro }}
+          MATRIX_ARTIFACT: ${{ matrix.artifact_glob }}
+        run: |
+          set -euo pipefail
+          mkdir -p .gate rust/dist
+          case "$MATRIX_FORMAT" in
+            tar.gz)
+              test -f "rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz"
+              (cd rust/dist && sha256sum -c SHA256SUMS)
+              ;;
+            appimage)
+              bash scripts/build-appimage.sh \
+                --binary rust/dist/discord-gpui \
+                --version "$RELEASE_VERSION" \
+                --output "$MATRIX_ARTIFACT" \
+                --report-json .gate/appimage-report.json
+              ;;
+            deb)
+              node packaging/deb/deb-package.mjs \
+                --verify \
+                --build "$MATRIX_ARTIFACT" \
+                --out-json .gate/deb-report.json
+              ;;
+            rpm)
+              rpmbuild -bb packaging/rpm/discord-gpui.spec \
+                --define "_topdir $PWD/.gate/rpmbuild" \
+                --define "_sourcedir $PWD/rust/dist" \
+                --define "_rpmdir $PWD/.gate/rpmbuild/RPMS"
+              cp -f .gate/rpmbuild/RPMS/x86_64/discord-gpui-*.rpm "$MATRIX_ARTIFACT"
+              ;;
+            arch)
+              (
+                cd packaging/arch
+                source PKGBUILD
+                pkgdir="$PWD/../../.gate/arch-pkgdir"
+                srcdir="$PWD/../../rust/dist"
+                rm -rf "$pkgdir"
+                mkdir -p "$pkgdir"
+                package
+                tar --zstd -cf "$PWD/../../$MATRIX_ARTIFACT" -C "$pkgdir" .
+              )
+              ;;
+            *)
+              echo "::error::Неизвестный формат матрицы: $MATRIX_FORMAT"
+              exit 1
+              ;;
+          esac
+          test -s "$MATRIX_ARTIFACT" || { echo "::error::Артефакт $MATRIX_ARTIFACT не создан"; exit 1; }
+          sha256sum "$MATRIX_ARTIFACT" | tee "$MATRIX_ARTIFACT.sha256"
+
+      - name: Run format contract test (${{ matrix.contract_test }})
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "${{ matrix.contract_test }}"
+
+      - name: Upload built Linux package artifact (${{ matrix.format }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkg-${{ matrix.format }}-${{ matrix.distro }}
+          path: |
+            ${{ matrix.artifact_glob }}
+            ${{ matrix.artifact_glob }}.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    name: Assemble SHA256SUMS & Publish GitHub Release
+    needs:
+      - preflight-gate
+      - package-matrix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Download all matrix Linux packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pkg-*
+          path: release-assets/raw
+          merge-multiple: true
+
+      - name: Assemble consolidated SHA256SUMS & verify integrity
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets/publish
+          find release-assets/raw -type f \( \
+            -name "*.tar.gz" -o \
+            -name "*.AppImage" -o \
+            -name "*.deb" -o \
+            -name "*.rpm" -o \
+            -name "*.pkg.tar.zst" \
+          \) -exec cp -f {} release-assets/publish/ \;
+          cp -f rust/dist/sbom.spdx.json release-assets/publish/sbom.spdx.json
+          cp -f "$RELEASE_NOTES_FILE" "release-assets/publish/$RELEASE_NOTES_FILE"
+
+          cd release-assets/publish
+          for required in \
+            "discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz" \
+            "discord-gpui-v1.0.0-beta.1-x86_64.AppImage" \
+            "discord-gpui_1.0.0-beta.1_amd64.deb" \
+            "discord-gpui-1.0.0-0.1.beta.1.x86_64.rpm" \
+            "discord-gpui-1.0.0_beta.1-1-x86_64.pkg.tar.zst" \
+            "sbom.spdx.json" \
+            "RELEASE-NOTES-v1.0.0-beta.1.md"; do
+            test -s "$required" || { echo "::error::Отсутствует обязательный релизный артефакт: $required"; exit 1; }
+          done
+
+          sha256sum \
+            *.tar.gz \
+            *.AppImage \
+            *.deb \
+            *.rpm \
+            *.pkg.tar.zst \
+            sbom.spdx.json \
+            RELEASE-NOTES-v1.0.0-beta.1.md | LC_ALL=C sort -k2 > SHA256SUMS
+
+          sha256sum -c SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Publish GitHub Release with RELEASE-NOTES-v1.0.0-beta.1.md
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version || env.RELEASE_TAG }}
+          name: "Discord GPUI ${{ inputs.version || env.RELEASE_TAG }} (Native Linux 120 FPS)"
+          body_path: RELEASE-NOTES-v1.0.0-beta.1.md
+          prerelease: ${{ inputs.prerelease != false }}
+          draft: ${{ inputs.draft == true }}
+          fail_on_unmatched_files: true
+          files: |
+            release-assets/publish/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
+            release-assets/publish/discord-gpui-v1.0.0-beta.1-x86_64.AppImage
+            release-assets/publish/discord-gpui_1.0.0-beta.1_amd64.deb
+            release-assets/publish/discord-gpui-1.0.0-0.1.beta.1.x86_64.rpm
+            release-assets/publish/discord-gpui-1.0.0_beta.1-1-x86_64.pkg.tar.zst
+            release-assets/publish/sbom.spdx.json
+            release-assets/publish/SHA256SUMS
+            release-assets/publish/RELEASE-NOTES-v1.0.0-beta.1.md

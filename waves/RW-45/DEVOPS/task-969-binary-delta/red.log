@@ -1,0 +1,102 @@
+▶ TASK-969: Генератор бинарных дельта-патчей zstd/bsdiff и проверка отката
+  ✖ SUB-969-1: кодирует ENDSLEY/BSDIFF43 + Zstandard (0x28 0xb5 0x2f 0xfd) и проходит сверку с независимым /usr/bin/zstd (0.724577ms)
+  ✖ SUB-969-2: генерирует дельты в режимах bsdiff43-zstd и zstd-patch-from со 100% восстановлением SHA-256 и валидирует ManifestPatch (0.273533ms)
+  ✖ SUB-969-3: формирует точные диагностические контракты RE-дампа delta_update::verify и updater_client::install при искажении хешей и размера (0.617147ms)
+  ✖ SUB-969-4: выполняет атомарный откат при повреждении патча/целевого хеша и переключает skip_host_delta / skip_module_delta (0.278283ms)
+  ✖ SUB-969-5: проверяет CLI scripts/generate-delta.mjs (--generate, --verify, --apply, --self-test), коды 0/1/2 и маскирование токенов (0.236712ms)
+✖ TASK-969: Генератор бинарных дельта-патчей zstd/bsdiff и проверка отката (2.795878ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.492976
+
+✖ failing tests:
+
+test at tests/unit/binary-delta-969.test.mjs:98:3
+✖ SUB-969-1: кодирует ENDSLEY/BSDIFF43 + Zstandard (0x28 0xb5 0x2f 0xfd) и проходит сверку с независимым /usr/bin/zstd (0.724577ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/generate-delta.mjs' imported from /home/sanya/orca/project/tests/unit/binary-delta-969.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/generate-delta.mjs'
+  }
+
+test at tests/unit/binary-delta-969.test.mjs:195:3
+✖ SUB-969-2: генерирует дельты в режимах bsdiff43-zstd и zstd-patch-from со 100% восстановлением SHA-256 и валидирует ManifestPatch (0.273533ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/generate-delta.mjs' imported from /home/sanya/orca/project/tests/unit/binary-delta-969.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/generate-delta.mjs'
+  }
+
+test at tests/unit/binary-delta-969.test.mjs:298:3
+✖ SUB-969-3: формирует точные диагностические контракты RE-дампа delta_update::verify и updater_client::install при искажении хешей и размера (0.617147ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/generate-delta.mjs' imported from /home/sanya/orca/project/tests/unit/binary-delta-969.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/generate-delta.mjs'
+  }
+
+test at tests/unit/binary-delta-969.test.mjs:368:3
+✖ SUB-969-4: выполняет атомарный откат при повреждении патча/целевого хеша и переключает skip_host_delta / skip_module_delta (0.278283ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/generate-delta.mjs' imported from /home/sanya/orca/project/tests/unit/binary-delta-969.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/generate-delta.mjs'
+  }
+
+test at tests/unit/binary-delta-969.test.mjs:543:3
+✖ SUB-969-5: проверяет CLI scripts/generate-delta.mjs (--generate, --verify, --apply, --self-test), коды 0/1/2 и маскирование токенов (0.236712ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/generate-delta.mjs' imported from /home/sanya/orca/project/tests/unit/binary-delta-969.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+      at moduleResolve (node:internal/modules/esm/resolve:846:10)
+      at defaultResolve (node:internal/modules/esm/resolve:973:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/sanya/orca/project/scripts/generate-delta.mjs'
+  }

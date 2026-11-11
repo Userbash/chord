@@ -266,6 +266,7 @@ fn non_numeric_id_is_parse_error_not_panic() {
         embeds: Vec::new(),
         attachments: Vec::new(),
         reactions: Vec::new(),
+        components: Vec::new(),
         reply_to: None,
         mentions: Vec::new(),
         mention_everyone: false,

@@ -1,0 +1,118 @@
+# Maintainer: discord-lab DevOps <devops@discord-lab.local>
+# TASK-964: Arch Linux PKGBUILD specification for native Rust GPUI client (discord-gpui)
+# Reference oracle: rust/dist/SHA256SUMS, docs/SYSTEM-REQUIREMENTS.md, /home/sanya/re-deep/native-re.md (§2.1-2.2)
+
+pkgname=discord-gpui
+_upstream_ver=1.0.0-beta.1
+pkgver=1.0.0_beta.1
+pkgrel=1
+pkgdesc="Native Linux Discord client built on Rust GPUI and WGPU (120 FPS, DAVE E2EE MLS v1, Wayland PipeWire)"
+arch=('x86_64')
+url="https://github.com/discord-lab/discord-gpui"
+license=('MIT' 'Apache-2.0')
+depends=(
+  'pipewire'
+  'libsecret'
+  'wayland'
+  'vulkan-icd-loader'
+  'glibc'
+  'gcc-libs'
+  'alsa-lib'
+  'libxcb'
+  'libxkbcommon'
+  'libxkbcommon-x11'
+)
+optdepends=(
+  'xdg-desktop-portal: ScreenCast portal integration for Wayland screen sharing'
+  'xdg-desktop-portal-kde: Wayland screen sharing on KDE Plasma (KWin)'
+  'xdg-desktop-portal-gnome: Wayland screen sharing on GNOME (Mutter)'
+  'xdg-desktop-portal-hyprland: Wayland screen sharing on Hyprland / wlroots'
+  'gnome-keyring: Secret Service backend for token storage (org.freedesktop.secrets)'
+  'kwallet: KDE Secret Service backend for token storage'
+)
+provides=('discord-gpui')
+conflicts=('discord-gpui-git' 'discord-gpui-bin')
+options=('!strip' '!debug')
+source=(
+  "discord-gpui-v${_upstream_ver}-linux-x86_64.tar.gz"
+  "discord-gpui"
+  "sbom.spdx.json"
+)
+sha256sums=(
+  '18a6aa8066ce0b6722c8b83a61bf0c43939d5cee7696c7cd6d282ac1167a349e'
+  'd5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e'
+  'acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921'
+)
+
+# При локальном запуске makepkg (--verifysource / сборка) без внешнего SRCDEST
+# автоматически разрешаем релизные артефакты из rust/dist/ и выносим BUILDDIR из дерева git.
+if [[ -n "${startdir:-}" ]]; then
+  if [[ -z "${SRCDEST:-}" || "${SRCDEST}" -ef "${startdir}" ]]; then
+    if [[ -d "${startdir}/../../rust/dist" ]]; then
+      SRCDEST="$(cd "${startdir}/../../rust/dist" && pwd -P)"
+    fi
+  fi
+  if [[ -z "${BUILDDIR:-}" || "${BUILDDIR}" -ef "${startdir}" ]]; then
+    BUILDDIR="${TMPDIR:-/tmp}/makepkg-discord-gpui-${EUID:-1000}"
+    mkdir -p "${BUILDDIR}"
+  fi
+fi
+
+check() {
+  local _extract_dir="${srcdir}/discord-gpui-v${_upstream_ver}-linux-x86_64"
+  local _bin="${_extract_dir}/discord-gpui"
+  if [[ ! -x "${_bin}" ]]; then
+    _bin="${srcdir}/discord-gpui"
+  fi
+  "${_bin}" --headless-smoke
+}
+
+package() {
+  local _extract_dir="${srcdir}/discord-gpui-v${_upstream_ver}-linux-x86_64"
+
+  # 1. Исполняемый бинарник нативного клиента (stripped ELF, Thin LTO)
+  if [[ -f "${_extract_dir}/discord-gpui" ]]; then
+    install -Dm755 "${_extract_dir}/discord-gpui" "${pkgdir}/usr/bin/discord-gpui"
+  else
+    install -Dm755 "${srcdir}/discord-gpui" "${pkgdir}/usr/bin/discord-gpui"
+  fi
+
+  # 2. Файлы лицензий двойного лицензирования MIT OR Apache-2.0
+  if [[ -f "${_extract_dir}/LICENSE-MIT" ]]; then
+    install -Dm644 "${_extract_dir}/LICENSE-MIT" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-MIT"
+  fi
+  if [[ -f "${_extract_dir}/LICENSE-APACHE" ]]; then
+    install -Dm644 "${_extract_dir}/LICENSE-APACHE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-APACHE"
+  fi
+
+  # 3. Манифест лицензий SBOM SPDX 2.3 и документация релиза
+  if [[ -f "${srcdir}/sbom.spdx.json" ]]; then
+    install -Dm644 "${srcdir}/sbom.spdx.json" "${pkgdir}/usr/share/doc/${pkgname}/sbom.spdx.json"
+  elif [[ -f "${_extract_dir}/sbom.spdx.json" ]]; then
+    install -Dm644 "${_extract_dir}/sbom.spdx.json" "${pkgdir}/usr/share/doc/${pkgname}/sbom.spdx.json"
+  fi
+  if [[ -f "${_extract_dir}/BETA-TESTING-GUIDE.md" ]]; then
+    install -Dm644 "${_extract_dir}/BETA-TESTING-GUIDE.md" "${pkgdir}/usr/share/doc/${pkgname}/BETA-TESTING-GUIDE.md"
+  fi
+  if [[ -f "${_extract_dir}/RELEASE-NOTES-v${_upstream_ver}.md" ]]; then
+    install -Dm644 "${_extract_dir}/RELEASE-NOTES-v${_upstream_ver}.md" "${pkgdir}/usr/share/doc/${pkgname}/RELEASE-NOTES-v${_upstream_ver}.md"
+  fi
+
+  # 4. Desktop-файл XDG и регистрация протоколов discord:// и disclip://
+  install -dm755 "${pkgdir}/usr/share/applications"
+  cat > "${pkgdir}/usr/share/applications/discord-gpui.desktop" <<'DESKTOP'
+[Desktop Entry]
+Name=Discord GPUI
+Comment=Native Linux Discord client built on Rust GPUI and WGPU (120 FPS)
+GenericName=Internet Messenger
+Exec=/usr/bin/discord-gpui %u
+Icon=discord-gpui
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;Chat;
+MimeType=x-scheme-handler/discord;x-scheme-handler/disclip;
+StartupWMClass=discord-gpui
+Keywords=discord;chat;voice;wayland;gpui;
+DESKTOP
+  chmod 0644 "${pkgdir}/usr/share/applications/discord-gpui.desktop"
+}

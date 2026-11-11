@@ -2,7 +2,8 @@ use discord_core::rest::transport::HttpResponse;
 use discord_gui_spike::messages::{
     ack_message, delete_message, edit_message, reply_message, send_message, AckBulkEntry,
     AckMessageOptions, AckTransport, DiscordMessageSender, DiscordReadState, MessageActions,
-    MessageError, MessageReceipt, MessageSender, ReadStateAck, ACK_BULK_PATH, MAX_ACK_BULK_ENTRIES,
+    MessageError, MessageReceipt, MessageSender, NonBlockingAckDispatcher, OptimisticMessagesCache,
+    ReadStateAck, ACK_BULK_PATH, MAX_ACK_BULK_ENTRIES,
 };
 use std::future::Future;
 use std::pin::Pin;
@@ -878,5 +879,60 @@ fn ack_bulk_entry_deserializes_with_and_without_read_state_type() {
     assert_eq!(
         serde_json::to_value(&without).unwrap(),
         serde_json::json!({"channel_id": "1", "message_id": "2"})
+    );
+}
+
+/// TASK-808: Устранение задержек messages_page (<15 мс) и ack_message (неблокирующий ACK).
+#[test]
+fn be_p2_task_808_nonblocking_ack_dispatch_and_optimistic_cache() {
+    use std::time::Instant;
+
+    // 1. Неблокирующий ACK-диспетчер
+    let dispatcher = NonBlockingAckDispatcher::new();
+    assert_eq!(dispatcher.pending_count(), 0);
+
+    let start = Instant::now();
+    let res = dispatcher.enqueue_ack(
+        "123456789012345678",
+        "987654321098765432",
+        1700000000,
+        Some("token_ack".to_string()),
+    );
+    let elapsed = start.elapsed();
+
+    assert!(res.is_ok());
+    assert!(
+        elapsed.as_millis() < 15,
+        "ACK enqueue обязан отрабатывать быстрее 15 мс (факт: {} мс)",
+        elapsed.as_millis()
+    );
+    assert_eq!(dispatcher.pending_count(), 1);
+
+    let drained = dispatcher.drain_all();
+    assert_eq!(drained.len(), 1);
+    assert_eq!(drained[0].channel_id, "123456789012345678");
+    assert_eq!(drained[0].message_id, "987654321098765432");
+    assert_eq!(dispatcher.pending_count(), 0);
+
+    // 2. Оптимистичный кэш страниц сообщений
+    let cache = OptimisticMessagesCache::new();
+    assert!(cache.get_cached_messages("c_opt_1").is_none());
+
+    let msgs = vec![
+        serde_json::json!({"id": "m1", "content": "hello world"}),
+        serde_json::json!({"id": "m2", "content": "second msg"}),
+    ];
+    cache.store_messages("c_opt_1", msgs.clone());
+
+    let start_cache = Instant::now();
+    let cached = cache.get_cached_messages("c_opt_1");
+    let cache_elapsed = start_cache.elapsed();
+
+    assert!(cached.is_some());
+    assert_eq!(cached.unwrap().len(), 2);
+    assert!(
+        cache_elapsed.as_millis() < 15,
+        "Чтение из кэша сообщений обязано быть < 15 мс (факт: {} мс)",
+        cache_elapsed.as_millis()
     );
 }

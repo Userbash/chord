@@ -402,3 +402,52 @@ fn channels_keep_absent_fields_as_null_and_order_private_last() {
 
     cleanup(&root);
 }
+
+#[test]
+fn channels_mark_afk_channel_when_matching_guild_afk_channel_id() {
+    let root = temp_root("channels-afk");
+    write_ready(
+        &root,
+        &serde_json::json!({
+            "t": "READY",
+            "d": {
+                "guilds": [{
+                    "id": "g1",
+                    "afk_channel_id": "c_afk",
+                    "channels": [
+                        {"id": "c_voice", "name": "General Voice", "type": 2, "position": 1},
+                        {"id": "c_afk", "name": "AFK Room", "type": 2, "position": 2},
+                    ],
+                }],
+                "private_channels": [],
+            },
+        }),
+    );
+
+    let rows = data::channels(&root, Some("g1")).expect("каналы с AFK");
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].id, "c_voice");
+    assert_eq!(
+        rows[0].is_afk, None,
+        "обычный голосовой канал не является AFK"
+    );
+
+    assert_eq!(rows[1].id, "c_afk");
+    assert_eq!(
+        rows[1].is_afk,
+        Some(true),
+        "AFK-канал помечается is_afk=Some(true)"
+    );
+
+    // Сериализация в camelCase должна давать isAfk: true
+    let json_afk = serde_json::to_value(&rows[1]).expect("serde json");
+    assert_eq!(json_afk["isAfk"], serde_json::json!(true));
+
+    let json_normal = serde_json::to_value(&rows[0]).expect("serde json");
+    assert!(
+        json_normal.get("isAfk").is_none(),
+        "для обычных каналов isAfk опускается"
+    );
+
+    cleanup(&root);
+}

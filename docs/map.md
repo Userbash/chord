@@ -62,14 +62,14 @@ flowchart TB
       m2["Кодеки: Opus, VP8/VP9, RTX"]:::ok
       m3["Серверы SFU и ротация портов"]:::ok
       m4["Шифр: режимы 0–6, AAD и nonce"]:::ok
-      m5["E2EE DAVE/MLS (v1 в op4; вложенный слой — вне объёма)"]:::part
+      m5["E2EE DAVE/MLS v1 (RFC 9420 KDF, ratchets, epoch switch)"]:::ok
       m6["SRTCP: хвост 4 Б LE, ротация сокета +60,08 с"]:::ok
     end
     subgraph S4["4. Десктоп-интеграции"]
       d1["IPC: 168 каналов, мост DiscordNative, 5 цепочек"]:::ok
       d2["PTT-хоткеи, Wayland-idle"]:::ok
-      d3["Трей, бейджи, клипы"]:::part
-      d4["Стриминг Linux со звуком (PipeWire)"]:::no
+      d3["Трей, бейджи, Freedesktop Notifications"]:::ok
+      d4["Стриминг Linux со звуком (PipeWire Portal ScreenCast)"]:::ok
     end
     subgraph S5["5. Ассеты и ресурсы"]
       a1["Звуки: 15 mp3"]:::ok
@@ -103,7 +103,17 @@ flowchart TB
       rc6["Фикстуры: 12 записей, 1,59 МБ (fixtures/MANIFEST.json)"]:::ok
       rc7["Rust workspace: 13 крейтов (rust/)"]:::ok
       rc8["Верификация: 20/20 сырьё↔доки (verify/report.json)"]:::ok
-      rc9["GUI-спайк: Tauri 2 + ADR-1, 60 fps (rust/gui-spike)"]:::ok
+      rc9["Нативный клиент GPUI: 120 FPS, discord-gpui 42 МБ (rust/dist)"]:::ok
+    end
+
+    subgraph S9["9. E2E, QA Автоматизация и Конвейер (T0-T4)"]
+      q1["E2E Headless Runner: Wayland/X11, 50 User Journeys (0.08s)"]:::ok
+      q2["SSIM Визуальная регрессия: >0.995, 15 Golden Snapshots, JSON-маски"]:::ok
+      q3["AT-SPI D-Bus Семантический драйвер: org.a11y.Bus, WCAG 2.2 AAA"]:::ok
+      q4["Фаззинг сетевых протоколов & DAVE MLS v1 (libFuzzer + ASan)"]:::ok
+      q5["Chaos Engineering: джиттер 20-60мс, packet drop, PipeWire drop"]:::ok
+      q6["Конвейер CI/CD: scripts/ci.sh, scripts/gate.mjs (T0..T4)"]:::ok
+      q7["ECC 2.0 Control Plane: pm_review, Zero-Idle, квота 25 GB RAM"]:::ok
     end
   end
 

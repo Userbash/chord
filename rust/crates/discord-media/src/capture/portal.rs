@@ -545,9 +545,64 @@ pub struct PipeWireFrameBuffer<'a> {
     pub data: &'a [u8],
     /// Необязательная область обрезки `SpaMetaVideoCrop`.
     pub crop: Option<CropRect>,
+    /// Необязательный дескриптор DMA-BUF для zero-copy аппаратного импорта (TASK-804).
+    pub dma_buf_fd: Option<i32>,
+    /// Модификатор формата DRM (DRM modifier).
+    pub drm_modifier: u64,
 }
 
-impl PipeWireFrameBuffer<'_> {
+impl<'a> PipeWireFrameBuffer<'a> {
+    /// Создаёт буфер кадра PipeWire из данных CPU разделяемой памяти (MemFd).
+    #[must_use]
+    pub fn new_cpu(
+        width: u32,
+        height: u32,
+        stride: usize,
+        format: PipeWirePixelFormat,
+        data: &'a [u8],
+        crop: Option<CropRect>,
+    ) -> Self {
+        Self {
+            width,
+            height,
+            stride,
+            format,
+            data,
+            crop,
+            dma_buf_fd: None,
+            drm_modifier: 0,
+        }
+    }
+
+    /// Создаёт аппаратный zero-copy буфер кадра PipeWire на базе дескриптора DMA-BUF (TASK-804).
+    #[must_use]
+    pub fn new_dma_buf(
+        width: u32,
+        height: u32,
+        stride: usize,
+        format: PipeWirePixelFormat,
+        dma_buf_fd: i32,
+        drm_modifier: u64,
+        crop: Option<CropRect>,
+    ) -> Self {
+        Self {
+            width,
+            height,
+            stride,
+            format,
+            data: &[],
+            crop,
+            dma_buf_fd: Some(dma_buf_fd),
+            drm_modifier,
+        }
+    }
+
+    /// Проверяет, является ли буфер аппаратным DMA-BUF (TASK-804).
+    #[must_use]
+    pub const fn is_dma_buf(&self) -> bool {
+        self.dma_buf_fd.is_some()
+    }
+
     /// Записывает кадр PipeWire напрямую в [`crate::LatestFrameSlot`] с переиспользованием памяти.
     pub fn capture_into_slot(
         &self,
@@ -664,11 +719,49 @@ impl PipeWireFrameBuffer<'_> {
     }
 
     /// Валидирует геометрию буфера и конвертирует его в [`VideoFrame`] (`Rgba`, `I420` или `Nv12`).
+    /// Для аппаратного буфера DMA-BUF выполняет zero-copy передачу без CPU-копирования данных.
     pub fn to_video_frame(
         &self,
         output_format: PixelLayout,
         timestamp_us: u64,
     ) -> Result<VideoFrame, CaptureError> {
+        if let Some(fd) = self.dma_buf_fd {
+            if self.width == 0
+                || self.height == 0
+                || self.width > MAX_CAPTURE_DIMENSION
+                || self.height > MAX_CAPTURE_DIMENSION
+            {
+                return Err(CaptureError::InvalidDimensions {
+                    width: self.width,
+                    height: self.height,
+                });
+            }
+            let (out_w, out_h) = match self.crop {
+                Some(crop) => {
+                    if crop.width == 0
+                        || crop.height == 0
+                        || crop.x.saturating_add(crop.width) > self.width
+                        || crop.y.saturating_add(crop.height) > self.height
+                    {
+                        return Err(CaptureError::CropOutOfBounds {
+                            crop_x: crop.x,
+                            crop_y: crop.y,
+                            crop_width: crop.width,
+                            crop_height: crop.height,
+                            frame_width: self.width,
+                            frame_height: self.height,
+                        });
+                    }
+                    (crop.width, crop.height)
+                }
+                None => (self.width, self.height),
+            };
+            return Ok(
+                VideoFrame::new_dma_buf(out_w, out_h, output_format, fd, self.drm_modifier)
+                    .with_timestamp_us(timestamp_us),
+            );
+        }
+
         let mut out = Vec::new();
         let (out_w, out_h) = self.write_into_vec(output_format, &mut out)?;
         Ok(VideoFrame::new(out_w, out_h, output_format, out).with_timestamp_us(timestamp_us))

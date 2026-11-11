@@ -317,6 +317,47 @@ pub struct DiscoveryResponse {
     pub port: u16,
 }
 
+/// Код ошибки видеострима Discord `2000` (`stream-internal-error` / перезапуск пайплайна без сброса SSRC).
+pub const VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR: u16 = 2000;
+
+/// Код ошибки медиа-таймаута WebRTC Discord `2007` (`"stream-reconnecting"` в модуле `487329`).
+pub const VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT: u16 = 2007;
+
+/// Стратегия восстановления голосовой или Go Live сессии при получении кода закрытия шлюза/медиа.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VoiceCloseDisposition {
+    /// Быстрое восстановление через `OP 7 RESUME` с полным сохранением `SSRC`, `video_sequence`,
+    /// `video_timestamp` и `SrtpContext` (коды `2000`, `2007`, `4009`, `4015`).
+    ResumePreservingMediaState,
+    /// Переидентификация `OP 0 IDENTIFY` с сохранением стабилизированных `video_ssrc` / `rtx_ssrc` (`4006`).
+    ReidentifyPreservingSsrc,
+    /// Фатальное закрытие сессии (`4004`, `4011`, `4012`, `4014`, `4016`).
+    Fatal,
+}
+
+/// Проверяет, относится ли код к восстанавливаемым ошибкам медиа-потока Go Live (`2000` или `2007`).
+#[must_use]
+pub const fn is_recoverable_stream_error_code(code: u16) -> bool {
+    matches!(
+        code,
+        VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR | VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT
+    )
+}
+
+/// Классифицирует код закрытия Voice Gateway / Go Live (`2000`, `2007`, `4000..=4020`).
+#[must_use]
+pub const fn classify_voice_close_code(code: u16) -> VoiceCloseDisposition {
+    match code {
+        VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR
+        | VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT
+        | 4009
+        | 4015 => VoiceCloseDisposition::ResumePreservingMediaState,
+        4006 => VoiceCloseDisposition::ReidentifyPreservingSsrc,
+        4004 | 4011 | 4012 | 4014 | 4016 => VoiceCloseDisposition::Fatal,
+        _ => VoiceCloseDisposition::ResumePreservingMediaState,
+    }
+}
+
 /// Фаза жизненного цикла голосовой сессии.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VoiceSessionPhase {
@@ -328,6 +369,8 @@ pub enum VoiceSessionPhase {
     SelectingProtocol,
     /// Получен `OP 4 SESSION_DESCRIPTION`, инициализирован `SrtpContext` с 32B `secret_key`, медиа-канал активен.
     Established,
+    /// Отправлен `OP 7 RESUME` (в т.ч. при восстановлении после кодов `2000` / `2007`), ожидание `OP 9 RESUMED`.
+    Resuming,
     /// Зафиксирован таймаут ожидания `OP 6 HEARTBEAT_ACK`.
     TimedOut,
     /// Сессия закрыта.
@@ -665,6 +708,14 @@ impl StreamServerUpdate {
         };
         update.websocket_url()
     }
+}
+
+/// Вычисляет `rtc_channel_id = (BigInt(rtc_server_id) - 1n).toString()` для Go Live сессий
+/// по RE-оракулу Discord (`GAP-781-01`), предотвращая код ошибки `2001` (`stream-failed-to-start`).
+#[must_use]
+pub fn compute_go_live_rtc_channel_id(rtc_server_id: &str) -> Option<String> {
+    let parsed = rtc_server_id.trim().parse::<u64>().ok()?;
+    parsed.checked_sub(1).map(|v| v.to_string())
 }
 
 /// Максимальное разрешение потока для `OP 12 VIDEO` (`{"type":"fixed","width":...,"height":...}`).
@@ -1039,6 +1090,7 @@ pub struct VoiceSessionDriver {
     ssrc: Option<u32>,
     video_ssrc: Option<u32>,
     rtx_ssrc: Option<u32>,
+    ssrc_stabilized: bool,
     server_udp_ip: Option<String>,
     server_udp_port: Option<u16>,
     external_ip: Option<String>,
@@ -1055,6 +1107,10 @@ pub struct VoiceSessionDriver {
     audio_sender: Option<RtpSender>,
     video_sequence: u16,
     video_timestamp: u32,
+    video_fps: u32,
+    target_video_bitrate_bps: u32,
+    last_fir_sequence: Option<u8>,
+    pending_nack_sequences: Vec<u16>,
     outgoing_ws: Vec<String>,
     outgoing_binary_ws: Vec<Vec<u8>>,
     outgoing_udp: Vec<Vec<u8>>,
@@ -1063,6 +1119,9 @@ pub struct VoiceSessionDriver {
     dave_pending_transition: Option<(u16, u8)>,
     dave_last_executed_transition: Option<u16>,
     dave_external_sender: Option<Vec<u8>>,
+    keyframe_ctrl: crate::rtcp::RtcpKeyframeController,
+    remote_reception: BTreeMap<u32, crate::reception::ReceptionStats>,
+    remote_last_sr: BTreeMap<u32, (u32, u64)>,
     unhandled_opcodes: BTreeMap<u8, u64>,
 }
 
@@ -1132,6 +1191,7 @@ impl VoiceSessionDriver {
             ssrc: None,
             video_ssrc: None,
             rtx_ssrc: None,
+            ssrc_stabilized: false,
             server_udp_ip: None,
             server_udp_port: None,
             external_ip: None,
@@ -1148,6 +1208,10 @@ impl VoiceSessionDriver {
             audio_sender: None,
             video_sequence: 0,
             video_timestamp: 0,
+            video_fps: crate::rtp::video::DEFAULT_VIDEO_FPS,
+            target_video_bitrate_bps: crate::rtp::video::DEFAULT_720P60_BITRATE_BPS,
+            last_fir_sequence: None,
+            pending_nack_sequences: Vec::new(),
             outgoing_ws: Vec::with_capacity(2),
             outgoing_binary_ws: Vec::new(),
             outgoing_udp: Vec::new(),
@@ -1156,6 +1220,9 @@ impl VoiceSessionDriver {
             dave_pending_transition: None,
             dave_last_executed_transition: None,
             dave_external_sender: None,
+            keyframe_ctrl: crate::rtcp::RtcpKeyframeController::new(0, 0),
+            remote_reception: BTreeMap::new(),
+            remote_last_sr: BTreeMap::new(),
             unhandled_opcodes: BTreeMap::new(),
         };
         let identify_json = driver.identify_json();
@@ -1192,6 +1259,7 @@ impl VoiceSessionDriver {
     /// Собирает структуру `OP 0 IDENTIFY` для текущей сессии.
     #[must_use]
     pub fn build_identify(&self) -> Identify {
+        let stream_kind = if self.is_go_live() { "screen" } else { "video" };
         Identify {
             server_id: self.server_id.clone(),
             channel_id: self.channel_id.clone(),
@@ -1201,7 +1269,7 @@ impl VoiceSessionDriver {
             max_dave_protocol_version: DAVE_PROTOCOL_VERSION,
             video: true,
             streams: vec![StreamSpec {
-                kind: "video".to_owned(),
+                kind: stream_kind.to_owned(),
                 ssrc: None,
                 rtx_ssrc: None,
                 rid: Some("100".to_owned()),
@@ -1280,6 +1348,12 @@ impl VoiceSessionDriver {
                     self.media_sink_wants = Some(wants);
                 }
             }
+            VoicePayload::Other {
+                op: VoiceOp::Resumed,
+                ..
+            } => {
+                self.phase = VoiceSessionPhase::Established;
+            }
             _ => {
                 *self.unhandled_opcodes.entry(frame.op.as_u8()).or_insert(0) += 1;
             }
@@ -1322,26 +1396,44 @@ impl VoiceSessionDriver {
             return Err(VoiceSessionError::Udp(UdpError::InvalidPort));
         }
         let mode = select_encryption_mode(&ready.modes)?;
-        let video_stream = ready.streams.iter().find(|s| s.kind == "video");
-        let video_ssrc = video_stream
-            .and_then(|s| s.ssrc)
-            .and_then(|v| u32::try_from(v).ok())
-            .unwrap_or_else(|| ssrc.wrapping_add(1));
-        let rtx_ssrc = video_stream
-            .and_then(|s| s.rtx_ssrc)
-            .and_then(|v| u32::try_from(v).ok())
-            .unwrap_or_else(|| ssrc.wrapping_add(2));
+        let (video_ssrc, rtx_ssrc) = if self.ssrc_stabilized
+            && let (Some(v), Some(r)) = (self.video_ssrc, self.rtx_ssrc)
+        {
+            (v, r)
+        } else {
+            let video_stream = ready
+                .streams
+                .iter()
+                .find(|s| s.kind == "video" || s.kind == "screen");
+            let v = video_stream
+                .and_then(|s| s.ssrc)
+                .and_then(|v| u32::try_from(v).ok())
+                .unwrap_or_else(|| ssrc.wrapping_add(1));
+            let r = video_stream
+                .and_then(|s| s.rtx_ssrc)
+                .and_then(|v| u32::try_from(v).ok())
+                .unwrap_or_else(|| ssrc.wrapping_add(2));
+            (v, r)
+        };
 
-        self.ssrc = Some(ssrc);
+        let effective_ssrc = if self.ssrc_stabilized {
+            self.ssrc.unwrap_or(ssrc)
+        } else {
+            ssrc
+        };
+        self.ssrc = Some(effective_ssrc);
         self.video_ssrc = Some(video_ssrc);
         self.rtx_ssrc = Some(rtx_ssrc);
+        self.ssrc_stabilized = true;
+        self.keyframe_ctrl
+            .set_local_ssrcs(effective_ssrc, video_ssrc);
         self.server_udp_ip = Some(ready.ip);
         self.server_udp_port = Some(ready.port);
         self.selected_mode = Some(mode);
         self.experiments = ready.experiments;
         self.phase = VoiceSessionPhase::DiscoveringUdp;
 
-        let request = encode_discovery_request(ssrc);
+        let request = encode_discovery_request(effective_ssrc);
         self.outgoing_udp.push(request.to_vec());
         Ok(request)
     }
@@ -1405,12 +1497,17 @@ impl VoiceSessionDriver {
         let mode = EncryptionMode::from_engine_name(&desc.mode)
             .ok_or(VoiceSessionError::UnsupportedEncryptionMode)?;
 
-        let srtp = SrtpContext::from_secret_key(&secret_key, mode);
+        let prev_counter = self.srtp.as_ref().map_or(0, SrtpContext::counter);
+        let mut srtp = SrtpContext::from_secret_key(&secret_key, mode);
+        let _ = srtp.set_counter(prev_counter);
         let ssrc = self.ssrc.unwrap_or(0);
         self.srtp = Some(srtp);
-        self.audio_sender = Some(RtpSender::new(ssrc));
-        self.video_sequence = 0;
-        self.video_timestamp = 0;
+        if self.audio_sender.is_none() {
+            self.audio_sender = Some(RtpSender::new(ssrc));
+        }
+        // Не сбрасываем `video_sequence` и `video_timestamp` при повторном `OP 4 SESSION_DESCRIPTION`
+        // (пересогласование кодеков или переключение окна/экрана), чтобы избежать разрыва RTP-потока и ошибок 2007/2000.
+        self.keyframe_ctrl.request_keyframe();
         self.selected_mode = Some(mode);
         self.dave_protocol_version = Some(desc.dave_protocol_version);
         self.secure_frames_version = Some(desc.secure_frames_version);
@@ -1479,7 +1576,14 @@ impl VoiceSessionDriver {
         clear_rtp.extend_from_slice(payload);
         let encrypted = srtp.encrypt_rtp(&clear_rtp)?;
         self.video_sequence = self.video_sequence.wrapping_add(1);
-        self.video_timestamp = self.video_timestamp.wrapping_add(timestamp_delta);
+        if marker {
+            let step = if timestamp_delta == 0 {
+                crate::rtp::video::video_ticks_for_fps(self.video_fps)
+            } else {
+                timestamp_delta
+            };
+            self.video_timestamp = self.video_timestamp.wrapping_add(step);
+        }
         self.outgoing_udp.push(encrypted.clone());
         Ok(encrypted)
     }
@@ -1510,6 +1614,31 @@ impl VoiceSessionDriver {
         let extension_profile = parsed.extension.as_ref().map(|ext| ext.profile);
         let extension_data = parsed.extension.as_ref().map(|ext| ext.data.to_vec());
         let payload = parsed.payload.to_vec();
+
+        // Автоматический учёт статистики приёма (`ReceptionStats`) по RFC 3550 для генерации RTCP Receiver Reports (подавление кода 2003)
+        let clock_rate = if (101..=109).contains(&header.payload_type) {
+            crate::rtp::video::VIDEO_CLOCK_RATE
+        } else {
+            crate::reception::OPUS_CLOCK_RATE
+        };
+        let stats = self
+            .remote_reception
+            .entry(header.ssrc)
+            .or_insert_with(|| crate::reception::ReceptionStats::new(clock_rate));
+        let recv_hdr = crate::reception::RtpHeader {
+            payload_type: header.payload_type,
+            marker: header.marker,
+            sequence: header.sequence,
+            timestamp: header.timestamp,
+            ssrc: header.ssrc,
+        };
+        let synthetic_arrival_ms = if clock_rate == 0 {
+            0.0
+        } else {
+            f64::from(header.timestamp) * 1000.0 / f64::from(clock_rate)
+        };
+        let _ = stats.observe(&recv_hdr, synthetic_arrival_ms);
+
         Ok(DecryptedRtpPacket {
             raw,
             header,
@@ -1541,7 +1670,143 @@ impl VoiceSessionDriver {
             .ok_or(VoiceSessionError::SrtpNotEstablished)?;
         let raw = srtp.decrypt_srtcp(srtcp_packet)?;
         let compound = parse_compound(&raw)?;
+        for pkt in &compound.packets {
+            match pkt {
+                crate::rtcp::RtcpPacket::SenderReport {
+                    sender_ssrc, info, ..
+                } => {
+                    let lsr = ((info.ntp_timestamp >> 16) & 0xFFFF_FFFF) as u32;
+                    self.remote_last_sr.insert(*sender_ssrc, (lsr, 0));
+                }
+                crate::rtcp::RtcpPacket::Fir(fir) => {
+                    for entry in &fir.entries {
+                        if self
+                            .video_ssrc
+                            .is_none_or(|v| entry.ssrc == 0 || entry.ssrc == v)
+                        {
+                            self.last_fir_sequence = Some(entry.sequence_number);
+                        }
+                    }
+                }
+                crate::rtcp::RtcpPacket::Nack(nack) => {
+                    if self
+                        .video_ssrc
+                        .is_none_or(|v| nack.media_ssrc == 0 || nack.media_ssrc == v)
+                    {
+                        for &seq in &nack.lost_sequences {
+                            if !self.pending_nack_sequences.contains(&seq) {
+                                self.pending_nack_sequences.push(seq);
+                            }
+                        }
+                    }
+                }
+                crate::rtcp::RtcpPacket::Remb(remb) => {
+                    let bps = u32::try_from(remb.bitrate_bps).unwrap_or(u32::MAX);
+                    self.target_video_bitrate_bps = crate::rtp::video::clamp_video_bitrate_bps(bps);
+                }
+                _ => {}
+            }
+        }
+        let _ = self.keyframe_ctrl.on_compound(&compound);
         Ok(DecryptedRtcpCompound { raw, compound })
+    }
+
+    /// Шифрует и ставит в очередь `RTCP PLI (PT = 206, FMT = 1)` для запроса ключевого кадра у `media_ssrc` (подавление кода `2012`).
+    pub fn encrypt_rtcp_pli(&mut self, media_ssrc: u32) -> Result<Vec<u8>, VoiceSessionError> {
+        let sender_ssrc = self.ssrc.unwrap_or(0);
+        let clear = crate::rtcp::build_pli(sender_ssrc, media_ssrc);
+        self.encrypt_rtcp_packet(&clear)
+    }
+
+    /// Шифрует и ставит в очередь `RTCP FIR (PT = 206, FMT = 4)` с авто-инкрементом `sequence_number` для `media_ssrc` (подавление кода `2012`).
+    pub fn encrypt_rtcp_fir(&mut self, media_ssrc: u32) -> Result<Vec<u8>, VoiceSessionError> {
+        let sender_ssrc = self.ssrc.unwrap_or(0);
+        self.keyframe_ctrl
+            .set_local_ssrcs(sender_ssrc, self.video_ssrc.unwrap_or(0));
+        let clear = self.keyframe_ctrl.build_fir_packet(media_ssrc);
+        self.encrypt_rtcp_packet(&clear)
+    }
+
+    /// Шифрует составной пакет `RTCP Receiver Report (PT = 201) + PLI (PT = 206, FMT = 1)` для `media_ssrc`.
+    pub fn encrypt_compound_rr_pli(
+        &mut self,
+        media_ssrc: u32,
+        now_ms: u64,
+    ) -> Result<Vec<u8>, VoiceSessionError> {
+        let sender_ssrc = self.ssrc.unwrap_or(0);
+        let rb = self.next_report_block_for_ssrc(media_ssrc, now_ms);
+        let clear = crate::rtcp::build_compound_rr_pli(sender_ssrc, rb.as_ref(), media_ssrc);
+        self.encrypt_rtcp_packet(&clear)
+    }
+
+    /// Шифрует составной пакет `RTCP Receiver Report (PT = 201) + FIR (PT = 206, FMT = 4)` с авто-инкрементом `sequence_number` для `media_ssrc`.
+    pub fn encrypt_compound_rr_fir(
+        &mut self,
+        media_ssrc: u32,
+        now_ms: u64,
+    ) -> Result<Vec<u8>, VoiceSessionError> {
+        let sender_ssrc = self.ssrc.unwrap_or(0);
+        let rb = self.next_report_block_for_ssrc(media_ssrc, now_ms);
+        let seq = self.keyframe_ctrl.next_fir_sequence(media_ssrc);
+        let clear = crate::rtcp::build_compound_rr_fir(sender_ssrc, rb.as_ref(), media_ssrc, seq);
+        self.encrypt_rtcp_packet(&clear)
+    }
+
+    /// Формирует и шифрует `RTCP Receiver Report (PT = 201)` по накопленной статистике `ReceptionStats` для `media_ssrc` (подавление кода `2003`).
+    pub fn encrypt_rtcp_receiver_report(
+        &mut self,
+        media_ssrc: u32,
+        now_ms: u64,
+    ) -> Result<Vec<u8>, VoiceSessionError> {
+        let sender_ssrc = self.ssrc.unwrap_or(0);
+        let clear = match self.next_report_block_for_ssrc(media_ssrc, now_ms) {
+            Some(rb) => crate::rtcp::build_receiver_report(sender_ssrc, &rb).to_vec(),
+            None => crate::rtcp::build_receiver_reports(sender_ssrc, &[])?,
+        };
+        self.encrypt_rtcp_packet(&clear)
+    }
+
+    fn next_report_block_for_ssrc(
+        &mut self,
+        media_ssrc: u32,
+        now_ms: u64,
+    ) -> Option<crate::rtcp::ReportBlock> {
+        let (last_sr, sr_at_ms) = self
+            .remote_last_sr
+            .get(&media_ssrc)
+            .copied()
+            .unwrap_or((0, 0));
+        let dlsr = if last_sr == 0 || now_ms <= sr_at_ms {
+            0
+        } else {
+            (((now_ms - sr_at_ms) * 65_536) / 1_000) as u32
+        };
+        self.remote_reception
+            .get_mut(&media_ssrc)
+            .map(|stats| stats.next_report_block(media_ssrc, last_sr, dlsr))
+    }
+
+    /// Проверяет, запрошен ли ключевой кадр (`RTCP PLI` / `RTCP FIR` / высокая потеря в `RR`).
+    #[must_use]
+    pub const fn is_keyframe_requested(&self) -> bool {
+        self.keyframe_ctrl.is_keyframe_requested()
+    }
+
+    /// Забирает и сбрасывает флаг запроса ключевого кадра.
+    pub fn take_keyframe_request(&mut self) -> bool {
+        self.keyframe_ctrl.take_keyframe_request()
+    }
+
+    /// Количество принятых входящих пакетов `RTCP PLI (PT = 206, FMT = 1)`.
+    #[must_use]
+    pub const fn inbound_pli_count(&self) -> u64 {
+        self.keyframe_ctrl.inbound_pli_count()
+    }
+
+    /// Количество принятых новых входящих пакетов `RTCP FIR (PT = 206, FMT = 4)`.
+    #[must_use]
+    pub const fn inbound_fir_count(&self) -> u64 {
+        self.keyframe_ctrl.inbound_fir_count()
     }
 
     /// Генерирует и ставит в очередь кадр `OP 5 SPEAKING` (`SpeakingFlags::MICROPHONE` / `SOUND_SHARE`).
@@ -1756,7 +2021,15 @@ impl VoiceSessionDriver {
             .unwrap_or_else(|| fallback_server_id.to_owned());
         let channel_id = parsed_key
             .map(|(_, c, _)| c.to_owned())
-            .unwrap_or_else(|| fallback_channel_id.to_owned());
+            .filter(|c| !c.is_empty())
+            .or_else(|| {
+                if !fallback_channel_id.is_empty() {
+                    Some(fallback_channel_id.to_owned())
+                } else {
+                    compute_go_live_rtc_channel_id(&server_id)
+                }
+            })
+            .unwrap_or_default();
         let user_id = parsed_key
             .map(|(_, _, u)| u.to_owned())
             .unwrap_or_else(|| fallback_user_id.to_owned());
@@ -1776,6 +2049,8 @@ impl VoiceSessionDriver {
 
         let mut driver = Self::new(server, state)?;
         driver.stream_key = Some(update.stream_key);
+        driver.outgoing_ws.clear();
+        driver.outgoing_ws.push(driver.identify_json());
         Ok(driver)
     }
 
@@ -1785,13 +2060,46 @@ impl VoiceSessionDriver {
         &mut self,
         update: StreamServerUpdate,
     ) -> Result<&mut VoiceSessionDriver, VoiceSessionError> {
-        let go_live = Self::new_go_live(
+        let preserved = self
+            .go_live_session
+            .as_ref()
+            .filter(|prev| prev.stream_key() == Some(update.stream_key.as_str()))
+            .map(|prev| {
+                (
+                    prev.ssrc,
+                    prev.video_ssrc,
+                    prev.rtx_ssrc,
+                    prev.ssrc_stabilized,
+                    prev.video_sequence,
+                    prev.video_timestamp,
+                )
+            });
+        let mut go_live = Self::new_go_live(
             update,
             &self.server_id,
             &self.channel_id,
             &self.user_id,
             &self.session_id,
         )?;
+        if let Some((
+            ssrc,
+            video_ssrc,
+            rtx_ssrc,
+            ssrc_stabilized,
+            video_sequence,
+            video_timestamp,
+        )) = preserved
+        {
+            go_live.ssrc = ssrc;
+            go_live.video_ssrc = video_ssrc;
+            go_live.rtx_ssrc = rtx_ssrc;
+            go_live.ssrc_stabilized = ssrc_stabilized;
+            go_live.video_sequence = video_sequence;
+            go_live.video_timestamp = video_timestamp;
+            if let (Some(a), Some(v)) = (ssrc, video_ssrc) {
+                go_live.keyframe_ctrl.set_local_ssrcs(a, v);
+            }
+        }
         self.go_live_session = Some(Box::new(go_live));
         Ok(self.go_live_session.as_deref_mut().expect("just inserted"))
     }
@@ -1842,19 +2150,154 @@ impl VoiceSessionDriver {
         let rtx_ssrc = self.rtx_ssrc.unwrap_or(default_rtx);
         self.video_ssrc = Some(video_ssrc);
         self.rtx_ssrc = Some(rtx_ssrc);
+        self.ssrc_stabilized = true;
+        self.keyframe_ctrl.set_local_ssrcs(audio_ssrc, video_ssrc);
+        if max_framerate > 0 {
+            self.video_fps = max_framerate;
+        }
+        self.target_video_bitrate_bps = crate::rtp::video::clamp_video_bitrate_bps(max_bitrate);
 
         let video = VoiceVideo::screen_share_with_ssrcs(
             audio_ssrc,
             video_ssrc,
             rtx_ssrc,
             max_bitrate,
-            max_framerate,
+            max_framerate.max(1),
             width,
             height,
         );
         let json = video.to_json();
         self.outgoing_ws.push(json.clone());
         Ok(json)
+    }
+
+    /// Проверяет, зафиксированы ли `video_ssrc` и `rtx_ssrc` от сброса при повторных `OP 2 READY` и смене источника.
+    #[must_use]
+    pub const fn ssrc_stabilized(&self) -> bool {
+        self.ssrc_stabilized
+    }
+
+    /// Принудительно фиксирует `video_ssrc` и `rtx_ssrc` на всё время трансляции.
+    pub fn stabilize_video_ssrcs(&mut self, video_ssrc: u32, rtx_ssrc: u32) {
+        self.video_ssrc = Some(video_ssrc);
+        self.rtx_ssrc = Some(rtx_ssrc);
+        self.ssrc_stabilized = true;
+        self.keyframe_ctrl
+            .set_local_ssrcs(self.ssrc.unwrap_or(0), video_ssrc);
+    }
+
+    /// Переключает источник захвата видео (например, окно <-> весь экран) без сброса `video_ssrc`,
+    /// `rtx_ssrc`, `video_sequence`, `video_timestamp` и `SrtpContext`, отправляя обновлённый `OP 12 VIDEO`
+    /// и запрашивая внеочередной ключевой кадр (IDR).
+    pub fn switch_video_source(
+        &mut self,
+        width: u32,
+        height: u32,
+        max_framerate: u32,
+        max_bitrate: u32,
+    ) -> Result<String, VoiceSessionError> {
+        let clamped_bitrate = crate::rtp::video::clamp_video_bitrate_bps(max_bitrate);
+        self.keyframe_ctrl.request_keyframe();
+        self.send_video_op12(clamped_bitrate, max_framerate, width, height)
+    }
+
+    /// Продвигает `video_timestamp` на время паузы захвата `elapsed_ms` (в тиках 90 кГц),
+    /// чтобы избежать скачка/залипания таймстемпов и разрыва `Error 2007`.
+    pub fn advance_video_timestamp_for_pause(&mut self, elapsed_ms: u64) -> u32 {
+        let delta = crate::rtp::video::video_ticks_for_elapsed_ms(elapsed_ms, self.video_fps);
+        self.video_timestamp = self.video_timestamp.wrapping_add(delta);
+        self.video_timestamp
+    }
+
+    /// Синоним `is_keyframe_requested`: проверяет, требуется ли генерация ключевого кадра (IDR)
+    /// после приёма `RTCP PLI`/`FIR`, `OP 4` или переключения источника.
+    #[must_use]
+    pub const fn needs_keyframe(&self) -> bool {
+        self.keyframe_ctrl.is_keyframe_requested()
+    }
+
+    /// Вручную взводит флаг необходимости отправки ключевого кадра (IDR).
+    pub fn request_keyframe(&mut self) {
+        self.keyframe_ctrl.request_keyframe();
+    }
+
+    /// Число полученных пакетов `RTCP PLI (PT = 206, FMT = 1)`.
+    #[must_use]
+    pub const fn pli_received_count(&self) -> u64 {
+        self.keyframe_ctrl.inbound_pli_count()
+    }
+
+    /// Число полученных пакетов `RTCP FIR (PT = 206, FMT = 4)`.
+    #[must_use]
+    pub const fn fir_received_count(&self) -> u64 {
+        self.keyframe_ctrl.inbound_fir_count()
+    }
+
+    /// Последний полученный `sequence_number` из `RTCP FIR`.
+    #[must_use]
+    pub const fn last_fir_sequence(&self) -> Option<u8> {
+        self.last_fir_sequence
+    }
+
+    /// Забирает накопленные sequence-номера потерянных пакетов из входящих `RTCP NACK (PT = 205, FMT = 1)`.
+    pub fn take_pending_nacks(&mut self) -> Vec<u16> {
+        std::mem::take(&mut self.pending_nack_sequences)
+    }
+
+    /// Текущий целевой битрейт видеокодера (бит/с), зажатый в безопасном диапазоне Go Live (`150 kbps ..= 3.5 Mbps`).
+    #[must_use]
+    pub const fn target_video_bitrate_bps(&self) -> u32 {
+        self.target_video_bitrate_bps
+    }
+
+    /// Целевая частота кадров видеопотока (`fps`), используемая для расчёта дельты 90 кГц по умолчанию.
+    #[must_use]
+    pub const fn video_fps(&self) -> u32 {
+        self.video_fps
+    }
+
+    /// Устанавливает целевую частоту кадров видеопотока (`fps`).
+    pub fn set_video_fps(&mut self, fps: u32) {
+        self.video_fps = if fps == 0 {
+            crate::rtp::video::DEFAULT_VIDEO_FPS
+        } else {
+            fps
+        };
+    }
+
+    /// Ссылка на текущий `SrtpContext`, если он инициализирован.
+    #[must_use]
+    pub const fn srtp_context(&self) -> Option<&SrtpContext> {
+        self.srtp.as_ref()
+    }
+
+    /// Выполняет быстрое восстановление сессии при кодах ошибок `2000`, `2007`, `4009`, `4015` (и `4006`):
+    /// сохраняет стабилизированные `SSRC`, `video_sequence`, `video_timestamp` и `SrtpContext`,
+    /// взводит запрос ключевого кадра и ставит в очередь `OP 7 RESUME` (или `OP 0 IDENTIFY` для `4006`).
+    pub fn recover_from_close_code(
+        &mut self,
+        close_code: u16,
+    ) -> Result<String, VoiceSessionError> {
+        match classify_voice_close_code(close_code) {
+            VoiceCloseDisposition::ResumePreservingMediaState => {
+                self.phase = VoiceSessionPhase::Resuming;
+                self.keyframe_ctrl.request_keyframe();
+                let json = self.build_resume().to_json();
+                self.outgoing_ws.push(json.clone());
+                Ok(json)
+            }
+            VoiceCloseDisposition::ReidentifyPreservingSsrc => {
+                self.phase = VoiceSessionPhase::Identifying;
+                self.keyframe_ctrl.request_keyframe();
+                let json = self.identify_json();
+                self.outgoing_ws.push(json.clone());
+                Ok(json)
+            }
+            VoiceCloseDisposition::Fatal => {
+                self.phase = VoiceSessionPhase::Closed;
+                Err(VoiceError::invalid("fatal voice/stream close code").into())
+            }
+        }
     }
 
     /// Формирует и ставит в очередь кадр `Voice Opcode 15 (Media Sink Wants)`.

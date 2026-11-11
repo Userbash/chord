@@ -1,0 +1,77 @@
+# Спецификация пакета Snapcraft для нативного клиента Discord GPUI (TASK-967)
+# Оракул RE: /home/sanya/re-deep/main-arch.md (#62457 @143136, SNAP / SNAP_NAME -> runtimeEnvironment = "snap")
+# Оракул RE: /home/sanya/re-deep/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, XDG ScreenCast Portal)
+# Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets через password-manager-service)
+name: discord-gpui
+base: core22
+version: "1.0.0-beta.1"
+summary: "Нативный Linux-клиент Discord на Rust GPUI (WGPU 120 FPS, Wayland, DAVE v1)"
+description: |
+  Высокопроизводительный нативный клиент Discord для Linux на базе Rust GPUI и WGPU
+  (120 FPS аппаратный рендеринг, бюджет памяти VmRSS < 60 МБ, холодный старт < 500 мс).
+  Поддерживает протокол сквозного шифрования голоса и видео DAVE MLS v1 (RFC 9420),
+  захват экрана через XDG Desktop Portal / PipeWire DMA-BUF и безопасное хранение
+  сессионных токенов в системном брелоке Secret Service в строгой песочнице AppArmor.
+grade: stable
+confinement: strict
+compression: lzo
+license: MIT OR Apache-2.0
+
+architectures:
+  - build-on: [amd64]
+    build-for: [amd64]
+
+apps:
+  discord-gpui:
+    command: bin/discord-gpui
+    desktop: usr/share/applications/discord-gpui.desktop
+    environment:
+      RUST_LOG: info
+      DISABLE_WAYLAND: "0"
+    plugs:
+      # Нативный композитор Wayland (основной протокол отображения)
+      - wayland
+      # Интеграция с рабочим столом, XDG Desktop Portal (ScreenCast, FileChooser, Notifications) и AT-SPI
+      - desktop
+      # Поддержка системного трея StatusNotifierItem (SNI) и классических меню
+      - desktop-legacy
+      # Безопасный резервный сокет X11 при запуске в Xorg-сессии
+      - x11
+      # Аппаратное ускорение GPU (WGPU Vulkan / OpenGL 120 FPS и аппаратный кодек VA-API)
+      - opengl
+      # Воспроизведение звука через PipeWire / PulseAudio
+      - audio-playback
+      # Захват микрофона для голосовых каналов и Stage-трибун
+      - audio-record
+      # Доступ к системному хранилищу ключей org.freedesktop.secrets (GNOME Keyring / KWallet)
+      - password-manager-service
+      # Клиентский сетевой стек: Discord Gateway (WSS), REST API v9 (HTTPS)
+      - network
+      # Локальная привязка UDP-сокетов для WebRTC ICE / SRTP медиа-транспорта
+      - network-bind
+      # Блокировка гашения экрана во время просмотра или трансляции видеопотока
+      - screen-inhibit-control
+      # Чтение статуса питания для адаптивного энергосбережения рендерера
+      - upower-observe
+
+parts:
+  discord-gpui:
+    plugin: dump
+    source: ../../rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
+    source-type: tar
+    source-checksum: sha256/18a6aa8066ce0b6722c8b83a61bf0c43939d5cee7696c7cd6d282ac1167a349e
+    override-build: |
+      craftctl default
+      install -Dm755 "$CRAFT_PART_SRC/discord-gpui" "$CRAFT_PART_INSTALL/bin/discord-gpui"
+      install -Dm644 "$CRAFT_PART_SRC/LICENSE-MIT" "$CRAFT_PART_INSTALL/usr/share/doc/discord-gpui/LICENSE-MIT"
+      install -Dm644 "$CRAFT_PART_SRC/LICENSE-APACHE" "$CRAFT_PART_INSTALL/usr/share/doc/discord-gpui/LICENSE-APACHE"
+      install -Dm644 "$CRAFT_PART_SRC/BETA-TESTING-GUIDE.md" "$CRAFT_PART_INSTALL/usr/share/doc/discord-gpui/BETA-TESTING-GUIDE.md"
+      install -Dm644 "$CRAFT_PART_SRC/RELEASE-NOTES-v1.0.0-beta.1.md" "$CRAFT_PART_INSTALL/usr/share/doc/discord-gpui/RELEASE-NOTES-v1.0.0-beta.1.md"
+
+  sbom:
+    plugin: dump
+    source: ../../rust/dist/sbom.spdx.json
+    source-type: file
+    source-checksum: sha256/acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921
+    organize:
+      sbom.spdx.json: usr/share/doc/discord-gpui/sbom.spdx.json

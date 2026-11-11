@@ -35,7 +35,11 @@ fn decode_op37_frame(raw: &[u8]) -> EtfValue {
         "кадр ETF обязан начинаться с байта версии 0x83"
     );
     let (val, consumed) = etf::decode(raw).expect("валидный ETF-терм");
-    assert_eq!(consumed, raw.len(), "ровно один ETF-терм без лишнего хвоста");
+    assert_eq!(
+        consumed,
+        raw.len(),
+        "ровно один ETF-терм без лишнего хвоста"
+    );
     assert_eq!(
         val.get("op").and_then(EtfValue::as_int),
         Some(37),
@@ -140,12 +144,8 @@ fn s2_two_step_op37_guild_subscription_and_etf_wire_contract() {
     assert_eq!(extract_channel_ranges(sub2, channel_a), vec![[0, 99]]);
 
     // 2. Переключение канала в уже подписанной гильдии — 1 кадр op:37 с непустыми диапазонами:
-    let frames_second = build_guild_subscriptions_bulk_op37(
-        &mut subs,
-        guild_id,
-        channel_b,
-        &[[0, 99], [100, 199]],
-    );
+    let frames_second =
+        build_guild_subscriptions_bulk_op37(&mut subs, guild_id, channel_b, &[[0, 99], [100, 199]]);
     assert_eq!(frames_second.len(), 1);
     assert_eq!(subs.active_channel(guild_id), Some(channel_b));
     let decoded_second = decode_op37_frame(&frames_second[0]);
@@ -188,7 +188,8 @@ fn s2_already_subscribed_guild_forbids_empty_channels_and_empty_ranges_with_fall
     let empty_ranges_frames =
         build_guild_subscriptions_bulk_op37(&mut subs, guild_id, channel_id, &[]);
     assert_eq!(empty_ranges_frames.len(), 1);
-    let decoded_empty_ranges = decode_op37_ranges_for_guild(&empty_ranges_frames[0], guild_id, channel_id);
+    let decoded_empty_ranges =
+        decode_op37_ranges_for_guild(&empty_ranges_frames[0], guild_id, channel_id);
     assert_eq!(decoded_empty_ranges, vec![[0, 99]]);
 
     // Попытка передать невалидные диапазоны (ширина != 99, не кратно 100) для УЖЕ подписанной гильдии:
@@ -297,8 +298,7 @@ fn v2_voice_v8_seq_ack_tracks_text_and_binary_frames_and_populates_op3_and_op7()
 
     // Граница u16::MAX (65535) и минимальная длина len == 3 (пустой payload)
     let bin_max = [0xff, 0xff, 27];
-    let parsed_max =
-        update_voice_v8_seq_ack_from_binary(&mut seq_ack, &bin_max).expect("len == 3");
+    let parsed_max = update_voice_v8_seq_ack_from_binary(&mut seq_ack, &bin_max).expect("len == 3");
     assert_eq!(parsed_max.0, u16::MAX);
     assert_eq!(parsed_max.1, 27);
     assert!(parsed_max.2.is_empty());
@@ -405,7 +405,9 @@ async fn v3_pure_rust_voice_v8_op4_sends_op26_and_handles_dave_binary_op25_op27_
     );
 
     // 2. Входящий бинарный op:25 ExternalSenderPackage обновляет seq_ack и сохраняет внешние ключи
-    let op25_frame: Vec<u8> = vec![0x00, 0x0a, 25, 0xaa, 0xbb, 0xcc, 0xdd, 0x11, 0x22, 0x33, 0x44];
+    let op25_frame: Vec<u8> = vec![
+        0x00, 0x0a, 25, 0xaa, 0xbb, 0xcc, 0xdd, 0x11, 0x22, 0x33, 0x44,
+    ];
     server_ws
         .send(Message::Binary(op25_frame.into()))
         .await

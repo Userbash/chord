@@ -77,17 +77,27 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
     );
   });
 
-  it("SR5: app.js Stage Viewer shows 'Прекратить стрим ✕' and stops stream on close for broadcaster", () => {
+  it("SR5: app.js Stage Viewer separates 'Прекратить стрим' (stopStageBtn) from minimize '✕' (closeStageBtn) for broadcaster", () => {
     assert.match(
       appJs,
-      /closeStageBtn\.textContent\s*=\s*isSelfStream\s*\?\s*"Прекратить стрим ✕"\s*:\s*"Прекратить просмотр ✕"/,
-      "closeStageBtn must show 'Прекратить стрим ✕' for broadcaster",
+      /stopStageBtn\.textContent\s*=\s*"Прекратить стрим"/,
+      "stopStageBtn must show 'Прекратить стрим' for broadcaster",
     );
-    const viewerClosePattern = /if\s*\(isSelfStream\)\s*\{[\s\S]*?invoke\("voice_stream_stop"/;
+    assert.match(
+      appJs,
+      /stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(true\);/,
+      "stopStageBtn must invoke closeStageViewer(true) to stop stream",
+    );
+    assert.match(
+      appJs,
+      /closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);/,
+      "closeStageBtn for broadcaster must invoke closeStageViewer(false) to minimize into PIP",
+    );
+    const viewerClosePattern = /if\s*\(isSelfStream\)\s*\{[\s\S]*?if\s*\(stopStream\s*&&\s*activeVoiceConnection\)[\s\S]*?invoke\("voice_stream_stop"/;
     assert.match(
       appJs,
       viewerClosePattern,
-      "closeStageViewer must invoke voice_stream_stop when isSelfStream is true",
+      "closeStageViewer must invoke voice_stream_stop when isSelfStream and stopStream are true",
     );
   });
 });

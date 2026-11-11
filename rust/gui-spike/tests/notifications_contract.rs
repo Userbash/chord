@@ -911,5 +911,3 @@ fn desktop_notification_fails_cleanly_when_address_is_invalid() {
     let bad_parse = discord_platform::dbus::BusAddress::parse("invalid-bus-address");
     assert!(bad_parse.is_none(), "невалидный адрес парсится в None");
 }
-
-

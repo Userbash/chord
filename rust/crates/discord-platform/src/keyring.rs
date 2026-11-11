@@ -619,16 +619,20 @@ mod tests {
         let res_empty = migrator.migrate_once(raw, |_ct| Ok(b"".to_vec()), |_tok| Ok(true));
         assert_eq!(res_empty, Err(SafeStorageMigrationError::InvalidToken));
 
-        let res_utf8 = migrator.migrate_once(raw, |_ct| Ok(vec![0xff, 0xfe, 0xfd]), |_tok| Ok(true));
+        let res_utf8 =
+            migrator.migrate_once(raw, |_ct| Ok(vec![0xff, 0xfe, 0xfd]), |_tok| Ok(true));
         assert_eq!(res_utf8, Err(SafeStorageMigrationError::InvalidToken));
 
-        let res_nul = migrator.migrate_once(raw, |_ct| Ok(b"token\0corrupt".to_vec()), |_tok| Ok(true));
+        let res_nul =
+            migrator.migrate_once(raw, |_ct| Ok(b"token\0corrupt".to_vec()), |_tok| Ok(true));
         assert_eq!(res_nul, Err(SafeStorageMigrationError::InvalidToken));
 
-        let res_nl = migrator.migrate_once(raw, |_ct| Ok(b"token\nnewline".to_vec()), |_tok| Ok(true));
+        let res_nl =
+            migrator.migrate_once(raw, |_ct| Ok(b"token\nnewline".to_vec()), |_tok| Ok(true));
         assert_eq!(res_nl, Err(SafeStorageMigrationError::InvalidToken));
 
-        let res_cr = migrator.migrate_once(raw, |_ct| Ok(b"token\rcarriage".to_vec()), |_tok| Ok(true));
+        let res_cr =
+            migrator.migrate_once(raw, |_ct| Ok(b"token\rcarriage".to_vec()), |_tok| Ok(true));
         assert_eq!(res_cr, Err(SafeStorageMigrationError::InvalidToken));
     }
 
@@ -682,7 +686,9 @@ mod tests {
             )
             .unwrap_err();
         for text in [format!("{err:?}"), err.to_string()] {
-            assert!(!text.contains(secret_token) && !text.contains(raw) && !text.contains("c2VjcmV0"));
+            assert!(
+                !text.contains(secret_token) && !text.contains(raw) && !text.contains("c2VjcmV0")
+            );
         }
 
         let mut migrator = SafeStorageMigrator::new();
@@ -694,7 +700,9 @@ mod tests {
             )
             .unwrap_err();
         for text in [format!("{err:?}"), err.to_string()] {
-            assert!(!text.contains("c2VjcmV0") && !text.contains(raw) && !text.contains("valid-token"));
+            assert!(
+                !text.contains("c2VjcmV0") && !text.contains(raw) && !text.contains("valid-token")
+            );
         }
 
         let mut migrator = SafeStorageMigrator::new();

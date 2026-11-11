@@ -86,6 +86,15 @@ fn required_id(map: &EtfValue, key: &str, path: &str) -> Result<u64, EventError>
     })
 }
 
+fn is_null_or_empty(raw: &EtfValue) -> bool {
+    value::is_null(raw)
+        || matches!(
+            raw,
+            EtfValue::Str(text) | EtfValue::Atom(text)
+                if text == "nil" || text == "null" || text.trim().is_empty()
+        )
+}
+
 fn optional_int(
     map: &EtfValue,
     key: &str,
@@ -93,10 +102,11 @@ fn optional_int(
     diagnostics: &mut StateDiagnostics,
 ) -> Option<i64> {
     let raw = map.get(key)?;
-    if value::is_null(raw) {
+    if is_null_or_empty(raw) {
         return None;
     }
-    match value::integer(raw) {
+    match value::integer(raw).or_else(|| value::text(raw).and_then(|text| text.trim().parse().ok()))
+    {
         Some(number) => Some(number),
         None => {
             diagnostics.ignored.push(format!("{path}.{key}"));
@@ -112,7 +122,7 @@ fn optional_unsigned(
     diagnostics: &mut StateDiagnostics,
 ) -> Option<u64> {
     let raw = map.get(key)?;
-    if value::is_null(raw) {
+    if is_null_or_empty(raw) {
         return None;
     }
     match value::unsigned(raw) {

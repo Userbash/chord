@@ -71,6 +71,7 @@ pub mod rest_failure;
 pub mod roles;
 pub mod scheduled_events;
 pub mod search;
+pub mod search_bff;
 pub mod settings_store;
 /// RW-40/P-03 (D-108): исходящий typing `POST /channels/{id}/typing`.
 pub mod typing;

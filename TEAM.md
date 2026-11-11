@@ -43,15 +43,14 @@
 ### 3.1. Полный запрет `codex`
 - На `codex` исчерпан баланс (`на codex кончились денги`) — **запрещено запускать воркеров с `--agent codex` при любых обстоятельствах**.
 
-### 3.2. Использование DeepSeek (`--agent opencode --model deepseek/deepseek-v4.1-flash`)
-- **Назначение:** валидация, техническое ревью кода и спецификаций (`Tech Review`), тестирование (`G4 QA`, `DevOps` верификация, мутационное тестирование `5/5`) и рефакторинг / исправление замечаний ревью (`Pass 2 / Pass 3`).
-- **Расписание (строгое временное окно по Пекину `TZ=Asia/Shanghai`, UTC+8):**
-  - **Будние дни (Понедельник – Пятница):** разрешено **только с 18:00 до 23:59 по пекинскому времени (`Asia/Shanghai`)**.
-  - **Выходные дни (Суббота – Воскресенье):** разрешено **круглосуточно без ограничений**.
-  - Перед диспетчеризацией проверяй текущее время в Пекине командой: `TZ=Asia/Shanghai date '+%u %H:%M %Z'` (где `%u` `1..5` — будни, `6..7` — выходные).
+### 3.2. Запрет Codex и DeepSeek
+- **Codex:** лимиты исчерпаны — использование строго запрещено.
+- **DeepSeek:** по указанию пользователя использование модели `deepseek/deepseek-v4.1-flash` полностью исключено. Все задачи, включая техническое ревью, валидацию и мутационные наборы, выполняются на линейке Gemini (`antigravity`).
 
-### 3.3. Использование Antigravity (`--agent antigravity --model gemini-4-argon-high --effort high`)
-- **Назначение:** первичная разработка новых фич (`G1 Backend`, `G2 Frontend`, `G5 Voice/Platform`), первичных спецификаций (`G3 Design`, `G6 Tech Writer`), а также любые задачи в будние дни до 18:00 по пекинскому времени.
+### 3.3. Использование линейки Antigravity (`--agent antigravity`)
+- **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** ТОЛЬКО для самых сложных задач (P0 ядро, zero-copy Ring Buffer, DAVE MLS v1, AppState Tokio↔GPUI).
+- **`gemini-4-argon-high` / `medium`:** для валидации, проверок, технического ревью, QA мутаций, а также для стандартных BFF REST сервисов и WebRTC.
+- **`gemini-3.8-flash-high` / `medium` / `low`:** для UI компонентов, верстки, модалок, настроек, системного трея и документации.
 
 ### 3.4. Шаблон запуска видимого воркера через Orca CLI
 Все воркеры создаются как изолированные Orca-worktree от `unstable` и запускаются через `orca orchestration worker-start`:
@@ -63,14 +62,16 @@ orca worktree create \
   --base-branch unstable \
   --branch <type>/task-<id>-<slug>
 
-# 2. Запуск супервизируемого воркера (пример для DeepSeek в разрешённом окне)
+# 2. Запуск супервизируемого воркера через Antigravity
 orca orchestration worker-start \
   --run <run_id> \
   --worktree branch:<type>/task-<id>-<slug> \
   --task-title "<Отдел>: <Краткое название> (task-<id>)" \
   --spec "<Полное ТЗ: цель, требования, зависимости, write-scope, команды проверки, критерии готовности>" \
-  --agent opencode \
-  --model deepseek/deepseek-v4.1-flash
+  --agent antigravity \
+  --model gemini-4-argon-high \
+  --effort high \
+  --keep-open
 ```
 
 ---

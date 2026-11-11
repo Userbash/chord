@@ -63,13 +63,15 @@
 
 1. **Запуск воркеров через Orca Orchestration:**
    - Все воркеры запускаются как видимые супервизируемые терминалы в собственных рабочих деревьях через `orca worktree create --name <name> --base-branch unstable --branch <type>/task-<id>-<slug>` и `orca orchestration worker-start --run <run_id> --worktree branch:<type>/task-<id>-<slug> ...`.
-2. **Полный запрет `codex`:**
+2. **Полный запрет `codex` и `deepseek`:**
    - На `codex` закончились лимиты/средства — **никогда не используй `--agent codex`**.
-3. **Политика использования DeepSeek (`--agent opencode --model deepseek/deepseek-v4.1-flash`):**
-   - Используй **DeepSeek** для **валидации, проверки кода (Technical Review), тестирования (QA / DevOps верификация / мутации) и рефакторинга (Pass 2/Pass 3 исправления по ревью)**.
-   - **Временное окно DeepSeek:** разрешено **строго в будние дни (Пн–Пт) с 18:00 по пекинскому времени (`TZ=Asia/Shanghai`, UTC+8) и в выходные дни (Сб–Вс) без ограничений**. Перед запуском DeepSeek сверяй `TZ=Asia/Shanghai date`.
+   - По указанию пользователя **запрещено использовать DeepSeek (`deepseek/deepseek-v4.1-flash`)**. Все ревью, QA, мутационное тестирование и рефакторинг выполняются на линейке Gemini (`antigravity`).
+3. **Политика моделей линейки Gemini (`--agent antigravity`):**
+   - **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** исключительно для самых сложных задач (P0 ядра, атомарный zero-copy Ring Buffer, DAVE MLS v1 криптография, AppState Tokio↔GPUI).
+   - **`gemini-4-argon-high` / `medium`:** для валидации, проверок, технического ревью, мутационного тестирования (QA / DevOps верификация), а также для стандартных BFF REST сервисов и WebRTC.
+   - **`gemini-3.8-flash-high` / `medium` / `low`:** для UI компонентов, верстки, модалок, настроек, системного трея и документации.
 4. **Политика для первичной разработки новых фич и спецификаций:**
-   - Для первичной реализации новых задач (или вне окна DeepSeek в будни до 18:00 Пекин) используй `--agent antigravity --model gemini-4-argon-high --effort high`.
+   - Для сложнейших P0 задач ядра используй флагманскую модель `--agent antigravity --model gemini-4-carbon-high --effort high`, для обычных фич — `gemini-4-argon-high` / `gemini-3.8-flash-high`.
 
 ---
 

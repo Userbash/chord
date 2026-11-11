@@ -19,6 +19,17 @@ export {
   createStreamViewerController,
 } from './stream-viewer-ui.js';
 
+export {
+  DISCORD_AV_ERROR_CODES,
+  RTC_QUALITY_COLORS,
+  CALL_SOUND_EFFECTS,
+  discordMinEncodeFpsThreshold,
+  defeatDiscordAvError,
+  evaluateStreamAvHealth,
+  evaluateRtcConnectionQuality,
+  createRtcQualityStatusBar,
+} from './rtc-quality-status-bar.js';
+
 /** Допустимые разрешения демонстрации экрана. */
 export const SCREEN_SHARE_RESOLUTIONS = Object.freeze(
   /** @type {const} */ (['720p', '1080p', '1440p']),

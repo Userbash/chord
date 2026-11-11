@@ -33,11 +33,20 @@
 //! отдаются все 824 816 Б / 137 термов (до исправления — 759 280 Б / 44 терма).
 
 use std::fmt;
-use zstd::stream::raw::{Decoder, InBuffer, Operation, OutBuffer};
+use zstd::stream::raw::{DParameter, Decoder, InBuffer, Operation, OutBuffer};
 
 /// Ёмкость переиспользуемого буфера выдачи (≥64 КиБ по ТЗ): за один проход декодера
 /// возвращается не больше ёмкости, цикл доберёт остаток.
 const TARGET_CAPACITY: usize = 64 * 1024;
+
+/// Максимальный `WindowLog` кадра zstd (2^24 = 16 МиБ; боевой шлюз Discord использует 64 КиБ).
+pub const MAX_WINDOW_LOG: u32 = 24;
+
+/// Максимальный объём распакованных байт за один вызов [`ZstdStream::push`] (16 МиБ, защита от zip-bomb).
+pub const MAX_DECOMPRESSED_CHUNK_BYTES: usize = 16 * 1024 * 1024;
+
+/// Максимальный объём сжатых неразобранных байт в накопителе [`ZstdStream`] (8 МиБ).
+pub const MAX_PENDING_COMPRESSED_BYTES: usize = 8 * 1024 * 1024;
 
 /// Ошибки zstd-стрима.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -103,8 +112,13 @@ pub struct ZstdStream {
 impl ZstdStream {
     /// Пустой поток; магия проверяется на первых поданных байтах.
     pub fn new() -> Self {
+        let mut decoder =
+            Decoder::new().expect("ZSTD_createDStream не может отказать на пустом стриме");
+        decoder
+            .set_parameter(DParameter::WindowLogMax(MAX_WINDOW_LOG))
+            .expect("WindowLogMax(24) допустим в libzstd");
         Self {
-            decoder: Decoder::new().expect("ZSTD_createDStream не может отказать на пустом стриме"),
+            decoder,
             pending: Vec::new(),
             magic_checked: false,
             initialized: false,
@@ -134,6 +148,15 @@ impl ZstdStream {
     pub fn push(&mut self, frame: &[u8]) -> Result<Vec<u8>, ZstdError> {
         if self.dead {
             return Err(ZstdError::Poisoned);
+        }
+        if self.pending.len().saturating_add(frame.len()) > MAX_PENDING_COMPRESSED_BYTES {
+            self.dead = true;
+            self.pending.clear();
+            return Err(ZstdError::Decode {
+                msg: format!(
+                    "превышен лимит сжатого буфера zstd ({MAX_PENDING_COMPRESSED_BYTES} Б)"
+                ),
+            });
         }
         self.pending.extend_from_slice(frame);
 
@@ -171,6 +194,15 @@ impl ZstdStream {
                 self.initialized = true;
             }
             if produced > 0 {
+                if out.len().saturating_add(produced) > MAX_DECOMPRESSED_CHUNK_BYTES {
+                    self.dead = true;
+                    self.pending.clear();
+                    return Err(ZstdError::Decode {
+                        msg: format!(
+                            "превышен лимит распаковки одного сообщения zstd ({MAX_DECOMPRESSED_CHUNK_BYTES} Б)"
+                        ),
+                    });
+                }
                 out.extend_from_slice(&output.as_slice()[..produced]);
             }
             if hint == 0 {

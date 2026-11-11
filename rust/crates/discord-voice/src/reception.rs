@@ -89,6 +89,8 @@ pub struct ReceptionStats {
     highest_ext: Option<u32>,
     received: u64,
     duplicates: u64,
+    expected_prior: u64,
+    received_prior: u64,
     seen: BTreeSet<u32>,
     base_arrival_ms: Option<f64>,
     prev_arrival_units: Option<f64>,
@@ -108,6 +110,8 @@ impl ReceptionStats {
             highest_ext: None,
             received: 0,
             duplicates: 0,
+            expected_prior: 0,
+            received_prior: 0,
             seen: BTreeSet::new(),
             base_arrival_ms: None,
             prev_arrival_units: None,
@@ -197,6 +201,95 @@ impl ReceptionStats {
             jitter_units: self.jitter,
             jitter_ms,
         }
+    }
+
+    /// Кумулятивная доля потерь пакетов (`0.0..=1.0`).
+    #[must_use]
+    pub fn loss_rate(&self) -> f64 {
+        let snap = self.snapshot();
+        if snap.expected == 0 {
+            0.0
+        } else {
+            (snap.lost as f64) / (snap.expected as f64)
+        }
+    }
+
+    /// Интервальная доля потерь пакетов (`0.0..=1.0`) по RFC 3550 Appendix A.3 с момента последнего Receiver Report.
+    #[must_use]
+    pub fn interval_loss_rate(&self) -> f64 {
+        let snap = self.snapshot();
+        let expected_interval = snap.expected.saturating_sub(self.expected_prior);
+        let received_interval = self.received.saturating_sub(self.received_prior);
+        if expected_interval == 0 || received_interval >= expected_interval {
+            0.0
+        } else {
+            ((expected_interval - received_interval) as f64) / (expected_interval as f64)
+        }
+    }
+
+    /// Проверяет, превышает ли текущая интервальная доля потерь порог Discord WebRTC Error 2003 (`> 10%`, т.е. `packetLossRate * 100 > 10`).
+    #[must_use]
+    pub fn is_high_packet_loss(&self) -> bool {
+        self.interval_loss_rate() * 100.0 > crate::rtcp::DISCORD_HIGH_PACKET_LOSS_THRESHOLD_PCT
+    }
+
+    /// Вычисляет 24-байтный `ReportBlock` по RFC 3550 Appendix A.3 без сдвига интервальных счётчиков `expected_prior` / `received_prior`.
+    #[must_use]
+    pub fn peek_report_block(
+        &self,
+        ssrc: u32,
+        last_sr: u32,
+        delay_since_last_sr: u32,
+    ) -> crate::rtcp::ReportBlock {
+        let snap = self.snapshot();
+        let expected_interval = snap.expected.saturating_sub(self.expected_prior);
+        let received_interval = self.received.saturating_sub(self.received_prior);
+        let fraction_lost = if expected_interval == 0 || received_interval >= expected_interval {
+            0u8
+        } else {
+            let lost_interval = expected_interval - received_interval;
+            ((lost_interval * 256) / expected_interval).min(255) as u8
+        };
+        let cumulative_lost_i64 = i64::try_from(snap.lost).unwrap_or(i64::MAX);
+        let cumulative_lost = cumulative_lost_i64.clamp(
+            i64::from(crate::rtcp::CUMULATIVE_LOST_MIN),
+            i64::from(crate::rtcp::CUMULATIVE_LOST_MAX),
+        ) as i32;
+        crate::rtcp::ReportBlock {
+            ssrc,
+            fraction_lost,
+            cumulative_lost,
+            extended_highest_seq: self.highest_ext.unwrap_or(0),
+            jitter: self.jitter.round() as u32,
+            last_sr,
+            delay_since_last_sr,
+        }
+    }
+
+    /// Вычисляет `ReportBlock` по RFC 3550 Appendix A.3 и фиксирует границу интервала (`expected_prior`, `received_prior`).
+    pub fn next_report_block(
+        &mut self,
+        ssrc: u32,
+        last_sr: u32,
+        delay_since_last_sr: u32,
+    ) -> crate::rtcp::ReportBlock {
+        let rb = self.peek_report_block(ssrc, last_sr, delay_since_last_sr);
+        let snap = self.snapshot();
+        self.expected_prior = snap.expected;
+        self.received_prior = self.received;
+        rb
+    }
+
+    /// Собирает готовый 32-байтный открытый пакет `RTCP Receiver Report` (`PT = 201, RC = 1`) по RFC 3550 §6.4.2 и Appendix A.3.
+    pub fn build_receiver_report(
+        &mut self,
+        sender_ssrc: u32,
+        media_ssrc: u32,
+        last_sr: u32,
+        delay_since_last_sr: u32,
+    ) -> [u8; crate::rtcp::RTCP_RR_CLEAR_LEN] {
+        let rb = self.next_report_block(media_ssrc, last_sr, delay_since_last_sr);
+        crate::rtcp::build_receiver_report(sender_ssrc, &rb)
     }
 }
 

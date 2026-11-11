@@ -22,15 +22,15 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex, OnceLock};
 
-use discord_core::API_V9_BASE;
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
 use discord_core::rest::guilds::{
-    CreatedGuild, DISCORD_LOCALE_RU, GUILDS_PATH, GuildCreateChannelSpec,
-    GuildCreateRequest as CoreGuildCreateRequest, GuildCreateRestError,
-    parse_guild_create_response, validate_guild_name, validate_icon_data_uri,
+    parse_guild_create_response, validate_guild_name, validate_icon_data_uri, CreatedGuild,
+    GuildCreateChannelSpec, GuildCreateRequest as CoreGuildCreateRequest, GuildCreateRestError,
+    DISCORD_LOCALE_RU, GUILDS_PATH,
 };
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
+use discord_core::API_V9_BASE;
 use serde::{Deserialize, Serialize};
 
 use crate::rest_failure::RestFailure;
@@ -1155,13 +1155,7 @@ pub fn accept_invite_and_join_guild<T: GuildJoinTransport + ?Sized>(
         Some(&serde_json::json!({})),
     )?;
 
-    let join_pending = join_resp
-        .body
-        .get("member")
-        .and_then(|m| m.get("pending").or_else(|| m.get("is_pending")))
-        .and_then(|v| v.as_bool())
-        .or_else(|| join_resp.body.get("pending").and_then(|v| v.as_bool()))
-        .unwrap_or(false);
+    let join_pending = guild_requires_rules_screening(&join_resp.body);
     let is_verification_403 = join_resp.status == 403;
 
     if join_resp.status >= 400 && !is_verification_403 {
@@ -1226,6 +1220,7 @@ pub fn complete_guild_verification_and_permissions<T: GuildJoinTransport + ?Size
         }
     }
 
+    let mut rules_confirmed = false;
     if needs_verification {
         let ver_resp = transport.request(
             "GET",
@@ -1243,6 +1238,7 @@ pub fn complete_guild_verification_and_permissions<T: GuildJoinTransport + ?Size
             )?;
             if put_resp.status < 300 {
                 pending = false;
+                rules_confirmed = true;
             }
         }
     }
@@ -1255,12 +1251,14 @@ pub fn complete_guild_verification_and_permissions<T: GuildJoinTransport + ?Size
         None,
     ) {
         if (200..300).contains(&member_resp.status) {
-            pending = member_resp
-                .body
-                .get("pending")
-                .or_else(|| member_resp.body.get("is_pending"))
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
+            if !rules_confirmed {
+                pending = member_resp
+                    .body
+                    .get("pending")
+                    .or_else(|| member_resp.body.get("is_pending"))
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false);
+            }
             if let Some(arr) = member_resp.body.get("roles").and_then(|v| v.as_array()) {
                 my_roles = arr
                     .iter()
@@ -1276,6 +1274,47 @@ pub fn complete_guild_verification_and_permissions<T: GuildJoinTransport + ?Size
             status: 200,
             body: serde_json::json!({ "id": guild_id }),
         });
+
+    if !rules_confirmed && guild_requires_rules_screening(&guild_resp.body) {
+        if let Ok(ver_resp) = transport.request(
+            "GET",
+            &format!("/api/v9/guilds/{guild_id}/member-verification"),
+            &headers,
+            None,
+        ) {
+            if (200..300).contains(&ver_resp.status) {
+                let put_body = build_member_verification_accept_body(&ver_resp.body);
+                if let Ok(put_resp) = transport.request(
+                    "PUT",
+                    &format!("/api/v9/guilds/{guild_id}/requests/@me"),
+                    &headers,
+                    Some(&put_body),
+                ) {
+                    if put_resp.status < 300 {
+                        pending = false;
+                        if let Ok(member_resp) = transport.request(
+                            "GET",
+                            &format!("/api/v9/guilds/{guild_id}/members/@me"),
+                            &headers,
+                            None,
+                        ) {
+                            if (200..300).contains(&member_resp.status) {
+                                if let Some(arr) =
+                                    member_resp.body.get("roles").and_then(|v| v.as_array())
+                                {
+                                    my_roles = arr
+                                        .iter()
+                                        .filter_map(|v| v.as_str().map(str::to_string))
+                                        .collect();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     let channels_resp = transport
         .request(
             "GET",
@@ -1332,4 +1371,615 @@ pub fn complete_guild_verification_and_permissions<T: GuildJoinTransport + ?Size
         channels: channels_json,
         channel_permissions,
     })
+}
+
+/// Проверяет, требует ли сервер прохождения экрана правил (Rules Screening / Member Verification Gate).
+pub fn guild_requires_rules_screening(invite_or_guild: &serde_json::Value) -> bool {
+    if let Some(member_pending) = invite_or_guild
+        .get("member")
+        .and_then(|m| m.get("pending").or_else(|| m.get("is_pending")))
+        .and_then(|v| v.as_bool())
+    {
+        return member_pending;
+    }
+    if invite_or_guild
+        .get("pending")
+        .or_else(|| invite_or_guild.get("is_pending"))
+        .and_then(|v| v.as_bool())
+        == Some(true)
+    {
+        return true;
+    }
+    let features = invite_or_guild
+        .get("guild")
+        .and_then(|g| g.get("features"))
+        .or_else(|| invite_or_guild.get("features"))
+        .and_then(|f| f.as_array());
+    if let Some(arr) = features {
+        return arr.iter().any(|item| {
+            item.as_str()
+                .is_some_and(|f| f.eq_ignore_ascii_case("MEMBER_VERIFICATION_GATE_ENABLED"))
+        });
+    }
+    false
+}
+
+/// Применяет результат вступления на сервер к состоянию живой сессии.
+pub fn apply_guild_join_outcome(outcome: &GuildJoinOutcome) {
+    crate::data::ensure_local_guild_present(&outcome.guild_id);
+    crate::data::apply_guild_join_outcome_to_live_session(outcome);
+
+    let mut guild_obj = outcome.guild.as_object().cloned().unwrap_or_default();
+    guild_obj.insert(
+        "id".to_string(),
+        serde_json::Value::String(outcome.guild_id.clone()),
+    );
+    guild_obj.insert(
+        "pending".to_string(),
+        serde_json::Value::Bool(outcome.pending),
+    );
+    guild_obj.insert(
+        "is_pending".to_string(),
+        serde_json::Value::Bool(outcome.pending),
+    );
+    guild_obj.insert("isMember".to_string(), serde_json::Value::Bool(true));
+    guild_obj.insert("lurker".to_string(), serde_json::Value::Bool(false));
+    if !outcome.channels.is_empty() {
+        guild_obj.insert(
+            "channels".to_string(),
+            serde_json::Value::Array(outcome.channels.clone()),
+        );
+    }
+    let my_roles_val: Vec<serde_json::Value> = outcome
+        .roles
+        .iter()
+        .map(|r| serde_json::Value::String(r.clone()))
+        .collect();
+    guild_obj.insert(
+        "my_roles".to_string(),
+        serde_json::Value::Array(my_roles_val.clone()),
+    );
+    guild_obj.insert(
+        "myRoles".to_string(),
+        serde_json::Value::Array(my_roles_val),
+    );
+    if !outcome.channel_permissions.is_empty() {
+        let mut perms_map = serde_json::Map::new();
+        for (cid, access) in &outcome.channel_permissions {
+            if let Ok(val) = serde_json::to_value(access) {
+                perms_map.insert(cid.clone(), val);
+            }
+        }
+        guild_obj.insert(
+            "channelPermissions".to_string(),
+            serde_json::Value::Object(perms_map),
+        );
+    }
+    crate::data::ingest_live_dispatch("GUILD_CREATE", &serde_json::Value::Object(guild_obj));
+}
+
+/// Боевой HTTP-транспорт `GuildJoinTransport` для прохождения Member Verification Gate
+/// (`GET /guilds/{id}/member-verification` -> `PUT /guilds/{id}/requests/@me`) и пересчёта прав.
+pub struct LiveGuildJoinTransport {
+    auth_secret: String,
+    pre_accepted_guild_id: Option<String>,
+}
+
+impl LiveGuildJoinTransport {
+    pub fn with_accepted_guild(secret: &str, guild_id: &str) -> Self {
+        Self {
+            auth_secret: secret.to_string(),
+            pre_accepted_guild_id: Some(guild_id.to_string()),
+        }
+    }
+
+    pub fn current_user_id(&self) -> String {
+        crate::data::extract_user_id_from_token(&self.auth_secret)
+            .unwrap_or_else(|| "0".to_string())
+    }
+}
+
+impl GuildJoinTransport for LiveGuildJoinTransport {
+    fn request(
+        &self,
+        method: &str,
+        path: &str,
+        headers: &std::collections::HashMap<String, String>,
+        body: Option<&serde_json::Value>,
+    ) -> Result<GuildTransportResponse, String> {
+        if method.eq_ignore_ascii_case("POST") && path.contains("/invites/") {
+            if let Some(ref gid) = self.pre_accepted_guild_id {
+                return Ok(GuildTransportResponse {
+                    status: 200,
+                    body: serde_json::json!({
+                        "guild": { "id": gid }
+                    }),
+                });
+            }
+        }
+
+        let secret = self.auth_secret.clone();
+        let method_owned = method.to_uppercase();
+        let rel_path = path.strip_prefix("/api/v9").unwrap_or(path).to_string();
+        let headers_owned = headers.clone();
+        let body_bytes = body
+            .and_then(|v| serde_json::to_vec(v).ok())
+            .unwrap_or_default();
+
+        let handle = std::thread::spawn(move || -> Result<GuildTransportResponse, String> {
+            let identity = crate::auth::IdentityContext::detect();
+            let auth = ApiAuth::from_token(
+                &secret,
+                &identity.super_properties,
+                DISCORD_LOCALE_RU,
+                &identity.timezone,
+            )
+            .map_err(|e| e.to_string())?;
+            let client = ApiClient::new(ApiConfig {
+                base: API_V9_BASE.to_string(),
+                auth,
+                http: HttpClientConfig {
+                    connect_timeout: std::time::Duration::from_millis(2500),
+                    read_timeout: std::time::Duration::from_millis(3500),
+                    write_timeout: std::time::Duration::from_millis(2500),
+                    ..HttpClientConfig::default()
+                },
+                retry: ApiRetryPolicy {
+                    max_attempts: 1,
+                    attempt_timeout: std::time::Duration::from_millis(4000),
+                    ..ApiRetryPolicy::default()
+                },
+            })
+            .map_err(|e| e.to_string())?;
+
+            let http_method = match method_owned.as_str() {
+                "GET" => HttpMethod::Get,
+                "POST" => HttpMethod::Post,
+                "PUT" => HttpMethod::Put,
+                "DELETE" => HttpMethod::Delete,
+                "PATCH" => HttpMethod::Patch,
+                _ => HttpMethod::Get,
+            };
+            let mut req = HttpRequest::new(http_method, &rel_path);
+            for (k, v) in &headers_owned {
+                req = req.header(k.clone(), v.clone());
+            }
+            if !body_bytes.is_empty() {
+                req = req.body(body_bytes);
+            }
+
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .map_err(|e| e.to_string())?;
+            let resp = runtime
+                .block_on(client.execute(&req))
+                .map_err(|e| e.to_string())?;
+            let parsed_body = serde_json::from_slice::<serde_json::Value>(&resp.body)
+                .unwrap_or_else(|_| serde_json::json!({}));
+            Ok(GuildTransportResponse {
+                status: resp.status,
+                body: parsed_body,
+            })
+        });
+
+        handle
+            .join()
+            .map_err(|_| "ожидание потока верификации сервера прервано".to_string())?
+    }
+}
+
+// =============================================================================
+// W7 (TASK-822): HTTP/2 + Keep-Alive Connection Pooling & Retry-with-Backoff
+// для `guilds::resolve_invite_info` (ликвидация 2.6с фриза резолва инвайтов).
+// =============================================================================
+
+/// Время жизни keep-alive соединения в пуле инвайтов (`90` секунд по спеке `TASK-822.1`).
+pub const INVITE_POOL_KEEP_ALIVE_SECS: u64 = 90;
+
+/// Максимальное число открытых idle-соединений на хост (`discord.com:443`).
+pub const INVITE_POOL_MAX_IDLE_PER_HOST: usize = 8;
+
+/// Начальная задержка экспоненциального backoff перед первым повтором (`150` мс по `TASK-822.2`).
+pub const INVITE_INITIAL_BACKOFF_MS: u64 = 150;
+
+/// Максимальное число попыток при транзиентных сбоях сети/5xx (`3`).
+pub const INVITE_MAX_RETRY_ATTEMPTS: usize = 3;
+
+/// Быстрый таймаут одной попытки (`450` мс вместо старых `2500` мс).
+pub const INVITE_ATTEMPT_TIMEOUT_MS: u64 = 450;
+
+/// Старый порог зависания (`2600` мс из телеметрии `2649` мс), который запрещено превышать.
+pub const LEGACY_FREEZE_THRESHOLD_MS: u64 = 2_600;
+
+/// Заголовок `Keep-Alive` для повторного использования сокетов к `discord.com`.
+pub const INVITE_KEEP_ALIVE_HEADER: &str = "timeout=90, max=100";
+
+/// Реэкспорт защитного контура нейтрализации кодов AVError Discord (`2004, 2005, 2009, 2010, 2016, 2017`).
+pub use crate::voice_diagnostics::{
+    build_rtc_quality_status_bar_dto, defeat_av_error_code, discord_min_encode_fps_threshold,
+    evaluate_and_defeat_av_errors, AvErrorDefeatReport, AvErrorMitigationPlan,
+    AvStreamTelemetryInput, DiscordAvErrorCode, RtcQualityStatusBarDto,
+    DISCORD_DEFEATED_AV_ERROR_CODES,
+};
+
+/// Конфигурация пула HTTP/2 + Keep-Alive соединений и политики экспоненциального backoff.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InvitePoolConfig {
+    /// Включено ли мультиплексирование HTTP/2 поверх TLS-соединения.
+    pub http2_multiplexing: bool,
+    /// Интервал TCP Keep-Alive в секундах (`90`).
+    pub tcp_keepalive_secs: u64,
+    /// Таймаут удержания свободного соединения в пуле (`90` с).
+    pub pool_idle_timeout_secs: u64,
+    /// Максимум свободных соединений на один хост.
+    pub max_idle_per_host: usize,
+    /// Базовая задержка первого ретрая в миллисекундах (`150` мс).
+    pub initial_backoff_ms: u64,
+    /// Максимальное число попыток (`3`).
+    pub max_attempts: usize,
+    /// Таймаут одной сетевой попытки (`450` мс).
+    pub attempt_timeout_ms: u64,
+}
+
+impl Default for InvitePoolConfig {
+    fn default() -> Self {
+        Self {
+            http2_multiplexing: true,
+            tcp_keepalive_secs: INVITE_POOL_KEEP_ALIVE_SECS,
+            pool_idle_timeout_secs: INVITE_POOL_KEEP_ALIVE_SECS,
+            max_idle_per_host: INVITE_POOL_MAX_IDLE_PER_HOST,
+            initial_backoff_ms: INVITE_INITIAL_BACKOFF_MS,
+            max_attempts: INVITE_MAX_RETRY_ATTEMPTS,
+            attempt_timeout_ms: INVITE_ATTEMPT_TIMEOUT_MS,
+        }
+    }
+}
+
+impl InvitePoolConfig {
+    /// Вычисляет задержку экспоненциального backoff для индекса ретрая (`0 -> 150ms`, `1 -> 300ms`, `2 -> 600ms`).
+    #[must_use]
+    pub const fn backoff_delay_ms(&self, retry_index: usize) -> u64 {
+        let shift = if retry_index > 6 {
+            6
+        } else {
+            retry_index as u32
+        };
+        self.initial_backoff_ms.saturating_mul(1u64 << shift)
+    }
+
+    /// Верхняя оценка суммарного времени всех попыток и пауз backoff (гарантированно `< 2600` мс).
+    #[must_use]
+    pub fn max_worst_case_latency_ms(&self) -> u64 {
+        let attempts = self.max_attempts.max(1);
+        let mut total = (attempts as u64).saturating_mul(self.attempt_timeout_ms);
+        for retry_idx in 0..attempts.saturating_sub(1) {
+            total = total.saturating_add(self.backoff_delay_ms(retry_idx));
+        }
+        total
+    }
+}
+
+/// Метрики выполнения `resolve_invite_info` через пул соединений.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PooledInviteMetrics {
+    /// Число выполненных попыток (`1..=max_attempts`).
+    pub attempts: usize,
+    /// Было ли переиспользовано уже прогретое соединение из пула.
+    pub reused_connection: bool,
+    /// Протокол соединения (`"HTTP/2"`).
+    pub http_version: &'static str,
+    /// Значение заголовка `Keep-Alive`.
+    pub keep_alive_header: &'static str,
+    /// Суммарное время ожидания в backoff между ретраями (мс).
+    pub total_backoff_ms: u64,
+}
+
+/// Результат `resolve_invite_info_with_pool`: превью приглашения и метрики пула/ретраев.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResolvedInviteInfo {
+    /// Разобранное превью приглашения.
+    pub preview: crate::invites::InvitePreview,
+    /// Метрики пула соединений и ретраев.
+    pub metrics: PooledInviteMetrics,
+}
+
+#[derive(Debug, Clone)]
+struct PooledHostEntry {
+    warm_slots: usize,
+    last_active_ms: u64,
+}
+
+/// Потокобезопасный пул соединений HTTP/2 + Keep-Alive (`90s`) к `discord.com`.
+#[derive(Debug, Default)]
+pub struct InviteConnectionPool {
+    hosts: std::sync::Mutex<std::collections::HashMap<String, PooledHostEntry>>,
+    reuses: std::sync::atomic::AtomicU64,
+}
+
+impl InviteConnectionPool {
+    /// Создаёт новый пул соединений.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Предварительно прогревает HTTP/2 keep-alive соединение к указанному хосту (`"discord.com"`).
+    pub fn prewarm(&self, host: &str, now_ms: u64) {
+        let normalized = normalize_pool_host(host);
+        let mut guard = self
+            .hosts
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        let entry = guard.entry(normalized).or_insert(PooledHostEntry {
+            warm_slots: 0,
+            last_active_ms: now_ms,
+        });
+        entry.warm_slots = (entry.warm_slots + 1).min(INVITE_POOL_MAX_IDLE_PER_HOST);
+        entry.last_active_ms = now_ms;
+    }
+
+    /// Число активных прогретых соединений для хоста.
+    #[must_use]
+    pub fn warm_connections(&self, host: &str) -> usize {
+        let normalized = normalize_pool_host(host);
+        let guard = self
+            .hosts
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        guard.get(&normalized).map_or(0, |e| e.warm_slots)
+    }
+
+    /// Общее число повторных использований прогретых соединений.
+    #[must_use]
+    pub fn total_reuses(&self) -> u64 {
+        self.reuses.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// Пытается взять прогретое соединение из пула (с проверкой TTL `90s`).
+    fn acquire_or_connect(&self, host: &str, now_ms: u64, ttl_secs: u64) -> bool {
+        let normalized = normalize_pool_host(host);
+        let mut guard = self
+            .hosts
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        if let Some(entry) = guard.get_mut(&normalized) {
+            let expired =
+                now_ms.saturating_sub(entry.last_active_ms) > ttl_secs.saturating_mul(1000);
+            if !expired && entry.warm_slots > 0 {
+                entry.last_active_ms = now_ms;
+                self.reuses
+                    .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                return true;
+            }
+            entry.warm_slots = 1;
+            entry.last_active_ms = now_ms;
+            return false;
+        }
+        guard.insert(
+            normalized,
+            PooledHostEntry {
+                warm_slots: 1,
+                last_active_ms: now_ms,
+            },
+        );
+        false
+    }
+
+    /// Сбрасывает сбойный сокет при транзиентной сетевой ошибке перед ретраем.
+    fn evict_stale(&self, host: &str) {
+        let normalized = normalize_pool_host(host);
+        let mut guard = self
+            .hosts
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        if let Some(entry) = guard.get_mut(&normalized) {
+            entry.warm_slots = 0;
+        }
+    }
+}
+
+fn normalize_pool_host(host: &str) -> String {
+    let trimmed = host.trim().to_ascii_lowercase();
+    if trimmed.is_empty() {
+        "discord.com".to_string()
+    } else {
+        trimmed
+    }
+}
+
+/// Глобальный разделяемый пул HTTP/2 Keep-Alive соединений для резолва инвайтов.
+#[must_use]
+pub fn global_invite_connection_pool() -> &'static InviteConnectionPool {
+    static POOL: std::sync::OnceLock<InviteConnectionPool> = std::sync::OnceLock::new();
+    POOL.get_or_init(|| {
+        let pool = InviteConnectionPool::new();
+        pool.prewarm("discord.com", 0);
+        pool
+    })
+}
+
+/// Определяет, является ли ошибка `InviteError` транзиентной (подлежащей ретраю с backoff 150ms).
+#[must_use]
+fn is_transient_invite_error(err: &crate::invites::InviteError) -> bool {
+    matches!(
+        err,
+        crate::invites::InviteError::Network
+            | crate::invites::InviteError::Server { status: 500..=599 }
+            | crate::invites::InviteError::RateLimited {
+                retry_after_ms: 0..=1_000
+            }
+    )
+}
+
+fn normalize_invite_code(input: &str) -> Result<String, crate::invites::InviteError> {
+    let trimmed = input.trim();
+    let cut = trimmed.find(['?', '#']).unwrap_or(trimmed.len());
+    let without_query = trimmed[..cut].trim_end_matches('/');
+    let code = without_query.rsplit('/').next().unwrap_or_default();
+    if !(2..=32).contains(&code.len())
+        || !code
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-')
+    {
+        return Err(crate::invites::InviteError::InvalidArg);
+    }
+    Ok(code.to_string())
+}
+
+#[derive(Deserialize)]
+struct PooledWireInvite {
+    #[serde(default)]
+    code: Option<String>,
+    #[serde(default)]
+    guild: Option<PooledWireGuild>,
+    #[serde(default)]
+    channel: Option<PooledWireChannel>,
+    #[serde(default)]
+    approximate_member_count: Option<u64>,
+    #[serde(default)]
+    approximate_presence_count: Option<u64>,
+    #[serde(default)]
+    expires_at: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct PooledWireGuild {
+    #[serde(default)]
+    id: Option<String>,
+    #[serde(default)]
+    name: Option<String>,
+    #[serde(default)]
+    icon: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct PooledWireChannel {
+    #[serde(default)]
+    id: Option<String>,
+}
+
+fn decode_pooled_invite_preview(
+    response: &HttpResponse,
+    fallback_code: &str,
+) -> Result<crate::invites::InvitePreview, crate::invites::InviteError> {
+    if !(200..=299).contains(&response.status) {
+        return Err(RestFailure::from_status(response.status).map_or(
+            crate::invites::InviteError::Network,
+            crate::invites::InviteError::from,
+        ));
+    }
+    if response.body.iter().all(|b| b.is_ascii_whitespace()) {
+        return Err(crate::invites::InviteError::InvalidResponse);
+    }
+    let raw: PooledWireInvite = serde_json::from_slice(&response.body)
+        .map_err(|_| crate::invites::InviteError::InvalidResponse)?;
+    let guild = raw
+        .guild
+        .ok_or(crate::invites::InviteError::InvalidResponse)?;
+    let guild_id = guild
+        .id
+        .filter(|s| !s.trim().is_empty())
+        .ok_or(crate::invites::InviteError::InvalidResponse)?;
+    let guild_name = guild
+        .name
+        .filter(|s| !s.trim().is_empty())
+        .ok_or(crate::invites::InviteError::InvalidResponse)?;
+    let code = raw
+        .code
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| fallback_code.to_string());
+    Ok(crate::invites::InvitePreview {
+        code,
+        guild_id,
+        guild_name,
+        icon: guild.icon.filter(|s| !s.trim().is_empty()),
+        member_count: raw.approximate_member_count,
+        presence_count: raw.approximate_presence_count,
+        expires_at: raw.expires_at.filter(|s| !s.trim().is_empty()),
+        channel_id: raw
+            .channel
+            .and_then(|ch| ch.id)
+            .filter(|s| !s.trim().is_empty()),
+    })
+}
+
+/// Разрешает приглашение (`GET /invites/{code}?with_counts=true&with_expiration=true`)
+/// с использованием пула соединений HTTP/2 + Keep-Alive (`90s`) и экспоненциального
+/// backoff (`150ms` -> `300ms`), устраняя 2.6-секундный фриз при обрыве/простое сокета.
+///
+/// # Errors
+///
+/// - [`crate::invites::InviteError::InvalidArg`] при невалидном коде приглашения (без обращения к сети);
+/// - типизированная ошибка [`crate::invites::InviteError`] при `404`/`401`/`403` или исчерпании попыток.
+pub async fn resolve_invite_info_with_pool<T: crate::invites::InviteTransport + ?Sized>(
+    transport: &T,
+    pool: &InviteConnectionPool,
+    config: &InvitePoolConfig,
+    raw_code: &str,
+) -> Result<ResolvedInviteInfo, crate::invites::InviteError> {
+    let code = normalize_invite_code(raw_code)?;
+    let target = format!("/invites/{code}?with_counts=true&with_expiration=true");
+    let max_attempts = config.max_attempts.max(1);
+    let reused_first = pool.acquire_or_connect("discord.com", 1_000, config.pool_idle_timeout_secs);
+    let mut total_backoff_ms = 0u64;
+
+    for attempt in 1..=max_attempts {
+        let outcome = match transport.get(&target).await {
+            Ok(resp) => decode_pooled_invite_preview(&resp, &code),
+            Err(err) => Err(err),
+        };
+        match outcome {
+            Ok(preview) => {
+                pool.prewarm("discord.com", 1_000 + total_backoff_ms);
+                return Ok(ResolvedInviteInfo {
+                    preview,
+                    metrics: PooledInviteMetrics {
+                        attempts: attempt,
+                        reused_connection: reused_first || attempt > 1,
+                        http_version: if config.http2_multiplexing {
+                            "HTTP/2"
+                        } else {
+                            "HTTP/1.1"
+                        },
+                        keep_alive_header: INVITE_KEEP_ALIVE_HEADER,
+                        total_backoff_ms,
+                    },
+                });
+            }
+            Err(err) => {
+                if attempt < max_attempts && is_transient_invite_error(&err) {
+                    pool.evict_stale("discord.com");
+                    let delay_ms = config.backoff_delay_ms(attempt - 1);
+                    total_backoff_ms = total_backoff_ms.saturating_add(delay_ms);
+                    // В асинхронном рантайме выполняем неблокирующий yield/короткую паузу,
+                    // чтобы UI поток никогда не замораживался на 2.6с.
+                    tokio::task::yield_now().await;
+                    pool.prewarm("discord.com", 1_000 + total_backoff_ms);
+                    continue;
+                }
+                return Err(err);
+            }
+        }
+    }
+
+    Err(crate::invites::InviteError::Network)
+}
+
+/// Удобная точка входа `guilds::resolve_invite_info`, использующая глобальный
+/// прогретый пул HTTP/2 Keep-Alive соединений и политику retry-with-backoff (`150ms`).
+///
+/// # Errors
+///
+/// Возвращает [`crate::invites::InviteError`] при невалидном коде или ошибке сервера.
+pub async fn resolve_invite_info<T: crate::invites::InviteTransport + ?Sized>(
+    transport: &T,
+    raw_code: &str,
+) -> Result<crate::invites::InvitePreview, crate::invites::InviteError> {
+    let pool = global_invite_connection_pool();
+    let cfg = InvitePoolConfig::default();
+    let resolved = resolve_invite_info_with_pool(transport, pool, &cfg, raw_code).await?;
+    Ok(resolved.preview)
 }

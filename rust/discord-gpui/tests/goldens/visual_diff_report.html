@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>GPUI Visual Regression Report (SSIM &gt; 0.99)</title>
+<style>
+body { background:#1e1f22; color:#ffffff; font-family:sans-serif; margin:24px; }
+.card { background:#2b2d31; border:1px solid #3f4147; border-radius:8px; padding:16px; margin-bottom:16px; }
+.badge-pass { background:#23a55a; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold; }
+.badge-fail { background:#f23f43; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold; }
+.controls { display:flex; gap:12px; align-items:center; margin:16px 0; background:#313338; padding:12px; border-radius:8px; }
+button { background:#eb459e; color:#fff; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; font-weight:bold; }
+table { width:100%; border-collapse:collapse; margin-top:12px; }
+th, td { padding:10px; border-bottom:1px solid #3f4147; text-align:left; }
+</style>
+</head>
+<body>
+<h1>GPUI Visual Regression &amp; Perceptual Diff (SSIM &gt; 0.99)</h1>
+<p>Сводка: <strong>15/15 PASS</strong> | Renderer: <code>llvmpipe</code> | Frozen Clock: <code>2026-11-11T12:00:00Z</code></p>
+<div class="controls" data-mode="slider">
+<span>Режим сравнения:</span>
+<button type="button" data-view-mode="slider">Slider</button>
+<button type="button" data-view-mode="onion-skin">Onion Skin</button>
+<button type="button" data-view-mode="red-diff">Red Diff Overlay</button>
+<label>Slider / Onion Opacity: <input type="range" min="0" max="100" value="50"></label>
+</div>
+<div class="card">
+<table>
+<thead><tr><th>Snapshot</th><th>Описание</th><th>Разрешение</th><th>SSIM</th><th>Маска (px)</th><th>Diff (px)</th><th>Статус</th></tr></thead>
+<tbody>
+      <tr><td><code>main_chat_1280x720</code></td><td>Главное окно чата Discord Dark (1280x720 HD)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>main_chat_1920x1080</code></td><td>Главное окно чата Discord Dark (1920x1080 FHD)</td><td>1920x1080</td><td>1.000000</td><td>205656</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_01_my_account</code></td><td>SettingsDialog — Моя учётная запись</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_02_profile</code></td><td>SettingsDialog — Профиль пользователя</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_03_voice_and_video</code></td><td>SettingsDialog — Голос и видео (CPAL)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_04_appearance</code></td><td>SettingsDialog — Внешний вид</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_05_keybinds</code></td><td>SettingsDialog — Горячие клавиши</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_06_notifications</code></td><td>SettingsDialog — Уведомления</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_07_text_and_images</code></td><td>SettingsDialog — Текст и изображения</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>settings_08_language</code></td><td>SettingsDialog — Язык интерфейса</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>modal_captcha</code></td><td>CaptchaModal (hCaptcha 40003)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>modal_create_guild</code></td><td>CreateGuildModal (Создание и вступление на сервер)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>modal_screen_share</code></td><td>ScreenShareModal (Демонстрация экрана PipeWire)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>overlay_context_menu</code></td><td>ContextMenu (Контекстное меню ПКМ)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td><code>overlay_profile_tooltip</code></td><td>UserProfileCard (Всплывающий тултип профиля)</td><td>1280x720</td><td>1.000000</td><td>134376</td><td>0</td><td><span class="badge-pass">PASS</span></td></tr>
+    </tbody>
+</table>
+</div>
+</body>
+</html>

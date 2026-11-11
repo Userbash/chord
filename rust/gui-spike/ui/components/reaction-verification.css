@@ -1,0 +1,127 @@
+/**
+ * TASK-816: Интерактивное прохождение Reaction Verification в каналах правил
+ * Стили панели реакций (Reactions Bar) и бейджей реакций (Reaction Badge).
+ */
+
+:root {
+  --reaction-badge-bg: #2b2d31;
+  --reaction-badge-surface: #35373c;
+  --reaction-badge-text: #f2f3f5;
+  --reaction-badge-accent: #5865f2;
+  --reaction-badge-border: #3f4147;
+  --reaction-badge-border-hover: #5865f2;
+  --reaction-badge-active-bg: rgba(88, 101, 242, 0.15);
+  --reaction-badge-padding: 4px 6px;
+  --reaction-badge-spacing: 4px;
+}
+
+/* Reactions Bar (Панель реакций под сообщением) */
+.reactions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--reaction-badge-spacing);
+  padding: var(--reaction-badge-padding);
+  background: var(--reaction-badge-bg);
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* Reaction Badge (Интерактивный бейдж реакции) */
+.reaction-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 4px 6px;
+  background-color: var(--reaction-badge-surface);
+  color: var(--reaction-badge-text);
+  border: 1px solid var(--reaction-badge-border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+}
+
+.reaction-badge:hover {
+  border-color: var(--reaction-badge-border-hover);
+  background-color: rgba(53, 55, 60, 0.9);
+}
+
+.reaction-badge:active {
+  transform: scale(0.96);
+}
+
+.reaction-badge.active,
+.reaction-badge[aria-pressed="true"],
+.reaction-badge[data-me="true"] {
+  border-color: var(--reaction-badge-accent);
+  background-color: var(--reaction-badge-active-bg);
+  color: #ffffff;
+}
+
+.reaction-badge.active:hover,
+.reaction-badge[aria-pressed="true"]:hover {
+  background-color: rgba(88, 101, 242, 0.25);
+  border-color: #4752c4;
+}
+
+.reaction-badge .reaction-emoji {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.reaction-badge .reaction-count {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+}
+
+/* Информационная плашка в верификационном канале правил */
+.reaction-verification-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  background-color: var(--reaction-badge-bg);
+  border: 1px solid var(--reaction-badge-border);
+  border-left: 4px solid var(--reaction-badge-accent);
+  border-radius: 6px;
+  margin: 8px 0;
+  color: var(--reaction-badge-text);
+}
+
+.reaction-verification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.reaction-verification-hint {
+  font-size: 13px;
+  color: #dbdee1;
+  line-height: 1.4;
+}
+
+.reaction-verification-status {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--reaction-badge-surface);
+  color: #949ba4;
+}
+
+.reaction-verification-status.verified {
+  background-color: rgba(35, 165, 90, 0.15);
+  color: #23a55a;
+}

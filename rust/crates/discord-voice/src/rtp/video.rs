@@ -23,6 +23,61 @@ pub const VIDEO_TICKS_30FPS: u32 = 3_000;
 /// Шаг RTP-таймстемпа для 60 кадров/с (`90_000 / 60 = 1_500` тиков).
 pub const VIDEO_TICKS_60FPS: u32 = 1_500;
 
+/// Целевая кадровая частота по умолчанию для демонстрации экрана Go Live (60 кадров/с).
+pub const DEFAULT_VIDEO_FPS: u32 = 60;
+
+/// Минимальный битрейт видеопотока Go Live / WebRTC (`150 kbps`).
+pub const MIN_VIDEO_BITRATE_BPS: u32 = 150_000;
+
+/// Целевой битрейт по умолчанию для профиля 720p60 (`2.5 Mbps`, `TASK-819.4`).
+pub const DEFAULT_720P60_BITRATE_BPS: u32 = 2_500_000;
+
+/// Максимальный битрейт видеопотока Go Live без перегрузки UDP-буфера (`3.5 Mbps`, `TASK-819.4`).
+pub const MAX_GO_LIVE_VIDEO_BITRATE_BPS: u32 = 3_500_000;
+
+/// Вычисляет шаг RTP-таймстемпа (при тактовой частоте 90 кГц) для заданного `fps`.
+///
+/// При `fps == 0` возвращает `VIDEO_CLOCK_RATE` (`90_000`, 1 секунда), исключая деление на ноль
+/// и нулевой сдвиг таймстемпа, вызывающий `Discord Error 2007`.
+#[must_use]
+pub const fn video_ticks_for_fps(fps: u32) -> u32 {
+    if fps == 0 {
+        VIDEO_CLOCK_RATE
+    } else {
+        let clamped = if fps > 240 { 240 } else { fps };
+        VIDEO_CLOCK_RATE / clamped
+    }
+}
+
+/// Вычисляет непрерывное приращение RTP-таймстемпа (90 кГц) за реальный интервал `elapsed_ms` мс
+/// (например, после паузы захвата или статичного экрана), гарантируя минимум один кадровый шаг `video_ticks_for_fps(fps)`.
+#[must_use]
+pub const fn video_ticks_for_elapsed_ms(elapsed_ms: u64, fps: u32) -> u32 {
+    let min_step = video_ticks_for_fps(fps) as u64;
+    let raw = elapsed_ms.saturating_mul((VIDEO_CLOCK_RATE / 1_000) as u64);
+    let ticks = if raw < min_step { min_step } else { raw };
+    if ticks > u32::MAX as u64 {
+        u32::MAX
+    } else {
+        ticks as u32
+    }
+}
+
+/// Ограничивает целевой битрейт видеопотока диапазоном `[MIN_VIDEO_BITRATE_BPS..=MAX_GO_LIVE_VIDEO_BITRATE_BPS]`.
+/// При `bitrate_bps == 0` возвращает профиль по умолчанию `DEFAULT_720P60_BITRATE_BPS` (`2.5 Mbps`).
+#[must_use]
+pub const fn clamp_video_bitrate_bps(bitrate_bps: u32) -> u32 {
+    if bitrate_bps == 0 {
+        DEFAULT_720P60_BITRATE_BPS
+    } else if bitrate_bps < MIN_VIDEO_BITRATE_BPS {
+        MIN_VIDEO_BITRATE_BPS
+    } else if bitrate_bps > MAX_GO_LIVE_VIDEO_BITRATE_BPS {
+        MAX_GO_LIVE_VIDEO_BITRATE_BPS
+    } else {
+        bitrate_bps
+    }
+}
+
 /// Порог полезной нагрузки RTP-видеопакета (1200 байт): кадры/NALU `<= 1200` байт идут как
 /// Single NALU / STAP-A, а `> 1200` байт фрагментируются через FU-A (H.264) или Z/Y (AV1).
 pub const MAX_VIDEO_RTP_PAYLOAD_LEN: usize = 1200;
@@ -763,6 +818,13 @@ pub struct RtpVideoPacketizer {
     rtx_sequence: u16,
     timestamp: u32,
     max_payload_len: usize,
+    target_fps: u32,
+    cached_sps: Option<Vec<u8>>,
+    cached_pps: Option<Vec<u8>>,
+    cached_idr: Option<Vec<u8>>,
+    cached_av1_seq_hdr: Option<Vec<u8>>,
+    cached_av1_frame: Option<Vec<u8>>,
+    keyframe_ctrl: crate::rtcp::RtcpKeyframeController,
 }
 
 impl RtpVideoPacketizer {
@@ -779,6 +841,13 @@ impl RtpVideoPacketizer {
             rtx_sequence: 0,
             timestamp: 0,
             max_payload_len: MAX_VIDEO_RTP_PAYLOAD_LEN,
+            target_fps: DEFAULT_VIDEO_FPS,
+            cached_sps: None,
+            cached_pps: None,
+            cached_idr: None,
+            cached_av1_seq_hdr: None,
+            cached_av1_frame: None,
+            keyframe_ctrl: crate::rtcp::RtcpKeyframeController::new(ssrc, ssrc),
         }
     }
 
@@ -795,6 +864,13 @@ impl RtpVideoPacketizer {
             rtx_sequence: 0,
             timestamp: 0,
             max_payload_len: MAX_VIDEO_RTP_PAYLOAD_LEN,
+            target_fps: DEFAULT_VIDEO_FPS,
+            cached_sps: None,
+            cached_pps: None,
+            cached_idr: None,
+            cached_av1_seq_hdr: None,
+            cached_av1_frame: None,
+            keyframe_ctrl: crate::rtcp::RtcpKeyframeController::new(ssrc, ssrc),
         }
     }
 
@@ -815,15 +891,53 @@ impl RtpVideoPacketizer {
     }
 
     /// Задаёт порог полезной нагрузки RTP-пакета (`max_payload_len >= 16`).
-    pub const fn with_max_payload_len(
-        mut self,
-        max_payload_len: usize,
-    ) -> Result<Self, VideoRtpError> {
+    pub fn with_max_payload_len(mut self, max_payload_len: usize) -> Result<Self, VideoRtpError> {
         if max_payload_len < MIN_VIDEO_RTP_PAYLOAD_LEN {
             return Err(VideoRtpError::InvalidMtu(max_payload_len));
         }
         self.max_payload_len = max_payload_len;
         Ok(self)
+    }
+
+    /// Целевая кадровая частота пакетизатора (`fps`, по умолчанию 60).
+    #[must_use]
+    pub const fn target_fps(&self) -> u32 {
+        self.target_fps
+    }
+
+    /// Устанавливает целевую кадровую частоту (`fps`) для вычисления шага таймстемпа по умолчанию.
+    pub fn set_target_fps(&mut self, fps: u32) {
+        self.target_fps = if fps == 0 {
+            DEFAULT_VIDEO_FPS
+        } else {
+            fps.clamp(1, 240)
+        };
+    }
+
+    /// Переключает кодек и `payload_type` / `rtx_payload_type` на лету без сброса
+    /// стабилизированных `ssrc`, `rtx_ssrc`, `sequence`, `rtx_sequence` и `timestamp` (`TASK-819.1`).
+    pub fn reconfigure_codec(&mut self, payload_type: u8, rtx_payload_type: u8) {
+        self.payload_type = payload_type & 0x7F;
+        self.rtx_payload_type = rtx_payload_type & 0x7F;
+        if self.payload_type == RTP_AV1_PAYLOAD_TYPE {
+            self.codec = VideoCodec::Av1;
+        } else if self.payload_type == RTP_H264_PAYLOAD_TYPE {
+            self.codec = VideoCodec::H264;
+        }
+    }
+
+    /// Фиксирует пару `(ssrc, rtx_ssrc)`, не сбрасывая `sequence` и `timestamp`.
+    pub fn stabilize_ssrcs(&mut self, ssrc: u32, rtx_ssrc: u32) {
+        self.ssrc = ssrc;
+        self.rtx_ssrc = rtx_ssrc;
+        self.keyframe_ctrl.set_local_ssrcs(ssrc, ssrc);
+    }
+
+    /// Непрерывно продвигает `timestamp` (90 кГц) на время паузы захвата `elapsed_ms` (`TASK-819.2`).
+    pub fn advance_for_pause_ms(&mut self, elapsed_ms: u64) -> u32 {
+        let delta = video_ticks_for_elapsed_ms(elapsed_ms, self.target_fps);
+        self.timestamp = self.timestamp.wrapping_add(delta);
+        self.timestamp
     }
 
     /// Видеокодек пакетизатора (`H264` или `Av1`).
@@ -862,6 +976,12 @@ impl RtpVideoPacketizer {
         self.sequence
     }
 
+    /// Алиас `sequence()` — следующий номер последовательности основного видеопотока.
+    #[must_use]
+    pub const fn next_sequence(&self) -> u16 {
+        self.sequence
+    }
+
     /// Следующий номер последовательности `rtx_sequence` потока ретрансляции RTX.
     #[must_use]
     pub const fn rtx_sequence(&self) -> u16 {
@@ -871,6 +991,12 @@ impl RtpVideoPacketizer {
     /// Текущий RTP `timestamp` видеопотока (90 кГц).
     #[must_use]
     pub const fn timestamp(&self) -> u32 {
+        self.timestamp
+    }
+
+    /// Алиас `timestamp()` — следующий RTP `timestamp` видеопотока (90 кГц).
+    #[must_use]
+    pub const fn next_timestamp(&self) -> u32 {
         self.timestamp
     }
 
@@ -888,8 +1014,63 @@ impl RtpVideoPacketizer {
         timestamp_delta: u32,
         ext: Option<&[u8]>,
     ) -> Result<Vec<VideoRtpPacket>, VideoRtpError> {
-        let chunks = packetize_h264_annex_b_with_mtu(annex_b_frame, self.max_payload_len)?;
+        let nalus = parse_h264_annex_b(annex_b_frame)?;
+        let mut has_sps = false;
+        let mut has_pps = false;
+        let mut has_idr = false;
+        for &nalu in &nalus {
+            if let Some(&hdr) = nalu.first() {
+                match hdr & 0x1F {
+                    H264_NAL_SPS => {
+                        has_sps = true;
+                        self.cached_sps = Some(nalu.to_vec());
+                    }
+                    H264_NAL_PPS => {
+                        has_pps = true;
+                        self.cached_pps = Some(nalu.to_vec());
+                    }
+                    H264_NAL_IDR => {
+                        has_idr = true;
+                        self.cached_idr = Some(nalu.to_vec());
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        let upgraded_frame: Option<Vec<u8>> =
+            if has_idr && (!has_sps || !has_pps) && self.keyframe_ctrl.is_keyframe_requested() {
+                if let (Some(sps), Some(pps)) = (&self.cached_sps, &self.cached_pps) {
+                    let mut combined =
+                        Vec::with_capacity(12 + sps.len() + pps.len() + annex_b_frame.len());
+                    if !has_sps {
+                        combined.extend_from_slice(&[0, 0, 0, 1]);
+                        combined.extend_from_slice(sps);
+                    }
+                    if !has_pps {
+                        combined.extend_from_slice(&[0, 0, 0, 1]);
+                        combined.extend_from_slice(pps);
+                    }
+                    combined.extend_from_slice(annex_b_frame);
+                    Some(combined)
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
+        let effective_frame = upgraded_frame.as_deref().unwrap_or(annex_b_frame);
+        let chunks = packetize_h264_annex_b_with_mtu(effective_frame, self.max_payload_len)?;
+        if has_idr && (has_sps && has_pps || upgraded_frame.is_some()) {
+            let _ = self.keyframe_ctrl.take_keyframe_request();
+        }
         let frame_ts = self.timestamp;
+        let step = if timestamp_delta == 0 {
+            video_ticks_for_fps(self.target_fps)
+        } else {
+            timestamp_delta
+        };
         let mut packets = Vec::with_capacity(chunks.len());
         for (payload, marker, _kind) in chunks {
             let header = RtpHeader {
@@ -902,8 +1083,18 @@ impl RtpVideoPacketizer {
             self.sequence = self.sequence.wrapping_add(1);
             packets.push(VideoRtpPacket::new(header, ext, payload)?);
         }
-        self.timestamp = self.timestamp.wrapping_add(timestamp_delta);
+        self.timestamp = self.timestamp.wrapping_add(step);
         Ok(packets)
+    }
+
+    /// Алиас `packetize_h264_frame` для пакетизации потока H.264 Annex-B.
+    pub fn packetize_h264_annex_b(
+        &mut self,
+        annex_b_frame: &[u8],
+        timestamp_delta: u32,
+        ext: Option<&[u8]>,
+    ) -> Result<Vec<VideoRtpPacket>, VideoRtpError> {
+        self.packetize_h264_frame(annex_b_frame, timestamp_delta, ext)
     }
 
     /// Пакетизирует срез AV1 OBU в серию RTP-пакетов (`W=1..3`, `W=0`, `Z/Y` фрагментация)
@@ -914,8 +1105,41 @@ impl RtpVideoPacketizer {
         timestamp_delta: u32,
         ext: Option<&[u8]>,
     ) -> Result<Vec<VideoRtpPacket>, VideoRtpError> {
-        let chunks = packetize_av1_obus_with_mtu(obus, self.max_payload_len)?;
+        let mut has_seq_hdr = false;
+        for &obu in obus {
+            if let Some(&hdr) = obu.first() {
+                let obu_type = (hdr >> 3) & 0x0F;
+                if obu_type == AV1_OBU_SEQUENCE_HEADER {
+                    has_seq_hdr = true;
+                    self.cached_av1_seq_hdr = Some(obu.to_vec());
+                } else if obu_type == AV1_OBU_FRAME {
+                    self.cached_av1_frame = Some(obu.to_vec());
+                }
+            }
+        }
+
+        let seq_hdr_clone = if !has_seq_hdr && self.keyframe_ctrl.is_keyframe_requested() {
+            self.cached_av1_seq_hdr.clone()
+        } else {
+            None
+        };
+        let chunks = if let Some(ref seq_hdr) = seq_hdr_clone {
+            let mut upgraded: Vec<&[u8]> = Vec::with_capacity(1 + obus.len());
+            upgraded.push(seq_hdr.as_slice());
+            upgraded.extend_from_slice(obus);
+            packetize_av1_obus_with_mtu(&upgraded, self.max_payload_len)?
+        } else {
+            packetize_av1_obus_with_mtu(obus, self.max_payload_len)?
+        };
+        if has_seq_hdr || seq_hdr_clone.is_some() {
+            let _ = self.keyframe_ctrl.take_keyframe_request();
+        }
         let frame_ts = self.timestamp;
+        let step = if timestamp_delta == 0 {
+            video_ticks_for_fps(self.target_fps)
+        } else {
+            timestamp_delta
+        };
         let mut packets = Vec::with_capacity(chunks.len());
         for (payload, marker) in chunks {
             let header = RtpHeader {
@@ -928,8 +1152,127 @@ impl RtpVideoPacketizer {
             self.sequence = self.sequence.wrapping_add(1);
             packets.push(VideoRtpPacket::new(header, ext, payload)?);
         }
-        self.timestamp = self.timestamp.wrapping_add(timestamp_delta);
+        self.timestamp = self.timestamp.wrapping_add(step);
         Ok(packets)
+    }
+
+    /// Возвращает закэшированные наборы параметров H.264 `(SPS, PPS)`, если они были зафиксированы.
+    #[must_use]
+    pub fn cached_h264_parameter_sets(&self) -> Option<(&[u8], &[u8])> {
+        Some((self.cached_sps.as_deref()?, self.cached_pps.as_deref()?))
+    }
+
+    /// Явно задаёт закэшированные `SPS` (`NAL 7`) и `PPS` (`NAL 8`) для генерации ключевых кадров H.264 по PLI/FIR.
+    pub fn set_h264_parameter_sets(&mut self, sps: Vec<u8>, pps: Vec<u8>) {
+        self.cached_sps = Some(sps);
+        self.cached_pps = Some(pps);
+    }
+
+    /// Возвращает закэшированный `OBU_SEQUENCE_HEADER` (`type = 1`) для AV1, если он был зафиксирован.
+    #[must_use]
+    pub fn cached_av1_sequence_header(&self) -> Option<&[u8]> {
+        self.cached_av1_seq_hdr.as_deref()
+    }
+
+    /// Явно задаёт закэшированный `OBU_SEQUENCE_HEADER` для генерации ключевых кадров AV1 по PLI/FIR.
+    pub fn set_av1_sequence_header(&mut self, seq_hdr: Vec<u8>) {
+        self.cached_av1_seq_hdr = Some(seq_hdr);
+    }
+
+    /// Обрабатывает один разобранный `RtcpPacket` (`PLI`, `FIR`, `RR`) и возвращает `true`, если запрошен ключевой кадр.
+    pub fn on_rtcp_packet(&mut self, packet: &crate::rtcp::RtcpPacket) -> bool {
+        self.keyframe_ctrl.on_rtcp_packet(packet)
+    }
+
+    /// Разбирает открытый составной RTCP-пакет и обрабатывает содержащиеся в нём запросы `PLI (PT=206, FMT=1)` / `FIR (PT=206, FMT=4)`.
+    pub fn on_rtcp_compound(&mut self, bytes: &[u8]) -> Result<bool, crate::rtcp::RtcpError> {
+        let compound = crate::rtcp::parse_compound(bytes)?;
+        Ok(self.keyframe_ctrl.on_compound(&compound))
+    }
+
+    /// Принудительно выставляет запрос генерации ключевого кадра.
+    pub fn request_keyframe(&mut self) {
+        self.keyframe_ctrl.request_keyframe();
+    }
+
+    /// Проверяет, ожидает ли пакетизатор генерации ключевого кадра (`IDR` / `OBU_SEQUENCE_HEADER`).
+    #[must_use]
+    pub const fn is_keyframe_requested(&self) -> bool {
+        self.keyframe_ctrl.is_keyframe_requested()
+    }
+
+    /// Забирает и сбрасывает флаг запроса ключевого кадра.
+    pub fn take_keyframe_request(&mut self) -> bool {
+        self.keyframe_ctrl.take_keyframe_request()
+    }
+
+    /// Количество принятых запросов `RTCP PLI (PT=206, FMT=1)`.
+    #[must_use]
+    pub const fn pli_received_count(&self) -> u64 {
+        self.keyframe_ctrl.inbound_pli_count()
+    }
+
+    /// Количество принятых новых запросов `RTCP FIR (PT=206, FMT=4)`.
+    #[must_use]
+    pub const fn fir_received_count(&self) -> u64 {
+        self.keyframe_ctrl.inbound_fir_count()
+    }
+
+    /// Немедленно генерирует RTP-пакеты полного ключевого кадра для текущего кодека (`H264`: `STAP-A(SPS,PPS) + IDR`,
+    /// `AV1`: `OBU_SEQUENCE_HEADER + OBU_FRAME` с `N = 1`) в ответ на `RTCP PLI` / `FIR` либо для удержания FPS (`2012`, `2002`, `2013`).
+    pub fn generate_keyframe_packets(
+        &mut self,
+        timestamp_delta: u32,
+        ext: Option<&[u8]>,
+    ) -> Result<Vec<VideoRtpPacket>, VideoRtpError> {
+        match self.codec {
+            VideoCodec::H264 => {
+                let sps = self.cached_sps.clone().unwrap_or_else(|| {
+                    vec![
+                        0x67, 0x42, 0xC0, 0x1F, 0xDA, 0x01, 0x40, 0x16, 0xEC, 0x04, 0x40,
+                    ]
+                });
+                let pps = self
+                    .cached_pps
+                    .clone()
+                    .unwrap_or_else(|| vec![0x68, 0xCE, 0x3C, 0x80]);
+                let idr = self
+                    .cached_idr
+                    .clone()
+                    .unwrap_or_else(|| vec![0x65, 0x88, 0x84, 0x21, 0xA0]);
+                let mut annex_b = Vec::with_capacity(12 + sps.len() + pps.len() + idr.len());
+                annex_b.extend_from_slice(&[0, 0, 0, 1]);
+                annex_b.extend_from_slice(&sps);
+                annex_b.extend_from_slice(&[0, 0, 0, 1]);
+                annex_b.extend_from_slice(&pps);
+                annex_b.extend_from_slice(&[0, 0, 0, 1]);
+                annex_b.extend_from_slice(&idr);
+                let _ = self.keyframe_ctrl.take_keyframe_request();
+                self.packetize_h264_frame(&annex_b, timestamp_delta, ext)
+            }
+            VideoCodec::Av1 => {
+                let seq_hdr = self.cached_av1_seq_hdr.clone().unwrap_or_else(|| {
+                    vec![
+                        (AV1_OBU_SEQUENCE_HEADER << 3) | 0x02,
+                        0x04,
+                        0x01,
+                        0x02,
+                        0x03,
+                        0x04,
+                    ]
+                });
+                let frame_obu = self
+                    .cached_av1_frame
+                    .clone()
+                    .unwrap_or_else(|| vec![(AV1_OBU_FRAME << 3) | 0x02, 0x03, 0xAA, 0xBB, 0xCC]);
+                let _ = self.keyframe_ctrl.take_keyframe_request();
+                self.packetize_av1_obus(
+                    &[seq_hdr.as_slice(), frame_obu.as_slice()],
+                    timestamp_delta,
+                    ext,
+                )
+            }
+        }
     }
 
     /// Разбирает саморазграничивающийся поток AV1 OBU и пакетизирует его в серию RTP-пакетов.

@@ -1,6 +1,13 @@
 // @ts-check
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const REPO_ROOT = path.resolve(__dirname, "../..");
 
 /**
  * Тесты цветовой коррекции захвата KWin (RGBA ↔ BGRA) и маршрутизации целей захвата.
@@ -148,3 +155,36 @@ test("state persistence: preserves relationships and private channels when REST 
   assert.equal(result.relationships[0].id, "555");
   assert.equal(result.private_channels.length, 1, "Личные каналы должны быть сохранены");
 });
+
+test("ws.rs capture_kwin_dbus_to_ring: routes CaptureWindow vs CaptureWorkspace, swaps RGBA/BGRA, and handles discord_capture_kick.bin", () => {
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const fnStart = wsRs.indexOf("static int capture_kwin_dbus_to_ring(");
+  assert.ok(fnStart > 0, "capture_kwin_dbus_to_ring must exist in ws.rs");
+  const fnEnd = wsRs.indexOf("static int load_jpeg_to_cap_ring(", fnStart);
+  assert.ok(fnEnd > fnStart, "capture_kwin_dbus_to_ring boundaries must be valid");
+  const fnBody = wsRs.slice(fnStart, fnEnd);
+
+  // 1. Вызов 'CaptureWindow' при наличии UUID окна ('{...') и 'CaptureWorkspace' при выборе экрана
+  assert.match(fnBody, /const\s+char\*\s+method\s*=\s*"CaptureWorkspace";/);
+  assert.match(fnBody, /if\s*\(\s*target_buf\[0\]\s*==\s*'\{'\s*\)/);
+  assert.match(fnBody, /method\s*=\s*"CaptureWindow";/);
+  assert.match(fnBody, /strchr\(\s*target_buf\s*,\s*'\{'\s*\)/, "must normalize prefixed window target containing '{uuid}'");
+
+  // 2. Цветокоррекция BGRA/RGBA без инверсии цветов
+  assert.match(
+    fnBody,
+    /int\s+need_swap\s*=\s*\(\s*src_format\s*==\s*16\s*\|\|\s*src_format\s*==\s*17\s*\|\|\s*src_format\s*==\s*18\s*\|\|\s*src_format\s*==\s*0\s*\);/,
+  );
+  assert.match(
+    fnBody,
+    /\(\(px\s*&\s*0x000000FFU\)\s*<<\s*16\)\s*\|\s*\(\(px\s*&\s*0x00FF0000U\)\s*>>\s*16\)\s*\|\s*\(px\s*&\s*0xFF00FF00U\)/,
+  );
+
+  // 3. Обработка /dev/shm/discord_capture_kick.bin для мгновенного захвата
+  assert.match(
+    fnBody,
+    /\/dev\/shm\/discord_capture_kick\.bin/,
+    "capture_kwin_dbus_to_ring must check /dev/shm/discord_capture_kick.bin for immediate capture and preview update",
+  );
+});
+

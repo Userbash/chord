@@ -1,0 +1,6 @@
+M1 (Подмена сигнатуры ENDSLEY_BSDIFF43_MAGIC на ENDSLEY/BSDIFF00): KILLED (exit=1)
+M2 (Отключение знакового бита SIGN_BIT_64 в encodeOfft): KILLED (exit=1)
+M3 (Пропуск сверки SHA-256 пакета патча в verifyDownloadedPatchPackage): KILLED (exit=1)
+M4 (Отключение восстановления backupPath -> targetFile при откате в restoreFromBackupAndFallback): KILLED (exit=1)
+M5 (Отключение выставления флага skip_host_delta: true при отказе HostInstall): KILLED (exit=1)
+Summary: 5/5 mutations killed (100%), MD5 restored: true (ba771094316cdd3917394452d78cda71)

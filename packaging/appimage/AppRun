@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Спецификация точки входа AppImage (TASK-961: packaging/appimage/AppRun).
+# Настраивает изолированное окружение AppDir, пути к сбандленным разделяемым
+# библиотекам (LD_LIBRARY_PATH), XDG-каталоги, проверяет доступность userns
+# песочницы и выполняет прямой exec нативного клиента discord-gpui без
+# оставления дочернего shell-процесса в памяти (VmRSS < 60 MB).
+set -euo pipefail
+
+THIS="$0"
+
+if [[ -z "${APPDIR:-}" ]]; then
+  RESOLVED_THIS="$(readlink -f "$THIS" 2>/dev/null || printf '%s' "$THIS")"
+  SEARCH_DIR="$(cd "$(dirname "$RESOLVED_THIS")" && pwd)"
+  while [[ -n "$SEARCH_DIR" && ! -e "$SEARCH_DIR/AppRun" ]]; do
+    SEARCH_DIR="${SEARCH_DIR%/*}"
+  done
+  APPDIR="$SEARCH_DIR"
+fi
+
+if [[ -z "${APPDIR:-}" || ! -d "$APPDIR" ]]; then
+  echo "AppRun: не удалось определить каталог APPDIR внутри пакета AppImage" >&2
+  exit 2
+fi
+
+export APPDIR
+export APPIMAGE="${APPIMAGE:-$APPDIR/AppRun}"
+export OWD="${OWD:-$(pwd)}"
+
+export PATH="${APPDIR}/usr/bin:${APPDIR}${PATH:+:${PATH}}"
+export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${APPDIR}/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+export XDG_DATA_DIRS="${APPDIR}/usr/share${XDG_DATA_DIRS:+:${XDG_DATA_DIRS}}:/usr/local/share:/usr/share"
+export GSETTINGS_SCHEMA_DIR="${APPDIR}/usr/share/glib-2.0/schemas${GSETTINGS_SCHEMA_DIR:+:${GSETTINGS_SCHEMA_DIR}}"
+
+# Проверка возможностей песочницы (sandbox check):
+# если передан --no-sandbox, задан DISCORD_APPIMAGE_FORCE_NO_USERNS=1
+# или недоступны непривилегированные user namespaces (unshare -Ur true),
+# активируется безопасный fallback-режим.
+HAVE_NO_SANDBOX=0
+for arg in "$@"; do
+  if [[ "$arg" == "--no-sandbox" ]]; then
+    HAVE_NO_SANDBOX=1
+    break
+  fi
+done
+
+if [[ "$HAVE_NO_SANDBOX" -eq 1 || "${DISCORD_APPIMAGE_FORCE_NO_USERNS:-0}" == "1" ]]; then
+  export DISCORD_GPUI_SANDBOX="fallback-no-sandbox"
+elif command -v unshare >/dev/null 2>&1 && unshare -Ur true 2>/dev/null; then
+  export DISCORD_GPUI_SANDBOX="userns"
+else
+  export DISCORD_GPUI_SANDBOX="fallback-no-sandbox"
+fi
+
+# Опциональный fallback на программный рендеринг Mesa llvmpipe
+if [[ "${DISCORD_APPIMAGE_SOFTWARE_RENDER:-0}" == "1" ]]; then
+  export LIBGL_ALWAYS_SOFTWARE="1"
+  export MESA_LOADER_DRIVER_OVERRIDE="llvmpipe"
+  export GALLIUM_DRIVER="llvmpipe"
+fi
+
+BIN="$APPDIR/usr/bin/discord-gpui"
+if [[ ! -x "$BIN" ]]; then
+  echo "AppRun: исполняемый файл не найден или недоступен: $BIN" >&2
+  exit 2
+fi
+
+exec "$APPDIR/usr/bin/discord-gpui" "$@"

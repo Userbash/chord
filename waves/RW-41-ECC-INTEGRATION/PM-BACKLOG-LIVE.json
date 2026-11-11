@@ -1,0 +1,90 @@
+{
+  "updatedAt": "2026-11-06T08:58:00.000Z",
+  "totals": {
+    "clicks": 32,
+    "ipcAndRest": 45,
+    "voiceEvents": 0,
+    "errors": 4
+  },
+  "topModules": {
+    "ui/features/guild-rail.js": 7,
+    "ui/features/emoji.js": 1,
+    "ui/features/settings.js": 4,
+    "ui/features/auth.js + rust/gui-spike/src/auth.rs": 4,
+    "ui/features/join-server.js + rust/gui-spike/src/{invites,guilds,data}.rs": 16,
+    "rust/gui-spike/src/main.rs::settings_save -> rust/gui-spike/src/data.rs": 1,
+    "rust/gui-spike/src/main.rs::net_connect -> rust/gui-spike/src/data.rs": 1,
+    "rust/gui-spike/src/main.rs::ready -> discord-core::{rest,ws} + discord-storage::keyring": 1,
+    "rust/gui-spike/src/data.rs": 12,
+    "rust/gui-spike/src/data.rs::set_system_audio_device(kind=dm_friends_sync) -> discord-voice": 31,
+    "rust/gui-spike/src/main.rs::resolve_invite -> rust/gui-spike/src/data.rs": 2,
+    "rust/gui-spike/src/main.rs::join_guild -> rust/gui-spike/src/data.rs": 1,
+    "rust/gui-spike/src/main.rs::accept_invite -> rust/gui-spike/src/data.rs": 1
+  },
+  "topFunctions": {
+    "selectGuild / switchScreen": 7,
+    "initEmojiConsole": 1,
+    "createSettingsConsole": 4,
+    "createAuthGate (loginPassword / loginToken / qr / mfa)": 4,
+    "createJoinServer (submitNow / enterStep / cancel)": 16,
+    "IPC::settings_load": 1,
+    "IPC::voice_audio_devices": 3,
+    "IPC::settings_save": 1,
+    "IPC::net_connect": 1,
+    "IPC::ready": 1,
+    "IPC::voice_set_audio_device": 31,
+    "IPC::resolve_invite": 2,
+    "IPC::join_guild": 1,
+    "IPC::accept_invite": 1,
+    "REST::Get /users/@me/relationships (200)": 3,
+    "REST::Get /users/@me/channels (200)": 3,
+    "REST::Get /users/@me/guilds (200)": 3,
+    "REST::POST /invites/wVc2y3ET (400)": 2
+  },
+  "pmActionItems": [
+    {
+      "id": "CARD-TEL-005",
+      "category": "FRONTEND_DEAD_CLICK",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "summary": "Устранение dead-кликов «Открыть сервер» и разблокировка модального окна инвайтов",
+      "codeLocation": "rust/gui-spike/ui/features/join-server.js::enterStep",
+      "firstSeen": "2026-11-06T08:56:38.033Z",
+      "lastSeen": "2026-11-06T08:57:24.069Z",
+      "count": 5
+    },
+    {
+      "id": "CARD-TEL-006",
+      "category": "BACKEND_CAPTCHA_HEADER",
+      "department": "G1 Backend / G7 RE",
+      "priority": "P0",
+      "summary": "Обработка Captcha Challenge (код 40003) и актуализация заголовков клиента при accept_invite",
+      "codeLocation": "rust/gui-spike/src/data.rs::accept_invite_via_live_rest",
+      "firstSeen": "2026-11-06T08:56:28.215Z",
+      "lastSeen": "2026-11-06T08:57:24.000Z",
+      "count": 2
+    },
+    {
+      "id": "CARD-TEL-007",
+      "category": "REACTIVE_STATE_UPDATE",
+      "department": "G2 Frontend / G1 Backend",
+      "priority": "P1",
+      "summary": "Реактивное обновление списка серверов и друзей на боковом рельсе (guild-rail)",
+      "codeLocation": "rust/gui-spike/ui/features/guild-rail.js",
+      "firstSeen": "2026-11-06T08:56:39.836Z",
+      "lastSeen": "2026-11-06T08:57:44.640Z",
+      "count": 6
+    },
+    {
+      "id": "CARD-TEL-008",
+      "category": "QA_REGRESSION",
+      "department": "G4 QA",
+      "priority": "P2",
+      "summary": "Регрессионный тест сценариев вступления в сервер и синхронизации гильдий",
+      "codeLocation": "tests/unit/join-server.test.mjs",
+      "firstSeen": "2026-11-06T08:57:53.000Z",
+      "lastSeen": "2026-11-06T08:57:53.000Z",
+      "count": 1
+    }
+  ]
+}

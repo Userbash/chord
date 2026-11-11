@@ -29,6 +29,69 @@ pub fn keepalive_response(sequence: u32) -> [u8; KEEPALIVE_LEN] {
     bytes
 }
 
+/// 8-байтный UDP Keepalive-пакет медиа-сокета (`voice-deep.md` §2.2: `13 37 ca fe` / `13 37 f0 0d` + `u32` LE).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum KeepalivePacket {
+    /// Запрос клиента к серверу (`13 37 ca fe` + `sequence` LE).
+    Request { sequence: u32 },
+    /// Ответ сервера клиенту (`13 37 f0 0d` + `sequence` LE).
+    Response { sequence: u32 },
+}
+
+impl KeepalivePacket {
+    /// Разбирает 8-байтный UDP Keepalive-пакет.
+    pub fn parse(bytes: &[u8]) -> Result<Self, UdpError> {
+        if bytes.len() != KEEPALIVE_LEN {
+            return Err(UdpError::InvalidLength);
+        }
+        let seq = u32::from_le_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]);
+        if bytes[..4] == KEEPALIVE_REQUEST[..4] {
+            Ok(Self::Request { sequence: seq })
+        } else if bytes[..4] == KEEPALIVE_RESPONSE[..4] {
+            Ok(Self::Response { sequence: seq })
+        } else {
+            Err(UdpError::InvalidType)
+        }
+    }
+
+    /// Кодирует Keepalive-пакет обратно в 8 байт провода.
+    #[must_use]
+    pub fn encode(self) -> [u8; KEEPALIVE_LEN] {
+        match self {
+            Self::Request { sequence } => keepalive_request(sequence),
+            Self::Response { sequence } => keepalive_response(sequence),
+        }
+    }
+
+    /// Номер последовательности Keepalive (`u32`).
+    #[must_use]
+    pub const fn sequence(self) -> u32 {
+        match self {
+            Self::Request { sequence } | Self::Response { sequence } => sequence,
+        }
+    }
+}
+
+/// Служебный UDP-пакет голосового сокета Discord (8B Keepalive или 74B IP Discovery).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VoiceUdpPacket {
+    /// 8-байтный Keepalive-пакет.
+    Keepalive(KeepalivePacket),
+    /// 74-байтный пакет IP Discovery.
+    Discovery(DiscoveryPacket),
+}
+
+impl VoiceUdpPacket {
+    /// Классифицирует и разбирает служебный UDP-пакет по длине и сигнатуре (8B Keepalive или 74B IP Discovery).
+    pub fn parse(bytes: &[u8]) -> Result<Self, UdpError> {
+        match bytes.len() {
+            KEEPALIVE_LEN => KeepalivePacket::parse(bytes).map(Self::Keepalive),
+            DISCOVERY_LEN => DiscoveryPacket::parse(bytes).map(Self::Discovery),
+            _ => Err(UdpError::InvalidLength),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DiscoveryPacket {
     Request {

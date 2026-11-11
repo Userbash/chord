@@ -1,0 +1,16 @@
+[Desktop Entry]
+Version=1.0
+Name=Discord GPUI
+GenericName=Internet Messenger
+Comment=All-in-one voice, video, and text chat for gamers powered by native Rust GPUI
+Comment[ru]=Голосовой, видео и текстовый чат на базе нативного движка Rust GPUI
+Exec=/usr/bin/discord-gpui --url -- %u
+TryExec=/usr/bin/discord-gpui
+Icon=discord-gpui
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;Chat;
+MimeType=x-scheme-handler/discord;x-scheme-handler/disclip;application/x-discord-gpui-invite;
+Keywords=discord;chat;voice;video;gpui;wayland;pipewire;
+StartupWMClass=discord-gpui
+StartupNotify=true

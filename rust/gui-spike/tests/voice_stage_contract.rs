@@ -101,7 +101,10 @@ fn resolution_and_fps_serde_roundtrip() {
         "shareAudio": true
     });
     let decoded_camel: ScreenShareSpec = serde_json::from_value(json_camel).unwrap();
-    assert_eq!(decoded_camel.guild_id.as_deref(), Some("111222333444555666"));
+    assert_eq!(
+        decoded_camel.guild_id.as_deref(),
+        Some("111222333444555666")
+    );
     assert_eq!(decoded_camel.channel_id, "222333444555666777");
     assert_eq!(decoded_camel.source_id, "screen:0");
     assert_eq!(decoded_camel.resolution, StreamResolution::P1080);

@@ -1,0 +1,13 @@
+▶ TASK-961: Сборка автономного AppImage пакета и headless-верификация
+  ✔ SUB-961-1: спецификация packaging/appimage/AppRun, desktop-файл и иконка валидны и поддерживают sandbox/env контракты (9.888538ms)
+  ✔ SUB-961-2: scripts/build-appimage.sh собирает валидный Type 2 AppImage с бандлингом зависимостей, иконкой и .desktop файлом (1905.400062ms)
+  ✔ SUB-961-3: выполняет --headless-smoke внутри релизного AppImage (VmRSS < 60 MB) и проверяет fallback/негативные режимы (1691.247051ms)
+✔ TASK-961: Сборка автономного AppImage пакета и headless-верификация (3607.28335ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3646.477738

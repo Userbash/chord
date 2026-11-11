@@ -82,4 +82,34 @@ describe("Stream Broadcaster Handshake, Source Normalization & Format Parity", (
       "ws.rs bridge must support clearDesktopSource when stream stops",
     );
   });
+
+  it("SB7: ws.rs applyScreenBroadcast and set_stream_source use kFullDesktopScreenId = '-1' and type: 'screen'", () => {
+    const bcastIdx = wsRs.indexOf("function applyScreenBroadcast(");
+    assert.ok(bcastIdx > 0, "applyScreenBroadcast must exist in ws.rs");
+    const bcastBody = wsRs.slice(bcastIdx, bcastIdx + 3200);
+    assert.match(
+      bcastBody,
+      /conn\.setDesktopSourceWithOptions\(\{\s*type:\s*"screen",\s*sourceId:\s*"-1"/,
+      "applyScreenBroadcast must pass type: 'screen', sourceId: '-1' (kFullDesktopScreenId) to setDesktopSourceWithOptions",
+    );
+    assert.doesNotMatch(
+      bcastBody,
+      /conn\.setDesktopSourceWithOptions\(\{\s*type:\s*"screen",\s*sourceId:\s*"0"/,
+      "applyScreenBroadcast must not pass sourceId: '0' which fails ScreenCapturerX11::SelectSource",
+    );
+
+    const switchIdx = wsRs.indexOf('else if (cmd === "set_stream_source")');
+    assert.ok(switchIdx > 0, "set_stream_source handler must exist in ws.rs");
+    const switchBody = wsRs.slice(switchIdx, switchIdx + 1200);
+    assert.match(
+      switchBody,
+      /conn\.setDesktopSourceWithOptions\(\{\s*type:\s*"screen",\s*sourceId:\s*"-1"/,
+      "set_stream_source must pass type: 'screen', sourceId: '-1' (kFullDesktopScreenId) to setDesktopSourceWithOptions",
+    );
+    assert.doesNotMatch(
+      switchBody,
+      /conn\.setDesktopSourceWithOptions\(\{\s*type:\s*"screen",\s*sourceId:\s*"0"/,
+      "set_stream_source must not pass sourceId: '0' which fails ScreenCapturerX11::SelectSource",
+    );
+  });
 });

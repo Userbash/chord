@@ -17,10 +17,11 @@ export const VOICE_CALL_PHASE_LABELS = Object.freeze({
   signaling: "Ожидание ответа сервера Discord...",
   negotiating: "Проверка UDP IP Discovery и ключей DAVE...",
   connected: "Голосовая связь установлена • DAVE E2EE",
+  afk: "🔕 AFK-канал (микрофон и звук отключены)",
 });
 
 /**
- * @typedef {"signaling" | "negotiating" | "connected" | "error" | "timeout" | "disconnected"} VoiceCallPhase
+ * @typedef {"signaling" | "negotiating" | "connected" | "afk" | "error" | "timeout" | "disconnected"} VoiceCallPhase
  */
 
 /**
@@ -82,6 +83,18 @@ export function resolveVoiceCallPhaseView(statusOrPhase) {
       isError: false,
       isConnected: false,
       statusColor: "#80848e",
+    };
+  }
+
+  if (rawPhase === "afk" || (isObj && Boolean(statusOrPhase.isAfk))) {
+    return {
+      phase: "afk",
+      label: VOICE_CALL_PHASE_LABELS.afk,
+      reason: "Микрофон и звук отключены сервером",
+      canRetry: false,
+      isError: false,
+      isConnected: true,
+      statusColor: "#949ba4",
     };
   }
 
@@ -221,7 +234,31 @@ export function renderVoiceRtcPhaseDom(panelEl, statusOrPhase, options = {}) {
   const badgeEl =
     panelEl.querySelector?.("#live-voice-status-badge") ??
     doc?.getElementById?.("live-voice-status-badge");
-  if (badgeEl && badgeEl !== statusEl) {
+  if (view.phase === "afk") {
+    if (badgeEl && badgeEl !== statusEl) {
+      if (badgeEl.getAttribute?.("data-hovered") !== "true") {
+        badgeEl.textContent = "🔕 AFK-канал";
+        badgeEl.setAttribute?.("data-call-phase", "afk");
+        if (badgeEl.style) {
+          badgeEl.style.color = view.statusColor;
+        }
+      }
+    }
+    if (statusEl) {
+      statusEl.textContent = view.reason || "Микрофон и звук отключены сервером";
+      statusEl.setAttribute?.("data-call-phase", "afk");
+      if (statusEl.style) {
+        statusEl.style.display = "";
+        statusEl.style.color = view.statusColor;
+      }
+    }
+    const rttPill =
+      panelEl.querySelector?.("#live-voice-rtt-pill") ??
+      doc?.getElementById?.("live-voice-rtt-pill");
+    if (rttPill && rttPill.style) {
+      rttPill.style.display = "none";
+    }
+  } else if (badgeEl && badgeEl !== statusEl) {
     if (statusEl && statusEl.style) {
       statusEl.style.display = "none";
     }

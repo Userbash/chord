@@ -1,0 +1,191 @@
+/* =============================================================================
+ * message-components.css — Кнопки и ActionRow компонентов сообщений Discord (TASK-813)
+ *
+ * Токены и спецификация:
+ * - Контейнер компонентов: padding 8px 0, spacing (gap) 8px, background transparent
+ * - ActionRow: flex row, flex-wrap wrap, gap 8px, align-items center
+ * - Стили кнопок Discord:
+ *   - Primary (1): #5865f2 (blurple)
+ *   - Secondary (2): #4e5058 (surface grey)
+ *   - Success (3): #23a55a (verify green)
+ *   - Danger (4): #da373c (red)
+ *   - Link (5): #4e5058 с иконкой внешней ссылки
+ * - Интерактивные состояния:
+ *   - default: cursor pointer, transition transform 0.1s, opacity 0.15s
+ *   - hover: opacity 0.85 (или осветление/затемнение фона)
+ *   - active: transform scale(0.98)
+ *   - disabled: opacity 0.5, cursor not-allowed
+ * ========================================================================== */
+
+.message-components-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+  background: transparent;
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+
+.message-action-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* Базовый класс кнопки компонента */
+.component-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  color: #ffffff;
+  transition: background-color 0.17s ease, opacity 0.17s ease, transform 0.1s ease;
+}
+
+.component-button:hover:not(:disabled):not([aria-disabled="true"]) {
+  opacity: 0.85;
+}
+
+.component-button:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.98);
+}
+
+.component-button:disabled,
+.component-button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+/* Стили кнопок Discord */
+
+/* 1: Primary (Blurple) */
+.component-button--primary {
+  background-color: #5865f2;
+  color: #ffffff;
+}
+.component-button--primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #4752c4;
+}
+.component-button--primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #3c45a5;
+}
+
+/* 2: Secondary (Surface Grey) */
+.component-button--secondary {
+  background-color: #4e5058;
+  color: #ffffff;
+}
+.component-button--secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #6d6f78;
+}
+.component-button--secondary:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #80848e;
+}
+
+/* 3: Success (Green, Verify Button) */
+.component-button--success {
+  background-color: #23a55a;
+  color: #ffffff;
+}
+.component-button--success:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #1a7f45;
+  opacity: 0.85;
+}
+.component-button--success:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #156637;
+  transform: scale(0.98);
+}
+
+/* 4: Danger (Red) */
+.component-button--danger {
+  background-color: #da373c;
+  color: #ffffff;
+}
+.component-button--danger:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #a12828;
+}
+.component-button--danger:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #8f2022;
+}
+
+/* 5: Link (Grey / Link) */
+.component-button--link {
+  background-color: #4e5058;
+  color: #ffffff;
+}
+.component-button--link:hover {
+  background-color: #6d6f78;
+  opacity: 0.85;
+}
+.component-button--link:active {
+  background-color: #80848e;
+  transform: scale(0.98);
+}
+
+/* Элементы внутри кнопки */
+.component-button-label {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.component-button-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.component-button-custom-emoji {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.component-button-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+
+.component-button-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: component-button-spin 0.8s linear infinite;
+}
+
+@keyframes component-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

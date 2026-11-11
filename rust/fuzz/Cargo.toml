@@ -1,0 +1,54 @@
+[package]
+name = "discord-lab-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+members = ["."]
+
+[dependencies]
+arbitrary = "1.4.2"
+libfuzzer-sys = "0.4.13"
+discord-codec = { path = "../crates/discord-codec" }
+discord-json = { path = "../crates/discord-json" }
+discord-core = { path = "../crates/discord-core" }
+discord-voice = { path = "../crates/discord-voice" }
+
+[[bin]]
+name = "fuzz_gateway_json_etf"
+path = "fuzz_targets/fuzz_gateway_json_etf.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_voice_udp_packets"
+path = "fuzz_targets/fuzz_voice_udp_packets.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_rtp_header_extensions"
+path = "fuzz_targets/fuzz_rtp_header_extensions.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_aes128_gcm_truncated8"
+path = "fuzz_targets/fuzz_aes128_gcm_truncated8.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_anti_replay_window"
+path = "fuzz_targets/fuzz_anti_replay_window.rs"
+test = false
+doc = false
+bench = false

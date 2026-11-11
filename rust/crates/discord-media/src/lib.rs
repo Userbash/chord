@@ -237,6 +237,10 @@ pub struct VideoFrame {
     pub rotation: u16,
     pub timestamp_us: u64,
     pub data: Vec<u8>,
+    /// Необязательный аппаратный дескриптор DMA-BUF для zero-copy захвата (TASK-804).
+    pub dma_buf_fd: Option<i32>,
+    /// DRM формат-модификатор (DRM modifier).
+    pub drm_modifier: u64,
 }
 
 impl VideoFrame {
@@ -249,7 +253,51 @@ impl VideoFrame {
             rotation: 0,
             timestamp_us: 0,
             data,
+            dma_buf_fd: None,
+            drm_modifier: 0,
         }
+    }
+
+    /// Создаёт аппаратный zero-copy видеокадр на базе дескриптора DMA-BUF (TASK-804).
+    pub fn new_dma_buf(
+        width: u32,
+        height: u32,
+        layout: PixelLayout,
+        dma_buf_fd: i32,
+        drm_modifier: u64,
+    ) -> Self {
+        Self {
+            width,
+            height,
+            layout,
+            color: ColorSpace::untagged(height, false),
+            rotation: 0,
+            timestamp_us: 0,
+            data: Vec::new(),
+            dma_buf_fd: Some(dma_buf_fd),
+            drm_modifier,
+        }
+    }
+
+    pub fn with_dma_buf(mut self, fd: i32, modifier: u64) -> Self {
+        self.dma_buf_fd = Some(fd);
+        self.drm_modifier = modifier;
+        self
+    }
+
+    #[must_use]
+    pub const fn is_dma_buf(&self) -> bool {
+        self.dma_buf_fd.is_some()
+    }
+
+    #[must_use]
+    pub const fn dma_buf_fd(&self) -> Option<i32> {
+        self.dma_buf_fd
+    }
+
+    #[must_use]
+    pub const fn drm_modifier(&self) -> u64 {
+        self.drm_modifier
     }
 
     pub fn with_color(mut self, color: ColorSpace) -> Self {
@@ -271,7 +319,17 @@ impl VideoFrame {
         self.width > 0
             && self.height > 0
             && matches!(self.rotation, 0 | 90 | 180 | 270)
-            && self.layout.byte_len(self.width, self.height) == Some(self.data.len())
+            && (self.dma_buf_fd.is_some()
+                || self.layout.byte_len(self.width, self.height) == Some(self.data.len()))
+    }
+
+    #[must_use]
+    pub fn byte_len(&self) -> usize {
+        if !self.data.is_empty() {
+            self.data.len()
+        } else {
+            self.layout.byte_len(self.width, self.height).unwrap_or(0)
+        }
     }
 
     pub const fn format(&self) -> PixelLayout {
@@ -764,6 +822,267 @@ fn parse_annex_b_nalus(frame: &[u8]) -> Result<Vec<&[u8]>, &'static str> {
         out.push(&frame[start + size..end]);
     }
     Ok(out)
+}
+
+/// AV1 OBU: `OBU_SEQUENCE_HEADER` (`obu_type = 1`).
+pub const AV1_OBU_SEQUENCE_HEADER: u8 = 1;
+
+/// AV1 OBU: `OBU_TEMPORAL_DELIMITER` (`obu_type = 2`).
+pub const AV1_OBU_TEMPORAL_DELIMITER: u8 = 2;
+
+/// AV1 OBU: `OBU_TILE_LIST` (`obu_type = 8`).
+pub const AV1_OBU_TILE_LIST: u8 = 8;
+
+/// AV1 OBU: `OBU_PADDING` (`obu_type = 15`).
+pub const AV1_OBU_PADDING: u8 = 15;
+
+/// Пакетизатор AV1 OBU в RTP-пакеты по спецификации RFC draft-ietf-avtext-av1-rtp:
+/// формирует 12-байтный заголовок RTP (`PT = 101`, `M = 1` на последнем пакете кадра)
+/// и 1-байтный заголовок агрегации AV1 (`Z | Y | (W << 4) | N`) с поддержкой агрегации
+/// нескольких OBU (`W = 1..=3` и `W = 0` с LEB128 длинами), удаления `OBU_TEMPORAL_DELIMITER`
+/// по разделу 5 RFC и фрагментации крупных OBU (`Z/Y`).
+pub fn packetize_av1_obu(
+    frame: &[u8],
+    seq: &mut u16,
+    timestamp: u32,
+    ssrc: u32,
+) -> Result<Vec<Vec<u8>>, &'static str> {
+    if frame.is_empty() {
+        return Err("AV1 frame has no OBU units");
+    }
+    if frame.len() > MAX_H264_FRAME_BYTES {
+        return Err("AV1 frame exceeds the sharing limit");
+    }
+
+    let obus = parse_av1_obus(frame)?;
+    let first_obu_type = (obus[0][0] >> 3) & 0x0f;
+    let mut n_bit_pending = first_obu_type == AV1_OBU_SEQUENCE_HEADER;
+    let max_single_obu_bytes = MAX_SINGLE_NAL_SIZE - 1;
+
+    let mut payloads: Vec<Vec<u8>> = Vec::new();
+    let mut batch: Vec<&[u8]> = Vec::new();
+
+    for &obu in &obus {
+        if obu.len() > max_single_obu_bytes {
+            flush_av1_obu_batch(&mut batch, &mut n_bit_pending, &mut payloads)?;
+            let mut offset = 0usize;
+            while offset < obu.len() {
+                if payloads.len() == MAX_H264_FRAGMENTS {
+                    return Err("AV1 frame exceeds fragment limit");
+                }
+                let take = (obu.len() - offset).min(max_single_obu_bytes);
+                let is_first_frag = offset == 0;
+                let is_last_frag = offset + take == obu.len();
+                let z_flag = if is_first_frag { 0 } else { 0x80 };
+                let y_flag = if is_last_frag { 0 } else { 0x40 };
+                let n_flag = if is_first_frag && n_bit_pending {
+                    n_bit_pending = false;
+                    0x08
+                } else {
+                    0
+                };
+                let aggr_header = z_flag | y_flag | (1 << 4) | n_flag;
+                let mut payload = Vec::with_capacity(1 + take);
+                payload.push(aggr_header);
+                payload.extend_from_slice(&obu[offset..offset + take]);
+                payloads.push(payload);
+                offset += take;
+            }
+            continue;
+        }
+
+        batch.push(obu);
+        if av1_obu_batch_encoded_len(&batch) > MAX_SINGLE_NAL_SIZE {
+            let popped = batch.pop().expect("just pushed");
+            flush_av1_obu_batch(&mut batch, &mut n_bit_pending, &mut payloads)?;
+            batch.push(popped);
+        }
+    }
+
+    flush_av1_obu_batch(&mut batch, &mut n_bit_pending, &mut payloads)?;
+    if payloads.is_empty() {
+        return Err("AV1 frame has no OBU units");
+    }
+
+    let total_packets = payloads.len();
+    let mut out = Vec::with_capacity(total_packets);
+    for (idx, payload) in payloads.into_iter().enumerate() {
+        let marker = idx + 1 == total_packets;
+        let pkt = RtpPacket::new(
+            RTP_VIDEO_PAYLOAD_TYPE,
+            marker,
+            *seq,
+            timestamp,
+            ssrc,
+            payload,
+        );
+        *seq = seq.wrapping_add(1);
+        out.push(pkt.to_bytes());
+    }
+    Ok(out)
+}
+
+fn parse_av1_obus(frame: &[u8]) -> Result<Vec<&[u8]>, &'static str> {
+    let mut obus = Vec::new();
+    let mut at = 0usize;
+    while at < frame.len() {
+        if obus.len() == MAX_H264_FRAGMENTS {
+            return Err("AV1 frame exceeds fragment limit");
+        }
+        let hdr = frame[at];
+        if (hdr & 0x80) != 0 {
+            return Err("Invalid AV1 OBU forbidden bit");
+        }
+        let obu_type = (hdr >> 3) & 0x0f;
+        let has_extension = (hdr & 0x04) != 0;
+        let has_size_field = (hdr & 0x02) != 0;
+        let header_len = if has_extension { 2 } else { 1 };
+        if at + header_len > frame.len() {
+            return Err("Truncated AV1 OBU extension header");
+        }
+        if has_size_field {
+            let (payload_size, leb_bytes) =
+                read_av1_leb128(&frame[at + header_len..]).ok_or("Invalid AV1 OBU LEB128 size")?;
+            let obu_end = at
+                .checked_add(header_len)
+                .and_then(|v| v.checked_add(leb_bytes))
+                .and_then(|v| v.checked_add(payload_size))
+                .ok_or("AV1 OBU size overflow")?;
+            if obu_end > frame.len() {
+                return Err("Truncated AV1 OBU payload");
+            }
+            if obu_type == AV1_OBU_TEMPORAL_DELIMITER {
+                if payload_size != 0 {
+                    return Err("Invalid non-empty AV1 temporal delimiter OBU");
+                }
+                at = obu_end;
+                continue;
+            }
+            if matches!(obu_type, AV1_OBU_TILE_LIST | AV1_OBU_PADDING) {
+                at = obu_end;
+                continue;
+            }
+            obus.push(&frame[at..obu_end]);
+            at = obu_end;
+        } else {
+            if obu_type == AV1_OBU_TEMPORAL_DELIMITER {
+                at += header_len;
+                continue;
+            }
+            if matches!(obu_type, AV1_OBU_TILE_LIST | AV1_OBU_PADDING) {
+                break;
+            }
+            obus.push(&frame[at..]);
+            break;
+        }
+    }
+    if obus.is_empty() {
+        return Err("AV1 frame has no OBU units");
+    }
+    Ok(obus)
+}
+
+fn read_av1_leb128(data: &[u8]) -> Option<(usize, usize)> {
+    let mut value = 0usize;
+    for (index, &byte) in data.iter().take(8).enumerate() {
+        let chunk = usize::from(byte & 0x7f);
+        let shift = index * 7;
+        value |= chunk.checked_shl(shift as u32)?;
+        if (byte & 0x80) == 0 {
+            return Some((value, index + 1));
+        }
+    }
+    None
+}
+
+fn av1_leb128_len(mut value: usize) -> usize {
+    let mut len = 1;
+    while value >= 0x80 {
+        value >>= 7;
+        len += 1;
+    }
+    len
+}
+
+fn write_av1_leb128(mut value: usize, out: &mut Vec<u8>) {
+    loop {
+        let mut byte = (value & 0x7f) as u8;
+        value >>= 7;
+        if value != 0 {
+            byte |= 0x80;
+        }
+        out.push(byte);
+        if value == 0 {
+            break;
+        }
+    }
+}
+
+fn av1_obu_batch_encoded_len(batch: &[&[u8]]) -> usize {
+    if batch.is_empty() {
+        return 0;
+    }
+    if batch.len() <= 3 {
+        let mut total = 1usize;
+        for (idx, obu) in batch.iter().enumerate() {
+            if idx + 1 < batch.len() {
+                total += av1_leb128_len(obu.len());
+            }
+            total += obu.len();
+        }
+        total
+    } else {
+        let mut total = 1usize;
+        for obu in batch {
+            total += av1_leb128_len(obu.len()) + obu.len();
+        }
+        total
+    }
+}
+
+fn flush_av1_obu_batch(
+    batch: &mut Vec<&[u8]>,
+    n_bit_pending: &mut bool,
+    out: &mut Vec<Vec<u8>>,
+) -> Result<(), &'static str> {
+    if batch.is_empty() {
+        return Ok(());
+    }
+    if out.len() == MAX_H264_FRAGMENTS {
+        return Err("AV1 frame exceeds fragment limit");
+    }
+    let w_field: u8 = if batch.len() <= 3 {
+        batch.len() as u8
+    } else {
+        0
+    };
+    let n_flag = if *n_bit_pending {
+        *n_bit_pending = false;
+        0x08
+    } else {
+        0
+    };
+    let aggr_header = (w_field << 4) | n_flag;
+    let mut payload = Vec::with_capacity(av1_obu_batch_encoded_len(batch));
+    payload.push(aggr_header);
+
+    if w_field == 0 {
+        for obu in batch.iter() {
+            write_av1_leb128(obu.len(), &mut payload);
+            payload.extend_from_slice(obu);
+        }
+    } else {
+        let count = batch.len();
+        for (idx, obu) in batch.iter().enumerate() {
+            if idx + 1 < count {
+                write_av1_leb128(obu.len(), &mut payload);
+            }
+            payload.extend_from_slice(obu);
+        }
+    }
+    batch.clear();
+    out.push(payload);
+    Ok(())
 }
 
 /// Конвертер полупланарного YUV420 NV12 (`Y` + чередующийся `UV`) в RGBA8
@@ -1468,5 +1787,273 @@ mod tests {
         assert_eq!(slot.stored_frames(), 1);
         let polled = slot.poll_latest().expect("Poll latest frame");
         assert!(polled.is_valid());
+    }
+
+    #[test]
+    fn av1_packetizer_test() {
+        // 1. Одиночный ключевой OBU (Sequence Header, type=1, has_size_field=0) -> 1 RTP пакет (M=1, W=1, N=1).
+        let single_seq_obu = [0x08, 0x01, 0x02, 0x03, 0x04];
+        let mut seq = 42u16;
+        let single_pkts =
+            packetize_av1_obu(&single_seq_obu, &mut seq, 90_000, 0xCAFE_BABE).expect("single OBU");
+        assert_eq!(single_pkts.len(), 1);
+        assert_eq!(seq, 43);
+        let pkt0 = &single_pkts[0];
+        assert_eq!(pkt0.len(), RTP_HEADER_LEN + 1 + single_seq_obu.len());
+        assert_eq!(pkt0[0], 0x80);
+        assert_eq!(pkt0[1], 0x80 | RTP_VIDEO_PAYLOAD_TYPE); // M=1, PT=101
+        assert_eq!(u16::from_be_bytes([pkt0[2], pkt0[3]]), 42);
+        assert_eq!(
+            u32::from_be_bytes([pkt0[4], pkt0[5], pkt0[6], pkt0[7]]),
+            90_000
+        );
+        assert_eq!(
+            u32::from_be_bytes([pkt0[8], pkt0[9], pkt0[10], pkt0[11]]),
+            0xCAFE_BABE
+        );
+        // Заголовок агрегации AV1: Z=0, Y=0, W=1 (0x10), N=1 (0x08) -> 0x18
+        assert_eq!(pkt0[RTP_HEADER_LEN], 0x18);
+        assert_eq!(&pkt0[RTP_HEADER_LEN + 1..], &single_seq_obu);
+
+        // 2. Агрегация двух саморазграничивающихся OBU (Sequence Header + Frame, W=2, N=1) в 1 RTP-пакет.
+        let obu_seq = [0x0A, 0x04, 0x10, 0x20, 0x30, 0x40];
+        let obu_frame = [0x32, 0x05, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE];
+        let mut two_obus = Vec::new();
+        two_obus.extend_from_slice(&obu_seq);
+        two_obus.extend_from_slice(&obu_frame);
+        let mut seq = 100u16;
+        let agg_pkts =
+            packetize_av1_obu(&two_obus, &mut seq, 180_000, 0x1122_3344).expect("W=2 OBUs");
+        assert_eq!(agg_pkts.len(), 1);
+        assert_eq!(seq, 101);
+        assert_eq!(agg_pkts[0][1] & 0x80, 0x80); // M=1
+        // W=2 (0x20) | N=1 (0x08) = 0x28, затем LEB128 длина первого OBU (6) + obu_seq + obu_frame
+        assert_eq!(agg_pkts[0][RTP_HEADER_LEN], 0x28);
+        assert_eq!(agg_pkts[0][RTP_HEADER_LEN + 1], obu_seq.len() as u8);
+        assert_eq!(
+            &agg_pkts[0][RTP_HEADER_LEN + 2..RTP_HEADER_LEN + 2 + obu_seq.len()],
+            &obu_seq
+        );
+        assert_eq!(
+            &agg_pkts[0][RTP_HEADER_LEN + 2 + obu_seq.len()..],
+            &obu_frame
+        );
+
+        // 3. Крупный OBU (2500 байт > 1179) -> фрагментация на 3 RTP-пакета с флагами Z/Y и M=1 на последнем.
+        let mut large_obu = vec![0x30]; // OBU_FRAME (type=6), has_size_field=0
+        large_obu.extend((0..2499).map(|i| ((i * 7 + 3) & 0xFF) as u8));
+        let mut seq = u16::MAX;
+        let frag_pkts =
+            packetize_av1_obu(&large_obu, &mut seq, 270_000, 0x9988_7766).expect("fragmented OBU");
+        assert_eq!(frag_pkts.len(), 3);
+        assert_eq!(seq, 2); // u16::MAX, 0, 1 -> следующий 2
+
+        // Пакет 0: M=0, seq=u16::MAX, Z=0, Y=1 (0x40), W=1 (0x10), N=0 -> 0x50
+        assert_eq!(frag_pkts[0][1] & 0x80, 0);
+        assert_eq!(
+            u16::from_be_bytes([frag_pkts[0][2], frag_pkts[0][3]]),
+            u16::MAX
+        );
+        assert_eq!(frag_pkts[0][RTP_HEADER_LEN], 0x50);
+
+        // Пакет 1: M=0, seq=0, Z=1 (0x80), Y=1 (0x40), W=1 (0x10), N=0 -> 0xD0
+        assert_eq!(frag_pkts[1][1] & 0x80, 0);
+        assert_eq!(u16::from_be_bytes([frag_pkts[1][2], frag_pkts[1][3]]), 0);
+        assert_eq!(frag_pkts[1][RTP_HEADER_LEN], 0xD0);
+
+        // Пакет 2: M=1, seq=1, Z=1 (0x80), Y=0, W=1 (0x10), N=0 -> 0x90
+        assert_eq!(frag_pkts[2][1] & 0x80, 0x80);
+        assert_eq!(u16::from_be_bytes([frag_pkts[2][2], frag_pkts[2][3]]), 1);
+        assert_eq!(frag_pkts[2][RTP_HEADER_LEN], 0x90);
+
+        // Сборка фрагментов обратно должна дать исходный large_obu побайтово.
+        let mut reassembled = Vec::new();
+        for pkt in &frag_pkts {
+            reassembled.extend_from_slice(&pkt[RTP_HEADER_LEN + 1..]);
+        }
+        assert_eq!(reassembled, large_obu);
+
+        // 4. Агрегация 4 малых OBU (W=0: каждый элемент снабжён LEB128 длиной) и расширенного заголовка (has_extension=1).
+        let obu_m1 = [0x2A, 0x02, 0x11, 0x22]; // OBU_METADATA (5), has_size_field=1
+        let obu_m2 = [0x2E, 0x21, 0x02, 0x33, 0x44]; // OBU_METADATA (5), has_extension=1 (0x04), has_size_field=1 (0x02)
+        let obu_m3 = [0x2A, 0x01, 0x55];
+        let obu_f4 = [0x32, 0x03, 0x66, 0x77, 0x88];
+        let mut four_obus = Vec::new();
+        for part in [&obu_m1[..], &obu_m2[..], &obu_m3[..], &obu_f4[..]] {
+            four_obus.extend_from_slice(part);
+        }
+        let mut seq = 300u16;
+        let w0_pkts =
+            packetize_av1_obu(&four_obus, &mut seq, 360_000, 0x5566_7788).expect("W=0 4 OBUs");
+        assert_eq!(w0_pkts.len(), 1);
+        assert_eq!(w0_pkts[0][RTP_HEADER_LEN] & 0x38, 0x00); // W=0, N=0 (первый OBU не Sequence Header)
+
+        // 5. Негативные сценарии: пустой буфер, запрещённый бит OBU (0x80), обрезанный размер/заголовок.
+        assert!(packetize_av1_obu(&[], &mut seq, 0, 1).is_err());
+        assert!(packetize_av1_obu(&[0x88, 0x00], &mut seq, 0, 1).is_err());
+        assert!(packetize_av1_obu(&[0x04], &mut seq, 0, 1).is_err());
+        assert!(packetize_av1_obu(&[0x0A, 0x10, 0x01], &mut seq, 0, 1).is_err());
+    }
+
+    #[test]
+    fn av1_sequence_header_and_temporal_delimiter_rfc_contract() {
+        fn depacketize_av1_rtp_oracle(packets: &[Vec<u8>]) -> (Vec<Vec<u8>>, bool) {
+            let mut obus: Vec<Vec<u8>> = Vec::new();
+            let mut fragmenting = false;
+            let mut first_pkt_n_bit = false;
+
+            for (pkt_idx, pkt) in packets.iter().enumerate() {
+                assert!(pkt.len() > RTP_HEADER_LEN + 1);
+                assert_eq!(pkt[0], 0x80);
+                let marker = (pkt[1] & 0x80) != 0;
+                let pt = pkt[1] & 0x7f;
+                assert_eq!(pt, RTP_VIDEO_PAYLOAD_TYPE);
+                assert_eq!(
+                    marker,
+                    pkt_idx + 1 == packets.len(),
+                    "M=1 must be set only on the last packet of the temporal unit"
+                );
+
+                let aggr = pkt[RTP_HEADER_LEN];
+                let z = (aggr & 0x80) != 0;
+                let y = (aggr & 0x40) != 0;
+                let w = (aggr >> 4) & 0x03;
+                let n = (aggr & 0x08) != 0;
+                assert_eq!(
+                    aggr & 0x07,
+                    0,
+                    "reserved 3 bits of aggregation header must be 0"
+                );
+                assert_eq!(z, fragmenting, "Z bit must match continuation state");
+                if pkt_idx == 0 {
+                    first_pkt_n_bit = n;
+                } else {
+                    assert!(!n, "N bit must be 0 on non-first RTP packets of a frame");
+                }
+
+                let payload = &pkt[RTP_HEADER_LEN + 1..];
+                let mut at = 0usize;
+                match w {
+                    0 => {
+                        while at < payload.len() {
+                            let (len, leb) = read_av1_leb128(&payload[at..]).expect("W=0 LEB128");
+                            at += leb;
+                            let elem = &payload[at..at + len];
+                            if z && at == leb {
+                                obus.last_mut().unwrap().extend_from_slice(elem);
+                            } else {
+                                obus.push(elem.to_vec());
+                            }
+                            at += len;
+                        }
+                    }
+                    1 => {
+                        if z {
+                            obus.last_mut().unwrap().extend_from_slice(payload);
+                        } else {
+                            obus.push(payload.to_vec());
+                        }
+                    }
+                    2 | 3 => {
+                        for idx in 0..(w - 1) {
+                            let (len, leb) = read_av1_leb128(&payload[at..]).expect("W=2/3 LEB128");
+                            at += leb;
+                            let elem = &payload[at..at + len];
+                            if z && idx == 0 {
+                                obus.last_mut().unwrap().extend_from_slice(elem);
+                            } else {
+                                obus.push(elem.to_vec());
+                            }
+                            at += len;
+                        }
+                        let last_elem = &payload[at..];
+                        obus.push(last_elem.to_vec());
+                    }
+                    _ => unreachable!(),
+                }
+                fragmenting = y;
+            }
+            assert!(!fragmenting, "last RTP packet of frame must have Y=0");
+            (obus, first_pkt_n_bit)
+        }
+
+        // 1. Keyframe Temporal Unit начинающийся с OBU_TEMPORAL_DELIMITER (type=2, [0x12, 0x00]),
+        // за которым следуют OBU_SEQUENCE_HEADER (type=1) и OBU_FRAME (type=6).
+        // По RFC draft-ietf-avtext-av1-rtp §5 Temporal Delimiter обязан быть удалён при передаче,
+        // а бит N=1 (0x08) обязан быть выставлен благодаря OBU_SEQUENCE_HEADER.
+        let td_obu = [0x12, 0x00]; // OBU_TEMPORAL_DELIMITER (type=2, has_size_field=1, size=0)
+        let seq_hdr_obu = [0x0A, 0x06, 0x08, 0x00, 0x00, 0x00, 0x42, 0xab]; // OBU_SEQUENCE_HEADER (type=1, size=6)
+        let frame_obu = [0x32, 0x04, 0xDE, 0xAD, 0xBE, 0xEF]; // OBU_FRAME (type=6, size=4)
+
+        let mut keyframe_tu = Vec::new();
+        keyframe_tu.extend_from_slice(&td_obu);
+        keyframe_tu.extend_from_slice(&seq_hdr_obu);
+        keyframe_tu.extend_from_slice(&frame_obu);
+
+        let mut seq = 1000u16;
+        let kf_pkts = packetize_av1_obu(&keyframe_tu, &mut seq, 90_000, 0xABCD_0001)
+            .expect("keyframe with temporal delimiter + sequence header");
+        assert_eq!(kf_pkts.len(), 1);
+        assert_eq!(seq, 1001);
+        // W=2 (0x20, т.к. TD удалён, остались seq_hdr + frame) | N=1 (0x08) = 0x28
+        assert_eq!(kf_pkts[0][RTP_HEADER_LEN], 0x28);
+        let (reconstructed, n_bit) = depacketize_av1_rtp_oracle(&kf_pkts);
+        assert!(n_bit);
+        assert_eq!(
+            reconstructed,
+            vec![seq_hdr_obu.to_vec(), frame_obu.to_vec()]
+        );
+
+        // 2. Inter-frame с расширенным OBU_TEMPORAL_DELIMITER (has_extension=1: [0x16, 0x21, 0x00])
+        // и OBU_FRAME_HEADER (type=3) + OBU_TILE_GROUP (type=4) -> TD удалён, W=2, N=0.
+        let td_ext_obu = [0x16, 0x21, 0x00]; // type=2, has_extension=1, has_size=1, size=0
+        let fh_obu = [0x1A, 0x03, 0x01, 0x02, 0x03]; // OBU_FRAME_HEADER (type=3, size=3)
+        let tg_obu = [0x22, 0x04, 0xAA, 0xBB, 0xCC, 0xDD]; // OBU_TILE_GROUP (type=4, size=4)
+        let mut inter_tu = Vec::new();
+        inter_tu.extend_from_slice(&td_ext_obu);
+        inter_tu.extend_from_slice(&fh_obu);
+        inter_tu.extend_from_slice(&tg_obu);
+
+        let inter_pkts = packetize_av1_obu(&inter_tu, &mut seq, 93_000, 0xABCD_0001)
+            .expect("inter-frame with extended temporal delimiter");
+        assert_eq!(inter_pkts.len(), 1);
+        assert_eq!(inter_pkts[0][RTP_HEADER_LEN], 0x20); // W=2, N=0
+        let (reconstructed_inter, inter_n_bit) = depacketize_av1_rtp_oracle(&inter_pkts);
+        assert!(!inter_n_bit);
+        assert_eq!(reconstructed_inter, vec![fh_obu.to_vec(), tg_obu.to_vec()]);
+
+        // 3. OBU_SEQUENCE_HEADER + крупный OBU_FRAME (> 1179 байт):
+        // Пакет 0 содержит OBU_SEQUENCE_HEADER (W=1, N=1, M=0), пакеты 1..=3 содержат фрагменты OBU_FRAME (N=0, M=1 на последнем).
+        let mut big_frame_obu = vec![0x32, 0xC4, 0x13]; // OBU_FRAME, has_size_field=1, LEB128(2500) = [0xC4, 0x13]
+        big_frame_obu.extend((0..2500).map(|i| ((i * 13 + 7) & 0xFF) as u8));
+        let mut mixed_tu = Vec::new();
+        mixed_tu.extend_from_slice(&td_obu);
+        mixed_tu.extend_from_slice(&seq_hdr_obu);
+        mixed_tu.extend_from_slice(&big_frame_obu);
+
+        let mixed_pkts = packetize_av1_obu(&mixed_tu, &mut seq, 96_000, 0xABCD_0001)
+            .expect("sequence header + fragmented large frame");
+        assert_eq!(mixed_pkts.len(), 4);
+        assert_eq!(mixed_pkts[0][RTP_HEADER_LEN], 0x18); // W=1, N=1, Z=0, Y=0
+        assert_eq!(mixed_pkts[0][1] & 0x80, 0); // M=0
+        let (reconstructed_mixed, mixed_n_bit) = depacketize_av1_rtp_oracle(&mixed_pkts);
+        assert!(mixed_n_bit);
+        assert_eq!(
+            reconstructed_mixed,
+            vec![seq_hdr_obu.to_vec(), big_frame_obu]
+        );
+
+        // 4. Кадр, состоящий ТОЛЬКО из Temporal Delimiter (без полезных OBU), или невалидный непустой TD -> ошибка.
+        assert!(packetize_av1_obu(&td_obu, &mut seq, 99_000, 1).is_err());
+        assert!(packetize_av1_obu(&[0x10], &mut seq, 99_000, 1).is_err());
+        assert!(
+            packetize_av1_obu(
+                &[0x12, 0x02, 0xAA, 0xBB, 0x0A, 0x01, 0x00],
+                &mut seq,
+                99_000,
+                1
+            )
+            .is_err()
+        );
     }
 }

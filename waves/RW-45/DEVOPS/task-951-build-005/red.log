@@ -1,0 +1,99 @@
+▶ TASK-951: Централизованный манифест BUILD-005 и слияние unstable -> testing
+  ✖ 951.1: рабочая ветка feature/sprints-1-5-build-004 влита в unstable (--no-ff), рабочее дерево unstable чистое (17.695361ms)
+  ✖ 951.2: файл waves/BUILD-005.json существует и соответствует JSON-схеме манифеста сборки (0.214351ms)
+  ✖ 951.2: манифест waves/BUILD-005.json содержит полный реестр всех 128 выполненных задач (0.186111ms)
+  ✖ 951.3: ветка testing синхронизирована с unstable, легковесный тег build-005-candidate указывает на вершину testing (10.378519ms)
+✖ TASK-951: Централизованный манифест BUILD-005 и слияние unstable -> testing (29.190417ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61.741464
+
+✖ failing tests:
+
+test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:28:3
+✖ 951.1: рабочая ветка feature/sprints-1-5-build-004 влита в unstable (--no-ff), рабочее дерево unstable чистое (17.695361ms)
+  AssertionError [ERR_ASSERTION]: Ветка feature/sprints-1-5-build-004 (6f60b11) должна быть влита в unstable
+  
+  'no' !== 'yes'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:43:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'no',
+    expected: 'yes',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:50:3
+✖ 951.2: файл waves/BUILD-005.json существует и соответствует JSON-схеме манифеста сборки (0.214351ms)
+  AssertionError [ERR_ASSERTION]: Файл waves/BUILD-005.json должен существовать
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:51:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:80:3
+✖ 951.2: манифест waves/BUILD-005.json содержит полный реестр всех 128 выполненных задач (0.186111ms)
+  AssertionError [ERR_ASSERTION]: waves/BUILD-005.json отсутствует
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:81:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:122:3
+✖ 951.3: ветка testing синхронизирована с unstable, легковесный тег build-005-candidate указывает на вершину testing (10.378519ms)
+  AssertionError [ERR_ASSERTION]: Ветка testing должна содержать все коммиты из unstable
+  
+  'no' !== 'yes'
+  
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:134:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'no',
+    expected: 'yes',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

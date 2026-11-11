@@ -1,681 +1,3794 @@
 #!/usr/bin/env node
 // @ts-check
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
+import { execSync } from "node:child_process";
 
-const ROOT = '/home/sanya/orca/project';
-const BOARD_FILE = path.join(ROOT, 'waves/kanban-board.json');
-const EXPORT_HTML_FILE = path.join(ROOT, 'waves/kanban-board.html');
+const ROOT = "/home/sanya/orca/project";
+const BOARD_FILE = path.join(ROOT, "waves/kanban-board.json");
+const EXPORT_HTML_FILE = path.join(ROOT, "waves/kanban-board.html");
 
 /** @type {any} */
 const board = {
-  project: 'Discord GPUI Client (Rust + WGPU)',
-  wave: 'RW-42: Native GPUI Migration & Design Parity',
+  project: "Discord GPUI Client (Rust + WGPU)",
+  wave: "RW-42: Native GPUI Migration & Design Parity",
   updated_at: new Date().toISOString(),
   columns: [
-    { id: 'backlog', title: '📋 Бэклог задач', color: '#4e5058' },
-    { id: 'design_specs', title: '🎨 Спецификации и Дизайн', color: '#5865f2' },
-    { id: 'in_dev', title: '⚡ В разработке', color: '#f0b232' },
-    { id: 'in_review', title: '🧪 Тестирование и Ревью', color: '#eb459e' },
-    { id: 'done', title: '✅ Завершено и Принято', color: '#23a55a' }
+    { id: "backlog", title: "📋 Бэклог задач", color: "#4e5058" },
+    { id: "design_specs", title: "🎨 Спецификации и Дизайн", color: "#5865f2" },
+    { id: "in_dev", title: "⚡ В разработке", color: "#f0b232" },
+    { id: "in_review", title: "🧪 Тестирование и Ревью", color: "#eb459e" },
+    { id: "done", title: "✅ Завершено и Принято", color: "#23a55a" }
   ],
   cards: [
-    {
-      id: 'TASK-701',
-      title: 'Каркас приложения AppLayout и WGPU GPU-рендеринг',
-      status: 'done',
-      priority: 'P0',
-      department: 'G2 Frontend',
-      summary: 'Трехпанельный макет Discord Dark: левая серверная панель (72px), средний список каналов (240px), центральный чат (flex-1) и правый сайдбар участников (240px). 120 FPS без лагов WebKit.',
-      layout: {
-        container: 'Three-column flex layout',
-        dimensions: '1280x720 min, 100vw x 100vh',
-        padding: '0px',
-        spacing: '0px'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#ffffff',
-        accent: '#5865f2',
-        border: '#3f4147'
-      },
-      interactive_states: [
-        { element: 'ServerRail', default: 'bg: #1e1f22, w: 72px', hover: 'w: 72px, cursor: default', active: 'focus: outline-none' },
-        { element: 'ChannelSidebar', default: 'bg: #2b2d31, w: 240px', hover: 'border-r: 1px solid #1e1f22', active: 'selected-item' },
-        { element: 'ChatView', default: 'bg: #313338, flex: 1', hover: 'smooth-scroll', active: 'input-focused' }
-      ],
-      acceptance_criteria: [
-        'Сетка не расползается при изменении размеров окна (min-width 900px)',
-        'Отсутствуют DOM-коллизии и утечки памяти',
-        '61/61 контрактных тестов пройдены успешно'
-      ]
+  {
+    "id": "TASK-701",
+    "title": "Каркас приложения AppLayout и WGPU GPU-рендеринг",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "Трехпанельный макет Discord Dark: левая серверная панель (72px), средний список каналов (240px), центральный чат (flex-1) и правый сайдбар участников (240px). 120 FPS без лагов WebKit.",
+    "layout": {
+      "container": "Three-column flex layout",
+      "dimensions": "1280x720 min, 100vw x 100vh",
+      "padding": "0px",
+      "spacing": "0px"
     },
-    {
-      id: 'TASK-707',
-      title: 'Панель серверов ServerRail (72px) и Индикаторы Активности',
-      status: 'done',
-      priority: 'P1',
-      department: 'G2 Frontend',
-      summary: 'Вертикальный рейл серверов Discord с кнопкой Home, разделителем, иконками серверов с анимацией скругления (круг 24px -> скругленный квадрат rx=16px при наведении), индикатором-пилюлей активности слева и кнопками Добавить сервер (+) и Исследовать (🧭).',
-      layout: {
-        container: 'Vertical Flex column',
-        dimensions: 'Width: 72px, Height: 100%',
-        padding: '12px 0px',
-        spacing: '8px'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#313338',
-        text_primary: '#ffffff',
-        text_muted: '#dbdee1',
-        accent: '#5865f2',
-        border: 'none'
-      },
-      interactive_states: [
-        { element: 'Home Button (Discord)', default: 'rx: 24px (круг), bg: #313338', hover: 'rx: 16px, bg: #5865f2', active: 'scale: 0.96' },
-        { element: 'Server Icon', default: 'rx: 24px, bg: #313338', hover: 'rx: 16px, bg: #5865f2, белый индикатор 20px', active: 'rx: 16px, bg: #5865f2, белый индикатор 40px' },
-        { element: 'Add Server (+)', default: 'rx: 24px, bg: #313338, text: #23a55a', hover: 'rx: 16px, bg: #23a55a, text: #ffffff', active: 'scale: 0.94' },
-        { element: 'Explore (🧭)', default: 'rx: 24px, bg: #313338, text: #23a55a', hover: 'rx: 16px, bg: #23a55a, text: #ffffff', active: 'scale: 0.94' }
-      ],
-      acceptance_criteria: [
-        'Активный сервер подсвечивается вертикальной белой пилюлей слева (высота 40px, ширина 4px)',
-        'Непрочитанные сообщения отображаются красным бейджем с белым числом в нижнем правом углу иконки',
-        'Кнопка + открывает модальное окно CreateGuildModal'
-      ]
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2",
+      "border": "#3f4147"
     },
-    {
-      id: 'TASK-708',
-      title: 'Список каналов ChannelSidebar и Панель профиля (240px)',
-      status: 'done',
-      priority: 'P1',
-      department: 'G2 Frontend',
-      summary: 'Иерархический список каналов гильдии с категориями (▾ ТЕКСТОВЫЕ КАНАЛЫ, ▾ ГОЛОСОВЫЕ КАНАЛЫ), плашка текущего статуса звонка VoicePanel (52px flex-none) и фиксированная нижняя панель профиля пользователя UserProfileBar (52px flex-none).',
-      layout: {
-        container: 'Vertical Flex column with scrollable channel list and fixed bottom bars',
-        dimensions: 'Width: 240px, Height: 100%',
-        padding: '0px',
-        spacing: '2px'
+    "interactive_states": [
+      {
+        "element": "ServerRail",
+        "default": "bg: #1e1f22, w: 72px",
+        "hover": "w: 72px, cursor: default",
+        "active": "focus: outline-none"
       },
-      design_tokens: {
-        background: '#2b2d31',
-        surface: '#232428',
-        text_primary: '#ffffff',
-        text_muted: '#949ba4',
-        accent: '#5865f2',
-        border: '1px solid rgba(255, 255, 255, 0.05)'
+      {
+        "element": "ChannelSidebar",
+        "default": "bg: #2b2d31, w: 240px",
+        "hover": "border-r: 1px solid #1e1f22",
+        "active": "selected-item"
       },
-      interactive_states: [
-        { element: 'Категория каналов', default: 'text: #949ba4, 11px uppercase bold', hover: 'text: #dbdee1, cursor: pointer', active: 'toggle collapse' },
-        { element: 'Текстовый канал (#)', default: 'text: #949ba4, bg: transparent', hover: 'bg: rgba(255,255,255,0.04), text: #dbdee1', active: 'bg: #35373c, text: #ffffff, font-bold' },
-        { element: 'Голосовой канал (🔊)', default: 'text: #949ba4, bg: transparent', hover: 'bg: rgba(255,255,255,0.04), text: #23a55a', active: 'connect_voice() -> VoicePanel open' },
-        { element: 'Кнопки микрофона/звука', default: 'text: #dbdee1', hover: 'bg: rgba(255,255,255,0.08), rounded 4px', active: 'toggle mute/deafen (red slash)' }
-      ],
-      acceptance_criteria: [
-        'Жесткая фиксация высоты UserProfileBar = 52px и VoicePanel = 52px',
-        'Голосовая панель полностью скрывается при отключенном звонке (voice_session = None)',
-        'Исключено перекрытие элементов профиля пользователя'
-      ]
+      {
+        "element": "ChatView",
+        "default": "bg: #313338, flex: 1",
+        "hover": "smooth-scroll",
+        "active": "input-focused"
+      }
+    ],
+    "acceptance_criteria": [
+      "Сетка не расползается при изменении размеров окна (min-width 900px)",
+      "Отсутствуют DOM-коллизии и утечки памяти",
+      "61/61 контрактных тестов пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-707",
+    "title": "Панель серверов ServerRail (72px) и Индикаторы Активности",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Вертикальный рейл серверов Discord с кнопкой Home, разделителем, иконками серверов с анимацией скругления (круг 24px -> скругленный квадрат rx=16px при наведении), индикатором-пилюлей активности слева и кнопками Добавить сервер (+) и Исследовать (🧭).",
+    "layout": {
+      "container": "Vertical Flex column",
+      "dimensions": "Width: 72px, Height: 100%",
+      "padding": "12px 0px",
+      "spacing": "8px"
     },
-    {
-      id: 'TASK-716',
-      title: 'Нативное контекстное меню ПКМ (Context Menu)',
-      status: 'done',
-      priority: 'P1',
-      department: 'G2 Frontend',
-      summary: 'Всплывающее меню по правому клику мыши на сообщении: «Закрепить/Открепить сообщение», «Ответить», «Копировать текст», «Удалить сообщение». Мгновенный оптимистичный UI с асинхронным вызовом Discord REST API v9.',
-      layout: {
-        container: 'Floating absolute card with blur backdrop overlay',
-        dimensions: 'Width: 220px, Height: auto',
-        padding: '6px',
-        spacing: '2px'
-      },
-      design_tokens: {
-        background: '#2b2d31',
-        surface: '#313338',
-        text_primary: '#ffffff',
-        text_muted: '#dbdee1',
-        accent: '#5865f2',
-        border: '1px solid #3f4147'
-      },
-      interactive_states: [
-        { element: 'Пункт «Закрепить» (📌)', default: 'bg: transparent, text: #dbdee1', hover: 'bg: #5865f2, text: #ffffff', active: 'pin_live_message_blocking' },
-        { element: 'Пункт «Ответить» (💬)', default: 'bg: transparent, text: #dbdee1', hover: 'bg: #5865f2, text: #ffffff', active: 'focus message bar with reply badge' },
-        { element: 'Пункт «Копировать» (📋)', default: 'bg: transparent, text: #dbdee1', hover: 'bg: #5865f2, text: #ffffff', active: 'copy to system clipboard' },
-        { element: 'Пункт «Удалить» (🗑️)', default: 'bg: transparent, text: #f23f43', hover: 'bg: #da373c, text: #ffffff', active: 'delete_live_message_blocking' }
-      ],
-      acceptance_criteria: [
-        'Клик вне меню мгновенно закрывает всплывающее окно',
-        'Динамическая плашка «Открепить сообщение» если сообщение уже закреплено',
-        'Отправка реального DELETE /channels/{id}/messages/{id} при наличии токена'
-      ]
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#313338",
+      "text_primary": "#ffffff",
+      "text_muted": "#dbdee1",
+      "accent": "#5865f2",
+      "border": "none"
     },
-    {
-      id: 'TASK-741',
-      title: 'Реальные REST API действия сообщений (Удаление, Закрепление, Открепление)',
-      status: 'done',
-      priority: 'P1',
-      department: 'G1 Backend',
-      summary: 'Интеграция официальных эндпоинтов Discord REST API v9: DELETE /channels/{id}/messages/{id}, PUT /channels/{id}/pins/{id}, DELETE /channels/{id}/pins/{id} через discord-core и reqwest с защитой от 429 Too Many Requests.',
-      layout: {
-        container: 'Backend Network Stack & Threadpool Worker',
-        dimensions: 'Asynchronous Tokio block_on execution',
-        padding: 'N/A',
-        spacing: 'N/A'
+    "interactive_states": [
+      {
+        "element": "Home Button (Discord)",
+        "default": "rx: 24px (круг), bg: #313338",
+        "hover": "rx: 16px, bg: #5865f2",
+        "active": "scale: 0.96"
       },
-      design_tokens: {
-        background: 'N/A',
-        surface: 'N/A',
-        text_primary: 'N/A',
-        accent: '#5865f2'
+      {
+        "element": "Server Icon",
+        "default": "rx: 24px, bg: #313338",
+        "hover": "rx: 16px, bg: #5865f2, белый индикатор 20px",
+        "active": "rx: 16px, bg: #5865f2, белый индикатор 40px"
       },
-      interactive_states: [
-        { element: 'delete_live_message', default: 'Idle', hover: 'Optimistic UI local delete', active: 'HTTP 204 No Content' },
-        { element: 'pin_live_message', default: 'Idle', hover: 'Toggle is_pinned locally', active: 'HTTP 204 No Content' }
-      ],
-      acceptance_criteria: [
-        'Локальное состояние сообщений в ленте обновляется мгновенно за 0 мс',
-        'Сетевые запросы исполняются в фоновом потоке без блокировки GUI',
-        'Покрыто контрактом test_rest_message_actions_endpoints_contract'
-      ]
+      {
+        "element": "Add Server (+)",
+        "default": "rx: 24px, bg: #313338, text: #23a55a",
+        "hover": "rx: 16px, bg: #23a55a, text: #ffffff",
+        "active": "scale: 0.94"
+      },
+      {
+        "element": "Explore (🧭)",
+        "default": "rx: 24px, bg: #313338, text: #23a55a",
+        "hover": "rx: 16px, bg: #23a55a, text: #ffffff",
+        "active": "scale: 0.94"
+      }
+    ],
+    "acceptance_criteria": [
+      "Активный сервер подсвечивается вертикальной белой пилюлей слева (высота 40px, ширина 4px)",
+      "Непрочитанные сообщения отображаются красным бейджем с белым числом в нижнем правом углу иконки",
+      "Кнопка + открывает модальное окно CreateGuildModal"
+    ]
+  },
+  {
+    "id": "TASK-708",
+    "title": "Список каналов ChannelSidebar и Панель профиля (240px)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Иерархический список каналов гильдии с категориями (▾ ТЕКСТОВЫЕ КАНАЛЫ, ▾ ГОЛОСОВЫЕ КАНАЛЫ), плашка текущего статуса звонка VoicePanel (52px flex-none) и фиксированная нижняя панель профиля пользователя UserProfileBar (52px flex-none).",
+    "layout": {
+      "container": "Vertical Flex column with scrollable channel list and fixed bottom bars",
+      "dimensions": "Width: 240px, Height: 100%",
+      "padding": "0px",
+      "spacing": "2px"
     },
-    {
-      id: 'TASK-742',
-      title: 'Прямой Voice UDP Media Streamer (tokio::net::UdpSocket + Opus + AES-256-GCM)',
-      status: 'done',
-      priority: 'P1',
-      department: 'G5 Voice/Platform',
-      summary: 'Реализация VoiceUdpStreamer по спецификации Serein transport.rs: прямое UDP-соединение к голосовому шлюзу, IP Discovery (74B), периодические Keepalive (8B 0x1337cafe LE), сборка 12B RTP заголовка и шифрование 20мс Opus-пакетов AES-256-GCM.',
-      layout: {
-        container: 'Realtime Voice UDP Pipeline',
-        dimensions: '48 kHz Stereo, 20ms frames = 960 samples',
-        padding: '12B RTP header + ciphertext + 16B GCM tag + 4B LE counter',
-        spacing: '5000ms keepalive interval'
-      },
-      design_tokens: {
-        background: '#232428',
-        surface: '#23a55a',
-        text_primary: '#ffffff',
-        accent: '#23a55a'
-      },
-      interactive_states: [
-        { element: 'Voice Connection', default: 'Disconnected', hover: 'Connecting (IP Discovery)', active: 'Connected (Voice Ping 18ms)' },
-        { element: 'Push-to-Talk / VAD', default: 'Silent (No UDP audio)', hover: 'VAD Trigger', active: 'Streaming encrypted Opus packets' }
-      ],
-      acceptance_criteria: [
-        'Keepalive пакет ровно 8 байт (0x1337cafe LE + sequence)',
-        'Шифрование RTP медиа-кадров по эталону voice-deep.md §2.3',
-        'Покрыто контрактом test_voice_udp_streamer_lifecycle_contract'
-      ]
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#232428",
+      "text_primary": "#ffffff",
+      "text_muted": "#949ba4",
+      "accent": "#5865f2",
+      "border": "1px solid rgba(255, 255, 255, 0.05)"
     },
-    {
-      id: 'TASK-743',
-      title: 'Демонстрация экрана PipeWire через Linux XDG Desktop Portal',
-      status: 'done',
-      priority: 'P2',
-      department: 'G5 Voice/Platform',
-      summary: 'ScreenCastManager на базе org.freedesktop.portal.ScreenCast (D-Bus / ashpd): открытие диалога выбора мониторов и окон, согласование курсора (Embedded/Metadata), получение PipeWire remote fd и передача кадров в GPU WGPU видео-пайплайн.',
-      layout: {
-        container: 'Screen Share Modal (600px) with 2x2 grid of display sources',
-        dimensions: 'Width: 600px, Max-height: 520px',
-        padding: '20px',
-        spacing: '16px'
+    "interactive_states": [
+      {
+        "element": "Категория каналов",
+        "default": "text: #949ba4, 11px uppercase bold",
+        "hover": "text: #dbdee1, cursor: pointer",
+        "active": "toggle collapse"
       },
-      design_tokens: {
-        background: '#2b2d31',
-        surface: '#313338',
-        text_primary: '#ffffff',
-        accent: '#5865f2',
-        border: '1px solid #3f4147'
+      {
+        "element": "Текстовый канал (#)",
+        "default": "text: #949ba4, bg: transparent",
+        "hover": "bg: rgba(255,255,255,0.04), text: #dbdee1",
+        "active": "bg: #35373c, text: #ffffff, font-bold"
       },
-      interactive_states: [
-        { element: 'Карточка экрана/окна', default: 'bg: #313338, border: 1px solid transparent', hover: 'border: 1px solid #5865f2, bg: #35373c', active: 'border: 2px solid #5865f2' },
-        { element: 'Выбор разрешения (720p/1080p)', default: 'bg: #1e1f22, text: #949ba4', hover: 'text: #ffffff', active: 'bg: #5865f2, text: #ffffff' },
-        { element: 'Выбор частоты (30/60 FPS)', default: 'bg: #1e1f22, text: #949ba4', hover: 'text: #ffffff', active: 'bg: #5865f2, text: #ffffff' }
-      ],
-      acceptance_criteria: [
-        'Проверка доступности D-Bus сессии через is_portal_available()',
-        'Сборка корректных параметров PortalSourceTypes::MONITOR_AND_WINDOW',
-        'Покрыто контрактом test_screencast_portal_options_contract'
-      ]
+      {
+        "element": "Голосовой канал (🔊)",
+        "default": "text: #949ba4, bg: transparent",
+        "hover": "bg: rgba(255,255,255,0.04), text: #23a55a",
+        "active": "connect_voice() -> VoicePanel open"
+      },
+      {
+        "element": "Кнопки микрофона/звука",
+        "default": "text: #dbdee1",
+        "hover": "bg: rgba(255,255,255,0.08), rounded 4px",
+        "active": "toggle mute/deafen (red slash)"
+      }
+    ],
+    "acceptance_criteria": [
+      "Жесткая фиксация высоты UserProfileBar = 52px и VoicePanel = 52px",
+      "Голосовая панель полностью скрывается при отключенном звонке (voice_session = None)",
+      "Исключено перекрытие элементов профиля пользователя"
+    ]
+  },
+  {
+    "id": "TASK-716",
+    "title": "Нативное контекстное меню ПКМ (Context Menu)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Всплывающее меню по правому клику мыши на сообщении: «Закрепить/Открепить сообщение», «Ответить», «Копировать текст», «Удалить сообщение». Мгновенный оптимистичный UI с асинхронным вызовом Discord REST API v9.",
+    "layout": {
+      "container": "Floating absolute card with blur backdrop overlay",
+      "dimensions": "Width: 220px, Height: auto",
+      "padding": "6px",
+      "spacing": "2px"
     },
-    {
-      id: 'TASK-744',
-      title: 'Нативные D-Bus уведомления рабочего стола и системный трей Linux',
-      status: 'done',
-      priority: 'P2',
-      department: 'G5 Voice/Platform',
-      summary: 'Интеграция freedesktop D-Bus уведомлений (org.freedesktop.Notifications) с кнопками «Открыть» и «Прочитано», а также системного трея Linux (TrayController) с 6-пунктовым меню Discord и бейджем количества непрочитанных сообщений 1..99+.',
-      layout: {
-        container: 'System D-Bus Notifications & Linux StatusNotifierItem Tray',
-        dimensions: 'Standard desktop notification popup (320px) + Tray Menu (6 items)',
-        padding: 'N/A',
-        spacing: 'N/A'
-      },
-      design_tokens: {
-        background: '#2b2d31',
-        surface: '#1e1f22',
-        text_primary: '#ffffff',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Иконка трея', default: 'discord-tray (Normal)', hover: 'discord-tray-unread (Unread)', active: 'discord-tray-speaking (InCall)' },
-        { element: 'Кнопка «Открыть» в уведомлении', default: 'Default action', hover: 'Highlight', active: 'Focus main GPUI window' }
-      ],
-      acceptance_criteria: [
-        'Уведомление содержит app_name = "Discord", заголовок "Автор (#канал)" и текст сообщения',
-        'Бейдж лаунчера отображает точное число до 99 и "99+" при превышении',
-        'Покрыто контрактом test_desktop_notification_formatting_contract'
-      ]
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#313338",
+      "text_primary": "#ffffff",
+      "text_muted": "#dbdee1",
+      "accent": "#5865f2",
+      "border": "1px solid #3f4147"
     },
-    {
-      id: 'TASK-745',
-      title: 'Сервер локального бинарного протокола Discord Local RPC IPC',
-      status: 'done',
-      priority: 'P2',
-      department: 'G1 Backend',
-      summary: 'Поддержка Unix domain socket $XDG_RUNTIME_DIR/discord-ipc-0..9 для интеграции с внешними играми и приложениями по эталону rust-discord-activity и Serein. Разбор рукопожатия Handshake (Opcode 0) и команды SET_ACTIVITY (Opcode 1).',
-      layout: {
-        container: 'Local Unix Domain Socket Listener',
-        dimensions: 'Header 8 bytes [Opcode u32 LE][Length u32 LE] + JSON body up to 16 KiB',
-        padding: 'N/A',
-        spacing: 'N/A'
+    "interactive_states": [
+      {
+        "element": "Пункт «Закрепить» (📌)",
+        "default": "bg: transparent, text: #dbdee1",
+        "hover": "bg: #5865f2, text: #ffffff",
+        "active": "pin_live_message_blocking"
       },
-      design_tokens: {
-        background: 'N/A',
-        surface: 'N/A',
-        text_primary: 'N/A',
-        accent: '#5865f2'
+      {
+        "element": "Пункт «Ответить» (💬)",
+        "default": "bg: transparent, text: #dbdee1",
+        "hover": "bg: #5865f2, text: #ffffff",
+        "active": "focus message bar with reply badge"
       },
-      interactive_states: [
-        { element: 'Game connect', default: 'Listening discord-ipc-0', hover: 'Handshake v=1', active: 'DISPATCH READY' },
-        { element: 'SET_ACTIVITY', default: 'Idle', hover: 'Update rich presence details', active: 'User status updated' }
-      ],
-      acceptance_criteria: [
-        'Парсинг бинарного фрейма и JSON-пейлоада SET_ACTIVITY',
-        'Обновление полей игры (state, details, timestamps) в профиле пользователя',
-        'Покрыто контрактом test_local_rpc_ipc_frame_contract'
-      ]
+      {
+        "element": "Пункт «Копировать» (📋)",
+        "default": "bg: transparent, text: #dbdee1",
+        "hover": "bg: #5865f2, text: #ffffff",
+        "active": "copy to system clipboard"
+      },
+      {
+        "element": "Пункт «Удалить» (🗑️)",
+        "default": "bg: transparent, text: #f23f43",
+        "hover": "bg: #da373c, text: #ffffff",
+        "active": "delete_live_message_blocking"
+      }
+    ],
+    "acceptance_criteria": [
+      "Клик вне меню мгновенно закрывает всплывающее окно",
+      "Динамическая плашка «Открепить сообщение» если сообщение уже закреплено",
+      "Отправка реального DELETE /channels/{id}/messages/{id} при наличии токена"
+    ]
+  },
+  {
+    "id": "TASK-741",
+    "title": "Реальные REST API действия сообщений (Удаление, Закрепление, Открепление)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Интеграция официальных эндпоинтов Discord REST API v9: DELETE /channels/{id}/messages/{id}, PUT /channels/{id}/pins/{id}, DELETE /channels/{id}/pins/{id} через discord-core и reqwest с защитой от 429 Too Many Requests.",
+    "layout": {
+      "container": "Backend Network Stack & Threadpool Worker",
+      "dimensions": "Asynchronous Tokio block_on execution",
+      "padding": "N/A",
+      "spacing": "N/A"
     },
-    {
-      id: 'TASK-746',
-      title: 'Автоматизированный регрессионный контрактный харнесс 61/61',
-      status: 'done',
-      priority: 'P0',
-      department: 'G4 QA',
-      summary: 'Полная регрессионная верификация всей кодовой базы: 61/61 контрактных тестов GPUI (REST API, Voice UDP, Screencast, D-Bus, SQLite, Audio CPAL, Design tokens, Escape hierarchy, Virtual chat) выполняются за 2.50 секунды со 100% успехом.',
-      layout: {
-        container: 'Headless GPUI Test Harness',
-        dimensions: 'Fast headless execution in 2.5s',
-        padding: '0ms sleep delays in mock mode',
-        spacing: 'Zero-flake deterministic assertions'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#23a55a',
-        text_primary: '#ffffff',
-        accent: '#23a55a'
-      },
-      interactive_states: [
-        { element: 'cargo test --test gpui_contract_test', default: 'Running 61 tests', hover: 'Compiling', active: 'test result: ok. 61 passed; 0 failed' }
-      ],
-      acceptance_criteria: [
-        '100% зеленых тестов (64/64)',
-        '0 падений и регрессий',
-        'Скомпилирован рабочий релизный бинарник target/release/discord-gpui (55 МБ)'
-      ]
+    "design_tokens": {
+      "background": "N/A",
+      "surface": "N/A",
+      "text_primary": "N/A",
+      "accent": "#5865f2"
     },
-    {
-      id: 'TASK-747',
-      title: 'Паритет стилей Discord Dark Design Polish и Hover-эффекты сообщений',
-      status: 'done',
-      priority: 'P1',
-      department: 'G3 Design',
-      summary: 'Стилизация ховеров строк сообщений ленты чата (rgba(255,255,255,0.03)), плавное скругление иконок серверов и индикаторной пилюли, тени контекстного меню по эталону официального Discord.',
-      layout: {
-        container: 'Chat message row',
-        dimensions: '100% width, min-height 48px',
-        padding: '6px 16px',
-        spacing: '16px'
+    "interactive_states": [
+      {
+        "element": "delete_live_message",
+        "default": "Idle",
+        "hover": "Optimistic UI local delete",
+        "active": "HTTP 204 No Content"
       },
-      design_tokens: {
-        background: '#313338',
-        surface: 'rgba(255,255,255,0.04)',
-        text_primary: '#ffffff',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Message Row', default: 'transparent', hover: 'bg: rgba(255,255,255,0.04)', active: 'highlight' },
-        { element: 'Server Icon', default: 'rx: 24px', hover: 'rx: 16px, bg: #5865f2', active: 'scale: 0.96' }
-      ],
-      acceptance_criteria: [
-        'Плавный фон при наведении мыши',
-        'Скругление аватарок серверов при ховере'
-      ]
+      {
+        "element": "pin_live_message",
+        "default": "Idle",
+        "hover": "Toggle is_pinned locally",
+        "active": "HTTP 204 No Content"
+      }
+    ],
+    "acceptance_criteria": [
+      "Локальное состояние сообщений в ленте обновляется мгновенно за 0 мс",
+      "Сетевые запросы исполняются в фоновом потоке без блокировки GUI",
+      "Покрыто контрактом test_rest_message_actions_endpoints_contract"
+    ]
+  },
+  {
+    "id": "TASK-742",
+    "title": "Прямой Voice UDP Media Streamer (tokio::net::UdpSocket + Opus + AES-256-GCM)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice/Platform",
+    "summary": "Реализация VoiceUdpStreamer по спецификации Serein transport.rs: прямое UDP-соединение к голосовому шлюзу, IP Discovery (74B), периодические Keepalive (8B 0x1337cafe LE), сборка 12B RTP заголовка и шифрование 20мс Opus-пакетов AES-256-GCM.",
+    "layout": {
+      "container": "Realtime Voice UDP Pipeline",
+      "dimensions": "48 kHz Stereo, 20ms frames = 960 samples",
+      "padding": "12B RTP header + ciphertext + 16B GCM tag + 4B LE counter",
+      "spacing": "5000ms keepalive interval"
     },
-    {
-      id: 'TASK-748',
-      title: 'Аппаратный GPU-конвейер PipeWire кадра и захват экрана',
-      status: 'done',
-      priority: 'P1',
-      department: 'G5 Voice/Platform',
-      summary: 'Связывание D-Bus сессии XDG Desktop Portal ScreenCast и конвейера GpuVideoPipeline: получение remote fd PipeWire и node_id, валидация формата Rgba8 и отрисовка кадра на GPU без лишних копий.',
-      layout: {
-        container: 'PipeWire Stream Pipe & GpuTextureDescriptor',
-        dimensions: '1920x1080 60 FPS',
-        padding: '0ms delay',
-        spacing: 'Zero-copy DMA'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#ffffff',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'PipeWire FD Stream', default: 'Unconnected', hover: 'Portal selected', active: 'Connected fd=42 node_id=101' }
-      ],
-      acceptance_criteria: [
-        'Успешная привязка fd и node_id в GpuVideoPipeline',
-        'Покрыто тестом test_gpu_video_pipeline_pipewire_connector_contract'
-      ]
+    "design_tokens": {
+      "background": "#232428",
+      "surface": "#23a55a",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
     },
-    {
-      id: 'TASK-749',
-      title: 'Плавающий бар быстрых действий над сообщением (Floating Action Bar)',
-      status: 'done',
-      priority: 'P1',
-      department: 'G2 Frontend',
-      summary: 'Плавающий тулбар быстрых действий в правом углу каждого сообщения при наведении: быстрая реакция 😀 (добавляет/снимает 👍), быстрый ответ 💬 (подставляет @Author: ), закрепление 📌 (инвертирует статус и шлёт REST запрос), кнопка «⋯» для открытия контекстного меню.',
-      layout: {
-        container: 'Floating flex action bar',
-        dimensions: 'auto x 26px',
-        padding: '2px 4px',
-        spacing: '2px'
+    "interactive_states": [
+      {
+        "element": "Voice Connection",
+        "default": "Disconnected",
+        "hover": "Connecting (IP Discovery)",
+        "active": "Connected (Voice Ping 18ms)"
       },
-      design_tokens: {
-        background: '#2b2d31',
-        surface: '#383a40',
-        text_primary: '#ffffff',
-        accent: '#5865f2',
-        border: '1px solid rgba(255,255,255,0.08)'
-      },
-      interactive_states: [
-        { element: 'btn-react', default: '😀', hover: 'bg: #35373c', active: 'toggle 👍 reaction' },
-        { element: 'btn-reply', default: '💬', hover: 'bg: #35373c', active: 'draft: @Author:' },
-        { element: 'btn-pin', default: '📌', hover: 'bg: #35373c', active: 'toggle is_pinned' },
-        { element: 'btn-more', default: '⋯', hover: 'bg: #35373c', active: 'open context menu' }
-      ],
-      acceptance_criteria: [
-        'Реализован тулбар в ChatView',
-        'Клик на реакцию и пин покрыт тестом test_floating_message_action_bar_and_quick_reaction_contract'
-      ]
+      {
+        "element": "Push-to-Talk / VAD",
+        "default": "Silent (No UDP audio)",
+        "hover": "VAD Trigger",
+        "active": "Streaming encrypted Opus packets"
+      }
+    ],
+    "acceptance_criteria": [
+      "Keepalive пакет ровно 8 байт (0x1337cafe LE + sequence)",
+      "Шифрование RTP медиа-кадров по эталону voice-deep.md §2.3",
+      "Покрыто контрактом test_voice_udp_streamer_lifecycle_contract"
+    ]
+  },
+  {
+    "id": "TASK-743",
+    "title": "Демонстрация экрана PipeWire через Linux XDG Desktop Portal",
+    "status": "done",
+    "priority": "P2",
+    "department": "G5 Voice/Platform",
+    "summary": "ScreenCastManager на базе org.freedesktop.portal.ScreenCast (D-Bus / ashpd): открытие диалога выбора мониторов и окон, согласование курсора (Embedded/Metadata), получение PipeWire remote fd и передача кадров в GPU WGPU видео-пайплайн.",
+    "layout": {
+      "container": "Screen Share Modal (600px) with 2x2 grid of display sources",
+      "dimensions": "Width: 600px, Max-height: 520px",
+      "padding": "20px",
+      "spacing": "16px"
     },
-    {
-      id: 'TASK-750',
-      title: 'Шлюз Discord Gateway Opcode 4 (Voice State Update)',
-      status: 'done',
-      priority: 'P0',
-      department: 'G1 Backend',
-      summary: 'Автоматическая генерация и отправка пакетов шлюза Discord Opcode 4 (Voice State Update) при подключении к голосовому каналу (guild_id, channel_id, self_mute, self_deaf) и при отключении (channel_id = null).',
-      layout: {
-        container: 'Gateway WebSocket JSON packet',
-        dimensions: 'Standard Discord Gateway protocol frame',
-        padding: 'N/A',
-        spacing: 'N/A'
-      },
-      design_tokens: {
-        background: 'N/A',
-        surface: 'N/A',
-        text_primary: 'N/A',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Connect to Voice', default: 'Disconnected', hover: 'Click voice channel', active: 'Send Opcode 4 with channel_id' },
-        { element: 'Disconnect', default: 'Connected', hover: 'Click disconnect 📞✕', active: 'Send Opcode 4 with channel_id: null' }
-      ],
-      acceptance_criteria: [
-        'Генерация валидного JSON payload Opcode 4',
-        'Покрыто тестом test_voice_state_update_opcode_4_gateway_contract'
-      ]
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#313338",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2",
+      "border": "1px solid #3f4147"
     },
-    {
-      id: 'TASK-751',
-      title: 'G1 Backend + G7 REA: Устойчивый парсер read_state.last_acked_id (Snowflake String/Integer/Null)',
-      status: 'in_dev',
-      priority: 'P1',
-      department: 'G1 Backend',
-      summary: 'Устранение критической ошибки парсинга read_state, обнаруженной живым GDB-трейсером: поле last_acked_id в entries[31] пакета READY приходит как integer/null/string. Замена жесткого требования строки на гибкий десериализатор Snowflake по эталону re-deep/gateway-schema.md.',
-      layout: {
-        container: 'Channel Read State Marker & Unread Badge',
-        dimensions: 'JSON Snowflake u64 or String id',
-        padding: 'N/A',
-        spacing: 'N/A'
+    "interactive_states": [
+      {
+        "element": "Карточка экрана/окна",
+        "default": "bg: #313338, border: 1px solid transparent",
+        "hover": "border: 1px solid #5865f2, bg: #35373c",
+        "active": "border: 2px solid #5865f2"
       },
-      design_tokens: {
-        background: '#2b2d31',
-        surface: '#1e1f22',
-        text_primary: '#ffffff',
-        accent: '#f23f43'
+      {
+        "element": "Выбор разрешения (720p/1080p)",
+        "default": "bg: #1e1f22, text: #949ba4",
+        "hover": "text: #ffffff",
+        "active": "bg: #5865f2, text: #ffffff"
       },
-      interactive_states: [
-        { element: 'openChannel click', default: 'Load read_state', hover: 'Parse Snowflake', active: 'Badge cleared without error alert' },
-        { element: 'chat-ack-note alert', default: 'Hidden when valid', hover: 'N/A', active: 'No false-positive error banner' }
-      ],
-      acceptance_criteria: [
-        'read_state успешно парсит entries с целочисленным и строковым last_acked_id',
-        'Красный баннер «Не удалось прочитать состояние канала» не отображается',
-        'Покрыто контрактным тестом на фикстуре 002-READY.json'
-      ]
+      {
+        "element": "Выбор частоты (30/60 FPS)",
+        "default": "bg: #1e1f22, text: #949ba4",
+        "hover": "text: #ffffff",
+        "active": "bg: #5865f2, text: #ffffff"
+      }
+    ],
+    "acceptance_criteria": [
+      "Проверка доступности D-Bus сессии через is_portal_available()",
+      "Сборка корректных параметров PortalSourceTypes::MONITOR_AND_WINDOW",
+      "Покрыто контрактом test_screencast_portal_options_contract"
+    ]
+  },
+  {
+    "id": "TASK-744",
+    "title": "Нативные D-Bus уведомления рабочего стола и системный трей Linux",
+    "status": "done",
+    "priority": "P2",
+    "department": "G5 Voice/Platform",
+    "summary": "Интеграция freedesktop D-Bus уведомлений (org.freedesktop.Notifications) с кнопками «Открыть» и «Прочитано», а также системного трея Linux (TrayController) с 6-пунктовым меню Discord и бейджем количества непрочитанных сообщений 1..99+.",
+    "layout": {
+      "container": "System D-Bus Notifications & Linux StatusNotifierItem Tray",
+      "dimensions": "Standard desktop notification popup (320px) + Tray Menu (6 items)",
+      "padding": "N/A",
+      "spacing": "N/A"
     },
-    {
-      id: 'TASK-752',
-      title: 'G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс)',
-      status: 'done',
-      priority: 'P2',
-      department: 'G2 Frontend',
-      summary: 'Устранение задержки 1236 мс, зафиксированной живой телеметрией при клике на личный диалог ShadowByte. Асинхронное чтение из кэша памяти до блокирующего чтения с диска, виртуализация чанками по 50 сообщений.',
-      layout: {
-        container: 'Virtual Chat Message List',
-        dimensions: 'Width: 100%, Height: 100%',
-        padding: '16px',
-        spacing: '16px'
-      },
-      design_tokens: {
-        background: '#313338',
-        surface: '#2b2d31',
-        text_primary: '#ffffff',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Click on Channel / DM', default: 'Skeleton loader', hover: 'Preload cache', active: 'Render messages < 300ms' }
-      ],
-      acceptance_criteria: [
-        'Время выполнения messages_page сокращено с 1236 мс до < 300 мс',
-        'Плавная прокрутка без рывков интерфейса'
-      ]
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#1e1f22",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
     },
-    {
-      id: 'TASK-769',
-      title: 'G1 Backend: Handshake Wait & Verified Cache Hydration в ready()',
-      status: 'done',
-      priority: 'P0',
-      department: 'G1 Backend',
-      summary: 'Устранение race condition при старте: ready() проверяет load_live_ready_cache_for и ожидает live WebSocket READY до 600мс вместо возврата пустых списков guilds/relationships. READY_SUPPLEMENTAL обновляет voice states без вызова guard.voice_states.clear().',
-      layout: {
-        container: 'Gateway Handshake & State Pipeline',
-        dimensions: 'Non-blocking wait loop (12 x 50ms)',
-        padding: 'N/A',
-        spacing: 'N/A'
+    "interactive_states": [
+      {
+        "element": "Иконка трея",
+        "default": "discord-tray (Normal)",
+        "hover": "discord-tray-unread (Unread)",
+        "active": "discord-tray-speaking (InCall)"
       },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#23a55a',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'ready() IPC', default: 'Cached/Live READY guilds returned', hover: 'N/A', active: 'Zero empty rail frames' }
-      ],
-      acceptance_criteria: [
-        'ready() не возвращает пустой список серверов при наличии кэша или активного шлюза',
-        'READY_SUPPLEMENTAL сохраняет участников существующих голосовых каналов',
-        '39/39 тестов data_contract.rs пройдены успешно'
-      ]
+      {
+        "element": "Кнопка «Открыть» в уведомлении",
+        "default": "Default action",
+        "hover": "Highlight",
+        "active": "Focus main GPUI window"
+      }
+    ],
+    "acceptance_criteria": [
+      "Уведомление содержит app_name = \"Discord\", заголовок \"Автор (#канал)\" и текст сообщения",
+      "Бейдж лаунчера отображает точное число до 99 и \"99+\" при превышении",
+      "Покрыто контрактом test_desktop_notification_formatting_contract"
+    ]
+  },
+  {
+    "id": "TASK-745",
+    "title": "Сервер локального бинарного протокола Discord Local RPC IPC",
+    "status": "done",
+    "priority": "P2",
+    "department": "G1 Backend",
+    "summary": "Поддержка Unix domain socket $XDG_RUNTIME_DIR/discord-ipc-0..9 для интеграции с внешними играми и приложениями по эталону rust-discord-activity и Serein. Разбор рукопожатия Handshake (Opcode 0) и команды SET_ACTIVITY (Opcode 1).",
+    "layout": {
+      "container": "Local Unix Domain Socket Listener",
+      "dimensions": "Header 8 bytes [Opcode u32 LE][Length u32 LE] + JSON body up to 16 KiB",
+      "padding": "N/A",
+      "spacing": "N/A"
     },
-    {
-      id: 'TASK-770',
-      title: 'G2 Frontend: Неразрушающая гидратация серверов и друзей в app.js и dm-friends.js',
-      status: 'done',
-      priority: 'P0',
-      department: 'G2 Frontend',
-      summary: 'syncLiveGuildRailFromSnapshot и dmFriendsController.syncLiveState защищены от стирания данных при получении пустых или промежуточных sync-ответов. READY/READY_SUPPLEMENTAL диспатчи шлюза мгновенно гидратируют рейл и друзей.',
-      layout: {
-        container: 'Client-Side Store & View Hydration',
-        dimensions: 'Full DOM synchronization',
-        padding: 'N/A',
-        spacing: 'N/A'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#ffffff',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Server Rail & Friends List', default: 'Retains all guilds and friends across reconnects', hover: 'Interactive', active: 'No «Нет серверов» flicker' }
-      ],
-      acceptance_criteria: [
-        'Пустой массив в sync-ответе не очищает liveGuildsById и relationships',
-        'При переподключении список серверов и друзей не пропадает',
-        '77/77 тестов dm-friends и dispatch_ui пройдены успешно'
-      ]
+    "design_tokens": {
+      "background": "N/A",
+      "surface": "N/A",
+      "text_primary": "N/A",
+      "accent": "#5865f2"
     },
-    {
-      id: 'TASK-771',
-      title: 'G3 Design & G2 UI: Точный паритет Voice Panel и User Bar по официальному Discord',
-      status: 'done',
-      priority: 'P0',
-      department: 'G3 Design',
-      summary: 'Пиксельный паритет нижней панели пользователя: убрана кнопка «Выйти» из user-bar, добавлены сплит-капсулы микрофона и звука с шевронами параметров, 4 медиа-кнопки (видео, стрим, активности, саундборд) и аккуратный статус Невидимый.',
-      layout: {
-        container: 'Voice Panel & User Bar Capsule Layout',
-        dimensions: 'UserBar: 52px height; MediaRow: 4x 32px buttons; Mute/Deaf: 32+16px capsules',
-        padding: 'UserBar: 0 8px; VoicePanel: 8px 8px 10px 8px',
-        spacing: 'gap: 2px / 6px'
+    "interactive_states": [
+      {
+        "element": "Game connect",
+        "default": "Listening discord-ipc-0",
+        "hover": "Handshake v=1",
+        "active": "DISPATCH READY"
       },
-      design_tokens: {
-        background: '#232428',
-        surface: '#2b2d31',
-        text_primary: '#f2f3f5',
-        text_muted: '#949ba4',
-        danger_tint: '#3c2429',
-        danger: '#f23f43',
-        success: '#23a55a'
-      },
-      interactive_states: [
-        { element: 'Mute Split Button', default: 'Transparent, grey icon #b5bac1', hover: 'rgba(255,255,255,0.08)', active: 'Muted: bg #3c2429, red icon #f23f43, red chevron #f23f43' },
-        { element: 'Deafen Split Button', default: 'Transparent, grey icon #b5bac1', hover: 'rgba(255,255,255,0.08)', active: 'Deafened: bg #3c2429, red icon #f23f43, red chevron #f23f43' }
-      ],
-      acceptance_criteria: [
-        'Кнопка Выйти отсутствует в #user-bar и .user-actions',
-        'Сплит-кнопки микрофона и наушников содержат отдельные шевроны выбора устройств',
-        'Все 31 проверка геометрии и мета-тесты пройдены успешно'
-      ]
+      {
+        "element": "SET_ACTIVITY",
+        "default": "Idle",
+        "hover": "Update rich presence details",
+        "active": "User status updated"
+      }
+    ],
+    "acceptance_criteria": [
+      "Парсинг бинарного фрейма и JSON-пейлоада SET_ACTIVITY",
+      "Обновление полей игры (state, details, timestamps) в профиле пользователя",
+      "Покрыто контрактом test_local_rpc_ipc_frame_contract"
+    ]
+  },
+  {
+    "id": "TASK-746",
+    "title": "Автоматизированный регрессионный контрактный харнесс 61/61",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA",
+    "summary": "Полная регрессионная верификация всей кодовой базы: 61/61 контрактных тестов GPUI (REST API, Voice UDP, Screencast, D-Bus, SQLite, Audio CPAL, Design tokens, Escape hierarchy, Virtual chat) выполняются за 2.50 секунды со 100% успехом.",
+    "layout": {
+      "container": "Headless GPUI Test Harness",
+      "dimensions": "Fast headless execution in 2.5s",
+      "padding": "0ms sleep delays in mock mode",
+      "spacing": "Zero-flake deterministic assertions"
     },
-    {
-      id: 'TASK-772',
-      title: 'G5 Voice: Устранение задержек отображения участников голосовых каналов',
-      status: 'done',
-      priority: 'P0',
-      department: 'G5 Voice / Platform',
-      summary: 'Агрегация voice_states из ready_data и live_session в voice_states_sync. Защита liveVoiceStatesByGuild от ложного удаления участников при частичных poll-ответах.',
-      layout: {
-        container: 'Voice States Realtime Aggregator',
-        dimensions: 'Sub-millisecond query latency',
-        padding: 'N/A',
-        spacing: 'N/A'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#23a55a',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Channel Tree Voice Participant List', default: 'Instant participant render', hover: 'Interactive tooltip/popout', active: 'Green speaking border' }
-      ],
-      acceptance_criteria: [
-        'Участники голосовых каналов отображаются без задержек при старте и переключениях',
-        'Список участников не мигает и не пропадает при периодическом опросе',
-        '119/119 тестов voice-ui и guild-rail пройдены'
-      ]
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#23a55a",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
     },
-    {
-      id: 'TASK-773',
-      title: 'G4 QA: Автоматизированные тесты неразрушающей гидратации и UI-паритета',
-      status: 'done',
-      priority: 'P0',
-      department: 'G4 QA',
-      summary: 'Регрессионные тесты в message-delete-voice-exit-ui.test.mjs и data_contract.rs, проверка отсутствия auth-logout в user-bar, проверка неразрушающего обновления relationships.',
-      layout: {
-        container: 'Automated Test Suite',
-        dimensions: 'Unit + Contract + Meta suites',
-        padding: 'N/A',
-        spacing: 'N/A'
-      },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#23a55a',
-        accent: '#5865f2'
-      },
-      interactive_states: [
-        { element: 'Test Runner', default: 'All suites green', hover: 'N/A', active: '100% Pass' }
-      ],
-      acceptance_criteria: [
-        '138/138 мета-тестов пройдены успешно',
-        '77/77 тестов друзей и диспатча пройдены успешно',
-        '39/39 тестов Rust data_contract пройдены успешно'
-      ]
+    "interactive_states": [
+      {
+        "element": "cargo test --test gpui_contract_test",
+        "default": "Running 61 tests",
+        "hover": "Compiling",
+        "active": "test result: ok. 61 passed; 0 failed"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% зеленых тестов (64/64)",
+      "0 падений и регрессий",
+      "Скомпилирован рабочий релизный бинарник target/release/discord-gpui (55 МБ)"
+    ]
+  },
+  {
+    "id": "TASK-747",
+    "title": "Паритет стилей Discord Dark Design Polish и Hover-эффекты сообщений",
+    "status": "done",
+    "priority": "P1",
+    "department": "G3 Design",
+    "summary": "Стилизация ховеров строк сообщений ленты чата (rgba(255,255,255,0.03)), плавное скругление иконок серверов и индикаторной пилюли, тени контекстного меню по эталону официального Discord.",
+    "layout": {
+      "container": "Chat message row",
+      "dimensions": "100% width, min-height 48px",
+      "padding": "6px 16px",
+      "spacing": "16px"
     },
-    {
-      id: 'TASK-774',
-      title: 'DevOps: Сборка release бинарника, SHA256SUMS и пуш в remote mirror',
-      status: 'done',
-      priority: 'P0',
-      department: 'DevOps / Integration',
-      summary: 'Компиляция rust/dist/discord-gui-spike, расчет контрольной суммы в rust/dist/SHA256SUMS, экспорт Kanban-доски и пуш в git remote.',
-      layout: {
-        container: 'Release Artifacts',
-        dimensions: 'ELF 64-bit LSB executable, x86-64',
-        padding: 'N/A',
-        spacing: 'N/A'
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "rgba(255,255,255,0.04)",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Message Row",
+        "default": "transparent",
+        "hover": "bg: rgba(255,255,255,0.04)",
+        "active": "highlight"
       },
-      design_tokens: {
-        background: '#1e1f22',
-        surface: '#2b2d31',
-        text_primary: '#23a55a',
-        accent: '#5865f2'
+      {
+        "element": "Server Icon",
+        "default": "rx: 24px",
+        "hover": "rx: 16px, bg: #5865f2",
+        "active": "scale: 0.96"
+      }
+    ],
+    "acceptance_criteria": [
+      "Плавный фон при наведении мыши",
+      "Скругление аватарок серверов при ховере"
+    ]
+  },
+  {
+    "id": "TASK-748",
+    "title": "Аппаратный GPU-конвейер PipeWire кадра и захват экрана",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice/Platform",
+    "summary": "Связывание D-Bus сессии XDG Desktop Portal ScreenCast и конвейера GpuVideoPipeline: получение remote fd PipeWire и node_id, валидация формата Rgba8 и отрисовка кадра на GPU без лишних копий.",
+    "layout": {
+      "container": "PipeWire Stream Pipe & GpuTextureDescriptor",
+      "dimensions": "1920x1080 60 FPS",
+      "padding": "0ms delay",
+      "spacing": "Zero-copy DMA"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "PipeWire FD Stream",
+        "default": "Unconnected",
+        "hover": "Portal selected",
+        "active": "Connected fd=42 node_id=101"
+      }
+    ],
+    "acceptance_criteria": [
+      "Успешная привязка fd и node_id в GpuVideoPipeline",
+      "Покрыто тестом test_gpu_video_pipeline_pipewire_connector_contract"
+    ]
+  },
+  {
+    "id": "TASK-749",
+    "title": "Плавающий бар быстрых действий над сообщением (Floating Action Bar)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Плавающий тулбар быстрых действий в правом углу каждого сообщения при наведении: быстрая реакция 😀 (добавляет/снимает 👍), быстрый ответ 💬 (подставляет @Author: ), закрепление 📌 (инвертирует статус и шлёт REST запрос), кнопка «⋯» для открытия контекстного меню.",
+    "layout": {
+      "container": "Floating flex action bar",
+      "dimensions": "auto x 26px",
+      "padding": "2px 4px",
+      "spacing": "2px"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#383a40",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2",
+      "border": "1px solid rgba(255,255,255,0.08)"
+    },
+    "interactive_states": [
+      {
+        "element": "btn-react",
+        "default": "😀",
+        "hover": "bg: #35373c",
+        "active": "toggle 👍 reaction"
       },
-      interactive_states: [
-        { element: 'Binary Verification', default: '7aa144733fa99529362514323785362e50de61481ee196b5e456e532da471f40', hover: 'N/A', active: 'Verified on Wayland / X11' }
-      ],
-      acceptance_criteria: [
-        'Бинарник скомпилирован в release профиле',
-        'SHA256SUMS актуализирован',
-        'Изменения зафиксированы и запушены в remote mirror'
-      ]
-    }
-  ]
+      {
+        "element": "btn-reply",
+        "default": "💬",
+        "hover": "bg: #35373c",
+        "active": "draft: @Author:"
+      },
+      {
+        "element": "btn-pin",
+        "default": "📌",
+        "hover": "bg: #35373c",
+        "active": "toggle is_pinned"
+      },
+      {
+        "element": "btn-more",
+        "default": "⋯",
+        "hover": "bg: #35373c",
+        "active": "open context menu"
+      }
+    ],
+    "acceptance_criteria": [
+      "Реализован тулбар в ChatView",
+      "Клик на реакцию и пин покрыт тестом test_floating_message_action_bar_and_quick_reaction_contract"
+    ]
+  },
+  {
+    "id": "TASK-750",
+    "title": "Шлюз Discord Gateway Opcode 4 (Voice State Update)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "Автоматическая генерация и отправка пакетов шлюза Discord Opcode 4 (Voice State Update) при подключении к голосовому каналу (guild_id, channel_id, self_mute, self_deaf) и при отключении (channel_id = null).",
+    "layout": {
+      "container": "Gateway WebSocket JSON packet",
+      "dimensions": "Standard Discord Gateway protocol frame",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "N/A",
+      "surface": "N/A",
+      "text_primary": "N/A",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Connect to Voice",
+        "default": "Disconnected",
+        "hover": "Click voice channel",
+        "active": "Send Opcode 4 with channel_id"
+      },
+      {
+        "element": "Disconnect",
+        "default": "Connected",
+        "hover": "Click disconnect 📞✕",
+        "active": "Send Opcode 4 with channel_id: null"
+      }
+    ],
+    "acceptance_criteria": [
+      "Генерация валидного JSON payload Opcode 4",
+      "Покрыто тестом test_voice_state_update_opcode_4_gateway_contract"
+    ]
+  },
+  {
+    "id": "TASK-751",
+    "title": "G1 Backend + G7 REA: Устойчивый парсер read_state.last_acked_id (Snowflake String/Integer/Null)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Устранение критической ошибки парсинга read_state, обнаруженной живым GDB-трейсером: поле last_acked_id в entries[31] пакета READY приходит как integer/null/string. Замена жесткого требования строки на гибкий десериализатор Snowflake по эталону re-deep/gateway-schema.md.",
+    "layout": {
+      "container": "Channel Read State Marker & Unread Badge",
+      "dimensions": "JSON Snowflake u64 or String id",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#1e1f22",
+      "text_primary": "#ffffff",
+      "accent": "#f23f43"
+    },
+    "interactive_states": [
+      {
+        "element": "openChannel click",
+        "default": "Load read_state",
+        "hover": "Parse Snowflake",
+        "active": "Badge cleared without error alert"
+      },
+      {
+        "element": "chat-ack-note alert",
+        "default": "Hidden when valid",
+        "hover": "N/A",
+        "active": "No false-positive error banner"
+      }
+    ],
+    "acceptance_criteria": [
+      "read_state успешно парсит entries с целочисленным и строковым last_acked_id",
+      "Красный баннер «Не удалось прочитать состояние канала» не отображается",
+      "Покрыто контрактным тестом на фикстуре 002-READY.json"
+    ]
+  },
+  {
+    "id": "TASK-752",
+    "title": "G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс)",
+    "status": "done",
+    "priority": "P2",
+    "department": "G2 Frontend",
+    "summary": "Устранение задержки 1236 мс, зафиксированной живой телеметрией при клике на личный диалог ShadowByte. Асинхронное чтение из кэша памяти до блокирующего чтения с диска, виртуализация чанками по 50 сообщений.",
+    "layout": {
+      "container": "Virtual Chat Message List",
+      "dimensions": "Width: 100%, Height: 100%",
+      "padding": "16px",
+      "spacing": "16px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Click on Channel / DM",
+        "default": "Skeleton loader",
+        "hover": "Preload cache",
+        "active": "Render messages < 300ms"
+      }
+    ],
+    "acceptance_criteria": [
+      "Время выполнения messages_page сокращено с 1236 мс до < 300 мс",
+      "Плавная прокрутка без рывков интерфейса"
+    ]
+  },
+  {
+    "id": "TASK-769",
+    "title": "G1 Backend: Handshake Wait & Verified Cache Hydration в ready()",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "Устранение race condition при старте: ready() проверяет load_live_ready_cache_for и ожидает live WebSocket READY до 600мс вместо возврата пустых списков guilds/relationships. READY_SUPPLEMENTAL обновляет voice states без вызова guard.voice_states.clear().",
+    "layout": {
+      "container": "Gateway Handshake & State Pipeline",
+      "dimensions": "Non-blocking wait loop (12 x 50ms)",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "ready() IPC",
+        "default": "Cached/Live READY guilds returned",
+        "hover": "N/A",
+        "active": "Zero empty rail frames"
+      }
+    ],
+    "acceptance_criteria": [
+      "ready() не возвращает пустой список серверов при наличии кэша или активного шлюза",
+      "READY_SUPPLEMENTAL сохраняет участников существующих голосовых каналов",
+      "39/39 тестов data_contract.rs пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-770",
+    "title": "G2 Frontend: Неразрушающая гидратация серверов и друзей в app.js и dm-friends.js",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "syncLiveGuildRailFromSnapshot и dmFriendsController.syncLiveState защищены от стирания данных при получении пустых или промежуточных sync-ответов. READY/READY_SUPPLEMENTAL диспатчи шлюза мгновенно гидратируют рейл и друзей.",
+    "layout": {
+      "container": "Client-Side Store & View Hydration",
+      "dimensions": "Full DOM synchronization",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Server Rail & Friends List",
+        "default": "Retains all guilds and friends across reconnects",
+        "hover": "Interactive",
+        "active": "No «Нет серверов» flicker"
+      }
+    ],
+    "acceptance_criteria": [
+      "Пустой массив в sync-ответе не очищает liveGuildsById и relationships",
+      "При переподключении список серверов и друзей не пропадает",
+      "77/77 тестов dm-friends и dispatch_ui пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-771",
+    "title": "G3 Design & G2 UI: Точный паритет Voice Panel и User Bar по официальному Discord",
+    "status": "done",
+    "priority": "P0",
+    "department": "G3 Design",
+    "summary": "Пиксельный паритет нижней панели пользователя: убрана кнопка «Выйти» из user-bar, добавлены сплит-капсулы микрофона и звука с шевронами параметров, 4 медиа-кнопки (видео, стрим, активности, саундборд) и аккуратный статус Невидимый.",
+    "layout": {
+      "container": "Voice Panel & User Bar Capsule Layout",
+      "dimensions": "UserBar: 52px height; MediaRow: 4x 32px buttons; Mute/Deaf: 32+16px capsules",
+      "padding": "UserBar: 0 8px; VoicePanel: 8px 8px 10px 8px",
+      "spacing": "gap: 2px / 6px"
+    },
+    "design_tokens": {
+      "background": "#232428",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "text_muted": "#949ba4",
+      "danger_tint": "#3c2429",
+      "danger": "#f23f43",
+      "success": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Mute Split Button",
+        "default": "Transparent, grey icon #b5bac1",
+        "hover": "rgba(255,255,255,0.08)",
+        "active": "Muted: bg #3c2429, red icon #f23f43, red chevron #f23f43"
+      },
+      {
+        "element": "Deafen Split Button",
+        "default": "Transparent, grey icon #b5bac1",
+        "hover": "rgba(255,255,255,0.08)",
+        "active": "Deafened: bg #3c2429, red icon #f23f43, red chevron #f23f43"
+      }
+    ],
+    "acceptance_criteria": [
+      "Кнопка Выйти отсутствует в #user-bar и .user-actions",
+      "Сплит-кнопки микрофона и наушников содержат отдельные шевроны выбора устройств",
+      "Все 31 проверка геометрии и мета-тесты пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-772",
+    "title": "G5 Voice: Устранение задержек отображения участников голосовых каналов",
+    "status": "done",
+    "priority": "P0",
+    "department": "G5 Voice / Platform",
+    "summary": "Агрегация voice_states из ready_data и live_session в voice_states_sync. Защита liveVoiceStatesByGuild от ложного удаления участников при частичных poll-ответах.",
+    "layout": {
+      "container": "Voice States Realtime Aggregator",
+      "dimensions": "Sub-millisecond query latency",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Channel Tree Voice Participant List",
+        "default": "Instant participant render",
+        "hover": "Interactive tooltip/popout",
+        "active": "Green speaking border"
+      }
+    ],
+    "acceptance_criteria": [
+      "Участники голосовых каналов отображаются без задержек при старте и переключениях",
+      "Список участников не мигает и не пропадает при периодическом опросе",
+      "119/119 тестов voice-ui и guild-rail пройдены"
+    ]
+  },
+  {
+    "id": "TASK-773",
+    "title": "G4 QA: Автоматизированные тесты неразрушающей гидратации и UI-паритета",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA",
+    "summary": "Регрессионные тесты в message-delete-voice-exit-ui.test.mjs и data_contract.rs, проверка отсутствия auth-logout в user-bar, проверка неразрушающего обновления relationships.",
+    "layout": {
+      "container": "Automated Test Suite",
+      "dimensions": "Unit + Contract + Meta suites",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Test Runner",
+        "default": "All suites green",
+        "hover": "N/A",
+        "active": "100% Pass"
+      }
+    ],
+    "acceptance_criteria": [
+      "138/138 мета-тестов пройдены успешно",
+      "77/77 тестов друзей и диспатча пройдены успешно",
+      "39/39 тестов Rust data_contract пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-774",
+    "title": "DevOps: Сборка release бинарника, SHA256SUMS и пуш в remote mirror",
+    "status": "done",
+    "priority": "P0",
+    "department": "DevOps / Integration",
+    "summary": "Компиляция rust/dist/discord-gui-spike, расчет контрольной суммы в rust/dist/SHA256SUMS, экспорт Kanban-доски и пуш в git remote.",
+    "layout": {
+      "container": "Release Artifacts",
+      "dimensions": "ELF 64-bit LSB executable, x86-64",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Binary Verification",
+        "default": "7aa144733fa99529362514323785362e50de61481ee196b5e456e532da471f40",
+        "hover": "N/A",
+        "active": "Verified on Wayland / X11"
+      }
+    ],
+    "acceptance_criteria": [
+      "Бинарник скомпилирован в release профиле",
+      "SHA256SUMS актуализирован",
+      "Изменения зафиксированы и запушены в remote mirror"
+    ]
+  },
+  {
+    "id": "TASK-775",
+    "title": "G5 Voice / Core: Нормализация источника WebRTC (sourceId = -1) и 100% запуск энкодера",
+    "status": "done",
+    "priority": "P0",
+    "department": "G5 Voice & Platform",
+    "summary": "Устранение ошибки \"Screenshare: Failed to select source: 0\" и SetDesktopScreenshare: (nil). Фиксация kFullDesktopScreenId = -1 и постоянного type: \"screen\" в WebRTC setDesktopSourceWithOptions, гарантирующая отправку RTP H264 видеопакетов на SFU Discord без нулевых байт.",
+    "layout": {
+      "container": "WebRTC Linux Capturer Bridge",
+      "dimensions": "H264 NVENC/VAAPI 720p60",
+      "padding": "0px",
+      "spacing": "0px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f0b232",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "ScreenCapturerX11",
+        "default": "sourceId: \"-1\"",
+        "hover": "SelectSource: true",
+        "active": "bytes sent > 0"
+      }
+    ],
+    "acceptance_criteria": [
+      "Логи WebRTC больше не содержат \"Screenshare: Failed to select source\"",
+      "SetDesktopScreenshare возвращает активный захватчик вместо (nil)",
+      "Официальный клиент получает видео RTP кадры и успешно отображает трансляцию"
+    ]
+  },
+  {
+    "id": "TASK-776",
+    "title": "G5 Voice / Core: Нативный захват Wayland (KWin ScreenShot2) и горячая смена окон",
+    "status": "done",
+    "priority": "P0",
+    "department": "G5 Voice & Platform",
+    "summary": "Интеграция C-хука hook_XShmGetImage с D-Bus интерфейсом org.kde.KWin.ScreenShot2. Маршрутизация CaptureWorkspace для полного рабочего стола и CaptureWindow({uuid}) для окон игр и приложений. Цветокоррекция BGRA/RGBA и пинок через discord_capture_kick.bin.",
+    "layout": {
+      "container": "KWin Wayland ScreenShot2 D-Bus Pipeline",
+      "dimensions": "Dynamic resolution & 60 FPS SHM ring",
+      "padding": "0px",
+      "spacing": "0px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f0b232",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "CaptureTarget",
+        "default": "Workspace",
+        "hover": "Dynamic Window UUID",
+        "active": "Realtime 60 FPS"
+      }
+    ],
+    "acceptance_criteria": [
+      "Поддерживается захват любого окна Wayland без артефактов и черного экрана",
+      "Цвета соответствуют оригинальному изображению без инверсии Red/Blue",
+      "Задержка захвата составляет менее 16 мс (60 FPS)"
+    ]
+  },
+  {
+    "id": "TASK-777",
+    "title": "G2 Frontend: Синхронизация предпросмотра (PIP), крестика закрытия и смены источника",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "Разрешение конфликта между закрытием окна просмотра (Stage Viewer) и остановкой стрима. Кнопка \"Сменить источник\" во время трансляции без перезахода в канал. Корректное уничтожение DOM-элементов #live-stream-pip-preview и #live-stream-stage-viewer.",
+    "layout": {
+      "container": "Stage Viewer & Floating PIP",
+      "dimensions": "Responsive Stage + 320x180 PIP",
+      "padding": "8px",
+      "spacing": "6px"
+    },
+    "design_tokens": {
+      "background": "#111214",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#da373c"
+    },
+    "interactive_states": [
+      {
+        "element": "CloseButton",
+        "default": "Stop or Minimize",
+        "hover": "Red or Grey",
+        "active": "Consistent State"
+      }
+    ],
+    "acceptance_criteria": [
+      "При нажатии кнопки \"Прекратить стрим\" превью полностью исчезает",
+      "Кнопка \"Сменить окно\" позволяет переключить трансляцию на лету",
+      "Отсутствуют зависшие оверлеи и фантомные канвасы"
+    ]
+  },
+  {
+    "id": "TASK-778",
+    "title": "G1 Backend + G5 Voice: Сигнализация шлюза OP 18/19 и SFU согласование кодеков",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "Полная согласованность Gateway OP 18 STREAM_CREATE, OP 19 STREAM_DELETE, OP 22 STREAM_SERVER_UPDATE и Voice OP 1 SELECT_PROTOCOL с поддержкой видеокодеков H264 и VP8. Очистка кешированного stream_key при остановке стрима.",
+    "layout": {
+      "container": "Discord Gateway & SFU Signaling",
+      "dimensions": "ETF + JSON Voice Signaling",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f0b232",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Gateway OP 18",
+        "default": "Stream Key Generated",
+        "hover": "RTC Connected",
+        "active": "Broadcasting Active"
+      }
+    ],
+    "acceptance_criteria": [
+      "В официальном клиенте горит статус \"В ЭФИРЕ\" и доступен просмотр",
+      "При остановке трансляции статус \"В ЭФИРЕ\" немедленно снимается",
+      "Повторный запуск стрима в том же канале происходит мгновенно"
+    ]
+  },
+  {
+    "id": "TASK-779",
+    "title": "G4 QA: Комплексные регрессионные тесты трансляции и проверка официальным клиентом",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA",
+    "summary": "Разработка набора модульных, контрактных и сквозных тестов для проверки жизненного цикла трансляции экрана, переключения окон, обработки крестика закрытия и верификации отсутствия сброса WebRTC захватчика в nil.",
+    "layout": {
+      "container": "TDD Regression Harness",
+      "dimensions": "Unit + DOM + Contract Tests",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#eb459e",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Harness",
+        "default": "All suites pass",
+        "hover": "N/A",
+        "active": "Zero Regressions"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% прохождение тестов управления трансляцией",
+      "Подтвержденное воспроизведение видео в официальном клиенте",
+      "Отсутствие утечек файловых дескрипторов и памяти"
+    ]
+  },
+  {
+    "id": "TASK-780",
+    "title": "G3 Design & UI: Паритет оверлея качества стрима (720p/1080p, 30/60 FPS, H264) и меню настроек",
+    "status": "done",
+    "priority": "P1",
+    "department": "G3 Design",
+    "summary": "Стилизация бейджа .stage-quality-badge (#stage-stream-quality-badge) в верхней панели Stage Viewer и синхронизация с каскадным меню #live-stream-settings-menu.",
+    "layout": {
+      "container": "Stage Viewer Header & Quality Menu",
+      "dimensions": "Badge + Cascading Popover",
+      "padding": "4px 8px",
+      "spacing": "6px"
+    },
+    "design_tokens": {
+      "background": "#111214",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "QualityBadge",
+        "default": "720p 60fps H264",
+        "hover": "Open Settings Menu",
+        "active": "1080p 60fps H264"
+      }
+    ],
+    "acceptance_criteria": [
+      "Интерактивный бейдж качества отображает актуальное разрешение и FPS",
+      "Каскадное меню выбора качества и фреймрейта синхронизировано с состоянием стрима"
+    ]
+  },
+  {
+    "id": "TASK-781",
+    "title": "G7 RE / REA: Аудит Go Live сигнализации и Видео/SDP контрактов (Voice Opcodes 1, 12, 16, 22)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G7 RE / REA",
+    "summary": "Сверка wire-контрактов Voice Opcodes 1 (SELECT_PROTOCOL), 12 (VIDEO), 16 (VOICE_BACKEND_VERSION) и 22 (STREAM_SET_PAUSED / DAVE) по эталонному дампу /home/sanya/re-deep.",
+    "layout": {
+      "container": "RE Audit Report",
+      "dimensions": "waves/RW-41-ECC-INTEGRATION/RE-AUDIT/RE-GAP-VIDEO-SDP.md",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#00a8fc",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "RE-GAP-VIDEO-SDP",
+        "default": "Audited",
+        "hover": "N/A",
+        "active": "100% Oracle Parity"
+      }
+    ],
+    "acceptance_criteria": [
+      "Задокументированы точные форматы полей Voice Opcodes 1, 12, 16 и Gateway OP 22",
+      "Подтверждено соответствие таблиц кодеков H264/VP8 (payload_type 105..108)"
+    ]
+  },
+  {
+    "id": "TASK-783",
+    "title": "G5 Voice & G2 UI: Динамический переключатель параметров стрима (720p/1080p, 30/60 FPS) на лету",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice & Platform",
+    "summary": "Связка меню #live-stream-settings-menu в app.js с командой set_stream_source в ws.rs для переключения разрешения (1280x720 / 1920x1080) и частоты кадров (30 / 60 FPS) без прерывания трансляции (TASK-782..TASK-784).",
+    "layout": {
+      "container": "WebRTC Dynamic Encoder Reconfiguration",
+      "dimensions": "720p/1080p @ 30/60 FPS",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f0b232",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "set_stream_source",
+        "default": "1280x720@60",
+        "hover": "Dynamic Resize",
+        "active": "1920x1080@60"
+      }
+    ],
+    "acceptance_criteria": [
+      "Переключение 720p/1080p и 30/60 FPS применяется на лету через setDesktopSourceWithOptions и setTransportOptions",
+      "Трансляция не обрывается при смене пресета качества"
+    ]
+  },
+  {
+    "id": "TASK-785",
+    "title": "G1 Backend / Voice: Обработка и генерация Voice Opcode 16 (RTC Ping / DAVE) и Opcode 12 (VIDEO SSRC Mapping)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "Реализация обработки входящего Voice Opcode 16 с отправкой ответного OP 3 Heartbeat/Ping и отправки Voice Opcode 12 (VIDEO) с video_ssrc и rtx_ssrc при срабатывании video_callback (TASK-785..TASK-786).",
+    "layout": {
+      "container": "Voice Gateway WebSocket Handler",
+      "dimensions": "Voice OP 12 & OP 16 Wire Protocol",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f0b232",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Voice OP 12/16",
+        "default": "Listening",
+        "hover": "SSRC Negotiated",
+        "active": "Active Video Stream"
+      }
+    ],
+    "acceptance_criteria": [
+      "Входящий Voice OP 16 обрабатывается без закрытия сокета и инициирует ответный пинг OP 3",
+      "При активации видео отправляется Voice OP 12 с корректными video_ssrc, rtx_ssrc и массивом streams"
+    ]
+  },
+  {
+    "id": "TASK-787",
+    "title": "G2 Frontend: Точный паритет попаута статуса RTC подключения (#live-rtc-popout) и индикатора пинга",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Цветовая индикация пинга RTC (зелёный/жёлтый/красный, мс и потери пакетов) над панелью пользователя и диагностический попаут #live-rtc-popout.",
+    "layout": {
+      "container": "Voice Connection Status Bar & Popout",
+      "dimensions": "240px Diagnostic Popout",
+      "padding": "12px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "#111214",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "RtcPingIndicator",
+        "default": "Green (<100ms)",
+        "hover": "Show #live-rtc-popout",
+        "active": "Realtime Telemetry"
+      }
+    ],
+    "acceptance_criteria": [
+      "Индикатор пинга меняет цвет в зависимости от задержки и отображает мс",
+      "Клик открывает #live-rtc-popout с деталями транспорта, кодека и потерь пакетов"
+    ]
+  },
+  {
+    "id": "TASK-788",
+    "title": "G1 Backend: Интеграция статуса Nitro (premium_type) и разблокировка стрим-пресетов 1080p 60 FPS",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Поддержка поля premium_type (0/1/2) в модели пользователя в rust/gui-spike/src/data.rs и контрактные тесты в data_contract.rs.",
+    "layout": {
+      "container": "Rust User Data Model",
+      "dimensions": "premium_type: Option<u8>",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f47fff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "User.premium_type",
+        "default": "Some(2) (Nitro)",
+        "hover": "N/A",
+        "active": "1080p 60fps Unlocked"
+      }
+    ],
+    "acceptance_criteria": [
+      "Поле premium_type десериализуется из READY и профилей пользователей",
+      "Контрактные тесты data_contract проходят на 100%"
+    ]
+  },
+  {
+    "id": "TASK-789",
+    "title": "W8-DevOps: Сборка и верификация релизного артефакта Build-005 и SHA256SUMS",
+    "status": "done",
+    "priority": "P0",
+    "department": "DevOps",
+    "summary": "Релизная сборка бинарного артефакта rust/dist/discord-gui-spike для Build-005 и обновление контрольных сумм rust/dist/SHA256SUMS.",
+    "layout": {
+      "container": "Release Artifact Pipeline",
+      "dimensions": "25 MB ELF64 Release Binary",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "SHA256SUMS",
+        "default": "d45464f4185e17fb86d58072235ffefdb04925d7f370838603a26515e0cc1428",
+        "hover": "N/A",
+        "active": "Verified"
+      }
+    ],
+    "acceptance_criteria": [
+      "Бинарник rust/dist/discord-gui-spike собран в профиле --release",
+      "Контрольная сумма в rust/dist/SHA256SUMS совпадает при проверке sha256sum -c"
+    ]
+  },
+  {
+    "id": "TASK-792",
+    "title": "W8-DevOps/QA: Сквозная верификация артефакта Build-005 и выпуск отчета QA-BUILD-005.md",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA",
+    "summary": "Проверка sha256sum -c rust/dist/SHA256SUMS, формирование релизного отчёта waves/RW-41/QUALITY/QA-BUILD-005.md по закрытым задачам TASK-775..TASK-789 и актуализация Kanban-доски.",
+    "layout": {
+      "container": "Release QA Certification",
+      "dimensions": "waves/RW-41/QUALITY/QA-BUILD-005.md",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "QA-BUILD-005",
+        "default": "QA Passed",
+        "hover": "N/A",
+        "active": "Ready for Beta/Main"
+      }
+    ],
+    "acceptance_criteria": [
+      "sha256sum -c rust/dist/SHA256SUMS проходит успешно (discord-gui-spike: ЦЕЛ)",
+      "Выпущен отчёт waves/RW-41/QUALITY/QA-BUILD-005.md со списком задач TASK-775..TASK-789",
+      "Актуализирована Kanban-доска через node scripts/populate-kanban-board.mjs"
+    ]
+  },
+  {
+    "id": "TASK-794",
+    "title": "W1-G1: Stream Signaling Remediation (Изоляция OP 18 и OP 20 вещателя)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "Устранение дублирующей отправки OP 18 STREAM_CREATE в ws.rs/main.rs, изоляция OP 20 STREAM_WATCH строго для зрителей и нормализация channel_id в DM звонках.",
+    "layout": {
+      "container": "Gateway Protocol Engine",
+      "dimensions": "rust/crates/discord-core/src/ws.rs",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Gateway OP 18/20",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "Zero-Duplication"
+      }
+    ],
+    "acceptance_criteria": [
+      "Ровно один OP 18 STREAM_CREATE уходит при старте стрима",
+      "Вещатель никогда не отправляет OP 20 STREAM_WATCH на собственный поток",
+      "Статус В ЭФИРЕ появляется у стороннего клиента Discord"
+    ]
+  },
+  {
+    "id": "TASK-795",
+    "title": "W2-G2: Stage Viewer & PiP Persistence (Screen Share UI)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "Изоляция вызова stream_watch строго внутри if (!isSelfStream) в app.js, исключение случайной остановки стрима при минимизации Stage Viewer.",
+    "layout": {
+      "container": "Stage Viewer UI Component",
+      "dimensions": "rust/gui-spike/ui/app.js",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#0b0c0e",
+      "surface": "#111214",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Stage Viewer Close",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "Collapse to PiP"
+      }
+    ],
+    "acceptance_criteria": [
+      "openLiveStreamStageViewer не вызывает invoke(stream_watch) при isSelfStream === true",
+      "Escape и кнопка свернуть переводят окно в плавающий PiP-плеер без остановки вещания"
+    ]
+  },
+  {
+    "id": "TASK-796",
+    "title": "W3-G5: Voice Native Command Queue & Capture Target Pipeline",
+    "status": "done",
+    "priority": "P0",
+    "department": "G5 Voice",
+    "summary": "Сквозное дренирование native_stream_cmd_mutex в цикле основного голосового соединения до старта стрим-воркера, передача set_stream_source и set_stream в discord_voice.node.",
+    "layout": {
+      "container": "RTC Voice & Stream Queue Engine",
+      "dimensions": "rust/crates/discord-core/src/ws.rs:6450",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Native Stream Cmd Queue",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "Forwarded to V8"
+      }
+    ],
+    "acceptance_criteria": [
+      "Команды set_stream и set_stream_source передаются в V8 stdin без задержек",
+      "Процесс discord_voice.node получает актуальный идентификатор источника захвата"
+    ]
+  },
+  {
+    "id": "TASK-797",
+    "title": "W4-G4: Stream Broadcaster vs Viewer Isolation QA Suite",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA",
+    "summary": "Разработка модульного регрессионного сьюта tests/unit/stream_broadcaster_watch_isolation.test.mjs на изоляцию OP 18/20 и корректность стрим-ключей в DM/Guild.",
+    "layout": {
+      "container": "QA Contract Verification",
+      "dimensions": "tests/unit/stream_broadcaster_watch_isolation.test.mjs",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "QA Tests",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "100% Pass"
+      }
+    ],
+    "acceptance_criteria": [
+      "Тест падает на старом коде и проходит на исправленном",
+      "Проверены позитивные, негативные и краевые сценарии для DM и гильдий"
+    ]
+  },
+  {
+    "id": "TASK-611",
+    "title": "W5-G1: Полноценная поддержка REST POST /guilds (BFF)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Реализация эндпоинта создания нового сервера пользователем с заголовками X-Super-Properties, X-Discord-Locale и синхронизацией GuildRail.",
+    "layout": {
+      "container": "Rust Guild Management BFF",
+      "dimensions": "rust/gui-spike/src/guilds.rs",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "REST POST /guilds",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "201 Created"
+      }
+    ],
+    "acceptance_criteria": [
+      "POST /api/v9/guilds обрабатывает 201 Created и 400/403",
+      "Созданный сервер немедленно интегрируется в локальное состояние"
+    ]
+  },
+  {
+    "id": "TASK-612",
+    "title": "W6-G2: Шаблоны и визард создания серверов UI (STUB-05)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Пошаговый визард создания сервера: выбор предустановленного шаблона (Gaming, School Club, Friends), загрузка аватара и валидация названия.",
+    "layout": {
+      "container": "Create Guild Modal Wizard",
+      "dimensions": "rust/gui-spike/ui/features/create-guild.js",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Wizard UI",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "Template Pre-fill"
+      }
+    ],
+    "acceptance_criteria": [
+      "A11y: управление стрелками, Escape, автофокус на поле ввода",
+      "Автоматическое предзаполнение каналов по выбранному шаблону"
+    ]
+  },
+  {
+    "id": "TASK-798",
+    "title": "W7-G7: Gateway Stream Protocol & Codec RE Audit",
+    "status": "done",
+    "priority": "P1",
+    "department": "G7 RE",
+    "summary": "Сверка реальных дампов OP 18/20/STREAM_CREATE в /home/sanya/re-deep/ и фиксация расхождений кодеков H264/VP8/AV1.",
+    "layout": {
+      "container": "RE Evidence Bundle",
+      "dimensions": "waves/RW-41-ECC-INTEGRATION/RE-AUDIT/RE-GAP-STREAM-SIGNALS.md",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "RE Audit",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "Oracle Documented"
+      }
+    ],
+    "acceptance_criteria": [
+      "Документирован точный формат ETF/JSON фреймов шлюза",
+      "Выпущен отчёт RE-GAP-STREAM-SIGNALS.md с чанками из re-deep"
+    ]
+  },
+  {
+    "id": "TASK-799",
+    "title": "W8-G6: Release Notes & Stream Architecture Parity Matrix",
+    "status": "done",
+    "priority": "P2",
+    "department": "G6 Tech Writer",
+    "summary": "Документирование матрицы паритета стриминга Go Live, обновление архитектурных документов и релизных заметок.",
+    "layout": {
+      "container": "Documentation Suite",
+      "dimensions": "waves/RW-41/PARITY/MERGE-READINESS-STREAM.md",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Docs Suite",
+        "default": "Completed",
+        "hover": "N/A",
+        "active": "Parity 100%"
+      }
+    ],
+    "acceptance_criteria": [
+      "Обновлён статус матрицы паритета для функционала Go Live",
+      "Сформирован документ MERGE-READINESS-STREAM.md"
+    ]
+  },
+  {
+    "id": "TASK-800",
+    "title": "Согласование и конфигурация видеокодека AV1 в WebRTC RTCControlSocket",
+    "status": "done",
+    "priority": "P0",
+    "department": "G5 Voice / Platform",
+    "summary": "Устранение жесткого падения в H.264 при получении video_codec: \"AV1\" от сервера Discord (Opcode 4 Session Description). Передача videoEncoder конфигурации AV1 (payload 101, rtxType 102) в conn.setTransportOptions.",
+    "layout": {
+      "container": "WebRTC Signaling Pipeline",
+      "dimensions": "rust/crates/discord-core/src/ws.rs:3675-3707",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "AV1 Encoder",
+        "default": "negotiate AV1",
+        "hover": "payload 101",
+        "active": "60 FPS AV1 stream"
+      }
+    ],
+    "acceptance_criteria": [
+      "При согласовании AV1 от сервера, videoEncoderCfg настраивается на AV1/AV1X с payload 101",
+      "Отсутствует ложный откат в H.264 при поддержке AV1"
+    ]
+  },
+  {
+    "id": "TASK-801",
+    "title": "Интеграция NVENC аппаратного энкодера NVIDIA для стрима (RTX 5070 Ti)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G5 Voice / Platform",
+    "summary": "Активация аппаратного ускорения NVENC/CUDA/Vulkan Video в discord_voice.node вместо медленного программного CPU libopenh264. На видеокартах NVIDIA RTX 5070 Ti VAAPI неактивен, требуется прямая передача NVENC/CUDA параметров.",
+    "layout": {
+      "container": "GPU Encoder Pipeline",
+      "dimensions": "rust/crates/discord-core/src/ws.rs + discord_voice.node",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#57f287",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "NVENC Pipeline",
+        "default": "probe NvidiaGpuEncoderProbeResult",
+        "hover": "CUDA context",
+        "active": "HW Encode 60 FPS"
+      }
+    ],
+    "acceptance_criteria": [
+      "При наличии GPU NVIDIA активируется аппаратный энкодер NVENC/CUDA вместо CPU OpenH264",
+      "Утилизация CPU при 1080p 60fps стриме падает с 80-100% до <5%"
+    ]
+  },
+  {
+    "id": "TASK-802",
+    "title": "Корректная поддержка и переключение кодека VP8/VP9 в WebRTC",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice / Platform",
+    "summary": "Добавление валидных параметров для кодеков VP8 (payload 107, rtx 108) и VP9 в setTransportOptions (temporal layers, keyframe interval 3000ms, adaptive bitrates).",
+    "layout": {
+      "container": "WebRTC Codec Negotiator",
+      "dimensions": "rust/crates/discord-core/src/ws.rs:3675",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#fee75c"
+    },
+    "interactive_states": [
+      {
+        "element": "VP8 Encoder",
+        "default": "fallback codec",
+        "hover": "payload 107",
+        "active": "bitrate adaptive"
+      }
+    ],
+    "acceptance_criteria": [
+      "Корректная инициализация VP8 в discord_voice.node без пустых params: {}",
+      "Согласование работает при явном запросе VP8 сервером или клиентом"
+    ]
+  },
+  {
+    "id": "TASK-803",
+    "title": "Добавление OBU-пакетизатора AV1 и RTP-фрагментации в discord-media",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Реализация packetize_av1_obu в крейте discord-media по аналогии с существующим packetize_h264_annex_b (RFC draft-ietf-avtext-av1-rtp) для нативной отправки кадров AV1.",
+    "layout": {
+      "container": "discord-media crate",
+      "dimensions": "rust/crates/discord-media/src/lib.rs",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "AV1 OBU Packetizer",
+        "default": "idle",
+        "hover": "parse OBU header",
+        "active": "RTP fragment"
+      }
+    ],
+    "acceptance_criteria": [
+      "Функция packetize_av1_obu разбивает кадр AV1 на корректные RTP-пакеты с маркером W/N/Y",
+      "Покрыта unit-тестами с проверкой на эталонных OBU-векторах"
+    ]
+  },
+  {
+    "id": "TASK-804",
+    "title": "Оптимизация захвата PipeWire / Wayland Portal без задержек CPU",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice / Platform",
+    "summary": "Перевод захвата кадров рабочего стола с CPU-копирования на DMA-BUF / EGL аппаратный импорт в буферы энкодера, устраняя задержки 86 мс.",
+    "layout": {
+      "container": "PipeWire Capturer",
+      "dimensions": "rust/crates/discord-platform + discord-media",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "DMA-BUF PipeWire",
+        "default": "zero-copy",
+        "hover": "fd import",
+        "active": "60 FPS captured"
+      }
+    ],
+    "acceptance_criteria": [
+      "Задержка захвата снижена с 86 мс до <16 мс",
+      "Отсутствуют разрывы кадров при захвате окон и экранов 1080p/1440p"
+    ]
+  },
+  {
+    "id": "TASK-805",
+    "title": "Устранение оверлея «Подключение к видеопотоку…» у ведущего трансляции",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "В openLiveStreamStageViewer при стриме собственного экрана немедленно скрывать emptyNotice заглушку и монтировать локальный кадр из cachedLiveScreenDataUrl или /dev/shm/discord_live_preview_thumb.jpg.",
+    "layout": {
+      "container": "Stage Viewer UI",
+      "dimensions": "rust/gui-spike/ui/app.js:8790-9260",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Stage Viewer",
+        "default": "emptyNotice hidden",
+        "hover": "zoom controls",
+        "active": "instant mirror"
+      }
+    ],
+    "acceptance_criteria": [
+      "Ведущий видит экран мгновенно без надписи \"Подключение к видеопотоку…\"",
+      "Клик по канвасу не вызывает клик по скрытой заглушке"
+    ]
+  },
+  {
+    "id": "TASK-806",
+    "title": "Автоматическое сворачивание трансляции в плавающий PiP при смене канала",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "При переключении с активного голосового канала на текстовые каналы автоматически переводить полноэкранный Stage Viewer в миниатюру PiP в правом нижнем углу экрана.",
+    "layout": {
+      "container": "PiP Stream Overlay",
+      "dimensions": "rust/gui-spike/ui/app.js:onChannelSwitch",
+      "padding": "12px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "rgba(0,0,0,0.85)",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "PiP Card",
+        "default": "docked bottom-right (320x180)",
+        "hover": "show expand button",
+        "active": "expand to Stage"
+      }
+    ],
+    "acceptance_criteria": [
+      "Переход в чат не закрывает стрим, а плавно сворачивает его в угол экрана",
+      "Чат остается полностью доступен для набора сообщений"
+    ]
+  },
+  {
+    "id": "TASK-807",
+    "title": "Устранение спама polling аудиоустройств (voice_set_audio_device)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Устранение избыточного циклического опроса set_system_audio_device (1332 вызова за сессию). Перевод мониторинга уровней микрофона на WebRTC Stats и события speaking.",
+    "layout": {
+      "container": "Voice Telemetry Poller",
+      "dimensions": "rust/gui-spike/ui/app.js:pollAudioDeviceLevels",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#ed4245"
+    },
+    "interactive_states": [
+      {
+        "element": "Mic Meter",
+        "default": "event-driven",
+        "hover": "N/A",
+        "active": "speaking event"
+      }
+    ],
+    "acceptance_criteria": [
+      "Количество фоновых IPC-вызовов voice_set_audio_device сокращено до 0 в секунду при стабильном звонке",
+      "Индикатор активности голоса по-прежнему загорается зеленым кружком"
+    ]
+  },
+  {
+    "id": "TASK-808",
+    "title": "Оптимистичная отдача сообщений чата и неблокирующий ACK",
+    "status": "done",
+    "priority": "P2",
+    "department": "G1 Backend",
+    "summary": "Устранение задержек messages_page (до 1310 мс) и ack_message (до 3733 мс) за счет немедленной отдачи кэшированных сообщений из SQLite с фоновым REST обновлением.",
+    "layout": {
+      "container": "Chat Ingestion Engine",
+      "dimensions": "rust/gui-spike/src/data.rs:fetch_rest_channel_messages",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Chat Loader",
+        "default": "instant SQLite (<10ms)",
+        "hover": "N/A",
+        "active": "background REST"
+      }
+    ],
+    "acceptance_criteria": [
+      "messages_page возвращает данные за <15 мс",
+      "ack_message выполняется асинхронно без зависания UI"
+    ]
+  },
+  {
+    "id": "TASK-809",
+    "title": "Обработка ошибок прав create_invite на голосовых каналах",
+    "status": "done",
+    "priority": "P2",
+    "department": "G1 Backend",
+    "summary": "Проверка битовой маски прав CREATE_INSTANT_INVITE перед запросом к REST API, предотвращение ошибок {\"kind\": \"notFound\"} и отображение информативного тоста.",
+    "layout": {
+      "container": "Invite Generator",
+      "dimensions": "rust/gui-spike/src/invites.rs + main.rs::create_invite",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#fee75c"
+    },
+    "interactive_states": [
+      {
+        "element": "Invite Modal",
+        "default": "check permissions",
+        "hover": "copy link",
+        "active": "toast notice"
+      }
+    ],
+    "acceptance_criteria": [
+      "Если прав нет, кнопка не делает сбойный запрос, а показывает пояснение пользователю",
+      "Исключены ошибки 404/notFound при открытии модального окна инвайтов"
+    ]
+  },
+  {
+    "id": "TASK-810",
+        "title": "Интеграция accept_invite_and_join_guild и авто-подтверждение PUT /guilds/{id}/requests/@me",
+        "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "При вызове accept_invite в main.rs подключать полный цикл вступления: если участник имеет pending: true или сервер требует Rules Screening, отправлять GET /member-verification и PUT /guilds/{id}/requests/@me с X-Super-Properties.",
+    "layout": {
+      "container": "Guild Join Pipeline",
+      "dimensions": "rust/gui-spike/src/main.rs + rust/gui-spike/src/guilds.rs",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#57f287",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Auto Rules Confirm",
+        "default": "check pending",
+        "hover": "fetch form",
+        "active": "PUT requests/@me"
+      }
+    ],
+    "acceptance_criteria": [
+      "При вступлении на сервер с правилами автоматически подтверждаются условия TERMS",
+      "Участник сразу переходит в pending: false без блокировки чатов и каналов"
+    ]
+  },
+  {
+    "id": "TASK-811",
+    "title": "Баннер и модальное окно экрана правил сервера (Rules Screening Banner & Modal)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "Если участник находится в состоянии pending: true, внизу окна чата отображать плашку Discord «Вам необходимо выполнить несколько шагов, прежде чем вы сможете общаться» с кнопкой «Выполнить» и модальным окном согласия с правилами.",
+    "layout": {
+      "container": "Verification Notice Bar",
+      "dimensions": "rust/gui-spike/ui/app.js + rust/gui-spike/ui/components/rules-modal.css",
+      "padding": "12px 16px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#313338",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Complete Button",
+        "default": "bg: #23a55a",
+        "hover": "bg: #1a7e43",
+        "active": "open rules modal"
+      }
+    ],
+    "acceptance_criteria": [
+      "Плашка отображается для серверов с невыполненными шагами верификации",
+      "По нажатию кнопки «Отправить» отправляется IPC confirm_member_rules"
+    ]
+  },
+  {
+    "id": "TASK-812",
+        "title": "Сохранение и сериализация components сообщений (ActionRow & Buttons) в data.rs",
+        "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "Добавить парсинг поля components (ActionRow и интерактивные кнопки) в MessageRow в rust/gui-spike/src/data.rs, сохранять их в SQLite и отдавать в REST messages_page и Gateway MESSAGE_CREATE.",
+    "layout": {
+      "container": "Data Layer Storage",
+      "dimensions": "rust/gui-spike/src/data.rs:MessageRow",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Message Parser",
+        "default": "parse components[]",
+        "hover": "ActionRow",
+        "active": "store json"
+      }
+    ],
+    "acceptance_criteria": [
+      "Сообщения от ботов сохраняют массив кнопок и их custom_id в SQLite",
+      "IPC messages_page отдает массив components на фронтенд"
+    ]
+  },
+  {
+    "id": "TASK-813",
+    "title": "Рендеринг кнопок компонентов сообщений Discord (Message ActionRow & Buttons UI)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G2 Frontend",
+    "summary": "В renderMessage в app.js добавить отображение контейнеров ActionRow и кнопок Discord: Primary (blurple), Secondary (grey), Success (green), Danger (red), Link (с иконкой внешней ссылки), с эмодзи и лейблами.",
+    "layout": {
+      "container": "Message Components Container",
+      "dimensions": "rust/gui-spike/ui/app.js + rust/gui-spike/ui/components/message-components.css",
+      "padding": "8px 0px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "transparent",
+      "surface": "#4e5058",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Verify Button",
+        "default": "bg: #23a55a, cursor: pointer",
+        "hover": "opacity: 0.85",
+        "active": "scale: 0.98"
+      }
+    ],
+    "acceptance_criteria": [
+      "В каналах #verify видны кнопки ботов (Wick, Carl-bot, Captcha.bot)",
+      "Стили кнопок полностью соответствуют дизайн-системе Discord"
+    ]
+  },
+  {
+    "id": "TASK-814",
+    "title": "Реализация POST /api/v9/interactions для кликов по кнопкам (MESSAGE_COMPONENT type 3)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend",
+    "summary": "В rust/gui-spike/src/slash_commands.rs и bff_domains_router.rs добавить поддержку InteractionType::MessageComponent (type: 3) с передачей custom_id, component_type: 2, message_id, channel_id, guild_id и session_id.",
+    "layout": {
+      "container": "Interactions BFF Dispatcher",
+      "dimensions": "rust/gui-spike/src/slash_commands.rs + main.rs::click_message_component",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#5865f2",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Component Interaction",
+        "default": "type: 3",
+        "hover": "custom_id",
+        "active": "POST /interactions"
+      }
+    ],
+    "acceptance_criteria": [
+      "Клик по кнопке отправляет валидный POST /api/v9/interactions",
+      "Возвращает ответ бота или обновление состояния участника"
+    ]
+  },
+  {
+    "id": "TASK-815",
+        "title": "Обработка клика по кнопке верификации в чате и IPC-связка click_message_component",
+        "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Связать клик по кнопке в DOM с IPC click_message_component, отображать состояние загрузки (спиннер) на кнопке и выводить тосты с ответом бота (ephemeral messages).",
+    "layout": {
+      "container": "Component Click Handler",
+      "dimensions": "rust/gui-spike/ui/app.js:onComponentClick",
+      "padding": "N/A",
+      "spacing": "N/A"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Interaction State",
+        "default": "idle",
+        "hover": "pointer",
+        "active": "loading spinner"
+      }
+    ],
+    "acceptance_criteria": [
+      "Клик по кнопке не подвешивает интерфейс и показывает статус выполнения",
+      "Эфемерные ответы ботов отображаются во всплывающем уведомлении"
+    ]
+  },
+  {
+    "id": "TASK-816",
+    "title": "Интерактивное прохождение Reaction Verification в каналах правил",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Обеспечить мгновенную установку реакции по клику на бейджи реакций под верификационным сообщением в канале #verify через существующий IPC add_reaction, автоматизируя получение роли участника.",
+    "layout": {
+      "container": "Reactions Bar",
+      "dimensions": "rust/gui-spike/ui/app.js:renderReactions",
+      "padding": "4px 6px",
+      "spacing": "4px"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#35373c",
+      "text_primary": "#f2f3f5",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Reaction Badge",
+        "default": "border: 1px solid #3f4147",
+        "hover": "border-color: #5865f2",
+        "active": "PUT reaction"
+      }
+    ],
+    "acceptance_criteria": [
+      "Клик по эмодзи в верификационном канале ставит реакцию пользователя",
+      "Бот выдает роль участника и открываются остальные каналы сервера"
+    ]
+  },
+  {
+    "id": "TASK-817",
+    "title": "Устранение ложного вызова капчи и интеграция WebView-виджета вместо ручного ввода",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend + G5 Platform",
+    "summary": "Исключить показ модалки капчи, если сервер можно верифицировать через requests/@me. Если капча реально требуется Discord на уровне инвайта — заменить ручной ввод токена на встроенный интерактивный WebView, где пользователь проходит проверку в 1 клик.",
+    "layout": {
+      "container": "Captcha Resolver Container",
+      "dimensions": "rust/gui-spike/ui/components/captcha-modal.js + rust/gui-spike/src/main.rs",
+      "padding": "16px",
+      "spacing": "12px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Interactive Captcha",
+        "default": "webview widget",
+        "hover": "user click",
+        "active": "auto submit token"
+      }
+    ],
+    "acceptance_criteria": [
+      "Пользователю больше не нужно вручную копировать и вставлять строковый токен капчи",
+      "При возможности подтверждения через правила сервера капча не запрашивается вовсе"
+    ]
+  },
+  {
+    "id": "TASK-610",
+    "title": "Интерактивный Webview Captcha-решатель (STUB-28 / CARD-TEL-006)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend + G1 Backend",
+    "summary": "Встроенный интерактивный контейнер WebView для прохождения hCaptcha в 1 клик при вступлении на защищенные серверы, исключая показ ошибки 400 и ручной ввод токена.",
+    "layout": {
+      "container": "Modal Dialog",
+      "dimensions": "540x480 max",
+      "padding": "16px",
+      "spacing": "12px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Captcha Frame",
+        "default": "loading spinner",
+        "hover": "interactive",
+        "active": "token resolved"
+      }
+    ],
+    "acceptance_criteria": [
+      "Успешный перехват токена captcha_key",
+      "Отсутствие краша при отмене пользователем"
+    ]
+  },
+  {
+    "id": "TASK-613",
+    "title": "Захват экрана и окон через Desktop Portal / PipeWire (Task-601)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice / Platform",
+    "summary": "Интеграция с org.freedesktop.portal.ScreenCast для захвата экрана и отдельных окон на Wayland/X11 без root-прав.",
+    "layout": {
+      "container": "Screen Share Picker",
+      "dimensions": "600x450",
+      "padding": "16px",
+      "spacing": "12px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Source Card",
+        "default": "border: transparent",
+        "hover": "border: #5865f2",
+        "active": "selected"
+      }
+    ],
+    "acceptance_criteria": [
+      "Захват видеопотока 1080p/720p 60 FPS",
+      "Корректная обработка смены разрешения"
+    ]
+  },
+  {
+    "id": "TASK-614",
+    "title": "Атомарный буфер 60 FPS (Latest-Frame Ring Buffer) (Task-603)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend + G5 Media",
+    "summary": "Кольцевой буфер с нулевым копированием для передачи захваченных видеокадров от PipeWire к аппаратному кодировщику.",
+    "layout": {
+      "container": "Memory Ring Buffer",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Buffer Slot",
+        "default": "idle",
+        "hover": "locked",
+        "active": "writing"
+      }
+    ],
+    "acceptance_criteria": [
+      "Отсутствие разрывов кадров при 60 FPS",
+      "Ограничение памяти < 50 МБ"
+    ]
+  },
+  {
+    "id": "TASK-615",
+    "title": "Пакетная сборка RTP видеопотока и DAVE MLS v1 (Task-602)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice",
+    "summary": "Шифрование видеопотока с использованием протокола сквозного шифрования DAVE MLS и упаковка в RTP пакеты.",
+    "layout": {
+      "container": "RTP Packetizer Pipeline",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Key Ratchet",
+        "default": "epoch synced",
+        "hover": "rekeying",
+        "active": "encrypted"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% совместимость с DAVE MLS v1 Discord",
+      "AES-GCM / ChaCha20-Poly1305"
+    ]
+  },
+  {
+    "id": "TASK-616",
+    "title": "UI Видео-плеера и Picture-in-Picture (Task-604)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Компонент просмотра видеотрансляции с элементами управления качеством, переключением во весь экран и плавающим окном PiP.",
+    "layout": {
+      "container": "Video Stage Player",
+      "dimensions": "flex-1, 16:9 aspect",
+      "padding": "8px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "#000000",
+      "surface": "#1e1f22",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Controls Overlay",
+        "default": "opacity: 0",
+        "hover": "opacity: 1",
+        "active": "visible"
+      }
+    ],
+    "acceptance_criteria": [
+      "Плавный переход в PiP при навигации",
+      "Скрытие элементов управления через 3 секунды бездействия"
+    ]
+  },
+  {
+    "id": "TASK-617",
+    "title": "BFF для REST-поиска сообщений (STUB-14)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Бэкенд сервис для поиска сообщений по каналу или гильдии с разбором параметров from, mentions, has, pinned.",
+    "layout": {
+      "container": "Backend Endpoint",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Search Query",
+        "default": "idle",
+        "hover": "requesting",
+        "active": "cached"
+      }
+    ],
+    "acceptance_criteria": [
+      "Контрактный тест поиска с разбором total_results",
+      "Обработка Rate Limit 429"
+    ]
+  },
+  {
+    "id": "TASK-618",
+    "title": "UI Поискового попапа с подсказками (STUB-14)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend",
+    "summary": "Интерактивный поисковый инпут в шапке канала с автодополнением фильтров, историей запросов и подсветкой совпадений.",
+    "layout": {
+      "container": "Search Popover",
+      "dimensions": "420x360",
+      "padding": "12px",
+      "spacing": "6px"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#313338",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Result Row",
+        "default": "bg: transparent",
+        "hover": "bg: #35373c",
+        "active": "selected"
+      }
+    ],
+    "acceptance_criteria": [
+      "Навигация стрелками клавиатуры",
+      "Клик по результату скроллит к сообщению"
+    ]
+  },
+  {
+    "id": "TASK-619",
+    "title": "Вычислитель битовых прав Discord Permissions v9 (STUB-17)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend",
+    "summary": "Полный алгоритм вычисления эффективных прав пользователя: Base Permissions -> Role Overwrites -> Member Overwrites.",
+    "layout": {
+      "container": "Permissions Calculator",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Bitmask",
+        "default": "evaluated",
+        "hover": "overwritten",
+        "active": "resolved"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% паритет с Discord Permissions bitflags",
+      "Тесты разрешения прав на всех уровнях"
+    ]
+  },
+  {
+    "id": "TASK-620",
+    "title": "Контекстные меню сообщений и пользователей (STUB-18)",
+    "status": "done",
+    "priority": "P2",
+    "department": "G2 Frontend",
+    "summary": "Унифицированное контекстное меню по правому клику мыши для сообщений, пользователей и каналов с фильтрацией по правам.",
+    "layout": {
+      "container": "Dropdown Menu",
+      "dimensions": "200px w, auto h",
+      "padding": "6px 8px",
+      "spacing": "2px"
+    },
+    "design_tokens": {
+      "background": "#111214",
+      "surface": "#1e1f22",
+      "text_primary": "#dbdee1",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Menu Item",
+        "default": "bg: transparent",
+        "hover": "bg: #5865f2, text: #ffffff",
+        "active": "clicked"
+      }
+    ],
+    "acceptance_criteria": [
+      "Автоматическое позиционирование во viewport",
+      "Закрытие по Escape или клику снаружи"
+    ]
+  },
+  {
+    "id": "TASK-621",
+    "title": "Headless Xvfb E2E Runner для CI (M2-E2E)",
+    "status": "done",
+    "priority": "P0",
+    "department": "DevOps + G4 QA",
+    "summary": "Автоматический запуск виртуального дисплея Xvfb и автоопределение установленного браузера для прогона E2E тестов в CI/CD.",
+    "layout": {
+      "container": "CI Runner Pipeline",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Xvfb Display",
+        "default": "idle",
+        "hover": "spawned",
+        "active": "testing"
+      }
+    ],
+    "acceptance_criteria": [
+      "Чистый запуск npm run gate:worker без графической сессии",
+      "11/11 E2E тестов < 60 сек"
+    ]
+  },
+  {
+    "id": "TASK-622",
+    "title": "Мутационный набор тестов 15/15 (Quality Gate v2)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA + PM Review",
+    "summary": "Расширенный набор мутационных тестов для проверки устойчивости клиента к разрывам соединения, битым токенам и фейковым ответам.",
+    "layout": {
+      "container": "Mutation Test Suite",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Mutant",
+        "default": "injected",
+        "hover": "evaluating",
+        "active": "killed"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% уничтожение всех 15 мутантов (15/15 killed)",
+      "Отчет в QUALITY/MUTATION-REPORT-V2.md"
+    ]
+  },
+  {
+    "id": "TASK-702",
+    "title": "Реактивная модель AppState (Model<T>), связь Tokio ↔ GPUI",
+    "status": "done",
+    "priority": "P0",
+    "department": "Chief Architect + G1 Backend",
+    "summary": "Архитектура реактивного состояния GPUI: фоновый Tokio рантайм передает события через mpsc каналы в контекст GPUI cx.",
+    "layout": {
+      "container": "Reactive State Core",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Model",
+        "default": "idle",
+        "hover": "subscribing",
+        "active": "notifying cx"
+      }
+    ],
+    "acceptance_criteria": [
+      "Отсутствие гонок потоков Tokio и основного потока UI",
+      "Минимум перерисовок дерева GPUI"
+    ]
+  },
+  {
+    "id": "TASK-703",
+    "title": "Тема DiscordDarkTheme в gpui-kit::ActiveTheme, ассеты и типографика",
+    "status": "done",
+    "priority": "P0",
+    "department": "G3 Design Lead",
+    "summary": "Нативная реализация палитры токенов Discord Dark в структурах темы GPUI Kit: типографика gg sans / Whitney, цвета и радиусы.",
+    "layout": {
+      "container": "Theme Registry",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Token",
+        "default": "defined",
+        "hover": "resolved",
+        "active": "applied"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% паритет с дизайн-токенами Discord",
+      "Поддержка Dark, Light и Midnight тем"
+    ]
+  },
+  {
+    "id": "TASK-704",
+    "title": "REST v9 клиент на базе reqwest + backoff (замена самописного HTTP)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G1 Backend Lead",
+    "summary": "Полнофункциональный асинхронный REST клиент Discord API v9 на базе reqwest с экспоненциальным backoff при 429 и авторизацией.",
+    "layout": {
+      "container": "REST Client Engine",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "HTTP Request",
+        "default": "idle",
+        "hover": "sending",
+        "active": "retrying"
+      }
+    ],
+    "acceptance_criteria": [
+      "Автоматическая обработка X-RateLimit заголовков",
+      "Точный разбор JSON ошибок Discord"
+    ]
+  },
+  {
+    "id": "TASK-705",
+    "title": "Headless UI тест-харнесс на gpui::TestAppContext (без Chromium/Xvfb)",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA Lead",
+    "summary": "Фреймворк сквозного тестирования компонентов GPUI без реального графического дисплея, эмулирующий клики и рендеринг.",
+    "layout": {
+      "container": "Headless Harness",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Virtual Window",
+        "default": "mocked",
+        "hover": "event dispatch",
+        "active": "asserted"
+      }
+    ],
+    "acceptance_criteria": [
+      "Время выполнения 50 UI тестов < 5 секунд",
+      "Полная независимость от X11/Wayland"
+    ]
+  },
+  {
+    "id": "TASK-706",
+    "title": "Трехпанельный макет AppLayout на базе h_resizable",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead",
+    "summary": "Компоновка главного окна: изменяемые по ширине боковые панели каналов и участников с запоминанием размеров в конфигурации.",
+    "layout": {
+      "container": "Resizable 3-Pane Layout",
+      "dimensions": "100vw x 100vh",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Resize Handle",
+        "default": "w: 2px, transparent",
+        "hover": "bg: #5865f2",
+        "active": "dragging"
+      }
+    ],
+    "acceptance_criteria": [
+      "Ограничение минимальной ширины панелей",
+      "Плавный ресайз без дергания чата"
+    ]
+  },
+  {
+    "id": "TASK-709",
+    "title": "Виртуальный скроллинг чата ChatView на базе virtual_list (100k)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead + G1 Backend",
+    "summary": "Виртуализация сообщений в чате на 100 000 элементов: рендеринг только видимого диапазона строк со стабильной позицией скролла.",
+    "layout": {
+      "container": "Virtual Scroll Container",
+      "dimensions": "flex-1, 100% h",
+      "padding": "0 16px",
+      "spacing": "4px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Scroll Bar",
+        "default": "opacity: 0.3",
+        "hover": "opacity: 0.8",
+        "active": "scrolling"
+      }
+    ],
+    "acceptance_criteria": [
+      "60+ FPS при быстром скролле 100 000 сообщений",
+      "Корректная подгрузка истории вверх"
+    ]
+  },
+  {
+    "id": "TASK-710",
+    "title": "Рендеринг сообщений: TextView (Markdown + Syntect подсветка синтаксиса)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead + G3 Design",
+    "summary": "Парсер и отрисовка Markdown: жирный, курсив, зачеркнутый текст, цитаты, спойлеры и подсветка блоков кода более чем 100 языков.",
+    "layout": {
+      "container": "Markdown Text Block",
+      "dimensions": "max-w: 100%",
+      "padding": "4px 0",
+      "spacing": "2px"
+    },
+    "design_tokens": {
+      "background": "transparent",
+      "surface": "#1e1f22",
+      "text_primary": "#dbdee1",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Code Block",
+        "default": "bg: #1e1f22, rounded 4px",
+        "hover": "show copy button",
+        "active": "copied"
+      }
+    ],
+    "acceptance_criteria": [
+      "Точная подсветка синтаксиса Rust, JS, Python, HTML",
+      "Клик по спойлерам открывает скрытый текст"
+    ]
+  },
+  {
+    "id": "TASK-711",
+    "title": "Ввод сообщений MessageBar на базе gpui-component::input",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead",
+    "summary": "Многострочное поле ввода сообщений с поддержкой Shift+Enter, историей отправки по стрелкам вверх/вниз и кнопками прикрепления файлов.",
+    "layout": {
+      "container": "Message Input Bar",
+      "dimensions": "100% w, 44px min-h",
+      "padding": "8px 16px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "#383a40",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Input Area",
+        "default": "border: none, bg: #383a40",
+        "hover": "bg: #383a40",
+        "active": "focused"
+      }
+    ],
+    "acceptance_criteria": [
+      "Enter отправляет сообщение, Shift+Enter переносит строку",
+      "Автоматическое увеличение высоты до 50% экрана"
+    ]
+  },
+  {
+    "id": "TASK-712",
+    "title": "Модальное окно решения hCaptcha на базе gpui-webview::WebView",
+    "status": "done",
+    "priority": "P2",
+    "department": "G2 Frontend Lead + Architect",
+    "summary": "Нативное модальное окно на базе GPUI WebView для прохождения hCaptcha при вступлении на серверы без использования Chromium.",
+    "layout": {
+      "container": "Captcha Webview Modal",
+      "dimensions": "500x420",
+      "padding": "16px",
+      "spacing": "12px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Close Button",
+        "default": "opacity: 0.7",
+        "hover": "opacity: 1",
+        "active": "scale: 0.95"
+      }
+    ],
+    "acceptance_criteria": [
+      "Безопасная передача токена в Rust рантайм",
+      "Корректная обработка тайм-аута капчи"
+    ]
+  },
+  {
+    "id": "TASK-713",
+    "title": "Диалоги создания и вступления на сервер (Join/Create Guild)",
+    "status": "done",
+    "priority": "P2",
+    "department": "G2 Frontend Lead",
+    "summary": "Мастер создания своего сервера (шаблоны: Игры, Друзья, Учеба) и диалог ввода ссылки/кода приглашения.",
+    "layout": {
+      "container": "Guild Modal Wizard",
+      "dimensions": "440x400",
+      "padding": "20px",
+      "spacing": "16px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Template Card",
+        "default": "border: 1px solid #3f4147",
+        "hover": "border: #5865f2",
+        "active": "selected"
+      }
+    ],
+    "acceptance_criteria": [
+      "Поддержка инвайтов формата discord.gg/XXX и XXX",
+      "Валидация названия сервера 2-100 символов"
+    ]
+  },
+  {
+    "id": "TASK-714",
+    "title": "Виртуализированный список участников MemberSidebar (25k)",
+    "status": "done",
+    "priority": "P2",
+    "department": "G2 Frontend Lead",
+    "summary": "Правая панель участников с группировкой по высшей роли, статусом активности (Играет в..., Слушает Spotify) и виртуальным скроллом.",
+    "layout": {
+      "container": "Member List Sidebar",
+      "dimensions": "240px w, 100% h",
+      "padding": "8px 0",
+      "spacing": "2px"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#1e1f22",
+      "text_primary": "#949ba4",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Member Row",
+        "default": "bg: transparent",
+        "hover": "bg: #35373c, text: #ffffff",
+        "active": "popout open"
+      }
+    ],
+    "acceptance_criteria": [
+      "Плавный скролл при 25 000 участниках",
+      "Цвета никнеймов соответствуют цветам ролей"
+    ]
+  },
+  {
+    "id": "TASK-715",
+    "title": "Окно настроек SettingsDialog (аккаунт, голос, звук, тема)",
+    "status": "done",
+    "priority": "P2",
+    "department": "G2 Frontend Lead + G3 Design",
+    "summary": "Полнофункциональное окно настроек Discord: Настройки пользователя, Учетная запись, Голос и видео, Горячие клавиши, Тема оформления.",
+    "layout": {
+      "container": "Settings Fullscreen Modal",
+      "dimensions": "1000x700",
+      "padding": "24px",
+      "spacing": "16px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Sidebar Tab",
+        "default": "text: #949ba4",
+        "hover": "text: #dbdee1, bg: #35373c",
+        "active": "text: #ffffff, bg: #404249"
+      }
+    ],
+    "acceptance_criteria": [
+      "Тестирование микрофона с индикатором уровня громкости",
+      "Выбор темы (Темная / Светлая / Midnight)"
+    ]
+  },
+  {
+    "id": "TASK-717",
+    "title": "Нативный аудио-движок на базе cpal + VAD + Push-to-Talk",
+    "status": "done",
+    "priority": "P3",
+    "department": "G5 Voice Lead",
+    "summary": "Аудио-драйвер на базе CPAL с определением голосовой активности WebRTC VAD, регулировкой входной чувствительности и поддержкой PTT.",
+    "layout": {
+      "container": "Audio Engine Core",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Mic Input",
+        "default": "muted",
+        "hover": "idle",
+        "active": "transmitting (green ring)"
+      }
+    ],
+    "acceptance_criteria": [
+      "Задержка аудиозахвата < 20 мс",
+      "Автоматическое подавление эха и шума"
+    ]
+  },
+  {
+    "id": "TASK-718",
+    "title": "Голосовая панель подключения и индикаторы говорящих",
+    "status": "done",
+    "priority": "P3",
+    "department": "G5 Voice Lead + G2 Frontend",
+    "summary": "Панель состояния голосового вызова внизу боковой панели: пинг, кнопка отключения от звонка, зеленые кружки вокруг аватаров говорящих.",
+    "layout": {
+      "container": "Voice Connection Bar",
+      "dimensions": "240px w, 52px h",
+      "padding": "8px 12px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "#232428",
+      "surface": "#2b2d31",
+      "text_primary": "#23a55a",
+      "accent": "#f23f43"
+    },
+    "interactive_states": [
+      {
+        "element": "Disconnect Button",
+        "default": "text: #949ba4",
+        "hover": "text: #f23f43",
+        "active": "disconnected"
+      }
+    ],
+    "acceptance_criteria": [
+      "Зеленое кольцо вокруг аватара при активной речи",
+      "Мгновенное отключение по кнопке трубки"
+    ]
+  },
+  {
+    "id": "TASK-719",
+    "title": "Системный трей (tray-icon) и нативные уведомления (notify-rust)",
+    "status": "done",
+    "priority": "P3",
+    "department": "G5 Platform Lead",
+    "summary": "Иконка в системном лотке Linux с контекстным меню, счетчиком непрочитанных сообщений и нативными всплывающими уведомлениями D-Bus.",
+    "layout": {
+      "container": "System Tray Integration",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Tray Icon",
+        "default": "idle",
+        "hover": "tooltip",
+        "active": "context menu"
+      }
+    ],
+    "acceptance_criteria": [
+      "Сворачивание в трей при закрытии окна",
+      "Клик по уведомлению открывает соответствующий чат"
+    ]
+  },
+  {
+    "id": "TASK-720",
+    "title": "Финальная сертификация сборки, 120 FPS, RAM < 60 МБ, 25/25 мутаций",
+    "status": "done",
+    "priority": "P3",
+    "department": "G4 QA Lead + PM Review",
+    "summary": "Комплексная сертификация качества: стабильные 120 FPS при отрисовке, потребление оперативной памяти < 60 МБ, уничтожение 25/25 мутаций.",
+    "layout": {
+      "container": "Release Certification",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Perf Benchmark",
+        "default": "running",
+        "hover": "profiled",
+        "active": "certified"
+      }
+    ],
+    "acceptance_criteria": [
+      "Потребление RAM < 60 МБ в рабочей сессии",
+      "100% прохождение всех контрактов и проверок"
+    ]
+  },
+  {
+    "id": "TASK-721",
+    "title": "Устранение наложения VoicePanel на профиль пользователя",
+    "status": "done",
+    "priority": "P1",
+    "department": "G3 Design + G2 Frontend",
+    "summary": "Изоляция высоты голосовой панели и профиля пользователя (52px flex-none) в боковой панели каналов, устраняющая наложение элементов.",
+    "layout": {
+      "container": "Sidebar Bottom Container",
+      "dimensions": "240px w, 104px max-h",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#232428",
+      "surface": "#1e1f22",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "VoicePanel",
+        "default": "h: 52px",
+        "hover": "h: 52px",
+        "active": "h: 52px"
+      }
+    ],
+    "acceptance_criteria": [
+      "Элементы профиля всегда кликабельны и видимы"
+    ]
+  },
+  {
+    "id": "TASK-722",
+    "title": "Полнофункциональное модальное окно создания и вступления на сервер",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend + G2 Frontend",
+    "summary": "Интерактивная модалка по нажатию кнопки + на панели серверов с созданием сервера и вступлением по ссылке приглашения.",
+    "layout": {
+      "container": "Create/Join Modal",
+      "dimensions": "440x380",
+      "padding": "20px",
+      "spacing": "12px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Submit Button",
+        "default": "bg: #5865f2",
+        "hover": "bg: #4752c4",
+        "active": "loading"
+      }
+    ],
+    "acceptance_criteria": [
+      "Сервер создается и сразу появляется в списке серверов"
+    ]
+  },
+  {
+    "id": "TASK-723",
+    "title": "Двусторонняя отправка сообщений через официальный REST API v9",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend Lead",
+    "summary": "Отправка сообщений в текущий канал через POST /channels/{id}/messages с мгновенным оптимистичным добавлением в список сообщений.",
+    "layout": {
+      "container": "Chat Message Stream",
+      "dimensions": "flex-1",
+      "padding": "0 16px",
+      "spacing": "4px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Message Item",
+        "default": "delivered",
+        "hover": "action bar",
+        "active": "selected"
+      }
+    ],
+    "acceptance_criteria": [
+      "Сообщение отображается у всех участников канала"
+    ]
+  },
+  {
+    "id": "TASK-724",
+    "title": "Экран обзора публичных сообществ ExploreView (Кнопка 🧭)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend + G3 Design",
+    "summary": "Каталог публичных серверов Discord с поиском по категориям, карточками сообществ, баннерами и кнопкой мгновенного вступления.",
+    "layout": {
+      "container": "Explore Grid",
+      "dimensions": "flex-1, grid 3 columns",
+      "padding": "24px",
+      "spacing": "16px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Server Card",
+        "default": "bg: #2b2d31",
+        "hover": "scale: 1.02, shadow",
+        "active": "joining"
+      }
+    ],
+    "acceptance_criteria": [
+      "Успешный переход в сервер при клике Вступить"
+    ]
+  },
+  {
+    "id": "TASK-725",
+    "title": "Расширение тестового харнесса до 48/48 контрактов",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA Lead",
+    "summary": "Покрытие всех базовых сценариев навигации, гидратации состояния и взаимодействия с серверами 48 комплексными контрактными тестами.",
+    "layout": {
+      "container": "QA Test Suite",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Contract Test",
+        "default": "executing",
+        "hover": "asserting",
+        "active": "passed"
+      }
+    ],
+    "acceptance_criteria": [
+      "48/48 тестов зелёные (100% Pass)"
+    ]
+  },
+  {
+    "id": "TASK-726",
+    "title": "Устранение перехвата событий неактивными модальными окнами",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead",
+    "summary": "Изоляция событий ввода мыши и клавиатуры при закрытых модальных окнах, исключающая блокировку кликов по основному интерфейсу.",
+    "layout": {
+      "container": "Modal Backdrop Overlay",
+      "dimensions": "100vw x 100vh",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "rgba(0,0,0,0.7)",
+      "surface": "#313338",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Backdrop",
+        "default": "pointer-events: none",
+        "hover": "none",
+        "active": "pointer-events: auto"
+      }
+    ],
+    "acceptance_criteria": [
+      "Клики по чату и каналам работают безупречно"
+    ]
+  },
+  {
+    "id": "TASK-727",
+    "title": "Загрузка и синхронизация реальных каналов серверов (GET /guilds/{id}/channels)",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend Lead",
+    "summary": "Синхронизация полной структуры каналов сервера с категориями, правами доступа и сортировкой по позиции.",
+    "layout": {
+      "container": "Channel Hierarchy Tree",
+      "dimensions": "240px w",
+      "padding": "4px 8px",
+      "spacing": "2px"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#1e1f22",
+      "text_primary": "#949ba4",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Channel Item",
+        "default": "text: #949ba4",
+        "hover": "text: #dbdee1",
+        "active": "active channel"
+      }
+    ],
+    "acceptance_criteria": [
+      "Все каналы отображаются строго в соответствии с позициями"
+    ]
+  },
+  {
+    "id": "TASK-728",
+    "title": "Расширение тестового харнесса до 53/53 контрактов с верификацией живого инвайта",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA Lead",
+    "summary": "Интеграционные тесты разрешения ссылок приглашений Discord и проверки прав участников в 53 автоматических контрактах.",
+    "layout": {
+      "container": "QA Test Suite",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Contract Test",
+        "default": "executing",
+        "hover": "asserting",
+        "active": "passed"
+      }
+    ],
+    "acceptance_criteria": [
+      "53/53 контрактов пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-729",
+    "title": "Загрузка и кэширование сообщений гильдийных каналов через REST API",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend Lead",
+    "summary": "Кэширование последних 50 сообщений для каждого посещенного канала в локальной памяти для мгновенного переключения без ожидания сети.",
+    "layout": {
+      "container": "Message Cache",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Cache Slot",
+        "default": "cached",
+        "hover": "fresh",
+        "active": "evicting"
+      }
+    ],
+    "acceptance_criteria": [
+      "Мгновенное переключение между каналами (< 50 мс)"
+    ]
+  },
+  {
+    "id": "TASK-730",
+    "title": "Динамическое обнаружение и наполнение участников сервера из авторов сообщений",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend Lead",
+    "summary": "Наполнение списка участников сервера на основе авторов загруженных сообщений при отсутствии шлюзовой подписки на чанк участников.",
+    "layout": {
+      "container": "Member Directory",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Member Cache",
+        "default": "indexed",
+        "hover": "updated",
+        "active": "synced"
+      }
+    ],
+    "acceptance_criteria": [
+      "В сайдбаре отображаются реальные никнеймы и аватары авторов"
+    ]
+  },
+  {
+    "id": "TASK-731",
+    "title": "Синхронизация выбора каналов гильдии и автоматический выбор первого текстового канала",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead",
+    "summary": "Автоматический выбор первого доступного текстового канала (#general / #основной) при клике на сервер в панели серверов.",
+    "layout": {
+      "container": "App State Navigation",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Server Select",
+        "default": "idle",
+        "hover": "channel auto-selected",
+        "active": "active"
+      }
+    ],
+    "acceptance_criteria": [
+      "Пользователь сразу видит чат выбранного сервера"
+    ]
+  },
+  {
+    "id": "TASK-732",
+    "title": "Интерактивный ввод ссылки приглашения в CreateGuildModal",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead",
+    "summary": "Полноценный текстовый инпут с поддержкой выделения, удаления через Backspace и вставки из буфера обмена Ctrl+V.",
+    "layout": {
+      "container": "Invite Input",
+      "dimensions": "100% w, 40px h",
+      "padding": "8px 12px",
+      "spacing": "4px"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Input Field",
+        "default": "border: 1px solid #3f4147",
+        "hover": "border: #5865f2",
+        "active": "focused"
+      }
+    ],
+    "acceptance_criteria": [
+      "Вставка любой формы ссылки (discord.gg/... или чистый код)"
+    ]
+  },
+  {
+    "id": "TASK-733",
+    "title": "Устранение наложения и фейкового статуса голосового подключения VoicePanel",
+    "status": "done",
+    "priority": "P1",
+    "department": "G5 Voice Lead + G2 Frontend",
+    "summary": "Отображение VoicePanel строго при реальном установленном подключении к голосовому каналу с корректным отображением RTC пинга.",
+    "layout": {
+      "container": "Voice Panel Container",
+      "dimensions": "240px w, 52px h",
+      "padding": "8px",
+      "spacing": "4px"
+    },
+    "design_tokens": {
+      "background": "#232428",
+      "surface": "#1e1f22",
+      "text_primary": "#23a55a",
+      "accent": "#f23f43"
+    },
+    "interactive_states": [
+      {
+        "element": "RTC Status",
+        "default": "connected",
+        "hover": "show stats",
+        "active": "active"
+      }
+    ],
+    "acceptance_criteria": [
+      "Панель скрыта, если пользователь не подключен к войсу"
+    ]
+  },
+  {
+    "id": "TASK-734",
+    "title": "Расширение тестового харнесса до 55/55 контрактов GPUI",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA Lead",
+    "summary": "Дополнительные регрессионные контракты для проверки стабильности навигации, создания серверов и отправки сообщений.",
+    "layout": {
+      "container": "QA Test Suite",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Contract Test",
+        "default": "executing",
+        "hover": "asserting",
+        "active": "passed"
+      }
+    ],
+    "acceptance_criteria": [
+      "55/55 контрактов пройдены успешно"
+    ]
+  },
+  {
+    "id": "TASK-735",
+    "title": "Интеграция реального подключения к серверу через POST /invites/{code}",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend Lead",
+    "summary": "Официальный REST вызов вступления на сервер через POST /api/v9/invites/{code} с обработкой подтверждения правил и капчи.",
+    "layout": {
+      "container": "REST Invites Client",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Join Request",
+        "default": "idle",
+        "hover": "authorizing",
+        "active": "joined"
+      }
+    ],
+    "acceptance_criteria": [
+      "Сервер мгновенно добавляется в список пользователя"
+    ]
+  },
+  {
+    "id": "TASK-736",
+    "title": "Управление жизненным циклом голосовой сессии и интеграция аудио-устройств CPAL",
+    "status": "done",
+    "priority": "P2",
+    "department": "G5 Voice Lead",
+    "summary": "Выбор аудиоустройств ввода/вывода, переключение на лету при отключении гарнитуры и корректный сброс аудиопотока.",
+    "layout": {
+      "container": "Audio Device Manager",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Device Selector",
+        "default": "default device",
+        "hover": "list devices",
+        "active": "switched"
+      }
+    ],
+    "acceptance_criteria": [
+      "Бесшовное переключение звука без перезапуска клиента"
+    ]
+  },
+  {
+    "id": "TASK-737",
+    "title": "Стилизация и паритет модального окна добавления сервера по стандартам Discord Dark",
+    "status": "done",
+    "priority": "P1",
+    "department": "G3 Design Lead",
+    "summary": "Точное визуальное соответствие модального окна создания сервера: иконки шаблонов, белая кнопка создания, скругления 8px.",
+    "layout": {
+      "container": "Modal Container",
+      "dimensions": "440x420",
+      "padding": "24px",
+      "spacing": "16px"
+    },
+    "design_tokens": {
+      "background": "#313338",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Primary Button",
+        "default": "bg: #5865f2",
+        "hover": "bg: #4752c4",
+        "active": "scale: 0.98"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% паритет с официальным клиентом Discord"
+    ]
+  },
+  {
+    "id": "TASK-738",
+    "title": "Изоляция контейнеров нижней панели сайдбара и профиля пользователя",
+    "status": "done",
+    "priority": "P1",
+    "department": "G2 Frontend Lead",
+    "summary": "Разделение DOM-контейнеров панели каналов и панели профиля для предотвращения перекрытия кликов и скролла.",
+    "layout": {
+      "container": "Sidebar Flex Container",
+      "dimensions": "240px w, 100% h",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#2b2d31",
+      "surface": "#1e1f22",
+      "text_primary": "#ffffff",
+      "accent": "#5865f2"
+    },
+    "interactive_states": [
+      {
+        "element": "Channel Scroll",
+        "default": "overflow-y: auto",
+        "hover": "scrolling",
+        "active": "active"
+      }
+    ],
+    "acceptance_criteria": [
+      "Панель профиля зафиксирована внизу и не двигается при скролле"
+    ]
+  },
+  {
+    "id": "TASK-739",
+    "title": "Отображение реального профиля аутентифицированного пользователя вместо тестовых моков",
+    "status": "done",
+    "priority": "P1",
+    "department": "G1 Backend + G2 Frontend",
+    "summary": "Отрисовка настоящего аватара, никнейма, глобального имени и статуса пользователя из события READY шлюза Discord.",
+    "layout": {
+      "container": "User Profile Bar",
+      "dimensions": "240px w, 52px h",
+      "padding": "8px",
+      "spacing": "8px"
+    },
+    "design_tokens": {
+      "background": "#232428",
+      "surface": "#1e1f22",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "User Avatar",
+        "default": "rounded-full, 32px",
+        "hover": "brightness: 1.1",
+        "active": "open status"
+      }
+    ],
+    "acceptance_criteria": [
+      "Корректный показ статусов: В сети, Неактивен, Не беспокоить, Невидимый"
+    ]
+  },
+  {
+    "id": "TASK-740",
+    "title": "Автоматизированная регрессионная верификация сборки и релиз бинарника",
+    "status": "done",
+    "priority": "P0",
+    "department": "G4 QA Lead + DevOps",
+    "summary": "Сквозной прогон всех тестов, проверка контрольных сумм SHA256SUMS, проверка работы релиза на чистой машине и релизный отчет.",
+    "layout": {
+      "container": "Release Gate Pipeline",
+      "dimensions": "N/A",
+      "padding": "0",
+      "spacing": "0"
+    },
+    "design_tokens": {
+      "background": "#1e1f22",
+      "surface": "#2b2d31",
+      "text_primary": "#ffffff",
+      "accent": "#23a55a"
+    },
+    "interactive_states": [
+      {
+        "element": "Release Binary",
+        "default": "compiled",
+        "hover": "verified",
+        "active": "released"
+      }
+    ],
+    "acceptance_criteria": [
+      "100% Pass всех фаз gate:release",
+      "Бинарник запускается без внешних зависимостей"
+    ]
+  },
+  {
+    "id": "TASK-818",
+    "title": "Локальный мост hcaptcha-bridge.html и устранение XML AccessDenied",
+    "department": "g2_frontend",
+    "status": "done",
+    "priority": "P0",
+    "summary": "Создание hcaptcha-bridge.html с официальным JS SDK, параметрами sitekey и rqdata, темной темой и postMessage мостом для устранения ошибки XML AccessDenied при решении капчи.",
+    "layout": { "container": "Captcha Resolver Modal", "dimensions": "480px x 420px dialog", "padding": "16px", "spacing": "12px" },
+    "design_tokens": { "background": "#313338", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#5865f2", "border": "#3f4147" },
+    "interactive_states": [{ "element": "hcaptcha-bridge", "default": "ready", "hover": "active", "active": "solved" }],
+    "acceptance_criteria": ["Устранена ошибка S3 AccessDenied", "Автоматический postMessage токена в капча-модалку", "100% прохождение тестов"]
+  },
+  {
+    "id": "TASK-819",
+    "title": "Стабилизация SSRC, непрерывные 90 кГц метки времени и RTCP PLI/FIR (Ошибки 2007 и 2000)",
+    "department": "g5_voice_platform",
+    "status": "done",
+    "priority": "P0",
+    "summary": "Фиксация SSRC и счетчиков RTP/SRTP при пересогласовании и рестартах стрима, непрерывный отсчет времени 90 кГц и генерация RTCP PLI/FIR ключевых кадров для победы над кодами 2007 и 2000.",
+    "layout": { "container": "Voice Media Pipeline", "dimensions": "N/A", "padding": "0", "spacing": "0" },
+    "design_tokens": { "background": "#1e1f22", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#5865f2" },
+    "interactive_states": [{ "element": "MediaSession", "default": "connected", "hover": "stable", "active": "streaming" }],
+    "acceptance_criteria": ["SSRC не меняется при OP 4", "Метки времени 90 кГц монотонны", "Ключевые кадры IDR/OBU генерируются по RTCP PLI/FIR"]
+  },
+  {
+    "id": "TASK-820",
+    "title": "Устранение спама voice_connect и дублирующих Gateway OP 4 обновлений",
+    "department": "g1_backend",
+    "status": "done",
+    "priority": "P0",
+    "summary": "Мемоизация lastVoiceConnectState в frontend app.js, проверка открытых настроек и строгий dirty-checking в data::connect_or_update_live_voice_ext для предотвращения сброса голосовой сессии (коды 2008, 2014, 2015).",
+    "layout": { "container": "IPC State Controller", "dimensions": "N/A", "padding": "0", "spacing": "0" },
+    "design_tokens": { "background": "#1e1f22", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#5865f2" },
+    "interactive_states": [{ "element": "VoiceConnect", "default": "idle", "hover": "debounced", "active": "connected" }],
+    "acceptance_criteria": ["Дедупликация voice_connect", "Полинг аудиоустройств 10 сек в фоне", "Отсутствие повторных OP 4"]
+  },
+  {
+    "id": "TASK-821",
+    "title": "Паритет Voice Channel Stage Banner (Карточка предпросмотра голосового канала, frame 032)",
+    "department": "g2_frontend",
+    "status": "done",
+    "priority": "P1",
+    "summary": "Реализация розовой карточки #voice-stage-preview-banner (280px, #eb459e) с участниками, бейджами В ЭФИРЕ/Muted и кнопкой Присоединиться к голосовому каналу при клике на голосовой канал.",
+    "layout": { "container": "Voice Stage Preview Banner", "dimensions": "100% x 280px", "padding": "24px", "spacing": "16px" },
+    "design_tokens": { "background": "#2b2d31", "surface": "#eb459e", "text_primary": "#ffffff", "accent": "#23a55a" },
+    "interactive_states": [{ "element": "JoinVoiceButton", "default": "bg: #23a55a", "hover": "bg: #1f9250", "active": "connecting" }],
+    "acceptance_criteria": ["Карточка 280px высоты", "Аватары участников и бейджи стрима", "Клик присоединяет к голосовому каналу"]
+  },
+  {
+    "id": "TASK-822",
+    "title": "HTTP/2 Keep-Alive пул и бэк-офф для resolve_invite_info (устранение фриза 2.6 сек)",
+    "department": "g1_backend",
+    "status": "done",
+    "priority": "P1",
+    "summary": "Пул соединений HTTP/2 с keep-alive 90 сек и экспоненциальный бэк-офф 150мс для resolve_invite_info, индикатор загрузки join-loading-indicator в UI.",
+    "layout": { "container": "HTTP/2 Client Pool", "dimensions": "N/A", "padding": "0", "spacing": "0" },
+    "design_tokens": { "background": "#1e1f22", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#5865f2" },
+    "interactive_states": [{ "element": "ResolveInvite", "default": "ready", "hover": "active", "active": "pooled" }],
+    "acceptance_criteria": ["HTTP/2 keep-alive 90s", "Устранен фриз 2.6 сек", "Индикатор загрузки без блокировки UI"]
+  },
+  {
+    "id": "TASK-823",
+    "title": "Устранение AVError кодов 2004, 2005, 2009, 2010, 2016, 2017 и RTC Quality Status Bar",
+    "department": "g5_voice_platform",
+    "status": "done",
+    "priority": "P2",
+    "summary": "Подавление сетевых и таймаутных AVError кодов 2004-2017, реализация строки статуса качества RTC (240x40, RTT, битрейт, DAVE MLS v1 Verified).",
+    "layout": { "container": "RTC Quality Bar", "dimensions": "240x40px", "padding": "8px 12px", "spacing": "8px" },
+    "design_tokens": { "background": "#111214", "surface": "#23a55a", "text_primary": "#ffffff", "accent": "#5865f2" },
+    "interactive_states": [{ "element": "QualityBar", "default": "green RTT", "hover": "popover details", "active": "dave verified" }],
+    "acceptance_criteria": ["Подавление кодов 2004..2017", "Виджет RTC Quality Bar 240x40", "Индикация RTT и DAVE MLS v1"]
+  },
+  {
+    "id": "TASK-824",
+    "title": "Комплексная верификация всех кодов 2000-2018, 15/15 мутационный гейт и чистота GDB-логов",
+    "department": "g4_qa",
+    "status": "done",
+    "priority": "P0",
+    "summary": "Контрактный тест voice_stream_codes_contract.rs и юнит-тест voice-stream-codes-2000-2018.test.mjs, покрывающие все 19 кодов 2000..=2018, 15/15 мутационный гейт и подтверждение чистоты логов GDB.",
+    "layout": { "container": "QA Gate & Mutation Suite", "dimensions": "N/A", "padding": "0", "spacing": "0" },
+    "design_tokens": { "background": "#1e1f22", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#23a55a" },
+    "interactive_states": [{ "element": "MutationGate", "default": "active", "hover": "running", "active": "15/15 killed" }],
+    "acceptance_criteria": ["19/19 кодов 2000..=2018 побеждены", "15/15 мутаций уничтожено", "Логи GDB 100% чисты"]
+  },
+  {
+    "id": "TASK-825",
+    "title": "Инвайты, Captcha и бесшовный fallback авторизации сессии при вступлении на сервер",
+    "department": "g1_backend",
+    "status": "done",
+    "priority": "P0",
+    "summary": "Бесшовный fallback token_or на data::resolve_live_token() для устранения ошибки missingToken, публичный доступ к GET /invites/{code} без обязательного Bearer, передача клиентских заголовков X-Context-Properties в accept_invite_with_captcha и сохранение текста ссылки в UI.",
+    "layout": { "container": "Join Server & Captcha Modal", "dimensions": "440x380px", "padding": "24px", "spacing": "16px" },
+    "design_tokens": { "background": "#313338", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#5865f2" },
+    "interactive_states": [{ "element": "JoinSubmitButton", "default": "bg: #5865f2", "hover": "bg: #4752c4", "active": "resolving/joining" }],
+    "acceptance_criteria": ["Устранена ошибка missingToken при активной сессии", "resolve_invite работает публично", "X-Context-Properties передается в капче", "Инпут инвайта сохраняется при повторе"]
+  },
+  {
+    "id": "TASK-826",
+    "title": "Поддержка тихих AFK-каналов и устранение ложного ожидания RTC-сервера",
+    "department": "g5_voice_platform",
+    "status": "done",
+    "priority": "P1",
+    "summary": "Определение флага is_afk_channel по guild.afk_channel_id в backend, вывод специального бейджа '🔕 AFK-канал (микрофон и звук отключены)' в UI вместо вечного ожидания VOICE_SERVER_UPDATE, блокировка ложных реконнектов в discord-voice.",
+    "layout": { "container": "AFK Channel Status Badge", "dimensions": "240x44px", "padding": "8px 12px", "spacing": "6px" },
+    "design_tokens": { "background": "#1e1f22", "surface": "#2b2d31", "text_primary": "#949ba4", "accent": "#f0b232" },
+    "interactive_states": [{ "element": "AfkVoiceBadge", "default": "color: #949ba4", "hover": "color: #dbdee1", "active": "muted" }],
+    "acceptance_criteria": ["Распознавание guild.afk_channel_id", "UI статус AFK-канал без тайм-аута", "Отсутствие ложных ICE реконнектов в discord-voice"]
+  },
+  {
+    "id": "TASK-827",
+    "title": "Синхронизация чата и баннера при переключении голосовых каналов",
+    "department": "g2_frontend",
+    "status": "done",
+    "priority": "P1",
+    "summary": "Синхронизация Voice Text Channel Chat ID при клике на голосовые каналы, устранение отображения чужого инпута текстового чата под сценическим баннером, выдвижная боковая панель по кнопке 'Открыть чат'.",
+    "layout": { "container": "Voice Stage & Chat Split View", "dimensions": "100% x 100%", "padding": "16px", "spacing": "12px" },
+    "design_tokens": { "background": "#313338", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#5865f2" },
+    "interactive_states": [{ "element": "OpenChatButton", "default": "border: 1px solid #4e5058", "hover": "bg: #35373c", "active": "drawer open" }],
+    "acceptance_criteria": ["Контекст чата соответствует выбранному голосовому каналу", "Инпут заблокирован до входа в канал", "Кнопка 'Открыть чат' выдвигает панель"]
+  },
+  {
+    "id": "TASK-828",
+    "title": "Оптимизация верстки виджета статуса RTC в компактном сайдбаре",
+    "department": "g3_design",
+    "status": "done",
+    "priority": "P2",
+    "summary": "Адаптивный CSS-флексбокс для live-voice-status-badge и voice-rtt-pill в сайдбаре 240px без наездов и некрасивых сокращений, Rich Tooltip с параметрами RTT, регионом сервера и шифрованием DAVE MLS v1.",
+    "layout": { "container": "Voice Panel Bottom Trigger", "dimensions": "240x48px", "padding": "8px", "spacing": "8px" },
+    "design_tokens": { "background": "#232428", "surface": "#2b2d31", "text_primary": "#23a55a", "accent": "#23a55a" },
+    "interactive_states": [{ "element": "StatusTrigger", "default": "compact flex", "hover": "bg: #35373c + rich tooltip", "active": "modal popover" }],
+    "acceptance_criteria": ["Нет наложения текста в 240px сайдбаре", "Зеленый компактный бейдж Подключено", "Rich tooltip при наведении"]
+  },
+  {
+    "id": "TASK-829",
+    "title": "Автоматические регрессионные контракты для инвайтов, AFK и заголовков",
+    "department": "g4_qa",
+    "status": "done",
+    "priority": "P0",
+    "summary": "Rust контрактный тест invites_live_fallback_contract.rs (проверка fallback токена и публичного resolve), JS тесты afk-voice-status.test.mjs и invite-input.test.mjs, включение в общий гейт CI.",
+    "layout": { "container": "QA Contract Suite", "dimensions": "N/A", "padding": "0", "spacing": "0" },
+    "design_tokens": { "background": "#1e1f22", "surface": "#2b2d31", "text_primary": "#ffffff", "accent": "#23a55a" },
+    "interactive_states": [{ "element": "ContractRunner", "default": "cargo test / npm test", "hover": "running", "active": "pass" }],
+    "acceptance_criteria": ["100% pass invites_live_fallback_contract.rs", "100% pass unit тесты AFK и инвайтов", "0 регрессий в gate:worker"]
+  }
+]
 };
 
 // Экспорт в JSON и HTML
 fs.mkdirSync(path.dirname(BOARD_FILE), { recursive: true });
-fs.writeFileSync(BOARD_FILE, JSON.stringify(board, null, 2), 'utf-8');
+fs.writeFileSync(BOARD_FILE, JSON.stringify(board, null, 2), "utf-8");
 
-// Вызов функции экспорта HTML из mcp-kanban-board.mjs
-import { execSync } from 'node:child_process';
-execSync('node scripts/mcp-kanban-board.mjs --export');
+execSync("node scripts/mcp-kanban-board.mjs --export");
 console.log(`[Kanban Population] Successfully loaded ${board.cards.length} structured design-first cards into ${BOARD_FILE}`);
 console.log(`[Kanban Population] Generated interactive visual HTML board at ${EXPORT_HTML_FILE}`);

@@ -371,6 +371,8 @@ fn portal_pipewire_frame_buffer_integration_writes_into_slot_with_buffer_reuse()
             width: 2,
             height: 2,
         }),
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
 
     // Сравниваем прямую запись в LatestFrameSlot с эталонным to_video_frame для Rgba, I420 и Nv12
@@ -665,4 +667,60 @@ fn concurrent_60fps_producer_and_non_blocking_ui_consumer_latency_under_2ms() {
     assert!(!writer_slot.has_frame());
     assert!(!writer_slot.is_fresh());
     assert_eq!(writer_slot.allocated_capacity_bytes(), 0);
+}
+
+#[test]
+fn latest_frame_slot_dma_buf_zero_copy_eliminates_copy_latency_and_preserves_60fps_budget() {
+    let slot = LatestFrameSlot::new();
+    let fake_dma_fd = 77;
+    let drm_modifier = 0x00FF_AABB_CCDD_EE00;
+
+    let dma_buf = PipeWireFrameBuffer::new_dma_buf(
+        2560,
+        1440,
+        2560 * 4,
+        PipeWirePixelFormat::Bgra8,
+        fake_dma_fd,
+        drm_modifier,
+        None,
+    );
+
+    let t0 = Instant::now();
+    let seq = slot
+        .store_portal_frame(&dma_buf, PixelLayout::Rgba, 500_000)
+        .expect("store dma-buf portal frame");
+    let elapsed = t0.elapsed();
+
+    assert_eq!(seq, 1);
+    assert_eq!(slot.sequence(), 1);
+    assert!(slot.has_frame());
+    assert!(slot.is_fresh());
+    // Задержка записи DMA-BUF кадра должна быть < 2 мс (без CPU копирования 14.7 МБ пикселей)
+    assert!(
+        elapsed < MAX_SLOT_LATENCY,
+        "DMA-BUF store latency {:?} must be < {:?}",
+        elapsed,
+        MAX_SLOT_LATENCY
+    );
+
+    // Читаем через BorrowedFrameView: проверяем сохранение дескриптора и модификатора
+    let read_checked = slot.with_ipc_frame(|view| {
+        assert!(view.is_dma_buf());
+        assert_eq!(view.dma_buf_fd(), Some(fake_dma_fd));
+        assert_eq!(view.drm_modifier, drm_modifier);
+        assert_eq!(view.width, 2560);
+        assert_eq!(view.height, 1440);
+        assert_eq!(view.byte_len(), 0); // Данные в памяти CPU не дублируются
+        assert!(view.is_fresh);
+        true
+    });
+    assert_eq!(read_checked, Some(true));
+
+    // Проверяем, что scratch-память CPU не выделялась (0 байт выделено под CPU пиксели)
+    assert_eq!(slot.allocated_capacity_bytes(), 0);
+
+    let metrics = slot.metrics();
+    assert_eq!(metrics.stored_frames, 1);
+    assert_eq!(metrics.rejected_frames, 0);
+    assert_eq!(metrics.sequence, 1);
 }

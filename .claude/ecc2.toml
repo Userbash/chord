@@ -1,0 +1,412 @@
+# ecc2.toml — Конфигурация ECC 2.0 Control Plane для репозитория discord-lab
+# Связывает отделы G1..G7, PM, Tech Reviewer и DevOps с приоритетным планом интеграции P0..P2
+# из эталонных проектов ViceVerse-cz/Serein, japandotorg/LemonCord и rust-discord-activity.
+
+db_path = "/home/sanya/orca/project/.claude/ecc2.db"
+worktree_root = "/home/sanya/orca/workspaces/ecc-worktrees"
+worktree_branch_prefix = "feature"
+# Оптимизировано под AMD Ryzen 7 7800X3D (8C/16T) и 48 GB RAM (Swap: 0B):
+# 4 параллельных воркера + 1 PM координатор = <= 16-18 GB RSS (при жёстком потолке 25 GB)
+max_parallel_sessions = 4
+max_parallel_worktrees = 4
+worktree_retention_secs = 900
+session_timeout_secs = 1800
+heartbeat_interval_secs = 30
+auto_terminate_stale_sessions = true
+default_agent = "antigravity"
+default_agent_profile = "pm_review"
+auto_dispatch_unread_handoffs = true
+auto_dispatch_limit_per_session = 4
+auto_create_worktrees = false
+auto_merge_ready_worktrees = false
+cost_budget_usd = 25.0
+token_budget = 2000000
+theme = "Dark"
+pane_layout = "grid"
+
+[risk_thresholds]
+review = 0.35
+confirm = 0.60
+block = 0.85
+
+[budget_alert_thresholds]
+advisory = 0.50
+warning = 0.75
+critical = 0.90
+
+[conflict_resolution]
+enabled = true
+strategy = "escalate"
+notify_lead = true
+
+# === Исполнители (Harness Runners) ===
+[harness_runners.antigravity]
+program = "/home/sanya/orca/project/scripts/ecc-orca-bridge.sh"
+project_markers = [".agents", "AGENTS.md"]
+cwd_flag = "--cwd"
+session_name_flag = "--session-name"
+task_flag = "--task"
+model_flag = "--model"
+add_dir_flag = "--add-dir"
+append_system_prompt_flag = "--append-system-prompt"
+inline_system_prompt_for_task = true
+
+[harness_runners.antigravity.env]
+CARGO_BUILD_JOBS = "6"
+CARGO_TARGET_DIR = "/home/sanya/orca/project/rust/target"
+NODE_OPTIONS = "--max-old-space-size=1536"
+WORKER_RAM_LIMIT_MB = "25600"
+MAX_ACTIVE_WORKERS = "4"
+
+[harness_runners.opencode]
+program = "/home/sanya/orca/project/scripts/ecc-orca-bridge.sh"
+project_markers = [".agents", "AGENTS.md"]
+cwd_flag = "--cwd"
+session_name_flag = "--session-name"
+task_flag = "--task"
+model_flag = "--model"
+add_dir_flag = "--add-dir"
+append_system_prompt_flag = "--append-system-prompt"
+inline_system_prompt_for_task = true
+
+[harness_runners.opencode.env]
+CARGO_BUILD_JOBS = "6"
+CARGO_TARGET_DIR = "/home/sanya/orca/project/rust/target"
+NODE_OPTIONS = "--max-old-space-size=1536"
+WORKER_RAM_LIMIT_MB = "25600"
+MAX_ACTIVE_WORKERS = "4"
+
+# === Коннекторы памяти проекта (Memory Connectors) ===
+[memory_connectors.project_rules]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/.agents/rules/ecc-discord-lab-departments.md"
+default_entity_type = "department_rule"
+default_observation_type = "governance"
+
+[memory_connectors.project_context]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/PROJECT-CONTEXT.md"
+default_entity_type = "project_architecture"
+default_observation_type = "structure"
+
+[memory_connectors.agents_governance]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/AGENTS.md"
+default_entity_type = "governance_rule"
+default_observation_type = "policy"
+
+[memory_connectors.process_rules]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/PROCESS.md"
+default_entity_type = "workflow_rule"
+default_observation_type = "process"
+
+[memory_connectors.team_rules]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/TEAM.md"
+default_entity_type = "team_topology"
+default_observation_type = "routing"
+
+[memory_connectors.test_policy]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/TEST-POLICY.md"
+default_entity_type = "quality_gate"
+default_observation_type = "testing"
+
+[memory_connectors.reference_projects]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/docs/reference-projects"
+recurse = false
+default_entity_type = "reference_architecture"
+default_observation_type = "call_graph"
+
+[memory_connectors.docs_rust_client]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/docs/rust-client"
+recurse = true
+default_entity_type = "project_documentation"
+default_observation_type = "architecture"
+
+[memory_connectors.docs_re]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/docs/re"
+recurse = true
+default_entity_type = "re_documentation"
+default_observation_type = "protocol_contract"
+
+[memory_connectors.docs_specs]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/waves/RW-40/DESIGN"
+recurse = true
+default_entity_type = "product_spec"
+default_observation_type = "specification"
+
+[memory_connectors.waves_state]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/waves/STATE.md"
+default_entity_type = "wave_state"
+default_observation_type = "status"
+
+[memory_connectors.waves_rw41]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/waves/RW-41-ECC-INTEGRATION"
+recurse = true
+default_entity_type = "wave_artifact"
+default_observation_type = "pm_backlog"
+
+[memory_connectors.waves_rw42_gpui]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/waves/RW-42-GPUI-MIGRATION"
+recurse = true
+default_entity_type = "gpui_migration"
+default_observation_type = "architecture_roadmap"
+
+[memory_connectors.gpui_architecture_spec]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/docs/specs/GPUI-ARCHITECTURE-MIGRATION.md"
+default_entity_type = "gpui_spec"
+default_observation_type = "component_blueprint"
+
+[memory_connectors.stream_wayland_guide]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/docs/specs/STREAM-WAYLAND-GUIDE.md"
+default_entity_type = "platform_guide"
+default_observation_type = "screencast_howto"
+
+[memory_connectors.kanban_task_pool]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/waves/RW-41-ECC-INTEGRATION/TASK-POOL.md"
+default_entity_type = "task_pool"
+default_observation_type = "sprint_tracking"
+
+[memory_connectors.waves_journal]
+kind = "jsonl_file"
+path = "/home/sanya/orca/project/waves/db.jsonl"
+default_entity_type = "wave_event"
+default_observation_type = "checkpoint"
+
+# === Профили отделов специалистов (Specialist Department Profiles) ===
+# Маршрутизация: Carbon строго для сложнейших P0 ядра/крипто/буфера,
+# Argon — надежная рабочая лошадка для BFF/QA/RE, Flash — для UI/CSS/Docs.
+# Полный запрет codex и deepseek.
+
+[agent_profiles.base_discord_lab]
+agent = "antigravity"
+model = "gemini-4-argon-high"
+add_dirs = ["/home/sanya/orca/project/docs/reference-projects"]
+append_system_prompt = "Соблюдай AGENTS.md и TEAM.md: Strict TDD (сначала падающий тест Red, затем код Green), работай строго в своём write-scope, сверяйся с эталонами в docs/reference-projects/ и /home/sanya/re-deep/. Запрещено использовать codex и deepseek, трогать чужие файлы запрещено."
+
+[agent_profiles.g1_backend]
+inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
+append_system_prompt = "Отдел G1 Backend (Rust Core & Tauri BFF). Контур: rust/crates/discord-{core,codec,media,store,i18n}, rust/gui-spike/src/*.rs (кроме voice_devices.rs), rust/gui-spike/tests/*_contract.rs. Проверка T0: cargo test -p discord-media и целевой контрактный тест."
+
+[agent_profiles.g2_frontend]
+inherits = "base_discord_lab"
+model = "gemini-3.8-flash-high"
+append_system_prompt = "Отдел G2 Frontend (WebView UI & DOM/A11y). Контур: rust/gui-spike/ui/**/*.{js,css,html}, tests/unit/*.test.mjs. Проверка T0: node scripts/test-impact.mjs --run && npm run typecheck."
+
+[agent_profiles.g3_design]
+inherits = "base_discord_lab"
+model = "gemini-3.8-flash-medium"
+append_system_prompt = "Отдел G3 Design (UX/UI Specs & Tokens). Контур: docs/specs/*.md, waves/RW-*/DESIGN/*.md."
+
+[agent_profiles.g4_qa]
+inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
+append_system_prompt = "Отдел G4 QA (Test Automation & Verification). Контур: tests/{meta,unit,smoke,e2e}/, scripts/test-impact.mjs, QA-BUILD-*.md."
+
+[agent_profiles.g5_voice_platform]
+inherits = "base_discord_lab"
+model = "gemini-4-carbon-high"
+append_system_prompt = "Отдел G5 Voice & Platform (P0 Core, Ring Buffer, Crypto, WebRTC). Контур: rust/crates/discord-voice/**, rust/crates/discord-platform/**, rust/gui-spike/src/voice_devices.rs, опкоды Go Live 18..=22, SRTP/DAVE E2EE, RTP/RTCP H.264/AV1, discord-ipc-0. Проверка T0: cargo test -p discord-voice -p discord-platform."
+
+[agent_profiles.g6_tech_writer]
+inherits = "base_discord_lab"
+model = "gemini-3.8-flash-low"
+append_system_prompt = "Отдел G6 Tech Writer & Parity. Контур: waves/RW-*/PARITY/MERGE-READINESS-*.md, матрицы паритета и документация."
+
+[agent_profiles.g7_re_rea]
+inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
+append_system_prompt = "Отдел G7 Reverse Engineering & Parity Discovery (G7 RE / REA). Read-only сверка с /home/sanya/re-deep/, docs/reference-projects/ и инструментами MCP rea/understand."
+
+[agent_profiles.devops]
+inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
+append_system_prompt = "Отдел DevOps / Release & Integration. Контур: scripts/{release.sh,ci.sh,gate.mjs}, конвейер веток unstable -> testing -> beta -> main."
+
+[agent_profiles.pm_review]
+inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
+append_system_prompt = "Продуктовый менеджер (PM). Двухэтапная приёмка ACCEPT.md, проверка пользовательских сценариев и 9 измерений тестирования."
+
+[agent_profiles.tech_reviewer]
+agent = "antigravity"
+model = "gemini-4-argon-high"
+add_dirs = ["/home/sanya/orca/project/docs/reference-projects"]
+append_system_prompt = "Технический ревьюер (REVIEW.md). Независимая проверка архитектуры, безопасности, отсутствия лишних правок и уничтожение 5/5 мутаций."
+
+# === Шаблоны оркестрации по приоритетам P0, P1, P2 ===
+
+[orchestration_templates.p0_go_live_pipeline]
+description = "Приоритет 1 (P0): Видеоконвейер Go Live, 60 FPS и нативный RTP/H.264/AV1 (из ViceVerse-cz/Serein)"
+project = "discord-lab"
+task_group = "P0-GO-LIVE-60FPS"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.p0_go_live_pipeline.steps]]
+name = "task-601-go-live-dual-session"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "P0.1 (G5 Voice): Внедрить выделенную вторую сессию Go Live (run_stream_inner + announce_video из Serein transport.rs:885-1485) в rust/crates/discord-voice/src/session.rs и udp.rs (второй Voice WS + UDP сокет для STREAM_SERVER_UPDATE, video_ssrc = audio_ssrc + 1, rtx_ssrc = audio_ssrc + 2, Voice Op 12 Video со streams и Op 15 Media Sink Wants)."
+
+[[orchestration_templates.p0_go_live_pipeline.steps]]
+name = "task-602-rtp-assembler-rtx-rtcp"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "P0.2 (G5 Voice): Внедрить сборщик фрагментированных RTP-кадров H.264 (Single NAL, STAP-A, FU-A) и AV1 (OBU) Assembler::push, восстановление RTX-пакетов Receivers::restore_rtx (RFC 4588) и генерацию RTCP NACK (PT 205 FMT 1), PLI (PT 206 FMT 1), FIR (PT 206 FMT 4), REMB (PT 206 FMT 15) из Serein video_receive.rs:52-650 в rust/crates/discord-voice/src/media/rtp.rs и rtcp.rs."
+
+[[orchestration_templates.p0_go_live_pipeline.steps]]
+name = "task-603-media-pipeline-60fps-slot"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "P0.3 (G1 Backend): Внедрить паттерн Latest-Frame Atomic Slot (store_frame / Watch::poll 60 FPS из Serein watch.rs:54-226), двухпоточный конвейер захвата/кодирования без обратного давления sync_channel(2) (screen.rs:70-250), кольцевой буфер RTX History (512 пакетов), адаптивный регулятор битрейта Rate по REMB (video.rs:240-360) и конвертер NV12/I420 -> RGBA (gpu_video.rs:295-421) в rust/crates/discord-media/src/lib.rs."
+
+[orchestration_templates.p1_stream_mixer_and_dave_e2ee]
+description = "Приоритет 2 и 3 (P1): Изоляция громкости стрима + защита от эха PID + двухслойный криптоконвейер DAVE MLS E2EE + SRTP (_rtpsize)"
+project = "discord-lab"
+task_group = "P1-AUDIO-CRYPTO"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.p1_stream_mixer_and_dave_e2ee.steps]]
+name = "task-604-stream-volume-mixer-antiecho"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "P1.4 (G5 Voice): Внедрить раздельный микшер громкости участников и аудио демонстрации экрана (Mixer::pop_with_volumes с лимитером tanh из Serein mixer.rs:95-165), отдельный джиттер-буфер стрима (stream_playout.rs) и фильтрацию собственного PID процесса (OwnApplication::allows из audio_linux.rs) в rust/crates/discord-voice/src/reception.rs, devices.rs и rust/gui-spike/src/voice_devices.rs."
+
+[[orchestration_templates.p1_stream_mixer_and_dave_e2ee.steps]]
+name = "task-605-dave-mls-e2ee-srtp"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "P1.5 (G5 Voice): Внедрить двухслойный криптоконвейер DAVE MLS E2EE + SRTP (_rtpsize) из Serein crypto.rs:140-310 (Dave, Encryption::seal, Encryption::open и обработка бинарных Voice Opcodes 21..31) в rust/crates/discord-voice/src/srtp.rs."
+
+[orchestration_templates.p2_rpc_ipc_and_webview_guard]
+description = "Приоритет 4 и 5 (P2): Локальный сокет discord-ipc-0 для Rich Presence + навигационный фильтр внешних ссылок WebView (из rust-discord-activity, Serein и LemonCord)"
+project = "discord-lab"
+task_group = "P2-PLATFORM-WEBVIEW"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.p2_rpc_ipc_and_webview_guard.steps]]
+name = "task-606-discord-rpc-ipc-socket"
+profile = "g5_voice_platform"
+task_group = "G5-PLATFORM"
+task = "P2.6 (G5 Platform): Реализовать сервер и клиент локального RPC-сокета discord-ipc-0..9 ([u32 LE opcode][u32 LE len][JSON], Op 0 Handshake -> READY, Op 1 SET_ACTIVITY -> PresenceUpdate) по эталону rust-discord-activity ipc.rs и Serein game_activity.rs:446-610 в rust/crates/discord-platform/src/rpc_ipc.rs и подключить в lib.rs."
+
+[[orchestration_templates.p2_rpc_ipc_and_webview_guard.steps]]
+name = "task-607-webview-navigation-guard"
+profile = "g5_voice_platform"
+task_group = "G5-PLATFORM"
+task = "P2.7 (G5 Platform): Реализовать безопасный классификатор и перехватчик внешних ссылок navigation_handler по эталону LemonCord src/main.rs:50-99 в rust/crates/discord-platform/src/deep_link.rs."
+
+[orchestration_templates.p0_server_and_voice_serein_fix]
+description = "План исправления подключения к серверам (S1-S4: op 37, screening, права) и голосовым чатам (V1-V5: автомат Calls, seq_ack, DAVE v1 MLS + SRTP) по эталонам Serein и /home/sanya/re-deep"
+project = "discord-lab"
+task_group = "P0-SERVER-VOICE-SEREIN"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.p0_server_and_voice_serein_fix.steps]]
+name = "task-701-voice-calls-fsm-and-dave-e2ee"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "Target: rust/crates/discord-voice/src/lib.rs, rust/crates/discord-voice/src/srtp.rs, rust/crates/discord-voice/tests/voice_call_state_machine_contract.rs. Change: Реализовать этапы V1, V2, V3, V4 в крейте discord-voice по эталону docs/reference-projects/sources/Serein/crates/discord-gateway/src/voice.rs и crates/discord-voice/src/transport.rs: (1) Конечный автомат звонка VoiceCallStateMachine (Idle, Signaling, NegotiatingTransport, Connected, Departing) с монотонным negotiation_revision, барьером VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE, session_confirmed только после op:4 SessionDescription, коалесценцией STATE_COALESCE = 120ms для mute/deaf и 15s таймаутом с возвратом VoiceCleanupAction::SendGatewayLeaveOp4; (2) Трекер SeqAckTracker (обновление seq_ack: Option<u16> из JSON seq и 2-байтного BE заголовка бинарных DAVE-фреймов op 25/27/29/30, генерация op:3 Heartbeat и op:7 Resume); (3) Движок DAVE v1 MLS в srtp.rs (инициализация на op:4 с отправкой бинарного op:26 KeyPackage, учёт recognized_users из op:11/13, обработка бинарных op:25 ExternalSender, op:27 Proposals -> ответ бинарный op:28 CommitWelcome, op:29/30 Commit/Welcome -> ответ JSON op:23 TransitionReady или op:31 InvalidCommitWelcome + свежий op:26, обработка JSON op:21/22 переключения эпох, двойное шифрование/дешифрование DAVE + SRTP со снятием RFC 5285 0xBEDE); (4) UdpReliabilityTracker (keepalive 5s, UdpFailures = 10 ошибок подряд -> реконнект, ротация порта +60.08s); (5) Контрактный тест tests/voice_call_state_machine_contract.rs. Constraints: Строгий TDD, не менять файлы вне своего контура, для запуска cargo использовать flock /tmp/discord-lab-cargo.lock. Ownership: Только rust/crates/discord-voice/{src/lib.rs,src/srtp.rs,tests/voice_call_state_machine_contract.rs}. Observable acceptance: flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test voice_call_state_machine_contract проходит зелено."
+
+[[orchestration_templates.p0_server_and_voice_serein_fix.steps]]
+name = "task-702-gateway-op37-and-voice-ws-v8"
+profile = "g1_backend"
+task_group = "G1-CORE"
+task = "Target: rust/crates/discord-core/src/ws.rs, rust/crates/discord-core/tests/op37_and_voice_v8_contract.rs. Change: Реализовать этап S2 (подписки op:37 GUILD_SUBSCRIPTIONS_BULK) и этапы V2-V4 в цикле Voice WS v=8 в rust/crates/discord-core/src/ws.rs по эталону /home/sanya/re-deep/gateway-protocol.md:73-81 и docs/reference-projects/sources/Serein/crates/discord-gateway/src/lib.rs:395-418: (1) Структура RangedGuildSubscriptions и функция build_guild_subscriptions_bulk_op37 (двухшаговая подписка: сначала typing:true/threads:true/activities:true, затем непустые диапазоны каналов [[0,99]], запрет отправки пустого channels:{} или пустых диапазонов [] для уже подписанной гильдии с удержанием fallback [[0,99]]); (2) В цикле Voice WS v=8 (ws.rs:4430-5040) отслеживать seq_ack: Option<u16> на каждом входящем текстовом (json seq) и бинарном фрейме (u16::from_be_bytes([bin[0], bin[1]]) при len >= 3), передавать seq_ack в op:3 Heartbeat и op:7 Resume; (3) В pure-Rust ветке (когда dv_stdin.is_none()) при получении op:4 (dave_protocol_version >= 1) немедленно отправлять бинарный op:26 KeyPackage, обрабатывать входящие бинарные фреймы DAVE (op:25, op:27 -> отправка бинарного op:28, op:29/30 -> отправка JSON op:23 или op:31 + свежий op:26) и считать UdpFailures (10 ошибок подряд -> переподключение); (4) Контрактный тест tests/op37_and_voice_v8_contract.rs. Constraints: Строгий TDD, не трогать файлы вне rust/crates/discord-core/, запускать cargo через flock /tmp/discord-lab-cargo.lock. Ownership: Только rust/crates/discord-core/{src/ws.rs,tests/op37_and_voice_v8_contract.rs}. Observable acceptance: flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-core --test op37_and_voice_v8_contract проходит зелено."
+
+[[orchestration_templates.p0_server_and_voice_serein_fix.steps]]
+name = "task-703-server-join-screening-and-permissions-bff"
+profile = "g1_backend"
+task_group = "G1-BFF"
+task = "Target: rust/gui-spike/src/guilds.rs, rust/gui-spike/src/permissions.rs, rust/gui-spike/src/data.rs, rust/gui-spike/tests/server_join_and_subscriptions_contract.rs. Change: Реализовать этапы S1, S3, S4 и V1 (BFF) в rust/gui-spike: (1) S1: Полностью запретить чтение фикстуры 002-READY.json при наличии живого токена (resolve_live_token().is_some()) в guilds.rs и data.rs; при загрузке state_cache.json сверять state.user.id с активным токеном и вычищать чужие/неподтверждённые гильдии; (2) S3: В accept_invite_and_join_guild и hydrate_live_guild_blocking при pending == true (или 403 verification gate) автоматически запрашивать GET /api/v9/guilds/{id}/member-verification, подтверждать правила через PUT /api/v9/guilds/{id}/requests/@me с X-Super-Properties, перезагружать роли GET /api/v9/guilds/{id}/members/@me и пересчитывать channelPermissions через PermissionCalculator; (3) S4: В permissions.rs и data.rs добавить строгую проверку AllowedChannelAccess (can_view, can_send, can_connect) и блокировать отправку Gateway op:4 при !can_connect с точным русским сообщением причины ('Сервер в режиме просмотра', 'Требуется принять правила сервера', 'Роль не даёт права Подключаться (CONNECT)'); (4) V1: В data.rs заменить оптимистичный статус connected при клике на фазы ('signaling' -> 'negotiating' -> 'connected' только после подтверждения VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE + RTC op:4), коалесценцию 120ms для mute/deaf и авто-очистку фантомной сессии по таймауту 15s отправкой op:4 (channel_id: null); (5) Контрактный тест tests/server_join_and_subscriptions_contract.rs. Constraints: Строгий TDD, не менять файлы вне своего контура, запускать cargo через flock /tmp/discord-lab-cargo.lock. Ownership: Только rust/gui-spike/{src/guilds.rs,src/permissions.rs,src/data.rs,tests/server_join_and_subscriptions_contract.rs}. Observable acceptance: flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test server_join_and_subscriptions_contract проходит зелено."
+
+[[orchestration_templates.p0_server_and_voice_serein_fix.steps]]
+name = "task-704-reactive-voice-phases-and-channel-tree-ui"
+profile = "g2_frontend"
+task_group = "G2-FRONTEND"
+task = "Target: rust/gui-spike/ui/modules/voice-rtc-panel.js, rust/gui-spike/ui/modules/channel-tree-view.js, rust/gui-spike/ui/app.js, tests/unit/voice-call-phases-and-server-access.test.mjs. Change: Реализовать этап V5 во фронтенде: (1) В voice-rtc-panel.js отображать все 4 реальные фазы звонка из автомата Calls ('signaling' -> 'Ожидание ответа сервера Discord...', 'negotiating' -> 'Проверка UDP IP Discovery и ключей DAVE...', 'connected' -> 'Голосовая связь установлена • DAVE E2EE', 'error'/'timeout' -> точная причина отказа и кнопка повтора); (2) В channel-tree-view.js и app.js рендерить список участников голосового канала строго из подтверждённых VOICE_STATE_UPDATE событий для данного channelId (без зависших фантомных аватаров до подтверждения и с немедленным удалением при таймауте/выходе) и синхронизировать баннеры/блокировку ввода для lurker, pending:true и отсутствия прав SEND_MESSAGES/CONNECT; (3) Написать и прогнать unit-тест tests/unit/voice-call-phases-and-server-access.test.mjs. Constraints: Строгий TDD, // @ts-check чистый, не трогать Rust-файлы. Ownership: Только rust/gui-spike/ui/{modules/voice-rtc-panel.js,modules/channel-tree-view.js,app.js} и tests/unit/voice-call-phases-and-server-access.test.mjs. Observable acceptance: node --test tests/unit/voice-call-phases-and-server-access.test.mjs && npm run typecheck проходит зелено."
+
+[orchestration_templates.sprint14_media_mls_and_gate]
+description = "Спринт 14: Пакетная сборка RTP и DAVE MLS v1 (TASK-615), UI видео-плеера PiP (TASK-616), оптимистичный чат (TASK-808), обработка прав (TASK-809) и мутационный гейт 15/15 (TASK-622)"
+project = "discord-lab"
+task_group = "SPRINT-14-MEDIA-MLS"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-615-rtp-packetizer-dave-mls-v1"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "TASK-615 (P1, G5 Voice): Пакетная сборка RTP видеопотока и DAVE MLS v1 (Task-602). Шифрование видеопотока с использованием протокола сквозного шифрования DAVE MLS и упаковка в RTP пакеты (AES-GCM / ChaCha20-Poly1305) в rust/crates/discord-voice/src/media/rtp.rs. Контрактные тесты по RE-оракулу Serein."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-616-video-player-pip-ui"
+profile = "g2_frontend"
+task_group = "G2-FRONTEND"
+task = "TASK-616 (P1, G2 Frontend): UI Видео-плеера и Picture-in-Picture (Task-604). Компонент просмотра видеотрансляции с элементами управления качеством, переключением во весь экран и плавающим окном PiP. Скрытие контролов через 3с бездействия."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-808-optimistic-chat-delivery"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "TASK-808 (P2, G1 Backend): Оптимистичная отдача сообщений чата и неблокирующий ACK в rust/gui-spike/src/data.rs."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-809-voice-invite-error-handling"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "TASK-809 (P2, G1 Backend): Обработка ошибок прав create_invite на голосовых каналах с использованием Discord Permissions bitfields."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-622-mutation-gate-15-15"
+profile = "g4_qa"
+task_group = "G4-QA"
+task = "TASK-622 (P0, G4 QA / PM Review): Мутационный набор тестов 15/15 (Quality Gate v2). Независимая проверка устойчивости контрактов к мутациям (100% kill rate) без ослабления ассертов."
+
+[orchestration_templates.sprint15_gpui_core_foundation]
+description = "Спринт 15: Нативная архитектура GPUI — Реактивная модель AppState (TASK-702), тема DiscordDarkTheme (TASK-703), REST v9 reqwest клиент (TASK-704) и headless тест-харнесс TestAppContext (TASK-705)"
+project = "discord-lab"
+task_group = "SPRINT-15-GPUI-FOUNDATION"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-702-appstate-model-tokio-gpui"
+profile = "g1_backend"
+task_group = "G1-ARCH"
+task = "TASK-702 (P0, Chief Architect + G1 Backend): Реактивная модель AppState (Model<T>), мост связи Tokio ↔ GPUI Event Loop по docs/specs/GPUI-ARCHITECTURE-MIGRATION.md. Использование gemini-4-carbon-high."
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-703-discord-dark-theme-gpui"
+profile = "g3_design"
+task_group = "G3-DESIGN"
+task = "TASK-703 (P0, G3 Design Lead): Тема DiscordDarkTheme в gpui-kit::ActiveTheme, ассеты, дизайн-токены и типографика."
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-704-rest-v9-reqwest-backoff"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "TASK-704 (P0, G1 Backend Lead): REST v9 клиент на базе reqwest + backoff (замена самописного HTTP) с rate-limiting и пулом соединений."
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-705-headless-ui-test-app-context"
+profile = "g4_qa"
+task_group = "G4-QA"
+task = "TASK-705 (P0, G4 QA Lead): Headless UI тест-харнесс на gpui::TestAppContext (без Chromium/Xvfb) со 100% изоляцией тестов."

@@ -952,6 +952,558 @@ pub fn parse_remb(bytes: &[u8]) -> Result<RtcpRemb, RtcpError> {
     })
 }
 
+/// Длина пустого открытого пакета `RTCP Receiver Report` без блоков отчёта (`RC = 0`, 8 байт).
+pub const RTCP_EMPTY_RR_LEN: usize = 8;
+
+/// Максимальное число блоков отчёта (`ReportBlock`) в одном пакете `RTCP Receiver Report` (5-битное поле `RC = 0..=31`).
+pub const RTCP_MAX_REPORT_BLOCKS: usize = 31;
+
+/// Минимальное значение 24-битного знакового поля `cumulative_lost` в `ReportBlock` (`-8_388_608`).
+pub const CUMULATIVE_LOST_MIN: i32 = -0x0080_0000;
+
+/// Максимальное значение 24-битного знакового поля `cumulative_lost` в `ReportBlock` (`+8_388_607`).
+pub const CUMULATIVE_LOST_MAX: i32 = 0x007F_FFFF;
+
+/// Собирает открытый пакет `RTCP Receiver Report` (`PT = 201`) с `0..=31` блоками `ReportBlock` по RFC 3550 §6.4.2.
+pub fn build_receiver_reports(
+    sender_ssrc: u32,
+    reports: &[ReportBlock],
+) -> Result<Vec<u8>, RtcpError> {
+    if reports.len() > RTCP_MAX_REPORT_BLOCKS {
+        return Err(RtcpError::InvalidLength {
+            payload_type: RTCP_RR,
+            length_words: u16::try_from(1 + reports.len() * 6).unwrap_or(u16::MAX),
+        });
+    }
+    let rc = reports.len() as u8;
+    let total_bytes = RTCP_EMPTY_RR_LEN + reports.len() * REPORT_BLOCK_LEN;
+    let length_words = ((total_bytes / 4) - 1) as u16;
+    let mut out = Vec::with_capacity(total_bytes);
+    out.push(0x80 | rc);
+    out.push(RTCP_RR);
+    out.extend_from_slice(&length_words.to_be_bytes());
+    out.extend_from_slice(&sender_ssrc.to_be_bytes());
+    for report in reports {
+        let mut block = [0u8; REPORT_BLOCK_LEN];
+        block[0..4].copy_from_slice(&report.ssrc.to_be_bytes());
+        block[4] = report.fraction_lost;
+        let cum_bytes = report.cumulative_lost.to_be_bytes();
+        block[5..8].copy_from_slice(&cum_bytes[1..4]);
+        block[8..12].copy_from_slice(&report.extended_highest_seq.to_be_bytes());
+        block[12..16].copy_from_slice(&report.jitter.to_be_bytes());
+        block[16..20].copy_from_slice(&report.last_sr.to_be_bytes());
+        block[20..24].copy_from_slice(&report.delay_since_last_sr.to_be_bytes());
+        out.extend_from_slice(&block);
+    }
+    Ok(out)
+}
+
+/// Разбирает открытый пакет `RTCP Receiver Report` (`PT = 201`) с `0..=31` блоками `ReportBlock`.
+pub fn parse_receiver_reports(bytes: &[u8]) -> Result<(u32, Vec<ReportBlock>), RtcpError> {
+    if bytes.len() < RTCP_EMPTY_RR_LEN {
+        return Err(RtcpError::Truncated {
+            needed: RTCP_EMPTY_RR_LEN,
+            available: bytes.len(),
+        });
+    }
+    let version = bytes[0] >> 6;
+    if version != 2 {
+        return Err(RtcpError::InvalidVersion(version));
+    }
+    if bytes[0] & 0x20 != 0 {
+        return Err(RtcpError::UnsupportedPadding);
+    }
+    let rc = usize::from(bytes[0] & 0x1f);
+    let payload_type = bytes[1];
+    let length_words = u16::from_be_bytes([bytes[2], bytes[3]]);
+    let expected_len = RTCP_EMPTY_RR_LEN + rc * REPORT_BLOCK_LEN;
+    let declared_len = (usize::from(length_words) + 1) * 4;
+    if payload_type != RTCP_RR || declared_len != expected_len {
+        return Err(RtcpError::InvalidLength {
+            payload_type,
+            length_words,
+        });
+    }
+    if bytes.len() < expected_len {
+        return Err(RtcpError::Truncated {
+            needed: expected_len,
+            available: bytes.len(),
+        });
+    }
+    let sender_ssrc = read_u32(bytes, 4);
+    let blocks = parse_reports(&bytes[RTCP_EMPTY_RR_LEN..expected_len], rc as u8);
+    Ok((sender_ssrc, blocks))
+}
+
+/// Собирает составной открытый пакет `RTCP Receiver Report (PT=201) + PLI (PT=206, FMT=1)` по RFC 3550 §6.1 и RFC 4585 §6.1.
+#[must_use]
+pub fn build_compound_rr_pli(
+    sender_ssrc: u32,
+    report: Option<&ReportBlock>,
+    media_ssrc: u32,
+) -> Vec<u8> {
+    let mut out = match report {
+        Some(rb) => build_receiver_report(sender_ssrc, rb).to_vec(),
+        None => build_receiver_reports(sender_ssrc, &[]).expect("empty RR is always valid"),
+    };
+    out.extend_from_slice(&build_pli(sender_ssrc, media_ssrc));
+    out
+}
+
+/// Собирает составной открытый пакет `RTCP Receiver Report (PT=201) + FIR (PT=206, FMT=4)` по RFC 3550 §6.1 и RFC 5104 §4.3.1.
+#[must_use]
+pub fn build_compound_rr_fir(
+    sender_ssrc: u32,
+    report: Option<&ReportBlock>,
+    media_ssrc: u32,
+    sequence_number: u8,
+) -> Vec<u8> {
+    let mut out = match report {
+        Some(rb) => build_receiver_report(sender_ssrc, rb).to_vec(),
+        None => build_receiver_reports(sender_ssrc, &[]).expect("empty RR is always valid"),
+    };
+    out.extend_from_slice(&build_fir(sender_ssrc, media_ssrc, sequence_number));
+    out
+}
+
+/// Шифрует одиночный пакет `RTCP PLI (PT=206, FMT=1)` в SRTCP через `SrtpContext`.
+pub fn build_srtcp_pli(
+    ctx: &mut crate::srtp::SrtpContext,
+    sender_ssrc: u32,
+    media_ssrc: u32,
+) -> Result<Vec<u8>, crate::srtp::SrtpError> {
+    let clear = build_pli(sender_ssrc, media_ssrc);
+    ctx.encrypt_srtcp(&clear)
+}
+
+/// Шифрует одиночный пакет `RTCP FIR (PT=206, FMT=4)` в SRTCP через `SrtpContext`.
+pub fn build_srtcp_fir(
+    ctx: &mut crate::srtp::SrtpContext,
+    sender_ssrc: u32,
+    media_ssrc: u32,
+    sequence_number: u8,
+) -> Result<Vec<u8>, crate::srtp::SrtpError> {
+    let clear = build_fir(sender_ssrc, media_ssrc, sequence_number);
+    ctx.encrypt_srtcp(&clear)
+}
+
+/// Шифрует составной пакет `RTCP Receiver Report (PT=201) + PLI (PT=206, FMT=1)` в SRTCP.
+pub fn build_srtcp_compound_rr_pli(
+    ctx: &mut crate::srtp::SrtpContext,
+    sender_ssrc: u32,
+    report: Option<&ReportBlock>,
+    media_ssrc: u32,
+) -> Result<Vec<u8>, crate::srtp::SrtpError> {
+    let clear = build_compound_rr_pli(sender_ssrc, report, media_ssrc);
+    ctx.encrypt_srtcp(&clear)
+}
+
+/// Шифрует составной пакет `RTCP Receiver Report (PT=201) + FIR (PT=206, FMT=4)` в SRTCP.
+pub fn build_srtcp_compound_rr_fir(
+    ctx: &mut crate::srtp::SrtpContext,
+    sender_ssrc: u32,
+    report: Option<&ReportBlock>,
+    media_ssrc: u32,
+    sequence_number: u8,
+) -> Result<Vec<u8>, crate::srtp::SrtpError> {
+    let clear = build_compound_rr_fir(sender_ssrc, report, media_ssrc, sequence_number);
+    ctx.encrypt_srtcp(&clear)
+}
+
+/// Тип последнего входящего запроса ключевого кадра (`PT = 206, FMT = 1` или `FMT = 4`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum KeyframeRequestKind {
+    /// Picture Loss Indication (`PT = 206, FMT = 1`, RFC 4585 §6.3.1).
+    Pli,
+    /// Full Intra Request (`PT = 206, FMT = 4`, RFC 5104 §4.3.1) с 8-битным номером команды.
+    Fir { sequence_number: u8 },
+}
+
+/// Контроллер генерации и приёма RTCP-запросов ключевых кадров (`PLI` / `FIR`) по RFC 4585 и RFC 5104.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RtcpKeyframeController {
+    local_sender_ssrc: u32,
+    local_video_ssrc: u32,
+    outbound_fir_seq: std::collections::BTreeMap<u32, u8>,
+    inbound_fir_seq: std::collections::BTreeMap<(u32, u32), u8>,
+    keyframe_requested: bool,
+    inbound_pli_count: u64,
+    inbound_fir_count: u64,
+    last_request_kind: Option<KeyframeRequestKind>,
+}
+
+impl RtcpKeyframeController {
+    /// Создаёт контроллер ключевых кадров для локального `sender_ssrc` и `local_video_ssrc`.
+    #[must_use]
+    pub const fn new(local_sender_ssrc: u32, local_video_ssrc: u32) -> Self {
+        Self {
+            local_sender_ssrc,
+            local_video_ssrc,
+            outbound_fir_seq: std::collections::BTreeMap::new(),
+            inbound_fir_seq: std::collections::BTreeMap::new(),
+            keyframe_requested: false,
+            inbound_pli_count: 0,
+            inbound_fir_count: 0,
+            last_request_kind: None,
+        }
+    }
+
+    /// Обновляет локальные SSRC (`sender_ssrc`, `video_ssrc`).
+    pub fn set_local_ssrcs(&mut self, local_sender_ssrc: u32, local_video_ssrc: u32) {
+        self.local_sender_ssrc = local_sender_ssrc;
+        self.local_video_ssrc = local_video_ssrc;
+    }
+
+    /// Возвращает следующий 8-битный `sequence_number` команды `FIR` для `media_ssrc` и инкрементирует его (`0..=255`).
+    pub fn next_fir_sequence(&mut self, media_ssrc: u32) -> u8 {
+        let entry = self.outbound_fir_seq.entry(media_ssrc).or_insert(0);
+        let current = *entry;
+        *entry = current.wrapping_add(1);
+        current
+    }
+
+    /// Собирает 12-байтный открытый пакет `RTCP PLI (PT=206, FMT=1)` для `media_ssrc`.
+    #[must_use]
+    pub fn build_pli_packet(&self, media_ssrc: u32) -> [u8; RTCP_PLI_LEN] {
+        build_pli(self.local_sender_ssrc, media_ssrc)
+    }
+
+    /// Собирает 20-байтный открытый пакет `RTCP FIR (PT=206, FMT=4)` для `media_ssrc` с авто-инкрементом `sequence_number`.
+    pub fn build_fir_packet(&mut self, media_ssrc: u32) -> [u8; RTCP_FIR_LEN] {
+        let seq = self.next_fir_sequence(media_ssrc);
+        build_fir(self.local_sender_ssrc, media_ssrc, seq)
+    }
+
+    /// Обрабатывает один разобранный `RtcpPacket`. Возвращает `true`, если пакет потребовал генерации нового ключевого кадра.
+    pub fn on_rtcp_packet(&mut self, packet: &RtcpPacket) -> bool {
+        match packet {
+            RtcpPacket::Pli(pli) => {
+                if self.local_video_ssrc == 0
+                    || pli.media_ssrc == 0
+                    || pli.media_ssrc == self.local_video_ssrc
+                {
+                    self.keyframe_requested = true;
+                    self.inbound_pli_count += 1;
+                    self.last_request_kind = Some(KeyframeRequestKind::Pli);
+                    true
+                } else {
+                    false
+                }
+            }
+            RtcpPacket::Fir(fir) => {
+                let mut triggered = false;
+                for entry in &fir.entries {
+                    if self.local_video_ssrc == 0
+                        || entry.ssrc == 0
+                        || entry.ssrc == self.local_video_ssrc
+                    {
+                        let key = (fir.sender_ssrc, entry.ssrc);
+                        if self.inbound_fir_seq.get(&key).copied() != Some(entry.sequence_number) {
+                            self.inbound_fir_seq.insert(key, entry.sequence_number);
+                            self.keyframe_requested = true;
+                            self.inbound_fir_count += 1;
+                            self.last_request_kind = Some(KeyframeRequestKind::Fir {
+                                sequence_number: entry.sequence_number,
+                            });
+                            triggered = true;
+                        }
+                    }
+                }
+                triggered
+            }
+            RtcpPacket::ReceiverReport { reports, .. }
+            | RtcpPacket::SenderReport { reports, .. } => {
+                let mut triggered = false;
+                for rb in reports {
+                    if (self.local_video_ssrc == 0 || rb.ssrc == self.local_video_ssrc)
+                        && (f64::from(rb.fraction_lost) * 100.0 / 256.0)
+                            > DISCORD_HIGH_PACKET_LOSS_THRESHOLD_PCT
+                    {
+                        self.keyframe_requested = true;
+                        triggered = true;
+                    }
+                }
+                triggered
+            }
+            _ => false,
+        }
+    }
+
+    /// Обрабатывает составной RTCP-пакет (`Compound`). Возвращает `true`, если хотя бы один суб-пакет запросил ключевой кадр.
+    pub fn on_compound(&mut self, compound: &Compound) -> bool {
+        let mut triggered = false;
+        for pkt in &compound.packets {
+            if self.on_rtcp_packet(pkt) {
+                triggered = true;
+            }
+        }
+        triggered
+    }
+
+    /// Принудительно выставляет запрос генерации ключевого кадра.
+    pub fn request_keyframe(&mut self) {
+        self.keyframe_requested = true;
+    }
+
+    /// Проверяет, ожидает ли отправка генерации ключевого кадра (`IDR` / `OBU_SEQUENCE_HEADER`).
+    #[must_use]
+    pub const fn is_keyframe_requested(&self) -> bool {
+        self.keyframe_requested
+    }
+
+    /// Забирает и сбрасывает флаг запроса ключевого кадра.
+    pub fn take_keyframe_request(&mut self) -> bool {
+        std::mem::replace(&mut self.keyframe_requested, false)
+    }
+
+    /// Количество принятых запросов `RTCP PLI (PT=206, FMT=1)`.
+    #[must_use]
+    pub const fn inbound_pli_count(&self) -> u64 {
+        self.inbound_pli_count
+    }
+
+    /// Количество принятых новых запросов `RTCP FIR (PT=206, FMT=4)`.
+    #[must_use]
+    pub const fn inbound_fir_count(&self) -> u64 {
+        self.inbound_fir_count
+    }
+
+    /// Вид последнего принятого запроса ключевого кадра.
+    #[must_use]
+    pub const fn last_request_kind(&self) -> Option<KeyframeRequestKind> {
+        self.last_request_kind
+    }
+}
+
+// ============================================================================
+// Подавление кодов ошибок Discord WebRTC AV 2001, 2002, 2003, 2012, 2013
+// Провенанс: `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`
+// (модуль 487329, смещение 4468194..4485000, и модуль 803301 `VideoStreamStore`).
+// ============================================================================
+
+/// Порог высокой потери пакетов Discord для кода `2003` (`packetLossRate * 100 > 10`, т.е. `> 10.0%`).
+pub const DISCORD_HIGH_PACKET_LOSS_THRESHOLD_PCT: f64 = 10.0;
+
+/// Минимальный FPS кодирования камеры для кода `2013` (`frameRate < 10`).
+pub const DISCORD_CAMERA_MIN_ENCODE_FPS: u32 = 10;
+
+/// Минимальная длительность активного приёма видео (`> 10_000 ms`) перед проверкой кода `2002`.
+pub const DISCORD_VIEW_LOW_FPS_MIN_ENABLED_MS: u64 = 10_000;
+
+/// Минимальная длительность активного `remoteSinkWants` (`>= 20_000 ms`) перед проверкой кода `2013`.
+pub const DISCORD_CAMERA_LOW_FPS_MIN_WANTS_MS: u64 = 20_000;
+
+/// Минимальное число выборок телеметрии (`>= 15` datapoints) для кодов `2002` и `2003`.
+pub const DISCORD_MIN_DATAPOINTS_FOR_FPS_LOSS_EVAL: usize = 15;
+
+/// Целевые коды ошибок Discord WebRTC / AV (`AVErrorCodes` в модуле `487329`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u16)]
+pub enum WebRtcAvErrorCode {
+    /// `2001` — `"stream-failed-to-start"` (`critical`, `video`, `isErrorOutbound: true`).
+    StreamFailedToStart = 2001,
+    /// `2002` — `"stream-view-low-fps"` (`warning`, `video`, `isErrorOutbound: false`).
+    StreamViewLowFps = 2002,
+    /// `2003` — `"stream-view-high-packet-loss"` (`warning`, `video`, `isErrorOutbound: false`).
+    StreamViewHighPacketLoss = 2003,
+    /// `2012` — `"video-stream-receiver-ready-timeout"` (`critical`, `video`, `isErrorOutbound: false`).
+    VideoStreamReceiverReadyTimeout = 2012,
+    /// `2013` — `"camera-send-low-encode-fps"` (`warning`, `video`, `isErrorOutbound: true`).
+    CameraSendLowEncodeFps = 2013,
+}
+
+impl WebRtcAvErrorCode {
+    /// Преобразует числовой код `u16` в типизированный `WebRtcAvErrorCode`.
+    #[must_use]
+    pub const fn from_code(code: u16) -> Option<Self> {
+        match code {
+            2001 => Some(Self::StreamFailedToStart),
+            2002 => Some(Self::StreamViewLowFps),
+            2003 => Some(Self::StreamViewHighPacketLoss),
+            2012 => Some(Self::VideoStreamReceiverReadyTimeout),
+            2013 => Some(Self::CameraSendLowEncodeFps),
+            _ => None,
+        }
+    }
+
+    /// Числовой код ошибки (`2001`, `2002`, `2003`, `2012`, `2013`).
+    #[must_use]
+    pub const fn code(self) -> u16 {
+        self as u16
+    }
+
+    /// Строковый идентификатор ошибки из бандла Discord (`AVError`).
+    #[must_use]
+    pub const fn slug(self) -> &'static str {
+        match self {
+            Self::StreamFailedToStart => "stream-failed-to-start",
+            Self::StreamViewLowFps => "stream-view-low-fps",
+            Self::StreamViewHighPacketLoss => "stream-view-high-packet-loss",
+            Self::VideoStreamReceiverReadyTimeout => "video-stream-receiver-ready-timeout",
+            Self::CameraSendLowEncodeFps => "camera-send-low-encode-fps",
+        }
+    }
+
+    /// Критичность ошибки по классификатору Discord (`"critical"` или `"warning"`).
+    #[must_use]
+    pub const fn severity(self) -> &'static str {
+        match self {
+            Self::StreamFailedToStart | Self::VideoStreamReceiverReadyTimeout => "critical",
+            Self::StreamViewLowFps
+            | Self::StreamViewHighPacketLoss
+            | Self::CameraSendLowEncodeFps => "warning",
+        }
+    }
+
+    /// Категория ошибки по классификатору Discord (`"video"`).
+    #[must_use]
+    pub const fn category(self) -> &'static str {
+        "video"
+    }
+
+    /// Признак исходящей ошибки (`isErrorOutbound` в метаданных Discord).
+    #[must_use]
+    pub const fn is_error_outbound(self) -> bool {
+        matches!(
+            self,
+            Self::StreamFailedToStart | Self::CameraSendLowEncodeFps
+        )
+    }
+}
+
+/// Точная кусочно-постоянная функция порога низкого FPS `B(maxFrameRate)` из модуля `487329` Discord:
+/// - `maxFrameRate <= 5 => 3`
+/// - `maxFrameRate <= 15 => 8`
+/// - `maxFrameRate <= 30 => 15`
+/// - `maxFrameRate > 30 => 30`
+#[must_use]
+pub const fn discord_stream_low_fps_threshold(max_framerate: u32) -> u32 {
+    let e = if max_framerate == 0 {
+        30
+    } else {
+        max_framerate
+    };
+    if e <= 5 {
+        3
+    } else if e <= 15 {
+        8
+    } else if e <= 30 {
+        15
+    } else {
+        30
+    }
+}
+
+/// Входные метрики видеопотока для диагностики и подавления кодов `2001, 2002, 2003, 2012, 2013`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WebRtcStreamHealthInput {
+    pub is_go_live: bool,
+    pub identify_stream_type_is_screen: bool,
+    pub stream_failed_without_error_code: bool,
+    pub incoming_video_enabled_ms: u64,
+    pub datapoints: usize,
+    pub max_framerate: u32,
+    pub view_short_fps: f64,
+    pub view_long_fps: f64,
+    pub packet_loss_rate: f64,
+    pub remote_video_announced_without_keyframe: bool,
+    pub awaiting_first_keyframe_ms: u64,
+    pub camera_enabled: bool,
+    pub active_remote_wants_ms: u64,
+    pub camera_encode_short_fps: f64,
+    pub camera_encode_long_fps: f64,
+}
+
+/// Корректирующее действие протокола для подавления кодов `2001, 2002, 2003, 2012, 2013`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WebRtcMitigationAction {
+    /// Использовать `type: "screen"` в `OP 0 IDENTIFY` и `OP 12 VIDEO` для сессии Go Live (`2001`).
+    UseScreenStreamTypeInIdentify,
+    /// Отправить `RTCP PLI (PT=206, FMT=1)` для немедленного восстановления ключевого кадра (`2012`, `2003`).
+    SendRtcpPli,
+    /// Отправить `RTCP FIR (PT=206, FMT=4)` с инкрементом `sequence_number` для полного IDR-кадра (`2012`, `2003`).
+    SendRtcpFir,
+    /// Отправить `RTCP Receiver Report (PT=201)` со статистикой потерь и джиттера (`2003`).
+    SendRtcpReceiverReport,
+    /// Поддерживать генерацию keepalive-кадров с частотой не ниже `min_fps` и монотонным 90 кГц timestamp (`2002`, `2013`).
+    EmitKeepaliveVideoFrame { min_fps: u32 },
+}
+
+/// Результат диагностики здоровья видеопотока и список мер подавления ошибок.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WebRtcStreamHealthDiagnostics {
+    pub active_codes: Vec<WebRtcAvErrorCode>,
+    pub mitigations: Vec<WebRtcMitigationAction>,
+}
+
+/// Оценивает телеметрию видеопотока по точным формулам Discord и возвращает коды `2001, 2002, 2003, 2012, 2013` и меры их подавления.
+#[must_use]
+pub fn evaluate_webrtc_stream_health(
+    input: &WebRtcStreamHealthInput,
+) -> WebRtcStreamHealthDiagnostics {
+    let mut active_codes = Vec::new();
+    let mut mitigations = Vec::new();
+
+    // 2001: stream-failed-to-start
+    if input.stream_failed_without_error_code
+        || (input.is_go_live && !input.identify_stream_type_is_screen)
+    {
+        active_codes.push(WebRtcAvErrorCode::StreamFailedToStart);
+        mitigations.push(WebRtcMitigationAction::UseScreenStreamTypeInIdentify);
+    }
+
+    // 2002: stream-view-low-fps
+    let fps_threshold = discord_stream_low_fps_threshold(input.max_framerate);
+    if input.incoming_video_enabled_ms > DISCORD_VIEW_LOW_FPS_MIN_ENABLED_MS
+        && input.datapoints >= DISCORD_MIN_DATAPOINTS_FOR_FPS_LOSS_EVAL
+        && (input.view_short_fps < f64::from(fps_threshold)
+            || input.view_long_fps < f64::from(fps_threshold))
+    {
+        active_codes.push(WebRtcAvErrorCode::StreamViewLowFps);
+        mitigations.push(WebRtcMitigationAction::EmitKeepaliveVideoFrame {
+            min_fps: fps_threshold,
+        });
+    }
+
+    // 2003: stream-view-high-packet-loss
+    if input.datapoints >= DISCORD_MIN_DATAPOINTS_FOR_FPS_LOSS_EVAL
+        && input.packet_loss_rate * 100.0 > DISCORD_HIGH_PACKET_LOSS_THRESHOLD_PCT
+    {
+        active_codes.push(WebRtcAvErrorCode::StreamViewHighPacketLoss);
+        mitigations.push(WebRtcMitigationAction::SendRtcpReceiverReport);
+        mitigations.push(WebRtcMitigationAction::SendRtcpPli);
+    }
+
+    // 2012: video-stream-receiver-ready-timeout
+    if input.remote_video_announced_without_keyframe && input.awaiting_first_keyframe_ms >= 200 {
+        active_codes.push(WebRtcAvErrorCode::VideoStreamReceiverReadyTimeout);
+        if !mitigations.contains(&WebRtcMitigationAction::SendRtcpPli) {
+            mitigations.push(WebRtcMitigationAction::SendRtcpPli);
+        }
+        mitigations.push(WebRtcMitigationAction::SendRtcpFir);
+    }
+
+    // 2013: camera-send-low-encode-fps
+    if input.camera_enabled
+        && input.active_remote_wants_ms >= DISCORD_CAMERA_LOW_FPS_MIN_WANTS_MS
+        && (input.camera_encode_short_fps < f64::from(DISCORD_CAMERA_MIN_ENCODE_FPS)
+            || input.camera_encode_long_fps < f64::from(DISCORD_CAMERA_MIN_ENCODE_FPS))
+    {
+        active_codes.push(WebRtcAvErrorCode::CameraSendLowEncodeFps);
+        let keepalive = WebRtcMitigationAction::EmitKeepaliveVideoFrame {
+            min_fps: fps_threshold.max(DISCORD_CAMERA_MIN_ENCODE_FPS),
+        };
+        if !mitigations.contains(&keepalive) {
+            mitigations.push(keepalive);
+        }
+    }
+
+    WebRtcStreamHealthDiagnostics {
+        active_codes,
+        mitigations,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

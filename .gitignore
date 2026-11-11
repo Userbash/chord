@@ -41,3 +41,13 @@ waves/**/*.zst
 __pycache__/
 *.pyc
 rust/dist/discord-gui-spike
+rust/dist/discord-gpui
+rust/dist/*.tar.gz
+rust/dist/*.AppImage*
+rust/dist/discord-gui-spike
+rust/dist/discord-rs
+docs/reference-projects/sources/
+target/
+rust/target/
+**/target/
+tests/e2e/harness/target/

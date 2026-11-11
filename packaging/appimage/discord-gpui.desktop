@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Discord GPUI
+GenericName=Discord Client
+Comment=Native Rust GPUI Discord client with WGPU 120 FPS and DAVE MLS v1
+Exec=discord-gpui %U
+TryExec=discord-gpui
+Icon=discord-gpui
+Terminal=false
+Categories=Network;InstantMessaging;Chat;
+MimeType=x-scheme-handler/discord;
+StartupWMClass=discord-gpui
+StartupNotify=true
+Keywords=Discord;Chat;Voice;GPUI;Wayland;
+X-AppImage-Name=discord-gpui
+X-AppImage-Version=1.0.0-beta.1
+X-AppImage-Arch=x86_64

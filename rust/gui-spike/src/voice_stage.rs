@@ -89,7 +89,8 @@ impl<'de> Deserialize<'de> for StreamFps {
             type Value = StreamFps;
 
             fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("целое число 30 или 60, либо строка '30', '60', 'Fps30', 'Fps60'")
+                formatter
+                    .write_str("целое число 30 или 60, либо строка '30', '60', 'Fps30', 'Fps60'")
             }
 
             fn visit_i64<E>(self, value: i64) -> Result<StreamFps, E>

@@ -22,8 +22,20 @@ pub const FRAME_DURATION_MS: u32 = 20;
 /// Тиков RTP на кадр: `OPUS_CLOCK_RATE * FRAME_DURATION_MS / 1000`.
 pub const FRAME_TICKS: u32 = 960;
 
-/// Профиль one-byte-расширения RFC 5285 из capture.
+/// Профиль one-byte-расширения RFC 5285 / RFC 8285 из capture.
 pub const EXTENSION_PROFILE: u16 = 0xBEDE;
+
+/// Базовый профиль two-byte-расширения RFC 8285 (`0x1000..=0x100F`, младшие 4 бита — `appbits`).
+pub const TWO_BYTE_EXTENSION_PROFILE: u16 = 0x1000;
+
+/// Маска старших 12 бит профиля two-byte-расширения RFC 8285.
+pub const TWO_BYTE_EXTENSION_MASK: u16 = 0xFFF0;
+
+/// Проверяет, принадлежит ли `profile` диапазону RFC 8285 Two-Byte Header (`0x1000..=0x100F`).
+#[must_use]
+pub const fn is_two_byte_extension_profile(profile: u16) -> bool {
+    (profile & TWO_BYTE_EXTENSION_MASK) == TWO_BYTE_EXTENSION_PROFILE
+}
 
 /// Минимальная длина RTP-заголовка (фиксированная часть, 12 Б).
 pub const RTP_HEADER_LEN: usize = 12;
@@ -190,7 +202,7 @@ pub fn parse_rtp(bytes: &[u8]) -> Result<RtpPacket<'_>, RtpError> {
         let data_start = offset + EXTENSION_HEADER_LEN;
         let declared = words * EXTENSION_WORD;
         let available = bytes.len() - data_start;
-        let standard = profile == EXTENSION_PROFILE;
+        let standard = profile == EXTENSION_PROFILE || is_two_byte_extension_profile(profile);
         let data = if declared <= available {
             &bytes[data_start..data_start + declared]
         } else if standard {
@@ -224,6 +236,207 @@ pub fn parse_rtp(bytes: &[u8]) -> Result<RtpPacket<'_>, RtpError> {
         extension,
         payload: &bytes[offset..payload_end],
     })
+}
+
+/// Формат заголовка элементов расширения RTP по RFC 5285 / RFC 8285.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RtpExtensionFormat {
+    /// Однобайтовый заголовок `0xBEDE` (`id: 1..=14`, `len: 1..=16`).
+    OneByte,
+    /// Двухбайтовый заголовок `0x1000..=0x100F` (`id: 1..=255`, `len: 0..=255`, 4 бита `appbits`).
+    TwoByte { appbits: u8 },
+}
+
+/// Отдельный элемент расширения заголовка RTP (`RFC 5285` / `RFC 8285`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RtpExtensionElement<'a> {
+    /// Локальный идентификатор расширения (`1..=14` для One-Byte, `1..=255` для Two-Byte).
+    pub id: u8,
+    /// Срез полезных данных элемента расширения.
+    pub data: &'a [u8],
+}
+
+/// Ошибка разбора/кодирования элементов расширения заголовка RTP (`RFC 5285` / `RFC 8285`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RtpExtensionError {
+    /// Профиль расширения не относится к `0xBEDE` или `0x1000..=0x100F`.
+    UnsupportedProfile(u16),
+    /// Зарезервированный или недопустимый `id` элемента (например `0` с ненулевой длиной или `>14` при кодировании One-Byte).
+    ReservedElementId(u8),
+    /// Недопустимая длина данных элемента при кодировании (`0` или `>16` в One-Byte, `>255` в Two-Byte).
+    InvalidElementLength { id: u8, len: usize },
+    /// Данные элемента обрезаны концом блока расширения RTP.
+    TruncatedElement {
+        id: u8,
+        declared_len: usize,
+        available: usize,
+    },
+}
+
+impl fmt::Display for RtpExtensionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::UnsupportedProfile(profile) => {
+                write!(
+                    f,
+                    "неподдерживаемый профиль RTP-расширения: 0x{profile:04x}"
+                )
+            }
+            Self::ReservedElementId(id) => {
+                write!(
+                    f,
+                    "недопустимый идентификатор элемента RTP-расширения: {id}"
+                )
+            }
+            Self::InvalidElementLength { id, len } => {
+                write!(
+                    f,
+                    "недопустимая длина элемента RTP-расширения id={id}: {len} Б"
+                )
+            }
+            Self::TruncatedElement {
+                id,
+                declared_len,
+                available,
+            } => write!(
+                f,
+                "усечён элемент RTP-расширения id={id}: заявлено {declared_len} Б, доступно {available} Б"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for RtpExtensionError {}
+
+/// Разбирает элементы расширения заголовка RTP в форматах RFC 5285 / RFC 8285:
+/// One-Byte (`0xBEDE`) и Two-Byte (`0x1000..=0x100F`).
+pub fn parse_rtp_extension_elements<'a>(
+    ext: &RtpExtension<'a>,
+) -> Result<(RtpExtensionFormat, Vec<RtpExtensionElement<'a>>), RtpExtensionError> {
+    if ext.profile == EXTENSION_PROFILE {
+        let mut elements = Vec::new();
+        let mut pos = 0usize;
+        while pos < ext.data.len() {
+            let header_byte = ext.data[pos];
+            pos += 1;
+            if header_byte == 0 {
+                // Байт выравнивания (padding) по RFC 8285 §4.2.
+                continue;
+            }
+            let id = header_byte >> 4;
+            let len_minus_one = header_byte & 0x0F;
+            if id == 0 {
+                // `id == 0` при `L != 0` запрещён стандартом RFC 8285 §4.2.
+                return Err(RtpExtensionError::ReservedElementId(0));
+            }
+            if id == 15 {
+                // RFC 5285 §4.2: локальный идентификатор 15 завершает обработку расширения.
+                break;
+            }
+            let elem_len = usize::from(len_minus_one) + 1;
+            let available = ext.data.len() - pos;
+            if elem_len > available {
+                return Err(RtpExtensionError::TruncatedElement {
+                    id,
+                    declared_len: elem_len,
+                    available,
+                });
+            }
+            elements.push(RtpExtensionElement {
+                id,
+                data: &ext.data[pos..pos + elem_len],
+            });
+            pos += elem_len;
+        }
+        Ok((RtpExtensionFormat::OneByte, elements))
+    } else if is_two_byte_extension_profile(ext.profile) {
+        let appbits = (ext.profile & 0x000F) as u8;
+        let mut elements = Vec::new();
+        let mut pos = 0usize;
+        while pos < ext.data.len() {
+            let id = ext.data[pos];
+            pos += 1;
+            if id == 0 {
+                // Байт выравнивания (padding) в Two-Byte Header по RFC 8285 §4.3.
+                continue;
+            }
+            if pos >= ext.data.len() {
+                return Err(RtpExtensionError::TruncatedElement {
+                    id,
+                    declared_len: 1,
+                    available: 0,
+                });
+            }
+            let elem_len = usize::from(ext.data[pos]);
+            pos += 1;
+            let available = ext.data.len() - pos;
+            if elem_len > available {
+                return Err(RtpExtensionError::TruncatedElement {
+                    id,
+                    declared_len: elem_len,
+                    available,
+                });
+            }
+            elements.push(RtpExtensionElement {
+                id,
+                data: &ext.data[pos..pos + elem_len],
+            });
+            pos += elem_len;
+        }
+        Ok((RtpExtensionFormat::TwoByte { appbits }, elements))
+    } else {
+        Err(RtpExtensionError::UnsupportedProfile(ext.profile))
+    }
+}
+
+/// Кодирует элементы расширения One-Byte Header (`0xBEDE`, RFC 8285 §4.2) с выравниванием до 4 байт.
+pub fn encode_rtp_one_byte_extensions(
+    elements: &[(u8, &[u8])],
+) -> Result<Vec<u8>, RtpExtensionError> {
+    let mut out = Vec::new();
+    for &(id, data) in elements {
+        if id == 0 || id >= 15 {
+            return Err(RtpExtensionError::ReservedElementId(id));
+        }
+        if data.is_empty() || data.len() > 16 {
+            return Err(RtpExtensionError::InvalidElementLength {
+                id,
+                len: data.len(),
+            });
+        }
+        let header_byte = (id << 4) | ((data.len() - 1) as u8);
+        out.push(header_byte);
+        out.extend_from_slice(data);
+    }
+    while !out.len().is_multiple_of(EXTENSION_WORD) {
+        out.push(0);
+    }
+    Ok(out)
+}
+
+/// Кодирует элементы расширения Two-Byte Header (`0x1000..=0x100F`, RFC 8285 §4.3) с выравниванием до 4 байт.
+pub fn encode_rtp_two_byte_extensions(
+    elements: &[(u8, &[u8])],
+) -> Result<Vec<u8>, RtpExtensionError> {
+    let mut out = Vec::new();
+    for &(id, data) in elements {
+        if id == 0 {
+            return Err(RtpExtensionError::ReservedElementId(0));
+        }
+        if data.len() > usize::from(u8::MAX) {
+            return Err(RtpExtensionError::InvalidElementLength {
+                id,
+                len: data.len(),
+            });
+        }
+        out.push(id);
+        out.push(data.len() as u8);
+        out.extend_from_slice(data);
+    }
+    while !out.len().is_multiple_of(EXTENSION_WORD) {
+        out.push(0);
+    }
+    Ok(out)
 }
 
 /// Исходящий RTP-поток Opus: sequence/timestamp и одноразовый marker talkspurt.

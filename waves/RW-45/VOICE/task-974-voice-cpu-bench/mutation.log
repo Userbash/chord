@@ -1,0 +1,8 @@
+Original MD5: 81b7afa14f7c5149ce6988c2a8b234c1
+[KILLED] M1 (participantsCount 25 -> 24) (exit=1)
+[KILLED] M2 (totalPacketsPerSecond 1250 -> 1000) (exit=1)
+[KILLED] M3 (RTP payloadType 120 -> 111) (exit=1)
+[KILLED] M4 (CPU budget < 5.0% -> <= 5.0% boundary bypass) (exit=1)
+[KILLED] M5 (Jitter buffer budget < 25.0ms -> <= 25.0ms boundary bypass) (exit=1)
+Restored MD5: 81b7afa14f7c5149ce6988c2a8b234c1 (match=true)
+Mutation Score: 5/5 (100%)

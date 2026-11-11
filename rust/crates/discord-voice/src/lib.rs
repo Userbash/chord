@@ -12,6 +12,7 @@
 
 pub mod crypto;
 pub mod dave;
+pub mod dave_v1;
 pub mod devices;
 pub mod media;
 pub mod noise;
@@ -55,6 +56,12 @@ pub const RTP_OPUS_PAYLOAD_TYPE: u8 = 120;
 
 /// Payload type AV1 (video) из списка кодеков Select Protocol.
 pub const RTP_AV1_PAYLOAD_TYPE: u8 = 101;
+
+/// Payload type VP8 (video) для медиа-канала (Select Protocol / WebRTC).
+pub const RTP_VP8_PAYLOAD_TYPE: u8 = 107;
+
+/// Payload type VP9 (video) для медиа-канала (WebRTC transport options).
+pub const RTP_VP9_PAYLOAD_TYPE: u8 = 109;
 
 /// Режим шифрования из Session Description (s2/s3).
 pub const MEDIA_ENCRYPTION_MODE: &str = "aead_aes256_gcm_rtpsize";
@@ -432,7 +439,7 @@ pub fn default_client_codecs() -> Vec<Codec> {
             name: "VP8".to_owned(),
             kind: "video".to_owned(),
             priority: 4000,
-            payload_type: 107,
+            payload_type: RTP_VP8_PAYLOAD_TYPE,
             rtx_payload_type: Some(108),
             encode: Some(true),
             decode: Some(true),
@@ -593,6 +600,24 @@ impl fmt::Display for SessionDescription {
             "SessionDescription(mode={}, secret_key=<redacted>, media_session_id=<redacted>)",
             self.mode
         )
+    }
+}
+
+impl SessionDescription {
+    /// Возвращает `true`, если согласован видеокодек VP8.
+    #[must_use]
+    pub fn is_vp8(&self) -> bool {
+        self.video_codec
+            .as_deref()
+            .is_some_and(|c| c.eq_ignore_ascii_case("VP8"))
+    }
+
+    /// Возвращает `true`, если согласован видеокодек VP9.
+    #[must_use]
+    pub fn is_vp9(&self) -> bool {
+        self.video_codec
+            .as_deref()
+            .is_some_and(|c| c.eq_ignore_ascii_case("VP9"))
     }
 }
 
@@ -1882,9 +1907,51 @@ mod tests {
     #[test]
     fn voice_constants_match_re() {
         assert_eq!(super::RTP_OPUS_PAYLOAD_TYPE, 120);
+        assert_eq!(super::RTP_AV1_PAYLOAD_TYPE, 101);
+        assert_eq!(super::RTP_VP8_PAYLOAD_TYPE, 107);
+        assert_eq!(super::RTP_VP9_PAYLOAD_TYPE, 109);
         assert_eq!(super::VOICE_HEARTBEAT_INTERVAL_MS, 13_750);
         assert_eq!(super::KEEPALIVE_MAGIC, 0x1337_cafe);
         assert_ne!(super::KEEPALIVE_MAGIC, super::KEEPALIVE_REPLY);
         assert_eq!(super::OBSERVED_RTC_OPS.len(), 9);
+    }
+
+    #[test]
+    fn session_description_video_codec_detection() {
+        let sd_vp8 = super::SessionDescription {
+            mode: "aead_aes256_gcm_rtpsize".into(),
+            secret_key: vec![0; 32],
+            media_session_id: "test".into(),
+            dave_protocol_version: 0,
+            secure_frames_version: 0,
+            audio_codec: Some("opus".into()),
+            video_codec: Some("VP8".into()),
+        };
+        assert!(sd_vp8.is_vp8());
+        assert!(!sd_vp8.is_vp9());
+
+        let sd_vp9 = super::SessionDescription {
+            mode: "aead_aes256_gcm_rtpsize".into(),
+            secret_key: vec![0; 32],
+            media_session_id: "test".into(),
+            dave_protocol_version: 0,
+            secure_frames_version: 0,
+            audio_codec: Some("opus".into()),
+            video_codec: Some("vp9".into()),
+        };
+        assert!(!sd_vp9.is_vp8());
+        assert!(sd_vp9.is_vp9());
+
+        let sd_h264 = super::SessionDescription {
+            mode: "aead_aes256_gcm_rtpsize".into(),
+            secret_key: vec![0; 32],
+            media_session_id: "test".into(),
+            dave_protocol_version: 0,
+            secure_frames_version: 0,
+            audio_codec: Some("opus".into()),
+            video_codec: Some("H264".into()),
+        };
+        assert!(!sd_h264.is_vp8());
+        assert!(!sd_h264.is_vp9());
     }
 }

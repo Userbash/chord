@@ -5,10 +5,10 @@ use std::time::Duration;
 use discord_core::rest::base64;
 use discord_core::rest::routes::HttpMethod;
 use discord_core::settings::{
+    FRECENCY_AND_FAVORITES_SETTINGS_TYPE, PRELOADED_USER_SETTINGS_TYPE, ProtoField, ProtoMessage,
+    ProtoValue, SettingsProto, SettingsProtoError, SettingsProtoHttpError,
     build_get_settings_proto_request, build_patch_settings_proto_body,
-    parse_settings_proto_response, settings_proto_path, ProtoField, ProtoMessage, ProtoValue,
-    SettingsProto, SettingsProtoError, SettingsProtoHttpError,
-    FRECENCY_AND_FAVORITES_SETTINGS_TYPE, PRELOADED_USER_SETTINGS_TYPE,
+    parse_settings_proto_response, settings_proto_path,
 };
 
 const READY: &str = include_str!("data/settings-preloaded-ready-4400.b64");

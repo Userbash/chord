@@ -1,0 +1,53 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#1e1f22" />
+  <!-- Server Rail (72px) -->
+  <rect x="0" y="0" width="72" height="450" fill="#1e1f22" stroke="#3f4147" stroke-width="1"/>
+  <circle cx="36" cy="36" r="24" fill="#5865f2" />
+  <text x="36" y="41" fill="#fff" font-size="12" text-anchor="middle" font-family="sans-serif">🎮</text>
+  <line x1="16" y1="72" x2="56" y2="72" stroke="#3f4147" stroke-width="2" />
+  <circle cx="36" cy="104" r="22" fill="#2b2d31" />
+  <text x="36" y="109" fill="#dbdee1" font-size="11" text-anchor="middle" font-family="sans-serif">RD</text>
+  <circle cx="36" cy="160" r="22" fill="#23a55a" />
+  <text x="36" y="165" fill="#fff" font-size="16" text-anchor="middle" font-family="sans-serif">+</text>
+  
+  <!-- Channel Sidebar (240px) -->
+  <rect x="72" y="0" width="240" height="450" fill="#2b2d31" stroke="#3f4147" stroke-width="1"/>
+  <rect x="72" y="0" width="240" height="48" fill="#2b2d31" border-bottom="1px solid #1e1f22"/>
+  <text x="88" y="30" fill="#fff" font-size="14" font-weight="bold" font-family="sans-serif">Rust Developers</text>
+  <text x="88" y="70" fill="#949ba4" font-size="11" font-weight="bold" font-family="sans-serif">▾ ТЕКСТОВЫЕ КАНАЛЫ</text>
+  <rect x="80" y="80" width="224" height="34" rx="4" fill="#35373c"/>
+  <text x="94" y="102" fill="#fff" font-size="13" font-family="sans-serif">#  general</text>
+  <text x="94" y="136" fill="#949ba4" font-size="13" font-family="sans-serif">#  architecture</text>
+  
+  <!-- Voice Panel (52px) -->
+  <rect x="72" y="346" width="240" height="52" fill="#232428" stroke="#3f4147" stroke-width="1"/>
+  <circle cx="88" cy="372" r="5" fill="#23a55a" />
+  <text x="100" y="368" fill="#23a55a" font-size="11" font-weight="bold" font-family="sans-serif">Голос подключен</text>
+  <text x="100" y="384" fill="#949ba4" font-size="11" font-family="sans-serif">🔊 Voice 1 / 18ms</text>
+  <text x="286" y="376" fill="#f23f43" font-size="14" text-anchor="middle" font-family="sans-serif">📞✕</text>
+
+  <!-- User Profile Bar (52px) -->
+  <rect x="72" y="398" width="240" height="52" fill="#232428" stroke="#3f4147" stroke-width="1"/>
+  <circle cx="94" cy="424" r="16" fill="#5865f2"/>
+  <circle cx="106" cy="436" r="5" fill="#23a55a" stroke="#232428" stroke-width="2"/>
+  <text x="118" y="420" fill="#fff" font-size="13" font-weight="bold" font-family="sans-serif">Rustery</text>
+  <text x="118" y="436" fill="#949ba4" font-size="11" font-family="sans-serif">В сети</text>
+  <text x="250" y="428" fill="#dbdee1" font-size="14" font-family="sans-serif">🎙️ 🎧 ⚙️</text>
+
+  <!-- Chat View (flex-1) -->
+  <rect x="312" y="0" width="488" height="450" fill="#313338" />
+  <rect x="312" y="0" width="488" height="48" fill="#313338" stroke="#3f4147" stroke-width="1"/>
+  <text x="330" y="30" fill="#fff" font-size="15" font-weight="bold" font-family="sans-serif"># general</text>
+  <text x="410" y="30" fill="#949ba4" font-size="12" font-family="sans-serif">Общий чат сообщества</text>
+
+  <!-- Messages -->
+  <circle cx="340" cy="80" r="18" fill="#5865f2"/>
+  <text x="368" y="74" fill="#fff" font-size="13" font-weight="bold" font-family="sans-serif">ChiefArchitect</text>
+  <text x="470" y="74" fill="#949ba4" font-size="11" font-family="sans-serif">Сегодня в 10:45</text>
+  <text x="368" y="96" fill="#dbdee1" font-size="13" font-family="sans-serif">Клиент собран на чистом GPUI 120 FPS без WebKit!</text>
+
+  <!-- Message Bar -->
+  <rect x="328" y="394" width="456" height="44" rx="8" fill="#383a40"/>
+  <text x="344" y="421" fill="#949ba4" font-size="13" font-family="sans-serif">Написать в #general...</text>
+  <text x="750" y="421" fill="#dbdee1" font-size="16" font-family="sans-serif">😊 🎁</text>
+</svg>

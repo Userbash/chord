@@ -351,7 +351,7 @@ fn parse_mute_config(
     })
 }
 
-/// Поле объекта: отсутствие/`nil` → `None` без диагностики; неверный тип → `None` + `ignored`.
+/// Поле объекта: отсутствие/`nil`/пустая строка → `None` без диагностики; неверный тип → `None` + `ignored`.
 fn present_field<T>(
     object: &EtfValue,
     key: &str,
@@ -360,7 +360,13 @@ fn present_field<T>(
     parse: impl FnOnce(&EtfValue) -> Option<T>,
 ) -> Option<T> {
     let value = object.get(key)?;
-    if value::is_null(value) {
+    if value::is_null(value)
+        || matches!(
+            value,
+            EtfValue::Str(text) | EtfValue::Atom(text)
+                if text == "nil" || text == "null" || text.trim().is_empty()
+        )
+    {
         return None;
     }
     let parsed = parse(value);
@@ -385,7 +391,9 @@ fn field_integer(
     path: &str,
     diagnostics: &mut ReadyDiagnostics,
 ) -> Option<i64> {
-    present_field(object, key, path, diagnostics, value::integer)
+    present_field(object, key, path, diagnostics, |raw| {
+        value::integer(raw).or_else(|| value::text(raw).and_then(|text| text.trim().parse().ok()))
+    })
 }
 
 fn field_bool(

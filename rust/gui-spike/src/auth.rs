@@ -418,8 +418,7 @@ impl IdentityContext {
     /// Контекст из среды (кэшируется один раз на процесс: единые `client_launch_id`,
     /// `launch_signature` и `client_heartbeat_session_id` для всех REST-вызовов и Gateway OP2 IDENTIFY).
     pub fn detect() -> Self {
-        static DETECTED_IDENTITY: std::sync::OnceLock<IdentityContext> =
-            std::sync::OnceLock::new();
+        static DETECTED_IDENTITY: std::sync::OnceLock<IdentityContext> = std::sync::OnceLock::new();
         DETECTED_IDENTITY
             .get_or_init(|| {
                 let super_properties =
@@ -1392,10 +1391,9 @@ where
             while let Ok(request) = receiver.recv() {
                 match request {
                     Request::Load(reply) => {
-                        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                            store.load()
-                        }))
-                        .unwrap_or_else(|_| Err("паника при чтении keyring".to_string()));
+                        let res =
+                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| store.load()))
+                                .unwrap_or_else(|_| Err("паника при чтении keyring".to_string()));
                         let _ = reply.send(res);
                     }
                     Request::Store(token, reply) => {

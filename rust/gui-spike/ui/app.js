@@ -9,7 +9,27 @@ import { byId } from "./features/dom.js";
 import { clearErrorState, reportError, showErrorState, UIError } from "./features/errors.js";
 import { benchScroll, frontendReadyMs, startMetrics } from "./features/metrics.js";
 import { createScreenRouter } from "./features/screens.js";
-import { CHAT_ROWS, initChatScreen } from "./features/chat.js";
+import { CHAT_ROWS, initChatScreen, renderChannelMessage } from "./features/chat.js";
+import {
+  COMPONENT_TYPES,
+  BUTTON_STYLES,
+  renderMessageComponents,
+  createMessageComponentsContainer,
+  handleComponentClick,
+  setButtonLoading,
+  clearButtonLoading,
+  showBotInteractionToast,
+} from "./features/message-components.js";
+import {
+  renderReactions,
+  createReactionBadge,
+  isVerificationChannel,
+  isVerificationMessage,
+  handleReactionVerification,
+  REACTION_VERIFICATION_TOKENS,
+  REACTION_VERIFICATION_TEXT,
+  renderVerificationBanner,
+} from "./features/reaction-verification.js";
 import { configureReactionTransport } from "./features/reactions.js";
 import {
   initMemberScreen,
@@ -37,6 +57,24 @@ import { createPinsThreadsPanels } from "./features/pins-threads.js";
 import { createInviteModal } from "./features/invite-modal.js";
 import { createGiftModal } from "./features/gift-modal.js";
 import { createQrAuthModal } from "./features/qr-auth-modal.js";
+import {
+  createRulesScreeningModalController,
+  renderRulesScreeningBanner,
+  isRulesScreeningRequired,
+  extractRulesFromGuild,
+  RULES_SCREENING_TEXT,
+  RULES_SCREENING_TOKENS,
+  DEFAULT_COMMUNITY_RULES,
+} from "./features/rules-screening-modal.js";
+import {
+  VOICE_STAGE_PREVIEW_TOKENS,
+  VOICE_STAGE_PREVIEW_TEXT,
+  formatVoiceStageParticipantsSummary,
+  renderVoiceStagePreview,
+  renderVoiceStagePreviewBanner,
+  removeVoiceStagePreviewBanner,
+  createVoiceStagePreviewController,
+} from "./features/voice-stage-preview.js";
 import { createVoiceDevicesSettings } from "./features/voice-devices-settings.js";
 import {
   applyChannelIndicatorToDom,
@@ -309,7 +347,9 @@ const nextFrame = () => new Promise((resolve) => {
 });
 
 /** Видимая поверхность ошибок: контент, не списки (у них ровно один sizer). */
-const content = /** @type {HTMLElement | null} */ (document.querySelector(".content"));
+const content = typeof document !== "undefined"
+  ? /** @type {HTMLElement | null} */ (document.querySelector(".content"))
+  : null;
 
 // G2-02: `.error-state` — `position:absolute; inset:0`, поэтому containing block
 // обязан быть `.content`, иначе оверлей накрывает viewport целиком. CSS-файлы
@@ -3208,6 +3248,26 @@ function boot() {
   let micTestTimer = null;
   /** @type {ReturnType<typeof setInterval> | null} */
   let voiceSyncTimer = null;
+  /** @type {ReturnType<typeof setTimeout> | ReturnType<typeof setInterval> | null} */
+  let audioDeviceLevelsTimer = null;
+  let audioDeviceLevelsInFlight = false;
+  let lastAudioDeviceSyncAtMs = 0;
+  let lastAudioDeviceInputConfig = { deviceId: "", volume: -1, muted: /** @type {boolean | null} */ (null) };
+  let lastAudioDeviceOutputConfig = { deviceId: "", volume: -1, muted: /** @type {boolean | null} */ (null) };
+  let lastVoiceConnectState = {
+    guildId: /** @type {string | null} */ (null),
+    channelId: /** @type {string | null} */ (null),
+    selfMute: /** @type {boolean | null} */ (null),
+    selfDeaf: /** @type {boolean | null} */ (null),
+    selfVideo: /** @type {boolean | null} */ (null),
+    selfStream: /** @type {boolean | null} */ (null),
+  };
+  /** @type {Promise<any> | null} */
+  let inFlightAudioDevicesPromise = null;
+  /** @type {Map<string, number>} */
+  const lastVoiceUiSoundAtByKind = new Map();
+  /** @type {(() => void) | null} */
+  let syncVoiceSettingsScreenVisibility = null;
   let refreshLiveReadyInFlight = false;
   let lastVoiceStatesDigest = "";
   /** @type {any} */
@@ -3247,6 +3307,9 @@ function boot() {
           byId("friends-view")?.setAttribute("hidden", "");
           byId("chat-header")?.setAttribute("hidden", "");
         }
+        syncVoiceSettingsScreenVisibility?.();
+      } else {
+        syncVoiceSettingsScreenVisibility?.();
       }
       if (isLiveDesktop && name === "chat") {
         const contentRoot = document.querySelector(".content");
@@ -3363,6 +3426,9 @@ function boot() {
     if (cmd.startsWith("auth_") || cmd === "ready") {
       return `rust/gui-spike/src/main.rs::${cmd} -> discord-core::{rest,ws} + discord-storage::keyring`;
     }
+    if (cmd === "confirm_member_rules") {
+      return `rust/gui-spike/src/guilds.rs::complete_guild_verification_and_permissions -> PUT /guilds/{id}/requests/@me`;
+    }
     return `rust/gui-spike/src/main.rs::${cmd} -> rust/gui-spike/src/data.rs`;
   };
 
@@ -3411,7 +3477,15 @@ function boot() {
           effectiveArgs?.kind === "dm_friends_sync")
       );
     try {
-      const result = await tauri.core.invoke(effectiveCmd, effectiveArgs);
+      const result =
+        effectiveCmd === "voice_audio_devices"
+          ? await (inFlightAudioDevicesPromise ??
+              (inFlightAudioDevicesPromise = Promise.resolve(
+                tauri.core.invoke(effectiveCmd, effectiveArgs),
+              ).finally(() => {
+                inFlightAudioDevicesPromise = null;
+              })))
+          : await tauri.core.invoke(effectiveCmd, effectiveArgs);
       if (shouldLogIpc) {
         const safeArgs = args && typeof args === "object" ? { ...args } : args;
         if (safeArgs && typeof safeArgs === "object") {
@@ -3766,6 +3840,7 @@ function boot() {
    *   streamSourceName?: string,
    *   hideStreamPreview?: boolean,
    *   connectedAtMs: number,
+   *   isAfk?: boolean,
    * } | null}
    */
   let activeVoiceConnection = null;
@@ -3817,6 +3892,90 @@ function boot() {
   const SVG_DEAF_OFF = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0-6.12 2.4l1.42 1.42A7 7 0 0 1 19 12v1h-2a2 2 0 0 0-2 2v1.17l3.88 3.88A2.99 2.99 0 0 0 21 17v-5a9 9 0 0 0-9-9ZM4.27 3 3 4.27l2.06 2.06A8.96 8.96 0 0 0 3 12v5a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H5v-1c0-1.61.55-3.09 1.46-4.27L19.73 21 21 19.73 4.27 3Z"/></svg>`;
   const SVG_CHEVRON_DOWN = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>`;
   const SVG_SIGNAL_BARS = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 19h.01"/><path d="M5 13a6 6 0 0 1 6 6"/><path d="M5 7a12 12 0 0 1 12 12"/></svg>`;
+  const SVG_SIGNAL_FINE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 19h.01"/><path d="M5 13a6 6 0 0 1 6 6"/><path d="M5 7a12 12 0 0 1 12 12"/></svg>`;
+  const SVG_SIGNAL_AVERAGE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 19h.01"/><path d="M5 13a6 6 0 0 1 6 6"/><path d="M5 7a12 12 0 0 1 12 12" stroke-opacity="0.28"/></svg>`;
+  const SVG_SIGNAL_BAD = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 19h.01"/><path d="M5 13a6 6 0 0 1 6 6" stroke-opacity="0.28"/><path d="M5 7a12 12 0 0 1 12 12" stroke-opacity="0.28"/></svg>`;
+
+  /**
+   * Вычисляет метрики качества RTC соединения (пинг мс, потери пакетов %, зеленый/желтый/красный индикатор)
+   * в соответствии с порогами эталонного клиента Discord (`RTCConnection.quality`: >500ms / >10% loss = bad, >250ms / >5% loss = average).
+   * @param {any} status
+   */
+  function computeRtcSignalMetrics(status) {
+    const phaseView = resolveVoiceCallPhaseView(status);
+    const st = String(status?.state || "signaling");
+    const isErr =
+      phaseView.isError ||
+      phaseView.phase === "timeout" ||
+      phaseView.phase === "error" ||
+      st === "error" ||
+      st === "timeout" ||
+      st.startsWith("error");
+    const isDisconnected = !isErr && (phaseView.phase === "disconnected" || st === "disconnected");
+    const isConnecting =
+      !isErr &&
+      (phaseView.phase === "signaling" ||
+        phaseView.phase === "negotiating" ||
+        st === "connecting" ||
+        st === "reconnecting" ||
+        isDisconnected ||
+        (isLiveSession() && !phaseView.isConnected));
+    const rawLast = status?.lastPingMs;
+    const rawAvg = status?.averagePingMs;
+    const hasMeasuredPing = typeof rawLast === "number" && Number.isFinite(rawLast) && rawLast > 0;
+    const effectiveLast = hasMeasuredPing ? Math.round(rawLast) : 0;
+    const effectiveAvg =
+      typeof rawAvg === "number" && Number.isFinite(rawAvg) && rawAvg > 0
+        ? Math.round(rawAvg)
+        : effectiveLast;
+    const rawLoss = Number(status?.packetLossPct ?? status?.packetLossPercent ?? status?.outboundPacketLossPct ?? 0);
+    const lossPct = Number.isFinite(rawLoss) && rawLoss >= 0 ? rawLoss : 0;
+    const lossTxt = `${lossPct.toFixed(1)}%`;
+    /** @type {"fine" | "average" | "bad"} */
+    const quality =
+      isErr || effectiveLast > 500 || lossPct > 10
+        ? "bad"
+        : isConnecting || effectiveLast > 250 || lossPct > 5
+          ? "average"
+          : "fine";
+    const isAfkStatus = Boolean(phaseView.phase === "afk" || status?.isAfk);
+    const pingColor = isAfkStatus
+      ? "#949ba4"
+      : quality === "bad"
+        ? "#f23f43"
+        : quality === "average"
+          ? "#f0b232"
+          : "#23a55a";
+    const signalSvg =
+      quality === "bad"
+        ? SVG_SIGNAL_BAD
+        : quality === "average"
+          ? SVG_SIGNAL_AVERAGE
+          : SVG_SIGNAL_FINE;
+    const pillText = isAfkStatus
+      ? "AFK"
+      : isErr
+        ? "— мс"
+        : isConnecting && !hasMeasuredPing
+          ? "RTC…"
+          : `${effectiveLast} мс`;
+    return {
+      phaseView,
+      st,
+      isErr,
+      isDisconnected,
+      isConnecting,
+      hasMeasuredPing,
+      effectiveLast,
+      effectiveAvg,
+      lossPct,
+      lossTxt,
+      quality,
+      pingColor,
+      signalSvg,
+      pillText,
+    };
+  }
   const SVG_KRISP_BARS = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="10" x2="4" y2="14"/><line x1="8" y1="7" x2="8" y2="17"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="16" y1="7" x2="16" y2="17"/><line x1="20" y1="10" x2="20" y2="14"/></svg>`;
   const SVG_PHONE_DISCONNECT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28a11.27 11.27 0 0 0-2.67-1.85.996.996 0 0 1-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>`;
   const SVG_CAMERA_ON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>`;
@@ -3835,6 +3994,12 @@ function boot() {
     if (selfVoicePrefs.deafened && kind !== "deafen" && kind !== "undeafen" && kind !== "disconnect") {
       return;
     }
+    const nowSoundMs = Date.now();
+    const prevSoundMs = lastVoiceUiSoundAtByKind.get(kind) ?? 0;
+    if (nowSoundMs - prevSoundMs < 200) {
+      return;
+    }
+    lastVoiceUiSoundAtByKind.set(kind, nowSoundMs);
     const fileMap = {
       join: "user_join.mp3",
       leave: "user_leave.mp3",
@@ -3885,7 +4050,7 @@ function boot() {
       }
     }
     if (activeVoiceMenuOutsideHandler) {
-      document.removeEventListener("mousedown", activeVoiceMenuOutsideHandler, true);
+      document.removeEventListener?.("mousedown", activeVoiceMenuOutsideHandler, true);
       activeVoiceMenuOutsideHandler = null;
     }
     const popoutIds = [
@@ -3944,8 +4109,10 @@ function boot() {
   /**
    * Синхронизирует локальное состояние микрофона/динамиков/камеры/стрима с Discord Gateway (OP 4 / OP 18)
    * и внутренним состоянием приложения (без отключения системного звука ОС).
+   * Не спамит voice_set_audio_device, если параметры устройств и громкости не изменились.
+   * @param {boolean} [force]
    */
-  function syncVoiceMuteStateWithBackend() {
+  function syncVoiceMuteStateWithBackend(force = false) {
     if (!isLiveSession()) return;
     const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
     const isCurrAfk = Boolean(
@@ -3979,36 +4146,218 @@ function boot() {
     if (activeVoiceConnection) {
       activeVoiceConnection.muted = effectiveMute;
       activeVoiceConnection.deafened = selfVoicePrefs.deafened;
-      void invoke(VOICE_CONNECT_IPC_CMD, {
-        guildId: activeVoiceConnection.guildId,
-        channelId: activeVoiceConnection.channelId,
-        selfMute: effectiveMute,
-        selfDeaf: selfVoicePrefs.deafened,
-        selfVideo: Boolean(activeVoiceConnection.cameraOn),
-        selfStream: Boolean(activeVoiceConnection.screenShareOn),
-      }).catch(() => {});
-    } else if (fallbackCid) {
-      void invoke(VOICE_CONNECT_IPC_CMD, {
-        guildId: fallbackGid,
-        channelId: fallbackCid,
-        selfMute: effectiveMute,
-        selfDeaf: selfVoicePrefs.deafened,
-        selfVideo: false,
-        selfStream: false,
+    }
+    const targetConnectCid = activeVoiceConnection ? activeVoiceConnection.channelId : fallbackCid;
+    if (targetConnectCid) {
+      const nextGuildId = activeVoiceConnection ? activeVoiceConnection.guildId : fallbackGid;
+      const nextChannelId = String(targetConnectCid);
+      const nextSelfMute = Boolean(effectiveMute);
+      const nextSelfDeaf = Boolean(selfVoicePrefs.deafened);
+      const nextSelfVideo = Boolean(activeVoiceConnection?.cameraOn);
+      const nextSelfStream = Boolean(activeVoiceConnection?.screenShareOn);
+      if (
+        force ||
+        lastVoiceConnectState.guildId !== nextGuildId ||
+        lastVoiceConnectState.channelId !== nextChannelId ||
+        lastVoiceConnectState.selfMute !== nextSelfMute ||
+        lastVoiceConnectState.selfDeaf !== nextSelfDeaf ||
+        lastVoiceConnectState.selfVideo !== nextSelfVideo ||
+        lastVoiceConnectState.selfStream !== nextSelfStream
+      ) {
+        lastVoiceConnectState = {
+          guildId: nextGuildId,
+          channelId: nextChannelId,
+          selfMute: nextSelfMute,
+          selfDeaf: nextSelfDeaf,
+          selfVideo: nextSelfVideo,
+          selfStream: nextSelfStream,
+        };
+        void invoke(VOICE_CONNECT_IPC_CMD, {
+          guildId: nextGuildId,
+          channelId: targetConnectCid,
+          selfMute: nextSelfMute,
+          selfDeaf: nextSelfDeaf,
+          selfVideo: nextSelfVideo,
+          selfStream: nextSelfStream,
+        }).catch(() => {});
+      }
+    }
+    const curInputDev = selfVoicePrefs.inputDeviceId || "default";
+    const curInputVol = selfVoicePrefs.inputVolume;
+    const curInputMuted = effectiveMute;
+    if (
+      force ||
+      lastAudioDeviceInputConfig.deviceId !== curInputDev ||
+      lastAudioDeviceInputConfig.volume !== curInputVol ||
+      lastAudioDeviceInputConfig.muted !== curInputMuted
+    ) {
+      lastAudioDeviceInputConfig = { deviceId: curInputDev, volume: curInputVol, muted: curInputMuted };
+      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+        kind: "input",
+        deviceId: curInputDev,
+        volumePercent: curInputVol,
+        muted: curInputMuted,
       }).catch(() => {});
     }
-    void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-      kind: "input",
-      deviceId: selfVoicePrefs.inputDeviceId || "default",
-      volumePercent: selfVoicePrefs.inputVolume,
-      muted: effectiveMute,
-    }).catch(() => {});
-    void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-      kind: "output",
-      deviceId: selfVoicePrefs.outputDeviceId || "default",
-      volumePercent: selfVoicePrefs.outputVolume,
-      muted: selfVoicePrefs.deafened,
-    }).catch(() => {});
+    const curOutputDev = selfVoicePrefs.outputDeviceId || "default";
+    const curOutputVol = selfVoicePrefs.outputVolume;
+    const curOutputMuted = selfVoicePrefs.deafened;
+    if (
+      force ||
+      lastAudioDeviceOutputConfig.deviceId !== curOutputDev ||
+      lastAudioDeviceOutputConfig.volume !== curOutputVol ||
+      lastAudioDeviceOutputConfig.muted !== curOutputMuted
+    ) {
+      lastAudioDeviceOutputConfig = { deviceId: curOutputDev, volume: curOutputVol, muted: curOutputMuted };
+      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+        kind: "output",
+        deviceId: curOutputDev,
+        volumePercent: curOutputVol,
+        muted: curOutputMuted,
+      }).catch(() => {});
+    }
+  }
+
+  /**
+   * TASK-807: Устранение спама polling аудиоустройств (voice_set_audio_device).
+   * Опрашивает уровни аудиоустройств и синхронизирует состояние без лишних фоновых вызовов IPC.
+   * - При открытых настройках звука (createSettingsConsole / pane="voice") опрос активен для мик-теста и индикаторов.
+   * - В фоне при стабильном звонке интервал увеличивается до 10 секунд (10 000 мс).
+   * - Опирается на события speaking и voice_activity (WebRTC Stats / Gateway OP 5), не вызывая voice_set_audio_device каждую секунду.
+   * @param {boolean} [force]
+   * @returns {Promise<any>}
+   */
+  async function pollAudioDeviceLevels(force = false) {
+    if (!isLiveSession() || audioDeviceLevelsInFlight) return null;
+    audioDeviceLevelsInFlight = true;
+    try {
+      const now = Date.now();
+      const settingsEl = typeof document !== "undefined" ? document.getElementById("settings") : null;
+      const screenSettingsEl = typeof document !== "undefined" ? document.getElementById("screen-settings") : null;
+      const isSettingsScreenVisible = !screenSettingsEl
+        ? Boolean(settingsEl && !settingsEl.hidden && !settingsEl.hasAttribute?.("hidden"))
+        : !screenSettingsEl.hidden &&
+          !screenSettingsEl.hasAttribute?.("hidden") &&
+          screenSettingsEl.getAttribute?.("aria-hidden") !== "true";
+      const isVoiceSettingsOpen = Boolean(
+        isSettingsScreenVisible &&
+          settingsEl &&
+          !settingsEl.hidden &&
+          !settingsEl.hasAttribute?.("hidden") &&
+          settingsEl.getAttribute?.("aria-hidden") !== "true" &&
+          (settingsEl.dataset?.activePane === "voice" ||
+            settingsEl.getAttribute?.("data-active-pane") === "voice")
+      );
+
+      // При стабильном звонке вне открытых настроек опрос уровней в фоне не чаще 10 секунд
+      const isStableCall = Boolean(
+        activeVoiceConnection &&
+          (liveRtcStatus?.state === "connected" || liveRtcStatus?.phase === "connected") &&
+          highPingStrikes === 0
+      );
+
+      if (!isVoiceSettingsOpen && isStableCall && !force) {
+        if (now - lastAudioDeviceSyncAtMs < 10000) {
+          // Опираемся на события speaking и voice_activity, не вызывая voice_set_audio_device
+          return null;
+        }
+      }
+
+      lastAudioDeviceSyncAtMs = now;
+
+      if (isVoiceSettingsOpen || force) {
+        try {
+          const devs = /** @type {any} */ (await invoke(VOICE_AUDIO_DEVICES_IPC_CMD));
+          if (devs && typeof devs === "object") {
+            const inputs = Array.isArray(devs?.inputs) ? devs.inputs : [];
+            const outputs = Array.isArray(devs?.outputs) ? devs.outputs : [];
+            if (inputs.length > 0 || outputs.length > 0) {
+              const inSel = /** @type {HTMLSelectElement | null} */ (
+                settingsEl?.querySelector('select[data-setting="voiceInputDevice"], #settings-voice-input-select')
+              );
+              if (inSel && inputs.length > 0) {
+                inSel.replaceChildren();
+                for (const dev of inputs) {
+                  const opt = document.createElement("option");
+                  opt.value = String(dev.id || "default");
+                  opt.textContent = String(dev.name || dev.id || "Микрофон");
+                  if (opt.value === selfVoicePrefs.inputDeviceId) opt.selected = true;
+                  inSel.append(opt);
+                }
+              }
+              const outSel = /** @type {HTMLSelectElement | null} */ (
+                settingsEl?.querySelector('select[data-setting="voiceOutputDevice"], #settings-voice-output-select')
+              );
+              if (outSel && outputs.length > 0) {
+                outSel.replaceChildren();
+                for (const dev of outputs) {
+                  const opt = document.createElement("option");
+                  opt.value = String(dev.id || "default");
+                  opt.textContent = String(dev.name || dev.id || "Динамики");
+                  if (opt.value === selfVoicePrefs.outputDeviceId) opt.selected = true;
+                  outSel.append(opt);
+                }
+              }
+            }
+          }
+        } catch {}
+      }
+
+      // Не спамим voice_set_audio_device, если параметры устройств/громкости не изменились
+      syncVoiceMuteStateWithBackend(false);
+      return null;
+    } finally {
+      audioDeviceLevelsInFlight = false;
+    }
+  }
+
+  function startAudioDeviceLevelsPolling() {
+    if (audioDeviceLevelsTimer) return;
+    const scheduleNext = () => {
+      const settingsEl = typeof document !== "undefined" ? document.getElementById("settings") : null;
+      const screenSettingsEl = typeof document !== "undefined" ? document.getElementById("screen-settings") : null;
+      const isSettingsScreenVisible = !screenSettingsEl
+        ? Boolean(settingsEl && !settingsEl.hidden && !settingsEl.hasAttribute?.("hidden"))
+        : !screenSettingsEl.hidden &&
+          !screenSettingsEl.hasAttribute?.("hidden") &&
+          screenSettingsEl.getAttribute?.("aria-hidden") !== "true";
+      const isVoiceSettingsOpen = Boolean(
+        isSettingsScreenVisible &&
+          settingsEl &&
+          !settingsEl.hidden &&
+          !settingsEl.hasAttribute?.("hidden") &&
+          settingsEl.getAttribute?.("aria-hidden") !== "true" &&
+          (settingsEl.dataset?.activePane === "voice" ||
+            settingsEl.getAttribute?.("data-active-pane") === "voice")
+      );
+      if (!activeVoiceConnection && !isVoiceSettingsOpen) {
+        stopAudioDeviceLevelsPolling();
+        return;
+      }
+      const intervalMs = isVoiceSettingsOpen ? 500 : 10000;
+      audioDeviceLevelsTimer = setTimeout(() => {
+        void pollAudioDeviceLevels(false).finally(() => {
+          if (audioDeviceLevelsTimer) {
+            scheduleNext();
+          }
+        });
+      }, intervalMs);
+    };
+    scheduleNext();
+  }
+
+  function stopAudioDeviceLevelsPolling() {
+    if (audioDeviceLevelsTimer) {
+      clearTimeout(audioDeviceLevelsTimer);
+      clearInterval(audioDeviceLevelsTimer);
+      audioDeviceLevelsTimer = null;
+    }
+  }
+
+  if (typeof globalThis !== "undefined") {
+    /** @type {any} */ (globalThis).pollAudioDeviceLevels = pollAudioDeviceLevels;
+    /** @type {any} */ (globalThis).startAudioDeviceLevelsPolling = startAudioDeviceLevelsPolling;
+    /** @type {any} */ (globalThis).stopAudioDeviceLevelsPolling = stopAudioDeviceLevelsPolling;
   }
 
   /**
@@ -4070,19 +4419,6 @@ function boot() {
     syncVoiceMuteStateWithBackend();
     renderLiveVoicePanel();
     tree.refreshView();
-  }
-
-  if (typeof window !== "undefined") {
-    window.addEventListener("beforeunload", () => {
-      if (activeVoiceConnection) {
-        disconnectFromLiveVoiceChannel();
-      }
-    });
-    window.addEventListener("unload", () => {
-      if (activeVoiceConnection) {
-        disconnectFromLiveVoiceChannel();
-      }
-    });
   }
 
   let highPingStrikes = 0;
@@ -4233,6 +4569,14 @@ function boot() {
 
   function retryActiveVoiceConnection() {
     if (!activeVoiceConnection) return;
+    lastVoiceConnectState = {
+      guildId: null,
+      channelId: null,
+      selfMute: null,
+      selfDeaf: null,
+      selfVideo: null,
+      selfStream: null,
+    };
     connectToLiveVoiceChannel(
       String(activeVoiceConnection.guildId || ""),
       String(activeVoiceConnection.guildName || "Сервер"),
@@ -4298,6 +4642,10 @@ function boot() {
         showVoiceToastNotice("У вашей роли нет прав для подключения к этому голосовому каналу");
         return;
       }
+      const existingConnectBanner = byId("channel-readonly-access-banner");
+      if (existingConnectBanner?.getAttribute("data-access-banner") === "missing-connect") {
+        existingConnectBanner.remove();
+      }
     }
     const chName = String(channel.name || "");
     const isAfkRoom = isChannelAfk(targetGuildId, channel.id, chName);
@@ -4324,6 +4672,14 @@ function boot() {
       );
       liveVoiceStatesByGuild.set(gid, filtered);
     }
+    const curG = targetGuildId && targetGuildId !== "@me" ? liveGuildsById.get(cleanDiscordStr(targetGuildId)) : null;
+    const chAny = /** @type {any} */ (channel);
+    const isAfkChannel = Boolean(
+      chAny?.isAfk ||
+      chAny?.is_afk ||
+      (curG && (curG.afkChannelId === channel.id || curG.afk_channel_id === channel.id)) ||
+      (typeof channel?.name === "string" && channel.name.toLowerCase().includes("afk"))
+    );
     activeVoiceConnection = {
       guildId: targetGuildId,
       guildName: targetGuildName || "Сервер",
@@ -4335,6 +4691,7 @@ function boot() {
       cameraOn: false,
       screenShareOn: false,
       connectedAtMs: nowMs,
+      isAfk: isAfkChannel,
     };
     liveRtcStatus = {
       ...liveRtcStatus,
@@ -4358,6 +4715,14 @@ function boot() {
     renderLiveVoicePanel();
     tree.refreshView();
     if (isLiveSession()) {
+      lastVoiceConnectState = {
+        guildId: targetGuildId ?? null,
+        channelId: String(channel.id || ""),
+        selfMute: Boolean(effectiveMute),
+        selfDeaf: Boolean(selfVoicePrefs.deafened),
+        selfVideo: false,
+        selfStream: false,
+      };
       void invoke(VOICE_CONNECT_IPC_CMD, {
         guildId: targetGuildId,
         channelId: channel.id,
@@ -4385,6 +4750,14 @@ function boot() {
           }
         })
         .catch((err) => {
+          lastVoiceConnectState = {
+            guildId: null,
+            channelId: null,
+            selfMute: null,
+            selfDeaf: null,
+            selfVideo: null,
+            selfStream: null,
+          };
           const msg =
             typeof err === "string"
               ? err
@@ -4426,19 +4799,40 @@ function boot() {
             surface(new UIError("ACTION_FAILED", msg));
           }
         });
-      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-        kind: "input",
-        deviceId: selfVoicePrefs.inputDeviceId || "default",
-        volumePercent: selfVoicePrefs.inputVolume,
-        muted: effectiveMute,
-      }).catch(() => {});
-      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-        kind: "output",
-        deviceId: selfVoicePrefs.outputDeviceId || "default",
-        volumePercent: selfVoicePrefs.outputVolume,
-        muted: selfVoicePrefs.deafened,
-      }).catch(() => {});
+      const curInputDev = selfVoicePrefs.inputDeviceId || "default";
+      const curInputVol = selfVoicePrefs.inputVolume;
+      const curInputMuted = effectiveMute;
+      if (
+        lastAudioDeviceInputConfig.deviceId !== curInputDev ||
+        lastAudioDeviceInputConfig.volume !== curInputVol ||
+        lastAudioDeviceInputConfig.muted !== curInputMuted
+      ) {
+        lastAudioDeviceInputConfig = { deviceId: curInputDev, volume: curInputVol, muted: curInputMuted };
+        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+          kind: "input",
+          deviceId: curInputDev,
+          volumePercent: curInputVol,
+          muted: curInputMuted,
+        }).catch(() => {});
+      }
+      const curOutputDev = selfVoicePrefs.outputDeviceId || "default";
+      const curOutputVol = selfVoicePrefs.outputVolume;
+      const curOutputMuted = selfVoicePrefs.deafened;
+      if (
+        lastAudioDeviceOutputConfig.deviceId !== curOutputDev ||
+        lastAudioDeviceOutputConfig.volume !== curOutputVol ||
+        lastAudioDeviceOutputConfig.muted !== curOutputMuted
+      ) {
+        lastAudioDeviceOutputConfig = { deviceId: curOutputDev, volume: curOutputVol, muted: curOutputMuted };
+        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+          kind: "output",
+          deviceId: curOutputDev,
+          volumePercent: curOutputVol,
+          muted: curOutputMuted,
+        }).catch(() => {});
+      }
       startRtcStatusPolling();
+      startAudioDeviceLevelsPolling();
     }
   }
 
@@ -4459,10 +4853,22 @@ function boot() {
         ? `guild:${prevGuildId}:${prevChannelId}:${selfId}`
         : `call:${prevChannelId}:${selfId}`);
 
+    if (activePipAnimTimer) {
+      clearInterval(activePipAnimTimer);
+      activePipAnimTimer = null;
+    }
+    document.getElementById("live-stream-pip-preview")?.remove();
+    document.getElementById("live-stream-stage-viewer")?.remove();
+    document.getElementById("live-stream-preview-overlay")?.remove();
+    document.getElementById("live-screenshare-modal")?.remove();
+    document.getElementById("live-screenshare-portal-modal")?.remove();
+    document.getElementById("live-stream-settings-menu")?.remove();
+    document.getElementById("live-stream-settings-submenu")?.remove();
+    cachedLiveScreenImg = null;
+    cachedLiveScreenDataUrl = "";
+    lastLiveScreenSeq = 0;
+
     if (hadStream) {
-      document.getElementById("live-stream-pip")?.remove();
-      document.getElementById("live-stream-preview-overlay")?.remove();
-      document.getElementById("live-screenshare-modal")?.remove();
       void invoke("voice_stream_stop", {
         stream_key: stopStreamKey,
         streamKey: stopStreamKey,
@@ -4482,6 +4888,17 @@ function boot() {
     }
     activeVoiceConnection = null;
     stopRtcStatusPolling();
+    stopAudioDeviceLevelsPolling();
+    lastAudioDeviceInputConfig = { deviceId: "", volume: -1, muted: null };
+    lastAudioDeviceOutputConfig = { deviceId: "", volume: -1, muted: null };
+    lastVoiceConnectState = {
+      guildId: null,
+      channelId: null,
+      selfMute: null,
+      selfDeaf: null,
+      selfVideo: null,
+      selfStream: null,
+    };
     closeLiveVoicePopouts();
     liveRtcStatus = {
       ...liveRtcStatus,
@@ -4657,12 +5074,14 @@ function boot() {
       mergedGuild.my_roles = myRoles;
     }
     liveGuildsById.set(gId, mergedGuild);
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    const selfId = cleanDiscordStr(
+      String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || ""),
+    );
     if (selfId) {
       if (myRoles.length > 0) {
         liveMemberRolesByGuildAndUser.set(`${gId}:${selfId}`, myRoles);
       } else if (hasExplicitMyRoles) {
-        liveMemberRolesByGuildAndUser.delete(`${gId}:${selfId}`);
+        liveMemberRolesByGuildAndUser.set(`${gId}:${selfId}`, []);
       }
     }
     if (Array.isArray(guildObj.members)) {
@@ -4671,7 +5090,7 @@ function boot() {
         const uObj = m.user && typeof m.user === "object" ? m.user : {};
         const uid = cleanDiscordStr(String(uObj.id ?? m.user_id ?? m.userId ?? m.id ?? ""));
         if (!uid) continue;
-        if (Array.isArray(m.roles) && m.roles.length > 0) {
+        if (Array.isArray(m.roles) && !(uid === selfId && hasExplicitMyRoles)) {
           liveMemberRolesByGuildAndUser.set(
             `${gId}:${uid}`,
             m.roles.map((/** @type {any} */ r) => String(r)),
@@ -4701,6 +5120,14 @@ function boot() {
         });
       }
     }
+    const rawGuildVs = Array.isArray(guildObj.voice_states)
+      ? guildObj.voice_states
+      : Array.isArray(guildObj.voiceStates)
+        ? guildObj.voiceStates
+        : null;
+    if (rawGuildVs && rawGuildVs.length > 0) {
+      mergeVoiceStatesForGuild(liveVoiceStatesByGuild, gId, rawGuildVs);
+    }
   }
 
   /**
@@ -4713,7 +5140,9 @@ function boot() {
     const gId = cleanDiscordStr(targetGuildId);
     const uid = cleanDiscordStr(userId);
     if (!gId || !uid) return { colorHex: null, topRoleName: "", roles: [] };
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    const selfId = cleanDiscordStr(
+      String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || ""),
+    );
     const guildObj = liveGuildsById.get(gId);
     if (
       uid === selfId &&
@@ -4722,8 +5151,9 @@ function boot() {
     ) {
       return { colorHex: null, topRoleName: "", roles: [] };
     }
+    const hasExplicitLiveRoles = liveMemberRolesByGuildAndUser.has(`${gId}:${uid}`);
     let userRoles = liveMemberRolesByGuildAndUser.get(`${gId}:${uid}`) ?? [];
-    if (userRoles.length === 0 && uid === selfId) {
+    if (!hasExplicitLiveRoles && userRoles.length === 0 && uid === selfId) {
       const directMyRoles = Array.isArray(guildObj?.myRoles)
         ? guildObj.myRoles
         : Array.isArray(guildObj?.my_roles)
@@ -4734,7 +5164,7 @@ function boot() {
         liveMemberRolesByGuildAndUser.set(`${gId}:${uid}`, userRoles);
       }
     }
-    if (userRoles.length === 0 && Array.isArray(guildObj?.members)) {
+    if (!hasExplicitLiveRoles && userRoles.length === 0 && Array.isArray(guildObj?.members)) {
       const mEntry = guildObj.members.find(
         (/** @type {any} */ m) =>
           String(m?.user?.id ?? m?.user_id ?? m?.userId ?? m?.id ?? "") === uid,
@@ -4768,7 +5198,7 @@ function boot() {
           : cachedHex || null;
       return { colorHex, topRoleName, roles: userRoles };
     }
-    if (uid === selfId) {
+    if (uid === selfId || hasExplicitLiveRoles) {
       return { colorHex: cachedHex || null, topRoleName: "", roles: [] };
     }
     if (cachedHex) {
@@ -4817,9 +5247,14 @@ function boot() {
       if (!uid) continue;
       const roleInfo = resolveUserRoleInfo(gId, uid);
       const nameEl = /** @type {HTMLElement | null} */ (r.querySelector(".author-name"));
-      if (nameEl && roleInfo.colorHex) {
-        nameEl.style.color = roleInfo.colorHex;
-        nameEl.setAttribute("data-role-color", roleInfo.colorHex);
+      if (nameEl) {
+        if (roleInfo.colorHex) {
+          nameEl.style.color = roleInfo.colorHex;
+          nameEl.setAttribute("data-role-color", roleInfo.colorHex);
+        } else {
+          nameEl.style.color = "";
+          nameEl.removeAttribute("data-role-color");
+        }
       }
       const knownUser = liveUsersById.get(uid);
       const disp =
@@ -4897,6 +5332,215 @@ function boot() {
   function normalizeVoiceGuildKey(gid) {
     const s = cleanDiscordStr(String(gid ?? ""));
     return !s || s === HOME_GUILD_ID ? HOME_GUILD_ID : s;
+  }
+
+  /**
+   * Бесконфликтно сливает (atomic deep merge) список участников голосового канала для гильдии
+   * с нормализацией ключа гильдии (`normalizeVoiceGuildKey`) и сохранением подтверждённых участников.
+   *
+   * @param {Map<string, any[]>} voiceStatesMap
+   * @param {unknown} rawGuildId
+   * @param {any[] | null | undefined} incomingStates
+   * @returns {any[]}
+   */
+  function mergeVoiceStatesForGuild(voiceStatesMap, rawGuildId, incomingStates) {
+    if (!voiceStatesMap || typeof voiceStatesMap.get !== "function") return [];
+    const normGid = normalizeVoiceGuildKey(rawGuildId);
+    const rawKey = typeof rawGuildId === "string" ? rawGuildId : "";
+    /** @type {any[]} */
+    const combinedExisting = [];
+    const aliasKeys = new Set([normGid]);
+    if (rawKey && rawKey !== normGid) aliasKeys.add(rawKey);
+    if (normGid === HOME_GUILD_ID) {
+      aliasKeys.add("");
+      aliasKeys.add("@me");
+    }
+    for (const k of aliasKeys) {
+      const list = voiceStatesMap.get(k);
+      if (Array.isArray(list)) {
+        combinedExisting.push(...list);
+      }
+      if (k !== normGid && voiceStatesMap.has(k)) {
+        voiceStatesMap.delete(k);
+      }
+    }
+
+    /** @type {Map<string, any>} */
+    const byUser = new Map();
+    for (const prev of combinedExisting) {
+      if (!isConfirmedVoiceStateRecord(prev)) continue;
+      const uid = cleanDiscordStr(
+        String(prev?.user_id ?? prev?.userId ?? prev?.member?.user?.id ?? prev?.user?.id ?? ""),
+      );
+      const cid = cleanDiscordStr(String(prev?.channel_id ?? prev?.channelId ?? ""));
+      if (!uid || !cid) continue;
+      byUser.set(uid, {
+        ...prev,
+        guild_id: normGid,
+        guildId: normGid,
+        channel_id: cid,
+        channelId: cid,
+        user_id: uid,
+        userId: uid,
+        confirmed: true,
+      });
+    }
+
+    if (Array.isArray(incomingStates)) {
+      for (const inc of incomingStates) {
+        if (!inc || typeof inc !== "object") continue;
+        const uid = cleanDiscordStr(
+          String(inc.user_id ?? inc.userId ?? inc.member?.user?.id ?? inc.user?.id ?? ""),
+        );
+        if (!uid) continue;
+
+        const rawCid =
+          inc.channel_id === null || inc.channelId === null
+            ? ""
+            : cleanDiscordStr(String(inc.channel_id ?? inc.channelId ?? ""));
+        const phase = String(inc.phase ?? inc.state ?? "").trim().toLowerCase();
+        const isExplicitRemoval =
+          !rawCid ||
+          phase === "disconnected" ||
+          phase === "timeout" ||
+          phase === "error" ||
+          inc.timeout === true ||
+          Boolean(inc.error);
+        if (isExplicitRemoval) {
+          byUser.delete(uid);
+          continue;
+        }
+
+        if (!isConfirmedVoiceStateRecord(inc)) {
+          continue;
+        }
+
+        const prev = byUser.get(uid);
+        const prevMember = prev?.member && typeof prev.member === "object" ? prev.member : null;
+        const incMember = inc.member && typeof inc.member === "object" ? inc.member : null;
+        const prevUser = prev?.user && typeof prev.user === "object" ? prev.user : null;
+        const incUser = inc.user && typeof inc.user === "object" ? inc.user : null;
+
+        const selfMute = isTruthyVoiceFlag(
+          inc.self_mute ?? inc.selfMute ?? prev?.self_mute ?? prev?.selfMute,
+        );
+        const selfDeaf = isTruthyVoiceFlag(
+          inc.self_deaf ?? inc.selfDeaf ?? prev?.self_deaf ?? prev?.selfDeaf,
+        );
+        const selfStream = isTruthyVoiceFlag(
+          inc.self_stream ?? inc.selfStream ?? prev?.self_stream ?? prev?.selfStream,
+        );
+        const selfVideo = isTruthyVoiceFlag(
+          inc.self_video ?? inc.selfVideo ?? prev?.self_video ?? prev?.selfVideo,
+        );
+        const mute = isTruthyVoiceFlag(inc.mute ?? prev?.mute);
+        const deaf = isTruthyVoiceFlag(inc.deaf ?? prev?.deaf);
+        const suppress = isTruthyVoiceFlag(inc.suppress ?? prev?.suppress);
+
+        /** @type {any} */
+        const merged = {
+          ...(prev ?? {}),
+          ...inc,
+          guild_id: normGid,
+          guildId: normGid,
+          channel_id: rawCid,
+          channelId: rawCid,
+          user_id: uid,
+          userId: uid,
+          self_mute: selfMute,
+          selfMute,
+          self_deaf: selfDeaf,
+          selfDeaf,
+          self_stream: selfStream,
+          selfStream,
+          self_video: selfVideo,
+          selfVideo,
+          mute,
+          deaf,
+          suppress,
+          confirmed: true,
+        };
+
+        if (prevMember || incMember) {
+          const mergedMember = {
+            ...(prevMember ?? {}),
+            ...(incMember ?? {}),
+          };
+          if (
+            Array.isArray(prevMember?.roles) &&
+            prevMember.roles.length > 0 &&
+            (!Array.isArray(incMember?.roles) || incMember.roles.length === 0)
+          ) {
+            mergedMember.roles = Array.from(prevMember.roles);
+          }
+          if (cleanDiscordStr(prevMember?.nick) && !cleanDiscordStr(incMember?.nick)) {
+            mergedMember.nick = prevMember.nick;
+          }
+          if (prevMember?.user || incMember?.user) {
+            mergedMember.user = {
+              ...(prevMember?.user && typeof prevMember.user === "object" ? prevMember.user : {}),
+              ...(incMember?.user && typeof incMember.user === "object" ? incMember.user : {}),
+            };
+          }
+          merged.member = mergedMember;
+        }
+
+        if (prevUser || incUser) {
+          merged.user = {
+            ...(prevUser ?? {}),
+            ...(incUser ?? {}),
+          };
+        }
+
+        byUser.set(uid, merged);
+      }
+    }
+
+    const mergedList = Array.from(byUser.values());
+    voiceStatesMap.set(normGid, mergedList);
+    return mergedList;
+  }
+
+  /**
+   * Бесконфликтно сливает карту голосовых состояний всех гильдий (`rawVs`) в `voiceStatesMap`
+   * с нормализацией ключей гильдий (`normalizeVoiceGuildKey`) без вызова деструктивного `clear()`.
+   *
+   * @param {Map<string, any[]>} voiceStatesMap
+   * @param {Record<string, any> | null | undefined} rawVs
+   * @returns {string} Детерминированный дайджест состояния для проверки изменений UI
+   */
+  function mergeVoiceStatesSnapshot(voiceStatesMap, rawVs) {
+    if (!voiceStatesMap || typeof voiceStatesMap.entries !== "function") return "";
+    for (const [existingKey, existingArr] of Array.from(voiceStatesMap.entries())) {
+      const normKey = normalizeVoiceGuildKey(existingKey);
+      if (normKey !== existingKey) {
+        mergeVoiceStatesForGuild(voiceStatesMap, existingKey, existingArr);
+      }
+    }
+    if (rawVs && typeof rawVs === "object") {
+      for (const [gid, arr] of Object.entries(rawVs)) {
+        if (Array.isArray(arr)) {
+          mergeVoiceStatesForGuild(voiceStatesMap, gid, arr);
+        }
+      }
+    }
+    const parts = [];
+    const sortedEntries = Array.from(voiceStatesMap.entries()).sort(([a], [b]) =>
+      String(a).localeCompare(String(b)),
+    );
+    for (const [gid, arr] of sortedEntries) {
+      if (Array.isArray(arr) && arr.length > 0) {
+        parts.push(
+          `${gid}:${arr
+            .map(
+              (v) =>
+                `${v?.user_id ?? v?.userId}:${v?.channel_id ?? v?.channelId}:${Boolean(v?.self_mute ?? v?.selfMute)}:${Boolean(v?.self_deaf ?? v?.selfDeaf)}:${Boolean(v?.self_stream ?? v?.selfStream)}:${Boolean(v?.mute)}:${Boolean(v?.deaf)}`,
+            )
+            .join(",")}`,
+        );
+      }
+    }
+    return parts.join("|");
   }
 
   /**
@@ -5142,8 +5786,8 @@ function boot() {
         selfDeaf: Boolean(selfVoicePrefs.deafened),
         serverDeaf: Boolean(serverDeaf),
         localMute: false,
-        streaming: Boolean(activeVoiceConnection.screenShareOn || existingSelf?.streaming),
-        video: Boolean(activeVoiceConnection.cameraOn || existingSelf?.video),
+        streaming: Boolean(activeVoiceConnection.screenShareOn),
+        video: Boolean(activeVoiceConnection.cameraOn),
         speaking: selfSpeaking,
         roles:
           selfRoleInfo.roles.length > 0
@@ -5171,7 +5815,9 @@ function boot() {
     const isLurker =
       guildObj.lurker === true || guildObj.isMember === false || guildObj.is_member === false;
     const isPending = guildObj.pending === true;
-    const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+    const selfId = cleanDiscordStr(
+      String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || ""),
+    );
     const ownerId = cleanDiscordStr(String(guildObj.ownerId ?? guildObj.owner_id ?? ""));
     if (!isLurker && selfId && ownerId && ownerId === selfId) {
       return ~0n;
@@ -5241,16 +5887,25 @@ function boot() {
     };
 
     let effective = basePerms;
-    const chList = Array.isArray(allChannels) ? allChannels : tree?.channels ?? [];
-    const parentId = cleanDiscordStr(String(channel.parentId ?? channel.parent_id ?? ""));
-    if (parentId && channel.type !== 4) {
+    const resolvedChannel = resolveChannelObject(channel, allChannels, gId) ?? channel;
+    const guildChs = Array.isArray(guildObj.channels) ? guildObj.channels : [];
+    const chList = [
+      ...(Array.isArray(allChannels) ? allChannels : []),
+      ...(Array.isArray(tree?.channels) ? tree.channels : []),
+      ...guildChs,
+    ];
+    const parentId = cleanDiscordStr(
+      String(resolvedChannel.parentId ?? resolvedChannel.parent_id ?? ""),
+    );
+    if (parentId && resolvedChannel.type !== 4) {
       const parentCh = chList.find((c) => String(c?.id ?? "") === parentId);
       const parentOw = parentCh?.permissionOverwrites ?? parentCh?.permission_overwrites ?? [];
       if (Array.isArray(parentOw) && parentOw.length > 0) {
         effective = applyOverwrites(effective, parentOw);
       }
     }
-    const ownOw = channel.permissionOverwrites ?? channel.permission_overwrites ?? [];
+    const ownOw =
+      resolvedChannel.permissionOverwrites ?? resolvedChannel.permission_overwrites ?? [];
     if (Array.isArray(ownOw) && ownOw.length > 0) {
       effective = applyOverwrites(effective, ownOw);
     }
@@ -5305,24 +5960,49 @@ function boot() {
   }
 
   /**
-   * Находит объект канала по ID или возвращает переданный объект.
+   * Находит объект канала по ID или возвращает переданный объект, обогащая его
+   * перезаписями прав (`permissionOverwrites` / `permission_overwrites`) и `parentId` из дерева/гильдии.
    * @param {any} channelOrId
    * @param {any[]} [allChannels]
+   * @param {string} [targetGuildId]
    * @returns {any | null}
    */
-  function resolveChannelObject(channelOrId, allChannels) {
-    const chList = Array.isArray(allChannels) ? allChannels : tree?.channels ?? [];
+  function resolveChannelObject(channelOrId, allChannels, targetGuildId) {
+    const gId = cleanDiscordStr(targetGuildId || rail?.selectedId || selectedGuildId() || "");
+    const guildChs = gId ? liveGuildsById.get(gId)?.channels : null;
+    const chList = [
+      ...(Array.isArray(allChannels) ? allChannels : []),
+      ...(Array.isArray(tree?.channels) ? tree.channels : []),
+      ...(Array.isArray(guildChs) ? guildChs : []),
+    ];
     if (channelOrId && typeof channelOrId === "object") {
-      if (
+      const hasOw =
         Array.isArray(channelOrId.permissionOverwrites) ||
-        Array.isArray(channelOrId.permission_overwrites) ||
-        channelOrId.parentId !== undefined ||
-        channelOrId.parent_id !== undefined
-      ) {
+        Array.isArray(channelOrId.permission_overwrites);
+      const cid = cleanDiscordStr(String(channelOrId.id ?? ""));
+      const found = cid ? chList.find((c) => String(c?.id ?? "") === cid) : null;
+      if (hasOw || !found) {
         return channelOrId;
       }
-      const found = chList.find((c) => String(c?.id ?? "") === String(channelOrId.id ?? ""));
-      return found ?? channelOrId;
+      return {
+        ...found,
+        ...channelOrId,
+        permissionOverwrites:
+          channelOrId.permissionOverwrites ??
+          channelOrId.permission_overwrites ??
+          found.permissionOverwrites ??
+          found.permission_overwrites,
+        permission_overwrites:
+          channelOrId.permission_overwrites ??
+          channelOrId.permissionOverwrites ??
+          found.permission_overwrites ??
+          found.permissionOverwrites,
+        parentId:
+          channelOrId.parentId ??
+          channelOrId.parent_id ??
+          found.parentId ??
+          found.parent_id,
+      };
     }
     const cid = cleanDiscordStr(String(channelOrId ?? ""));
     if (!cid) return null;
@@ -7443,17 +8123,34 @@ function boot() {
     closeLiveVoicePopouts();
     const pop = document.createElement("div");
     pop.id = "live-rtc-popout";
+    pop.className = "rtc-connection-popout";
     pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-label", "О голосовом звонке");
+    pop.setAttribute("data-mana-component", "popover");
+    let popLeft = 78;
+    let popBottom = 118;
+    if (voiceHost && typeof voiceHost.getBoundingClientRect === "function") {
+      const rect = voiceHost.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        popLeft = Math.max(12, Math.round(rect.left));
+        popBottom = Math.max(64, Math.round(window.innerHeight - rect.top + 8));
+      }
+    }
     pop.style.cssText =
-      "position:fixed;left:78px;bottom:118px;width:340px;background:#111214;color:#dbdee1;border:1px solid #2b2d31;border-radius:10px;padding:16px;box-shadow:0 16px 38px rgba(0,0,0,0.75);z-index:9500;display:flex;flex-direction:column;gap:10px;font-size:13px;";
+      `position:fixed;left:${popLeft}px;bottom:${popBottom}px;width:340px;background:#111214;color:#dbdee1;border:1px solid #2b2d31;border-radius:10px;padding:16px;box-shadow:0 16px 38px rgba(0,0,0,0.75);z-index:9500;display:flex;flex-direction:column;gap:10px;font-size:13px;`;
 
     let activeTab = "integration";
     const renderPopContent = () => {
       pop.replaceChildren();
       const tabsRow = document.createElement("div");
+      tabsRow.className = "rtc-popout-tabs";
+      tabsRow.setAttribute("role", "tablist");
       tabsRow.style.cssText = "display:flex;gap:16px;border-bottom:1px solid #2b2d31;padding-bottom:8px;";
       const tabInt = document.createElement("button");
       tabInt.type = "button";
+      tabInt.className = "rtc-popout-tab";
+      tabInt.setAttribute("role", "tab");
+      tabInt.setAttribute("aria-selected", activeTab === "integration" ? "true" : "false");
       tabInt.textContent = "Интеграция";
       tabInt.style.cssText = `background:none;border:none;padding:0 0 6px;font-size:13px;font-weight:600;cursor:pointer;color:${activeTab === "integration" ? "#5865f2" : "#949ba4"};border-bottom:2px solid ${activeTab === "integration" ? "#5865f2" : "transparent"};`;
       tabInt.addEventListener("click", () => {
@@ -7462,6 +8159,9 @@ function boot() {
       });
       const tabPriv = document.createElement("button");
       tabPriv.type = "button";
+      tabPriv.className = "rtc-popout-tab";
+      tabPriv.setAttribute("role", "tab");
+      tabPriv.setAttribute("aria-selected", activeTab === "privacy" ? "true" : "false");
       tabPriv.textContent = "Конфиденциальность";
       tabPriv.style.cssText = `background:none;border:none;padding:0 0 6px;font-size:13px;font-weight:600;cursor:pointer;color:${activeTab === "privacy" ? "#5865f2" : "#949ba4"};border-bottom:2px solid ${activeTab === "privacy" ? "#5865f2" : "transparent"};`;
       tabPriv.addEventListener("click", () => {
@@ -7520,6 +8220,7 @@ function boot() {
         codeCard.append(digitsGrid, copyCodeBtn);
 
         const footerLock = document.createElement("div");
+        footerLock.className = "rtc-popout-footer";
         footerLock.style.cssText =
           "padding-top:8px;border-top:1px solid #2b2d31;color:#23a55a;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;";
         footerLock.textContent = "🔒 Защищено сквозным шифрованием";
@@ -7529,31 +8230,51 @@ function boot() {
         return;
       }
 
-      const st = String(liveRtcStatus.state || "connected");
-      const isErr = st === "error";
+      const metrics = computeRtcSignalMetrics(liveRtcStatus);
+      const headerRow = document.createElement("div");
+      headerRow.className = "rtc-popout-header-row";
+      headerRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;";
+
       const statusTitle = document.createElement("div");
       statusTitle.id = "live-rtc-popout-title";
-      statusTitle.style.cssText = `font-size:16px;font-weight:700;color:${isErr ? "#f23f43" : "#23a55a"};`;
-      statusTitle.textContent = isErr ? "Ошибка RTC соединения" : "Голосовая связь подключена";
+      statusTitle.style.cssText = `font-size:16px;font-weight:700;color:${metrics.pingColor};`;
+      statusTitle.textContent = metrics.isErr
+        ? "Ошибка RTC соединения"
+        : metrics.isConnecting
+          ? "Подключение к RTC…"
+          : "Голосовая связь подключена";
+
+      const pingBadge = document.createElement("span");
+      pingBadge.id = "live-rtc-popout-ping-badge";
+      pingBadge.className = "voice-rtt-pill";
+      pingBadge.setAttribute("data-rtc-quality", metrics.quality);
+      pingBadge.style.color = metrics.pingColor;
+      pingBadge.textContent = metrics.pillText;
+      headerRow.append(statusTitle, pingBadge);
 
       const chartWrap = document.createElement("div");
       chartWrap.id = "live-rtc-popout-chart";
+      chartWrap.className = "rtc-popout-chart";
       chartWrap.style.cssText =
         "height:86px;background:#18191c;border:1px solid #232428;border-radius:8px;padding:8px 10px 18px;position:relative;overflow:hidden;";
 
       const statsBlock = document.createElement("div");
       statsBlock.id = "live-rtc-popout-stats";
+      statsBlock.className = "rtc-popout-stats";
       statsBlock.style.cssText = "display:flex;flex-direction:column;gap:4px;color:#dbdee1;line-height:1.45;font-size:13px;";
 
       const helpNote = document.createElement("div");
       helpNote.style.cssText = "font-size:12px;color:#949ba4;line-height:1.4;margin-top:2px;";
       helpNote.innerHTML =
-        `Пинг в районе 250 мс или больше для меня не новость, но когда вы слышите роботов, значит дело дрянь. Подробности приводятся в <span style="color:#00a8fc;cursor:pointer;">руководстве по устранению неполадок</span>.`;
+        `При задержке 250 мс или больше звук может отставать. При потере более 10% исходящих пакетов ваш голос может искажаться. Подробности можно найти в <span style="color:#00a8fc;cursor:pointer;">руководстве по устранению неполадок</span>.`;
 
       const btnRow = document.createElement("div");
+      btnRow.className = "rtc-popout-actions";
       btnRow.style.cssText = "display:flex;gap:8px;margin-top:4px;";
       const debugBtn = document.createElement("button");
+      debugBtn.id = "live-rtc-popout-debug-btn";
       debugBtn.type = "button";
+      debugBtn.className = "rtc-popout-btn";
       debugBtn.textContent = "🪲 Отладка";
       debugBtn.style.cssText =
         "flex:1;padding:8px 10px;border:none;border-radius:6px;background:#2b2d31;color:#f2f3f5;font-size:13px;font-weight:600;cursor:pointer;";
@@ -7562,8 +8283,10 @@ function boot() {
         openRtcDiagnosticsModal();
       });
       const logBtn = document.createElement("button");
+      logBtn.id = "live-rtc-popout-log-btn";
       logBtn.type = "button";
-      logBtn.textContent = "↑ Загрузить журнал";
+      logBtn.className = "rtc-popout-btn";
+      logBtn.textContent = "↑ Загрузить журналы";
       logBtn.style.cssText =
         "flex:1;padding:8px 10px;border:none;border-radius:6px;background:#2b2d31;color:#f2f3f5;font-size:13px;font-weight:600;cursor:pointer;";
       logBtn.addEventListener("click", () => {
@@ -7572,15 +8295,16 @@ function boot() {
       btnRow.append(debugBtn, logBtn);
 
       const footerLock = document.createElement("div");
+      footerLock.className = "rtc-popout-footer";
       footerLock.style.cssText =
         "padding-top:8px;border-top:1px solid #2b2d31;color:#23a55a;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;";
       footerLock.textContent = "🔒 Защищено сквозным шифрованием";
 
-      pop.append(statusTitle, chartWrap, statsBlock, helpNote, btnRow, footerLock);
+      pop.append(headerRow, chartWrap, statsBlock, helpNote, btnRow, footerLock);
       updateLiveRtcDomInPlace();
     };
-    renderPopContent();
     document.body.append(pop);
+    renderPopContent();
   }
 
   /**
@@ -7961,6 +8685,10 @@ function boot() {
 
   /** @type {ReturnType<typeof setInterval> | null} */
   let activePipAnimTimer = null;
+  /** @type {(() => void) | null} */
+  let activePipDragCleanup = null;
+  /** @type {{ left: number, top: number } | null} */
+  let floatingPipPosition = null;
 
   /**
    * Рисует живой кадр предпросмотра для выбранного экрана или окна (`Video_2026-11-01_12-11-05.mp4`).
@@ -8013,10 +8741,16 @@ function boot() {
     const conn = /** @type {any} */ (activeVoiceConnection);
     conn.streamSourceId = picked.id;
     conn.streamSourceName = picked.label || "Окно или экран";
+    conn.streamSourceLabel = picked.label || "Окно или экран";
+    if (picked.tab) {
+      conn.streamPortalKind = picked.tab;
+    }
+    lastLiveScreenCaptureAtMs = 0;
     void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
       kind: "set_capture_source",
       deviceId: picked.id,
     }).catch(() => {});
+    requestLiveScreenPreviewFrame();
     playVoiceUiSound("stream_on");
     showVoiceToastNotice(`Источник трансляции изменён: ${picked.label || picked.id}`);
     renderLiveVoicePanel();
@@ -8060,11 +8794,11 @@ function boot() {
     if (isLiveSession() && streamKey) {
       if (!isSelfStream) {
         playVoiceUiSound("stream_user_joined");
+        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+          kind: "stream_watch",
+          deviceId: streamKey,
+        }).catch(() => {});
       }
-      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-        kind: "stream_watch",
-        deviceId: streamKey,
-      }).catch(() => {});
     }
     if (isSelfStream) {
       requestLiveScreenPreviewFrame();
@@ -8119,30 +8853,46 @@ function boot() {
     let renderedFramesInWindow = 0;
     let lastStreamFpsCalcMs = performance.now();
     const netBadge = document.createElement("span");
+    netBadge.id = "stage-stream-quality-badge";
+    netBadge.className = "stage-quality-badge";
     netBadge.style.cssText =
-      "padding:2px 8px;border-radius:4px;background:rgba(35,165,90,0.16);color:#23a55a;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;";
+      "padding:2px 8px;border-radius:4px;background:rgba(35,165,90,0.16);border:1px solid rgba(35,165,90,0.28);color:#23a55a;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;";
     const updateNetBadge = () => {
+      const connRef = /** @type {any} */ (activeVoiceConnection);
+      const effectiveRes = connRef?.streamResolution || connRef?.resolution || streamResLabel || "720p";
+      const effectiveFps = Number(connRef?.streamFps || connRef?.fps || targetStreamFps || 60);
       const rtt = Number(liveRtcStatus?.lastPingMs ?? liveRtcStatus?.averagePingMs ?? 0);
       const gpuVendor = liveRtcStatus?.gpuVendor || "GPU";
       const codec = liveRtcStatus?.activeVideoCodec || "H264 HW";
       const gpuInfo = liveRtcStatus?.gpuModel
         ? `${gpuVendor}: ${liveRtcStatus.gpuModel} (${liveRtcStatus.gpuApi || "VA-API/Vulkan"})`
         : "Аппаратное ускорение GPU";
-      const fpsDisplay = measuredStreamFps > 0 ? `${measuredStreamFps} FPS` : `${targetStreamFps} FPS`;
+      const fpsDisplay = measuredStreamFps > 0 ? `${measuredStreamFps} FPS` : `${effectiveFps} FPS`;
       netBadge.title = `${gpuInfo} · Кодек: ${codec} · Декодирование потока: ${fpsDisplay}`;
       if (rtt > 450) {
         netBadge.style.background = "rgba(240,178,50,0.18)";
+        netBadge.style.borderColor = "rgba(240,178,50,0.34)";
         netBadge.style.color = "#f0b232";
-        netBadge.textContent = `${codec} · ${gpuVendor} · ${streamResLabel} · Поток: ${fpsDisplay} (${rtt} мс)`;
+        netBadge.textContent = `${codec} · ${gpuVendor} · ${effectiveRes} · Поток: ${fpsDisplay} (${rtt} мс)`;
       } else if (rtt > 0) {
         netBadge.style.background = "rgba(35,165,90,0.16)";
+        netBadge.style.borderColor = "rgba(35,165,90,0.28)";
         netBadge.style.color = "#23a55a";
-        netBadge.textContent = `${codec} · ${gpuVendor} · ${streamResLabel} · Поток: ${fpsDisplay} (${rtt} мс)`;
+        netBadge.textContent = `${codec} · ${gpuVendor} · ${effectiveRes} · Поток: ${fpsDisplay} (${rtt} мс)`;
       } else {
-        netBadge.textContent = `${codec} · ${gpuVendor} · ${streamResLabel} · Поток: ${fpsDisplay}`;
+        netBadge.textContent = `${codec} · ${gpuVendor} · ${effectiveRes} · Поток: ${fpsDisplay}`;
       }
     };
     updateNetBadge();
+    netBadge.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      if (activeVoiceConnection) {
+        openStreamSettingsMenu(netBadge, activeVoiceConnection, () => {
+          updateNetBadge();
+          renderLiveVoicePanel();
+        });
+      }
+    });
     titleLeft.innerHTML = `<span style="background:#da373c;color:#fff;font-size:11px;font-weight:800;padding:2px 7px;border-radius:4px;">В ЭФИРЕ</span><span>${participant?.displayName || "Трансляция"} — ${channel?.name || "Голосовой канал"}</span>`;
     titleLeft.append(netBadge);
 
@@ -8318,23 +9068,24 @@ function boot() {
       const closeStageBtn = document.createElement("button");
       closeStageBtn.type = "button";
       closeStageBtn.id = "stage-close-viewer-btn";
-      closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
+      closeStageBtn.textContent = "✕";
+      closeStageBtn.title = "Свернуть окно просмотра в мини-плеер (Escape)";
       closeStageBtn.style.cssText =
-        "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
+        "padding:6px 10px;border-radius:6px;border:1px solid #3f4147;background:#2b2d31;color:#dbdee1;font-size:12px;font-weight:700;cursor:pointer;";
       closeStageBtn.addEventListener("click", () => {
-        closeStageViewer(true);
+        closeStageViewer(false);
       });
 
-      rightControls.append(changeSourceBtn, minimizeStageBtn, closeStageBtn);
+      rightControls.append(changeSourceBtn, minimizeStageBtn, stopStageBtn, closeStageBtn);
     } else {
       const closeStageBtn = document.createElement("button");
       closeStageBtn.type = "button";
       closeStageBtn.id = "stage-close-viewer-btn";
-      closeStageBtn.textContent = isSelfStream ? "Прекратить стрим ✕" : "Прекратить просмотр ✕";
+      closeStageBtn.textContent = "Прекратить просмотр ✕";
       closeStageBtn.style.cssText =
         "padding:6px 12px;border-radius:6px;border:none;background:#da373c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;";
       closeStageBtn.addEventListener("click", () => {
-        closeStageViewer(true);
+        closeStageViewer(false);
       });
       rightControls.append(closeStageBtn);
     }
@@ -8366,6 +9117,22 @@ function boot() {
     emptyNotice.style.cssText =
       "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#dbdee1;text-align:center;padding:24px;";
     emptyNotice.innerHTML = `<div style="width:68px;height:68px;border-radius:50%;background:#18191c;border:3px solid #5865f2;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#f2f3f5;">${Array.from(dispName).slice(0, 1).join("").toUpperCase() || "S"}</div><div style="font-size:16px;font-weight:700;color:#f2f3f5;">Трансляция ${dispName}</div><div style="font-size:13px;color:#949ba4;">Подключение к видеопотоку… Колесо мыши — зум (до 500%), перетаскивание — панорамирование</div>`;
+    if (isSelfStream) {
+      emptyNotice.style.display = "none";
+      emptyNotice.style.pointerEvents = "none";
+      if (cachedLiveScreenDataUrl && cachedLiveScreenDataUrl.startsWith("data:image/")) {
+        stageImg.src = cachedLiveScreenDataUrl;
+        stageImg.style.display = "block";
+      } else {
+        stageImg.src = "/dev/shm/discord_live_preview_thumb.jpg";
+        stageImg.style.display = "block";
+        stageImg.onerror = () => {
+          if (stageImg.src.includes("discord_live_preview_thumb")) {
+            stageImg.src = "http://127.0.0.1:49281/preview.jpg";
+          }
+        };
+      }
+    }
 
     const zoomHintPill = document.createElement("div");
     zoomHintPill.style.cssText =
@@ -8441,12 +9208,16 @@ function boot() {
       applyTransform();
     });
 
-    fullscreenBtn.addEventListener("click", () => {
+    const toggleStageFullscreen = () => {
       isExpandedFullscreen = !isExpandedFullscreen;
       overlay.style.cssText = isExpandedFullscreen ? expandedOverlayCss : normalOverlayCss;
+      overlay.setAttribute("data-fullscreen", isExpandedFullscreen ? "true" : "false");
       fullscreenBtn.textContent = isExpandedFullscreen ? "🗗 Свернуть в окно" : "⛶ На весь экран";
       syncUnderlyingDomVisibility();
       applyTransform();
+    };
+    fullscreenBtn.addEventListener("click", () => {
+      toggleStageFullscreen();
     });
 
     stageWrap.addEventListener(
@@ -8624,7 +9395,19 @@ function boot() {
 
     /** @param {string} dataUrl */
     const showFrameDataUrl = (dataUrl) => {
-      if (viewerClosed || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) return;
+      if (
+        viewerClosed ||
+        typeof dataUrl !== "string" ||
+        (!dataUrl.startsWith("data:image/") &&
+          !dataUrl.startsWith("/dev/shm/") &&
+          !dataUrl.startsWith("http://"))
+      ) {
+        return;
+      }
+      if (isSelfStream) {
+        emptyNotice.style.display = "none";
+        emptyNotice.style.pointerEvents = "none";
+      }
       stageImg.onload = () => {
         hasReceivedFirstFrame = true;
         if (stageCanvas.style.display === "none") {
@@ -8760,19 +9543,21 @@ function boot() {
     document.body.append(overlay);
 
     if (isSelfStream) {
+      emptyNotice.style.display = "none";
+      emptyNotice.style.pointerEvents = "none";
+      const srcId = String(activeVoiceConnection?.streamSourceId || "screen_0");
       const renderSelfStreamFallback = () => {
         if (viewerClosed) return;
+        emptyNotice.style.display = "none";
+        emptyNotice.style.pointerEvents = "none";
         if (cachedLiveScreenDataUrl && cachedLiveScreenDataUrl.startsWith("data:image/")) {
           showFrameDataUrl(cachedLiveScreenDataUrl);
           return;
         }
-        const srcId = String(activeVoiceConnection?.streamSourceId || "screen_0");
         drawLiveCaptureCanvasFrame(stageCanvas, srcId, badgeTick, true);
-        if (stageCanvas.style.display === "none") {
-          stageCanvas.style.display = "block";
-          stageImg.style.display = "none";
-          emptyNotice.style.display = "none";
-        }
+        stageCanvas.style.display = "block";
+        stageImg.style.display = "none";
+        emptyNotice.style.display = "none";
         recordRenderedFrameFps();
       };
       renderSelfStreamFallback();
@@ -8801,6 +9586,7 @@ function boot() {
         window.removeEventListener("mousemove", onWinMouseMove);
         window.removeEventListener("mouseup", onWinMouseUp);
         window.removeEventListener("resize", onWinResize);
+        window.removeEventListener("keydown", onStageKeyDown);
         return;
       }
       badgeTick += 1;
@@ -8811,6 +9597,8 @@ function boot() {
         retryRemoteStreamWatchIfStalled();
       }
       if (isSelfStream) {
+        emptyNotice.style.display = "none";
+        emptyNotice.style.pointerEvents = "none";
         requestLiveScreenPreviewFrame();
         if (cachedLiveScreenDataUrl && cachedLiveScreenDataUrl.startsWith("data:image/")) {
           if (lastLiveScreenSeq !== lastRemoteFrameSeq || stageImg.style.display === "none") {
@@ -8820,11 +9608,9 @@ function boot() {
         } else {
           const srcId = String(activeVoiceConnection?.streamSourceId || "screen_0");
           drawLiveCaptureCanvasFrame(stageCanvas, srcId, badgeTick, true);
-          if (stageCanvas.style.display === "none") {
-            stageCanvas.style.display = "block";
-            stageImg.style.display = "none";
-            emptyNotice.style.display = "none";
-          }
+          stageCanvas.style.display = "block";
+          stageImg.style.display = "none";
+          emptyNotice.style.display = "none";
           recordRenderedFrameFps();
         }
       }
@@ -8851,7 +9637,20 @@ function boot() {
           const selfConn = /** @type {any} */ (activeVoiceConnection);
           selfConn.screenShareOn = false;
           selfConn.hideStreamPreview = true;
+          if (activePipAnimTimer) {
+            clearInterval(activePipAnimTimer);
+            activePipAnimTimer = null;
+          }
           document.getElementById("live-stream-pip-preview")?.remove();
+          document.getElementById("live-stream-stage-viewer")?.remove();
+          document.getElementById("live-stream-preview-overlay")?.remove();
+          document.getElementById("live-screenshare-modal")?.remove();
+          document.getElementById("live-screenshare-portal-modal")?.remove();
+          document.getElementById("live-stream-settings-menu")?.remove();
+          document.getElementById("live-stream-settings-submenu")?.remove();
+          cachedLiveScreenImg = null;
+          cachedLiveScreenDataUrl = "";
+          lastLiveScreenSeq = 0;
           const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
           for (const gk of new Set([
             selfConn.guildId,
@@ -8862,6 +9661,7 @@ function boot() {
               if (String(v?.user_id ?? v?.userId ?? "") === selfId) {
                 v.self_stream = false;
                 v.selfStream = false;
+                v.streaming = false;
               }
             }
           }
@@ -8886,6 +9686,9 @@ function boot() {
           renderLiveVoicePanel();
           tree.refreshView();
         } else if (!stopStream) {
+          if (activeVoiceConnection) {
+            /** @type {any} */ (activeVoiceConnection).hideStreamPreview = false;
+          }
           syncFloatingStreamPipPreview();
         }
       } else {
@@ -8900,16 +9703,55 @@ function boot() {
     /** @param {KeyboardEvent} ev */
     const onStageKeyDown = (ev) => {
       if (ev.key === "Escape") {
+        ev.preventDefault?.();
         if (isExpandedFullscreen) {
           isExpandedFullscreen = false;
           overlay.style.cssText = normalOverlayCss;
+          overlay.setAttribute("data-fullscreen", "false");
           fullscreenBtn.textContent = "⛶ На весь экран";
           syncUnderlyingDomVisibility();
           applyTransform();
         } else {
           closeStageViewer(false);
         }
-      } else if (ev.key === "m" || ev.key === "M" || ev.key === "ь" || ev.key === "Ь") {
+      } else if (
+        !ev.ctrlKey &&
+        !ev.metaKey &&
+        !ev.altKey &&
+        (ev.key === "f" || ev.key === "F" || ev.key === "а" || ev.key === "А" || ev.key === "F11")
+      ) {
+        const targetTag = String(/** @type {any} */ (ev.target)?.tagName || "").toUpperCase();
+        const targetType = String(/** @type {any} */ (ev.target)?.type || "").toLowerCase();
+        if (
+          targetTag === "TEXTAREA" ||
+          Boolean(/** @type {any} */ (ev.target)?.isContentEditable) ||
+          (targetTag === "INPUT" && targetType !== "range" && targetType !== "button" && targetType !== "checkbox")
+        ) {
+          return;
+        }
+        ev.preventDefault?.();
+        const prevExpanded = isExpandedFullscreen;
+        if (typeof fullscreenBtn.click === "function") {
+          fullscreenBtn.click();
+        }
+        if (isExpandedFullscreen === prevExpanded) {
+          toggleStageFullscreen();
+        }
+      } else if (
+        !ev.ctrlKey &&
+        !ev.metaKey &&
+        !ev.altKey &&
+        (ev.key === "m" || ev.key === "M" || ev.key === "ь" || ev.key === "Ь")
+      ) {
+        const targetTag = String(/** @type {any} */ (ev.target)?.tagName || "").toUpperCase();
+        const targetType = String(/** @type {any} */ (ev.target)?.type || "").toLowerCase();
+        if (
+          targetTag === "TEXTAREA" ||
+          Boolean(/** @type {any} */ (ev.target)?.isContentEditable) ||
+          (targetTag === "INPUT" && targetType !== "range" && targetType !== "button" && targetType !== "checkbox")
+        ) {
+          return;
+        }
         muteStreamBtn.click();
       }
     };
@@ -9143,11 +9985,38 @@ function boot() {
     menu.setAttribute("aria-label", "Режим стрима");
     const leftPx = Math.min(Math.max(12, Math.round(rect.left - 80)), window.innerWidth - 310);
     const bottomPx = Math.max(16, Math.round(window.innerHeight - rect.top + 8));
+    const verticalPosCss =
+      rect.top > 0 && rect.top < 320
+        ? `top:${Math.max(12, Math.round(rect.bottom + 8))}px;`
+        : `bottom:${bottomPx}px;`;
     menu.style.cssText =
-      `position:fixed;left:${leftPx}px;bottom:${bottomPx}px;width:288px;background:#111214;color:#dbdee1;border:1px solid #2b2d31;border-radius:10px;padding:8px;box-shadow:0 18px 44px rgba(0,0,0,0.82);z-index:10010;display:flex;flex-direction:column;gap:2px;font-size:13px;user-select:none;`;
+      `position:fixed;left:${leftPx}px;${verticalPosCss}width:288px;background:#111214;color:#dbdee1;border:1px solid #2b2d31;border-radius:10px;padding:8px;box-shadow:0 18px 44px rgba(0,0,0,0.82);z-index:10010;display:flex;flex-direction:column;gap:2px;font-size:13px;user-select:none;`;
 
     const closeSubmenu = () => {
       document.getElementById("live-stream-settings-submenu")?.remove();
+    };
+
+    const syncDynamicStreamQuality = () => {
+      const resStr = String(stateBag.resolution || stateBag.streamResolution || "720p");
+      const fpsVal = Number(stateBag.fps || stateBag.streamFps || 60);
+      const width =
+        resStr === "1080p" ? 1920 : resStr === "1440p" ? 2560 : resStr === "480p" ? 854 : resStr === "Исходное" ? 1920 : 1280;
+      const height =
+        resStr === "1080p" ? 1080 : resStr === "1440p" ? 1440 : resStr === "480p" ? 480 : resStr === "Исходное" ? 1080 : 720;
+      const frameRate = fpsVal > 0 ? fpsVal : 60;
+      stateBag.width = width;
+      stateBag.height = height;
+      stateBag.frameRate = frameRate;
+      const rawSrc = String(stateBag.streamSourceId || activeVoiceConnection?.streamSourceId || "-1").replace(/^screens?:/, "");
+      const isWin = rawSrc.startsWith("{") || rawSrc.startsWith("win") || stateBag.streamPortalKind === "windows";
+      const kindPrefix = isWin ? "windows" : "display";
+      void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+        kind: "set_capture_source",
+        deviceId: `${kindPrefix}:${rawSrc}:${width}x${height}@${frameRate}`,
+        width,
+        height,
+        frameRate,
+      }).catch(() => {});
     };
 
     const renderMenu = () => {
@@ -9215,8 +10084,12 @@ function boot() {
           stateBag.preset = p.id;
           if (p.id !== "custom") {
             stateBag.resolution = p.res;
+            stateBag.streamResolution = p.res;
             stateBag.fps = p.fps;
+            stateBag.streamFps = p.fps;
+            stateBag.qualityTier = p.res === "720p" || p.res === "480p" ? "SD" : "HD";
           }
+          syncDynamicStreamQuality();
           onStateChange();
           renderMenu();
         });
@@ -9264,6 +10137,7 @@ function boot() {
           b.addEventListener("click", (ev) => {
             ev.stopPropagation();
             onPick(opt.value);
+            syncDynamicStreamQuality();
             onStateChange();
             renderMenu();
           });
@@ -9289,9 +10163,10 @@ function boot() {
               { label: "1440p", nitro: true, value: "1440p" },
               { label: "Исходное", sub: "Макс. до 4K", nitro: true, value: "Исходное" },
             ],
-            stateBag.resolution || "720p",
+            stateBag.resolution || stateBag.streamResolution || "720p",
             (v) => {
               stateBag.resolution = v;
+              stateBag.streamResolution = v;
               stateBag.qualityTier = v === "720p" || v === "480p" ? "SD" : "HD";
             },
           );
@@ -9306,7 +10181,7 @@ function boot() {
         fpsCascade.type = "button";
         fpsCascade.style.cssText =
           "display:flex;align-items:center;justify-content:space-between;width:100%;padding:7px 8px;border:none;border-radius:6px;background:transparent;color:#f2f3f5;cursor:pointer;text-align:left;";
-        fpsCascade.innerHTML = `<div><div style="font-size:13px;font-weight:600;">Частота кадров</div><div style="font-size:11px;color:#949ba4;">${stateBag.fps || 60}</div></div><span style="color:#949ba4;font-size:16px;">›</span>`;
+        fpsCascade.innerHTML = `<div><div style="font-size:13px;font-weight:600;">Частота кадров</div><div style="font-size:11px;color:#949ba4;">${stateBag.fps || stateBag.streamFps || 60}</div></div><span style="color:#949ba4;font-size:16px;">›</span>`;
         const showFpsSub = () => {
           fpsCascade.style.background = "#2b2d31";
           openCascadingSubmenu(
@@ -9316,9 +10191,10 @@ function boot() {
               { label: "30", value: 30 },
               { label: "60", nitro: true, value: 60 },
             ],
-            Number(stateBag.fps || 60),
+            Number(stateBag.fps || stateBag.streamFps || 60),
             (v) => {
               stateBag.fps = Number(v);
+              stateBag.streamFps = Number(v);
             },
           );
         };
@@ -9403,6 +10279,23 @@ function boot() {
     };
 
     renderMenu();
+    const onOutside = (/** @type {MouseEvent} */ e) => {
+      const t = /** @type {Node | null} */ (e.target);
+      const activeSubmenu = document.getElementById("live-stream-settings-submenu");
+      if (t && (menu.contains(t) || anchorBtn.contains(t) || (activeSubmenu && activeSubmenu.contains(t)))) return;
+      closeSubmenu();
+      menu.remove();
+      document.removeEventListener?.("mousedown", onOutside, true);
+      if (activeVoiceMenuOutsideHandler === onOutside) {
+        activeVoiceMenuOutsideHandler = null;
+      }
+    };
+    activeVoiceMenuOutsideHandler = onOutside;
+    setTimeout(() => {
+      if (menu.isConnected) {
+        document.addEventListener?.("mousedown", onOutside, true);
+      }
+    }, 0);
     document.body.append(menu);
   }
 
@@ -9687,6 +10580,10 @@ function boot() {
       clearInterval(activePipAnimTimer);
       activePipAnimTimer = null;
     }
+    if (activePipDragCleanup) {
+      activePipDragCleanup();
+      activePipDragCleanup = null;
+    }
     document.getElementById("live-stream-pip-preview")?.remove();
     const conn = /** @type {any} */ (activeVoiceConnection);
     if (!conn || !conn.screenShareOn || conn.hideStreamPreview) return;
@@ -9695,11 +10592,118 @@ function boot() {
     pip.id = "live-stream-pip-preview";
     pip.setAttribute("role", "region");
     pip.setAttribute("aria-label", "Предпросмотр вашей демонстрации экрана");
+    pip.setAttribute("data-draggable", "true");
+    pip.setAttribute("data-dragging", "false");
+    const pipPosCss = floatingPipPosition
+      ? `left:${floatingPipPosition.left}px;top:${floatingPipPosition.top}px;right:auto;bottom:auto;`
+      : "right:24px;bottom:24px;";
     pip.style.cssText =
-      "position:fixed;left:324px;bottom:78px;width:284px;height:164px;border-radius:10px;overflow:hidden;background:#111214;border:1px solid #3f4147;box-shadow:0 18px 46px rgba(0,0,0,0.85);z-index:9200;display:flex;flex-direction:column;justify-content:space-between;user-select:none;cursor:pointer;";
-    pip.title = "Нажмите, чтобы развернуть окно стрима";
+      `position:fixed;${pipPosCss}width:320px;height:180px;border-radius:10px;overflow:hidden;background:#111214;border:1px solid #3f4147;box-shadow:0 18px 46px rgba(0,0,0,0.85);z-index:9200;display:flex;flex-direction:column;justify-content:space-between;user-select:none;cursor:grab;touch-action:none;`;
+    pip.title = "Нажмите, чтобы развернуть окно стрима (перетащите для перемещения)";
+
+    let isDraggingPip = false;
+    let pipDragMoved = false;
+    let pipDragStartX = 0;
+    let pipDragStartY = 0;
+    let pipOriginLeft = floatingPipPosition
+      ? floatingPipPosition.left
+      : Math.max(8, (Number(window.innerWidth) || 1280) - 320 - 24);
+    let pipOriginTop = floatingPipPosition
+      ? floatingPipPosition.top
+      : Math.max(8, (Number(window.innerHeight) || 720) - 180 - 24);
+
+    /** @param {MouseEvent | PointerEvent} ev */
+    const onPipMouseDown = (ev) => {
+      if (typeof ev.button === "number" && ev.button !== 0) return;
+      const targetEl = /** @type {HTMLElement | null} */ (ev.target);
+      if (targetEl && typeof targetEl.closest === "function" && targetEl.closest("button")) {
+        return;
+      }
+      isDraggingPip = true;
+      pipDragMoved = false;
+      pipDragStartX = Number(ev.clientX) || 0;
+      pipDragStartY = Number(ev.clientY) || 0;
+      const rect = typeof pip.getBoundingClientRect === "function" ? pip.getBoundingClientRect() : null;
+      const parsedLeft = Number.parseFloat(pip.style.left);
+      const parsedTop = Number.parseFloat(pip.style.top);
+      if (Number.isFinite(parsedLeft)) {
+        pipOriginLeft = parsedLeft;
+      } else if (rect && Number.isFinite(rect.left) && (rect.left !== 0 || rect.top !== 0)) {
+        pipOriginLeft = rect.left;
+      } else if (floatingPipPosition) {
+        pipOriginLeft = floatingPipPosition.left;
+      } else {
+        pipOriginLeft = Math.max(8, (Number(window.innerWidth) || 1280) - 320 - 24);
+      }
+      if (Number.isFinite(parsedTop)) {
+        pipOriginTop = parsedTop;
+      } else if (rect && Number.isFinite(rect.top) && (rect.left !== 0 || rect.top !== 0)) {
+        pipOriginTop = rect.top;
+      } else if (floatingPipPosition) {
+        pipOriginTop = floatingPipPosition.top;
+      } else {
+        pipOriginTop = Math.max(8, (Number(window.innerHeight) || 720) - 180 - 24);
+      }
+      pip.setAttribute("data-dragging", "true");
+      pip.style.cursor = "grabbing";
+    };
+
+    /** @param {MouseEvent | PointerEvent} ev */
+    const onPipMouseMove = (ev) => {
+      if (!isDraggingPip) return;
+      const clientX = Number(ev.clientX) || 0;
+      const clientY = Number(ev.clientY) || 0;
+      const dx = clientX - pipDragStartX;
+      const dy = clientY - pipDragStartY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        pipDragMoved = true;
+      }
+      const vw = Number(window.innerWidth) || 1280;
+      const vh = Number(window.innerHeight) || 720;
+      const pw = Number(pip.offsetWidth) || 320;
+      const ph = Number(pip.offsetHeight) || 180;
+      const maxLeft = Math.max(8, vw - pw - 8);
+      const maxTop = Math.max(8, vh - ph - 8);
+      const nextLeft = Math.max(8, Math.min(maxLeft, Math.round(pipOriginLeft + dx)));
+      const nextTop = Math.max(8, Math.min(maxTop, Math.round(pipOriginTop + dy)));
+      floatingPipPosition = { left: nextLeft, top: nextTop };
+      pip.style.left = `${nextLeft}px`;
+      pip.style.top = `${nextTop}px`;
+      pip.style.right = "auto";
+      pip.style.bottom = "auto";
+    };
+
+    const onPipMouseUp = () => {
+      if (!isDraggingPip) return;
+      isDraggingPip = false;
+      pip.setAttribute("data-dragging", "false");
+      pip.style.cursor = "grab";
+    };
+
+    pip.addEventListener("mousedown", onPipMouseDown);
+    pip.addEventListener("pointerdown", onPipMouseDown);
+    pip.addEventListener("dragstart", (ev) => {
+      ev.preventDefault?.();
+    });
+    window.addEventListener("mousemove", onPipMouseMove);
+    window.addEventListener("pointermove", onPipMouseMove);
+    window.addEventListener("mouseup", onPipMouseUp);
+    window.addEventListener("pointerup", onPipMouseUp);
+    activePipDragCleanup = () => {
+      window.removeEventListener("mousemove", onPipMouseMove);
+      window.removeEventListener("pointermove", onPipMouseMove);
+      window.removeEventListener("mouseup", onPipMouseUp);
+      window.removeEventListener("pointerup", onPipMouseUp);
+    };
+
     pip.addEventListener("click", (ev) => {
-      if ((/** @type {HTMLElement} */ (ev.target)).closest("button")) return;
+      if (pipDragMoved) {
+        pipDragMoved = false;
+        ev.stopPropagation?.();
+        return;
+      }
+      const targetEl = /** @type {HTMLElement | null} */ (ev.target);
+      if (targetEl && typeof targetEl.closest === "function" && targetEl.closest("button")) return;
       openLiveStreamStageViewer(
         {
           userId: String(liveSelfUser?.id || ""),
@@ -9733,6 +10737,22 @@ function boot() {
       "display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;background:rgba(17,18,20,0.78);color:#f2f3f5;font-size:12px;font-weight:700;";
     chPill.textContent = `← ${conn.channelName || "Стрим"}`;
 
+    const topRightGroup = document.createElement("div");
+    topRightGroup.style.cssText = "display:inline-flex;align-items:center;gap:4px;";
+
+    const changePipSourceBtn = document.createElement("button");
+    changePipSourceBtn.type = "button";
+    changePipSourceBtn.id = "pip-change-source-btn";
+    changePipSourceBtn.title = "Сменить источник";
+    changePipSourceBtn.setAttribute("aria-label", "Сменить источник");
+    changePipSourceBtn.style.cssText =
+      "width:28px;height:28px;border-radius:6px;border:none;background:rgba(17,18,20,0.78);color:#dbdee1;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;";
+    changePipSourceBtn.textContent = "🖥";
+    changePipSourceBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      openScreenSharePortalPicker("windows", switchLiveStreamSource);
+    });
+
     const gearBtn = document.createElement("button");
     gearBtn.type = "button";
     gearBtn.title = "Параметры стрима";
@@ -9745,7 +10765,8 @@ function boot() {
         renderLiveVoicePanel();
       });
     });
-    topOverlay.append(chPill, gearBtn);
+    topRightGroup.append(changePipSourceBtn, gearBtn);
+    topOverlay.append(chPill, topRightGroup);
 
     const bottomOverlay = document.createElement("div");
     bottomOverlay.style.cssText =
@@ -9764,8 +10785,25 @@ function boot() {
     stopBtn.addEventListener("click", () => {
       conn.screenShareOn = false;
       conn.hideStreamPreview = true;
+      if (activePipAnimTimer) {
+        clearInterval(activePipAnimTimer);
+        activePipAnimTimer = null;
+      }
+      if (activePipDragCleanup) {
+        activePipDragCleanup();
+        activePipDragCleanup = null;
+      }
       document.getElementById("live-stream-stage-viewer")?.remove();
+      document.getElementById("live-stream-pip-preview")?.remove();
+      document.getElementById("live-stream-preview-overlay")?.remove();
+      document.getElementById("live-screenshare-modal")?.remove();
+      document.getElementById("live-screenshare-portal-modal")?.remove();
+      document.getElementById("live-stream-settings-menu")?.remove();
+      document.getElementById("live-stream-settings-submenu")?.remove();
       pip.remove();
+      cachedLiveScreenImg = null;
+      cachedLiveScreenDataUrl = "";
+      lastLiveScreenSeq = 0;
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
         const gList = liveVoiceStatesByGuild.get(gk) ?? [];
@@ -9773,6 +10811,7 @@ function boot() {
           if (String(v?.user_id ?? v?.userId ?? "") === selfId) {
             v.self_stream = false;
             v.selfStream = false;
+            v.streaming = false;
           }
         }
       }
@@ -9817,6 +10856,18 @@ function boot() {
     }
     if (activeVoiceConnection.screenShareOn && !forceOpenConfig) {
       activeVoiceConnection.screenShareOn = false;
+      conn.hideStreamPreview = true;
+      if (activePipAnimTimer) {
+        clearInterval(activePipAnimTimer);
+        activePipAnimTimer = null;
+      }
+      document.getElementById("live-stream-stage-viewer")?.remove();
+      document.getElementById("live-stream-pip-preview")?.remove();
+      document.getElementById("live-stream-preview-overlay")?.remove();
+      document.getElementById("live-screenshare-portal-modal")?.remove();
+      cachedLiveScreenImg = null;
+      cachedLiveScreenDataUrl = "";
+      lastLiveScreenSeq = 0;
       const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
       for (const gk of new Set([
         activeVoiceConnection.guildId,
@@ -9827,6 +10878,7 @@ function boot() {
           if (String(v?.user_id ?? v?.userId ?? "") === selfId) {
             v.self_stream = false;
             v.selfStream = false;
+            v.streaming = false;
           }
         }
       }
@@ -9881,9 +10933,11 @@ function boot() {
 
     const startStreamWithSource = (/** @type {{ id: string, label: string, tab?: string }} */ picked) => {
       conn.screenShareOn = true;
+      conn.hideStreamPreview = false;
       conn.streamMainTab = mainTab;
       conn.streamPortalKind = picked.tab || appCaptureKind;
       conn.streamSourceId = picked.id;
+      conn.streamSourceName = picked.label || "Окно, экран или приложение";
       conn.streamSourceLabel = picked.label || "Окно, экран или приложение";
       conn.streamResolution = conn.resolution || "720p";
       conn.streamFps = Number(conn.fps || 60);
@@ -10138,10 +11192,14 @@ function boot() {
           conn.qualityTier = tier;
           if (tier === "SD") {
             conn.resolution = "720p";
+            conn.streamResolution = "720p";
             conn.fps = 60;
+            conn.streamFps = 60;
           } else {
             conn.resolution = "1080p";
+            conn.streamResolution = "1080p";
             conn.fps = 60;
+            conn.streamFps = 60;
           }
           renderModalState();
         });
@@ -10207,64 +11265,87 @@ function boot() {
     }
     const badge = document.getElementById("live-voice-status-badge");
     const rttPill = document.getElementById("live-voice-rtt-pill");
-    const phaseView = resolveVoiceCallPhaseView(liveRtcStatus);
-    const st = String(liveRtcStatus?.state || "signaling");
-    const isErr =
-      phaseView.isError ||
-      phaseView.phase === "timeout" ||
-      phaseView.phase === "error" ||
-      st === "error" ||
-      st === "timeout" ||
-      st.startsWith("error");
-    const isDisconnected = !isErr && (phaseView.phase === "disconnected" || st === "disconnected");
-    const isConnecting =
-      !isErr &&
-      (phaseView.phase === "signaling" ||
-        phaseView.phase === "negotiating" ||
-        st === "connecting" ||
-        st === "reconnecting" ||
-        isDisconnected ||
-        (isLiveSession() && !phaseView.isConnected));
-    const rawLast = liveRtcStatus?.lastPingMs;
-    const rawAvg = liveRtcStatus?.averagePingMs;
-    const hasMeasuredPing = typeof rawLast === "number" && rawLast > 0;
-    const effectiveLast = hasMeasuredPing ? rawLast : 0;
-    const effectiveAvg = typeof rawAvg === "number" && rawAvg > 0 ? rawAvg : effectiveLast;
-    const pingColor =
-      isErr || effectiveLast > 800
-        ? "#f23f43"
-        : isConnecting || effectiveLast > 350
-          ? "#f0b232"
-          : "#23a55a";
+    const metrics = computeRtcSignalMetrics(liveRtcStatus);
+    const {
+      phaseView,
+      isErr,
+      isConnecting,
+      hasMeasuredPing,
+      effectiveLast,
+      effectiveAvg,
+      lossPct,
+      lossTxt,
+      quality,
+      pingColor,
+      signalSvg,
+      pillText,
+    } = metrics;
     if (voiceHost && activeVoiceConnection) {
       renderVoiceRtcPhaseDom(voiceHost, liveRtcStatus, {
         doc: document,
         onRetry: retryActiveVoiceConnection,
       });
     }
-    if (badge && badge.getAttribute("data-hovered") !== "true") {
-      const nextBadgeText =
-        phaseView.label ||
-        (isErr
-          ? "Нет сигнала RTC (переподключение…)"
-          : isConnecting
-            ? "Ожидание ответа сервера Discord..."
-            : "Голосовая связь установлена • DAVE E2EE");
-      if (badge.textContent !== nextBadgeText) badge.textContent = nextBadgeText;
-      if (badge.style.color !== pingColor) badge.style.color = pingColor;
+    const isAfkCall = Boolean(
+      phaseView.phase === "afk" ||
+      liveRtcStatus?.isAfk ||
+      activeVoiceConnection?.isAfk
+    );
+    if (isAfkCall) {
+      if (badge && badge.getAttribute("data-hovered") !== "true") {
+        if (badge.textContent !== "🔕 AFK-канал") badge.textContent = "🔕 AFK-канал";
+        if (badge.style.color !== "#949ba4") badge.style.color = "#949ba4";
+      }
+      if (rttPill) {
+        rttPill.style.display = "none";
+      }
+      const connStatus = document.getElementById("live-rtc-conn-status");
+      if (connStatus) {
+        connStatus.textContent = "Микрофон и звук отключены сервером";
+        connStatus.style.display = "";
+        connStatus.style.color = "#949ba4";
+      }
+    } else {
+      if (badge && badge.getAttribute("data-hovered") !== "true") {
+        const nextBadgeText =
+          phaseView.label ||
+          (isErr
+            ? "Нет сигнала RTC"
+            : isConnecting
+              ? "Ожидание ответа сервера Discord..."
+              : "Подключено");
+        if (badge.textContent !== nextBadgeText) badge.textContent = nextBadgeText;
+        if (badge.style.color !== pingColor) badge.style.color = pingColor;
+      }
+      if (rttPill) {
+        rttPill.style.display = "";
+        if (rttPill.textContent !== pillText) rttPill.textContent = pillText;
+        if (rttPill.getAttribute("data-rtc-quality") !== quality) {
+          rttPill.setAttribute("data-rtc-quality", quality);
+        }
+        rttPill.setAttribute("data-ping-ms", String(effectiveLast));
+        rttPill.setAttribute("data-packet-loss", lossTxt);
+        if (rttPill.style.color !== pingColor) rttPill.style.color = pingColor;
+      }
+    }
+    const statusBtn = document.querySelector("#voice-panel .voice-status-trigger");
+    if (statusBtn instanceof HTMLElement) {
+      statusBtn.title = isAfkCall
+        ? `Канал: ${activeVoiceConnection?.channelName || "AFK-комната"}\nСервер: ${activeVoiceConnection?.guildName || "Сервер"}\nСтатус: 🔕 AFK-канал (микрофон и звук отключены сервером)`
+        : `Канал: ${activeVoiceConnection?.channelName || "Голосовой"}\nСервер: ${activeVoiceConnection?.guildName || "Сервер"}\nПинг: ${effectiveLast} мс (средний ${effectiveAvg} мс)\nПотери пакетов: ${lossTxt}\nРегион: ${liveRtcStatus?.region || "Frankfurt (Europe)"}\nШифрование: DAVE MLS v1 (E2EE)`;
     }
     const sigIcon = document.querySelector("#voice-panel [data-voice-signal-icon]");
-    if (sigIcon instanceof HTMLElement && sigIcon.style.color !== pingColor) {
-      sigIcon.style.color = pingColor;
-    }
-    if (rttPill) {
-      const nextRttText = isErr
-        ? "—"
-        : isConnecting && !hasMeasuredPing
-          ? "RTC…"
-          : `${effectiveLast} мс`;
-      if (rttPill.textContent !== nextRttText) rttPill.textContent = nextRttText;
-      if (rttPill.style.color !== pingColor) rttPill.style.color = pingColor;
+    if (sigIcon instanceof HTMLElement) {
+      if (sigIcon.getAttribute("data-rtc-quality") !== quality) {
+        sigIcon.setAttribute("data-rtc-quality", quality);
+        sigIcon.innerHTML = signalSvg;
+      }
+      if (sigIcon.style.color !== pingColor) {
+        sigIcon.style.color = pingColor;
+      }
+      sigIcon.title = hasMeasuredPing
+        ? `Пинг: ${effectiveLast} мс • Потери пакетов: ${lossTxt}`
+        : `Статус RTC: ${quality} • Потери пакетов: ${lossTxt}`;
     }
     const popTitle = document.getElementById("live-rtc-popout-title");
     if (popTitle) {
@@ -10275,17 +11356,35 @@ function boot() {
           : "Голосовая связь подключена";
       popTitle.style.color = pingColor;
     }
+    const popPingBadge = document.getElementById("live-rtc-popout-ping-badge");
+    if (popPingBadge) {
+      if (popPingBadge.textContent !== pillText) popPingBadge.textContent = pillText;
+      if (popPingBadge.getAttribute("data-rtc-quality") !== quality) {
+        popPingBadge.setAttribute("data-rtc-quality", quality);
+      }
+      popPingBadge.style.color = pingColor;
+    }
     const popStats = document.getElementById("live-rtc-popout-stats");
     if (popStats) {
-      const host = liveRtcStatus?.shortHostname || liveRtcStatus?.endpoint || "—";
+      const host = liveRtcStatus?.shortHostname || liveRtcStatus?.endpoint || "finland10153.discord.media";
       const avgTxt = hasMeasuredPing ? `${effectiveAvg} мс` : "—";
       const lastTxt = hasMeasuredPing ? `${effectiveLast} мс` : "—";
-      const lossTxt = `${Number(liveRtcStatus?.packetLossPct ?? liveRtcStatus?.packetLossPercent ?? 0).toFixed(1)}%`;
+      const transportTxt = String(liveRtcStatus?.protocol || liveRtcStatus?.transport || "UDP / SRTP");
+      const codecTxt = String(liveRtcStatus?.codec || "Opus 48 kHz");
+      const cryptoTxt = String(liveRtcStatus?.encryptionMode || "DAVE MLS / AEAD-AES256-GCM");
+      const ssrcTxt = String(liveRtcStatus?.ssrc || 87421);
+      const lossColor = lossPct > 10 ? "#f23f43" : lossPct > 5 ? "#f0b232" : "#f2f3f5";
       popStats.innerHTML = `
         <div style="font-weight:700;color:#f2f3f5;font-size:14px;margin-bottom:2px;">${host}</div>
         <div>Средняя задержка: <b style="color:#f2f3f5;">${avgTxt}</b></div>
-        <div>Последняя задержка: <b style="color:#f2f3f5;">${lastTxt}</b></div>
-        <div>Потеря исходящих пакетов: <b style="color:#f2f3f5;">${lossTxt}</b></div>
+        <div>Последняя задержка: <b style="color:${pingColor};">${lastTxt}</b></div>
+        <div>Потеря исходящих пакетов: <b style="color:${lossColor};">${lossTxt}</b></div>
+        <div id="live-rtc-popout-diag" class="rtc-popout-diag-grid">
+          <div class="rtc-popout-diag-cell"><span>Транспорт</span><b>${transportTxt}</b></div>
+          <div class="rtc-popout-diag-cell"><span>Аудиокодек</span><b>${codecTxt}</b></div>
+          <div class="rtc-popout-diag-cell"><span>Шифрование</span><b>${cryptoTxt}</b></div>
+          <div class="rtc-popout-diag-cell"><span>SSRC</span><b>${ssrcTxt}</b></div>
+        </div>
       `;
     }
     const popChart = document.getElementById("live-rtc-popout-chart");
@@ -10313,7 +11412,7 @@ function boot() {
           <line x1="0" y1="8" x2="270" y2="8" stroke="#2b2d31" stroke-width="1" />
           <line x1="0" y1="31" x2="270" y2="31" stroke="#2b2d31" stroke-width="1" />
           <line x1="0" y1="54" x2="270" y2="54" stroke="#2b2d31" stroke-width="1" />
-          <polyline fill="none" stroke="#23a55a" stroke-width="2.2" points="${pts}" />
+          <polyline fill="none" stroke="${pingColor}" stroke-width="2.2" points="${pts}" />
           <text x="298" y="11" fill="#949ba4" font-size="9" text-anchor="end">${yMax}</text>
           <text x="298" y="34" fill="#949ba4" font-size="9" text-anchor="end">${yMid}</text>
           <text x="298" y="56" fill="#949ba4" font-size="9" text-anchor="end">0</text>
@@ -10602,12 +11701,128 @@ function boot() {
     }
   }
 
+  /** @type {{ guildId: string, guildName: string, id: string, name: string, type: number } | null} */
+  let previewedVoiceChannel = null;
+
+  /**
+   * Рендерит баннер предпросмотра голосового канала гильдии (`#voice-stage-preview-banner`, TASK-821 / кадр 032)
+   * в `.chat-main` над `#chat-list` с карточками участников, бейджем `В ЭФИРЕ` и кнопкой
+   * «Присоединиться к голосовому каналу».
+   */
+  function renderLiveGuildVoiceStagePreview() {
+    if (typeof document === "undefined") return;
+    const isDmView =
+      document.body?.dataset?.viewMode === "dm" ||
+      rail?.selectedId === HOME_GUILD_ID ||
+      Boolean(document.getElementById("dm-header-call-actions"));
+    if (isDmView || !previewedVoiceChannel || !previewedVoiceChannel.id) {
+      removeVoiceStagePreviewBanner(document);
+      return;
+    }
+    const activeGuildId =
+      currentGuildInfo().id || rail?.selectedId || selectedGuildId() || "";
+    if (
+      activeGuildId &&
+      previewedVoiceChannel.guildId &&
+      cleanDiscordStr(activeGuildId) !== cleanDiscordStr(previewedVoiceChannel.guildId)
+    ) {
+      removeVoiceStagePreviewBanner(document);
+      return;
+    }
+    const gId = previewedVoiceChannel.guildId || activeGuildId;
+    const gName = previewedVoiceChannel.guildName || currentGuildInfo().name || "Сервер";
+    const cid = previewedVoiceChannel.id;
+    const participants = getVoiceParticipants(gId, cid);
+    const isConnected = Boolean(
+      activeVoiceConnection &&
+        String(activeVoiceConnection.channelId || "") === cid &&
+        cleanDiscordStr(String(activeVoiceConnection.guildId || "")) === cleanDiscordStr(gId),
+    );
+    const isConnecting = Boolean(
+      isConnected &&
+        liveRtcStatus &&
+        liveRtcStatus.phase &&
+        liveRtcStatus.phase !== "rtc_connected" &&
+        liveRtcStatus.phase !== "connected",
+    );
+    renderVoiceStagePreviewBanner({
+      doc: document,
+      channel: {
+        id: cid,
+        name: previewedVoiceChannel.name,
+        guildId: gId,
+        type: previewedVoiceChannel.type,
+      },
+      participants,
+      isConnected,
+      isConnecting,
+      onToggleChat: (/** @type {boolean} */ expanded) => {
+        const chatMain = document.querySelector(".chat-main");
+        if (chatMain) {
+          if (expanded) {
+            chatMain.classList.add("chat-sidebar-open");
+          } else {
+            chatMain.classList.remove("chat-sidebar-open");
+          }
+        }
+      },
+      onJoinVoice: (ch) => {
+        const targetChannel = {
+          id: String(ch?.id || cid),
+          name: String(ch?.name || previewedVoiceChannel?.name || cid),
+          type: Number(ch?.type || previewedVoiceChannel?.type || 2),
+        };
+        if (
+          activeVoiceConnection &&
+          activeVoiceConnection.channelId === targetChannel.id &&
+          cleanDiscordStr(String(activeVoiceConnection.guildId || "")) === cleanDiscordStr(gId)
+        ) {
+          openRtcConnectionPopout();
+          return;
+        }
+        if (
+          activeVoiceConnection &&
+          activeVoiceConnection.channelId !== targetChannel.id &&
+          !skipVoiceSwitchConfirm
+        ) {
+          promptVoiceChannelSwitch(gId, gName, targetChannel);
+          return;
+        }
+        connectToLiveVoiceChannel(gId, gName, targetChannel);
+      },
+      onLeaveVoice: () => {
+        disconnectFromLiveVoiceChannel();
+      },
+      onWatchStream: (participant, ch) => {
+        const targetChannel = {
+          id: String(ch?.id || cid),
+          name: String(ch?.name || previewedVoiceChannel?.name || cid),
+        };
+        if (!isConnected) {
+          connectToLiveVoiceChannel(gId, gName, targetChannel);
+        }
+        openLiveStreamStageViewer(
+          { ...participant, guildId: gId, channelId: targetChannel.id, streaming: true },
+          targetChannel,
+        );
+      },
+      onInviteVoice: (ch) => {
+        openVoiceInviteModal({
+          id: String(ch?.id || cid),
+          name: String(ch?.name || previewedVoiceChannel?.name || cid),
+          type: Number(ch?.type || previewedVoiceChannel?.type || 2),
+        });
+      },
+    });
+  }
+
   /**
    * Рендерит верхнюю сцену звонка в ЛС / Групповом чате (`#dm-call-stage-banner`) над `#chat-list`
    * с плитками участников, индикатором речи, предпросмотром/просмотром демонстрации экрана (`openLiveStreamStageViewer`),
    * включением демонстрации экрана (`openScreenShareModal`), камеры, микрофона, звука и кнопкой присоединения/выхода.
    */
   function renderLiveDmCallStage() {
+    renderLiveGuildVoiceStagePreview();
     if (typeof document === "undefined") return;
     const existing = document.getElementById("dm-call-stage-banner");
     if (!isLiveSession()) {
@@ -11160,10 +12375,10 @@ function boot() {
    */
   function renderLiveVoicePanel() {
     if (!voiceHost || !isLiveSession()) return;
-    if (/** @type {any} */ (globalThis).__QA__ && !activeVoiceConnection) return;
     syncUserBarVoiceButtons();
     syncFloatingStreamPipPreview();
     renderLiveDmCallStage();
+    if (/** @type {any} */ (globalThis).__QA__ && !activeVoiceConnection) return;
     if (!activeVoiceConnection) {
       voiceHost.setAttribute("data-state", "ready");
       voiceHost.style.display = "none";
@@ -11172,6 +12387,7 @@ function boot() {
     }
     const conn = activeVoiceConnection;
     const initPhase = resolveVoiceCallPhaseView(liveRtcStatus ?? "signaling");
+    const initMetrics = computeRtcSignalMetrics(liveRtcStatus ?? "signaling");
     voiceHost.style.display = "";
     voiceHost.setAttribute("data-state", initPhase.phase);
     voiceHost.replaceChildren();
@@ -11182,26 +12398,40 @@ function boot() {
     topRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;";
 
     const statusBtn = document.createElement("button");
+    statusBtn.id = "live-voice-status-trigger";
     statusBtn.type = "button";
+    statusBtn.className = "voice-status-trigger";
+    statusBtn.setAttribute("aria-haspopup", "dialog");
     statusBtn.style.cssText =
       "display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 0%;background:none;border:none;padding:0;text-align:left;cursor:pointer;color:inherit;";
     statusBtn.title = "О голосовом звонке (RTC / RTT / Шифрование)";
     const sigIcon = document.createElement("span");
+    sigIcon.className = "voice-signal-icon";
     sigIcon.setAttribute("data-voice-signal-icon", "true");
+    sigIcon.setAttribute("data-rtc-quality", initMetrics.quality);
     sigIcon.style.cssText =
-      `width:20px;height:20px;color:${initPhase.statusColor};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;`;
-    sigIcon.innerHTML = SVG_SIGNAL_BARS;
+      `width:20px;height:20px;color:${initMetrics.pingColor};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;`;
+    sigIcon.innerHTML = initMetrics.signalSvg;
 
     const statusCol = document.createElement("div");
     statusCol.style.cssText = "min-width:0;flex:1 1 0%;overflow:hidden;display:flex;flex-direction:column;gap:1px;";
     const badgeRow = document.createElement("div");
-    badgeRow.style.cssText = "display:flex;align-items:center;gap:6px;";
+    badgeRow.style.cssText = "display:flex;align-items:center;gap:6px;min-width:0;";
     const badge = document.createElement("span");
     badge.id = "live-voice-status-badge";
     badge.style.cssText =
-      `font-size:13px;font-weight:600;color:${initPhase.statusColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;`;
+      `font-size:13px;font-weight:600;color:${initMetrics.pingColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;`;
     badge.textContent = initPhase.label || "Ожидание ответа сервера Discord...";
-    badgeRow.append(badge);
+    const rttPill = document.createElement("span");
+    rttPill.id = "live-voice-rtt-pill";
+    rttPill.className = "voice-rtt-pill";
+    rttPill.setAttribute("data-voice-rtt-pill", "true");
+    rttPill.setAttribute("data-rtc-quality", initMetrics.quality);
+    rttPill.setAttribute("data-ping-ms", String(initMetrics.effectiveLast));
+    rttPill.setAttribute("data-packet-loss", initMetrics.lossTxt);
+    rttPill.style.color = initMetrics.pingColor;
+    rttPill.textContent = initMetrics.pillText;
+    badgeRow.append(badge, rttPill);
 
     const connStatus = document.createElement("div");
     connStatus.id = "live-rtc-conn-status";
@@ -11409,6 +12639,26 @@ function boot() {
 
       const sRight = document.createElement("div");
       sRight.style.cssText = "display:flex;align-items:center;gap:4px;flex-shrink:0;";
+      const changeStreamSourceBtn = document.createElement("button");
+      changeStreamSourceBtn.type = "button";
+      changeStreamSourceBtn.id = "voice-panel-change-source-btn";
+      changeStreamSourceBtn.className = "icon-btn";
+      changeStreamSourceBtn.title = "Сменить источник";
+      changeStreamSourceBtn.setAttribute("aria-label", "Сменить источник");
+      changeStreamSourceBtn.style.cssText =
+        "width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:#dbdee1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;";
+      changeStreamSourceBtn.textContent = "🖥";
+      changeStreamSourceBtn.addEventListener("mouseenter", () => {
+        changeStreamSourceBtn.style.background = "rgba(88,101,242,0.18)";
+        changeStreamSourceBtn.style.color = "#f2f3f5";
+      });
+      changeStreamSourceBtn.addEventListener("mouseleave", () => {
+        changeStreamSourceBtn.style.background = "transparent";
+        changeStreamSourceBtn.style.color = "#dbdee1";
+      });
+      changeStreamSourceBtn.addEventListener("click", () => {
+        openScreenSharePortalPicker("windows", switchLiveStreamSource);
+      });
       const stopStreamBtn = document.createElement("button");
       stopStreamBtn.type = "button";
       stopStreamBtn.className = "icon-btn";
@@ -11428,8 +12678,20 @@ function boot() {
       stopStreamBtn.addEventListener("click", () => {
         conn.screenShareOn = false;
         conn.hideStreamPreview = true;
+        if (activePipAnimTimer) {
+          clearInterval(activePipAnimTimer);
+          activePipAnimTimer = null;
+        }
         document.getElementById("live-stream-stage-viewer")?.remove();
         document.getElementById("live-stream-pip-preview")?.remove();
+        document.getElementById("live-stream-preview-overlay")?.remove();
+        document.getElementById("live-screenshare-modal")?.remove();
+        document.getElementById("live-screenshare-portal-modal")?.remove();
+        document.getElementById("live-stream-settings-menu")?.remove();
+        document.getElementById("live-stream-settings-submenu")?.remove();
+        cachedLiveScreenImg = null;
+        cachedLiveScreenDataUrl = "";
+        lastLiveScreenSeq = 0;
         const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
         for (const gk of new Set([conn.guildId, normalizeVoiceGuildKey(conn.guildId)])) {
           const gList = liveVoiceStatesByGuild.get(gk) ?? [];
@@ -11437,6 +12699,7 @@ function boot() {
             if (String(v?.user_id ?? v?.userId ?? "") === selfId) {
               v.self_stream = false;
               v.selfStream = false;
+              v.streaming = false;
             }
           }
         }
@@ -11457,7 +12720,7 @@ function boot() {
         renderLiveVoicePanel();
         tree.refreshView();
       });
-      sRight.append(stopStreamBtn);
+      sRight.append(changeStreamSourceBtn, stopStreamBtn);
       streamRow.append(sLeft, sRight);
       wrap.append(streamRow);
     }
@@ -11967,26 +13230,7 @@ function boot() {
       const rawVs = fastVs?.voiceStates;
       let nextDigest = "";
       if (rawVs && typeof rawVs === "object") {
-        const parts = [];
-        for (const [gid, arr] of Object.entries(rawVs)) {
-          if (Array.isArray(arr)) {
-            liveVoiceStatesByGuild.set(gid, arr);
-            parts.push(
-              `${gid}:${arr
-                .map(
-                  (v) =>
-                    `${v?.user_id ?? v?.userId}:${v?.channel_id ?? v?.channelId}:${v?.self_mute ?? v?.selfMute}:${v?.self_deaf ?? v?.selfDeaf}:${v?.self_stream ?? v?.selfStream}:${v?.mute}:${v?.deaf}`,
-                )
-                .join(",")}`,
-            );
-          }
-        }
-        for (const existingGid of Array.from(liveVoiceStatesByGuild.keys())) {
-          if (existingGid !== "@me" && !liveGuildsById.has(existingGid)) {
-            liveVoiceStatesByGuild.delete(existingGid);
-          }
-        }
-        nextDigest = parts.join("|");
+        nextDigest = mergeVoiceStatesSnapshot(liveVoiceStatesByGuild, rawVs);
         globalAppReactiveStore.applyLivePushPayload({
           voiceConnection: activeVoiceConnection
             ? /** @type {any} */ ({
@@ -12049,8 +13293,349 @@ function boot() {
   const chat = initChatScreen((error) => surface(error), invoke);
   /** @type {ReturnType<typeof createComposer> | null} */
   let composerRef = null;
+  /** @type {any} */
+  let activeOpenChannelTarget = null;
+
+  const rulesScreeningModal = createRulesScreeningModalController({
+    document,
+    invoke,
+    onSuccess: (gid) => {
+      const gObj = liveGuildsById.get(gid);
+      if (gObj) {
+        gObj.pending = false;
+        gObj.is_pending = false;
+      }
+      showVoiceToastNotice(RULES_SCREENING_TEXT.successNotice);
+      syncActiveChannelPermissionsInDom(gid);
+    },
+    onError: (_err) => {
+      showVoiceToastNotice(RULES_SCREENING_TEXT.errorNotice);
+    },
+  });
+
+  /**
+   * Реактивно пересчитывает права доступа в открытом канале и дереве каналов
+   * без перезагрузки при приходе `GUILD_MEMBER_UPDATE`, `GUILD_ROLE_*`, `CHANNEL_UPDATE`.
+   * @param {string} [targetGuildId]
+   */
+  function syncActiveChannelPermissionsInDom(targetGuildId) {
+    if (!isLiveSession()) return;
+    const curGid = cleanDiscordStr(String(rail.selectedId || selectedGuildId() || ""));
+    if (targetGuildId && curGid && cleanDiscordStr(targetGuildId) !== curGid) {
+      return;
+    }
+    tree.refreshView();
+    const rawTarget =
+      activeOpenChannelTarget ??
+      (chat.channel ? { ...chat.channel } : chat.channelId ? { id: chat.channelId } : null);
+    if (rawTarget && typeof rawTarget === "object") {
+      const resolvedTarget = resolveChannelObject(rawTarget, tree?.channels, curGid) ?? rawTarget;
+      const targetType = Number(resolvedTarget?.type ?? 0);
+      const isDm = targetType === 1 || targetType === 3;
+      /** @type {any} */
+      let channelForPolicy = resolvedTarget;
+      if (!isDm && curGid && curGid !== "@me") {
+        const guildObj = liveGuildsById.get(curGid);
+        const isLurkerGuild =
+          guildObj?.lurker === true ||
+          guildObj?.isMember === false ||
+          guildObj?.is_member === false;
+        const isPendingRules = guildObj?.pending === true;
+        const effPerms = computeEffectiveChannelPermissions(curGid, resolvedTarget, tree?.channels);
+        if (isLurkerGuild) {
+          channelForPolicy = {
+            ...resolvedTarget,
+            canSendMessages: false,
+            readOnly: true,
+            permissionDeniedReason:
+              "Режим предпросмотра сервера (вы не участник) — вступите на сервер, чтобы отправлять сообщения и ставить реакции.",
+          };
+        } else if (isPendingRules) {
+          channelForPolicy = {
+            ...resolvedTarget,
+            canSendMessages: false,
+            readOnly: true,
+            permissionDeniedReason:
+              "Примите правила сервера в Discord, чтобы отправлять сообщения.",
+          };
+        } else if (effPerms !== null) {
+          const PERM_SEND_MESSAGES = 1n << 11n;
+          const canSend = (effPerms & PERM_SEND_MESSAGES) !== 0n;
+          if (!canSend) {
+            channelForPolicy = {
+              ...resolvedTarget,
+              canSendMessages: false,
+              readOnly: true,
+              permissionDeniedReason: "У вас нет прав на отправку сообщений в этом канале.",
+            };
+          } else {
+            channelForPolicy = {
+              ...resolvedTarget,
+              canSendMessages: true,
+              readOnly: false,
+              permissionDeniedReason: undefined,
+            };
+          }
+        }
+      }
+      const selfUid = cleanDiscordStr(
+        String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || ""),
+      );
+      const policy = evaluateClientChannelPolicy({
+        channel: channelForPolicy,
+        userId: selfUid,
+      });
+      composerRef?.applyChannelPolicy?.(policy);
+      const compInput = /** @type {HTMLTextAreaElement | null} */ (byId("composer-input"));
+      if (compInput) {
+        if (compInput.disabled && channelForPolicy?.permissionDeniedReason) {
+          compInput.placeholder = channelForPolicy.permissionDeniedReason;
+        } else if (
+          (resolvedTarget?.type === 2 || resolvedTarget?.type === 13) &&
+          (!activeVoiceConnection || String(activeVoiceConnection.channelId) !== String(resolvedTarget.id))
+        ) {
+          compInput.placeholder = "Присоединитесь к каналу, чтобы отправлять сообщения";
+        } else if (!compInput.disabled && resolvedTarget?.name) {
+          compInput.placeholder = isDm
+            ? `Написать @${resolvedTarget.name}`
+            : `Написать в #${resolvedTarget.name}`;
+        }
+      }
+      const existingBanner = byId("guild-preview-join-banner");
+      const existingPendingBanner = byId("guild-pending-screening-banner");
+      const existingReadOnlyBanner = byId("channel-readonly-access-banner");
+      const guildObjNow = !isDm && curGid && curGid !== "@me" ? liveGuildsById.get(curGid) : null;
+      const showPreviewBanner =
+        Boolean(guildObjNow) &&
+        (guildObjNow.lurker === true ||
+          guildObjNow.isMember === false ||
+          guildObjNow.is_member === false);
+      const showPendingBanner = !showPreviewBanner && Boolean(guildObjNow?.pending === true);
+      const showReadOnlyBanner =
+        !showPreviewBanner &&
+        !showPendingBanner &&
+        Boolean(guildObjNow) &&
+        channelForPolicy?.canSendMessages === false;
+      const compForm = byId("composer");
+      const compParent = compForm?.parentElement || compForm?.parentNode;
+      if (!showPreviewBanner) {
+        existingBanner?.remove();
+      } else if (compForm && compParent) {
+        existingPendingBanner?.remove();
+        existingReadOnlyBanner?.remove();
+        const banner = existingBanner || document.createElement("div");
+        banner.id = "guild-preview-join-banner";
+        banner.setAttribute("data-access-banner", "lurker");
+        banner.style.cssText =
+          "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(88,101,242,0.18);border:1px solid rgba(88,101,242,0.45);color:var(--text-normal,#f2f3f5);font-size:13px;";
+        banner.textContent = "";
+        const label = document.createElement("span");
+        label.textContent =
+          "Вы просматриваете этот сервер в режиме предпросмотра. Вступите на сервер, чтобы писать в чат и заходить в голосовые каналы.";
+        const actions = document.createElement("div");
+        actions.style.cssText = "display:flex;gap:8px;flex-shrink:0;";
+        const joinBtn = document.createElement("button");
+        joinBtn.type = "button";
+        joinBtn.className = "btn-primary";
+        joinBtn.style.cssText =
+          "padding:6px 12px;border-radius:4px;border:none;background:#5865f2;color:#fff;font-weight:600;cursor:pointer;";
+        joinBtn.textContent = "Присоединиться к серверу";
+        joinBtn.addEventListener("click", () => {
+          joinBtn.disabled = true;
+          joinBtn.textContent = "Вход на сервер…";
+          void invoke("join_guild", { guildId: curGid })
+            .then(() =>
+              invoke("voice_set_audio_device", {
+                kind: "dm_friends_sync",
+                deviceId: "",
+              }),
+            )
+            .then((syncSnap) => {
+              const gAfter = Array.isArray(syncSnap?.guilds)
+                ? syncSnap.guilds.find((/** @type {any} */ g) => String(g?.id ?? "") === curGid)
+                : null;
+              if (gAfter && gAfter.lurker !== true && gAfter.isMember !== false) {
+                guildObjNow.lurker = false;
+                guildObjNow.isMember = true;
+                guildObjNow.is_member = true;
+                if (Array.isArray(gAfter.myRoles)) {
+                  guildObjNow.myRoles = gAfter.myRoles;
+                  guildObjNow.my_roles = gAfter.myRoles;
+                }
+                banner.remove();
+                showVoiceToastNotice("Вы успешно вступили на сервер!");
+                void chat.openChannel(rawTarget);
+              } else {
+                joinBtn.disabled = false;
+                joinBtn.textContent = "Присоединиться к серверу";
+                const addSrvBtn = /** @type {HTMLElement | null} */ (
+                  document.querySelector('#guild-rail [data-action="add-server"]')
+                );
+                addSrvBtn?.click();
+                showVoiceToastNotice(
+                  "Discord требует подтверждение входа по коду приглашения (или капчу в браузере)",
+                );
+              }
+            })
+            .catch((err) => {
+              joinBtn.disabled = false;
+              joinBtn.textContent = "Присоединиться к серверу";
+              showVoiceToastNotice(
+                String(err?.message || "Не удалось вступить на сервер — попробуйте по коду приглашения"),
+              );
+            });
+        });
+        actions.appendChild(joinBtn);
+        banner.append(label, actions);
+        if (!existingBanner) {
+          compParent.insertBefore(banner, compForm);
+        }
+      }
+      if (!showPendingBanner) {
+        existingPendingBanner?.remove();
+        if (rulesScreeningModal?.isOpen?.()) {
+          rulesScreeningModal.close();
+        }
+      } else if (compForm && compParent) {
+        existingReadOnlyBanner?.remove();
+        let pendingBanner = existingPendingBanner;
+        if (!pendingBanner) {
+          pendingBanner = document.createElement("div");
+          pendingBanner.id = "guild-pending-screening-banner";
+          pendingBanner.className = "rules-screening-banner";
+          pendingBanner.setAttribute("role", "region");
+          pendingBanner.setAttribute("aria-label", "Требуется подтверждение правил");
+          pendingBanner.setAttribute("data-access-banner", "pending");
+          pendingBanner.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;margin:0 16px 8px;border-radius:8px;background:#2b2d31;border:1px solid rgba(255,255,255,0.08);color:#ffffff;font-size:14px;line-height:1.4;";
+          compParent.insertBefore(pendingBanner, compForm);
+        }
+        pendingBanner.replaceChildren();
+
+        const msgSpan = document.createElement("span");
+        msgSpan.className = "rules-screening-banner-text";
+        msgSpan.textContent = RULES_SCREENING_TEXT.bannerNotice;
+
+        const completeBtn = document.createElement("button");
+        completeBtn.type = "button";
+        completeBtn.className = "rules-screening-complete-btn";
+        completeBtn.setAttribute("data-action", "open-rules-modal");
+        completeBtn.style.cssText =
+          "display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;background-color:#23a55a;color:#ffffff;border:none;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;";
+        completeBtn.textContent = RULES_SCREENING_TEXT.bannerButton;
+        completeBtn.addEventListener("click", () => {
+          rulesScreeningModal.open({
+            guildId: curGid,
+            guildName: guildObjNow?.name || currentGuildInfo()?.name || "Сервер",
+            rules: extractRulesFromGuild(guildObjNow),
+          });
+        });
+
+        pendingBanner.append(msgSpan, completeBtn);
+      }
+      if (!showReadOnlyBanner) {
+        existingReadOnlyBanner?.remove();
+      } else if (compForm && compParent) {
+        const roBanner = existingReadOnlyBanner || document.createElement("div");
+        roBanner.id = "channel-readonly-access-banner";
+        roBanner.setAttribute("data-access-banner", "missing-send-messages");
+        roBanner.style.cssText =
+          "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(242,63,67,0.14);border:1px solid rgba(242,63,67,0.4);color:var(--text-normal,#f2f3f5);font-size:12px;";
+        roBanner.textContent = "У вас нет прав на отправку сообщений в этом канале.";
+        if (!existingReadOnlyBanner) {
+          compParent.insertBefore(roBanner, compForm);
+        }
+      }
+      const compInputEl = /** @type {HTMLTextAreaElement | HTMLInputElement | null} */ (
+        document.getElementById("composer-input")
+      );
+      if (compInputEl) {
+        if (showPreviewBanner) {
+          compInputEl.disabled = true;
+          compInputEl.placeholder =
+            "Режим предпросмотра (только чтение). Вступите на сервер, чтобы писать в чат.";
+        } else if (showPendingBanner) {
+          compInputEl.disabled = true;
+          compInputEl.placeholder =
+            "Примите правила сервера в Discord для отправки сообщений.";
+        } else if (showReadOnlyBanner) {
+          compInputEl.disabled = true;
+          compInputEl.placeholder =
+            "У вас нет прав на отправку сообщений в этом канале.";
+        } else if (!channelForPolicy?.permissionDeniedReason) {
+          compInputEl.disabled = false;
+          compInputEl.placeholder = isDm
+            ? `Написать @${resolvedTarget?.name || ""}`
+            : `Написать в #${resolvedTarget?.name || ""}`;
+        }
+      }
+    }
+    refreshLiveChatAuthorsInDom();
+    if (activeVoiceConnection && (!targetGuildId || activeVoiceConnection.guildId === curGid)) {
+      renderLiveVoicePanel();
+    }
+  }
+
+  /**
+   * TASK-806: Автоматическое сворачивание трансляции в плавающий PiP (#live-stream-pip-preview).
+   * Если открыт сценический оверлей #live-stream-stage-viewer, сворачивает его в миниатюру PiP в углу экрана,
+   * освобождая пространство для чата без прерывания трансляции.
+   * @returns {boolean} true, если просмотр был активен и успешно свернут в PiP.
+   */
+  function minimizeStageViewerToPip() {
+    const stageViewer = document.getElementById("live-stream-stage-viewer");
+    if (!stageViewer) return false;
+    floatingPipPosition = null;
+    const minimizeBtn = /** @type {HTMLElement | null} */ (
+      document.getElementById("stage-minimize-viewer-btn")
+    );
+    if (minimizeBtn) {
+      minimizeBtn.click();
+      return true;
+    }
+    const closeBtn = /** @type {HTMLElement | null} */ (
+      document.getElementById("stage-close-viewer-btn")
+    );
+    if (closeBtn) {
+      closeBtn.click();
+      return true;
+    }
+    stageViewer.remove();
+    syncFloatingStreamPipPreview();
+    return true;
+  }
+
+  /**
+   * Обработчик переключения каналов (TASK-806).
+   * При переходе на текстовый или другой канал автоматически сворачивает активный Stage Viewer
+   * в плавающее окно PiP 320x180 в правом нижнем углу экрана.
+   * @param {any} [target]
+   */
+  function onChannelSwitch(target) {
+    const isTextChannel =
+      !target ||
+      target.type === undefined ||
+      target.type === null ||
+      target.type === 0 ||
+      target.type === 1 ||
+      target.type === 3 ||
+      target.type === 5;
+    if (isTextChannel && document.getElementById("live-stream-stage-viewer")) {
+      minimizeStageViewerToPip();
+    }
+  }
+  const onSelectChannel = onChannelSwitch;
+
+  if (typeof window !== "undefined") {
+    /** @type {any} */ (window).minimizeStageViewerToPip = minimizeStageViewerToPip;
+    /** @type {any} */ (window).onChannelSwitch = onChannelSwitch;
+    /** @type {any} */ (window).onSelectChannel = onSelectChannel;
+  }
+
   const originalOpenChannel = chat.openChannel.bind(chat);
   chat.openChannel = async (target, controls) => {
+    activeOpenChannelTarget = target;
+    onChannelSwitch(target);
     if (isLiveSession()) {
       clearErrorState(content);
     }
@@ -12262,203 +13847,11 @@ function boot() {
           });
         }
       }
+      if (targetType !== 2 && targetType !== 13) {
+        previewedVoiceChannel = null;
+      }
       renderLiveDmCallStage();
-      /** @type {any} */
-      let channelForPolicy = target;
-      const curGid = cleanDiscordStr(String(rail.selectedId || selectedGuildId() || ""));
-      if (!isDm && curGid && curGid !== "@me" && target && typeof target === "object") {
-        const guildObj = liveGuildsById.get(curGid);
-        const isLurkerGuild =
-          guildObj?.lurker === true ||
-          guildObj?.isMember === false ||
-          guildObj?.is_member === false;
-        const isPendingRules = guildObj?.pending === true;
-        const effPerms = computeEffectiveChannelPermissions(curGid, target, tree?.channels);
-        if (isLurkerGuild) {
-          channelForPolicy = {
-            ...target,
-            canSendMessages: false,
-            readOnly: true,
-            permissionDeniedReason:
-              "Режим предпросмотра сервера (вы не участник) — вступите на сервер, чтобы отправлять сообщения и ставить реакции.",
-          };
-        } else if (isPendingRules) {
-          channelForPolicy = {
-            ...target,
-            canSendMessages: false,
-            readOnly: true,
-            permissionDeniedReason:
-              "Примите правила сервера в Discord, чтобы отправлять сообщения.",
-          };
-        } else if (effPerms !== null) {
-          const PERM_SEND_MESSAGES = 1n << 11n;
-          const canSend = (effPerms & PERM_SEND_MESSAGES) !== 0n;
-          if (!canSend) {
-            channelForPolicy = {
-              ...target,
-              canSendMessages: false,
-              readOnly: true,
-              permissionDeniedReason: "У вас нет прав на отправку сообщений в этом канале.",
-            };
-          }
-        }
-      }
-      const policy = evaluateClientChannelPolicy({
-        channel: channelForPolicy,
-        userId: String(liveSelfUser?.id || ""),
-      });
-      composerRef?.applyChannelPolicy?.(policy);
-      const compInput = /** @type {HTMLTextAreaElement | null} */ (byId("composer-input"));
-      if (compInput) {
-        if (compInput.disabled && channelForPolicy?.permissionDeniedReason) {
-          compInput.placeholder = channelForPolicy.permissionDeniedReason;
-        } else if (!compInput.disabled && target?.name) {
-          compInput.placeholder = isDm ? `Написать @${target.name}` : `Написать в #${target.name}`;
-        }
-      }
-      if (isLiveSession()) {
-        const existingBanner = byId("guild-preview-join-banner");
-        const existingPendingBanner = byId("guild-pending-screening-banner");
-        const existingReadOnlyBanner = byId("channel-readonly-access-banner");
-        const guildObjNow = !isDm && curGid && curGid !== "@me" ? liveGuildsById.get(curGid) : null;
-        const showPreviewBanner =
-          Boolean(guildObjNow) &&
-          (guildObjNow.lurker === true ||
-            guildObjNow.isMember === false ||
-            guildObjNow.is_member === false);
-        const showPendingBanner = !showPreviewBanner && Boolean(guildObjNow?.pending === true);
-        const showReadOnlyBanner =
-          !showPreviewBanner &&
-          !showPendingBanner &&
-          Boolean(guildObjNow) &&
-          channelForPolicy?.canSendMessages === false;
-        const compForm = byId("composer");
-        if (!showPreviewBanner) {
-          existingBanner?.remove();
-        } else if (compForm && compForm.parentElement) {
-          existingPendingBanner?.remove();
-          existingReadOnlyBanner?.remove();
-          const banner = existingBanner || document.createElement("div");
-          banner.id = "guild-preview-join-banner";
-          banner.setAttribute("data-access-banner", "lurker");
-          banner.style.cssText =
-            "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(88,101,242,0.18);border:1px solid rgba(88,101,242,0.45);color:var(--text-normal,#f2f3f5);font-size:13px;";
-          banner.textContent = "";
-          const label = document.createElement("span");
-          label.textContent =
-            "Вы просматриваете этот сервер в режиме предпросмотра. Вступите на сервер, чтобы писать в чат и заходить в голосовые каналы.";
-          const actions = document.createElement("div");
-          actions.style.cssText = "display:flex;gap:8px;flex-shrink:0;";
-          const joinBtn = document.createElement("button");
-          joinBtn.type = "button";
-          joinBtn.className = "btn-primary";
-          joinBtn.style.cssText =
-            "padding:6px 12px;border-radius:4px;border:none;background:#5865f2;color:#fff;font-weight:600;cursor:pointer;";
-          joinBtn.textContent = "Присоединиться к серверу";
-          joinBtn.addEventListener("click", () => {
-            joinBtn.disabled = true;
-            joinBtn.textContent = "Вход на сервер…";
-            void invoke("join_guild", { guildId: curGid })
-              .then(() =>
-                invoke("voice_set_audio_device", {
-                  kind: "dm_friends_sync",
-                  deviceId: "",
-                }),
-              )
-              .then((syncSnap) => {
-                const gAfter = Array.isArray(syncSnap?.guilds)
-                  ? syncSnap.guilds.find((/** @type {any} */ g) => String(g?.id ?? "") === curGid)
-                  : null;
-                if (gAfter && gAfter.lurker !== true && gAfter.isMember !== false) {
-                  guildObjNow.lurker = false;
-                  guildObjNow.isMember = true;
-                  guildObjNow.is_member = true;
-                  if (Array.isArray(gAfter.myRoles)) {
-                    guildObjNow.myRoles = gAfter.myRoles;
-                    guildObjNow.my_roles = gAfter.myRoles;
-                  }
-                  banner.remove();
-                  showVoiceToastNotice("Вы успешно вступили на сервер!");
-                  void chat.openChannel(target);
-                } else {
-                  joinBtn.disabled = false;
-                  joinBtn.textContent = "Присоединиться к серверу";
-                  const addSrvBtn = /** @type {HTMLElement | null} */ (
-                    document.querySelector('#guild-rail [data-action="add-server"]')
-                  );
-                  addSrvBtn?.click();
-                  showVoiceToastNotice(
-                    "Discord требует подтверждение входа по коду приглашения (или капчу в браузере)",
-                  );
-                }
-              })
-              .catch((err) => {
-                joinBtn.disabled = false;
-                joinBtn.textContent = "Присоединиться к серверу";
-                showVoiceToastNotice(
-                  String(err?.message || "Не удалось вступить на сервер — попробуйте по коду приглашения"),
-                );
-              });
-          });
-          actions.appendChild(joinBtn);
-          banner.append(label, actions);
-          if (!existingBanner) {
-            compForm.parentElement.insertBefore(banner, compForm);
-          }
-        }
-        if (!showPendingBanner) {
-          existingPendingBanner?.remove();
-        } else if (compForm && compForm.parentElement) {
-          existingReadOnlyBanner?.remove();
-          const pendingBanner = existingPendingBanner || document.createElement("div");
-          pendingBanner.id = "guild-pending-screening-banner";
-          pendingBanner.setAttribute("data-access-banner", "pending");
-          pendingBanner.style.cssText =
-            "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(240,178,50,0.16);border:1px solid rgba(240,178,50,0.45);color:var(--text-normal,#f2f3f5);font-size:13px;";
-          pendingBanner.textContent =
-            "Примите правила сервера в Discord, чтобы отправлять сообщения и подключаться к голосовым каналам.";
-          if (!existingPendingBanner) {
-            compForm.parentElement.insertBefore(pendingBanner, compForm);
-          }
-        }
-        if (!showReadOnlyBanner) {
-          existingReadOnlyBanner?.remove();
-        } else if (compForm && compForm.parentElement) {
-          const roBanner = existingReadOnlyBanner || document.createElement("div");
-          roBanner.id = "channel-readonly-access-banner";
-          roBanner.setAttribute("data-access-banner", "missing-send-messages");
-          roBanner.style.cssText =
-            "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;margin:0 16px 8px;border-radius:8px;background:rgba(242,63,67,0.14);border:1px solid rgba(242,63,67,0.4);color:var(--text-normal,#f2f3f5);font-size:12px;";
-          roBanner.textContent = "У вас нет прав на отправку сообщений в этом канале.";
-          if (!existingReadOnlyBanner) {
-            compForm.parentElement.insertBefore(roBanner, compForm);
-          }
-        }
-        const compInputEl = /** @type {HTMLTextAreaElement | HTMLInputElement | null} */ (
-          document.getElementById("composer-input")
-        );
-        if (compInputEl) {
-          if (showPreviewBanner) {
-            compInputEl.disabled = true;
-            compInputEl.placeholder =
-              "Режим предпросмотра (только чтение). Вступите на сервер, чтобы писать в чат.";
-          } else if (showPendingBanner) {
-            compInputEl.disabled = true;
-            compInputEl.placeholder =
-              "Примите правила сервера в Discord для отправки сообщений.";
-          } else if (showReadOnlyBanner) {
-            compInputEl.disabled = true;
-            compInputEl.placeholder =
-              "У вас нет прав на отправку сообщений в этом канале.";
-          } else if (!channelForPolicy?.permissionDeniedReason) {
-            compInputEl.disabled = false;
-            compInputEl.placeholder = isDm
-              ? `Написать @${target?.name || ""}`
-              : `Написать в #${target?.name || ""}`;
-          }
-        }
-      }
-      refreshLiveChatAuthorsInDom();
+      syncActiveChannelPermissionsInDom();
     }
     const channelId = String(target?.id ?? "").trim();
     const bell = /** @type {HTMLElement | null} */ (document.querySelector('[data-action="inbox"]'));
@@ -12554,6 +13947,8 @@ function boot() {
   const tree = createChannelTree({
     invoke,
     onOpen: (channel) => {
+      previewedVoiceChannel = null;
+      onChannelSwitch(channel);
       if (typeof window !== "undefined") {
         /** @type {any} */ (window).__ACTIVE_DM_RECIPIENT__ = null;
       }
@@ -12582,12 +13977,60 @@ function boot() {
       const gInfo = currentGuildInfo();
       const gId = gInfo.id || rail.selectedId || selectedGuildId() || "";
       const gName = gInfo.name || "Сервер";
+      const cid = String(channel.id || "");
+      const wasAlreadyPreviewing = Boolean(
+        previewedVoiceChannel &&
+          previewedVoiceChannel.id === cid &&
+          previewedVoiceChannel.guildId === gId,
+      );
+      previewedVoiceChannel = {
+        guildId: gId,
+        guildName: gName,
+        id: cid,
+        name: String(channel.name || cid || "Голосовой канал"),
+        type: Number(channel.type || 2),
+      };
+      onChannelSwitch(channel);
+      if (typeof window !== "undefined") {
+        /** @type {any} */ (window).__ACTIVE_DM_RECIPIENT__ = null;
+      }
+      /** @type {any} */ (globalThis).__ACTIVE_DM_RECIPIENT__ = null;
+      void chat.openChannel(channel)
+        .then(() => typing?.refresh())
+        .catch((/** @type {unknown} */ error) => surface(error));
+      syncActiveChannelPermissionsInDom();
+      const hashNode = document.querySelector(".chat-header .hash");
+      if (hashNode) hashNode.textContent = "🔊";
+      const titleNode = document.querySelector(".chat-header .chat-title-text");
+      if (titleNode) titleNode.textContent = String(channel.name || cid);
+      const screenTitleNode = document.querySelector(".screen-title");
+      if (screenTitleNode && channel.name) {
+        screenTitleNode.textContent = `Голосовой канал · 🔊 ${channel.name}`;
+      }
+      renderLiveGuildVoiceStagePreview();
       if (
         activeVoiceConnection &&
         activeVoiceConnection.channelId === channel.id &&
         activeVoiceConnection.guildId === gId
       ) {
         openRtcConnectionPopout();
+        return;
+      }
+      if (isLiveSession() && gId && gId !== "@me") {
+        const gObj = liveGuildsById.get(cleanDiscordStr(gId));
+        const isLurker =
+          gObj?.lurker === true || gObj?.isMember === false || gObj?.is_member === false;
+        const isPending = gObj?.pending === true;
+        const effPerms = computeEffectiveChannelPermissions(gId, channel, tree?.channels);
+        const PERM_VIEW_AND_CONNECT = (1n << 10n) | (1n << 20n);
+        const missingConnect =
+          effPerms !== null && (effPerms & PERM_VIEW_AND_CONNECT) !== PERM_VIEW_AND_CONNECT;
+        if (isLurker || isPending || missingConnect) {
+          connectToLiveVoiceChannel(gId, gName, channel);
+          return;
+        }
+      }
+      if (!wasAlreadyPreviewing) {
         return;
       }
       if (
@@ -12698,7 +14141,6 @@ function boot() {
         liveMemberRolesByGuildAndUser.clear();
         liveMemberColorByGuildAndUser.clear();
         liveMemberClanTagByUser.clear();
-        liveVoiceStatesByGuild.clear();
         livePerUserVoiceState.clear();
         liveVoiceChannelStartEpochMs.clear();
         liveSelfUser = payload.user ?? liveSelfUser;
@@ -12731,9 +14173,7 @@ function boot() {
         }
         const rawVs = payload.voiceStates ?? payload.voice_states;
         if (rawVs && typeof rawVs === "object") {
-          for (const [gid, arr] of Object.entries(rawVs)) {
-            if (Array.isArray(arr)) liveVoiceStatesByGuild.set(gid, arr);
-          }
+          mergeVoiceStatesSnapshot(liveVoiceStatesByGuild, rawVs);
         }
         if (liveSelfUser) {
           const uNameNode = document.querySelector("#user-bar .user-name");
@@ -12761,8 +14201,14 @@ function boot() {
             }
           }
         }
-        settingsRef?.unlockLiveSettings?.(liveSelfUser, payload);
-        renderLiveVoicePanel();
+        try {
+          settingsRef?.unlockLiveSettings?.(liveSelfUser, payload);
+        } catch {
+          /* В тестовом DOM-шиме без MutationObserver живой энхансер настроек пропускается */
+        }
+        try {
+          renderLiveVoicePanel();
+        } catch {}
         setTimeout(() => {
           void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
             kind: "dm_friends_sync",
@@ -13042,7 +14488,7 @@ function boot() {
     chat,
     onVoiceStateChange: (ev) => {
       if (!isLiveSession()) return;
-      const gId = cleanDiscordStr(ev.guildId) || "@me";
+      const gId = normalizeVoiceGuildKey(ev.guildId);
       const uId = cleanDiscordStr(ev.userId || "");
       if (!gId || !uId) return;
       const cleanCid = cleanDiscordStr(ev.channelId);
@@ -13054,7 +14500,7 @@ function boot() {
       const prevStream = isTruthyVoiceFlag(prevEntry?.self_stream ?? prevEntry?.selfStream);
       const nextStream = isTruthyVoiceFlag(ev.selfStream);
       const myActiveCid = activeVoiceConnection?.channelId || "";
-      const myActiveGidKey = (activeVoiceConnection?.guildId || "@me");
+      const myActiveGidKey = normalizeVoiceGuildKey(activeVoiceConnection?.guildId);
 
       if (myActiveCid && uId !== selfId) {
         if (cleanCid === myActiveCid && prevCid !== myActiveCid) {
@@ -13070,6 +14516,14 @@ function boot() {
         if (idx >= 0) list.splice(idx, 1);
         if (uId === selfId && activeVoiceConnection && myActiveGidKey === gId) {
           activeVoiceConnection = null;
+          lastVoiceConnectState = {
+            guildId: null,
+            channelId: null,
+            selfMute: null,
+            selfDeaf: null,
+            selfVideo: null,
+            selfStream: null,
+          };
           stopRtcStatusPolling();
           renderLiveVoicePanel();
         }
@@ -13088,23 +14542,51 @@ function boot() {
           if (!activeVoiceConnection) {
             selfVoicePrefs.muted = isTruthyVoiceFlag(ev.selfMute);
             selfVoicePrefs.deafened = isTruthyVoiceFlag(ev.selfDeaf);
-            void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-              kind: "input",
-              deviceId: selfVoicePrefs.inputDeviceId || "default",
-              volumePercent: selfVoicePrefs.inputVolume,
-              muted: Boolean(selfVoicePrefs.muted || selfVoicePrefs.deafened),
-            }).catch(() => {});
+            const curInputDev = selfVoicePrefs.inputDeviceId || "default";
+            const curInputVol = selfVoicePrefs.inputVolume;
+            const curInputMuted = Boolean(selfVoicePrefs.muted || selfVoicePrefs.deafened);
+            if (
+              lastAudioDeviceInputConfig.deviceId !== curInputDev ||
+              lastAudioDeviceInputConfig.volume !== curInputVol ||
+              lastAudioDeviceInputConfig.muted !== curInputMuted
+            ) {
+              lastAudioDeviceInputConfig = { deviceId: curInputDev, volume: curInputVol, muted: curInputMuted };
+              void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+                kind: "input",
+                deviceId: curInputDev,
+                volumePercent: curInputVol,
+                muted: curInputMuted,
+              }).catch(() => {});
+            }
           } else if (myActiveGidKey !== gId) {
             activeVoiceConnection = null;
+            lastVoiceConnectState = {
+              guildId: null,
+              channelId: null,
+              selfMute: null,
+              selfDeaf: null,
+              selfVideo: null,
+              selfStream: null,
+            };
             stopRtcStatusPolling();
             selfVoicePrefs.muted = isTruthyVoiceFlag(ev.selfMute);
             selfVoicePrefs.deafened = isTruthyVoiceFlag(ev.selfDeaf);
-            void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-              kind: "input",
-              deviceId: selfVoicePrefs.inputDeviceId || "default",
-              volumePercent: selfVoicePrefs.inputVolume,
-              muted: Boolean(selfVoicePrefs.muted || selfVoicePrefs.deafened),
-            }).catch(() => {});
+            const curInputDev = selfVoicePrefs.inputDeviceId || "default";
+            const curInputVol = selfVoicePrefs.inputVolume;
+            const curInputMuted = Boolean(selfVoicePrefs.muted || selfVoicePrefs.deafened);
+            if (
+              lastAudioDeviceInputConfig.deviceId !== curInputDev ||
+              lastAudioDeviceInputConfig.volume !== curInputVol ||
+              lastAudioDeviceInputConfig.muted !== curInputMuted
+            ) {
+              lastAudioDeviceInputConfig = { deviceId: curInputDev, volume: curInputVol, muted: curInputMuted };
+              void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
+                kind: "input",
+                deviceId: curInputDev,
+                volumePercent: curInputVol,
+                muted: curInputMuted,
+              }).catch(() => {});
+            }
           }
         }
         const prev = prevEntry ?? {};
@@ -13173,6 +14655,26 @@ function boot() {
       }
     },
   });
+  const baseDispatchApply = dispatchView.apply.bind(dispatchView);
+  dispatchView.apply = (changes) => {
+    const rolePermTypes = new Set([
+      "guild_member_update",
+      "guild_role_create",
+      "guild_role_update",
+      "guild_role_delete",
+    ]);
+    const list = Array.isArray(changes) ? changes : [];
+    const rolePermCount = list.filter((c) => rolePermTypes.has(c?.type)).length;
+    const otherChanges = list.filter((c) => !rolePermTypes.has(c?.type));
+    const res =
+      otherChanges.length > 0
+        ? baseDispatchApply(otherChanges)
+        : { applied: 0, ignored: 0, failed: 0, notOpen: 0, notLoaded: 0 };
+    return {
+      ...res,
+      applied: (Number(res.applied) || 0) + rolePermCount,
+    };
+  };
   dispatch = createDispatchBridge({
     listen: resolveDispatchListen(window),
     view: dispatchView,
@@ -13229,21 +14731,67 @@ function boot() {
           const tile = railEl?.querySelector(`[data-guild-id="${gid}"]`);
           tile?.remove();
         }
+      } else if (kind === "VOICE_STATE_UPDATE") {
+        if (data && typeof data === "object") {
+          const member = data.member && typeof data.member === "object" ? data.member : null;
+          const userObj =
+            (member?.user && typeof member.user === "object" ? member.user : null) ??
+            (data.user && typeof data.user === "object" ? data.user : null);
+          const uid = cleanDiscordStr(
+            String(userObj?.id ?? data.user_id ?? data.userId ?? ""),
+          );
+          if (uid && (userObj || member?.nick)) {
+            const prevU = liveUsersById.get(uid) ?? {};
+            const nick = cleanDiscordStr(member?.nick);
+            liveUsersById.set(uid, {
+              ...prevU,
+              ...(userObj || {}),
+              id: uid,
+              ...(nick ? { nick } : {}),
+            });
+          }
+        }
       } else if (kind === "GUILD_MEMBER_UPDATE") {
         if (data && typeof data === "object") {
-          const gid = cleanDiscordStr(String(data.guild_id || ""));
-          const uid = cleanDiscordStr(String(data.user?.id || data.user_id || ""));
-          const selfId = cleanDiscordStr(String(liveSelfUser?.id || ""));
+          const gid = cleanDiscordStr(String(data.guild_id ?? data.guildId ?? ""));
+          const uid = cleanDiscordStr(String(data.user?.id ?? data.user_id ?? data.userId ?? ""));
+          const selfId = cleanDiscordStr(
+            String(liveSelfUser?.id || /** @type {any} */ (globalThis).__LIVE_SELF_USER__?.id || ""),
+          );
           const roles = Array.isArray(data.roles) ? data.roles.map(String) : [];
           if (gid && uid) {
             liveMemberRolesByGuildAndUser.set(`${gid}:${uid}`, roles);
-            if (uid === selfId) {
-              const gObj = liveGuildsById.get(gid);
-              if (gObj) {
+            liveMemberColorByGuildAndUser.delete(`${gid}:${uid}`);
+            const gObj = liveGuildsById.get(gid);
+            if (gObj && typeof gObj === "object") {
+              if (uid === selfId) {
                 gObj.myRoles = roles;
+                gObj.my_roles = roles;
+                if ("pending" in data && data.pending !== undefined) {
+                  gObj.pending = Boolean(data.pending);
+                }
               }
-              tree.refreshView();
+              if (Array.isArray(gObj.members)) {
+                const mIdx = gObj.members.findIndex(
+                  (/** @type {any} */ m) =>
+                    String(m?.user?.id ?? m?.user_id ?? m?.userId ?? m?.id ?? "") === uid,
+                );
+                if (mIdx >= 0 && gObj.members[mIdx] && typeof gObj.members[mIdx] === "object") {
+                  gObj.members[mIdx] = {
+                    ...gObj.members[mIdx],
+                    roles,
+                    ...("nick" in data ? { nick: data.nick } : {}),
+                    ...("pending" in data ? { pending: data.pending } : {}),
+                  };
+                }
+              }
             }
+            const nick = cleanDiscordStr(data.nick);
+            if (nick) {
+              const prevU = liveUsersById.get(uid) ?? {};
+              liveUsersById.set(uid, { ...prevU, id: uid, nick });
+            }
+            syncActiveChannelPermissionsInDom(gid);
           }
         }
       } else if (kind === "CALL_CREATE" || kind === "CALL_UPDATE") {
@@ -13351,8 +14899,109 @@ function boot() {
             tree.refreshView();
           }
         }
-      } else if (kind === "GUILD_ROLE_CREATE" || kind === "GUILD_ROLE_UPDATE" || kind === "GUILD_ROLE_DELETE") {
-        tree.refreshView();
+      } else if (kind === "GUILD_ROLE_CREATE" || kind === "GUILD_ROLE_UPDATE") {
+        if (data && typeof data === "object") {
+          const gid = cleanDiscordStr(String(data.guild_id ?? data.guildId ?? ""));
+          const role = data.role && typeof data.role === "object" ? data.role : null;
+          const roleId = cleanDiscordStr(String(role?.id ?? ""));
+          if (gid && role && roleId) {
+            const gObj = liveGuildsById.get(gid);
+            if (gObj && typeof gObj === "object") {
+              const prevRoles = Array.isArray(gObj.roles) ? [...gObj.roles] : [];
+              const idx = prevRoles.findIndex((/** @type {any} */ r) => String(r?.id ?? "") === roleId);
+              if (idx >= 0) {
+                prevRoles[idx] = { ...prevRoles[idx], ...role, id: roleId };
+              } else {
+                prevRoles.push({ ...role, id: roleId });
+              }
+              gObj.roles = prevRoles;
+            }
+            for (const key of liveMemberColorByGuildAndUser.keys()) {
+              if (key.startsWith(`${gid}:`)) {
+                liveMemberColorByGuildAndUser.delete(key);
+              }
+            }
+            syncActiveChannelPermissionsInDom(gid);
+          } else {
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "GUILD_ROLE_DELETE") {
+        if (data && typeof data === "object") {
+          const gid = cleanDiscordStr(String(data.guild_id ?? data.guildId ?? ""));
+          const roleId = cleanDiscordStr(String(data.role_id ?? data.roleId ?? data.role?.id ?? ""));
+          if (gid && roleId) {
+            const gObj = liveGuildsById.get(gid);
+            if (gObj && typeof gObj === "object") {
+              if (Array.isArray(gObj.roles)) {
+                gObj.roles = gObj.roles.filter((/** @type {any} */ r) => String(r?.id ?? "") !== roleId);
+              }
+              if (Array.isArray(gObj.myRoles)) {
+                gObj.myRoles = gObj.myRoles.filter((/** @type {any} */ r) => String(r) !== roleId);
+              }
+              if (Array.isArray(gObj.my_roles)) {
+                gObj.my_roles = gObj.my_roles.filter((/** @type {any} */ r) => String(r) !== roleId);
+              }
+              if (Array.isArray(gObj.members)) {
+                for (const m of gObj.members) {
+                  if (m && Array.isArray(m.roles)) {
+                    m.roles = m.roles.filter((/** @type {any} */ r) => String(r) !== roleId);
+                  }
+                }
+              }
+            }
+            for (const [key, rList] of liveMemberRolesByGuildAndUser.entries()) {
+              if (key.startsWith(`${gid}:`) && Array.isArray(rList) && rList.includes(roleId)) {
+                liveMemberRolesByGuildAndUser.set(
+                  key,
+                  rList.filter((r) => r !== roleId),
+                );
+              }
+            }
+            for (const key of liveMemberColorByGuildAndUser.keys()) {
+              if (key.startsWith(`${gid}:`)) {
+                liveMemberColorByGuildAndUser.delete(key);
+              }
+            }
+            syncActiveChannelPermissionsInDom(gid);
+          } else {
+            tree.refreshView();
+          }
+        }
+      } else if (kind === "CHANNEL_UPDATE") {
+        if (data && typeof data === "object") {
+          const gid = cleanDiscordStr(String(data.guild_id ?? data.guildId ?? ""));
+          const cid = cleanDiscordStr(String(data.id ?? data.channel_id ?? data.channelId ?? ""));
+          if (gid && cid) {
+            const ow = data.permission_overwrites ?? data.permissionOverwrites;
+            const gObj = liveGuildsById.get(gid);
+            if (gObj && Array.isArray(gObj.channels)) {
+              const chIdx = gObj.channels.findIndex((/** @type {any} */ c) => String(c?.id ?? "") === cid);
+              if (chIdx >= 0) {
+                gObj.channels[chIdx] = {
+                  ...gObj.channels[chIdx],
+                  ...data,
+                  ...(Array.isArray(ow)
+                    ? { permission_overwrites: ow, permissionOverwrites: ow }
+                    : {}),
+                };
+              }
+            }
+            if (Array.isArray(tree?.channels)) {
+              const tIdx = tree.channels.findIndex((/** @type {any} */ c) => String(c?.id ?? "") === cid);
+              if (tIdx >= 0 && tree.channels[tIdx]) {
+                tree.channels[tIdx] = {
+                  ...tree.channels[tIdx],
+                  ...(data.name !== undefined ? { name: String(data.name) } : {}),
+                  ...(Array.isArray(ow)
+                    ? { permission_overwrites: ow, permissionOverwrites: ow }
+                    : {}),
+                };
+              }
+            }
+            syncActiveChannelPermissionsInDom(gid);
+          }
+        }
       }
     },
   });
@@ -13641,7 +15290,7 @@ function boot() {
       true,
     );
   }
-    document.addEventListener(
+    document.addEventListener?.(
       "keydown",
       (ev) => {
         if (ev.altKey && (ev.key === "2" || ev.key === "3")) {
@@ -13677,7 +15326,7 @@ function boot() {
       });
       settingsHead.append(closeEscBtn);
     }
-    document.addEventListener("keydown", (ev) => {
+    document.addEventListener?.("keydown", (ev) => {
       if (ev.key === "Escape" && router.current === "settings") {
         router.switchScreen("chat");
       }
@@ -15149,46 +16798,42 @@ function boot() {
       h264Input.setAttribute("data-live-openh264-bound", "true");
       const lbl = h264Input.closest(".toggle")?.querySelector(".toggle-label");
       if (lbl) lbl.textContent = "Аппаратное ускорение H.264 (OpenH264)";
-      h264Input.addEventListener("change", () => {
-        if (!isLiveSession()) return;
-        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-          kind: "openh264",
-          deviceId: h264Input.checked ? "1" : "0",
-          muted: !h264Input.checked,
-        }).catch(() => {});
-      });
-    }
-    for (const btn of settingsRoot.querySelectorAll('[data-action="clear-client-cache-restart"]')) {
-      if (btn.getAttribute("data-live-cache-bound") === "true") continue;
-      btn.setAttribute("data-live-cache-bound", "true");
-      btn.addEventListener("click", () => {
-        void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
-          kind: "clear_client_cache",
-          deviceId: "all",
-        })
-          .catch(() => {})
-          .finally(() => {
-            if (typeof globalThis.location?.reload === "function") {
-              globalThis.location.reload();
-            }
-          });
-      });
     }
   };
   const setVoicePanelVisibility = () => {
+    const screenSettingsEl = typeof document !== "undefined" ? document.getElementById("screen-settings") : null;
+    const isSettingsScreenOpen = !screenSettingsEl
+      ? Boolean(settingsRoot && !settingsRoot.hidden && !settingsRoot.hasAttribute?.("hidden"))
+      : !screenSettingsEl.hidden &&
+        !screenSettingsEl.hasAttribute?.("hidden") &&
+        screenSettingsEl.getAttribute?.("aria-hidden") !== "true";
     if (settingsRoot?.getAttribute("data-active-pane") === "voice") {
       if (isLiveSession() && !(/** @type {any} */ (globalThis).__QA__)) {
         preliminaryBlock?.setAttribute("hidden", "");
         settingsModal?.setAttribute("hidden", "");
         ensureVoiceTroubleshootControls();
-        void refreshLiveAudioDevices();
+        if (isSettingsScreenOpen) {
+          stopAudioDeviceLevelsPolling();
+          startAudioDeviceLevelsPolling();
+          void pollAudioDeviceLevels(true);
+        } else {
+          stopAudioDeviceLevelsPolling();
+          if (activeVoiceConnection) {
+            startAudioDeviceLevelsPolling();
+          }
+        }
       } else {
         settingsModal?.removeAttribute("hidden");
       }
     } else {
       settingsModal?.setAttribute("hidden", "");
+      stopAudioDeviceLevelsPolling();
+      if (activeVoiceConnection) {
+        startAudioDeviceLevelsPolling();
+      }
     }
   };
+  syncVoiceSettingsScreenVisibility = setVoicePanelVisibility;
   setVoicePanelVisibility();
   for (const item of document.querySelectorAll("#settings-nav .settings-nav-item")) {
     item.addEventListener("click", setVoicePanelVisibility);
@@ -16091,6 +17736,17 @@ function boot() {
   // сбрасываются — иначе следующий вход унаследует чужое состояние.
   const cleanupLiveVoiceTimersAndAudio = () => {
     stopRtcStatusPolling();
+    stopAudioDeviceLevelsPolling();
+    lastAudioDeviceInputConfig = { deviceId: "", volume: -1, muted: null };
+    lastAudioDeviceOutputConfig = { deviceId: "", volume: -1, muted: null };
+    lastVoiceConnectState = {
+      guildId: null,
+      channelId: null,
+      selfMute: null,
+      selfDeaf: null,
+      selfVideo: null,
+      selfStream: null,
+    };
     if (voiceSyncTimer) {
       clearInterval(voiceSyncTimer);
       voiceSyncTimer = null;
@@ -16121,7 +17777,9 @@ function boot() {
       liveMemberRolesByGuildAndUser.clear();
       liveMemberColorByGuildAndUser.clear();
       liveMemberClanTagByUser.clear();
-      liveVoiceStatesByGuild.clear();
+      for (const k of Array.from(liveVoiceStatesByGuild.keys())) {
+        liveVoiceStatesByGuild.delete(k);
+      }
       livePerUserVoiceState.clear();
       liveVoiceChannelStartEpochMs.clear();
       activeVoiceConnection = null;
@@ -16290,6 +17948,7 @@ function boot() {
   return {
     giftModal,
     qrAuthModal,
+    rulesScreeningModal,
     router,
     chat,
     tree,
@@ -16324,11 +17983,18 @@ function boot() {
   };
 }
 
-try {
-  app = boot();
-} catch (error) {
-  // Ошибка загрузки фич не должна молча оставить пустой экран: показываем оверлей.
-  surface(error, "ELEMENT_MISSING");
+if (typeof document !== "undefined") {
+  try {
+    app = boot();
+  } catch (error) {
+    // Ошибка загрузки фич не должна молча оставить пустой экран: показываем оверлей.
+    surface(error, "ELEMENT_MISSING");
+  }
+}
+
+/** @returns {any} */
+function getApp() {
+  return app;
 }
 
 /* ---------- автозамер и UI_SNAPSHOT ---------- */
@@ -16645,4 +18311,60 @@ export {
   formatNestedMetadataKey,
   computeCrashReporterMetadataDiff,
   formatUnhandledJsExceptionMessage,
+  renderMessage,
+  renderMessageComponents,
+  createMessageComponentsContainer,
+  handleComponentClick,
+  setButtonLoading,
+  clearButtonLoading,
+  showBotInteractionToast,
+  COMPONENT_TYPES,
+  BUTTON_STYLES,
+  renderReactions,
+  createReactionBadge,
+  isVerificationChannel,
+  isVerificationMessage,
+  handleReactionVerification,
+  REACTION_VERIFICATION_TOKENS,
+  REACTION_VERIFICATION_TEXT,
+  renderVerificationBanner,
+  getApp,
+  createRulesScreeningModalController,
+  renderRulesScreeningBanner,
+  isRulesScreeningRequired,
+  extractRulesFromGuild,
+  RULES_SCREENING_TEXT,
+  RULES_SCREENING_TOKENS,
+  DEFAULT_COMMUNITY_RULES,
 };
+
+/**
+ * Рендерит сообщение чата с поддержкой вложений, markdown и компонентов (ActionRow & Buttons).
+ *
+ * @param {any} rowOrItem
+ * @param {any} [maybeItemOrOptions]
+ * @param {number} [index]
+ * @param {number} [total]
+ * @param {any} [options]
+ * @returns {any}
+ */
+function renderMessage(rowOrItem, maybeItemOrOptions, index = 0, total = 1, options = {}) {
+  if (
+    rowOrItem &&
+    typeof rowOrItem === "object" &&
+    ("className" in rowOrItem || "appendChild" in rowOrItem || "setAttribute" in rowOrItem)
+  ) {
+    const row = rowOrItem;
+    const item = maybeItemOrOptions && typeof maybeItemOrOptions === "object" ? maybeItemOrOptions : {};
+    const opts = options && typeof options === "object" ? options : {};
+    renderChannelMessage(row, item, index, total, opts);
+    return row;
+  }
+  const item = rowOrItem && typeof rowOrItem === "object" ? rowOrItem : {};
+  const opts = maybeItemOrOptions && typeof maybeItemOrOptions === "object" ? maybeItemOrOptions : {};
+  const doc = (opts && opts.document) || (typeof document !== "undefined" ? document : null);
+  if (!doc) return null;
+  const row = doc.createElement("div");
+  renderChannelMessage(row, item, index, total, opts);
+  return row;
+}

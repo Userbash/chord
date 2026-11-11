@@ -1010,8 +1010,14 @@ fn forwarded_dispatches_and_map_dispatch_event_cover_eight_pr32_events() {
         );
 
         let data = EtfValue::Map(vec![
-            (EtfValue::Str("id".to_string()), EtfValue::Str("123456789".to_string())),
-            (EtfValue::Str("channel_id".to_string()), EtfValue::Str("987654321".to_string())),
+            (
+                EtfValue::Str("id".to_string()),
+                EtfValue::Str("123456789".to_string()),
+            ),
+            (
+                EtfValue::Str("channel_id".to_string()),
+                EtfValue::Str("987654321".to_string()),
+            ),
         ]);
         let event = DispatchEvent {
             kind: None,
@@ -1053,7 +1059,9 @@ fn client_gateway_command_helpers_build_validate_op3_presence() {
         activities: None,
         afk: None,
     };
-    let err = invalid_cmd.validate().expect_err("invalid status must fail");
+    let err = invalid_cmd
+        .validate()
+        .expect_err("invalid status must fail");
     assert!(matches!(err, GatewayCommandError::InvalidStatus { .. }));
 }
 
@@ -1086,14 +1094,18 @@ fn client_gateway_command_helpers_build_validate_op4_voice_state() {
         self_video: None,
         flags: None,
     };
-    let err = invalid_cmd.validate().expect_err("invalid snowflake must fail");
+    let err = invalid_cmd
+        .validate()
+        .expect_err("invalid snowflake must fail");
     assert!(matches!(err, GatewayCommandError::InvalidSnowflake { .. }));
 }
 
 #[test]
 fn client_gateway_command_helpers_build_validate_op8_request_members() {
     // Валидный запрос с чанкованием user_ids > 100
-    let user_ids: Vec<String> = (0..150).map(|i| format!("384299970632876{:03}", i)).collect();
+    let user_ids: Vec<String> = (0..150)
+        .map(|i| format!("384299970632876{:03}", i))
+        .collect();
     let valid_cmd = RequestGuildMembersCommand {
         guild_id: "1014537851418980372".to_string(),
         query: None,
@@ -1121,8 +1133,13 @@ fn client_gateway_command_helpers_build_validate_op8_request_members() {
         presences: None,
         nonce: None,
     };
-    let err = invalid_cmd.validate().expect_err("empty guild_id must fail");
-    assert!(matches!(err, GatewayCommandError::InvalidSnowflake { .. } | GatewayCommandError::EmptyField { .. }));
+    let err = invalid_cmd
+        .validate()
+        .expect_err("empty guild_id must fail");
+    assert!(matches!(
+        err,
+        GatewayCommandError::InvalidSnowflake { .. } | GatewayCommandError::EmptyField { .. }
+    ));
 }
 
 #[test]
@@ -1155,7 +1172,11 @@ fn client_gateway_command_helpers_build_validate_op37_guild_subscriptions() {
         "bad-guild".to_string(),
         discord_gui_spike::net::SubscriptionEntry::default(),
     );
-    let bad_cmd = GuildSubscriptionsBulkCommand { subscriptions: bad_subs };
-    let err = bad_cmd.validate().expect_err("bad guild snowflake must fail");
+    let bad_cmd = GuildSubscriptionsBulkCommand {
+        subscriptions: bad_subs,
+    };
+    let err = bad_cmd
+        .validate()
+        .expect_err("bad guild snowflake must fail");
     assert!(matches!(err, GatewayCommandError::InvalidSnowflake { .. }));
 }

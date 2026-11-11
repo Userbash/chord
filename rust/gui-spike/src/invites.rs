@@ -118,6 +118,8 @@ pub enum InviteError {
     Storage,
     /// 2xx без разбираемого invite-объекта или неожиданные типы полей.
     InvalidResponse,
+    /// TASK-809: Отсутствуют права CREATE_INSTANT_INVITE (1 << 0) для создания приглашения.
+    MissingPermissions,
 }
 
 impl fmt::Display for InviteError {
@@ -154,6 +156,9 @@ impl fmt::Display for InviteError {
             Self::Network => formatter.write_str("сеть недоступна"),
             Self::Storage => formatter.write_str("хранилище токена недоступно"),
             Self::InvalidResponse => formatter.write_str("неожиданный ответ invite"),
+            Self::MissingPermissions => {
+                formatter.write_str("отсутствуют права на создание приглашения на этот канал")
+            }
         }
     }
 }
@@ -422,6 +427,7 @@ impl InviteTransport for ApiInviteTransport {
                     }
                 }
                 extra_headers.push(("X-Context-Properties", ctx_b64.as_str()));
+                extra_headers.push(("Referer", "https://discord.com/channels/@me"));
                 if let Some(ref k) = captcha_key_hdr {
                     extra_headers.push(("X-Captcha-Key", k.as_str()));
                 }
@@ -570,6 +576,36 @@ impl DiscordInvites {
         })
     }
 
+    /// Клиент для публичного анонимного просмотра приглашений (`GET /invites/{code}` без Bearer-токена).
+    pub fn anonymous() -> Result<Self, InviteError> {
+        let identity_ctx = crate::auth::IdentityContext::detect();
+        let auth = ApiAuth::anonymous(
+            &identity_ctx.super_properties,
+            &identity_ctx.locale,
+            &identity_ctx.timezone,
+        )
+        .map_err(|_| InviteError::InvalidArg)?;
+        let client = ApiClient::new(ApiConfig {
+            base: API_V9_BASE.to_string(),
+            auth,
+            http: HttpClientConfig {
+                connect_timeout: std::time::Duration::from_millis(2500),
+                read_timeout: std::time::Duration::from_millis(3500),
+                write_timeout: std::time::Duration::from_millis(2500),
+                ..HttpClientConfig::default()
+            },
+            retry: ApiRetryPolicy {
+                max_attempts: 1,
+                attempt_timeout: std::time::Duration::from_millis(4000),
+                ..ApiRetryPolicy::default()
+            },
+        })
+        .map_err(|_| InviteError::Network)?;
+        Ok(Self {
+            transport: Arc::new(ApiInviteTransport(client)),
+        })
+    }
+
     #[doc(hidden)]
     pub fn with_transport(transport: Arc<dyn InviteTransport>) -> Self {
         Self { transport }
@@ -683,6 +719,34 @@ pub async fn create_channel_invite<T: InviteTransport + ?Sized>(
     let body = create_invite_body(params)?;
     let response = transport.post(&path, &body).await?;
     decode_created_invite(&response)
+}
+
+/// TASK-809: Проверка наличия прав на создание приглашений по битовой маске v9.
+///
+/// Учитывает флаг `CREATE_INSTANT_INVITE` (`1 << 0`) и полный доступ `ADMINISTRATOR` (`1 << 3`).
+pub fn can_user_create_channel_invite(effective_permissions: u64) -> bool {
+    const CREATE_INSTANT_INVITE: u64 = 1 << 0;
+    const ADMINISTRATOR: u64 = 1 << 3;
+    (effective_permissions & ADMINISTRATOR) != 0
+        || (effective_permissions & CREATE_INSTANT_INVITE) != 0
+}
+
+/// TASK-809: Создать приглашение на канал с предсетевой проверкой битовых прав доступа (`CREATE_INSTANT_INVITE`).
+///
+/// Если `effective_permissions` передан и прав недостаточно, возвращает [`InviteError::MissingPermissions`]
+/// до обращения к сети, предотвращая ошибки `404/notFound` и лишние запросы.
+pub async fn create_channel_invite_guarded<T: InviteTransport + ?Sized>(
+    transport: &T,
+    channel_id: &str,
+    params: &CreateInviteParams,
+    effective_permissions: Option<u64>,
+) -> Result<CreatedInvite, InviteError> {
+    if let Some(perms) = effective_permissions {
+        if !can_user_create_channel_invite(perms) {
+            return Err(InviteError::MissingPermissions);
+        }
+    }
+    create_channel_invite(transport, channel_id, params).await
 }
 
 /// Превью по коду: нормализация — до обращения к сети.

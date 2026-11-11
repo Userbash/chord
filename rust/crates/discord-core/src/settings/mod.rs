@@ -16,7 +16,7 @@ use std::fmt;
 use discord_json::JsonValue;
 
 use crate::rest::base64::{self, Base64Error};
-use crate::rest::rate_limit::{rate_limit_info, RateLimitInfo};
+use crate::rest::rate_limit::{RateLimitInfo, rate_limit_info};
 use crate::rest::routes::HttpMethod;
 use crate::rest::transport::HttpRequest;
 
@@ -26,7 +26,7 @@ pub use preloaded::{
     PreloadedUserSettings, StatusSettings, TextAndImagesSettings, Versions, VoiceAndVideoSettings,
 };
 pub use wire::{
-    ProtoField, ProtoMessage, ProtoValue, SettingsProtoError, MAX_FIELDS, MAX_PROTO_BYTES,
+    MAX_FIELDS, MAX_PROTO_BYTES, ProtoField, ProtoMessage, ProtoValue, SettingsProtoError,
 };
 
 /// `PRELOADED_USER_SETTINGS` из enum `UserSettingsProtoType`.

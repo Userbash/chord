@@ -269,8 +269,16 @@ where
     F: FnOnce() -> Result<Option<String>, AuthError> + Send + 'static,
     E: Send + 'static,
 {
-    blocking(load)
-        .await
+    let tok_res = blocking(load).await;
+    if let Ok(Ok(Some(token))) = &tok_res {
+        if !token.trim().is_empty() {
+            return Ok(token.clone());
+        }
+    }
+    if let Some(live_token) = data::resolve_live_token().filter(|t| !t.trim().is_empty()) {
+        return Ok(live_token);
+    }
+    tok_res
         .map_err(|_| storage())?
         .map_err(|_| storage())?
         .ok_or_else(missing)
@@ -344,7 +352,6 @@ async fn delete_message(
     channel_id: String,
     message_id: String,
 ) -> Result<(), MessageError> {
-    eprintln!("[tauri delete_message] requested channel_id={channel_id}, message_id={message_id}");
     let backend = Arc::clone(backend.inner());
     let token = token_or::<MessageError, _>(
         move || backend.token(),
@@ -353,9 +360,7 @@ async fn delete_message(
     )
     .await?;
     let api = DiscordMessageSender::new(&token)?;
-    let outcome = messages::delete_message(&api, &channel_id, &message_id).await;
-    eprintln!("[tauri delete_message] result: {outcome:?}");
-    outcome
+    messages::delete_message(&api, &channel_id, &message_id).await
 }
 
 #[tauri::command]
@@ -491,6 +496,17 @@ async fn toggle_reaction(
     send_reaction(&api, &channel_id, &message_id, &emoji, active).await
 }
 
+/// Поставить реакцию (алиас для toggle_reaction с active=true).
+#[tauri::command]
+async fn add_reaction(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    channel_id: String,
+    message_id: String,
+    emoji: String,
+) -> Result<(), ReactionError> {
+    toggle_reaction(backend, channel_id, message_id, emoji, true).await
+}
+
 // ---------------------------------------------------------------------------
 // RW-40/P-03 (D-108): исходящий typing. POST без тела, успех 200; ответ —
 // опциональные кулдауны slowmode, пустое тело допустимо. TTL/троттлинг делает
@@ -527,13 +543,16 @@ async fn resolve_invite(
     code: String,
 ) -> Result<InvitePreview, InviteError> {
     let backend = Arc::clone(backend.inner());
-    let token = token_or::<InviteError, _>(
+    let token_res = token_or::<InviteError, _>(
         move || backend.token(),
         || InviteError::Storage,
         || InviteError::MissingToken,
     )
-    .await?;
-    let api = DiscordInvites::new(&token)?;
+    .await;
+    let api = match token_res {
+        Ok(token) => DiscordInvites::new(&token)?,
+        Err(_) => DiscordInvites::anonymous()?,
+    };
     invites::resolve_invite(&api, &code).await
 }
 
@@ -564,7 +583,7 @@ async fn accept_invite(
     let effective_session_id = session_id
         .filter(|s| !s.trim().is_empty())
         .or_else(data::current_gateway_session_id);
-    if let Some(key) = captcha_key.filter(|s| !s.trim().is_empty()) {
+    let outcome = if let Some(key) = captcha_key.filter(|s| !s.trim().is_empty()) {
         let solution = invites::CaptchaSolution {
             captcha_key: key,
             captcha_rqtoken: captcha_rqtoken.filter(|s| !s.trim().is_empty()),
@@ -588,6 +607,93 @@ async fn accept_invite(
             received_installation_id.as_deref(),
         )
         .await
+    };
+
+    match outcome {
+        Ok(accepted) => {
+            // S3 / TASK-810: Автоматическое подтверждение правил сервера (Rules Screening):
+            // связываем guilds::accept_invite_and_join_guild и guilds::apply_guild_join_outcome
+            data::auto_accept_guild_rules_if_available(&code, &accepted.guild_id);
+            let join_transport =
+                guilds::LiveGuildJoinTransport::with_accepted_guild(&token, &accepted.guild_id);
+            let self_uid = join_transport.current_user_id();
+            if let Ok(join_outcome) = guilds::accept_invite_and_join_guild(
+                &join_transport,
+                &code,
+                &accepted.guild_id,
+                &self_uid,
+            ) {
+                guilds::apply_guild_join_outcome(&join_outcome);
+            }
+            Ok(accepted)
+        }
+        Err(InviteError::CaptchaRequired {
+            code: err_code,
+            captcha_service,
+            captcha_sitekey,
+            captcha_rqdata,
+            captcha_rqtoken,
+            captcha_session_id,
+        }) => {
+            // Исключить показ модалки капчи, если сервер можно верифицировать через requests/@me
+            if let Ok(preview) = invites::resolve_invite(&api, &code).await {
+                let gid = preview.guild_id.clone();
+                let identity = crate::auth::IdentityContext::detect();
+                if let Ok(auth) = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+                    &token,
+                    discord_core::rest::client::AuthScheme::User,
+                    &identity.super_properties,
+                    &identity.locale,
+                    &identity.timezone,
+                ) {
+                    if let Ok(client) = discord_core::rest::client::ApiClient::new(
+                        discord_core::rest::client::ApiConfig {
+                            base: discord_core::API_V9_BASE.to_string(),
+                            auth,
+                            http: discord_core::rest::transport::HttpClientConfig::default(),
+                            retry: discord_core::rest::client::ApiRetryPolicy::default(),
+                        },
+                    ) {
+                        let ver_path = format!("/guilds/{gid}/member-verification");
+                        if let Ok(ver_resp) = client.get(&ver_path).await {
+                            if (200..300).contains(&ver_resp.status) {
+                                if let Ok(ver_json) =
+                                    serde_json::from_slice::<serde_json::Value>(&ver_resp.body)
+                                {
+                                    let accept_body =
+                                        crate::guilds::build_member_verification_accept_body(
+                                            &ver_json,
+                                        );
+                                    if let Ok(body_bytes) = serde_json::to_vec(&accept_body) {
+                                        let req_path = format!("/guilds/{gid}/requests/@me");
+                                        if let Ok(put_resp) =
+                                            client.put(&req_path, &body_bytes).await
+                                        {
+                                            if (200..300).contains(&put_resp.status) {
+                                                return Ok(AcceptedInvite {
+                                                    guild_id: gid,
+                                                    target_channel_id: preview.channel_id,
+                                                    target_message_id: None,
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Err(InviteError::CaptchaRequired {
+                code: err_code,
+                captcha_service,
+                captcha_sitekey,
+                captcha_rqdata,
+                captcha_rqtoken,
+                captcha_session_id,
+            })
+        }
+        Err(other) => Err(other),
     }
 }
 
@@ -1311,18 +1417,43 @@ async fn voice_connect(
     self_video: Option<bool>,
     self_stream: Option<bool>,
 ) -> Result<serde_json::Value, String> {
-    println!(
-        "[IPC-TRACE] voice_connect guild_id={:?} channel_id={:?} self_mute={:?} self_deaf={:?} self_video={:?} self_stream={:?}",
-        guild_id, channel_id, self_mute, self_deaf, self_video, self_stream
-    );
     blocking(move || {
+        let (cur_gid, cur_cid) = data::current_live_voice_target();
+        let (cur_mute, cur_deaf) = data::current_live_voice_mute_deaf();
+        let (cur_video, cur_stream) = data::current_live_voice_video_stream();
+        let norm_gid = guild_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil")
+            .map(str::to_string);
+        let norm_cid = channel_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty() && *s != "null" && *s != "nil")
+            .map(str::to_string);
+        let same_channel = norm_cid.is_some() && norm_cid == cur_cid && norm_gid == cur_gid;
+        let eff_mute = self_mute.unwrap_or(if same_channel { cur_mute } else { false });
+        let eff_deaf = self_deaf.unwrap_or(if same_channel { cur_deaf } else { false });
+        let eff_video = self_video.unwrap_or(if same_channel { cur_video } else { false });
+        let eff_stream = self_stream.unwrap_or(if same_channel { cur_stream } else { false });
+        if !same_channel
+            || eff_mute != cur_mute
+            || eff_deaf != cur_deaf
+            || eff_video != cur_video
+            || eff_stream != cur_stream
+        {
+            println!(
+                "[IPC-TRACE] voice_connect guild_id={:?} channel_id={:?} self_mute={:?} self_deaf={:?} self_video={:?} self_stream={:?}",
+                guild_id, channel_id, eff_mute, eff_deaf, eff_video, eff_stream
+            );
+        }
         data::connect_or_update_live_voice_ext(
             guild_id,
             channel_id,
-            self_mute.unwrap_or(false),
-            self_deaf.unwrap_or(false),
-            self_video.unwrap_or(false),
-            self_stream.unwrap_or(false),
+            eff_mute,
+            eff_deaf,
+            eff_video,
+            eff_stream,
         )
     })
     .await?
@@ -1334,7 +1465,11 @@ async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value,
     blocking(move || {
         let (gid, cid) = data::current_live_voice_target();
         let self_id = data::current_live_self_uid();
-        let uid = if self_id.is_empty() { "me".to_string() } else { self_id };
+        let uid = if self_id.is_empty() {
+            "me".to_string()
+        } else {
+            self_id
+        };
         let stop_key = match (gid, cid) {
             (Some(g), Some(c)) if !g.is_empty() && g != "@me" && g != "call" => {
                 format!("guild:{g}:{c}:{uid}")
@@ -1345,11 +1480,15 @@ async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value,
         if !stop_key.is_empty() {
             let _ = discord_core::ws::queue_live_stream_delete(&stop_key);
         }
+        discord_core::ws::clear_last_stream_key();
         data::reset_live_stream_state();
         let res = data::connect_or_update_live_voice(guild_id, None, false, false);
-        let _ = discord_core::ws::queue_live_voice_state_ext(None, None, false, false, false, false, None);
+        let _ = discord_core::ws::queue_live_voice_state_ext(
+            None, None, false, false, false, false, None,
+        );
         res
-    }).await?
+    })
+    .await?
 }
 
 #[tauri::command]
@@ -1384,7 +1523,10 @@ async fn voice_set_audio_device(
     if kind == "ui_telemetry_log" || kind == "ui_telemetry" {
         if let Some(payload) = device_id {
             println!("[UI-TELEMETRY] {payload}");
-            for path in &["/tmp/discord-gui-spike-telemetry.jsonl", "/tmp/live-ui-telemetry.jsonl"] {
+            for path in &[
+                "/tmp/discord-gui-spike-telemetry.jsonl",
+                "/tmp/live-ui-telemetry.jsonl",
+            ] {
                 let _ = std::fs::OpenOptions::new()
                     .create(true)
                     .append(true)
@@ -1409,7 +1551,11 @@ async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
         let live_windows = data::query_kwin_active_windows();
         for w in live_windows {
             let wid = w.get("id").and_then(|i| i.as_str()).unwrap_or("").trim();
-            let label = w.get("label").and_then(|l| l.as_str()).unwrap_or(wid).trim();
+            let label = w
+                .get("label")
+                .and_then(|l| l.as_str())
+                .unwrap_or(wid)
+                .trim();
             if !wid.is_empty() && !sources.iter().any(|s| s.id == wid) {
                 sources.push(discord_media::DesktopSource {
                     id: wid.to_string(),
@@ -1448,60 +1594,48 @@ async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
 async fn voice_stream_start(
     mut spec: discord_gui_spike::voice_stage::ScreenShareSpec,
 ) -> Result<serde_json::Value, String> {
-    if spec.guild_id.as_deref().map_or(false, |g| {
-        let t = g.trim();
-        t.is_empty() || t == "@me" || t == "null" || t == "nil"
-    }) {
+    if spec
+        .guild_id
+        .as_deref()
+        .is_some_and(|g| matches!(g.trim(), "" | "@me" | "null" | "nil"))
+    {
         spec.guild_id = None;
     }
     spec.validate()?;
-    if let Some(ref gid_str) = spec.guild_id {
-        let cid_str = spec.channel_id.clone();
-        let gid_check = gid_str.clone();
-        let allowed = blocking(move || {
-            data::can_user_stream_in_channel(Some(&gid_check), &cid_str)
-        }).await?;
-        if !allowed {
-            return Err("Отсутствует право на проведение трансляции (STREAM) в данном канале".to_string());
-        }
-    }
     let op18 = discord_gui_spike::voice_stage::build_gateway_stream_create_op18(&spec)?;
-    let self_id = blocking(data::current_live_self_uid).await?;
-    let self_uid_str = if self_id.is_empty() { "me".to_string() } else { self_id };
-    let stream_key = spec.to_stream_key(&self_uid_str);
-    println!("[IPC-TRACE] voice_stream_start: stream_key={stream_key}");
-    let gid = spec.guild_id.clone();
-    let cid = Some(spec.channel_id.clone());
-    let stream_type = if spec.guild_id.is_none() { "call" } else { "guild" };
-    let gid_arg = gid.clone();
-    let cid_arg = spec.channel_id.clone();
-    let target_source_id = spec.source_id.clone();
-    let _ = blocking(move || {
-        data::reset_live_stream_state();
-        if !target_source_id.is_empty() {
-            let clean_src = target_source_id.trim();
-            let target_kind = if clean_src.starts_with('{') || clean_src.starts_with("win") {
-                "window"
-            } else {
-                "screen"
-            };
+    // queue_live_stream_create вызывается внутри connect_or_update_live_voice_ext
+    let stream_key = blocking(move || {
+        if let Some(ref gid_str) = spec.guild_id {
+            if !data::can_user_stream_in_channel(Some(gid_str), &spec.channel_id) {
+                return Err("Отсутствует право на проведение трансляции (STREAM) в данном канале".to_string());
+            }
+        }
+        let self_id = data::current_live_self_uid();
+        let uid = if self_id.is_empty() { "me".to_string() } else { self_id };
+        let stream_key = spec.to_stream_key(&uid);
+        println!("[IPC-TRACE] voice_stream_start: stream_key={stream_key}");
+        let gid = spec.guild_id.clone();
+        let cid = Some(spec.channel_id.clone());
+        let (cur_gid, cur_cid) = data::current_live_voice_target();
+        let (vvideo, vstream_active) = data::current_live_voice_video_stream();
+        if !vstream_active || cur_gid != gid || cur_cid != cid {
+            discord_core::ws::clear_last_stream_key();
+            data::reset_live_stream_state();
+        }
+        if !spec.source_id.is_empty() {
+            let clean_src = spec.source_id.trim();
+            let target_kind = if clean_src.starts_with('{') || clean_src.starts_with("win") { "window" } else { "screen" };
             let _ = std::fs::write("/dev/shm/discord_capture_target.txt", clean_src.as_bytes());
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
-            let ucmd = format!(
-                "{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}"
-            );
+            let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}");
             discord_core::ws::send_native_stream_cmd(&ucmd);
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
-        data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, true)?;
-        discord_core::ws::queue_live_stream_create(stream_type, gid_arg.as_deref(), &cid_arg).map_err(|e| e.to_string())
+        data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
+        Ok::<String, String>(stream_key)
     })
-    .await?;
-    Ok(serde_json::json!({
-        "ok": true,
-        "streamKey": stream_key,
-        "payload": op18
-    }))
+    .await??;
+    Ok(serde_json::json!({ "ok": true, "streamKey": stream_key, "payload": op18 }))
 }
 
 #[tauri::command]
@@ -1515,7 +1649,11 @@ async fn voice_stream_stop(
         .unwrap_or_else(|| {
             let (gid, cid) = data::current_live_voice_target();
             let self_id = data::current_live_self_uid();
-            let uid = if self_id.is_empty() { "me".to_string() } else { self_id };
+            let uid = if self_id.is_empty() {
+                "me".to_string()
+            } else {
+                self_id
+            };
             match (gid, cid) {
                 (Some(g), Some(c)) if !g.is_empty() && g != "@me" && g != "call" => {
                     format!("guild:{g}:{c}:{uid}")
@@ -1532,6 +1670,7 @@ async fn voice_stream_stop(
     println!("[IPC-TRACE] voice_stream_stop: stream_key={key}");
     let k = key.clone();
     let _ = blocking(move || {
+        discord_core::ws::clear_last_stream_key();
         let (gid, cid) = data::current_live_voice_target();
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
@@ -1560,10 +1699,9 @@ async fn voice_stream_watch(
     let op20 = discord_gui_spike::voice_stage::build_gateway_stream_watch_op20(&key)?;
     println!("[IPC-TRACE] voice_stream_watch: stream_key={key}");
     let k = key.clone();
-    let _ = blocking(move || {
-        discord_core::ws::queue_live_stream_watch(&k).map_err(|e| e.to_string())
-    })
-    .await?;
+    let _ =
+        blocking(move || discord_core::ws::queue_live_stream_watch(&k).map_err(|e| e.to_string()))
+            .await?;
     Ok(serde_json::json!({
         "ok": true,
         "streamKey": key,
@@ -1582,6 +1720,11 @@ async fn voice_stream_set_paused(
         .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
     let op22 = discord_gui_spike::voice_stage::build_gateway_stream_set_paused_op22(&key, paused)?;
     println!("[IPC-TRACE] voice_stream_set_paused: stream_key={key} paused={paused}");
+    let k = key.clone();
+    let _ = blocking(move || {
+        discord_core::ws::queue_live_stream_set_paused(&k, paused).map_err(|e| e.to_string())
+    })
+    .await?;
     Ok(serde_json::json!({
         "ok": true,
         "streamKey": key,
@@ -2061,6 +2204,7 @@ fn main() {
             delete_message,
             reply_message,
             ack_message,
+            add_reaction,
             toggle_reaction,
             send_typing,
             join_guild,

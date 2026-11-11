@@ -154,6 +154,31 @@ recurse = true
 default_entity_type = "wave_artifact"
 default_observation_type = "pm_backlog"
 
+[memory_connectors.waves_rw42_gpui]
+kind = "markdown_directory"
+path = "/home/sanya/orca/project/waves/RW-42-GPUI-MIGRATION"
+recurse = true
+default_entity_type = "gpui_migration"
+default_observation_type = "architecture_roadmap"
+
+[memory_connectors.gpui_architecture_spec]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/docs/specs/GPUI-ARCHITECTURE-MIGRATION.md"
+default_entity_type = "gpui_spec"
+default_observation_type = "component_blueprint"
+
+[memory_connectors.stream_wayland_guide]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/docs/specs/STREAM-WAYLAND-GUIDE.md"
+default_entity_type = "platform_guide"
+default_observation_type = "screencast_howto"
+
+[memory_connectors.kanban_task_pool]
+kind = "markdown_file"
+path = "/home/sanya/orca/project/waves/RW-41-ECC-INTEGRATION/TASK-POOL.md"
+default_entity_type = "task_pool"
+default_observation_type = "sprint_tracking"
+
 [memory_connectors.waves_journal]
 kind = "jsonl_file"
 path = "/home/sanya/orca/project/waves/db.jsonl"
@@ -161,52 +186,64 @@ default_entity_type = "wave_event"
 default_observation_type = "checkpoint"
 
 # === Профили отделов специалистов (Specialist Department Profiles) ===
+# Маршрутизация: Carbon строго для сложнейших P0 ядра/крипто/буфера,
+# Argon — надежная рабочая лошадка для BFF/QA/RE, Flash — для UI/CSS/Docs.
+# Полный запрет codex и deepseek.
 
 [agent_profiles.base_discord_lab]
 agent = "antigravity"
 model = "gemini-4-argon-high"
 add_dirs = ["/home/sanya/orca/project/docs/reference-projects"]
-append_system_prompt = "Соблюдай AGENTS.md и TEAM.md: Strict TDD (сначала падающий тест Red, затем код Green), работай строго в своём write-scope, сверяйся с эталонами в docs/reference-projects/ и /home/sanya/re-deep/. Запрещено использовать codex и трогать чужие файлы."
+append_system_prompt = "Соблюдай AGENTS.md и TEAM.md: Strict TDD (сначала падающий тест Red, затем код Green), работай строго в своём write-scope, сверяйся с эталонами в docs/reference-projects/ и /home/sanya/re-deep/. Запрещено использовать codex и deepseek, трогать чужие файлы запрещено."
 
 [agent_profiles.g1_backend]
 inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
 append_system_prompt = "Отдел G1 Backend (Rust Core & Tauri BFF). Контур: rust/crates/discord-{core,codec,media,store,i18n}, rust/gui-spike/src/*.rs (кроме voice_devices.rs), rust/gui-spike/tests/*_contract.rs. Проверка T0: cargo test -p discord-media и целевой контрактный тест."
 
 [agent_profiles.g2_frontend]
 inherits = "base_discord_lab"
+model = "gemini-3.8-flash-high"
 append_system_prompt = "Отдел G2 Frontend (WebView UI & DOM/A11y). Контур: rust/gui-spike/ui/**/*.{js,css,html}, tests/unit/*.test.mjs. Проверка T0: node scripts/test-impact.mjs --run && npm run typecheck."
 
 [agent_profiles.g3_design]
 inherits = "base_discord_lab"
+model = "gemini-3.8-flash-medium"
 append_system_prompt = "Отдел G3 Design (UX/UI Specs & Tokens). Контур: docs/specs/*.md, waves/RW-*/DESIGN/*.md."
 
 [agent_profiles.g4_qa]
 inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
 append_system_prompt = "Отдел G4 QA (Test Automation & Verification). Контур: tests/{meta,unit,smoke,e2e}/, scripts/test-impact.mjs, QA-BUILD-*.md."
 
 [agent_profiles.g5_voice_platform]
 inherits = "base_discord_lab"
-append_system_prompt = "Отдел G5 Voice & Platform. Контур: rust/crates/discord-voice/**, rust/crates/discord-platform/**, rust/gui-spike/src/voice_devices.rs, опкоды Go Live 18..=22, SRTP/DAVE E2EE, RTP/RTCP H.264/AV1, discord-ipc-0. Проверка T0: cargo test -p discord-voice -p discord-platform."
+model = "gemini-4-carbon-high"
+append_system_prompt = "Отдел G5 Voice & Platform (P0 Core, Ring Buffer, Crypto, WebRTC). Контур: rust/crates/discord-voice/**, rust/crates/discord-platform/**, rust/gui-spike/src/voice_devices.rs, опкоды Go Live 18..=22, SRTP/DAVE E2EE, RTP/RTCP H.264/AV1, discord-ipc-0. Проверка T0: cargo test -p discord-voice -p discord-platform."
 
 [agent_profiles.g6_tech_writer]
 inherits = "base_discord_lab"
+model = "gemini-3.8-flash-low"
 append_system_prompt = "Отдел G6 Tech Writer & Parity. Контур: waves/RW-*/PARITY/MERGE-READINESS-*.md, матрицы паритета и документация."
 
 [agent_profiles.g7_re_rea]
 inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
 append_system_prompt = "Отдел G7 Reverse Engineering & Parity Discovery (G7 RE / REA). Read-only сверка с /home/sanya/re-deep/, docs/reference-projects/ и инструментами MCP rea/understand."
 
 [agent_profiles.devops]
 inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
 append_system_prompt = "Отдел DevOps / Release & Integration. Контур: scripts/{release.sh,ci.sh,gate.mjs}, конвейер веток unstable -> testing -> beta -> main."
 
 [agent_profiles.pm_review]
 inherits = "base_discord_lab"
+model = "gemini-4-argon-high"
 append_system_prompt = "Продуктовый менеджер (PM). Двухэтапная приёмка ACCEPT.md, проверка пользовательских сценариев и 9 измерений тестирования."
 
 [agent_profiles.tech_reviewer]
-agent = "opencode"
-model = "deepseek/deepseek-v4.1-flash"
+agent = "antigravity"
+model = "gemini-4-argon-high"
 add_dirs = ["/home/sanya/orca/project/docs/reference-projects"]
 append_system_prompt = "Технический ревьюер (REVIEW.md). Независимая проверка архитектуры, безопасности, отсутствия лишних правок и уничтожение 5/5 мутаций."
 
@@ -305,3 +342,71 @@ name = "task-704-reactive-voice-phases-and-channel-tree-ui"
 profile = "g2_frontend"
 task_group = "G2-FRONTEND"
 task = "Target: rust/gui-spike/ui/modules/voice-rtc-panel.js, rust/gui-spike/ui/modules/channel-tree-view.js, rust/gui-spike/ui/app.js, tests/unit/voice-call-phases-and-server-access.test.mjs. Change: Реализовать этап V5 во фронтенде: (1) В voice-rtc-panel.js отображать все 4 реальные фазы звонка из автомата Calls ('signaling' -> 'Ожидание ответа сервера Discord...', 'negotiating' -> 'Проверка UDP IP Discovery и ключей DAVE...', 'connected' -> 'Голосовая связь установлена • DAVE E2EE', 'error'/'timeout' -> точная причина отказа и кнопка повтора); (2) В channel-tree-view.js и app.js рендерить список участников голосового канала строго из подтверждённых VOICE_STATE_UPDATE событий для данного channelId (без зависших фантомных аватаров до подтверждения и с немедленным удалением при таймауте/выходе) и синхронизировать баннеры/блокировку ввода для lurker, pending:true и отсутствия прав SEND_MESSAGES/CONNECT; (3) Написать и прогнать unit-тест tests/unit/voice-call-phases-and-server-access.test.mjs. Constraints: Строгий TDD, // @ts-check чистый, не трогать Rust-файлы. Ownership: Только rust/gui-spike/ui/{modules/voice-rtc-panel.js,modules/channel-tree-view.js,app.js} и tests/unit/voice-call-phases-and-server-access.test.mjs. Observable acceptance: node --test tests/unit/voice-call-phases-and-server-access.test.mjs && npm run typecheck проходит зелено."
+
+[orchestration_templates.sprint14_media_mls_and_gate]
+description = "Спринт 14: Пакетная сборка RTP и DAVE MLS v1 (TASK-615), UI видео-плеера PiP (TASK-616), оптимистичный чат (TASK-808), обработка прав (TASK-809) и мутационный гейт 15/15 (TASK-622)"
+project = "discord-lab"
+task_group = "SPRINT-14-MEDIA-MLS"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-615-rtp-packetizer-dave-mls-v1"
+profile = "g5_voice_platform"
+task_group = "G5-VOICE"
+task = "TASK-615 (P1, G5 Voice): Пакетная сборка RTP видеопотока и DAVE MLS v1 (Task-602). Шифрование видеопотока с использованием протокола сквозного шифрования DAVE MLS и упаковка в RTP пакеты (AES-GCM / ChaCha20-Poly1305) в rust/crates/discord-voice/src/media/rtp.rs. Контрактные тесты по RE-оракулу Serein."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-616-video-player-pip-ui"
+profile = "g2_frontend"
+task_group = "G2-FRONTEND"
+task = "TASK-616 (P1, G2 Frontend): UI Видео-плеера и Picture-in-Picture (Task-604). Компонент просмотра видеотрансляции с элементами управления качеством, переключением во весь экран и плавающим окном PiP. Скрытие контролов через 3с бездействия."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-808-optimistic-chat-delivery"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "TASK-808 (P2, G1 Backend): Оптимистичная отдача сообщений чата и неблокирующий ACK в rust/gui-spike/src/data.rs."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-809-voice-invite-error-handling"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "TASK-809 (P2, G1 Backend): Обработка ошибок прав create_invite на голосовых каналах с использованием Discord Permissions bitfields."
+
+[[orchestration_templates.sprint14_media_mls_and_gate.steps]]
+name = "task-622-mutation-gate-15-15"
+profile = "g4_qa"
+task_group = "G4-QA"
+task = "TASK-622 (P0, G4 QA / PM Review): Мутационный набор тестов 15/15 (Quality Gate v2). Независимая проверка устойчивости контрактов к мутациям (100% kill rate) без ослабления ассертов."
+
+[orchestration_templates.sprint15_gpui_core_foundation]
+description = "Спринт 15: Нативная архитектура GPUI — Реактивная модель AppState (TASK-702), тема DiscordDarkTheme (TASK-703), REST v9 reqwest клиент (TASK-704) и headless тест-харнесс TestAppContext (TASK-705)"
+project = "discord-lab"
+task_group = "SPRINT-15-GPUI-FOUNDATION"
+agent = "antigravity"
+worktree = false
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-702-appstate-model-tokio-gpui"
+profile = "g1_backend"
+task_group = "G1-ARCH"
+task = "TASK-702 (P0, Chief Architect + G1 Backend): Реактивная модель AppState (Model<T>), мост связи Tokio ↔ GPUI Event Loop по docs/specs/GPUI-ARCHITECTURE-MIGRATION.md. Использование gemini-4-carbon-high."
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-703-discord-dark-theme-gpui"
+profile = "g3_design"
+task_group = "G3-DESIGN"
+task = "TASK-703 (P0, G3 Design Lead): Тема DiscordDarkTheme в gpui-kit::ActiveTheme, ассеты, дизайн-токены и типографика."
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-704-rest-v9-reqwest-backoff"
+profile = "g1_backend"
+task_group = "G1-BACKEND"
+task = "TASK-704 (P0, G1 Backend Lead): REST v9 клиент на базе reqwest + backoff (замена самописного HTTP) с rate-limiting и пулом соединений."
+
+[[orchestration_templates.sprint15_gpui_core_foundation.steps]]
+name = "task-705-headless-ui-test-app-context"
+profile = "g4_qa"
+task_group = "G4-QA"
+task = "TASK-705 (P0, G4 QA Lead): Headless UI тест-харнесс на gpui::TestAppContext (без Chromium/Xvfb) со 100% изоляцией тестов."

@@ -26,15 +26,15 @@ use std::sync::{Arc, Mutex};
 
 use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig};
 use discord_core::rest::guilds::{
-    CHANNEL_TYPE_GUILD_CATEGORY, CHANNEL_TYPE_GUILD_TEXT, CHANNEL_TYPE_GUILD_VOICE, CreatedGuild,
-    CreatedGuildChannel, CreatedGuildRole, DISCORD_CODE_MAXIMUM_GUILDS,
-    DISCORD_CODE_NO_VERIFIED_PHONE, DISCORD_LOCALE_RU, GUILDS_API_V9_PATH, GUILDS_PATH,
-    GuildCreateChannelSpec, GuildCreateRequest, GuildCreateRestError, MAX_GUILD_NAME_CHARS,
-    MIN_GUILD_NAME_CHARS, SYSTEM_CHANNEL_FLAG_SUPPRESS_GUILD_REMINDER_NOTIFICATIONS,
-    SYSTEM_CHANNEL_FLAG_SUPPRESS_JOIN_NOTIFICATION_REPLIES,
+    build_guild_create_headers, build_guild_create_http_request, parse_guild_create_response,
+    CreatedGuild, CreatedGuildChannel, CreatedGuildRole, GuildCreateChannelSpec,
+    GuildCreateRequest, GuildCreateRestError, CHANNEL_TYPE_GUILD_CATEGORY, CHANNEL_TYPE_GUILD_TEXT,
+    CHANNEL_TYPE_GUILD_VOICE, DISCORD_CODE_MAXIMUM_GUILDS, DISCORD_CODE_NO_VERIFIED_PHONE,
+    DISCORD_LOCALE_RU, GUILDS_API_V9_PATH, GUILDS_PATH, MAX_GUILD_NAME_CHARS, MIN_GUILD_NAME_CHARS,
+    SYSTEM_CHANNEL_FLAG_SUPPRESS_GUILD_REMINDER_NOTIFICATIONS,
     SYSTEM_CHANNEL_FLAG_SUPPRESS_JOIN_NOTIFICATIONS,
-    SYSTEM_CHANNEL_FLAG_SUPPRESS_PREMIUM_SUBSCRIPTIONS, build_guild_create_headers,
-    build_guild_create_http_request, parse_guild_create_response,
+    SYSTEM_CHANNEL_FLAG_SUPPRESS_JOIN_NOTIFICATION_REPLIES,
+    SYSTEM_CHANNEL_FLAG_SUPPRESS_PREMIUM_SUBSCRIPTIONS,
 };
 use discord_core::rest::identity::ClientIdentity;
 use discord_core::rest::routes::HttpMethod;
@@ -42,9 +42,9 @@ use discord_core::rest::super_properties::SuperProperties;
 use discord_core::rest::transport::{HttpRequest, HttpResponse};
 
 use discord_gui_spike::guilds::{
+    clear_local_created_guilds, create_guild_full, local_created_guild_snapshot,
     CreateGuildChannelInput, CreateGuildError, CreateGuildFullOutcome, CreateGuildPayload,
-    CreateGuildRequest, DiscordGuilds, GuildTransport, clear_local_created_guilds,
-    create_guild_full, local_created_guild_snapshot,
+    CreateGuildRequest, DiscordGuilds, GuildTransport,
 };
 
 fn run<F: Future>(future: F) -> F::Output {

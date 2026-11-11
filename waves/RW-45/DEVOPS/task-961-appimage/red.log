@@ -1,0 +1,74 @@
+▶ TASK-961: Сборка автономного AppImage пакета и headless-верификация
+  ✖ SUB-961-1: спецификация packaging/appimage/AppRun, desktop-файл и иконка валидны и поддерживают sandbox/env контракты (0.804239ms)
+  ✖ SUB-961-2: scripts/build-appimage.sh собирает валидный Type 2 AppImage с бандлингом зависимостей, иконкой и .desktop файлом (0.241422ms)
+  ✖ SUB-961-3: выполняет --headless-smoke внутри релизного AppImage (VmRSS < 60 MB) и проверяет fallback/негативные режимы (0.202522ms)
+✖ TASK-961: Сборка автономного AppImage пакета и headless-верификация (1.937403ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.116951
+
+✖ failing tests:
+
+test at tests/unit/appimage-package-961.test.mjs:87:3
+✖ SUB-961-1: спецификация packaging/appimage/AppRun, desktop-файл и иконка валидны и поддерживают sandbox/env контракты (0.804239ms)
+  AssertionError [ERR_ASSERTION]: Файл AppRun должен существовать: /home/sanya/orca/project/packaging/appimage/AppRun
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs:88:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/appimage-package-961.test.mjs:194:3
+✖ SUB-961-2: scripts/build-appimage.sh собирает валидный Type 2 AppImage с бандлингом зависимостей, иконкой и .desktop файлом (0.241422ms)
+  AssertionError [ERR_ASSERTION]: Скрипт сборки должен существовать: /home/sanya/orca/project/scripts/build-appimage.sh
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs:195:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/appimage-package-961.test.mjs:392:3
+✖ SUB-961-3: выполняет --headless-smoke внутри релизного AppImage (VmRSS < 60 MB) и проверяет fallback/негативные режимы (0.202522ms)
+  AssertionError [ERR_ASSERTION]: Релизный пакет AppImage должен существовать: /home/sanya/orca/project/rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs:393:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -666,7 +666,9 @@ fn test_retryable_server_statuses_parity() {
     }
 
     // Неповторяемые серверные и клиентские статусы
-    for non_retryable in [200, 204, 400, 401, 403, 404, 413, 429, 500, 501, 503, 505, 520, 521, 525] {
+    for non_retryable in [
+        200, 204, 400, 401, 403, 404, 413, 429, 500, 501, 503, 505, 520, 521, 525,
+    ] {
         assert!(
             !is_retryable_server_status(non_retryable),
             "статус {non_retryable} НЕ должен быть в RETRYABLE_SERVER_STATUSES"
@@ -800,14 +802,26 @@ fn test_should_retry_client_parity() {
 
     // 429: всегда true
     for method in all_methods {
-        assert!(should_retry_client_parity(method, &failure_429, 0), "429 с retries=0");
-        assert!(should_retry_client_parity(method, &failure_429, 2), "429 с retries=2");
+        assert!(
+            should_retry_client_parity(method, &failure_429, 0),
+            "429 с retries=0"
+        );
+        assert!(
+            should_retry_client_parity(method, &failure_429, 2),
+            "429 с retries=2"
+        );
     }
 
     // 503: всегда true
     for method in all_methods {
-        assert!(should_retry_client_parity(method, &failure_503, 0), "503 с retries=0");
-        assert!(should_retry_client_parity(method, &failure_503, 3), "503 с retries=3");
+        assert!(
+            should_retry_client_parity(method, &failure_503, 0),
+            "503 с retries=0"
+        );
+        assert!(
+            should_retry_client_parity(method, &failure_503, 3),
+            "503 с retries=3"
+        );
     }
 
     // RETRYABLE_SERVER_STATUSES (502, 504, 507, 522, 523, 524, 598, 599)
@@ -1031,4 +1045,3 @@ fn test_rate_limit_info_limit_and_scope() {
     assert_eq!(builder_info.limit, Some(25));
     assert_eq!(builder_info.scope.as_deref(), Some("user"));
 }
-

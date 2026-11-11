@@ -1,0 +1,20 @@
+<svg width="260" height="200" viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="240" height="180" rx="8" fill="#2b2d31" stroke="#3f4147" stroke-width="1" filter="drop-shadow(0 8px 16px rgba(0,0,0,0.4))"/>
+  <!-- Item 1: Pin (Hover State) -->
+  <rect x="16" y="16" width="228" height="34" rx="4" fill="#5865f2"/>
+  <text x="28" y="38" fill="#fff" font-size="14" font-family="sans-serif">📌</text>
+  <text x="52" y="38" fill="#fff" font-size="13" font-weight="bold" font-family="sans-serif">Закрепить сообщение</text>
+  <!-- Item 2: Reply -->
+  <rect x="16" y="52" width="228" height="34" rx="4" fill="transparent"/>
+  <text x="28" y="74" fill="#dbdee1" font-size="14" font-family="sans-serif">💬</text>
+  <text x="52" y="74" fill="#dbdee1" font-size="13" font-family="sans-serif">Ответить</text>
+  <!-- Item 3: Copy -->
+  <rect x="16" y="88" width="228" height="34" rx="4" fill="transparent"/>
+  <text x="28" y="110" fill="#dbdee1" font-size="14" font-family="sans-serif">📋</text>
+  <text x="52" y="110" fill="#dbdee1" font-size="13" font-family="sans-serif">Копировать текст</text>
+  <line x1="20" y1="126" x2="240" y2="126" stroke="#3f4147" stroke-width="1"/>
+  <!-- Item 4: Delete -->
+  <rect x="16" y="132" width="228" height="34" rx="4" fill="transparent"/>
+  <text x="28" y="154" fill="#f23f43" font-size="14" font-family="sans-serif">🗑️</text>
+  <text x="52" y="154" fill="#f23f43" font-size="13" font-weight="bold" font-family="sans-serif">Удалить сообщение</text>
+</svg>

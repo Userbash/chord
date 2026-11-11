@@ -172,6 +172,30 @@ impl ApiAuth {
         })
     }
 
+    /// Собрать заголовки для публичных анонимных запросов (без токена `Authorization`).
+    pub fn anonymous(
+        super_properties: &SuperProperties,
+        locale: &str,
+        timezone: &str,
+    ) -> Result<Self, ApiAuthError> {
+        let locale = locale.trim();
+        let timezone = timezone.trim();
+        if locale.is_empty() {
+            return Err(ApiAuthError::EmptyLocale);
+        }
+        if timezone.is_empty() {
+            return Err(ApiAuthError::EmptyTimezone);
+        }
+        Ok(Self {
+            authorization: String::new(),
+            super_properties: super_properties.to_base64(),
+            locale: locale.to_string(),
+            timezone: timezone.to_string(),
+            debug_options: DEBUG_OPTIONS_LIVE.to_string(),
+            accept_language: locale.to_string(),
+        })
+    }
+
     /// Собрать auth-заголовки из токена со списком локалей и взвешенным `Accept-Language`
     /// (BE-P2-02, task-165).
     ///
@@ -581,7 +605,7 @@ impl ApiClient {
 
         let mut prepared = request.clone();
         for (name, value) in self.auth.pairs() {
-            if !has_header(&prepared.headers, name) {
+            if !value.is_empty() && !has_header(&prepared.headers, name) {
                 prepared.headers.push((name.to_string(), value.to_string()));
             }
         }

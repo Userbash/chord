@@ -1,0 +1,15 @@
+▶ TASK-969: Генератор бинарных дельта-патчей zstd/bsdiff и проверка отката
+  ✔ SUB-969-1: кодирует ENDSLEY/BSDIFF43 + Zstandard (0x28 0xb5 0x2f 0xfd) и проходит сверку с независимым /usr/bin/zstd (50.569519ms)
+  ✔ SUB-969-2: генерирует дельты в режимах bsdiff43-zstd и zstd-patch-from со 100% восстановлением SHA-256 и валидирует ManifestPatch (48.432858ms)
+  ✔ SUB-969-3: формирует точные диагностические контракты RE-дампа delta_update::verify и updater_client::install при искажении хешей и размера (0.717227ms)
+  ✔ SUB-969-4: выполняет атомарный откат при повреждении патча/целевого хеша и переключает skip_host_delta / skip_module_delta (37.706532ms)
+  ✔ SUB-969-5: проверяет CLI scripts/generate-delta.mjs (--generate, --verify, --apply, --self-test), коды 0/1/2 и маскирование токенов (210.062093ms)
+✔ TASK-969: Генератор бинарных дельта-патчей zstd/bsdiff и проверка отката (348.376808ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 392.902018

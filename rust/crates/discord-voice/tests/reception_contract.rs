@@ -211,3 +211,77 @@ fn zero_clock_rate_does_not_panic() {
     assert_eq!(snapshot.received, 2);
     assert!(snapshot.jitter_ms.is_finite());
 }
+
+#[test]
+fn rfc3550_a3_interval_fraction_lost_and_receiver_report_generation() {
+    use discord_voice::rtcp::{RTCP_RR, RTCP_RR_CLEAR_LEN, RtcpPacket, parse_compound};
+
+    // Поток видео 90 кГц (SSRC 40001): проверяем точный алгоритм RFC 3550 Appendix A.3
+    // для интервальной доли потерь `fraction_lost` (в 1/256 долях) и генерации PT=201 Receiver Report.
+    let mut stats = ReceptionStats::new(90_000);
+
+    // Интервал 1: ожидается 20 пакетов (seq 100..=119), пришло 15 (потеряно 5 -> 5/20 = 25% > 10% порога кода 2003).
+    // fraction_lost = floor(5 * 256 / 20) = 64 (0x40).
+    for i in 0..20u16 {
+        if matches!(i, 3 | 7 | 11 | 14 | 18) {
+            continue;
+        }
+        let hdr = RtpHeader {
+            payload_type: 105,
+            marker: true,
+            sequence: 100 + i,
+            timestamp: 90_000 + u32::from(i) * 3_000,
+            ssrc: 40_001,
+        };
+        stats.observe(&hdr, f64::from(i) * 33.333);
+    }
+
+    assert!(stats.is_high_packet_loss());
+    assert!(approx(stats.loss_rate(), 0.25, 1e-6));
+    assert!(approx(stats.interval_loss_rate(), 0.25, 1e-6));
+
+    let peek_rb = stats.peek_report_block(40_001, 0x1122_3344, 0x0001_0000);
+    assert_eq!(peek_rb.ssrc, 40_001);
+    assert_eq!(peek_rb.fraction_lost, 64);
+    assert_eq!(peek_rb.cumulative_lost, 5);
+    assert_eq!(peek_rb.extended_highest_seq, 119);
+    assert_eq!(peek_rb.last_sr, 0x1122_3344);
+    assert_eq!(peek_rb.delay_since_last_sr, 0x0001_0000);
+
+    // Собираем 32-байтный открытый пакет RTCP Receiver Report (PT=201) с фиксацией интервала A.3
+    let rr_wire = stats.build_receiver_report(9208, 40_001, 0x1122_3344, 0x0001_0000);
+    assert_eq!(rr_wire.len(), RTCP_RR_CLEAR_LEN);
+    assert_eq!(rr_wire[0], 0x81); // V=2, P=0, RC=1
+    assert_eq!(rr_wire[1], RTCP_RR); // PT=201
+    let compound = parse_compound(&rr_wire).expect("valid RTCP RR packet");
+    assert_eq!(
+        compound.packets,
+        vec![RtcpPacket::ReceiverReport {
+            sender_ssrc: 9208,
+            reports: vec![peek_rb],
+        }]
+    );
+
+    // Интервал 2: приходят следующие 20 пакетов (seq 120..=139) без единой потери.
+    // Кумулятивные потери остаются 5 (из 40 = 12.5%), но интервальная доля потерь fraction_lost = 0!
+    for i in 20..40u16 {
+        let hdr = RtpHeader {
+            payload_type: 105,
+            marker: true,
+            sequence: 100 + i,
+            timestamp: 90_000 + u32::from(i) * 3_000,
+            ssrc: 40_001,
+        };
+        stats.observe(&hdr, f64::from(i) * 33.333);
+    }
+
+    assert!(approx(stats.interval_loss_rate(), 0.0, 1e-6));
+    assert!(!stats.is_high_packet_loss());
+
+    let rb_interval_2 = stats.next_report_block(40_001, 0x5566_7788, 32_768);
+    assert_eq!(rb_interval_2.fraction_lost, 0);
+    assert_eq!(rb_interval_2.cumulative_lost, 5);
+    assert_eq!(rb_interval_2.extended_highest_seq, 139);
+    assert_eq!(rb_interval_2.last_sr, 0x5566_7788);
+    assert_eq!(rb_interval_2.delay_since_last_sr, 32_768);
+}

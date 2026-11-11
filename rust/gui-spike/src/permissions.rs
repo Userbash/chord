@@ -239,7 +239,10 @@ impl<'a> PermissionCalculator<'a> {
         }
 
         if (perms & PERM_SEND_MESSAGES) == 0 {
-            perms &= !(PERM_SEND_TTS_MESSAGES | PERM_MENTION_EVERYONE | PERM_ATTACH_FILES | PERM_EMBED_LINKS);
+            perms &= !(PERM_SEND_TTS_MESSAGES
+                | PERM_MENTION_EVERYONE
+                | PERM_ATTACH_FILES
+                | PERM_EMBED_LINKS);
         }
 
         if (perms & PERM_CONNECT) == 0 {
@@ -311,10 +314,14 @@ impl<'a> PermissionCalculator<'a> {
     ) -> AllowedChannelAccess {
         let effective_permissions = self.in_channel(category_overwrites, channel_overwrites);
         let can_view = (effective_permissions & PERM_VIEW_CHANNEL) != 0;
-        let can_send =
-            can_view && !self.is_lurker && !self.is_pending && (effective_permissions & PERM_SEND_MESSAGES) != 0;
-        let can_connect =
-            can_view && !self.is_lurker && !self.is_pending && (effective_permissions & PERM_CONNECT) != 0;
+        let can_send = can_view
+            && !self.is_lurker
+            && !self.is_pending
+            && (effective_permissions & PERM_SEND_MESSAGES) != 0;
+        let can_connect = can_view
+            && !self.is_lurker
+            && !self.is_pending
+            && (effective_permissions & PERM_CONNECT) != 0;
         let can_speak = can_connect && (effective_permissions & PERM_SPEAK) != 0;
         let can_stream = can_connect && (effective_permissions & PERM_STREAM) != 0;
 
@@ -365,10 +372,11 @@ impl PermissionCalculator<'static> {
             });
         }
 
-        let calc = PermissionCalculator::new(guild_id, user_id, everyone_perms, &role_defs, member_roles)
-            .owner_id((!owner_id.is_empty()).then_some(owner_id))
-            .is_lurker(is_lurker)
-            .is_pending(is_pending);
+        let calc =
+            PermissionCalculator::new(guild_id, user_id, everyone_perms, &role_defs, member_roles)
+                .owner_id((!owner_id.is_empty()).then_some(owner_id))
+                .is_lurker(is_lurker)
+                .is_pending(is_pending);
         calc.allowed_access(&[], channel_overwrites)
     }
 
@@ -399,13 +407,16 @@ impl PermissionCalculator<'static> {
             });
         }
 
-        let calc = PermissionCalculator::new(guild_id, user_id, everyone_perms, &role_defs, member_roles)
-            .owner_id(owner_id.filter(|s| !s.is_empty()))
-            .is_lurker(is_lurker)
-            .is_pending(is_pending);
+        let calc =
+            PermissionCalculator::new(guild_id, user_id, everyone_perms, &role_defs, member_roles)
+                .owner_id(owner_id.filter(|s| !s.is_empty()))
+                .is_lurker(is_lurker)
+                .is_pending(is_pending);
 
-        let mut category_overwrites_by_id: std::collections::HashMap<String, Vec<PermissionOverwriteDef>> =
-            std::collections::HashMap::new();
+        let mut category_overwrites_by_id: std::collections::HashMap<
+            String,
+            Vec<PermissionOverwriteDef>,
+        > = std::collections::HashMap::new();
         for ch in channels_json {
             let ch_type = ch.get("type").and_then(Value::as_u64).unwrap_or(0);
             if ch_type == 4 {
@@ -500,11 +511,15 @@ pub fn evaluate_channel_access_policy(
 
     let can_view_channel = (masked & PERM_VIEW_CHANNEL) != 0;
     let can_read_history = can_view_channel && (masked & PERM_READ_MESSAGE_HISTORY) != 0;
-    let can_send_messages = can_view_channel && !is_lurker && !is_pending && (masked & PERM_SEND_MESSAGES) != 0;
-    let can_add_reactions = can_view_channel && !is_lurker && !is_pending && (masked & PERM_ADD_REACTIONS) != 0;
+    let can_send_messages =
+        can_view_channel && !is_lurker && !is_pending && (masked & PERM_SEND_MESSAGES) != 0;
+    let can_add_reactions =
+        can_view_channel && !is_lurker && !is_pending && (masked & PERM_ADD_REACTIONS) != 0;
     let can_attach_files = can_send_messages && (masked & PERM_ATTACH_FILES) != 0;
-    let can_connect_voice =
-        can_view_channel && !is_lurker && !is_pending && (!is_voice_channel || (masked & PERM_CONNECT) != 0);
+    let can_connect_voice = can_view_channel
+        && !is_lurker
+        && !is_pending
+        && (!is_voice_channel || (masked & PERM_CONNECT) != 0);
     let can_speak_voice = can_connect_voice && (masked & PERM_SPEAK) != 0;
     let can_stream_voice = can_connect_voice && (masked & PERM_STREAM) != 0;
 
@@ -546,7 +561,12 @@ mod tests {
 
     #[test]
     fn lurker_mask_strips_send_messages_reactions_and_voice_connect() {
-        let everyone = PERM_VIEW_CHANNEL | PERM_READ_MESSAGE_HISTORY | PERM_SEND_MESSAGES | PERM_ADD_REACTIONS | PERM_CONNECT | PERM_SPEAK;
+        let everyone = PERM_VIEW_CHANNEL
+            | PERM_READ_MESSAGE_HISTORY
+            | PERM_SEND_MESSAGES
+            | PERM_ADD_REACTIONS
+            | PERM_CONNECT
+            | PERM_SPEAK;
         let calc = PermissionCalculator::new("g1", "u1", everyone, &[], &[]).is_lurker(true);
         let perms = calc.in_channel(&[], &[]);
         assert_eq!(perms, LURKER_PERMISSIONS_MASK);
@@ -590,9 +610,15 @@ mod tests {
         ];
 
         let calc_no_role = PermissionCalculator::new("g1", "u1", everyone, &roles, &[]);
-        assert_eq!(calc_no_role.in_channel(&[], &overwrites) & PERM_SEND_MESSAGES, 0);
+        assert_eq!(
+            calc_no_role.in_channel(&[], &overwrites) & PERM_SEND_MESSAGES,
+            0
+        );
 
         let calc_with_role = PermissionCalculator::new("g1", "u1", everyone, &roles, &member_roles);
-        assert_ne!(calc_with_role.in_channel(&[], &overwrites) & PERM_SEND_MESSAGES, 0);
+        assert_ne!(
+            calc_with_role.in_channel(&[], &overwrites) & PERM_SEND_MESSAGES,
+            0
+        );
     }
 }

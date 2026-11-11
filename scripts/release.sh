@@ -63,7 +63,14 @@ if [[ -f "$SBOM_SRC" ]]; then
     if [[ ! -e "$SBOM_DEST" || ! "$SBOM_SRC" -ef "$SBOM_DEST" ]]; then
         install -m 0644 "$SBOM_SRC" "$SBOM_DEST"
     fi
-    (cd "$DIST" && sha256sum discord-rs sbom.spdx.json > SHA256SUMS)
+    (
+        cd "$DIST"
+        files=()
+        for f in discord-gpui discord-gpui-*.tar.gz discord-gui-spike discord-rs sbom.spdx.json; do
+            [[ -f "$f" ]] && files+=("$f")
+        done
+        sha256sum "${files[@]}" > SHA256SUMS
+    )
 else
     (cd "$DIST" && sha256sum discord-rs > SHA256SUMS)
 fi

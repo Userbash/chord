@@ -16,8 +16,7 @@
 use discord_core::rest::transport::HttpResponse;
 use discord_gui_spike::guilds::{
     create_guild, enter_guild, join_guild, leave_guild, CreateGuildError, CreateGuildPayload,
-    DiscordGuilds, EnterGuildError, GuildLeaving, GuildMembership, GuildTransport,
-    LeaveGuildError,
+    DiscordGuilds, EnterGuildError, GuildLeaving, GuildMembership, GuildTransport, LeaveGuildError,
 };
 use std::future::Future;
 use std::pin::Pin;
@@ -762,7 +761,8 @@ fn tauri_registers_leave_guild_once_and_reads_token_via_helper() {
 
 #[test]
 fn create_guild_posts_to_guilds_endpoint_with_valid_name() {
-    let response_body = r#"{"id":"999888777666555444","name":"Новый сервер","channels":[]}"#.as_bytes();
+    let response_body =
+        r#"{"id":"999888777666555444","name":"Новый сервер","channels":[]}"#.as_bytes();
     let transport = FakeTransport::answering_post(201, response_body);
     let guilds = api(transport.clone());
 
@@ -821,7 +821,8 @@ fn create_guild_rejects_empty_or_too_long_name_before_transport() {
 
 #[test]
 fn create_guild_sends_icon_when_provided() {
-    let response_body = r#"{"id":"111222333444555666","name":"Сервер с иконкой","channels":[]}"#.as_bytes();
+    let response_body =
+        r#"{"id":"111222333444555666","name":"Сервер с иконкой","channels":[]}"#.as_bytes();
     let transport = FakeTransport::answering_post(201, response_body);
     let guilds = api(transport.clone());
 
@@ -913,7 +914,17 @@ impl discord_gui_spike::guilds::GuildCreation for FakeCreation {
     fn create_guild<'a>(
         &'a self,
         payload: CreateGuildPayload,
-    ) -> Pin<Box<dyn Future<Output = Result<discord_gui_spike::guilds::CreateGuildOutcome, CreateGuildError>> + Send + 'a>> {
+    ) -> Pin<
+        Box<
+            dyn Future<
+                    Output = Result<
+                        discord_gui_spike::guilds::CreateGuildOutcome,
+                        CreateGuildError,
+                    >,
+                > + Send
+                + 'a,
+        >,
+    > {
         self.seen.lock().unwrap().push(payload.clone());
         let answer = match &self.result {
             Some(err) => Err(err.clone()),

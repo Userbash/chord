@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="x-scheme-handler/discord">
+    <comment>Discord URI Scheme (discord://)</comment>
+    <comment xml:lang="ru">Схема URI Discord (discord://)</comment>
+  </mime-type>
+  <mime-type type="x-scheme-handler/disclip">
+    <comment>Discord Clip URI Scheme (disclip://)</comment>
+    <comment xml:lang="ru">Схема URI клипов Discord (disclip://)</comment>
+  </mime-type>
+  <mime-type type="application/x-discord-gpui-invite">
+    <comment>Discord GPUI Server Invite</comment>
+    <comment xml:lang="ru">Приглашение на сервер Discord GPUI</comment>
+    <glob pattern="*.discord-invite"/>
+  </mime-type>
+</mime-info>

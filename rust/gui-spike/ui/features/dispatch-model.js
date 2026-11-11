@@ -55,9 +55,20 @@ export const FORWARDED_KINDS = Object.freeze([
 /** Статусы присутствия из `[L]`-кадров; всё остальное — `unknown` (не offline). */
 export const KNOWN_STATUSES = Object.freeze(["online", "idle", "dnd", "offline"]);
 
+/**
+ * События обновления ролей и прав участника на сервере (TASK-765).
+ * Вынесены в отдельную константу, чтобы `FORWARDED_KINDS` сохранял канонические 22 элемента оракула ядра.
+ */
+export const ROLE_PERMISSION_KINDS = Object.freeze([
+  "GUILD_MEMBER_UPDATE",
+  "GUILD_ROLE_CREATE",
+  "GUILD_ROLE_UPDATE",
+  "GUILD_ROLE_DELETE",
+]);
+
 /** Подпись неизвестного статуса (MEM-18: статус в доступном имени). */
 const UNKNOWN_STATUS_LABEL = "неизвестно";
-const FORWARDED = new Set(FORWARDED_KINDS);
+const FORWARDED = new Set([...FORWARDED_KINDS, ...ROLE_PERMISSION_KINDS]);
 /** Bounded-набор ключей чанков (PLAN §3.2). */
 const CHUNK_LIMIT = 512;
 /** Сколько уровней рекурсии смотрим в поиске секретов (payload — JSON-дерево). */
@@ -237,12 +248,23 @@ export function asRecord(value) {
  *   locked: boolean,
  * }} LiveThread */
 /** @typedef {{
+ *   id: string,
+ *   name: string,
+ *   color: number,
+ *   position: number,
+ *   permissions: string,
+ *   hoist: boolean,
+ *   managed: boolean,
+ *   mentionable: boolean,
+ * }} LiveGuildRole */
+/** @typedef {{
  *   guilds: Map<string, GuildSnapshot>,
  *   order: string[],
  *   selfUserId: string,
  *   onlineCountKnown: boolean,
  *   source: string,
  *   members: Map<string, Map<string, LiveMember>>,
+ *   guildRoles: Map<string, Map<string, LiveGuildRole>>,
  *   chunks: string[],
  *   lists: Map<string, MemberList>,
  *   presences: Map<string, LivePresence>,
@@ -347,7 +369,26 @@ export function asRecord(value) {
  *   messageId: string,
  *   guildId?: string,
  * }} MessageDeleteChange */
-/** @typedef {GuildsChange | MembersChange | PresenceChange | ReactionChange | MessageCreateChange | MessageUpdateChange | MessageDeleteChange | MessageAckChange | TypingChange | VoiceStateChange | VoiceServerChange | ThreadsChange} DispatchChange */
+/** @typedef {{
+ *   type: "guild_member_update",
+ *   guildId: string,
+ *   userId: string,
+ *   roles: string[],
+ *   nick: string,
+ *   pending: boolean,
+ *   communicationDisabledUntil: string | null,
+ * }} GuildMemberUpdateChange */
+/** @typedef {{
+ *   type: "guild_role_create" | "guild_role_update",
+ *   guildId: string,
+ *   role: LiveGuildRole,
+ * }} GuildRoleUpsertChange */
+/** @typedef {{
+ *   type: "guild_role_delete",
+ *   guildId: string,
+ *   roleId: string,
+ * }} GuildRoleDeleteChange */
+/** @typedef {GuildsChange | MembersChange | PresenceChange | ReactionChange | MessageCreateChange | MessageUpdateChange | MessageDeleteChange | MessageAckChange | TypingChange | VoiceStateChange | VoiceServerChange | ThreadsChange | GuildMemberUpdateChange | GuildRoleUpsertChange | GuildRoleDeleteChange} DispatchChange */
 /**
  * Счётчики модели. `ignored` — `kind` вне `FORWARDED_KINDS` или no-op проекции
  * (например, `REMOVE` реакции без предшествующего `ADD`); `skipped` — событие
@@ -427,6 +468,7 @@ export function createDispatchStore() {
     onlineCountKnown: false,
     source: "",
     members: new Map(),
+    guildRoles: new Map(),
     chunks: [],
     lists: new Map(),
     presences: new Map(),
@@ -1523,6 +1565,239 @@ export function projectThreadListSync(store, data, counters = emptyCounters()) {
   }];
 }
 
+/**
+ * GUILD_MEMBER_UPDATE — реактивное обновление ролей, никнейма и статуса проверки участника (TASK-765).
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectGuildMemberUpdate(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id ?? data.guildId);
+  const user = asRecord(data.user);
+  const userId = asString(user.id ?? data.user_id ?? data.userId);
+  const hasValidRoles = !("roles" in data) || Array.isArray(data.roles) || nilish(data.roles);
+  if (guildId === "" || userId === "" || !hasValidRoles) {
+    counters.malformed += 1;
+    return [];
+  }
+  const roles = Array.isArray(data.roles)
+    ? data.roles.map((r) => asString(r)).filter((r) => r !== "")
+    : [];
+  let guildMembers = store.members.get(guildId);
+  if (!guildMembers) {
+    guildMembers = new Map();
+    store.members.set(guildId, guildMembers);
+  }
+  const existing = guildMembers.get(userId);
+  const nick = "nick" in data ? asString(data.nick) : (existing?.nick ?? "");
+  const pending = "pending" in data ? asBool(data.pending) : false;
+  const commDisabledRaw = asString(
+    data.communication_disabled_until ?? data.communicationDisabledUntil,
+  );
+  const communicationDisabledUntil = commDisabledRaw !== "" ? commDisabledRaw : null;
+  const displayName =
+    asString(user.global_name ?? user.globalName) ||
+    nick ||
+    asString(user.username) ||
+    existing?.name ||
+    userId;
+
+  if (
+    existing &&
+    existing.nick === nick &&
+    existing.name === displayName &&
+    JSON.stringify(existing.roles) === JSON.stringify(roles)
+  ) {
+    counters.duplicate += 1;
+    return [];
+  }
+
+  /** @type {LiveMember} */
+  const updatedMember = {
+    userId,
+    name: displayName,
+    nick,
+    bot: "bot" in user ? asBool(user.bot) : (existing?.bot ?? false),
+    roles,
+    status: existing?.status ?? "offline",
+    statusLabel: existing?.statusLabel ?? statusLabelOf("offline"),
+    activity: existing?.activity ?? "",
+  };
+  guildMembers.set(userId, updatedMember);
+  const list = store.lists.get(guildId);
+  if (list && list.items.has(userId)) {
+    list.items.set(userId, updatedMember);
+  }
+  return [
+    {
+      type: "guild_member_update",
+      guildId,
+      userId,
+      roles,
+      nick,
+      pending,
+      communicationDisabledUntil,
+    },
+  ];
+}
+
+/**
+ * Нормализация объекта роли гильдии для `GUILD_ROLE_CREATE` / `GUILD_ROLE_UPDATE`.
+ * @param {unknown} rawRole
+ * @returns {LiveGuildRole | null}
+ */
+function normalizeGuildRole(rawRole) {
+  const role = asRecord(rawRole);
+  const id = asString(role.id);
+  if (id === "") return null;
+  const name = asString(role.name) || id;
+  const color = asNumber(role.color) ?? 0;
+  const position = asNumber(role.position) ?? 0;
+  const permissions = asString(role.permissions ?? role.permissions_new) || "0";
+  return {
+    id,
+    name,
+    color,
+    position,
+    permissions,
+    hoist: asBool(role.hoist),
+    managed: asBool(role.managed),
+    mentionable: asBool(role.mentionable),
+  };
+}
+
+/**
+ * GUILD_ROLE_CREATE — добавление новой роли сервера (TASK-765).
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectGuildRoleCreate(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id ?? data.guildId);
+  const role = normalizeGuildRole(data.role);
+  if (guildId === "" || !role) {
+    counters.malformed += 1;
+    return [];
+  }
+  let rolesMap = store.guildRoles.get(guildId);
+  if (!rolesMap) {
+    rolesMap = new Map();
+    store.guildRoles.set(guildId, rolesMap);
+  }
+  const previous = rolesMap.get(role.id);
+  if (previous && JSON.stringify(previous) === JSON.stringify(role)) {
+    counters.duplicate += 1;
+    return [];
+  }
+  rolesMap.set(role.id, role);
+  return [
+    {
+      type: "guild_role_create",
+      guildId,
+      role,
+    },
+  ];
+}
+
+/**
+ * GUILD_ROLE_UPDATE — обновление прав, цвета, позиции или имени роли сервера (TASK-765).
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectGuildRoleUpdate(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id ?? data.guildId);
+  const role = normalizeGuildRole(data.role);
+  if (guildId === "" || !role) {
+    counters.malformed += 1;
+    return [];
+  }
+  let rolesMap = store.guildRoles.get(guildId);
+  if (!rolesMap) {
+    rolesMap = new Map();
+    store.guildRoles.set(guildId, rolesMap);
+  }
+  const previous = rolesMap.get(role.id);
+  if (previous && JSON.stringify(previous) === JSON.stringify(role)) {
+    counters.duplicate += 1;
+    return [];
+  }
+  rolesMap.set(role.id, role);
+  return [
+    {
+      type: "guild_role_update",
+      guildId,
+      role,
+    },
+  ];
+}
+
+/**
+ * GUILD_ROLE_DELETE — удаление роли сервера и очистка её ID у участников (TASK-765).
+ * @param {DispatchStore} store
+ * @param {Record<string, unknown>} data
+ * @param {ModelCounters} [counters]
+ * @returns {DispatchChange[]}
+ */
+export function projectGuildRoleDelete(store, data, counters = emptyCounters()) {
+  if (Array.isArray(data)) {
+    counters.malformed += 1;
+    return [];
+  }
+  const guildId = asString(data.guild_id ?? data.guildId);
+  const roleId = asString(data.role_id ?? data.roleId ?? asRecord(data.role).id);
+  if (guildId === "" || roleId === "") {
+    counters.malformed += 1;
+    return [];
+  }
+  const rolesMap = store.guildRoles.get(guildId);
+  rolesMap?.delete(roleId);
+  const guildMembers = store.members.get(guildId);
+  if (guildMembers) {
+    for (const [uid, member] of guildMembers.entries()) {
+      if (member.roles.includes(roleId)) {
+        guildMembers.set(uid, {
+          ...member,
+          roles: member.roles.filter((r) => r !== roleId),
+        });
+      }
+    }
+  }
+  const list = store.lists.get(guildId);
+  if (list) {
+    for (const [uid, member] of list.items.entries()) {
+      if (member.roles.includes(roleId)) {
+        list.items.set(uid, {
+          ...member,
+          roles: member.roles.filter((r) => r !== roleId),
+        });
+      }
+    }
+  }
+  return [
+    {
+      type: "guild_role_delete",
+      guildId,
+      roleId,
+    },
+  ];
+}
+
 /* ---------- вход модели ---------- */
 
 /**
@@ -1557,6 +1832,18 @@ export function applyDispatch(store, value, counters = emptyCounters()) {
       break;
     case "GUILD_MEMBER_LIST_UPDATE":
       changes = projectMemberListUpdate(store, data, counters);
+      break;
+    case "GUILD_MEMBER_UPDATE":
+      changes = projectGuildMemberUpdate(store, data, counters);
+      break;
+    case "GUILD_ROLE_CREATE":
+      changes = projectGuildRoleCreate(store, data, counters);
+      break;
+    case "GUILD_ROLE_UPDATE":
+      changes = projectGuildRoleUpdate(store, data, counters);
+      break;
+    case "GUILD_ROLE_DELETE":
+      changes = projectGuildRoleDelete(store, data, counters);
       break;
     case "PRESENCE_UPDATE":
       changes = projectPresence(store, data, counters);

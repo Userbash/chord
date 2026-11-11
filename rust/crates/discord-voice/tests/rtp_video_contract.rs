@@ -728,3 +728,365 @@ fn h264_three_byte_start_codes_stap_a_flush_and_av1_w3_multi_byte_leb128() {
         .expect("W=3 reassembled");
     assert_eq!(reassembled, av1_stream);
 }
+
+#[test]
+fn w1_ssrc_stabilization_across_source_switches_op4_renegotiation_and_go_live() {
+    use discord_voice::rtp::{
+        DEFAULT_720P60_BITRATE_BPS, MAX_GO_LIVE_VIDEO_BITRATE_BPS, MIN_VIDEO_BITRATE_BPS,
+        clamp_video_bitrate_bps,
+    };
+    use discord_voice::session::{StreamServerUpdate, VoiceSessionDriver, VoiceSessionPhase};
+    use discord_voice::{VoiceServerUpdate, VoiceStateUpdate};
+
+    let server = VoiceServerUpdate::parse(
+        r#"{"token":"tok-w1","guild_id":"1014537851418980372","endpoint":"c-fra19.discord.media:2053"}"#,
+    )
+    .expect("server update");
+    let state = VoiceStateUpdate::parse(
+        r#"{"guild_id":"1014537851418980372","channel_id":"1176785373989445703","user_id":"384299970632876032","session_id":"sess-w1","self_mute":false,"self_deaf":false,"self_video":true,"self_stream":true}"#,
+    )
+    .expect("state update");
+
+    let mut driver =
+        VoiceSessionDriver::new(server.clone(), state.clone()).expect("create VoiceSessionDriver");
+    driver
+        .handle_ws_frame(r#"{"op":2,"d":{"ssrc":50000,"ip":"66.22.243.154","port":50019,"modes":["aead_xchacha20_poly1305_rtpsize","aead_aes256_gcm_rtpsize"],"experiments":[],"streams":[{"type":"screen","ssrc":50001,"rtx_ssrc":50002,"rid":"100","quality":100,"active":true}]}}"#)
+        .expect("initial Ready locks SSRCs");
+
+    assert!(driver.ssrc_stabilized());
+    assert_eq!(driver.ssrc(), Some(50_000));
+    assert_eq!(driver.video_ssrc(), Some(50_001));
+    assert_eq!(driver.rtx_ssrc(), Some(50_002));
+
+    let op4_initial = r#"{"op":4,"d":{"audio_codec":"opus","video_codec":"H264","media_session_id":"ms-1","mode":"aead_xchacha20_poly1305_rtpsize","secret_key":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"dave_protocol_version":1}}"#;
+    driver.handle_ws_frame(op4_initial).expect("initial OP 4");
+    assert_eq!(driver.phase(), VoiceSessionPhase::Established);
+    assert!(
+        driver.needs_keyframe(),
+        "OP 4 must request an initial keyframe"
+    );
+    assert!(driver.take_keyframe_request());
+    assert!(!driver.needs_keyframe());
+
+    // Отправляем 2 видеокадра, продвигая sequence и timestamp
+    let pkt1 = driver
+        .encrypt_video_frame(
+            &[0x65, 1, 2],
+            RTP_H264_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            true,
+            None,
+        )
+        .expect("video frame 1");
+    let pkt2 = driver
+        .encrypt_video_frame(
+            &[0x41, 3, 4],
+            RTP_H264_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            true,
+            None,
+        )
+        .expect("video frame 2");
+    assert_eq!(parse_rtp(&pkt1).unwrap().header.ssrc, 50_001);
+    assert_eq!(parse_rtp(&pkt2).unwrap().header.ssrc, 50_001);
+    assert_eq!(driver.video_sequence(), 2);
+    assert_eq!(driver.video_timestamp(), 3_000);
+    let counter_before_switch = driver.srtp_counter().unwrap();
+    assert_eq!(counter_before_switch, 2);
+
+    // Переключение источника захвата (окно -> весь экран, 720p60 = 2_500_000 bps) НЕ должно менять SSRC или сбрасывать seq/timestamp
+    let op12_switch = driver
+        .switch_video_source(1280, 720, 60, 4_500_000)
+        .expect("switch_video_source clamps bitrate and keeps stabilized SSRCs");
+    assert!(op12_switch.contains(r#""op":12"#));
+    assert!(op12_switch.contains(r#""video_ssrc":50001"#));
+    assert!(op12_switch.contains(r#""rtx_ssrc":50002"#));
+    assert!(op12_switch.contains(&format!(r#""max_bitrate":{MAX_GO_LIVE_VIDEO_BITRATE_BPS}"#)));
+    assert_eq!(driver.video_ssrc(), Some(50_001));
+    assert_eq!(driver.rtx_ssrc(), Some(50_002));
+    assert_eq!(driver.video_sequence(), 2);
+    assert_eq!(driver.video_timestamp(), 3_000);
+    assert_eq!(driver.video_fps(), 60);
+    assert_eq!(
+        driver.target_video_bitrate_bps(),
+        MAX_GO_LIVE_VIDEO_BITRATE_BPS
+    );
+    assert_eq!(clamp_video_bitrate_bps(0), DEFAULT_720P60_BITRATE_BPS);
+    assert_eq!(clamp_video_bitrate_bps(50_000), MIN_VIDEO_BITRATE_BPS);
+
+    // Повторный Ready или OP 4 SessionDescription (например, смена кодека H264 -> AV1) НЕ сбрасывает SSRC, sequence, timestamp или SRTP nonce counter!
+    driver
+        .handle_ws_frame(r#"{"op":2,"d":{"ssrc":50000,"ip":"66.22.243.154","port":50019,"modes":["aead_xchacha20_poly1305_rtpsize"],"experiments":[],"streams":[{"type":"video","ssrc":99991,"rtx_ssrc":99992,"rid":"100","quality":100,"active":true}]}}"#)
+        .expect("repeated Ready must keep stabilized video_ssrc/rtx_ssrc");
+    assert_eq!(driver.video_ssrc(), Some(50_001));
+    assert_eq!(driver.rtx_ssrc(), Some(50_002));
+
+    let op4_renegotiate = r#"{"op":4,"d":{"audio_codec":"opus","video_codec":"AV1","media_session_id":"ms-2","mode":"aead_xchacha20_poly1305_rtpsize","secret_key":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"dave_protocol_version":1}}"#;
+    driver
+        .handle_ws_frame(op4_renegotiate)
+        .expect("renegotiated OP 4 preserves sequence, timestamp, and SRTP counter");
+    assert_eq!(driver.video_sequence(), 2);
+    assert_eq!(driver.video_timestamp(), 3_000);
+    assert_eq!(driver.srtp_counter().unwrap(), counter_before_switch);
+    assert!(driver.needs_keyframe());
+
+    // Следующий кадр продолжает монотонный sequence=2 и timestamp=3000 на том же SSRC=50001
+    let pkt3 = driver
+        .encrypt_video_frame(
+            &[0x0A, 0x01, 0x00],
+            RTP_AV1_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            true,
+            None,
+        )
+        .expect("video frame 3 after OP 4");
+    let parsed3 = parse_rtp(&pkt3).unwrap();
+    assert_eq!(parsed3.header.ssrc, 50_001);
+    assert_eq!(parsed3.header.sequence, 2);
+    assert_eq!(parsed3.header.timestamp, 3_000);
+    assert_eq!(driver.video_sequence(), 3);
+    assert_eq!(driver.video_timestamp(), 4_500);
+
+    // Go Live дочерняя сессия также сохраняет стабилизированные SSRC при повторном start_go_live_session для того же stream_key
+    let stream_update_1 = StreamServerUpdate::parse(
+        r#"{"stream_key":"guild:1014537851418980372:1176785373989445703:384299970632876032","server_id":"1014537851418980372","endpoint":"c-fra19-stream.discord.media:2053","token":"tok-stream-1"}"#,
+    )
+    .expect("stream update 1");
+    let stream_update_2 = StreamServerUpdate::parse(
+        r#"{"stream_key":"guild:1014537851418980372:1176785373989445703:384299970632876032","server_id":"1014537851418980372","endpoint":"c-fra19-stream.discord.media:2053","token":"tok-stream-2"}"#,
+    )
+    .expect("stream update 2");
+    driver
+        .start_go_live_session(stream_update_1)
+        .expect("start go_live");
+    {
+        let gl = driver.go_live_session_mut().expect("go_live session");
+        gl.stabilize_video_ssrcs(70_001, 70_002);
+    }
+    driver
+        .start_go_live_session(stream_update_2)
+        .expect("repeat start_go_live_session for same stream_key preserves state");
+    let gl_after = driver.go_live_session().expect("go_live preserved");
+    assert_eq!(gl_after.video_ssrc(), Some(70_001));
+    assert_eq!(gl_after.rtx_ssrc(), Some(70_002));
+}
+
+#[test]
+fn w1_continuous_90khz_timestamps_across_fragments_and_capture_pauses() {
+    use discord_voice::rtp::{video_ticks_for_elapsed_ms, video_ticks_for_fps};
+    use discord_voice::session::VoiceSessionDriver;
+    use discord_voice::{VoiceServerUpdate, VoiceStateUpdate};
+
+    assert_eq!(video_ticks_for_fps(60), 1_500);
+    assert_eq!(video_ticks_for_fps(30), 3_000);
+    assert_eq!(video_ticks_for_fps(0), 90_000);
+    // 100 мс паузы при 60 fps = 100 * 90 = 9_000 тиков (ровно 6 кадров по 1500 тиков)
+    assert_eq!(video_ticks_for_elapsed_ms(100, 60), 9_000);
+    // При 0 мс возвращается минимум 1 кадровый шаг (1_500 тиков @ 60fps), чтобы исключить нулевой сдвиг
+    assert_eq!(video_ticks_for_elapsed_ms(0, 60), 1_500);
+
+    let server = VoiceServerUpdate::parse(
+        r#"{"token":"tok-ts","guild_id":"1014537851418980372","endpoint":"c-fra19.discord.media:2053"}"#,
+    )
+    .unwrap();
+    let state = VoiceStateUpdate::parse(
+        r#"{"guild_id":"1014537851418980372","channel_id":"1176785373989445703","user_id":"384299970632876032","session_id":"sess-ts"}"#,
+    )
+    .unwrap();
+    let mut driver = VoiceSessionDriver::new(server, state).unwrap();
+    driver
+        .handle_ws_frame(r#"{"op":2,"d":{"ssrc":10000,"ip":"66.22.243.154","port":50019,"modes":["aead_xchacha20_poly1305_rtpsize"],"experiments":[],"streams":[]}}"#)
+        .unwrap();
+    driver
+        .handle_ws_frame(r#"{"op":4,"d":{"audio_codec":"opus","video_codec":"H264","media_session_id":"ms-ts","mode":"aead_xchacha20_poly1305_rtpsize","secret_key":[9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9],"dave_protocol_version":1}}"#)
+        .unwrap();
+
+    // Многопакетный кадр (3 фрагмента FU-A: marker=false, false, true) ДОЛЖЕН иметь одинаковый RTP timestamp на всех 3 пакетах!
+    let f0 = driver
+        .encrypt_video_frame(
+            &[0x7C, 0x85, 1],
+            RTP_H264_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            false,
+            None,
+        )
+        .unwrap();
+    let f1 = driver
+        .encrypt_video_frame(
+            &[0x7C, 0x05, 2],
+            RTP_H264_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            false,
+            None,
+        )
+        .unwrap();
+    let f2 = driver
+        .encrypt_video_frame(
+            &[0x7C, 0x45, 3],
+            RTP_H264_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            true,
+            None,
+        )
+        .unwrap();
+
+    let p0 = parse_rtp(&f0).unwrap();
+    let p1 = parse_rtp(&f1).unwrap();
+    let p2 = parse_rtp(&f2).unwrap();
+    assert_eq!(p0.header.sequence, 0);
+    assert_eq!(p1.header.sequence, 1);
+    assert_eq!(p2.header.sequence, 2);
+    assert_eq!(p0.header.timestamp, 0);
+    assert_eq!(
+        p1.header.timestamp, 0,
+        "intermediate fragment must share frame RTP timestamp"
+    );
+    assert_eq!(
+        p2.header.timestamp, 0,
+        "final fragment of frame 0 must share frame RTP timestamp"
+    );
+    assert_eq!(
+        driver.video_timestamp(),
+        1_500,
+        "video_timestamp advances by 1500 only after marker=true"
+    );
+
+    // Пауза захвата 200 мс (статичный экран или переключение окна): timestamp плавно продвигается на 200 * 90 = 18_000 тиков
+    let advanced_ts = driver.advance_video_timestamp_for_pause(200);
+    assert_eq!(advanced_ts, 1_500 + 18_000);
+    assert_eq!(driver.video_timestamp(), 19_500);
+
+    // Если передан timestamp_delta == 0 на marker=true, используется шаг video_ticks_for_fps(video_fps) = 1500 (без залипания timestamp!)
+    let next_pkt = driver
+        .encrypt_video_frame(&[0x41, 0x99], RTP_H264_PAYLOAD_TYPE, 0, true, None)
+        .unwrap();
+    assert_eq!(parse_rtp(&next_pkt).unwrap().header.timestamp, 19_500);
+    assert_eq!(driver.video_timestamp(), 21_000);
+
+    // RtpVideoPacketizer также защищён от нулевого timestamp_delta и поддерживает переключение кодека без сброса SSRC/seq/ts
+    let mut pktizer = RtpVideoPacketizer::new_h264(50_001).with_initial_state(100, 30_000);
+    pktizer.set_target_fps(60);
+    let pkts_zero_delta = pktizer
+        .packetize_h264_frame(&[0, 0, 0, 1, 0x41, 0x10], 0, None)
+        .unwrap();
+    assert_eq!(pkts_zero_delta[0].header.timestamp, 30_000);
+    assert_eq!(pktizer.timestamp(), 31_500);
+    pktizer.reconfigure_codec(RTP_AV1_PAYLOAD_TYPE, RTP_AV1_RTX_PAYLOAD_TYPE);
+    assert_eq!(pktizer.ssrc(), 50_001);
+    assert_eq!(pktizer.rtx_ssrc(), 50_002);
+    assert_eq!(pktizer.sequence(), 101);
+    assert_eq!(pktizer.timestamp(), 31_500);
+}
+
+#[test]
+fn w1_rtcp_pli_fir_keyframe_trigger_and_error_2000_2007_recovery() {
+    use discord_voice::rtcp::{build_fir, build_nack_from_sequences, build_pli, build_remb};
+    use discord_voice::session::{
+        VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR, VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT,
+        VoiceCloseDisposition, VoiceSessionDriver, VoiceSessionPhase, classify_voice_close_code,
+        is_recoverable_stream_error_code,
+    };
+    use discord_voice::{VoiceOp, VoiceServerUpdate, VoiceStateUpdate, parse_frame};
+
+    assert_eq!(VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR, 2000);
+    assert_eq!(VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT, 2007);
+    assert!(is_recoverable_stream_error_code(2000));
+    assert!(is_recoverable_stream_error_code(2007));
+    assert!(!is_recoverable_stream_error_code(4004));
+    assert_eq!(
+        classify_voice_close_code(2007),
+        VoiceCloseDisposition::ResumePreservingMediaState
+    );
+    assert_eq!(
+        classify_voice_close_code(2000),
+        VoiceCloseDisposition::ResumePreservingMediaState
+    );
+
+    let server = VoiceServerUpdate::parse(
+        r#"{"token":"tok-rtcp","guild_id":"1014537851418980372","endpoint":"c-fra19.discord.media:2053"}"#,
+    )
+    .unwrap();
+    let state = VoiceStateUpdate::parse(
+        r#"{"guild_id":"1014537851418980372","channel_id":"1176785373989445703","user_id":"384299970632876032","session_id":"sess-rtcp"}"#,
+    )
+    .unwrap();
+    let mut driver = VoiceSessionDriver::new(server, state).unwrap();
+    driver
+        .handle_ws_frame(r#"{"op":2,"d":{"ssrc":40000,"ip":"66.22.243.154","port":50019,"modes":["aead_xchacha20_poly1305_rtpsize"],"experiments":[],"streams":[{"type":"screen","ssrc":40001,"rtx_ssrc":40002,"active":true}]}}"#)
+        .unwrap();
+    driver
+        .handle_ws_frame(r#"{"op":4,"d":{"audio_codec":"opus","video_codec":"H264","media_session_id":"ms-rtcp","mode":"aead_xchacha20_poly1305_rtpsize","secret_key":[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],"dave_protocol_version":1}}"#)
+        .unwrap();
+
+    // Сбрасываем стартовый флаг ключевого кадра после OP 4
+    assert!(driver.take_keyframe_request());
+    assert!(!driver.needs_keyframe());
+
+    // Сервер присылает составной SRTCP-пакет: PLI (PT=206, FMT=1) + FIR (PT=206, FMT=4) + NACK + REMB
+    let mut server_srtp = discord_voice::srtp::SrtpContext::from_secret_key(
+        &[7u8; 32],
+        EncryptionMode::XChaCha20Poly1305RtpSize,
+    );
+    let mut clear_rtcp = Vec::new();
+    clear_rtcp.extend_from_slice(&build_pli(1, 40_001));
+    clear_rtcp.extend_from_slice(&build_fir(1, 40_001, 7));
+    clear_rtcp.extend_from_slice(&build_nack_from_sequences(1, 40_001, &[12, 13, 15]));
+    clear_rtcp.extend_from_slice(&build_remb(1, 2_200_000, &[40_001]));
+
+    let wire_srtcp = server_srtp
+        .encrypt_srtcp(&clear_rtcp)
+        .expect("encrypt server SRTCP compound");
+    let decrypted = driver
+        .decrypt_rtcp_packet(&wire_srtcp)
+        .expect("driver decrypts and processes RTCP feedback");
+    assert_eq!(decrypted.compound.packets.len(), 4);
+    assert!(
+        driver.needs_keyframe(),
+        "PLI/FIR from media server must immediately flag keyframe_requested"
+    );
+    assert_eq!(driver.pli_received_count(), 1);
+    assert_eq!(driver.fir_received_count(), 1);
+    assert_eq!(driver.last_fir_sequence(), Some(7));
+    assert_eq!(driver.take_pending_nacks(), vec![12, 13, 15]);
+    assert_eq!(driver.target_video_bitrate_bps(), 2_200_000);
+
+    // Продвигаем медиа-счётчики перед симуляцией кода закрытия 2007 / 2000
+    let _ = driver
+        .encrypt_video_frame(
+            &[0x65, 0xAA],
+            RTP_H264_PAYLOAD_TYPE,
+            VIDEO_TICKS_60FPS,
+            true,
+            None,
+        )
+        .unwrap();
+    assert_eq!(driver.video_sequence(), 1);
+    assert_eq!(driver.video_timestamp(), 1_500);
+
+    // Восстановление после Discord Error 2007 (и Error 2000) сохраняет SSRC, sequence и timestamp и отправляет OP 7 RESUME
+    let resume_2007 = driver
+        .recover_from_close_code(VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT)
+        .expect("recover from Error 2007");
+    let parsed_resume = parse_frame(&resume_2007).expect("valid OP 7 Resume JSON");
+    assert_eq!(parsed_resume.op, VoiceOp::Resume);
+    assert_eq!(driver.phase(), VoiceSessionPhase::Resuming);
+    assert_eq!(driver.video_ssrc(), Some(40_001));
+    assert_eq!(driver.rtx_ssrc(), Some(40_002));
+    assert_eq!(driver.video_sequence(), 1);
+    assert_eq!(driver.video_timestamp(), 1_500);
+    assert!(driver.needs_keyframe());
+
+    driver
+        .handle_ws_frame(r#"{"op":9,"d":null}"#)
+        .expect("OP 9 RESUMED restores Established phase");
+    assert_eq!(driver.phase(), VoiceSessionPhase::Established);
+
+    let resume_2000 = driver
+        .recover_from_close_code(VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR)
+        .expect("recover from Error 2000");
+    assert_eq!(parse_frame(&resume_2000).unwrap().op, VoiceOp::Resume);
+    assert_eq!(driver.video_ssrc(), Some(40_001));
+    assert_eq!(driver.rtx_ssrc(), Some(40_002));
+    assert_eq!(driver.video_sequence(), 1);
+    assert_eq!(driver.video_timestamp(), 1_500);
+}

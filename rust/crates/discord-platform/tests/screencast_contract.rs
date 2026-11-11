@@ -6,9 +6,10 @@
 //! и `/home/sanya/re-deep/native-re.md` (`discord_voice.node` -> `capture_linux`).
 
 use discord_platform::screencast::{
-    OwnedPipeWireFd, PORTAL_BUS_NAME, PORTAL_OBJECT_PATH, PortalCursorMode, PortalPersistMode,
-    PortalRequestError, PortalSourceTypes, PortalStreamInfo, SCREENCAST_INTERFACE,
-    ScreenCastOptions, ScreenCastPortal, parse_x11_display_spec,
+    CapturedFrame, DoubleBufferedFrame, LockFreeFrameSlot, OwnedDmaBuf, OwnedPipeWireFd,
+    PORTAL_BUS_NAME, PORTAL_OBJECT_PATH, PortalCursorMode, PortalPersistMode, PortalRequestError,
+    PortalSourceTypes, PortalStreamInfo, SCREENCAST_INTERFACE, ScreenCastOptions, ScreenCastPortal,
+    parse_x11_display_spec,
 };
 
 #[test]
@@ -367,11 +368,233 @@ fn screencast_portal_wire_handshake_over_unix_socket_delivers_pipewire_fd() {
         .expect("OpenPipeWireRemote wire");
     assert!(pw_fd.as_raw_fd() >= 0);
 
+    // TASK-804: Повторный вызов не должен делать новый D-Bus запрос, а берёт кэшированный дескриптор
+    assert!(portal.cached_pipewire_fd().is_some());
+    let pw_fd_cached = portal
+        .open_pipewire_remote(&session_handle)
+        .expect("OpenPipeWireRemote cached clone");
+    assert!(pw_fd_cached.as_raw_fd() >= 0);
+    assert_ne!(pw_fd.as_raw_fd(), pw_fd_cached.as_raw_fd());
+    drop(pw_fd_cached);
+
     portal
         .close_session(&session_handle)
         .expect("CloseSession wire");
+    assert_eq!(portal.cached_pipewire_fd(), None);
     drop(pw_fd);
 
     server_thread.join().expect("server thread join");
     let _ = std::fs::remove_file(&sock_path);
+}
+
+#[test]
+fn owned_pipewire_fd_and_dma_buf_try_clone_creates_independent_descriptors() {
+    use std::os::fd::IntoRawFd;
+    use std::os::unix::net::UnixStream;
+
+    let (sock_a, _sock_b) = UnixStream::pair().expect("socketpair");
+    let raw = sock_a.into_raw_fd();
+
+    let owned_pw = OwnedPipeWireFd::from_raw_fd_checked(raw).expect("valid pw fd");
+    let cloned_pw = owned_pw.try_clone().expect("clone pw fd");
+    assert!(cloned_pw.as_raw_fd() >= 0);
+    assert_ne!(owned_pw.as_raw_fd(), cloned_pw.as_raw_fd());
+    drop(owned_pw);
+
+    // Клон остаётся валидным дескриптором после закрытия оригинала
+    let clone_again = cloned_pw.try_clone().expect("clone from active clone");
+    assert!(clone_again.as_raw_fd() >= 0);
+    drop(cloned_pw);
+    drop(clone_again);
+
+    // Тестирование OwnedDmaBuf
+    let (dma_sock, _) = UnixStream::pair().expect("dma socketpair");
+    let dma_raw = dma_sock.into_raw_fd();
+    let owned_dma = OwnedDmaBuf::from_raw_fd_checked(dma_raw).expect("valid dma fd");
+    let cloned_dma = owned_dma.try_clone().expect("clone dma fd");
+    assert_eq!(owned_dma.as_raw_fd(), dma_raw);
+    assert!(cloned_dma.as_raw_fd() >= 0);
+    assert_ne!(owned_dma.as_raw_fd(), cloned_dma.as_raw_fd());
+    assert_eq!(owned_dma, owned_dma);
+    drop(owned_dma);
+    drop(cloned_dma);
+}
+
+#[test]
+fn captured_frame_dma_buf_and_cpu_data_contracts() {
+    use std::os::fd::IntoRawFd;
+    use std::os::unix::net::UnixStream;
+
+    let empty = CapturedFrame::default();
+    assert!(empty.is_empty());
+    assert_eq!(empty.byte_len(), 0);
+    assert!(!empty.is_dma_buf());
+    assert_eq!(empty.dma_buf_raw_fd(), None);
+
+    let cpu_frame = CapturedFrame::new(1920, 1080, 7680, 0x34324152)
+        .with_data(vec![0u8; 1920 * 1080 * 4])
+        .with_timestamp_us(123_456_789);
+    assert!(!cpu_frame.is_empty());
+    assert_eq!(cpu_frame.byte_len(), 1920 * 1080 * 4);
+    assert_eq!(cpu_frame.timestamp_us, 123_456_789);
+    assert!(!cpu_frame.is_dma_buf());
+
+    let (sock, _) = UnixStream::pair().expect("sock");
+    let raw_fd = sock.into_raw_fd();
+    let dma = OwnedDmaBuf::from_raw_fd_checked(raw_fd).expect("dma buf");
+    let dma_frame = CapturedFrame::new_dma_buf(2560, 1440, 10240, 0x34325241, dma, 0);
+    assert!(!dma_frame.is_empty());
+    assert!(dma_frame.is_dma_buf());
+    assert_eq!(dma_frame.dma_buf_raw_fd(), Some(raw_fd));
+    assert_eq!(dma_frame.byte_len(), 10240 * 1440);
+}
+
+#[test]
+fn lock_free_frame_slot_atomic_triple_buffering_and_metrics() {
+    let slot = LockFreeFrameSlot::new();
+    assert!(!slot.has_new_frame());
+    assert_eq!(slot.sequence(), 0);
+    assert!(slot.peek_current(|f| f.sequence).is_none());
+
+    // 1. Публикуем первый кадр
+    let f1 = CapturedFrame::new(1280, 720, 5120, 1).with_data(vec![10u8; 1280 * 720 * 4]);
+    assert!(slot.publish_frame(f1));
+    assert!(slot.has_new_frame());
+    assert_eq!(slot.sequence(), 1);
+
+    // 2. Читаем первый кадр
+    let read1 = slot.with_latest_fresh(|f| {
+        assert_eq!(f.sequence, 1);
+        assert_eq!(f.width, 1280);
+        assert_eq!(f.height, 720);
+        f.data[0]
+    });
+    assert_eq!(read1, Some(10));
+    // После чтения признак свежести сброшен
+    assert!(!slot.has_new_frame());
+    assert!(slot.with_latest_fresh(|_| ()).is_none());
+
+    // 3. Публикуем кадр 2 и кадр 3 подряд до чтения (пропуск кадра)
+    assert!(slot.publish_frame(CapturedFrame::new(1280, 720, 5120, 1).with_data(vec![20u8; 16])));
+    assert!(slot.publish_frame(CapturedFrame::new(1280, 720, 5120, 1).with_data(vec![30u8; 16])));
+    assert_eq!(slot.sequence(), 3);
+
+    let m = slot.metrics();
+    assert_eq!(m.sequence, 3);
+    assert_eq!(m.published_frames, 3);
+    assert_eq!(m.dropped_frames, 1); // f2 был перезаписан кадром f3
+    assert_eq!(m.read_frames, 1);
+
+    // 4. Потребитель забирает самый свежий кадр (f3)
+    let read3 = slot.with_latest_fresh(|f| {
+        assert_eq!(f.sequence, 3);
+        f.data[0]
+    });
+    assert_eq!(read3, Some(30));
+
+    // 5. In-place запись через publish_with (без выделения памяти)
+    assert!(slot.publish_with(|f| {
+        f.width = 1920;
+        f.height = 1080;
+        f.stride = 7680;
+        f.format = 2;
+        f.data = vec![42u8; 64];
+    }));
+    assert_eq!(slot.sequence(), 4);
+    let peeked = slot.peek_current(|f| f.sequence);
+    assert_eq!(peeked, Some(3)); // Текущий слот читателя ещё на кадре 3
+
+    let read4 = slot.with_latest_fresh(|f| {
+        assert_eq!(f.sequence, 4);
+        assert_eq!(f.width, 1920);
+        f.data[0]
+    });
+    assert_eq!(read4, Some(42));
+}
+
+#[test]
+fn double_buffered_frame_atomic_swapping() {
+    let db = DoubleBufferedFrame::new();
+    assert!(!db.has_fresh());
+    assert_eq!(db.sequence(), 0);
+    assert!(db.with_active(|_| ()).is_none());
+
+    let f1 = CapturedFrame::new(1280, 720, 5120, 1).with_data(vec![111u8; 16]);
+    assert!(db.store(f1));
+    assert!(db.has_fresh());
+    assert_eq!(db.sequence(), 1);
+
+    let val1 = db.with_active(|f| {
+        assert_eq!(f.sequence, 1);
+        f.data[0]
+    });
+    assert_eq!(val1, Some(111));
+    assert!(!db.has_fresh());
+
+    let f2 = CapturedFrame::new(1920, 1080, 7680, 2).with_data(vec![222u8; 16]);
+    assert!(db.store(f2));
+    assert!(db.has_fresh());
+    assert_eq!(db.sequence(), 2);
+
+    let val2 = db.with_active(|f| {
+        assert_eq!(f.sequence, 2);
+        assert_eq!(f.width, 1920);
+        f.data[0]
+    });
+    assert_eq!(val2, Some(222));
+}
+
+#[test]
+fn screencast_dma_buf_zero_copy_eliminates_86ms_latency_and_passes_60fps_budget() {
+    use std::os::fd::IntoRawFd;
+    use std::os::unix::net::UnixStream;
+    use std::time::Instant;
+
+    let slot = LockFreeFrameSlot::new();
+    let (sock, _) = UnixStream::pair().expect("sock pair");
+    let raw_fd = sock.into_raw_fd();
+    let dma = OwnedDmaBuf::from_raw_fd_checked(raw_fd).expect("valid dma");
+
+    // Публикуем 60 последовательных кадров DMA-BUF 1440p (2560x1440)
+    let total_frames = 60;
+    let t0 = Instant::now();
+
+    for i in 0..total_frames {
+        let frame = CapturedFrame::new_dma_buf(
+            2560,
+            1440,
+            10240,
+            0x34325241,
+            dma.try_clone().expect("clone dma"),
+            0x00FF_00FF,
+        )
+        .with_timestamp_us(i * 16_666);
+
+        let pub_ok = slot.publish_frame(frame);
+        assert!(pub_ok);
+
+        // Потребитель читает каждый кадр в реальном времени
+        let read = slot.with_latest_fresh(|f| {
+            assert!(f.is_dma_buf());
+            assert_eq!(f.width, 2560);
+            assert_eq!(f.height, 1440);
+            assert_eq!(f.drm_modifier, 0x00FF_00FF);
+            f.sequence
+        });
+        assert_eq!(read, Some(i + 1));
+    }
+
+    let elapsed = t0.elapsed();
+    // 60 операций zero-copy публикации и чтения должны завершиться менее чем за 50 мс суммарно,
+    // тогда как одиночное CPU-копирование 60 кадров по 14.7 МБ при 86 мс на кадр заняло бы > 5.1 секунд!
+    assert!(
+        elapsed.as_millis() < 50,
+        "60 DMA-BUF frame swaps must take < 50ms total, took {elapsed:?}"
+    );
+
+    let m = slot.metrics();
+    assert_eq!(m.published_frames, 60);
+    assert_eq!(m.read_frames, 60);
+    assert_eq!(m.dropped_frames, 0); // 0 потерянных кадров
+    assert_eq!(m.sequence, 60);
 }

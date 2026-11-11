@@ -370,6 +370,8 @@ fn pipewire_frame_buffer_converts_bgra_and_bgrx_with_stride_padding_and_crop() {
         format: PipeWirePixelFormat::Bgrx8,
         data: &raw,
         crop: None,
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
 
     let rgba_frame = pw_buf
@@ -395,6 +397,8 @@ fn pipewire_frame_buffer_converts_bgra_and_bgrx_with_stride_padding_and_crop() {
             width: 2,
             height: 2,
         }),
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
     let i420_frame = cropped_buf
         .to_video_frame(PixelFormat::I420, 789_000)
@@ -416,6 +420,8 @@ fn pipewire_frame_buffer_rejects_zero_dimensions_invalid_stride_and_out_of_bound
         format: PipeWirePixelFormat::Bgra8,
         data: &data,
         crop: None,
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
     assert!(matches!(
         zero_w.to_video_frame(PixelFormat::Rgba, 0),
@@ -433,6 +439,8 @@ fn pipewire_frame_buffer_rejects_zero_dimensions_invalid_stride_and_out_of_bound
         format: PipeWirePixelFormat::Bgra8,
         data: &data,
         crop: None,
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
     assert!(matches!(
         huge.to_video_frame(PixelFormat::Rgba, 0),
@@ -447,6 +455,8 @@ fn pipewire_frame_buffer_rejects_zero_dimensions_invalid_stride_and_out_of_bound
         format: PipeWirePixelFormat::Bgra8,
         data: &data,
         crop: None,
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
     assert!(matches!(
         bad_stride.to_video_frame(PixelFormat::Rgba, 0),
@@ -461,6 +471,8 @@ fn pipewire_frame_buffer_rejects_zero_dimensions_invalid_stride_and_out_of_bound
         format: PipeWirePixelFormat::Bgra8,
         data: &data[..32],
         crop: None,
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
     assert!(matches!(
         short_buf.to_video_frame(PixelFormat::Rgba, 0),
@@ -480,6 +492,8 @@ fn pipewire_frame_buffer_rejects_zero_dimensions_invalid_stride_and_out_of_bound
             width: 2,
             height: 2,
         }),
+        dma_buf_fd: None,
+        drm_modifier: 0,
     };
     assert!(matches!(
         bad_crop.to_video_frame(PixelFormat::Rgba, 0),
@@ -813,4 +827,107 @@ fn screen_capturer_enumerates_and_filters_monitors_and_windows_and_preserves_leg
     assert_eq!(frame.height, 180);
     assert_eq!(frame.layout, PixelFormat::I420);
     assert!(capturer.capture_frame("", 320, 180, 0).is_err());
+}
+
+#[test]
+fn dma_buf_pipewire_frame_buffer_zero_copy_avoids_cpu_copy_latency() {
+    use discord_media::PixelLayout;
+    use std::time::Instant;
+
+    // 1. Создание аппаратного DMA-BUF буфера PipeWire 1440p (2560x1440)
+    let fake_dma_fd = 42;
+    let drm_modifier = 0x0011_2233_4455_6677;
+    let dma_buf = PipeWireFrameBuffer::new_dma_buf(
+        2560,
+        1440,
+        2560 * 4,
+        PipeWirePixelFormat::Bgra8,
+        fake_dma_fd,
+        drm_modifier,
+        None,
+    );
+
+    assert!(dma_buf.is_dma_buf());
+    assert_eq!(dma_buf.dma_buf_fd, Some(fake_dma_fd));
+    assert_eq!(dma_buf.drm_modifier, drm_modifier);
+    assert!(dma_buf.data.is_empty());
+
+    // 2. Преобразование в VideoFrame должно происходить без CPU-копирования данных (< 1 мс)
+    let t0 = Instant::now();
+    let frame = dma_buf
+        .to_video_frame(PixelLayout::Rgba, 999_888)
+        .expect("to_video_frame for dma_buf");
+    let elapsed = t0.elapsed();
+
+    assert!(
+        elapsed.as_millis() < 5,
+        "DMA-BUF zero-copy must be immediate (< 5ms), took {elapsed:?}"
+    );
+    assert!(frame.is_dma_buf());
+    assert_eq!(frame.dma_buf_fd(), Some(fake_dma_fd));
+    assert_eq!(frame.drm_modifier(), drm_modifier);
+    assert_eq!(frame.width, 2560);
+    assert_eq!(frame.height, 1440);
+    assert_eq!(frame.timestamp_us, 999_888);
+    assert!(
+        frame.data.is_empty(),
+        "DMA-BUF frame must not hold heap-allocated CPU copy"
+    );
+    assert!(frame.is_valid());
+
+    // 3. Обрезка (crop) в режиме DMA-BUF
+    let cropped_dma = PipeWireFrameBuffer::new_dma_buf(
+        1920,
+        1080,
+        1920 * 4,
+        PipeWirePixelFormat::Bgra8,
+        fake_dma_fd,
+        drm_modifier,
+        Some(CropRect {
+            x: 100,
+            y: 50,
+            width: 1280,
+            height: 720,
+        }),
+    );
+    let cropped_frame = cropped_dma
+        .to_video_frame(PixelLayout::Rgba, 111_222)
+        .expect("cropped dma frame");
+    assert_eq!(cropped_frame.width, 1280);
+    assert_eq!(cropped_frame.height, 720);
+    assert!(cropped_frame.is_dma_buf());
+
+    // 4. Ошибки валидации (нулевые размеры и выход crop за границы)
+    let bad_dims = PipeWireFrameBuffer::new_dma_buf(
+        0,
+        1080,
+        0,
+        PipeWirePixelFormat::Bgra8,
+        fake_dma_fd,
+        drm_modifier,
+        None,
+    );
+    assert!(matches!(
+        bad_dims.to_video_frame(PixelLayout::Rgba, 0),
+        Err(CaptureError::InvalidDimensions { .. })
+    ));
+
+    let oob_crop = PipeWireFrameBuffer::new_dma_buf(
+        1920,
+        1080,
+        1920 * 4,
+        PipeWirePixelFormat::Bgra8,
+        fake_dma_fd,
+        drm_modifier,
+        Some(CropRect {
+            x: 1900,
+            y: 1000,
+            width: 100,
+            height: 100,
+        }),
+    );
+    assert!(matches!(
+        oob_crop.to_video_frame(PixelLayout::Rgba, 0),
+        Err(CaptureError::CropOutOfBounds { .. })
+    ));
 }

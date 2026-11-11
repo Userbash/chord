@@ -1,0 +1,15 @@
+▶ TASK-962: Манифест Flatpak com.discord_lab.DiscordGpui.yml и песочница Wayland/PipeWire
+  ✔ SUB-962-1: манифест packaging/flatpak/com.discord_lab.DiscordGpui.yml существует, валиден по YAML-схеме и задаёт runtime org.freedesktop.Platform 23.08 (33.307014ms)
+  ✔ SUB-962-2: finish-args включает обязательные права --socket=wayland, --socket=fallback-x11, --filesystem=xdg-run/pipewire-0 и Secret Service portal (22.54074ms)
+  ✔ SUB-962-3: права sandboxing строго минимальны (отсутствуют --filesystem=host/home, прямой --socket=x11, --device=all, --socket=session-bus/system-bus) (23.525753ms)
+  ✔ SUB-962-4: модуль discord-gpui и его источники ссылаются на реальные артефакты rust/dist/ с точным совпадением SHA-256 по оракулу SHA256SUMS (68.572501ms)
+  ✔ SUB-962-5: валидатор validateFlatpakManifest отсекает негативные, граничные и небезопасные мутации манифеста (22.925815ms)
+✔ TASK-962: Манифест Flatpak com.discord_lab.DiscordGpui.yml и песочница Wayland/PipeWire (171.703493ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 209.384552

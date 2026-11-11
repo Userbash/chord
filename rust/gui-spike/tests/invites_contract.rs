@@ -23,7 +23,8 @@
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::HttpResponse;
 use discord_gui_spike::invites::{
-    accept_invite, create_channel_invite, resolve_invite, AcceptRequest, AcceptedInvite,
+    accept_invite, can_user_create_channel_invite, create_channel_invite,
+    create_channel_invite_guarded, resolve_invite, AcceptRequest, AcceptedInvite,
     CreateInviteParams, CreatedInvite, DiscordInvites, InviteError, InvitePreview, InviteTransport,
     InvitesApi, INVITE_FLAG_IS_GUEST, VALID_INVITE_MAX_AGES, VALID_INVITE_MAX_USES,
 };
@@ -1604,4 +1605,49 @@ fn accept_invite_with_captcha_sends_captcha_key_and_decodes_accepted_guild() {
         1,
         "пустой captcha_key не должен отправлять HTTP-запрос"
     );
+}
+
+/// TASK-809: Проверка битовой маски прав CREATE_INSTANT_INVITE перед созданием инвайта.
+/// Предотвращает ошибки 404/notFound и исключает лишние сетевые запросы при отсутствии прав.
+#[test]
+fn be_p2_task_809_create_invite_permission_guards_and_missing_permissions_error() {
+    use discord_core::permissions::{ADMINISTRATOR, CREATE_INSTANT_INVITE, VIEW_CHANNEL};
+
+    // 1. Проверка чистой функции can_user_create_channel_invite
+    assert!(can_user_create_channel_invite(CREATE_INSTANT_INVITE));
+    assert!(can_user_create_channel_invite(ADMINISTRATOR));
+    assert!(can_user_create_channel_invite(
+        CREATE_INSTANT_INVITE | VIEW_CHANNEL
+    ));
+    assert!(can_user_create_channel_invite(u64::MAX));
+    assert!(!can_user_create_channel_invite(0));
+    assert!(!can_user_create_channel_invite(VIEW_CHANNEL));
+
+    let params = CreateInviteParams::default();
+
+    // 2. Без прав: запрос отклоняется до обращения к сети с InviteError::MissingPermissions
+    let transport = FakeTransport::with_body(200, CREATE_RESPONSE_BODY.as_bytes());
+    let res = run(create_channel_invite_guarded(
+        &transport,
+        CREATE_CHANNEL_ID,
+        &params,
+        Some(VIEW_CHANNEL),
+    ));
+    assert_eq!(res, Err(InviteError::MissingPermissions));
+    assert_eq!(
+        transport.posts.lock().unwrap().len(),
+        0,
+        "сеть не должна вызываться без прав"
+    );
+
+    // 3. С правами CREATE_INSTANT_INVITE: запрос доходит до транспорта
+    let res = run(create_channel_invite_guarded(
+        &transport,
+        CREATE_CHANNEL_ID,
+        &params,
+        Some(CREATE_INSTANT_INVITE | VIEW_CHANNEL),
+    ));
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap().code, "aBcD123XyZ");
+    assert_eq!(transport.posts.lock().unwrap().len(), 1);
 }

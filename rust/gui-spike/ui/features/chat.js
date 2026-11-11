@@ -20,6 +20,9 @@ import { createEmbeds } from "./embeds.js";
 import { renderMessageMarkdown } from "./markdown.js";
 import { createMessageToolbar } from "./message-toolbar.js";
 import {
+  createMessageComponentsContainer,
+} from "./message-components.js";
+import {
   adjustReactionOverride,
   channelReactionKey,
   createReactionsController,
@@ -137,6 +140,7 @@ const ROW_PAD_Y = 2;
  *   attachments?: MessageAttachmentRaw[],
  *   embeds?: Record<string, any>[],
  *   sticker_items?: any[],
+ *   components?: any[],
  *   flags?: number,
  *   isPoll?: boolean,
  *   type?: number,
@@ -2871,6 +2875,9 @@ function paintPill(pill, key, emoji, base) {
  *   harmFilterEnabled?: boolean,
  *   validContentScanVersion?: number,
  *   refreshUrls?: (urls: string[]) => Promise<Array<{ original: string, refreshed: string }>>,
+ *   document?: any,
+ *   invoke?: (cmd: string, args?: any) => Promise<any>,
+ *   onComponentClick?: (btn: any, component: any, options: any) => void,
  * }} [options] реальный канал для `toggle_reaction` и настроек рендера вложений
  */
 export function renderChannelMessage(row, item, index, total, options = {}) {
@@ -2897,10 +2904,20 @@ export function renderChannelMessage(row, item, index, total, options = {}) {
   const reactionKey = channelReactionKey(channelId, item.id);
   const reactions = reactionsFor(reactionKey, item.reactions);
   const attachmentsEl = renderAttachments(item, options);
+  const componentsEl = Array.isArray(item.components) && item.components.length > 0
+    ? createMessageComponentsContainer(item.components, {
+        document: row.ownerDocument || (options && options.document),
+        channelId,
+        messageId: item.id,
+        invoke: options.invoke,
+        onComponentClick: options.onComponentClick,
+      })
+    : null;
   /** @type {string[]} */
   const present = [];
   if (item.dayLabel !== "") present.push("day");
   if (attachmentsEl) present.push("attachments");
+  if (componentsEl) present.push("components");
   if (reactions.length > 0) present.push("reactions");
   if (item.edited) present.push("edited");
   if (present.length > 0) row.setAttribute("data-extras", present.join(" "));
@@ -3324,6 +3341,9 @@ export function renderChannelMessage(row, item, index, total, options = {}) {
     if (embedsWrap.childElementCount > 0) {
       text.append(embedsWrap);
     }
+  }
+  if (componentsEl) {
+    text.append(componentsEl);
   }
   row.append(author, text);
   if (reactions.length > 0) {

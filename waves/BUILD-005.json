@@ -1,0 +1,2046 @@
+{
+  "$schema": "https://discord-lab.local/schemas/build-manifest-v1.json",
+  "schema_version": "1.0",
+  "build_id": "BUILD-005",
+  "project": "Discord GPUI Client (Rust + WGPU)",
+  "wave": "RW-44",
+  "target_wave": "RW-45",
+  "status": "In Testing",
+  "source_branch": "unstable",
+  "target_branch": "testing",
+  "candidate_tag": "build-005-candidate",
+  "previous_testing_commit": "c31aa245a0cb412611c729597e59792bf2aa156d",
+  "unstable_commit": "1e7af5a6b71c959316e6ba81d69a96334ac80a2c",
+  "unstable_short_commit": "1e7af5a",
+  "testing_commit": "1e7af5a6b71c959316e6ba81d69a96334ac80a2c",
+  "testing_short_commit": "1e7af5a",
+  "candidate_tag_commit": "1e7af5a6b71c959316e6ba81d69a96334ac80a2c",
+  "built_at": "2026-11-11T16:04:00+05:00",
+  "orchestrator": "ECC 2.0 Control Plane (pm_review)",
+  "artifacts": {
+    "gpui_binary": "rust/dist/discord-gpui",
+    "gpui_sha256": "d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e",
+    "sha256sums_path": "rust/dist/SHA256SUMS",
+    "sbom_path": "rust/dist/sbom.spdx.json"
+  },
+  "commits_merged": [
+    {
+      "hash": "1e7af5a6b71c959316e6ba81d69a96334ac80a2c",
+      "short_hash": "1e7af5a",
+      "committed_at": "2026-11-11T16:01:58+05:00",
+      "subject": "merge: consolidate Wave RW-44 and feature/sprints-1-5-build-004 into unstable for BUILD-005 (TASK-951)"
+    },
+    {
+      "hash": "6f60b11b5b8b5604e42af3f0be53022ec45fbcdd",
+      "short_hash": "6f60b11",
+      "committed_at": "2026-11-10T17:42:03+05:00",
+      "subject": "fix(stream): resolve webrtc wayland source selection, stage viewer close desync and in-stream source switching"
+    },
+    {
+      "hash": "9f559f174c0a3ea03d9419e056ede7cfd1321352",
+      "short_hash": "9f559f1",
+      "committed_at": "2026-11-10T17:00:50+05:00",
+      "subject": "fix(stream): eliminate 120ms delay on stream toggle, normalize source id, fix kwin workspace format swap, and enable live tracing"
+    },
+    {
+      "hash": "d07d70af957b5bb5a974143f7767ef1d7a79b876",
+      "short_hash": "d07d70a",
+      "committed_at": "2026-11-10T16:34:47+05:00",
+      "subject": "feat(stream): fix kwin color inversion, window capture routing, and friends preservation"
+    },
+    {
+      "hash": "838a478a556a3ca16480974c8df7a21687f3fe9d",
+      "short_hash": "838a478",
+      "committed_at": "2026-11-10T15:52:17+05:00",
+      "subject": "fix(voice): resolve screen share restart lifecycle and broadcaster teardown"
+    },
+    {
+      "hash": "42380e7773d0a211c1ebd576cba0198995e9bc95",
+      "short_hash": "42380e7",
+      "committed_at": "2026-11-10T15:31:49+05:00",
+      "subject": "fix(stream,calls): stream restart resilience, PERM_STREAM gating, guild preservation & DM call ring REST"
+    },
+    {
+      "hash": "fd49bdc0738a42cf55b9ffbfb9fdf8d0d96bbe2c",
+      "short_hash": "fd49bdc",
+      "committed_at": "2026-11-10T15:04:57+05:00",
+      "subject": "fix(voice): broadcast Go Live stream via OP 18, stop on disconnect, and add incoming DM call overlay"
+    },
+    {
+      "hash": "ed40bba0b14609fcb0a0c7cc7389b47fdff73a34",
+      "short_hash": "ed40bba",
+      "committed_at": "2026-11-10T14:21:14+05:00",
+      "subject": "feat(network,ui): non-destructive gateway hydration, handshake wait & discord user-bar parity"
+    },
+    {
+      "hash": "e09b499d17050076bc0818a9ec8c64608b934fef",
+      "short_hash": "e09b499",
+      "committed_at": "2026-11-10T13:52:32+05:00",
+      "subject": "fix(voice,ui): eliminate Krisp VAD SEGV, instant OP 4 disconnect on close, exact 1:1 user bar buttons and anti-flicker"
+    },
+    {
+      "hash": "befb92f9a310fedbbb3e2293a3fd33f19043a30f",
+      "short_hash": "befb92f",
+      "committed_at": "2026-11-10T13:23:51+05:00",
+      "subject": "feat(ui,voice): 1:1 user bar & voice panel parity, SFU stream signaling, and message deletion sync"
+    },
+    {
+      "hash": "605ce9c2f4ab78f01a63ef44bdb1f3ac137e2e4d",
+      "short_hash": "605ce9c",
+      "committed_at": "2026-11-07T22:10:33+05:00",
+      "subject": "fix(ui): mount interactive gift and qr modals, link styles, and restore live session affordances"
+    }
+  ],
+  "total_tasks": 128,
+  "tasks_by_status": {
+    "done": 128
+  },
+  "tasks": [
+    {
+      "id": "TASK-701",
+      "title": "Каркас приложения AppLayout и WGPU GPU-рендеринг",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Трехпанельный макет Discord Dark: левая серверная панель (72px), средний список каналов (240px), центральный чат (flex-1) и правый сайдбар участников (240px). 120 FPS без лагов WebKit.",
+      "acceptance_criteria": [
+        "Сетка не расползается при изменении размеров окна (min-width 900px)",
+        "Отсутствуют DOM-коллизии и утечки памяти",
+        "61/61 контрактных тестов пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-707",
+      "title": "Панель серверов ServerRail (72px) и Индикаторы Активности",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Вертикальный рейл серверов Discord с кнопкой Home, разделителем, иконками серверов с анимацией скругления (круг 24px -> скругленный квадрат rx=16px при наведении), индикатором-пилюлей активности слева и кнопками Добавить сервер (+) и Исследовать (🧭).",
+      "acceptance_criteria": [
+        "Активный сервер подсвечивается вертикальной белой пилюлей слева (высота 40px, ширина 4px)",
+        "Непрочитанные сообщения отображаются красным бейджем с белым числом в нижнем правом углу иконки",
+        "Кнопка + открывает модальное окно CreateGuildModal"
+      ]
+    },
+    {
+      "id": "TASK-708",
+      "title": "Список каналов ChannelSidebar и Панель профиля (240px)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Иерархический список каналов гильдии с категориями (▾ ТЕКСТОВЫЕ КАНАЛЫ, ▾ ГОЛОСОВЫЕ КАНАЛЫ), плашка текущего статуса звонка VoicePanel (52px flex-none) и фиксированная нижняя панель профиля пользователя UserProfileBar (52px flex-none).",
+      "acceptance_criteria": [
+        "Жесткая фиксация высоты UserProfileBar = 52px и VoicePanel = 52px",
+        "Голосовая панель полностью скрывается при отключенном звонке (voice_session = None)",
+        "Исключено перекрытие элементов профиля пользователя"
+      ]
+    },
+    {
+      "id": "TASK-716",
+      "title": "Нативное контекстное меню ПКМ (Context Menu)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Всплывающее меню по правому клику мыши на сообщении: «Закрепить/Открепить сообщение», «Ответить», «Копировать текст», «Удалить сообщение». Мгновенный оптимистичный UI с асинхронным вызовом Discord REST API v9.",
+      "acceptance_criteria": [
+        "Клик вне меню мгновенно закрывает всплывающее окно",
+        "Динамическая плашка «Открепить сообщение» если сообщение уже закреплено",
+        "Отправка реального DELETE /channels/{id}/messages/{id} при наличии токена"
+      ]
+    },
+    {
+      "id": "TASK-741",
+      "title": "Реальные REST API действия сообщений (Удаление, Закрепление, Открепление)",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Интеграция официальных эндпоинтов Discord REST API v9: DELETE /channels/{id}/messages/{id}, PUT /channels/{id}/pins/{id}, DELETE /channels/{id}/pins/{id} через discord-core и reqwest с защитой от 429 Too Many Requests.",
+      "acceptance_criteria": [
+        "Локальное состояние сообщений в ленте обновляется мгновенно за 0 мс",
+        "Сетевые запросы исполняются в фоновом потоке без блокировки GUI",
+        "Покрыто контрактом test_rest_message_actions_endpoints_contract"
+      ]
+    },
+    {
+      "id": "TASK-742",
+      "title": "Прямой Voice UDP Media Streamer (tokio::net::UdpSocket + Opus + AES-256-GCM)",
+      "department": "G5 Voice/Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Реализация VoiceUdpStreamer по спецификации Serein transport.rs: прямое UDP-соединение к голосовому шлюзу, IP Discovery (74B), периодические Keepalive (8B 0x1337cafe LE), сборка 12B RTP заголовка и шифрование 20мс Opus-пакетов AES-256-GCM.",
+      "acceptance_criteria": [
+        "Keepalive пакет ровно 8 байт (0x1337cafe LE + sequence)",
+        "Шифрование RTP медиа-кадров по эталону voice-deep.md §2.3",
+        "Покрыто контрактом test_voice_udp_streamer_lifecycle_contract"
+      ]
+    },
+    {
+      "id": "TASK-743",
+      "title": "Демонстрация экрана PipeWire через Linux XDG Desktop Portal",
+      "department": "G5 Voice/Platform",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "ScreenCastManager на базе org.freedesktop.portal.ScreenCast (D-Bus / ashpd): открытие диалога выбора мониторов и окон, согласование курсора (Embedded/Metadata), получение PipeWire remote fd и передача кадров в GPU WGPU видео-пайплайн.",
+      "acceptance_criteria": [
+        "Проверка доступности D-Bus сессии через is_portal_available()",
+        "Сборка корректных параметров PortalSourceTypes::MONITOR_AND_WINDOW",
+        "Покрыто контрактом test_screencast_portal_options_contract"
+      ]
+    },
+    {
+      "id": "TASK-744",
+      "title": "Нативные D-Bus уведомления рабочего стола и системный трей Linux",
+      "department": "G5 Voice/Platform",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Интеграция freedesktop D-Bus уведомлений (org.freedesktop.Notifications) с кнопками «Открыть» и «Прочитано», а также системного трея Linux (TrayController) с 6-пунктовым меню Discord и бейджем количества непрочитанных сообщений 1..99+.",
+      "acceptance_criteria": [
+        "Уведомление содержит app_name = \"Discord\", заголовок \"Автор (#канал)\" и текст сообщения",
+        "Бейдж лаунчера отображает точное число до 99 и \"99+\" при превышении",
+        "Покрыто контрактом test_desktop_notification_formatting_contract"
+      ]
+    },
+    {
+      "id": "TASK-745",
+      "title": "Сервер локального бинарного протокола Discord Local RPC IPC",
+      "department": "G1 Backend",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Поддержка Unix domain socket $XDG_RUNTIME_DIR/discord-ipc-0..9 для интеграции с внешними играми и приложениями по эталону rust-discord-activity и Serein. Разбор рукопожатия Handshake (Opcode 0) и команды SET_ACTIVITY (Opcode 1).",
+      "acceptance_criteria": [
+        "Парсинг бинарного фрейма и JSON-пейлоада SET_ACTIVITY",
+        "Обновление полей игры (state, details, timestamps) в профиле пользователя",
+        "Покрыто контрактом test_local_rpc_ipc_frame_contract"
+      ]
+    },
+    {
+      "id": "TASK-746",
+      "title": "Автоматизированный регрессионный контрактный харнесс 61/61",
+      "department": "G4 QA",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Полная регрессионная верификация всей кодовой базы: 61/61 контрактных тестов GPUI (REST API, Voice UDP, Screencast, D-Bus, SQLite, Audio CPAL, Design tokens, Escape hierarchy, Virtual chat) выполняются за 2.50 секунды со 100% успехом.",
+      "acceptance_criteria": [
+        "100% зеленых тестов (64/64)",
+        "0 падений и регрессий",
+        "Скомпилирован рабочий релизный бинарник target/release/discord-gpui (55 МБ)"
+      ]
+    },
+    {
+      "id": "TASK-747",
+      "title": "Паритет стилей Discord Dark Design Polish и Hover-эффекты сообщений",
+      "department": "G3 Design",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Стилизация ховеров строк сообщений ленты чата (rgba(255,255,255,0.03)), плавное скругление иконок серверов и индикаторной пилюли, тени контекстного меню по эталону официального Discord.",
+      "acceptance_criteria": [
+        "Плавный фон при наведении мыши",
+        "Скругление аватарок серверов при ховере"
+      ]
+    },
+    {
+      "id": "TASK-748",
+      "title": "Аппаратный GPU-конвейер PipeWire кадра и захват экрана",
+      "department": "G5 Voice/Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Связывание D-Bus сессии XDG Desktop Portal ScreenCast и конвейера GpuVideoPipeline: получение remote fd PipeWire и node_id, валидация формата Rgba8 и отрисовка кадра на GPU без лишних копий.",
+      "acceptance_criteria": [
+        "Успешная привязка fd и node_id в GpuVideoPipeline",
+        "Покрыто тестом test_gpu_video_pipeline_pipewire_connector_contract"
+      ]
+    },
+    {
+      "id": "TASK-749",
+      "title": "Плавающий бар быстрых действий над сообщением (Floating Action Bar)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Плавающий тулбар быстрых действий в правом углу каждого сообщения при наведении: быстрая реакция 😀 (добавляет/снимает 👍), быстрый ответ 💬 (подставляет @Author: ), закрепление 📌 (инвертирует статус и шлёт REST запрос), кнопка «⋯» для открытия контекстного меню.",
+      "acceptance_criteria": [
+        "Реализован тулбар в ChatView",
+        "Клик на реакцию и пин покрыт тестом test_floating_message_action_bar_and_quick_reaction_contract"
+      ]
+    },
+    {
+      "id": "TASK-750",
+      "title": "Шлюз Discord Gateway Opcode 4 (Voice State Update)",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Автоматическая генерация и отправка пакетов шлюза Discord Opcode 4 (Voice State Update) при подключении к голосовому каналу (guild_id, channel_id, self_mute, self_deaf) и при отключении (channel_id = null).",
+      "acceptance_criteria": [
+        "Генерация валидного JSON payload Opcode 4",
+        "Покрыто тестом test_voice_state_update_opcode_4_gateway_contract"
+      ]
+    },
+    {
+      "id": "TASK-751",
+      "title": "G1 Backend + G7 REA: Устойчивый парсер read_state.last_acked_id (Snowflake String/Integer/Null)",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Устранение критической ошибки парсинга read_state, обнаруженной живым GDB-трейсером: поле last_acked_id в entries[31] пакета READY приходит как integer/null/string. Замена жесткого требования строки на гибкий десериализатор Snowflake по эталону re-deep/gateway-schema.md.",
+      "acceptance_criteria": [
+        "read_state успешно парсит entries с целочисленным и строковым last_acked_id",
+        "Красный баннер «Не удалось прочитать состояние канала» не отображается",
+        "Покрыто контрактным тестом на фикстуре 002-READY.json"
+      ]
+    },
+    {
+      "id": "TASK-752",
+      "title": "G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс)",
+      "department": "G2 Frontend",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Устранение задержки 1236 мс, зафиксированной живой телеметрией при клике на личный диалог ShadowByte. Асинхронное чтение из кэша памяти до блокирующего чтения с диска, виртуализация чанками по 50 сообщений.",
+      "acceptance_criteria": [
+        "Время выполнения messages_page сокращено с 1236 мс до < 300 мс",
+        "Плавная прокрутка без рывков интерфейса"
+      ]
+    },
+    {
+      "id": "TASK-769",
+      "title": "G1 Backend: Handshake Wait & Verified Cache Hydration в ready()",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Устранение race condition при старте: ready() проверяет load_live_ready_cache_for и ожидает live WebSocket READY до 600мс вместо возврата пустых списков guilds/relationships. READY_SUPPLEMENTAL обновляет voice states без вызова guard.voice_states.clear().",
+      "acceptance_criteria": [
+        "ready() не возвращает пустой список серверов при наличии кэша или активного шлюза",
+        "READY_SUPPLEMENTAL сохраняет участников существующих голосовых каналов",
+        "39/39 тестов data_contract.rs пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-770",
+      "title": "G2 Frontend: Неразрушающая гидратация серверов и друзей в app.js и dm-friends.js",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "syncLiveGuildRailFromSnapshot и dmFriendsController.syncLiveState защищены от стирания данных при получении пустых или промежуточных sync-ответов. READY/READY_SUPPLEMENTAL диспатчи шлюза мгновенно гидратируют рейл и друзей.",
+      "acceptance_criteria": [
+        "Пустой массив в sync-ответе не очищает liveGuildsById и relationships",
+        "При переподключении список серверов и друзей не пропадает",
+        "77/77 тестов dm-friends и dispatch_ui пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-771",
+      "title": "G3 Design & G2 UI: Точный паритет Voice Panel и User Bar по официальному Discord",
+      "department": "G3 Design",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Пиксельный паритет нижней панели пользователя: убрана кнопка «Выйти» из user-bar, добавлены сплит-капсулы микрофона и звука с шевронами параметров, 4 медиа-кнопки (видео, стрим, активности, саундборд) и аккуратный статус Невидимый.",
+      "acceptance_criteria": [
+        "Кнопка Выйти отсутствует в #user-bar и .user-actions",
+        "Сплит-кнопки микрофона и наушников содержат отдельные шевроны выбора устройств",
+        "Все 31 проверка геометрии и мета-тесты пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-772",
+      "title": "G5 Voice: Устранение задержек отображения участников голосовых каналов",
+      "department": "G5 Voice / Platform",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Агрегация voice_states из ready_data и live_session в voice_states_sync. Защита liveVoiceStatesByGuild от ложного удаления участников при частичных poll-ответах.",
+      "acceptance_criteria": [
+        "Участники голосовых каналов отображаются без задержек при старте и переключениях",
+        "Список участников не мигает и не пропадает при периодическом опросе",
+        "119/119 тестов voice-ui и guild-rail пройдены"
+      ]
+    },
+    {
+      "id": "TASK-773",
+      "title": "G4 QA: Автоматизированные тесты неразрушающей гидратации и UI-паритета",
+      "department": "G4 QA",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Регрессионные тесты в message-delete-voice-exit-ui.test.mjs и data_contract.rs, проверка отсутствия auth-logout в user-bar, проверка неразрушающего обновления relationships.",
+      "acceptance_criteria": [
+        "138/138 мета-тестов пройдены успешно",
+        "77/77 тестов друзей и диспатча пройдены успешно",
+        "39/39 тестов Rust data_contract пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-774",
+      "title": "DevOps: Сборка release бинарника, SHA256SUMS и пуш в remote mirror",
+      "department": "DevOps / Integration",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-43",
+      "closed_at": "2026-11-11T13:42:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Компиляция rust/dist/discord-gui-spike, расчет контрольной суммы в rust/dist/SHA256SUMS, экспорт Kanban-доски и пуш в git remote.",
+      "acceptance_criteria": [
+        "Бинарник скомпилирован в release профиле",
+        "SHA256SUMS актуализирован",
+        "Изменения зафиксированы и запушены в remote mirror"
+      ]
+    },
+    {
+      "id": "TASK-775",
+      "title": "G5 Voice / Core: Нормализация источника WebRTC (sourceId = -1) и 100% запуск энкодера",
+      "department": "G5 Voice & Platform",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Устранение ошибки \"Screenshare: Failed to select source: 0\" и SetDesktopScreenshare: (nil). Фиксация kFullDesktopScreenId = -1 и постоянного type: \"screen\" в WebRTC setDesktopSourceWithOptions, гарантирующая отправку RTP H264 видеопакетов на SFU Discord без нулевых байт.",
+      "acceptance_criteria": [
+        "Логи WebRTC больше не содержат \"Screenshare: Failed to select source\"",
+        "SetDesktopScreenshare возвращает активный захватчик вместо (nil)",
+        "Официальный клиент получает видео RTP кадры и успешно отображает трансляцию"
+      ]
+    },
+    {
+      "id": "TASK-776",
+      "title": "G5 Voice / Core: Нативный захват Wayland (KWin ScreenShot2) и горячая смена окон",
+      "department": "G5 Voice & Platform",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Интеграция C-хука hook_XShmGetImage с D-Bus интерфейсом org.kde.KWin.ScreenShot2. Маршрутизация CaptureWorkspace для полного рабочего стола и CaptureWindow({uuid}) для окон игр и приложений. Цветокоррекция BGRA/RGBA и пинок через discord_capture_kick.bin.",
+      "acceptance_criteria": [
+        "Поддерживается захват любого окна Wayland без артефактов и черного экрана",
+        "Цвета соответствуют оригинальному изображению без инверсии Red/Blue",
+        "Задержка захвата составляет менее 16 мс (60 FPS)"
+      ]
+    },
+    {
+      "id": "TASK-777",
+      "title": "G2 Frontend: Синхронизация предпросмотра (PIP), крестика закрытия и смены источника",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Разрешение конфликта между закрытием окна просмотра (Stage Viewer) и остановкой стрима. Кнопка \"Сменить источник\" во время трансляции без перезахода в канал. Корректное уничтожение DOM-элементов #live-stream-pip-preview и #live-stream-stage-viewer.",
+      "acceptance_criteria": [
+        "При нажатии кнопки \"Прекратить стрим\" превью полностью исчезает",
+        "Кнопка \"Сменить окно\" позволяет переключить трансляцию на лету",
+        "Отсутствуют зависшие оверлеи и фантомные канвасы"
+      ]
+    },
+    {
+      "id": "TASK-778",
+      "title": "G1 Backend + G5 Voice: Сигнализация шлюза OP 18/19 и SFU согласование кодеков",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Полная согласованность Gateway OP 18 STREAM_CREATE, OP 19 STREAM_DELETE, OP 22 STREAM_SERVER_UPDATE и Voice OP 1 SELECT_PROTOCOL с поддержкой видеокодеков H264 и VP8. Очистка кешированного stream_key при остановке стрима.",
+      "acceptance_criteria": [
+        "В официальном клиенте горит статус \"В ЭФИРЕ\" и доступен просмотр",
+        "При остановке трансляции статус \"В ЭФИРЕ\" немедленно снимается",
+        "Повторный запуск стрима в том же канале происходит мгновенно"
+      ]
+    },
+    {
+      "id": "TASK-779",
+      "title": "G4 QA: Комплексные регрессионные тесты трансляции и проверка официальным клиентом",
+      "department": "G4 QA",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Разработка набора модульных, контрактных и сквозных тестов для проверки жизненного цикла трансляции экрана, переключения окон, обработки крестика закрытия и верификации отсутствия сброса WebRTC захватчика в nil.",
+      "acceptance_criteria": [
+        "100% прохождение тестов управления трансляцией",
+        "Подтвержденное воспроизведение видео в официальном клиенте",
+        "Отсутствие утечек файловых дескрипторов и памяти"
+      ]
+    },
+    {
+      "id": "TASK-780",
+      "title": "G3 Design & UI: Паритет оверлея качества стрима (720p/1080p, 30/60 FPS, H264) и меню настроек",
+      "department": "G3 Design",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Стилизация бейджа .stage-quality-badge (#stage-stream-quality-badge) в верхней панели Stage Viewer и синхронизация с каскадным меню #live-stream-settings-menu.",
+      "acceptance_criteria": [
+        "Интерактивный бейдж качества отображает актуальное разрешение и FPS",
+        "Каскадное меню выбора качества и фреймрейта синхронизировано с состоянием стрима"
+      ]
+    },
+    {
+      "id": "TASK-781",
+      "title": "G7 RE / REA: Аудит Go Live сигнализации и Видео/SDP контрактов (Voice Opcodes 1, 12, 16, 22)",
+      "department": "G7 RE / REA",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Сверка wire-контрактов Voice Opcodes 1 (SELECT_PROTOCOL), 12 (VIDEO), 16 (VOICE_BACKEND_VERSION) и 22 (STREAM_SET_PAUSED / DAVE) по эталонному дампу /home/sanya/re-deep.",
+      "acceptance_criteria": [
+        "Задокументированы точные форматы полей Voice Opcodes 1, 12, 16 и Gateway OP 22",
+        "Подтверждено соответствие таблиц кодеков H264/VP8 (payload_type 105..108)"
+      ]
+    },
+    {
+      "id": "TASK-783",
+      "title": "G5 Voice & G2 UI: Динамический переключатель параметров стрима (720p/1080p, 30/60 FPS) на лету",
+      "department": "G5 Voice & Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Связка меню #live-stream-settings-menu в app.js с командой set_stream_source в ws.rs для переключения разрешения (1280x720 / 1920x1080) и частоты кадров (30 / 60 FPS) без прерывания трансляции (TASK-782..TASK-784).",
+      "acceptance_criteria": [
+        "Переключение 720p/1080p и 30/60 FPS применяется на лету через setDesktopSourceWithOptions и setTransportOptions",
+        "Трансляция не обрывается при смене пресета качества"
+      ]
+    },
+    {
+      "id": "TASK-785",
+      "title": "G1 Backend / Voice: Обработка и генерация Voice Opcode 16 (RTC Ping / DAVE) и Opcode 12 (VIDEO SSRC Mapping)",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Реализация обработки входящего Voice Opcode 16 с отправкой ответного OP 3 Heartbeat/Ping и отправки Voice Opcode 12 (VIDEO) с video_ssrc и rtx_ssrc при срабатывании video_callback (TASK-785..TASK-786).",
+      "acceptance_criteria": [
+        "Входящий Voice OP 16 обрабатывается без закрытия сокета и инициирует ответный пинг OP 3",
+        "При активации видео отправляется Voice OP 12 с корректными video_ssrc, rtx_ssrc и массивом streams"
+      ]
+    },
+    {
+      "id": "TASK-787",
+      "title": "G2 Frontend: Точный паритет попаута статуса RTC подключения (#live-rtc-popout) и индикатора пинга",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Цветовая индикация пинга RTC (зелёный/жёлтый/красный, мс и потери пакетов) над панелью пользователя и диагностический попаут #live-rtc-popout.",
+      "acceptance_criteria": [
+        "Индикатор пинга меняет цвет в зависимости от задержки и отображает мс",
+        "Клик открывает #live-rtc-popout с деталями транспорта, кодека и потерь пакетов"
+      ]
+    },
+    {
+      "id": "TASK-788",
+      "title": "G1 Backend: Интеграция статуса Nitro (premium_type) и разблокировка стрим-пресетов 1080p 60 FPS",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Поддержка поля premium_type (0/1/2) в модели пользователя в rust/gui-spike/src/data.rs и контрактные тесты в data_contract.rs.",
+      "acceptance_criteria": [
+        "Поле premium_type десериализуется из READY и профилей пользователей",
+        "Контрактные тесты data_contract проходят на 100%"
+      ]
+    },
+    {
+      "id": "TASK-789",
+      "title": "W8-DevOps: Сборка и верификация релизного артефакта Build-005 и SHA256SUMS",
+      "department": "DevOps",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Релизная сборка бинарного артефакта rust/dist/discord-gui-spike для Build-005 и обновление контрольных сумм rust/dist/SHA256SUMS.",
+      "acceptance_criteria": [
+        "Бинарник rust/dist/discord-gui-spike собран в профиле --release",
+        "Контрольная сумма в rust/dist/SHA256SUMS совпадает при проверке sha256sum -c"
+      ]
+    },
+    {
+      "id": "TASK-792",
+      "title": "W8-DevOps/QA: Сквозная верификация артефакта Build-005 и выпуск отчета QA-BUILD-005.md",
+      "department": "G4 QA",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Проверка sha256sum -c rust/dist/SHA256SUMS, формирование релизного отчёта waves/RW-41/QUALITY/QA-BUILD-005.md по закрытым задачам TASK-775..TASK-789 и актуализация Kanban-доски.",
+      "acceptance_criteria": [
+        "sha256sum -c rust/dist/SHA256SUMS проходит успешно (discord-gui-spike: ЦЕЛ)",
+        "Выпущен отчёт waves/RW-41/QUALITY/QA-BUILD-005.md со списком задач TASK-775..TASK-789",
+        "Актуализирована Kanban-доска через node scripts/populate-kanban-board.mjs"
+      ]
+    },
+    {
+      "id": "TASK-794",
+      "title": "W1-G1: Stream Signaling Remediation (Изоляция OP 18 и OP 20 вещателя)",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Устранение дублирующей отправки OP 18 STREAM_CREATE в ws.rs/main.rs, изоляция OP 20 STREAM_WATCH строго для зрителей и нормализация channel_id в DM звонках.",
+      "acceptance_criteria": [
+        "Ровно один OP 18 STREAM_CREATE уходит при старте стрима",
+        "Вещатель никогда не отправляет OP 20 STREAM_WATCH на собственный поток",
+        "Статус В ЭФИРЕ появляется у стороннего клиента Discord"
+      ]
+    },
+    {
+      "id": "TASK-795",
+      "title": "W2-G2: Stage Viewer & PiP Persistence (Screen Share UI)",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Изоляция вызова stream_watch строго внутри if (!isSelfStream) в app.js, исключение случайной остановки стрима при минимизации Stage Viewer.",
+      "acceptance_criteria": [
+        "openLiveStreamStageViewer не вызывает invoke(stream_watch) при isSelfStream === true",
+        "Escape и кнопка свернуть переводят окно в плавающий PiP-плеер без остановки вещания"
+      ]
+    },
+    {
+      "id": "TASK-796",
+      "title": "W3-G5: Voice Native Command Queue & Capture Target Pipeline",
+      "department": "G5 Voice",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Сквозное дренирование native_stream_cmd_mutex в цикле основного голосового соединения до старта стрим-воркера, передача set_stream_source и set_stream в discord_voice.node.",
+      "acceptance_criteria": [
+        "Команды set_stream и set_stream_source передаются в V8 stdin без задержек",
+        "Процесс discord_voice.node получает актуальный идентификатор источника захвата"
+      ]
+    },
+    {
+      "id": "TASK-797",
+      "title": "W4-G4: Stream Broadcaster vs Viewer Isolation QA Suite",
+      "department": "G4 QA",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Разработка модульного регрессионного сьюта tests/unit/stream_broadcaster_watch_isolation.test.mjs на изоляцию OP 18/20 и корректность стрим-ключей в DM/Guild.",
+      "acceptance_criteria": [
+        "Тест падает на старом коде и проходит на исправленном",
+        "Проверены позитивные, негативные и краевые сценарии для DM и гильдий"
+      ]
+    },
+    {
+      "id": "TASK-611",
+      "title": "W5-G1: Полноценная поддержка REST POST /guilds (BFF)",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Реализация эндпоинта создания нового сервера пользователем с заголовками X-Super-Properties, X-Discord-Locale и синхронизацией GuildRail.",
+      "acceptance_criteria": [
+        "POST /api/v9/guilds обрабатывает 201 Created и 400/403",
+        "Созданный сервер немедленно интегрируется в локальное состояние"
+      ]
+    },
+    {
+      "id": "TASK-612",
+      "title": "W6-G2: Шаблоны и визард создания серверов UI (STUB-05)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Пошаговый визард создания сервера: выбор предустановленного шаблона (Gaming, School Club, Friends), загрузка аватара и валидация названия.",
+      "acceptance_criteria": [
+        "A11y: управление стрелками, Escape, автофокус на поле ввода",
+        "Автоматическое предзаполнение каналов по выбранному шаблону"
+      ]
+    },
+    {
+      "id": "TASK-798",
+      "title": "W7-G7: Gateway Stream Protocol & Codec RE Audit",
+      "department": "G7 RE",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Сверка реальных дампов OP 18/20/STREAM_CREATE в /home/sanya/re-deep/ и фиксация расхождений кодеков H264/VP8/AV1.",
+      "acceptance_criteria": [
+        "Документирован точный формат ETF/JSON фреймов шлюза",
+        "Выпущен отчёт RE-GAP-STREAM-SIGNALS.md с чанками из re-deep"
+      ]
+    },
+    {
+      "id": "TASK-799",
+      "title": "W8-G6: Release Notes & Stream Architecture Parity Matrix",
+      "department": "G6 Tech Writer",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Документирование матрицы паритета стриминга Go Live, обновление архитектурных документов и релизных заметок.",
+      "acceptance_criteria": [
+        "Обновлён статус матрицы паритета для функционала Go Live",
+        "Сформирован документ MERGE-READINESS-STREAM.md"
+      ]
+    },
+    {
+      "id": "TASK-800",
+      "title": "Согласование и конфигурация видеокодека AV1 в WebRTC RTCControlSocket",
+      "department": "G5 Voice / Platform",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Устранение жесткого падения в H.264 при получении video_codec: \"AV1\" от сервера Discord (Opcode 4 Session Description). Передача videoEncoder конфигурации AV1 (payload 101, rtxType 102) в conn.setTransportOptions.",
+      "acceptance_criteria": [
+        "При согласовании AV1 от сервера, videoEncoderCfg настраивается на AV1/AV1X с payload 101",
+        "Отсутствует ложный откат в H.264 при поддержке AV1"
+      ]
+    },
+    {
+      "id": "TASK-801",
+      "title": "Интеграция NVENC аппаратного энкодера NVIDIA для стрима (RTX 5070 Ti)",
+      "department": "G5 Voice / Platform",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Активация аппаратного ускорения NVENC/CUDA/Vulkan Video в discord_voice.node вместо медленного программного CPU libopenh264. На видеокартах NVIDIA RTX 5070 Ti VAAPI неактивен, требуется прямая передача NVENC/CUDA параметров.",
+      "acceptance_criteria": [
+        "При наличии GPU NVIDIA активируется аппаратный энкодер NVENC/CUDA вместо CPU OpenH264",
+        "Утилизация CPU при 1080p 60fps стриме падает с 80-100% до <5%"
+      ]
+    },
+    {
+      "id": "TASK-802",
+      "title": "Корректная поддержка и переключение кодека VP8/VP9 в WebRTC",
+      "department": "G5 Voice / Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Добавление валидных параметров для кодеков VP8 (payload 107, rtx 108) и VP9 в setTransportOptions (temporal layers, keyframe interval 3000ms, adaptive bitrates).",
+      "acceptance_criteria": [
+        "Корректная инициализация VP8 в discord_voice.node без пустых params: {}",
+        "Согласование работает при явном запросе VP8 сервером или клиентом"
+      ]
+    },
+    {
+      "id": "TASK-803",
+      "title": "Добавление OBU-пакетизатора AV1 и RTP-фрагментации в discord-media",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Реализация packetize_av1_obu в крейте discord-media по аналогии с существующим packetize_h264_annex_b (RFC draft-ietf-avtext-av1-rtp) для нативной отправки кадров AV1.",
+      "acceptance_criteria": [
+        "Функция packetize_av1_obu разбивает кадр AV1 на корректные RTP-пакеты с маркером W/N/Y",
+        "Покрыта unit-тестами с проверкой на эталонных OBU-векторах"
+      ]
+    },
+    {
+      "id": "TASK-804",
+      "title": "Оптимизация захвата PipeWire / Wayland Portal без задержек CPU",
+      "department": "G5 Voice / Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Перевод захвата кадров рабочего стола с CPU-копирования на DMA-BUF / EGL аппаратный импорт в буферы энкодера, устраняя задержки 86 мс.",
+      "acceptance_criteria": [
+        "Задержка захвата снижена с 86 мс до <16 мс",
+        "Отсутствуют разрывы кадров при захвате окон и экранов 1080p/1440p"
+      ]
+    },
+    {
+      "id": "TASK-805",
+      "title": "Устранение оверлея «Подключение к видеопотоку…» у ведущего трансляции",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "В openLiveStreamStageViewer при стриме собственного экрана немедленно скрывать emptyNotice заглушку и монтировать локальный кадр из cachedLiveScreenDataUrl или /dev/shm/discord_live_preview_thumb.jpg.",
+      "acceptance_criteria": [
+        "Ведущий видит экран мгновенно без надписи \"Подключение к видеопотоку…\"",
+        "Клик по канвасу не вызывает клик по скрытой заглушке"
+      ]
+    },
+    {
+      "id": "TASK-806",
+      "title": "Автоматическое сворачивание трансляции в плавающий PiP при смене канала",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "При переключении с активного голосового канала на текстовые каналы автоматически переводить полноэкранный Stage Viewer в миниатюру PiP в правом нижнем углу экрана.",
+      "acceptance_criteria": [
+        "Переход в чат не закрывает стрим, а плавно сворачивает его в угол экрана",
+        "Чат остается полностью доступен для набора сообщений"
+      ]
+    },
+    {
+      "id": "TASK-807",
+      "title": "Устранение спама polling аудиоустройств (voice_set_audio_device)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Устранение избыточного циклического опроса set_system_audio_device (1332 вызова за сессию). Перевод мониторинга уровней микрофона на WebRTC Stats и события speaking.",
+      "acceptance_criteria": [
+        "Количество фоновых IPC-вызовов voice_set_audio_device сокращено до 0 в секунду при стабильном звонке",
+        "Индикатор активности голоса по-прежнему загорается зеленым кружком"
+      ]
+    },
+    {
+      "id": "TASK-808",
+      "title": "Оптимистичная отдача сообщений чата и неблокирующий ACK",
+      "department": "G1 Backend",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Устранение задержек messages_page (до 1310 мс) и ack_message (до 3733 мс) за счет немедленной отдачи кэшированных сообщений из SQLite с фоновым REST обновлением.",
+      "acceptance_criteria": [
+        "messages_page возвращает данные за <15 мс",
+        "ack_message выполняется асинхронно без зависания UI"
+      ]
+    },
+    {
+      "id": "TASK-809",
+      "title": "Обработка ошибок прав create_invite на голосовых каналах",
+      "department": "G1 Backend",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Проверка битовой маски прав CREATE_INSTANT_INVITE перед запросом к REST API, предотвращение ошибок {\"kind\": \"notFound\"} и отображение информативного тоста.",
+      "acceptance_criteria": [
+        "Если прав нет, кнопка не делает сбойный запрос, а показывает пояснение пользователю",
+        "Исключены ошибки 404/notFound при открытии модального окна инвайтов"
+      ]
+    },
+    {
+      "id": "TASK-810",
+      "title": "Интеграция accept_invite_and_join_guild и авто-подтверждение PUT /guilds/{id}/requests/@me",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "При вызове accept_invite в main.rs подключать полный цикл вступления: если участник имеет pending: true или сервер требует Rules Screening, отправлять GET /member-verification и PUT /guilds/{id}/requests/@me с X-Super-Properties.",
+      "acceptance_criteria": [
+        "При вступлении на сервер с правилами автоматически подтверждаются условия TERMS",
+        "Участник сразу переходит в pending: false без блокировки чатов и каналов"
+      ]
+    },
+    {
+      "id": "TASK-811",
+      "title": "Баннер и модальное окно экрана правил сервера (Rules Screening Banner & Modal)",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Если участник находится в состоянии pending: true, внизу окна чата отображать плашку Discord «Вам необходимо выполнить несколько шагов, прежде чем вы сможете общаться» с кнопкой «Выполнить» и модальным окном согласия с правилами.",
+      "acceptance_criteria": [
+        "Плашка отображается для серверов с невыполненными шагами верификации",
+        "По нажатию кнопки «Отправить» отправляется IPC confirm_member_rules"
+      ]
+    },
+    {
+      "id": "TASK-812",
+      "title": "Сохранение и сериализация components сообщений (ActionRow & Buttons) в data.rs",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Добавить парсинг поля components (ActionRow и интерактивные кнопки) в MessageRow в rust/gui-spike/src/data.rs, сохранять их в SQLite и отдавать в REST messages_page и Gateway MESSAGE_CREATE.",
+      "acceptance_criteria": [
+        "Сообщения от ботов сохраняют массив кнопок и их custom_id в SQLite",
+        "IPC messages_page отдает массив components на фронтенд"
+      ]
+    },
+    {
+      "id": "TASK-813",
+      "title": "Рендеринг кнопок компонентов сообщений Discord (Message ActionRow & Buttons UI)",
+      "department": "G2 Frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "В renderMessage в app.js добавить отображение контейнеров ActionRow и кнопок Discord: Primary (blurple), Secondary (grey), Success (green), Danger (red), Link (с иконкой внешней ссылки), с эмодзи и лейблами.",
+      "acceptance_criteria": [
+        "В каналах #verify видны кнопки ботов (Wick, Carl-bot, Captcha.bot)",
+        "Стили кнопок полностью соответствуют дизайн-системе Discord"
+      ]
+    },
+    {
+      "id": "TASK-814",
+      "title": "Реализация POST /api/v9/interactions для кликов по кнопкам (MESSAGE_COMPONENT type 3)",
+      "department": "G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "В rust/gui-spike/src/slash_commands.rs и bff_domains_router.rs добавить поддержку InteractionType::MessageComponent (type: 3) с передачей custom_id, component_type: 2, message_id, channel_id, guild_id и session_id.",
+      "acceptance_criteria": [
+        "Клик по кнопке отправляет валидный POST /api/v9/interactions",
+        "Возвращает ответ бота или обновление состояния участника"
+      ]
+    },
+    {
+      "id": "TASK-815",
+      "title": "Обработка клика по кнопке верификации в чате и IPC-связка click_message_component",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Связать клик по кнопке в DOM с IPC click_message_component, отображать состояние загрузки (спиннер) на кнопке и выводить тосты с ответом бота (ephemeral messages).",
+      "acceptance_criteria": [
+        "Клик по кнопке не подвешивает интерфейс и показывает статус выполнения",
+        "Эфемерные ответы ботов отображаются во всплывающем уведомлении"
+      ]
+    },
+    {
+      "id": "TASK-816",
+      "title": "Интерактивное прохождение Reaction Verification в каналах правил",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Обеспечить мгновенную установку реакции по клику на бейджи реакций под верификационным сообщением в канале #verify через существующий IPC add_reaction, автоматизируя получение роли участника.",
+      "acceptance_criteria": [
+        "Клик по эмодзи в верификационном канале ставит реакцию пользователя",
+        "Бот выдает роль участника и открываются остальные каналы сервера"
+      ]
+    },
+    {
+      "id": "TASK-817",
+      "title": "Устранение ложного вызова капчи и интеграция WebView-виджета вместо ручного ввода",
+      "department": "G2 Frontend + G5 Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Исключить показ модалки капчи, если сервер можно верифицировать через requests/@me. Если капча реально требуется Discord на уровне инвайта — заменить ручной ввод токена на встроенный интерактивный WebView, где пользователь проходит проверку в 1 клик.",
+      "acceptance_criteria": [
+        "Пользователю больше не нужно вручную копировать и вставлять строковый токен капчи",
+        "При возможности подтверждения через правила сервера капча не запрашивается вовсе"
+      ]
+    },
+    {
+      "id": "TASK-610",
+      "title": "Интерактивный Webview Captcha-решатель (STUB-28 / CARD-TEL-006)",
+      "department": "G2 Frontend + G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Встроенный интерактивный контейнер WebView для прохождения hCaptcha в 1 клик при вступлении на защищенные серверы, исключая показ ошибки 400 и ручной ввод токена.",
+      "acceptance_criteria": [
+        "Успешный перехват токена captcha_key",
+        "Отсутствие краша при отмене пользователем"
+      ]
+    },
+    {
+      "id": "TASK-613",
+      "title": "Захват экрана и окон через Desktop Portal / PipeWire (Task-601)",
+      "department": "G5 Voice / Platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Интеграция с org.freedesktop.portal.ScreenCast для захвата экрана и отдельных окон на Wayland/X11 без root-прав.",
+      "acceptance_criteria": [
+        "Захват видеопотока 1080p/720p 60 FPS",
+        "Корректная обработка смены разрешения"
+      ]
+    },
+    {
+      "id": "TASK-614",
+      "title": "Атомарный буфер 60 FPS (Latest-Frame Ring Buffer) (Task-603)",
+      "department": "G1 Backend + G5 Media",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Кольцевой буфер с нулевым копированием для передачи захваченных видеокадров от PipeWire к аппаратному кодировщику.",
+      "acceptance_criteria": [
+        "Отсутствие разрывов кадров при 60 FPS",
+        "Ограничение памяти < 50 МБ"
+      ]
+    },
+    {
+      "id": "TASK-615",
+      "title": "Пакетная сборка RTP видеопотока и DAVE MLS v1 (Task-602)",
+      "department": "G5 Voice",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Шифрование видеопотока с использованием протокола сквозного шифрования DAVE MLS и упаковка в RTP пакеты.",
+      "acceptance_criteria": [
+        "100% совместимость с DAVE MLS v1 Discord",
+        "AES-GCM / ChaCha20-Poly1305"
+      ]
+    },
+    {
+      "id": "TASK-616",
+      "title": "UI Видео-плеера и Picture-in-Picture (Task-604)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Компонент просмотра видеотрансляции с элементами управления качеством, переключением во весь экран и плавающим окном PiP.",
+      "acceptance_criteria": [
+        "Плавный переход в PiP при навигации",
+        "Скрытие элементов управления через 3 секунды бездействия"
+      ]
+    },
+    {
+      "id": "TASK-617",
+      "title": "BFF для REST-поиска сообщений (STUB-14)",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Бэкенд сервис для поиска сообщений по каналу или гильдии с разбором параметров from, mentions, has, pinned.",
+      "acceptance_criteria": [
+        "Контрактный тест поиска с разбором total_results",
+        "Обработка Rate Limit 429"
+      ]
+    },
+    {
+      "id": "TASK-618",
+      "title": "UI Поискового попапа с подсказками (STUB-14)",
+      "department": "G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Интерактивный поисковый инпут в шапке канала с автодополнением фильтров, историей запросов и подсветкой совпадений.",
+      "acceptance_criteria": [
+        "Навигация стрелками клавиатуры",
+        "Клик по результату скроллит к сообщению"
+      ]
+    },
+    {
+      "id": "TASK-619",
+      "title": "Вычислитель битовых прав Discord Permissions v9 (STUB-17)",
+      "department": "G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Полный алгоритм вычисления эффективных прав пользователя: Base Permissions -> Role Overwrites -> Member Overwrites.",
+      "acceptance_criteria": [
+        "100% паритет с Discord Permissions bitflags",
+        "Тесты разрешения прав на всех уровнях"
+      ]
+    },
+    {
+      "id": "TASK-620",
+      "title": "Контекстные меню сообщений и пользователей (STUB-18)",
+      "department": "G2 Frontend",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Унифицированное контекстное меню по правому клику мыши для сообщений, пользователей и каналов с фильтрацией по правам.",
+      "acceptance_criteria": [
+        "Автоматическое позиционирование во viewport",
+        "Закрытие по Escape или клику снаружи"
+      ]
+    },
+    {
+      "id": "TASK-621",
+      "title": "Headless Xvfb E2E Runner для CI (M2-E2E)",
+      "department": "DevOps + G4 QA",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Автоматический запуск виртуального дисплея Xvfb и автоопределение установленного браузера для прогона E2E тестов в CI/CD.",
+      "acceptance_criteria": [
+        "Чистый запуск npm run gate:worker без графической сессии",
+        "11/11 E2E тестов < 60 сек"
+      ]
+    },
+    {
+      "id": "TASK-622",
+      "title": "Мутационный набор тестов 15/15 (Quality Gate v2)",
+      "department": "G4 QA + PM Review",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Расширенный набор мутационных тестов для проверки устойчивости клиента к разрывам соединения, битым токенам и фейковым ответам.",
+      "acceptance_criteria": [
+        "100% уничтожение всех 15 мутантов (15/15 killed)",
+        "Отчет в QUALITY/MUTATION-REPORT-V2.md"
+      ]
+    },
+    {
+      "id": "TASK-702",
+      "title": "Реактивная модель AppState (Model<T>), связь Tokio ↔ GPUI",
+      "department": "Chief Architect + G1 Backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Архитектура реактивного состояния GPUI: фоновый Tokio рантайм передает события через mpsc каналы в контекст GPUI cx.",
+      "acceptance_criteria": [
+        "Отсутствие гонок потоков Tokio и основного потока UI",
+        "Минимум перерисовок дерева GPUI"
+      ]
+    },
+    {
+      "id": "TASK-703",
+      "title": "Тема DiscordDarkTheme в gpui-kit::ActiveTheme, ассеты и типографика",
+      "department": "G3 Design Lead",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Нативная реализация палитры токенов Discord Dark в структурах темы GPUI Kit: типографика gg sans / Whitney, цвета и радиусы.",
+      "acceptance_criteria": [
+        "100% паритет с дизайн-токенами Discord",
+        "Поддержка Dark, Light и Midnight тем"
+      ]
+    },
+    {
+      "id": "TASK-704",
+      "title": "REST v9 клиент на базе reqwest + backoff (замена самописного HTTP)",
+      "department": "G1 Backend Lead",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Полнофункциональный асинхронный REST клиент Discord API v9 на базе reqwest с экспоненциальным backoff при 429 и авторизацией.",
+      "acceptance_criteria": [
+        "Автоматическая обработка X-RateLimit заголовков",
+        "Точный разбор JSON ошибок Discord"
+      ]
+    },
+    {
+      "id": "TASK-705",
+      "title": "Headless UI тест-харнесс на gpui::TestAppContext (без Chromium/Xvfb)",
+      "department": "G4 QA Lead",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Фреймворк сквозного тестирования компонентов GPUI без реального графического дисплея, эмулирующий клики и рендеринг.",
+      "acceptance_criteria": [
+        "Время выполнения 50 UI тестов < 5 секунд",
+        "Полная независимость от X11/Wayland"
+      ]
+    },
+    {
+      "id": "TASK-706",
+      "title": "Трехпанельный макет AppLayout на базе h_resizable",
+      "department": "G2 Frontend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Компоновка главного окна: изменяемые по ширине боковые панели каналов и участников с запоминанием размеров в конфигурации.",
+      "acceptance_criteria": [
+        "Ограничение минимальной ширины панелей",
+        "Плавный ресайз без дергания чата"
+      ]
+    },
+    {
+      "id": "TASK-709",
+      "title": "Виртуальный скроллинг чата ChatView на базе virtual_list (100k)",
+      "department": "G2 Frontend Lead + G1 Backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Виртуализация сообщений в чате на 100 000 элементов: рендеринг только видимого диапазона строк со стабильной позицией скролла.",
+      "acceptance_criteria": [
+        "60+ FPS при быстром скролле 100 000 сообщений",
+        "Корректная подгрузка истории вверх"
+      ]
+    },
+    {
+      "id": "TASK-710",
+      "title": "Рендеринг сообщений: TextView (Markdown + Syntect подсветка синтаксиса)",
+      "department": "G2 Frontend Lead + G3 Design",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Парсер и отрисовка Markdown: жирный, курсив, зачеркнутый текст, цитаты, спойлеры и подсветка блоков кода более чем 100 языков.",
+      "acceptance_criteria": [
+        "Точная подсветка синтаксиса Rust, JS, Python, HTML",
+        "Клик по спойлерам открывает скрытый текст"
+      ]
+    },
+    {
+      "id": "TASK-711",
+      "title": "Ввод сообщений MessageBar на базе gpui-component::input",
+      "department": "G2 Frontend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Многострочное поле ввода сообщений с поддержкой Shift+Enter, историей отправки по стрелкам вверх/вниз и кнопками прикрепления файлов.",
+      "acceptance_criteria": [
+        "Enter отправляет сообщение, Shift+Enter переносит строку",
+        "Автоматическое увеличение высоты до 50% экрана"
+      ]
+    },
+    {
+      "id": "TASK-712",
+      "title": "Модальное окно решения hCaptcha на базе gpui-webview::WebView",
+      "department": "G2 Frontend Lead + Architect",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Нативное модальное окно на базе GPUI WebView для прохождения hCaptcha при вступлении на серверы без использования Chromium.",
+      "acceptance_criteria": [
+        "Безопасная передача токена в Rust рантайм",
+        "Корректная обработка тайм-аута капчи"
+      ]
+    },
+    {
+      "id": "TASK-713",
+      "title": "Диалоги создания и вступления на сервер (Join/Create Guild)",
+      "department": "G2 Frontend Lead",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Мастер создания своего сервера (шаблоны: Игры, Друзья, Учеба) и диалог ввода ссылки/кода приглашения.",
+      "acceptance_criteria": [
+        "Поддержка инвайтов формата discord.gg/XXX и XXX",
+        "Валидация названия сервера 2-100 символов"
+      ]
+    },
+    {
+      "id": "TASK-714",
+      "title": "Виртуализированный список участников MemberSidebar (25k)",
+      "department": "G2 Frontend Lead",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Правая панель участников с группировкой по высшей роли, статусом активности (Играет в..., Слушает Spotify) и виртуальным скроллом.",
+      "acceptance_criteria": [
+        "Плавный скролл при 25 000 участниках",
+        "Цвета никнеймов соответствуют цветам ролей"
+      ]
+    },
+    {
+      "id": "TASK-715",
+      "title": "Окно настроек SettingsDialog (аккаунт, голос, звук, тема)",
+      "department": "G2 Frontend Lead + G3 Design",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Полнофункциональное окно настроек Discord: Настройки пользователя, Учетная запись, Голос и видео, Горячие клавиши, Тема оформления.",
+      "acceptance_criteria": [
+        "Тестирование микрофона с индикатором уровня громкости",
+        "Выбор темы (Темная / Светлая / Midnight)"
+      ]
+    },
+    {
+      "id": "TASK-717",
+      "title": "Нативный аудио-движок на базе cpal + VAD + Push-to-Talk",
+      "department": "G5 Voice Lead",
+      "priority": "P3",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Аудио-драйвер на базе CPAL с определением голосовой активности WebRTC VAD, регулировкой входной чувствительности и поддержкой PTT.",
+      "acceptance_criteria": [
+        "Задержка аудиозахвата < 20 мс",
+        "Автоматическое подавление эха и шума"
+      ]
+    },
+    {
+      "id": "TASK-718",
+      "title": "Голосовая панель подключения и индикаторы говорящих",
+      "department": "G5 Voice Lead + G2 Frontend",
+      "priority": "P3",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Панель состояния голосового вызова внизу боковой панели: пинг, кнопка отключения от звонка, зеленые кружки вокруг аватаров говорящих.",
+      "acceptance_criteria": [
+        "Зеленое кольцо вокруг аватара при активной речи",
+        "Мгновенное отключение по кнопке трубки"
+      ]
+    },
+    {
+      "id": "TASK-719",
+      "title": "Системный трей (tray-icon) и нативные уведомления (notify-rust)",
+      "department": "G5 Platform Lead",
+      "priority": "P3",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Иконка в системном лотке Linux с контекстным меню, счетчиком непрочитанных сообщений и нативными всплывающими уведомлениями D-Bus.",
+      "acceptance_criteria": [
+        "Сворачивание в трей при закрытии окна",
+        "Клик по уведомлению открывает соответствующий чат"
+      ]
+    },
+    {
+      "id": "TASK-720",
+      "title": "Финальная сертификация сборки, 120 FPS, RAM < 60 МБ, 25/25 мутаций",
+      "department": "G4 QA Lead + PM Review",
+      "priority": "P3",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Комплексная сертификация качества: стабильные 120 FPS при отрисовке, потребление оперативной памяти < 60 МБ, уничтожение 25/25 мутаций.",
+      "acceptance_criteria": [
+        "Потребление RAM < 60 МБ в рабочей сессии",
+        "100% прохождение всех контрактов и проверок"
+      ]
+    },
+    {
+      "id": "TASK-721",
+      "title": "Устранение наложения VoicePanel на профиль пользователя",
+      "department": "G3 Design + G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Изоляция высоты голосовой панели и профиля пользователя (52px flex-none) в боковой панели каналов, устраняющая наложение элементов.",
+      "acceptance_criteria": [
+        "Элементы профиля всегда кликабельны и видимы"
+      ]
+    },
+    {
+      "id": "TASK-722",
+      "title": "Полнофункциональное модальное окно создания и вступления на сервер",
+      "department": "G1 Backend + G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Интерактивная модалка по нажатию кнопки + на панели серверов с созданием сервера и вступлением по ссылке приглашения.",
+      "acceptance_criteria": [
+        "Сервер создается и сразу появляется в списке серверов"
+      ]
+    },
+    {
+      "id": "TASK-723",
+      "title": "Двусторонняя отправка сообщений через официальный REST API v9",
+      "department": "G1 Backend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Отправка сообщений в текущий канал через POST /channels/{id}/messages с мгновенным оптимистичным добавлением в список сообщений.",
+      "acceptance_criteria": [
+        "Сообщение отображается у всех участников канала"
+      ]
+    },
+    {
+      "id": "TASK-724",
+      "title": "Экран обзора публичных сообществ ExploreView (Кнопка 🧭)",
+      "department": "G2 Frontend + G3 Design",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Каталог публичных серверов Discord с поиском по категориям, карточками сообществ, баннерами и кнопкой мгновенного вступления.",
+      "acceptance_criteria": [
+        "Успешный переход в сервер при клике Вступить"
+      ]
+    },
+    {
+      "id": "TASK-725",
+      "title": "Расширение тестового харнесса до 48/48 контрактов",
+      "department": "G4 QA Lead",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Покрытие всех базовых сценариев навигации, гидратации состояния и взаимодействия с серверами 48 комплексными контрактными тестами.",
+      "acceptance_criteria": [
+        "48/48 тестов зелёные (100% Pass)"
+      ]
+    },
+    {
+      "id": "TASK-726",
+      "title": "Устранение перехвата событий неактивными модальными окнами",
+      "department": "G2 Frontend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Изоляция событий ввода мыши и клавиатуры при закрытых модальных окнах, исключающая блокировку кликов по основному интерфейсу.",
+      "acceptance_criteria": [
+        "Клики по чату и каналам работают безупречно"
+      ]
+    },
+    {
+      "id": "TASK-727",
+      "title": "Загрузка и синхронизация реальных каналов серверов (GET /guilds/{id}/channels)",
+      "department": "G1 Backend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Синхронизация полной структуры каналов сервера с категориями, правами доступа и сортировкой по позиции.",
+      "acceptance_criteria": [
+        "Все каналы отображаются строго в соответствии с позициями"
+      ]
+    },
+    {
+      "id": "TASK-728",
+      "title": "Расширение тестового харнесса до 53/53 контрактов с верификацией живого инвайта",
+      "department": "G4 QA Lead",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Интеграционные тесты разрешения ссылок приглашений Discord и проверки прав участников в 53 автоматических контрактах.",
+      "acceptance_criteria": [
+        "53/53 контрактов пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-729",
+      "title": "Загрузка и кэширование сообщений гильдийных каналов через REST API",
+      "department": "G1 Backend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Кэширование последних 50 сообщений для каждого посещенного канала в локальной памяти для мгновенного переключения без ожидания сети.",
+      "acceptance_criteria": [
+        "Мгновенное переключение между каналами (< 50 мс)"
+      ]
+    },
+    {
+      "id": "TASK-730",
+      "title": "Динамическое обнаружение и наполнение участников сервера из авторов сообщений",
+      "department": "G1 Backend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Наполнение списка участников сервера на основе авторов загруженных сообщений при отсутствии шлюзовой подписки на чанк участников.",
+      "acceptance_criteria": [
+        "В сайдбаре отображаются реальные никнеймы и аватары авторов"
+      ]
+    },
+    {
+      "id": "TASK-731",
+      "title": "Синхронизация выбора каналов гильдии и автоматический выбор первого текстового канала",
+      "department": "G2 Frontend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Автоматический выбор первого доступного текстового канала (#general / #основной) при клике на сервер в панели серверов.",
+      "acceptance_criteria": [
+        "Пользователь сразу видит чат выбранного сервера"
+      ]
+    },
+    {
+      "id": "TASK-732",
+      "title": "Интерактивный ввод ссылки приглашения в CreateGuildModal",
+      "department": "G2 Frontend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Полноценный текстовый инпут с поддержкой выделения, удаления через Backspace и вставки из буфера обмена Ctrl+V.",
+      "acceptance_criteria": [
+        "Вставка любой формы ссылки (discord.gg/... или чистый код)"
+      ]
+    },
+    {
+      "id": "TASK-733",
+      "title": "Устранение наложения и фейкового статуса голосового подключения VoicePanel",
+      "department": "G5 Voice Lead + G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Отображение VoicePanel строго при реальном установленном подключении к голосовому каналу с корректным отображением RTC пинга.",
+      "acceptance_criteria": [
+        "Панель скрыта, если пользователь не подключен к войсу"
+      ]
+    },
+    {
+      "id": "TASK-734",
+      "title": "Расширение тестового харнесса до 55/55 контрактов GPUI",
+      "department": "G4 QA Lead",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Дополнительные регрессионные контракты для проверки стабильности навигации, создания серверов и отправки сообщений.",
+      "acceptance_criteria": [
+        "55/55 контрактов пройдены успешно"
+      ]
+    },
+    {
+      "id": "TASK-735",
+      "title": "Интеграция реального подключения к серверу через POST /invites/{code}",
+      "department": "G1 Backend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Официальный REST вызов вступления на сервер через POST /api/v9/invites/{code} с обработкой подтверждения правил и капчи.",
+      "acceptance_criteria": [
+        "Сервер мгновенно добавляется в список пользователя"
+      ]
+    },
+    {
+      "id": "TASK-736",
+      "title": "Управление жизненным циклом голосовой сессии и интеграция аудио-устройств CPAL",
+      "department": "G5 Voice Lead",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Выбор аудиоустройств ввода/вывода, переключение на лету при отключении гарнитуры и корректный сброс аудиопотока.",
+      "acceptance_criteria": [
+        "Бесшовное переключение звука без перезапуска клиента"
+      ]
+    },
+    {
+      "id": "TASK-737",
+      "title": "Стилизация и паритет модального окна добавления сервера по стандартам Discord Dark",
+      "department": "G3 Design Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Точное визуальное соответствие модального окна создания сервера: иконки шаблонов, белая кнопка создания, скругления 8px.",
+      "acceptance_criteria": [
+        "100% паритет с официальным клиентом Discord"
+      ]
+    },
+    {
+      "id": "TASK-738",
+      "title": "Изоляция контейнеров нижней панели сайдбара и профиля пользователя",
+      "department": "G2 Frontend Lead",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Разделение DOM-контейнеров панели каналов и панели профиля для предотвращения перекрытия кликов и скролла.",
+      "acceptance_criteria": [
+        "Панель профиля зафиксирована внизу и не двигается при скролле"
+      ]
+    },
+    {
+      "id": "TASK-739",
+      "title": "Отображение реального профиля аутентифицированного пользователя вместо тестовых моков",
+      "department": "G1 Backend + G2 Frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Отрисовка настоящего аватара, никнейма, глобального имени и статуса пользователя из события READY шлюза Discord.",
+      "acceptance_criteria": [
+        "Корректный показ статусов: В сети, Неактивен, Не беспокоить, Невидимый"
+      ]
+    },
+    {
+      "id": "TASK-740",
+      "title": "Автоматизированная регрессионная верификация сборки и релиз бинарника",
+      "department": "G4 QA Lead + DevOps",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42",
+      "closed_at": "2026-11-10T02:10:00+05:00",
+      "commit": "6f60b11",
+      "summary": "Сквозной прогон всех тестов, проверка контрольных сумм SHA256SUMS, проверка работы релиза на чистой машине и релизный отчет.",
+      "acceptance_criteria": [
+        "100% Pass всех фаз gate:release",
+        "Бинарник запускается без внешних зависимостей"
+      ]
+    },
+    {
+      "id": "TASK-818",
+      "title": "Локальный мост hcaptcha-bridge.html и устранение XML AccessDenied",
+      "department": "g2_frontend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Создание hcaptcha-bridge.html с официальным JS SDK, параметрами sitekey и rqdata, темной темой и postMessage мостом для устранения ошибки XML AccessDenied при решении капчи.",
+      "acceptance_criteria": [
+        "Устранена ошибка S3 AccessDenied",
+        "Автоматический postMessage токена в капча-модалку",
+        "100% прохождение тестов"
+      ]
+    },
+    {
+      "id": "TASK-819",
+      "title": "Стабилизация SSRC, непрерывные 90 кГц метки времени и RTCP PLI/FIR (Ошибки 2007 и 2000)",
+      "department": "g5_voice_platform",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Фиксация SSRC и счетчиков RTP/SRTP при пересогласовании и рестартах стрима, непрерывный отсчет времени 90 кГц и генерация RTCP PLI/FIR ключевых кадров для победы над кодами 2007 и 2000.",
+      "acceptance_criteria": [
+        "SSRC не меняется при OP 4",
+        "Метки времени 90 кГц монотонны",
+        "Ключевые кадры IDR/OBU генерируются по RTCP PLI/FIR"
+      ]
+    },
+    {
+      "id": "TASK-820",
+      "title": "Устранение спама voice_connect и дублирующих Gateway OP 4 обновлений",
+      "department": "g1_backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Мемоизация lastVoiceConnectState в frontend app.js, проверка открытых настроек и строгий dirty-checking в data::connect_or_update_live_voice_ext для предотвращения сброса голосовой сессии (коды 2008, 2014, 2015).",
+      "acceptance_criteria": [
+        "Дедупликация voice_connect",
+        "Полинг аудиоустройств 10 сек в фоне",
+        "Отсутствие повторных OP 4"
+      ]
+    },
+    {
+      "id": "TASK-821",
+      "title": "Паритет Voice Channel Stage Banner (Карточка предпросмотра голосового канала, frame 032)",
+      "department": "g2_frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Реализация розовой карточки #voice-stage-preview-banner (280px, #eb459e) с участниками, бейджами В ЭФИРЕ/Muted и кнопкой Присоединиться к голосовому каналу при клике на голосовой канал.",
+      "acceptance_criteria": [
+        "Карточка 280px высоты",
+        "Аватары участников и бейджи стрима",
+        "Клик присоединяет к голосовому каналу"
+      ]
+    },
+    {
+      "id": "TASK-822",
+      "title": "HTTP/2 Keep-Alive пул и бэк-офф для resolve_invite_info (устранение фриза 2.6 сек)",
+      "department": "g1_backend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Пул соединений HTTP/2 с keep-alive 90 сек и экспоненциальный бэк-офф 150мс для resolve_invite_info, индикатор загрузки join-loading-indicator в UI.",
+      "acceptance_criteria": [
+        "HTTP/2 keep-alive 90s",
+        "Устранен фриз 2.6 сек",
+        "Индикатор загрузки без блокировки UI"
+      ]
+    },
+    {
+      "id": "TASK-823",
+      "title": "Устранение AVError кодов 2004, 2005, 2009, 2010, 2016, 2017 и RTC Quality Status Bar",
+      "department": "g5_voice_platform",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Подавление сетевых и таймаутных AVError кодов 2004-2017, реализация строки статуса качества RTC (240x40, RTT, битрейт, DAVE MLS v1 Verified).",
+      "acceptance_criteria": [
+        "Подавление кодов 2004..2017",
+        "Виджет RTC Quality Bar 240x40",
+        "Индикация RTT и DAVE MLS v1"
+      ]
+    },
+    {
+      "id": "TASK-824",
+      "title": "Комплексная верификация всех кодов 2000-2018, 15/15 мутационный гейт и чистота GDB-логов",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Контрактный тест voice_stream_codes_contract.rs и юнит-тест voice-stream-codes-2000-2018.test.mjs, покрывающие все 19 кодов 2000..=2018, 15/15 мутационный гейт и подтверждение чистоты логов GDB.",
+      "acceptance_criteria": [
+        "19/19 кодов 2000..=2018 побеждены",
+        "15/15 мутаций уничтожено",
+        "Логи GDB 100% чисты"
+      ]
+    },
+    {
+      "id": "TASK-825",
+      "title": "Инвайты, Captcha и бесшовный fallback авторизации сессии при вступлении на сервер",
+      "department": "g1_backend",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Бесшовный fallback token_or на data::resolve_live_token() для устранения ошибки missingToken, публичный доступ к GET /invites/{code} без обязательного Bearer, передача клиентских заголовков X-Context-Properties в accept_invite_with_captcha и сохранение текста ссылки в UI.",
+      "acceptance_criteria": [
+        "Устранена ошибка missingToken при активной сессии",
+        "resolve_invite работает публично",
+        "X-Context-Properties передается в капче",
+        "Инпут инвайта сохраняется при повторе"
+      ]
+    },
+    {
+      "id": "TASK-826",
+      "title": "Поддержка тихих AFK-каналов и устранение ложного ожидания RTC-сервера",
+      "department": "g5_voice_platform",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Определение флага is_afk_channel по guild.afk_channel_id в backend, вывод специального бейджа '🔕 AFK-канал (микрофон и звук отключены)' в UI вместо вечного ожидания VOICE_SERVER_UPDATE, блокировка ложных реконнектов в discord-voice.",
+      "acceptance_criteria": [
+        "Распознавание guild.afk_channel_id",
+        "UI статус AFK-канал без тайм-аута",
+        "Отсутствие ложных ICE реконнектов в discord-voice"
+      ]
+    },
+    {
+      "id": "TASK-827",
+      "title": "Синхронизация чата и баннера при переключении голосовых каналов",
+      "department": "g2_frontend",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Синхронизация Voice Text Channel Chat ID при клике на голосовые каналы, устранение отображения чужого инпута текстового чата под сценическим баннером, выдвижная боковая панель по кнопке 'Открыть чат'.",
+      "acceptance_criteria": [
+        "Контекст чата соответствует выбранному голосовому каналу",
+        "Инпут заблокирован до входа в канал",
+        "Кнопка 'Открыть чат' выдвигает панель"
+      ]
+    },
+    {
+      "id": "TASK-828",
+      "title": "Оптимизация верстки виджета статуса RTC в компактном сайдбаре",
+      "department": "g3_design",
+      "priority": "P2",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Адаптивный CSS-флексбокс для live-voice-status-badge и voice-rtt-pill в сайдбаре 240px без наездов и некрасивых сокращений, Rich Tooltip с параметрами RTT, регионом сервера и шифрованием DAVE MLS v1.",
+      "acceptance_criteria": [
+        "Нет наложения текста в 240px сайдбаре",
+        "Зеленый компактный бейдж Подключено",
+        "Rich tooltip при наведении"
+      ]
+    },
+    {
+      "id": "TASK-829",
+      "title": "Автоматические регрессионные контракты для инвайтов, AFK и заголовков",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-42-AUDIT",
+      "closed_at": "2026-11-11T00:05:00+05:00",
+      "commit": "e09b499",
+      "summary": "Rust контрактный тест invites_live_fallback_contract.rs (проверка fallback токена и публичного resolve), JS тесты afk-voice-status.test.mjs и invite-input.test.mjs, включение в общий гейт CI.",
+      "acceptance_criteria": [
+        "100% pass invites_live_fallback_contract.rs",
+        "100% pass unit тесты AFK и инвайтов",
+        "0 регрессий в gate:worker"
+      ]
+    },
+    {
+      "id": "TASK-901",
+      "title": "Архитектурный каркас нативного E2E-харнесса (Virtual Wayland/Cage + Mock Gateway Daemon)",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Создание полностью изолированной среды для сквозных тестов native Rust GPUI без реального экрана и внешних серверов: локальный виртуальный композитор Wayland/Cage, локальный Tokio Mock Gateway с воспроизведением дампов capture-ready.jsonl.",
+      "acceptance_criteria": [
+        "Запуск полного цикла E2E без физического дисплея и без интернета",
+        "Время развертывания виртуального окружения < 300 мс",
+        "0 паник, 0 зомби-процессов, детерминированное воспроизведение"
+      ]
+    },
+    {
+      "id": "TASK-902",
+      "title": "Семантический драйвер GUI и автоматизация тестирования через D-Bus AT-SPI",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Автоматизированное управление и инспекция нативного интерфейса GPUI через системное дерево доступности Linux (AT-SPI / org.a11y.Bus) без хрупких координат и привязки к пикселям.",
+      "acceptance_criteria": [
+        "100% ключевых экранов доступны через AT-SPI семантическое дерево",
+        "DSL Driver позволяет кликать и вводить текст без использования координат мыши",
+        "Соответствие стандарту доступности WCAG 2.2 Level AA/AAA"
+      ]
+    },
+    {
+      "id": "TASK-903",
+      "title": "Комплексный фаззинг сетевых протоколов и криптографии DAVE MLS v1 (cargo-fuzz)",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Внедрение непрерывного фаззинг-тестирования на базе libFuzzer/cargo-fuzz и AddressSanitizer для проверки сетевых парсеров, RTP медиа-декодеров и сквозного шифрования DAVE E2EE на устойчивость к поврежденным и враждебным пакетам.",
+      "acceptance_criteria": [
+        "Минимум 10 000 000 итераций фаззинга без единого крэша, паники или утечки памяти",
+        "AddressSanitizer (ASan) подтверждает чистоту работы с памятью",
+        "Все сбои парсинга возвращают явный Err, а не panic!"
+      ]
+    },
+    {
+      "id": "TASK-904",
+      "title": "Автоматизация визуальной регрессии GPUI на базе SSIM (>0.99) и маскирования",
+      "department": "g4_qa",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Система автоматического визуального сравнения экранов и компонентов GPUI с эталонными снимками (Goldens) с использованием алгоритма структурного сходства SSIM (Structural Similarity Index) с порогом > 0.99 и маскированием динамических областей.",
+      "acceptance_criteria": [
+        "SSIM > 0.99 для всех утвержденных экранов и компонентов",
+        "Отсутствие ложных срабатываний из-за часов или динамических аватарок",
+        "Генерация интерактивного HTML отчёта с режимами сравнения Slider / Onion Skin"
+      ]
+    },
+    {
+      "id": "TASK-905",
+      "title": "Стенд Chaos Engineering: сетевые обрывы, джиттер 20-60мс и аварийное восстановление",
+      "department": "g4_qa",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Стресс-тестирование надежности и отказоустойчивости приложения в экстремальных условиях: внезапные обрывы WebSocket, искусственная потеря 5-30% UDP пакетов, скачки джиттера, отказ PipeWire демона и переключение аудиоустройств на лету.",
+      "acceptance_criteria": [
+        "100% автоматическое восстановление после разрыва соединения шлюза без потери сообщений",
+        "Аудио-стек продолжает работу при смене устройств ввода/вывода без падения процесса",
+        "0 утечек ресурсов и дескрипторов при 100 последовательных циклах сбоя"
+      ]
+    },
+    {
+      "id": "TASK-906",
+      "title": "Бенчмаркинг 120 FPS и профилирование утечек памяти в реальном времени (Heap/RSS < 60 MB)",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Автоматизированные замеры производительности графического конвейера и потребления ресурсов: непрерывный мониторинг времени рендеринга кадра (<8.33 мс для 120 FPS), профилирование аллокаций памяти кучи через jemalloc/valgrind, исключение утечек в длинных сессиях.",
+      "acceptance_criteria": [
+        "99.9% кадров укладываются в бюджет 8.33 мс (120 FPS)",
+        "VmRSS стабильно ниже 60 МБ при непрерывной работе",
+        "0 растущих утечек памяти при многократном открытии/закрытии модалок и переключении каналов"
+      ]
+    },
+    {
+      "id": "TASK-907",
+      "title": "Автоматизированный гейт качества кода: Clippy, ASan/TSan санитайзеры и 5/5 мутационный гейт",
+      "department": "g4_qa",
+      "priority": "P0",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Строгий интеграционный пайплайн контроля качества кода перед каждым коммитом и PR: линтинг с нулевой терпимостью к предупреждениям, санитайзеры многопоточности и памяти (Address/Thread Sanitizer), мутационное тестирование с обязательным уничтожением 100% мутаций (5/5).",
+      "acceptance_criteria": [
+        "Clippy: 0 warnings, rustfmt: clean",
+        "ASan и TSan подтверждают отсутствие ошибок памяти и гонок потоков",
+        "Мутационный гейт: ровно 5/5 мутаций уничтожено"
+      ]
+    },
+    {
+      "id": "TASK-908",
+      "title": "Регламент, чек-листы и сценарии ручного исследовательского тестирования (Manual QA Suite)",
+      "department": "g4_qa",
+      "priority": "P1",
+      "status": "done",
+      "wave": "RW-44",
+      "closed_at": "2026-11-11T15:38:00+05:00",
+      "commit": "1e7af5a",
+      "summary": "Формализованный регламент ручного тестирования, чек-листы приемки функционала (Definition of Done), сценарии исследовательского тестирования (Exploratory Testing) и процедуры регулярных Bug-bash сессий перед релизом на различных графических окружениях Linux.",
+      "acceptance_criteria": [
+        "Полный комплект чек-листов покрывает 100% пользовательских сценариев клиента",
+        "Проверена совместимость с 4 основными оконными менеджерами Linux (GNOME, KDE, Hyprland, X11)",
+        "Процедура Bug-bash сессий стандартизирована и готова к регулярному использованию перед релизами"
+      ]
+    }
+  ]
+}

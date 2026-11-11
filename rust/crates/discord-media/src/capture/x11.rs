@@ -272,6 +272,8 @@ impl X11ShmPixelBuffer {
             format: pw_format,
             data: shm_data,
             crop: None,
+            dma_buf_fd: None,
+            drm_modifier: 0,
         };
         buf.to_video_frame(output_format, timestamp_us)
     }
@@ -335,6 +337,8 @@ impl X11ShmPixelBuffer {
                 width: monitor.width,
                 height: monitor.height,
             }),
+            dma_buf_fd: None,
+            drm_modifier: 0,
         };
         buf.to_video_frame(output_format, timestamp_us)
     }

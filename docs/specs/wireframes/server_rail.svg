@@ -1,0 +1,22 @@
+<svg width="72" height="500" viewBox="0 0 72 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="72" height="500" fill="#1e1f22"/>
+  <!-- Home/DM Icon (Active) -->
+  <rect x="0" y="14" width="4" height="40" rx="2" fill="#ffffff"/>
+  <circle cx="36" cy="34" r="24" fill="#5865f2"/>
+  <text x="36" y="40" fill="#fff" font-size="16" text-anchor="middle" font-family="sans-serif">💬</text>
+  <!-- Separator -->
+  <line x1="20" y1="70" x2="52" y2="70" stroke="#35373c" stroke-width="2"/>
+  <!-- Guild 1: Rust Developers (Hovered) -->
+  <rect x="0" y="90" width="4" height="20" rx="2" fill="#ffffff"/>
+  <rect x="12" y="80" width="48" height="48" rx="16" fill="#313338"/>
+  <text x="36" y="110" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle" font-family="sans-serif">RD</text>
+  <!-- Guild 2: Tokyo Async -->
+  <circle cx="36" cy="160" r="24" fill="#2b2d31"/>
+  <text x="36" y="165" fill="#dbdee1" font-size="13" text-anchor="middle" font-family="sans-serif">TA</text>
+  <!-- Add Guild Button -->
+  <circle cx="36" cy="220" r="24" fill="#313338" stroke="#23a55a" stroke-dasharray="4 2"/>
+  <text x="36" y="226" fill="#23a55a" font-size="20" font-weight="bold" text-anchor="middle" font-family="sans-serif">+</text>
+  <!-- Explore Public Guilds -->
+  <circle cx="36" cy="280" r="24" fill="#313338"/>
+  <text x="36" y="286" fill="#23a55a" font-size="16" text-anchor="middle" font-family="sans-serif">🧭</text>
+</svg>

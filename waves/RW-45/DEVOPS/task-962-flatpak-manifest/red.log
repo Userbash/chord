@@ -1,0 +1,152 @@
+▶ TASK-962: Манифест Flatpak com.discord_lab.DiscordGpui.yml и песочница Wayland/PipeWire
+  ✖ SUB-962-1: манифест packaging/flatpak/com.discord_lab.DiscordGpui.yml существует, валиден по YAML-схеме и задаёт runtime org.freedesktop.Platform 23.08 (0.696629ms)
+  ✖ SUB-962-2: finish-args включает обязательные права --socket=wayland, --socket=fallback-x11, --filesystem=xdg-run/pipewire-0 и Secret Service portal (30.984097ms)
+  ✖ SUB-962-3: права sandboxing строго минимальны (отсутствуют --filesystem=host/home, прямой --socket=x11, --device=all, --socket=session-bus/system-bus) (31.892049ms)
+  ✖ SUB-962-4: модуль discord-gpui и его источники ссылаются на реальные артефакты rust/dist/ с точным совпадением SHA-256 по оракулу SHA256SUMS (32.565718ms)
+  ✖ SUB-962-5: валидатор validateFlatpakManifest отсекает негативные, граничные и небезопасные мутации манифеста (31.136869ms)
+✖ TASK-962: Манифест Flatpak com.discord_lab.DiscordGpui.yml и песочница Wayland/PipeWire (128.558629ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.090793
+
+✖ failing tests:
+
+test at tests/unit/flatpak-manifest-962.test.mjs:236:3
+✖ SUB-962-1: манифест packaging/flatpak/com.discord_lab.DiscordGpui.yml существует, валиден по YAML-схеме и задаёт runtime org.freedesktop.Platform 23.08 (0.696629ms)
+  AssertionError [ERR_ASSERTION]: Манифест Flatpak должен существовать по пути: /home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:237:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/flatpak-manifest-962.test.mjs:264:3
+✖ SUB-962-2: finish-args включает обязательные права --socket=wayland, --socket=fallback-x11, --filesystem=xdg-run/pipewire-0 и Secret Service portal (30.984097ms)
+  AssertionError [ERR_ASSERTION]: Ошибка парсинга YAML независимым оракулом PyYAML:
+  Traceback (most recent call last):
+    File "<string>", line 2, in <module>
+      with open(sys.argv[1], 'r', encoding='utf-8') as f:
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  
+  
+  1 !== 0
+  
+      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:265:22)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/flatpak-manifest-962.test.mjs:311:3
+✖ SUB-962-3: права sandboxing строго минимальны (отсутствуют --filesystem=host/home, прямой --socket=x11, --device=all, --socket=session-bus/system-bus) (31.892049ms)
+  AssertionError [ERR_ASSERTION]: Ошибка парсинга YAML независимым оракулом PyYAML:
+  Traceback (most recent call last):
+    File "<string>", line 2, in <module>
+      with open(sys.argv[1], 'r', encoding='utf-8') as f:
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  
+  
+  1 !== 0
+  
+      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:312:22)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/flatpak-manifest-962.test.mjs:345:3
+✖ SUB-962-4: модуль discord-gpui и его источники ссылаются на реальные артефакты rust/dist/ с точным совпадением SHA-256 по оракулу SHA256SUMS (32.565718ms)
+  AssertionError [ERR_ASSERTION]: Ошибка парсинга YAML независимым оракулом PyYAML:
+  Traceback (most recent call last):
+    File "<string>", line 2, in <module>
+      with open(sys.argv[1], 'r', encoding='utf-8') as f:
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  
+  
+  1 !== 0
+  
+      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:346:22)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/flatpak-manifest-962.test.mjs:385:3
+✖ SUB-962-5: валидатор validateFlatpakManifest отсекает негативные, граничные и небезопасные мутации манифеста (31.136869ms)
+  AssertionError [ERR_ASSERTION]: Ошибка парсинга YAML независимым оракулом PyYAML:
+  Traceback (most recent call last):
+    File "<string>", line 2, in <module>
+      with open(sys.argv[1], 'r', encoding='utf-8') as f:
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  
+  
+  1 !== 0
+  
+      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:386:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

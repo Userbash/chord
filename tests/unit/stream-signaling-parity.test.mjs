@@ -13,6 +13,13 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const REPO_ROOT = path.resolve(__dirname, "../..");
 
 describe("TASK-761: Stream Key & Channel ID Resolution", () => {
   /**
@@ -171,5 +178,112 @@ describe("TASK-761: Gateway OP 4 VOICE_STATE_UPDATE self_stream flag", () => {
     const vs = buildVoiceStatePayload("100", "200", false, false, false, true);
     assert.equal(vs.d.self_stream, true, "self_stream must be true in OP 4");
     assert.equal(vs.d.flags, 2, "flags must indicate stream");
+  });
+});
+
+describe("TASK-778: Gateway OP 18/19/22 & Voice OP 1 SELECT_PROTOCOL Source Parity", () => {
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
+
+  it("T778-1: queue_live_stream_delete in ws.rs clears LAST_STREAM_KEY for instant stream restart", () => {
+    const fnIdx = wsRs.indexOf("pub fn queue_live_stream_delete(");
+    assert.ok(fnIdx > 0, "queue_live_stream_delete must exist in ws.rs");
+    const fnBody = wsRs.slice(fnIdx, fnIdx + 1200);
+    assert.match(
+      fnBody,
+      /LAST_STREAM_KEY|clear_last_stream_key\(\)/,
+      "queue_live_stream_delete must clear LAST_STREAM_KEY so restarting a stream in the same channel is not suppressed",
+    );
+    assert.match(
+      fnBody,
+      /EtfValue::Int\(19\)/,
+      "queue_live_stream_delete must encode Gateway OP 19 STREAM_DELETE",
+    );
+  });
+
+  it("T778-2: ws.rs encodes OP 18 STREAM_CREATE with Atom('nil') and exposes queue_live_stream_set_paused for OP 22", () => {
+    const createIdx = wsRs.indexOf("pub fn queue_live_stream_create(");
+    assert.ok(createIdx > 0, "queue_live_stream_create must exist in ws.rs");
+    const createBody = wsRs.slice(createIdx, createIdx + 1500);
+    assert.match(
+      createBody,
+      /EtfValue::Atom\("nil"\.to_string\(\)\)/,
+      "queue_live_stream_create must encode null fields as Atom('nil') for Discord wetf compatibility",
+    );
+    assert.match(
+      wsRs,
+      /pub fn queue_live_stream_set_paused\s*\(/,
+      "ws.rs must expose queue_live_stream_set_paused for OP 22",
+    );
+  });
+
+  it("T778-3: main.rs clears LAST_STREAM_KEY on stream start/stop/disconnect and wires OP 22 set_paused", () => {
+    const stopIdx = mainRs.indexOf("async fn voice_stream_stop(");
+    assert.ok(stopIdx > 0, "voice_stream_stop must exist in main.rs");
+    const stopBody = mainRs.slice(stopIdx, stopIdx + 1800);
+    assert.match(
+      stopBody,
+      /clear_last_stream_key\(\)/,
+      "voice_stream_stop in main.rs must explicitly call clear_last_stream_key()",
+    );
+    assert.match(
+      stopBody,
+      /queue_live_stream_delete/,
+      "voice_stream_stop in main.rs must call queue_live_stream_delete",
+    );
+
+    const pauseIdx = mainRs.indexOf("async fn voice_stream_set_paused(");
+    assert.ok(pauseIdx > 0, "voice_stream_set_paused must exist in main.rs");
+    const pauseBody = mainRs.slice(pauseIdx, pauseIdx + 900);
+    assert.match(
+      pauseBody,
+      /queue_live_stream_set_paused/,
+      "voice_stream_set_paused in main.rs must dispatch OP 22 via queue_live_stream_set_paused",
+    );
+  });
+
+  it("T778-4: ws.rs OP 1 SELECT_PROTOCOL enables encode for both H264 (105/106) and VP8 (107/108) when broadcasting", () => {
+    const h264Matches = wsRs.match(
+      /\{\{\\"name\\":\\"H264\\",\\"type\\":\\"video\\",\\"priority\\":1000,\\"payload_type\\":105,\\"rtx_payload_type\\":106,\\"encode\\":\{can_encode\},\\"decode\\":true\}\}/g,
+    );
+    const vp8Matches = wsRs.match(
+      /\{\{\\"name\\":\\"VP8\\",\\"type\\":\\"video\\",\\"priority\\":2000,\\"payload_type\\":107,\\"rtx_payload_type\\":108,\\"encode\\":\{can_encode\},\\"decode\\":true\}\}/g,
+    );
+    assert.ok(
+      h264Matches && h264Matches.length >= 2,
+      "Both pure-Rust and native bridge OP 1 SELECT_PROTOCOL payloads must configure H264 encode:{can_encode}",
+    );
+    assert.ok(
+      vp8Matches && vp8Matches.length >= 2,
+      "Both pure-Rust and native bridge OP 1 SELECT_PROTOCOL payloads must configure VP8 encode:{can_encode}",
+    );
+    assert.match(
+      wsRs,
+      /is_cached_broadcaster/,
+      "run_rtc_task must resolve is_self_broadcaster with LAST_VOICE_STATE_CACHE fallback so can_encode is true when broadcasting",
+    );
+  });
+
+  it("T785-1: ws.rs handles incoming Voice Opcode 16 with heartbeat/ping reply (OP 3) and sends Voice Opcode 12 (VIDEO) with video_ssrc and rtx_ssrc", () => {
+    assert.match(
+      wsRs,
+      /pub fn build_voice_v8_op16\(\)/,
+      "ws.rs must expose build_voice_v8_op16() helper",
+    );
+    assert.match(
+      wsRs,
+      /pub fn build_voice_v8_video_op12\(/,
+      "ws.rs must expose build_voice_v8_video_op12() helper with audio_ssrc, video_ssrc, and rtx_ssrc",
+    );
+    assert.match(
+      wsRs,
+      /16\s*=>\s*\{[\s\S]{0,600}?VOICE_BACKEND_VERSION[\s\S]{0,600}?build_voice_v8_heartbeat_op3\(/,
+      "run_rtc_task in ws.rs must handle incoming Voice Opcode 16 and respond with OP 3 heartbeat/ping",
+    );
+    assert.match(
+      wsRs,
+      /"video_callback"\s*=>\s*\{[\s\S]{0,1600}?build_voice_v8_video_op12\(/,
+      "run_rtc_task in ws.rs must emit OP 12 VIDEO with video_ssrc and rtx_ssrc on native video_callback",
+    );
   });
 });

@@ -1,0 +1,62 @@
+# Манифест Flatpak для нативного клиента Discord GPUI (TASK-962)
+# Оракул RE: /home/sanya/re-deep/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
+# Оракул RE: /home/sanya/re-deep/main-arch.md (@143136, FLATPAK_ID runtime environment)
+# Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets / Secret portal)
+app-id: com.discord_lab.DiscordGpui
+runtime: org.freedesktop.Platform
+runtime-version: "23.08"
+sdk: org.freedesktop.Sdk
+command: discord-gpui
+separate-locales: false
+
+finish-args:
+  # Графический стек: нативный Wayland (основной) + безопасный резервный X11 (только при отсутствии Wayland)
+  - --socket=wayland
+  - --socket=fallback-x11
+  # Разделяемая память IPC для X11 MIT-SHM fallback (XShmGetImage)
+  - --share=ipc
+  # Аппаратное ускорение GPU (WGPU Vulkan / OpenGL 120 FPS + VA-API) без полного доступа ко всем устройствам
+  - --device=dri
+  # Сетевой стек: Discord Gateway (WSS), REST API v9 (HTTPS) и WebRTC медиа-транспорт (UDP/SRTP/DAVE MLS)
+  - --share=network
+  # Низколатентный захват экрана (DMA-BUF NV12) и аудиомаршрутизация через сокет PipeWire
+  - --filesystem=xdg-run/pipewire-0
+  # Совместимость аудиовывода через PipeWire-Pulse / PulseAudio мост
+  - --socket=pulseaudio
+  # Хранение сессионного токена в системном брелоке через Secret Service API и XDG Secret Portal
+  - --talk-name=org.freedesktop.secrets
+  # Интеграция с XDG Desktop Portal (ScreenCast, Secret, FileChooser, Settings)
+  - --talk-name=org.freedesktop.portal.Desktop
+  # Системные уведомления рабочего стола
+  - --talk-name=org.freedesktop.Notifications
+  # Иконка системного трея по протоколу StatusNotifierItem (SNI / AppIndicator)
+  - --talk-name=org.kde.StatusNotifierWatcher
+  # Экспорт дерева доступности AT-SPI (WCAG 2.2 AA / Screen Reader)
+  - --talk-name=org.a11y.Bus
+  # Структурированное логирование по умолчанию (с автоматическим маскированием токенов mfa.[REDACTED])
+  - --env=RUST_LOG=info
+
+modules:
+  - name: discord-gpui
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 discord-gpui /app/bin/discord-gpui
+      - install -Dm644 sbom.spdx.json /app/share/doc/discord-gpui/sbom.spdx.json
+      - install -Dm644 LICENSE-MIT /app/share/licenses/com.discord_lab.DiscordGpui/LICENSE-MIT
+      - install -Dm644 LICENSE-APACHE /app/share/licenses/com.discord_lab.DiscordGpui/LICENSE-APACHE
+      - install -Dm644 BETA-TESTING-GUIDE.md /app/share/doc/discord-gpui/BETA-TESTING-GUIDE.md
+      - install -Dm644 RELEASE-NOTES-v1.0.0-beta.1.md /app/share/doc/discord-gpui/RELEASE-NOTES-v1.0.0-beta.1.md
+    sources:
+      - type: archive
+        path: ../../rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
+        sha256: 18a6aa8066ce0b6722c8b83a61bf0c43939d5cee7696c7cd6d282ac1167a349e
+        only-arches:
+          - x86_64
+      - type: file
+        path: ../../rust/dist/discord-gpui
+        sha256: d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e
+        only-arches:
+          - x86_64
+      - type: file
+        path: ../../rust/dist/sbom.spdx.json
+        sha256: acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921

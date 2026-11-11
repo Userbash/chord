@@ -61,11 +61,12 @@ pub fn opt_text(value: Option<&EtfValue>) -> Option<String> {
     })
 }
 
-/// Целое (`Int`), включая отрицательные (для счётчиков/флагов).
+/// Целое (`Int`), включая отрицательные (для счётчиков/флагов) и десятичные строки/атомы.
 #[must_use]
 pub fn integer(value: &EtfValue) -> Option<i64> {
     match value {
         EtfValue::Int(number) => Some(*number),
+        EtfValue::Str(text) | EtfValue::Atom(text) => text.trim().parse::<i64>().ok(),
         _ => None,
     }
 }

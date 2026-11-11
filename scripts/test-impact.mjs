@@ -105,6 +105,7 @@ const RUST_MODULE_CONTRACTS = {
   "rust/gui-spike/src/roles.rs": "roles_contract",
   "rust/gui-spike/src/scheduled_events.rs": "scheduled_events_contract",
   "rust/gui-spike/src/search.rs": "search_contract",
+  "rust/gui-spike/src/search_bff.rs": "search_bff_contract",
   "rust/gui-spike/src/settings_store.rs": "settings_contract",
   "rust/gui-spike/src/typing.rs": "typing_contract",
   "rust/gui-spike/src/voice_devices.rs": "voice_devices_contract",

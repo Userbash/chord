@@ -1,0 +1,17 @@
+Package: discord-gpui
+Version: 1.0.0~beta1-1
+Section: net
+Priority: optional
+Architecture: amd64
+Installed-Size: 42572
+Depends: libc6 (>= 2.31), libpipewire-0.3-0, libasound2 (>= 1.2.2) | libasound2t64 (>= 1.2.2), libxcb1 (>= 1.14), libxkbcommon0 (>= 1.0.0), libxkbcommon-x11-0 (>= 1.0.0), libgcc-s1 (>= 3.0), xdg-utils, shared-mime-info, desktop-file-utils
+Recommends: libvulkan1, mesa-vulkan-drivers, xdg-desktop-portal, xdg-desktop-portal-gtk | xdg-desktop-portal-gnome | xdg-desktop-portal-kde | xdg-desktop-portal-wlr, libsecret-1-0, pipewire-pulse | pipewire-alsa
+Provides: discord-client
+Maintainer: Discord Lab DevOps <devops@discord-lab.local>
+Homepage: https://github.com/discord-lab/discord-gpui
+Description: Native Rust GPUI Discord client for Linux (Wayland/X11, PipeWire, WGPU 120 FPS)
+ High-performance native Discord desktop client built on Rust and WGPU/GPUI.
+ .
+ Features hardware-accelerated 120 FPS rendering, PipeWire screen sharing via
+ XDG Desktop Portal (DMA-BUF NV12), end-to-end voice encryption (DAVE MLS v1),
+ and deep desktop integration including the discord:// URI handler.

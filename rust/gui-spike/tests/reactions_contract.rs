@@ -621,13 +621,22 @@ fn idempotent_toggle_helper_adds_when_inactive_and_removes_when_active() {
     let calls = transport.calls();
     assert_eq!(calls.len(), 5);
     assert_eq!(calls[0].method, "PUT");
-    assert!(calls[0].body.is_empty(), "PUT /reactions обязан быть без тела (0 байт)");
+    assert!(
+        calls[0].body.is_empty(),
+        "PUT /reactions обязан быть без тела (0 байт)"
+    );
     assert_eq!(calls[1].method, "DELETE");
     assert!(calls[1].body.is_empty());
     assert_eq!(calls[2].method, "PUT");
-    assert!(calls[2].body.is_empty(), "PUT /reactions обязан быть без тела (0 байт)");
+    assert!(
+        calls[2].body.is_empty(),
+        "PUT /reactions обязан быть без тела (0 байт)"
+    );
     assert_eq!(calls[3].method, "PUT");
-    assert!(calls[3].body.is_empty(), "PUT /reactions обязан быть без тела (0 байт)");
+    assert!(
+        calls[3].body.is_empty(),
+        "PUT /reactions обязан быть без тела (0 байт)"
+    );
     assert_eq!(calls[4].method, "DELETE");
     assert!(calls[4].body.is_empty());
 }

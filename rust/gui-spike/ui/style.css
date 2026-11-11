@@ -17,6 +17,7 @@
  * чтобы список CSS в index.html не рос и каскад был один. */
 @import url("components/auth.css");
 @import url("components/quick-switcher.css");
+@import url("components/message-components.css");
 
 /* ---------------------------------------------------------------------------
  * 1. Строка заголовка (полноширинная, вне main)

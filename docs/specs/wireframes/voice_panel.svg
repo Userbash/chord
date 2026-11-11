@@ -1,0 +1,22 @@
+<svg width="300" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="120" fill="#232428" rx="8" stroke="#3f4147" stroke-width="1"/>
+  <!-- Voice Status Banner -->
+  <circle cx="20" cy="28" r="5" fill="#23a55a"/>
+  <text x="34" y="25" fill="#23a55a" font-size="12" font-weight="bold" font-family="sans-serif">Голос подключен</text>
+  <text x="34" y="42" fill="#949ba4" font-size="11" font-family="sans-serif">Voice 1 / RTC 18ms (Opus 48kHz)</text>
+  <!-- Disconnect Button -->
+  <rect x="250" y="16" width="34" height="30" rx="4" fill="rgba(242,63,67,0.2)"/>
+  <text x="267" y="36" fill="#f23f43" font-size="16" text-anchor="middle" font-family="sans-serif">📞✕</text>
+  
+  <line x1="16" y1="58" x2="284" y2="58" stroke="#35373c" stroke-width="1"/>
+
+  <!-- Voice Control Buttons: Video, Screen Share, Mute, Deafen -->
+  <rect x="16" y="68" width="60" height="38" rx="4" fill="#2b2d31"/>
+  <text x="46" y="92" fill="#dbdee1" font-size="14" text-anchor="middle" font-family="sans-serif">📹 Камера</text>
+  <rect x="84" y="68" width="60" height="38" rx="4" fill="#5865f2"/>
+  <text x="114" y="92" fill="#ffffff" font-size="14" text-anchor="middle" font-family="sans-serif">🖥️ Экран</text>
+  <rect x="152" y="68" width="60" height="38" rx="4" fill="#2b2d31"/>
+  <text x="182" y="92" fill="#dbdee1" font-size="14" text-anchor="middle" font-family="sans-serif">🎙️ Микр</text>
+  <rect x="220" y="68" width="64" height="38" rx="4" fill="#2b2d31"/>
+  <text x="252" y="92" fill="#dbdee1" font-size="14" text-anchor="middle" font-family="sans-serif">🎧 Звук</text>
+</svg>

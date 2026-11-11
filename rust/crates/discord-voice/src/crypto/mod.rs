@@ -1,6 +1,7 @@
-//! Крипто-примитивы для SRTP/SRTCP (карточка P4-03).
+//! Крипто-примитивы для SRTP/SRTCP и DAVE MLS v1 (карточки P4-03, TASK-903).
 //!
-//! Реализация без внешних зависимостей: AES-256 (FIPS-197), GCM (NIST SP 800-38D),
+//! Реализация без внешних зависимостей: AES-128 / AES-256 (FIPS-197), GCM и
+//! AES-128-GCM с 8-байтным усечённым тегом DAVE v1 (NIST SP 800-38D),
 //! ChaCha20/Poly1305 (RFC 8439), XChaCha20-Poly1305 (draft-irtf-cfrg-xchacha) и
 //! HKDF-SHA1 (RFC 5869).
 //!
@@ -20,12 +21,16 @@ use std::fmt;
 
 /// Размер блока AES в байтах.
 pub const AES_BLOCK_SIZE: usize = 16;
+/// Размер ключа AES-128 в байтах (DAVE MLS v1 media cipher).
+pub const AES128_KEY_SIZE: usize = 16;
 /// Размер ключа AES-256 в байтах.
 pub const AES256_KEY_SIZE: usize = 32;
 /// Размер nonce GCM в байтах (96 бит — рекомендованный NIST SP 800-38D размер).
 pub const GCM_NONCE_SIZE: usize = 12;
 /// Размер тега GCM в байтах.
 pub const GCM_TAG_SIZE: usize = 16;
+/// Размер усечённого 64-битного тега AES-128-GCM в кадровом шифре DAVE v1.
+pub const GCM_TRUNCATED8_TAG_SIZE: usize = 8;
 /// Размер ключа ChaCha20 в байтах.
 pub const CHACHA_KEY_SIZE: usize = 32;
 /// Размер nonce ChaCha20-Poly1305 в байтах.

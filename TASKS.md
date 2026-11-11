@@ -944,4 +944,93 @@ N3 — в backlog. Отчёт: `waves/RW-09/report.md`; ревью: `waves/revie
 | **TASK-744** | `P2` | **G5 Platform Lead** | Нативные D-Bus уведомления рабочего стола и системный трей Linux (меню 6 пунктов, бейджи) | `[x]` accepted |
 | **TASK-745** | `P2` | **G1 Backend Lead** | Сервер локального протокола Discord Local RPC IPC (`$XDG_RUNTIME_DIR/discord-ipc-0`) по эталону `rust-discord-activity` | `[x]` accepted |
 | **TASK-746** | `P0` | **G4 QA Lead** + **DevOps** | Автоматизированный регрессионный контрактный харнесс 61/61 (100% Pass) | `[x]` accepted |
+| **TASK-747** | `P1` | **G3 Design** | Паритет стилей Discord Dark Design Polish и Hover-эффекты сообщений | `[x]` accepted |
+| **TASK-748** | `P1` | **G5 Voice/Platform** | Аппаратный GPU-конвейер PipeWire кадра и захват экрана | `[x]` accepted |
+| **TASK-749** | `P1` | **G2 Frontend** | Плавающий бар быстрых действий над сообщением (Floating Action Bar) | `[x]` accepted |
+| **TASK-750** | `P0` | **G1 Backend** | Шлюз Discord Gateway Opcode 4 (Voice State Update) | `[x]` accepted |
+| **TASK-751** | `P1` | **G1 Backend** | G1 Backend + G7 REA: Устойчивый парсер read_state.last_acked_id (Snowflake String/Integer/Null) | `[x]` accepted |
+| **TASK-752** | `P2` | **G2 Frontend** | G2 Frontend: Оптимизация задержки загрузки сообщений messages_page (< 300 мс) | `[x]` accepted |
+| **TASK-769** | `P0` | **G1 Backend** | G1 Backend: Handshake Wait & Verified Cache Hydration в ready() | `[x]` accepted |
+| **TASK-770** | `P0` | **G2 Frontend** | G2 Frontend: Неразрушающая гидратация серверов и друзей в app.js и dm-friends.js | `[x]` accepted |
+| **TASK-771** | `P0` | **G3 Design** | G3 Design & G2 UI: Точный паритет Voice Panel и User Bar по официальному Discord | `[x]` accepted |
+| **TASK-772** | `P0` | **G5 Voice / Platform** | G5 Voice: Устранение задержек отображения участников голосовых каналов | `[x]` accepted |
+| **TASK-773** | `P0` | **G4 QA** | G4 QA: Автоматизированные тесты неразрушающей гидратации и UI-паритета | `[x]` accepted |
+| **TASK-774** | `P0` | **DevOps / Integration** | DevOps: Сборка release бинарника, SHA256SUMS и пуш в remote mirror | `[x]` accepted |
+| **TASK-775** | `P0` | **G5 Voice & Platform** | G5 Voice / Core: Нормализация источника WebRTC (sourceId = -1) и 100% запуск энкодера | `[x]` accepted |
+| **TASK-776** | `P0` | **G5 Voice & Platform** | G5 Voice / Core: Нативный захват Wayland (KWin ScreenShot2) и горячая смена окон | `[x]` accepted |
+| **TASK-777** | `P0` | **G2 Frontend** | G2 Frontend: Синхронизация предпросмотра (PIP), крестика закрытия и смены источника | `[x]` accepted |
+| **TASK-778** | `P0` | **G1 Backend** | G1 Backend + G5 Voice: Сигнализация шлюза OP 18/19 и SFU согласование кодеков | `[x]` accepted |
+| **TASK-779** | `P0` | **G4 QA** | G4 QA: Комплексные регрессионные тесты трансляции и проверка официальным клиентом | `[x]` accepted |
+| **TASK-780** | `P1` | **G3 Design** | G3 Design & UI: Паритет оверлея качества стрима (720p/1080p, 30/60 FPS, H264) и меню настроек | `[x]` accepted |
+| **TASK-781** | `P1` | **G7 RE / REA** | G7 RE / REA: Аудит Go Live сигнализации и Видео/SDP контрактов (Voice Opcodes 1, 12, 16, 22) | `[x]` accepted |
+| **TASK-783** | `P1` | **G5 Voice & Platform** | G5 Voice & G2 UI: Динамический переключатель параметров стрима (720p/1080p, 30/60 FPS) на лету | `[x]` accepted |
+| **TASK-785** | `P0` | **G1 Backend** | G1 Backend / Voice: Обработка и генерация Voice Opcode 16 (RTC Ping / DAVE) и Opcode 12 (VIDEO SSRC Mapping) | `[x]` accepted |
+| **TASK-787** | `P1` | **G2 Frontend** | G2 Frontend: Точный паритет попаута статуса RTC подключения (#live-rtc-popout) и индикатора пинга | `[x]` accepted |
+| **TASK-788** | `P1` | **G1 Backend** | G1 Backend: Интеграция статуса Nitro (premium_type) и разблокировка стрим-пресетов 1080p 60 FPS | `[x]` accepted |
+| **TASK-789** | `P0` | **DevOps** | W8-DevOps: Сборка и верификация релизного артефакта Build-005 и SHA256SUMS | `[x]` accepted |
+| **TASK-792** | `P0` | **G4 QA** | W8-DevOps/QA: Сквозная верификация артефакта Build-005 и выпуск отчета QA-BUILD-005.md | `[x]` accepted |
+| **TASK-794** | `P0` | **G1 Backend** | W1-G1: Stream Signaling Remediation (Изоляция OP 18 и OP 20 вещателя) | `[x]` accepted |
+| **TASK-795** | `P0` | **G2 Frontend** | W2-G2: Stage Viewer & PiP Persistence (Screen Share UI) | `[x]` accepted |
+| **TASK-796** | `P0` | **G5 Voice** | W3-G5: Voice Native Command Queue & Capture Target Pipeline | `[x]` accepted |
+| **TASK-797** | `P0` | **G4 QA** | W4-G4: Stream Broadcaster vs Viewer Isolation QA Suite | `[x]` accepted |
+| **TASK-610** | `P1` | **G2 Frontend** + **G1 Backend** | Интерактивный Webview Captcha-решатель (STUB-28 / CARD-TEL-006) | `[x]` accepted |
+| **TASK-611** | `P1` | **G1 Backend** | W5-G1: Полноценная поддержка REST POST /guilds (BFF) | `[x]` accepted |
+| **TASK-612** | `P1` | **G2 Frontend** | W6-G2: Шаблоны и визард создания серверов UI (STUB-05) | `[x]` accepted |
+| **TASK-613** | `P1` | **G5 Voice / Platform** | Захват экрана и окон через Desktop Portal / PipeWire (Task-601) | `[x]` accepted |
+| **TASK-614** | `P1` | **G1 Backend** + **G5 Media** | Атомарный буфер 60 FPS (Latest-Frame Ring Buffer) (Task-603) | `[x]` accepted |
+| **TASK-615** | `P1` | **G5 Voice** | Пакетная сборка RTP видеопотока и DAVE MLS v1 (Task-602) | `[x]` accepted |
+| **TASK-616** | `P1` | **G2 Frontend** | UI Видео-плеера и Picture-in-Picture (Task-604) | `[x]` accepted |
+| **TASK-617** | `P1` | **G1 Backend** | BFF для REST-поиска сообщений (STUB-14) | `[x]` accepted |
+| **TASK-618** | `P1` | **G2 Frontend** | UI Поискового попапа с подсказками (STUB-14) | `[x]` accepted |
+| **TASK-619** | `P1` | **G1 Backend** | Вычислитель битовых прав Discord Permissions v9 (STUB-17) | `[x]` accepted |
+| **TASK-620** | `P2` | **G2 Frontend** | Контекстные меню сообщений и пользователей (STUB-18) | `[x]` accepted |
+| **TASK-621** | `P0` | **DevOps** + **G4 QA** | Headless Xvfb E2E Runner для CI (M2-E2E) | `[x]` accepted |
+| **TASK-622** | `P0` | **G4 QA** + **PM Review** | Мутационный набор тестов 15/15 (Quality Gate v2) | `[x]` accepted |
+| **TASK-798** | `P1` | **G7 RE** | W7-G7: Gateway Stream Protocol & Codec RE Audit | `[x]` accepted |
+| **TASK-799** | `P2` | **G6 Tech Writer** | W8-G6: Release Notes & Stream Architecture Parity Matrix | `[x]` accepted |
+| **TASK-800** | `P0` | **G5 Voice / Platform** | Согласование и конфигурация видеокодека AV1 в WebRTC RTCControlSocket | `[x]` accepted |
+| **TASK-801** | `P0` | **G5 Voice / Platform** | Интеграция NVENC аппаратного энкодера NVIDIA для стрима (RTX 5070 Ti) | `[x]` accepted |
+| **TASK-802** | `P1` | **G5 Voice / Platform** | Корректная поддержка и переключение кодека VP8/VP9 в WebRTC | `[x]` accepted |
+| **TASK-803** | `P1` | **G1 Backend Lead** | Добавление OBU-пакетизатора AV1 и RTP-фрагментации в discord-media | `[x]` accepted |
+| **TASK-804** | `P1` | **G5 Voice / Platform** | Оптимизация захвата PipeWire / Wayland Portal без задержек CPU | `[x]` accepted |
+| **TASK-805** | `P0` | **G2 Frontend Lead** | Устранение оверлея «Подключение к видеопотоку…» у ведущего трансляции | `[x]` accepted |
+| **TASK-806** | `P1` | **G2 Frontend Lead** | Автоматическое сворачивание трансляции в плавающий PiP при смене канала | `[x]` accepted |
+| **TASK-807** | `P1` | **G2 Frontend Lead** | Устранение спама polling аудиоустройств (voice_set_audio_device) | `[x]` accepted |
+| **TASK-808** | `P2` | **G1 Backend Lead** | Оптимистичная отдача сообщений чата и неблокирующий ACK | `[x]` accepted |
+| **TASK-809** | `P2` | **G1 Backend Lead** | Обработка ошибок прав create_invite на голосовых каналах | `[x]` accepted |
+| **TASK-810** | `P0` | **G1 Backend Lead** | Интеграция accept_invite_and_join_guild и авто-подтверждение PUT /guilds/{id}/requests/@me | `[x]` accepted |
+| **TASK-811** | `P0` | **G2 Frontend Lead** | Баннер и модальное окно экрана правил сервера (Rules Screening Banner & Modal) | `[x]` accepted |
+| **TASK-812** | `P0` | **G1 Backend Lead** | Сохранение и сериализация components сообщений (ActionRow & Buttons) в data.rs | `[x]` accepted |
+| **TASK-813** | `P0` | **G2 Frontend Lead** | Рендеринг кнопок компонентов сообщений Discord (Message ActionRow & Buttons UI) | `[x]` accepted |
+| **TASK-814** | `P0` | **G1 Backend Lead** | Реализация POST /api/v9/interactions для кликов по кнопкам (MESSAGE_COMPONENT type 3) | `[x]` accepted |
+| **TASK-815** | `P1` | **G2 Frontend Lead** | Обработка клика по кнопке верификации в чате и IPC-связка click_message_component | `[x]` accepted |
+| **TASK-816** | `P1` | **G2 Frontend Lead** | Интерактивное прохождение Reaction Verification в каналах правил | `[x]` accepted |
+| **TASK-817** | `P1` | **G2 Frontend** + **G5 Platform** | Устранение ложного вызова капчи и интеграция WebView-виджета вместо ручного ввода | `[x]` accepted |
+| **TASK-818** | `P0` | **G2 Frontend** | Локальный мост hcaptcha-bridge.html и устранение XML AccessDenied | `[x]` accepted |
+| **TASK-819** | `P0` | **G5 Voice / Platform** | Стабилизация SSRC, непрерывные 90 кГц метки времени и RTCP PLI/FIR (Ошибки 2007 и 2000) | `[x]` accepted |
+| **TASK-820** | `P0` | **G1 Backend** | Устранение спама voice_connect и дублирующих Gateway OP 4 обновлений | `[x]` accepted |
+| **TASK-821** | `P1` | **G2 Frontend** | Паритет Voice Channel Stage Banner (Карточка предпросмотра голосового канала, frame 032) | `[x]` accepted |
+| **TASK-822** | `P1` | **G1 Backend** | HTTP/2 Keep-Alive пул и бэк-офф для resolve_invite_info (устранение фриза 2.6 сек) | `[x]` accepted |
+| **TASK-823** | `P2` | **G5 Voice / Platform** | Устранение AVError кодов 2004, 2005, 2009, 2010, 2016, 2017 и RTC Quality Status Bar | `[x]` accepted |
+| **TASK-824** | `P0` | **G4 QA** | Комплексная верификация всех кодов 2000-2018, 15/15 мутационный гейт и чистота GDB-логов | `[x]` accepted |
+| **TASK-825** | `P0` | **G1 Backend** | Инвайты, Captcha и бесшовный fallback авторизации сессии при вступлении на сервер | `[x]` accepted |
+| ↳ **TASK-825.1** | `P0` | **G1 Backend** | Fallback в token_or на data::resolve_live_token() (устранение missingToken) | `[x]` accepted |
+| ↳ **TASK-825.2** | `P0` | **G1 Backend** | Публичный доступ к resolve_invite (Optional Bearer по REST v9) | `[x]` accepted |
+| ↳ **TASK-825.3** | `P0` | **G1 Backend** | Клиентские заголовки X-Context-Properties в accept_invite_with_captcha | `[x]` accepted |
+| ↳ **TASK-825.4** | `P1` | **G2 Frontend** | Валидация и сохранение инпута инвайта в UI при ошибках | `[x]` accepted |
+| **TASK-826** | `P1` | **G5 Voice / Platform** | Поддержка тихих AFK-каналов и устранение ложного ожидания RTC-сервера | `[x]` accepted |
+| ↳ **TASK-826.1** | `P1` | **G1 Backend** | Определение is_afk_channel по guild.afk_channel_id в data.rs и channels.rs | `[x]` accepted |
+| ↳ **TASK-826.2** | `P1` | **G2 Frontend** | Отображение статуса «🔕 AFK-канал» в UI без ожидания RTC-сервера | `[x]` accepted |
+| ↳ **TASK-826.3** | `P1` | **G5 Voice** | Блокировка реконнект-таймеров голосового ядра для тихих AFK-каналов | `[x]` accepted |
+| **TASK-827** | `P1` | **G2 Frontend** | Синхронизация чата и баннера при переключении голосовых каналов | `[x]` accepted |
+| ↳ **TASK-827.1** | `P1` | **G2 Frontend** | Синхронизация Voice Text Channel Chat ID при клике на голосовые каналы | `[x]` accepted |
+| ↳ **TASK-827.2** | `P2` | **G2 Frontend** | Выдвижная боковая панель по кнопке «Открыть чат» на баннере сцены | `[x]` accepted |
+| **TASK-828** | `P2` | **G3 Design** | Оптимизация верстки виджета статуса RTC в компактном сайдбаре | `[x]` accepted |
+| ↳ **TASK-828.1** | `P2` | **G3 Design** | Адаптивный CSS-флексбокс для live-voice-status-badge и voice-rtt-pill в 240px | `[x]` accepted |
+| ↳ **TASK-828.2** | `P2` | **G2 Frontend** | Rich Tooltip с деталями RTC, пинга и региона голосового сервера | `[x]` accepted |
+| **TASK-829** | `P0` | **G4 QA** | Автоматические регрессионные контракты для инвайтов, AFK и заголовков | `[x]` accepted |
+| ↳ **TASK-829.1** | `P0` | **G4 QA** | Rust контракт tests/invites_live_fallback_contract.rs | `[x]` accepted |
+| ↳ **TASK-829.2** | `P0` | **G4 QA** | JS Unit тесты tests/unit/afk-voice-status.test.mjs и invite-input.test.mjs | `[x]` accepted |
+
+
 

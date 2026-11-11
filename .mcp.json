@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "project-release-audit": {
+      "command": "node",
+      "args": ["scripts/mcp-release-audit.mjs"],
+      "description": "Project-local security, release verification, and WCAG contrast auditor"
+    },
+    "understand": {
+      "command": "node",
+      "args": ["/home/sanya/.local/bin/understand-mcp.mjs"],
+      "description": "Codebase knowledge graph, architectural layers, and dependency traversal"
+    },
+    "socraticode": {
+      "command": "node",
+      "args": ["/home/sanya/orca/projects/socraticode/dist/index.js"],
+      "description": "Blast radius impact analysis, circular graph detection, and codebase health"
+    },
+    "rea": {
+      "command": "node",
+      "args": ["/home/sanya/orca/projects/rea/scripts/rea.mjs", "--mcp"],
+      "description": "Reverse Engineer Anything (REA) - parity verification against reference discord dumps"
+    },
+    "kanban": {
+      "command": "node",
+      "args": ["scripts/mcp-kanban-board.mjs"],
+      "description": "Local Visual Kanban Board for Discord GPUI project management and design-first task tracking"
+    },
+    "design-wireframe": {
+      "command": "node",
+      "args": ["scripts/mcp-design-wireframe.mjs"],
+      "description": "Design tokens, SVG wireframes and layout visualizer for Discord GPUI components"
+    }
+  }
+}

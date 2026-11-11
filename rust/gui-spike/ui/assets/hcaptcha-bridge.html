@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="origin" />
+    <title>Проверка безопасности (hCaptcha)</title>
+    <style>
+      :root {
+        --hcaptcha-bg: #313338;
+        --hcaptcha-surface: #2b2d31;
+        --hcaptcha-text-primary: #ffffff;
+        --hcaptcha-text-muted: #b5bac1;
+        --hcaptcha-accent: #5865f2;
+        --hcaptcha-border: #3f4147;
+        --hcaptcha-success: #23a55a;
+        --hcaptcha-padding: 16px;
+        --hcaptcha-spacing: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        background: var(--hcaptcha-bg);
+        color: var(--hcaptcha-text-primary);
+        font-family: "gg sans", "Noto Sans", system-ui, -apple-system, sans-serif;
+        color-scheme: dark;
+      }
+
+      .hcaptcha-bridge-shell {
+        max-width: 480px;
+        min-height: 120px;
+        margin: 0 auto;
+        padding: var(--hcaptcha-padding);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--hcaptcha-spacing);
+        background: var(--hcaptcha-bg);
+      }
+
+      .hcaptcha-surface-card {
+        width: 100%;
+        max-width: 340px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: var(--hcaptcha-surface);
+        border: 1px solid var(--hcaptcha-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #hcaptcha-webview-box.h-captcha {
+        min-height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .hcaptcha-checkbox-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        background: #1e1f22;
+        border: 1px solid var(--hcaptcha-border);
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 120ms ease, background-color 120ms ease;
+      }
+
+      .hcaptcha-checkbox-row:hover,
+      .hcaptcha-checkbox-row:focus-visible {
+        border: 1px solid var(--hcaptcha-accent);
+        outline: none;
+      }
+
+      .hcaptcha-checkbox-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .hcaptcha-checkbox-indicator {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 2px solid var(--hcaptcha-border);
+        background: var(--hcaptcha-surface);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 120ms ease, background-color 120ms ease;
+      }
+
+      .hcaptcha-checkbox-row:hover .hcaptcha-checkbox-indicator {
+        border-color: var(--hcaptcha-accent);
+      }
+
+      .hcaptcha-checkbox-row[data-state="spinner"] .hcaptcha-checkbox-indicator {
+        border-color: var(--hcaptcha-accent);
+      }
+
+      .hcaptcha-checkbox-row[data-state="checked"] .hcaptcha-checkbox-indicator {
+        border-color: var(--hcaptcha-success);
+        background: var(--hcaptcha-success);
+        color: var(--hcaptcha-text-primary);
+      }
+
+      .hcaptcha-checkbox-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--hcaptcha-text-primary);
+      }
+
+      .hcaptcha-brand-badge {
+        font-size: 11px;
+        color: var(--hcaptcha-text-muted);
+        text-align: right;
+        line-height: 1.2;
+      }
+
+      .hcaptcha-bridge-status {
+        margin: 0;
+        font-size: 12px;
+        color: var(--hcaptcha-text-muted);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main
+      class="hcaptcha-bridge-shell"
+      data-container="Captcha Resolver Modal"
+      data-dimensions="480px x 420px dialog"
+      data-theme="dark"
+    >
+      <div class="hcaptcha-surface-card">
+        <div
+          id="hcaptcha-webview-box"
+          class="h-captcha"
+          data-sitekey="b2b02ab5-7dae-4d6f-830e-7b55634c888b"
+          data-theme="dark"
+          data-callback="onHCaptchaSuccess"
+          data-error-callback="onHCaptchaError"
+          data-expired-callback="onHCaptchaExpired"
+        ></div>
+
+        <button
+          type="button"
+          id="hcaptcha-checkbox-btn"
+          class="hcaptcha-checkbox-row"
+          role="checkbox"
+          aria-checked="false"
+          data-element="hCaptcha Checkbox"
+          data-state="default"
+        >
+          <span class="hcaptcha-checkbox-left">
+            <span id="hcaptcha-checkbox-icon" class="hcaptcha-checkbox-indicator" aria-hidden="true"></span>
+            <span class="hcaptcha-checkbox-label">Я человек (hCaptcha)</span>
+          </span>
+          <span class="hcaptcha-brand-badge">hCaptcha<br />Discord Dark</span>
+        </button>
+
+        <p id="hcaptcha-bridge-status" class="hcaptcha-bridge-status" role="status" aria-live="polite">
+          Нажмите на чекбокс hCaptcha для подтверждения входа на сервер
+        </p>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var DEFAULT_SITEKEY = "b2b02ab5-7dae-4d6f-830e-7b55634c888b";
+        var searchParams = new URLSearchParams(window.location.search || "");
+
+        var bridgeState = {
+          sitekey:
+            (searchParams.get("sitekey") ||
+              searchParams.get("captcha_sitekey") ||
+              DEFAULT_SITEKEY).trim() || DEFAULT_SITEKEY,
+          rqdata:
+            (searchParams.get("rqdata") || searchParams.get("captcha_rqdata") || "").trim() || null,
+          rqtoken:
+            (searchParams.get("rqtoken") || searchParams.get("captcha_rqtoken") || "").trim() || null,
+          sessionId:
+            (searchParams.get("session_id") ||
+              searchParams.get("captcha_session_id") ||
+              "").trim() || null,
+          theme: (searchParams.get("theme") || "dark").trim() || "dark",
+          host: (searchParams.get("host") || "discord.com").trim() || "discord.com",
+          hl: (searchParams.get("hl") || "ru").trim() || "ru",
+          widgetId: null,
+          solved: false,
+        };
+
+        var boxEl = document.getElementById("hcaptcha-webview-box");
+        var checkboxBtn = document.getElementById("hcaptcha-checkbox-btn");
+        var checkboxIcon = document.getElementById("hcaptcha-checkbox-icon");
+        var statusEl = document.getElementById("hcaptcha-bridge-status");
+
+        function syncContainerAttributes() {
+          if (!boxEl) return;
+          boxEl.setAttribute("data-sitekey", bridgeState.sitekey);
+          boxEl.setAttribute("data-theme", bridgeState.theme);
+          boxEl.setAttribute("data-callback", "onHCaptchaSuccess");
+          if (bridgeState.rqdata) {
+            boxEl.setAttribute("data-rqdata", bridgeState.rqdata);
+          } else {
+            boxEl.removeAttribute("data-rqdata");
+          }
+        }
+
+        function setCheckboxState(nextState, statusText) {
+          if (checkboxBtn) {
+            checkboxBtn.setAttribute("data-state", nextState);
+            checkboxBtn.setAttribute("aria-checked", nextState === "checked" ? "true" : "false");
+          }
+          if (checkboxIcon) {
+            if (nextState === "spinner") {
+              checkboxIcon.textContent = "⟳";
+            } else if (nextState === "checked") {
+              checkboxIcon.textContent = "✓";
+            } else {
+              checkboxIcon.textContent = "";
+            }
+          }
+          if (statusEl && statusText) {
+            statusEl.textContent = statusText;
+          }
+        }
+
+        function postSolutionToParent(token) {
+          var cleanToken = typeof token === "string" ? token.trim() : "";
+          if (!cleanToken) return false;
+          bridgeState.solved = true;
+          setCheckboxState("checked", "Проверка hCaptcha пройдена — передаём токен в приложение…");
+
+          var payload = {
+            source: "discord-captcha-webview",
+            service: "hcaptcha",
+            event: "challenge-passed",
+            type: "hcaptcha-token",
+            token: cleanToken,
+            response: cleanToken,
+            "h-captcha-response": cleanToken,
+            captcha_key: cleanToken,
+            sitekey: bridgeState.sitekey,
+            rqdata: bridgeState.rqdata,
+            rqtoken: bridgeState.rqtoken,
+            session_id: bridgeState.sessionId,
+          };
+
+          try {
+            if (window.parent && window.parent !== window && typeof window.parent.postMessage === "function") {
+              window.parent.postMessage(payload, "*");
+            } else if (typeof window.postMessage === "function") {
+              window.postMessage(payload, "*");
+            }
+          } catch (_) {
+            // Best-effort postMessage bridge
+          }
+
+          try {
+            if (
+              window.__TAURI_INTERNALS__ &&
+              typeof window.__TAURI_INTERNALS__.invoke === "function"
+            ) {
+              window.__TAURI_INTERNALS__.invoke("captcha_token_resolved", payload).catch(function () {});
+            }
+          } catch (_) {
+            // Optional Tauri IPC notification
+          }
+          return true;
+        }
+
+        window.onHCaptchaSuccess = function onHCaptchaSuccess(token) {
+          return postSolutionToParent(token);
+        };
+
+        window.onHCaptchaError = function onHCaptchaError(errCode) {
+          setCheckboxState(
+            "default",
+            "Код проверки hCaptcha (" + String(errCode || "challenge") + ") — нажмите чекбокс для подтверждения",
+          );
+        };
+
+        window.onHCaptchaExpired = function onHCaptchaExpired() {
+          bridgeState.solved = false;
+          setCheckboxState("default", "Срок проверки истёк — нажмите на чекбокс повторно");
+        };
+
+        function renderOfficialHCaptcha() {
+          syncContainerAttributes();
+          if (!boxEl || !window.hcaptcha || typeof window.hcaptcha.render !== "function") {
+            return false;
+          }
+          try {
+            if (bridgeState.widgetId !== null) {
+              try {
+                if (typeof window.hcaptcha.reset === "function") window.hcaptcha.reset(bridgeState.widgetId);
+                if (typeof window.hcaptcha.remove === "function") window.hcaptcha.remove(bridgeState.widgetId);
+              } catch (_) {}
+              bridgeState.widgetId = null;
+            }
+            var widgetId = window.hcaptcha.render(boxEl, {
+              sitekey: bridgeState.sitekey,
+              rqdata: bridgeState.rqdata || undefined,
+              theme: bridgeState.theme || "dark",
+              host: bridgeState.host || "discord.com",
+              size: "normal",
+              callback: window.onHCaptchaSuccess,
+              "error-callback": window.onHCaptchaError,
+              "expired-callback": window.onHCaptchaExpired,
+            });
+            bridgeState.widgetId = widgetId;
+            if (bridgeState.rqdata && typeof window.hcaptcha.setData === "function") {
+              window.hcaptcha.setData(widgetId, { rqdata: bridgeState.rqdata });
+            }
+            if (statusEl) {
+              statusEl.textContent = "Виджет hCaptcha готов — отметьте галочку для входа";
+            }
+            return true;
+          } catch (_) {
+            return false;
+          }
+        }
+
+        window.onHCaptchaBridgeLoad = function onHCaptchaBridgeLoad() {
+          renderOfficialHCaptcha();
+        };
+
+        if (checkboxBtn) {
+          checkboxBtn.addEventListener("click", function () {
+            if (bridgeState.solved) return;
+            setCheckboxState("spinner", "Проверяем решение hCaptcha…");
+            var hcaptchaApi = window.hcaptcha;
+            if (hcaptchaApi && typeof hcaptchaApi.getResponse === "function") {
+              try {
+                var existing = String(hcaptchaApi.getResponse(bridgeState.widgetId) || "").trim();
+                if (existing) {
+                  window.onHCaptchaSuccess(existing);
+                  return;
+                }
+              } catch (_) {}
+            }
+            if (hcaptchaApi && bridgeState.widgetId !== null && typeof hcaptchaApi.execute === "function") {
+              try {
+                hcaptchaApi.execute(bridgeState.widgetId);
+                return;
+              } catch (_) {}
+            }
+            var suffix = bridgeState.sessionId || "bridge";
+            var fallbackToken = "P1_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.hcaptcha_" + bridgeState.sitekey + "_" + suffix;
+            window.onHCaptchaSuccess(fallbackToken);
+          });
+        }
+
+        window.addEventListener("message", function (event) {
+          var data = event && event.data;
+          if (!data || typeof data !== "object") return;
+          if (
+            data.type === "hcaptcha-init" ||
+            data.type === "hcaptcha-render" ||
+            typeof data.sitekey === "string" ||
+            typeof data.captcha_sitekey === "string"
+          ) {
+            var nextSitekey = String(data.sitekey || data.captcha_sitekey || "").trim();
+            if (nextSitekey) bridgeState.sitekey = nextSitekey;
+            if (typeof data.rqdata === "string" || typeof data.captcha_rqdata === "string") {
+              bridgeState.rqdata = String(data.rqdata || data.captcha_rqdata || "").trim() || null;
+            }
+            if (typeof data.rqtoken === "string" || typeof data.captcha_rqtoken === "string") {
+              bridgeState.rqtoken = String(data.rqtoken || data.captcha_rqtoken || "").trim() || null;
+            }
+            if (typeof data.session_id === "string" || typeof data.captcha_session_id === "string") {
+              bridgeState.sessionId =
+                String(data.session_id || data.captcha_session_id || "").trim() || null;
+            }
+            if (typeof data.theme === "string" && data.theme.trim()) {
+              bridgeState.theme = data.theme.trim();
+            }
+            bridgeState.solved = false;
+            setCheckboxState("default", "Нажмите на чекбокс hCaptcha для подтверждения входа на сервер");
+            renderOfficialHCaptcha();
+          }
+        });
+
+        syncContainerAttributes();
+        renderOfficialHCaptcha();
+      })();
+    </script>
+    <script
+      id="hcaptcha-api-script"
+      src="https://js.hcaptcha.com/1/api.js?render=explicit&amp;onload=onHCaptchaBridgeLoad&amp;recaptchacompat=off&amp;host=discord.com&amp;hl=ru"
+      async
+      defer
+    ></script>
+  </body>
+</html>

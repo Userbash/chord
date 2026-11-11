@@ -1,0 +1,15 @@
+▶ TASK-968: Релизный CI/CD workflow .github/workflows/release-beta.yml (матрица Linux-пакетов, SHA256SUMS и GitHub Release)
+  ✔ Шаг 1: файл .github/workflows/release-beta.yml существует, не содержит CRLF/табов и валиден по оракулу PyYAML (29.619954ms)
+  ✔ Шаг 2: матрица package-matrix включает 4+ дистрибутива и все форматы (.tar.gz, AppImage, .deb, .rpm, arch) с реальными скриптами и тестами (26.38218ms)
+  ✔ Шаг 3: автоматическая сборка SHA256SUMS агрегирует все пакеты и проходит независимый оракул sha256sum -c (39.248553ms)
+  ✔ Шаг 4: публикация GitHub Release использует RELEASE-NOTES-v1.0.0-beta.1.md и прикрепляет все пакеты и SHA256SUMS (26.499451ms)
+  ✔ Шаг 5: негативные, граничные и защитные сценарии валидатора validateReleaseWorkflow (9 измерений TEST-POLICY.md) (25.771065ms)
+✔ TASK-968: Релизный CI/CD workflow .github/workflows/release-beta.yml (матрица Linux-пакетов, SHA256SUMS и GitHub Release) (148.363423ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 186.036469
