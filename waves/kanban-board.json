@@ -5469,7 +5469,7 @@
     {
       "id": "TASK-970",
       "title": "Локальный Crash Reporter и маскирование дампов памяти",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Модуль rust/discord-gpui/src/crash_reporter.rs, перехват паник, маскирование токенов и запись дампов без сетевой отправки.",
@@ -5500,7 +5500,7 @@
         "Контрактный тест tests/unit/crash-reporter-970.test.mjs green"
       ],
       "created_at": "2026-11-11T11:23:10.336Z",
-      "updated_at": "2026-11-11T11:23:10.336Z"
+      "updated_at": "2026-11-11T12:07:51.683Z"
     },
     {
       "id": "TASK-971",
@@ -5613,7 +5613,7 @@
     {
       "id": "TASK-974",
       "title": "Бенчмарк нагрузки CPU и джиттера в голосовом канале на 25 участников",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Скрипт scripts/bench-voice-cpu.mjs, эмуляция 25 участников (1250 пак/сек Opus SRTP), замер CPU < 5%, джиттер < 25мс.",
@@ -5644,12 +5644,12 @@
         "Контрактный тест tests/unit/voice-cpu-bench-974.test.mjs green"
       ],
       "created_at": "2026-11-11T11:33:27.294Z",
-      "updated_at": "2026-11-11T11:33:27.294Z"
+      "updated_at": "2026-11-11T12:07:51.683Z"
     },
     {
       "id": "TASK-975",
       "title": "Верификация сенсорных жестов и кинетической прокрутки Wayland/XInput2",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Скрипт scripts/verify-gestures.mjs, эмуляция pinch-to-zoom, 2-finger scroll и кинетической инерции в списке сообщений.",
@@ -5680,7 +5680,7 @@
         "Контрактный тест tests/unit/input-gestures-975.test.mjs green"
       ],
       "created_at": "2026-11-11T11:36:13.675Z",
-      "updated_at": "2026-11-11T11:36:13.675Z"
+      "updated_at": "2026-11-11T12:05:42.420Z"
     }
   ]
 }
