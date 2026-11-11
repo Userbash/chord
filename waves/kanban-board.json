@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-11T10:36:31.262Z",
+  "updated_at": "2026-11-11T12:38:37.836Z",
   "columns": [
     {
       "id": "backlog",
@@ -5933,6 +5933,294 @@
       ],
       "created_at": "2026-11-11T12:20:22.303Z",
       "updated_at": "2026-11-11T12:20:22.304Z"
+    },
+    {
+      "id": "TASK-983",
+      "title": "Интеграция ИИ-шумоподавления RNNoise / Krisp (SIMD AVX2 фильтр)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Фильтрация фонового шума клавиатуры и окружения в rust/discord-voice на базе RNNoise SIMD с обеспечением SNR > 15 dB и задержки < 5 мс.",
+      "layout": {
+        "container": "Noise Suppression",
+        "dimensions": "48kHz mono, 10ms frame",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "rnnoise-toggle",
+          "default": "active",
+          "hover": "show SNR boost",
+          "active": "filtering"
+        }
+      ],
+      "acceptance_criteria": [
+        "Подавление стационарного и импульсного шума > 15 dB",
+        "Задержка аудиотракта не превышает 5 мс",
+        "Контрактный тест tests/unit/voice-rnnoise-983.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-984",
+      "title": "Шифрование локального хранилища SQLite (AES-256-GCM / SQLCipher)",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Шифрование локальной БД сообщений и токенов на диске с деривацией ключа через Linux Keyring (org.freedesktop.secrets).",
+      "layout": {
+        "container": "Encrypted Store",
+        "dimensions": "AES-256-GCM",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "keyring-auth",
+          "default": "locked",
+          "hover": "unlocking",
+          "active": "decrypted"
+        }
+      ],
+      "acceptance_criteria": [
+        "Ключ извлекается из Linux Keyring без утечки в логи",
+        "База данных SQLite зашифрована на уровне страниц",
+        "Контрактный тест tests/unit/sqlite-encrypted-store-984.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-985",
+      "title": "Пользовательские темы оформления и динамическая CSS палитра",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G2 Frontend",
+      "summary": "Поддержка пользовательских цветовых тем, динамической инъекции CSS-токенов и тем оформления Discord (Midnight, Dark, Light, AMOLED).",
+      "layout": {
+        "container": "Theme Picker",
+        "dimensions": "100%",
+        "padding": "16px",
+        "spacing": "12px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "theme-preview",
+          "default": "dark",
+          "hover": "highlight theme",
+          "active": "applied"
+        }
+      ],
+      "acceptance_criteria": [
+        "Переключение тем без перезагрузки интерфейса",
+        "Валидация CSS-токенов на WCAG 2.2 AA контрастность",
+        "Контрактный тест tests/unit/custom-themes-985.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-986",
+      "title": "Пространственное 3D-позиционирование звука участников (HRTF)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G5 Voice / Platform",
+      "summary": "Бинауральное пространственное панорамирование участников голосового канала с учетом угла азимута и расстояния (HRTF convolver).",
+      "layout": {
+        "container": "Spatial Audio Canvas",
+        "dimensions": "360 deg",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "peer-avatar-3d",
+          "default": "center",
+          "hover": "drag position",
+          "active": "panned"
+        }
+      ],
+      "acceptance_criteria": [
+        "Расчет межушной разности времени (ITD) и уровня (ILD)",
+        "Нагрузка CPU на 10 участников < 2%",
+        "Контрактный тест tests/unit/spatial-audio-hrtf-986.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-987",
+      "title": "Мгновенное переключение аккаунтов (Multi-Account Switcher)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G1 Backend",
+      "summary": "Хранение до 5 профилей пользователей с мгновенным переключением Gateway и REST сессий без перезапуска GPUI клиента.",
+      "layout": {
+        "container": "Account Switcher Popup",
+        "dimensions": "280px x auto",
+        "padding": "8px",
+        "spacing": "4px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "account-item",
+          "default": "inactive",
+          "hover": "active avatar",
+          "active": "switched"
+        }
+      ],
+      "acceptance_criteria": [
+        "Переключение сессии < 300 мс",
+        "Изоляция токенов разных аккаунтов",
+        "Контрактный тест tests/unit/multi-account-switcher-987.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-988",
+      "title": "Глобальные хоткеи и Wayland In-Game Overlay",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G2 Frontend",
+      "summary": "Поддержка оверлея поверх полноэкранных игр под Wayland (через протокол ext-foreign-toplevel-list-v1) и X11.",
+      "layout": {
+        "container": "Overlay HUD",
+        "dimensions": "transparent 100vw x 100vh",
+        "padding": "16px",
+        "spacing": "8px"
+      },
+      "design_tokens": {
+        "background": "transparent",
+        "surface": "rgba(43,45,49,0.85)",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "overlay-chat-bubble",
+          "default": "semi-transparent",
+          "hover": "opaque",
+          "active": "typing"
+        }
+      ],
+      "acceptance_criteria": [
+        "Прозрачный клик-сквозь (input passthrough) в режиме HUD",
+        "Отображение говорящих в верхнем левом углу",
+        "Контрактный тест tests/unit/ingame-overlay-988.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-989",
+      "title": "Автоматизированный нагрузочный стенд на 50 одновременных ботов/клиентов",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G4 QA",
+      "summary": "Эмуляция высокой нагрузки сообщений, синхронных реакций и голосового присутствия 50 участников с замером времени отклика.",
+      "layout": {
+        "container": "Load Test Harness",
+        "dimensions": "50 peers",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "stress-cluster",
+          "default": "idle",
+          "hover": "inject load",
+          "active": "5000 msg/s"
+        }
+      ],
+      "acceptance_criteria": [
+        "Клиент не падает и не зависает при потоке 5000 событий/с",
+        "Потребление памяти не превышает 60 МБ RSS",
+        "Контрактный тест tests/unit/multi-client-stress-989.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
+    },
+    {
+      "id": "TASK-990",
+      "title": "Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "DevOps / Integration",
+      "summary": "Конфигурация кросс-сборки cargo для aarch64-unknown-linux-gnu, генерация ARM64 deb, tar.gz и AppImage артефактов.",
+      "layout": {
+        "container": "ARM64 Toolchain",
+        "dimensions": "cross-target",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "cross-compile-ci",
+          "default": "x86_64",
+          "hover": "arm64 target",
+          "active": "built"
+        }
+      ],
+      "acceptance_criteria": [
+        "Скрипт scripts/build-arm64.sh генерирует валидный ELF aarch64",
+        "Архив и контрольная сумма добавлены в SHA256SUMS",
+        "Контрактный тест tests/unit/arm64-packaging-990.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:35:00.000Z",
+      "updated_at": "2026-11-11T12:35:00.000Z"
     }
   ]
 }
