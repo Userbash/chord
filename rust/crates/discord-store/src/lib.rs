@@ -231,6 +231,11 @@ impl Store {
         self.db.exec("PRAGMA foreign_keys = ON")?;
         // Для файла — WAL; для `:memory:` SQLite вернёт "memory", ошибки нет.
         self.db.exec("PRAGMA journal_mode = WAL")?;
+        // Оптимизация кэширования: 64 МБ кэш страниц, NORMAL для WAL, 256 МБ mmap I/O, temp в RAM
+        self.db.exec("PRAGMA synchronous = NORMAL")?;
+        self.db.exec("PRAGMA cache_size = -64000")?;
+        self.db.exec("PRAGMA mmap_size = 268435456")?;
+        self.db.exec("PRAGMA temp_store = MEMORY")?;
 
         let version = self.schema_version()?;
         if version > SCHEMA_VERSION {
