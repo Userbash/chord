@@ -448,7 +448,8 @@ describe("TASK-970: Локальный Crash Reporter и маскировани�
       const dmpLatin1 = dmpBuf.toString("latin1");
       const jsonRaw = readFileSync(jsonPath, "utf8");
 
-      for (const [label, secretVal] of [
+      /** @type {Array<[string, string]>} */
+      const secretPairs = [
         ["MFA token", rawMfa],
         ["Bot token", rawBot],
         ["User JWT", rawUserJwt],
@@ -456,7 +457,8 @@ describe("TASK-970: Локальный Crash Reporter и маскировани�
         ["Webhook URL", rawWebhook],
         ["GitHub PAT", rawGhp],
         ["DAVE MLS hex secret", rawDaveHex],
-      ]) {
+      ];
+      for (const [label, secretVal] of secretPairs) {
         assert.ok(
           !dmpLatin1.includes(secretVal),
           `Утечка ${label} в бинарном файле минидампа .dmp!`,

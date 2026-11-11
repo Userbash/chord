@@ -5541,7 +5541,7 @@
     {
       "id": "TASK-972",
       "title": "Стенд верификации локализации i18n под 36 языков и RTL",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Скрипт scripts/verify-i18n.mjs, сверка xxh64 хешей ключей, RTL-выравнивание (AR/HE) и валидация plural-форм.",
@@ -5572,7 +5572,7 @@
         "Контрактный тест tests/unit/i18n-coverage-972.test.mjs green"
       ],
       "created_at": "2026-11-11T11:28:58.226Z",
-      "updated_at": "2026-11-11T11:28:58.226Z"
+      "updated_at": "2026-11-11T12:17:14.938Z"
     },
     {
       "id": "TASK-973",
@@ -5681,6 +5681,222 @@
       ],
       "created_at": "2026-11-11T11:36:13.675Z",
       "updated_at": "2026-11-11T12:05:42.420Z"
+    },
+    {
+      "id": "TASK-976",
+      "title": "Бенчмарк энергопотребления и Battery Saver Mode (30 FPS, C-States)",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "G1 Backend",
+      "summary": "Модуль rust/discord-gpui/src/battery_saver.rs, снижение FPS до 30 на батарее, таймерные пробуждения < 15 wakeups/s.",
+      "layout": {
+        "container": "Power Profiler",
+        "dimensions": "Battery Saver",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "power-toggle",
+          "default": "ac-mode",
+          "hover": "check battery",
+          "active": "saver-active"
+        }
+      ],
+      "acceptance_criteria": [
+        "FPS снижается до 30 на батарее",
+        "CPU wakeups < 15 wakeups/s",
+        "Контрактный тест tests/unit/battery-saver-976.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:18:41.924Z",
+      "updated_at": "2026-11-11T12:18:41.924Z"
+    },
+    {
+      "id": "TASK-977",
+      "title": "Верификация дробного масштабирования Wayland (wp_fractional_scale_v1)",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "G2 Frontend",
+      "summary": "Скрипт scripts/verify-fractional-scale.mjs, валидация масштабирования 125%, 150%, 175% без размытия и артефактов.",
+      "layout": {
+        "container": "Display Scaling",
+        "dimensions": "125% - 175%",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "scale-slider",
+          "default": "100%",
+          "hover": "preview scale",
+          "active": "sharp pixels"
+        }
+      ],
+      "acceptance_criteria": [
+        "wp_fractional_scale_v1 поддерживается",
+        "Отсутствуют артефакты билинейного апскейла",
+        "Контрактный тест tests/unit/wayland-fractional-scale-977.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:18:41.924Z",
+      "updated_at": "2026-11-11T12:18:41.924Z"
+    },
+    {
+      "id": "TASK-978",
+      "title": "Стенд эмуляции WAN профилей и устойчивость к потерям Opus PLC",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Скрипт scripts/wan-simulation.mjs, эмуляция 150ms RTT, 5% потерь пакетов, проверка NACK/RTX и сокрытия потерь Opus PLC.",
+      "layout": {
+        "container": "Network Emulator",
+        "dimensions": "WAN 3G/LTE",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "loss-slider",
+          "default": "0%",
+          "hover": "inject packet loss",
+          "active": "plc active"
+        }
+      ],
+      "acceptance_criteria": [
+        "Голос не прерывается при 5% потерь",
+        "NACK/RTX восстанавливает ключевые кадры",
+        "Контрактный тест tests/unit/wan-network-profiles-978.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:18:41.924Z",
+      "updated_at": "2026-11-11T12:18:41.924Z"
+    },
+    {
+      "id": "TASK-979",
+      "title": "Верификация Forward Secrecy и смены эпох DAVE MLS v1 при выходе пира",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "G5 Voice / Platform",
+      "summary": "Тесты DAVE MLS v1 в rust/discord-voice, инвалидация старого Epoch Secret при RemoveProposal/Commit, защита от реплея.",
+      "layout": {
+        "container": "MLS Ratchet",
+        "dimensions": "DAVE v1 MLS",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "peer-leave",
+          "default": "epoch N",
+          "hover": "trigger remove",
+          "active": "epoch N+1 derived"
+        }
+      ],
+      "acceptance_criteria": [
+        "Старый секрет инвалидируется немедленно",
+        "Повторные пакеты старой эпохи отклоняются",
+        "Контрактный тест tests/unit/dave-mls-forward-secrecy-979.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:18:41.924Z",
+      "updated_at": "2026-11-11T12:18:41.924Z"
+    },
+    {
+      "id": "TASK-980",
+      "title": "Аудит безопасности Unix сокетов discord-ipc-0..9 и UID Access Control",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "summary": "Проверка прав 0600 на сокеты discord-ipc, валидация UID через SO_PEERCRED, жесткий лимит фрейма 64 KB.",
+      "layout": {
+        "container": "IPC Security",
+        "dimensions": "Unix Socket",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "ipc-client",
+          "default": "unconnected",
+          "hover": "check peer uid",
+          "active": "authenticated"
+        }
+      ],
+      "acceptance_criteria": [
+        "Несовпадающий UID отклоняется",
+        "Фреймы > 64 KB разрывают соединение",
+        "Контрактный тест tests/unit/ipc-security-audit-980.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:18:41.924Z",
+      "updated_at": "2026-11-11T12:18:41.924Z"
+    },
+    {
+      "id": "TASK-981",
+      "title": "Комплексный чекер системных шрифтов (Fallback Noto Color Emoji, CJK)",
+      "status": "in_dev",
+      "priority": "P1",
+      "department": "G2 Frontend",
+      "summary": "Скрипт scripts/font-audit.mjs, цепочка подстановки глифов Emoji/CJK/Arabic, проверка кэша атласа WGPU без паник.",
+      "layout": {
+        "container": "Font Manager",
+        "dimensions": "Glyph Atlas WGPU",
+        "padding": "0px",
+        "spacing": "0px"
+      },
+      "design_tokens": {
+        "background": "#1e1f22",
+        "surface": "#2b2d31",
+        "text_primary": "#ffffff",
+        "accent": "#5865f2",
+        "border": "#3f4147"
+      },
+      "interactive_states": [
+        {
+          "element": "emoji-picker",
+          "default": "rendered",
+          "hover": "lookup glyph",
+          "active": "atlas cached"
+        }
+      ],
+      "acceptance_criteria": [
+        "Noto Color Emoji и CJK отображаются корректно",
+        "Отсутствующие глифы заменяются на tofurion без паники",
+        "Контрактный тест tests/unit/font-fallback-matrix-981.test.mjs green"
+      ],
+      "created_at": "2026-11-11T12:18:41.924Z",
+      "updated_at": "2026-11-11T12:18:41.924Z"
     }
   ]
 }

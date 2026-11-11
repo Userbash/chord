@@ -141,6 +141,7 @@ describe("TASK-972: Стенд верификации локализации i18
     assert.equal(messageKey(len64).length, 6);
 
     // 2. Сверка всех 14 векторов из docs/re/i18n-deep.json + векторов из rust/crates/discord-i18n/src/lib.rs
+    /** @type {Array<[string, string]>} */
     const expectedVectors = [
       ["ru", "+irF5O"],
       ["uk", "6Et1LI"],

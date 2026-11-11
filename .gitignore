@@ -51,3 +51,4 @@ target/
 rust/target/
 **/target/
 tests/e2e/harness/target/
+gpui-kit/
