@@ -6846,7 +6846,7 @@
     {
       "id": "TASK-1001A",
       "title": "Парсер Gateway type: 15 (GUILD_FORUM) и REST /threads/active",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Парсинг available_tags, default_sort_order, пагинация активных постов через REST GET /channels/{id}/threads/active.",
@@ -6994,7 +6994,7 @@
     {
       "id": "TASK-1003A",
       "title": "Захват микрофона в OGG Opus и вычисление 256 Б Waveform",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Кодирование 48kHz mono в Opus 32 kbps и RMS-генерация 256 байт base64 формы волны.",
@@ -7217,7 +7217,7 @@
     {
       "id": "TASK-1006A",
       "title": "FFI биндинг libenchant-2 / hunspell и словарь подсказок",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Интеграция с системным словарем Linux, метод check_word() и генерация до 5 подсказок замены.",
@@ -7254,7 +7254,7 @@
     {
       "id": "TASK-1006B",
       "title": "Рендеринг волнистых опечаток и контекстное меню замены в чате",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Красная волнистая линия #f23f43 в TextView и всплывающее меню вариантов при клике ПКМ.",
