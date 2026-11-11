@@ -5793,7 +5793,7 @@
     {
       "id": "TASK-979",
       "title": "Верификация Forward Secrecy и смены эпох DAVE MLS v1 при выходе пира",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Тесты DAVE MLS v1 в rust/discord-voice, инвалидация старого Epoch Secret при RemoveProposal/Commit, защита от реплея.",
@@ -5824,7 +5824,8 @@
         "Контрактный тест tests/unit/dave-mls-forward-secrecy-979.test.mjs green"
       ],
       "created_at": "2026-11-11T12:18:41.924Z",
-      "updated_at": "2026-11-11T12:18:41.924Z"
+      "updated_at": "2026-11-11T12:18:41.924Z",
+      "progress": 100
     },
     {
       "id": "TASK-980",
@@ -5938,7 +5939,7 @@
     {
       "id": "TASK-983",
       "title": "Интеграция ИИ-шумоподавления RNNoise / Krisp (SIMD AVX2 фильтр)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Фильтрация фонового шума клавиатуры и окружения в rust/discord-voice на базе RNNoise SIMD с обеспечением SNR > 15 dB и задержки < 5 мс.",
@@ -5970,7 +5971,8 @@
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
       "updated_at": "2026-11-11T12:50:19.909Z",
-      "assignee": "term_0cdacc18-8ab2-4f24-8ec6-dec43012e570"
+      "assignee": "term_0cdacc18-8ab2-4f24-8ec6-dec43012e570",
+      "progress": 100
     },
     {
       "id": "TASK-984",
@@ -6197,7 +6199,7 @@
     {
       "id": "TASK-990",
       "title": "Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Конфигурация кросс-сборки cargo для aarch64-unknown-linux-gnu, генерация ARM64 deb, tar.gz и AppImage артефактов.",
@@ -6228,12 +6230,13 @@
         "Контрактный тест tests/unit/arm64-packaging-990.test.mjs green"
       ],
       "created_at": "2026-11-11T12:35:00.000Z",
-      "updated_at": "2026-11-11T12:35:00.000Z"
+      "updated_at": "2026-11-11T12:35:00.000Z",
+      "progress": 10
     },
     {
       "id": "TASK-1001",
       "title": "Форумные каналы GUILD_FORUM и карточки постов",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G2 Frontend",
       "summary": "Поддержка каналов типа 15 (GUILD_FORUM): сетка постов, теги форума, реакции и счетчики ответов.",
@@ -6265,7 +6268,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/channels/forum_view.rs, tests/unit/forum-channels-1001.test.mjs.\nОракул: re-deep/gateway-schema.json (CHANNEL_CREATE type 15).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1002",

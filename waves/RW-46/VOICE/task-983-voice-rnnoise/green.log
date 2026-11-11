@@ -1,0 +1,16 @@
+▶ TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2 фильтр в rust/discord-voice/src/rnnoise.rs, SNR > 15 dB, задержка < 5 мс)
+  ✔ SUB-983-0: модуль rust/discord-voice/src/rnnoise.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений (126.358147ms)
+  ✔ SUB-983-1: сверяет константы RNNoise / Krisp, модели .kef, флаги SIMD AVX2, параметры 48kHz/10ms и интерактивные состояния rnnoise-toggle с независимыми RE-оракулами (5.073875ms)
+  ✔ SUB-983-2: сверяет 8-канальное ядро SIMD AVX2 (Avx2SimdLane8, 256-бит f32x8 FMA/dot), 24 полосы Bark/ERB и GRU-инференс с независимым Float32-оракулом (1.398688ms)
+  ✔ SUB-983-3: подавляет стационарный фоновый шум и импульсный шум клавиатуры на > 15 dB при задержке аудиотракта < 5 мс (48kHz mono, 10ms = 480 сэмплов) (1.388349ms)
+  ✔ SUB-983-4: покрывает все 9 измерений TEST-POLICY.md (граничные 15.00 vs 15.01 dB SNR, 4.99 vs 5.00 ms задержка, 480 сэмплов, Snowflake 0/u64::MAX, 2000 символов, 10 файлов/25 МБ, offset=9975, громкость 0..200%, бейдж 99+, ошибки 401..5xx, тишина/DTX, HTTP 202, права, fallback Krisp->RNNoise AVX2 и маскирование секретов) (1.540798ms)
+  ✔ SUB-983-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/rnnoise.rs (100% mutation kill rate) (492.2033ms)
+✔ TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2 фильтр в rust/discord-voice/src/rnnoise.rs, SNR > 15 dB, задержка < 5 мс) (631.421553ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 673.721749
