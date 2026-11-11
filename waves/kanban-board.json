@@ -6274,7 +6274,7 @@
     {
       "id": "TASK-1002",
       "title": "Вложенные треды обсуждений PUBLIC_THREAD и автоархивация",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Создание и отображение тредов обсуждений (type 11), правая боковая панель треда и таймеры архивации.",
@@ -6306,12 +6306,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/channels/threads.rs, tests/unit/threads-lifecycle-1002.test.mjs.\nОракул: re-deep/rest-d02.json (threads endpoints).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1003",
       "title": "Голосовые сообщения с Waveform в чате (OGG Opus)",
-      "status": "backlog",
+      "status": "in_dev",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Запись голосовых заметок через cpal в OGG Opus, вычисление 256 байт waveform и интерактивный плеер.",
@@ -6343,7 +6344,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/voice_message.rs, rust/discord-gpui/src/chat/voice_message_player.rs, tests/unit/voice-messages-waveform-1003.test.mjs.\nОракул: re-deep/rest-d02.json (attachments flags 8192).\nПравила: TDD Red->Green, 5/5 мутаций, <50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)].",
       "created_at": "2026-11-11T12:47:04.189Z",
-      "updated_at": "2026-11-11T12:47:04.189Z"
+      "updated_at": "2026-11-11T12:47:04.189Z",
+      "progress": 10
     },
     {
       "id": "TASK-1004",
