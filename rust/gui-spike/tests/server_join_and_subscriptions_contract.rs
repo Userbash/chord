@@ -163,7 +163,7 @@ fn s1_forbids_002_ready_fixture_when_live_token_present_and_purges_foreign_state
             },
             {
                 "id": "384299970632876032",
-                "name": "Fixture ShadowByte Guild",
+                "name": "Fixture Demo Guild",
                 "isMember": true,
                 "lurker": false
             }

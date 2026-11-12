@@ -292,8 +292,8 @@ function createTestContainer() {
 
 const SAMPLE_PROFILE = Object.freeze({
   userId: "u-42",
-  username: "shadowbyte",
-  displayName: "ShadowByte",
+  username: "demouser",
+  displayName: "DemoUser",
   pronouns: "он/его",
   status: "dnd",
   bio: "Разработчик Rust и исследователь протоколов.",
@@ -340,11 +340,11 @@ describe("createProfileModalController: openPopout", () => {
 
     const displayNameEl = card.querySelector("[data-profile-display-name]");
     assert.ok(displayNameEl);
-    assert.equal(displayNameEl.textContent, "ShadowByte");
+    assert.equal(displayNameEl.textContent, "DemoUser");
 
     const usernameEl = card.querySelector("[data-profile-username]");
     assert.ok(usernameEl);
-    assert.equal(usernameEl.textContent, "shadowbyte");
+    assert.equal(usernameEl.textContent, "demouser");
 
     const pronounsEl = card.querySelector("[data-profile-pronouns]");
     assert.ok(pronounsEl);
@@ -435,8 +435,8 @@ describe("createProfileModalController: openPopout", () => {
 
     const dmInput = container.querySelector("[data-profile-quick-dm-input]");
     assert.ok(dmInput, "инпут быстрого сообщения должен быть в поповере");
-    assert.equal(dmInput.placeholder, "Написать @shadowbyte");
-    assert.equal(dmInput.getAttribute("placeholder"), "Написать @shadowbyte");
+    assert.equal(dmInput.placeholder, "Написать @demouser");
+    assert.equal(dmInput.getAttribute("placeholder"), "Написать @demouser");
 
     // Пустой ввод или пробелы не должны вызывать onSendQuickMessage
     dmInput.value = "   ";

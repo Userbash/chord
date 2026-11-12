@@ -329,7 +329,7 @@ describe("V-08 voice: 12 состояний на fake store", () => {
       ...CHANNEL,
       state: "connected",
       ping: 93,
-      participants: [participant({ self: true, name: "ShadowByte" })],
+      participants: [participant({ self: true, name: "DemoUser" })],
     });
     const link = byId(host, "voice-channel-link");
     assert.match(link.textContent, /PC BOOST/, "ссылка на канал без имени");
@@ -476,7 +476,7 @@ describe("V-08 voice: участники и speaking", () => {
       selfMute: true,
       participants: [
         participant({ name: "Аня" }),
-        participant({ self: true, name: "ShadowByte", mute: "self" }),
+        participant({ self: true, name: "DemoUser", mute: "self" }),
       ],
     });
     const rows = host.querySelectorAll(".voice-user");
@@ -484,7 +484,7 @@ describe("V-08 voice: участники и speaking", () => {
     const first = /** @type {ShimElement} */ (rows[0]);
     assert.equal(first.getAttribute("data-self"), "true", "своя строка не первая");
     assert.equal(first.getAttribute("data-mute"), "self", "data-mute не self");
-    assert.match(first.getAttribute("aria-label") ?? "", /ShadowByte/, "aria-label без имени");
+    assert.match(first.getAttribute("aria-label") ?? "", /DemoUser/, "aria-label без имени");
     assert.match(first.getAttribute("aria-label") ?? "", /Этот микрофон отключён/, "нет tjtv3P в aria-label");
     assert.equal(first.getAttribute("role"), "listitem", "строка без role=listitem");
   });
@@ -583,7 +583,7 @@ describe("V-08 voice: индикация PTT", () => {
     store.set({
       ...CHANNEL,
       state: "connected",
-      participants: [participant({ self: true, name: "ShadowByte" })],
+      participants: [participant({ self: true, name: "DemoUser" })],
     });
     assert.equal(attr(host, "data-ptt"), "idle", "по умолчанию не idle");
     store.set({ ptt: "held" });

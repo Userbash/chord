@@ -1250,7 +1250,7 @@ describe("auth-гейт: вход токеном, restore, logout, отсутс�
       assert.equal(state(env), "no-session");
       assert.equal(byId(env, "auth-gate").getAttribute("hidden"), null, "гейт не вернулся после logout");
       assert.equal(byId(env, "auth-logout").getAttribute("hidden"), "", "logout остался в user-bar");
-      assert.equal(one(env, ".user-name").textContent, "ShadowByte", "имя не сброшено к заглушке");
+      assert.equal(one(env, ".user-name").textContent, "User", "имя не сброшено к заглушке");
       assert.equal(byId(env, "auth-password").value, "");
       assert.equal(byId(env, "auth-token").value, "");
       assert.equal(focusLog[focusLog.length - 1]?.id, "auth-login", "после logout фокус не в логине");

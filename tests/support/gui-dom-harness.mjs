@@ -1054,12 +1054,12 @@ function buildDom(doc) {
   userBar.id = "user-bar";
   userBar.className = "user-bar";
   const profile = make("button", "user-profile");
-  profile.setAttribute("aria-label", "Профиль: ShadowByte, невидимый");
+  profile.setAttribute("aria-label", "Профиль: User, невидимый");
   profile.setAttribute("data-action", "profile");
-  const avatarSm = text("span", "avatar avatar--sm", "SB");
+  const avatarSm = text("span", "avatar avatar--sm", "U");
   avatarSm.setAttribute("aria-hidden", "true");
   const userMeta = make("span", "user-meta");
-  userMeta.append(text("span", "user-name", "ShadowByte"), text("span", "user-status", "Невидимый"));
+  userMeta.append(text("span", "user-name", "User"), text("span", "user-status", "Невидимый"));
   profile.append(avatarSm, userMeta);
   const userActions = make("div", "user-actions");
   userActions.append(
@@ -1218,11 +1218,11 @@ function buildDom(doc) {
   settingsShell.setAttribute("role", "dialog");
   settingsShell.setAttribute("aria-modal", "true");
   const settingsHead = make("header", "settings-head");
-  const avatarMd = text("span", "avatar avatar--md", "SB");
+  const avatarMd = text("span", "avatar avatar--md", "U");
   avatarMd.setAttribute("aria-hidden", "true");
   const settingsUser = make("span", "settings-user");
   settingsUser.append(
-    text("span", "settings-user-name", "ShadowByte"),
+    text("span", "settings-user-name", "User"),
     text("span", "settings-user-hint", "Редактировать профиль"),
   );
   settingsHead.append(avatarMd, settingsUser, iconBtn("button", "icon-btn", "Закрыть настройки", "settings-close"));

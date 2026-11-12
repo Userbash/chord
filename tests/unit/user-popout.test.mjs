@@ -152,15 +152,15 @@ describe("FE-P1-04 (task-159): createUserPopoutController", () => {
 
     controller.openPopout({
       userId: "123",
-      displayName: "ShadowByte",
-      username: "shadowbyte",
+      displayName: "DemoUser",
+      username: "demouser",
     });
 
     const popout = doc.getElementById("user-popout");
     assert.ok(popout, "в DOM должен присутствовать #user-popout");
     assert.equal(popout.getAttribute("role"), "dialog");
     assert.equal(popout.getAttribute("aria-modal"), "false");
-    assert.equal(popout.getAttribute("aria-label"), "Профиль пользователя ShadowByte");
+    assert.equal(popout.getAttribute("aria-label"), "Профиль пользователя DemoUser");
 
     controller.destroy();
   });

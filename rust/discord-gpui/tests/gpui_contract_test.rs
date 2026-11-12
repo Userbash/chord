@@ -603,8 +603,8 @@ fn test_explore_servers_and_voice_call_suppression_contract() {
     );
 
     // 3. Проверка супрессии дублирующей голосовой панели в окне активного личного звонка
-    state.start_call("u-pharos", false);
-    state.selected_channel_id = Some("dm-u-pharos".into());
+    state.start_call("u-demo-1", false);
+    state.selected_channel_id = Some("dm-u-demo-1".into());
     assert!(matches!(
         state.active_call,
         crate::state::CallStatus::Connected { .. }
@@ -2032,37 +2032,37 @@ fn test_direct_call_overlay_and_dm_profile_parity_contract() {
 
     // 2. Проверяем наличие диалогов в relationships
     assert!(!state.relationships.is_empty());
-    let pharos = state
+    let demouser = state
         .relationships
         .iter()
-        .find(|r| r.user_id == "u-pharos")
-        .expect("ShadowByte должен присутствовать в друзьях");
-    assert_eq!(pharos.banner_color.as_deref(), Some("#9333ea"));
-    assert_eq!(pharos.user_tag.as_deref(), Some("@pharos12510"));
-    assert_eq!(pharos.member_since.as_deref(), Some("26 нояб. 2017 г."));
+        .find(|r| r.user_id == "u-demo-1")
+        .expect("DemoUser должен присутствовать в друзьях");
+    assert_eq!(demouser.banner_color.as_deref(), Some("#9333ea"));
+    assert_eq!(demouser.user_tag.as_deref(), Some("@demouser"));
+    assert_eq!(demouser.member_since.as_deref(), Some("15 янв. 2021 г."));
 
-    // 3. Переход в личный диалог с ShadowByte
-    state.select_channel("dm-u-pharos".into());
-    assert_eq!(state.selected_channel_id.as_deref(), Some("dm-u-pharos"));
+    // 3. Переход в личный диалог с DemoUser
+    state.select_channel("dm-u-demo-1".into());
+    assert_eq!(state.selected_channel_id.as_deref(), Some("dm-u-demo-1"));
 
-    // 4. Проверяем наличие системных сообщений о звонках в dm-u-pharos
+    // 4. Проверяем наличие системных сообщений о звонках в dm-u-demo-1
     let msgs = state
         .messages
-        .get("dm-u-pharos")
-        .expect("Сообщения для dm-u-pharos должны существовать");
+        .get("dm-u-demo-1")
+        .expect("Сообщения для dm-u-demo-1 должны существовать");
     assert_eq!(msgs.len(), 4);
     assert_eq!(msgs[0].message_kind, MessageKind::CallStarted);
     assert_eq!(msgs[2].message_kind, MessageKind::CallMissed);
     assert_eq!(msgs[1].message_kind, MessageKind::Default);
 
     // 5. Запуск аудиозвонка
-    state.start_call("u-pharos", false);
+    state.start_call("u-demo-1", false);
     assert!(state.active_call.is_in_call());
     assert!(!state.active_call.is_video());
     assert!(state.voice_session.is_some());
     assert_eq!(
         state.voice_session.as_ref().unwrap().channel_id,
-        "call-u-pharos"
+        "call-u-demo-1"
     );
 
     // 6. Завершение звонка
@@ -2071,7 +2071,7 @@ fn test_direct_call_overlay_and_dm_profile_parity_contract() {
     assert!(state.voice_session.is_none());
 
     // 7. Запуск видеозвонка
-    state.start_call("u-pharos", true);
+    state.start_call("u-demo-1", true);
     assert!(state.active_call.is_in_call());
     assert!(state.active_call.is_video());
     assert!(state.is_camera_enabled);
@@ -3160,7 +3160,7 @@ fn test_async_dispatcher_bounded_backpressure_and_all_background_events_contract
     let disp = AsyncTaskDispatcher::new(2);
     assert!(
         disp.try_send(BackgroundEvent::PresenceUpdate(
-            "u-pharos".into(),
+            "u-demo-1".into(),
             "dnd".into()
         ))
         .is_ok()
@@ -3177,7 +3177,7 @@ fn test_async_dispatcher_bounded_backpressure_and_all_background_events_contract
     let rx = disp.receiver();
     match rx.try_recv().unwrap() {
         BackgroundEvent::PresenceUpdate(u, st) => {
-            assert_eq!(u, "u-pharos");
+            assert_eq!(u, "u-demo-1");
             assert_eq!(st, "dnd");
         }
         _ => panic!("Ожидался PresenceUpdate"),
@@ -3255,7 +3255,7 @@ fn test_appstate_modals_calls_live_hydration_and_keyboard_branches_contract() {
         relationships: Vec::new(),
         messages: std::collections::HashMap::new(),
         dm_channels: std::collections::HashMap::from([(
-            "u-pharos".to_string(),
+            "u-demo-1".to_string(),
             "dm-chan-live-1".to_string(),
         )]),
     };
@@ -3263,14 +3263,14 @@ fn test_appstate_modals_calls_live_hydration_and_keyboard_branches_contract() {
     assert_eq!(state.current_user.username, "LiveRustacean");
     assert!(!state.is_login_modal_open);
     assert_eq!(
-        state.dm_channels.get("u-pharos").map(String::as_str),
+        state.dm_channels.get("u-demo-1").map(String::as_str),
         Some("dm-chan-live-1")
     );
 
     // 2. Переход вызова из Ringing в Connected
     state.active_call = state::CallStatus::Ringing {
-        recipient_id: "u-pharos".into(),
-        recipient_name: "ShadowByte".into(),
+        recipient_id: "u-demo-1".into(),
+        recipient_name: "DemoUser".into(),
     };
     assert!(state.active_call.is_in_call());
     assert!(!state.active_call.is_video());
@@ -3284,7 +3284,7 @@ fn test_appstate_modals_calls_live_hydration_and_keyboard_branches_contract() {
     state.close_context_menu();
     assert!(state.active_context_menu.is_none());
 
-    state.open_member_profile("u-pharos");
+    state.open_member_profile("u-demo-1");
     state.close_member_profile();
     assert!(state.selected_member_profile.is_none());
 

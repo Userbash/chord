@@ -104,30 +104,30 @@ describe("TASK-821: Voice Channel Stage Banner Parity (frame 032)", () => {
       assert.equal(
         formatVoiceStageParticipantsSummary([
           { userId: "1", displayName: "Rustery" },
-          { userId: "2", displayName: "ShadowByte" },
+          { userId: "2", displayName: "DemoUser" },
         ]),
-        "Rustery и ShadowByte сейчас в голосовом чате",
+        "Rustery и DemoUser сейчас в голосовом чате",
       );
 
       // 3 participants (extra = 1 -> человек)
       assert.equal(
         formatVoiceStageParticipantsSummary([
           { userId: "1", displayName: "Rustery" },
-          { userId: "2", displayName: "ShadowByte" },
+          { userId: "2", displayName: "DemoUser" },
           { userId: "3", displayName: "Alex" },
         ]),
-        "В голосовом чате сейчас Rustery, ShadowByte и ещё 1 человек",
+        "В голосовом чате сейчас Rustery, DemoUser и ещё 1 человек",
       );
 
       // 4 participants (extra = 2 -> человека)
       assert.equal(
         formatVoiceStageParticipantsSummary([
           { userId: "1", displayName: "Rustery" },
-          { userId: "2", displayName: "ShadowByte" },
+          { userId: "2", displayName: "DemoUser" },
           { userId: "3", displayName: "Alex" },
           { userId: "4", displayName: "Max" },
         ]),
-        "В голосовом чате сейчас Rustery, ShadowByte и ещё 2 человека",
+        "В голосовом чате сейчас Rustery, DemoUser и ещё 2 человека",
       );
 
       // 7 participants (extra = 5 -> человек)
@@ -419,7 +419,7 @@ describe("TASK-821: Voice Channel Stage Banner Parity (frame 032)", () => {
         gui = await loadApp({
           invokeHandler: (cmd, args) => {
             if (cmd === "auth_status") {
-              return { status: "ready", stored: true, user: { id: SELF_ID, username: "ShadowByte" } };
+              return { status: "ready", stored: true, user: { id: SELF_ID, username: "DemoUser" } };
             }
             if (cmd === "net_connect" || cmd === "ack_message") {
               return null;
@@ -429,7 +429,7 @@ describe("TASK-821: Voice Channel Stage Banner Parity (frame 032)", () => {
             }
             if (cmd === "ready") {
               return {
-                user: { id: SELF_ID, username: "ShadowByte", global_name: "ShadowByte" },
+                user: { id: SELF_ID, username: "DemoUser", global_name: "DemoUser" },
                 guilds: [
                   {
                     id: GUILD_ID,
@@ -458,7 +458,7 @@ describe("TASK-821: Voice Channel Stage Banner Parity (frame 032)", () => {
                 relationships: [],
                 private_channels: [],
                 users: [
-                  { id: SELF_ID, username: "ShadowByte", global_name: "ShadowByte" },
+                  { id: SELF_ID, username: "DemoUser", global_name: "DemoUser" },
                   { id: RUSTERY_ID, username: "rustery", global_name: "Rustery" },
                 ],
               };

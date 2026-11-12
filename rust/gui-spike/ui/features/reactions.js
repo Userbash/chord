@@ -406,7 +406,7 @@ function normalizeReactionUsers(raw, emoji, type) {
     return result;
   }
   if (type === REACTION_TYPE_BURST) {
-    return [{ id: "u-burst-default", username: "shadowbyte", displayName: "ShadowByte" }];
+    return [{ id: "u-burst-default", username: "user", displayName: "User" }];
   }
   return [
     { id: "u-1", username: "sasha", displayName: `sasha (${emoji})` },

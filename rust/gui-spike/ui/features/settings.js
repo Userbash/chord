@@ -45,12 +45,12 @@ export const SETTINGS_ENABLED = ["Уведомления", "Голос и вид
 
 /**
  * ST-01 (RE `ui8/23-settings-categories.json`): профиль навигации — 2 строки
- * оракула (`ShadowByte` + «Редактировать профили») рядом с аватаром-монограммой.
+ * оракула (`User` + «Редактировать профили») рядом с аватаром-монограммой.
  * В дампе нет handle, поэтому его здесь тоже нет.
  */
 export const SETTINGS_PROFILE = /** @type {const} */ ({
-  name: "ShadowByte",
-  monogram: "SB",
+  name: "User",
+  monogram: "U",
   action: "Редактировать профили",
 });
 
@@ -1112,8 +1112,8 @@ export function createSettingsConsole(options) {
   function unlockLiveSettings(user, readyPayload) {
     const u = user ?? readyPayload?.user ?? null;
     const displayName = String(u?.globalName || u?.global_name || u?.username || SETTINGS_PROFILE.name);
-    const username = String(u?.username || "pharos12510");
-    const userId = String(u?.id || "384299970632876032");
+    const username = String(u?.username || "user");
+    const userId = String(u?.id || "0");
     const guilds = Array.isArray(readyPayload?.guilds) ? readyPayload.guilds : [];
     const relationships = Array.isArray(readyPayload?.relationships) ? readyPayload.relationships : [];
     const rawPrivate = readyPayload?.private_channels ?? readyPayload?.privateChannels;

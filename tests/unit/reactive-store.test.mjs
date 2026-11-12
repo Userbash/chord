@@ -63,7 +63,7 @@ test("ReactiveStore: createAppReactiveStore synchronizes voiceStates, activeVoic
     voiceConnection: {
       guildId: "@me",
       channelId: "1566834523038294047",
-      channelName: "ShadowByte",
+      channelName: "DemoUser",
       selfMute: false,
       selfDeaf: false,
       selfVideo: false,

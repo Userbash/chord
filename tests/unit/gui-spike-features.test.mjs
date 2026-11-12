@@ -70,7 +70,7 @@ const SETTINGS_OFF = ["Приоритет QoS", "Режим рации", "Ове
 // (63 записи: профиль 2 + 19 навигационных × 3 обёртки + 4 развёрнутых подпункта).
 // Здесь — только тексты, извлечённые из дампа, а не из текущего `settings.js`.
 const ORACLE_PROFILE = /** @type {const} */ ({
-  name: "ShadowByte",
+  name: "User",
   action: "Редактировать профили",
 });
 const ORACLE_ACCOUNT_ITEMS = [
@@ -570,7 +570,7 @@ describe("gui-spike features: интеракции W39d", () => {
       );
       const monogram = profile.querySelector(".settings-profile-avatar");
       assert.ok(monogram, "нет аватара-монограммы профиля");
-      assert.equal(monogram.textContent, "SB", "монограмма не совпадает с инициалами");
+      assert.equal(monogram.textContent, "U", "монограмма не совпадает с инициалами");
       const edit = profile.querySelector(".settings-profile-edit");
       assert.ok(edit, "нет действия «Редактировать профили»");
       assert.equal(edit.textContent, ORACLE_PROFILE.action, "подпись действия не из оракула");

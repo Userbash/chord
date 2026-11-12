@@ -21,7 +21,7 @@ impl UserProfileSidebar {
         // Находим текущего собеседника по selected_channel_id ("dm-{user_id}")
         let target_user_id = match state.selected_channel_id.as_deref() {
             Some(cid) if cid.starts_with("dm-") => cid.trim_start_matches("dm-"),
-            _ => "u-pharos", // fallback на первого друга
+            _ => "u-demo-1", // fallback на первого друга
         };
 
         let relationship = state

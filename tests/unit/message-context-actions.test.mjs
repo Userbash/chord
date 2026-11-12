@@ -200,7 +200,7 @@ test("TDD: DM call stage banner mounts inside .chat-main (not flex-row #screen-c
 
     await app.chat.openChannel({
       id: "1566834523038294047",
-      name: "ShadowByte",
+      name: "DemoUser",
       type: 1,
     });
 
@@ -224,7 +224,7 @@ test("TDD: DM call stage banner mounts inside .chat-main (not flex-row #screen-c
 
     const voicePanelText = document.getElementById("voice-panel")?.textContent || "";
     assert.ok(
-      !voicePanelText.includes("ShadowByte / ShadowByte") && !voicePanelText.includes("@ShadowByte / @ShadowByte"),
+      !voicePanelText.includes("DemoUser / DemoUser") && !voicePanelText.includes("@DemoUser / @DemoUser"),
       `Voice panel subtitle must not duplicate DM name as guild name (got: ${voicePanelText})`,
     );
   } finally {
@@ -242,8 +242,8 @@ test("ChatFeature call message (type 3) formats ended call duration with a singl
     /** @type {import("../../rust/gui-spike/ui/features/chat.js").ChannelMessage} */
     const callMsg = {
       id: "1567070580172750969",
-      author: "ShadowByte",
-      authorId: "384299970632876032",
+      author: "DemoUser",
+      authorId: "100000000000000001",
       authorAvatar: null,
       text: "",
       time: "11:30",

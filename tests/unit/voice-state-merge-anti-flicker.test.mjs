@@ -107,14 +107,14 @@ describe("TASK-766: Conflict-Free Voice States Merge & Guild Key Normalization (
       t: "VOICE_STATE_UPDATE",
       guild_id: "1056563701764857896",
       channel_id: "2056563701764857897",
-      user_id: "384299970632876000",
+      user_id: "200000000000000001",
       session_id: "sess-official-peer",
       self_mute: false,
       self_deaf: false,
       member: {
-        nick: "ShadowByte",
+        nick: "DemoUser",
         roles: ["role-admin"],
-        user: { id: "384299970632876000", username: "pharos12510", global_name: "ShadowByte" },
+        user: { id: "200000000000000001", username: "demouser", global_name: "DemoUser" },
       },
     });
 
@@ -140,7 +140,7 @@ describe("TASK-766: Conflict-Free Voice States Merge & Guild Key Normalization (
 
     assert.deepEqual(
       participants.map((p) => p.userId).sort(),
-      ["1566799713523466370", "384299970632876000"],
+      ["1566799713523466370", "200000000000000001"],
       "Both real-time VOICE_STATE_UPDATE participant and sync snapshot participant must be preserved without flickering",
     );
   });

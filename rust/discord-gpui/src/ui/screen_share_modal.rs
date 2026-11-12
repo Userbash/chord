@@ -1338,7 +1338,7 @@ mod tests {
     #[core::prelude::v1::test]
     fn screen_share_go_live_lifecycle_and_portal_options_contract() {
         let mut app_state = AppState::new();
-        app_state.start_call("u-pharos", false);
+        app_state.start_call("u-demo-1", false);
         app_state.open_screen_share_modal();
         assert!(app_state.is_screen_share_modal_open);
 

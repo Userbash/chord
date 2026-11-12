@@ -153,9 +153,9 @@ impl ChatView {
                 id: format!("{}-older-{}", oldest_id, i),
                 channel_id: channel_id.to_string(),
                 author: crate::state::UserSummary {
-                    id: "u-pharos".into(),
-                    username: "ShadowByte".into(),
-                    global_name: Some("ShadowByte @pharos12510".into()),
+                    id: "u-demo-1".into(),
+                    username: "DemoUser".into(),
+                    global_name: Some("DemoUser @demouser".into()),
                     avatar: None,
                     is_bot: false,
                 },

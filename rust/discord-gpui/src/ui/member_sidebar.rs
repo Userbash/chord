@@ -684,9 +684,9 @@ mod tests {
     fn test_member_sidebar_grouping_by_guild_roles() {
         let members = vec![
             GuildMember {
-                id: "u-pharos".into(),
-                username: "ShadowByte".into(),
-                global_name: Some("ShadowByte".into()),
+                id: "u-demo-1".into(),
+                username: "DemoUser".into(),
+                global_name: Some("DemoUser".into()),
                 avatar: None,
                 status: PresenceStatus::Online,
                 activity: Some("В эфире: Hacking GPUI ⚡".into()),
@@ -736,7 +736,7 @@ mod tests {
         assert_eq!(groups[1].role_name, "Server Booster");
         assert_eq!(groups[1].priority, 90);
         assert_eq!(groups[1].members.len(), 1);
-        assert_eq!(groups[1].members[0].username, "ShadowByte");
+        assert_eq!(groups[1].members[0].username, "DemoUser");
 
         assert_eq!(groups[2].role_name, "Developer");
         assert_eq!(groups[2].priority, 80);

@@ -1792,9 +1792,9 @@ impl AppState {
 
         self.members = vec![
             GuildMember {
-                id: "u-pharos".into(),
-                username: "ShadowByte".into(),
-                global_name: Some("ShadowByte @pharos12510".into()),
+                id: "u-demo-1".into(),
+                username: "DemoUser".into(),
+                global_name: Some("DemoUser @demouser".into()),
                 avatar: None,
                 status: PresenceStatus::Online,
                 activity: Some("В эфире: Hacking GPUI ⚡".into()),
@@ -1835,9 +1835,9 @@ impl AppState {
                 id: "msg-1".into(),
                 channel_id: "ch-general".into(),
                 author: UserSummary {
-                    id: "u-pharos".into(),
-                    username: "ShadowByte".into(),
-                    global_name: Some("ShadowByte @pharos12510".into()),
+                    id: "u-demo-1".into(),
+                    username: "DemoUser".into(),
+                    global_name: Some("DemoUser @demouser".into()),
                     avatar: None,
                     is_bot: false,
                 },
@@ -1971,21 +1971,21 @@ impl AppState {
         self.relationships = vec![
             Relationship {
                 id: "rel-1".into(),
-                user_id: "u-pharos".into(),
+                user_id: "u-demo-1".into(),
                 relationship_type: RelationshipType::Friend,
                 nickname: None,
                 user: UserSummary {
-                    id: "u-pharos".into(),
-                    username: "ShadowByte".into(),
-                    global_name: Some("ShadowByte @pharos12510".into()),
+                    id: "u-demo-1".into(),
+                    username: "DemoUser".into(),
+                    global_name: Some("DemoUser @demouser".into()),
                     avatar: None,
                     is_bot: false,
                 },
                 status: PresenceStatus::Online,
                 activity: Some("В эфире: Hacking GPUI ⚡".into()),
                 banner_color: Some("#9333ea".into()), // Purple/Magenta banner
-                user_tag: Some("@pharos12510".into()),
-                member_since: Some("26 нояб. 2017 г.".into()),
+                user_tag: Some("@demouser".into()),
+                member_since: Some("15 янв. 2021 г.".into()),
                 mutual_guilds_count: 0,
                 note: Some("Нажмите, чтобы добавить заметку".into()),
             },
@@ -2031,11 +2031,11 @@ impl AppState {
             },
         ];
 
-        // Личные сообщения для канала dm-u-pharos (по эталону Video_2026-11-07_22-11-28.mp4)
+        // Личные сообщения для канала dm-u-demo-1 (по эталону Video_2026-11-07_22-11-28.mp4)
         let dm_msgs = vec![
             Message {
                 id: "dm-msg-1".into(),
-                channel_id: "dm-u-pharos".into(),
+                channel_id: "dm-u-demo-1".into(),
                 author: UserSummary {
                     id: self.current_user.id.clone(),
                     username: self.current_user.username.clone(),
@@ -2053,11 +2053,11 @@ impl AppState {
             },
             Message {
                 id: "dm-msg-2".into(),
-                channel_id: "dm-u-pharos".into(),
+                channel_id: "dm-u-demo-1".into(),
                 author: UserSummary {
-                    id: "u-pharos".into(),
-                    username: "ShadowByte".into(),
-                    global_name: Some("ShadowByte @pharos12510".into()),
+                    id: "u-demo-1".into(),
+                    username: "DemoUser".into(),
+                    global_name: Some("DemoUser @demouser".into()),
                     avatar: None,
                     is_bot: false,
                 },
@@ -2071,15 +2071,15 @@ impl AppState {
             },
             Message {
                 id: "dm-msg-3".into(),
-                channel_id: "dm-u-pharos".into(),
+                channel_id: "dm-u-demo-1".into(),
                 author: UserSummary {
-                    id: "u-pharos".into(),
-                    username: "ShadowByte".into(),
-                    global_name: Some("ShadowByte @pharos12510".into()),
+                    id: "u-demo-1".into(),
+                    username: "DemoUser".into(),
+                    global_name: Some("DemoUser @demouser".into()),
                     avatar: None,
                     is_bot: false,
                 },
-                content: "Вы пропустили звонок от ShadowByte, который длился несколько секунд."
+                content: "Вы пропустили звонок от DemoUser, который длился несколько секунд."
                     .into(),
                 timestamp: "Сегодня в 17:08".into(),
                 edited_timestamp: None,
@@ -2090,7 +2090,7 @@ impl AppState {
             },
             Message {
                 id: "dm-msg-4".into(),
-                channel_id: "dm-u-pharos".into(),
+                channel_id: "dm-u-demo-1".into(),
                 author: UserSummary {
                     id: self.current_user.id.clone(),
                     username: self.current_user.username.clone(),
@@ -2107,7 +2107,7 @@ impl AppState {
                 message_kind: MessageKind::Default,
             },
         ];
-        self.messages.insert("dm-u-pharos".into(), dm_msgs);
+        self.messages.insert("dm-u-demo-1".into(), dm_msgs);
 
         // Начальная учетная запись
         let initial_account = UserAccount {

@@ -806,9 +806,9 @@ describe("TASK-113 / N1-07 DM & Friends UI: переключение Home/Friend
     controller.selectFriendsTab("add_friend");
 
     // 1. Проверка чистого парсера parseFriendRequestInput
-    assert.deepEqual(parseFriendRequestInput("shadowbyte"), {
+    assert.deepEqual(parseFriendRequestInput("frienduser"), {
       ok: true,
-      payload: { username: "shadowbyte", discriminator: null },
+      payload: { username: "frienduser", discriminator: null },
     });
     assert.deepEqual(parseFriendRequestInput("novaknight#4821"), {
       ok: true,
@@ -824,13 +824,13 @@ describe("TASK-113 / N1-07 DM & Friends UI: переключение Home/Friend
     assert.equal(submitBtn.disabled, true);
 
     // 2. Отправка Pomelo username (без # -> discriminator: null)
-    input.value = "shadowbyte";
+    input.value = "frienduser";
     input.emit("input");
     assert.equal(submitBtn.disabled, false);
     await controller.submitAddFriendForm();
 
     const pomeloCall = restCalls.find(
-      (c) => c.method === "POST" && c.url === "/users/@me/relationships" && c.body?.username === "shadowbyte",
+      (c) => c.method === "POST" && c.url === "/users/@me/relationships" && c.body?.username === "frienduser",
     );
     assert.ok(pomeloCall, "должен быть вызван POST /users/@me/relationships для Pomelo");
     assert.equal(pomeloCall.body.discriminator, null, "для Pomelo discriminator обязан быть строго null");
@@ -1245,7 +1245,7 @@ describe("TASK-113 P1/P2: монтирование рейла, 429, ошибки
 
     const input = doc.getElementById("add-friend-input");
     assert.ok(input);
-    input.value = "shadowbyte#1234";
+    input.value = "frienduser#1234";
     const feedback = doc.getElementById("add-friend-feedback");
     const submit = doc.getElementById("add-friend-submit");
     assert.ok(feedback && submit);

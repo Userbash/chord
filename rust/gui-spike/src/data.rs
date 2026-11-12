@@ -1892,7 +1892,7 @@ pub fn sanitize_state_cache_for_token(
                         valid_id && !is_hallucinated_synth
                     });
                 }
-                let has_shadowbyte_role = ["my_roles", "myRoles"].iter().any(|k| {
+                let has_privileged_mock_role = ["my_roles", "myRoles"].iter().any(|k| {
                     gm.get(*k).and_then(Value::as_array).is_some_and(|arr| {
                         arr.iter().any(|v| {
                             matches!(
@@ -1902,7 +1902,7 @@ pub fn sanitize_state_cache_for_token(
                         })
                     })
                 });
-                if has_shadowbyte_role && !cached_uid.is_empty() {
+                if has_privileged_mock_role && !cached_uid.is_empty() {
                     gm.insert("my_roles".to_string(), Value::Array(Vec::new()));
                     gm.insert("myRoles".to_string(), Value::Array(Vec::new()));
                 }
@@ -12584,9 +12584,9 @@ mod dm_voice_stream_tests {
                 "guilds": [],
                 "users": [
                     {
-                        "id": "384299970632876000",
-                        "username": "pharos12510",
-                        "global_name": "ShadowByte"
+                        "id": "100000000000000001",
+                        "username": "demouser",
+                        "global_name": "DemoUser"
                     }
                 ]
             }),
@@ -12704,9 +12704,9 @@ mod dm_voice_stream_tests {
                 "guilds": [],
                 "users": [
                     {
-                        "id": "384299970632876000",
-                        "username": "pharos12510",
-                        "global_name": "ShadowByte"
+                        "id": "100000000000000001",
+                        "username": "demouser",
+                        "global_name": "DemoUser"
                     }
                 ]
             }),
@@ -12718,7 +12718,7 @@ mod dm_voice_stream_tests {
                 "channel_id": "1566834523038294047",
                 "voice_states": [
                     {
-                        "user_id": "384299970632876000",
+                        "user_id": "100000000000000001",
                         "channel_id": "1566834523038294047",
                         "self_mute": false,
                         "self_deaf": false,
@@ -12734,14 +12734,14 @@ mod dm_voice_stream_tests {
                 .get("@me")
                 .expect("CALL_CREATE must populate @me voice_states");
             assert_eq!(dm_vs.len(), 1);
-            assert_eq!(field_str(&dm_vs[0], "user_id"), Some("384299970632876000"));
+            assert_eq!(field_str(&dm_vs[0], "user_id"), Some("100000000000000001"));
             assert_eq!(
                 dm_vs[0].get("self_stream").and_then(Value::as_bool),
                 Some(true)
             );
         }
 
-        // Now ShadowByte leaves via CALL_UPDATE with empty voice_states
+        // Now DemoUser leaves via CALL_UPDATE with empty voice_states
         ingest_live_dispatch(
             "CALL_UPDATE",
             &json!({
@@ -12922,9 +12922,9 @@ mod dm_voice_stream_tests {
             *g = LiveSession::default();
             g.active = true;
             g.user = Some(ReadyUser {
-                id: "384299970632876000".to_string(),
-                username: "pharos12510".to_string(),
-                global_name: Some("ShadowByte".to_string()),
+                id: "100000000000000001".to_string(),
+                username: "demouser".to_string(),
+                global_name: Some("DemoUser".to_string()),
                 avatar: None,
                 email: None,
                 bio: None,
@@ -12974,8 +12974,8 @@ mod dm_voice_stream_tests {
                 ],
                 "members": [
                     {
-                        "user_id": "384299970632876000",
-                        "user": { "id": "384299970632876000", "username": "pharos12510", "global_name": "ShadowByte" },
+                        "user_id": "100000000000000001",
+                        "user": { "id": "100000000000000001", "username": "demouser", "global_name": "DemoUser" },
                         "roles": ["1057598992449552425"]
                     }
                 ]
@@ -13023,7 +13023,7 @@ mod dm_voice_stream_tests {
     }
 
     #[test]
-    fn other_account_does_not_inherit_shadowbyte_roles_or_fake_welcome_messages() {
+    fn other_account_does_not_inherit_cached_fixture_roles_or_fake_welcome_messages() {
         let _serial = TEST_SERIAL_LOCK.lock().unwrap_or_else(|p| p.into_inner());
         {
             let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
@@ -13073,7 +13073,7 @@ mod dm_voice_stream_tests {
 
         assert!(
             itskidon.my_roles.is_empty(),
-            "Rustery (1566799713523466370) must NOT inherit ShadowByte's roles from 002-READY.json, got {:?}",
+            "Rustery (1566799713523466370) must NOT inherit cached fixture roles from 002-READY.json, got {:?}",
             itskidon.my_roles
         );
         assert_eq!(

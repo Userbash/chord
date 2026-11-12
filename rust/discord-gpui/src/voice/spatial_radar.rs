@@ -710,7 +710,7 @@ mod tests {
         let mut canvas = SpatialRadarCanvas::new(1058348665342808104).unwrap();
         canvas.snap_step_deg = Some(15.0);
         canvas
-            .upsert_participant(RadarParticipantNode::new(42, "ShadowByte", 0.0, 50.0).unwrap())
+            .upsert_participant(RadarParticipantNode::new(42, "DemoUser", 0.0, 50.0).unwrap())
             .unwrap();
         assert_eq!(canvas.update_hover(120.0, 8.0), Some(42));
         assert_eq!(canvas.begin_drag_at(120.0, 8.0).unwrap(), 42);

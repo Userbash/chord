@@ -441,7 +441,7 @@ test("V5.5: интеграция с app.js — отсутствие фантом
 
     await app.chat.openChannel({
       id: "1566834523038294047",
-      name: "ShadowByte",
+      name: "DemoUser",
       type: 1,
     });
 
