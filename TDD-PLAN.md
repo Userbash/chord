@@ -595,6 +595,12 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 | `tests/unit/spatial-audio-filter-1017a.test.mjs` | — | — |
 | `tests/unit/rtc-metrics-1011a.test.mjs` | — | — |
 | `tests/unit/spatial-radar-1017b.test.mjs` | — | — |
+| `tests/unit/afk-handler-1010b.test.mjs` | — | — |
+| `tests/unit/audit-log-parser-1008a.test.mjs` | — | — |
+| `tests/unit/idle-monitor-1010a.test.mjs` | — | — |
+| `tests/unit/roles-hierarchy-1007b.test.mjs` | — | — |
+| `tests/unit/roles-permissions-1007a.test.mjs` | — | — |
+| `tests/unit/rtc-hud-1011b.test.mjs` | — | — |
 
 Цикл для новой функциональности (рецепт):
 

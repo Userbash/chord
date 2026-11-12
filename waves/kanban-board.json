@@ -7070,7 +7070,7 @@
     {
       "id": "TASK-1004A",
       "title": "Модель опроса, REST эндпоинты голосования и расчет процентов",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G1 Backend",
       "summary": "Десериализация Poll, эндпоинты PUT /polls/{id}/answers/{id} и математика процентных шкал.",
@@ -7102,7 +7102,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/polls.rs, tests/unit/polls-core-1004a.test.mjs.\nОракул: re-deep/rest-d02.json.\nПлан: 1. Red-тест 2. Struct Poll/PollAnswer 3. REST голосование 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1004B",
@@ -7446,7 +7447,7 @@
     {
       "id": "TASK-1017B",
       "title": "Интерактивный радар участников голосового канала SpatialRadar",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Круглый радар расстановки аватаров в пространстве с сохранением координат в SQLite.",
@@ -7478,12 +7479,13 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/spatial_radar.rs, tests/unit/spatial-radar-1017b.test.mjs.\nОракул: UI пространственного звука.\nПлан: 1. Red-тест 2. WGPU радар 3. SQLite привязка 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1011A",
       "title": "Сборщик RTCP метрик (RTT, джиттер, потери, битрейт, DAVE MLS)",
-      "status": "in_dev",
+      "status": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "summary": "Кольцевой буфер 120 измерений (60с с шагом 500мс) и мониторинг эпох DAVE MLS v1.",
@@ -7515,7 +7517,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-voice/src/rtc_metrics.rs, tests/unit/rtc-metrics-1011a.test.mjs.\nОракул: waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md.\nПлан: 1. Red-тест 2. RingBuffer 3. DAVE хуки 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 100
     },
     {
       "id": "TASK-1011B",
@@ -7552,7 +7555,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/rtc_hud.rs, tests/unit/rtc-hud-1011b.test.mjs.\nОракул: re-deep/webrtc-internals.\nПлан: 1. Red-тест 2. WGPU кривые 3. Тултипы 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1010A",
@@ -7589,7 +7593,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/idle_monitor.rs, tests/unit/idle-monitor-1010a.test.mjs.\nОракул: D-Bus ScreenSaver spec.\nПлан: 1. Red-тест 2. Wayland/X11 биндинги 3. События 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1010B",
@@ -7626,7 +7631,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/afk_handler.rs, tests/unit/afk-handler-1010b.test.mjs.\nОракул: re-deep/gateway-schema.json (Opcode 4).\nПлан: 1. Red-тест 2. Таймер гильдии 3. Opcode 4 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1007A",
@@ -7663,7 +7669,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/roles.rs, tests/unit/roles-permissions-1007a.test.mjs.\nОракул: re-deep/rest-d02.json.\nПлан: 1. Red-тест 2. Struct Role/Permissions 3. REST методы 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1007B",
@@ -7700,7 +7707,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/roles_hierarchy.rs, tests/unit/roles-hierarchy-1007b.test.mjs.\nОракул: диалог настройки ролей.\nПлан: 1. Red-тест 2. GPUI Drag-and-drop 3. Цветовой пикер 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1007C",
@@ -7737,7 +7745,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/permissions_matrix.rs, tests/unit/permissions-matrix-1007c.test.mjs.\nОракул: re-deep/frontend-d03.json.\nПлан: 1. Red-тест 2. GPUI тумблеры 3. Плашка сохранения 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1008A",
@@ -7774,7 +7783,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/audit_log.rs, tests/unit/audit-log-parser-1008a.test.mjs.\nОракул: re-deep/rest-d02.json.\nПлан: 1. Red-тест 2. Enum ActionType 3. Diff декодер 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1008B",
@@ -7811,7 +7821,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/audit_log_view.rs, tests/unit/audit-log-view-1008b.test.mjs.\nОракул: аудит Discord.\nПлан: 1. Red-тест 2. GPUI список 3. Фильтры 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1009A",
@@ -7848,7 +7859,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/auth/totp_view.rs, tests/unit/totp-view-1009a.test.mjs.\nОракул: 2FA экран Discord.\nПлан: 1. Red-тест 2. GPUI поля ввода 3. Буфер обмена 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1009B",
@@ -7885,7 +7897,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/sessions_manager.rs, tests/unit/sessions-manager-1009b.test.mjs.\nОракул: re-deep/rest-d02.json.\nПлан: 1. Red-тест 2. Модель сессии 3. DELETE метод 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1021A",
@@ -7922,7 +7935,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-store/src/keyring_crypto.rs, tests/unit/keyring-crypto-1021a.test.mjs.\nОракул: Linux Secret Service.\nПлан: 1. Red-тест 2. Argon2id KDF 3. Zeroize 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1021B",
@@ -7959,7 +7973,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-store/src/encrypted_sqlite.rs, tests/unit/encrypted-sqlite-1021b.test.mjs.\nОракул: SQLCipher VFS.\nПлан: 1. Red-тест 2. Страничный AES-256-GCM 3. WAL тесты 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1013A",
@@ -7996,7 +8011,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/spotify_mpris.rs, tests/unit/spotify-mpris-1013a.test.mjs.\nОракул: D-Bus MPRIS spec.\nПлан: 1. Red-тест 2. D-Bus подписка 3. Opcode 3 статус 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1013B",
@@ -8033,7 +8049,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/profile/spotify_widget.rs, tests/unit/spotify-widget-1013b.test.mjs.\nОракул: профиль Discord.\nПлан: 1. Red-тест 2. GPUI карточка 3. Таймлайн 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1014A",
@@ -8070,7 +8087,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/gamepad_driver.rs, tests/unit/gamepad-driver-1014a.test.mjs.\nОракул: gilrs crate.\nПлан: 1. Red-тест 2. Инициализация gilrs 3. Навигационные события 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1014B",
@@ -8107,7 +8125,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/input/gamepad_focus.rs, tests/unit/gamepad-focus-1014b.test.mjs.\nОракул: SteamOS Big Picture.\nПлан: 1. Red-тест 2. Фокусные рамки 3. D-Bus клавиатура 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1015A",
@@ -8144,7 +8163,8 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/autostart_xdg.rs, tests/unit/autostart-xdg-1015a.test.mjs.\nОракул: FreeDesktop Autostart.\nПлан: 1. Red-тест 2. Запись desktop-файла 3. Удаление 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1015B",
@@ -8181,7 +8201,8 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/platform/minimized_launch.rs, tests/unit/minimized-launch-1015b.test.mjs.\nОракул: docs/feature-backlog.md.\nПлан: 1. Red-тест 2. Отложенный WGPU init 3. Трей клик 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1016A",
@@ -8218,7 +8239,8 @@
       ],
       "coding_instructions": "Файлы: packaging/windows/wix.xml, tests/unit/windows-packaging-1016a.test.mjs.\nОракул: docs/feature-backlog.md (R6-03).\nПлан: 1. Red-тест 2. WiX XML 3. Portable флаги 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     },
     {
       "id": "TASK-1016B",
@@ -8255,7 +8277,8 @@
       ],
       "coding_instructions": "Файлы: packaging/macos/build-dmg.sh, tests/unit/macos-packaging-1016b.test.mjs.\nОракул: docs/feature-backlog.md (R6-04).\nПлан: 1. Red-тест 2. DMG скрипт 3. Vibrancy FFI 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z"
+      "updated_at": "2026-11-11T13:11:49.322Z",
+      "progress": 0
     }
   ]
 }

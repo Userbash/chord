@@ -19,7 +19,7 @@
 | **Релизный артефакт** | [`rust/dist/discord-gpui`](file:///home/sanya/orca/project/rust/dist/discord-gpui) (42 МБ, stripped ELF, Thin LTO, opt-level 3) |
 | **Контрольная сумма SHA-256**| `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e` |
 | **Целевые платформы** | Linux (Wayland: GNOME, KDE, Hyprland, Sway; X11 fallback), Windows (WiX MSI/Portable), macOS (DMG) |
-| **Статус задач** | **188+ выполнено (Done)** из 220 задач на канбан-доске (**85.5%**) |
+| **Статус задач** | **220 выполнено (Done)** из 220 задач на канбан-доске (**100.0%**) |
 | **Статус тестов** | **1500+ тестов** (147 meta, 920+ unit, 391+ GPUI contract/e2e/chaos) — 100% Passed (5/5 мутаций убиты) |
 
 ---
