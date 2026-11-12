@@ -753,7 +753,7 @@ export function resolveBootstrapAppIdentity(releaseChannel) {
     appName,
     appNameForHumans: "Discord" + (suffix !== "" ? " " + suffix : ""),
     appId: "com.squirrel." + appName + "." + appName,
-    appProtocol: "Discord",
+    appProtocol: "Chord",
     newUpdateEndpoint: "https://updates.discord.com/",
   });
 }

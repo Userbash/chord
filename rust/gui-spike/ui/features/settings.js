@@ -1208,7 +1208,7 @@ export function createSettingsConsole(options) {
           ["Двухфакторная аутентификация (2FA)", "Включена (TOTP / Резервные коды)"],
           ["Хранение токена сессии", "Системный Keyring (защищённое хранилище ОС)"],
           ["Вход по QR-коду (Remote Auth v2)", "Доступен"],
-          ["Активная сессия", "Linux Desktop · Discord Lab Client"],
+          ["Активная сессия", "Linux Desktop · Chord Client"],
         ],
       },
     ]);
@@ -1357,7 +1357,7 @@ export function createSettingsConsole(options) {
       {
         heading: "Авторизованные интеграции OAuth2",
         rows: [
-          ["Discord Lab Native Client", "Полный доступ к сессии пользователя"],
+          ["Chord Native Client", "Полный доступ к сессии пользователя"],
         ],
       },
     ]);

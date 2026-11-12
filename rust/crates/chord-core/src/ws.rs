@@ -1280,7 +1280,7 @@ pub fn queue_live_voice_state_ext(
     if self_stream {
         if let (Some(c), Some(uid)) = (&clean_cid, user_id.map(str::trim).filter(|s| !s.is_empty()))
         {
-            let (skey, stype, gid_etf) = if let Some(g) = &clean_gid {
+            let (skey, stype, _gid_etf) = if let Some(g) = &clean_gid {
                 (
                     format!("guild:{g}:{c}:{uid}"),
                     "guild",
@@ -1294,27 +1294,43 @@ pub fn queue_live_voice_state_ext(
                 )
             };
             if prev_stream_key.as_deref() != Some(skey.as_str()) {
-                *prev_stream_key = Some(skey);
-                let stream_d = EtfValue::Map(vec![
-                    (
-                        EtfValue::Str("type".to_string()),
-                        EtfValue::Str(stype.to_string()),
-                    ),
-                    (EtfValue::Str("guild_id".to_string()), gid_etf),
-                    (
-                        EtfValue::Str("channel_id".to_string()),
-                        EtfValue::Str(c.clone()),
-                    ),
-                    (
-                        EtfValue::Str("preferred_region".to_string()),
-                        EtfValue::Atom("nil".to_string()),
-                    ),
-                ]);
-                let stream_env = EtfValue::Map(vec![
-                    (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
-                    (EtfValue::Str("d".to_string()), stream_d),
-                ]);
-                send_live_gateway_frame(encode(&stream_env));
+                *prev_stream_key = Some(skey.clone());
+                // [BUG FIX] Delay OP 18 STREAM_CREATE by 1500ms after OP 4 to give RTC
+                // session time to complete handshake and start sending video. Without this
+                // delay, the gateway sends STREAM_DELETE ~200ms later because no video
+                // packets have arrived from the voice RTC server yet.
+                println!("[GATEWAY-TX] OP 18 STREAM_CREATE scheduled (1500ms delay) stream_key={}", skey);
+                let stype_owned = stype.to_string();
+                let c_owned = c.clone();
+                let gid_owned = clean_gid.clone();
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_millis(1500));
+                    let gid_val = match gid_owned {
+                        Some(ref g) => EtfValue::Str(g.clone()),
+                        None => EtfValue::Atom("nil".to_string()),
+                    };
+                    let stream_d = EtfValue::Map(vec![
+                        (
+                            EtfValue::Str("type".to_string()),
+                            EtfValue::Str(stype_owned.clone()),
+                        ),
+                        (EtfValue::Str("guild_id".to_string()), gid_val),
+                        (
+                            EtfValue::Str("channel_id".to_string()),
+                            EtfValue::Str(c_owned.clone()),
+                        ),
+                        (
+                            EtfValue::Str("preferred_region".to_string()),
+                            EtfValue::Atom("nil".to_string()),
+                        ),
+                    ]);
+                    let stream_env = EtfValue::Map(vec![
+                        (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
+                        (EtfValue::Str("d".to_string()), stream_d),
+                    ]);
+                    println!("[GATEWAY-TX] OP 18 STREAM_CREATE fired after 1500ms delay type={} channel={}", stype_owned, c_owned);
+                    send_live_gateway_frame(encode(&stream_env));
+                });
             }
         }
     } else if let Some(old_key) = prev_stream_key.take() {
@@ -1390,11 +1406,12 @@ pub fn queue_live_stream_create(
         (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
         (EtfValue::Str("d".to_string()), stream_d),
     ]);
+    println!("[GATEWAY-TX] OP 18 STREAM_CREATE type={} guild_id={:?} channel_id={}", stype, clean_gid, cid);
     send_live_gateway_frame(encode(&stream_env));
     Ok(())
 }
 
-/// Отправляет в живой шлюз Discord `OP 20 STREAM_WATCH` (`{"op":20,"d":{"stream_key":...}}`)
+/// Отправляет в живой шлюз `OP 20 STREAM_WATCH` (`{"op":20,"d":{"stream_key":...}}`)
 /// для подключения к чужой демонстрации экрана (`Go Live`).
 pub fn queue_live_stream_watch(stream_key: &str) -> Result<(), OutboundError> {
     use chord_codec::etf::{EtfValue, encode};
@@ -1452,6 +1469,7 @@ pub fn queue_live_stream_delete(stream_key: &str) -> Result<(), OutboundError> {
         (EtfValue::Str("op".to_string()), EtfValue::Int(19)),
         (EtfValue::Str("d".to_string()), del_d),
     ]);
+    println!("[GATEWAY-TX] OP 19 STREAM_DELETE stream_key={}", skey);
     send_live_gateway_frame(encode(&del_env));
     Ok(())
 }

@@ -6926,7 +6926,7 @@ fn fallback_capture_windows() -> Vec<Value> {
     vec![
         json!({ "id": "win_orca", "uuid": "win_orca", "title": "Orca", "label": "Orca", "app": "orca" }),
         json!({ "id": "win_browser", "uuid": "win_browser", "title": "Браузер", "label": "Браузер", "app": "browser" }),
-        json!({ "id": "win_discord", "uuid": "win_discord", "title": "Discord Lab", "label": "Discord Lab", "app": "discord" }),
+        json!({ "id": "win_chord", "uuid": "win_chord", "title": "Chord", "label": "Chord", "app": "chord" }),
     ]
 }
 

@@ -9846,7 +9846,7 @@ function boot() {
       ctx.fillRect(20, 28, w - 40, h - 40);
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(32, 40, Math.max(30, w - 68 + pulse), 8);
-    } else if (sourceId === "win_discord") {
+    } else if (sourceId === "win_chord") {
       ctx.fillStyle = "#313338";
       ctx.fillRect(8, 6, w - 16, h - 12);
       ctx.fillStyle = "#1e1f22";
@@ -10369,7 +10369,7 @@ function boot() {
     const windowItems = [
       { id: "win_orca", label: "Orca", icon: "🦦", tab: /** @type {const} */ ("windows") },
       { id: "win_firefox", label: "Расширение: (Bitwarden — Бесплатный менеджер паролей) - Bitwarden — Mozilla Firefox", icon: "🦊", tab: /** @type {const} */ ("windows") },
-      { id: "win_discord", label: `🔊 ${activeVoiceConnection?.channelName || "Звонок"} | ${activeVoiceConnection?.guildName || "Chord"} — Chord`, icon: "🎮", tab: /** @type {const} */ ("windows") },
+      { id: "win_chord", label: `🔊 ${activeVoiceConnection?.channelName || "Звонок"} | ${activeVoiceConnection?.guildName || "Chord"} — Chord`, icon: "🎮", tab: /** @type {const} */ ("windows") },
       { id: "win_dolphin", label: "Видеофайлы — Dolphin", icon: "📁", tab: /** @type {const} */ ("windows") },
     ];
 

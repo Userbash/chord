@@ -1668,7 +1668,7 @@ async fn voice_stream_start(
 
     // --- PipeWire Portal: request screen capture via XDG Desktop Portal on Wayland (Bug #1) ---
     // Only when no source_id override is provided (UI-less background capture).
-    let pipewire_node_id: Option<u32> = if spec.source_id.is_empty() {
+    let pipewire_node_id: Option<u32> = if spec.source_id.is_empty() || spec.source_id.starts_with("screen:") {
         match acquire_pipewire_node_id().await {
             Ok(nid) => {
                 println!("[IPC-TRACE] voice_stream_start: PipeWire node_id={nid}");
@@ -1683,6 +1683,11 @@ async fn voice_stream_start(
     } else {
         None
     };
+
+    // [BUG FIX #2] Save spec fields before the blocking closure moves `spec`.
+    // We need these to re-send OP 18 after RTC warmup delay.
+    let guild_id_saved: Option<String> = spec.guild_id.clone();
+    let channel_id_saved: String = spec.channel_id.clone();
 
     let op18 = chord_client::voice_stage::build_gateway_stream_create_op18(&spec)?;
     // queue_live_stream_create вызывается внутри connect_or_update_live_voice_ext
@@ -1724,6 +1729,18 @@ async fn voice_stream_start(
         Ok::<String, String>(stream_key)
     })
     .await??;
+    // [BUG FIX #2] Re-send OP 18 STREAM_CREATE after 1500ms to give the native worker
+    // time to confirm applyScreenBroadcast active=true. The initial OP 18 sent inside
+    // connect_or_update_live_voice_ext fires before video capture is ready, causing the
+    // server to send STREAM_DELETE ~200ms later.
+    tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+    chord_core::ws::clear_last_stream_key(); // allow re-send on same stream key
+    let _ = chord_core::ws::queue_live_stream_create(
+        if guild_id_saved.is_some() { "guild" } else { "call" },
+        guild_id_saved.as_deref(),
+        &channel_id_saved,
+    );
+    println!("[IPC-TRACE] voice_stream_start: re-sent OP 18 STREAM_CREATE after 1500ms RTC warmup");
     Ok(serde_json::json!({ "ok": true, "streamKey": stream_key, "payload": op18 }))
 }
 

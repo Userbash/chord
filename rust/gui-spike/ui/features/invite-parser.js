@@ -85,7 +85,7 @@ export function formatInviteSummaryRu(invite) {
 
   return {
     valid: true,
-    title: String(invite.guildName || 'Сервер Discord'),
+    title: String(invite.guildName || 'Chord Server'),
     subtitle: `В сети: ${online} • Участников: ${members}`,
     buttonText: invite.joined ? 'Перейти' : 'Вступить',
   };

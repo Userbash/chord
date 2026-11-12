@@ -152,7 +152,7 @@ export function createAuthGate(options = {}) {
   const card = make("section", "auth-card"); card.id = "auth-card";
   const body = make("div", "auth-body");
   const col = make("div", "auth-form-col"); col.id = "auth-form-col";
-  const title = make("h2", "auth-title", "Вход в Discord");
+  const title = make("h2", "auth-title", "Вход в Chord");
   const form = /** @type {HTMLFormElement} */ (make("form", "auth-form")); form.id = "auth-form";
   const loginLabel = make("label", "auth-label", "Email или телефон"); loginLabel.setAttribute("for", "auth-login");
   const login = /** @type {HTMLInputElement} */ (make("input", "auth-input")); login.id = "auth-login"; login.setAttribute("type", "text"); login.setAttribute("autocomplete", "username"); login.setAttribute("spellcheck", "false"); login.setAttribute("aria-describedby", "auth-login-error");

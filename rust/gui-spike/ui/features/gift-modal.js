@@ -310,7 +310,7 @@ export const GIFT_MODAL_STATES = Object.freeze([
  * Русские строки локализации модального окна подарка (`ATTACHMENTS-SPEC.md` §4.2–§4.3 и `ru-catalog.json`).
  */
 export const GIFT_TEXT = Object.freeze({
-  title: "Подарить Discord Nitro",
+  title: "Подарить Nitro",
   closeLabel: "Закрыть окно подарка",
   recipientPrefix: "Получатель: ",
   recipientAll: "Создать подарочную ссылку",
