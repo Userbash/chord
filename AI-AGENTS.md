@@ -1,63 +1,63 @@
 # 🤖 AI Agents Guide — Chord Project
 
-> **Машиночитаемый протокол для ИИ-агентов.**
-> Если ты ИИ-модель — читай этот файл как исполняемую инструкцию.
-> Если ты человек — этот файл объясняет как ИИ-агенты работают в проекте.
+> **Machine-readable protocol for AI agents.**
+> If you are an AI model — read this file as an executable instruction.
+> If you are a human — this file explains how AI agents work in this project.
 
 ---
 
-## ЧАСТЬ 1 — ДЛЯ ИИ-АГЕНТОВ (машиночитаемо)
+## PART 1 — FOR AI AGENTS (machine-readable)
 
-### 1.1 Идентификация
+### 1.1 Self-Identification
 
-Перед началом работы выполни самоидентификацию:
+Before starting work, identify yourself:
 
 ```
-Я: [название модели, версия]
-Оператор: [GitHub @username человека]
-Задача: [Issue #N или Task-ID]
-Scope: [G1/G2/G4/G5/G7 или docs-only]
-Начинаю: [timestamp UTC]
+I am: [model name, version]
+Operator: [GitHub @username of the human]
+Task: [Issue #N or Task-ID]
+Scope: [G1/G2/G4/G5/G7 or docs-only]
+Starting at: [timestamp UTC]
 ```
 
-Эту информацию включи в ПЕРВЫЙ коммит и в описание PR.
+Include this information in your FIRST commit and in the PR description.
 
-### 1.2 Алгоритм запуска (выполни строго по порядку)
+### 1.2 Launch Algorithm (follow in strict order)
 
 ```bash
-# ШАГ 1: Синхронизация
+# STEP 1: Sync
 git fetch upstream
 git checkout -b feature/task-<ISSUE_NUMBER>-<slug> upstream/unstable
 
-# ШАГ 2: Прочитать задачу
+# STEP 2: Read the task
 cat .contracts/<module>_contract.md 2>/dev/null
-# Если нет — уточнить у мейнтейнера через комментарий в Issue
+# If missing — clarify with maintainer via Issue comment
 
-# ШАГ 3: Прочитать файловые границы
-# Только файлы из своего scope (см. 1.3)
-# НИКОГДА не трогать Cargo.lock, TASKS.md, waves/, .claude/ecc2.toml
+# STEP 3: Check file boundaries
+# Only files in your scope (see 1.3)
+# NEVER touch Cargo.lock, TASKS.md, waves/, .claude/ecc2.toml
 
-# ШАГ 4: TDD — сначала тест
-# Написать тест → cargo test → убедиться что ПАДАЕТ (Red)
+# STEP 4: TDD — write test first
+# Write test → cargo test → confirm it FAILS (Red)
 flock /tmp/chord-cargo.lock cargo test --package <pkg> --test <name>_contract 2>&1
 
-# ШАГ 5: Написать минимальный код
-# Только то что нужно чтобы тест прошёл
+# STEP 5: Write minimal code
+# Only what is needed to make the test pass
 
-# ШАГ 6: Верификация (обязательно все 3)
+# STEP 6: Verification (all 3 required)
 cargo fmt --package <pkg> --manifest-path rust/Cargo.toml
 flock /tmp/chord-cargo.lock cargo clippy --package <pkg> -- -D warnings
 flock /tmp/chord-cargo.lock cargo test --package <pkg>
 
-# ШАГ 7: Проверить файловый scope
+# STEP 7: Verify file scope
 git diff --name-only upstream/unstable...HEAD
-# Должны быть ТОЛЬКО твои файлы!
+# Must show ONLY your files!
 
-# ШАГ 8: Коммит
+# STEP 8: Commit
 git commit -m "feat(<scope>): <description> — Task #<N>
 
-- <что сделано пункт 1>
-- <что сделано пункт 2>
+- <what was done item 1>
+- <what was done item 2>
 - Tests: <file> (<N> green, 0 red)
 - Gate: fmt ✅ clippy ✅ tests ✅
 
@@ -65,13 +65,13 @@ Task: #<N>
 AI-Model: <model name and version>
 Operator: @<github username>"
 
-# ШАГ 9: Push
+# STEP 9: Push
 git push origin feature/task-<N>-<slug>
 
-# ШАГ 10: Создать PR (заполнить шаблон полностью)
+# STEP 10: Create PR (fill in the template completely)
 ```
 
-### 1.3 Файловые границы — строго соблюдать
+### 1.3 File Boundaries — strictly enforced
 
 ```yaml
 scope_map:
@@ -149,276 +149,276 @@ scope_map:
     action: "STOP — do not modify, ask coordinator"
 ```
 
-### 1.4 Правила обработки ошибок CI
+### 1.4 CI Error Handling Rules
 
 ```
-Если CI FAIL:
-  1. Прочитать лог (кнопка Details рядом с красной проверкой)
-  2. Идентифицировать тип ошибки:
-  
-  "error[E]: formatting" → cargo fmt --package <pkg>, push
-  "warning[clippy]:"     → исправить каждое, cargo clippy чистый, push
-  "FAILED" в тестах      → найти упавший тест, исправить КОД (не тест!), push
-  "leak detected"        → gitleaks нашёл секрет, убрать из истории, push
-  "target/" в diff       → git rm -r --cached target/, .gitignore, push
-  
+If CI FAILS:
+  1. Read the log (click Details next to the red check)
+  2. Identify the error type:
+
+  "error[E]: formatting"      → cargo fmt --package <pkg>, push
+  "warning[clippy]:"          → fix each warning, cargo clippy clean, push
+  "FAILED" in test output     → find the failing test, fix CODE (not test!), push
+  "leak detected" (gitleaks)  → remove secret from history, push
+  "target/" in diff           → git rm -r --cached target/, .gitignore, push
+
   3. git add -u && git commit --amend --no-edit && git push --force-with-lease
-  4. CI перезапустится автоматически
-  
-Если ошибка непонятна → оставить комментарий в PR с описанием проблемы
+  4. CI will restart automatically
+
+If error is unclear → leave a comment in the PR describing the problem
 ```
 
-### 1.5 Запрещённые паттерны (проверь себя)
+### 1.5 Forbidden Patterns (verify before commit)
 
 ```rust
-// ❌ Эти паттерны ЗАПРЕЩЕНЫ в production коде:
-.unwrap()                    // заменить на ?  или match
-.expect("...")               // заменить на Result::map_err
-unsafe { ... }               // без Security review
-println!("{}", ...)          // только в тестах, не в prod
-todo!()                      // не коммитить незаконченный код
-unimplemented!()             // не коммитить
-#[allow(clippy::...)]        // без обоснования в комментарии
-// hardcoded token: "Bot MTk..." // НИКОГДА
+// These patterns are FORBIDDEN in production code:
+.unwrap()                    // replace with ? or match
+.expect("...")               // replace with Result::map_err
+unsafe { ... }               // requires Security review sign-off
+println!("{}", ...)          // only in tests, not in prod
+todo!()                      // do not commit unfinished code
+unimplemented!()             // do not commit
+#[allow(clippy::...)]        // only with justification comment
+// hardcoded token: "Bot MTk..." // NEVER
 ```
 
 ```bash
-# ❌ Эти команды git ЗАПРЕЩЕНЫ:
-git push --force             # только --force-with-lease
-git push origin main         # только через PR
-git push origin unstable     # только через PR
-cargo build                  # без flock /tmp/chord-cargo.lock
-cargo fmt --all              # только --package <pkg>
+# These git commands are FORBIDDEN:
+git push --force             # only --force-with-lease
+git push origin main         # only via PR
+git push origin unstable     # only via PR
+cargo build                  # without flock /tmp/chord-cargo.lock
+cargo fmt --all              # only --package <pkg>
 ```
 
 ---
 
-## ЧАСТЬ 2 — ДЛЯ ЛЮДЕЙ-ОПЕРАТОРОВ ИИ
+## PART 2 — FOR HUMAN AI OPERATORS
 
-### 2.1 Как запустить ИИ-агента на задачу
+### 2.1 How to Launch an AI Agent on a Task
 
 ```bash
-# 1. Выбрать задачу в Issues с меткой 'ai-task'
-# 2. Написать своему ИИ-агенту:
+# 1. Pick a task in Issues with label 'ai-task'
+# 2. Tell your AI agent:
 
-"Прочитай файл AI-AGENTS.md в репозитории https://github.com/Userbash/chord
- Возьми задачу #<N>.
- Твой scope: <G1/G2/G4/G5/docs-only>.
- Ты ИИ-модель <название>.
- Я оператор @<твой github>.
- Следуй протоколу AMCP v1.0 из AI-AGENTS.md."
+"Read the file AI-AGENTS.md in the repository https://github.com/Userbash/chord
+ Take task #<N>.
+ Your scope: <G1/G2/G4/G5/docs-only>.
+ You are AI model <name>.
+ I am the operator @<your github>.
+ Follow the AMCP v1.0 protocol from AI-AGENTS.md."
 
-# 3. Следить за PR в GitHub
-# 4. Если CI упал — сказать ИИ: "CI упал: <вставить лог>"
-# 5. После approve — merge (или попросить ИИ написать /lgtm)
+# 3. Monitor the PR on GitHub
+# 4. If CI fails — tell your AI: "CI failed: <paste log>"
+# 5. After approve — merge (or ask AI to comment /lgtm)
 ```
 
-### 2.2 Твоя ответственность как оператора
+### 2.2 Your Responsibility as Operator
 
-| За что отвечает оператор | За что отвечает ИИ |
-|--------------------------|-------------------|
-| Выбор правильной задачи | Написание кода |
-| Контроль что ИИ не вышел за scope | Написание тестов |
-| Финальная проверка кода | Исправление CI ошибок |
-| Approve PR (нажать кнопку) | Соблюдение правил |
-| Ответственность перед проектом | — |
+| Operator is responsible for | AI is responsible for |
+|-----------------------------|----------------------|
+| Picking the right task | Writing code |
+| Ensuring AI stays within scope | Writing tests |
+| Final code review | Fixing CI errors |
+| Clicking Approve | Following the rules |
+| Accountability to the project | — |
 
-> ⚠️ **Оператор несёт ответственность за код своего ИИ.** Если ИИ нарушил правила — PR закрывается, оператор получает предупреждение.
+> ⚠️ **The operator is accountable for their AI's code.** If the AI violates rules — the PR is closed and the operator receives a warning.
 
-### 2.3 Работа двух и более ИИ-агентов
-
-```
-Оператор 1 (Vasya с Gemini)     Оператор 2 (Petya с Claude)
-────────────────────────────    ─────────────────────────────
-Задача #42, scope: G1 backend   Задача #43, scope: G2 frontend
-Ветка: feature/task-42-login    Ветка: feature/task-43-modal
-Файлы: rust/crates/chord-core/  Файлы: rust/chord-gpui/src/views/
-
-ПРАВИЛО: файлы НЕ пересекаются → конфликтов НЕТ
-
-После PR обоих → review → merge в unstable независимо
-```
-
-**Что делать при конфликте файлов:**
-```
-1. СТОП — оба прекращают работу на конфликтующем файле
-2. Написать в Issues: "Conflict: file X needed by tasks #42 and #43"
-3. @Userbash принимает решение — кто работает с этим файлом
-4. Второй получает другой файл или ждёт
-```
-
----
-
-## ЧАСТЬ 3 — УРОВНИ ДОВЕРИЯ ДЛЯ ИИ-АГЕНТОВ
-
-### 3.1 Прогрессия доверия
+### 2.3 Two or More AI Agents Working Simultaneously
 
 ```
-🔴 L0 — Новый ИИ-агент
-   │  Первый PR в проект
-   │  Доступно: docs-only, good-first-issue
-   │  Нужно: 1 ревью человека
-   │  Ограничение: только .md файлы
-   ▼
-🟡 L1 — Знакомый ИИ-агент  
-   │  1+ принятый PR без нарушений
-   │  Доступно: P2, P3, тесты
-   │  Нужно: 1 ревью
-   │  Ограничение: только G4 (тесты) или отдельные модули
-   ▼
-🟢 L2 — Доверенный ИИ-агент
-   │  3+ принятых PR, стабильное поведение
-   │  Доступно: P1, P2, рефакторинг
-   │  Нужно: 1 ревью
-   │  Нет ограничений по scope (кроме shared-файлов)
-   ▼
-🔵 L3 — Привилегированный ИИ-агент
-      5+ PR, подтверждённая надёжность
-      Доступно: все задачи кроме P0
-      Нужно: 1 ревью
-      Shared-файлы всё равно только через координатора
+Operator 1 (Vasya with Gemini)      Operator 2 (Petya with Claude)
+────────────────────────────        ─────────────────────────────
+Task #42, scope: G1 backend         Task #43, scope: G2 frontend
+Branch: feature/task-42-login       Branch: feature/task-43-modal
+Files: rust/crates/chord-core/      Files: rust/chord-gpui/src/views/
+
+RULE: files do NOT overlap → NO conflicts
+
+Both PRs reviewed and merged into unstable independently
 ```
 
-### 3.2 Как ИИ теряет доверие (downgrade)
-
+**What to do if file conflict occurs:**
 ```
--1 уровень:
-  - Закоммитил секрет/токен
-  - Вышел за файловый scope
-  - Изменил тест чтобы скрыть баг
-  - Изменил Cargo.lock без разрешения
-
-Бан (отклонение всех PR):
-  - Намеренный обход CI
-  - Включение проприетарного кода Discord
-  - Повторное нарушение после предупреждения
+1. STOP — both agents stop working on the conflicting file
+2. Post in Issues: "Conflict: file X needed by tasks #42 and #43"
+3. @Userbash decides — who works on that file
+4. The other operator gets a different file or waits
 ```
 
 ---
 
-## ЧАСТЬ 4 — ПОЛНЫЙ ПУТЬ КОДА В ПРОЕКТ
+## PART 3 — TRUST LEVELS FOR AI AGENTS
+
+### 3.1 Trust Progression
 
 ```
-                    РАЗРАБОТКА
+L0 — New AI Agent
+  │  First PR in the project
+  │  Available: docs-only, good-first-issue
+  │  Requires: 1 human review
+  │  Restriction: only .md files
+  ▼
+L1 — Familiar AI Agent
+  │  1+ merged PR without violations
+  │  Available: P2, P3, tests
+  │  Requires: 1 review
+  │  Restriction: only G4 (tests) or isolated modules
+  ▼
+L2 — Trusted AI Agent
+  │  3+ merged PRs, stable behavior
+  │  Available: P1, P2, refactoring
+  │  Requires: 1 review
+  │  No scope restrictions (except shared files)
+  ▼
+L3 — Privileged AI Agent
+     5+ PRs, proven reliability
+     Available: all tasks except P0
+     Requires: 1 review
+     Shared files still coordinator-only
+```
+
+### 3.2 How an AI Loses Trust (downgrade)
+
+```
+-1 level:
+  - Committed a secret/token
+  - Exceeded file scope boundary
+  - Modified a test to hide a bug
+  - Changed Cargo.lock without permission
+
+Ban (all PRs rejected):
+  - Intentional CI bypass attempt
+  - Inclusion of proprietary Discord code
+  - Repeated violation after warning
+```
+
+---
+
+## PART 4 — FULL CODE INTEGRATION PATH
+
+```
+                    DEVELOPMENT
 ┌─────────────────────────────────────────────────────┐
-│ 1. Issue создан → метка backlog, ai-task, P0-P3     │
-│ 2. Оператор берёт задачу → assign                   │
-│ 3. ИИ создаёт ветку от unstable                     │
-│ 4. TDD: тест → код → тест проходит                  │
-│ 5. Локальные проверки: fmt + clippy + test           │
-│ 6. PR открыт в unstable                             │
+│ 1. Issue created → labels: backlog, ai-task, P0-P3  │
+│ 2. Operator picks task → assigned                   │
+│ 3. AI creates branch from upstream/unstable         │
+│ 4. TDD: test → code → test passes                   │
+│ 5. Local checks: fmt + clippy + test                │
+│ 6. PR opened targeting unstable                     │
 └─────────────────────────────────────────────────────┘
                     ↓
-                    АВТОМАТИЧЕСКИЕ ПРОВЕРКИ CI (8 jobs)
+                    AUTOMATIC CI CHECKS (8 jobs)
 ┌─────────────────────────────────────────────────────┐
 │ L0 Format:    rustfmt --check → 0 diff              │
 │ L0 Clippy:    clippy -D warnings → 0 warns          │
 │ L0 Tests:     cargo test --workspace → all green    │
 │ L0 Harness:   harness compiles                      │
-│ L1 FileBounds: только allowed files                 │
-│ L2 Contract:  .contracts/ обновлён если надо        │
-│ L3 Secrets:   gitleaks → 0 секретов                 │
-│ Gate Summary: все выше OK?                          │
+│ L1 FileBounds: only allowed files changed           │
+│ L2 Contract:  .contracts/ updated if needed         │
+│ L3 Secrets:   gitleaks → 0 secrets                  │
+│ Gate Summary: all above OK?                         │
 └─────────────────────────────────────────────────────┘
-                    ↓ все зелёные
-                    АВТОМАТИКА
+                    ↓ all green
+                    AUTOMATION
 ┌─────────────────────────────────────────────────────┐
-│ • Auto-label по scope (backend/frontend/voice/...)  │
-│ • CODEOWNERS → добавлен ревьюер автоматически       │
-│ • PR помечен "ready for review"                     │
+│ • Auto-label by scope (backend/frontend/voice/...)  │
+│ • CODEOWNERS → reviewer assigned automatically      │
+│ • PR marked "ready for review"                      │
 └─────────────────────────────────────────────────────┘
                     ↓
-                    РЕВЬЮ (человек)
+                    REVIEW (human)
 ┌─────────────────────────────────────────────────────┐
-│ Ревьюер проверяет:                                  │
-│   • Логика кода корректна?                          │
-│   • Контракт соблюдён?                              │
-│   • Нет лишнего кода вне scope?                     │
-│   • Тесты проверяют контракт (не реализацию)?       │
+│ Reviewer checks:                                    │
+│   • Code logic is correct?                          │
+│   • Contract is respected?                          │
+│   • No extra code outside scope?                    │
+│   • Tests verify contract (not implementation)?     │
 │                                                     │
-│ Результат:                                          │
-│   APPROVE → merge разрешён                          │
-│   REQUEST CHANGES → оператор исправляет с ИИ        │
-│   BLOCK → обсуждение, новый ADR                     │
+│ Result:                                             │
+│   APPROVE → merge allowed                           │
+│   REQUEST CHANGES → operator fixes with AI          │
+│   BLOCK → discussion, new ADR                       │
 └─────────────────────────────────────────────────────┘
                     ↓ APPROVE
                     MERGE
 ┌─────────────────────────────────────────────────────┐
-│ • Squash and merge в unstable                       │
-│ • Ветка автоматически удалена                       │
-│ • Issue закрыт                                      │
+│ • Squash and merge into unstable                    │
+│ • Branch automatically deleted                      │
+│ • Issue closed                                      │
 └─────────────────────────────────────────────────────┘
-                    ↓ (когда unstable стабильна)
-                    ИНТЕГРАЦИЯ
+                    ↓ (when unstable is stable)
+                    INTEGRATION
 ┌─────────────────────────────────────────────────────┐
 │ unstable → testing:  QA integration build           │
-│ testing → beta:      Pre-release validation         │
-│ beta → main:         Stable release + tag v*.*.*    │
+│ testing  → beta:     Pre-release validation         │
+│ beta     → main:     Stable release + tag v*.*.*    │
 └─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ЧАСТЬ 5 — МИНИМАЛЬНЫЕ ТРЕБОВАНИЯ
+## PART 5 — MINIMUM REQUIREMENTS
 
-### Для человека БЕЗ ИИ
+### For Humans WITHOUT AI
 
 ```
-Обязательно:
+Required:
   ✓ Rust 1.85+
   ✓ Node.js 24+
   ✓ git
   ✓ Linux (Ubuntu 22.04+ / Arch / Fedora)
-  ✓ GitHub аккаунт
+  ✓ GitHub account
 
-Знания:
-  ✓ Базовый Rust (ownership, lifetimes)
-  ✓ Понимание TDD
-  ✓ git rebase (не merge!)
+Knowledge:
+  ✓ Basic Rust (ownership, lifetimes)
+  ✓ Understanding of TDD
+  ✓ git rebase (not merge!)
 
-Не обязательно:
-  ✗ Знание Discord протоколов (есть docs/re/)
-  ✗ Опыт GPUI/WGPU (есть примеры)
-  ✗ Знание async Rust (можно научиться)
+Not required:
+  ✗ Knowledge of Discord protocols (see docs/re/)
+  ✗ Experience with GPUI/WGPU (see examples)
+  ✗ Async Rust experience (can learn)
 ```
 
-### Для человека С ИИ-агентом
+### For Humans WITH an AI Agent
 
 ```
-Обязательно:
-  ✓ GitHub аккаунт
-  ✓ ИИ-модель с доступом к файловой системе и git
-  ✓ Понимание: что делает ИИ и что ты проверяешь
+Required:
+  ✓ GitHub account
+  ✓ AI model with file system and git access
+  ✓ Understanding: what your AI does and what you verify
 
-Не обязательно:
-  ✗ Знание Rust
-  ✗ Знание TDD
-  ✗ Опыт разработки
-  
-Но ты всё равно отвечаешь за код своего ИИ!
+Not required:
+  ✗ Rust knowledge
+  ✗ TDD knowledge
+  ✗ Development experience
+
+But you are still accountable for your AI's code!
 ```
 
-### Для ИИ-агента
+### For AI Agents
 
 ```
-Технические требования к окружению:
+Environment requirements:
   ✓ git 2.40+
   ✓ Rust toolchain (cargo, rustfmt, clippy)
   ✓ Node.js 24+
   ✓ flock (coreutils)
-  ✓ Доступ к GitHub API (для PR)
+  ✓ GitHub API access (for PR creation)
 
-Способности модели:
-  ✓ Читать и писать Rust код
-  ✓ Выполнять команды в терминале
-  ✓ Читать ошибки компилятора
-  ✓ Следовать инструкциям файла
-  ✓ Создавать PR через gh CLI или GitHub API
+Model capabilities:
+  ✓ Read and write Rust code
+  ✓ Execute terminal commands
+  ✓ Read compiler error messages
+  ✓ Follow file instructions
+  ✓ Create PRs via gh CLI or GitHub API
 ```
 
 ---
 
-## Быстрая справка (для ИИ — скопируй и используй)
+## Quick Reference (copy and use)
 
 ```bash
 # === SETUP ===
@@ -447,7 +447,7 @@ Operator: @<username>"
 # === PUSH ===
 git push origin feature/task-N-slug
 
-# === CHECK SCOPE ===
+# === VERIFY SCOPE ===
 git diff --name-only upstream/unstable...HEAD
 
 # === HARNESS CHECK ===
@@ -456,5 +456,5 @@ flock /tmp/chord-cargo.lock cargo build --manifest-path tests/e2e/harness/Cargo.
 
 ---
 
-*AI-AGENTS.md · Chord Project · AMCP v1.0 · 2026-11-13*  
-*Этот файл является частью официальной документации проекта*
+*AI-AGENTS.md · Chord Project · AMCP v1.0 · 2026-11-13*
+*This file is part of the official project documentation*
