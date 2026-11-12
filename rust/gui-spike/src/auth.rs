@@ -369,7 +369,7 @@ pub struct IdentityContext {
 
 fn official_client_identity_config(system_locale: Option<String>) -> IdentityConfig {
     IdentityConfig {
-        browser: Some("Discord Client".to_string()),
+        browser: Some("Chord Client".to_string()),
         browser_user_agent: Some(
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36".to_string(),
         ),

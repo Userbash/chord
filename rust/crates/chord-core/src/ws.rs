@@ -4413,6 +4413,14 @@ pub fn start_live_stream_rtc_session(
                             if e.contains("4014") {
                                 break;
                             }
+                            // 4021 = rate limited: sleep 5s then retry without
+                            // re-issuing STREAM_CREATE (server already has the stream).
+                            if e.contains("4021") {
+                                println!("[VOICE-RTC] Stream RTC rate-limited (4021); sleeping 5s before retry");
+                                tokio::time::sleep(Duration::from_secs(5)).await;
+                                attempt = attempt.saturating_add(1);
+                                continue;
+                            }
                             if e.contains("4006") || e.contains("4022") {
                                 if streamer_user_id == user_id {
                                     let cached = LAST_VOICE_STATE_CACHE
@@ -4553,6 +4561,13 @@ pub fn start_live_rtc_session(
                                     g.state = "disconnected".to_string();
                                 }
                                 break;
+                            }
+                            // 4021 = rate limited: sleep 5s without re-creating stream
+                            if e.contains("4021") {
+                                println!("[VOICE-RTC] Stream watch rate-limited (4021); sleeping 5s");
+                                tokio::time::sleep(Duration::from_secs(5)).await;
+                                attempt = attempt.saturating_add(1);
+                                continue;
                             }
                             if e.contains("4006") || e.contains("4022") {
                                 {
@@ -5724,6 +5739,14 @@ async fn run_rtc_task(
                                 *resume_seq_ack = None;
                                 drop(dv_guard);
                                 return Err(format!("closed:{code}"));
+                            }
+                            // 4021 = rate limited — clear resume, return error for
+                            // outer retry loop to apply backoff (5 s) instead of
+                            // immediately re-sending STREAM_CREATE and looping.
+                            if code == 4021 {
+                                *resume_seq_ack = None;
+                                drop(dv_guard);
+                                return Err("closed:4021".to_string());
                             }
                         }
                         break;

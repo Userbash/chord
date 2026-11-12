@@ -10,6 +10,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![forbid(unsafe_code)]
 
+/// Debounce: minimum milliseconds between consecutive voice_stream_start calls.
+static LAST_STREAM_START_MS: std::sync::atomic::AtomicU64 =
+    std::sync::atomic::AtomicU64::new(0);
+
+/// PipeWire node id obtained from the last XDG Desktop Portal screencast session.
+/// 0 = not yet acquired.
+static LAST_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 =
+    std::sync::atomic::AtomicU32::new(0);
+
 use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, UploadBytes, UploadPutCommandArgs, UploadPutInput,
@@ -63,6 +72,45 @@ use std::sync::Arc;
 use tauri::{Emitter, Manager};
 
 struct TauriAuthEmitter(tauri::AppHandle);
+
+/// Acquire a PipeWire node id via the XDG Desktop Portal ScreenCast API.
+/// Opens the system screen-picker dialog, and returns the first selected
+/// stream's PipeWire node id.  Called only on Wayland when `source_id` is
+/// absent (auto-select primary monitor without popping extra UX on X11).
+///
+/// On X11 or when the portal is unavailable the function returns an error
+/// and the caller falls back to the legacy "screen"/"window" source type.
+async fn acquire_pipewire_node_id() -> Result<u32, String> {
+    // Skip portal on X11 — only needed on Wayland
+    if std::env::var("WAYLAND_DISPLAY").is_err() {
+        return Err("not Wayland".to_string());
+    }
+    use ashpd::desktop::screencast::{CursorMode, Screencast, SelectSourcesOptions, SourceType};
+    use enumflags2::BitFlags;
+    let proxy = Screencast::new().await.map_err(|e| format!("portal proxy: {e}"))?;
+    let session = proxy
+        .create_session(Default::default())
+        .await
+        .map_err(|e| format!("create session: {e}"))?;
+    let opts = SelectSourcesOptions::default()
+        .set_cursor_mode(CursorMode::Embedded)
+        .set_sources(BitFlags::from(SourceType::Monitor));
+    proxy
+        .select_sources(&session, opts)
+        .await
+        .map_err(|e| format!("select sources: {e}"))?;
+    let response = proxy
+        .start(&session, None::<&ashpd::WindowIdentifier>, Default::default())
+        .await
+        .map_err(|e| format!("start: {e}"))?
+        .response()
+        .map_err(|e| format!("response: {e}"))?;
+    response
+        .streams()
+        .first()
+        .map(|s| s.pipe_wire_node_id())
+        .ok_or_else(|| "no streams selected".to_string())
+}
 
 impl auth::AuthStateEmitter for TauriAuthEmitter {
     fn emit_state(&self, state: &AuthState) -> Result<(), String> {
@@ -1602,6 +1650,40 @@ async fn voice_stream_start(
         spec.guild_id = None;
     }
     spec.validate()?;
+
+    // --- Debounce: skip duplicate starts within 8 seconds (Bug #4) ---
+    {
+        use std::sync::atomic::Ordering;
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
+        let last_ms = LAST_STREAM_START_MS.load(Ordering::SeqCst);
+        if now_ms.saturating_sub(last_ms) < 8_000 && last_ms > 0 {
+            println!("[IPC-TRACE] voice_stream_start: debounced ({}ms since last)", now_ms - last_ms);
+            return Ok(serde_json::json!({ "ok": true, "debounced": true, "streamKey": "" }));
+        }
+        LAST_STREAM_START_MS.store(now_ms, Ordering::SeqCst);
+    }
+
+    // --- PipeWire Portal: request screen capture via XDG Desktop Portal on Wayland (Bug #1) ---
+    // Only when no source_id override is provided (UI-less background capture).
+    let pipewire_node_id: Option<u32> = if spec.source_id.is_empty() {
+        match acquire_pipewire_node_id().await {
+            Ok(nid) => {
+                println!("[IPC-TRACE] voice_stream_start: PipeWire node_id={nid}");
+                LAST_PIPEWIRE_NODE_ID.store(nid, std::sync::atomic::Ordering::SeqCst);
+                Some(nid)
+            }
+            Err(e) => {
+                println!("[IPC-TRACE] voice_stream_start: PipeWire portal failed ({e}), falling back to screen");
+                None
+            }
+        }
+    } else {
+        None
+    };
+
     let op18 = chord_client::voice_stage::build_gateway_stream_create_op18(&spec)?;
     // queue_live_stream_create вызывается внутри connect_or_update_live_voice_ext
     let stream_key = blocking(move || {
@@ -1629,6 +1711,13 @@ async fn voice_stream_start(
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
             let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}");
             chord_core::ws::send_native_stream_cmd(&ucmd);
+        } else if let Some(nid) = pipewire_node_id {
+            // PipeWire Portal capture — works on Wayland without X11 (Bug #1 fix)
+            let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
+            let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
+            let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"pipewire\",\"nodeId\":{nid}}}");
+            chord_core::ws::send_native_stream_cmd(&ucmd);
+            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} to native worker");
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
