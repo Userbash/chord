@@ -19,6 +19,11 @@ static LAST_STREAM_START_MS: std::sync::atomic::AtomicU64 =
 static LAST_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 =
     std::sync::atomic::AtomicU32::new(0);
 
+/// PipeWire fd obtained from the last XDG Desktop Portal screencast session.
+/// -1 = not yet acquired.
+static LAST_PIPEWIRE_FD: std::sync::atomic::AtomicI32 =
+    std::sync::atomic::AtomicI32::new(-1);
+
 use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, UploadBytes, UploadPutCommandArgs, UploadPutInput,
@@ -80,7 +85,7 @@ struct TauriAuthEmitter(tauri::AppHandle);
 ///
 /// On X11 or when the portal is unavailable the function returns an error
 /// and the caller falls back to the legacy "screen"/"window" source type.
-async fn acquire_pipewire_node_id() -> Result<u32, String> {
+async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
     // Skip portal on X11 — only needed on Wayland
     if std::env::var("WAYLAND_DISPLAY").is_err() {
         return Err("not Wayland".to_string());
@@ -105,11 +110,25 @@ async fn acquire_pipewire_node_id() -> Result<u32, String> {
         .map_err(|e| format!("start: {e}"))?
         .response()
         .map_err(|e| format!("response: {e}"))?;
-    response
+    let node_id = response
         .streams()
         .first()
         .map(|s| s.pipe_wire_node_id())
-        .ok_or_else(|| "no streams selected".to_string())
+        .ok_or_else(|| "no streams selected".to_string())?;
+    // Get PipeWire fd for native module
+    let fd = match proxy.open_pipe_wire_remote(&session, Default::default()).await {
+        Ok(owned_fd) => {
+            use std::os::unix::io::IntoRawFd;
+            let raw = owned_fd.into_raw_fd();
+            println!("[IPC-TRACE] acquire_pipewire: got fd={raw} node_id={node_id}");
+            raw
+        }
+        Err(e) => {
+            println!("[IPC-TRACE] acquire_pipewire: open_pipe_wire_remote failed ({e}), using fd=-1");
+            -1
+        }
+    };
+    Ok((node_id, fd))
 }
 
 impl auth::AuthStateEmitter for TauriAuthEmitter {
@@ -476,6 +495,96 @@ async fn join_guild(
     .await?;
     let api = DiscordGuilds::new(&token)?;
     guilds::join_guild(&api, &guild_id).await
+}
+
+/// Подтверждение согласия с правилами сервера (Rules Screening / Member Verification Gate):
+/// `GET /guilds/{id}/member-verification` -> `PUT /guilds/{id}/requests/@me`.
+#[tauri::command]
+async fn confirm_member_rules(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    guild_id: Option<String>,
+    #[allow(non_snake_case)]
+    guildId: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let gid = guild_id
+        .or(guildId)
+        .ok_or_else(|| "Отсутствует guildId".to_string())?;
+    let backend = Arc::clone(backend.inner());
+    let token = token_or::<String, _>(
+        move || backend.token(),
+        || "Ошибка хранилища токена".to_string(),
+        || "Токен не найден".to_string(),
+    )
+    .await?;
+
+    let identity = crate::auth::IdentityContext::detect();
+    let auth = chord_core::rest::client::ApiAuth::from_token_with_scheme(
+        &token,
+        chord_core::rest::client::AuthScheme::User,
+        &identity.super_properties,
+        &identity.locale,
+        &identity.timezone,
+    )
+    .map_err(|e| format!("Ошибка авторизации: {e}"))?;
+
+    let client = chord_core::rest::client::ApiClient::new(
+        chord_core::rest::client::ApiConfig {
+            base: chord_core::API_V9_BASE.to_string(),
+            auth,
+            http: chord_core::rest::transport::HttpClientConfig::default(),
+            retry: chord_core::rest::client::ApiRetryPolicy::default(),
+        },
+    )
+    .map_err(|e| format!("Ошибка клиента API: {e}"))?;
+
+    let ver_path = format!("/guilds/{gid}/member-verification");
+    let ver_resp = client
+        .get(&ver_path)
+        .await
+        .map_err(|e| format!("Сетевая ошибка: {e}"))?;
+
+    let accept_body = if (200..300).contains(&ver_resp.status) {
+        if let Ok(ver_json) = serde_json::from_slice::<serde_json::Value>(&ver_resp.body) {
+            crate::guilds::build_member_verification_accept_body(&ver_json)
+        } else {
+            serde_json::json!({ "version": serde_json::Value::Null, "form_fields": [] })
+        }
+    } else {
+        serde_json::json!({ "version": serde_json::Value::Null, "form_fields": [] })
+    };
+
+    let body_bytes = serde_json::to_vec(&accept_body)
+        .map_err(|e| format!("Ошибка сериализации формы: {e}"))?;
+
+    let req_path = format!("/guilds/{gid}/requests/@me");
+    let put_resp = client
+        .put(&req_path, &body_bytes)
+        .await
+        .map_err(|e| format!("Ошибка отправки подтверждения: {e}"))?;
+
+    println!(
+        "[GUILD-VERIFY] confirm_member_rules: guild={gid} status={}",
+        put_resp.status
+    );
+
+    if (200..300).contains(&put_resp.status) {
+        crate::data::mark_live_guild_verified(&gid);
+        Ok(serde_json::json!({
+            "ok": true,
+            "guildId": gid,
+            "status": put_resp.status,
+        }))
+    } else {
+        let err_text = String::from_utf8_lossy(&put_resp.body);
+        println!(
+            "[GUILD-VERIFY] confirm_member_rules failed: status={} body={err_text}",
+            put_resp.status
+        );
+        Err(format!(
+            "Сервер отклонил подтверждение правил (HTTP {}): {err_text}",
+            put_resp.status
+        ))
+    }
 }
 
 /// Создать новый сервер: `POST /guilds` (STUB-03).
@@ -1668,12 +1777,19 @@ async fn voice_stream_start(
 
     // --- PipeWire Portal: request screen capture via XDG Desktop Portal on Wayland (Bug #1) ---
     // Only when no source_id override is provided (UI-less background capture).
-    let pipewire_node_id: Option<u32> = if spec.source_id.is_empty() || spec.source_id.starts_with("screen:") {
+    let pipewire_info: Option<(u32, i32)> = if spec.source_id.is_empty() || spec.source_id.starts_with("screen:") {
         match acquire_pipewire_node_id().await {
-            Ok(nid) => {
-                println!("[IPC-TRACE] voice_stream_start: PipeWire node_id={nid}");
+            Ok((nid, fd)) => {
+                println!("[IPC-TRACE] voice_stream_start: PipeWire node_id={nid} fd={fd}");
                 LAST_PIPEWIRE_NODE_ID.store(nid, std::sync::atomic::Ordering::SeqCst);
-                Some(nid)
+                LAST_PIPEWIRE_FD.store(fd, std::sync::atomic::Ordering::SeqCst);
+                // [BUG FIX] Cache PipeWire nodeId in chord-core for RTC reconnect re-send.
+                chord_core::ws::set_cached_pipewire_node_id(nid);
+                chord_core::ws::set_cached_pipewire_fd(fd);
+                // [BUG FIX] Write PipeWire marker BEFORE blocking() so data.rs guard
+                // catches the JS set_capture_source call that races with us.
+                let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
+                Some((nid, fd))
             }
             Err(e) => {
                 println!("[IPC-TRACE] voice_stream_start: PipeWire portal failed ({e}), falling back to screen");
@@ -1709,7 +1825,7 @@ async fn voice_stream_start(
             chord_core::ws::clear_last_stream_key();
             data::reset_live_stream_state();
         }
-        if !spec.source_id.is_empty() && pipewire_node_id.is_none() {
+        if !spec.source_id.is_empty() && pipewire_info.is_none() {
             // Non-PipeWire path: send source_id directly to native worker
             let clean_src = spec.source_id.trim();
             let target_kind = if clean_src.starts_with('{') || clean_src.starts_with("win") { "window" } else { "screen" };
@@ -1718,15 +1834,16 @@ async fn voice_stream_start(
             let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}");
             chord_core::ws::send_native_stream_cmd(&ucmd);
         }
-        if let Some(nid) = pipewire_node_id {
+        if let Some((nid, fd)) = pipewire_info {
             // PipeWire Portal capture — works on Wayland without X11 (Bug #1 fix)
             // This MUST override the screen:X source sent by JS, as screen:0 doesn't
             // work on Wayland. PipeWire nodeId provides actual screen capture.
-            let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
+            // Note: marker file already written before blocking() to win the race with JS set_capture_source.
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
-            let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"pipewire\",\"nodeId\":{nid}}}");
+            let fd_field = if fd >= 0 { format!(",\"fd\":{fd}") } else { String::new() };
+            let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"pipewire\",\"nodeId\":{nid}{fd_field}}}");
             chord_core::ws::send_native_stream_cmd(&ucmd);
-            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} to native worker (overrides screen:{}))", spec.source_id);
+            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} fd={fd} to native worker (overrides screen:{}))", spec.source_id);
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
@@ -2328,6 +2445,7 @@ fn main() {
             send_typing,
             join_guild,
             create_guild,
+            confirm_member_rules,
             resolve_invite,
             accept_invite,
             create_channel_invite,

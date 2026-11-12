@@ -2093,6 +2093,12 @@ static STREAM_AUDIO_VOLUME_PCT: std::sync::atomic::AtomicU32 =
     std::sync::atomic::AtomicU32::new(100);
 static NATIVE_VOICE_ACTIVE: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
+/// Cached PipeWire node ID for stream capture re-send on RTC reconnect.
+static CACHED_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 =
+    std::sync::atomic::AtomicU32::new(0);
+/// Cached PipeWire fd for stream capture re-send on RTC reconnect.
+static CACHED_PIPEWIRE_FD: std::sync::atomic::AtomicI32 =
+    std::sync::atomic::AtomicI32::new(-1);
 static NATIVE_VOICE_CMD_QUEUE: std::sync::OnceLock<std::sync::Mutex<VecDeque<String>>> =
     std::sync::OnceLock::new();
 static NATIVE_STREAM_CMD_QUEUE: std::sync::OnceLock<std::sync::Mutex<VecDeque<String>>> =
@@ -2110,6 +2116,29 @@ fn native_stream_cmd_mutex() -> &'static std::sync::Mutex<VecDeque<String>> {
 #[must_use]
 pub fn is_native_voice_engine_active() -> bool {
     NATIVE_VOICE_ACTIVE.load(std::sync::atomic::Ordering::SeqCst)
+}
+
+/// Stores the PipeWire node ID so it can be re-sent to a reconnected native worker.
+pub fn set_cached_pipewire_node_id(nid: u32) {
+    CACHED_PIPEWIRE_NODE_ID.store(nid, std::sync::atomic::Ordering::SeqCst);
+}
+
+/// Stores the PipeWire fd so it can be re-sent to a reconnected native worker.
+pub fn set_cached_pipewire_fd(fd: i32) {
+    CACHED_PIPEWIRE_FD.store(fd, std::sync::atomic::Ordering::SeqCst);
+}
+
+/// Returns the cached PipeWire node ID, or `None` if not set.
+#[must_use]
+pub fn cached_pipewire_node_id() -> Option<u32> {
+    let nid = CACHED_PIPEWIRE_NODE_ID.load(std::sync::atomic::Ordering::SeqCst);
+    if nid > 0 { Some(nid) } else { None }
+}
+
+/// Returns the cached PipeWire fd, or -1 if not set.
+#[must_use]
+pub fn cached_pipewire_fd() -> i32 {
+    CACHED_PIPEWIRE_FD.load(std::sync::atomic::Ordering::SeqCst)
 }
 
 /// Отправляет управляющую JSON-команду в дочерний процесс `chord_voice.node` голосового канала.
@@ -3332,20 +3361,26 @@ function applyScreenBroadcast(active) {
       try { fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1])); } catch (_) {}
       let currentSourceType = "screen";
       let currentSourceId = "-1";
+      let isPipewire = false;
       try {
         if (fs.existsSync("/dev/shm/discord_capture_target.txt")) {
           const t = fs.readFileSync("/dev/shm/discord_capture_target.txt", "utf8").trim();
-          currentSourceId = t.startsWith("screen:") ? t.slice(7) : (t.startsWith("window:") ? t.slice(7) : (t.startsWith("{") ? t : "-1"));
+          if (t.startsWith("pipewire:")) {
+            currentSourceId = t.slice(9);
+            isPipewire = true;
+          } else {
+            currentSourceId = t.startsWith("screen:") ? t.slice(7) : (t.startsWith("window:") ? t.slice(7) : (t.startsWith("{") ? t : "-1"));
+          }
           if (t.startsWith("{") || t.startsWith("window:")) {
             currentSourceType = "window";
           }
         }
       } catch (_) {}
-      // Linux Wayland Hook Parity (kFullDesktopScreenId = -1)
+      // Linux Wayland: use PipeWire nodeId or screen sourceId from capture target
       if (typeof conn.setDesktopSourceWithOptions === "function") {
-        conn.setDesktopSourceWithOptions({
-          type: "screen",
-          sourceId: "-1",
+        const srcOpts = {
+          type: currentSourceType,
+          sourceId: currentSourceId,
           width: 1280,
           height: 720,
           frameRate: 60,
@@ -3354,7 +3389,11 @@ function applyScreenBroadcast(active) {
           useQuartzCapturer: false,
           allowScreenCaptureKit: false,
           hdrCaptureMode: "never"
-        });
+        };
+        if (isPipewire) {
+          srcOpts.allow_pipewire = true;
+        }
+        conn.setDesktopSourceWithOptions(srcOpts);
       }
       if (typeof conn.setVideoBroadcast === "function") conn.setVideoBroadcast(true);
       sendEv({ ev: "log", msg: "applyScreenBroadcast active=true videoSsrc=" + vSsrc + " rtxSsrc=" + rSsrc });
@@ -4176,7 +4215,10 @@ rl.on("line", (line) => {
         const streamWidth = Number(msg.width) > 0 ? Number(msg.width) : (qMatch ? Number(qMatch[1]) : (msg.resolution === "1080p" ? 1920 : (msg.resolution === "1440p" ? 2560 : 1280)));
         const streamHeight = Number(msg.height) > 0 ? Number(msg.height) : (qMatch ? Number(qMatch[2]) : (msg.resolution === "1080p" ? 1080 : (msg.resolution === "1440p" ? 1440 : 720)));
         const streamFrameRate = Number(msg.frameRate || msg.fps) > 0 ? Number(msg.frameRate || msg.fps) : (qMatch && qMatch[3] ? Number(qMatch[3]) : 60);
-        conn.setDesktopSourceWithOptions({
+        // Resolve sourceId: PipeWire nodeId, explicit sourceId, or fallback to -1
+        let resolvedSrcId = "-1";
+        let resolvedSrcType = msg.sourceType || "screen";
+        const opts = {
           type: "screen",
           sourceId: "-1",
           width: streamWidth,
@@ -4187,7 +4229,21 @@ rl.on("line", (line) => {
           useQuartzCapturer: false,
           allowScreenCaptureKit: false,
           hdrCaptureMode: "never"
-        });
+        };
+        if (msg.sourceType === "pipewire" && msg.nodeId != null) {
+          // PipeWire: pass nodeId through pipewireConfig AND allow_pipewire flag
+          resolvedSrcId = String(msg.nodeId);
+          opts.sourceId = resolvedSrcId;
+          opts.allow_pipewire = true;
+          if (msg.fd != null) {
+            opts.pipewireConfig = { fd: Number(msg.fd), node_id: Number(msg.nodeId) };
+          }
+        } else if (msg.sourceId && msg.sourceId !== "-1") {
+          resolvedSrcId = msg.sourceId;
+          opts.sourceId = resolvedSrcId;
+          if (msg.sourceType === "window") opts.type = "window";
+        }
+        conn.setDesktopSourceWithOptions(opts);
         if (typeof conn.setVideoBroadcast === "function") {
           conn.setVideoBroadcast(true);
         }
@@ -4204,7 +4260,7 @@ rl.on("line", (line) => {
             keyframeInterval: 1000
           });
         }
-        sendEv({ ev: "log", msg: "set_stream_source: updated to " + (msg.sourceId || "-1") + " " + streamWidth + "x" + streamHeight + "@" + streamFrameRate });
+        sendEv({ ev: "log", msg: "set_stream_source: sourceId=" + resolvedSrcId + " type=" + opts.type + " allow_pipewire=" + (opts.allow_pipewire || false) + " " + streamWidth + "x" + streamHeight + "@" + streamFrameRate });
       } catch (e) {
         sendEv({ ev: "log", msg: "set_stream_source err: " + (e && e.message) });
       }
@@ -5624,6 +5680,35 @@ async fn run_rtc_task(
             println!(
                 "[VOICE-RTC] Spawned native chord_voice.node + DAVE E2EE worker pid={pid} (stream={is_stream_conn})"
             );
+            // [BUG FIX] Re-send PipeWire capture source to newly spawned native
+            // worker on RTC reconnect (4006/4021 recovery). Without this, the new
+            // worker has no capture source → pixelCounts=0 → STREAM_DELETE → 2007/2012.
+            if is_stream_conn && is_self_broadcaster {
+                if let Some(nid) = cached_pipewire_node_id() {
+                    let fd = cached_pipewire_fd();
+                    let fd_field = if fd >= 0 { format!(",\"fd\":{fd}") } else { String::new() };
+                    let ucmd = format!(
+                        r#"{{"cmd":"set_stream_source","sourceType":"pipewire","nodeId":{nid}{fd_field}}}"#
+                    );
+                    send_native_stream_cmd(&ucmd);
+                    let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
+                    println!(
+                        "[VOICE-RTC] Re-sent PipeWire nodeId={nid} fd={fd} to reconnected native stream worker"
+                    );
+                } else if let Ok(target) = std::fs::read_to_string("/dev/shm/discord_capture_target.txt") {
+                    let target = target.trim().to_string();
+                    if !target.is_empty() && !target.starts_with("pipewire:") {
+                        let target_kind = if target.starts_with('{') || target.starts_with("win") { "window" } else { "screen" };
+                        let ucmd = format!(
+                            r#"{{"cmd":"set_stream_source","sourceType":"{target_kind}","sourceId":"{target}"}}"#
+                        );
+                        send_native_stream_cmd(&ucmd);
+                        println!(
+                            "[VOICE-RTC] Re-sent capture source '{target}' to reconnected native stream worker"
+                        );
+                    }
+                }
+            }
         }
     }
     let has_native_voice = dv_stdin.is_some();

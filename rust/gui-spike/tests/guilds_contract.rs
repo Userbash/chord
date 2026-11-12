@@ -13,7 +13,7 @@
 //! Тесты не ходят в сеть: транспорт подменяется фейком, который записывает
 //! target и тело. Токен в тестах фиктивный и не должен попадать в `Debug`.
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::guilds::{
     create_guild, enter_guild, join_guild, leave_guild, CreateGuildError, CreateGuildPayload,
     DiscordGuilds, EnterGuildError, GuildLeaving, GuildMembership, GuildTransport, LeaveGuildError,
@@ -438,6 +438,20 @@ fn tauri_registers_exactly_one_guild_command() {
     assert!(
         !source.contains("async fn enter_guild("),
         "в бинаре не должно остаться второй Tauri-команды enter_guild"
+    );
+}
+
+#[test]
+fn tauri_registers_confirm_member_rules_command() {
+    let source = include_str!("../src/main.rs");
+    let commands = registered_commands(source);
+    assert!(
+        commands.contains(&"confirm_member_rules"),
+        "confirm_member_rules должен быть зарегистрирован в invoke_handler!"
+    );
+    assert!(
+        source.contains("async fn confirm_member_rules("),
+        "main.rs должен объявлять команду confirm_member_rules"
     );
 }
 

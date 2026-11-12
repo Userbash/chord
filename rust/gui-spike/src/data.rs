@@ -569,6 +569,40 @@ pub fn apply_guild_join_outcome_to_live_session(outcome: &crate::guilds::GuildJo
     }
 }
 
+/// Отмечает сервер как прошедший верификацию правил (`pending = false`, `is_pending = false`).
+pub fn mark_live_guild_verified(guild_id: &str) {
+    let gid = guild_id.trim();
+    if gid.is_empty() || gid == "@me" {
+        return;
+    }
+    let snapshot = {
+        let mut guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
+        if let Some(g) = guard.local_preview_guilds.get_mut(gid) {
+            if let Some(obj) = g.as_object_mut() {
+                obj.insert("pending".to_string(), Value::Bool(false));
+                obj.insert("is_pending".to_string(), Value::Bool(false));
+            }
+        }
+        if let Some(rd) = guard.ready_data.as_mut() {
+            if let Some(arr) = rd.get_mut("guilds").and_then(Value::as_array_mut) {
+                if let Some(existing) = arr
+                    .iter_mut()
+                    .find(|g| g.get("id").and_then(|v| v.as_str()) == Some(gid))
+                {
+                    if let Some(obj) = existing.as_object_mut() {
+                        obj.insert("pending".to_string(), Value::Bool(false));
+                        obj.insert("is_pending".to_string(), Value::Bool(false));
+                    }
+                }
+            }
+        }
+        guard.ready_data.clone()
+    };
+    if let Some(snap) = snapshot {
+        save_live_ready_cache(&snap);
+    }
+}
+
 /// Синхронно гарантирует, что активная сессия шлюза (`gateway_session_id`) зарегистрирована на сервере `guild_id`
 /// (через `PUT /guilds/{id}/members/@me?lurker=true&session_id={sid}`), чтобы `OP 4 VOICE_STATE_UPDATE` принимался шлюзом Discord.
 pub fn ensure_live_guild_lurker_session(guild_id: &str) {

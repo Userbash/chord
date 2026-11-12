@@ -1104,8 +1104,14 @@ pub fn build_member_verification_accept_body(
                 .get("field_type")
                 .and_then(|v| v.as_str())
                 .unwrap_or("TERMS");
-            if field_type.eq_ignore_ascii_case("TERMS") || !obj.contains_key("response") {
+            if field_type.eq_ignore_ascii_case("TERMS") {
                 obj.insert("response".to_string(), serde_json::Value::Bool(true));
+            } else if field_type.eq_ignore_ascii_case("MULTIPLE_CHOICE") {
+                if !obj.contains_key("response") {
+                    obj.insert("response".to_string(), serde_json::json!(0));
+                }
+            } else if !obj.contains_key("response") {
+                obj.insert("response".to_string(), serde_json::json!("Принимаю"));
             }
             accepted_fields.push(serde_json::Value::Object(obj));
         }
