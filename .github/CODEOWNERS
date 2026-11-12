@@ -1,12 +1,12 @@
-# CODEOWNERS — автоматическое назначение ревьюеров по затронутым файлам
-# GitHub автоматически добавляет указанных ревьюеров к PR
-# Формат: <glob-паттерн> <@github-username или @team>
+# CODEOWNERS — automatic reviewer assignment based on changed files
+# GitHub automatically adds listed reviewers to PRs
+# Format: <glob-pattern> <@github-username or @team>
 #
-# Правило: автор PR НЕ должен быть в списке ревьюеров своего же кода
-# Для AI-воркеров: ревьюер = другая модель/аккаунт
+# Rule: PR author must NOT be in the reviewer list for their own code
+# For AI workers: reviewer = different model/account
 
 # ─── SHARED / COORDINATOR ONLY ───────────────────────────────
-# Эти файлы требуют approve от координатора проекта
+# These files require approval from the project coordinator
 Cargo.lock                              @Userbash
 package-lock.json                       @Userbash
 TASKS.md                                @Userbash

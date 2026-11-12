@@ -1,5 +1,5 @@
-# Автоматическая расстановка меток по изменённым файлам
-# Используется actions/labeler@v5 в ai-collab-gate.yml
+# Automatic label assignment based on changed files
+# Used by actions/labeler@v5 in ai-collab-gate.yml
 
 # Backend (G1)
 "scope:backend":
@@ -70,8 +70,8 @@
       - "docs/specs/**"
       - "waves/**/RE-AUDIT/**"
 
-# SHARED FILES — требует координатора
-"⚠️ shared-file":
+# SHARED FILES — requires coordinator approval
+"shared-file":
   - changed-files:
     - any-glob-to-any-file:
       - "Cargo.lock"

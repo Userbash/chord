@@ -1,6 +1,6 @@
-# Auto-merge безопасных PR — срабатывает когда все gate checks зелёные
-# Только для: зависимостей (Dependabot), документации, конфигов без кода
-# НЕ применяется к: production Rust code, shared files
+# Auto-merge safe PRs — triggers when all gate checks are green
+# Only applies to: dependencies (Dependabot), documentation, non-code configs
+# Does NOT apply to: production Rust code, shared coordinator files
 
 name: Auto Merge Safe PRs
 
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   # ─────────────────────────────────────────────────────────────
-  # Dependabot PRs: автоматически merge при зелёном CI
+  # Dependabot PRs: auto-merge when CI is green
   # ─────────────────────────────────────────────────────────────
   auto-merge-dependabot:
     name: "Auto-merge Dependabot"
@@ -39,7 +39,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ─────────────────────────────────────────────────────────────
-  # Docs-only PRs: автоматически merge когда только .md изменены
+  # Docs-only PRs: auto-merge when only .md files are changed
   # ─────────────────────────────────────────────────────────────
   auto-merge-docs:
     name: "Auto-merge Docs-only"

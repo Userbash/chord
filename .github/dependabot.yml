@@ -1,5 +1,5 @@
-# Dependabot — автоматическое обновление зависимостей
-# PR создаётся автоматически, CI проверяет, auto-merge при зелёном gate
+# Dependabot — automatic dependency updates
+# PRs are created automatically, CI verifies, auto-merge on green gate
 
 version: 2
 updates:
@@ -16,7 +16,7 @@ updates:
       - "scope:backend"
     commit-message:
       prefix: "chore(deps)"
-    # Группировать patch-обновления в один PR
+    # Group patch updates into a single PR
     groups:
       rust-patch:
         patterns: ["*"]
