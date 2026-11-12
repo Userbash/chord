@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "discord-lab-rust-workspace",
-  "documentNamespace": "https://discord-lab.local/spdx/321689eb7a98ffa1b90115a6fdc80588df89437be1e9e7e935eada1bffd5a223",
+  "documentNamespace": "https://discord-lab.local/spdx/5ae483782d245cc4aa6d6e74259a28238963b86133d7f7a1232ef1153d5884a5",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -111,6 +111,227 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:cargo/chacha20@0.10.2"
+        }
+      ]
+    },
+    {
+      "name": "chord-app",
+      "SPDXID": "SPDXRef-Package-chord-app-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-app@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-codec",
+      "SPDXID": "SPDXRef-Package-chord-codec-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-codec@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-conformance",
+      "SPDXID": "SPDXRef-Package-chord-conformance-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-conformance@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-core",
+      "SPDXID": "SPDXRef-Package-chord-core-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-core@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-i18n",
+      "SPDXID": "SPDXRef-Package-chord-i18n-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-i18n@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-json",
+      "SPDXID": "SPDXRef-Package-chord-json-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-json@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-media",
+      "SPDXID": "SPDXRef-Package-chord-media-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-media@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-perf",
+      "SPDXID": "SPDXRef-Package-chord-perf-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-perf@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-platform",
+      "SPDXID": "SPDXRef-Package-chord-platform-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-platform@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-store",
+      "SPDXID": "SPDXRef-Package-chord-store-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-store@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-ui",
+      "SPDXID": "SPDXRef-Package-chord-ui-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-ui@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-updater",
+      "SPDXID": "SPDXRef-Package-chord-updater-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-updater@0.1.0"
+        }
+      ]
+    },
+    {
+      "name": "chord-voice",
+      "SPDXID": "SPDXRef-Package-chord-voice-0.1.0",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chord-voice@0.1.0"
         }
       ]
     },
@@ -247,227 +468,6 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:cargo/digest@0.11.3"
-        }
-      ]
-    },
-    {
-      "name": "discord-app",
-      "SPDXID": "SPDXRef-Package-discord-app-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-app@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-codec",
-      "SPDXID": "SPDXRef-Package-discord-codec-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-codec@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-conformance",
-      "SPDXID": "SPDXRef-Package-discord-conformance-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-conformance@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-core",
-      "SPDXID": "SPDXRef-Package-discord-core-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-core@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-i18n",
-      "SPDXID": "SPDXRef-Package-discord-i18n-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-i18n@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-json",
-      "SPDXID": "SPDXRef-Package-discord-json-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-json@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-media",
-      "SPDXID": "SPDXRef-Package-discord-media-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-media@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-perf",
-      "SPDXID": "SPDXRef-Package-discord-perf-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-perf@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-platform",
-      "SPDXID": "SPDXRef-Package-discord-platform-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-platform@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-store",
-      "SPDXID": "SPDXRef-Package-discord-store-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-store@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-ui",
-      "SPDXID": "SPDXRef-Package-discord-ui-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-ui@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-updater",
-      "SPDXID": "SPDXRef-Package-discord-updater-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-updater@0.1.0"
-        }
-      ]
-    },
-    {
-      "name": "discord-voice",
-      "SPDXID": "SPDXRef-Package-discord-voice-0.1.0",
-      "versionInfo": "0.1.0",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/discord-voice@0.1.0"
         }
       ]
     },
@@ -1683,67 +1683,67 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-app-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-app-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-codec-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-codec-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-core-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-core-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-voice-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-i18n-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-i18n-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-media-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-media-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-platform-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-platform-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-store-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-store-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-ui-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-ui-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-updater-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-updater-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-conformance-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-conformance-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-Package-discord-perf-0.1.0"
+      "relatedSpdxElement": "SPDXRef-Package-chord-perf-0.1.0"
     },
     {
       "spdxElementId": "SPDXRef-Package-block-buffer-0.10.4",
@@ -1789,6 +1789,191 @@
       "spdxElementId": "SPDXRef-Package-chacha20-0.10.2",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-rand-core-0.10.1"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-codec-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-core-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-i18n-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-media-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-platform-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-store-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-ui-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-updater-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-app-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-voice-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-codec-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-zstd-0.14.3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-codec-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-voice-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-futures-util-0.3.34"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-httparse-1.10.1"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-rustls-0.23.46"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-tokio-1.53.3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-tokio-rustls-0.26.6"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-tokio-tungstenite-0.30.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-webpki-roots-1.0.9"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-zstd-0.14.3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-i18n-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-perf-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-core-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-perf-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-perf-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-perf-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-platform-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-libc-0.2.191"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-ui-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-updater-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-updater-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-ring-0.17.14"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-updater-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-updater-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-updater-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-sha2-0.10.9"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-voice-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-chord-json-0.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-voice-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-chord-voice-0.1.0",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
     },
     {
       "spdxElementId": "SPDXRef-Package-cpufeatures-0.2.17",
@@ -1839,191 +2024,6 @@
       "spdxElementId": "SPDXRef-Package-digest-0.11.3",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-crypto-common-0.2.2"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-codec-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-core-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-i18n-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-media-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-platform-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-store-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-ui-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-updater-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-app-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-codec-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-zstd-0.14.3"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-codec-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-voice-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-futures-util-0.3.34"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-httparse-1.10.1"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-rustls-0.23.46"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-tokio-1.53.3"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-tokio-rustls-0.26.6"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-tokio-tungstenite-0.30.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-webpki-roots-1.0.9"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-core-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-zstd-0.14.3"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-i18n-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-perf-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-core-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-perf-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-perf-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-perf-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-platform-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-libc-0.2.191"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-ui-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-updater-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-updater-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-ring-0.17.14"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-updater-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-updater-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-updater-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-sha2-0.10.9"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-voice-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-discord-json-0.1.0"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-voice-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-1.0.229"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-discord-voice-0.1.0",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
     },
     {
       "spdxElementId": "SPDXRef-Package-futures-util-0.3.34",

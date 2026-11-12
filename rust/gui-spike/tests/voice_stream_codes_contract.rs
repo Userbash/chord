@@ -29,17 +29,17 @@ use chord_client::voice_stage::{
     build_gateway_stream_ping_op21, build_gateway_stream_set_paused_op22,
     build_gateway_stream_watch_op20, ScreenShareSpec, StreamFps, StreamResolution,
 };
-use discord_voice::media::rtp::parse_rtp;
-use discord_voice::reception::{ReceptionStats, RtpHeader};
-use discord_voice::rtcp::RtcpPacket;
-use discord_voice::rtp::video::{RTP_H264_PAYLOAD_TYPE, VIDEO_TICKS_30FPS, VIDEO_TICKS_60FPS};
-use discord_voice::rtp::{video_ticks_for_elapsed_ms, video_ticks_for_fps};
-use discord_voice::session::{
+use chord_voice::media::rtp::parse_rtp;
+use chord_voice::reception::{ReceptionStats, RtpHeader};
+use chord_voice::rtcp::RtcpPacket;
+use chord_voice::rtp::video::{RTP_H264_PAYLOAD_TYPE, VIDEO_TICKS_30FPS, VIDEO_TICKS_60FPS};
+use chord_voice::rtp::{video_ticks_for_elapsed_ms, video_ticks_for_fps};
+use chord_voice::session::{
     classify_voice_close_code, compute_go_live_rtc_channel_id, is_recoverable_stream_error_code,
     StreamServerUpdate, VoiceCloseDisposition, VoiceSessionDriver, VoiceSessionPhase,
     VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR, VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT,
 };
-use discord_voice::{
+use chord_voice::{
     parse_frame, Identify, VoiceOp, VoicePayload, VoiceServerUpdate, VoiceStateUpdate,
 };
 

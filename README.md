@@ -22,6 +22,13 @@
 > It is **not affiliated with, endorsed by, sponsored by, or connected to Discord Inc.**
 > "Discord" is a registered trademark of Discord Inc. All trademarks, service marks, trade names, and logos referenced herein belong to their respective owners and are used strictly under fair use for protocol compatibility and identification purposes.
 
+> [!WARNING]
+> ### 🚨 Current Status: Open-Source Developer Alpha / Tech Preview (v0.1.0-alpha)
+> **Chord is in active development.** While the core network engine, DAVE MLS v1 E2EE, voice engine, and Wayland screensharing are functional, high-level features such as **Direct Messages (DMs)**, **`@` mention autocomplete**, and **custom emoji popups** are incomplete or in alpha.
+> 
+> **Do not use your main Discord account!** Use only developer/test accounts.  
+> 👉 **Read the full feature matrix, known limitations, and bug reports in [docs/DEVELOPER_ALPHA_LIMITATIONS.md](docs/DEVELOPER_ALPHA_LIMITATIONS.md).**
+
 ---
 
 ## 1. Why Discord GPUI? (Key Benchmarks)

@@ -5090,6 +5090,21 @@ function boot() {
         const uObj = m.user && typeof m.user === "object" ? m.user : {};
         const uid = cleanDiscordStr(String(uObj.id ?? m.user_id ?? m.userId ?? m.id ?? ""));
         if (!uid) continue;
+        if (uid === selfId) {
+          const mPending =
+            typeof m.pending === "boolean"
+              ? m.pending
+              : typeof m.is_pending === "boolean"
+                ? m.is_pending
+                : null;
+          if (mPending !== null) {
+            mergedGuild.pending = mPending;
+            mergedGuild.is_pending = mPending;
+          } else if (Array.isArray(m.roles) && m.roles.length > 0) {
+            mergedGuild.pending = false;
+            mergedGuild.is_pending = false;
+          }
+        }
         if (Array.isArray(m.roles) && !(uid === selfId && hasExplicitMyRoles)) {
           liveMemberRolesByGuildAndUser.set(
             `${gId}:${uid}`,
@@ -5128,6 +5143,11 @@ function boot() {
     if (rawGuildVs && rawGuildVs.length > 0) {
       mergeVoiceStatesForGuild(liveVoiceStatesByGuild, gId, rawGuildVs);
     }
+    if (myRoles.length > 0 || prevGuild?.pending === false) {
+      mergedGuild.pending = false;
+      mergedGuild.is_pending = false;
+    }
+    liveGuildsById.set(gId, mergedGuild);
   }
 
   /**
@@ -9281,7 +9301,7 @@ function boot() {
       if (viewerClosed || isSelfStream || !isLiveSession() || !streamKey) return;
       if (hasReceivedFirstFrame || lastRemoteFrameSeq > 0) return;
       const now = Date.now();
-      if (now - lastStreamWatchRetryAt >= 3500) {
+      if (now - lastStreamWatchRetryAt >= 12000) {
         lastStreamWatchRetryAt = now;
         void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
           kind: "stream_watch",
@@ -9466,7 +9486,7 @@ function boot() {
         retryRemoteStreamWatchIfStalled();
         let sleepMs = 14;
         ipcKickTicks += 1;
-        if (typeof globalThis.fetch === "function" && consecutiveHttpMisses < 6) {
+        if (typeof globalThis.fetch === "function") {
           try {
             const resp = await globalThis.fetch(
               `http://127.0.0.1:49281/frame.jpg?since=${lastRemoteFrameSeq}`,
@@ -9491,7 +9511,7 @@ function boot() {
               consecutiveHttpMisses = 0;
               hasReceivedFirstFrame = true;
               lastRemoteFrameLoadedAt = Date.now();
-              if (ipcKickTicks % 90 === 0) {
+              if (ipcKickTicks % 60 === 0) {
                 void pollRemoteFrameIpcFallback();
               }
               sleepMs = 10;
@@ -9520,20 +9540,21 @@ function boot() {
               }
             } else {
               consecutiveHttpMisses += 1;
-              await pollRemoteFrameIpcFallback();
-              sleepMs = 32;
+              if (ipcKickTicks % 15 === 0) {
+                void pollRemoteFrameIpcFallback();
+              }
+              sleepMs = hasReceivedFirstFrame ? 25 : 60;
             }
           } catch {
             consecutiveHttpMisses += 1;
-            await pollRemoteFrameIpcFallback();
-            sleepMs = 32;
+            if (ipcKickTicks % 15 === 0) {
+              void pollRemoteFrameIpcFallback();
+            }
+            sleepMs = hasReceivedFirstFrame ? 25 : 60;
           }
         } else {
           await pollRemoteFrameIpcFallback();
           sleepMs = 24;
-          if (consecutiveHttpMisses >= 6) {
-            consecutiveHttpMisses = 3;
-          }
         }
         await new Promise((r) => setTimeout(r, sleepMs));
       }

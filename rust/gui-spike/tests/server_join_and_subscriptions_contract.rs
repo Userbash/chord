@@ -1021,7 +1021,7 @@ fn u2_no_fake_channels_on_invite_and_voice_op8_hello_60ms_heartbeat_rtt() {
 
     // 2. Voice WS v=8 OP 8 HELLO must schedule the initial OP 3 HEARTBEAT at 60ms (never waiting 13_750ms)
     // and OP 6 HEARTBEAT_ACK must compute real RTT.
-    let mut v8 = discord_core::ws::PureRustVoiceV8State::new(
+    let mut v8 = chord_core::ws::PureRustVoiceV8State::new(
         "1340572775974305803",
         "1340572775974305806",
         TEST_USER_ID,
@@ -1034,7 +1034,7 @@ fn u2_no_fake_channels_on_invite_and_voice_op8_hello_60ms_heartbeat_rtt() {
     assert_eq!(v8.heartbeat_interval_ms(), 13_750);
     assert_eq!(
         v8.initial_heartbeat_delay_ms(),
-        Some(discord_core::ws::VOICE_V8_INITIAL_HEARTBEAT_DELAY_MS),
+        Some(chord_core::ws::VOICE_V8_INITIAL_HEARTBEAT_DELAY_MS),
         "OP 8 HELLO must set initial heartbeat delay to 60ms instead of waiting 13.75s"
     );
     assert_eq!(v8.seq_ack(), Some(4));
@@ -1098,6 +1098,16 @@ fn task_810_main_accept_invite_wires_accept_invite_and_join_guild_and_auto_confi
     assert!(
         guilds::guild_requires_rules_screening(&invite_with_gate),
         "guild_requires_rules_screening must detect MEMBER_VERIFICATION_GATE_ENABLED in invite guild.features"
+    );
+
+    let guild_already_verified = json!({
+        "id": "890000000000000001",
+        "pending": false,
+        "features": ["COMMUNITY", "MEMBER_VERIFICATION_GATE_ENABLED"]
+    });
+    assert!(
+        !guilds::guild_requires_rules_screening(&guild_already_verified),
+        "guild_requires_rules_screening must return false if pending is explicitly false"
     );
 
     // 3. Full join pipeline with MEMBER_VERIFICATION_GATE_ENABLED and stale pending on replica:

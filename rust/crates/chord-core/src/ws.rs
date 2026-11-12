@@ -3053,7 +3053,7 @@ try {
     dv.setImageDataAllocator((width, height) => ({
       width: Number(width) || 0,
       height: Number(height) || 0,
-      data: new Uint8Array((Number(width) || 0) * (Number(height) || 0) * 4)
+      data: new Uint8ClampedArray((Number(width) || 0) * (Number(height) || 0) * 4)
     }));
   }
 } catch (_) {}
@@ -3101,6 +3101,7 @@ function computeAdaptiveRates(pingMs) {
 
 function bindVideoSinkId(sid) {
   if (!sid || typeof dv.setVideoOutputSink !== "function") return;
+  sendEv({ ev: "log", msg: "[DV-NATIVE] bindVideoSinkId sid=" + sid });
   try {
     dv.setVideoOutputSink(
       sid,
@@ -3131,9 +3132,6 @@ function bindVideoSinkId(sid) {
       },
       true
     );
-    if (typeof dv.signalVideoOutputSinkReady === "function") {
-      dv.signalVideoOutputSinkReady(sid);
-    }
   } catch (e) {
     sendEv({ ev: "log", msg: "setVideoOutputSink err: " + (e && e.message) });
   }
@@ -3172,9 +3170,23 @@ function subscribeRemoteVideoSink(uid, videoSsrc, streamId, videoStreamParams) {
     streamId: sid,
     isSelf: isSelf
   });
-  if (!sid || isSelf) return;
-  activeVideoSinks.set(sid, { uid: String(uid || ""), videoSsrc: vSsrc });
-  bindVideoSinkId(sid);
+  if (isSelf) return;
+  if (sid) {
+    activeVideoSinks.set(sid, { uid: String(uid || ""), videoSsrc: vSsrc });
+    bindVideoSinkId(sid);
+  }
+  if (vSsrc > 0) {
+    const vStr = String(vSsrc);
+    if (vStr !== sid) {
+      activeVideoSinks.set(vStr, { uid: String(uid || ""), videoSsrc: vSsrc });
+      bindVideoSinkId(vStr);
+    }
+  }
+  if (uid && String(uid) !== sid && String(uid) !== String(vSsrc)) {
+    const uStr = String(uid);
+    activeVideoSinks.set(uStr, { uid: uStr, videoSsrc: vSsrc });
+    bindVideoSinkId(uStr);
+  }
 }
 
 function applyStreamAudioSettings() {
@@ -3271,11 +3283,19 @@ function attachConnCallbacks(c) {
     }
     if (typeof c.setOnVideoCallback === "function") {
       c.setOnVideoCallback((uid, videoSsrc, streamId, videoStreamParams) => {
+        sendEv({
+          ev: "log",
+          msg: "[DV-NATIVE] onVideoCallback uid=" + uid + " vssrc=" + videoSsrc + " sid=" + streamId
+        });
         subscribeRemoteVideoSink(uid, videoSsrc, streamId, videoStreamParams);
       });
     }
     if (typeof c.setOnFirstFrameCallback === "function") {
       c.setOnFirstFrameCallback((uid, videoSsrc, streamId) => {
+        sendEv({
+          ev: "log",
+          msg: "[DV-NATIVE] onFirstFrameCallback uid=" + uid + " vssrc=" + videoSsrc + " sid=" + streamId
+        });
         subscribeRemoteVideoSink(uid, videoSsrc, streamId);
       });
     }
@@ -6592,7 +6612,7 @@ async fn run_rtc_task(
                                     .get("rtxSsrc")
                                     .and_then(chord_json::JsonValue::as_i64)
                                     .unwrap_or(0) as u32;
-                                if is_self && v_ssrc > 0 && (is_self_broadcaster || !is_stream_conn) {
+                                if is_self && v_ssrc > 0 && is_self_broadcaster {
                                     sfu_video_ssrc = Some(v_ssrc);
                                     let final_rtx = if r_ssrc > 0 {
                                         r_ssrc

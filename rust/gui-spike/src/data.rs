@@ -7498,15 +7498,26 @@ pub fn set_system_audio_device(
         if is_self_stream {
             return json!({ "ok": true, "streamKey": skey, "selfStreamIgnored": true });
         }
-        if let Ok(mut guard) = live_session().lock() {
-            guard.stream_endpoint = None;
-            guard.stream_token = None;
-            guard.stream_launched_token = None;
+        let already_watching = if let Ok(mut guard) = live_session().lock() {
+            let is_same = guard.stream_key.as_deref() == Some(skey.as_str());
+            if !is_same {
+                guard.stream_key = Some(skey.clone());
+                guard.stream_endpoint = None;
+                guard.stream_token = None;
+                guard.stream_launched_token = None;
+                let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
+                let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
+                let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
+                false
+            } else {
+                guard.stream_endpoint.is_some() && guard.stream_token.is_some()
+            }
+        } else {
+            false
+        };
+        if !already_watching {
+            let _ = chord_core::ws::queue_live_stream_watch(&skey);
         }
-        let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
-        let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
-        let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
-        let _ = chord_core::ws::queue_live_stream_watch(&skey);
         let skey_bg = skey.clone();
         std::thread::spawn(move || {
             fetch_remote_stream_preview_blocking(&skey_bg);

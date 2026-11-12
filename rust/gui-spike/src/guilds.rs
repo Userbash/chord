@@ -1388,13 +1388,12 @@ pub fn guild_requires_rules_screening(invite_or_guild: &serde_json::Value) -> bo
     {
         return member_pending;
     }
-    if invite_or_guild
+    if let Some(pending) = invite_or_guild
         .get("pending")
         .or_else(|| invite_or_guild.get("is_pending"))
         .and_then(|v| v.as_bool())
-        == Some(true)
     {
-        return true;
+        return pending;
     }
     let features = invite_or_guild
         .get("guild")
