@@ -52,6 +52,7 @@ __pycache__/
 # Distribution binaries
 rust/dist/discord-gui-spike
 rust/dist/discord-gpui
+rust/dist/chord
 rust/dist/*.tar.gz
 rust/dist/*.AppImage*
 rust/dist/discord-rs

@@ -1,14 +1,35 @@
 #![recursion_limit = "256"]
 
+pub mod a11y;
 mod audio;
+pub mod auth;
+pub mod battery_saver;
+pub mod channels;
+pub mod chaos;
+pub mod chat;
+pub mod crash_reporter;
+pub mod custom_themes;
 mod dispatch;
+pub mod encrypted_store;
+pub mod guild;
+pub mod ingame_overlay;
+pub mod input;
+pub mod integrations;
+pub mod manual_qa;
 mod media;
+pub mod multi_account_switcher;
 mod net;
+pub mod perf_benchmark;
+pub mod pipewire_portal;
+pub mod platform;
+pub mod quality_gate;
 mod state;
 mod storage;
 mod theme;
 mod ui;
 mod video;
+pub mod visual_regression;
+pub mod voice;
 
 use gpui::*;
 use ui::AppLayout;
@@ -142,10 +163,13 @@ fn main() {
         .expect("Не удалось открыть главное окно Discord GPUI");
 
         if let Some(ms) = exit_after_ms {
-            std::thread::spawn(move || {
-                std::thread::sleep(std::time::Duration::from_millis(ms));
-                std::process::exit(0);
-            });
+            cx.spawn(async move |cx| {
+                cx.background_executor()
+                    .timer(std::time::Duration::from_millis(ms))
+                    .await;
+                let _ = cx.update(|cx| cx.quit());
+            })
+            .detach();
         }
     });
 }
