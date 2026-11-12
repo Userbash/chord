@@ -1,4 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <rect width="128" height="128" rx="28" fill="#5865f2"/>
-  <path fill="#ffffff" d="M96.4 36.2A79.4 79.4 0 0 0 76.6 30a55.2 55.2 0 0 0-2.5 5.1 73.6 73.6 0 0 0-20.2 0A55.2 55.2 0 0 0 51.4 30a79.6 79.6 0 0 0-19.8 6.2C19.1 55 15.7 73.3 17.4 91.3A80.2 80.2 0 0 0 41.7 104a60.5 60.5 0 0 0 5.2-8.5 51.8 51.8 0 0 1-8.2-4c.7-.5 1.4-1 2-1.6a56.9 56.9 0 0 0 46.6 0c.7.6 1.3 1.1 2 1.6a51.6 51.6 0 0 1-8.2 4 60.4 60.4 0 0 0 5.2 8.5 80 80 0 0 0 24.3-12.7c2-20.9-3.4-39-14.2-55.1ZM48.2 79.9c-4.7 0-8.6-4.4-8.6-9.7s3.8-9.7 8.6-9.7c4.8 0 8.7 4.4 8.6 9.7 0 5.3-3.8 9.7-8.6 9.7Zm31.6 0c-4.7 0-8.6-4.4-8.6-9.7s3.8-9.7 8.6-9.7c4.8 0 8.7 4.4 8.6 9.7 0 5.3-3.8 9.7-8.6 9.7Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Deep Midnight Obsidian -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181926" />
+      <stop offset="50%" stop-color="#11121c" />
+      <stop offset="100%" stop-color="#0a0a10" />
+    </linearGradient>
+
+    <!-- Subtle Rim Light Gradient -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#00f5d4" stop-opacity="0.5" />
+    </linearGradient>
+
+    <!-- Ribbon 1: Electric Blurple to Indigo -->
+    <linearGradient id="ribbon1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="40%" stop-color="#5865f2" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+
+    <!-- Ribbon 2: Vibrant Cyan to Electric Blue -->
+    <linearGradient id="ribbon2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f5d4" />
+      <stop offset="60%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <!-- Ribbon 3: Violet-Magenta Accent Glow -->
+    <linearGradient id="ribbon3" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc" />
+      <stop offset="50%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#5865f2" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="ambientShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+  </defs>
+
+  <!-- Outer Squircle with Ambient Shadow -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad)" filter="url(#ambientShadow)" />
+  
+  <!-- Subtle Glassmorphic Inner Rim Border -->
+  <rect x="18" y="18" width="476" height="476" rx="110" fill="none" stroke="url(#rimGrad)" stroke-width="3" />
+
+  <!-- Background Ambient Nebula Glow behind Emblem -->
+  <circle cx="260" cy="256" r="140" fill="#5865f2" opacity="0.18" filter="url(#neonGlow)" />
+  <circle cx="290" cy="230" r="90" fill="#00f5d4" opacity="0.15" filter="url(#neonGlow)" />
+
+  <!-- Harmonic Emblem: Dynamic Sculpted 'C' Sound-Loop -->
+  <g transform="translate(20, 10)">
+    <!-- Back Sound Ribbon (Violet/Deep Blurple) -->
+    <path d="M 330 145
+             C 240 100, 150 150, 140 246
+             C 130 340, 220 400, 315 375
+             C 335 370, 345 348, 335 330
+             C 325 315, 305 310, 285 315
+             C 225 330, 175 295, 185 240
+             C 195 185, 255 155, 315 185
+             C 335 195, 355 185, 360 165
+             C 365 145, 350 135, 330 145 Z"
+          fill="url(#ribbon3)"
+          opacity="0.75" />
+
+    <!-- Main Front Acoustic Ribbon (Electric Blurple to Neon Cyan) -->
+    <path d="M 365 170
+             C 270 115, 170 170, 160 265
+             C 150 355, 230 405, 315 390
+             C 345 385, 380 365, 395 340
+             C 405 320, 390 300, 370 305
+             C 340 315, 305 330, 265 325
+             C 210 320, 185 275, 195 230
+             C 205 180, 260 160, 320 185
+             C 345 195, 375 190, 385 170
+             C 392 155, 380 140, 365 170 Z"
+          fill="url(#ribbon1)"
+          filter="url(#neonGlow)" />
+
+    <!-- High-Velocity Inner Wave Stream (Cyan-Teal Sonic Energy) -->
+    <path d="M 355 195
+             C 285 160, 210 195, 205 260
+             C 200 320, 255 355, 310 345
+             C 335 340, 350 325, 340 310
+             C 330 295, 310 300, 285 305
+             C 250 310, 225 285, 230 255
+             C 235 220, 275 200, 320 220
+             C 340 228, 360 215, 355 195 Z"
+          fill="url(#ribbon2)" />
+
+    <!-- Sound Nodes / Wave Particles (Harmonic Points) -->
+    <circle cx="345" cy="155" r="9" fill="#00f5d4" filter="url(#neonGlow)" />
+    <circle cx="380" cy="340" r="11" fill="#818cf8" filter="url(#neonGlow)" />
+    <circle cx="270" cy="256" r="6" fill="#ffffff" opacity="0.9" />
+  </g>
 </svg>

@@ -1,10 +1,11 @@
 {
-  "name": "discord-function-lab",
+  "name": "chord-desktop",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Per-function data, static evidence and runtime call logs for the local Discord client",
+  "description": "Chord — High-performance native GPU desktop client and clean-room protocol analysis tools",
   "bin": {
+    "chord": "./bin/chord.mjs",
     "discord-lab": "./bin/discord-lab.mjs"
   },
   "scripts": {

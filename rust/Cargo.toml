@@ -1,8 +1,7 @@
-# Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
-# Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
-# шлюза: tokio/tokio-tungstenite (WS), rustls с провайдером ring, webpki-roots, futures-util;
-# dev-зависимость `zstd` (C-энкодер) — только для стабов в тестах. После первой сборки (сеть,
-# разрешение владельца 2026-10-19) тесты идут офлайн (`cargo test --offline`).
+# Chord & Discord protocol client native Rust workspace (P0/P1 phases of docs/rust-client/PLAN.md).
+# External dependencies: ruzstd 0.9.1 (pure Rust) and gateway transport:
+# tokio/tokio-tungstenite (WS), rustls with ring provider, webpki-roots, futures-util;
+# dev dependency `zstd` (C encoder) used only for test stubs. Tests run offline (`cargo test --offline`).
 [workspace]
 resolver = "2"
 members = ["crates/*"]
@@ -26,16 +25,16 @@ discord-ui = { path = "crates/discord-ui" }
 discord-updater = { path = "crates/discord-updater" }
 discord-perf = { path = "crates/discord-perf" }
 discord-conformance = { path = "crates/discord-conformance" }
-# Транспорт шлюза (RW-04). Версии — стартовые из ТЗ, точные фиксирует Cargo.lock.
+# Gateway transport. Initial versions from specs, exact locked in Cargo.lock.
 tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time", "sync"] }
 tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
-# TLS-провайдер ring (не aws-lc-rs: без cmake/nasm), tls12 оставлен для совместимости.
+# TLS provider ring (not aws-lc-rs: no cmake/nasm dependency), tls12 retained for compatibility.
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
-# HTTP/1.1-транспорт REST (RW-10, решение владельца — вариант A): TLS поверх tokio.
-# Версии уже в Cargo.lock/офлайн-кэше; сетевых загрузок нет.
+# HTTP/1.1 transport for REST API: TLS over tokio.
+# Versions locked in Cargo.lock / offline cache.
 tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
 httparse = "1"
 webpki-roots = "1"
 futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
-# Энкодер zstd — только для стабов тестов (продукт на чтении использует ruzstd).
+# zstd encoder — only for test stubs (production reader uses pure Rust ruzstd).
 zstd = "0.14"

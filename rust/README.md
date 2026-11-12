@@ -1,43 +1,32 @@
-# discord-rs — каркас нативного клиента (P0)
+# Chord — Native Rust Client Architecture & Protocol Layer
 
-Рабочая область Cargo с границами крейтов из `docs/rust-client/ARCHITECTURE.md` §2.
-Статус: **каркас P0** — структура, константы из RE и точки роста; логика появляется
-волнами P1–P8 строго по `docs/rust-client/PLAN.md` (red-first по `TEST-PLAN.md`).
+Cargo workspace with crate boundaries defined according to clean-room reverse-engineering specifications.
 
-Зависимости минимальны и кэшируются локально: `cargo test --offline` идёт офлайн (сейчас —
-`ruzstd` в `discord-codec`). Добавление крейтов (tokio, tauri и пр.) — отдельные волны по
-`docs/rust-client/PLAN.md` с проверкой сети и лицензий.
+All network protocols, encodings, and voice transport layers are developed independently from clean-room behavioral specifications.
 
-| Крейт | Ответственность | Спека | Тесты |
-|---|---|---|---|
-| `discord-codec` | ETF (erlpack) + zstd-стрим | `docs/re/gateway-protocol.md` §2–3 | T-ENC-* |
-| `discord-core` | шлюз, REST v9, сессии, реконнект | `docs/re/gateway-protocol.md` §4–6 | T-GW-*, T-REST-* |
-| `discord-store` | локальное хранилище и миграции | `docs/feature-backlog.md` (D-серия) | T-STORE-* |
-| `discord-voice` | сигнализация RTC, SRTP, keepalive | `docs/re/voice-deep.md` | T-VOICE-* |
-| `discord-media` | Opus/AV1, захват, скриншот-стрим | `docs/re/voice-deep.md` §4 | T-MEDIA-* |
-| `discord-platform` | системная интеграция (tray, уведомления) | `docs/re/backend-ipc.md` | T-SYS-* |
-| `discord-i18n` | ключи, плурализация, 31 локаль | `docs/re/i18n-deep.md` | T-I18N-* |
-| `discord-ui` | дизайн-токены, компоненты, 12 контрактов | `docs/re/ui-rest-d03.md` | T-UI-* |
-| `discord-app` | сборка процесса, конфиг, запуск | `docs/rust-client/ARCHITECTURE.md` | T-APP-* |
-| `discord-conformance` | доступ к фикстурам `fixtures/` | `docs/rust-client/TEST-PLAN.md` §3 | T-HARN-* |
+## Crate Responsibilities
 
-Запуск:
+| Crate | Responsibility | Specification |
+|---|---|---|
+| `discord-codec` | ETF (erlpack) binary codec + zstd streams | `docs/re/gateway-protocol.md` §2–3 |
+| `discord-core` | Gateway v9, REST v9, session management, reconnection | `docs/re/gateway-protocol.md` §4–6 |
+| `discord-store` | Local SQLite WAL cache and encrypted data store | `docs/feature-backlog.md` |
+| `discord-voice` | RTC signaling, SRTP, DAVE MLS v1 E2EE, keepalive | `docs/re/voice-deep.md` |
+| `discord-media` | Zero-copy audio buffers, Opus/AV1 capture & playback | `docs/re/voice-deep.md` §4 |
+| `discord-platform` | System integration (tray, XDG autostart, Keyring, D-Bus) | `docs/re/backend-ipc.md` |
+| `discord-i18n` | Localization keys, pluralization, 36 locales | `docs/re/i18n-deep.md` |
+| `discord-ui` | Design tokens, components, contracts | `docs/re/ui-rest-d03.md` |
+| `discord-gpui` / `chord-gpui` | Native GPUI/WGPU 120 FPS desktop application | `docs/specs/GPUI-ARCHITECTURE-MIGRATION.md` |
+| `discord-conformance` | Protocol test harnesses and fixtures | `docs/rust-client/TEST-PLAN.md` §3 |
+
+## Running Tests
 
 ```sh
-cd rust && cargo test --offline   # офлайн (кэш зависимостей)
-node ../docs/rust-client/verify/verify-re.mjs   # сверка лаборатории и констант
+cd rust && cargo test --offline
 ```
 
-Правила: константы — только с доказательством из RE (в докстрингах указан документ);
-`unsafe` — запрещён до появления обоснованного FFI-слоя (P7); тесты не «зеленятся» под код.
+## Legal and Trademark Notice
 
-## Правовая рамка
-
-Проект неофициальный и не аффилирован с Discord Inc. Реверс-инжиниринг и модификация клиента
-ограничены ToS Discord; используйте только собственный аккаунт и собственную машину, не
-обходите платные функции, баны, анти-абьюз и сетевые лимиты. Телеметрия (`science`/`beaker`)
-по умолчанию выключена, отпечаток клиента — честный нативный, без маскировки под официальный
-клиент. Чужие ассеты/шрифты не распространяются. Живые операции (подключение к Discord,
-голос, отправка сообщений, GUI-захват) — только после явного approval владельца.
-
-Полная рамка и чек-лист: `../docs/rust-client/LEGAL.md`. Это не юридическая консультация.
+Chord is an independent, clean-room open-source project and is **not affiliated with, endorsed by, or sponsored by Discord Inc.**
+The official Discord client was utilized solely as a local reference for protocol and media pipeline behavioral interoperability under clean-room engineering principles.
+"Discord" is a registered trademark of Discord Inc. All trademarks remain the property of their respective owners.

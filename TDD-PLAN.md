@@ -140,7 +140,7 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 | `tests/unit/frida.test.mjs` | `src/adapters/frida.mjs` | `loadDevice`, `loadAgentSource`, `listProcesses`, `attach`, `collectInventory`, `parseHookMessage`, `startHook`, `stopHook` |
 | `tests/meta/plan-sync.test.mjs` | — | meta: §8 <-> tests <-> modules <-> exports |
 | `tests/meta/fixtures-tracked.test.mjs` | — | meta: fixtures `tests/fixtures` tracked by `git` |
-| `tests/smoke/cli.smoke.test.mjs` | `bin/discord-lab.mjs`, `src/cli/run.mjs` | `--help`, `--version` |
+| `tests/smoke/cli.smoke.test.mjs` | `bin/chord.mjs`, `bin/discord-lab.mjs`, `src/cli/run.mjs` | `--help`, `--version` |
 | `tests/smoke/pids.smoke.test.mjs` | — | `pids` (Frida, skip-aware) |
 | `tests/smoke/inventory.smoke.test.mjs` | — | `inventory` (unreachable pid -> exit code 2) |
 | `tests/smoke/hook.smoke.test.mjs` | — | `hook` (unreachable pid -> exit code 2) |

@@ -1,10 +1,13 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: discord-gpui
-Upstream-Contact: Discord Lab DevOps <devops@discord-lab.local>
-Source: https://github.com/discord-lab/discord-gpui
+Upstream-Name: chord-desktop
+Upstream-Contact: Chord Project Team <team@chord-client.org>
+Source: https://github.com/Userbash/discord-lab
+Comment: Chord is an independent, clean-room open-source client implementation.
+ Discord is a registered trademark of Discord Inc.
+ This project is NOT affiliated with, maintained by, or endorsed by Discord Inc.
 
 Files: *
-Copyright: 2026 Discord Lab Contributors
+Copyright: 2026 Chord Contributors
 License: MIT or Apache-2.0
 
 License: MIT

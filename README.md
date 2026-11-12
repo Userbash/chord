@@ -1,4 +1,12 @@
-# Discord Lab & Native Discord GPUI Client
+# Chord — High-Performance Native GPU Client & Protocol Engine
+
+<p align="center">
+  <img src="assets/branding/chord-icon-harmonic.png" alt="Chord Logo" width="160" height="160" />
+</p>
+
+<p align="center">
+  <strong>Chord</strong> (formerly <em>discord-lab / discord-gpui</em>) is a high-performance, GPU-accelerated desktop client written in pure Rust (GPUI/WGPU 120 FPS), featuring an independent clean-room protocol analysis suite and media engine.
+</p>
 
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org/)
 [![GPUI](https://img.shields.io/badge/gui-GPUI%20%2F%20WGPU-blue.svg)](https://github.com/zed-industries/zed)
@@ -8,7 +16,11 @@
 [![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/discord-voice/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-**Discord Lab & Native Discord GPUI Client** is a high-performance, GPU-accelerated Discord desktop client written in pure Rust (**`discord-gpui`**, powered by GPUI and WGPU for native 120 FPS rendering), accompanied by an advanced clean-room protocol analysis and reverse-engineering research suite (**`discord-lab`** CLI, Frida, CDP).
+> [!IMPORTANT]
+> **Open-Source Non-Affiliation and Trademark Notice:**
+> **Chord** is an independent, clean-room open-source desktop client and protocol research initiative.
+> It is **not affiliated with, endorsed by, sponsored by, or connected to Discord Inc.**
+> "Discord" is a registered trademark of Discord Inc. All trademarks, service marks, trade names, and logos referenced herein belong to their respective owners and are used strictly under fair use for protocol compatibility and identification purposes.
 
 ---
 
@@ -36,6 +48,7 @@ The repository is structured as a modular Rust monorepo:
 ```
 rust/
 ├── discord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
+│   └── (chord-gpui)      # Canonical alias symlink for Chord
 └── crates/
     ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
     ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
@@ -80,19 +93,19 @@ rust/
 
 ---
 
-## 3. Protocol Research Suite (`discord-lab` CLI & RE)
+## 3. Protocol Research Suite (`chord` / `discord-lab` CLI & RE)
 
 The repository provides automated tools for non-invasive dynamic analysis of running Discord processes using Frida and the Chrome DevTools Protocol (CDP):
 
 ```bash
-# Main research CLI (bin/discord-lab.mjs)
-node bin/discord-lab.mjs --help                # View available commands
-node bin/discord-lab.mjs pids                  # List Discord processes discovered by Frida
-node bin/discord-lab.mjs inventory --pid <PID> # Module and symbol inventory (JSON/CSV)
-node bin/discord-lab.mjs hook --pid <PID> --pattern 'SendRtp|OnIncomingRtp' # Hook calls
-node bin/discord-lab.mjs summarize logs/calls-<PID>.jsonl # Summarize intercepted calls
-node bin/discord-lab.mjs cdp targets           # Inspect available Electron renderer targets
-node bin/discord-lab.mjs cdp shot /tmp/page.png # Capture page screenshot via CDP
+# Main research CLI (bin/chord.mjs or bin/discord-lab.mjs)
+node bin/chord.mjs --help                # View available commands
+node bin/chord.mjs pids                  # List Discord processes discovered by Frida
+node bin/chord.mjs inventory --pid <PID> # Module and symbol inventory (JSON/CSV)
+node bin/chord.mjs hook --pid <PID> --pattern 'SendRtp|OnIncomingRtp' # Hook calls
+node bin/chord.mjs summarize logs/calls-<PID>.jsonl # Summarize intercepted calls
+node bin/chord.mjs cdp targets           # Inspect available Electron renderer targets
+node bin/chord.mjs cdp shot /tmp/page.png # Capture page screenshot via CDP
 ```
 
 Supported CLI commands:
@@ -155,6 +168,9 @@ cargo build --release --manifest-path rust/Cargo.toml -p discord-gpui
 
 # 3. Launch the native client
 ./rust/target/release/discord-gpui
+
+# 4. Explore protocol analysis CLI
+node bin/chord.mjs --help
 ```
 
 ### Running Tests:
